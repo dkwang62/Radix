@@ -1,0 +1,191 @@
+{
+  "dictionary_overlay" : {
+    "deletions" : [
+
+    ],
+    "schema_version" : 2,
+    "upserts" : {
+      "働" : {
+        "meta" : {
+          "IDC" : "",
+          "compounds" : [
+
+          ],
+          "decomposition" : "",
+          "definition" : "To work",
+          "etymology" : {
+            "details" : "Japanese はたら(く) hataraku",
+            "hint" : "",
+            "type" : ""
+          },
+          "pinyin" : "dòng",
+          "radical" : "",
+          "strokes" : ""
+        },
+        "related_characters" : [
+
+        ]
+      },
+      "峠" : {
+        "meta" : {
+          "IDC" : "",
+          "compounds" : [
+
+          ],
+          "decomposition" : "",
+          "definition" : "mountain pass",
+          "etymology" : {
+            "details" : "Japanese とうげ tōge",
+            "hint" : "",
+            "type" : ""
+          },
+          "pinyin" : "tóu",
+          "radical" : "",
+          "strokes" : ""
+        },
+        "related_characters" : [
+
+        ]
+      },
+      "潦" : {
+        "meta" : {
+          "IDC" : "⿰氵尞",
+          "compounds" : [
+            "潦倒",
+            "潦草",
+            "穷愁潦倒",
+            "贫穷潦倒"
+          ],
+          "decomposition" : "⿰氵尞",
+          "definition" : "to flood; puddle; dejected, careless",
+          "etymology" : {
+            "details" : "",
+            "hint" : "water",
+            "type" : "pictophonetic"
+          },
+          "pinyin" : [
+            "liáo",
+            "lǎo"
+          ],
+          "radical" : "氵",
+          "strokes" : 15
+        },
+        "related_characters" : [
+          "潦"
+        ]
+      },
+      "駅" : {
+        "meta" : {
+          "IDC" : "",
+          "compounds" : [
+
+          ],
+          "decomposition" : "",
+          "definition" : "Railway station / transit station",
+          "etymology" : {
+            "details" : "Japaneseえきeki",
+            "hint" : "",
+            "type" : ""
+          },
+          "pinyin" : "yì",
+          "radical" : "",
+          "strokes" : ""
+        },
+        "related_characters" : [
+
+        ]
+      }
+    }
+  },
+  "phrases" : [
+    {
+      "added_at" : 798210444.857099,
+      "meanings" : "a beauty so striking it enters one’s dreams",
+      "pinyin" : "jīng hóng rù mèng",
+      "word" : "惊鸿入梦"
+    },
+    {
+      "added_at" : 798210444.857099,
+      "meanings" : "someone who is not only beautiful but also moves with a sense of freedom and lightness, like a swan in flight",
+      "pinyin" : "piān ruò jīng hóng",
+      "word" : "翩若惊鸿"
+    },
+    {
+      "added_at" : 798210444.857099,
+      "meanings" : "\"Relaxed vibe.\" Refers to an inner calm, grace, and lack of anxiety in fashion, work, or lifestyle.",
+      "pinyin" : "sōng chí gǎn",
+      "word" : "松弛感"
+    },
+    {
+      "added_at" : 797950596.774168,
+      "meanings" : "standing water; accumulated puddles (literary)",
+      "pinyin" : "jī liáo",
+      "word" : "积潦"
+    }
+  ],
+  "profile" : {
+    "favourite_entries" : [
+      {
+        "added_at" : 797970369.8697,
+        "character" : "了"
+      },
+      {
+        "added_at" : 796924969.92097,
+        "character" : "样"
+      },
+      {
+        "added_at" : 796925037.27155,
+        "character" : "槟"
+      }
+    ],
+    "favourite_phrase_entries" : [
+      {
+        "added_at" : 797969349.01268,
+        "word" : "不了"
+      },
+      {
+        "added_at" : 797951128.250175,
+        "word" : "明体"
+      }
+    ],
+    "favourite_phrases_list" : [
+      "不了",
+      "明体"
+    ],
+    "favourites_list" : [
+      "了",
+      "样",
+      "槟"
+    ],
+    "prompt_config" : {
+      "epilogue" : "Hanzi: {char}\n- English definition: {def_en}",
+      "preamble" : "You are a bilingual Chinese dictionary editor and teacher.\n\nExplain a single Chinese character in depth for language learners. Focus on modern usage, and if the character is rare, show its more widely used modern equivalent while noting the original character.\n\n⸻\n",
+      "tasks" : [
+        {
+          "id" : "task1",
+          "template" : "Task 1 – Character Analysis\n\nFor the Hanzi below, provide:\n\t1.\tOriginal meaning – Decompose character into nameable components. Briefly note the ancient form or origin only if it helps understand modern usage.\n\t2.\tCore semantic concept – summarize the main idea in modern context.\n\t3.\tWhy it is used in compound characters – explain how it contributes meaning to words in everyday or contemporary Chinese.\n\t4.\tThree example words – include pinyin and natural English meanings, using modern common usage.\n\t5.\tOne modern usage sentence – show the character in real-life context; if the character is rare, use the modern equivalent and note it.\n\n⸻\n",
+          "title" : "Task 1 – Character Analysis"
+        },
+        {
+          "id" : "task2",
+          "template" : "Task 2 – Example Sentences and Images\n\nProvide two example sentences that best illustrate modern, everyday usage of the character (or its modern equivalent if the original is rare). For each sentence, include:\na) Traditional Chinese\nb) Simplified Chinese\nc) Natural English translation\nd) Target word/phrase (must include the character or its modern equivalent)\ne) Read-aloud pinyin of the full sentence (with tone marks and natural word grouping)\n\nImages:\n\t•\tIf the character represents a concrete object, generate a realistic image showing its material, context, and typical use.\n\t•\tIf the character represents an abstract concept, quality, or person, do not generate an image.\n\nNote: Only generate images in Task 2 to avoid overlap with analysis or conceptual comparisons.\n\n⸻\n",
+          "title" : "Task 2 – Example Sentences and Images"
+        },
+        {
+          "id" : "task3",
+          "template" : "Task 3 – Conceptual Contrast\n\nCompare this character with 2–3 other characters of similar meaning or usage, including pinyin. Explain:\n\t•\tHow Chinese divides this concept into different semantic or conceptual systems in modern language usage.\n\t•\tHow the characters differ in real-life usage, highlighting subtle distinctions learners should know.\n\t•\tDo not repeat example sentences from Task 2; only discuss relationships and usage distinctions.\n\n⸻\n",
+          "title" : "Task 3 – Conceptual Contrast"
+        }
+      ],
+      "version" : 1
+    },
+    "prompt_selected_task_ids" : [
+      "task1"
+    ],
+    "schema_version" : 2,
+    "script_filter" : "Any",
+    "search_mode" : "Smart",
+    "selected_character" : "槟"
+  },
+  "schema_version" : 2
+}

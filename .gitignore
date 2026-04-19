@@ -1,0 +1,32 @@
+# Xcode
+# ---------
+build/
+DerivedData/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.ipa
+*.xcscheme
+*.plist
+
+# macOS
+# ---------
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+Network Trash Folder
+Temporary Items
+.Spotlight-V100
+.Trashes
+
+# Project Specific
+# ---------
+# We keep these ignored to avoid bloating the Git repo with binary data.
+# You will still move these manually or via USB as needed.
+phrases.db
+enhanced_component_map_with_etymology.json
+SUBTLEX-CH-CHR.txt
+*.zip
+*.latest

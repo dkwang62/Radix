@@ -1,0 +1,98 @@
+{
+  "deletions" : [
+
+  ],
+  "schema_version" : 2,
+  "upserts" : {
+    "働" : {
+      "meta" : {
+        "IDC" : "",
+        "compounds" : [
+
+        ],
+        "decomposition" : "",
+        "definition" : "To work",
+        "etymology" : {
+          "details" : "Japanese はたら(く) hataraku",
+          "hint" : "",
+          "type" : ""
+        },
+        "pinyin" : "dòng",
+        "radical" : "",
+        "strokes" : ""
+      },
+      "related_characters" : [
+
+      ]
+    },
+    "峠" : {
+      "meta" : {
+        "IDC" : "",
+        "compounds" : [
+
+        ],
+        "decomposition" : "",
+        "definition" : "mountain pass",
+        "etymology" : {
+          "details" : "Japanese とうげ tōge",
+          "hint" : "",
+          "type" : ""
+        },
+        "pinyin" : "tóu",
+        "radical" : "",
+        "strokes" : ""
+      },
+      "related_characters" : [
+
+      ]
+    },
+    "潦" : {
+      "meta" : {
+        "IDC" : "⿰氵尞",
+        "compounds" : [
+          "潦倒",
+          "潦草",
+          "穷愁潦倒",
+          "贫穷潦倒"
+        ],
+        "decomposition" : "⿰氵尞",
+        "definition" : "to flood; puddle; dejected, careless",
+        "etymology" : {
+          "details" : "",
+          "hint" : "water",
+          "type" : "pictophonetic"
+        },
+        "pinyin" : [
+          "liáo",
+          "lǎo"
+        ],
+        "radical" : "氵",
+        "strokes" : 15
+      },
+      "related_characters" : [
+        "潦"
+      ]
+    },
+    "駅" : {
+      "meta" : {
+        "IDC" : "",
+        "compounds" : [
+
+        ],
+        "decomposition" : "",
+        "definition" : "Railway station / transit station",
+        "etymology" : {
+          "details" : "Japaneseえきeki",
+          "hint" : "",
+          "type" : ""
+        },
+        "pinyin" : "yì",
+        "radical" : "",
+        "strokes" : ""
+      },
+      "related_characters" : [
+
+      ]
+    }
+  }
+}

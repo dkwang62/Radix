@@ -1,0 +1,66 @@
+name: Radix
+options:
+  minimumXcodeGenVersion: 2.38.0
+settings:
+  base:
+    SWIFT_VERSION: 6.0
+    PRODUCT_NAME: Radix
+packages: {}
+targets:
+  Radix:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.desmond.radix
+        CODE_SIGN_STYLE: Automatic
+        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 1
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        SUPPORTS_MACCATALYST: YES
+        TARGETED_DEVICE_FAMILY: 1,2
+        INFOPLIST_KEY_CFBundleDisplayName: Radix
+        INFOPLIST_KEY_CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        INFOPLIST_KEY_CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+        INFOPLIST_KEY_UILaunchScreen_Generation: true
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: true
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        INFOPLIST_KEY_UIRequiresFullScreen: false
+    sources:
+      - path: App
+      - path: Models
+      - path: Services
+      - path: ViewModels
+      - path: Views
+      - path: Resources
+        buildPhase: resources
+      - path: Resources/hanzi-writer.min.js
+        buildPhase: resources
+      - path: ./enhanced_component_map_with_etymology.json
+        buildPhase: resources
+      - path: ./phrases.db
+        buildPhase: resources
+      - path: ./SUBTLEX-CH-CHR.txt
+        buildPhase: resources
+    scheme:
+      testTargets:
+        - RadixTests
+  RadixTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+      - path: App
+      - path: Models
+      - path: Services
+      - path: ViewModels
+      - path: Views
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_MODULE_NAME: RadixTests
+    dependencies: []
