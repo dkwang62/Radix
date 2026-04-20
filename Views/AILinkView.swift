@@ -63,7 +63,7 @@ struct AILinkView: View {
         VStack(alignment: .leading, spacing: 12) {
             DisclosureGroup(isExpanded: $isTasksExpanded) {
                 VStack(alignment: .leading, spacing: 10) {
-                    Button("Select all tasks") {
+                    Button("Enable all tasks") {
                         store.selectAllPromptTasks()
                     }
                     .buttonStyle(.bordered)

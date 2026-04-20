@@ -216,8 +216,8 @@ struct RootView: View {
                         } else {
                             emptyStateCard(
                                 systemImage: "sparkles",
-                                title: "No Character Selected",
-                                message: "Select a character from Search or Browse to use AI Link."
+                                title: "No Character",
+                                message: "Choose a character from Search or Browse to use AI Link."
                             )
                         }
                     case 5:
@@ -363,8 +363,8 @@ struct RootView: View {
                     if store.previewCharacter == nil && store.selectedCharacter == nil {
                         emptyStateCard(
                         systemImage: "tree",
-                        title: "No Character Selected",
-                        message: "Select a character from Search or Browse to explore Roots."
+                        title: "No Character",
+                        message: "Choose a character from Search or Browse to explore Roots."
                     )
                     } else {
                         ComponentsExplorerShell(seedOverride: store.previewCharacter ?? store.selectedCharacter)
@@ -387,8 +387,8 @@ struct RootView: View {
                     } else {
                         emptyStateCard(
                         systemImage: "sparkles",
-                        title: "No Character Selected",
-                        message: "Select a character from Search or Browse to use AI Link."
+                        title: "No Character",
+                        message: "Choose a character from Search or Browse to use AI Link."
                     )
                     }
                 }
@@ -451,34 +451,13 @@ struct RootView: View {
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
 
-                if store.route != .search {
-                    HStack {
-                        Button {
-                            store.goBack()
-                        } label: {
-                            Label("Back", systemImage: "chevron.left")
-                        }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.small)
-                            .font(ResponsiveFont.subheadline)
-
-                        Button {
-                            store.goToSearchRoot()
-                        } label: {
-                            Label("Search", systemImage: "magnifyingglass")
-                        }
-                            .buttonStyle(.bordered)
-                            .controlSize(.small)
-                            .font(ResponsiveFont.subheadline)
-                    }
-                }
-
                 if let current = store.previewCharacter ?? store.selectedCharacter {
                     VStack(alignment: .leading, spacing: 8) {
                         CharacterPreviewHeader(
                             character: current,
                             showClearButton: false,
-                            statusLabel: (store.selectedCharacter == current) ? "Selected" : "Preview",
+                            statusLabel: "Preview",
+                            showAddToMemoryButton: !(store.route == .search && store.homeTab == .favourites),
                             isVertical: true // Always use vertical stacking in the narrow sidebar
                         )
                         .padding(8)
@@ -649,12 +628,14 @@ private func emptyStateCard(systemImage: String, title: String, message: String)
 func standardPhoneCharacterPreview(
     character: String,
     selectedCharacter: String?,
+    showAddToMemoryButton: Bool = true,
     onClear: @escaping () -> Void
 ) -> some View {
     CharacterPreviewHeader(
         character: character,
         showClearButton: true,
-        statusLabel: selectedCharacter == character ? "Selected" : "Preview",
+        statusLabel: "Preview",
+        showAddToMemoryButton: showAddToMemoryButton,
         onClear: onClear
     )
     .padding(.bottom, 10)
@@ -686,7 +667,7 @@ private struct SmartSearchTab: View {
     private var gridInteractionHintRow: some View {
         HStack(spacing: 10) {
             hintChip(icon: "cursorarrow", text: isRunningOnMac ? "Click Preview" : "Tap Preview")
-            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click or Select adds to top bar" : "Double-tap or Select adds to top bar")
+            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click or Add to memory" : "Double-tap or Add to memory")
             HStack(spacing: 4) {
                 Text(isRunningOnMac ? "Right-click" : "Long-press")
                 Image(systemName: "doc.on.doc")
@@ -1330,7 +1311,7 @@ private struct FilterGridTab: View {
     private var browseInteractionHintRow: some View {
         HStack(spacing: 10) {
             hintChip(icon: "cursorarrow", text: isRunningOnMac ? "Click Preview" : "Tap Preview")
-            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click or Select adds to top bar" : "Double-tap or Select adds to top bar")
+            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click or Add to memory" : "Double-tap or Add to memory")
             HStack(spacing: 4) {
                 Text(isRunningOnMac ? "Right-click" : "Long-press")
                 Image(systemName: "doc.on.doc")
@@ -1670,6 +1651,7 @@ private struct FavouritesTab: View {
                             standardPhoneCharacterPreview(
                                 character: current,
                                 selectedCharacter: store.selectedCharacter,
+                                showAddToMemoryButton: false,
                                 onClear: { store.previewCharacter = nil }
                             )
                         }
@@ -2415,7 +2397,7 @@ private struct DataEditTab: View {
 
     2. Wait for Xcode to load (1–2 minutes first time)
 
-    3. Select a simulator (e.g. iPhone)
+    3. Choose a simulator (e.g. iPhone)
 
     4. Press ▶️ Run
 

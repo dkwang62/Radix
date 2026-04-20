@@ -13,6 +13,7 @@ struct CharacterPreviewHeader: View {
     let character: String
     let showClearButton: Bool
     var statusLabel: String? = nil
+    var showAddToMemoryButton: Bool = true
     var isVertical: Bool = false
     var onClear: (() -> Void)? = nil
     @State private var showPhraseTableSheet = false
@@ -20,17 +21,18 @@ struct CharacterPreviewHeader: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            let isSelected = store.selectedCharacter == character
+            let isInMemory = store.rootBreadcrumb.contains(character)
 
             HStack(spacing: 8) {
                 if let statusLabel {
-                    Text(isSelected ? "Selected" : statusLabel)
-                        .font(ResponsiveFont.headline)
+                    Text(statusLabel)
+                        .font(statusLabelFont)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
                 Spacer()
-                if !isSelected {
-                    Button("Select") {
+                if showAddToMemoryButton && !isInMemory {
+                    Button("Add to memory") {
                         store.select(character: character)
                     }
                     .buttonStyle(.borderedProminent)
@@ -160,6 +162,14 @@ struct CharacterPreviewHeader: View {
         }
         .menuStyle(.borderlessButton)
         .controlSize(.small)
+    }
+
+    private var statusLabelFont: Font {
+        #if targetEnvironment(macCatalyst)
+        return ResponsiveFont.caption
+        #else
+        return ResponsiveFont.headline
+        #endif
     }
 }
 

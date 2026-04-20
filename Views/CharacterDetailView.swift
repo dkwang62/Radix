@@ -61,7 +61,7 @@ struct CharacterDetailView: View {
                             Text("Link characters through a shared component: start from a familiar character, tap a component to pivot, view characters built with that part, and keep pivoting until you find the one you need.")
                                 .font(ResponsiveFont.caption)
                                 .foregroundStyle(.secondary)
-                            Text("Tap any character to select. Numbers in boxes show how many characters contain that part.")
+                            Text("Tap any character to preview. Numbers in boxes show how many characters contain that part.")
                                 .font(ResponsiveFont.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -444,7 +444,7 @@ struct ComponentsExplorerShell: View {
     private var gridInteractionHintRow: some View {
         HStack(spacing: 10) {
             hintChip(icon: "cursorarrow", text: isRunningOnMac ? "Click Preview" : "Tap Preview")
-            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click or Select adds to top bar" : "Double-tap or Select adds to top bar")
+            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click keeps in memory" : "Double-tap keeps in memory")
             HStack(spacing: 4) {
                 Text(isRunningOnMac ? "Right-click" : "Long-press")
                 Image(systemName: "doc.on.doc")
@@ -674,9 +674,9 @@ struct ComponentsExplorerShell: View {
             Image(systemName: "tree")
                 .font(.system(size: 44, weight: .light))
                 .foregroundStyle(.secondary)
-            Text("No Character Selected")
+            Text("No Character")
                 .font(ResponsiveFont.title3.bold())
-            Text("Select a character from Search or Browse to explore Roots.")
+            Text("Choose a character from Search or Browse to explore Roots.")
                 .font(ResponsiveFont.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
