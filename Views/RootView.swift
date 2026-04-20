@@ -1453,6 +1453,14 @@ private struct FilterGridTab: View {
                                     RoundedRectangle(cornerRadius: 8)
                                         .stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 2)
                                 )
+                                .overlay(alignment: .topTrailing) {
+                                    if store.isFavorite(item.character) {
+                                        Image(systemName: "star.fill")
+                                            .font(.system(size: 14))
+                                            .foregroundStyle(.yellow)
+                                            .padding(6)
+                                    }
+                                }
                             }
                             .buttonStyle(.plain)
                             .simultaneousGesture(

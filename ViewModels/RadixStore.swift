@@ -2059,11 +2059,10 @@ final class RadixStore: ObservableObject {
     func pushRootBreadcrumb(_ character: String) {
         guard componentRepo.hasCharacter(character) else { return }
         if let existing = rootBreadcrumb.firstIndex(of: character) {
-            rootBreadcrumbIndex = existing
-        } else {
-            rootBreadcrumb.append(character)
-            rootBreadcrumbIndex = rootBreadcrumb.count - 1
+            rootBreadcrumb.remove(at: existing)
         }
+        rootBreadcrumb.insert(character, at: 0)
+        rootBreadcrumbIndex = 0
     }
 
     func stepRootBreadcrumb(by delta: Int) -> String? {
