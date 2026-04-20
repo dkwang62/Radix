@@ -334,17 +334,16 @@ struct CharacterDetailView: View {
     private func phraseRow(phrase: PhraseItem) -> some View {
         let characterColumnWidth: CGFloat = {
             #if targetEnvironment(macCatalyst)
-            return 230
+            return 150
             #else
-            return 190
+            return 120
             #endif
         }()
 
-        return HStack(spacing: 8) { // Narrowed from 12
+        return HStack(alignment: .top, spacing: 8) { // Narrowed from 12
             VStack(alignment: .leading, spacing: 2) {
                 Text(phrase.word)
                     .font(ResponsiveFont.body.bold())
-                    .phraseContextMenu(phrase)
                 Text(phrase.pinyin.isEmpty ? "-" : phrase.pinyin)
                     .font(ResponsiveFont.caption)
                     .lineLimit(2)
@@ -356,12 +355,14 @@ struct CharacterDetailView: View {
 
             Text(phrase.meanings)
                 .font(ResponsiveFont.body)
-                .lineLimit(3)
-                .minimumScaleFactor(0.8)
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
         }
         .padding(.horizontal, 10)
-        .frame(minHeight: phraseRowHeight)
+        .frame(maxWidth: .infinity, minHeight: phraseRowHeight, alignment: .leading)
+        .contentShape(Rectangle())
+        .phraseContextMenu(phrase)
     }
 
     private func phraseTableButton(action: @escaping () -> Void) -> some View {

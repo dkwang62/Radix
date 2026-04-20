@@ -1768,17 +1768,16 @@ private struct FavouritesTab: View {
     private func favoritePhraseRow(_ phrase: PhraseItem) -> some View {
         let leadingColumnWidth: CGFloat = {
             #if targetEnvironment(macCatalyst)
-            return 230
+            return 150
             #else
-            return isPhone ? 165 : 210
+            return isPhone ? 96 : 120
             #endif
         }()
 
-        return HStack(spacing: 8) {
+        return HStack(alignment: .top, spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(phrase.word)
                     .font(ResponsiveFont.body.bold())
-                    .phraseContextMenu(phrase)
                 Text(phrase.pinyin.isEmpty ? "-" : phrase.pinyin)
                     .font(ResponsiveFont.caption)
                     .lineLimit(2)
@@ -1790,34 +1789,14 @@ private struct FavouritesTab: View {
 
             Text(phrase.meanings.isEmpty ? "No meaning" : phrase.meanings)
                 .font(ResponsiveFont.body)
-                .lineLimit(3)
-                .minimumScaleFactor(0.8)
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
-
-            Button {
-                store.togglePhraseFavorite(phrase.word)
-            } label: {
-                Image(systemName: store.isPhraseFavorite(phrase.word) ? "star.fill" : "star")
-                    .font(.system(size: 18))
-                    .foregroundStyle(store.isPhraseFavorite(phrase.word) ? .yellow : Color.secondary.opacity(0.5))
-            }
-            .buttonStyle(.plain)
-
-            Button {
-                store.openQuickPhraseEditor(word: phrase.word)
-            } label: {
-                Image(systemName: "pencil.circle.fill")
-                    .font(.system(size: 22))
-                    .foregroundStyle(Color.accentColor.opacity(0.7))
-            }
-            .buttonStyle(.plain)
+                .layoutPriority(1)
         }
         .padding(.horizontal, 10)
-        .frame(minHeight: favoritePhraseRowHeight)
+        .frame(maxWidth: .infinity, minHeight: favoritePhraseRowHeight, alignment: .leading)
         .contentShape(Rectangle())
-        .onTapGesture {
-            store.openQuickPhraseEditor(word: phrase.word)
-        }
+        .phraseContextMenu(phrase)
     }
 
     private var favoritePhraseRowHeight: CGFloat {
@@ -2240,9 +2219,16 @@ private struct QuickPhraseEditorView: View {
                     Text("English Meaning")
                         .font(ResponsiveFont.caption2)
                         .foregroundStyle(.secondary)
-                    TextField("English Meaning", text: $phraseEditorMeanings)
+                    TextEditor(text: $phraseEditorMeanings)
                         .font(ResponsiveFont.body)
-                        .textFieldStyle(.roundedBorder)
+                        .frame(minHeight: 160)
+                        .padding(8)
+                        .background(Color(.secondarySystemBackground).opacity(0.6))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color(.separator), lineWidth: 0.5)
+                        )
                 }
 
                 Spacer(minLength: 0)

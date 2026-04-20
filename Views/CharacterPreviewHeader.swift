@@ -253,17 +253,16 @@ private struct PhraseTableSheet: View {
     private func phraseRow(_ phrase: PhraseItem) -> some View {
         let leadingColumnWidth: CGFloat = {
             #if targetEnvironment(macCatalyst)
-            return 230
+            return 150
             #else
-            return isPhone ? 165 : 210
+            return isPhone ? 96 : 120
             #endif
         }()
 
-        return HStack(spacing: 8) {
+        return HStack(alignment: .top, spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(phrase.word)
                     .font(ResponsiveFont.body.bold())
-                    .phraseContextMenu(phrase)
                 Text(phrase.pinyin.isEmpty ? "-" : phrase.pinyin)
                     .font(ResponsiveFont.caption)
                     .lineLimit(2)
@@ -275,40 +274,14 @@ private struct PhraseTableSheet: View {
 
             Text(phrase.meanings)
                 .font(ResponsiveFont.body)
-                .lineLimit(3)
-                .minimumScaleFactor(0.8)
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
-
-            Button {
-                store.togglePhraseFavorite(phrase.word)
-            } label: {
-                Image(systemName: store.isPhraseFavorite(phrase.word) ? "star.fill" : "star")
-                    .font(.system(size: 18))
-                    .foregroundStyle(store.isPhraseFavorite(phrase.word) ? .yellow : Color.secondary.opacity(0.5))
-            }
-            .buttonStyle(.plain)
-
-            Button {
-                dismiss()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                    store.openQuickPhraseEditor(word: phrase.word)
-                }
-            } label: {
-                Image(systemName: "pencil.circle.fill")
-                    .font(.system(size: 22))
-                    .foregroundStyle(Color.accentColor.opacity(0.7))
-            }
-            .buttonStyle(.plain)
+                .layoutPriority(1)
         }
         .padding(.horizontal, 10)
-        .frame(minHeight: phraseRowHeight)
+        .frame(maxWidth: .infinity, minHeight: phraseRowHeight, alignment: .leading)
         .contentShape(Rectangle())
-        .onTapGesture {
-            dismiss()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                store.openQuickPhraseEditor(word: phrase.word)
-            }
-        }
+        .phraseContextMenu(phrase)
     }
 
     private var phraseRowHeight: CGFloat {
@@ -540,7 +513,10 @@ private struct PhraseContextMenuModifier: ViewModifier {
                     }
                 }
                 Button("Add New Phrase") {
-                    store.openNewPhraseEditor()
+                    dismiss()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                        store.openNewPhraseEditor()
+                    }
                 }
                 if store.isPhraseInAdd(trimmedWord) {
                     let isBuiltIn = store.isPhraseInBase(trimmedWord)
