@@ -2254,6 +2254,7 @@ private struct DataEditTab: View {
     @EnvironmentObject private var store: RadixStore
     @EnvironmentObject private var entitlement: EntitlementManager
     @Environment(\.horizontalSizeClass) var sizeClass
+    @Environment(\.openURL) private var openURL
     let onLoadAddPhrases: () -> Void
     let onExportAddPhrases: () -> Void
     let onUseDefaultAddPhrases: () -> Void
@@ -2294,9 +2295,177 @@ private struct DataEditTab: View {
     // UI toggles
     @State private var showAdvancedExports = false
     @State private var showHelp = false
+    @State private var showSourceSetupGuide = false
 
     // Scroll-to-top support (phones only)
     @State private var dataEditScrollProxy: ScrollViewProxy?
+
+    private let sourceCodeURL = URL(string: "https://github.com/dkwang62/Radix")!
+    private let sourceCloneCommand = "git clone https://github.com/dkwang62/Radix.git"
+    private let sourceSetupGuide = """
+    # 📦 Radix Project – Setup & Usage Guide
+
+    ## 🧠 Overview
+
+    This project is an Apple (Xcode) app written in Swift.
+
+    You will:
+
+    1. Download the code
+    2. Open it in Xcode
+    3. Use Codex to work on it
+
+    ---
+
+    # 🖥️ 1. Requirements
+
+    ## Hardware
+
+    * A Mac (MacBook, iMac, Mac mini, etc.)
+
+    ## Software
+
+    1. Install **Xcode (version 26.4 or newer)** from the App Store
+    2. Install **ChatGPT (for Codex use)**
+
+    ---
+
+    # 📥 2. Get the Code
+
+    ## Easiest way (no Git needed)
+
+    1. Open this link:
+       https://github.com/dkwang62/Radix
+    2. Click **Code → Download ZIP**
+    3. Unzip the file
+
+    ---
+
+    ## Optional (if using terminal)
+
+    ```bash
+    git clone https://github.com/dkwang62/Radix.git
+    cd Radix
+    ```
+
+    ---
+
+    # ▶️ 3. Run the Project
+
+    1. Open:
+       Radix.xcodeproj
+
+    2. Wait for Xcode to load (1–2 minutes first time)
+
+    3. Select a simulator (e.g. iPhone)
+
+    4. Press ▶️ Run
+
+    ---
+
+    # 🤖 4. Using Codex (Important)
+
+    ## Step 1
+
+    Open ChatGPT
+
+    ## Step 2
+
+    Upload or point Codex to the project folder
+
+    ## Step 3
+
+    Ask Codex things like:
+
+    * “Explain this project”
+    * “Fix build errors”
+    * “Add a feature”
+    * “Refactor this code”
+
+    ---
+
+    ## 🧠 How to think about Codex
+
+    * Codex = junior developer
+    * You = decision maker
+
+    Always:
+
+    * review what it changes
+    * test the app after changes
+
+    ---
+
+    # 📁 Project Structure (Simplified)
+
+    * App/ → app entry and setup
+    * Models/ → data structures
+    * ViewModels/ → logic and state
+    * Views/ → UI
+    * Services/ → helper logic
+    * Resources/ → assets
+    * Tests/ → tests
+
+    ---
+
+    # ⚠️ Common Issues
+
+    ## 1. First run is slow
+
+    Normal — Xcode is indexing
+
+    ---
+
+    ## 2. Build fails
+
+    In Xcode:
+
+    * Press Shift + Cmd + K (clean)
+    * Run again
+
+    ---
+
+    ## 3. Real iPhone not working
+
+    Ignore — simulator works without setup
+
+    ---
+
+    # 🧠 Simple Workflow
+
+    1. Open project
+    2. Use Codex to make changes
+    3. Run in Xcode
+    4. Repeat
+
+    ---
+
+    # 🔥 Golden Rule
+
+    If something breaks:
+
+    * don’t panic
+    * undo changes
+    * try again
+
+    ---
+
+    # ✅ Summary
+
+    You only need:
+
+    * Mac
+    * Xcode
+    * This GitHub link
+
+    Everything else is optional.
+
+    ---
+
+    # 📩 Repo Link
+
+    https://github.com/dkwang62/Radix
+    """
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -2587,6 +2756,8 @@ private struct DataEditTab: View {
                 }
             }
 
+            sourceCodeHelperSection
+
             premiumExportOption(
                 title: "Full Dataset JSON",
                 subtitle: "Best for analysis, transformation, or custom tooling built on both dictionary and phrase data.",
@@ -2644,6 +2815,111 @@ private struct DataEditTab: View {
             )
         )
         .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    private var sourceCodeHelperSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                Image(systemName: "chevron.left.forwardslash.chevron.right")
+                    .font(ResponsiveFont.title3)
+                    .foregroundStyle(Color.indigo)
+                    .frame(width: 28)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Source Code")
+                        .font(ResponsiveFont.subheadline.bold())
+                    Text("Share a copy of the Radix project code from GitHub.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+            }
+
+            Text(sourceCodeURL.absoluteString)
+                .font(ResponsiveFont.caption.monospaced())
+                .textSelection(.enabled)
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("No GitHub account needed: open the link, click Code, then Download ZIP.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                Text("Git users can clone with:")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                Text(sourceCloneCommand)
+                    .font(ResponsiveFont.caption.monospaced())
+                    .textSelection(.enabled)
+            }
+
+            DisclosureGroup("Setup & Usage Guide", isExpanded: $showSourceSetupGuide) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(sourceSetupGuide)
+                        .font(ResponsiveFont.caption)
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Button {
+                        copyToClipboard(sourceSetupGuide)
+                        reuseExportMessage = "Setup guide copied."
+                    } label: {
+                        Label("Copy Guide", systemImage: "doc.on.doc")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+                .padding(.top, 8)
+            }
+            .font(ResponsiveFont.subheadline.weight(.semibold))
+
+            HStack(spacing: 10) {
+                Button {
+                    openURL(sourceCodeURL)
+                } label: {
+                    Label("Open Repo", systemImage: "safari")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+
+                Button {
+                    copyToClipboard(sourceCodeURL.absoluteString)
+                    reuseExportMessage = "Repository URL copied."
+                } label: {
+                    Label("Copy URL", systemImage: "doc.on.doc")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+
+                Button {
+                    copyToClipboard(sourceCloneCommand)
+                    reuseExportMessage = "Clone command copied."
+                } label: {
+                    Label("Copy Git", systemImage: "terminal")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+        }
+        .padding(14)
+        .background(Color.indigo.opacity(0.10))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.indigo.opacity(0.30), lineWidth: 1)
+        )
+    }
+
+    private func copyToClipboard(_ value: String) {
+        #if canImport(UIKit)
+        UIPasteboard.general.string = value
+        #elseif canImport(AppKit)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(value, forType: .string)
+        #endif
     }
 
     @ViewBuilder
