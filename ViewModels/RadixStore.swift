@@ -1583,6 +1583,9 @@ final class RadixStore: ObservableObject {
         #if targetEnvironment(macCatalyst)
         return 225
         #else
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            return 96
+        }
         return 120
         #endif
     }

@@ -1663,124 +1663,174 @@ private struct FavouritesTab: View {
             if store.favoriteItems.isEmpty && store.favoritePhrasesItems.isEmpty {
                 ContentUnavailableView("No Favourites", systemImage: "star.slash", description: Text("Tap the star icon on any character or phrase to add it to this list."))
             } else {
-                List {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
                     if isPhone, let current = store.previewCharacter {
-                        Section {
+                        VStack(alignment: .leading, spacing: 8) {
                             standardPhoneCharacterPreview(
                                 character: current,
                                 selectedCharacter: store.selectedCharacter,
                                 onClear: { store.previewCharacter = nil }
                             )
-                            .listRowInsets(EdgeInsets(top: 12, leading: 12, bottom: 4, trailing: 12))
-                            .listRowBackground(Color.clear)
                         }
                     }
 
-                    // Characters section
                     if !store.favoriteItems.isEmpty {
-                        Section(header: Text("Characters (\(store.favoriteItems.count))").font(ResponsiveFont.caption.bold())) {
-                            ForEach(store.favoriteItems, id: \.character) { item in
-                                HStack(spacing: 16) {
-                                    Text(item.character)
-                                        .font(.system(size: 40))
-                                        .frame(width: 50)
-                                        .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Characters (\(store.favoriteItems.count))")
+                                .font(ResponsiveFont.caption.bold())
+                                .foregroundStyle(.secondary)
 
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(item.pinyinText)
-                                            .font(ResponsiveFont.subheadline.bold())
-                                            .foregroundStyle(.secondary)
-                                        Text(item.definition)
-                                            .font(ResponsiveFont.caption)
-                                            .foregroundStyle(.tertiary)
-                                            .lineLimit(1)
-                                        Text(favoriteAddedLabel(for: item.character))
-                                            .font(ResponsiveFont.caption2)
-                                            .foregroundStyle(.secondary)
-                                    }
-
-                                    Spacer()
-
-                                    Button {
-                                        store.select(character: item.character)
-                                        store.enterLineage()
-                                    } label: {
-                                        Text("Select")
-                                            .font(ResponsiveFont.subheadline.bold())
-                                            .padding(.horizontal, 16)
-                                            .padding(.vertical, 8)
-                                            .background(Color.accentColor)
-                                            .foregroundStyle(.white)
-                                            .clipShape(Capsule())
-                                    }
-                                    .buttonStyle(.plain)
-
-                                    Button {
-                                        store.setFavorite(character: item.character, isFavorite: false)
-                                    } label: {
-                                        Image(systemName: "trash")
-                                            .foregroundStyle(.red)
-                                            .padding(8)
-                                            .background(Color.red.opacity(0.1))
-                                            .clipShape(Circle())
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                                .padding(.vertical, 4)
-                                .listRowSeparator(.visible)
-                                .contentShape(Rectangle())
-                                .onTapGesture {
-                                    store.preview(character: item.character, announce: false)
+                            LazyVGrid(columns: favoriteCharacterColumns, spacing: 8) {
+                                ForEach(store.favoriteItems, id: \.character) { item in
+                                    favoriteCharacterCell(item)
                                 }
                             }
                         }
                     }
 
-                    // Phrases section
                     if !store.favoritePhrasesItems.isEmpty {
-                        Section(header: Text("Phrases (\(store.favoritePhrasesItems.count))").font(ResponsiveFont.caption.bold())) {
-                            ForEach(store.favoritePhrasesItems, id: \.word) { phrase in
-                                HStack(spacing: 12) {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(phrase.word)
-                                            .font(ResponsiveFont.title3.bold())
-                                            .phraseContextMenu(phrase)
-                                        Text(phrase.pinyin.isEmpty ? "—" : phrase.pinyin)
-                                            .font(ResponsiveFont.caption.monospaced())
-                                            .foregroundStyle(.secondary)
-                                        Text(phrase.meanings.isEmpty ? "No meaning" : phrase.meanings)
-                                            .font(ResponsiveFont.caption)
-                                            .foregroundStyle(.tertiary)
-                                            .lineLimit(1)
-                                        if let addedAt = store.favoritePhraseDates[phrase.word] {
-                                            Text("Added \(Self.relativeFormatter.localizedString(for: addedAt, relativeTo: Date()))")
-                                                .font(ResponsiveFont.caption2)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                    }
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Phrases (\(store.favoritePhrasesItems.count))")
+                                .font(ResponsiveFont.caption.bold())
+                                .foregroundStyle(.secondary)
 
-                                    Spacer()
-
-                                    Button {
-                                        store.togglePhraseFavorite(phrase.word)
-                                    } label: {
-                                        Image(systemName: "trash")
-                                            .foregroundStyle(.red)
-                                            .padding(8)
-                                            .background(Color.red.opacity(0.1))
-                                            .clipShape(Circle())
+                            ScrollView {
+                                LazyVStack(spacing: 0) {
+                                    ForEach(store.favoritePhrasesItems, id: \.word) { phrase in
+                                        favoritePhraseRow(phrase)
+                                        Divider()
                                     }
-                                    .buttonStyle(.plain)
                                 }
-                                .padding(.vertical, 4)
-                                .listRowSeparator(.visible)
                             }
+                            .frame(height: favoritePhraseViewportHeight)
+                            .background(Color(.secondarySystemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
                     }
                 }
-                .listStyle(.plain)
+                    .padding(.horizontal)
+                    .padding(.bottom, 20)
+                }
             }
         }
+    }
+
+    private var favoriteCharacterColumns: [GridItem] {
+        #if targetEnvironment(macCatalyst)
+        return Array(repeating: GridItem(.flexible(minimum: 44, maximum: 82), spacing: 10), count: 10)
+        #else
+        if isPhone {
+            return Array(repeating: GridItem(.flexible(minimum: 44, maximum: 72), spacing: 8), count: 4)
+        }
+        return Array(repeating: GridItem(.flexible(minimum: 44, maximum: 78), spacing: 8), count: 8)
+        #endif
+    }
+
+    private func favoriteCharacterCell(_ item: ComponentItem) -> some View {
+        let isActive = item.character == store.previewCharacter || item.character == store.selectedCharacter
+
+        return Button {
+            store.preview(character: item.character, announce: false)
+        } label: {
+            VStack(spacing: 2) {
+                Text(item.character)
+                    .font(.system(size: isPhone ? 28 : 30, weight: .bold))
+                    .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
+                Text(item.pinyinText.isEmpty ? " " : item.pinyinText)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 6)
+            .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 2)
+            )
+            .overlay(alignment: .topTrailing) {
+                Image(systemName: "star.fill")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.yellow)
+                    .padding(6)
+            }
+        }
+        .buttonStyle(.plain)
+        .simultaneousGesture(
+            TapGesture(count: 2).onEnded {
+                store.select(character: item.character)
+            }
+        )
+    }
+
+    private func favoritePhraseRow(_ phrase: PhraseItem) -> some View {
+        let leadingColumnWidth: CGFloat = {
+            #if targetEnvironment(macCatalyst)
+            return 230
+            #else
+            return isPhone ? 165 : 210
+            #endif
+        }()
+
+        return HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(phrase.word)
+                    .font(ResponsiveFont.body.bold())
+                    .phraseContextMenu(phrase)
+                Text(phrase.pinyin.isEmpty ? "-" : phrase.pinyin)
+                    .font(ResponsiveFont.caption)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .minimumScaleFactor(0.85)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(width: leadingColumnWidth, alignment: .leading)
+
+            Text(phrase.meanings.isEmpty ? "No meaning" : phrase.meanings)
+                .font(ResponsiveFont.body)
+                .lineLimit(3)
+                .minimumScaleFactor(0.8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Button {
+                store.togglePhraseFavorite(phrase.word)
+            } label: {
+                Image(systemName: store.isPhraseFavorite(phrase.word) ? "star.fill" : "star")
+                    .font(.system(size: 18))
+                    .foregroundStyle(store.isPhraseFavorite(phrase.word) ? .yellow : Color.secondary.opacity(0.5))
+            }
+            .buttonStyle(.plain)
+
+            Button {
+                store.openQuickPhraseEditor(word: phrase.word)
+            } label: {
+                Image(systemName: "pencil.circle.fill")
+                    .font(.system(size: 22))
+                    .foregroundStyle(Color.accentColor.opacity(0.7))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 10)
+        .frame(minHeight: favoritePhraseRowHeight)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            store.openQuickPhraseEditor(word: phrase.word)
+        }
+    }
+
+    private var favoritePhraseRowHeight: CGFloat {
+        #if targetEnvironment(macCatalyst)
+        return 84
+        #else
+        return isPhone ? 72 : 82
+        #endif
+    }
+
+    private var favoritePhraseViewportHeight: CGFloat {
+        let visibleRows = min(max(store.favoritePhrasesItems.count, 1), 6)
+        return (favoritePhraseRowHeight * CGFloat(visibleRows)) + 5
     }
 
     private func favoriteAddedLabel(for character: String) -> String {
