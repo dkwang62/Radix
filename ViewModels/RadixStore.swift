@@ -1845,8 +1845,9 @@ final class RadixStore: ObservableObject {
     }
 
     private func refreshAddedDictionaryCharacters() {
+        rootsDerivativesCache.removeAll()
         let allChanged = componentRepo.changedCharacters
-        let added = componentRepo.addedCharacters
+        let added = Set(componentRepo.addedCharacters)
         // Sort by overlayAddedDates desc (most recently added first), then alphabetically
         let sorted = allChanged.sorted {
             let lhsDate = overlayAddedDates[$0]
@@ -2012,6 +2013,13 @@ final class RadixStore: ObservableObject {
     }
 
     func loadRootDerivatives(for character: String) {
+        let key = RootsCacheKey(character: character, script: scriptFilter, minStroke: rootMinStroke, structure: rootStructureFilter)
+        if let cached = rootsDerivativesCache[key] {
+            rootDerivatives = cached.items
+            rootDerivativesTotal = cached.total
+            return
+        }
+
         // Prefer current script filter; fall back to .any to avoid empties (e.g., 一)
         let preferred = componentRepo.related(for: character, scriptFilter: scriptFilter, max: 8000)
         let relatedAny = componentRepo.related(for: character, scriptFilter: .any, max: 8000)
@@ -2034,13 +2042,6 @@ final class RadixStore: ObservableObject {
 
         // If filters remove everything, fall back to unfiltered base to avoid empty UI
         let finalSet = filtered.isEmpty ? baseSet : filtered
-
-        let key = RootsCacheKey(character: character, script: scriptFilter, minStroke: rootMinStroke, structure: rootStructureFilter)
-        if let cached = rootsDerivativesCache[key] {
-            rootDerivatives = cached.items
-            rootDerivativesTotal = cached.total
-            return
-        }
 
         let sorted = finalSet.sorted(by: frequencySortPredicate)
         let displayLimit = 500
