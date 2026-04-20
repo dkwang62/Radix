@@ -50,6 +50,7 @@ struct StrokeOrderWebView: UIViewRepresentable {
             didLoadBootstrap = true
             guard let pendingCharacter else { return }
             render(character: pendingCharacter, size: pendingSize)
+            self.pendingCharacter = nil
         }
 
         func render(character: String, size: Int) {
@@ -57,6 +58,10 @@ struct StrokeOrderWebView: UIViewRepresentable {
             let escapedCharacter = jsEscaped(character)
             let js = "window.renderCharacter('\(escapedCharacter)', \(size));"
             webView.evaluateJavaScript(js, completionHandler: nil)
+        }
+
+        func clear() {
+            webView?.evaluateJavaScript("window.clearCharacter();", completionHandler: nil)
         }
 
         private func jsEscaped(_ input: String) -> String {
@@ -87,28 +92,38 @@ struct StrokeOrderWebView: UIViewRepresentable {
 
     func updateUIView(_ webView: WKWebView, context: Context) {
         let safeSize = max(80, canvasSize)
+        let renderCharacter = character.trimmingCharacters(in: .whitespacesAndNewlines)
         let coordinator = context.coordinator
         let needsReload =
-            coordinator.lastCharacter != character ||
+            coordinator.lastCharacter != renderCharacter ||
             coordinator.lastToken != reloadToken ||
             coordinator.lastSize != safeSize
 
         guard needsReload else { return }
 
-        coordinator.lastCharacter = character
+        coordinator.lastCharacter = renderCharacter
         coordinator.lastToken = reloadToken
         coordinator.lastSize = safeSize
 
-        coordinator.pendingCharacter = character
+        guard renderCharacter.count == 1 else {
+            coordinator.pendingCharacter = nil
+            if coordinator.didLoadBootstrap {
+                coordinator.clear()
+            }
+            return
+        }
+
+        coordinator.pendingCharacter = renderCharacter
         coordinator.pendingSize = safeSize
         if coordinator.didLoadBootstrap {
-            coordinator.render(character: character, size: safeSize)
+            coordinator.render(character: renderCharacter, size: safeSize)
+            coordinator.pendingCharacter = nil
         }
     }
 
     private static var cachedScriptContent: String = {
         guard let url = Bundle.main.url(forResource: "hanzi-writer.min", withExtension: "js"),
-              let content = try? String(contentsOf: url) else {
+              let content = try? String(contentsOf: url, encoding: .utf8) else {
             return ""
         }
         return content
@@ -131,6 +146,11 @@ struct StrokeOrderWebView: UIViewRepresentable {
           <div id=\"wrap\"><div id=\"target\"></div></div>
           <script>
             let writer = null;
+            window.clearCharacter = function() {
+              const target = document.getElementById('target');
+              target.innerHTML = '';
+              writer = null;
+            };
             window.renderCharacter = function(ch, size) {
               const target = document.getElementById('target');
               target.style.width = size + 'px';

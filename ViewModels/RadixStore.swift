@@ -854,7 +854,7 @@ final class RadixStore: ObservableObject {
                 }
             }
             
-            let result = finalPhrases
+            let result = finalPhrases.sorted(by: phrasePinyinSortPredicate)
             await MainActor.run {
                 // Ensure we are still looking at the same character/length before updating
                 if (char ?? previewCharacter ?? selectedCharacter) == targetToLoad && phraseLength == length {
@@ -1965,6 +1965,14 @@ final class RadixStore: ObservableObject {
         return out
     }
 
+    private func phrasePinyinSortPredicate(_ lhs: PhraseItem, _ rhs: PhraseItem) -> Bool {
+        let lhsPinyin = normalizedCompactQuery(lhs.pinyin)
+        let rhsPinyin = normalizedCompactQuery(rhs.pinyin)
+        if lhsPinyin != rhsPinyin { return lhsPinyin < rhsPinyin }
+        if lhs.pinyin != rhs.pinyin { return lhs.pinyin < rhs.pinyin }
+        return lhs.word < rhs.word
+    }
+
     func exportProfileData() throws -> Data {
         let sortedFavorites = Array(favorites).sorted()
         let sortedFavoritePhrases = Array(favoritePhrases).sorted()
@@ -2110,6 +2118,7 @@ final class RadixStore: ObservableObject {
     }
 
     private func refreshPhraseBackedViews(for character: String?) {
+        phraseCache.removeAll()
         refreshAddedPhrases()
         syncDataEditPhraseCaches()
         dataEditPhrases = addedPhrases
