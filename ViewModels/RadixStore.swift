@@ -178,7 +178,6 @@ final class RadixStore: ObservableObject {
         }
     }
     @Published private(set) var history: [String] = []
-    @Published private(set) var recentCharacters: [String] = []
     @Published var showLineageExplorer: Bool = false // retained for legacy, no sheet currently
     @Published var showPaywall: Bool = false
     @Published var paywallFeatureName: String = "Pro Feature"
@@ -408,6 +407,7 @@ final class RadixStore: ObservableObject {
             promptSelectedTaskIDs = promptConfig.tasks.map(\.id)
         }
         loadFavorites()
+        seedBreadcrumbFromFavorites()
         clearSearch()
         refreshAllCharactersCache()
         recomputeGridItems()
@@ -538,7 +538,6 @@ final class RadixStore: ObservableObject {
         // 1. Instant UI update for selection
         selectedCharacter = trimmedCharacter
         previewCharacter = trimmedCharacter
-        recordRecentCharacter(trimmedCharacter)
         #if targetEnvironment(macCatalyst)
         showiPhoneDetail = true
         #else
@@ -557,6 +556,7 @@ final class RadixStore: ObservableObject {
             showBrowseHelp = false
             showComponentHelp = false
         }
+        pushRootBreadcrumb(trimmedCharacter)
         
         // 2. Clear previous data instantly to prevent showing old info
         phrases = []
@@ -593,10 +593,7 @@ final class RadixStore: ObservableObject {
         loadSharedComponentPeers(for: trimmedCharacter)
         loadSharedPeersByComponent(for: trimmedCharacter)
         loadRootDerivatives(for: trimmedCharacter)
-        // Breadcrumbs only track selections in Roots mode
-        if route == .lineage {
-            pushRootBreadcrumb(trimmedCharacter)
-        }
+        // Breadcrumbs track explicit selections globally.
 
         if announce && speechEnabled {
             speechCoordinator.speak(trimmedCharacter)
@@ -777,25 +774,6 @@ final class RadixStore: ObservableObject {
         quickEditDestination = .newPhrase
     }
 
-    func activateRecentCharacter(_ character: String) {
-        switch route {
-        case .lineage:
-            preview(character: character, announce: false)
-        case .aiLink:
-            preview(character: character, announce: false)
-        case .favourites:
-            preview(character: character, announce: false)
-        case .search:
-            if homeTab == .dataEdit {
-                loadDataEditEntry(for: character)
-                requestDataEditDictionaryFocus()
-                preview(character: character, announce: false)
-            } else {
-                preview(character: character, announce: false)
-            }
-        }
-    }
-
     func selectFavouriteCharacter(_ character: String) {
         activeFavouriteCharacter = character
         preview(character: character)
@@ -968,6 +946,7 @@ final class RadixStore: ObservableObject {
         } else {
             favoritePhrases.insert(word)
             favoritePhraseDates[word] = Date()
+            appendPhraseCharactersToBreadcrumb(word)
         }
         UserDefaults.standard.set(Array(favoritePhrases), forKey: favoritePhrasesKey)
         persistFavoritePhraseDates()
@@ -1011,6 +990,7 @@ final class RadixStore: ObservableObject {
         } else {
             favorites.insert(character)
             favoriteAddedDates[character] = Date()
+            pushRootBreadcrumb(character)
         }
         Task {
             persistFavorites()
@@ -1023,6 +1003,7 @@ final class RadixStore: ObservableObject {
             if favoriteAddedDates[character] == nil {
                 favoriteAddedDates[character] = Date()
             }
+            pushRootBreadcrumb(character)
         } else {
             favorites.remove(character)
             favoriteAddedDates.removeValue(forKey: character)
@@ -1628,6 +1609,17 @@ final class RadixStore: ObservableObject {
     func setGridSortMode(_ mode: GridSortMode) { gridSortMode = mode }
     func setGridScriptFilter(_ filter: ScriptFilter) { gridScriptFilter = filter }
 
+    @discardableResult
+    func focusGridCharacter(_ character: String) -> Bool {
+        guard let index = allGridItems.firstIndex(where: { $0.character == character }) else {
+            previewCharacter = character
+            return false
+        }
+        gridPage = index / gridBatchSize
+        previewCharacter = character
+        return true
+    }
+
     func radicalFilterLabel(_ radical: String) -> String {
         if isNoFilter(radical) {
             return "none"
@@ -2061,15 +2053,14 @@ final class RadixStore: ObservableObject {
 
     // MARK: - Roots Breadcrumbs
     func resetRootBreadcrumb(to character: String) {
-        rootBreadcrumb = [character]
-        rootBreadcrumbIndex = 0
+        pushRootBreadcrumb(character)
     }
 
     func pushRootBreadcrumb(_ character: String) {
-        if rootBreadcrumbIndex < rootBreadcrumb.count - 1 {
-            rootBreadcrumb = Array(rootBreadcrumb.prefix(rootBreadcrumbIndex + 1))
-        }
-        if rootBreadcrumb.last != character {
+        guard componentRepo.hasCharacter(character) else { return }
+        if let existing = rootBreadcrumb.firstIndex(of: character) {
+            rootBreadcrumbIndex = existing
+        } else {
             rootBreadcrumb.append(character)
             rootBreadcrumbIndex = rootBreadcrumb.count - 1
         }
@@ -2084,6 +2075,42 @@ final class RadixStore: ObservableObject {
 
     var canRootGoBack: Bool { rootBreadcrumbIndex > 0 }
     var canRootGoForward: Bool { rootBreadcrumbIndex + 1 < rootBreadcrumb.count }
+
+    func activateBreadcrumbCharacter(_ character: String) {
+        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard key.count == 1, componentRepo.hasCharacter(key) else { return }
+        pushRootBreadcrumb(key)
+
+        switch route {
+        case .search:
+            switch homeTab {
+            case .smart:
+                let pinyinText = item(for: key)?.pinyinText.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                let searchText = pinyinText.isEmpty ? key : pinyinText
+                query = searchText
+                previewCharacter = key
+                performSearch(customQuery: searchText)
+                refreshPhrases(for: key)
+            case .filter:
+                _ = focusGridCharacter(key)
+                refreshPhrases(for: key)
+            case .favourites:
+                setFavorite(character: key, isFavorite: !favorites.contains(key))
+            case .dataEdit:
+                openQuickCharacterEditor(key)
+            }
+        case .lineage:
+            select(character: key, announce: false)
+            loadSharedComponentPeers(for: key)
+            loadSharedPeersByComponent(for: key)
+            loadRootDerivatives(for: key)
+        case .aiLink:
+            previewCharacter = key
+            refreshPhrases(for: key)
+        case .favourites:
+            setFavorite(character: key, isFavorite: !favorites.contains(key))
+        }
+    }
 
     // MARK: - Roots Cache
     private struct RootsCacheKey: Hashable {
@@ -2161,20 +2188,72 @@ final class RadixStore: ObservableObject {
         }
     }
 
+    private func seedBreadcrumbFromFavorites() {
+        var seeded: [String] = []
+        var seen = Set<String>()
+
+        let sortedFavoriteCharacters = favorites.sorted {
+            let lhsDate = favoriteAddedDates[$0]
+            let rhsDate = favoriteAddedDates[$1]
+            switch (lhsDate, rhsDate) {
+            case let (lhs?, rhs?):
+                if lhs != rhs { return lhs > rhs }
+            case (.some, nil):
+                return true
+            case (nil, .some):
+                return false
+            case (nil, nil):
+                break
+            }
+            return $0 < $1
+        }
+
+        func append(_ character: String) {
+            guard character.count == 1, componentRepo.hasCharacter(character), !seen.contains(character) else { return }
+            seen.insert(character)
+            seeded.append(character)
+        }
+
+        sortedFavoriteCharacters.forEach(append)
+
+        let sortedFavoritePhrases = favoritePhrases.sorted {
+            let lhsDate = favoritePhraseDates[$0]
+            let rhsDate = favoritePhraseDates[$1]
+            switch (lhsDate, rhsDate) {
+            case let (lhs?, rhs?):
+                if lhs != rhs { return lhs > rhs }
+            case (.some, nil):
+                return true
+            case (nil, .some):
+                return false
+            case (nil, nil):
+                break
+            }
+            return $0 < $1
+        }
+
+        for phrase in sortedFavoritePhrases {
+            for character in phrase.map(String.init) {
+                append(character)
+            }
+        }
+
+        rootBreadcrumb = seeded
+        rootBreadcrumbIndex = seeded.isEmpty ? 0 : min(rootBreadcrumbIndex, seeded.count - 1)
+    }
+
+    private func appendPhraseCharactersToBreadcrumb(_ word: String) {
+        for character in word.map(String.init) {
+            pushRootBreadcrumb(character)
+        }
+    }
+
     private func requestDataEditDictionaryFocus() {
         dataEditFocusRequestID += 1
     }
 
     private func requestPhraseEditFocus() {
         phraseEditFocusRequestID += 1
-    }
-
-    private func recordRecentCharacter(_ character: String) {
-        recentCharacters.removeAll { $0 == character }
-        recentCharacters.insert(character, at: 0)
-        if recentCharacters.count > 24 {
-            recentCharacters = Array(recentCharacters.prefix(24))
-        }
     }
 
     private func rememberLastPreviewedCharacter(_ character: String?) {

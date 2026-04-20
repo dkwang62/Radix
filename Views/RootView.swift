@@ -174,7 +174,7 @@ struct RootView: View {
 
         NavigationStack {
             VStack(spacing: 0) {
-                RecentCharactersStrip()
+                BreadcrumbStrip()
                 // Content
                 Group {
                     switch selection {
@@ -282,7 +282,7 @@ struct RootView: View {
                 if let current = store.previewCharacter ?? store.selectedCharacter,
                    let item = store.item(for: current) {
                     VStack(spacing: 12) {
-                        RecentCharactersStrip()
+                        BreadcrumbStrip()
                         CharacterDetailView(item: item)
                     }
                 }
@@ -316,7 +316,7 @@ struct RootView: View {
         }
 
         VStack(spacing: 12) {
-            RecentCharactersStrip()
+            BreadcrumbStrip()
             if let error = store.loadingError {
                 ContentUnavailableView("Failed to Load", systemImage: "exclamationmark.triangle", description: Text(error))
             } else {
@@ -686,7 +686,7 @@ private struct SmartSearchTab: View {
     private var gridInteractionHintRow: some View {
         HStack(spacing: 10) {
             hintChip(icon: "cursorarrow", text: isRunningOnMac ? "Click Preview" : "Tap Preview")
-            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click Select" : "Double-tap Select")
+            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click or Select adds to top bar" : "Double-tap or Select adds to top bar")
             HStack(spacing: 4) {
                 Text(isRunningOnMac ? "Right-click" : "Long-press")
                 Image(systemName: "doc.on.doc")
@@ -1076,6 +1076,9 @@ private struct SmartSearchTab: View {
             .onChange(of: store.selectedCharacter) { _, _ in
                 syncSearchPreviewFromStore()
             }
+            .onChange(of: store.query) { _, newValue in
+                localQuery = newValue
+            }
             .onChange(of: store.route) { _, newRoute in
                 if newRoute != .search {
                     searchPreviewCharacter = nil
@@ -1089,6 +1092,7 @@ private struct SmartSearchTab: View {
             .onAppear {
                 // Keep Search clean on tab entry; show preview only after explicit tap.
                 searchPreviewCharacter = nil
+                localQuery = store.query
             }
         }
     }
@@ -1326,7 +1330,7 @@ private struct FilterGridTab: View {
     private var browseInteractionHintRow: some View {
         HStack(spacing: 10) {
             hintChip(icon: "cursorarrow", text: isRunningOnMac ? "Click Preview" : "Tap Preview")
-            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click Select" : "Double-tap Select")
+            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click or Select adds to top bar" : "Double-tap or Select adds to top bar")
             HStack(spacing: 4) {
                 Text(isRunningOnMac ? "Right-click" : "Long-press")
                 Image(systemName: "doc.on.doc")
@@ -1425,6 +1429,7 @@ private struct FilterGridTab: View {
 
                     LazyVGrid(columns: columns, spacing: 6) {
                         ForEach(store.pagedGridItems, id: \.character) { item in
+                            let isActive = item.character == store.previewCharacter || item.character == store.selectedCharacter
                             Button {
                                 store.preview(character: item.character)
                                 withAnimation {
@@ -1442,8 +1447,12 @@ private struct FilterGridTab: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 6)
-                                .background(Color(.secondarySystemBackground))
+                                .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 2)
+                                )
                             }
                             .buttonStyle(.plain)
                             .simultaneousGesture(
@@ -1459,6 +1468,11 @@ private struct FilterGridTab: View {
                 .onChange(of: store.strokeMaxFilter) { _, _ in store.gridPage = 0 }
                 .onChange(of: store.selectedRadicalFilter) { _, _ in store.gridPage = 0 }
                 .onChange(of: store.selectedStructureFilter) { _, _ in store.gridPage = 0 }
+                .onChange(of: store.previewCharacter) { _, _ in
+                    withAnimation {
+                        proxy.scrollTo("browseTop", anchor: .top)
+                    }
+                }
             }
             .sheet(isPresented: $showBrowseFilters) {
                 browseFiltersSheet
@@ -1820,7 +1834,7 @@ private struct AddPhrasesFileDocument: FileDocument {
     }
 }
 
-private struct RecentCharactersStrip: View {
+private struct BreadcrumbStrip: View {
     @EnvironmentObject private var store: RadixStore
 
     private var activeCharacter: String? {
@@ -1830,17 +1844,17 @@ private struct RecentCharactersStrip: View {
                 return editingCharacter
             }
         }
-        return store.previewCharacter
+        return store.previewCharacter ?? store.selectedCharacter
     }
 
     var body: some View {
-        if !store.recentCharacters.isEmpty {
+        if !store.rootBreadcrumb.isEmpty {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    ForEach(store.recentCharacters, id: \.self) { character in
-                        let isActive = character == activeCharacter
+                    ForEach(Array(store.rootBreadcrumb.enumerated()), id: \.offset) { index, character in
+                        let isActive = character == activeCharacter || index == store.rootBreadcrumbIndex
                         Button {
-                            store.activateRecentCharacter(character)
+                            store.activateBreadcrumbCharacter(character)
                         } label: {
                             Text(character)
                                 .font(.system(size: 22, weight: .bold))
@@ -3759,6 +3773,7 @@ private struct SmartResultsGrid: View {
 
                 LazyVGrid(columns: columns, spacing: 6) {
                     ForEach(pagedItems, id: \.character) { item in
+                        let isActive = item.character == store.previewCharacter || item.character == store.selectedCharacter
                         Button {
                             onPreview?(item.character)
                             store.preview(character: item.character)
@@ -3775,8 +3790,12 @@ private struct SmartResultsGrid: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 6)
-                            .background(Color(.secondarySystemBackground))
+                            .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 2)
+                            )
                             .overlay(alignment: .topTrailing) {
                                 if store.isFavorite(item.character) {
                                     Image(systemName: "star.fill")

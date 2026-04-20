@@ -289,16 +289,13 @@ struct CharacterDetailView: View {
                     .contentShape(RoundedRectangle(cornerRadius: 8))
                     .onTapGesture {
                         store.showComponentHelp = false
-                        if sizeClass == .compact {
-                            // Preview only in compact; selection via double tap
-                            store.preview(character: linkedItem.character)
-                        } else {
-                            store.preview(character: linkedItem.character)
+                        store.preview(character: linkedItem.character)
+                    }
+                    .simultaneousGesture(
+                        TapGesture(count: 2).onEnded {
+                            store.select(character: linkedItem.character)
                         }
-                    }
-                    .onTapGesture(count: 2) {
-                        store.select(character: linkedItem.character)
-                    }
+                    )
                 }
             }
         }
@@ -446,7 +443,7 @@ struct ComponentsExplorerShell: View {
     private var gridInteractionHintRow: some View {
         HStack(spacing: 10) {
             hintChip(icon: "cursorarrow", text: isRunningOnMac ? "Click Preview" : "Tap Preview")
-            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click Select" : "Double-tap Select")
+            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click or Select adds to top bar" : "Double-tap or Select adds to top bar")
             HStack(spacing: 4) {
                 Text(isRunningOnMac ? "Right-click" : "Long-press")
                 Image(systemName: "doc.on.doc")
@@ -765,13 +762,13 @@ struct ComponentsExplorerShell: View {
             RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 0.5)
         )
         .onTapGesture {
-            // Preview only; shared components/derivatives remain on selected character
-            store.preview(character: item.character)
+            pivot(to: item.character, selectAfter: false)
         }
-        .onTapGesture(count: 2) {
-            // Select and update roots/breadcrumbs/shared data
-            store.select(character: item.character)
-        }
+        .simultaneousGesture(
+            TapGesture(count: 2).onEnded {
+                pivot(to: item.character, selectAfter: true)
+            }
+        )
     }
 
     private func pivot(to character: String, selectAfter: Bool) {
