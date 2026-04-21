@@ -15,7 +15,7 @@ import AVFoundation
  This store unifies three distinct data backends into a single cohesive experience:
  1. Dictionary (JSON): Foundational character data (radical, strokes, etymology).
  2. Phrases (SQLite): High-performance multi-character word database.
- 3. User Data (Settings): Personal Favourites and AI Prompt configurations.
+ 3. User Data (Settings): Personal favorites and AI Prompt configurations.
  
  Persistence is handled automatically via a "Live Auto-Save" mechanism that
  routes changes to the correct backend file as they happen.
@@ -298,7 +298,8 @@ final class RadixStore: ObservableObject {
             }
         }
     }
-    // Breadcrumb for Roots/Components Explorer
+    // Remembered bar state. The older rootBreadcrumb name is retained because
+    // routing and saved behavior were built around that identifier.
     @Published private(set) var rootBreadcrumb: [String] = []
     @Published private(set) var rootBreadcrumbIndex: Int = 0
     @Published private(set) var rootDerivatives: [ComponentItem] = []
@@ -612,7 +613,7 @@ final class RadixStore: ObservableObject {
         loadSharedComponentPeers(for: trimmedCharacter)
         loadSharedPeersByComponent(for: trimmedCharacter)
         loadRootDerivatives(for: trimmedCharacter)
-        // Breadcrumbs track explicit selections globally.
+        // The Remembered bar tracks explicit selections globally.
 
         if announce && speechEnabled {
             speechCoordinator.speak(trimmedCharacter)
@@ -645,12 +646,12 @@ final class RadixStore: ObservableObject {
                 // Both Smart Search and Browse tabs should keep user in place
                 browsePreview(character: character, announce: announce)
             } else if route == .lineage {
-                // Roots tab: preview only; do not push detail or breadcrumb
+                // Roots tab: preview only; do not push detail or Remembered state.
                 previewCharacter = character
                 refreshPhrases(for: character)
                 showiPhoneDetail = false
             } else if route == .aiLink || route == .favourites {
-                // AI Link and Favourites should preview in-place and let the
+                // AI Link and Favorites should preview in-place and let the
                 // shared header handle promotion to a selection.
                 previewCharacter = character
                 refreshPhrases(for: character)
@@ -2122,7 +2123,7 @@ final class RadixStore: ObservableObject {
         rootsDerivativesCache[key] = RootsDerivativesCacheValue(items: limited, total: sorted.count)
     }
 
-    // MARK: - Roots Breadcrumbs
+    // MARK: - Remembered Bar
     func resetRootBreadcrumb(to character: String) {
         pushRootBreadcrumb(character)
     }

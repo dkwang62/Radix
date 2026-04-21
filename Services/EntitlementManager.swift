@@ -2,7 +2,7 @@ import SwiftUI
 import Combine
 import StoreKit
 
-/// Manages the user's "Pro" status and enforces feature limits using StoreKit 2.
+/// Manages the user's "Pro" status. Current policy: only My Data requires Pro.
 @MainActor
 class EntitlementManager: ObservableObject {
     static let annualProductID = "com.radix.pro.annual"

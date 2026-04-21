@@ -4,14 +4,16 @@ import UniformTypeIdentifiers
 /*
  RADIX - ROOT UI ARCHITECTURE
  =================================
- RootView serves as the primary container and layout orchestrator for the iPad app.
- It implements a NavigationSplitView (Sidebar + Detail) pattern.
+ RootView serves as the primary container and layout orchestrator for iPhone,
+ iPad, and Mac Catalyst.
  
  RESPONSIBILITIES:
- 1. Sidebar: Primary navigation (Search, Browse, Favourites, Lineage, AI, DataEdit).
- 2. Detail Pane: Dynamic view switching based on 'RadixStore.route'.
- 3. Global Sheets: Manages Paywalls, Lineage Explorers, and Data Transfer Alerts.
- 4. File Lifecycle: Handles JSON Export/Import via system file pickers.
+ 1. Primary navigation: Search, Browse, Favorites, Roots, AI Link, and My Data.
+ 2. Standard tab headers: the current title is centralized in currentTabTitle.
+ 3. Remembered bar: the top temporary character memory strip.
+ 4. Detail Pane: Dynamic view switching based on 'RadixStore.route'.
+ 5. Global Sheets: Manages the My Data paywall, Roots explorers, and data transfer alerts.
+ 6. File Lifecycle: Handles JSON Export/Import via system file pickers.
 */
 
 struct RootView: View {
@@ -726,7 +728,7 @@ private struct SmartSearchTab: View {
     private var gridInteractionHintRow: some View {
         HStack(spacing: 10) {
             hintChip(icon: "cursorarrow", text: isRunningOnMac ? "Click Preview" : "Tap Preview")
-            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click or Add to memory" : "Double-tap or Add to memory")
+            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click or Remember" : "Double-tap or Remember")
             HStack(spacing: 4) {
                 Text(isRunningOnMac ? "Right-click" : "Long-press")
                 Image(systemName: "doc.on.doc")
@@ -1406,7 +1408,7 @@ private struct FilterGridTab: View {
     private var browseInteractionHintRow: some View {
         HStack(spacing: 10) {
             hintChip(icon: "cursorarrow", text: isRunningOnMac ? "Click Preview" : "Tap Preview")
-            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click or Add to memory" : "Double-tap or Add to memory")
+            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click or Remember" : "Double-tap or Remember")
             HStack(spacing: 4) {
                 Text(isRunningOnMac ? "Right-click" : "Long-press")
                 Image(systemName: "doc.on.doc")
@@ -1728,7 +1730,7 @@ private struct FavouritesTab: View {
             .padding()
 
             if store.favoriteItems.isEmpty && store.favoritePhrasesItems.isEmpty {
-                ContentUnavailableView("No Favourites", systemImage: "star.slash", description: Text("Tap the star icon on any character or phrase to add it to this list."))
+                ContentUnavailableView("No Favorites", systemImage: "star.slash", description: Text("Tap the star icon on any character or phrase to add it to this list."))
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 18) {

@@ -37,8 +37,8 @@ struct CharacterPreviewHeader: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
-                    .help("Adds this character to Memory for this session. Favorite keeps it after closing the app.")
-                    .accessibilityHint("Adds this character to Memory for this session. Favorite keeps it after closing the app.")
+                    .help("Remember this character for this session. Favorite keeps it after closing the app.")
+                    .accessibilityHint("Remember this character for this session. Favorite keeps it after closing the app.")
                 }
                 phraseTableTrigger
                 speechOptionsMenu

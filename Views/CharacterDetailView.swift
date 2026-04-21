@@ -896,7 +896,7 @@ struct ComponentsExplorerShell: View {
             store.loadSharedPeersByComponent(for: character)
             store.loadRootDerivatives(for: character)
         } else {
-            // Preview only; do not change shared data or breadcrumb
+            // Preview only; do not change shared data or Remembered state.
             store.preview(character: character)
         }
         store.showComponentHelp = false
