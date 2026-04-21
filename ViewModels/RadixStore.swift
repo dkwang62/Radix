@@ -477,25 +477,13 @@ final class RadixStore: ObservableObject {
                 definitionPhraseResults = []
             } else {
                 results = componentRepo.search(query: searchQuery, scriptFilter: .any)
-                let likelyPinyin = isLikelyPinyinQuery(searchQuery)
-                let phraseCharacterQuery: String = {
-                    let trimmedQuery = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if containsChineseCharacters(trimmedQuery), trimmedQuery.count >= 2 {
-                        return componentRepo.simplifiedText(trimmedQuery)
-                    }
-                    return trimmedQuery
-                }()
-                let pinyinPhrases = (likelyPinyin && normalizedCompactQuery(searchQuery).count >= 2)
-                    ? phraseRepo.searchByPinyin(term: searchQuery)
-                    : []
                 let meaningPhrases = searchQuery.count >= 2
                     ? phraseRepo.searchByDefinition(term: searchQuery)
                     : []
-                let characterPhrases = containsChineseCharacters(phraseCharacterQuery)
-                    ? phraseRepo.searchByCharacters(term: phraseCharacterQuery)
+                let pinyinPhrases = normalizedCompactQuery(searchQuery).count > 2
+                    ? phraseRepo.searchByPinyin(term: searchQuery)
                     : []
-                let combinedMeaning = mergePhraseResults(primary: meaningPhrases, secondary: characterPhrases)
-                smartPhraseResults = mergePhraseResults(primary: pinyinPhrases, secondary: combinedMeaning)
+                smartPhraseResults = mergePhraseResults(primary: meaningPhrases, secondary: pinyinPhrases)
                 definitionCharacterResults = []
                 definitionPhraseResults = []
             }

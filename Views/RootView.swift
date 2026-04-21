@@ -699,9 +699,7 @@ private struct SmartSearchTab: View {
 
     private func syncSearchPreviewFromStore() {
         guard store.hasPerformedSearch, searchPreviewCharacter == nil else { return }
-        if let current = store.previewCharacter {
-            setSearchDrilldownAnchor(current)
-        }
+        searchDetailPreviewCharacter = store.previewCharacter
     }
 
     private func setSearchDrilldownAnchor(_ character: String) {
@@ -949,7 +947,7 @@ private struct SmartSearchTab: View {
                                                 HStack(spacing: 6) {
                                                     ForEach(Array(chars.enumerated()), id: \.offset) { _, ch in
                                                         Button(ch) {
-                                                            setSearchDrilldownAnchor(ch)
+                                                            searchDetailPreviewCharacter = ch
                                                             store.preview(character: ch)
                                                             withAnimation { proxy.scrollTo("searchTop", anchor: .top) }
                                                         }
@@ -1096,14 +1094,6 @@ private struct SmartSearchTab: View {
             }
             .onChange(of: store.query) { _, newValue in
                 localQuery = newValue
-                DispatchQueue.main.async {
-                    if store.hasPerformedSearch,
-                       store.lastSearchQuery == newValue,
-                       searchPreviewCharacter == nil,
-                       let current = store.previewCharacter {
-                        setSearchDrilldownAnchor(current)
-                    }
-                }
             }
             .onChange(of: store.route) { _, newRoute in
                 if newRoute != .search {
