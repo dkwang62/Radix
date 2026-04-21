@@ -14,7 +14,7 @@ class EntitlementManager: ObservableObject {
     enum FeatureGate: String {
         case lineage = "Roots"
         case favourites = "Favourites"
-        case dataEdit = "Data Editor"
+        case dataEdit = "My Data"
         case aiLink = "AI Link"
         case profileTransfer = "Profile Transfer"
     }
@@ -130,12 +130,11 @@ class EntitlementManager: ObservableObject {
 
     func requiresPro(_ feature: FeatureGate) -> Bool {
         if isProUnlocked { return false }
-        return true
+        return feature == .dataEdit
     }
     
     func limitLineage(_ items: [ComponentItem]) -> [ComponentItem] {
-        if isProUnlocked { return items }
-        return Array(items.prefix(20))
+        items
     }
 
     #if DEBUG

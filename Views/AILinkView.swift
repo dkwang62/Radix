@@ -37,8 +37,6 @@ struct AILinkView: View {
                 configEditorSection
 
                 promptBox
-
-                footerSection
             }
             .padding(20)
         }
@@ -225,6 +223,8 @@ struct AILinkView: View {
 
     private var promptBox: some View {
         VStack(alignment: .leading, spacing: 8) {
+            promptActions
+
             Text("Generated Prompt")
                 .font(ResponsiveFont.subheadline)
                 .foregroundStyle(.secondary)
@@ -246,20 +246,20 @@ struct AILinkView: View {
         }
     }
 
-    private var footerSection: some View {
+    private var promptActions: some View {
         HStack(spacing: 12) {
+            Button("Copy Prompt") {
+                copyPromptToClipboard()
+            }
+            .buttonStyle(.bordered)
+            .font(ResponsiveFont.headline)
+
             Button {
                 openPromptInChatGPT()
             } label: {
                 Label("Open ChatGPT", systemImage: "arrow.up.forward.app")
             }
             .buttonStyle(.borderedProminent)
-            .font(ResponsiveFont.headline)
-
-            Button("Copy Prompt") {
-                copyPromptToClipboard()
-            }
-            .buttonStyle(.bordered)
             .font(ResponsiveFont.headline)
 
             if openedChatGPT {

@@ -444,15 +444,11 @@ struct RootView: View {
                         store.enterLineage()
                     }
                     sidebarIconButton(
-                        title: entitlement.requiresPro(.aiLink) ? "AI Link 🔒" : "AI Link",
+                        title: "AI Link",
                         systemImage: "sparkles",
                         isActive: store.route == .aiLink
                     ) {
-                        if entitlement.requiresPro(.aiLink) {
-                            presentPaywall(for: .aiLink)
-                        } else {
-                            store.enterAILink()
-                        }
+                        store.enterAILink()
                     }
                     sidebarIconButton(
                         title: "My Data",
@@ -499,15 +495,6 @@ struct RootView: View {
                     }
                 }
 
-                if !entitlement.isProUnlocked {
-                    Button("Upgrade to Pro") {
-                        presentPaywall(for: .aiLink)
-                    }
-                    .font(ResponsiveFont.headline)
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                }
             }
             .padding(8) // Reduced from 12
         }
