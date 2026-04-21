@@ -843,6 +843,34 @@ final class RadixStore: ObservableObject {
         }
     }
 
+    func phraseMatches(for character: String, length: Int? = nil) -> [PhraseItem] {
+        let targetToLoad = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !targetToLoad.isEmpty else { return [] }
+
+        let phraseLength = length ?? self.phraseLength
+        let cacheKey = "\(targetToLoad)|\(phraseLength)"
+        if let cached = phraseCache[cacheKey] {
+            return cached
+        }
+
+        let primary = phraseRepo.phrases(containing: targetToLoad, length: phraseLength)
+        let counterpart = componentRepo.counterpart(for: targetToLoad)
+        var finalPhrases = primary
+
+        if let counterpart, counterpart != targetToLoad {
+            let secondary = phraseRepo.phrases(containing: counterpart, length: phraseLength)
+            var seen = Set<String>(primary.map { $0.id })
+            for phrase in secondary where !seen.contains(phrase.id) {
+                seen.insert(phrase.id)
+                finalPhrases.append(phrase)
+            }
+        }
+
+        let result = finalPhrases.sorted(by: phrasePinyinSortPredicate)
+        phraseCache[cacheKey] = result
+        return result
+    }
+
     func isPhraseInBase(_ word: String) -> Bool {
         phraseRepo.isInBase(word: word)
     }

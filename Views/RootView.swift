@@ -645,9 +645,10 @@ private struct SmartSearchTab: View {
     @EnvironmentObject private var store: RadixStore
     @FocusState private var isSearchFocused: Bool
     @State private var localQuery: String = ""
-    @State private var searchLayerDepth: Int = 0
     @State private var searchGridPage: Int = 0
     @State private var searchPreviewCharacter: String? = nil
+    @State private var searchDetailPreviewCharacter: String? = nil
+    @State private var searchDrilldownPhrases: [PhraseItem] = []
     @State private var showAppleSetupGuide = false
     @State private var showAppleStrokeHelp = false
     @State private var searchCardVariantIndex: Int = 0
@@ -689,15 +690,42 @@ private struct SmartSearchTab: View {
     }
 
     private func runSearch(_ query: String) {
-        searchLayerDepth = 0
         searchGridPage = 0
         searchPreviewCharacter = nil
+        searchDetailPreviewCharacter = nil
+        searchDrilldownPhrases = []
         store.performSearch(customQuery: query)
     }
 
     private func syncSearchPreviewFromStore() {
-        guard store.hasPerformedSearch else { return }
-        searchPreviewCharacter = store.previewCharacter
+        guard store.hasPerformedSearch, searchPreviewCharacter == nil else { return }
+        if let current = store.previewCharacter {
+            setSearchDrilldownAnchor(current)
+        }
+    }
+
+    private func setSearchDrilldownAnchor(_ character: String) {
+        searchPreviewCharacter = character
+        searchDetailPreviewCharacter = character
+        searchDrilldownPhrases = store.phraseMatches(for: character, length: store.phraseLength)
+    }
+
+    private var initialPhraseMatchesForSelectedLength: [PhraseItem] {
+        store.filteredSmartPhraseResults.filter { $0.word.count == store.phraseLength }
+    }
+
+    private var phraseLengthPicker: some View {
+        HStack {
+            Picker("Length", selection: $store.phraseLength) {
+                Text("2-char").tag(2)
+                Text("3-char").tag(3)
+                Text("4-char").tag(4)
+            }
+            .font(ResponsiveFont.subheadline)
+            .pickerStyle(.segmented)
+            .frame(maxWidth: 280)
+            Spacer()
+        }
     }
 
     var body: some View {
@@ -721,9 +749,10 @@ private struct SmartSearchTab: View {
                             if !localQuery.isEmpty {
                                 Button {
                                     localQuery = ""
-                                    searchLayerDepth = 0
                                     searchGridPage = 0
                                     searchPreviewCharacter = nil
+                                    searchDetailPreviewCharacter = nil
+                                    searchDrilldownPhrases = []
                                     store.clearSearch()
                                 } label: {
                                     Image(systemName: "xmark.circle.fill")
@@ -776,13 +805,14 @@ private struct SmartSearchTab: View {
                         // Preview/Info card for current previewed/selected character (phones only; sidebar shows it on iPad/Mac)
                         #if !targetEnvironment(macCatalyst)
                         if UIDevice.current.userInterfaceIdiom == .phone,
-                           let current = searchPreviewCharacter,
+                           let current = searchDetailPreviewCharacter ?? searchPreviewCharacter,
                            store.item(for: current) != nil {
                             standardPhoneCharacterPreview(
                                 character: current,
                                 selectedCharacter: store.selectedCharacter,
                                 onClear: {
                                     searchPreviewCharacter = nil
+                                    searchDetailPreviewCharacter = nil
                                     store.previewCharacter = nil
                                 }
                             )
@@ -793,40 +823,39 @@ private struct SmartSearchTab: View {
                                 .font(ResponsiveFont.title3)
                             Spacer()
                             Button("Clear Results") {
-                                searchLayerDepth = 0
-                                searchGridPage = 0
-                                searchPreviewCharacter = nil
-                                store.clearSearch()
+                                    searchGridPage = 0
+                                    searchPreviewCharacter = nil
+                                    searchDetailPreviewCharacter = nil
+                                    searchDrilldownPhrases = []
+                                    store.clearSearch()
                             }
                             .font(ResponsiveFont.caption)
                         }
 
                         gridInteractionHintRow
 
-                        if searchLayerDepth < 2 {
-                            SmartResultsGrid(
-                                items: store.filteredResults,
-                                currentPage: $searchGridPage,
-                                onPreview: { character in
-                                    searchPreviewCharacter = character
-                                    searchLayerDepth = max(searchLayerDepth, 1)
-                                },
-                                onSelect: { withAnimation { proxy.scrollTo("searchTop", anchor: .top) } }
-                            )
-                        }
+                        SmartResultsGrid(
+                            items: store.filteredResults,
+                            currentPage: $searchGridPage,
+                            onPreview: { character in
+                                setSearchDrilldownAnchor(character)
+                            },
+                            onSelect: { withAnimation { proxy.scrollTo("searchTop", anchor: .top) } }
+                        )
 
-                        if searchLayerDepth > 0,
-                           let current = searchPreviewCharacter,
+                        if let current = searchPreviewCharacter,
                            store.item(for: current) != nil {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("Phrase Drilldown")
                                     .font(ResponsiveFont.headline)
-                                Text("Preview from the grid to update this phrase layer. If you preview a character from the phrases, the grid hides and the new phrase layer takes over.")
+                                Text("Preview a character from the grid to update this phrase layer. Characters inside phrases only update the preview card.")
                                     .font(ResponsiveFont.caption)
                                     .foregroundStyle(.secondary)
 
-                                if store.phrases.isEmpty {
-                                    Text("No 2, 3, or 4-character phrase matches are available yet for \(current).")
+                                phraseLengthPicker
+
+                                if searchDrilldownPhrases.isEmpty {
+                                    Text("No \(store.phraseLength)-character phrase matches are available yet for \(current).")
                                         .font(ResponsiveFont.caption)
                                         .foregroundStyle(.secondary)
                                         .padding(10)
@@ -835,7 +864,7 @@ private struct SmartSearchTab: View {
                                         .clipShape(RoundedRectangle(cornerRadius: 10))
                                 } else {
                                     LazyVStack(alignment: .leading, spacing: 8) {
-                                        ForEach(store.phrases.prefix(30)) { phrase in
+                                        ForEach(searchDrilldownPhrases.prefix(30)) { phrase in
                                             VStack(alignment: .leading, spacing: 4) {
                                                 Text(phrase.word)
                                                     .font(ResponsiveFont.title3)
@@ -858,8 +887,7 @@ private struct SmartSearchTab: View {
                                                         HStack(spacing: 6) {
                                                             ForEach(Array(chars.enumerated()), id: \.offset) { _, ch in
                                                                 Button(ch) {
-                                                                    searchLayerDepth = 2
-                                                                    searchPreviewCharacter = ch
+                                                                    searchDetailPreviewCharacter = ch
                                                                     store.preview(character: ch)
                                                                     withAnimation { proxy.scrollTo("searchTop", anchor: .top) }
                                                                 }
@@ -883,12 +911,22 @@ private struct SmartSearchTab: View {
                             }
                         }
 
-                        if searchLayerDepth == 0 && !store.filteredSmartPhraseResults.isEmpty {
+                        if searchPreviewCharacter == nil && !store.filteredSmartPhraseResults.isEmpty {
                             Divider().padding(.vertical, 8)
                             Text("Phrase Matches")
                                 .font(ResponsiveFont.headline)
+                            phraseLengthPicker
+                            if initialPhraseMatchesForSelectedLength.isEmpty {
+                                Text("No \(store.phraseLength)-character phrase matches for this search.")
+                                    .font(ResponsiveFont.caption)
+                                    .foregroundStyle(.secondary)
+                                    .padding(10)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(Color(.secondarySystemBackground))
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
                             LazyVStack(alignment: .leading, spacing: 8) {
-                                ForEach(store.filteredSmartPhraseResults.prefix(50)) { phrase in
+                                ForEach(initialPhraseMatchesForSelectedLength.prefix(50)) { phrase in
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(phrase.word)
                                             .font(ResponsiveFont.title3)
@@ -911,8 +949,7 @@ private struct SmartSearchTab: View {
                                                 HStack(spacing: 6) {
                                                     ForEach(Array(chars.enumerated()), id: \.offset) { _, ch in
                                                         Button(ch) {
-                                                            searchLayerDepth = 2
-                                                            searchPreviewCharacter = ch
+                                                            setSearchDrilldownAnchor(ch)
                                                             store.preview(character: ch)
                                                             withAnimation { proxy.scrollTo("searchTop", anchor: .top) }
                                                         }
@@ -1059,20 +1096,39 @@ private struct SmartSearchTab: View {
             }
             .onChange(of: store.query) { _, newValue in
                 localQuery = newValue
+                DispatchQueue.main.async {
+                    if store.hasPerformedSearch,
+                       store.lastSearchQuery == newValue,
+                       searchPreviewCharacter == nil,
+                       let current = store.previewCharacter {
+                        setSearchDrilldownAnchor(current)
+                    }
+                }
             }
             .onChange(of: store.route) { _, newRoute in
                 if newRoute != .search {
                     searchPreviewCharacter = nil
+                    searchDetailPreviewCharacter = nil
+                    searchDrilldownPhrases = []
                 }
             }
             .onChange(of: store.homeTab) { _, newTab in
                 if newTab != .smart {
                     searchPreviewCharacter = nil
+                    searchDetailPreviewCharacter = nil
+                    searchDrilldownPhrases = []
+                }
+            }
+            .onChange(of: store.phraseLength) { _, _ in
+                if let current = searchPreviewCharacter {
+                    searchDrilldownPhrases = store.phraseMatches(for: current, length: store.phraseLength)
                 }
             }
             .onAppear {
                 // Keep Search clean on tab entry; show preview only after explicit tap.
                 searchPreviewCharacter = nil
+                searchDetailPreviewCharacter = nil
+                searchDrilldownPhrases = []
                 localQuery = store.query
             }
         }

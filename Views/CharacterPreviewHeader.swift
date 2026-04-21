@@ -32,7 +32,7 @@ struct CharacterPreviewHeader: View {
                 }
                 Spacer()
                 if showAddToMemoryButton && !isInMemory {
-                    Button("Add to memory") {
+                    Button("Remember") {
                         store.select(character: character)
                     }
                     .buttonStyle(.borderedProminent)
