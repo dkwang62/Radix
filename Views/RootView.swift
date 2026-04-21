@@ -641,6 +641,60 @@ func standardPhoneCharacterPreview(
     .padding(.bottom, 10)
 }
 
+struct CompactScriptFilterControl: View {
+    let selection: ScriptFilter
+    let onChange: (ScriptFilter) -> Void
+
+    private var simplifiedActive: Bool {
+        selection == .any || selection == .simplified
+    }
+
+    private var traditionalActive: Bool {
+        selection == .any || selection == .traditional
+    }
+
+    var body: some View {
+        HStack(spacing: 4) {
+            scriptButton("简", isActive: simplifiedActive) {
+                switch selection {
+                case .any:
+                    onChange(.simplified)
+                case .simplified:
+                    onChange(.any)
+                case .traditional:
+                    onChange(.any)
+                }
+            }
+
+            scriptButton("繁", isActive: traditionalActive) {
+                switch selection {
+                case .any:
+                    onChange(.traditional)
+                case .simplified:
+                    onChange(.any)
+                case .traditional:
+                    onChange(.any)
+                }
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Character set")
+        .accessibilityValue(selection.rawValue)
+    }
+
+    private func scriptButton(_ title: String, isActive: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .frame(width: 34, height: 34)
+                .background(isActive ? Color.accentColor : Color(.secondarySystemBackground))
+                .foregroundStyle(isActive ? .white : .primary)
+                .clipShape(RoundedRectangle(cornerRadius: 9))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 private struct SmartSearchTab: View {
     @EnvironmentObject private var store: RadixStore
     @FocusState private var isSearchFocused: Bool
@@ -790,16 +844,6 @@ private struct SmartSearchTab: View {
 
                 if store.hasPerformedSearch {
                     VStack(alignment: .leading, spacing: 15) {
-                        Picker("Script", selection: Binding(get: {
-                            store.scriptFilter
-                        }, set: { store.setScriptFilter($0) })) {
-                            ForEach(ScriptFilter.allCases) { filter in
-                                Text(filter.rawValue).tag(filter)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .frame(maxWidth: 400)
-
                         // Preview/Info card for current previewed/selected character (phones only; sidebar shows it on iPad/Mac)
                         #if !targetEnvironment(macCatalyst)
                         if UIDevice.current.userInterfaceIdiom == .phone,
@@ -820,6 +864,7 @@ private struct SmartSearchTab: View {
                             Text("\(store.filteredResults.count) characters for \"\(store.lastSearchQuery)\"")
                                 .font(ResponsiveFont.title3)
                             Spacer()
+                            CompactScriptFilterControl(selection: store.scriptFilter) { store.setScriptFilter($0) }
                             Button("Clear Results") {
                                     searchGridPage = 0
                                     searchPreviewCharacter = nil
@@ -1414,6 +1459,8 @@ private struct FilterGridTab: View {
                         .font(ResponsiveFont.subheadline)
                         .pickerStyle(.segmented)
 
+                        CompactScriptFilterControl(selection: store.gridScriptFilter) { store.setGridScriptFilter($0) }
+
                         Button {
                             showBrowseFilters = true
                         } label: {
@@ -1535,7 +1582,6 @@ private struct FilterGridTab: View {
 
     private var activeBrowseFilterCount: Int {
         var count = 0
-        if store.gridScriptFilter != .any { count += 1 }
         if store.strokeMinFilter > 0 { count += 1 }
         if store.selectedRadicalFilter != "none" { count += 1 }
         if store.selectedStructureFilter != "none" { count += 1 }
@@ -1550,20 +1596,6 @@ private struct FilterGridTab: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Character Set")
-                            .font(ResponsiveFont.caption.bold())
-                            .foregroundStyle(.secondary)
-                        Picker("Script", selection: Binding(get: {
-                            store.gridScriptFilter
-                        }, set: { store.setGridScriptFilter($0) })) {
-                            Text("Any").tag(ScriptFilter.any)
-                            Text("Simplified").tag(ScriptFilter.simplified)
-                            Text("Traditional").tag(ScriptFilter.traditional)
-                        }
-                        .pickerStyle(.segmented)
-                    }
-
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Minimum Strokes")
                             .font(ResponsiveFont.caption.bold())
@@ -1584,7 +1616,6 @@ private struct FilterGridTab: View {
                 ToolbarItem(placement: .topBarLeading) {
                     if activeBrowseFilterCount > 0 {
                         Button("Reset") {
-                            store.setGridScriptFilter(.any)
                             store.strokeMinFilter = 0
                             store.selectedRadicalFilter = "none"
                             store.selectedStructureFilter = "none"
@@ -3904,7 +3935,7 @@ private struct SmartResultsGrid: View {
 
 }
 
-private struct StrokeRangeSlider: View {
+struct StrokeRangeSlider: View {
     @Binding var minValue: Int
     @Binding var maxValue: Int
     private let lowerBound = 0

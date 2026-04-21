@@ -71,10 +71,17 @@ struct CharacterPreviewHeader: View {
                         animContainer {
                             ForEach(chars, id: \.self) { char in
                                 VStack(spacing: 0) {
-                                    Text(store.isTraditional(char) ? "TRADITIONAL" : "SIMPLIFIED")
-                                        .font(.system(size: 7, weight: .black))
+                                    (
+                                        Text(store.isTraditional(char) ? "Traditional" : "Simplified")
+                                            .font(.system(size: 12, weight: .regular))
+                                        +
+                                        Text(store.isTraditional(char) ? "繁" : "简")
+                                            .font(.system(size: 14, weight: .regular))
+                                    )
                                         .foregroundStyle(.secondary)
-                                        .padding(.vertical, 4)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.85)
+                                        .padding(.vertical, 6)
                                     
                                     StrokeOrderWebView(
                                         character: char,

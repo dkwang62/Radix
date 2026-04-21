@@ -256,6 +256,35 @@ final class RadixStore: ObservableObject {
             if let current = selectedCharacter ?? previewCharacter {
                 loadSharedComponentPeers(for: current)
                 loadSharedPeersByComponent(for: current)
+                loadRootDerivatives(for: current)
+            }
+        }
+    }
+    @Published var rootMaxStroke: Int = 30 {
+        didSet {
+            if rootMaxStroke < 0 {
+                rootMaxStroke = 0
+                return
+            }
+            if rootMaxStroke > 30 {
+                rootMaxStroke = 30
+                return
+            }
+            guard oldValue != rootMaxStroke else { return }
+            if let current = selectedCharacter ?? previewCharacter {
+                loadSharedComponentPeers(for: current)
+                loadSharedPeersByComponent(for: current)
+                loadRootDerivatives(for: current)
+            }
+        }
+    }
+    @Published var rootRadicalFilter: String = "none" {
+        didSet {
+            guard oldValue != rootRadicalFilter else { return }
+            if let current = selectedCharacter ?? previewCharacter {
+                loadSharedComponentPeers(for: current)
+                loadSharedPeersByComponent(for: current)
+                loadRootDerivatives(for: current)
             }
         }
     }
@@ -399,7 +428,9 @@ final class RadixStore: ObservableObject {
         availableRadicalFilters = ["none"] + componentRepo.availableRadicals()
         availableStructureFilters = ["none"] + componentRepo.availableStructures()
         if !availableRadicalFilters.contains(selectedRadicalFilter) { selectedRadicalFilter = "none" }
+        if !availableRadicalFilters.contains(rootRadicalFilter) { rootRadicalFilter = "none" }
         if !availableStructureFilters.contains(selectedStructureFilter) { selectedStructureFilter = "none" }
+        if !availableStructureFilters.contains(rootStructureFilter) { rootStructureFilter = "none" }
         dataEditSavePath = dictionaryOverlayFileURL.path
         loadPromptSettings()
         promptConfig = promptConfig.normalized()
@@ -1627,7 +1658,6 @@ final class RadixStore: ObservableObject {
 
     func setGridSortMode(_ mode: GridSortMode) { gridSortMode = mode }
     func setGridScriptFilter(_ filter: ScriptFilter) { gridScriptFilter = filter }
-
     @discardableResult
     func focusGridCharacter(_ character: String) -> Bool {
         guard let index = allGridItems.firstIndex(where: { $0.character == character }) else {
@@ -1775,6 +1805,8 @@ final class RadixStore: ObservableObject {
                 allCharactersCache = allChars
                 availableRadicalFilters = radicals
                 availableStructureFilters = structures
+                if !radicals.contains(rootRadicalFilter) { rootRadicalFilter = "none" }
+                if !structures.contains(rootStructureFilter) { rootStructureFilter = "none" }
             }
             await MainActor.run { calculateDictionaryVariances() }
         }
@@ -1901,11 +1933,14 @@ final class RadixStore: ObservableObject {
     }
 
     private func rootFilterPredicate(_ item: ComponentItem) -> Bool {
+        let lower = min(rootMinStroke, rootMaxStroke)
+        let upper = max(rootMinStroke, rootMaxStroke)
         let strokeValue = item.strokes ?? 999
-        let strokeMatch = strokeValue >= rootMinStroke
+        let strokeMatch = strokeValue >= lower && strokeValue <= upper
+        let radicalMatch = isNoFilter(rootRadicalFilter) || item.radical == rootRadicalFilter
         let structure = componentRepo.structureKey(for: item)
         let structureMatch = isNoFilter(rootStructureFilter) || structure == rootStructureFilter
-        return strokeMatch && structureMatch
+        return strokeMatch && radicalMatch && structureMatch
     }
 
     private func usageSortPredicate(_ lhs: ComponentItem, _ rhs: ComponentItem) -> Bool {
@@ -2031,8 +2066,25 @@ final class RadixStore: ObservableObject {
         // Derivatives are loaded separately via loadRootDerivatives; no coupling needed here
     }
 
+    func rootInitialGridItems(limit: Int = Int.max) -> (items: [ComponentItem], total: Int) {
+        let filtered = allCharactersCache
+            .filter(rootFilterPredicate)
+            .filter { item in
+                switch scriptFilter {
+                case .any:
+                    return true
+                case .simplified:
+                    return componentRepo.isSimplifiedForGrid(item.character)
+                case .traditional:
+                    return componentRepo.isTraditionalForGrid(item.character)
+                }
+            }
+            .sorted(by: frequencySortPredicate)
+        return (Array(filtered.prefix(limit)), filtered.count)
+    }
+
     func loadRootDerivatives(for character: String) {
-        let key = RootsCacheKey(character: character, script: scriptFilter, minStroke: rootMinStroke, structure: rootStructureFilter)
+        let key = RootsCacheKey(character: character, script: scriptFilter, minStroke: rootMinStroke, maxStroke: rootMaxStroke, radical: rootRadicalFilter, structure: rootStructureFilter)
         if let cached = rootsDerivativesCache[key] {
             rootDerivatives = cached.items
             rootDerivativesTotal = cached.total
@@ -2135,6 +2187,8 @@ final class RadixStore: ObservableObject {
         let character: String
         let script: ScriptFilter
         let minStroke: Int
+        let maxStroke: Int
+        let radical: String
         let structure: String
     }
     private struct RootsDerivativesCacheValue {

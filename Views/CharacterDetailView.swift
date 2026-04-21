@@ -304,16 +304,7 @@ struct CharacterDetailView: View {
 
     private var lineageControls: some View {
         HStack {
-            Picker("Script", selection: Binding(get: {
-                store.scriptFilter
-            }, set: { store.setScriptFilter($0) })) {
-                Text("Any").tag(ScriptFilter.any)
-                Text("Simplified").tag(ScriptFilter.simplified)
-                Text("Traditional").tag(ScriptFilter.traditional)
-            }
-            .font(ResponsiveFont.subheadline)
-            .pickerStyle(.segmented)
-            .frame(maxWidth: 320)
+            CompactScriptFilterControl(selection: store.scriptFilter) { store.setScriptFilter($0) }
 
             Spacer(minLength: 8)
 
@@ -426,7 +417,9 @@ struct CharacterDetailView: View {
 
 struct ComponentsExplorerShell: View {
     @EnvironmentObject private var store: RadixStore
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var seed: String = ""
+    @State private var showRootFilters = false
     var seedOverride: String?
 
     private var isRunningOnMac: Bool {
@@ -465,6 +458,10 @@ struct ComponentsExplorerShell: View {
         .foregroundStyle(.secondary)
     }
 
+    private var hasRootContext: Bool {
+        seedOverride != nil || store.previewCharacter != nil || store.selectedCharacter != nil || !seed.isEmpty
+    }
+
     var body: some View {
         #if targetEnvironment(macCatalyst)
         let isPhone = false
@@ -472,201 +469,319 @@ struct ComponentsExplorerShell: View {
         let isPhone = UIDevice.current.userInterfaceIdiom == .phone
         #endif
 
-        Group {
-            if store.previewCharacter == nil && store.selectedCharacter == nil {
-                emptyStateCard
-            } else {
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 14) {
-                            Color.clear.frame(height: 0).id("rootsTop")
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    Color.clear.frame(height: 0).id("rootsTop")
 
-                            // Active character header (phones only; sidebar handles iPad/Mac)
-                            if isPhone {
-                                if let current = store.previewCharacter,
-                                   store.item(for: current) != nil {
-                                    standardPhoneCharacterPreview(
-                                        character: current,
-                                        selectedCharacter: store.selectedCharacter,
-                                        onClear: { store.previewCharacter = nil }
-                                    )
-                                    .padding(.bottom, 8)
-                                } else {
-                                    emptyStateCard
-                                }
-                            }
+                    // Active character header (phones only; sidebar handles iPad/Mac)
+                    if isPhone,
+                       hasRootContext,
+                       let current = store.previewCharacter,
+                       store.item(for: current) != nil {
+                        standardPhoneCharacterPreview(
+                            character: current,
+                            selectedCharacter: store.selectedCharacter,
+                            onClear: { store.previewCharacter = nil }
+                        )
+                        .padding(.bottom, 8)
+                    }
 
-                            // Script filter (Any / Simplified / Traditional)
-                            Picker("Script", selection: Binding(get: {
-                                store.scriptFilter
-                            }, set: { store.setScriptFilter($0) })) {
-                                Text("Any").tag(ScriptFilter.any)
-                                Text("Simplified").tag(ScriptFilter.simplified)
-                                Text("Traditional").tag(ScriptFilter.traditional)
-                            }
-                            .font(ResponsiveFont.subheadline)
-                            .pickerStyle(.segmented)
-                            .padding(.bottom, 4)
+                    HStack(alignment: .center, spacing: 12) {
+                        CompactScriptFilterControl(selection: store.scriptFilter) { store.setScriptFilter($0) }
 
-                            gridInteractionHintRow
+                        Button {
+                            showRootFilters = true
+                        } label: {
+                            Label(rootFilterButtonTitle, systemImage: activeRootFilterCount > 0 ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                                .font(ResponsiveFont.subheadline.weight(.semibold))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 10)
+                                .background(Color(.secondarySystemBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        .buttonStyle(.plain)
 
-                            // Roots filters (compact row)
-                            HStack(alignment: .center, spacing: 12) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Min strokes: \(store.rootMinStroke)")
-                                        .font(ResponsiveFont.caption)
-                                        .foregroundStyle(.secondary)
-                                    Slider(value: Binding(
-                                        get: { Double(store.rootMinStroke) },
-                                        set: { store.rootMinStroke = Int($0.rounded()) }
-                                    ), in: 0...30, step: 1)
-                                    .frame(maxWidth: 220)
-                                }
+                        Spacer()
+                    }
+                    .padding(.bottom, 4)
 
-                                Divider()
-                                    .frame(height: 28)
+                    gridInteractionHintRow
 
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Structure")
-                                        .font(ResponsiveFont.caption)
-                                        .foregroundStyle(.secondary)
-                                    Picker("Structure", selection: $store.rootStructureFilter) {
-                                        ForEach(store.availableStructureFilters, id: \.self) { structKey in
-                                            Text(structKey).tag(structKey)
+                    if store.showComponentHelp {
+                        // Inline explainer inside the explorer itself
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("How to use Components Explorer")
+                                .font(ResponsiveFont.subheadline.bold())
+                            Text("Link characters through a shared component: start from a familiar character, tap a component to pivot, view characters built with that part, and keep pivoting until you find the one you need.")
+                                .font(ResponsiveFont.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+
+                    if hasRootContext {
+                        if !store.sharedPeersByComponent.isEmpty {
+                            ForEach(Array(store.sharedPeersByComponent.keys).sorted(), id: \.self) { comp in
+                                let compItem = store.item(for: comp)
+                                let peers = store.sharedPeersByComponent[comp] ?? []
+                                let rowItems: [ComponentItem] = {
+                                    guard let compItem else { return peers }
+                                    return ([compItem] + peers).reduce(into: []) { partial, item in
+                                        if !partial.contains(where: { $0.character == item.character }) {
+                                            partial.append(item)
                                         }
                                     }
-                                    .pickerStyle(.menu)
-                                }
-                            }
-                            .padding(.bottom, 4)
+                                }()
+                                VStack(alignment: .leading, spacing: 8) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(componentSectionTitle(for: comp, item: compItem))
+                                            .font(ResponsiveFont.headline)
+                                        Text("Sorted by how often this component appears in other characters.")
+                                            .font(ResponsiveFont.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
 
-                            if store.showComponentHelp {
-                                // Inline explainer inside the explorer itself
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("How to use Components Explorer")
-                                        .font(ResponsiveFont.subheadline.bold())
-                                    Text("Link characters through a shared component: start from a familiar character, tap a component to pivot, view characters built with that part, and keep pivoting until you find the one you need.")
-                                        .font(ResponsiveFont.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                .padding(.vertical, 4)
-                            }
-
-                            if !store.sharedPeersByComponent.isEmpty {
-                                ForEach(Array(store.sharedPeersByComponent.keys).sorted(), id: \.self) { comp in
-                                    let compItem = store.item(for: comp)
-                                    let peers = store.sharedPeersByComponent[comp] ?? []
-                                    let rowItems: [ComponentItem] = {
-                                        guard let compItem else { return peers }
-                                        return ([compItem] + peers).reduce(into: []) { partial, item in
-                                            if !partial.contains(where: { $0.character == item.character }) {
-                                                partial.append(item)
-                                            }
+                                    #if targetEnvironment(macCatalyst)
+                                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 72, maximum: 120), spacing: 8)], spacing: 8) {
+                                        ForEach(rowItems, id: \.character) { item in
+                                            branchRow(item)
                                         }
-                                    }()
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text(componentSectionTitle(for: comp, item: compItem))
-                                                .font(ResponsiveFont.headline)
-                                            Text("Sorted by how often this component appears in other characters.")
-                                                .font(ResponsiveFont.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
-
-                                        #if targetEnvironment(macCatalyst)
-                                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 72, maximum: 120), spacing: 8)], spacing: 8) {
+                                    }
+                                    #else
+                                    ScrollView(.horizontal, showsIndicators: false) {
+                                        HStack(spacing: 8) {
                                             ForEach(rowItems, id: \.character) { item in
                                                 branchRow(item)
                                             }
                                         }
-                                        #else
-                                        ScrollView(.horizontal, showsIndicators: false) {
-                                            HStack(spacing: 8) {
-                                                ForEach(rowItems, id: \.character) { item in
-                                                    branchRow(item)
-                                                }
-                                            }
-                                        }
-                                        #endif
                                     }
-                                    .padding(10)
-                                    .background(Color(.secondarySystemBackground))
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    #endif
                                 }
+                                .padding(10)
+                                .background(Color(.secondarySystemBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
+                        }
 
-                            VStack(alignment: .leading, spacing: 8) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Characters containing \(seed) (\(store.rootDerivativesTotal))")
-                                        .font(ResponsiveFont.headline)
-                                    Text("Sorted by popular usage.")
-                                        .font(ResponsiveFont.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                if store.rootDerivatives.isEmpty {
-                                    Text("No derivatives found for this character.")
-                                        .font(ResponsiveFont.caption)
-                                        .foregroundStyle(.secondary)
-                                } else {
-                                    ScrollView(.horizontal, showsIndicators: false) {
-                                        LazyHStack(spacing: 8) {
-                                            ForEach(store.rootDerivatives, id: \.character) { item in
-                                                branchRow(item)
-                                            }
+                        VStack(alignment: .leading, spacing: 8) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Characters containing \(seed) (\(store.rootDerivativesTotal))")
+                                    .font(ResponsiveFont.headline)
+                                Text("Sorted by popular usage.")
+                                    .font(ResponsiveFont.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            if store.rootDerivatives.isEmpty {
+                                Text("No derivatives found for this character.")
+                                    .font(ResponsiveFont.caption)
+                                    .foregroundStyle(.secondary)
+                            } else {
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    LazyHStack(spacing: 8) {
+                                        ForEach(store.rootDerivatives, id: \.character) { item in
+                                            branchRow(item)
                                         }
                                     }
                                 }
                             }
                         }
-                        .padding()
-                    }
-                    .onChange(of: seed) { _, _ in
-                        withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
-                    }
-                    .onChange(of: store.previewCharacter) { _, _ in
-                        withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
-                    }
-                    .onChange(of: store.selectedCharacter) { _, _ in
-                        withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
+                    } else {
+                        let initial = store.rootInitialGridItems()
+                        initialRootGrid(items: initial.items, total: initial.total)
                     }
                 }
-                .navigationTitle("Roots")
-                .onAppear {
-                    let start = seedOverride ?? store.selectedCharacter ?? store.previewCharacter
-                    syncSeed(with: start, resetHistory: true)
-                }
-                .onChange(of: store.scriptFilter) { _, _ in
-                    let start = seed
-                    store.loadSharedComponentPeers(for: start)
-                    store.loadSharedPeersByComponent(for: start)
-                    store.loadRootDerivatives(for: start)
-                }
-                .onChange(of: store.rootMinStroke) { _, _ in
-                    let start = seed
-                    store.loadSharedComponentPeers(for: start)
-                    store.loadSharedPeersByComponent(for: start)
-                    store.loadRootDerivatives(for: start)
-                }
-                .onChange(of: store.rootStructureFilter) { _, _ in
-                    let start = seed
-                    store.loadSharedComponentPeers(for: start)
-                    store.loadSharedPeersByComponent(for: start)
-                    store.loadRootDerivatives(for: start)
-                }
-                // Keep in sync with sidebar selection on iPad/Mac (not needed on iPhone)
-                #if targetEnvironment(macCatalyst)
-                .onChange(of: store.selectedCharacter) { _, newValue in
-                    syncSeed(with: newValue, resetHistory: false)
-                }
-                #else
-                .onChange(of: store.selectedCharacter) { _, newValue in
-                    if UIDevice.current.userInterfaceIdiom != .phone {
-                        syncSeed(with: newValue, resetHistory: false)
-                    }
-                }
-                #endif
+                .padding()
+            }
+            .onChange(of: seed) { _, _ in
+                withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
+            }
+            .onChange(of: store.previewCharacter) { _, _ in
+                withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
+            }
+            .onChange(of: store.selectedCharacter) { _, _ in
+                withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
             }
         }
+        .navigationTitle("Roots")
+        .onAppear {
+            let start = seedOverride ?? store.selectedCharacter ?? store.previewCharacter
+            syncSeed(with: start, resetHistory: true)
+        }
+        .onChange(of: store.scriptFilter) { _, _ in
+            reloadRootContextIfNeeded()
+        }
+        .onChange(of: store.rootMinStroke) { _, _ in
+            reloadRootContextIfNeeded()
+        }
+        .onChange(of: store.rootMaxStroke) { _, _ in
+            reloadRootContextIfNeeded()
+        }
+        .onChange(of: store.rootRadicalFilter) { _, _ in
+            reloadRootContextIfNeeded()
+        }
+        .onChange(of: store.rootStructureFilter) { _, _ in
+            reloadRootContextIfNeeded()
+        }
+        // Keep in sync with sidebar selection on iPad/Mac (not needed on iPhone)
+        #if targetEnvironment(macCatalyst)
+        .onChange(of: store.selectedCharacter) { _, newValue in
+            syncSeed(with: newValue, resetHistory: false)
+        }
+        #else
+        .onChange(of: store.selectedCharacter) { _, newValue in
+            if UIDevice.current.userInterfaceIdiom != .phone {
+                syncSeed(with: newValue, resetHistory: false)
+            }
+        }
+        #endif
+        .sheet(isPresented: $showRootFilters) {
+            rootFiltersSheet
+        }
+    }
+
+    private var activeRootFilterCount: Int {
+        var count = 0
+        if store.rootMinStroke > 0 || store.rootMaxStroke < 30 { count += 1 }
+        if store.rootRadicalFilter != "none" { count += 1 }
+        if store.rootStructureFilter != "none" { count += 1 }
+        return count
+    }
+
+    private var rootFilterButtonTitle: String {
+        activeRootFilterCount > 0 ? "Filters (\(activeRootFilterCount))" : "Filters"
+    }
+
+    private var rootFiltersSheet: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Minimum Strokes")
+                            .font(ResponsiveFont.caption.bold())
+                            .foregroundStyle(.secondary)
+                        StrokeRangeSlider(minValue: $store.rootMinStroke, maxValue: $store.rootMaxStroke)
+                    }
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        rootRadicalPicker
+                        rootStructurePicker
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle("Roots Filters")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if activeRootFilterCount > 0 {
+                        Button("Reset") {
+                            store.rootMinStroke = 0
+                            store.rootMaxStroke = 30
+                            store.rootRadicalFilter = "none"
+                            store.rootStructureFilter = "none"
+                        }
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        showRootFilters = false
+                    }
+                }
+            }
+            .presentationDetents(sizeClass == .compact ? [.medium, .large] : [.large])
+        }
+    }
+
+    private var rootRadicalPicker: some View {
+        HStack(spacing: 8) {
+            Text("Radical")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+            Picker("Radical", selection: $store.rootRadicalFilter) {
+                ForEach(store.availableRadicalFilters, id: \.self) { radical in
+                    Text(store.radicalFilterLabel(radical)).tag(radical)
+                }
+            }
+            .font(ResponsiveFont.body)
+            .pickerStyle(.menu)
+            .frame(minWidth: 80)
+        }
+        .padding(.horizontal, 8)
+        .background(Color(.secondarySystemBackground).opacity(0.5))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var rootStructurePicker: some View {
+        HStack(spacing: 8) {
+            Text("Structure")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+            Picker("Structure", selection: $store.rootStructureFilter) {
+                ForEach(store.availableStructureFilters, id: \.self) { structKey in
+                    Text(structKey).tag(structKey)
+                }
+            }
+            .font(ResponsiveFont.body)
+            .pickerStyle(.menu)
+        }
+        .padding(.horizontal, 8)
+        .background(Color(.secondarySystemBackground).opacity(0.5))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func initialRootGrid(items: [ComponentItem], total: Int) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("All characters (\(total))")
+                    .font(ResponsiveFont.headline)
+                Text("Choose a character to explore its roots.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            if items.isEmpty {
+                Text("No characters match the current filters.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 72, maximum: 120), spacing: 8)], spacing: 8) {
+                    ForEach(items, id: \.character) { item in
+                        initialRootCell(item)
+                    }
+                }
+            }
+        }
+    }
+
+    private func initialRootCell(_ item: ComponentItem) -> some View {
+        VStack(spacing: 4) {
+            Text(item.character)
+                .font(.system(size: 30, weight: .bold))
+                .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
+            Text(item.pinyinText.isEmpty ? "-" : item.pinyinText)
+                .font(ResponsiveFont.caption)
+                .fontWeight(.semibold)
+                .foregroundStyle(.secondary)
+            Text("\(item.usageCount)")
+                .font(ResponsiveFont.caption2)
+                .fontWeight(.semibold)
+                .foregroundStyle(.tertiary)
+        }
+        .padding(8)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 0.5)
+        )
+        .onTapGesture {
+            startRootExploration(with: item.character, remember: false)
+        }
+        .simultaneousGesture(
+            TapGesture(count: 2).onEnded {
+                startRootExploration(with: item.character, remember: true)
+            }
+        )
     }
 
     private var emptyStateCard: some View {
@@ -785,6 +900,27 @@ struct ComponentsExplorerShell: View {
             store.preview(character: character)
         }
         store.showComponentHelp = false
+    }
+
+    private func startRootExploration(with character: String, remember: Bool) {
+        seed = character
+        store.preview(character: character)
+        if remember {
+            store.pushRootBreadcrumb(character)
+            store.select(character: character)
+        }
+        store.loadSharedComponentPeers(for: character)
+        store.loadSharedPeersByComponent(for: character)
+        store.loadRootDerivatives(for: character)
+        store.showComponentHelp = false
+    }
+
+    private func reloadRootContextIfNeeded() {
+        let start = seed
+        guard !start.isEmpty else { return }
+        store.loadSharedComponentPeers(for: start)
+        store.loadSharedPeersByComponent(for: start)
+        store.loadRootDerivatives(for: start)
     }
 
     private func syncSeed(with character: String?, resetHistory: Bool = false) {
