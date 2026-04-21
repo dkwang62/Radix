@@ -41,6 +41,29 @@ struct RootView: View {
         return try Data(contentsOf: url)
     }
 
+    private var currentTabTitle: String {
+        if store.route == .aiLink {
+            return "AI Link"
+        }
+        if store.route == .lineage {
+            return "Roots"
+        }
+        if store.route == .favourites {
+            return "Favorites"
+        }
+
+        switch store.homeTab {
+        case .smart:
+            return "Search"
+        case .filter:
+            return "Browse"
+        case .favourites:
+            return "Favorites"
+        case .dataEdit:
+            return "My Data"
+        }
+    }
+
     var body: some View {
         Group {
             if sizeClass == .compact {
@@ -158,18 +181,8 @@ struct RootView: View {
         let selection: Int = {
             if store.route == .aiLink { return 4 }
             if store.route == .lineage { return 2 }
+            if store.route == .favourites { return 3 }
             return store.homeTab.index
-        }()
-        let title: String = {
-            switch selection {
-            case 0: return "Search"
-            case 1: return "Browse"
-            case 2: return "Roots"
-            case 3: return "Favourites"
-            case 4: return "AI"
-            case 5: return "My Data"
-            default: return "Radix"
-            }
         }()
 
         NavigationStack {
@@ -276,7 +289,7 @@ struct RootView: View {
                 .background(Color(.systemBackground).opacity(0.95))
                 .overlay(Divider(), alignment: .top)
             }
-            .navigationTitle(title)
+            .navigationTitle(currentTabTitle)
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $store.showiPhoneDetail) {
                 if let current = store.previewCharacter ?? store.selectedCharacter,
@@ -394,6 +407,8 @@ struct RootView: View {
                 }
             }
         }
+        .navigationTitle(currentTabTitle)
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     private var sidebar: some View {
@@ -415,9 +430,9 @@ struct RootView: View {
                         store.goToBrowse()
                     }
                     sidebarIconButton(
-                        title: "Favourites",
+                        title: "Favorites",
                         systemImage: "star",
-                        isActive: store.route == .search && store.homeTab == .favourites
+                        isActive: store.route == .favourites || (store.route == .search && store.homeTab == .favourites)
                     ) {
                         store.goToFavourites()
                     }
@@ -544,6 +559,8 @@ struct RootView: View {
             case 2:
                 store.route = .lineage
                 store.showComponentHelp = true
+            case 3:
+                store.goToFavourites()
             case 5:
                 store.goToDataEdit()
             default:
@@ -1701,20 +1718,25 @@ private struct FavouritesTab: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Text("My Collection (\(store.favoriteItems.count + store.favoritePhrasesItems.count))")
-                    .font(ResponsiveFont.title3.bold())
-                Spacer()
-                HStack(spacing: 12) {
-                    Button(action: onExportProfile) {
-                        Image(systemName: "square.and.arrow.up")
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Spacer()
+                    HStack(spacing: 12) {
+                        Button(action: onExportProfile) {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                        Button(action: onImportProfile) {
+                            Image(systemName: "square.and.arrow.down")
+                        }
                     }
-                    Button(action: onImportProfile) {
-                        Image(systemName: "square.and.arrow.down")
-                    }
+                    .font(ResponsiveFont.body)
+                    .foregroundStyle(Color.accentColor)
                 }
-                .font(ResponsiveFont.body)
-                .foregroundStyle(Color.accentColor)
+
+                Text("Whatever is remembered will be forgotten once the app is closed. Add to Favorites to keep.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .padding()
 
@@ -1945,27 +1967,35 @@ private struct BreadcrumbStrip: View {
 
     var body: some View {
         if !store.rootBreadcrumb.isEmpty {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(Array(store.rootBreadcrumb.enumerated()), id: \.offset) { index, character in
-                        let isActive = character == activeCharacter || index == store.rootBreadcrumbIndex
-                        Button {
-                            store.activateBreadcrumbCharacter(character)
-                        } label: {
-                            Text(character)
-                                .font(.system(size: 22, weight: .bold))
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .background(isActive ? Color.accentColor.opacity(0.2) : Color(.secondarySystemBackground))
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
+            HStack(spacing: 6) {
+                Text("Remembered")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel("Remembered characters")
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(Array(store.rootBreadcrumb.enumerated()), id: \.offset) { index, character in
+                            let isActive = character == activeCharacter || index == store.rootBreadcrumbIndex
+                            Button {
+                                store.activateBreadcrumbCharacter(character)
+                            } label: {
+                                Text(character)
+                                    .font(.system(size: 22, weight: .bold))
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(isActive ? Color.accentColor.opacity(0.2) : Color(.secondarySystemBackground))
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+                            .buttonStyle(.plain)
+                            .copyCharacterContextMenu(character, pinyin: store.item(for: character)?.pinyinText)
                         }
-                        .buttonStyle(.plain)
-                        .copyCharacterContextMenu(character, pinyin: store.item(for: character)?.pinyinText)
                     }
+                    .padding(.trailing, 8)
+                    .padding(.vertical, 4)
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
             }
+            .padding(.leading, 8)
             .background(Color(.systemBackground))
         }
     }
@@ -2684,9 +2714,7 @@ private struct DataEditTab: View {
 
     private var myDataHeader: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("My Data")
-                    .font(ResponsiveFont.title.bold())
+            HStack {
                 Spacer()
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) { showHelp.toggle() }

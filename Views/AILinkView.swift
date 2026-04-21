@@ -13,8 +13,10 @@ import UIKit
 struct AILinkView: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.horizontalSizeClass) var sizeClass
+    @Environment(\.openURL) private var openURL
     let item: ComponentItem
     @State private var copied = false
+    @State private var openedChatGPT = false
     @State private var isTasksExpanded = true // Default to expanded for better usability
     @State private var isConfigExpanded = false
 
@@ -245,14 +247,26 @@ struct AILinkView: View {
     }
 
     private var footerSection: some View {
-        HStack {
-            Button("Copy Prompt") {
-                copyPromptToClipboard()
+        HStack(spacing: 12) {
+            Button {
+                openPromptInChatGPT()
+            } label: {
+                Label("Open ChatGPT", systemImage: "arrow.up.forward.app")
             }
             .buttonStyle(.borderedProminent)
             .font(ResponsiveFont.headline)
-            
-            if copied {
+
+            Button("Copy Prompt") {
+                copyPromptToClipboard()
+            }
+            .buttonStyle(.bordered)
+            .font(ResponsiveFont.headline)
+
+            if openedChatGPT {
+                Text("Opening ChatGPT. Prompt copied as backup.")
+                    .font(ResponsiveFont.footnote)
+                    .foregroundStyle(.secondary)
+            } else if copied {
                 Text("Copied. Paste into ChatGPT.")
                     .font(ResponsiveFont.footnote)
                     .foregroundStyle(.secondary)
@@ -262,15 +276,42 @@ struct AILinkView: View {
 
     // MARK: - Logic
 
+    private func openPromptInChatGPT() {
+        let text = store.promptText(for: item.character)
+        copyPromptToClipboard(showStatus: false)
+
+        if let url = chatGPTURL(prompt: text) {
+            openURL(url)
+        }
+
+        openedChatGPT = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            openedChatGPT = false
+        }
+    }
+
     private func copyPromptToClipboard() {
+        copyPromptToClipboard(showStatus: true)
+    }
+
+    private func copyPromptToClipboard(showStatus: Bool) {
         let text = store.promptText(for: item.character)
 #if canImport(UIKit)
         UIPasteboard.general.string = text
 #endif
+        guard showStatus else { return }
         copied = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
             copied = false
         }
+    }
+
+    private func chatGPTURL(prompt: String) -> URL? {
+        var components = URLComponents(string: "https://chatgpt.com/")
+        components?.queryItems = [
+            URLQueryItem(name: "q", value: prompt)
+        ]
+        return components?.url
     }
 
     private func taskTitle(_ id: String) -> String {
