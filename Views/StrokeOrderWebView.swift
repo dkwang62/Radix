@@ -1,5 +1,8 @@
 import SwiftUI
 import WebKit
+import SQLite3
+
+private let SQLITE_TRANSIENT_STROKES = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
 
 struct StrokeOrderSection: View {
     let character: String
@@ -25,7 +28,7 @@ struct StrokeOrderSection: View {
                         .stroke(Color(.separator), lineWidth: 1)
                 )
 
-            Text("Animation is loaded from HanziWriter data over HTTPS.")
+            Text("Animation data is bundled for offline use; missing characters load over HTTPS.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
@@ -55,8 +58,9 @@ struct StrokeOrderWebView: UIViewRepresentable {
 
         func render(character: String, size: Int) {
             guard let webView else { return }
-            let escapedCharacter = jsEscaped(character)
-            let js = "window.renderCharacter('\(escapedCharacter)', \(size));"
+            let characterLiteral = Self.javascriptLiteral(character)
+            let strokeData = CharacterStrokeRepository.shared.strokeJSON(for: character) ?? "null"
+            let js = "window.renderCharacter(\(characterLiteral), \(size), \(strokeData));"
             webView.evaluateJavaScript(js, completionHandler: nil)
         }
 
@@ -64,12 +68,17 @@ struct StrokeOrderWebView: UIViewRepresentable {
             webView?.evaluateJavaScript("window.clearCharacter();", completionHandler: nil)
         }
 
-        private func jsEscaped(_ input: String) -> String {
-            input
-                .replacingOccurrences(of: "\\", with: "\\\\")
-                .replacingOccurrences(of: "'", with: "\\'")
-                .replacingOccurrences(of: "\n", with: "\\n")
-                .replacingOccurrences(of: "\r", with: "\\r")
+        private static func javascriptLiteral(_ input: String) -> String {
+            guard let data = try? JSONSerialization.data(withJSONObject: input, options: .fragmentsAllowed),
+                  let literal = String(data: data, encoding: .utf8) else {
+                let escaped = input
+                    .replacingOccurrences(of: "\\", with: "\\\\")
+                    .replacingOccurrences(of: "\"", with: "\\\"")
+                    .replacingOccurrences(of: "\n", with: "\\n")
+                    .replacingOccurrences(of: "\r", with: "\\r")
+                return "\"\(escaped)\""
+            }
+            return literal
         }
     }
 
@@ -151,7 +160,7 @@ struct StrokeOrderWebView: UIViewRepresentable {
               target.innerHTML = '';
               writer = null;
             };
-            window.renderCharacter = function(ch, size) {
+            window.renderCharacter = function(ch, size, bundledData) {
               const target = document.getElementById('target');
               target.style.width = size + 'px';
               target.style.height = size + 'px';
@@ -163,7 +172,23 @@ struct StrokeOrderWebView: UIViewRepresentable {
                 showOutline: true,
                 strokeAnimationSpeed: 1.2,
                 delayBetweenStrokes: 120,
-                delayBetweenLoops: 800
+                delayBetweenLoops: 800,
+                charDataLoader: function(char, onComplete, onError) {
+                  if (bundledData) {
+                    onComplete(bundledData);
+                    return;
+                  }
+                  const url = 'https://cdn.jsdelivr.net/npm/hanzi-writer-data@latest/' + encodeURIComponent(char) + '.json';
+                  fetch(url)
+                    .then(function(response) {
+                      if (!response.ok) { throw new Error('Stroke data unavailable'); }
+                      return response.json();
+                    })
+                    .then(onComplete)
+                    .catch(function(error) {
+                      if (onError) { onError(error); }
+                    });
+                }
               });
               writer.loopCharacterAnimation();
             };
@@ -171,5 +196,57 @@ struct StrokeOrderWebView: UIViewRepresentable {
         </body>
         </html>
         """
+    }
+}
+
+private final class CharacterStrokeRepository: @unchecked Sendable {
+    static let shared = CharacterStrokeRepository()
+
+    private var db: OpaquePointer?
+    private let lock = NSLock()
+
+    private init() {
+        guard let url = Bundle.main.url(forResource: "character_strokes", withExtension: "db") else {
+            return
+        }
+
+        if sqlite3_open_v2(url.path, &db, SQLITE_OPEN_READONLY, nil) != SQLITE_OK {
+            db = nil
+        }
+    }
+
+    deinit {
+        if let db {
+            sqlite3_close(db)
+        }
+    }
+
+    func strokeJSON(for character: String) -> String? {
+        let trimmed = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.count == 1, let db else { return nil }
+        lock.lock()
+        defer { lock.unlock() }
+
+        let sql = "SELECT data FROM strokes WHERE character = ? LIMIT 1"
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else {
+            return nil
+        }
+        defer { sqlite3_finalize(statement) }
+
+        sqlite3_bind_text(statement, 1, (trimmed as NSString).utf8String, -1, SQLITE_TRANSIENT_STROKES)
+
+        guard sqlite3_step(statement) == SQLITE_ROW,
+              let dataPointer = sqlite3_column_text(statement, 0) else {
+            return nil
+        }
+
+        let json = String(cString: dataPointer)
+        guard let data = json.data(using: .utf8),
+              (try? JSONSerialization.jsonObject(with: data)) != nil else {
+            return nil
+        }
+
+        return json
     }
 }

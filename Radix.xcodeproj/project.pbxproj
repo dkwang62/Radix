@@ -16,6 +16,7 @@
 		43E2AF8FCB18F25425CAFC3D /* SUBTLEX-CH-CHR.txt in Resources */ = {isa = PBXBuildFile; fileRef = D355D0DC4BFD564CD930A664 /* SUBTLEX-CH-CHR.txt */; };
 		4A7054204EB051FAAD223385 /* JSONFileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C168A03A00D507535219249 /* JSONFileDocument.swift */; };
 		4EA624A7F2EC5FA78A32CE8C /* DataExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5638FC4C06278901129EF9DF /* DataExportService.swift */; };
+		51F6A1B7C8E94D3BA2F0D645 /* character_strokes.db in Resources */ = {isa = PBXBuildFile; fileRef = 51F6A1B6C8E94D3BA2F0D645 /* character_strokes.db */; };
 		54A51BF66D66F0EB5BCB894C /* ComponentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7695C55BB9AFAA1CDFEB58 /* ComponentModels.swift */; };
 		643BD107342BFF9737B8E68D /* UnifiedPackage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB37C9B2A3908035B4225770 /* UnifiedPackage.swift */; };
 		68BF5B495E4A41F3DF1E774C /* RadixStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C5A62369FC8A8F37AAD1 /* RadixStoreTests.swift */; };
@@ -79,6 +80,7 @@
 		0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "hanzi-writer.min.js"; sourceTree = "<group>"; };
 		0AD6667A0050D42F3CEC06E1 /* RadixApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixApp.swift; sourceTree = "<group>"; };
 		4559296FCA5B2061336BA302 /* EntitlementManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitlementManager.swift; sourceTree = "<group>"; };
+		51F6A1B6C8E94D3BA2F0D645 /* character_strokes.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = character_strokes.db; sourceTree = "<group>"; };
 		5638FC4C06278901129EF9DF /* DataExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExportService.swift; sourceTree = "<group>"; };
 		59B2335DD9219C0F7B96DE43 /* StrokeOrderWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeOrderWebView.swift; sourceTree = "<group>"; };
 		5FB0197D42D52FA9A72F4B24 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -179,6 +181,7 @@
 			isa = PBXGroup;
 			children = (
 				5FB0197D42D52FA9A72F4B24 /* Assets.xcassets */,
+				51F6A1B6C8E94D3BA2F0D645 /* character_strokes.db */,
 				0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */,
 				E9C3F33A9386C399BF9BA6BD /* subtlex_freq.json */,
 			);
@@ -310,6 +313,7 @@
 			files = (
 				C0E52DFB3BB4B3CDE7E768D8 /* Assets.xcassets in Resources */,
 				43E2AF8FCB18F25425CAFC3D /* SUBTLEX-CH-CHR.txt in Resources */,
+				51F6A1B7C8E94D3BA2F0D645 /* character_strokes.db in Resources */,
 				B0DE21C9E5CAC9EF465BFD96 /* enhanced_component_map_with_etymology.json in Resources */,
 				859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */,
 				33BD34622FD7927FF5D00EDA /* phrases.db in Resources */,
