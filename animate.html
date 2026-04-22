@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Radix Stroke Order</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: #f7f7f7;
+      overflow: hidden;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    #target {
+      width: min(82vmin, 360px);
+      height: min(82vmin, 360px);
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.3/dist/hanzi-writer.min.js"></script>
+</head>
+<body>
+  <div id="target"></div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const character = (params.get('char') || params.get('c') || '水').trim().slice(0, 1);
+    document.title = character;
+
+    const target = document.getElementById('target');
+    const size = Math.min(Math.max(Math.floor(window.innerWidth * 0.82), 240), 360);
+    target.style.width = `${size}px`;
+    target.style.height = `${size}px`;
+
+    const writer = HanziWriter.create('target', character, {
+      width: size,
+      height: size,
+      padding: 5,
+      showOutline: true,
+      strokeAnimationSpeed: 1.2,
+      delayBetweenStrokes: 120,
+      delayBetweenLoops: 800,
+      charDataLoader: function(char) {
+        return fetch(`https://cdn.jsdelivr.net/npm/hanzi-writer-data@latest/${encodeURIComponent(char)}.json`)
+          .then(function(response) {
+            return response.json();
+          });
+      }
+    });
+
+    writer.loopCharacterAnimation();
+  </script>
+</body>
+</html>

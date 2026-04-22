@@ -32,6 +32,7 @@ Native multi-platform SwiftUI version of the existing Streamlit Radix app.
 - Full-screen Roots Explorer for deep drill-down
 - Related character browsing
 - Stroke-order animation section (HanziWriter in-app web view)
+- Hosted stroke-order player (`animate.html`) for public character animation links
 - Phrase list by selected character (2/3/4 char)
 - Rich phrase cards with focus-character highlighting
 - Favorites persisted in `UserDefaults`
@@ -45,6 +46,13 @@ Native multi-platform SwiftUI version of the existing Streamlit Radix app.
 - The visible UI uses `Favorites`, `Roots`, and `Remembered`.
 - Some internal model, route, and persistence names still use `favourites`, `lineage`, or `breadcrumb` for backward compatibility. Do not rename those identifiers unless you also migrate saved data and route handling.
 - The Remembered bar was historically implemented as `rootBreadcrumb`; it is now the global temporary character memory bar.
+
+## Hosted Animation Links
+
+- `animate.html` is a static HanziWriter player intended for GitHub Pages.
+- Public links use `https://dkwang62.github.io/Radix/animate.html?char=水`.
+- GitHub Pages must be enabled for the repository before those links work for external users.
+- The page intentionally displays only the animated character.
 
 ## Create the Xcode project
 
