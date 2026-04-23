@@ -32,6 +32,15 @@
 		864DAB962F93C022001B9AA7 /* BinaryFileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB952F93C022001B9AA7 /* BinaryFileDocument.swift */; };
 		864DAB972F9A0001001B9AA7 /* StrokeAnimationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB982F9A0001001B9AA7 /* StrokeAnimationProvider.swift */; };
 		864DAB992F9A0001001B9AA7 /* StrokeAnimationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB982F9A0001001B9AA7 /* StrokeAnimationProvider.swift */; };
+		864DAB9B2F9B0001001B9AA7 /* OpenSourceLicensesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB9A2F9B0001001B9AA7 /* OpenSourceLicensesView.swift */; };
+		864DAB9C2F9B0001001B9AA7 /* OpenSourceLicensesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB9A2F9B0001001B9AA7 /* OpenSourceLicensesView.swift */; };
+		864DAB9E2F9B0001001B9AA7 /* Licenses in Resources */ = {isa = PBXBuildFile; fileRef = 864DAB9D2F9B0001001B9AA7 /* Licenses */; };
+		864DABAF2F9B0001001B9AA7 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DABAC2F9B0001001B9AA7 /* SettingsView.swift */; };
+		864DABB02F9B0001001B9AA7 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DABAC2F9B0001001B9AA7 /* SettingsView.swift */; };
+		864DABB12F9B0001001B9AA7 /* CreditsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DABAD2F9B0001001B9AA7 /* CreditsView.swift */; };
+		864DABB22F9B0001001B9AA7 /* CreditsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DABAD2F9B0001001B9AA7 /* CreditsView.swift */; };
+		864DABB32F9B0001001B9AA7 /* LicenseTextLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DABAE2F9B0001001B9AA7 /* LicenseTextLoader.swift */; };
+		864DABB42F9B0001001B9AA7 /* LicenseTextLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DABAE2F9B0001001B9AA7 /* LicenseTextLoader.swift */; };
 		86CD14402F9822B300D7BDBD /* DataEditTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14372F9822B300D7BDBD /* DataEditTab.swift */; };
 		86CD14412F9822B300D7BDBD /* FileTransferModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14392F9822B300D7BDBD /* FileTransferModifier.swift */; };
 		86CD14422F9822B300D7BDBD /* StrokeRangeSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD143F2F9822B300D7BDBD /* StrokeRangeSlider.swift */; };
@@ -96,6 +105,11 @@
 		864DAB8F2F93BD51001B9AA7 /* CharacterPreviewHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterPreviewHeader.swift; sourceTree = "<group>"; };
 		864DAB952F93C022001B9AA7 /* BinaryFileDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryFileDocument.swift; sourceTree = "<group>"; };
 		864DAB982F9A0001001B9AA7 /* StrokeAnimationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeAnimationProvider.swift; sourceTree = "<group>"; };
+		864DAB9A2F9B0001001B9AA7 /* OpenSourceLicensesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenSourceLicensesView.swift; sourceTree = "<group>"; };
+		864DAB9D2F9B0001001B9AA7 /* Licenses */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Licenses; sourceTree = "<group>"; };
+		864DABAC2F9B0001001B9AA7 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		864DABAD2F9B0001001B9AA7 /* CreditsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditsView.swift; sourceTree = "<group>"; };
+		864DABAE2F9B0001001B9AA7 /* LicenseTextLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseTextLoader.swift; sourceTree = "<group>"; };
 		86CD14342F9822B300D7BDBD /* AddPhrasesFileDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPhrasesFileDocument.swift; sourceTree = "<group>"; };
 		86CD14352F9822B300D7BDBD /* AppleStrokeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleStrokeViews.swift; sourceTree = "<group>"; };
 		86CD14362F9822B300D7BDBD /* BreadcrumbStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreadcrumbStrip.swift; sourceTree = "<group>"; };
@@ -161,6 +175,7 @@
 				864DAB892F93B722001B9AA7 /* PhraseRepository.swift */,
 				864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */,
 				864DAB982F9A0001001B9AA7 /* StrokeAnimationProvider.swift */,
+				864DABAE2F9B0001001B9AA7 /* LicenseTextLoader.swift */,
 				5638FC4C06278901129EF9DF /* DataExportService.swift */,
 				4559296FCA5B2061336BA302 /* EntitlementManager.swift */,
 				6C168A03A00D507535219249 /* JSONFileDocument.swift */,
@@ -187,6 +202,7 @@
 				5FB0197D42D52FA9A72F4B24 /* Assets.xcassets */,
 				51F6A1B6C8E94D3BA2F0D645 /* character_strokes.db */,
 				0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */,
+				864DAB9D2F9B0001001B9AA7 /* Licenses */,
 				E9C3F33A9386C399BF9BA6BD /* subtlex_freq.json */,
 			);
 			path = Resources;
@@ -214,8 +230,11 @@
 			children = (
 				864DAB8F2F93BD51001B9AA7 /* CharacterPreviewHeader.swift */,
 				BD0FD27099E93C0B3DBCC55A /* AILinkView.swift */,
+				864DABAC2F9B0001001B9AA7 /* SettingsView.swift */,
+				864DABAD2F9B0001001B9AA7 /* CreditsView.swift */,
 				CD17FEE8A50EC8A49C37A2FF /* CharacterDetailView.swift */,
 				D1C7DBD97423A0CB1563CC5D /* CharacterInfoCard.swift */,
+				864DAB9A2F9B0001001B9AA7 /* OpenSourceLicensesView.swift */,
 				72B5F27805929C40BDB2DE8C /* PaywallView.swift */,
 				59B2335DD9219C0F7B96DE43 /* StrokeOrderWebView.swift */,
 			);
@@ -320,6 +339,7 @@
 				51F6A1B7C8E94D3BA2F0D645 /* character_strokes.db in Resources */,
 				B0DE21C9E5CAC9EF465BFD96 /* enhanced_component_map_with_etymology.json in Resources */,
 				859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */,
+				864DAB9E2F9B0001001B9AA7 /* Licenses in Resources */,
 				33BD34622FD7927FF5D00EDA /* phrases.db in Resources */,
 				9D7AF752F6083FC689726598 /* subtlex_freq.json in Resources */,
 			);
@@ -358,6 +378,10 @@
 				68BF5B495E4A41F3DF1E774C /* RadixStoreTests.swift in Sources */,
 				36953C4FF6B7A7B82A5663BC /* ResponsiveFont.swift in Sources */,
 				864DAB992F9A0001001B9AA7 /* StrokeAnimationProvider.swift in Sources */,
+				864DAB9C2F9B0001001B9AA7 /* OpenSourceLicensesView.swift in Sources */,
+				864DABB02F9B0001001B9AA7 /* SettingsView.swift in Sources */,
+				864DABB22F9B0001001B9AA7 /* CreditsView.swift in Sources */,
+				864DABB42F9B0001001B9AA7 /* LicenseTextLoader.swift in Sources */,
 				A1058D8DAF993CBF97FFE6A9 /* StrokeOrderWebView.swift in Sources */,
 				643BD107342BFF9737B8E68D /* UnifiedPackage.swift in Sources */,
 				BB6046DC1B72C21D2C18B6BA /* UserProfile.swift in Sources */,
@@ -392,6 +416,10 @@
 				9D149A113D1A76187A94F606 /* PaywallView.swift in Sources */,
 				FAA71A5526023B0DC933A1DE /* PhraseModels.swift in Sources */,
 				864DAB902F93BD51001B9AA7 /* CharacterPreviewHeader.swift in Sources */,
+				864DAB9B2F9B0001001B9AA7 /* OpenSourceLicensesView.swift in Sources */,
+				864DABAF2F9B0001001B9AA7 /* SettingsView.swift in Sources */,
+				864DABB12F9B0001001B9AA7 /* CreditsView.swift in Sources */,
+				864DABB32F9B0001001B9AA7 /* LicenseTextLoader.swift in Sources */,
 				864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */,
 				A05EBFC59DC951C9EFDB9FF9 /* PromptModels.swift in Sources */,
 				CB360F3972D55FBFD1555152 /* RadixApp.swift in Sources */,

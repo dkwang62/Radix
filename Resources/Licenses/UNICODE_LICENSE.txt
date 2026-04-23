@@ -1,0 +1,12 @@
+Unicode data attribution
+
+This app includes data derived from the Unicode Character Database and Unihan database.
+
+Source:
+https://www.unicode.org/
+
+Unicode data files are covered by the Unicode Terms of Use and Unicode License statements.
+For current terms, see:
+https://www.unicode.org/copyright.html
+
+Please retain Unicode attribution when redistributing derived data.

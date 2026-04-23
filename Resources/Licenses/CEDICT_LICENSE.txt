@@ -1,0 +1,11 @@
+CC-CEDICT attribution
+
+CC-CEDICT is licensed under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
+
+Source:
+https://cc-cedict.org/
+
+License:
+https://creativecommons.org/licenses/by-sa/4.0/
+
+You should retain attribution to CC-CEDICT and comply with ShareAlike terms when redistributing derived data.

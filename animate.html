@@ -23,20 +23,45 @@
       width: min(82vmin, 360px);
       height: min(82vmin, 360px);
     }
+
+    #message {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      color: #777;
+      font: 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      text-align: center;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.3/dist/hanzi-writer.min.js"></script>
 </head>
 <body>
   <div id="target"></div>
+  <div id="message" hidden></div>
   <script>
     const params = new URLSearchParams(window.location.search);
-    const character = (params.get('char') || params.get('c') || '水').trim().slice(0, 1);
+    const character = Array.from((params.get('char') || params.get('c') || '水').trim())[0] || '水';
     document.title = character;
 
     const target = document.getElementById('target');
+    const message = document.getElementById('message');
     const size = Math.min(Math.max(Math.floor(window.innerWidth * 0.82), 240), 360);
     target.style.width = `${size}px`;
     target.style.height = `${size}px`;
+
+    function strokeFileName(char) {
+      return `u${char.codePointAt(0).toString(16)}.json`;
+    }
+
+    function fetchJSON(url) {
+      return fetch(url).then(function(response) {
+        if (!response.ok) {
+          throw new Error(`Unable to load ${url}`);
+        }
+        return response.json();
+      });
+    }
 
     const writer = HanziWriter.create('target', character, {
       width: size,
@@ -47,10 +72,14 @@
       delayBetweenStrokes: 120,
       delayBetweenLoops: 800,
       charDataLoader: function(char) {
-        return fetch(`https://cdn.jsdelivr.net/npm/hanzi-writer-data@latest/${encodeURIComponent(char)}.json`)
-          .then(function(response) {
-            return response.json();
+        return fetchJSON(`strokes/${strokeFileName(char)}`)
+          .catch(function() {
+            return fetchJSON(`https://cdn.jsdelivr.net/npm/hanzi-writer-data@latest/${encodeURIComponent(char)}.json`);
           });
+      },
+      onLoadCharDataError: function() {
+        message.textContent = `No stroke animation is available for ${character}.`;
+        message.hidden = false;
       }
     });
 

@@ -41,6 +41,15 @@ Native multi-platform SwiftUI version of the existing Streamlit Radix app.
   - Most app features are free
   - `My Data` advanced editing/export features require Pro
 
+## Third-Party Licenses
+
+- Radix includes a Credits / Data Sources screen in Settings.
+- Radix attributes CC-CEDICT data (CC BY-SA 4.0): https://cc-cedict.org/
+- Radix attributes Unicode/Unihan/IDS references: https://www.unicode.org/
+- Radix includes HanziWriter JavaScript under the MIT License.
+- Radix includes HanziWriter-compatible stroke data derived from Make Me a Hanzi / Arphic data under the Arphic Public License.
+- Full license texts are bundled in `Resources/Licenses/` and summarized in `THIRD_PARTY_LICENSES.md`.
+
 ## Naming Notes
 
 - The visible UI uses `Favorites`, `Roots`, and `Remembered`.
@@ -51,6 +60,8 @@ Native multi-platform SwiftUI version of the existing Streamlit Radix app.
 
 - `animate.html` is a static HanziWriter player intended for GitHub Pages.
 - Public links use `https://dkwang62.github.io/Radix/animate.html?char=水`.
+- The hosted player first checks Radix-published JSON files in `strokes/u<codepoint>.json`, then falls back to HanziWriter's public CDN.
+- To publish app-generated strokes for characters missing from HanziWriter, preview the character in the app, then run `ruby Scripts/export_generated_strokes.rb` and commit/push the generated `strokes/*.json` files.
 - GitHub Pages must be enabled for the repository before those links work for external users.
 - The page intentionally displays only the animated character.
 
