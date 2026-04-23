@@ -894,6 +894,8 @@ private extension String {
     var isSingleChineseCharacter: Bool {
         let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.count == 1, let scalar = trimmed.unicodeScalars.first else { return false }
-        return (0x4E00...0x9FFF).contains(scalar.value) || (0x3400...0x4DBF).contains(scalar.value)
+        return (0x3400...0x4DBF).contains(scalar.value)
+            || (0x4E00...0x9FFF).contains(scalar.value)
+            || (0x20000...0x2EBEF).contains(scalar.value)
     }
 }

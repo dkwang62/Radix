@@ -6,11 +6,11 @@
   "upserts" : {
     "働" : {
       "meta" : {
-        "IDC" : "",
+        "IDC" : "⿰亻動",
         "compounds" : [
 
         ],
-        "decomposition" : "",
+        "decomposition" : "⿰亻動",
         "definition" : "To work",
         "etymology" : {
           "details" : "Japanese はたら(く) hataraku",
@@ -18,7 +18,7 @@
           "type" : ""
         },
         "pinyin" : "dòng",
-        "radical" : "",
+        "radical" : "亻",
         "strokes" : ""
       },
       "related_characters" : [
@@ -27,11 +27,11 @@
     },
     "峠" : {
       "meta" : {
-        "IDC" : "",
+        "IDC" : "⿰山⿱上下",
         "compounds" : [
 
         ],
-        "decomposition" : "",
+        "decomposition" : "⿰山⿱上下",
         "definition" : "mountain pass",
         "etymology" : {
           "details" : "Japanese とうげ tōge",
@@ -39,7 +39,7 @@
           "type" : ""
         },
         "pinyin" : "tóu",
-        "radical" : "",
+        "radical" : "山",
         "strokes" : ""
       },
       "related_characters" : [
@@ -73,13 +73,34 @@
         "潦"
       ]
     },
-    "駅" : {
+    "𧗠" : {
       "meta" : {
-        "IDC" : "",
+        "IDC" : "⿲彳冫亍",
         "compounds" : [
 
         ],
-        "decomposition" : "",
+        "decomposition" : "⿲彳冫亍",
+        "definition" : "To overflow; to spread out",
+        "etymology" : {
+          "details" : "rare / historical character; modern equivalent: 溢, 泛, 溢出)",
+          "hint" : "Variant of 衍",
+          "type" : ""
+        },
+        "pinyin" : "yǎn",
+        "radical" : "行",
+        "strokes" : 8
+      },
+      "related_characters" : [
+
+      ]
+    },
+    "駅" : {
+      "meta" : {
+        "IDC" : "⿰馬尺",
+        "compounds" : [
+
+        ],
+        "decomposition" : "⿰馬尺",
         "definition" : "Railway station / transit station",
         "etymology" : {
           "details" : "Japaneseえきeki",
@@ -87,7 +108,7 @@
           "type" : ""
         },
         "pinyin" : "yì",
-        "radical" : "",
+        "radical" : "馬",
         "strokes" : ""
       },
       "related_characters" : [

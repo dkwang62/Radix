@@ -30,6 +30,8 @@
 		864DAB8A2F93B722001B9AA7 /* PhraseRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB892F93B722001B9AA7 /* PhraseRepository.swift */; };
 		864DAB902F93BD51001B9AA7 /* CharacterPreviewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB8F2F93BD51001B9AA7 /* CharacterPreviewHeader.swift */; };
 		864DAB962F93C022001B9AA7 /* BinaryFileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB952F93C022001B9AA7 /* BinaryFileDocument.swift */; };
+		864DAB972F9A0001001B9AA7 /* StrokeAnimationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB982F9A0001001B9AA7 /* StrokeAnimationProvider.swift */; };
+		864DAB992F9A0001001B9AA7 /* StrokeAnimationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB982F9A0001001B9AA7 /* StrokeAnimationProvider.swift */; };
 		86CD14402F9822B300D7BDBD /* DataEditTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14372F9822B300D7BDBD /* DataEditTab.swift */; };
 		86CD14412F9822B300D7BDBD /* FileTransferModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14392F9822B300D7BDBD /* FileTransferModifier.swift */; };
 		86CD14422F9822B300D7BDBD /* StrokeRangeSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD143F2F9822B300D7BDBD /* StrokeRangeSlider.swift */; };
@@ -93,6 +95,7 @@
 		864DAB892F93B722001B9AA7 /* PhraseRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseRepository.swift; sourceTree = "<group>"; };
 		864DAB8F2F93BD51001B9AA7 /* CharacterPreviewHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterPreviewHeader.swift; sourceTree = "<group>"; };
 		864DAB952F93C022001B9AA7 /* BinaryFileDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryFileDocument.swift; sourceTree = "<group>"; };
+		864DAB982F9A0001001B9AA7 /* StrokeAnimationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeAnimationProvider.swift; sourceTree = "<group>"; };
 		86CD14342F9822B300D7BDBD /* AddPhrasesFileDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPhrasesFileDocument.swift; sourceTree = "<group>"; };
 		86CD14352F9822B300D7BDBD /* AppleStrokeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleStrokeViews.swift; sourceTree = "<group>"; };
 		86CD14362F9822B300D7BDBD /* BreadcrumbStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreadcrumbStrip.swift; sourceTree = "<group>"; };
@@ -157,6 +160,7 @@
 				864DAB952F93C022001B9AA7 /* BinaryFileDocument.swift */,
 				864DAB892F93B722001B9AA7 /* PhraseRepository.swift */,
 				864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */,
+				864DAB982F9A0001001B9AA7 /* StrokeAnimationProvider.swift */,
 				5638FC4C06278901129EF9DF /* DataExportService.swift */,
 				4559296FCA5B2061336BA302 /* EntitlementManager.swift */,
 				6C168A03A00D507535219249 /* JSONFileDocument.swift */,
@@ -353,6 +357,7 @@
 				C28652F731304AC351D188FF /* RadixApp.swift in Sources */,
 				68BF5B495E4A41F3DF1E774C /* RadixStoreTests.swift in Sources */,
 				36953C4FF6B7A7B82A5663BC /* ResponsiveFont.swift in Sources */,
+				864DAB992F9A0001001B9AA7 /* StrokeAnimationProvider.swift in Sources */,
 				A1058D8DAF993CBF97FFE6A9 /* StrokeOrderWebView.swift in Sources */,
 				643BD107342BFF9737B8E68D /* UnifiedPackage.swift in Sources */,
 				BB6046DC1B72C21D2C18B6BA /* UserProfile.swift in Sources */,
@@ -392,6 +397,7 @@
 				CB360F3972D55FBFD1555152 /* RadixApp.swift in Sources */,
 				864DAB8A2F93B722001B9AA7 /* PhraseRepository.swift in Sources */,
 				6ABB3E4EB6475449496F9C71 /* ResponsiveFont.swift in Sources */,
+				864DAB972F9A0001001B9AA7 /* StrokeAnimationProvider.swift in Sources */,
 				A2A5920563DDE95E066515ED /* StrokeOrderWebView.swift in Sources */,
 				C0F73A1B704F91F0BB8E1C07 /* UnifiedPackage.swift in Sources */,
 				CDE58FC9C241B89DA2A18538 /* UserProfile.swift in Sources */,
