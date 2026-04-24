@@ -188,6 +188,7 @@ final class RadixStore: ObservableObject {
     @Published var scriptFilter: ScriptFilter = .any
     @Published var hasPerformedSearch: Bool = false
     @Published private(set) var lastSearchQuery: String = ""
+    @Published private(set) var searchHistory: [String] = []
     
     // MARK: - DataEdit (Character Studio) State
     @Published var dataEditCharacter: String = ""
@@ -387,6 +388,8 @@ final class RadixStore: ObservableObject {
     private let promptConfigKey = "radix.promptConfig"
     private let promptTaskSelectionKey = "radix.promptSelectedTaskIDs"
     private let lastPreviewCharacterKey = "radix.lastPreviewCharacter"
+    private let searchHistoryKey = "radix.searchHistory"
+    private let rootBreadcrumbKey = "radix.rootBreadcrumb"
     private var pendingSearchWorkItem: DispatchWorkItem?
     private var pendingDatasetAutosaveWorkItem: DispatchWorkItem?
     private var pendingGridRecomputeWorkItem: DispatchWorkItem?
@@ -439,7 +442,11 @@ final class RadixStore: ObservableObject {
             promptSelectedTaskIDs = promptConfig.tasks.map(\.id)
         }
         loadFavorites()
-        seedBreadcrumbFromFavorites()
+        loadSearchHistory()
+        loadRootBreadcrumb()
+        if rootBreadcrumb.isEmpty {
+            seedBreadcrumbFromFavorites()
+        }
         clearSearch()
         refreshAllCharactersCache()
         recomputeGridItems()
@@ -468,7 +475,7 @@ final class RadixStore: ObservableObject {
 
     // MARK: - Search & Navigation
     
-    func performSearch(customQuery: String? = nil) {
+    func performSearch(customQuery: String? = nil, recordHistory: Bool = true) {
         let targetQuery = customQuery ?? query
         let trimmed = targetQuery.trimmingCharacters(in: .whitespacesAndNewlines)
         
@@ -479,6 +486,9 @@ final class RadixStore: ObservableObject {
 
         hasPerformedSearch = true
         lastSearchQuery = trimmed
+        if recordHistory {
+            appendSearchHistory(trimmed)
+        }
 
         // Detect Exact English:
         // 1. Starts with '=' (e.g. =car)
@@ -537,6 +547,11 @@ final class RadixStore: ObservableObject {
         definitionCharacterResults = []
         definitionPhraseResults = []
         hasPerformedSearch = false
+    }
+
+    func clearSearchHistory() {
+        searchHistory = []
+        UserDefaults.standard.removeObject(forKey: searchHistoryKey)
     }
 
     func showPaywall(for feature: EntitlementManager.FeatureGate) {
@@ -1016,7 +1031,7 @@ final class RadixStore: ObservableObject {
 
     func setSearchMode(_ mode: SearchMode) {
         searchMode = mode
-        performSearch()
+        performSearch(recordHistory: false)
     }
 
     func setScriptFilter(_ filter: ScriptFilter) {
@@ -1361,25 +1376,12 @@ final class RadixStore: ObservableObject {
     }
 
     func portableBackupPackage() -> UnifiedPackage {
-        let sortedFavorites = Array(favorites).sorted()
-        let sortedFavoritePhrases = Array(favoritePhrases).sorted()
         return UnifiedPackage(
             schemaVersion: 2,
             dictionary: nil,
             dictionaryOverlay: componentRepo.overlayPackage(),
             phrases: phraseRepo.fetchAddedPhrases(),
-            profile: UserProfile(
-                schemaVersion: 2,
-                favouritesList: sortedFavorites,
-                favouriteEntries: sortedFavorites.map { FavouriteProfileEntry(character: $0, addedAt: favoriteAddedDates[$0]) },
-                favouritePhrasesList: sortedFavoritePhrases,
-                favouritePhraseEntries: sortedFavoritePhrases.map { FavouritePhraseProfileEntry(word: $0, addedAt: favoritePhraseDates[$0]) },
-                selectedCharacter: selectedCharacter,
-                searchMode: searchMode.rawValue,
-                scriptFilter: scriptFilter.rawValue,
-                promptConfig: promptConfig,
-                promptSelectedTaskIDs: promptSelectedTaskIDs
-            )
+            profile: currentUserProfile()
         )
     }
 
@@ -1430,8 +1432,8 @@ final class RadixStore: ObservableObject {
                 persistOverlayAddedDates()
                 // Phrases: insert only words not already in the add-DB.
                 try phraseRepo.addPhrasesAdditively(package.phrases)
-                // Profile: union favourites; keep local settings (searchMode, templates etc).
-                applyImportedProfileAdditive(package.profile)
+                // Additive applies only to dictionary and phrases; profile state restores as the migrated device state.
+                applyImportedProfile(package.profile)
 
             case .complete:
                 // Dictionary: apply the backup overlay in full, replacing everything.
@@ -1462,33 +1464,6 @@ final class RadixStore: ObservableObject {
 
         if !dataEditCharacter.isEmpty { loadDataEditEntry(for: dataEditCharacter) }
         refreshAddedPhrases()
-    }
-
-    /// Additive profile merge: unions favourites, ignores settings/templates so local values win.
-    private func applyImportedProfileAdditive(_ profile: UserProfile) {
-        // Union favourite characters
-        let backupFavEntries = profile.favouriteEntries ?? profile.favouritesList.map {
-            FavouriteProfileEntry(character: $0, addedAt: nil)
-        }
-        for entry in backupFavEntries where componentRepo.hasCharacter(entry.character) {
-            favorites.insert(entry.character)
-            if favoriteAddedDates[entry.character] == nil {
-                favoriteAddedDates[entry.character] = entry.addedAt
-            }
-        }
-        persistFavorites()
-
-        // Union favourite phrases
-        let backupPhraseEntries = profile.favouritePhraseEntries
-            ?? (profile.favouritePhrasesList ?? []).map { FavouritePhraseProfileEntry(word: $0, addedAt: nil) }
-        for entry in backupPhraseEntries {
-            let word = entry.word.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !word.isEmpty else { continue }
-            favoritePhrases.insert(word)
-            if favoritePhraseDates[word] == nil { favoritePhraseDates[word] = entry.addedAt }
-        }
-        persistFavoritePhrases()
-        // searchMode, scriptFilter, promptConfig, promptSelectedTaskIDs — intentionally not touched.
     }
 
     func calculateDictionaryVariances() {
@@ -1792,7 +1767,7 @@ final class RadixStore: ObservableObject {
     private func persistDataEditAndRefresh() throws {
         phraseCache.removeAll()
         refreshAddedDictionaryCharacters()
-        if hasPerformedSearch { performSearch(customQuery: lastSearchQuery) }
+        if hasPerformedSearch { performSearch(customQuery: lastSearchQuery, recordHistory: false) }
         recomputeGridItems()
         if let current = previewCharacter ?? selectedCharacter, componentRepo.hasCharacter(current) {
             select(character: current, announce: false)
@@ -2021,21 +1996,31 @@ final class RadixStore: ObservableObject {
     }
 
     func exportProfileData() throws -> Data {
+        return try JSONEncoder().encode(currentUserProfile())
+    }
+
+    private func currentUserProfile() -> UserProfile {
         let sortedFavorites = Array(favorites).sorted()
         let sortedFavoritePhrases = Array(favoritePhrases).sorted()
-        let profile = UserProfile(
-            schemaVersion: 2,
+        return UserProfile(
+            schemaVersion: 3,
             favouritesList: sortedFavorites,
             favouriteEntries: sortedFavorites.map { FavouriteProfileEntry(character: $0, addedAt: favoriteAddedDates[$0]) },
             favouritePhrasesList: sortedFavoritePhrases,
             favouritePhraseEntries: sortedFavoritePhrases.map { FavouritePhraseProfileEntry(word: $0, addedAt: favoritePhraseDates[$0]) },
+            rememberedList: rootBreadcrumb,
+            searchHistory: searchHistory,
             selectedCharacter: selectedCharacter,
+            lastSearchQuery: lastSearchQuery.isEmpty ? nil : lastSearchQuery,
+            currentSearchQuery: query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : query,
             searchMode: searchMode.rawValue,
             scriptFilter: scriptFilter.rawValue,
+            homeTab: homeTab.rawValue,
+            route: route.rawValue,
+            phraseLength: phraseLength,
             promptConfig: promptConfig,
             promptSelectedTaskIDs: promptSelectedTaskIDs
         )
-        return try JSONEncoder().encode(profile)
     }
 
     func importProfileData(_ data: Data) throws {
@@ -2135,6 +2120,7 @@ final class RadixStore: ObservableObject {
         }
         rootBreadcrumb.insert(character, at: 0)
         rootBreadcrumbIndex = 0
+        persistRootBreadcrumb()
     }
 
     func stepRootBreadcrumb(by delta: Int) -> String? {
@@ -2230,7 +2216,7 @@ final class RadixStore: ObservableObject {
 
         refreshPhrases()
         if hasPerformedSearch || !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            performSearch()
+            performSearch(recordHistory: false)
         }
     }
 
@@ -2259,6 +2245,60 @@ final class RadixStore: ObservableObject {
         if let rawOverlayDates = UserDefaults.standard.dictionary(forKey: overlayAddedDatesKey) as? [String: Double] {
             overlayAddedDates = rawOverlayDates.mapValues { Date(timeIntervalSince1970: $0) }
         }
+    }
+
+    private func loadSearchHistory() {
+        guard let saved = UserDefaults.standard.array(forKey: searchHistoryKey) as? [String] else { return }
+        searchHistory = saved
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+    }
+
+    private func appendSearchHistory(_ query: String) {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        searchHistory.append(trimmed)
+        UserDefaults.standard.set(searchHistory, forKey: searchHistoryKey)
+    }
+
+    private func loadRootBreadcrumb() {
+        guard let saved = UserDefaults.standard.array(forKey: rootBreadcrumbKey) as? [String] else { return }
+        let loaded = sanitizedRootBreadcrumb(saved)
+
+        rootBreadcrumb = loaded
+        rootBreadcrumbIndex = loaded.isEmpty ? 0 : min(rootBreadcrumbIndex, loaded.count - 1)
+    }
+
+    private func persistRootBreadcrumb() {
+        UserDefaults.standard.set(rootBreadcrumb, forKey: rootBreadcrumbKey)
+    }
+
+    private func applyRootBreadcrumb(_ characters: [String]) {
+        let remembered = sanitizedRootBreadcrumb(characters)
+        rootBreadcrumb = remembered
+        rootBreadcrumbIndex = remembered.isEmpty ? 0 : min(rootBreadcrumbIndex, remembered.count - 1)
+        persistRootBreadcrumb()
+    }
+
+    private func sanitizedRootBreadcrumb(_ characters: [String]) -> [String] {
+        var remembered: [String] = []
+        var seen = Set<String>()
+
+        for character in characters {
+            let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard key.count == 1, componentRepo.hasCharacter(key), !seen.contains(key) else { continue }
+            seen.insert(key)
+            remembered.append(key)
+        }
+
+        return remembered
+    }
+
+    private func applySearchHistory(_ queries: [String]) {
+        searchHistory = queries
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        UserDefaults.standard.set(searchHistory, forKey: searchHistoryKey)
     }
 
     private func seedBreadcrumbFromFavorites() {
@@ -2313,6 +2353,7 @@ final class RadixStore: ObservableObject {
 
         rootBreadcrumb = seeded
         rootBreadcrumbIndex = seeded.isEmpty ? 0 : min(rootBreadcrumbIndex, seeded.count - 1)
+        persistRootBreadcrumb()
     }
 
     private func appendPhraseCharactersToBreadcrumb(_ word: String) {
@@ -2423,17 +2464,48 @@ final class RadixStore: ObservableObject {
             persistFavoritePhrases()
         }
 
+        if let rememberedList = profile.rememberedList {
+            applyRootBreadcrumb(rememberedList)
+        } else if rootBreadcrumb.isEmpty {
+            seedBreadcrumbFromFavorites()
+        }
+
+        if let searchHistory = profile.searchHistory {
+            applySearchHistory(searchHistory)
+        }
+
         searchMode = SearchMode(rawValue: profile.searchMode ?? "") ?? .smart
         scriptFilter = ScriptFilter(rawValue: profile.scriptFilter ?? "") ?? .any
+        if let importedRoute = AppRoute(rawValue: profile.route ?? "") {
+            route = importedRoute
+        }
+        if let importedHomeTab = HomeTab(rawValue: profile.homeTab ?? "") {
+            homeTab = importedHomeTab
+        }
+        if let importedPhraseLength = profile.phraseLength, [2, 3, 4].contains(importedPhraseLength) {
+            phraseLength = importedPhraseLength
+        }
         if let cfg = profile.promptConfig { promptConfig = cfg.normalized() }
         if let selected = profile.promptSelectedTaskIDs { promptSelectedTaskIDs = selected }
         persistPromptSettings()
+
         if let candidate = profile.selectedCharacter, componentRepo.hasCharacter(candidate) {
             selectedCharacter = candidate
+            previewCharacter = candidate
+            UserDefaults.standard.set(candidate, forKey: lastPreviewCharacterKey)
+            refreshPhrases(for: candidate)
+            loadSharedComponentPeers(for: candidate)
+            loadSharedPeersByComponent(for: candidate)
+            loadRootDerivatives(for: candidate)
         }
-        performSearch()
-        if let selectedCharacter {
-            select(character: selectedCharacter, announce: false)
+
+        let restoredQuery = profile.lastSearchQuery?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let restoredQuery, !restoredQuery.isEmpty {
+            query = profile.currentSearchQuery?.trimmingCharacters(in: .whitespacesAndNewlines) ?? restoredQuery
+            performSearch(customQuery: restoredQuery, recordHistory: false)
+        } else {
+            clearSearch()
+            query = profile.currentSearchQuery?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         }
     }
 

@@ -71,6 +71,36 @@ struct SmartSearchTab: View {
         store.filteredSmartPhraseResults.filter { $0.word.count == store.phraseLength }
     }
 
+    @ViewBuilder
+    private var searchHistoryMenu: some View {
+        if !store.searchHistory.isEmpty {
+            Menu {
+                ForEach(Array(store.searchHistory.enumerated().reversed()), id: \.offset) { _, query in
+                    Button(query) {
+                        localQuery = query
+                        runSearch(query)
+                        isSearchFocused = false
+                    }
+                }
+
+                Divider()
+
+                Button(role: .destructive) {
+                    store.clearSearchHistory()
+                } label: {
+                    Label("Clear History", systemImage: "trash")
+                }
+            } label: {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(ResponsiveFont.body)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 28, height: 28)
+                    .contentShape(Rectangle())
+            }
+            .accessibilityLabel("Search History")
+        }
+    }
+
     private var phraseLengthPicker: some View {
         HStack {
             Picker("Length", selection: $store.phraseLength) {
@@ -93,6 +123,8 @@ struct SmartSearchTab: View {
                 VStack(alignment: .center, spacing: 15) {
                     HStack(spacing: 12) {
                         HStack {
+                            searchHistoryMenu
+
                             TextField("See examples", text: $localQuery)
                                 .font(ResponsiveFont.body)
                                 .textInputAutocapitalization(.never)

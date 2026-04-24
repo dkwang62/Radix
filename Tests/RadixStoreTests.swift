@@ -6,8 +6,20 @@ final class RadixStoreTests: XCTestCase {
     
     @MainActor
     override func setUp() async throws {
+        clearPersistentStoreDefaults()
         store = RadixStore()
         await store.initializeForTesting()
+    }
+
+    private func clearPersistentStoreDefaults() {
+        [
+            "radix.favorites",
+            "radix.favoriteEntries",
+            "radix.favoritePhrases",
+            "radix.favoritePhraseDates",
+            "radix.rootBreadcrumb",
+            "radix.searchHistory"
+        ].forEach { UserDefaults.standard.removeObject(forKey: $0) }
     }
     
     @MainActor
@@ -81,6 +93,68 @@ final class RadixStoreTests: XCTestCase {
         )
 
         store.removeDataEditPhrase(word: uniqueWord)
+    }
+
+    @MainActor
+    func testSearchHistoryPersistsUntilExplicitlyCleared() {
+        store.clearSearchHistory()
+
+        store.performSearch(customQuery: "shui")
+        store.performSearch(customQuery: "watery")
+        store.clearSearch()
+
+        XCTAssertEqual(store.searchHistory, ["shui", "watery"])
+
+        store.performSearch(customQuery: "watery", recordHistory: false)
+        XCTAssertEqual(store.searchHistory, ["shui", "watery"])
+
+        store.clearSearchHistory()
+        XCTAssertTrue(store.searchHistory.isEmpty)
+    }
+
+    @MainActor
+    func testRememberedListPersistsInsteadOfReseedingFromFavorites() async {
+        clearPersistentStoreDefaults()
+        UserDefaults.standard.set(["水"], forKey: "radix.favorites")
+        UserDefaults.standard.set(["木", "林"], forKey: "radix.rootBreadcrumb")
+
+        store = RadixStore()
+        await store.initializeForTesting()
+
+        XCTAssertEqual(store.rootBreadcrumb, ["木", "林"])
+    }
+
+    @MainActor
+    func testRememberedListSeedsFromFavoritesWhenEmpty() async {
+        clearPersistentStoreDefaults()
+        UserDefaults.standard.set(["木", "林"], forKey: "radix.favorites")
+
+        store = RadixStore()
+        await store.initializeForTesting()
+
+        XCTAssertFalse(store.rootBreadcrumb.isEmpty)
+        XCTAssertTrue(store.rootBreadcrumb.allSatisfy { ["木", "林"].contains($0) })
+    }
+
+    @MainActor
+    func testProfileTransferIncludesInteractionState() async throws {
+        store.performSearch(customQuery: "shui")
+        store.performSearch(customQuery: "watery")
+        store.select(character: "木", announce: false)
+        store.select(character: "林", announce: false)
+
+        let data = try store.exportProfileData()
+
+        clearPersistentStoreDefaults()
+        store = RadixStore()
+        await store.initializeForTesting()
+
+        try store.importProfileData(data)
+
+        XCTAssertEqual(store.searchHistory, ["shui", "watery"])
+        XCTAssertEqual(store.rootBreadcrumb.prefix(2), ["林", "木"])
+        XCTAssertEqual(store.selectedCharacter, "林")
+        XCTAssertEqual(store.lastSearchQuery, "watery")
     }
 
     @MainActor
