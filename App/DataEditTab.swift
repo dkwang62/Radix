@@ -471,8 +471,8 @@ struct DataEditTab: View {
                     backupPhraseRows(addedPhraseEntries, badge: "Added")
                 }
 
-                DisclosureGroup("Edited Characters (\(store.editedDictionaryCharacters.count))", isExpanded: $showEditedCharactersPreview) {
-                    backupCharacterRows(store.editedDictionaryCharacters, badge: "Edited")
+                DisclosureGroup("Characters With Notes (\(store.editedDictionaryCharacters.count))", isExpanded: $showEditedCharactersPreview) {
+                    backupCharacterRows(store.editedDictionaryCharacters, badge: "Notes Added")
                 }
 
                 DisclosureGroup("Edited Phrases (\(editedPhraseEntries.count))", isExpanded: $showEditedPhrasesPreview) {
@@ -741,7 +741,7 @@ struct DataEditTab: View {
             Spacer()
 
             HStack(spacing: 6) {
-                Button("Edit") {
+                Button(store.characterNotesActionTitle(for: character)) {
                     store.openQuickCharacterEditor(character)
                 }
                 .buttonStyle(.bordered)
@@ -1177,9 +1177,9 @@ struct DataEditTab: View {
 
                 if !displayedEditedDictionaryCharacters.isEmpty {
                     changedCharacterGroup(
-                        title: "Edited (\(filteredEditedDictionaryCharacters.count))",
+                        title: "Notes Added (\(filteredEditedDictionaryCharacters.count))",
                         characters: displayedEditedDictionaryCharacters,
-                        badge: "Edited"
+                        badge: "Notes Added"
                     )
                 }
 
@@ -1261,7 +1261,7 @@ struct DataEditTab: View {
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
 
-                Button("Edit") {
+                Button(store.characterNotesActionTitle(for: character)) {
                     store.openQuickCharacterEditor(character)
                 }
                 .buttonStyle(.bordered)

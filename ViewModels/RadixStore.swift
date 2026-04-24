@@ -200,6 +200,7 @@ final class RadixStore: ObservableObject {
     @Published var dataEditCompounds: String = ""
     @Published var dataEditEtymHint: String = ""
     @Published var dataEditEtymDetails: String = ""
+    @Published var dataEditNotes: String = ""
     @Published var dataEditRelatedCharacters: String = ""
     @Published var dataEditIsFavourite: Bool = false
     @Published var dataEditPhrases: [PhraseItem] = []
@@ -795,6 +796,12 @@ final class RadixStore: ObservableObject {
         quickEditDestination = .character(trimmed)
     }
 
+    func characterNotesActionTitle(for character: String) -> String {
+        let trimmed = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.count == 1 else { return "Add Notes" }
+        return componentRepo.overlayUpserts[trimmed] == nil ? "Add Notes" : "Edit Notes"
+    }
+
     func openNewCharacterEditor() {
         quickEditDestination = .newCharacter
     }
@@ -1126,19 +1133,26 @@ final class RadixStore: ObservableObject {
         restoreDictionaryCharacterFromLibrary(key)
     }
 
-    func restoreDictionaryCharacterFromLibrary(_ character: String) {
+    func restoreDictionaryCharacterFromLibrary(_ character: String, preserveNotes: Bool = true) {
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
         guard key.count == 1 else { return }
         pendingDatasetAutosaveWorkItem?.cancel()
         pendingDatasetAutosaveWorkItem = nil
 
-        guard componentRepo.baseEntry(for: key) != nil else {
+        guard let baseEntry = componentRepo.baseEntry(for: key) else {
             dataEditAutoSaveStatus = "Only built-in characters can be reverted."
             return
         }
 
         do {
-            componentRepo.restoreEntryFromBase(character: key)
+            if preserveNotes,
+               let currentNotes = componentRepo.entry(for: key)?.meta.notes,
+               !(currentNotes.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty),
+               currentNotes != baseEntry.meta.notes {
+                componentRepo.replaceEntry(character: key, entry: entryByReplacingNotes(in: baseEntry, with: currentNotes))
+            } else {
+                componentRepo.restoreEntryFromBase(character: key)
+            }
             try persistDictionaryOverlay()
             try persistDataEditAndRefresh()
 
@@ -1149,7 +1163,7 @@ final class RadixStore: ObservableObject {
                 dataEditCache[key] = (entry: restoredEntry, phrases: dataEditPhrases, isFav: favorites.contains(key))
             }
 
-            dataEditAutoSaveStatus = "Reverted to main dictionary."
+            dataEditAutoSaveStatus = preserveNotes ? "Reverted to main dictionary. Notes kept." : "Reverted to main dictionary."
         } catch {
             dataEditAutoSaveStatus = "Library error: \(error.localizedDescription)"
         }
@@ -1361,6 +1375,7 @@ final class RadixStore: ObservableObject {
         dataEditCompounds = ""
         dataEditEtymHint = ""
         dataEditEtymDetails = ""
+        dataEditNotes = ""
         dataEditRelatedCharacters = ""
         dataEditIsFavourite = false
         dataEditAutoSaveStatus = "Custom character deleted."
@@ -1377,9 +1392,13 @@ final class RadixStore: ObservableObject {
 
     func portableBackupPackage() -> UnifiedPackage {
         return UnifiedPackage(
-            schemaVersion: 2,
+            schemaVersion: 3,
+            exportedAt: Date(),
+            backupID: UUID(),
+            baseDictionaryFingerprint: componentRepo.baseDictionaryFingerprint,
             dictionary: nil,
-            dictionaryOverlay: componentRepo.overlayPackage(),
+            dictionaryOverlay: nil,
+            dictionaryPatchOverlay: componentRepo.overlayPatchPackage(),
             phrases: phraseRepo.fetchAddedPhrases(),
             profile: currentUserProfile()
         )
@@ -1416,22 +1435,39 @@ final class RadixStore: ObservableObject {
 
     func importDataEditData(_ data: Data, mode: RestoreMode = .additive) throws {
         if let package = try? JSONDecoder().decode(UnifiedPackage.self, from: data) {
-            let backupOverlay = package.dictionaryOverlay
-                ?? ComponentRepository.makeOverlay(base: componentRepo.baseRawMap, effective: package.dictionary ?? [:])
+            let backupOverlay: DictionaryOverlayPackage
+            if let patchOverlay = package.dictionaryPatchOverlay {
+                backupOverlay = componentRepo.overlayPackage(from: patchOverlay)
+            } else {
+                backupOverlay = package.dictionaryOverlay
+                    ?? ComponentRepository.makeOverlay(base: componentRepo.baseRawMap, effective: package.dictionary ?? [:])
+            }
 
             switch mode {
 
             case .additive:
-                // Dictionary: only insert entries not already present on this device.
-                // Deletions and edits from the backup are ignored so local data wins.
+                // Dictionary: add missing entries and merge non-conflicting built-in edits.
+                // Deletions from the backup are ignored so local data wins.
                 let now = Date()
-                for (char, entry) in backupOverlay.upserts where componentRepo.overlayUpserts[char] == nil {
-                    componentRepo.addEntry(character: char, entry: entry)
-                    if overlayAddedDates[char] == nil { overlayAddedDates[char] = now }
+                for (char, entry) in backupOverlay.upserts where char.count == 1 {
+                    if let localOverlay = componentRepo.overlayUpserts[char] {
+                        guard let baseEntry = componentRepo.baseEntry(for: char) else { continue }
+                        let merged = mergeNonConflictingEntry(
+                            local: localOverlay,
+                            backup: entry,
+                            base: baseEntry,
+                            restoredAt: package.exportedAt ?? now
+                        )
+                        componentRepo.replaceEntry(character: char, entry: merged)
+                        if overlayAddedDates[char] == nil { overlayAddedDates[char] = now }
+                    } else {
+                        componentRepo.addEntry(character: char, entry: entry)
+                        if overlayAddedDates[char] == nil { overlayAddedDates[char] = now }
+                    }
                 }
                 persistOverlayAddedDates()
                 // Phrases: insert only words not already in the add-DB.
-                try phraseRepo.addPhrasesAdditively(package.phrases)
+                try phraseRepo.addPhrasesAdditively(uniquePhrases(package.phrases))
                 // Additive applies only to dictionary and phrases; profile state restores as the migrated device state.
                 applyImportedProfile(package.profile)
 
@@ -1445,7 +1481,7 @@ final class RadixStore: ObservableObject {
                 }
                 persistOverlayAddedDates()
                 // Phrases: replace the add-DB entirely with backup contents.
-                try phraseRepo.replaceAllPhrases(package.phrases)
+                try phraseRepo.replaceAllPhrases(uniquePhrases(package.phrases))
                 // Profile: replace everything — favourites, settings, templates.
                 applyImportedProfile(package.profile)
             }
@@ -1807,6 +1843,7 @@ final class RadixStore: ObservableObject {
         dataEditEtymologyType = meta.etymology?.type
         dataEditEtymHint = meta.etymology?.hint?.text ?? ""
         dataEditEtymDetails = meta.etymology?.details?.text ?? ""
+        dataEditNotes = meta.notes?.list.joined(separator: "\n") ?? ""
         dataEditRelatedCharacters = entry.relatedCharacters.joined(separator: "\n")
         dataEditIsFavourite = isFav
     }
@@ -1832,12 +1869,18 @@ final class RadixStore: ObservableObject {
             }(), additionalVariants: {
                 let parts = splitCSVOrLines(dataEditAdditionalVariants)
                 return parts.isEmpty ? nil : parts
-            }(), pinyin: pinyinValue, definition: dataEditDefinition.trimmingCharacters(in: .whitespacesAndNewlines), decomposition: decompValue, idc: decompValue, radical: dataEditRadical.trimmingCharacters(in: .whitespacesAndNewlines), strokes: strokesValue, compounds: .many(splitCSVOrLines(dataEditCompounds)), etymology: etymology)
+            }(), pinyin: pinyinValue, definition: dataEditDefinition.trimmingCharacters(in: .whitespacesAndNewlines), decomposition: decompValue, idc: decompValue, radical: dataEditRadical.trimmingCharacters(in: .whitespacesAndNewlines), strokes: strokesValue, compounds: .many(splitCSVOrLines(dataEditCompounds)), etymology: etymology, notes: .many(splitLinesKeepingSentences(dataEditNotes)))
         )
     }
 
     private func splitCSVOrLines(_ value: String) -> [String] {
         value.split(whereSeparator: { $0 == "\n" || $0 == "," }).map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+    }
+
+    private func splitLinesKeepingSentences(_ value: String) -> [String] {
+        value.split(whereSeparator: { $0 == "\n" })
+            .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
     }
 
     private func clearDataEditForm() {
@@ -1855,6 +1898,7 @@ final class RadixStore: ObservableObject {
         dataEditEtymologyType = nil
         dataEditEtymHint = ""
         dataEditEtymDetails = ""
+        dataEditNotes = ""
         dataEditRelatedCharacters = ""
         dataEditIsFavourite = false
     }
@@ -1993,6 +2037,95 @@ final class RadixStore: ObservableObject {
         if lhsPinyin != rhsPinyin { return lhsPinyin < rhsPinyin }
         if lhs.pinyin != rhs.pinyin { return lhs.pinyin < rhs.pinyin }
         return lhs.word < rhs.word
+    }
+
+    private func mergeNonConflictingEntry(local: RawComponentEntry, backup: RawComponentEntry, base: RawComponentEntry, restoredAt: Date) -> RawComponentEntry {
+        let localMeta = local.meta
+        let backupMeta = backup.meta
+        let baseMeta = base.meta
+        let mergedMeta = RawMeta(
+            variant: mergeField(localMeta.variant, backupMeta.variant, baseMeta.variant),
+            additionalVariants: mergeField(localMeta.additionalVariants, backupMeta.additionalVariants, baseMeta.additionalVariants),
+            pinyin: mergeField(localMeta.pinyin, backupMeta.pinyin, baseMeta.pinyin),
+            definition: mergeField(localMeta.definition, backupMeta.definition, baseMeta.definition),
+            decomposition: mergeField(localMeta.decomposition, backupMeta.decomposition, baseMeta.decomposition),
+            idc: mergeField(localMeta.idc, backupMeta.idc, baseMeta.idc),
+            radical: mergeField(localMeta.radical, backupMeta.radical, baseMeta.radical),
+            strokes: mergeField(localMeta.strokes, backupMeta.strokes, baseMeta.strokes),
+            compounds: mergeField(localMeta.compounds, backupMeta.compounds, baseMeta.compounds),
+            etymology: mergeField(localMeta.etymology, backupMeta.etymology, baseMeta.etymology),
+            notes: mergeNotes(local: localMeta.notes, backup: backupMeta.notes, restoredAt: restoredAt)
+        )
+
+        return RawComponentEntry(
+            relatedCharacters: mergeRequiredField(local.relatedCharacters, backup.relatedCharacters, base.relatedCharacters),
+            meta: mergedMeta
+        )
+    }
+
+    private func entryByReplacingNotes(in entry: RawComponentEntry, with notes: StringOrMany) -> RawComponentEntry {
+        let meta = entry.meta
+        return RawComponentEntry(
+            relatedCharacters: entry.relatedCharacters,
+            meta: RawMeta(
+                variant: meta.variant,
+                additionalVariants: meta.additionalVariants,
+                pinyin: meta.pinyin,
+                definition: meta.definition,
+                decomposition: meta.decomposition,
+                idc: meta.idc,
+                radical: meta.radical,
+                strokes: meta.strokes,
+                compounds: meta.compounds,
+                etymology: meta.etymology,
+                notes: notes
+            )
+        )
+    }
+
+    private func mergeField<T: Equatable>(_ local: T?, _ backup: T?, _ base: T?) -> T? {
+        guard let backup else { return local }
+        if local == nil || local == base {
+            return backup
+        }
+        return local
+    }
+
+    private func mergeRequiredField<T: Equatable>(_ local: T, _ backup: T, _ base: T) -> T {
+        local == base ? backup : local
+    }
+
+    private func mergeNotes(local: StringOrMany?, backup: StringOrMany?, restoredAt: Date) -> StringOrMany? {
+        let localLines = local?.list ?? []
+        let backupLines = backup?.list ?? []
+        guard !backupLines.isEmpty else { return local }
+        guard !localLines.isEmpty else { return backup }
+        if localLines == backupLines || local?.text == backup?.text {
+            return local
+        }
+
+        let formatter = ISO8601DateFormatter()
+        let marker = "Restored backup notes \(formatter.string(from: restoredAt))"
+        var merged = localLines
+        if !merged.contains(marker) {
+            merged.append(marker)
+        }
+        for line in backupLines where !merged.contains(line) {
+            merged.append(line)
+        }
+        return .many(merged)
+    }
+
+    private func uniquePhrases(_ phrases: [PhraseItem]) -> [PhraseItem] {
+        var seen = Set<String>()
+        var result: [PhraseItem] = []
+        for phrase in phrases {
+            let key = phrase.word.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !key.isEmpty, !seen.contains(key) else { continue }
+            seen.insert(key)
+            result.append(phrase)
+        }
+        return result
     }
 
     func exportProfileData() throws -> Data {
@@ -2577,6 +2710,6 @@ final class RadixStore: ObservableObject {
     }
 
     private func emptyEntryTemplate() -> RawComponentEntry {
-        RawComponentEntry(relatedCharacters: [], meta: RawMeta(variant: nil, additionalVariants: nil, pinyin: .single(""), definition: "", decomposition: "", idc: "", radical: "", strokes: .string(""), compounds: .many([]), etymology: RawEtymology(type: "", hint: .single(""), details: .single(""))))
+        RawComponentEntry(relatedCharacters: [], meta: RawMeta(variant: nil, additionalVariants: nil, pinyin: .single(""), definition: "", decomposition: "", idc: "", radical: "", strokes: .string(""), compounds: .many([]), etymology: RawEtymology(type: "", hint: .single(""), details: .single("")), notes: .many([])))
     }
 }

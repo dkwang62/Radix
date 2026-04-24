@@ -203,6 +203,19 @@ struct CharacterInfoCard: View {
                     .italic()
                     .foregroundStyle(.secondary)
             }
+
+            if !notesText.isEmpty {
+                Divider()
+                VStack(alignment: .leading, spacing: 6) {
+                    Label("Notes", systemImage: "note.text")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(notesText)
+                        .font(ResponsiveFont.footnote)
+                        .foregroundStyle(.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
         }
         .padding(16)
         .background(Color(.systemBackground))
@@ -276,6 +289,10 @@ struct CharacterInfoCard: View {
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
             .joined(separator: " ")
+    }
+
+    private var notesText: String {
+        item.notes.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private var tierLabel: String {

@@ -20,6 +20,7 @@ struct ComponentItem: Identifiable, Hashable {
     let relatedCharacters: [String]
     let etymologyHint: String
     let etymologyDetails: String
+    let notes: String
     let usageCount: Int
     let freqPerMillion: Double
     let rank: Int?
@@ -35,7 +36,7 @@ struct ComponentItem: Identifiable, Hashable {
 
     var pinyinText: String { pinyin.joined(separator: ", ") }
     var searchableText: String {
-        [character, pinyinText, definition, decomposition, radical, etymologyHint, etymologyDetails]
+        [character, pinyinText, definition, decomposition, radical, etymologyHint, etymologyDetails, notes]
             .joined(separator: " ")
             .lowercased()
     }
@@ -62,9 +63,10 @@ struct RawMeta: Codable, Equatable {
     let strokes: IntOrString?
     let compounds: StringOrMany?
     let etymology: RawEtymology?
+    let notes: StringOrMany?
 
     enum CodingKeys: String, CodingKey {
-        case variant, pinyin, definition, decomposition, radical, strokes, compounds, etymology
+        case variant, pinyin, definition, decomposition, radical, strokes, compounds, etymology, notes
         case additionalVariants = "additional_variants"
         case idc = "IDC"
     }

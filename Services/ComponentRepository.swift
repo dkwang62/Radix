@@ -38,6 +38,11 @@ final class ComponentRepository {
         !overlayUpserts.isEmpty || !overlayDeletions.isEmpty
     }
 
+    var baseDictionaryFingerprint: String {
+        let keys = baseRawMap.keys.sorted()
+        return "entries:\(keys.count);first:\(keys.first ?? "");last:\(keys.last ?? "")"
+    }
+
     var addedCharacters: [String] {
         overlayUpserts.keys
             .filter { baseRawMap[$0] == nil && !overlayDeletions.contains($0) }
@@ -138,6 +143,54 @@ final class ComponentRepository {
         )
     }
 
+    func overlayPatchPackage(updatedAt: Date = Date()) -> DictionaryOverlayPatchPackage {
+        var customEntries: [String: RawComponentEntry] = [:]
+        var patches: [DictionaryEntryPatch] = []
+
+        for (character, entry) in overlayUpserts {
+            guard character.count == 1 else { continue }
+            guard let baseEntry = baseRawMap[character] else {
+                customEntries[character] = entry
+                continue
+            }
+
+            let patch = makePatch(character: character, base: baseEntry, edited: entry, updatedAt: updatedAt)
+            if patch.relatedCharacters != nil || !patch.meta.isEmpty {
+                patches.append(patch)
+            }
+        }
+
+        return DictionaryOverlayPatchPackage(
+            schemaVersion: 3,
+            customEntries: customEntries,
+            patches: patches.sorted { $0.character < $1.character },
+            deletions: overlayDeletions.sorted()
+        )
+    }
+
+    func overlayPackage(from patchPackage: DictionaryOverlayPatchPackage) -> DictionaryOverlayPackage {
+        var upserts = patchPackage.customEntries.filter { character, _ in
+            character.count == 1 && !patchPackage.deletions.contains(character)
+        }
+
+        for patch in patchPackage.patches where !patchPackage.deletions.contains(patch.character) {
+            guard patch.character.count == 1,
+                  let baseEntry = baseRawMap[patch.character] else {
+                continue
+            }
+            let entry = applyPatch(patch, to: baseEntry)
+            if entry != baseEntry {
+                upserts[patch.character] = entry
+            }
+        }
+
+        return DictionaryOverlayPackage(
+            schemaVersion: 3,
+            upserts: upserts,
+            deletions: patchPackage.deletions.filter { $0.count == 1 }.sorted()
+        )
+    }
+
     func saveOverlay(to url: URL) throws {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
@@ -198,6 +251,7 @@ final class ComponentRepository {
         let mergedVariant = overlayMeta.variant ?? baseMeta.variant
         let mergedCompounds = overlayMeta.compounds ?? baseMeta.compounds
         let mergedEtymology = overlayMeta.etymology ?? baseMeta.etymology
+        let mergedNotes = overlayMeta.notes ?? baseMeta.notes
         // Union additional variants, preserving order and removing duplicates
         var mergedAdditional: [String] = baseMeta.additionalVariants ?? []
         for v in overlayMeta.additionalVariants ?? [] where !mergedAdditional.contains(v) {
@@ -214,12 +268,60 @@ final class ComponentRepository {
             radical: mergedRadical,
             strokes: mergedStrokes,
             compounds: mergedCompounds,
-            etymology: mergedEtymology
+            etymology: mergedEtymology,
+            notes: mergedNotes
         )
 
         return RawComponentEntry(
             relatedCharacters: overlay.relatedCharacters,
             meta: mergedMeta
+        )
+    }
+
+    private func makePatch(character: String, base: RawComponentEntry, edited: RawComponentEntry, updatedAt: Date) -> DictionaryEntryPatch {
+        let baseMeta = base.meta
+        let editedMeta = edited.meta
+        let metaPatch = RawMetaPatch(
+            variant: editedMeta.variant != baseMeta.variant ? editedMeta.variant : nil,
+            additionalVariants: editedMeta.additionalVariants != baseMeta.additionalVariants ? editedMeta.additionalVariants : nil,
+            pinyin: editedMeta.pinyin != baseMeta.pinyin ? editedMeta.pinyin : nil,
+            definition: editedMeta.definition != baseMeta.definition ? editedMeta.definition : nil,
+            decomposition: editedMeta.decomposition != baseMeta.decomposition ? editedMeta.decomposition : nil,
+            idc: editedMeta.idc != baseMeta.idc ? editedMeta.idc : nil,
+            radical: editedMeta.radical != baseMeta.radical ? editedMeta.radical : nil,
+            strokes: editedMeta.strokes != baseMeta.strokes ? editedMeta.strokes : nil,
+            compounds: editedMeta.compounds != baseMeta.compounds ? editedMeta.compounds : nil,
+            etymology: editedMeta.etymology != baseMeta.etymology ? editedMeta.etymology : nil,
+            notes: editedMeta.notes != baseMeta.notes ? editedMeta.notes : nil
+        )
+
+        return DictionaryEntryPatch(
+            character: character,
+            relatedCharacters: edited.relatedCharacters != base.relatedCharacters ? edited.relatedCharacters : nil,
+            meta: metaPatch,
+            updatedAt: updatedAt
+        )
+    }
+
+    private func applyPatch(_ patch: DictionaryEntryPatch, to base: RawComponentEntry) -> RawComponentEntry {
+        let baseMeta = base.meta
+        let patchMeta = patch.meta
+        let meta = RawMeta(
+            variant: patchMeta.variant ?? baseMeta.variant,
+            additionalVariants: patchMeta.additionalVariants ?? baseMeta.additionalVariants,
+            pinyin: patchMeta.pinyin ?? baseMeta.pinyin,
+            definition: patchMeta.definition ?? baseMeta.definition,
+            decomposition: patchMeta.decomposition ?? baseMeta.decomposition,
+            idc: patchMeta.idc ?? baseMeta.idc,
+            radical: patchMeta.radical ?? baseMeta.radical,
+            strokes: patchMeta.strokes ?? baseMeta.strokes,
+            compounds: patchMeta.compounds ?? baseMeta.compounds,
+            etymology: patchMeta.etymology ?? baseMeta.etymology,
+            notes: patchMeta.notes ?? baseMeta.notes
+        )
+        return RawComponentEntry(
+            relatedCharacters: patch.relatedCharacters ?? base.relatedCharacters,
+            meta: meta
         )
     }
 
@@ -280,6 +382,7 @@ final class ComponentRepository {
                 relatedCharacters: entry.relatedCharacters,
                 etymologyHint: meta.etymology?.hint?.text ?? "",
                 etymologyDetails: meta.etymology?.details?.text ?? "",
+                notes: meta.notes?.text ?? "",
                 usageCount: usage,
                 freqPerMillion: subtlexFreq[lookupChar] ?? 0,
                 rank: baseRank,

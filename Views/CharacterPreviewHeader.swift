@@ -42,6 +42,7 @@ struct CharacterPreviewHeader: View {
                     .help("Remember this character for this session. Favorite keeps it after closing the app.")
                     .accessibilityHint("Remember this character for this session. Favorite keeps it after closing the app.")
                 }
+                editCharacterTrigger
                 phraseTableTrigger
                 speechOptionsMenu
                 if showClearButton, store.previewCharacter != nil, store.previewCharacter != character {
@@ -160,6 +161,14 @@ struct CharacterPreviewHeader: View {
         Button("Phrases") {
             store.refreshPhrases(for: character)
             showPhraseTableSheet = true
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+    }
+
+    private var editCharacterTrigger: some View {
+        Button(store.characterNotesActionTitle(for: character)) {
+            store.openQuickCharacterEditor(character)
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
@@ -382,19 +391,12 @@ private struct CharacterActionMenuContent: View {
 
     @ViewBuilder
     private var characterActions: some View {
+        Button(store.characterNotesActionTitle(for: character)) {
+            store.openQuickCharacterEditor(character)
+        }
+        Divider()
         Button("Copy Character") {
             copyToClipboard(character)
-        }
-        Menu("Stroke Animation") {
-            Button("Share Animation") {
-                shareAnimation(for: character)
-            }
-            Button("Open in Browser") {
-                openAnimationInBrowser(for: character)
-            }
-            Button("Copy Player Link") {
-                copyAnimationPlayerLink(for: character)
-            }
         }
         if let trimmedPinyin {
             Button("Copy Pinyin") {
@@ -422,15 +424,23 @@ private struct CharacterActionMenuContent: View {
                 copyToClipboard(trimmedMeaning)
             }
         }
+        Menu("Stroke Animation") {
+            Button("Share Animation") {
+                shareAnimation(for: character)
+            }
+            Button("Open in Browser") {
+                openAnimationInBrowser(for: character)
+            }
+            Button("Copy Player Link") {
+                copyAnimationPlayerLink(for: character)
+            }
+        }
         Divider()
         Button("Open in Roots") {
             store.goToRoots(character: character)
         }
         Button("Open in AI Link") {
             store.goToAILink(character: character)
-        }
-        Button("Edit Character") {
-            store.openQuickCharacterEditor(character)
         }
         Button("Add New Character") {
             store.openNewCharacterEditor()

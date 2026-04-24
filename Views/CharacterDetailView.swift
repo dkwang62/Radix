@@ -38,15 +38,18 @@ struct CharacterDetailView: View {
                     }
 
                     if sizeClass != .compact {
-                        phraseTableButton {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                showPhraseTable.toggle()
-                            }
-                            if showPhraseTable {
-                                store.refreshPhrases()
-                                DispatchQueue.main.async {
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        proxy.scrollTo("phraseTableSection", anchor: .top)
+                        HStack(spacing: 8) {
+                            editCharacterButton
+                            phraseTableButton {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    showPhraseTable.toggle()
+                                }
+                                if showPhraseTable {
+                                    store.refreshPhrases()
+                                    DispatchQueue.main.async {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            proxy.scrollTo("phraseTableSection", anchor: .top)
+                                        }
                                     }
                                 }
                             }
@@ -371,6 +374,20 @@ struct CharacterDetailView: View {
             .padding(.vertical, 10)
             .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var editCharacterButton: some View {
+        Button {
+            store.openQuickCharacterEditor(item.character)
+        } label: {
+            Label(store.characterNotesActionTitle(for: item.character), systemImage: "square.and.pencil")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
     }
