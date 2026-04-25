@@ -9,6 +9,12 @@
 /* Begin PBXBuildFile section */
 		08FB8569C66966596551E0E2 /* AILinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0FD27099E93C0B3DBCC55A /* AILinkView.swift */; };
 		10D59B4DFE53808C4829E6FD /* PhraseModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911F85BE195D61BDA4442400 /* PhraseModels.swift */; };
+		167CA0012F9C0001001B9AA7 /* CaptureModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167CA0002F9C0001001B9AA7 /* CaptureModels.swift */; };
+		167CA0032F9C0001001B9AA7 /* CaptureModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167CA0002F9C0001001B9AA7 /* CaptureModels.swift */; };
+		167CA0052F9C0001001B9AA7 /* CaptureOCRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167CA0042F9C0001001B9AA7 /* CaptureOCRService.swift */; };
+		167CA0062F9C0001001B9AA7 /* CaptureOCRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167CA0042F9C0001001B9AA7 /* CaptureOCRService.swift */; };
+		167CA0082F9C0001001B9AA7 /* CaptureTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167CA0072F9C0001001B9AA7 /* CaptureTab.swift */; };
+		167CA0092F9C0001001B9AA7 /* CaptureTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167CA0072F9C0001001B9AA7 /* CaptureTab.swift */; };
 		2CD095BC1FB95FF4971726EC /* JSONFileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C168A03A00D507535219249 /* JSONFileDocument.swift */; };
 		33BD34622FD7927FF5D00EDA /* phrases.db in Resources */ = {isa = PBXBuildFile; fileRef = 6C8EA1AAC376266D445DC85F /* phrases.db */; };
 		36953C4FF6B7A7B82A5663BC /* ResponsiveFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E1E5265391156C8C615A28 /* ResponsiveFont.swift */; };
@@ -90,6 +96,9 @@
 /* Begin PBXFileReference section */
 		0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "hanzi-writer.min.js"; sourceTree = "<group>"; };
 		0AD6667A0050D42F3CEC06E1 /* RadixApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixApp.swift; sourceTree = "<group>"; };
+		167CA0002F9C0001001B9AA7 /* CaptureModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureModels.swift; sourceTree = "<group>"; };
+		167CA0042F9C0001001B9AA7 /* CaptureOCRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureOCRService.swift; sourceTree = "<group>"; };
+		167CA0072F9C0001001B9AA7 /* CaptureTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureTab.swift; sourceTree = "<group>"; };
 		4559296FCA5B2061336BA302 /* EntitlementManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitlementManager.swift; sourceTree = "<group>"; };
 		51F6A1B6C8E94D3BA2F0D645 /* character_strokes.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = character_strokes.db; sourceTree = "<group>"; };
 		5638FC4C06278901129EF9DF /* DataExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExportService.swift; sourceTree = "<group>"; };
@@ -146,6 +155,7 @@
 				86CD14342F9822B300D7BDBD /* AddPhrasesFileDocument.swift */,
 				86CD14352F9822B300D7BDBD /* AppleStrokeViews.swift */,
 				86CD14362F9822B300D7BDBD /* BreadcrumbStrip.swift */,
+				167CA0072F9C0001001B9AA7 /* CaptureTab.swift */,
 				86CD14372F9822B300D7BDBD /* DataEditTab.swift */,
 				86CD14382F9822B300D7BDBD /* FavouritesTab.swift */,
 				86CD14392F9822B300D7BDBD /* FileTransferModifier.swift */,
@@ -174,6 +184,7 @@
 				864DAB952F93C022001B9AA7 /* BinaryFileDocument.swift */,
 				864DAB892F93B722001B9AA7 /* PhraseRepository.swift */,
 				864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */,
+				167CA0042F9C0001001B9AA7 /* CaptureOCRService.swift */,
 				864DAB982F9A0001001B9AA7 /* StrokeAnimationProvider.swift */,
 				864DABAE2F9B0001001B9AA7 /* LicenseTextLoader.swift */,
 				5638FC4C06278901129EF9DF /* DataExportService.swift */,
@@ -187,6 +198,7 @@
 			isa = PBXGroup;
 			children = (
 				BF7695C55BB9AFAA1CDFEB58 /* ComponentModels.swift */,
+				167CA0002F9C0001001B9AA7 /* CaptureModels.swift */,
 				911F85BE195D61BDA4442400 /* PhraseModels.swift */,
 				6AFF92F2BA13EBA1A3A64D44 /* PromptModels.swift */,
 				B3E1E5265391156C8C615A28 /* ResponsiveFont.swift */,
@@ -364,6 +376,7 @@
 				86CD14552F9822B300D7BDBD /* AddPhrasesFileDocument.swift in Sources */,
 				86CD14562F9822B300D7BDBD /* FilterGridTab.swift in Sources */,
 				86CD14572F9822B300D7BDBD /* SmartResultsGrid.swift in Sources */,
+				167CA0082F9C0001001B9AA7 /* CaptureTab.swift in Sources */,
 				EA2830C793A1ABC0ECC9FC56 /* AILinkView.swift in Sources */,
 				388A8F4E14262C3C3E616C1B /* CharacterDetailView.swift in Sources */,
 				82ECAD9A3AAD305D57B1CC85 /* CharacterInfoCard.swift in Sources */,
@@ -373,6 +386,7 @@
 				4A7054204EB051FAAD223385 /* JSONFileDocument.swift in Sources */,
 				EB7D8FFF8C9E773E8712ABDD /* PaywallView.swift in Sources */,
 				10D59B4DFE53808C4829E6FD /* PhraseModels.swift in Sources */,
+				167CA0012F9C0001001B9AA7 /* CaptureModels.swift in Sources */,
 				971EBBB26C9F4CFBD686F394 /* PromptModels.swift in Sources */,
 				C28652F731304AC351D188FF /* RadixApp.swift in Sources */,
 				68BF5B495E4A41F3DF1E774C /* RadixStoreTests.swift in Sources */,
@@ -384,6 +398,7 @@
 				864DABB42F9B0001001B9AA7 /* LicenseTextLoader.swift in Sources */,
 				A1058D8DAF993CBF97FFE6A9 /* StrokeOrderWebView.swift in Sources */,
 				643BD107342BFF9737B8E68D /* UnifiedPackage.swift in Sources */,
+				167CA0052F9C0001001B9AA7 /* CaptureOCRService.swift in Sources */,
 				BB6046DC1B72C21D2C18B6BA /* UserProfile.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -412,9 +427,11 @@
 				86CD14492F9822B300D7BDBD /* AddPhrasesFileDocument.swift in Sources */,
 				86CD144A2F9822B300D7BDBD /* FilterGridTab.swift in Sources */,
 				86CD144B2F9822B300D7BDBD /* SmartResultsGrid.swift in Sources */,
+				167CA0092F9C0001001B9AA7 /* CaptureTab.swift in Sources */,
 				2CD095BC1FB95FF4971726EC /* JSONFileDocument.swift in Sources */,
 				9D149A113D1A76187A94F606 /* PaywallView.swift in Sources */,
 				FAA71A5526023B0DC933A1DE /* PhraseModels.swift in Sources */,
+				167CA0032F9C0001001B9AA7 /* CaptureModels.swift in Sources */,
 				864DAB902F93BD51001B9AA7 /* CharacterPreviewHeader.swift in Sources */,
 				864DAB9B2F9B0001001B9AA7 /* OpenSourceLicensesView.swift in Sources */,
 				864DABAF2F9B0001001B9AA7 /* SettingsView.swift in Sources */,
@@ -428,6 +445,7 @@
 				864DAB972F9A0001001B9AA7 /* StrokeAnimationProvider.swift in Sources */,
 				A2A5920563DDE95E066515ED /* StrokeOrderWebView.swift in Sources */,
 				C0F73A1B704F91F0BB8E1C07 /* UnifiedPackage.swift in Sources */,
+				167CA0062F9C0001001B9AA7 /* CaptureOCRService.swift in Sources */,
 				CDE58FC9C241B89DA2A18538 /* UserProfile.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

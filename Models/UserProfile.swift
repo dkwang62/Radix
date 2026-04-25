@@ -38,6 +38,7 @@ struct UserProfile: Codable {
     let phraseLength: Int?
     let promptConfig: PromptConfig?
     let promptSelectedTaskIDs: [String]?
+    let captureItems: [CaptureItem]?
 
     init(
         schemaVersion: Int,
@@ -56,7 +57,8 @@ struct UserProfile: Codable {
         route: String? = nil,
         phraseLength: Int? = nil,
         promptConfig: PromptConfig? = nil,
-        promptSelectedTaskIDs: [String]? = nil
+        promptSelectedTaskIDs: [String]? = nil,
+        captureItems: [CaptureItem]? = nil
     ) {
         self.schemaVersion = schemaVersion
         self.favouritesList = favouritesList
@@ -75,6 +77,7 @@ struct UserProfile: Codable {
         self.phraseLength = phraseLength
         self.promptConfig = promptConfig
         self.promptSelectedTaskIDs = promptSelectedTaskIDs
+        self.captureItems = captureItems
     }
 
     enum CodingKeys: String, CodingKey {
@@ -95,5 +98,6 @@ struct UserProfile: Codable {
         case phraseLength = "phrase_length"
         case promptConfig = "prompt_config"
         case promptSelectedTaskIDs = "prompt_selected_task_ids"
+        case captureItems = "capture_items"
     }
 }

@@ -156,6 +156,7 @@ struct RootView: View {
     @ViewBuilder
     private var iPhoneView: some View {
         let selection: Int = {
+            if store.route == .capture { return 6 }
             if store.route == .aiLink { return 4 }
             if store.route == .lineage { return 2 }
             return store.homeTab.index
@@ -168,6 +169,7 @@ struct RootView: View {
             case 3: return "Favourites"
             case 4: return "AI"
             case 5: return "My Data"
+            case 6: return "Capture"
             default: return "Radix"
             }
         }()
@@ -249,13 +251,15 @@ struct RootView: View {
                             },
                             onRequirePro: { gate in store.showPaywall(for: gate) }
                         )
+                    case 6:
+                        CaptureTab()
                     default:
                         SmartSearchTab()
                     }
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
 
-                // Custom compact tab bar (fits 6 items, no "More")
+                // Custom compact tab bar (keeps core workflow one tap away)
                 HStack(spacing: 6) {
                     tabButton(id: 0, title: "Search", system: "magnifyingglass")
                     tabButton(id: 1, title: "Browse", system: "square.grid.2x2")
@@ -263,6 +267,7 @@ struct RootView: View {
                     tabButton(id: 3, title: "Favs", system: "star")
                     tabButton(id: 4, title: "AI", system: "sparkles")
                     tabButton(id: 5, title: "My Data", system: "pencil.and.outline")
+                    tabButton(id: 6, title: "Capture", system: "text.viewfinder")
                 }
                 .padding(.vertical, 6)
                 .padding(.horizontal, 8)
@@ -314,6 +319,8 @@ struct RootView: View {
                 ContentUnavailableView("Failed to Load", systemImage: "exclamationmark.triangle", description: Text(error))
             } else {
                 switch store.route {
+                case .capture:
+                    CaptureTab()
                 case .search:
                     SearchHomeView(
                     onExportProfile: exportProfile,
@@ -388,6 +395,7 @@ struct RootView: View {
 
     private var detailPaneTitle: String {
         switch store.route {
+        case .capture:   return "Capture"
         case .search:
             switch store.homeTab {
             case .smart:      return "Search"
@@ -425,6 +433,13 @@ struct RootView: View {
                         isActive: store.route == .search && store.homeTab == .favourites
                     ) {
                         store.goToFavourites()
+                    }
+                    sidebarIconButton(
+                        title: "Capture",
+                        systemImage: "text.viewfinder",
+                        isActive: store.route == .capture
+                    ) {
+                        store.route = .capture
                     }
                     sidebarIconButton(
                         title: "Roots",
@@ -518,6 +533,7 @@ struct RootView: View {
     
     private func tabButton(id: Int, title: String, system: String) -> some View {
         let isActive = {
+            if store.route == .capture { return id == 6 }
             if store.route == .aiLink { return id == 4 }
             if store.route == .lineage { return id == 2 }
             return store.homeTab.index == id
@@ -531,6 +547,8 @@ struct RootView: View {
             }
             #endif
             switch id {
+            case 6:
+                store.route = .capture
             case 4:
                 store.route = .aiLink
             case 2:
@@ -686,4 +704,3 @@ struct CompactScriptFilterControl: View {
         .buttonStyle(.plain)
     }
 }
-

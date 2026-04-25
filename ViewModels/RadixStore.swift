@@ -48,6 +48,7 @@ enum SmartResultsViewMode: String, CaseIterable, Identifiable {
 /// Primary navigation routes for the app sidebar.
 enum AppRoute: String, CaseIterable, Identifiable {
     case search = "Search"
+    case capture = "Capture"
     case lineage = "Lineage"
     case aiLink = "AI Link"
     case favourites = "Favourites"
@@ -404,6 +405,9 @@ final class RadixStore: ObservableObject {
     @Published private(set) var addPhrasesPath: String = ""
     @Published var showBrowseHelp: Bool = true
     @Published var showComponentHelp: Bool = true
+    @Published private(set) var captureItems: [CaptureItem] = []
+    private let captureItemsKey = "radix.captureItems"
+    private let maxCaptureItems = 10
 
     // MARK: - Core Lifecycle
     
@@ -445,6 +449,7 @@ final class RadixStore: ObservableObject {
         loadFavorites()
         loadSearchHistory()
         loadRootBreadcrumb()
+        loadCaptureItems()
         if rootBreadcrumb.isEmpty {
             seedBreadcrumbFromFavorites()
         }
@@ -571,6 +576,17 @@ final class RadixStore: ObservableObject {
         let trimmedCharacter = character.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedCharacter.count == 1 else { return }
 
+        if route == .capture {
+            previewCharacter = trimmedCharacter
+            refreshPhrases(for: trimmedCharacter)
+            pushRootBreadcrumb(trimmedCharacter)
+            showiPhoneDetail = false
+            if announce && speechEnabled {
+                speechCoordinator.speak(trimmedCharacter)
+            }
+            return
+        }
+
         // 1. Instant UI update for selection
         selectedCharacter = trimmedCharacter
         previewCharacter = trimmedCharacter
@@ -637,6 +653,16 @@ final class RadixStore: ObservableObject {
     }
 
     func preview(character: String, announce: Bool = true) {
+        if route == .capture {
+            previewCharacter = character
+            refreshPhrases(for: character)
+            showiPhoneDetail = false
+            if announce && speechEnabled {
+                speechCoordinator.speak(character)
+            }
+            return
+        }
+
         // Two quick previews on the same character count as a selection (double-click alternative)
         let now = Date()
         if let last = lastPreviewTap, last.character == character, now.timeIntervalSince(last.time) < 0.8 {
@@ -935,6 +961,17 @@ final class RadixStore: ObservableObject {
         let trimmedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedWord.isEmpty else { return nil }
         return phraseRepo.fetchPhrase(for: trimmedWord)
+    }
+
+    func items(for characters: [String]) -> [ComponentItem] {
+        var seen = Set<String>()
+        var result: [ComponentItem] = []
+        for character in characters {
+            let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard key.count == 1, seen.insert(key).inserted, let item = componentRepo.byCharacter[key] else { continue }
+            result.append(item)
+        }
+        return result
     }
 
     func simplifiedText(_ value: String) -> String {
@@ -2163,7 +2200,8 @@ final class RadixStore: ObservableObject {
             route: route.rawValue,
             phraseLength: phraseLength,
             promptConfig: promptConfig,
-            promptSelectedTaskIDs: promptSelectedTaskIDs
+            promptSelectedTaskIDs: promptSelectedTaskIDs,
+            captureItems: captureItems
         )
     }
 
@@ -2174,6 +2212,23 @@ final class RadixStore: ObservableObject {
 
     func refreshAddedPhrases() {
         addedPhrases = phraseRepo.fetchAddedPhrases()
+    }
+
+    func saveCapture(rawText: String, characters: [String], phrases: [String], notes: String) {
+        let item = CaptureItem(
+            rawText: rawText.trimmingCharacters(in: .whitespacesAndNewlines),
+            characters: characters.filter { componentRepo.hasCharacter($0) },
+            phrases: phrases,
+            notes: notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+        captureItems.insert(item, at: 0)
+        captureItems = Array(uniqueCaptureItems(captureItems).prefix(maxCaptureItems))
+        persistCaptureItems()
+    }
+
+    func deleteCapture(id: UUID) {
+        captureItems.removeAll { $0.id == id }
+        persistCaptureItems()
     }
 
     func loadSharedComponentPeers(for character: String) {
@@ -2283,6 +2338,8 @@ final class RadixStore: ObservableObject {
         pushRootBreadcrumb(key)
 
         switch route {
+        case .capture:
+            select(character: key, announce: false)
         case .search:
             switch homeTab {
             case .smart:
@@ -2422,6 +2479,35 @@ final class RadixStore: ObservableObject {
         rootBreadcrumb = remembered
         rootBreadcrumbIndex = remembered.isEmpty ? 0 : min(rootBreadcrumbIndex, remembered.count - 1)
         persistRootBreadcrumb()
+    }
+
+    private func loadCaptureItems() {
+        guard let data = UserDefaults.standard.data(forKey: captureItemsKey),
+              let decoded = try? JSONDecoder().decode([CaptureItem].self, from: data) else { return }
+        captureItems = Array(uniqueCaptureItems(decoded).prefix(maxCaptureItems))
+    }
+
+    private func persistCaptureItems() {
+        guard let data = try? JSONEncoder().encode(captureItems) else { return }
+        UserDefaults.standard.set(data, forKey: captureItemsKey)
+    }
+
+    private func applyCaptureItems(_ items: [CaptureItem]) {
+        captureItems = Array(uniqueCaptureItems(items + captureItems).prefix(maxCaptureItems))
+        persistCaptureItems()
+    }
+
+    private func uniqueCaptureItems(_ items: [CaptureItem]) -> [CaptureItem] {
+        var result: [CaptureItem] = []
+        var seen = Set<String>()
+        for item in items.sorted(by: { $0.createdAt > $1.createdAt }) {
+            let key = [item.rawText, item.characters.joined(), item.phrases.joined(), item.notes]
+                .joined(separator: "|")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !key.isEmpty, seen.insert(key).inserted else { continue }
+            result.append(item)
+        }
+        return result
     }
 
     private func sanitizedRootBreadcrumb(_ characters: [String]) -> [String] {
@@ -2631,6 +2717,9 @@ final class RadixStore: ObservableObject {
         }
         if let cfg = profile.promptConfig { promptConfig = cfg.normalized() }
         if let selected = profile.promptSelectedTaskIDs { promptSelectedTaskIDs = selected }
+        if let importedCaptureItems = profile.captureItems {
+            applyCaptureItems(importedCaptureItems)
+        }
         persistPromptSettings()
 
         if let candidate = profile.selectedCharacter, componentRepo.hasCharacter(candidate) {
