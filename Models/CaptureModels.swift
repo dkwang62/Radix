@@ -1,36 +1,20 @@
 import Foundation
 
-struct CaptureItem: Identifiable, Hashable, Codable {
-    let id: UUID
-    let createdAt: Date
-    let rawText: String
-    let characters: [String]
-    let phrases: [String]
-    let notes: String
+struct CaptureDraft: Hashable {
+    var rawText: String
+    var charactersText: String
+    var phrasesText: String
 
-    init(
-        id: UUID = UUID(),
-        createdAt: Date = Date(),
-        rawText: String,
-        characters: [String],
-        phrases: [String],
-        notes: String
-    ) {
-        self.id = id
-        self.createdAt = createdAt
+    init(rawText: String = "", charactersText: String = "", phrasesText: String = "") {
         self.rawText = rawText
-        self.characters = CaptureTextExtractor.uniqueCharacters(in: characters.joined())
-        self.phrases = CaptureTextExtractor.uniquePhrases(from: phrases)
-        self.notes = notes
+        self.charactersText = charactersText
+        self.phrasesText = phrasesText
     }
 
-    enum CodingKeys: String, CodingKey {
-        case id
-        case createdAt = "created_at"
-        case rawText = "raw_text"
-        case characters
-        case phrases
-        case notes
+    var isEmpty: Bool {
+        rawText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        charactersText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        phrasesText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
 
@@ -66,7 +50,7 @@ enum CaptureTextExtractor {
             let cleaned = candidate.filter { character in
                 character.unicodeScalars.contains(where: isChineseScalar)
             }
-            guard cleaned.count >= 2, seen.insert(cleaned).inserted else { continue }
+            guard (2...4).contains(cleaned.count), seen.insert(cleaned).inserted else { continue }
             result.append(cleaned)
         }
         return result

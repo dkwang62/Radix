@@ -16,10 +16,10 @@ struct BreadcrumbStrip: View {
     var body: some View {
         if !store.rootBreadcrumb.isEmpty {
             HStack(spacing: 6) {
-                Text("Remembered")
+                Text("Memory")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
-                    .accessibilityLabel("Remembered characters")
+                    .accessibilityLabel("Memory characters")
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
@@ -48,4 +48,3 @@ struct BreadcrumbStrip: View {
         }
     }
 }
-

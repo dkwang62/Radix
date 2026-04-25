@@ -120,6 +120,11 @@ final class CharacterSpeechCoordinator {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
+        #if !targetEnvironment(macCatalyst)
+        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+        try? AVAudioSession.sharedInstance().setActive(true)
+        #endif
+
         synthesizer.stopSpeaking(at: .immediate)
 
         let utterance = AVSpeechUtterance(string: trimmed)
@@ -405,9 +410,7 @@ final class RadixStore: ObservableObject {
     @Published private(set) var addPhrasesPath: String = ""
     @Published var showBrowseHelp: Bool = true
     @Published var showComponentHelp: Bool = true
-    @Published private(set) var captureItems: [CaptureItem] = []
-    private let captureItemsKey = "radix.captureItems"
-    private let maxCaptureItems = 10
+    @Published var activeCaptureDraft = CaptureDraft()
 
     // MARK: - Core Lifecycle
     
@@ -449,7 +452,6 @@ final class RadixStore: ObservableObject {
         loadFavorites()
         loadSearchHistory()
         loadRootBreadcrumb()
-        loadCaptureItems()
         if rootBreadcrumb.isEmpty {
             seedBreadcrumbFromFavorites()
         }
@@ -804,8 +806,8 @@ final class RadixStore: ObservableObject {
     }
 
     func goToRoots(character: String) {
-        select(character: character, announce: false)
         route = .lineage
+        select(character: character, announce: false)
         showComponentHelp = true
         #if !targetEnvironment(macCatalyst)
         if UIDevice.current.userInterfaceIdiom == .phone {
@@ -2200,8 +2202,7 @@ final class RadixStore: ObservableObject {
             route: route.rawValue,
             phraseLength: phraseLength,
             promptConfig: promptConfig,
-            promptSelectedTaskIDs: promptSelectedTaskIDs,
-            captureItems: captureItems
+            promptSelectedTaskIDs: promptSelectedTaskIDs
         )
     }
 
@@ -2212,23 +2213,6 @@ final class RadixStore: ObservableObject {
 
     func refreshAddedPhrases() {
         addedPhrases = phraseRepo.fetchAddedPhrases()
-    }
-
-    func saveCapture(rawText: String, characters: [String], phrases: [String], notes: String) {
-        let item = CaptureItem(
-            rawText: rawText.trimmingCharacters(in: .whitespacesAndNewlines),
-            characters: characters.filter { componentRepo.hasCharacter($0) },
-            phrases: phrases,
-            notes: notes.trimmingCharacters(in: .whitespacesAndNewlines)
-        )
-        captureItems.insert(item, at: 0)
-        captureItems = Array(uniqueCaptureItems(captureItems).prefix(maxCaptureItems))
-        persistCaptureItems()
-    }
-
-    func deleteCapture(id: UUID) {
-        captureItems.removeAll { $0.id == id }
-        persistCaptureItems()
     }
 
     func loadSharedComponentPeers(for character: String) {
@@ -2320,6 +2304,23 @@ final class RadixStore: ObservableObject {
         rootBreadcrumb.insert(character, at: 0)
         rootBreadcrumbIndex = 0
         persistRootBreadcrumb()
+    }
+
+    func removeRootBreadcrumb(_ character: String) {
+        guard let existing = rootBreadcrumb.firstIndex(of: character) else { return }
+        rootBreadcrumb.remove(at: existing)
+        rootBreadcrumbIndex = rootBreadcrumb.isEmpty ? 0 : min(rootBreadcrumbIndex, rootBreadcrumb.count - 1)
+        persistRootBreadcrumb()
+    }
+
+    func toggleRootBreadcrumb(_ character: String) {
+        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard key.count == 1, componentRepo.hasCharacter(key) else { return }
+        if rootBreadcrumb.contains(key) {
+            removeRootBreadcrumb(key)
+        } else {
+            pushRootBreadcrumb(key)
+        }
     }
 
     func stepRootBreadcrumb(by delta: Int) -> String? {
@@ -2479,35 +2480,6 @@ final class RadixStore: ObservableObject {
         rootBreadcrumb = remembered
         rootBreadcrumbIndex = remembered.isEmpty ? 0 : min(rootBreadcrumbIndex, remembered.count - 1)
         persistRootBreadcrumb()
-    }
-
-    private func loadCaptureItems() {
-        guard let data = UserDefaults.standard.data(forKey: captureItemsKey),
-              let decoded = try? JSONDecoder().decode([CaptureItem].self, from: data) else { return }
-        captureItems = Array(uniqueCaptureItems(decoded).prefix(maxCaptureItems))
-    }
-
-    private func persistCaptureItems() {
-        guard let data = try? JSONEncoder().encode(captureItems) else { return }
-        UserDefaults.standard.set(data, forKey: captureItemsKey)
-    }
-
-    private func applyCaptureItems(_ items: [CaptureItem]) {
-        captureItems = Array(uniqueCaptureItems(items + captureItems).prefix(maxCaptureItems))
-        persistCaptureItems()
-    }
-
-    private func uniqueCaptureItems(_ items: [CaptureItem]) -> [CaptureItem] {
-        var result: [CaptureItem] = []
-        var seen = Set<String>()
-        for item in items.sorted(by: { $0.createdAt > $1.createdAt }) {
-            let key = [item.rawText, item.characters.joined(), item.phrases.joined(), item.notes]
-                .joined(separator: "|")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !key.isEmpty, seen.insert(key).inserted else { continue }
-            result.append(item)
-        }
-        return result
     }
 
     private func sanitizedRootBreadcrumb(_ characters: [String]) -> [String] {
@@ -2717,9 +2689,6 @@ final class RadixStore: ObservableObject {
         }
         if let cfg = profile.promptConfig { promptConfig = cfg.normalized() }
         if let selected = profile.promptSelectedTaskIDs { promptSelectedTaskIDs = selected }
-        if let importedCaptureItems = profile.captureItems {
-            applyCaptureItems(importedCaptureItems)
-        }
         persistPromptSettings()
 
         if let candidate = profile.selectedCharacter, componentRepo.hasCharacter(candidate) {

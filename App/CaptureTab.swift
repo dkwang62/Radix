@@ -4,23 +4,23 @@ import UIKit
 
 struct CaptureTab: View {
     @EnvironmentObject private var store: RadixStore
+    @Environment(\.openURL) private var openURL
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var selectedImage: UIImage?
-    @State private var rawText = ""
-    @State private var charactersText = ""
-    @State private var phrasesText = ""
-    @State private var notesText = ""
     @State private var isProcessing = false
     @State private var statusMessage: String?
     @State private var errorMessage: String?
     @State private var gridPage = 0
+    @State private var showCamera = false
+    @State private var capturePreviewCharacter: String?
+    @State private var captureDetailPreviewCharacter: String?
 
     private var characters: [String] {
-        CaptureTextExtractor.uniqueCharacters(in: charactersText)
+        CaptureTextExtractor.uniqueCharacters(in: store.activeCaptureDraft.charactersText)
     }
 
     private var phraseCandidates: [String] {
-        CaptureTextExtractor.uniquePhrases(from: phrasesText.split(separator: "\n").map(String.init))
+        CaptureTextExtractor.uniquePhrases(from: store.activeCaptureDraft.phrasesText.split(separator: "\n").map(String.init))
     }
 
     private var characterItems: [ComponentItem] {
@@ -37,62 +37,97 @@ struct CaptureTab: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                header
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Color.clear.frame(height: 0).id("captureTop")
+                    header
 
-                if let errorMessage {
-                    Text(errorMessage)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.red)
-                }
-                if let statusMessage {
-                    Text(statusMessage)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                }
+                    #if !targetEnvironment(macCatalyst)
+                    if UIDevice.current.userInterfaceIdiom == .phone,
+                       let current = captureDetailPreviewCharacter ?? capturePreviewCharacter,
+                       store.item(for: current) != nil {
+                        standardPhoneCharacterPreview(
+                            character: current,
+                            selectedCharacter: store.selectedCharacter,
+                            onClear: {
+                                capturePreviewCharacter = nil
+                                captureDetailPreviewCharacter = nil
+                                store.previewCharacter = nil
+                            }
+                        )
+                    }
+                    #endif
 
-                if let selectedImage {
-                    Image(uiImage: selectedImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxHeight: 260)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
+                    if let errorMessage {
+                        Text(errorMessage)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.red)
+                    }
+                    if let statusMessage {
+                        Text(statusMessage)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                    }
 
-                if isProcessing {
-                    ProgressView("Reading image...")
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.vertical, 24)
-                } else if rawText.isEmpty {
-                    emptyState
-                } else {
-                    captureResults
-                    savedCaptures
+                    if let selectedImage {
+                        Image(uiImage: selectedImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 260)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+
+                    if isProcessing {
+                        ProgressView("Reading image...")
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.vertical, 24)
+                    } else if store.activeCaptureDraft.rawText.isEmpty {
+                        emptyState
+                    } else {
+                        captureResults(scrollToTop: {
+                            withAnimation { proxy.scrollTo("captureTop", anchor: .top) }
+                        })
+                    }
                 }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .topLeading)
             }
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .topLeading)
         }
         .onChange(of: selectedPhoto) { _, item in
             Task { await loadAndRecognize(item) }
+        }
+        .sheet(isPresented: $showCamera) {
+            CameraCaptureView { image in
+                showCamera = false
+                Task { await recognize(image) }
+            }
         }
     }
 
     private var header: some View {
         HStack(alignment: .center, spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Capture")
+                Text("Camera")
                     .font(ResponsiveFont.title3.bold())
-                Text("Image to Radix notes")
+                Text("Image to Radix results")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            PhotosPicker(selection: $selectedPhoto, matching: .images) {
-                Label("Choose Image", systemImage: "photo")
+            if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                Button {
+                    showCamera = true
+                } label: {
+                    Text("Camera")
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(isProcessing)
             }
-            .buttonStyle(.borderedProminent)
+            PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                Text("Album")
+            }
+            .buttonStyle(.bordered)
             .disabled(isProcessing)
         }
     }
@@ -100,13 +135,13 @@ struct CaptureTab: View {
     private var emptyState: some View {
         ContentUnavailableView(
             "Choose an Image",
-            systemImage: "text.viewfinder",
-            description: Text("Radix will extract Chinese text using Apple Vision, then let you save only the characters, phrases, and notes you want.")
+            systemImage: "camera",
+            description: Text("Radix will extract Chinese text using Apple Vision, then let you review the characters and phrases in place.")
         )
         .frame(maxWidth: .infinity, minHeight: 240)
     }
 
-    private var captureResults: some View {
+    private func captureResults(scrollToTop: @escaping () -> Void) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             captureSection("Characters") {
                 if characterItems.isEmpty {
@@ -118,12 +153,17 @@ struct CaptureTab: View {
                         items: characterItems,
                         currentPage: $gridPage,
                         onPreview: { character in
+                            capturePreviewCharacter = character
+                            captureDetailPreviewCharacter = character
                             store.refreshPhrases(for: character)
+                        },
+                        onSelect: {
+                            scrollToTop()
                         }
                     )
                 }
 
-                TextEditor(text: $charactersText)
+                TextEditor(text: $store.activeCaptureDraft.charactersText)
                     .font(ResponsiveFont.body)
                     .frame(minHeight: 70)
                     .padding(6)
@@ -157,18 +197,9 @@ struct CaptureTab: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
 
-                TextEditor(text: $phrasesText)
+                TextEditor(text: $store.activeCaptureDraft.phrasesText)
                     .font(ResponsiveFont.body)
                     .frame(minHeight: 86)
-                    .padding(6)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-
-            captureSection("Capture Notes") {
-                TextEditor(text: $notesText)
-                    .font(ResponsiveFont.body)
-                    .frame(minHeight: 120)
                     .padding(6)
                     .background(Color(.secondarySystemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -183,79 +214,8 @@ struct CaptureTab: View {
                 }
                 .buttonStyle(.bordered)
                 .disabled(characters.isEmpty)
-
-                Spacer()
-
-                Button("Save Capture") {
-                    store.saveCapture(rawText: rawText, characters: characters, phrases: phraseCandidates, notes: notesText)
-                    statusMessage = "Capture saved."
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(characters.isEmpty && phraseCandidates.isEmpty && notesText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }
-    }
-
-    private var savedCaptures: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Saved Captures")
-                .font(ResponsiveFont.headline)
-            if store.captureItems.isEmpty {
-                Text("Saved captures will appear here.")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-            } else {
-                ForEach(store.captureItems) { item in
-                    savedCaptureRow(item)
-                }
-            }
-        }
-        .padding(.top, 8)
-    }
-
-    private func savedCaptureRow(_ item: CaptureItem) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Button {
-                    activateCapture(item)
-                } label: {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(item.createdAt, style: .date)
-                            .font(ResponsiveFont.caption.bold())
-                        Text("\(item.characters.count) characters, \(item.phrases.count) phrases")
-                            .font(ResponsiveFont.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .buttonStyle(.plain)
-                Spacer()
-                Button(role: .destructive) {
-                    store.deleteCapture(id: item.id)
-                } label: {
-                    Image(systemName: "trash")
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.mini)
-            }
-
-            if !item.characters.isEmpty {
-                Text(item.characters.joined(separator: " "))
-                    .font(ResponsiveFont.body)
-            }
-            if !item.phrases.isEmpty {
-                Text(item.phrases.joined(separator: "  "))
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-            }
-            if !item.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                Text(item.notes)
-                    .font(ResponsiveFont.caption)
-                    .lineLimit(3)
-            }
-        }
-        .padding(10)
-        .background(Color(.secondarySystemBackground).opacity(0.65))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private func phraseTable(_ phrases: [PhraseItem]) -> some View {
@@ -302,13 +262,49 @@ struct CaptureTab: View {
             Text(phrase)
                 .font(ResponsiveFont.body.bold())
             Spacer()
-            Button("Add Notes") {
+            Button {
+                openNewPhraseInChatGPT(phrase)
+            } label: {
+                Label("ChatGPT", systemImage: "arrow.up.forward.app")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.mini)
+            .font(ResponsiveFont.caption2.weight(.semibold))
+
+            Button("Notes") {
                 store.openQuickPhraseEditor(word: phrase)
             }
             .buttonStyle(.bordered)
             .controlSize(.mini)
+            .font(ResponsiveFont.caption2.weight(.semibold))
         }
         .padding(10)
+    }
+
+    private func openNewPhraseInChatGPT(_ phrase: String) {
+        let prompt = """
+        For "\(phrase)", return only three lines:
+        line 1: Hanyu Pinyin with tone marks
+        line 2: concise English meaning
+        line 3: one simple Chinese example sentence using the phrase, followed by pinyin and English translation
+        Do not include labels, headings, numbering, bullets, explanations, or any extra words.
+        """
+
+        #if canImport(UIKit)
+        UIPasteboard.general.string = prompt
+        #endif
+
+        if let url = chatGPTURL(prompt: prompt) {
+            openURL(url)
+        }
+    }
+
+    private func chatGPTURL(prompt: String) -> URL? {
+        var components = URLComponents(string: "https://chatgpt.com/")
+        components?.queryItems = [
+            URLQueryItem(name: "q", value: prompt)
+        ]
+        return components?.url
     }
 
     private func captureSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
@@ -323,39 +319,81 @@ struct CaptureTab: View {
     @MainActor
     private func loadAndRecognize(_ item: PhotosPickerItem?) async {
         guard let item else { return }
+        do {
+            guard let data = try await item.loadTransferable(type: Data.self),
+                  let image = UIImage(data: data) else {
+                throw NSError(domain: "Radix", code: 3002, userInfo: [NSLocalizedDescriptionKey: "The selected image could not be loaded."])
+            }
+            await recognize(image)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    @MainActor
+    private func recognize(_ image: UIImage) async {
         isProcessing = true
         errorMessage = nil
         statusMessage = nil
         defer { isProcessing = false }
 
         do {
-            guard let data = try await item.loadTransferable(type: Data.self),
-                  let image = UIImage(data: data) else {
-                throw NSError(domain: "Radix", code: 3002, userInfo: [NSLocalizedDescriptionKey: "The selected image could not be loaded."])
-            }
             selectedImage = image
             let text = try await CaptureOCRService().recognizeText(in: image)
-            rawText = text
             let foundCharacters = CaptureTextExtractor.uniqueCharacters(in: text)
             let foundPhrases = CaptureTextExtractor.uniquePhrases(in: text)
-            charactersText = foundCharacters.joined(separator: " ")
-            phrasesText = foundPhrases.joined(separator: "\n")
-            notesText = ""
+            store.activeCaptureDraft = CaptureDraft(
+                rawText: text,
+                charactersText: foundCharacters.joined(separator: " "),
+                phrasesText: foundPhrases.joined(separator: "\n")
+            )
             gridPage = 0
+            capturePreviewCharacter = nil
+            captureDetailPreviewCharacter = nil
             statusMessage = foundCharacters.isEmpty ? "No Chinese characters found. You can edit the fields manually." : "Review, edit, then save what matters."
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
-    private func activateCapture(_ item: CaptureItem) {
-        selectedImage = nil
-        rawText = item.rawText
-        charactersText = item.characters.joined(separator: " ")
-        phrasesText = item.phrases.joined(separator: "\n")
-        notesText = item.notes
-        gridPage = 0
-        statusMessage = "Saved capture activated."
-        errorMessage = nil
+}
+
+private struct CameraCaptureView: UIViewControllerRepresentable {
+    let onImage: (UIImage) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.cameraCaptureMode = .photo
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) { }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onImage: onImage, dismiss: dismiss)
+    }
+
+    final class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        private let onImage: (UIImage) -> Void
+        private let dismiss: DismissAction
+
+        init(onImage: @escaping (UIImage) -> Void, dismiss: DismissAction) {
+            self.onImage = onImage
+            self.dismiss = dismiss
+        }
+
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                onImage(image)
+            }
+            dismiss()
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            dismiss()
+        }
     }
 }

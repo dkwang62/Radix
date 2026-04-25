@@ -19,6 +19,11 @@ struct QuickEditSheet: View {
 }
 
 struct QuickCharacterEditorView: View {
+    private enum FocusedCharacterField: Hashable {
+        case etymology
+        case hints
+    }
+
     let initialCharacter: String
     let isNew: Bool
     @EnvironmentObject private var store: RadixStore
@@ -28,6 +33,7 @@ struct QuickCharacterEditorView: View {
     @State private var characterInput: String = ""
     @State private var isLoaded: Bool = false
     @State private var detailsExpanded: Bool = false
+    @FocusState private var focusedField: FocusedCharacterField?
 
     init(character: String, isNew: Bool) {
         self.initialCharacter = character
@@ -103,9 +109,29 @@ struct QuickCharacterEditorView: View {
                 isLoaded = true
             }
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Button("Done") {
+                    focusedField = nil
+                }
+                Spacer()
+                Button("Save") {
+                    saveCharacter()
+                }
+            }
+        }
     }
 
+    @ViewBuilder
     private var editorForm: some View {
+        if horizontalSizeClass == .compact && detailsExpanded {
+            scrollableEditorForm
+        } else {
+            fixedEditorForm
+        }
+    }
+
+    private var fixedEditorForm: some View {
         VStack(alignment: .leading, spacing: 8) {
             if let editorError {
                 Text(editorError)
@@ -127,6 +153,48 @@ struct QuickCharacterEditorView: View {
         .padding(.top, 8)
         .padding(.bottom, 8)
         .font(ResponsiveFont.body)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private var scrollableEditorForm: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        if let editorError {
+                            Text(editorError)
+                                .font(ResponsiveFont.caption)
+                                .foregroundStyle(.red)
+                                .padding(.horizontal)
+                        }
+
+                        notesSection
+                            .frame(height: notesMinimumHeight)
+
+                        dictionaryDetailsSection
+
+                        Spacer(minLength: 120)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.top, 8)
+                    .padding(.bottom, 8)
+                    .font(ResponsiveFont.body)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                }
+                .onChange(of: focusedField) { _, field in
+                    guard let field else { return }
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        proxy.scrollTo(field, anchor: .center)
+                    }
+                }
+            }
+
+            Divider()
+
+            actionRow
+                .padding(.horizontal, 12)
+                .padding(.bottom, 8)
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
@@ -201,10 +269,14 @@ struct QuickCharacterEditorView: View {
                 compactFieldRow {
                     formField("Etymology") {
                         TextField("Details", text: $store.dataEditEtymDetails).textFieldStyle(.roundedBorder)
+                            .focused($focusedField, equals: .etymology)
                     }
+                    .id(FocusedCharacterField.etymology)
                     formField("Hints") {
                         TextField("Hint", text: $store.dataEditEtymHint).textFieldStyle(.roundedBorder)
+                            .focused($focusedField, equals: .hints)
                     }
+                    .id(FocusedCharacterField.hints)
                 }
             } else {
                 HStack(spacing: 8) {
@@ -237,9 +309,11 @@ struct QuickCharacterEditorView: View {
                 HStack(spacing: 8) {
                     formField("Etymology") {
                         TextField("Details", text: $store.dataEditEtymDetails).textFieldStyle(.roundedBorder)
+                            .focused($focusedField, equals: .etymology)
                     }
                     formField("Hints") {
                         TextField("Hint", text: $store.dataEditEtymHint).textFieldStyle(.roundedBorder)
+                            .focused($focusedField, equals: .hints)
                     }
                 }
             }
@@ -276,18 +350,22 @@ struct QuickCharacterEditorView: View {
             .buttonStyle(.bordered)
 
             Button("Save") {
-                do {
-                    try store.saveCurrentDictionaryDraft()
-                    editorError = nil
-                    dismiss()
-                } catch {
-                    editorError = error.localizedDescription
-                }
+                saveCharacter()
             }
             .buttonStyle(.borderedProminent)
         }
         .padding(.vertical, 4)
         .background(Color(.systemBackground))
+    }
+
+    private func saveCharacter() {
+        do {
+            try store.saveCurrentDictionaryDraft()
+            editorError = nil
+            dismiss()
+        } catch {
+            editorError = error.localizedDescription
+        }
     }
 
     @ViewBuilder
@@ -381,7 +459,6 @@ struct QuickPhraseEditorView: View {
     @State private var phraseEditorPinyin: String = ""
     @State private var phraseEditorMeanings: String = ""
     @State private var phraseEditorNotes: String = ""
-    @State private var fieldsExpanded: Bool = false
     @State private var editorError: String?
 
     init(word: String, isNew: Bool) {
@@ -425,8 +502,7 @@ struct QuickPhraseEditorView: View {
                     if !isNew && store.isPhraseInAdd(phraseEditorWord) {
                         let isBuiltIn = store.isPhraseInBase(phraseEditorWord)
                         Button(isBuiltIn ? "Revert" : "Delete", role: isBuiltIn ? nil : .destructive) {
-                            store.removeDataEditPhrase(word: phraseEditorWord)
-                            dismiss()
+                            deletePhrase()
                         }
                         .buttonStyle(.bordered)
                     }
@@ -439,21 +515,7 @@ struct QuickPhraseEditorView: View {
                     .buttonStyle(.bordered)
 
                     Button("Save") {
-                        do {
-                            let wordToSave = isNew
-                                ? store.simplifiedText(phraseEditorWord.trimmingCharacters(in: .whitespacesAndNewlines))
-                                : phraseEditorWord
-                            try store.addCustomPhrase(
-                                word: wordToSave,
-                                pinyin: phraseEditorPinyin,
-                                meanings: phraseEditorMeanings,
-                                notes: phraseEditorNotes
-                            )
-                            editorError = nil
-                            dismiss()
-                        } catch {
-                            editorError = error.localizedDescription
-                        }
+                        savePhrase()
                     }
                     .buttonStyle(.borderedProminent)
                     .disabled(phraseEditorWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -462,6 +524,15 @@ struct QuickPhraseEditorView: View {
             }
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Save") {
+                    savePhrase()
+                }
+                .disabled(phraseEditorWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
         }
         .onAppear {
             if isNew {
@@ -535,39 +606,17 @@ struct QuickPhraseEditorView: View {
 
     private var phraseNotesMinimumHeight: CGFloat {
         if horizontalSizeClass == .compact {
-            return fieldsExpanded ? 220 : 380
+            return 220
         }
         return 320
     }
 
     @ViewBuilder
     private var phraseFieldsSection: some View {
-        if horizontalSizeClass == .compact {
-            VStack(alignment: .leading, spacing: 6) {
-                Button {
-                    fieldsExpanded.toggle()
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: fieldsExpanded ? "chevron.down" : "chevron.right")
-                            .font(ResponsiveFont.caption.bold())
-                            .frame(width: 16)
-                        Text(fieldsExpanded ? "Hide Phrase Fields" : "Edit Phrase Fields")
-                            .font(ResponsiveFont.subheadline.weight(.semibold))
-                        Spacer()
-                    }
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 10)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-
-                if fieldsExpanded {
-                    phraseFields
-                }
-            }
-        } else {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Phrase Fields")
+                .font(ResponsiveFont.caption.bold())
+                .foregroundStyle(.secondary)
             phraseFields
         }
     }
@@ -608,6 +657,29 @@ struct QuickPhraseEditorView: View {
             }
         }
         .controlSize(.small)
+    }
+
+    private func savePhrase() {
+        do {
+            let wordToSave = isNew
+                ? store.simplifiedText(phraseEditorWord.trimmingCharacters(in: .whitespacesAndNewlines))
+                : phraseEditorWord
+            try store.addCustomPhrase(
+                word: wordToSave,
+                pinyin: phraseEditorPinyin,
+                meanings: phraseEditorMeanings,
+                notes: phraseEditorNotes
+            )
+            editorError = nil
+            dismiss()
+        } catch {
+            editorError = error.localizedDescription
+        }
+    }
+
+    private func deletePhrase() {
+        store.removeDataEditPhrase(word: phraseEditorWord)
+        dismiss()
     }
 
     private func phraseField<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {

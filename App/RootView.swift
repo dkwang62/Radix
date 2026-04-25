@@ -156,20 +156,25 @@ struct RootView: View {
     @ViewBuilder
     private var iPhoneView: some View {
         let selection: Int = {
-            if store.route == .capture { return 6 }
+            if store.route == .capture { return 0 }
             if store.route == .aiLink { return 4 }
-            if store.route == .lineage { return 2 }
-            return store.homeTab.index
+            if store.route == .lineage { return -1 }
+            switch store.homeTab {
+            case .smart: return 1
+            case .filter: return 2
+            case .favourites: return 3
+            case .dataEdit: return 5
+            }
         }()
         let title: String = {
             switch selection {
-            case 0: return "Search"
-            case 1: return "Browse"
-            case 2: return "Roots"
+            case -1: return "Roots"
+            case 0: return "Camera"
+            case 1: return "Search"
+            case 2: return "Browse"
             case 3: return "Favourites"
             case 4: return "AI"
             case 5: return "My Data"
-            case 6: return "Capture"
             default: return "Radix"
             }
         }()
@@ -180,9 +185,10 @@ struct RootView: View {
                 // Content
                 Group {
                     switch selection {
-                    case 0: SmartSearchTab()
-                    case 1: FilterGridTab()
-                    case 2: ComponentsExplorerShell()
+                    case -1: ComponentsExplorerShell()
+                    case 0: CaptureTab()
+                    case 1: SmartSearchTab()
+                    case 2: FilterGridTab()
                     case 3:
                         FavouritesTab(
                             onExportProfile: {
@@ -251,8 +257,6 @@ struct RootView: View {
                             },
                             onRequirePro: { gate in store.showPaywall(for: gate) }
                         )
-                    case 6:
-                        CaptureTab()
                     default:
                         SmartSearchTab()
                     }
@@ -261,13 +265,12 @@ struct RootView: View {
 
                 // Custom compact tab bar (keeps core workflow one tap away)
                 HStack(spacing: 6) {
-                    tabButton(id: 0, title: "Search", system: "magnifyingglass")
-                    tabButton(id: 1, title: "Browse", system: "square.grid.2x2")
-                    tabButton(id: 2, title: "Roots", system: "tree")
+                    tabButton(id: 0, title: "Camera", system: "camera")
+                    tabButton(id: 1, title: "Search", system: "magnifyingglass")
+                    tabButton(id: 2, title: "Browse", system: "square.grid.2x2")
                     tabButton(id: 3, title: "Favs", system: "star")
                     tabButton(id: 4, title: "AI", system: "sparkles")
                     tabButton(id: 5, title: "My Data", system: "pencil.and.outline")
-                    tabButton(id: 6, title: "Capture", system: "text.viewfinder")
                 }
                 .padding(.vertical, 6)
                 .padding(.horizontal, 8)
@@ -395,7 +398,7 @@ struct RootView: View {
 
     private var detailPaneTitle: String {
         switch store.route {
-        case .capture:   return "Capture"
+        case .capture:   return "Camera"
         case .search:
             switch store.homeTab {
             case .smart:      return "Search"
@@ -413,6 +416,13 @@ struct RootView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 10) {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                    sidebarIconButton(
+                        title: "Camera",
+                        systemImage: "camera",
+                        isActive: store.route == .capture
+                    ) {
+                        store.route = .capture
+                    }
                     sidebarIconButton(
                         title: "Search",
                         systemImage: "magnifyingglass",
@@ -433,20 +443,6 @@ struct RootView: View {
                         isActive: store.route == .search && store.homeTab == .favourites
                     ) {
                         store.goToFavourites()
-                    }
-                    sidebarIconButton(
-                        title: "Capture",
-                        systemImage: "text.viewfinder",
-                        isActive: store.route == .capture
-                    ) {
-                        store.route = .capture
-                    }
-                    sidebarIconButton(
-                        title: "Roots",
-                        systemImage: "tree",
-                        isActive: store.route == .lineage
-                    ) {
-                        store.enterLineage()
                     }
                     sidebarIconButton(
                         title: "AI Link",
@@ -472,7 +468,6 @@ struct RootView: View {
                         CharacterPreviewHeader(
                             character: current,
                             showClearButton: false,
-                            statusLabel: "Preview",
                             showAddToMemoryButton: !(store.route == .search && store.homeTab == .favourites),
                             isVertical: true // Always use vertical stacking in the narrow sidebar
                         )
@@ -533,10 +528,15 @@ struct RootView: View {
     
     private func tabButton(id: Int, title: String, system: String) -> some View {
         let isActive = {
-            if store.route == .capture { return id == 6 }
+            if store.route == .capture { return id == 0 }
             if store.route == .aiLink { return id == 4 }
-            if store.route == .lineage { return id == 2 }
-            return store.homeTab.index == id
+            if store.route == .lineage { return false }
+            switch store.homeTab {
+            case .smart: return id == 1
+            case .filter: return id == 2
+            case .favourites: return id == 3
+            case .dataEdit: return id == 5
+            }
         }()
 
         return Button {
@@ -547,18 +547,24 @@ struct RootView: View {
             }
             #endif
             switch id {
-            case 6:
+            case 0:
                 store.route = .capture
             case 4:
                 store.route = .aiLink
-            case 2:
-                store.route = .lineage
-                store.showComponentHelp = true
             case 5:
                 store.goToDataEdit()
+            case 1:
+                store.route = .search
+                store.homeTab = .smart
+            case 2:
+                store.route = .search
+                store.homeTab = .filter
+            case 3:
+                store.route = .search
+                store.homeTab = .favourites
             default:
                 store.route = .search
-                store.homeTab = HomeTab.fromIndex(id)
+                store.homeTab = .smart
             }
         } label: {
             VStack(spacing: 2) {
@@ -644,7 +650,6 @@ func standardPhoneCharacterPreview(
     CharacterPreviewHeader(
         character: character,
         showClearButton: true,
-        statusLabel: "Preview",
         showAddToMemoryButton: showAddToMemoryButton,
         onClear: onClear
     )

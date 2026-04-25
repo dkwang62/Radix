@@ -53,6 +53,7 @@ struct CharacterDetailView: View {
                                     }
                                 }
                             }
+                            rootsButton
                         }
                     }
 
@@ -390,8 +391,22 @@ struct CharacterDetailView: View {
         Button {
             store.openQuickCharacterEditor(item.character)
         } label: {
-            Label(store.characterNotesActionTitle(for: item.character), systemImage: "square.and.pencil")
-                .font(ResponsiveFont.subheadline.weight(.semibold))
+            Label("Notes", systemImage: "square.and.pencil")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var rootsButton: some View {
+        Button {
+            store.goToRoots(character: item.character)
+        } label: {
+            Label("Roots", systemImage: "tree")
+                .font(ResponsiveFont.caption.weight(.semibold))
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .background(Color(.secondarySystemBackground))

@@ -25,32 +25,8 @@ struct CharacterPreviewHeader: View {
         VStack(alignment: .leading, spacing: 12) {
             let isInMemory = store.rootBreadcrumb.contains(character)
 
-            HStack(spacing: 8) {
-                if let statusLabel {
-                    Text(statusLabel)
-                        .font(statusLabelFont)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
-                Spacer()
-                if showAddToMemoryButton && !isInMemory {
-                    Button("Remember") {
-                        store.select(character: character)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
-                    .help("Remember this character for this session. Favorite keeps it after closing the app.")
-                    .accessibilityHint("Remember this character for this session. Favorite keeps it after closing the app.")
-                }
-                editCharacterTrigger
-                phraseTableTrigger
-                speechOptionsMenu
-                if showClearButton, store.previewCharacter != nil, store.previewCharacter != character {
-                    Button("Clear Preview") {
-                        onClear?()
-                    }
-                    .font(ResponsiveFont.caption)
-                }
+            if !isVertical {
+                previewActionArea(isInMemory: isInMemory)
             }
 
             if let item = store.item(for: character) {
@@ -124,6 +100,10 @@ struct CharacterPreviewHeader: View {
                         .frame(maxWidth: isVertical ? .infinity : 130)
                     }
 
+                    if isVertical {
+                        previewActionArea(isInMemory: isInMemory)
+                    }
+
                     CharacterInfoCard(
                         item: item,
                         variants: allVariants.map(\.character),
@@ -158,30 +138,156 @@ struct CharacterPreviewHeader: View {
     }
 
     private var phraseTableTrigger: some View {
-        Button("Phrases") {
+        Button {
             store.refreshPhrases(for: character)
             showPhraseTableSheet = true
+        } label: {
+            previewActionLabel("Phrases", systemImage: "text.quote")
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
+        .font(previewActionFont)
+    }
+
+    private var rootsTrigger: some View {
+        Button {
+            store.goToRoots(character: character)
+        } label: {
+            previewActionLabel("Roots", systemImage: "tree")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .font(previewActionFont)
     }
 
     private var editCharacterTrigger: some View {
-        Button(store.characterNotesActionTitle(for: character)) {
+        Button {
             store.openQuickCharacterEditor(character)
+        } label: {
+            previewActionLabel("Notes", systemImage: "note.text")
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
+        .font(previewActionFont)
     }
 
     private var speechOptionsMenu: some View {
-        Menu {
-            Toggle("Speech", isOn: $store.speechEnabled)
+        Button {
+            store.speakCharacter(character)
         } label: {
-            Image(systemName: store.speechMenuSymbolName)
+            if isVertical {
+                Image(systemName: "speaker.wave.2")
+                    .frame(minWidth: 24, minHeight: 28)
+            } else {
+                Image(systemName: "speaker.wave.2")
+            }
         }
-        .menuStyle(.borderlessButton)
+        .buttonStyle(.bordered)
         .controlSize(.small)
+        .font(previewActionFont)
+        .help("Speak this character")
+        .contextMenu {
+            Toggle("Speak on selection", isOn: $store.speechEnabled)
+        }
+    }
+
+    @ViewBuilder
+    private func previewActionArea(isInMemory: Bool) -> some View {
+        if isVertical {
+            VStack(alignment: .leading, spacing: 8) {
+                if let statusLabel {
+                    Text(statusLabel)
+                        .font(statusLabelFont)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+
+                HStack(spacing: 4) {
+                    if showAddToMemoryButton {
+                        memoryButton(isInMemory: isInMemory)
+                    }
+                    editCharacterTrigger
+                    phraseTableTrigger
+                    rootsTrigger
+                    speechOptionsMenu
+                    if showClearButton, store.previewCharacter != nil, store.previewCharacter != character {
+                        clearPreviewButton
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        } else {
+            HStack(spacing: statusLabel == nil ? 12 : 10) {
+                if let statusLabel {
+                    Text(statusLabel)
+                        .font(statusLabelFont)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                Spacer(minLength: statusLabel == nil ? 12 : 8)
+                if showAddToMemoryButton {
+                    memoryButton(isInMemory: isInMemory)
+                }
+                editCharacterTrigger
+                phraseTableTrigger
+                rootsTrigger
+                speechOptionsMenu
+                if showClearButton, store.previewCharacter != nil, store.previewCharacter != character {
+                    clearPreviewButton
+                }
+            }
+            .padding(.vertical, statusLabel == nil ? 2 : 0)
+        }
+    }
+
+    @ViewBuilder
+    private func memoryButton(isInMemory: Bool) -> some View {
+        let button = Button {
+            store.toggleRootBreadcrumb(character)
+        } label: {
+            previewActionLabel("Memory", systemImage: isInMemory ? "bookmark.fill" : "bookmark")
+        }
+
+        if isInMemory {
+            button
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .font(previewActionFont)
+                .help("Remove this character from Memory.")
+                .accessibilityHint("Removes this character from Memory.")
+        } else {
+            button
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .font(previewActionFont)
+                .help("Add this character to Memory.")
+                .accessibilityHint("Adds this character to Memory.")
+        }
+    }
+
+    private var clearPreviewButton: some View {
+        Button {
+            onClear?()
+        } label: {
+            if isVertical {
+                previewActionLabel("Clear", systemImage: "xmark")
+            } else {
+                Text("Clear Preview")
+            }
+        }
+        .font(ResponsiveFont.caption)
+    }
+
+    @ViewBuilder
+    private func previewActionLabel(_ title: String, systemImage: String) -> some View {
+        if isVertical {
+            Text(title)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .frame(minHeight: 28)
+        } else {
+            Text(title)
+        }
     }
 
     private var statusLabelFont: Font {
@@ -190,6 +296,10 @@ struct CharacterPreviewHeader: View {
         #else
         return ResponsiveFont.headline
         #endif
+    }
+
+    private var previewActionFont: Font {
+        (isVertical ? ResponsiveFont.caption2 : ResponsiveFont.caption).weight(.semibold)
     }
 }
 

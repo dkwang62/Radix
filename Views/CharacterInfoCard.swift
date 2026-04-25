@@ -47,6 +47,10 @@ struct CharacterInfoCard: View {
                     .font(.system(size: isPhone ? 34 : 40, weight: .bold))
                     .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
 
+                if let variant = currentVariant, !variant.isEmpty {
+                    variantButton(for: variant)
+                }
+
                 Text(displayPinyin)
                     .font(ResponsiveFont.title.bold())
                     .foregroundStyle(Color.orange)
@@ -70,66 +74,23 @@ struct CharacterInfoCard: View {
                 .buttonStyle(.plain)
             }
 
-            // Variant row — cycles through all variants if there are multiple
-            if let variant = currentVariant, !variant.isEmpty {
-                Button {
-                    if variants.count > 1 {
-                        // Cycle to next variant
-                        variantIndex = (variantIndex + 1) % variants.count
-                    } else {
-                        onSelectVariant?(variant)
-                    }
-                } label: {
-                    HStack(spacing: 6) {
-                        if variants.count > 1 {
-                            Image(systemName: "arrow.trianglehead.2.clockwise.rotate.90")
-                                .font(.system(size: 13, weight: .semibold))
-                        }
-                        Text(variants.count > 1 ? "Variant" : "Variant")
-                            .font(ResponsiveFont.subheadline.weight(.semibold))
-                        Text(variant)
-                            .copyCharacterContextMenu(variant, pinyin: store.item(for: variant)?.pinyinText)
-                        if let variantItem = store.item(for: variant) {
-                            Text(variantItem.pinyinText)
-                                .font(ResponsiveFont.caption.weight(.semibold))
-                                .foregroundStyle(Color.accentColor.opacity(0.7))
-                                .lineLimit(1)
-                        }
-                        Spacer(minLength: 0)
-                        if variants.count > 1 {
-                            Text("\(variantIndex + 1)/\(variants.count)")
-                                .font(ResponsiveFont.caption2.weight(.semibold))
-                                .foregroundStyle(Color.accentColor.opacity(0.6))
-                        } else {
-                            Image(systemName: "arrow.left.arrow.right.circle.fill")
-                                .font(.system(size: 14))
-                        }
-                    }
-                    .font(ResponsiveFont.title3.bold())
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.accentColor.opacity(0.1))
-                    .foregroundStyle(Color.accentColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                .buttonStyle(.plain)
-                // Long-press on multi-variant navigates to that variant
-                .contextMenu {
-                    ForEach(variants, id: \.self) { v in
-                        Button {
-                            onSelectVariant?(v)
-                        } label: {
-                            let pinyin = store.item(for: v)?.pinyinText ?? ""
-                            Label("\(v)  \(pinyin)", systemImage: "arrow.right.circle")
-                        }
-                    }
+            // Tier sits directly under the headline on wider layouts.
+            if !isPhone {
+                HStack(alignment: .center, spacing: 8) {
+                    tierButton
+                    Spacer(minLength: 0)
                 }
             }
-            
-            // Row 2: Usage + Tier (iPhone shows tier here)
-            HStack(spacing: 8) {
+
+            // Usage, strokes, and radical share one row.
+            HStack(spacing: 6) {
                 chip("In \(item.usageCount) chars")
+                if let strokes = item.strokes {
+                    chip("\(strokes) strokes")
+                }
+                if !item.radical.isEmpty {
+                    chip("Rad. \(item.radical)")
+                }
                 if isPhone {
                     Button {
                         showTierGuideMobile = true
@@ -144,50 +105,9 @@ struct CharacterInfoCard: View {
                 }
             }
 
-            // Row 3: Meta Info (Strokes, Radical)
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                if let strokes = item.strokes {
-                    chip("\(strokes) strokes")
-                }
-                if !item.radical.isEmpty {
-                    chip("Rad. \(item.radical)")
-                }
-            }
-
             // Row 4: Structure Info
             if !structurePartsText.isEmpty {
                 chip(structurePartsText)
-            }
-
-            // Row 5: Tier Info (desktop/iPad only; iPhone shows tier next to pinyin)
-            if !isPhone {
-                HStack(spacing: 8) {
-                    Text(tierLabel)
-                        .font(ResponsiveFont.footnote.weight(.bold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(tierColor)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-
-                    Button {
-                        showFrequencyGuide = true
-                    } label: {
-                        Image(systemName: "info.circle")
-                            .font(ResponsiveFont.headline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .popover(isPresented: $showFrequencyGuide, arrowEdge: .bottom) {
-                        tierGuideView
-                    }
-                    
-                    Spacer()
-                    
-                    Text(tierRecommendation)
-                        .font(ResponsiveFont.caption2.italic())
-                        .foregroundStyle(.secondary)
-                }
             }
 
             // Row 6: Definition
@@ -226,6 +146,56 @@ struct CharacterInfoCard: View {
         )
         .onChange(of: item.character) { _, _ in
             variantIndex = 0
+        }
+    }
+
+    private func variantButton(for variant: String) -> some View {
+        Button {
+            if variants.count > 1 {
+                variantIndex = (variantIndex + 1) % variants.count
+            } else {
+                onSelectVariant?(variant)
+            }
+        } label: {
+            Text(variant)
+                .font(.system(size: isPhone ? 34 : 40, weight: .bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .copyCharacterContextMenu(variant, pinyin: store.item(for: variant)?.pinyinText)
+                .padding(.horizontal, 2)
+            .foregroundStyle(Color.accentColor)
+        }
+        .buttonStyle(.plain)
+        .help(variants.count > 1 ? "Cycle variants" : "Open variant")
+        .accessibilityLabel(variants.count > 1 ? "Cycle variant \(variant)" : "Open variant \(variant)")
+        .contextMenu {
+            ForEach(variants, id: \.self) { v in
+                Button {
+                    onSelectVariant?(v)
+                } label: {
+                    let pinyin = store.item(for: v)?.pinyinText ?? ""
+                    Label("\(v)  \(pinyin)", systemImage: "arrow.right.circle")
+                }
+            }
+        }
+    }
+
+    private var tierButton: some View {
+        Button {
+            showFrequencyGuide = true
+        } label: {
+            HStack(spacing: 6) {
+                tierChip(for: item.tier)
+                Text(tierRecommendation)
+                    .font(ResponsiveFont.caption2.italic())
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: $showFrequencyGuide, arrowEdge: .bottom) {
+            tierGuideView
         }
     }
 
