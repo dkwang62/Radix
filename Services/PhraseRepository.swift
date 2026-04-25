@@ -181,6 +181,16 @@ final class PhraseRepository {
         return words.compactMap { lookup[$0] }
     }
 
+    func phraseWordSet() -> Set<String> {
+        Set(fetchAllPhrases().map(\.word))
+    }
+
+    func existingWords(in words: Set<String>) -> Set<String> {
+        guard !words.isEmpty else { return [] }
+        let lookup = phraseLookupCache()
+        return Set(words.filter { lookup[$0] != nil })
+    }
+
     /// Additive import — inserts missing phrases and safely merges restored notes into existing overlay rows.
     func addPhrasesAdditively(_ phrases: [PhraseItem]) throws {
         guard let addDb else { return }
@@ -231,6 +241,16 @@ final class PhraseRepository {
     /// Complete import — deletes all existing rows then inserts the backup phrases in full.
     func replaceAllPhrases(_ phrases: [PhraseItem]) throws {
         guard let addDb else { return }
+        if sqlite3_exec(addDb, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) != SQLITE_OK {
+            throw phraseWriteError(code: 14, prefix: "Begin restore failed", db: addDb)
+        }
+        var shouldRollback = true
+        defer {
+            if shouldRollback {
+                sqlite3_exec(addDb, "ROLLBACK", nil, nil, nil)
+            }
+        }
+
         if sqlite3_exec(addDb, "DELETE FROM phrases", nil, nil, nil) != SQLITE_OK {
             throw phraseWriteError(code: 15, prefix: "Delete-all failed", db: addDb)
         }
@@ -249,8 +269,14 @@ final class PhraseRepository {
             sqlite3_bind_text(stmt, 3, (p.meanings as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_text(stmt, 4, (p.notes as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_double(stmt, 5, p.addedAt?.timeIntervalSince1970 ?? now)
-            sqlite3_step(stmt)
+            if sqlite3_step(stmt) != SQLITE_DONE {
+                throw phraseWriteError(code: 17, prefix: "Insert failed for \(p.word)", db: addDb)
+            }
         }
+        if sqlite3_exec(addDb, "COMMIT", nil, nil, nil) != SQLITE_OK {
+            throw phraseWriteError(code: 18, prefix: "Commit restore failed", db: addDb)
+        }
+        shouldRollback = false
         try syncWorkingAddDBToCustomSourceIfNeeded()
         invalidateReadCaches()
     }

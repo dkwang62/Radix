@@ -825,9 +825,7 @@ final class RadixStore: ObservableObject {
     }
 
     func characterNotesActionTitle(for character: String) -> String {
-        let trimmed = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmed.count == 1 else { return "Add Notes" }
-        return componentRepo.overlayUpserts[trimmed] == nil ? "Add Notes" : "Edit Notes"
+        "Notes"
     }
 
     func openNewCharacterEditor() {
@@ -950,19 +948,26 @@ final class RadixStore: ObservableObject {
     }
 
     func phraseNotesActionTitle(for word: String) -> String {
-        let trimmedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedWord.isEmpty else { return "Add Notes" }
-        if let phrase = phraseRepo.fetchPhrase(for: trimmedWord),
-           !phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return "Edit Notes"
-        }
-        return phraseRepo.isInAdd(word: trimmedWord) ? "Edit Notes" : "Add Notes"
+        "Notes"
     }
 
     func mergedPhrase(for word: String) -> PhraseItem? {
         let trimmedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedWord.isEmpty else { return nil }
         return phraseRepo.fetchPhrase(for: trimmedWord)
+    }
+
+    func existingPhraseWords(in words: Set<String>) -> Set<String> {
+        phraseRepo.existingWords(in: words)
+    }
+
+    func phraseDiscoveryKnownPhrases(in text: String) -> [String] {
+        let candidates = phraseDiscoverySubstrings(in: text)
+        let known = phraseRepo.existingWords(in: candidates)
+        return known.sorted {
+            if $0.count != $1.count { return $0.count < $1.count }
+            return $0 < $1
+        }
     }
 
     func items(for characters: [String]) -> [ComponentItem] {
@@ -978,6 +983,41 @@ final class RadixStore: ObservableObject {
 
     func simplifiedText(_ value: String) -> String {
         componentRepo.simplifiedText(value)
+    }
+
+    private func phraseDiscoverySubstrings(in text: String) -> Set<String> {
+        var results = Set<String>()
+        var run: [Character] = []
+
+        func flushRun() {
+            guard run.count >= 2 else {
+                run.removeAll()
+                return
+            }
+            for start in run.indices {
+                for length in 2...4 {
+                    let end = start + length
+                    guard end <= run.count else { continue }
+                    results.insert(String(run[start..<end]))
+                }
+            }
+            run.removeAll()
+        }
+
+        for character in text {
+            let isChinese = character.unicodeScalars.contains {
+                (0x3400...0x4DBF).contains($0.value)
+                || (0x4E00...0x9FFF).contains($0.value)
+                || (0x20000...0x2EBEF).contains($0.value)
+            }
+            if isChinese {
+                run.append(character)
+            } else {
+                flushRun()
+            }
+        }
+        flushRun()
+        return results
     }
 
     var favoriteItems: [ComponentItem] {
@@ -1303,7 +1343,7 @@ final class RadixStore: ObservableObject {
         }
     }
 
-    func addCustomPhrase(word: String, pinyin: String, meanings: String, notes: String? = nil) throws {
+    func addCustomPhrase(word: String, pinyin: String, meanings: String, notes: String? = nil, refreshViews: Bool = true) throws {
         let trimmedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedWord.isEmpty else { return }
 
@@ -1314,8 +1354,14 @@ final class RadixStore: ObservableObject {
             notes: notes?.trimmingCharacters(in: .whitespacesAndNewlines)
         )
 
-        refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
+        if refreshViews {
+            refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
+        }
         dataEditAutoSaveStatus = "Phrase notes saved."
+    }
+
+    func refreshPhraseOverlayViews() {
+        refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 
     func saveDataEdit(reloadCaches: Bool = true) throws {
@@ -1484,6 +1530,9 @@ final class RadixStore: ObservableObject {
     }
 
     func importDataEditData(_ data: Data, mode: RestoreMode = .additive) throws {
+        pendingDatasetAutosaveWorkItem?.cancel()
+        pendingDatasetAutosaveWorkItem = nil
+
         if let package = try? JSONDecoder().decode(UnifiedPackage.self, from: data) {
             let backupOverlay: DictionaryOverlayPackage
             if let patchOverlay = package.dictionaryPatchOverlay {
@@ -1519,7 +1568,7 @@ final class RadixStore: ObservableObject {
                 // Phrases: insert only words not already in the add-DB.
                 try phraseRepo.addPhrasesAdditively(uniquePhrases(package.phrases))
                 // Additive applies only to dictionary and phrases; profile state restores as the migrated device state.
-                applyImportedProfile(package.profile)
+                applyImportedProfile(package.profile, mode: .additive)
 
             case .complete:
                 // Dictionary: apply the backup overlay in full, replacing everything.
@@ -1533,7 +1582,7 @@ final class RadixStore: ObservableObject {
                 // Phrases: replace the add-DB entirely with backup contents.
                 try phraseRepo.replaceAllPhrases(uniquePhrases(package.phrases))
                 // Profile: replace everything — favourites, settings, templates.
-                applyImportedProfile(package.profile)
+                applyImportedProfile(package.profile, mode: .complete)
             }
 
             try persistDictionaryOverlay()
@@ -1548,7 +1597,24 @@ final class RadixStore: ObservableObject {
             try persistDataEditAndRefresh()
         }
 
-        if !dataEditCharacter.isEmpty { loadDataEditEntry(for: dataEditCharacter) }
+        if !dataEditCharacter.isEmpty {
+            if componentRepo.hasCharacter(dataEditCharacter) {
+                loadDataEditEntry(for: dataEditCharacter)
+            } else {
+                dataEditCharacter = ""
+                dataEditDefinition = ""
+                dataEditPinyin = ""
+                dataEditDecomposition = ""
+                dataEditRadical = ""
+                dataEditStrokes = ""
+                dataEditCompounds = ""
+                dataEditEtymHint = ""
+                dataEditEtymDetails = ""
+                dataEditNotes = ""
+                dataEditRelatedCharacters = ""
+                dataEditIsFavourite = false
+            }
+        }
         refreshAddedPhrases()
     }
 
@@ -2208,7 +2274,7 @@ final class RadixStore: ObservableObject {
 
     func importProfileData(_ data: Data) throws {
         let profile = try JSONDecoder().decode(UserProfile.self, from: data)
-        applyImportedProfile(profile)
+        applyImportedProfile(profile, mode: .complete)
     }
 
     func refreshAddedPhrases() {
@@ -2650,7 +2716,9 @@ final class RadixStore: ObservableObject {
         favoritePhraseDates = datedEntries
     }
 
-    private func applyImportedProfile(_ profile: UserProfile) {
+    private func applyImportedProfile(_ profile: UserProfile, mode: RestoreMode) {
+        let isCompleteRestore = mode == .complete
+
         if let entries = profile.favouriteEntries, !entries.isEmpty {
             applyFavoriteEntries(entries)
         } else {
@@ -2664,31 +2732,55 @@ final class RadixStore: ObservableObject {
         } else if let phraseWords = profile.favouritePhrasesList {
             applyFavoritePhraseWords(phraseWords)
             persistFavoritePhrases()
+        } else if isCompleteRestore {
+            applyFavoritePhraseWords([])
+            persistFavoritePhrases()
         }
 
         if let rememberedList = profile.rememberedList {
             applyRootBreadcrumb(rememberedList)
+        } else if isCompleteRestore {
+            applyRootBreadcrumb([])
+            if rootBreadcrumb.isEmpty {
+                seedBreadcrumbFromFavorites()
+            }
         } else if rootBreadcrumb.isEmpty {
             seedBreadcrumbFromFavorites()
         }
 
         if let searchHistory = profile.searchHistory {
             applySearchHistory(searchHistory)
+        } else if isCompleteRestore {
+            applySearchHistory([])
         }
 
         searchMode = SearchMode(rawValue: profile.searchMode ?? "") ?? .smart
         scriptFilter = ScriptFilter(rawValue: profile.scriptFilter ?? "") ?? .any
         if let importedRoute = AppRoute(rawValue: profile.route ?? "") {
             route = importedRoute
+        } else if isCompleteRestore {
+            route = .search
         }
         if let importedHomeTab = HomeTab(rawValue: profile.homeTab ?? "") {
             homeTab = importedHomeTab
+        } else if isCompleteRestore {
+            homeTab = .filter
         }
         if let importedPhraseLength = profile.phraseLength, [2, 3, 4].contains(importedPhraseLength) {
             phraseLength = importedPhraseLength
+        } else if isCompleteRestore {
+            phraseLength = 2
         }
-        if let cfg = profile.promptConfig { promptConfig = cfg.normalized() }
-        if let selected = profile.promptSelectedTaskIDs { promptSelectedTaskIDs = selected }
+        if let cfg = profile.promptConfig {
+            promptConfig = cfg.normalized()
+        } else if isCompleteRestore {
+            promptConfig = .streamlitDefault
+        }
+        if let selected = profile.promptSelectedTaskIDs {
+            promptSelectedTaskIDs = selected
+        } else if isCompleteRestore {
+            promptSelectedTaskIDs = PromptConfig.streamlitDefault.tasks.map(\.id)
+        }
         persistPromptSettings()
 
         if let candidate = profile.selectedCharacter, componentRepo.hasCharacter(candidate) {
@@ -2699,6 +2791,15 @@ final class RadixStore: ObservableObject {
             loadSharedComponentPeers(for: candidate)
             loadSharedPeersByComponent(for: candidate)
             loadRootDerivatives(for: candidate)
+        } else if isCompleteRestore {
+            selectedCharacter = nil
+            previewCharacter = nil
+            UserDefaults.standard.removeObject(forKey: lastPreviewCharacterKey)
+            phrases = []
+            sharedComponentPeers = []
+            sharedPeersByComponent = [:]
+            rootDerivatives = []
+            rootDerivativesTotal = 0
         }
 
         let restoredQuery = profile.lastSearchQuery?.trimmingCharacters(in: .whitespacesAndNewlines)

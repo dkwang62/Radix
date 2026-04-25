@@ -365,7 +365,7 @@ struct DataEditTab: View {
                     Text("Backup saves everything you've added or changed — custom characters, phrases, favorites, and AI templates — into a single file.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
-                    Text("Restore is additive: it merges your backup into the app's existing data rather than replacing it. Nothing is erased when you restore.")
+                    Text("Additive restore merges dictionary and phrase changes. Complete restore replaces the app's overlay data, favourites, memory, search history, settings, and AI templates with the backup.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
