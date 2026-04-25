@@ -376,10 +376,12 @@ struct QuickPhraseEditorView: View {
     let isNew: Bool
     @EnvironmentObject private var store: RadixStore
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var phraseEditorWord: String = ""
     @State private var phraseEditorPinyin: String = ""
     @State private var phraseEditorMeanings: String = ""
-    @State private var phraseEditorIsExistingPhrase: Bool = false
+    @State private var phraseEditorNotes: String = ""
+    @State private var fieldsExpanded: Bool = false
     @State private var editorError: String?
 
     init(word: String, isNew: Bool) {
@@ -389,9 +391,8 @@ struct QuickPhraseEditorView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Header bar
             HStack {
-                Text(isNew ? "Add New Phrase" : "Edit Phrase")
+                Text(sheetTitle)
                     .font(ResponsiveFont.title3.bold())
                 Spacer()
                 Button("Cancel") {
@@ -404,76 +405,30 @@ struct QuickPhraseEditorView: View {
 
             Divider()
 
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 8) {
                 if let editorError {
                     Text(editorError)
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.red)
                 }
 
-                // Phrase word — editable for new, display-only for existing
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Phrase")
-                        .font(ResponsiveFont.caption2)
-                        .foregroundStyle(.secondary)
-                    if isNew {
-                        TextField("Chinese phrase", text: $phraseEditorWord)
-                            .font(ResponsiveFont.title3.bold())
-                            .textFieldStyle(.roundedBorder)
-                    } else {
-                        Text(phraseEditorWord)
-                            .font(ResponsiveFont.title3.bold())
-                            .phraseContextMenu(PhraseItem(word: phraseEditorWord, pinyin: phraseEditorPinyin, meanings: phraseEditorMeanings))
-                        Text(phraseEditorIsExistingPhrase ? "Editing existing phrase" : "New phrase")
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+                phraseNotesSection
+                    .frame(maxHeight: .infinity)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Pinyin")
-                        .font(ResponsiveFont.caption2)
-                        .foregroundStyle(.secondary)
-                    TextField("Pinyin", text: $phraseEditorPinyin)
-                        .font(ResponsiveFont.body.monospaced())
-                        .textFieldStyle(.roundedBorder)
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("English Meaning")
-                        .font(ResponsiveFont.caption2)
-                        .foregroundStyle(.secondary)
-                    TextEditor(text: $phraseEditorMeanings)
-                        .font(ResponsiveFont.body)
-                        .frame(minHeight: 160)
-                        .padding(8)
-                        .background(Color(.secondarySystemBackground).opacity(0.6))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(.separator), lineWidth: 0.5)
-                        )
-                }
+                phraseFieldsSection
 
                 Spacer(minLength: 0)
 
                 Divider()
 
                 HStack(spacing: 10) {
-                    if !isNew {
-                        if phraseEditorIsExistingPhrase {
-                            Button("Revert") {
-                                store.removeDataEditPhrase(word: phraseEditorWord)
-                                dismiss()
-                            }
-                            .buttonStyle(.bordered)
-                        } else {
-                            Button("Delete", role: .destructive) {
-                                store.removeDataEditPhrase(word: phraseEditorWord)
-                                dismiss()
-                            }
-                            .buttonStyle(.bordered)
+                    if !isNew && store.isPhraseInAdd(phraseEditorWord) {
+                        let isBuiltIn = store.isPhraseInBase(phraseEditorWord)
+                        Button(isBuiltIn ? "Revert" : "Delete", role: isBuiltIn ? nil : .destructive) {
+                            store.removeDataEditPhrase(word: phraseEditorWord)
+                            dismiss()
                         }
+                        .buttonStyle(.bordered)
                     }
 
                     Spacer()
@@ -491,7 +446,8 @@ struct QuickPhraseEditorView: View {
                             try store.addCustomPhrase(
                                 word: wordToSave,
                                 pinyin: phraseEditorPinyin,
-                                meanings: phraseEditorMeanings
+                                meanings: phraseEditorMeanings,
+                                notes: phraseEditorNotes
                             )
                             editorError = nil
                             dismiss()
@@ -512,21 +468,155 @@ struct QuickPhraseEditorView: View {
                 phraseEditorWord = ""
                 phraseEditorPinyin = ""
                 phraseEditorMeanings = ""
-                phraseEditorIsExistingPhrase = false
+                phraseEditorNotes = ""
             } else {
                 let simplifiedWord = store.simplifiedText(initialWord)
                 if let phrase = store.mergedPhrase(for: simplifiedWord) {
                     phraseEditorWord = phrase.word
                     phraseEditorPinyin = phrase.pinyin
                     phraseEditorMeanings = phrase.meanings
-                    phraseEditorIsExistingPhrase = true
+                    phraseEditorNotes = phrase.notes
                 } else {
                     phraseEditorWord = simplifiedWord
                     phraseEditorPinyin = ""
                     phraseEditorMeanings = ""
-                    phraseEditorIsExistingPhrase = false
+                    phraseEditorNotes = ""
                 }
             }
         }
+    }
+
+    private var sheetTitle: String {
+        if isNew { return "Add New Phrase" }
+        return "\(store.phraseNotesActionTitle(for: initialWord)): \(initialWord)"
+    }
+
+    @ViewBuilder
+    private var phraseNotesSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Text("Notes / Sentences / Practice")
+                    .font(ResponsiveFont.caption2)
+                    .foregroundStyle(.secondary)
+                if !phraseEditorNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Image(systemName: "text.badge.checkmark")
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            notesEditor
+        }
+    }
+
+    private var notesEditor: some View {
+        ZStack(alignment: .topLeading) {
+            TextEditor(text: $phraseEditorNotes)
+                .font(ResponsiveFont.body)
+                .scrollContentBackground(.hidden)
+                .padding(8)
+
+            if phraseEditorNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Text("Type your own example sentences, phrases, usage notes, and reminders for this phrase.")
+                    .font(ResponsiveFont.body)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 16)
+                    .allowsHitTesting(false)
+            }
+        }
+        .frame(minHeight: phraseNotesMinimumHeight, maxHeight: .infinity)
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color(.separator), lineWidth: 1)
+        )
+    }
+
+    private var phraseNotesMinimumHeight: CGFloat {
+        if horizontalSizeClass == .compact {
+            return fieldsExpanded ? 220 : 380
+        }
+        return 320
+    }
+
+    @ViewBuilder
+    private var phraseFieldsSection: some View {
+        if horizontalSizeClass == .compact {
+            VStack(alignment: .leading, spacing: 6) {
+                Button {
+                    fieldsExpanded.toggle()
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: fieldsExpanded ? "chevron.down" : "chevron.right")
+                            .font(ResponsiveFont.caption.bold())
+                            .frame(width: 16)
+                        Text(fieldsExpanded ? "Hide Phrase Fields" : "Edit Phrase Fields")
+                            .font(ResponsiveFont.subheadline.weight(.semibold))
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 10)
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+
+                if fieldsExpanded {
+                    phraseFields
+                }
+            }
+        } else {
+            phraseFields
+        }
+    }
+
+    private var phraseFields: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top, spacing: 8) {
+                phraseField("Phrase") {
+                    if isNew {
+                        TextField("Chinese phrase", text: $phraseEditorWord)
+                            .font(ResponsiveFont.body.bold())
+                            .textFieldStyle(.roundedBorder)
+                    } else {
+                        Text(phraseEditorWord)
+                            .font(ResponsiveFont.body.bold())
+                            .frame(maxWidth: .infinity, minHeight: 32, alignment: .leading)
+                            .phraseContextMenu(PhraseItem(word: phraseEditorWord, pinyin: phraseEditorPinyin, meanings: phraseEditorMeanings, notes: phraseEditorNotes))
+                    }
+                }
+                phraseField("Pinyin") {
+                    TextField("Pinyin", text: $phraseEditorPinyin)
+                        .font(ResponsiveFont.body.monospaced())
+                        .textFieldStyle(.roundedBorder)
+                }
+            }
+
+            phraseField("English Meaning") {
+                TextEditor(text: $phraseEditorMeanings)
+                    .font(ResponsiveFont.body)
+                    .frame(minHeight: horizontalSizeClass == .compact ? 86 : 110)
+                    .padding(8)
+                    .background(Color(.secondarySystemBackground).opacity(0.6))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color(.separator), lineWidth: 0.5)
+                    )
+            }
+        }
+        .controlSize(.small)
+    }
+
+    private func phraseField<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label)
+                .font(ResponsiveFont.caption2)
+                .foregroundStyle(.secondary)
+            content()
+        }
+        .frame(maxWidth: .infinity)
     }
 }

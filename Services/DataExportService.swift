@@ -103,12 +103,12 @@ struct DataExportService {
         }
         defer { sqlite3_close(db) }
 
-        let createSQL = "CREATE TABLE phrases (word TEXT PRIMARY KEY, pinyin TEXT, meanings TEXT)"
+        let createSQL = "CREATE TABLE phrases (word TEXT PRIMARY KEY, pinyin TEXT, meanings TEXT, notes TEXT)"
         guard sqlite3_exec(db, createSQL, nil, nil, nil) == SQLITE_OK else {
             throw NSError(domain: "Radix", code: 2012, userInfo: [NSLocalizedDescriptionKey: "Failed to create phrases table: \(String(cString: sqlite3_errmsg(db)))"])
         }
 
-        let insertSQL = "INSERT INTO phrases (word, pinyin, meanings) VALUES (?, ?, ?)"
+        let insertSQL = "INSERT INTO phrases (word, pinyin, meanings, notes) VALUES (?, ?, ?, ?)"
         var stmt: OpaquePointer?
         guard sqlite3_prepare_v2(db, insertSQL, -1, &stmt, nil) == SQLITE_OK else {
             throw NSError(domain: "Radix", code: 2013, userInfo: [NSLocalizedDescriptionKey: "Failed to prepare phrase insert: \(String(cString: sqlite3_errmsg(db)))"])
@@ -121,6 +121,7 @@ struct DataExportService {
             sqlite3_bind_text(stmt, 1, (phrase.word as NSString).utf8String, -1, SQLITE_TRANSIENT_DATA_EXPORT)
             sqlite3_bind_text(stmt, 2, (phrase.pinyin as NSString).utf8String, -1, SQLITE_TRANSIENT_DATA_EXPORT)
             sqlite3_bind_text(stmt, 3, (phrase.meanings as NSString).utf8String, -1, SQLITE_TRANSIENT_DATA_EXPORT)
+            sqlite3_bind_text(stmt, 4, (phrase.notes as NSString).utf8String, -1, SQLITE_TRANSIENT_DATA_EXPORT)
             guard sqlite3_step(stmt) == SQLITE_DONE else {
                 throw NSError(domain: "Radix", code: 2014, userInfo: [NSLocalizedDescriptionKey: "Failed to insert phrase row for \(phrase.word): \(String(cString: sqlite3_errmsg(db)))"])
             }

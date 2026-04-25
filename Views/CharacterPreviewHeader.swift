@@ -302,11 +302,19 @@ private struct PhraseTableSheet: View {
             }
             .frame(width: leadingColumnWidth, alignment: .leading)
 
-            Text(phrase.meanings)
-                .font(ResponsiveFont.body)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .layoutPriority(1)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(phrase.meanings)
+                    .font(ResponsiveFont.body)
+                if !phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(phrase.notes)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                }
+            }
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .layoutPriority(1)
         }
         .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, minHeight: phraseRowHeight, alignment: .leading)
@@ -873,7 +881,7 @@ private struct PhraseContextMenuModifier: ViewModifier {
                     }
                 }
                 Divider()
-                Button("Edit Phrase") {
+                Button(store.phraseNotesActionTitle(for: trimmedWord)) {
                     dismiss()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                         store.openQuickPhraseEditor(word: trimmedWord)

@@ -921,6 +921,16 @@ final class RadixStore: ObservableObject {
         phraseRepo.isInAdd(word: word)
     }
 
+    func phraseNotesActionTitle(for word: String) -> String {
+        let trimmedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedWord.isEmpty else { return "Add Notes" }
+        if let phrase = phraseRepo.fetchPhrase(for: trimmedWord),
+           !phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return "Edit Notes"
+        }
+        return phraseRepo.isInAdd(word: trimmedWord) ? "Edit Notes" : "Add Notes"
+    }
+
     func mergedPhrase(for word: String) -> PhraseItem? {
         let trimmedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedWord.isEmpty else { return nil }
@@ -1254,18 +1264,19 @@ final class RadixStore: ObservableObject {
         }
     }
 
-    func addCustomPhrase(word: String, pinyin: String, meanings: String) throws {
+    func addCustomPhrase(word: String, pinyin: String, meanings: String, notes: String? = nil) throws {
         let trimmedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedWord.isEmpty else { return }
 
         try phraseRepo.addOrUpdatePhrase(
             word: trimmedWord,
             pinyin: pinyin.trimmingCharacters(in: .whitespacesAndNewlines),
-            meanings: meanings.trimmingCharacters(in: .whitespacesAndNewlines)
+            meanings: meanings.trimmingCharacters(in: .whitespacesAndNewlines),
+            notes: notes?.trimmingCharacters(in: .whitespacesAndNewlines)
         )
 
         refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
-        dataEditAutoSaveStatus = "Custom phrase saved."
+        dataEditAutoSaveStatus = "Phrase notes saved."
     }
 
     func saveDataEdit(reloadCaches: Bool = true) throws {
@@ -1290,7 +1301,7 @@ final class RadixStore: ObservableObject {
                     blockedBuiltInWords.append(trimmedWord)
                     continue
                 }
-                try phraseRepo.addOrUpdatePhrase(word: trimmedWord, pinyin: p.pinyin, meanings: p.meanings)
+                try phraseRepo.addOrUpdatePhrase(word: trimmedWord, pinyin: p.pinyin, meanings: p.meanings, notes: p.notes)
             }
         }
 

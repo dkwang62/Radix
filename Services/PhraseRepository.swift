@@ -77,9 +77,11 @@ final class PhraseRepository {
 
     // MARK: - Writes (Add DB only)
 
-    func addOrUpdatePhrase(word: String, pinyin: String, meanings: String) throws {
+    func addOrUpdatePhrase(word: String, pinyin: String, meanings: String, notes: String? = nil) throws {
         guard let addDb else { return }
-        let updateSQL = "UPDATE phrases SET pinyin = ?, meanings = ? WHERE word = ?"
+        let updateSQL = notes == nil
+            ? "UPDATE phrases SET pinyin = ?, meanings = ? WHERE word = ?"
+            : "UPDATE phrases SET pinyin = ?, meanings = ?, notes = ? WHERE word = ?"
         var updateStmt: OpaquePointer?
         if sqlite3_prepare_v2(addDb, updateSQL, -1, &updateStmt, nil) != SQLITE_OK {
             throw phraseWriteError(code: 4, prefix: "Prepare failed", db: addDb)
@@ -87,13 +89,18 @@ final class PhraseRepository {
         defer { sqlite3_finalize(updateStmt) }
         sqlite3_bind_text(updateStmt, 1, (pinyin as NSString).utf8String, -1, SQLITE_TRANSIENT)
         sqlite3_bind_text(updateStmt, 2, (meanings as NSString).utf8String, -1, SQLITE_TRANSIENT)
-        sqlite3_bind_text(updateStmt, 3, (word as NSString).utf8String, -1, SQLITE_TRANSIENT)
+        if let notes {
+            sqlite3_bind_text(updateStmt, 3, (notes as NSString).utf8String, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_text(updateStmt, 4, (word as NSString).utf8String, -1, SQLITE_TRANSIENT)
+        } else {
+            sqlite3_bind_text(updateStmt, 3, (word as NSString).utf8String, -1, SQLITE_TRANSIENT)
+        }
         if sqlite3_step(updateStmt) != SQLITE_DONE {
             throw phraseWriteError(code: 5, prefix: "Update failed", db: addDb)
         }
 
         if sqlite3_changes(addDb) == 0 {
-            let insertSQL = "INSERT INTO phrases (word, pinyin, meanings, added_at) VALUES (?, ?, ?, ?)"
+            let insertSQL = "INSERT INTO phrases (word, pinyin, meanings, notes, added_at) VALUES (?, ?, ?, ?, ?)"
             var insertStmt: OpaquePointer?
             if sqlite3_prepare_v2(addDb, insertSQL, -1, &insertStmt, nil) != SQLITE_OK {
                 throw phraseWriteError(code: 4, prefix: "Prepare failed", db: addDb)
@@ -102,7 +109,8 @@ final class PhraseRepository {
             sqlite3_bind_text(insertStmt, 1, (word as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_text(insertStmt, 2, (pinyin as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_text(insertStmt, 3, (meanings as NSString).utf8String, -1, SQLITE_TRANSIENT)
-            sqlite3_bind_double(insertStmt, 4, Date().timeIntervalSince1970)
+            sqlite3_bind_text(insertStmt, 4, ((notes ?? "") as NSString).utf8String, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_double(insertStmt, 5, Date().timeIntervalSince1970)
             if sqlite3_step(insertStmt) != SQLITE_DONE {
                 throw phraseWriteError(code: 5, prefix: "Insert failed", db: addDb)
             }
@@ -136,14 +144,17 @@ final class PhraseRepository {
 
     func fetchAllPhrases() -> [PhraseItem] {
         if let mergedPhrasesCache { return mergedPhrasesCache }
-        let merged = mergedQueries(sql: "SELECT word, pinyin, meanings FROM phrases")
+        let merged = mergedQueries(
+            baseSQL: "SELECT word, pinyin, meanings FROM phrases",
+            addSQL: "SELECT word, pinyin, meanings, added_at, notes FROM phrases"
+        )
         mergedPhrasesCache = merged
         mergedPhraseLookup = Dictionary(uniqueKeysWithValues: merged.map { ($0.word, $0) })
         return merged
     }
 
     func fetchAddedPhrases() -> [PhraseItem] {
-        runQuery(db: addDb, sql: "SELECT word, pinyin, meanings, added_at FROM phrases ORDER BY added_at DESC")
+        runQuery(db: addDb, sql: "SELECT word, pinyin, meanings, added_at, notes FROM phrases ORDER BY added_at DESC")
     }
 
     func fetchPhrase(for word: String) -> PhraseItem? {
@@ -153,7 +164,7 @@ final class PhraseRepository {
         if mergedPhrasesCache != nil {
             return nil
         }
-        let addSQL = "SELECT word, pinyin, meanings, added_at FROM phrases WHERE word = ? LIMIT 1"
+        let addSQL = "SELECT word, pinyin, meanings, added_at, notes FROM phrases WHERE word = ? LIMIT 1"
         let baseSQL = "SELECT word, pinyin, meanings FROM phrases WHERE word = ? LIMIT 1"
         let binder: (OpaquePointer?) -> Void = { stmt in
             sqlite3_bind_text(stmt, 1, (word as NSString).utf8String, -1, SQLITE_TRANSIENT)
@@ -170,22 +181,48 @@ final class PhraseRepository {
         return words.compactMap { lookup[$0] }
     }
 
-    /// Additive import — only inserts phrases that don't already exist in the add DB.
+    /// Additive import — inserts missing phrases and safely merges restored notes into existing overlay rows.
     func addPhrasesAdditively(_ phrases: [PhraseItem]) throws {
         guard let addDb else { return }
-        let sql = "INSERT OR IGNORE INTO phrases (word, pinyin, meanings, added_at) VALUES (?, ?, ?, ?)"
+        let sql = "INSERT OR IGNORE INTO phrases (word, pinyin, meanings, notes, added_at) VALUES (?, ?, ?, ?, ?)"
         var stmt: OpaquePointer?
         guard sqlite3_prepare_v2(addDb, sql, -1, &stmt, nil) == SQLITE_OK else { return }
         defer { sqlite3_finalize(stmt) }
+        let mergeSQL = """
+            UPDATE phrases
+            SET notes =
+                CASE
+                    WHEN ? = '' THEN COALESCE(notes, '')
+                    WHEN notes IS NULL OR TRIM(notes) = '' THEN ?
+                    WHEN notes = ? OR notes LIKE ? THEN notes
+                    ELSE notes || char(10) || char(10) || ?
+                END
+            WHERE word = ?
+        """
+        var mergeStmt: OpaquePointer?
+        guard sqlite3_prepare_v2(addDb, mergeSQL, -1, &mergeStmt, nil) == SQLITE_OK else { return }
+        defer { sqlite3_finalize(mergeStmt) }
         let now = Date().timeIntervalSince1970
         for p in phrases {
+            let restoredNotes = p.notes.trimmingCharacters(in: .whitespacesAndNewlines)
             sqlite3_reset(stmt)
             sqlite3_clear_bindings(stmt)
             sqlite3_bind_text(stmt, 1, (p.word as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_text(stmt, 2, (p.pinyin as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_text(stmt, 3, (p.meanings as NSString).utf8String, -1, SQLITE_TRANSIENT)
-            sqlite3_bind_double(stmt, 4, now)
+            sqlite3_bind_text(stmt, 4, (p.notes as NSString).utf8String, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_double(stmt, 5, now)
             sqlite3_step(stmt)
+
+            sqlite3_reset(mergeStmt)
+            sqlite3_clear_bindings(mergeStmt)
+            sqlite3_bind_text(mergeStmt, 1, (restoredNotes as NSString).utf8String, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_text(mergeStmt, 2, (restoredNotes as NSString).utf8String, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_text(mergeStmt, 3, (restoredNotes as NSString).utf8String, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_text(mergeStmt, 4, ("%\(restoredNotes)%" as NSString).utf8String, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_text(mergeStmt, 5, (restoredNotes as NSString).utf8String, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_text(mergeStmt, 6, (p.word as NSString).utf8String, -1, SQLITE_TRANSIENT)
+            sqlite3_step(mergeStmt)
         }
         try syncWorkingAddDBToCustomSourceIfNeeded()
         invalidateReadCaches()
@@ -197,7 +234,7 @@ final class PhraseRepository {
         if sqlite3_exec(addDb, "DELETE FROM phrases", nil, nil, nil) != SQLITE_OK {
             throw phraseWriteError(code: 15, prefix: "Delete-all failed", db: addDb)
         }
-        let sql = "INSERT INTO phrases (word, pinyin, meanings, added_at) VALUES (?, ?, ?, ?)"
+        let sql = "INSERT INTO phrases (word, pinyin, meanings, notes, added_at) VALUES (?, ?, ?, ?, ?)"
         var stmt: OpaquePointer?
         guard sqlite3_prepare_v2(addDb, sql, -1, &stmt, nil) == SQLITE_OK else {
             throw phraseWriteError(code: 16, prefix: "Prepare failed", db: addDb)
@@ -210,7 +247,8 @@ final class PhraseRepository {
             sqlite3_bind_text(stmt, 1, (p.word as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_text(stmt, 2, (p.pinyin as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_text(stmt, 3, (p.meanings as NSString).utf8String, -1, SQLITE_TRANSIENT)
-            sqlite3_bind_double(stmt, 4, p.addedAt?.timeIntervalSince1970 ?? now)
+            sqlite3_bind_text(stmt, 4, (p.notes as NSString).utf8String, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_double(stmt, 5, p.addedAt?.timeIntervalSince1970 ?? now)
             sqlite3_step(stmt)
         }
         try syncWorkingAddDBToCustomSourceIfNeeded()
@@ -218,7 +256,7 @@ final class PhraseRepository {
     }
 
     func addedPhrases(containing character: String, limit: Int = 240) -> [PhraseItem] {
-        let sql = "SELECT word, pinyin, meanings FROM phrases WHERE word LIKE ? LIMIT ?"
+        let sql = "SELECT word, pinyin, meanings, added_at, notes FROM phrases WHERE word LIKE ? LIMIT ?"
         let binder: (OpaquePointer?) -> Void = { stmt in
             guard let stmt else { return }
             sqlite3_bind_text(stmt, 1, ("%\(character)%" as NSString).utf8String, -1, SQLITE_TRANSIENT)
@@ -240,14 +278,15 @@ final class PhraseRepository {
     }
 
     func phrases(containing character: String, length: Int, limit: Int = 120) -> [PhraseItem] {
-        let sql = "SELECT word, pinyin, meanings FROM phrases WHERE word LIKE ? AND length(word) = ? LIMIT ?"
+        let baseSQL = "SELECT word, pinyin, meanings FROM phrases WHERE word LIKE ? AND length(word) = ? LIMIT ?"
+        let addSQL = "SELECT word, pinyin, meanings, added_at, notes FROM phrases WHERE word LIKE ? AND length(word) = ? LIMIT ?"
         let bind: (OpaquePointer?) -> Void = { stmt in
             guard let stmt else { return }
             sqlite3_bind_text(stmt, 1, ("%\(character)%" as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_int(stmt, 2, Int32(length))
             sqlite3_bind_int(stmt, 3, Int32(limit))
         }
-        let results = mergedQueries(sql: sql, binder: bind)
+        let results = mergedQueries(baseSQL: baseSQL, addSQL: addSQL, binder: bind)
         return results.filter { $0.word.contains(character) }
     }
 
@@ -256,12 +295,15 @@ final class PhraseRepository {
         guard normalized.count >= 2 else { return [] }
 
         let sql: String
+        let addSQL: String
         let pattern: String
         if isStrict {
             sql = "SELECT word, pinyin, meanings FROM phrases WHERE meanings = ? OR meanings LIKE ? OR meanings LIKE ? OR meanings LIKE ? LIMIT ?"
+            addSQL = "SELECT word, pinyin, meanings, added_at, notes FROM phrases WHERE meanings = ? OR notes = ? OR meanings LIKE ? OR notes LIKE ? OR meanings LIKE ? OR notes LIKE ? OR meanings LIKE ? OR notes LIKE ? LIMIT ?"
             pattern = normalized
         } else {
             sql = "SELECT word, pinyin, meanings FROM phrases WHERE meanings LIKE ? LIMIT ?"
+            addSQL = "SELECT word, pinyin, meanings, added_at, notes FROM phrases WHERE meanings LIKE ? OR notes LIKE ? LIMIT ?"
             pattern = "%\(normalized)%"
         }
 
@@ -278,7 +320,25 @@ final class PhraseRepository {
                 sqlite3_bind_int(stmt, 2, Int32(limit))
             }
         }
-        return mergedQueries(sql: sql, binder: binder)
+        let addBinder: (OpaquePointer?) -> Void = { stmt in
+            guard let stmt else { return }
+            if isStrict {
+                sqlite3_bind_text(stmt, 1, (normalized as NSString).utf8String, -1, SQLITE_TRANSIENT)
+                sqlite3_bind_text(stmt, 2, (normalized as NSString).utf8String, -1, SQLITE_TRANSIENT)
+                sqlite3_bind_text(stmt, 3, ("% \(normalized) %" as NSString).utf8String, -1, SQLITE_TRANSIENT)
+                sqlite3_bind_text(stmt, 4, ("% \(normalized) %" as NSString).utf8String, -1, SQLITE_TRANSIENT)
+                sqlite3_bind_text(stmt, 5, ("\(normalized) %" as NSString).utf8String, -1, SQLITE_TRANSIENT)
+                sqlite3_bind_text(stmt, 6, ("\(normalized) %" as NSString).utf8String, -1, SQLITE_TRANSIENT)
+                sqlite3_bind_text(stmt, 7, ("% \(normalized)" as NSString).utf8String, -1, SQLITE_TRANSIENT)
+                sqlite3_bind_text(stmt, 8, ("% \(normalized)" as NSString).utf8String, -1, SQLITE_TRANSIENT)
+                sqlite3_bind_int(stmt, 9, Int32(limit))
+            } else {
+                sqlite3_bind_text(stmt, 1, (pattern as NSString).utf8String, -1, SQLITE_TRANSIENT)
+                sqlite3_bind_text(stmt, 2, (pattern as NSString).utf8String, -1, SQLITE_TRANSIENT)
+                sqlite3_bind_int(stmt, 3, Int32(limit))
+            }
+        }
+        return mergedQueries(baseSQL: sql, addSQL: addSQL, baseBinder: binder, addBinder: addBinder)
     }
 
     func searchByPinyin(term: String, limit: Int = 120) -> [PhraseItem] {
@@ -303,14 +363,15 @@ final class PhraseRepository {
     func searchByCharacters(term: String, limit: Int = 120) -> [PhraseItem] {
         let normalized = term.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !normalized.isEmpty else { return [] }
-        let sql = "SELECT word, pinyin, meanings FROM phrases WHERE word LIKE ? LIMIT ?"
+        let baseSQL = "SELECT word, pinyin, meanings FROM phrases WHERE word LIKE ? LIMIT ?"
+        let addSQL = "SELECT word, pinyin, meanings, added_at, notes FROM phrases WHERE word LIKE ? LIMIT ?"
         let binder: (OpaquePointer?) -> Void = { stmt in
             guard let stmt else { return }
             let pattern = "%\(normalized)%"
             sqlite3_bind_text(stmt, 1, (pattern as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_int(stmt, 2, Int32(limit))
         }
-        return mergedQueries(sql: sql, binder: binder)
+        return mergedQueries(baseSQL: baseSQL, addSQL: addSQL, binder: binder)
     }
 
     func isInBase(word: String) -> Bool {
@@ -339,7 +400,7 @@ final class PhraseRepository {
 
     private func ensureAddTable() throws {
         guard let addDb else { return }
-        let sql = "CREATE TABLE IF NOT EXISTS phrases (word TEXT PRIMARY KEY, pinyin TEXT, meanings TEXT, added_at REAL)"
+        let sql = "CREATE TABLE IF NOT EXISTS phrases (word TEXT PRIMARY KEY, pinyin TEXT, meanings TEXT, notes TEXT, added_at REAL)"
         if sqlite3_exec(addDb, sql, nil, nil, nil) != SQLITE_OK {
             throw NSError(domain: "Radix", code: 10, userInfo: [NSLocalizedDescriptionKey: "Failed to create phrases_add table"])
         }
@@ -347,6 +408,11 @@ final class PhraseRepository {
         if !tableHasColumn(db: addDb, table: "phrases", column: "added_at") {
             if sqlite3_exec(addDb, "ALTER TABLE phrases ADD COLUMN added_at REAL", nil, nil, nil) != SQLITE_OK {
                 throw NSError(domain: "Radix", code: 11, userInfo: [NSLocalizedDescriptionKey: "Failed to migrate phrases_add schema"])
+            }
+        }
+        if !tableHasColumn(db: addDb, table: "phrases", column: "notes") {
+            if sqlite3_exec(addDb, "ALTER TABLE phrases ADD COLUMN notes TEXT", nil, nil, nil) != SQLITE_OK {
+                throw NSError(domain: "Radix", code: 11, userInfo: [NSLocalizedDescriptionKey: "Failed to migrate phrases_add notes schema"])
             }
         }
     }
@@ -521,7 +587,8 @@ final class PhraseRepository {
             if colCount > 3 && sqlite3_column_type(stmt, 3) != SQLITE_NULL {
                 addedAt = Date(timeIntervalSince1970: sqlite3_column_double(stmt, 3))
             }
-            out.append(PhraseItem(word: word, pinyin: pinyin, meanings: meanings, addedAt: addedAt))
+            let notes = colCount > 4 ? (sqlite3_column_text(stmt, 4).map { String(cString: $0) } ?? "") : ""
+            out.append(PhraseItem(word: word, pinyin: pinyin, meanings: meanings, notes: notes, addedAt: addedAt))
         }
         return out
     }
@@ -588,10 +655,14 @@ final class PhraseRepository {
         }
     }
 
-    private func mergedQueries(sql: String, binder: ((OpaquePointer?) -> Void)? = nil) -> [PhraseItem] {
+    private func mergedQueries(baseSQL: String, addSQL: String, binder: ((OpaquePointer?) -> Void)? = nil) -> [PhraseItem] {
+        mergedQueries(baseSQL: baseSQL, addSQL: addSQL, baseBinder: binder, addBinder: binder)
+    }
+
+    private func mergedQueries(baseSQL: String, addSQL: String, baseBinder: ((OpaquePointer?) -> Void)? = nil, addBinder: ((OpaquePointer?) -> Void)? = nil) -> [PhraseItem] {
         var map: [String: PhraseItem] = [:]
-        for item in runQuery(db: baseDb, sql: sql, binder: binder) { map[item.word] = item }
-        for item in runQuery(db: addDb, sql: sql, binder: binder) { map[item.word] = item } // add overrides
+        for item in runQuery(db: baseDb, sql: baseSQL, binder: baseBinder) { map[item.word] = item }
+        for item in runQuery(db: addDb, sql: addSQL, binder: addBinder) { map[item.word] = item } // add overrides
         return Array(map.values)
     }
 

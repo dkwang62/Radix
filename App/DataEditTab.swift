@@ -806,7 +806,7 @@ struct DataEditTab: View {
                 Spacer()
 
                 HStack(spacing: 6) {
-                    Button("Edit") {
+                    Button(store.phraseNotesActionTitle(for: phrase.word)) {
                         store.openQuickPhraseEditor(word: phrase.word)
                     }
                     .buttonStyle(.bordered)
@@ -832,6 +832,12 @@ struct DataEditTab: View {
             Text(phrase.meanings.isEmpty ? "No meaning" : phrase.meanings)
                 .font(ResponsiveFont.caption)
                 .lineLimit(2)
+            if !phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Text(phrase.notes)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
         }
         .padding(10)
         .background(Color(.secondarySystemBackground).opacity(0.6))
@@ -1017,7 +1023,7 @@ struct DataEditTab: View {
                     .font(ResponsiveFont.headline)
                     .phraseContextMenu(phrase)
                 Spacer()
-                Button("Edit") {
+                Button(store.phraseNotesActionTitle(for: phrase.word)) {
                     store.openQuickPhraseEditor(word: phrase.word)
                 }
                 .buttonStyle(.bordered)
@@ -1038,6 +1044,12 @@ struct DataEditTab: View {
 
             Text(phrase.meanings)
                 .font(ResponsiveFont.body)
+            if !phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Text(phrase.notes)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(3)
+            }
         }
         .padding(10)
         .background(Color(.systemBackground))

@@ -179,11 +179,19 @@ struct FavouritesTab: View {
             }
             .frame(width: leadingColumnWidth, alignment: .leading)
 
-            Text(phrase.meanings.isEmpty ? "No meaning" : phrase.meanings)
-                .font(ResponsiveFont.body)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .layoutPriority(1)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(phrase.meanings.isEmpty ? "No meaning" : phrase.meanings)
+                    .font(ResponsiveFont.body)
+                if !phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(phrase.notes)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            }
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .layoutPriority(1)
         }
         .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, minHeight: favoritePhraseRowHeight, alignment: .leading)
@@ -237,4 +245,3 @@ struct ProLockedView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 }
-

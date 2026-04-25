@@ -260,6 +260,12 @@ struct SmartSearchTab: View {
                                                         .foregroundStyle(.secondary)
                                                         .lineLimit(2)
                                                 }
+                                                if !phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                                    Text(phrase.notes)
+                                                        .font(ResponsiveFont.caption)
+                                                        .foregroundStyle(.secondary)
+                                                        .lineLimit(2)
+                                                }
 
                                                 let chars = phrase.word.map(String.init).filter { store.item(for: $0) != nil }
                                                 if !chars.isEmpty {
@@ -318,6 +324,12 @@ struct SmartSearchTab: View {
                                         }
                                         if !phrase.meanings.isEmpty {
                                             Text(phrase.meanings)
+                                                .font(ResponsiveFont.caption)
+                                                .foregroundStyle(.secondary)
+                                                .lineLimit(2)
+                                        }
+                                        if !phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                            Text(phrase.notes)
                                                 .font(ResponsiveFont.caption)
                                                 .foregroundStyle(.secondary)
                                                 .lineLimit(2)
