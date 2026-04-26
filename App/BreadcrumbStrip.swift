@@ -1,7 +1,19 @@
 import SwiftUI
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 struct BreadcrumbStrip: View {
     @EnvironmentObject private var store: RadixStore
+
+    private var memoryLabel: String {
+        #if targetEnvironment(macCatalyst)
+        return "Memory"
+        #else
+        return UIDevice.current.userInterfaceIdiom == .phone ? "Mem" : "Memory"
+        #endif
+    }
 
     private var activeCharacter: String? {
         if store.route == .search && store.homeTab == .dataEdit {
@@ -16,7 +28,7 @@ struct BreadcrumbStrip: View {
     var body: some View {
         if !store.rootBreadcrumb.isEmpty {
             HStack(spacing: 6) {
-                Text("Memory")
+                Text(memoryLabel)
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
                     .accessibilityLabel("Memory characters")

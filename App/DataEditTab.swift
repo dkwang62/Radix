@@ -410,20 +410,23 @@ struct DataEditTab: View {
                 .disabled(reuseExportInProgress)
             }
 
-            VStack(spacing: 10) {
+            HStack(alignment: .center) {
                 Button {
                     pendingRestoreMode = .additive
                     showRestorePicker = true
                 } label: {
-                    VStack(spacing: 2) {
-                        Label("Additive Restore", systemImage: "square.and.arrow.down")
-                            .font(ResponsiveFont.subheadline.bold())
-                        Text("Adds new data without overwriting existing")
+                    VStack(spacing: 6) {
+                        Image(systemName: "square.and.arrow.down")
+                            .font(ResponsiveFont.body.bold())
+                        Text("Additive Restore")
+                            .font(ResponsiveFont.caption.bold())
+                            .multilineTextAlignment(.center)
+                        Text("Keeps current data")
                             .font(ResponsiveFont.caption2)
+                            .multilineTextAlignment(.center)
                             .opacity(0.8)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
+                    .frame(width: 132, height: 84)
                     .background(Color.accentColor.opacity(0.1))
                     .foregroundStyle(Color.accentColor)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -431,19 +434,24 @@ struct DataEditTab: View {
                 }
                 .buttonStyle(.plain)
 
+                Spacer(minLength: 44)
+
                 Button {
                     pendingRestoreMode = .complete
                     showRestorePicker = true
                 } label: {
-                    VStack(spacing: 2) {
-                        Label("Complete Restore", systemImage: "square.and.arrow.down.fill")
-                            .font(ResponsiveFont.subheadline.bold())
-                        Text("Replaces all existing data with the backup")
+                    VStack(spacing: 6) {
+                        Image(systemName: "square.and.arrow.down.fill")
+                            .font(ResponsiveFont.body.bold())
+                        Text("Complete Restore")
+                            .font(ResponsiveFont.caption.bold())
+                            .multilineTextAlignment(.center)
+                        Text("Replaces data")
                             .font(ResponsiveFont.caption2)
+                            .multilineTextAlignment(.center)
                             .opacity(0.8)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
+                    .frame(width: 132, height: 84)
                     .background(Color.orange.opacity(0.1))
                     .foregroundStyle(Color.orange)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -451,6 +459,7 @@ struct DataEditTab: View {
                 }
                 .buttonStyle(.plain)
             }
+            .frame(maxWidth: .infinity)
         }
         .padding()
         .background(Color(.secondarySystemBackground).opacity(0.4))

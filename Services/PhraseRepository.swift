@@ -78,7 +78,9 @@ final class PhraseRepository {
     // MARK: - Writes (Add DB only)
 
     func addOrUpdatePhrase(word: String, pinyin: String, meanings: String, notes: String? = nil) throws {
-        guard let addDb else { return }
+        guard let addDb else {
+            throw NSError(domain: "Radix", code: 12, userInfo: [NSLocalizedDescriptionKey: "Add phrases database is not open"])
+        }
         let updateSQL = notes == nil
             ? "UPDATE phrases SET pinyin = ?, meanings = ? WHERE word = ?"
             : "UPDATE phrases SET pinyin = ?, meanings = ?, notes = ? WHERE word = ?"

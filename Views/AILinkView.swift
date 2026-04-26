@@ -44,6 +44,10 @@ struct AILinkView: View {
         .background(Color(.systemGroupedBackground))
         .onAppear {
             store.refreshPhrases()
+            if store.shouldAutoOpenAILinkTask4 {
+                store.shouldAutoOpenAILinkTask4 = false
+                openPromptInChatGPT()
+            }
         }
     }
 

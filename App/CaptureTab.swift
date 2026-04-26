@@ -1,11 +1,13 @@
 import SwiftUI
 import PhotosUI
 import UIKit
+import UniformTypeIdentifiers
 
 struct CaptureTab: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.openURL) private var openURL
     @State private var selectedPhoto: PhotosPickerItem?
+    @State private var showImageFileImporter = false
     @State private var selectedImage: UIImage?
     @State private var isProcessing = false
     @State private var statusMessage: String?
@@ -18,6 +20,12 @@ struct CaptureTab: View {
     @State private var phraseDiscoveryCandidates: [PhraseDiscoveryCandidate] = []
     @State private var phraseDiscoveryStats = PhraseDiscoveryStats()
     @State private var phraseDiscoveryMessage: String?
+    @State private var phraseDiscoveryAddedPhrases: [PhraseDiscoveryCandidate] = []
+    @State private var phraseDiscoveryPromptCopied = false
+    @State private var phraseDiscoveryImportedCount = 0
+    @State private var phraseMode: CapturePhraseMode = .apple
+    @State private var parserSource: PhraseParserSource = .appleCandidates
+    @State private var parserInputPhrases: [String] = []
 
     private var characters: [String] {
         CaptureTextExtractor.uniqueCharacters(in: store.activeCaptureDraft.charactersText)
@@ -38,6 +46,50 @@ struct CaptureTab: View {
     private var newPhrases: [String] {
         let existing = Set(existingPhrases.map(\.word))
         return phraseCandidates.filter { !existing.contains($0) }
+    }
+
+    private var canBuildParserPrompt: Bool {
+        switch parserSource {
+        case .appleCandidates:
+            return !parserInputPhrases.isEmpty
+        case .chatGPTDerived:
+            return !store.activeCaptureDraft.rawText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+    }
+
+    private var captureWorkflowSteps: [CaptureWorkflowStep] {
+        [
+            CaptureWorkflowStep(
+                title: "Choose",
+                detail: parserSource.shortTitle,
+                isComplete: true,
+                systemImage: "checkmark.circle"
+            ),
+            CaptureWorkflowStep(
+                title: "Copy",
+                detail: phraseDiscoveryPromptCopied ? "Prompt copied" : "Open ChatGPT",
+                isComplete: phraseDiscoveryPromptCopied,
+                systemImage: "doc.on.doc"
+            ),
+            CaptureWorkflowStep(
+                title: "Paste",
+                detail: phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "ChatGPT answer" : "Answer pasted",
+                isComplete: !phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                systemImage: "doc.on.clipboard"
+            ),
+            CaptureWorkflowStep(
+                title: "Add",
+                detail: phraseDiscoveryImportedCount == 0 ? "To My Phrases" : "\(phraseDiscoveryImportedCount) added",
+                isComplete: phraseDiscoveryImportedCount > 0,
+                systemImage: "plus.circle"
+            ),
+            CaptureWorkflowStep(
+                title: "Check",
+                detail: phraseDiscoveryCandidates.isEmpty ? "No list yet" : "\(phraseDiscoveryCandidates.count) shown",
+                isComplete: !phraseDiscoveryCandidates.isEmpty,
+                systemImage: "checklist"
+            )
+        ]
     }
 
     var body: some View {
@@ -101,6 +153,13 @@ struct CaptureTab: View {
         .onChange(of: selectedPhoto) { _, item in
             Task { await loadAndRecognize(item) }
         }
+        .fileImporter(
+            isPresented: $showImageFileImporter,
+            allowedContentTypes: [.image],
+            allowsMultipleSelection: false
+        ) { result in
+            Task { await loadAndRecognizeFile(result) }
+        }
         .sheet(isPresented: $showCamera) {
             CameraCaptureView { image in
                 showCamera = false
@@ -133,7 +192,23 @@ struct CaptureTab: View {
             }
             .buttonStyle(.bordered)
             .disabled(isProcessing)
+
+            Button {
+                showImageFileImporter = true
+            } label: {
+                Text(filePickerTitle)
+            }
+            .buttonStyle(.bordered)
+            .disabled(isProcessing)
         }
+    }
+
+    private var filePickerTitle: String {
+        #if targetEnvironment(macCatalyst)
+        return "Finder"
+        #else
+        return "Files"
+        #endif
     }
 
     private var emptyState: some View {
@@ -147,86 +222,226 @@ struct CaptureTab: View {
 
     private func captureResults(scrollToTop: @escaping () -> Void) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            captureSection("Characters") {
-                if characterItems.isEmpty {
-                    Text("No Chinese characters found yet.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                } else {
-                    SmartResultsGrid(
-                        items: characterItems,
-                        currentPage: $gridPage,
-                        onPreview: { character in
-                            capturePreviewCharacter = character
-                            captureDetailPreviewCharacter = character
-                            store.refreshPhrases(for: character)
-                        },
-                        onSelect: {
-                            scrollToTop()
-                        }
-                    )
-                }
+            captureCharactersSection(scrollToTop: scrollToTop)
 
-                TextEditor(text: $store.activeCaptureDraft.charactersText)
-                    .font(ResponsiveFont.body)
-                    .frame(minHeight: 70)
-                    .padding(6)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-
-            captureSection("Existing Phrases") {
-                if existingPhrases.isEmpty {
-                    Text("No existing Radix phrases found from this image.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                } else {
-                    phraseTable(existingPhrases)
-                }
-            }
-
-            captureSection("New Phrases") {
-                if newPhrases.isEmpty {
-                    Text("No new OCR-only phrase candidates.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                } else {
-                    VStack(spacing: 0) {
-                        ForEach(newPhrases, id: \.self) { phrase in
-                            newPhraseRow(phrase)
-                            Divider()
-                        }
-                    }
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-
-                TextEditor(text: $store.activeCaptureDraft.phrasesText)
-                    .font(ResponsiveFont.body)
-                    .frame(minHeight: 86)
-                    .padding(6)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-
-            phraseDiscoveryImportSection
-
-            HStack(spacing: 10) {
-                Button("Remember Characters") {
-                    for character in characters {
-                        store.pushRootBreadcrumb(character)
-                    }
-                    statusMessage = "Characters added to Remembered."
-                }
-                .buttonStyle(.bordered)
-                .disabled(characters.isEmpty)
+            switch phraseMode {
+            case .apple:
+                appleDerivedPhraseSection
+            case .parser:
+                phraseDiscoveryImportSection
             }
         }
     }
 
+    private func captureCharactersSection(scrollToTop: @escaping () -> Void) -> some View {
+        captureSection("Characters") {
+            if characterItems.isEmpty {
+                Text("No Chinese characters found yet.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                SmartResultsGrid(
+                    items: characterItems,
+                    currentPage: $gridPage,
+                    onPreview: { character in
+                        capturePreviewCharacter = character
+                        captureDetailPreviewCharacter = character
+                        store.refreshPhrases(for: character)
+                    },
+                    onSelect: {
+                        scrollToTop()
+                    }
+                )
+            }
+
+            TextEditor(text: $store.activeCaptureDraft.charactersText)
+                .font(ResponsiveFont.body)
+                .frame(minHeight: 70)
+                .padding(6)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            HStack(spacing: 10) {
+                if phraseMode == .apple {
+                    Button("Remember Characters") {
+                        for character in characters {
+                            store.pushRootBreadcrumb(character)
+                        }
+                        statusMessage = "Characters added to Remembered."
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(characters.isEmpty)
+
+                    Button {
+                        openAILinkTask4()
+                    } label: {
+                        Label("Isolate Phrases with AI", systemImage: "sparkles")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(characters.isEmpty)
+                } else {
+                    Button {
+                        phraseMode = .apple
+                    } label: {
+                        Label("Back to Apple-Derived Phrases", systemImage: "chevron.left")
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+        }
+    }
+
+    private var appleDerivedPhraseSection: some View {
+        captureSection("Apple-Derived Phrases") {
+            VStack(alignment: .leading, spacing: 12) {
+                phraseWorkflowChoicePanel
+                addChatGPTAnswerPanel
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Existing Radix Phrases")
+                        .font(ResponsiveFont.caption2.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    if existingPhrases.isEmpty {
+                        Text("No existing Radix phrases found from this image.")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        phraseTable(existingPhrases)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("OCR Phrase Candidates")
+                        .font(ResponsiveFont.caption2.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    if newPhrases.isEmpty {
+                        Text("No new OCR-only phrase candidates.")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        VStack(spacing: 0) {
+                            ForEach(newPhrases, id: \.self) { phrase in
+                                newPhraseRow(phrase)
+                                Divider()
+                            }
+                        }
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+
+                    TextEditor(text: $store.activeCaptureDraft.phrasesText)
+                        .font(ResponsiveFont.body)
+                        .frame(minHeight: 86)
+                        .padding(6)
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                }
+            }
+        }
+    }
+
+    private var phraseWorkflowChoicePanel: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Choose what to add to My Phrases")
+                .font(ResponsiveFont.caption.weight(.semibold))
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 180), spacing: 8)],
+                alignment: .leading,
+                spacing: 8
+            ) {
+                Button {
+                    startApplePhraseParser(phrases: newPhrases)
+                } label: {
+                    Label("Ask ChatGPT", systemImage: "text.magnifyingglass")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.bordered)
+                .disabled(newPhrases.isEmpty)
+            }
+        }
+        .padding(10)
+        .background(Color(.secondarySystemBackground).opacity(0.65))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var addChatGPTAnswerPanel: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Add ChatGPT Answer to My Phrases")
+                .font(ResponsiveFont.caption.weight(.semibold))
+
+            Text("Paste one phrase or a batch from ChatGPT. Use this format: phrase | pinyin | English meaning.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+
+            TextEditor(text: $phraseDiscoveryOutput)
+                .font(ResponsiveFont.body)
+                .frame(minHeight: 110)
+                .padding(6)
+                .background(Color(.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color(.separator), lineWidth: 0.5)
+                )
+
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 150), spacing: 8)],
+                alignment: .leading,
+                spacing: 8
+            ) {
+                Button {
+                    pasteAndAddPhraseDiscoveryOutput()
+                } label: {
+                    Label("Paste ChatGPT Answer and Add", systemImage: "doc.on.clipboard")
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button("Add from Box") {
+                    addPhraseDiscoveryOutputToMyPhrases()
+                }
+                .buttonStyle(.bordered)
+                .disabled(phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                Button("Clear") {
+                    clearPhraseDiscoveryInput()
+                }
+                .buttonStyle(.bordered)
+                .disabled(phraseDiscoveryOutput.isEmpty && phraseDiscoveryMessage == nil)
+            }
+
+            if let phraseDiscoveryMessage {
+                Text(phraseDiscoveryMessage)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            if !phraseDiscoveryAddedPhrases.isEmpty {
+                addedPhraseResultList
+            }
+        }
+        .padding(10)
+        .background(Color(.secondarySystemBackground).opacity(0.65))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
     private var phraseDiscoveryImportSection: some View {
-        captureSection("Phrase Discovery Import") {
+        captureSection(parserSource.title) {
             VStack(alignment: .leading, spacing: 10) {
+                captureWorkflowProgress
+
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(parserSource.guidanceTitle)
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                    Text(parserSource.guidanceDetail(count: parserInputPhrases.count))
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
                 if !store.activeCaptureDraft.rawText.isEmpty {
                     DisclosureGroup("OCR Text Preview") {
                         Text(store.activeCaptureDraft.rawText)
@@ -241,19 +456,42 @@ struct CaptureTab: View {
                     .font(ResponsiveFont.caption.weight(.semibold))
                 }
 
-                HStack(spacing: 8) {
-                    Button("Copy ChatGPT Prompt") {
+                LazyVGrid(
+                    columns: [GridItem(.adaptive(minimum: 150), spacing: 8)],
+                    alignment: .leading,
+                    spacing: 8
+                ) {
+                    Button("Open ChatGPT") {
                         copyPhraseDiscoveryPrompt()
                     }
                     .buttonStyle(.borderedProminent)
-                    .disabled(store.activeCaptureDraft.rawText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .disabled(!canBuildParserPrompt)
+
+                    Button {
+                        pasteAndAddPhraseDiscoveryOutput()
+                    } label: {
+                        Label("Paste ChatGPT Answer and Add", systemImage: "doc.on.clipboard")
+                    }
+                    .buttonStyle(.bordered)
 
                     Button("Clear") {
-                        resetPhraseDiscovery()
+                        resetPhraseDiscovery(keepMode: true)
                     }
                     .buttonStyle(.bordered)
                     .disabled(phraseDiscoveryOutput.isEmpty && phraseDiscoveryCandidates.isEmpty)
                 }
+
+                if phraseDiscoveryPromptCopied &&
+                    phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+                    phraseDiscoveryCandidates.isEmpty {
+                    ProgressView("Waiting for ChatGPT answer...")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, 6)
+                }
+
+                Text("Paste ChatGPT's answer here. Radix will add the phrases to My Phrases.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
 
                 TextEditor(text: $phraseDiscoveryOutput)
                     .font(ResponsiveFont.body)
@@ -266,9 +504,19 @@ struct CaptureTab: View {
                             .stroke(Color(.separator), lineWidth: 0.5)
                     )
 
-                HStack(spacing: 8) {
-                    Button("Parse / Review") {
-                        parsePhraseDiscoveryOutput()
+                LazyVGrid(
+                    columns: [GridItem(.adaptive(minimum: 120), spacing: 8)],
+                    alignment: .leading,
+                    spacing: 8
+                ) {
+                    Button("Add from Box") {
+                        addPhraseDiscoveryOutputToMyPhrases()
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                    Button("Preview Answer") {
+                        readPhraseDiscoveryOutput(addImmediately: false)
                     }
                     .buttonStyle(.bordered)
                     .disabled(phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -292,9 +540,13 @@ struct CaptureTab: View {
                     phraseDiscoveryCandidateList
                 }
 
+                if !phraseDiscoveryAddedPhrases.isEmpty {
+                    addedPhraseResultList
+                }
+
                 HStack {
                     Spacer()
-                    Button("Import Selected") {
+                    Button("Add Selected to My Phrases") {
                         importSelectedPhraseDiscoveryCandidates()
                     }
                     .buttonStyle(.borderedProminent)
@@ -313,19 +565,70 @@ struct CaptureTab: View {
     private var phraseDiscoverySummary: some View {
         let knownCount = store.phraseDiscoveryKnownPhrases(in: store.activeCaptureDraft.rawText).count
         let selectedCount = phraseDiscoveryCandidates.filter(\.isSelected).count
+        let sourceTitle = parserSource == .appleCandidates ? "Input" : "Known in OCR"
+        let sourceCount = parserSource == .appleCandidates ? parserInputPhrases.count : knownCount
         return LazyVGrid(
             columns: [GridItem(.adaptive(minimum: 130), spacing: 8)],
             alignment: .leading,
             spacing: 8
         ) {
-            discoveryStatChip("Known in OCR", knownCount)
-            discoveryStatChip("Parsed", phraseDiscoveryStats.totalParsed)
+            discoveryStatChip(sourceTitle, sourceCount)
+            discoveryStatChip("Read", phraseDiscoveryStats.totalParsed)
             discoveryStatChip("Duplicates", phraseDiscoveryStats.duplicatesRemoved)
             discoveryStatChip("Existing", phraseDiscoveryStats.alreadyExisting)
             discoveryStatChip("Invalid", phraseDiscoveryStats.invalidLines)
             discoveryStatChip("New", phraseDiscoveryCandidates.count)
             discoveryStatChip("Selected", selectedCount)
         }
+    }
+
+    private var captureWorkflowProgress: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Add Phrases Steps")
+                .font(ResponsiveFont.caption.bold())
+                .foregroundStyle(.secondary)
+
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 118), spacing: 8)],
+                alignment: .leading,
+                spacing: 8
+            ) {
+                ForEach(captureWorkflowSteps) { step in
+                    captureWorkflowStepChip(step)
+                }
+            }
+        }
+        .padding(10)
+        .background(Color(.secondarySystemBackground).opacity(0.65))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func captureWorkflowStepChip(_ step: CaptureWorkflowStep) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: step.isComplete ? "checkmark.circle.fill" : step.systemImage)
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(step.isComplete ? Color.green : Color.secondary)
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(step.title)
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                Text(step.detail)
+                    .font(ResponsiveFont.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 7)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(step.isComplete ? Color.green.opacity(0.12) : Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(step.isComplete ? Color.green.opacity(0.35) : Color(.separator), lineWidth: 0.5)
+        )
     }
 
     private var phraseDiscoveryCandidateList: some View {
@@ -337,6 +640,56 @@ struct CaptureTab: View {
         }
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var addedPhraseResultList: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Added to My Phrases")
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            VStack(spacing: 0) {
+                ForEach(phraseDiscoveryAddedPhrases) { candidate in
+                    addedPhraseResultRow(candidate)
+                    Divider()
+                }
+            }
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color(.separator), lineWidth: 0.5)
+            )
+        }
+    }
+
+    private func addedPhraseResultRow(_ candidate: PhraseDiscoveryCandidate) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(candidate.phrase)
+                    .font(ResponsiveFont.body.bold())
+                if !candidate.pinyin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(candidate.pinyin)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+                if !candidate.meaning.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(candidate.meaning)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Button("Delete", role: .destructive) {
+                deleteAddedPhrase(candidate)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.mini)
+            .font(ResponsiveFont.caption2.weight(.semibold))
+        }
+        .padding(8)
     }
 
     private func phraseDiscoveryCandidateRow(_ candidate: Binding<PhraseDiscoveryCandidate>) -> some View {
@@ -447,12 +800,11 @@ struct CaptureTab: View {
             Text(phrase)
                 .font(ResponsiveFont.body.bold())
             Spacer()
-            Button {
-                openNewPhraseInChatGPT(phrase)
-            } label: {
-                Label("ChatGPT", systemImage: "arrow.up.forward.app")
+
+            Button("Ask ChatGPT") {
+                startApplePhraseParser(phrases: [phrase])
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(.borderedProminent)
             .controlSize(.mini)
             .font(ResponsiveFont.caption2.weight(.semibold))
 
@@ -466,22 +818,27 @@ struct CaptureTab: View {
         .padding(10)
     }
 
-    private func openNewPhraseInChatGPT(_ phrase: String) {
-        let prompt = """
-        For "\(phrase)", return only three lines:
-        line 1: Hanyu Pinyin with tone marks
-        line 2: concise English meaning
-        line 3: one simple Chinese example sentence using the phrase, followed by pinyin and English translation
-        Do not include labels, headings, numbering, bullets, explanations, or any extra words.
-        """
+    private func startApplePhraseParser(phrases: [String]) {
+        let normalized = CaptureTextExtractor.uniquePhrases(from: phrases)
+        guard !normalized.isEmpty else { return }
+        parserInputPhrases = normalized
+        parserSource = .appleCandidates
+        phraseMode = .parser
+        resetPhraseDiscovery(keepMode: true)
+        copyPhraseDiscoveryPrompt()
+    }
 
-        #if canImport(UIKit)
-        UIPasteboard.general.string = prompt
-        #endif
+    private func openAILinkTask4() {
+        store.goToAILinkTask4FromCapture(characters: characters)
+        statusMessage = "AI Link Task 4 opened. ChatGPT will receive the Apple Vision characters."
+    }
 
-        if let url = chatGPTURL(prompt: prompt) {
-            openURL(url)
-        }
+    private func startChatGPTPhraseDiscovery() {
+        parserInputPhrases = []
+        parserSource = .chatGPTDerived
+        phraseMode = .parser
+        resetPhraseDiscovery(keepMode: true)
+        copyPhraseDiscoveryPrompt()
     }
 
     private func copyPhraseDiscoveryPrompt() {
@@ -492,10 +849,40 @@ struct CaptureTab: View {
         if let url = chatGPTURL(prompt: prompt) {
             openURL(url)
         }
-        phraseDiscoveryMessage = "Prompt copied and opened in ChatGPT. Paste ChatGPT output below when ready."
+        phraseDiscoveryPromptCopied = true
+        phraseDiscoveryMessage = "ChatGPT opened. Copy its answer, then come back and tap Paste ChatGPT Answer and Add."
     }
 
     private func makePhraseDiscoveryPrompt() -> String {
+        switch parserSource {
+        case .appleCandidates:
+            return makeApplePhraseParserPrompt()
+        case .chatGPTDerived:
+            return makeChatGPTPhraseDiscoveryPrompt()
+        }
+    }
+
+    private func makeApplePhraseParserPrompt() -> String {
+        let phraseList = parserInputPhrases.joined(separator: "\n")
+
+        return """
+        For each Chinese phrase below, provide pinyin with tone marks and a concise English meaning.
+
+        Output only in this format:
+        Phrase | Pinyin | Concise English meaning
+
+        Phrases:
+        \(phraseList)
+
+        Important:
+        - Preserve each phrase exactly as written.
+        - Do not add phrases that are not in the list.
+        - Do not include headings, numbering, bullets, markdown tables, or explanations.
+        - If a phrase is invalid or not a real phrase, omit it.
+        """
+    }
+
+    private func makeChatGPTPhraseDiscoveryPrompt() -> String {
         let rawText = store.activeCaptureDraft.rawText
         let knownPhrases = store.phraseDiscoveryKnownPhrases(in: rawText)
         let knownList = knownPhrases.isEmpty ? "(none)" : knownPhrases.joined(separator: "\n")
@@ -531,11 +918,11 @@ struct CaptureTab: View {
         """
     }
 
-    private func parsePhraseDiscoveryOutput() {
+    private func readPhraseDiscoveryOutput(addImmediately: Bool) {
+        phraseDiscoveryImportedCount = 0
         let parsed = PhraseDiscoveryParser.parse(phraseDiscoveryOutput)
         let existingWords = store.existingPhraseWords(in: Set(parsed.candidates.map(\.phrase)))
         phraseDiscoveryCandidates = parsed.candidates
-            .filter { !existingWords.contains($0.phrase) }
             .map { candidate in
                 var candidate = candidate
                 candidate.isSelected = true
@@ -547,9 +934,43 @@ struct CaptureTab: View {
             alreadyExisting: existingWords.count,
             invalidLines: parsed.invalidLines
         )
-        phraseDiscoveryMessage = phraseDiscoveryCandidates.isEmpty
-            ? "No new phrases found after filtering existing Radix phrases."
-            : "Review and edit the new phrase candidates before importing."
+        if addImmediately {
+            addPhraseDiscoveryCandidates(phraseDiscoveryCandidates)
+        } else {
+            phraseDiscoveryMessage = phraseDiscoveryCandidates.isEmpty
+                ? "Radix could not read any phrases from that answer."
+                : "Radix found \(phraseDiscoveryCandidates.count) phrase\(phraseDiscoveryCandidates.count == 1 ? "" : "s"). You can edit the list, then tap Add Selected to My Phrases."
+        }
+    }
+
+    private func addPhraseDiscoveryOutputToMyPhrases() {
+        readPhraseDiscoveryOutput(addImmediately: true)
+    }
+
+    private func pasteAndAddPhraseDiscoveryOutput() {
+        #if canImport(UIKit)
+        let clipboardText = UIPasteboard.general.string ?? ""
+        #else
+        let clipboardText = ""
+        #endif
+
+        let trimmed = clipboardText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            phraseDiscoveryMessage = "Clipboard is empty."
+            return
+        }
+
+        phraseDiscoveryOutput = clipboardText
+        readPhraseDiscoveryOutput(addImmediately: true)
+    }
+
+    private func clearPhraseDiscoveryInput() {
+        phraseDiscoveryOutput = ""
+        phraseDiscoveryCandidates = []
+        phraseDiscoveryAddedPhrases = []
+        phraseDiscoveryStats = PhraseDiscoveryStats()
+        phraseDiscoveryMessage = nil
+        phraseDiscoveryImportedCount = 0
     }
 
     private func setAllPhraseDiscoveryCandidates(_ isSelected: Bool) {
@@ -562,11 +983,15 @@ struct CaptureTab: View {
 
     private func importSelectedPhraseDiscoveryCandidates() {
         let selected = phraseDiscoveryCandidates.filter(\.isSelected)
-        let selectedWords = Set(selected.map { $0.phrase.trimmingCharacters(in: .whitespacesAndNewlines) })
-        let existingBeforeSave = store.existingPhraseWords(in: selectedWords)
+        addPhraseDiscoveryCandidates(selected)
+    }
+
+    private func addPhraseDiscoveryCandidates(_ selected: [PhraseDiscoveryCandidate]) {
         var added = 0
         var skipped = 0
+        var addedCandidates: [PhraseDiscoveryCandidate] = []
         var errors: [String] = []
+        var seen = Set<String>()
 
         for candidate in selected {
             let phrase = candidate.phrase.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -574,7 +999,7 @@ struct CaptureTab: View {
                 skipped += 1
                 continue
             }
-            guard !existingBeforeSave.contains(phrase), store.mergedPhrase(for: phrase) == nil else {
+            guard seen.insert(phrase).inserted else {
                 skipped += 1
                 continue
             }
@@ -587,12 +1012,15 @@ struct CaptureTab: View {
                     refreshViews: false
                 )
                 added += 1
+                addedCandidates.append(candidate)
             } catch {
                 errors.append("\(phrase): \(error.localizedDescription)")
             }
         }
 
         store.refreshPhraseOverlayViews()
+        phraseDiscoveryImportedCount = added
+        phraseDiscoveryAddedPhrases = mergeAddedPhraseResults(phraseDiscoveryAddedPhrases, addedCandidates)
         let selectedIDs = Set(selected.map(\.id))
         phraseDiscoveryCandidates = phraseDiscoveryCandidates.map { candidate in
             var candidate = candidate
@@ -601,14 +1029,46 @@ struct CaptureTab: View {
             }
             return candidate
         }
-        phraseDiscoveryMessage = "Selected \(selected.count). Added \(added). Skipped \(skipped).\(errors.isEmpty ? "" : " Errors: \(errors.joined(separator: "; "))")"
+        if selected.isEmpty {
+            phraseDiscoveryMessage = "No new phrases were found in the ChatGPT answer."
+        } else if added == 0 {
+            phraseDiscoveryMessage = "Radix read \(selected.count) phrase\(selected.count == 1 ? "" : "s"), but none were added to My Phrases. Skipped \(skipped).\(errors.isEmpty ? "" : " Errors: \(errors.joined(separator: "; "))")"
+        } else {
+            phraseDiscoveryMessage = "Added or updated \(added) in My Phrases. Delete any phrase below that you do not want to keep.\(skipped == 0 ? "" : " Skipped \(skipped).")\(errors.isEmpty ? "" : " Errors: \(errors.joined(separator: "; "))")"
+        }
     }
 
-    private func resetPhraseDiscovery() {
+    private func mergeAddedPhraseResults(_ current: [PhraseDiscoveryCandidate], _ newItems: [PhraseDiscoveryCandidate]) -> [PhraseDiscoveryCandidate] {
+        var seen = Set<String>()
+        var merged: [PhraseDiscoveryCandidate] = []
+        for candidate in newItems + current {
+            let phrase = candidate.phrase.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !phrase.isEmpty, seen.insert(phrase).inserted else { continue }
+            merged.append(candidate)
+        }
+        return merged
+    }
+
+    private func deleteAddedPhrase(_ candidate: PhraseDiscoveryCandidate) {
+        store.removeDataEditPhrase(word: candidate.phrase)
+        phraseDiscoveryAddedPhrases.removeAll { $0.phrase == candidate.phrase }
+        phraseDiscoveryImportedCount = phraseDiscoveryAddedPhrases.count
+        phraseDiscoveryMessage = "Removed \(candidate.phrase) from My Phrases."
+    }
+
+    private func resetPhraseDiscovery(keepMode: Bool = false) {
         phraseDiscoveryOutput = ""
         phraseDiscoveryCandidates = []
+        phraseDiscoveryAddedPhrases = []
         phraseDiscoveryStats = PhraseDiscoveryStats()
         phraseDiscoveryMessage = nil
+        phraseDiscoveryPromptCopied = false
+        phraseDiscoveryImportedCount = 0
+        if !keepMode {
+            parserInputPhrases = []
+            parserSource = .appleCandidates
+            phraseMode = .apple
+        }
     }
 
     private func chatGPTURL(prompt: String) -> URL? {
@@ -635,6 +1095,27 @@ struct CaptureTab: View {
             guard let data = try await item.loadTransferable(type: Data.self),
                   let image = UIImage(data: data) else {
                 throw NSError(domain: "Radix", code: 3002, userInfo: [NSLocalizedDescriptionKey: "The selected image could not be loaded."])
+            }
+            await recognize(image)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    @MainActor
+    private func loadAndRecognizeFile(_ result: Result<[URL], Error>) async {
+        do {
+            guard let url = try result.get().first else { return }
+            let canAccess = url.startAccessingSecurityScopedResource()
+            defer {
+                if canAccess {
+                    url.stopAccessingSecurityScopedResource()
+                }
+            }
+
+            let data = try Data(contentsOf: url)
+            guard let image = UIImage(data: data) else {
+                throw NSError(domain: "Radix", code: 3003, userInfo: [NSLocalizedDescriptionKey: "The selected file is not a readable image."])
             }
             await recognize(image)
         } catch {
@@ -677,6 +1158,61 @@ private struct PhraseDiscoveryCandidate: Identifiable, Hashable {
     var pinyin: String
     var meaning: String
     var isSelected = true
+}
+
+private struct CaptureWorkflowStep: Identifiable {
+    var id: String { title }
+    let title: String
+    let detail: String
+    let isComplete: Bool
+    let systemImage: String
+}
+
+private enum CapturePhraseMode: Equatable {
+    case apple
+    case parser
+}
+
+private enum PhraseParserSource: Equatable {
+    case appleCandidates
+    case chatGPTDerived
+
+    var title: String {
+        switch self {
+        case .appleCandidates:
+            return "Add Apple Candidates to My Phrases"
+        case .chatGPTDerived:
+            return "Add ChatGPT Suggestions to My Phrases"
+        }
+    }
+
+    var shortTitle: String {
+        switch self {
+        case .appleCandidates:
+            return "Apple candidates"
+        case .chatGPTDerived:
+            return "More phrases"
+        }
+    }
+
+    var guidanceTitle: String {
+        switch self {
+        case .appleCandidates:
+            return "You chose Apple-derived phrases."
+        case .chatGPTDerived:
+            return "You chose ChatGPT suggestions."
+        }
+    }
+
+    func guidanceDetail(count: Int) -> String {
+        switch self {
+        case .appleCandidates:
+            let phraseText = count == 1 ? "1 phrase" : "\(count) phrases"
+            return "Radix copies \(phraseText) to ChatGPT so it can add pinyin and meaning. Copy ChatGPT's answer, then tap Paste ChatGPT Answer and Add."
+        case .chatGPTDerived:
+            return "Radix copies the OCR text to ChatGPT so it can find more phrases with pinyin and meaning. Copy ChatGPT's answer, then tap Paste ChatGPT Answer and Add."
+        }
+    }
 }
 
 private struct PhraseDiscoveryStats {
@@ -727,7 +1263,7 @@ private enum PhraseDiscoveryParser {
 
     static func isValidPhrase(_ phrase: String) -> Bool {
         let trimmed = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard (2...4).contains(trimmed.count) else { return false }
+        guard (1...12).contains(trimmed.count) else { return false }
         return trimmed.allSatisfy { character in
             character.unicodeScalars.contains {
                 (0x3400...0x4DBF).contains($0.value)
@@ -754,13 +1290,14 @@ private enum PhraseDiscoveryParser {
             parts = splitLooseLine(line)
         }
 
+        guard !isHeaderRow(parts) else { return nil }
         guard let first = parts.first else { return nil }
         let phrase = cleanPhrase(first)
         guard isValidPhrase(phrase) else { return nil }
 
-        let pinyin = parts.indices.contains(1) ? cleanCell(parts[1]) : ""
+        let pinyin = parts.indices.contains(1) ? cleanLabeledValue(parts[1]) : ""
         let meaning = parts.indices.contains(2)
-            ? parts[2...].map(cleanCell).filter { !$0.isEmpty }.joined(separator: " | ")
+            ? parts[2...].map(cleanLabeledValue).filter { !$0.isEmpty }.joined(separator: " | ")
             : ""
 
         return PhraseDiscoveryCandidate(phrase: phrase, pinyin: pinyin, meaning: meaning)
@@ -784,9 +1321,46 @@ private enum PhraseDiscoveryParser {
     }
 
     private static func cleanPhrase(_ value: String) -> String {
-        cleanCell(value)
+        let cleaned = cleanLabeledValue(value)
             .trimmingCharacters(in: CharacterSet.punctuationCharacters.union(.symbols))
             .trimmingCharacters(in: .whitespacesAndNewlines)
+        if isValidPhrase(cleaned) {
+            return cleaned
+        }
+        let matches = chineseRuns(in: cleaned)
+        return matches.last ?? cleaned
+    }
+
+    private static func cleanLabeledValue(_ value: String) -> String {
+        cleanCell(value)
+            .replacingOccurrences(
+                of: #"^\s*(?:phrase|word|pinyin|meaning|english|definition|短语|词语|词|拼音|意思|含义|英文)\s*[:：]\s*"#,
+                with: "",
+                options: [.regularExpression, .caseInsensitive]
+            )
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private static func chineseRuns(in value: String) -> [String] {
+        let pattern = #"[\u{3400}-\u{4DBF}\u{4E00}-\u{9FFF}\u{20000}-\u{2EBEF}]{1,12}"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
+        let nsRange = NSRange(value.startIndex..<value.endIndex, in: value)
+        return regex.matches(in: value, range: nsRange).compactMap { match in
+            guard let range = Range(match.range, in: value) else { return nil }
+            return String(value[range])
+        }
+    }
+
+    private static func isHeaderRow(_ parts: [String]) -> Bool {
+        let normalized = parts
+            .map { cleanCell($0).lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        guard !normalized.isEmpty else { return false }
+        let headerWords: Set<String> = [
+            "phrase", "word", "pinyin", "meaning", "english", "definition",
+            "短语", "词语", "词", "拼音", "意思", "含义", "英文", "英文含义"
+        ]
+        return normalized.allSatisfy { headerWords.contains($0) }
     }
 
     private static func isMarkdownSeparator(_ line: String) -> Bool {

@@ -96,6 +96,33 @@ final class RadixStoreTests: XCTestCase {
     }
 
     @MainActor
+    func testCompleteRestoreRefreshesVisibleAddedPhraseState() async throws {
+        let restoredWord = "复原\(UUID().uuidString.prefix(4))"
+        let staleWord = "残留\(UUID().uuidString.prefix(4))"
+
+        store.dataEditCharacter = ""
+        store.dataEditPhrases = [
+            PhraseItem(word: restoredWord, pinyin: "fu yuan", meanings: "restored phrase")
+        ]
+        try store.saveDataEdit()
+
+        let encoder = JSONEncoder()
+        let backup = try encoder.encode(store.portableBackupPackage())
+
+        store.dataEditPhrases = [
+            PhraseItem(word: restoredWord, pinyin: "fu yuan", meanings: "restored phrase"),
+            PhraseItem(word: staleWord, pinyin: "can liu", meanings: "stale phrase")
+        ]
+        try store.saveDataEdit()
+        XCTAssertTrue(store.addedPhrases.contains(where: { $0.word == staleWord }))
+
+        try store.importDataEditData(backup, mode: .complete)
+
+        XCTAssertEqual(store.addedPhrases.map(\.word), [restoredWord])
+        XCTAssertEqual(store.dataEditPhrases.map(\.word), [restoredWord])
+    }
+
+    @MainActor
     func testSearchHistoryPersistsUntilExplicitlyCleared() {
         store.clearSearchHistory()
 

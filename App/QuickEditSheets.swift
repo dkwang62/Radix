@@ -460,6 +460,13 @@ struct QuickPhraseEditorView: View {
     @State private var phraseEditorMeanings: String = ""
     @State private var phraseEditorNotes: String = ""
     @State private var editorError: String?
+    @FocusState private var focusedPhraseField: PhraseField?
+
+    private enum PhraseField: Hashable {
+        case notes
+        case pinyin
+        case meanings
+    }
 
     init(word: String, isNew: Bool) {
         self.initialWord = word
@@ -482,51 +489,33 @@ struct QuickPhraseEditorView: View {
 
             Divider()
 
-            VStack(alignment: .leading, spacing: 8) {
-                if let editorError {
-                    Text(editorError)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.red)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 10) {
+                    if let editorError {
+                        Text(editorError)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.red)
+                    }
+
+                    phraseNotesSection
+
+                    phraseFieldsSection
                 }
-
-                phraseNotesSection
-                    .frame(maxHeight: .infinity)
-
-                phraseFieldsSection
-
-                Spacer(minLength: 0)
-
-                Divider()
-
-                HStack(spacing: 10) {
-                    if !isNew && store.isPhraseInAdd(phraseEditorWord) {
-                        let isBuiltIn = store.isPhraseInBase(phraseEditorWord)
-                        Button(isBuiltIn ? "Revert" : "Delete", role: isBuiltIn ? nil : .destructive) {
-                            deletePhrase()
-                        }
-                        .buttonStyle(.bordered)
-                    }
-
-                    Spacer()
-
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .buttonStyle(.bordered)
-
-                    Button("Save") {
-                        savePhrase()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(phraseEditorWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                }
-                .padding(.top, 4)
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .topLeading)
             }
-            .padding()
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+
+            Divider()
+
+            phraseActionRow
+                .padding()
+                .background(Color(.systemBackground))
         }
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
+                Button("Done") {
+                    focusedPhraseField = nil
+                }
                 Spacer()
                 Button("Save") {
                     savePhrase()
@@ -585,6 +574,7 @@ struct QuickPhraseEditorView: View {
                 .font(ResponsiveFont.body)
                 .scrollContentBackground(.hidden)
                 .padding(8)
+                .focused($focusedPhraseField, equals: .notes)
 
             if phraseEditorNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 Text("Type your own example sentences, phrases, usage notes, and reminders for this phrase.")
@@ -595,7 +585,7 @@ struct QuickPhraseEditorView: View {
                     .allowsHitTesting(false)
             }
         }
-        .frame(minHeight: phraseNotesMinimumHeight, maxHeight: .infinity)
+        .frame(height: phraseNotesHeight)
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
@@ -604,11 +594,15 @@ struct QuickPhraseEditorView: View {
         )
     }
 
-    private var phraseNotesMinimumHeight: CGFloat {
+    private var phraseNotesHeight: CGFloat {
         if horizontalSizeClass == .compact {
-            return 220
+            return 240
         }
-        return 320
+        return 360
+    }
+
+    private var phraseMeaningHeight: CGFloat {
+        horizontalSizeClass == .compact ? 96 : 120
     }
 
     @ViewBuilder
@@ -640,13 +634,14 @@ struct QuickPhraseEditorView: View {
                     TextField("Pinyin", text: $phraseEditorPinyin)
                         .font(ResponsiveFont.body.monospaced())
                         .textFieldStyle(.roundedBorder)
+                        .focused($focusedPhraseField, equals: .pinyin)
                 }
             }
 
             phraseField("English Meaning") {
                 TextEditor(text: $phraseEditorMeanings)
                     .font(ResponsiveFont.body)
-                    .frame(minHeight: horizontalSizeClass == .compact ? 86 : 110)
+                    .frame(height: phraseMeaningHeight)
                     .padding(8)
                     .background(Color(.secondarySystemBackground).opacity(0.6))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -654,9 +649,35 @@ struct QuickPhraseEditorView: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(Color(.separator), lineWidth: 0.5)
                     )
+                    .focused($focusedPhraseField, equals: .meanings)
             }
         }
         .controlSize(.small)
+    }
+
+    private var phraseActionRow: some View {
+        HStack(spacing: 10) {
+            if !isNew && store.isPhraseInAdd(phraseEditorWord) {
+                let isBuiltIn = store.isPhraseInBase(phraseEditorWord)
+                Button(isBuiltIn ? "Revert" : "Delete", role: isBuiltIn ? nil : .destructive) {
+                    deletePhrase()
+                }
+                .buttonStyle(.bordered)
+            }
+
+            Spacer()
+
+            Button("Cancel") {
+                dismiss()
+            }
+            .buttonStyle(.bordered)
+
+            Button("Save") {
+                savePhrase()
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(phraseEditorWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
     }
 
     private func savePhrase() {

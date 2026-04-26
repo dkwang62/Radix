@@ -377,7 +377,8 @@ final class RadixStore: ObservableObject {
     
     // MARK: - AI Context State
     @Published var promptConfig: PromptConfig = .streamlitDefault
-    @Published var promptSelectedTaskIDs: [String] = PromptConfig.streamlitDefault.tasks.map(\.id)
+    @Published var promptSelectedTaskIDs: [String] = PromptConfig.defaultSelectedTaskIDs
+    @Published var shouldAutoOpenAILinkTask4 = false
 
     // MARK: - Repositories & Helpers
     private let componentRepo = ComponentRepository()
@@ -447,7 +448,7 @@ final class RadixStore: ObservableObject {
         loadPromptSettings()
         promptConfig = promptConfig.normalized()
         if promptSelectedTaskIDs.isEmpty {
-            promptSelectedTaskIDs = promptConfig.tasks.map(\.id)
+            promptSelectedTaskIDs = PromptConfig.defaultSelectedTaskIDs
         }
         loadFavorites()
         loadSearchHistory()
@@ -774,6 +775,22 @@ final class RadixStore: ObservableObject {
             showiPhoneDetail = false
         }
         #endif
+    }
+
+    func goToAILinkTask4FromCapture(characters: [String]) {
+        let target = characters.first ?? previewCharacter ?? selectedCharacter
+        if let target {
+            select(character: target, announce: false)
+        }
+        promptSelectedTaskIDs = ["task4"]
+        shouldAutoOpenAILinkTask4 = true
+        route = .aiLink
+        #if !targetEnvironment(macCatalyst)
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            showiPhoneDetail = false
+        }
+        #endif
+        persistPromptSettings()
     }
 
     func goToSearchRoot() {
@@ -1616,6 +1633,8 @@ final class RadixStore: ObservableObject {
             }
         }
         refreshAddedPhrases()
+        syncDataEditPhraseCaches()
+        dataEditPhrases = addedPhrases
     }
 
     func calculateDictionaryVariances() {
@@ -1882,7 +1901,7 @@ final class RadixStore: ObservableObject {
     }
     func resetPromptConfigToDefaults() {
         promptConfig = .streamlitDefault
-        promptSelectedTaskIDs = promptConfig.tasks.map(\.id)
+        promptSelectedTaskIDs = PromptConfig.defaultSelectedTaskIDs
         persistPromptSettings()
     }
     func setPromptTask(_ taskID: String, enabled: Bool) {
@@ -1909,7 +1928,9 @@ final class RadixStore: ObservableObject {
             phoneticPinyin: analysis?.phoneticPinyin ?? "None",
             isSoundMatch: String(analysis?.isSoundMatch ?? false),
             pronunciationFamily: pFamily.isEmpty ? "None" : pFamily.joined(separator: ", "),
-            semanticFamily: sFamily.isEmpty ? "None" : sFamily.joined(separator: ", ")
+            semanticFamily: sFamily.isEmpty ? "None" : sFamily.joined(separator: ", "),
+            captureCharacters: CaptureTextExtractor.uniqueCharacters(in: activeCaptureDraft.charactersText).joined(separator: " "),
+            captureText: activeCaptureDraft.rawText.trimmingCharacters(in: .whitespacesAndNewlines)
         )
         return promptConfig.renderPrompt(selectedTaskIDs: promptSelectedTaskIDs, context: context)
     }
@@ -2779,7 +2800,7 @@ final class RadixStore: ObservableObject {
         if let selected = profile.promptSelectedTaskIDs {
             promptSelectedTaskIDs = selected
         } else if isCompleteRestore {
-            promptSelectedTaskIDs = PromptConfig.streamlitDefault.tasks.map(\.id)
+            promptSelectedTaskIDs = PromptConfig.defaultSelectedTaskIDs
         }
         persistPromptSettings()
 

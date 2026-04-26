@@ -17,7 +17,7 @@ struct PromptConfig: Codable, Hashable {
         preamble: """
 You are a bilingual Chinese dictionary editor and teacher.
 
-Explain a single Chinese character in depth for language learners. Focus on modern usage, and if the character is rare, show its more widely used modern equivalent while noting the original character.
+For character tasks, explain a single Chinese character in depth for language learners. For OCR phrase tasks, isolate useful Chinese phrases from Apple Vision output and prepare them for dictionary entry.
 
 ⸻
 
@@ -77,13 +77,55 @@ Compare this character with 2–3 other characters of similar meaning or usage, 
 ⸻
 
 """
+            ),
+            PromptTask(
+                id: "task4",
+                title: "Task 4 – Isolate Phrases from Apple Vision",
+                template: """
+Task 4 – Isolate Phrases from Apple Vision
+
+From the Apple Vision OCR text and detected character list below, extract useful 2-, 3-, and 4-character Chinese phrases that are found as dictionary headwords.
+
+Rules:
+\t•\tKeep the OCR text context in mind.
+\t•\tReturn only useful phrase candidates that are attested in Chinese dictionaries.
+\t•\tOnly include a phrase if it would normally appear as an entry in a reputable dictionary such as CC-CEDICT, Pleco, MDBG, Wiktionary, or a standard Chinese dictionary.
+\t•\tPrioritize common, natural dictionary phrases.
+\t•\tAvoid rare, awkward, or accidental character combinations.
+\t•\tAvoid arbitrary n-grams, sentence fragments, partial grammar patterns, names, titles, dates, and OCR accidents unless they are also normal dictionary entries.
+\t•\tDo not invent phrases that are not clearly supported by the OCR text or detected characters.
+\t•\tInclude only 2-, 3-, and 4-character Chinese phrases.
+\t•\tProvide pinyin with tone marks.
+\t•\tProvide a concise English meaning.
+\t•\tOutput only in this format:
+Phrase | Pinyin | Concise English meaning
+
+Apple Vision detected characters:
+{capture_chars}
+
+Apple Vision OCR text:
+{capture_text}
+
+Important:
+\t•\tDo not explain your method.
+\t•\tDo not include headings, numbering, bullets, markdown tables, or extra commentary.
+
+⸻
+
+"""
             )
         ],
         epilogue: """
-Hanzi: {char}
-- English definition: {def_en}
-"""
+        Hanzi: {char}
+        - English definition: {def_en}
+        """
     )
+
+    static var defaultSelectedTaskIDs: [String] {
+        streamlitDefault.tasks
+            .filter { $0.id != "task4" }
+            .map(\.id)
+    }
 }
 
 struct PromptRenderContext {
@@ -96,6 +138,8 @@ struct PromptRenderContext {
     let isSoundMatch: String
     let pronunciationFamily: String
     let semanticFamily: String
+    let captureCharacters: String
+    let captureText: String
 }
 
 extension PromptConfig {
@@ -109,10 +153,14 @@ extension PromptConfig {
         if cleaned.isEmpty {
             return .streamlitDefault
         }
+        let defaultsByID = Dictionary(uniqueKeysWithValues: PromptConfig.streamlitDefault.tasks.map { ($0.id, $0) })
+        let missingDefaults = PromptConfig.streamlitDefault.tasks.filter { defaultTask in
+            !seen.contains(defaultTask.id) && defaultTask.id == "task4" && defaultsByID[defaultTask.id] != nil
+        }
         return PromptConfig(
             version: version,
             preamble: preamble,
-            tasks: cleaned,
+            tasks: cleaned + missingDefaults,
             epilogue: epilogue
         )
     }
@@ -135,5 +183,7 @@ extension PromptConfig {
             .replacingOccurrences(of: "{is_sound_match}", with: context.isSoundMatch)
             .replacingOccurrences(of: "{pronunciation_family}", with: context.pronunciationFamily)
             .replacingOccurrences(of: "{semantic_family}", with: context.semanticFamily)
+            .replacingOccurrences(of: "{capture_chars}", with: context.captureCharacters)
+            .replacingOccurrences(of: "{capture_text}", with: context.captureText)
     }
 }

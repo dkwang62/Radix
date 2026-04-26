@@ -21,6 +21,14 @@ struct CharacterPreviewHeader: View {
     @State private var showPhraseTableSheet = false
     @State private var variantIndex: Int = 0
 
+    private var usesShortActionLabels: Bool {
+        #if targetEnvironment(macCatalyst)
+        return isVertical
+        #else
+        return isVertical || UIDevice.current.userInterfaceIdiom == .phone
+        #endif
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             let isInMemory = store.rootBreadcrumb.contains(character)
@@ -142,7 +150,7 @@ struct CharacterPreviewHeader: View {
             store.refreshPhrases(for: character)
             showPhraseTableSheet = true
         } label: {
-            previewActionLabel("Phrases", systemImage: "text.quote")
+            previewActionLabel(usesShortActionLabels ? "Phrase" : "Phrases", systemImage: "text.quote")
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
@@ -153,7 +161,7 @@ struct CharacterPreviewHeader: View {
         Button {
             store.goToRoots(character: character)
         } label: {
-            previewActionLabel("Roots", systemImage: "tree")
+            previewActionLabel(usesShortActionLabels ? "Root" : "Roots", systemImage: "tree")
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
@@ -164,7 +172,7 @@ struct CharacterPreviewHeader: View {
         Button {
             store.openQuickCharacterEditor(character)
         } label: {
-            previewActionLabel("Notes", systemImage: "note.text")
+            previewActionLabel(usesShortActionLabels ? "Note" : "Notes", systemImage: "note.text")
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
@@ -245,7 +253,7 @@ struct CharacterPreviewHeader: View {
         let button = Button {
             store.toggleRootBreadcrumb(character)
         } label: {
-            previewActionLabel("Memory", systemImage: isInMemory ? "bookmark.fill" : "bookmark")
+            previewActionLabel(usesShortActionLabels ? "Mem" : "Memory", systemImage: isInMemory ? "bookmark.fill" : "bookmark")
         }
 
         if isInMemory {
