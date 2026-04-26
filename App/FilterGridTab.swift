@@ -4,6 +4,9 @@ struct FilterGridTab: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.horizontalSizeClass) var sizeClass
     @State private var showBrowseFilters = false
+    @State private var showManualCollectionSheet = false
+    @State private var manualCollectionName = ""
+    @State private var manualCollectionText = ""
 
     private var isRunningOnMac: Bool {
         #if targetEnvironment(macCatalyst)
@@ -65,6 +68,8 @@ struct FilterGridTab: View {
                         )
                     }
                     #endif
+
+                    browseSubjectSection
 
                     HStack(alignment: .center, spacing: 12) {
                         Picker("Sort", selection: Binding(get: {
@@ -177,7 +182,149 @@ struct FilterGridTab: View {
             .sheet(isPresented: $showBrowseFilters) {
                 browseFiltersSheet
             }
+            .sheet(isPresented: $showManualCollectionSheet) {
+                manualCollectionSheet
+            }
         }
+    }
+
+    private var browseSubjectSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .center, spacing: 10) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(browseSubjectTitle)
+                        .font(ResponsiveFont.headline)
+                    Text(browseSubjectDetail)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                if let collection = store.selectedBrowseCollection {
+                    Button {
+                        store.toggleFavoriteCollection(id: collection.id)
+                    } label: {
+                        Image(systemName: collection.isFavorite ? "star.fill" : "star")
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityLabel(collection.isFavorite ? "Remove page from favorites" : "Favorite page")
+                }
+                collectionMenu
+                Button {
+                    showManualCollectionSheet = true
+                } label: {
+                    Label("New", systemImage: "plus")
+                }
+                .buttonStyle(.bordered)
+            }
+
+            if !store.favoriteCollections.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(store.favoriteCollections) { collection in
+                            Button {
+                                store.selectBrowseCollection(id: collection.id)
+                            } label: {
+                                Label(collection.name, systemImage: "star.fill")
+                                    .lineLimit(1)
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(10)
+        .background(Color(.secondarySystemBackground).opacity(0.65))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private var browseSubjectTitle: String {
+        if let collection = store.selectedBrowseCollection {
+            return "Page: \(collection.name) (\(collection.characters.count) characters)"
+        }
+        return "All Characters"
+    }
+
+    private var browseSubjectDetail: String {
+        if store.selectedBrowseCollection == nil {
+            return "Browse is showing the full dictionary."
+        }
+        return "Browse is limited to this page; filters still apply."
+    }
+
+    private var collectionMenu: some View {
+        Menu {
+            Button("All Characters") {
+                store.selectBrowseCollection(id: nil)
+            }
+            if !store.favoriteCollections.isEmpty {
+                Section("Favorites") {
+                    ForEach(store.favoriteCollections) { collection in
+                        Button(collection.name) {
+                            store.selectBrowseCollection(id: collection.id)
+                        }
+                    }
+                }
+            }
+            if !store.allCollections.isEmpty {
+                Section("Pages") {
+                    ForEach(store.allCollections) { collection in
+                        Button(collection.name) {
+                            store.selectBrowseCollection(id: collection.id)
+                        }
+                    }
+                }
+            }
+        } label: {
+            Label("Page", systemImage: "rectangle.stack")
+        }
+        .buttonStyle(.bordered)
+    }
+
+    private var manualCollectionSheet: some View {
+        NavigationStack {
+            Form {
+                Section("Page") {
+                    TextField("Name", text: $manualCollectionName)
+                    TextEditor(text: $manualCollectionText)
+                        .frame(minHeight: 180)
+                }
+
+                Section {
+                    Text("\(CaptureTextExtractor.uniqueCharacters(in: manualCollectionText).count) unique Chinese characters detected.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("New Page")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        showManualCollectionSheet = false
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        saveManualCollection()
+                    }
+                    .disabled(CaptureTextExtractor.uniqueCharacters(in: manualCollectionText).isEmpty)
+                }
+            }
+        }
+    }
+
+    private func saveManualCollection() {
+        guard let collection = store.createCollection(
+            name: manualCollectionName,
+            sourceText: manualCollectionText,
+            sourceType: .manual
+        ) else { return }
+        store.selectBrowseCollection(id: collection.id)
+        manualCollectionName = ""
+        manualCollectionText = ""
+        showManualCollectionSheet = false
     }
 
     private func browseSortLabel(for mode: GridSortMode) -> String {

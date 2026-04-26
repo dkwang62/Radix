@@ -11,13 +11,15 @@ struct PromptConfig: Codable, Hashable {
     var preamble: String
     var tasks: [PromptTask]
     var epilogue: String
+    var collectionPreamble: String
+    var collectionEpilogue: String
 
     static let streamlitDefault = PromptConfig(
         version: 1,
         preamble: """
 You are a bilingual Chinese dictionary editor and teacher.
 
-For character tasks, explain a single Chinese character in depth for language learners. For OCR phrase tasks, isolate useful Chinese phrases from Apple Vision output and prepare them for dictionary entry.
+Explain a single Chinese character in depth for language learners. Focus on modern usage, and if the character is rare, show its more widely used modern equivalent while noting the original character.
 
 ⸻
 
@@ -84,7 +86,7 @@ Compare this character with 2–3 other characters of similar meaning or usage, 
                 template: """
 Task 4 – Isolate Phrases from Apple Vision
 
-From the Apple Vision OCR text and detected character list below, extract useful 2-, 3-, and 4-character Chinese phrases that are found as dictionary headwords.
+From the page details below, extract useful 2-, 3-, and 4-character Chinese phrases that are found as dictionary headwords.
 
 Rules:
 \t•\tKeep the OCR text context in mind.
@@ -100,12 +102,6 @@ Rules:
 \t•\tOutput only in this format:
 Phrase | Pinyin | Concise English meaning
 
-Apple Vision detected characters:
-{capture_chars}
-
-Apple Vision OCR text:
-{capture_text}
-
 Important:
 \t•\tDo not explain your method.
 \t•\tDo not include headings, numbering, bullets, markdown tables, or extra commentary.
@@ -118,6 +114,20 @@ Important:
         epilogue: """
         Hanzi: {char}
         - English definition: {def_en}
+        """,
+        collectionPreamble: """
+        You are a bilingual Chinese dictionary editor and teacher.
+
+        Work with a page of Chinese characters extracted from OCR or manual input. Treat the page as the subject. Do not analyze one character at a time unless the task explicitly asks for it.
+
+        ⸻
+
+        """,
+        collectionEpilogue: """
+        Page: {collection_name}
+        Characters: {capture_chars}
+        OCR text/context:
+        {capture_text}
         """
     )
 
@@ -125,6 +135,44 @@ Important:
         streamlitDefault.tasks
             .filter { $0.id != "task4" }
             .map(\.id)
+    }
+
+    init(
+        version: Int,
+        preamble: String,
+        tasks: [PromptTask],
+        epilogue: String,
+        collectionPreamble: String = "",
+        collectionEpilogue: String = ""
+    ) {
+        self.version = version
+        self.preamble = preamble
+        self.tasks = tasks
+        self.epilogue = epilogue
+        self.collectionPreamble = collectionPreamble.isEmpty ? PromptConfig.defaultCollectionPreamble : collectionPreamble
+        self.collectionEpilogue = collectionEpilogue.isEmpty ? PromptConfig.defaultCollectionEpilogue : collectionEpilogue
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case version, preamble, tasks, epilogue, collectionPreamble, collectionEpilogue
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        version = try container.decode(Int.self, forKey: .version)
+        preamble = try container.decode(String.self, forKey: .preamble)
+        tasks = try container.decode([PromptTask].self, forKey: .tasks)
+        epilogue = try container.decode(String.self, forKey: .epilogue)
+        collectionPreamble = try container.decodeIfPresent(String.self, forKey: .collectionPreamble) ?? PromptConfig.defaultCollectionPreamble
+        collectionEpilogue = try container.decodeIfPresent(String.self, forKey: .collectionEpilogue) ?? PromptConfig.defaultCollectionEpilogue
+    }
+
+    private static var defaultCollectionPreamble: String {
+        streamlitDefault.collectionPreamble
+    }
+
+    private static var defaultCollectionEpilogue: String {
+        streamlitDefault.collectionEpilogue
     }
 }
 
@@ -138,6 +186,7 @@ struct PromptRenderContext {
     let isSoundMatch: String
     let pronunciationFamily: String
     let semanticFamily: String
+    let collectionName: String
     let captureCharacters: String
     let captureText: String
 }
@@ -149,6 +198,13 @@ extension PromptConfig {
             guard !$0.id.isEmpty, !seen.contains($0.id) else { return false }
             seen.insert($0.id)
             return true
+        }.map { task in
+            guard task.id == "task4",
+                  task.template.contains("{capture_chars}") || task.template.contains("{capture_text}") || task.template.contains("{collection_name}"),
+                  let defaultTask = PromptConfig.streamlitDefault.tasks.first(where: { $0.id == "task4" }) else {
+                return task
+            }
+            return PromptTask(id: task.id, title: task.title, template: defaultTask.template)
         }
         if cleaned.isEmpty {
             return .streamlitDefault
@@ -161,18 +217,34 @@ extension PromptConfig {
             version: version,
             preamble: preamble,
             tasks: cleaned + missingDefaults,
-            epilogue: epilogue
+            epilogue: epilogue,
+            collectionPreamble: pageTerminology(collectionPreamble),
+            collectionEpilogue: pageTerminology(collectionEpilogue)
         )
     }
 
-    func renderPrompt(selectedTaskIDs: [String], context: PromptRenderContext) -> String {
+    private func pageTerminology(_ text: String) -> String {
+        text
+            .replacingOccurrences(of: "Collections", with: "Pages")
+            .replacingOccurrences(of: "Collection", with: "Page")
+            .replacingOccurrences(of: "collections", with: "pages")
+            .replacingOccurrences(of: "collection", with: "page")
+    }
+
+    func renderPrompt(selectedTaskIDs: [String], context: PromptRenderContext, subject: ActiveSubject) -> String {
         let cfg = normalized()
         let selected = Set(selectedTaskIDs)
         let body = cfg.tasks
             .filter { selected.contains($0.id) }
             .map(\.template)
             .joined()
-        let full = cfg.preamble + body + cfg.epilogue
+        let full: String
+        switch subject {
+        case .character:
+            full = cfg.preamble + body + cfg.epilogue
+        case .collection:
+            full = cfg.collectionPreamble + body + cfg.collectionEpilogue
+        }
         return full
             .replacingOccurrences(of: "{char}", with: context.char)
             .replacingOccurrences(of: "{def_en}", with: context.definitionEN)
@@ -183,6 +255,7 @@ extension PromptConfig {
             .replacingOccurrences(of: "{is_sound_match}", with: context.isSoundMatch)
             .replacingOccurrences(of: "{pronunciation_family}", with: context.pronunciationFamily)
             .replacingOccurrences(of: "{semantic_family}", with: context.semanticFamily)
+            .replacingOccurrences(of: "{collection_name}", with: context.collectionName)
             .replacingOccurrences(of: "{capture_chars}", with: context.captureCharacters)
             .replacingOccurrences(of: "{capture_text}", with: context.captureText)
     }

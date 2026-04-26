@@ -328,6 +328,25 @@ final class RadixStore: ObservableObject {
             scheduleGridRecompute()
         }
     }
+    @Published var selectedBrowseCollectionID: UUID? = nil {
+        didSet {
+            guard oldValue != selectedBrowseCollectionID else { return }
+            selectedBrowseCollectionCharacters = selectedBrowseCollectionID.flatMap { collection(id: $0)?.characters }
+            if let selectedBrowseCollection {
+                activeSubject = .collection(selectedBrowseCollection)
+            } else if case .collection = activeSubject {
+                activeSubject = nil
+            }
+            gridPage = 0
+            scheduleGridRecompute()
+        }
+    }
+    @Published var selectedAICollectionID: UUID? = nil {
+        didSet {
+            guard oldValue != selectedAICollectionID else { return }
+            persistSelectedAICollection()
+        }
+    }
     @Published private(set) var gridFilteredAllCount: Int = 0
     @Published private(set) var gridFilteredComponentCount: Int = 0
     @Published var gridPage: Int = 0
@@ -371,6 +390,8 @@ final class RadixStore: ObservableObject {
     @Published private(set) var editedDictionaryCharactersSet: Set<String> = []
     @Published private(set) var changedDictionaryCharacters: [String] = []
     @Published var quickEditDestination: QuickEditDestination? = nil
+    @Published private(set) var allCollections: [CharacterCollection] = []
+    @Published var activeSubject: ActiveSubject? = nil
     
     // MARK: - iPhone UI State
     @Published var showiPhoneDetail: Bool = false
@@ -395,6 +416,8 @@ final class RadixStore: ObservableObject {
     private let speakOnPreviewKey = "radix.speakOnPreview"
     private let promptConfigKey = "radix.promptConfig"
     private let promptTaskSelectionKey = "radix.promptSelectedTaskIDs"
+    private let collectionsKey = "radix.characterCollections"
+    private let selectedAICollectionKey = "radix.selectedAICollectionID"
     private let lastPreviewCharacterKey = "radix.lastPreviewCharacter"
     private let searchHistoryKey = "radix.searchHistory"
     private let rootBreadcrumbKey = "radix.rootBreadcrumb"
@@ -403,6 +426,7 @@ final class RadixStore: ObservableObject {
     private var pendingGridRecomputeWorkItem: DispatchWorkItem?
     private var isApplyingDatasetEntry = false
     private var allCharactersCache: [ComponentItem] = []
+    private var selectedBrowseCollectionCharacters: Set<String>? = nil
     private var phraseCache: [String: [PhraseItem]] = [:]
     private var lastPreviewTap: (character: String, time: Date)?
     var suppressHelpReset = false
@@ -450,6 +474,7 @@ final class RadixStore: ObservableObject {
         if promptSelectedTaskIDs.isEmpty {
             promptSelectedTaskIDs = PromptConfig.defaultSelectedTaskIDs
         }
+        loadCollections()
         loadFavorites()
         loadSearchHistory()
         loadRootBreadcrumb()
@@ -578,6 +603,7 @@ final class RadixStore: ObservableObject {
     func select(character: String, announce: Bool = true) {
         let trimmedCharacter = character.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedCharacter.count == 1 else { return }
+        activeSubject = .character(trimmedCharacter)
 
         if route == .capture {
             previewCharacter = trimmedCharacter
@@ -656,6 +682,7 @@ final class RadixStore: ObservableObject {
     }
 
     func preview(character: String, announce: Bool = true) {
+        activeSubject = .character(character)
         if route == .capture {
             previewCharacter = character
             refreshPhrases(for: character)
@@ -778,10 +805,29 @@ final class RadixStore: ObservableObject {
     }
 
     func goToAILinkTask4FromCapture(characters: [String]) {
-        let target = characters.first ?? previewCharacter ?? selectedCharacter
-        if let target {
+        let validText = characters.joined()
+        if let collection = createCollection(name: "Apple Vision Page", sourceText: validText, sourceType: .ocr) {
+            goToAILinkTask4(collection: collection)
+            return
+        }
+        if let target = characters.first ?? previewCharacter ?? selectedCharacter {
             select(character: target, announce: false)
         }
+        promptSelectedTaskIDs = ["task4"]
+        shouldAutoOpenAILinkTask4 = true
+        route = .aiLink
+        #if !targetEnvironment(macCatalyst)
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            showiPhoneDetail = false
+        }
+        #endif
+        persistPromptSettings()
+    }
+
+    func goToAILinkTask4(collection: CharacterCollection) {
+        selectedAICollectionID = collection.id
+        selectedBrowseCollectionID = collection.id
+        selectedBrowseCollectionCharacters = collection.characters
         promptSelectedTaskIDs = ["task4"]
         shouldAutoOpenAILinkTask4 = true
         route = .aiLink
@@ -1740,6 +1786,9 @@ final class RadixStore: ObservableObject {
         let lower = min(strokeMinFilter, strokeMaxFilter)
         let upper = max(strokeMinFilter, strokeMaxFilter)
         var items = allCharactersCache
+        if let collectionCharacters = selectedBrowseCollectionCharacters {
+            items = items.filter { collectionCharacters.contains($0.character) }
+        }
         items = items.filter { item in
             let strokeValue = item.strokes ?? 999
             let strokeMatch = strokeValue >= lower && strokeValue <= upper
@@ -1858,6 +1907,142 @@ final class RadixStore: ObservableObject {
         lineagePage -= 1
     }
 
+    // MARK: - Collections
+    var favoriteCollections: [CharacterCollection] {
+        allCollections.filter(\.isFavorite)
+    }
+
+    var selectedBrowseCollection: CharacterCollection? {
+        selectedBrowseCollectionID.flatMap { collection(id: $0) }
+    }
+
+    var selectedAICollection: CharacterCollection? {
+        selectedAICollectionID.flatMap { collection(id: $0) }
+    }
+
+    @discardableResult
+    func createCollection(name: String, sourceText: String, sourceType: CollectionSourceType) -> CharacterCollection? {
+        let characters = Set(CaptureTextExtractor.uniqueCharacters(in: sourceText).filter { componentRepo.hasCharacter($0) })
+        guard !characters.isEmpty else { return nil }
+        let fallbackName: String = {
+            switch sourceType {
+            case .ocr: return "OCR Page"
+            case .manual: return "Manual Page"
+            case .imported: return "Imported Page"
+            case .other: return "Page"
+            }
+        }()
+        let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let collection = CharacterCollection(
+            id: UUID(),
+            name: cleanName.isEmpty ? fallbackName : cleanName,
+            characters: characters,
+            createdAt: Date(),
+            sourceType: sourceType,
+            isFavorite: false
+        )
+        saveCollection(collection)
+        return collection
+    }
+
+    func saveCollection(_ collection: CharacterCollection) {
+        if let index = allCollections.firstIndex(where: { $0.id == collection.id }) {
+            allCollections[index] = collection
+        } else {
+            allCollections.append(collection)
+        }
+        sortCollections()
+        if selectedBrowseCollectionID == collection.id {
+            selectedBrowseCollectionCharacters = collection.characters
+            activeSubject = .collection(collection)
+        }
+        persistCollections()
+    }
+
+    func deleteCollection(id: UUID) {
+        allCollections.removeAll { $0.id == id }
+        if selectedBrowseCollectionID == id {
+            selectedBrowseCollectionID = nil
+            selectedBrowseCollectionCharacters = nil
+        }
+        if selectedAICollectionID == id {
+            selectedAICollectionID = nil
+        }
+        persistCollections()
+    }
+
+    func renameCollection(id: UUID, newName: String) {
+        guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return }
+        let cleanName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanName.isEmpty else { return }
+        allCollections[index].name = cleanName
+        saveCollection(allCollections[index])
+    }
+
+    func toggleFavoriteCollection(id: UUID) {
+        guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return }
+        allCollections[index].isFavorite.toggle()
+        saveCollection(allCollections[index])
+    }
+
+    func collection(id: UUID) -> CharacterCollection? {
+        allCollections.first { $0.id == id }
+    }
+
+    func selectBrowseCollection(id: UUID?) {
+        selectedBrowseCollectionID = id
+        if let id {
+            selectedAICollectionID = id
+        }
+    }
+
+    func selectAICollection(id: UUID?) {
+        selectedAICollectionID = id
+    }
+
+    private func sortCollections() {
+        allCollections.sort {
+            if $0.isFavorite != $1.isFavorite { return $0.isFavorite && !$1.isFavorite }
+            if $0.createdAt != $1.createdAt { return $0.createdAt > $1.createdAt }
+            return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+        }
+    }
+
+    private func loadCollections() {
+        guard let data = UserDefaults.standard.data(forKey: collectionsKey),
+              let decoded = try? JSONDecoder().decode([CharacterCollection].self, from: data) else {
+            allCollections = []
+            return
+        }
+        allCollections = decoded.map { collection in
+            var copy = collection
+            copy.characters = Set(collection.characters.filter { componentRepo.hasCharacter($0) })
+            return copy
+        }.filter { !$0.characters.isEmpty }
+        sortCollections()
+        if let saved = UserDefaults.standard.string(forKey: selectedAICollectionKey),
+           let id = UUID(uuidString: saved),
+           collection(id: id) != nil {
+            selectedAICollectionID = id
+        } else {
+            selectedAICollectionID = nil
+        }
+    }
+
+    private func persistCollections() {
+        if let data = try? JSONEncoder().encode(allCollections) {
+            UserDefaults.standard.set(data, forKey: collectionsKey)
+        }
+    }
+
+    private func persistSelectedAICollection() {
+        if let selectedAICollectionID {
+            UserDefaults.standard.set(selectedAICollectionID.uuidString, forKey: selectedAICollectionKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: selectedAICollectionKey)
+        }
+    }
+
     // MARK: - AI Template Persistence
     func selectAllPromptTasks() {
         promptSelectedTaskIDs = promptConfig.tasks.map(\.id)
@@ -1869,6 +2054,14 @@ final class RadixStore: ObservableObject {
     }
     func setPromptEpilogue(_ value: String) {
         promptConfig.epilogue = value
+        persistPromptSettings()
+    }
+    func setCollectionPromptPreamble(_ value: String) {
+        promptConfig.collectionPreamble = value
+        persistPromptSettings()
+    }
+    func setCollectionPromptEpilogue(_ value: String) {
+        promptConfig.collectionEpilogue = value
         persistPromptSettings()
     }
     func setPromptTaskTitle(taskID: String, title: String) {
@@ -1913,13 +2106,83 @@ final class RadixStore: ObservableObject {
         persistPromptSettings()
     }
 
+    func promptForTask(_ task: PromptTask, subject: ActiveSubject) -> String {
+        let config = PromptConfig(
+            version: promptConfig.version,
+            preamble: promptConfig.preamble,
+            tasks: [task],
+            epilogue: promptConfig.epilogue,
+            collectionPreamble: promptConfig.collectionPreamble,
+            collectionEpilogue: promptConfig.collectionEpilogue
+        )
+        return config.renderPrompt(selectedTaskIDs: [task.id], context: promptRenderContext(for: subject), subject: subject)
+    }
+
+    func promptText(for subject: ActiveSubject) -> String {
+        promptConfig.renderPrompt(selectedTaskIDs: promptSelectedTaskIDs, context: promptRenderContext(for: subject), subject: subject)
+    }
+
+    func promptText(character: String?, collection: CharacterCollection?) -> String {
+        let selectedIDs = Set(promptSelectedTaskIDs)
+        let selectedTasks = promptConfig.normalized().tasks.filter { selectedIDs.contains($0.id) }
+        let characterTaskIDs = selectedTasks.filter { $0.id != "task4" }.map(\.id)
+        let collectionTaskIDs = selectedTasks.filter { $0.id == "task4" }.map(\.id)
+        var sections: [String] = []
+
+        if !characterTaskIDs.isEmpty, let character {
+            sections.append(promptConfig.renderPrompt(
+                selectedTaskIDs: characterTaskIDs,
+                context: promptRenderContext(for: .character(character)),
+                subject: .character(character)
+            ))
+        }
+
+        if !collectionTaskIDs.isEmpty, let collection {
+            sections.append(promptConfig.renderPrompt(
+                selectedTaskIDs: collectionTaskIDs,
+                context: promptRenderContext(for: .collection(collection)),
+                subject: .collection(collection)
+            ))
+        }
+
+        return sections.joined(separator: "\n\n")
+    }
+
     func promptText(for character: String) -> String {
-        let char = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        promptText(for: .character(character))
+    }
+
+    private func promptRenderContext(for subject: ActiveSubject) -> PromptRenderContext {
+        let char: String
+        let collectionName: String
+        let collectionCharacters: String
+        let collectionCharacterSet: Set<String>?
+        switch subject {
+        case .character(let character):
+            char = character.trimmingCharacters(in: .whitespacesAndNewlines)
+            collectionName = ""
+            collectionCharacters = ""
+            collectionCharacterSet = nil
+        case .collection(let collection):
+            char = collection.characters.sorted().first ?? ""
+            collectionName = collection.name
+            collectionCharacters = collection.characters.sorted().joined(separator: " ")
+            collectionCharacterSet = collection.characters
+        }
         let item = componentRepo.byCharacter[char]
         let analysis = componentRepo.analyzeStructure(for: char)
         let pFamily = componentRepo.pronunciationFamily(for: char)
         let sFamily = componentRepo.semanticFamily(for: char)
-        let context = PromptRenderContext(
+        let rawCaptureText = activeCaptureDraft.rawText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let captureText: String = {
+            guard let collectionCharacterSet else { return rawCaptureText }
+            let rawCharacters = Set(CaptureTextExtractor.uniqueCharacters(in: rawCaptureText))
+            if !rawCharacters.isEmpty && rawCharacters == collectionCharacterSet {
+                return ""
+            }
+            return rawCaptureText
+        }()
+        return PromptRenderContext(
             char: char,
             definitionEN: item?.definition ?? "",
             decomposition: item?.decomposition.isEmpty == false ? (item?.decomposition ?? "") : "None",
@@ -1929,10 +2192,10 @@ final class RadixStore: ObservableObject {
             isSoundMatch: String(analysis?.isSoundMatch ?? false),
             pronunciationFamily: pFamily.isEmpty ? "None" : pFamily.joined(separator: ", "),
             semanticFamily: sFamily.isEmpty ? "None" : sFamily.joined(separator: ", "),
-            captureCharacters: CaptureTextExtractor.uniqueCharacters(in: activeCaptureDraft.charactersText).joined(separator: " "),
-            captureText: activeCaptureDraft.rawText.trimmingCharacters(in: .whitespacesAndNewlines)
+            collectionName: collectionName,
+            captureCharacters: collectionCharacters.isEmpty ? CaptureTextExtractor.uniqueCharacters(in: activeCaptureDraft.charactersText).joined(separator: " ") : collectionCharacters,
+            captureText: captureText
         )
-        return promptConfig.renderPrompt(selectedTaskIDs: promptSelectedTaskIDs, context: context)
     }
 
     // MARK: - Private Utilities

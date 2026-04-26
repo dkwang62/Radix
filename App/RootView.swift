@@ -214,11 +214,13 @@ struct RootView: View {
                         if let current = store.previewCharacter,
                            let item = store.item(for: current) {
                             AILinkView(item: item)
+                        } else if store.selectedAICollection != nil {
+                            AILinkView(item: nil)
                         } else {
                             emptyStateCard(
                                 systemImage: "sparkles",
-                                title: "No Character",
-                                message: "Choose a character from Search or Browse to use AI Link."
+                                title: "No Subject",
+                                message: "Choose a character for Tasks 1-3 or a page for Task 4."
                             )
                         }
                     case 5:
@@ -382,11 +384,13 @@ struct RootView: View {
                     if let current = store.previewCharacter ?? store.selectedCharacter,
                        let item = store.item(for: current) {
                         AILinkView(item: item)
+                    } else if store.selectedAICollection != nil {
+                        AILinkView(item: nil)
                     } else {
                         emptyStateCard(
                             systemImage: "sparkles",
-                            title: "No Character",
-                            message: "Choose a character from Search or Browse to use AI Link."
+                            title: "No Subject",
+                            message: "Choose a character for Tasks 1-3 or a page for Task 4."
                         )
                     }
                 }
@@ -495,9 +499,60 @@ struct RootView: View {
                     }
                 }
 
+                sidebarAICollectionSelector
+
             }
             .padding(8) // Reduced from 12
         }
+    }
+
+    private var sidebarAICollectionSelector: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label("Task 4 Page", systemImage: "rectangle.stack")
+                .font(ResponsiveFont.caption.bold())
+                .foregroundStyle(.secondary)
+
+            Text(store.selectedAICollection.map { "\($0.name) (\($0.characters.count))" } ?? "No page selected")
+                .font(ResponsiveFont.caption)
+                .lineLimit(2)
+                .foregroundStyle(store.selectedAICollection == nil ? .secondary : .primary)
+
+            Menu {
+                Button("No Page") {
+                    store.selectAICollection(id: nil)
+                }
+                if !store.favoriteCollections.isEmpty {
+                    Section("Favorites") {
+                        ForEach(store.favoriteCollections) { collection in
+                            Button(collection.name) {
+                                store.selectAICollection(id: collection.id)
+                            }
+                        }
+                    }
+                }
+                if !store.allCollections.isEmpty {
+                    Section("Pages") {
+                        ForEach(store.allCollections) { collection in
+                            Button(collection.name) {
+                                store.selectAICollection(id: collection.id)
+                            }
+                        }
+                    }
+                }
+            } label: {
+                Label("Select Page", systemImage: "line.3.horizontal.decrease.circle")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+        }
+        .padding(8)
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color(.separator), lineWidth: 0.5)
+        )
     }
 
     private func sidebarIconButton(

@@ -1076,7 +1076,7 @@ struct DataEditTab: View {
             .foregroundStyle(Color.accentColor)
             
             VStack(alignment: .leading, spacing: 12) {
-                Text("Prompt Preamble")
+                Text("Character System Preamble")
                     .font(ResponsiveFont.caption.bold())
                 TextEditor(text: Binding(
                     get: { store.promptConfig.preamble },
@@ -1084,6 +1084,42 @@ struct DataEditTab: View {
                 ))
                 .font(ResponsiveFont.body)
                 .frame(height: 120)
+                .padding(6)
+                .background(Color(.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                Text("Character System Epilogue")
+                    .font(ResponsiveFont.caption.bold())
+                TextEditor(text: Binding(
+                    get: { store.promptConfig.epilogue },
+                    set: { store.setPromptEpilogue($0) }
+                ))
+                .font(ResponsiveFont.body)
+                .frame(height: 100)
+                .padding(6)
+                .background(Color(.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                Text("Page System Preamble")
+                    .font(ResponsiveFont.caption.bold())
+                TextEditor(text: Binding(
+                    get: { store.promptConfig.collectionPreamble },
+                    set: { store.setCollectionPromptPreamble($0) }
+                ))
+                .font(ResponsiveFont.body)
+                .frame(height: 120)
+                .padding(6)
+                .background(Color(.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                Text("Page System Epilogue")
+                    .font(ResponsiveFont.caption.bold())
+                TextEditor(text: Binding(
+                    get: { store.promptConfig.collectionEpilogue },
+                    set: { store.setCollectionPromptEpilogue($0) }
+                ))
+                .font(ResponsiveFont.body)
+                .frame(height: 100)
                 .padding(6)
                 .background(Color(.systemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 8))

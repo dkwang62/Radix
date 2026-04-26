@@ -42,6 +42,27 @@ struct ComponentItem: Identifiable, Hashable {
     }
 }
 
+struct CharacterCollection: Identifiable, Codable, Equatable, Hashable {
+    let id: UUID
+    var name: String
+    var characters: Set<String>
+    var createdAt: Date
+    var sourceType: CollectionSourceType
+    var isFavorite: Bool
+}
+
+enum CollectionSourceType: String, Codable, Hashable {
+    case ocr
+    case manual
+    case imported
+    case other
+}
+
+enum ActiveSubject: Equatable {
+    case character(String)
+    case collection(CharacterCollection)
+}
+
 struct RawComponentEntry: Codable, Equatable {
     let relatedCharacters: [String]
     let meta: RawMeta

@@ -26,6 +26,8 @@ struct CaptureTab: View {
     @State private var phraseMode: CapturePhraseMode = .apple
     @State private var parserSource: PhraseParserSource = .appleCandidates
     @State private var parserInputPhrases: [String] = []
+    @State private var showOCRCollectionSheet = false
+    @State private var ocrCollectionName = ""
 
     private var characters: [String] {
         CaptureTextExtractor.uniqueCharacters(in: store.activeCaptureDraft.charactersText)
@@ -166,6 +168,9 @@ struct CaptureTab: View {
                 Task { await recognize(image) }
             }
         }
+        .sheet(isPresented: $showOCRCollectionSheet) {
+            ocrCollectionSheet
+        }
     }
 
     private var header: some View {
@@ -209,6 +214,49 @@ struct CaptureTab: View {
         #else
         return "Files"
         #endif
+    }
+
+    private var defaultOCRCollectionName: String {
+        "OCR Page \(Date().formatted(date: .numeric, time: .shortened))"
+    }
+
+    private var ocrCollectionSheet: some View {
+        NavigationStack {
+            Form {
+                Section("Page") {
+                    TextField("Name", text: $ocrCollectionName)
+                    Text("\(characters.count) unique Chinese characters will be saved.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("Save Page")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        showOCRCollectionSheet = false
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        saveOCRCollection()
+                    }
+                    .disabled(characters.isEmpty)
+                }
+            }
+        }
+    }
+
+    private func saveOCRCollection() {
+        guard let collection = store.createCollection(
+            name: ocrCollectionName,
+            sourceText: store.activeCaptureDraft.charactersText,
+            sourceType: .ocr
+        ) else { return }
+        store.selectBrowseCollection(id: collection.id)
+        statusMessage = "Saved \(collection.name) with \(collection.characters.count) characters."
+        showOCRCollectionSheet = false
     }
 
     private var emptyState: some View {
@@ -268,6 +316,13 @@ struct CaptureTab: View {
                             store.pushRootBreadcrumb(character)
                         }
                         statusMessage = "Characters added to Remembered."
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(characters.isEmpty)
+
+                    Button("Save Page") {
+                        ocrCollectionName = defaultOCRCollectionName
+                        showOCRCollectionSheet = true
                     }
                     .buttonStyle(.bordered)
                     .disabled(characters.isEmpty)
@@ -829,8 +884,17 @@ struct CaptureTab: View {
     }
 
     private func openAILinkTask4() {
-        store.goToAILinkTask4FromCapture(characters: characters)
-        statusMessage = "AI Link Task 4 opened. ChatGPT will receive the Apple Vision characters."
+        if let collection = store.createCollection(
+            name: defaultOCRCollectionName,
+            sourceText: store.activeCaptureDraft.charactersText,
+            sourceType: .ocr
+        ) {
+            store.goToAILinkTask4(collection: collection)
+            statusMessage = "AI Link Task 4 opened with \(collection.name)."
+        } else {
+            store.goToAILinkTask4FromCapture(characters: characters)
+            statusMessage = "AI Link Task 4 opened. ChatGPT will receive the Apple Vision characters."
+        }
     }
 
     private func startChatGPTPhraseDiscovery() {
