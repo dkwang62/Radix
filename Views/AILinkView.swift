@@ -235,6 +235,9 @@ struct AILinkView: View {
                         Text("Character and page prompts use different system text, so Task 4 is not wrapped in single-character wording.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
+                        Text(store.promptAutosaveStatus)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
                     }
 
                     Divider()
@@ -381,9 +384,22 @@ struct AILinkView: View {
         VStack(alignment: .leading, spacing: 8) {
             promptActions
 
-            Text("Generated Prompt")
-                .font(ResponsiveFont.subheadline)
-                .foregroundStyle(.secondary)
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text("Generated Prompt")
+                    .font(ResponsiveFont.subheadline)
+                    .foregroundStyle(.secondary)
+
+                if let promptContextLine {
+                    Text(promptContextLine)
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color(.tertiarySystemBackground))
+                        .clipShape(Capsule())
+                }
+            }
             
             ScrollView {
                 Text(generatedPromptText)
@@ -443,6 +459,28 @@ struct AILinkView: View {
         }
         let text = store.promptText(character: selectedCharacter, collection: selectedCollection)
         return text.isEmpty ? "Choose at least one AI task." : text
+    }
+
+    private var promptContextLine: String? {
+        var parts: [String] = []
+
+        if hasCharacterTasks {
+            if let selectedCharacter {
+                parts.append("Tasks 1-3: \(selectedCharacter)")
+            } else {
+                parts.append("Tasks 1-3: no character")
+            }
+        }
+
+        if hasCollectionTasks {
+            if let selectedCollection {
+                parts.append("Task 4: \(selectedCollection.name)")
+            } else {
+                parts.append("Task 4: no page")
+            }
+        }
+
+        return parts.isEmpty ? nil : parts.joined(separator: " • ")
     }
 
     private func openPromptInChatGPT() {

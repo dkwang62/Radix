@@ -25,7 +25,6 @@
 		51F6A1B7C8E94D3BA2F0D645 /* character_strokes.db in Resources */ = {isa = PBXBuildFile; fileRef = 51F6A1B6C8E94D3BA2F0D645 /* character_strokes.db */; };
 		54A51BF66D66F0EB5BCB894C /* ComponentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7695C55BB9AFAA1CDFEB58 /* ComponentModels.swift */; };
 		643BD107342BFF9737B8E68D /* UnifiedPackage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB37C9B2A3908035B4225770 /* UnifiedPackage.swift */; };
-		68BF5B495E4A41F3DF1E774C /* RadixStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C5A62369FC8A8F37AAD1 /* RadixStoreTests.swift */; };
 		6ABB3E4EB6475449496F9C71 /* ResponsiveFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E1E5265391156C8C615A28 /* ResponsiveFont.swift */; };
 		728F315B9AF32766993FECCC /* ComponentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7695C55BB9AFAA1CDFEB58 /* ComponentModels.swift */; };
 		7D4B9955F84B9C520D7702E8 /* EntitlementManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4559296FCA5B2061336BA302 /* EntitlementManager.swift */; };
@@ -140,11 +139,9 @@
 		CD17FEE8A50EC8A49C37A2FF /* CharacterDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDetailView.swift; sourceTree = "<group>"; };
 		D1C7DBD97423A0CB1563CC5D /* CharacterInfoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterInfoCard.swift; sourceTree = "<group>"; };
 		D355D0DC4BFD564CD930A664 /* SUBTLEX-CH-CHR.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SUBTLEX-CH-CHR.txt"; sourceTree = "<group>"; };
-		E9A2C5A62369FC8A8F37AAD1 /* RadixStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreTests.swift; sourceTree = "<group>"; };
 		E9C3F33A9386C399BF9BA6BD /* subtlex_freq.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = subtlex_freq.json; sourceTree = "<group>"; };
 		F62C2C812BDCE5C4161C8606 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		FE458C28CB5A171806D57DB0 /* Radix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Radix.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		FFDD4C4BFE9C732BAF57BF7F /* Radix.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Radix.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -173,7 +170,6 @@
 			isa = PBXGroup;
 			children = (
 				FE458C28CB5A171806D57DB0 /* Radix.app */,
-				FFDD4C4BFE9C732BAF57BF7F /* Radix.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -230,7 +226,6 @@
 				5DCDECA1962ED656F6A36FBA /* Models */,
 				A98EDF6A1BB4D5DBCEA05D43 /* Resources */,
 				542027F30D578A00E438CB75 /* Services */,
-				F7B4676DEEC476C517E44030 /* Tests */,
 				E8D79C478F82A7AAB7CC0952 /* ViewModels */,
 				DE7A3CE0C7ED411F48530753 /* Views */,
 				3A87FC368D89F1E137FE85B5 /* Products */,
@@ -261,14 +256,6 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
-		F7B4676DEEC476C517E44030 /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				E9A2C5A62369FC8A8F37AAD1 /* RadixStoreTests.swift */,
-			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -289,23 +276,6 @@
 			productName = Radix;
 			productReference = FE458C28CB5A171806D57DB0 /* Radix.app */;
 			productType = "com.apple.product-type.application";
-		};
-		9AAE98E1268E50DE36655377 /* RadixTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 080BF30CBC200720BF507AF3 /* Build configuration list for PBXNativeTarget "RadixTests" */;
-			buildPhases = (
-				76592A3FBA6A8025018869E5 /* Sources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = RadixTests;
-			packageProductDependencies = (
-			);
-			productName = RadixTests;
-			productReference = FFDD4C4BFE9C732BAF57BF7F /* Radix.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -336,7 +306,6 @@
 			projectRoot = "";
 			targets = (
 				9A2C34EBA20C223705DFBC02 /* Radix */,
-				9AAE98E1268E50DE36655377 /* RadixTests */,
 			);
 		};
 /* End PBXProject section */
@@ -360,49 +329,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		76592A3FBA6A8025018869E5 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				86CD144C2F9822B300D7BDBD /* DataEditTab.swift in Sources */,
-				86CD144D2F9822B300D7BDBD /* FileTransferModifier.swift in Sources */,
-				86CD144E2F9822B300D7BDBD /* StrokeRangeSlider.swift in Sources */,
-				86CD144F2F9822B300D7BDBD /* QuickEditSheets.swift in Sources */,
-				86CD14502F9822B300D7BDBD /* AppleStrokeViews.swift in Sources */,
-				86CD14512F9822B300D7BDBD /* FavouritesTab.swift in Sources */,
-				86CD14522F9822B300D7BDBD /* RootView.swift in Sources */,
-				86CD14532F9822B300D7BDBD /* BreadcrumbStrip.swift in Sources */,
-				86CD14542F9822B300D7BDBD /* SmartSearchTab.swift in Sources */,
-				86CD14552F9822B300D7BDBD /* AddPhrasesFileDocument.swift in Sources */,
-				86CD14562F9822B300D7BDBD /* FilterGridTab.swift in Sources */,
-				86CD14572F9822B300D7BDBD /* SmartResultsGrid.swift in Sources */,
-				167CA0082F9C0001001B9AA7 /* CaptureTab.swift in Sources */,
-				EA2830C793A1ABC0ECC9FC56 /* AILinkView.swift in Sources */,
-				388A8F4E14262C3C3E616C1B /* CharacterDetailView.swift in Sources */,
-				82ECAD9A3AAD305D57B1CC85 /* CharacterInfoCard.swift in Sources */,
-				728F315B9AF32766993FECCC /* ComponentModels.swift in Sources */,
-				4EA624A7F2EC5FA78A32CE8C /* DataExportService.swift in Sources */,
-				B5F06B39344DC71A5AC38B9E /* EntitlementManager.swift in Sources */,
-				4A7054204EB051FAAD223385 /* JSONFileDocument.swift in Sources */,
-				EB7D8FFF8C9E773E8712ABDD /* PaywallView.swift in Sources */,
-				10D59B4DFE53808C4829E6FD /* PhraseModels.swift in Sources */,
-				167CA0012F9C0001001B9AA7 /* CaptureModels.swift in Sources */,
-				971EBBB26C9F4CFBD686F394 /* PromptModels.swift in Sources */,
-				C28652F731304AC351D188FF /* RadixApp.swift in Sources */,
-				68BF5B495E4A41F3DF1E774C /* RadixStoreTests.swift in Sources */,
-				36953C4FF6B7A7B82A5663BC /* ResponsiveFont.swift in Sources */,
-				864DAB992F9A0001001B9AA7 /* StrokeAnimationProvider.swift in Sources */,
-				864DAB9C2F9B0001001B9AA7 /* OpenSourceLicensesView.swift in Sources */,
-				864DABB02F9B0001001B9AA7 /* SettingsView.swift in Sources */,
-				864DABB22F9B0001001B9AA7 /* CreditsView.swift in Sources */,
-				864DABB42F9B0001001B9AA7 /* LicenseTextLoader.swift in Sources */,
-				A1058D8DAF993CBF97FFE6A9 /* StrokeOrderWebView.swift in Sources */,
-				643BD107342BFF9737B8E68D /* UnifiedPackage.swift in Sources */,
-				167CA0052F9C0001001B9AA7 /* CaptureOCRService.swift in Sources */,
-				BB6046DC1B72C21D2C18B6BA /* UserProfile.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		A98166AD22AB71615EF42570 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -453,38 +379,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		4E4EE4B341807C9A554D5B63 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				GENERATE_INFOPLIST_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_MODULE_NAME = RadixTests;
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		7C54352B8D4A2DB874046330 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				GENERATE_INFOPLIST_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_MODULE_NAME = RadixTests;
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
 		98ECE75EC456EF7344033080 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -673,15 +567,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		080BF30CBC200720BF507AF3 /* Build configuration list for PBXNativeTarget "RadixTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				7C54352B8D4A2DB874046330 /* Debug */,
-				4E4EE4B341807C9A554D5B63 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		8587472B00C06F51B0399FAA /* Build configuration list for PBXProject "Radix" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

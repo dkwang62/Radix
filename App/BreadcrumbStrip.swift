@@ -8,11 +8,7 @@ struct BreadcrumbStrip: View {
     @EnvironmentObject private var store: RadixStore
 
     private var memoryLabel: String {
-        #if targetEnvironment(macCatalyst)
         return "Memory"
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone ? "Mem" : "Memory"
-        #endif
     }
 
     private var activeCharacter: String? {

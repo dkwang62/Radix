@@ -8,7 +8,7 @@ import UniformTypeIdentifiers
  It implements a NavigationSplitView (Sidebar + Detail) pattern.
  
  RESPONSIBILITIES:
- 1. Sidebar: Primary navigation (Search, Browse, Favourites, Lineage, AI, DataEdit).
+ 1. Sidebar: Primary navigation (Search, Browse, Favorites, Lineage, AI, DataEdit).
  2. Detail Pane: Dynamic view switching based on 'RadixStore.route'.
  3. Global Sheets: Manages Paywalls, Lineage Explorers, and Data Transfer Alerts.
  4. File Lifecycle: Handles JSON Export/Import via system file pickers.
@@ -172,7 +172,7 @@ struct RootView: View {
             case 0: return "Camera"
             case 1: return "Search"
             case 2: return "Browse"
-            case 3: return "Favourites"
+            case 3: return "Favorites"
             case 4: return "AI"
             case 5: return "My Data"
             default: return "Radix"
@@ -442,7 +442,7 @@ struct RootView: View {
                         store.goToBrowse()
                     }
                     sidebarIconButton(
-                        title: "Favourites",
+                        title: "Favorites",
                         systemImage: "star",
                         isActive: store.route == .search && store.homeTab == .favourites
                     ) {
@@ -498,61 +498,9 @@ struct RootView: View {
                        }
                     }
                 }
-
-                sidebarAICollectionSelector
-
             }
             .padding(8) // Reduced from 12
         }
-    }
-
-    private var sidebarAICollectionSelector: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Task 4 Page", systemImage: "rectangle.stack")
-                .font(ResponsiveFont.caption.bold())
-                .foregroundStyle(.secondary)
-
-            Text(store.selectedAICollection.map { "\($0.name) (\($0.characters.count))" } ?? "No page selected")
-                .font(ResponsiveFont.caption)
-                .lineLimit(2)
-                .foregroundStyle(store.selectedAICollection == nil ? .secondary : .primary)
-
-            Menu {
-                Button("No Page") {
-                    store.selectAICollection(id: nil)
-                }
-                if !store.favoriteCollections.isEmpty {
-                    Section("Favorites") {
-                        ForEach(store.favoriteCollections) { collection in
-                            Button(collection.name) {
-                                store.selectAICollection(id: collection.id)
-                            }
-                        }
-                    }
-                }
-                if !store.allCollections.isEmpty {
-                    Section("Pages") {
-                        ForEach(store.allCollections) { collection in
-                            Button(collection.name) {
-                                store.selectAICollection(id: collection.id)
-                            }
-                        }
-                    }
-                }
-            } label: {
-                Label("Select Page", systemImage: "line.3.horizontal.decrease.circle")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-        }
-        .padding(8)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(.separator), lineWidth: 0.5)
-        )
     }
 
     private func sidebarIconButton(

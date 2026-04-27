@@ -103,7 +103,7 @@ struct CaptureTab: View {
 
                     #if !targetEnvironment(macCatalyst)
                     if UIDevice.current.userInterfaceIdiom == .phone,
-                       let current = captureDetailPreviewCharacter ?? capturePreviewCharacter,
+                       let current = captureDetailPreviewCharacter ?? capturePreviewCharacter ?? store.previewCharacter,
                        store.item(for: current) != nil {
                         standardPhoneCharacterPreview(
                             character: current,

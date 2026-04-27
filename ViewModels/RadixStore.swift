@@ -392,6 +392,7 @@ final class RadixStore: ObservableObject {
     @Published var quickEditDestination: QuickEditDestination? = nil
     @Published private(set) var allCollections: [CharacterCollection] = []
     @Published var activeSubject: ActiveSubject? = nil
+    @Published private(set) var promptAutosaveStatus: String = "Changes save automatically."
     
     // MARK: - iPhone UI State
     @Published var showiPhoneDetail: Bool = false
@@ -1559,7 +1560,9 @@ final class RadixStore: ObservableObject {
             dictionaryOverlay: nil,
             dictionaryPatchOverlay: componentRepo.overlayPatchPackage(),
             phrases: phraseRepo.fetchAddedPhrases(),
-            profile: currentUserProfile()
+            profile: currentUserProfile(),
+            collections: allCollections,
+            selectedAICollectionID: selectedAICollectionID
         )
     }
 
@@ -1630,6 +1633,7 @@ final class RadixStore: ObservableObject {
                 persistOverlayAddedDates()
                 // Phrases: insert only words not already in the add-DB.
                 try phraseRepo.addPhrasesAdditively(uniquePhrases(package.phrases))
+                mergeImportedCollections(package.collections, selectedAICollectionID: package.selectedAICollectionID)
                 // Additive applies only to dictionary and phrases; profile state restores as the migrated device state.
                 applyImportedProfile(package.profile, mode: .additive)
 
@@ -1644,6 +1648,7 @@ final class RadixStore: ObservableObject {
                 persistOverlayAddedDates()
                 // Phrases: replace the add-DB entirely with backup contents.
                 try phraseRepo.replaceAllPhrases(uniquePhrases(package.phrases))
+                replaceCollections(with: package.collections, selectedAICollectionID: package.selectedAICollectionID)
                 // Profile: replace everything — favourites, settings, templates.
                 applyImportedProfile(package.profile, mode: .complete)
             }
@@ -1977,6 +1982,22 @@ final class RadixStore: ObservableObject {
         guard !cleanName.isEmpty else { return }
         allCollections[index].name = cleanName
         saveCollection(allCollections[index])
+    }
+
+    @discardableResult
+    func updateCollection(id: UUID, newName: String, sourceText: String) -> CharacterCollection? {
+        guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return nil }
+        let cleanName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanName.isEmpty else { return nil }
+
+        let characters = Set(CaptureTextExtractor.uniqueCharacters(in: sourceText).filter { componentRepo.hasCharacter($0) })
+        guard !characters.isEmpty else { return nil }
+
+        var updated = allCollections[index]
+        updated.name = cleanName
+        updated.characters = characters
+        saveCollection(updated)
+        return updated
     }
 
     func toggleFavoriteCollection(id: UUID) {
@@ -3116,6 +3137,56 @@ final class RadixStore: ObservableObject {
     private func persistPromptSettings() {
         if let data = try? JSONEncoder().encode(promptConfig) { UserDefaults.standard.set(data, forKey: promptConfigKey) }
         UserDefaults.standard.set(promptSelectedTaskIDs, forKey: promptTaskSelectionKey)
+        updatePromptAutosaveStatus()
+    }
+
+    private func updatePromptAutosaveStatus(now: Date = Date()) {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        let savedText = formatter.localizedString(for: now, relativeTo: now)
+        promptAutosaveStatus = "Changes save automatically. Last saved \(savedText)."
+    }
+
+    private func sanitizeCollections(_ collections: [CharacterCollection]) -> [CharacterCollection] {
+        collections.map { collection in
+            var copy = collection
+            copy.characters = Set(collection.characters.filter { componentRepo.hasCharacter($0) })
+            return copy
+        }.filter { !$0.characters.isEmpty }
+    }
+
+    private func mergeImportedCollections(_ importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
+        guard let importedCollections else { return }
+        var mergedByID = Dictionary(uniqueKeysWithValues: allCollections.map { ($0.id, $0) })
+        for collection in sanitizeCollections(importedCollections) {
+            mergedByID[collection.id] = collection
+        }
+        allCollections = Array(mergedByID.values)
+        sortCollections()
+        persistCollections()
+
+        if let importedSelectedID, collection(id: importedSelectedID) != nil {
+            selectedAICollectionID = importedSelectedID
+        }
+        if let selectedBrowseCollectionID, collection(id: selectedBrowseCollectionID) == nil {
+            self.selectedBrowseCollectionID = nil
+        }
+    }
+
+    private func replaceCollections(with importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
+        allCollections = sanitizeCollections(importedCollections ?? [])
+        sortCollections()
+        persistCollections()
+
+        if let importedSelectedID, collection(id: importedSelectedID) != nil {
+            selectedAICollectionID = importedSelectedID
+        } else {
+            selectedAICollectionID = nil
+        }
+
+        if let selectedBrowseCollectionID, collection(id: selectedBrowseCollectionID) == nil {
+            self.selectedBrowseCollectionID = nil
+        }
     }
 
     private func loadDictionaryRepository() throws {

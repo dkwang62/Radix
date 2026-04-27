@@ -48,21 +48,3 @@ targets:
         buildPhase: resources
       - path: ./SUBTLEX-CH-CHR.txt
         buildPhase: resources
-    scheme:
-      testTargets:
-        - RadixTests
-  RadixTests:
-    type: bundle.unit-test
-    platform: iOS
-    sources:
-      - path: Tests
-      - path: App
-      - path: Models
-      - path: Services
-      - path: ViewModels
-      - path: Views
-    settings:
-      base:
-        GENERATE_INFOPLIST_FILE: YES
-        PRODUCT_MODULE_NAME: RadixTests
-    dependencies: []

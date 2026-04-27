@@ -43,12 +43,21 @@ struct DataEditTab: View {
     @State private var showEditedCharactersPreview = false
     @State private var showAddedPhrasesPreview = false
     @State private var showEditedPhrasesPreview = false
+    @State private var showSavedPagesPreview = false
+    @State private var showFavoritesPreview = false
+    @State private var showAITemplatesPreview = false
+    @State private var showAppStatePreview = false
 
     // UI toggles
     @State private var showAdvancedExports = false
     @State private var showHelp = false
     @State private var showSourceSetupGuide = false
     @State private var showSettings = false
+    @State private var pendingDeleteCollection: CharacterCollection?
+    @State private var editingCollection: CharacterCollection?
+    @State private var editingCollectionName: String = ""
+    @State private var editingCollectionText: String = ""
+    @State private var collectionEditorError: String?
 
     // Scroll-to-top support (phones only)
     @State private var dataEditScrollProxy: ScrollViewProxy?
@@ -238,6 +247,7 @@ struct DataEditTab: View {
                 if showAdvancedExports {
                     premiumExportsSection
                 } else {
+                    savedPagesSection
                     backupAndRestoreSection
                     whatsInMyBackupSection
                 }
@@ -314,10 +324,31 @@ struct DataEditTab: View {
                 Text(msg)
             }
         }
+        .alert("Delete Saved Page?", isPresented: Binding(
+            get: { pendingDeleteCollection != nil },
+            set: { if !$0 { pendingDeleteCollection = nil } }
+        )) {
+            Button("Delete", role: .destructive) {
+                if let collection = pendingDeleteCollection {
+                    store.deleteCollection(id: collection.id)
+                }
+                pendingDeleteCollection = nil
+            }
+            Button("Cancel", role: .cancel) {
+                pendingDeleteCollection = nil
+            }
+        } message: {
+            if let collection = pendingDeleteCollection {
+                Text("Delete “\(collection.name)” from saved pages?")
+            }
+        }
         .sheet(isPresented: $showSettings) {
             NavigationStack {
                 SettingsView()
             }
+        }
+        .sheet(item: $editingCollection) { collection in
+            editCollectionSheet(collection)
         }
         .onAppear { dataEditScrollProxy = proxy }
         } // ScrollViewReader
@@ -362,10 +393,10 @@ struct DataEditTab: View {
 
             if showHelp {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Backup saves everything you've added or changed — custom characters, phrases, favorites, and AI templates — into a single file.")
+                    Text("Backup saves everything you've added or changed — custom characters, phrases, saved pages, favorites, and AI templates — into a single file.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
-                    Text("Additive restore merges dictionary and phrase changes. Complete restore replaces the app's overlay data, favourites, memory, search history, settings, and AI templates with the backup.")
+                    Text("Additive restore merges dictionary, phrase, and saved page changes. Complete restore replaces the app's overlay data, saved pages, favorites, memory, search history, settings, and AI templates with the backup.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -380,6 +411,21 @@ struct DataEditTab: View {
     private var backupAndRestoreSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 14) {
+                Button {
+                    pendingRestoreMode = .additive
+                    showRestorePicker = true
+                } label: {
+                    backupActionButton(
+                        title: "Additive Restore",
+                        subtitle: "Keeps current data",
+                        systemName: "square.and.arrow.down",
+                        foreground: Color.accentColor,
+                        background: Color.accentColor.opacity(0.1),
+                        border: Color.accentColor.opacity(0.35)
+                    )
+                }
+                .buttonStyle(.plain)
+
                 Button {
                     reuseExportInProgress = true
                     reuseExportMessage = nil
@@ -398,68 +444,33 @@ struct DataEditTab: View {
                         }
                     }
                 } label: {
-                    Label(reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing Backup…" : "Back Up My Data", systemImage: "square.and.arrow.up.fill")
-                        .font(ResponsiveFont.subheadline.bold())
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Color.accentColor)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                    backupActionButton(
+                        title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing Backup…" : "Back Up My Data",
+                        subtitle: "Exports your saved data",
+                        systemName: "square.and.arrow.up.fill",
+                        foreground: .white,
+                        background: Color.accentColor,
+                        border: Color.accentColor
+                    )
                 }
                 .buttonStyle(.plain)
                 .disabled(reuseExportInProgress)
-            }
-
-            HStack(alignment: .center) {
-                Button {
-                    pendingRestoreMode = .additive
-                    showRestorePicker = true
-                } label: {
-                    VStack(spacing: 6) {
-                        Image(systemName: "square.and.arrow.down")
-                            .font(ResponsiveFont.body.bold())
-                        Text("Additive Restore")
-                            .font(ResponsiveFont.caption.bold())
-                            .multilineTextAlignment(.center)
-                        Text("Keeps current data")
-                            .font(ResponsiveFont.caption2)
-                            .multilineTextAlignment(.center)
-                            .opacity(0.8)
-                    }
-                    .frame(width: 132, height: 84)
-                    .background(Color.accentColor.opacity(0.1))
-                    .foregroundStyle(Color.accentColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.accentColor.opacity(0.35), lineWidth: 1))
-                }
-                .buttonStyle(.plain)
-
-                Spacer(minLength: 44)
 
                 Button {
                     pendingRestoreMode = .complete
                     showRestorePicker = true
                 } label: {
-                    VStack(spacing: 6) {
-                        Image(systemName: "square.and.arrow.down.fill")
-                            .font(ResponsiveFont.body.bold())
-                        Text("Complete Restore")
-                            .font(ResponsiveFont.caption.bold())
-                            .multilineTextAlignment(.center)
-                        Text("Replaces data")
-                            .font(ResponsiveFont.caption2)
-                            .multilineTextAlignment(.center)
-                            .opacity(0.8)
-                    }
-                    .frame(width: 132, height: 84)
-                    .background(Color.orange.opacity(0.1))
-                    .foregroundStyle(Color.orange)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.orange.opacity(0.35), lineWidth: 1))
+                    backupActionButton(
+                        title: "Complete Restore",
+                        subtitle: "Replaces data",
+                        systemName: "square.and.arrow.down.fill",
+                        foreground: Color.orange,
+                        background: Color.orange.opacity(0.1),
+                        border: Color.orange.opacity(0.35)
+                    )
                 }
                 .buttonStyle(.plain)
             }
-            .frame(maxWidth: .infinity)
         }
         .padding()
         .background(Color(.secondarySystemBackground).opacity(0.4))
@@ -472,6 +483,22 @@ struct DataEditTab: View {
                 .font(ResponsiveFont.headline)
 
             VStack(alignment: .leading, spacing: 12) {
+                DisclosureGroup("Saved Pages (\(store.allCollections.count))", isExpanded: $showSavedPagesPreview) {
+                    backupSavedPagesRows
+                }
+
+                DisclosureGroup("Favorites (\(store.favoriteItems.count) characters, \(store.favoritePhrasesItems.count) phrases)", isExpanded: $showFavoritesPreview) {
+                    backupFavoritesSummary
+                }
+
+                DisclosureGroup("AI Templates (\(store.promptConfig.tasks.count) tasks)", isExpanded: $showAITemplatesPreview) {
+                    backupAITemplatesSummary
+                }
+
+                DisclosureGroup("App State", isExpanded: $showAppStatePreview) {
+                    backupAppStateSummary
+                }
+
                 DisclosureGroup("Added Characters (\(store.addedDictionaryCharacters.count))", isExpanded: $showAddedCharactersPreview) {
                     backupCharacterRows(store.addedDictionaryCharacters, badge: "Added")
                 }
@@ -491,6 +518,40 @@ struct DataEditTab: View {
             .padding(12)
             .background(Color(.systemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground).opacity(0.4))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    private var savedPagesSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Label {
+                Text("Saved Pages")
+                    .font(ResponsiveFont.headline)
+            } icon: {
+                Image(systemName: "doc.text.image")
+            }
+            .foregroundStyle(Color.accentColor)
+
+            Text("Delete named pages here. Removing a page deletes the saved page entry, not your dictionary or phrase data.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+            Text("Use Edit to rename a page or change which characters it contains.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+
+            if store.allCollections.isEmpty {
+                Text("No saved pages yet.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(store.allCollections) { collection in
+                        savedPageRow(collection)
+                    }
+                }
+            }
         }
         .padding()
         .background(Color(.secondarySystemBackground).opacity(0.4))
@@ -853,6 +914,262 @@ struct DataEditTab: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
+    private func backupActionButton(
+        title: String,
+        subtitle: String,
+        systemName: String,
+        foreground: Color,
+        background: Color,
+        border: Color
+    ) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: systemName)
+                .font(ResponsiveFont.body.bold())
+            Text(title)
+                .font(ResponsiveFont.caption.bold())
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+            Text(subtitle)
+                .font(ResponsiveFont.caption2)
+                .multilineTextAlignment(.center)
+                .opacity(0.85)
+                .lineLimit(2)
+        }
+        .frame(maxWidth: .infinity, minHeight: 84)
+        .padding(.horizontal, 8)
+        .background(background)
+        .foregroundStyle(foreground)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(border, lineWidth: 1)
+        )
+    }
+
+    private func savedPageRow(_ collection: CharacterCollection) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Text(collection.name)
+                        .font(ResponsiveFont.subheadline.bold())
+                    if collection.isFavorite {
+                        Image(systemName: "star.fill")
+                            .font(.caption)
+                            .foregroundStyle(.yellow)
+                    }
+                }
+
+                Text("\(collection.characters.count) characters • \(collectionSourceLabel(collection.sourceType))")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Button {
+                beginEditing(collection)
+            } label: {
+                Text("Edit")
+                    .font(ResponsiveFont.caption)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.mini)
+
+            Button(role: .destructive) {
+                pendingDeleteCollection = collection
+            } label: {
+                Text("Delete")
+                    .font(ResponsiveFont.caption)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.mini)
+        }
+        .padding(10)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func beginEditing(_ collection: CharacterCollection) {
+        editingCollectionName = collection.name
+        editingCollectionText = collection.characters.sorted().joined(separator: " ")
+        collectionEditorError = nil
+        editingCollection = collection
+    }
+
+    private func editCollectionSheet(_ collection: CharacterCollection) -> some View {
+        NavigationStack {
+            Form {
+                Section("Page") {
+                    TextField("Name", text: $editingCollectionName)
+                }
+
+                Section("Characters") {
+                    TextEditor(text: $editingCollectionText)
+                        .frame(minHeight: 140)
+                    Text("Paste or type Chinese text here. Radix will keep the recognized characters for this saved page.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                if let collectionEditorError {
+                    Section {
+                        Text(collectionEditorError)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+            .navigationTitle("Edit Saved Page")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        editingCollection = nil
+                        collectionEditorError = nil
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        saveEditedCollection(collection)
+                    }
+                }
+            }
+        }
+    }
+
+    private func saveEditedCollection(_ collection: CharacterCollection) {
+        guard let updated = store.updateCollection(
+            id: collection.id,
+            newName: editingCollectionName,
+            sourceText: editingCollectionText
+        ) else {
+            collectionEditorError = "Enter a name and at least one Chinese character that exists in Radix."
+            return
+        }
+
+        editingCollectionName = updated.name
+        editingCollectionText = updated.characters.sorted().joined(separator: " ")
+        collectionEditorError = nil
+        editingCollection = nil
+    }
+
+    private var backupSavedPagesRows: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if store.allCollections.isEmpty {
+                Text("No saved pages.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(store.allCollections) { collection in
+                    HStack {
+                        Text(collection.name)
+                            .font(ResponsiveFont.caption)
+                        Spacer()
+                        Text("\(collection.characters.count) chars")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 2)
+                }
+            }
+        }
+        .padding(.top, 8)
+    }
+
+    private var backupFavoritesSummary: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            summaryLine("Favorite characters", value: "\(store.favoriteItems.count)")
+            if !store.favoriteItems.isEmpty {
+                Text(store.favoriteItems.map(\.character).joined(separator: " "))
+                    .font(ResponsiveFont.caption)
+            }
+
+            summaryLine("Favorite phrases", value: "\(store.favoritePhrasesItems.count)")
+            if !store.favoritePhrasesItems.isEmpty {
+                Text(store.favoritePhrasesItems.map(\.word).joined(separator: ", "))
+                    .font(ResponsiveFont.caption)
+            }
+        }
+        .padding(.top, 8)
+    }
+
+    private var backupAITemplatesSummary: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            summaryLine("Template blocks", value: "4 system sections")
+            summaryLine("Prompt tasks", value: "\(store.promptConfig.tasks.count)")
+            summaryLine("Selected tasks", value: "\(store.promptSelectedTaskIDs.count)")
+
+            ForEach(store.promptConfig.tasks) { task in
+                HStack {
+                    Text(task.title)
+                        .font(ResponsiveFont.caption)
+                    Spacer()
+                    if store.promptSelectedTaskIDs.contains(task.id) {
+                        Text("Selected")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .padding(.top, 8)
+    }
+
+    private var backupAppStateSummary: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            summaryLine("Current route", value: routeDisplayName(store.route))
+            summaryLine("Home tab", value: homeTabDisplayName(store.homeTab))
+            summaryLine("Search mode", value: store.searchMode.rawValue)
+            summaryLine("Current query", value: store.query.isEmpty ? "None" : store.query)
+            summaryLine("Selected character", value: store.selectedCharacter ?? "None")
+            summaryLine("Selected AI page", value: store.selectedAICollection?.name ?? "None")
+            summaryLine("Search history", value: "\(store.searchHistory.count) items")
+            summaryLine("Remembered trail", value: "\(store.rootBreadcrumb.count) items")
+            summaryLine("Phrase length", value: "\(store.phraseLength)-character")
+        }
+        .padding(.top, 8)
+    }
+
+    private func summaryLine(_ title: String, value: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            Text(title)
+                .font(ResponsiveFont.caption.bold())
+            Spacer()
+            Text(value)
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.trailing)
+        }
+    }
+
+    private func collectionSourceLabel(_ sourceType: CollectionSourceType) -> String {
+        switch sourceType {
+        case .ocr: return "OCR"
+        case .manual: return "Manual"
+        case .imported: return "Imported"
+        case .other: return "Other"
+        }
+    }
+
+    private func routeDisplayName(_ route: AppRoute) -> String {
+        switch route {
+        case .search: return "Search"
+        case .capture: return "Capture"
+        case .lineage: return "Roots"
+        case .aiLink: return "AI Link"
+        case .favourites: return "Favorites"
+        }
+    }
+
+    private func homeTabDisplayName(_ tab: HomeTab) -> String {
+        switch tab {
+        case .smart: return "Smart Search"
+        case .filter: return "Filter"
+        case .favourites: return "Favorites"
+        case .dataEdit: return "DataEdit"
+        }
+    }
+
     private func premiumExportOption(
         title: String,
         subtitle: String,
@@ -1076,6 +1393,10 @@ struct DataEditTab: View {
             .foregroundStyle(Color.accentColor)
             
             VStack(alignment: .leading, spacing: 12) {
+                Text(store.promptAutosaveStatus)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+
                 Text("Character System Preamble")
                     .font(ResponsiveFont.caption.bold())
                 TextEditor(text: Binding(

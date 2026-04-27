@@ -91,6 +91,12 @@ struct CharacterInfoCard: View {
             }
 
             definitionAndNotes
+
+            HStack(spacing: 8) {
+                Spacer(minLength: 0)
+                speakButton
+                favoritesButton
+            }
         }
     }
 
@@ -103,18 +109,7 @@ struct CharacterInfoCard: View {
                 starPadding: 7
             )
 
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 58), spacing: 6)],
-                alignment: .leading,
-                spacing: 6
-            ) {
-                chip("In \(item.usageCount) char\(item.usageCount == 1 ? "" : "s")")
-                if let strokes = item.strokes {
-                    chip("\(strokes) strokes")
-                }
-                if !item.radical.isEmpty {
-                    chip("Rad \(item.radical)")
-                }
+            HStack(alignment: .center, spacing: 6) {
                 Button {
                     showTierGuideMobile = true
                 } label: {
@@ -124,6 +119,23 @@ struct CharacterInfoCard: View {
                 .popover(isPresented: $showTierGuideMobile, arrowEdge: .bottom) {
                     tierGuideView
                         .padding()
+                }
+
+                if !item.radical.isEmpty {
+                    chip("Rad \(item.radical)")
+                }
+
+                Spacer(minLength: 0)
+            }
+
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 58), spacing: 6)],
+                alignment: .leading,
+                spacing: 6
+            ) {
+                chip("In \(item.usageCount) char\(item.usageCount == 1 ? "" : "s")")
+                if let strokes = item.strokes {
+                    chip("\(strokes) strokes")
                 }
             }
 
@@ -160,18 +172,46 @@ struct CharacterInfoCard: View {
 
             Spacer(minLength: 2)
 
-            Button {
-                store.setFavorite(character: item.character, isFavorite: !store.isFavorite(item.character))
-            } label: {
-                Image(systemName: store.isFavorite(item.character) ? "star.fill" : "star")
-                    .font(.system(size: starSize, weight: .semibold))
-                    .foregroundStyle(store.isFavorite(item.character) ? .yellow : .secondary)
-                    .padding(starPadding)
-                    .background(Color.accentColor.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+            if isPhone {
+                Button {
+                    store.setFavorite(character: item.character, isFavorite: !store.isFavorite(item.character))
+                } label: {
+                    Image(systemName: store.isFavorite(item.character) ? "star.fill" : "star")
+                        .font(.system(size: starSize, weight: .semibold))
+                        .foregroundStyle(store.isFavorite(item.character) ? .yellow : .secondary)
+                        .padding(starPadding)
+                        .background(Color.accentColor.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
+    }
+
+    private var speakButton: some View {
+        Button {
+            store.speakCharacter(item.character)
+        } label: {
+            Image(systemName: "speaker.wave.2")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(cardActionControlSize)
+        .font(cardActionFont)
+        .help("Speak this character")
+        .contextMenu {
+            Toggle("Speak on selection", isOn: $store.speechEnabled)
+        }
+    }
+
+    private var favoritesButton: some View {
+        Button {
+            store.setFavorite(character: item.character, isFavorite: !store.isFavorite(item.character))
+        } label: {
+            Label("Favorites", systemImage: store.isFavorite(item.character) ? "star.fill" : "star")
+        }
+        .modifier(FavoritesButtonStyleModifier(isFavorite: store.isFavorite(item.character)))
+        .controlSize(cardActionControlSize)
+        .font(cardActionFont)
     }
 
     private func variantButton(for variant: String, characterSize: CGFloat? = nil) -> some View {
@@ -383,5 +423,34 @@ struct CharacterInfoCard: View {
             .padding(.vertical, isPhone ? 5 : 6)
             .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: isPhone ? 10 : 12))
+    }
+
+    private var cardActionFont: Font {
+        #if targetEnvironment(macCatalyst)
+        return ResponsiveFont.caption2.weight(.semibold)
+        #else
+        return ResponsiveFont.caption.weight(.semibold)
+        #endif
+    }
+
+    private var cardActionControlSize: ControlSize {
+        #if targetEnvironment(macCatalyst)
+        return .mini
+        #else
+        return .small
+        #endif
+    }
+}
+
+private struct FavoritesButtonStyleModifier: ViewModifier {
+    let isFavorite: Bool
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if isFavorite {
+            content.buttonStyle(.borderedProminent)
+        } else {
+            content.buttonStyle(.bordered)
+        }
     }
 }

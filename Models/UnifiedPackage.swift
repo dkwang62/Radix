@@ -99,6 +99,8 @@ struct UnifiedPackage: Codable {
     let dictionaryPatchOverlay: DictionaryOverlayPatchPackage?
     let phrases: [PhraseItem]
     let profile: UserProfile
+    let collections: [CharacterCollection]?
+    let selectedAICollectionID: UUID?
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version"
@@ -110,6 +112,8 @@ struct UnifiedPackage: Codable {
         case dictionaryPatchOverlay = "dictionary_patch_overlay"
         case phrases
         case profile
+        case collections
+        case selectedAICollectionID = "selected_ai_collection_id"
     }
 
     init(
@@ -121,7 +125,9 @@ struct UnifiedPackage: Codable {
         dictionaryOverlay: DictionaryOverlayPackage? = nil,
         dictionaryPatchOverlay: DictionaryOverlayPatchPackage? = nil,
         phrases: [PhraseItem],
-        profile: UserProfile
+        profile: UserProfile,
+        collections: [CharacterCollection]? = nil,
+        selectedAICollectionID: UUID? = nil
     ) {
         self.schemaVersion = schemaVersion
         self.exportedAt = exportedAt
@@ -132,5 +138,7 @@ struct UnifiedPackage: Codable {
         self.dictionaryPatchOverlay = dictionaryPatchOverlay
         self.phrases = phrases
         self.profile = profile
+        self.collections = collections
+        self.selectedAICollectionID = selectedAICollectionID
     }
 }

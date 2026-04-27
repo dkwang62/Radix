@@ -29,6 +29,14 @@ struct CharacterPreviewHeader: View {
         #endif
     }
 
+    private var isPhone: Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
+        return UIDevice.current.userInterfaceIdiom == .phone
+        #endif
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             let isInMemory = store.rootBreadcrumb.contains(character)
@@ -153,7 +161,7 @@ struct CharacterPreviewHeader: View {
             previewActionLabel(usesShortActionLabels ? "Phrase" : "Phrases", systemImage: "text.quote")
         }
         .buttonStyle(.bordered)
-        .controlSize(.small)
+        .controlSize(previewActionControlSize)
         .font(previewActionFont)
     }
 
@@ -164,7 +172,7 @@ struct CharacterPreviewHeader: View {
             previewActionLabel(usesShortActionLabels ? "Root" : "Roots", systemImage: "tree")
         }
         .buttonStyle(.bordered)
-        .controlSize(.small)
+        .controlSize(previewActionControlSize)
         .font(previewActionFont)
     }
 
@@ -175,7 +183,7 @@ struct CharacterPreviewHeader: View {
             previewActionLabel(usesShortActionLabels ? "Note" : "Notes", systemImage: "note.text")
         }
         .buttonStyle(.bordered)
-        .controlSize(.small)
+        .controlSize(previewActionControlSize)
         .font(previewActionFont)
     }
 
@@ -191,7 +199,7 @@ struct CharacterPreviewHeader: View {
             }
         }
         .buttonStyle(.bordered)
-        .controlSize(.small)
+        .controlSize(previewActionControlSize)
         .font(previewActionFont)
         .help("Speak this character")
         .contextMenu {
@@ -217,7 +225,9 @@ struct CharacterPreviewHeader: View {
                     editCharacterTrigger
                     phraseTableTrigger
                     rootsTrigger
-                    speechOptionsMenu
+                    if isPhone {
+                        speechOptionsMenu
+                    }
                     if showClearButton, store.previewCharacter != nil, store.previewCharacter != character {
                         clearPreviewButton
                     }
@@ -239,7 +249,9 @@ struct CharacterPreviewHeader: View {
                 editCharacterTrigger
                 phraseTableTrigger
                 rootsTrigger
-                speechOptionsMenu
+                if isPhone {
+                    speechOptionsMenu
+                }
                 if showClearButton, store.previewCharacter != nil, store.previewCharacter != character {
                     clearPreviewButton
                 }
@@ -253,20 +265,20 @@ struct CharacterPreviewHeader: View {
         let button = Button {
             store.toggleRootBreadcrumb(character)
         } label: {
-            previewActionLabel(usesShortActionLabels ? "Mem" : "Memory", systemImage: isInMemory ? "bookmark.fill" : "bookmark")
+            previewActionLabel("Memory", systemImage: isInMemory ? "bookmark.fill" : "bookmark")
         }
 
         if isInMemory {
             button
                 .buttonStyle(.borderedProminent)
-                .controlSize(.small)
+                .controlSize(previewActionControlSize)
                 .font(previewActionFont)
                 .help("Remove this character from Memory.")
                 .accessibilityHint("Removes this character from Memory.")
         } else {
             button
                 .buttonStyle(.bordered)
-                .controlSize(.small)
+                .controlSize(previewActionControlSize)
                 .font(previewActionFont)
                 .help("Add this character to Memory.")
                 .accessibilityHint("Adds this character to Memory.")
@@ -307,7 +319,19 @@ struct CharacterPreviewHeader: View {
     }
 
     private var previewActionFont: Font {
-        (isVertical ? ResponsiveFont.caption2 : ResponsiveFont.caption).weight(.semibold)
+        #if targetEnvironment(macCatalyst)
+        return ResponsiveFont.caption2.weight(.semibold)
+        #else
+        return (isVertical ? ResponsiveFont.caption2 : ResponsiveFont.caption).weight(.semibold)
+        #endif
+    }
+
+    private var previewActionControlSize: ControlSize {
+        #if targetEnvironment(macCatalyst)
+        return .mini
+        #else
+        return .small
+        #endif
     }
 }
 
