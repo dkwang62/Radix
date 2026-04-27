@@ -20,6 +20,39 @@ struct FavouritePhraseProfileEntry: Codable {
     }
 }
 
+enum DefaultAIPreset: String, Codable, CaseIterable, Hashable {
+    case deepSeek
+    case gemini
+    case claude
+    case chatGPT
+    case custom
+
+    var displayName: String {
+        switch self {
+        case .deepSeek: return "DeepSeek"
+        case .gemini: return "Gemini"
+        case .claude: return "Claude"
+        case .chatGPT: return "ChatGPT"
+        case .custom: return "Custom AI"
+        }
+    }
+
+    var baseURLString: String {
+        switch self {
+        case .deepSeek: return "https://chat.deepseek.com/"
+        case .gemini: return "https://gemini.google.com/"
+        case .claude: return "https://claude.ai/new"
+        case .chatGPT: return "https://chatgpt.com/"
+        case .custom: return ""
+        }
+    }
+}
+
+struct DefaultAISettings: Codable, Hashable {
+    var preset: DefaultAIPreset = .chatGPT
+    var customURLString: String = ""
+}
+
 struct UserProfile: Codable {
     let schemaVersion: Int
     let favouritesList: [String]
@@ -38,6 +71,7 @@ struct UserProfile: Codable {
     let phraseLength: Int?
     let promptConfig: PromptConfig?
     let promptSelectedTaskIDs: [String]?
+    let defaultAISettings: DefaultAISettings?
 
     init(
         schemaVersion: Int,
@@ -56,7 +90,8 @@ struct UserProfile: Codable {
         route: String? = nil,
         phraseLength: Int? = nil,
         promptConfig: PromptConfig? = nil,
-        promptSelectedTaskIDs: [String]? = nil
+        promptSelectedTaskIDs: [String]? = nil,
+        defaultAISettings: DefaultAISettings? = nil
     ) {
         self.schemaVersion = schemaVersion
         self.favouritesList = favouritesList
@@ -75,6 +110,7 @@ struct UserProfile: Codable {
         self.phraseLength = phraseLength
         self.promptConfig = promptConfig
         self.promptSelectedTaskIDs = promptSelectedTaskIDs
+        self.defaultAISettings = defaultAISettings
     }
 
     enum CodingKeys: String, CodingKey {
@@ -95,5 +131,6 @@ struct UserProfile: Codable {
         case phraseLength = "phrase_length"
         case promptConfig = "prompt_config"
         case promptSelectedTaskIDs = "prompt_selected_task_ids"
+        case defaultAISettings = "default_ai_settings"
     }
 }

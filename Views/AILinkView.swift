@@ -6,7 +6,7 @@ import UIKit
 /*
  AI LINK VIEW
  ============
- Manages the generation of character-specific AI prompts for ChatGPT.
+ Manages the generation of character-specific AI prompts for the user's default AI.
  Includes a built-in configuration editor for customizing global templates.
 */
 
@@ -16,7 +16,7 @@ struct AILinkView: View {
     @Environment(\.openURL) private var openURL
     let item: ComponentItem?
     @State private var copied = false
-    @State private var openedChatGPT = false
+    @State private var openedDefaultAI = false
     @State private var isTasksExpanded = true // Default to expanded for better usability
     @State private var isConfigExpanded = false
 
@@ -54,9 +54,9 @@ struct AILinkView: View {
                     )
                 }
 
-                activeSubjectHeader
-
                 collectionSelectionSection
+
+                aiDestinationSection
 
                 taskSelectionSection
 
@@ -72,32 +72,12 @@ struct AILinkView: View {
             store.refreshPhrases()
             if store.shouldAutoOpenAILinkTask4 {
                 store.shouldAutoOpenAILinkTask4 = false
-                openPromptInChatGPT()
+                openPromptInDefaultAI()
             }
         }
     }
 
     // MARK: - Sub-Sections
-
-    private var activeSubjectHeader: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("AI Subjects")
-                .font(ResponsiveFont.headline)
-            Text(activeSubjectDetail)
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-        }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var activeSubjectDetail: String {
-        let characterText = selectedCharacter.map { "Character: \($0)" } ?? "Character: none"
-        let collectionText = selectedCollection.map { "Page: \($0.name) (\($0.characters.count) characters)" } ?? "Page: none"
-        return "\(characterText)\n\(collectionText)"
-    }
 
     private var collectionSelectionSection: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -111,6 +91,16 @@ struct AILinkView: View {
                 }
                 Spacer()
                 aiCollectionMenu
+            }
+
+            if let selectedCollection {
+                HStack(spacing: 8) {
+                    Image(systemName: "doc.text.image")
+                        .foregroundStyle(.secondary)
+                    Text("\(selectedCollection.name) (\(selectedCollection.characters.count) characters)")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             if !store.favoriteCollections.isEmpty {
@@ -137,9 +127,9 @@ struct AILinkView: View {
 
     private var selectedCollectionDescription: String {
         guard let selectedCollection else {
-            return hasCollectionTasks ? "Choose a page before copying or opening Task 4." : "Task 4 will use the page selected here."
+            return hasCollectionTasks ? "Choose the page you want to use for Task 4." : "Choose the page you want to use for Task 4."
         }
-        return "Task 4 will use \(selectedCollection.name), not the selected character."
+        return "Task 4 will use the selected page, not the selected character."
     }
 
     private var aiCollectionMenu: some View {
@@ -166,15 +156,47 @@ struct AILinkView: View {
                 }
             }
         } label: {
-            Label(selectedCollection?.name ?? "Choose", systemImage: "rectangle.stack")
+            Label("Choose Page", systemImage: "rectangle.stack")
                 .lineLimit(1)
         }
         .buttonStyle(.borderedProminent)
     }
 
+    private var aiDestinationSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Default AI")
+                .font(ResponsiveFont.headline)
+
+            Picker("Default AI", selection: $store.defaultAIPreset) {
+                ForEach(DefaultAIPreset.allCases, id: \.self) { preset in
+                    Text(preset.displayName).tag(preset)
+                }
+            }
+            .pickerStyle(.menu)
+
+            if store.defaultAIPreset == .custom {
+                TextField(
+                    "https://example.com/ or https://example.com/?prompt={prompt}",
+                    text: $store.customAIURLString
+                )
+                .textFieldStyle(.roundedBorder)
+                Text("Use `{prompt}` in a custom URL if your AI site supports direct prompt prefilling. Otherwise Radix will open the URL and copy the prompt.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("Current destination: \(store.defaultAIBaseURLString)")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("ChatGPT Prompt Generator")
+            Text("AI Prompt Generator")
                 .font(ResponsiveFont.title2.bold())
             Text("Create custom analytical prompts for character exploration.")
                 .font(ResponsiveFont.subheadline)
@@ -428,20 +450,22 @@ struct AILinkView: View {
             .disabled(!canGeneratePrompt)
 
             Button {
-                openPromptInChatGPT()
+                openPromptInDefaultAI()
             } label: {
-                Label("Open ChatGPT", systemImage: "arrow.up.forward.app")
+                Label("Open \(store.defaultAIName)", systemImage: "arrow.up.forward.app")
             }
             .buttonStyle(.borderedProminent)
             .font(ResponsiveFont.headline)
             .disabled(!canGeneratePrompt)
 
-            if openedChatGPT {
-                Text("Opening ChatGPT. Prompt copied as backup.")
+            if openedDefaultAI {
+                Text(store.defaultAIPrefillsPrompt
+                     ? "Opening \(store.defaultAIName). Prompt copied as backup."
+                     : "Opening \(store.defaultAIName). Prompt copied. Paste it into \(store.defaultAIName).")
                     .font(ResponsiveFont.footnote)
                     .foregroundStyle(.secondary)
             } else if copied {
-                Text("Copied. Paste into ChatGPT.")
+                Text("Copied. Paste into \(store.defaultAIName).")
                     .font(ResponsiveFont.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -483,18 +507,20 @@ struct AILinkView: View {
         return parts.isEmpty ? nil : parts.joined(separator: " • ")
     }
 
-    private func openPromptInChatGPT() {
+    private func openPromptInDefaultAI() {
         guard canGeneratePrompt else { return }
         let text = generatedPromptText
         copyPromptToClipboard(showStatus: false)
+        openedDefaultAI = true
 
-        if let url = chatGPTURL(prompt: text) {
-            openURL(url)
+        if let url = store.defaultAIURL(prompt: text) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                openURL(url)
+            }
         }
 
-        openedChatGPT = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            openedChatGPT = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6.0) {
+            openedDefaultAI = false
         }
     }
 
@@ -513,14 +539,6 @@ struct AILinkView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
             copied = false
         }
-    }
-
-    private func chatGPTURL(prompt: String) -> URL? {
-        var components = URLComponents(string: "https://chatgpt.com/")
-        components?.queryItems = [
-            URLQueryItem(name: "q", value: prompt)
-        ]
-        return components?.url
     }
 
     private func taskTitle(_ id: String) -> String {

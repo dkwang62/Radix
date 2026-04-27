@@ -82,9 +82,9 @@ Compare this character with 2–3 other characters of similar meaning or usage, 
             ),
             PromptTask(
                 id: "task4",
-                title: "Task 4 – Isolate Phrases from Apple Vision",
+                title: "Task 4 – Extract Phrases from Page (image)",
                 template: """
-Task 4 – Isolate Phrases from Apple Vision
+Task 4 – Extract Phrases from Page (image)
 
 From the page details below, extract useful 2-, 3-, and 4-character Chinese phrases that are found as dictionary headwords.
 

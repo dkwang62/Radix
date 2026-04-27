@@ -28,6 +28,7 @@ struct CaptureTab: View {
     @State private var parserInputPhrases: [String] = []
     @State private var showOCRCollectionSheet = false
     @State private var ocrCollectionName = ""
+    @State private var isSavedPagesExpanded = false
 
     private var characters: [String] {
         CaptureTextExtractor.uniqueCharacters(in: store.activeCaptureDraft.charactersText)
@@ -39,15 +40,6 @@ struct CaptureTab: View {
 
     private var characterItems: [ComponentItem] {
         store.items(for: characters)
-    }
-
-    private var existingPhrases: [PhraseItem] {
-        phraseCandidates.compactMap { store.mergedPhrase(for: $0) }
-    }
-
-    private var newPhrases: [String] {
-        let existing = Set(existingPhrases.map(\.word))
-        return phraseCandidates.filter { !existing.contains($0) }
     }
 
     private var canBuildParserPrompt: Bool {
@@ -69,13 +61,13 @@ struct CaptureTab: View {
             ),
             CaptureWorkflowStep(
                 title: "Copy",
-                detail: phraseDiscoveryPromptCopied ? "Prompt copied" : "Open ChatGPT",
+                detail: phraseDiscoveryPromptCopied ? "Prompt copied" : "Open \(store.defaultAIName)",
                 isComplete: phraseDiscoveryPromptCopied,
                 systemImage: "doc.on.doc"
             ),
             CaptureWorkflowStep(
                 title: "Paste",
-                detail: phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "ChatGPT answer" : "Answer pasted",
+                detail: phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "\(store.defaultAIName) answer" : "Answer pasted",
                 isComplete: !phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                 systemImage: "doc.on.clipboard"
             ),
@@ -257,6 +249,14 @@ struct CaptureTab: View {
         store.selectBrowseCollection(id: collection.id)
         statusMessage = "Saved \(collection.name) with \(collection.characters.count) characters."
         showOCRCollectionSheet = false
+        isSavedPagesExpanded = true
+        selectedImage = nil
+        store.activeCaptureDraft = CaptureDraft()
+        gridPage = 0
+        capturePreviewCharacter = nil
+        captureDetailPreviewCharacter = nil
+        ocrCollectionName = ""
+        resetPhraseDiscovery()
     }
 
     private var emptyState: some View {
@@ -268,27 +268,54 @@ struct CaptureTab: View {
             )
             .frame(maxWidth: .infinity, minHeight: 240)
 
-            SavedPagesSection()
+            SavedPagesSection(isExpanded: $isSavedPagesExpanded, footer: {
+                addChatGPTAnswerPanel
+            })
         }
     }
 
     private func captureResults(scrollToTop: @escaping () -> Void) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             captureCharactersSection(scrollToTop: scrollToTop)
-            SavedPagesSection()
-            captureBottomActions
+            SavedPagesSection(isExpanded: $isSavedPagesExpanded, footer: {
+                if phraseMode == .apple {
+                    addChatGPTAnswerPanel
+                } else {
+                    Button {
+                        phraseMode = .apple
+                    } label: {
+                        Label("Back to Apple-Derived Phrases", systemImage: "chevron.left")
+                    }
+                    .buttonStyle(.bordered)
+                }
+            })
 
             switch phraseMode {
-            case .apple:
-                appleDerivedPhraseSection
             case .parser:
                 phraseDiscoveryImportSection
+            case .apple:
+                EmptyView()
             }
         }
     }
 
     private func captureCharactersSection(scrollToTop: @escaping () -> Void) -> some View {
         captureSection("Characters") {
+            HStack(spacing: 10) {
+                Button("Save Page") {
+                    ocrCollectionName = defaultOCRCollectionName
+                    isSavedPagesExpanded = true
+                    showOCRCollectionSheet = true
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(characters.isEmpty)
+
+                Button("Clear") {
+                    clearCaptureResults()
+                }
+                .buttonStyle(.bordered)
+            }
+
             if characterItems.isEmpty {
                 Text("No Chinese characters found yet.")
                     .font(ResponsiveFont.caption)
@@ -314,170 +341,58 @@ struct CaptureTab: View {
                 .padding(6)
                 .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
-
-            HStack(spacing: 10) {
-                Button("Save Page") {
-                    ocrCollectionName = defaultOCRCollectionName
-                    showOCRCollectionSheet = true
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(characters.isEmpty)
-
-                Button("Clear") {
-                    clearCaptureResults()
-                }
-                .buttonStyle(.bordered)
-            }
         }
-    }
-
-    private var captureBottomActions: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if phraseMode == .apple {
-                LazyVGrid(
-                    columns: [GridItem(.adaptive(minimum: 180), spacing: 8)],
-                    alignment: .leading,
-                    spacing: 8
-                ) {
-                    Button("Remember Characters") {
-                        for character in characters {
-                            store.pushRootBreadcrumb(character)
-                        }
-                        statusMessage = "Characters added to Remembered."
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(characters.isEmpty)
-
-                    Button {
-                        openAILinkTask4()
-                    } label: {
-                        Label("Isolate Phrases with AI", systemImage: "sparkles")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(characters.isEmpty)
-                }
-            } else {
-                Button {
-                    phraseMode = .apple
-                } label: {
-                    Label("Back to Apple-Derived Phrases", systemImage: "chevron.left")
-                }
-                .buttonStyle(.bordered)
-            }
-        }
-    }
-
-    private var appleDerivedPhraseSection: some View {
-        captureSection("Apple-Derived Phrases") {
-            VStack(alignment: .leading, spacing: 12) {
-                phraseWorkflowChoicePanel
-                addChatGPTAnswerPanel
-
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Existing Radix Phrases")
-                        .font(ResponsiveFont.caption2.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    if existingPhrases.isEmpty {
-                        Text("No existing Radix phrases found from this image.")
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        phraseTable(existingPhrases)
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("OCR Phrase Candidates")
-                        .font(ResponsiveFont.caption2.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    if newPhrases.isEmpty {
-                        Text("No new OCR-only phrase candidates.")
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        VStack(spacing: 0) {
-                            ForEach(newPhrases, id: \.self) { phrase in
-                                newPhraseRow(phrase)
-                                Divider()
-                            }
-                        }
-                        .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-
-                    TextEditor(text: $store.activeCaptureDraft.phrasesText)
-                        .font(ResponsiveFont.body)
-                        .frame(minHeight: 86)
-                        .padding(6)
-                        .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                }
-            }
-        }
-    }
-
-    private var phraseWorkflowChoicePanel: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Choose what to add to My Phrases")
-                .font(ResponsiveFont.caption.weight(.semibold))
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 180), spacing: 8)],
-                alignment: .leading,
-                spacing: 8
-            ) {
-                Button {
-                    startApplePhraseParser(phrases: newPhrases)
-                } label: {
-                    Label("Ask ChatGPT", systemImage: "text.magnifyingglass")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .buttonStyle(.bordered)
-                .disabled(newPhrases.isEmpty)
-            }
-        }
-        .padding(10)
-        .background(Color(.secondarySystemBackground).opacity(0.65))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private var addChatGPTAnswerPanel: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Add ChatGPT Answer to My Phrases")
+            Text("Add extracts to Phrases")
                 .font(ResponsiveFont.caption.weight(.semibold))
 
-            Text("Paste one phrase or a batch from ChatGPT. Use this format: phrase | pinyin | English meaning.")
+            Text("Paste one phrase or a batch from \(store.defaultAIName). Use this format: phrase | pinyin | English meaning.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
 
-            TextEditor(text: $phraseDiscoveryOutput)
-                .font(ResponsiveFont.body)
-                .frame(minHeight: 110)
-                .padding(6)
-                .background(Color(.systemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color(.separator), lineWidth: 0.5)
-                )
+            ZStack(alignment: .topLeading) {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(.systemBackground))
+
+                if phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(
+                        """
+                        常年 | cqíng yìán | year-round; all year; perennial
+                        性情 | xìng qíng | temperament; disposition; nature
+                        情意 | qíng yì | affection; goodwill; feelings
+                        """
+                    )
+                    .font(ResponsiveFont.body)
+                    .foregroundStyle(.tertiary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 14)
+                    .allowsHitTesting(false)
+                }
+
+                TextEditor(text: $phraseDiscoveryOutput)
+                    .font(ResponsiveFont.body)
+                    .scrollContentBackground(.hidden)
+                    .padding(6)
+                    .background(Color.clear)
+            }
+            .frame(minHeight: 110)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color(.separator), lineWidth: 0.5)
+            )
 
             LazyVGrid(
                 columns: [GridItem(.adaptive(minimum: 150), spacing: 8)],
                 alignment: .leading,
                 spacing: 8
             ) {
-                Button {
-                    pasteAndAddPhraseDiscoveryOutput()
-                } label: {
-                    Label("Paste ChatGPT Answer and Add", systemImage: "doc.on.clipboard")
-                }
-                .buttonStyle(.borderedProminent)
-
-                Button("Add from Box") {
+                Button("Add Phrases") {
                     addPhraseDiscoveryOutputToMyPhrases()
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.borderedProminent)
                 .disabled(phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
                 Button("Clear") {
@@ -508,9 +423,9 @@ struct CaptureTab: View {
                 captureWorkflowProgress
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(parserSource.guidanceTitle)
+                    Text(parserSource.guidanceTitle(defaultAIName: store.defaultAIName))
                         .font(ResponsiveFont.caption.weight(.semibold))
-                    Text(parserSource.guidanceDetail(count: parserInputPhrases.count))
+                    Text(parserSource.guidanceDetail(count: parserInputPhrases.count, defaultAIName: store.defaultAIName))
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -538,7 +453,7 @@ struct CaptureTab: View {
                     alignment: .leading,
                     spacing: 8
                 ) {
-                    Button("Open ChatGPT") {
+                    Button("Open \(store.defaultAIName)") {
                         copyPhraseDiscoveryPrompt()
                     }
                     .buttonStyle(.borderedProminent)
@@ -547,7 +462,7 @@ struct CaptureTab: View {
                     Button {
                         pasteAndAddPhraseDiscoveryOutput()
                     } label: {
-                        Label("Paste ChatGPT Answer and Add", systemImage: "doc.on.clipboard")
+                        Label("Paste \(store.defaultAIName) Answer and Add", systemImage: "doc.on.clipboard")
                     }
                     .buttonStyle(.bordered)
 
@@ -561,12 +476,12 @@ struct CaptureTab: View {
                 if phraseDiscoveryPromptCopied &&
                     phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
                     phraseDiscoveryCandidates.isEmpty {
-                    ProgressView("Waiting for ChatGPT answer...")
+                    ProgressView("Waiting for \(store.defaultAIName) answer...")
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.vertical, 6)
                 }
 
-                Text("Paste ChatGPT's answer here. Radix will add the phrases to My Phrases.")
+                Text("Paste \(store.defaultAIName)'s answer here. Radix will add the phrases to My Phrases.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
 
@@ -833,68 +748,6 @@ struct CaptureTab: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func phraseTable(_ phrases: [PhraseItem]) -> some View {
-        VStack(spacing: 0) {
-            ForEach(phrases, id: \.id) { phrase in
-                phraseRow(phrase)
-                Divider()
-            }
-        }
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    private func phraseRow(_ phrase: PhraseItem) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(phrase.word)
-                    .font(ResponsiveFont.body.bold())
-                Text(phrase.pinyin.isEmpty ? "-" : phrase.pinyin)
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .frame(width: 120, alignment: .leading)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(phrase.meanings.isEmpty ? "No meaning" : phrase.meanings)
-                    .font(ResponsiveFont.body)
-                if !phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Text(phrase.notes)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(10)
-        .contentShape(Rectangle())
-        .phraseContextMenu(phrase)
-    }
-
-    private func newPhraseRow(_ phrase: String) -> some View {
-        HStack(spacing: 8) {
-            Text(phrase)
-                .font(ResponsiveFont.body.bold())
-            Spacer()
-
-            Button("Ask ChatGPT") {
-                startApplePhraseParser(phrases: [phrase])
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.mini)
-            .font(ResponsiveFont.caption2.weight(.semibold))
-
-            Button("Notes") {
-                store.openQuickPhraseEditor(word: phrase)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.mini)
-            .font(ResponsiveFont.caption2.weight(.semibold))
-        }
-        .padding(10)
-    }
-
     private func startApplePhraseParser(phrases: [String]) {
         let normalized = CaptureTextExtractor.uniquePhrases(from: phrases)
         guard !normalized.isEmpty else { return }
@@ -903,20 +756,6 @@ struct CaptureTab: View {
         phraseMode = .parser
         resetPhraseDiscovery(keepMode: true)
         copyPhraseDiscoveryPrompt()
-    }
-
-    private func openAILinkTask4() {
-        if let collection = store.createCollection(
-            name: defaultOCRCollectionName,
-            sourceText: store.activeCaptureDraft.charactersText,
-            sourceType: .ocr
-        ) {
-            store.goToAILinkTask4(collection: collection)
-            statusMessage = "AI Link Task 4 opened with \(collection.name)."
-        } else {
-            store.goToAILinkTask4FromCapture(characters: characters)
-            statusMessage = "AI Link Task 4 opened. ChatGPT will receive the Apple Vision characters."
-        }
     }
 
     private func startChatGPTPhraseDiscovery() {
@@ -932,11 +771,15 @@ struct CaptureTab: View {
         #if canImport(UIKit)
         UIPasteboard.general.string = prompt
         #endif
-        if let url = chatGPTURL(prompt: prompt) {
-            openURL(url)
-        }
         phraseDiscoveryPromptCopied = true
-        phraseDiscoveryMessage = "ChatGPT opened. Copy its answer, then come back and tap Paste ChatGPT Answer and Add."
+        phraseDiscoveryMessage = store.defaultAIPrefillsPrompt
+            ? "Opening \(store.defaultAIName) in 3 seconds. Copy its answer, then come back and tap Add Phrases."
+            : "Opening \(store.defaultAIName) in 3 seconds. The prompt was copied, so paste it into \(store.defaultAIName), then come back and tap Add Phrases."
+        if let url = store.defaultAIURL(prompt: prompt) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                openURL(url)
+            }
+        }
     }
 
     private func makePhraseDiscoveryPrompt() -> String {
@@ -999,7 +842,7 @@ struct CaptureTab: View {
 
         Important:
         - Do not delete or shorten the OCR text.
-        - Do not ask ChatGPT to analyze one character at a time.
+        - Do not analyze one character at a time unless explicitly asked.
         - The known phrase list is for ignoring existing phrases, not for removing context.
         """
     }
@@ -1128,7 +971,7 @@ struct CaptureTab: View {
             return candidate
         }
         if selected.isEmpty {
-            phraseDiscoveryMessage = "No new phrases were found in the ChatGPT answer."
+            phraseDiscoveryMessage = "No new phrases were found in the \(store.defaultAIName) answer."
         } else if added == 0 {
             phraseDiscoveryMessage = "Radix read \(selected.count) phrase\(selected.count == 1 ? "" : "s"), but none were added to My Phrases. Skipped \(skipped).\(errors.isEmpty ? "" : " Errors: \(errors.joined(separator: "; "))")"
         } else {
@@ -1167,14 +1010,6 @@ struct CaptureTab: View {
             parserSource = .appleCandidates
             phraseMode = .apple
         }
-    }
-
-    private func chatGPTURL(prompt: String) -> URL? {
-        var components = URLComponents(string: "https://chatgpt.com/")
-        components?.queryItems = [
-            URLQueryItem(name: "q", value: prompt)
-        ]
-        return components?.url
     }
 
     private func captureSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
@@ -1280,7 +1115,7 @@ private enum PhraseParserSource: Equatable {
         case .appleCandidates:
             return "Add Apple Candidates to My Phrases"
         case .chatGPTDerived:
-            return "Add ChatGPT Suggestions to My Phrases"
+            return "Add AI Suggestions to My Phrases"
         }
     }
 
@@ -1293,22 +1128,22 @@ private enum PhraseParserSource: Equatable {
         }
     }
 
-    var guidanceTitle: String {
+    func guidanceTitle(defaultAIName: String) -> String {
         switch self {
         case .appleCandidates:
             return "You chose Apple-derived phrases."
         case .chatGPTDerived:
-            return "You chose ChatGPT suggestions."
+            return "You chose \(defaultAIName) suggestions."
         }
     }
 
-    func guidanceDetail(count: Int) -> String {
+    func guidanceDetail(count: Int, defaultAIName: String) -> String {
         switch self {
         case .appleCandidates:
             let phraseText = count == 1 ? "1 phrase" : "\(count) phrases"
-            return "Radix copies \(phraseText) to ChatGPT so it can add pinyin and meaning. Copy ChatGPT's answer, then tap Paste ChatGPT Answer and Add."
+            return "Radix copies \(phraseText) to \(defaultAIName) so it can add pinyin and meaning. Copy \(defaultAIName)'s answer, then tap Paste \(defaultAIName) Answer and Add."
         case .chatGPTDerived:
-            return "Radix copies the OCR text to ChatGPT so it can find more phrases with pinyin and meaning. Copy ChatGPT's answer, then tap Paste ChatGPT Answer and Add."
+            return "Radix copies the OCR text to \(defaultAIName) so it can find more phrases with pinyin and meaning. Copy \(defaultAIName)'s answer, then tap Paste \(defaultAIName) Answer and Add."
         }
     }
 }
@@ -1538,42 +1373,61 @@ private struct CameraCaptureView: UIViewControllerRepresentable {
     }
 }
 
-private struct SavedPagesSection: View {
+private struct SavedPagesSection<Footer: View>: View {
     @EnvironmentObject private var store: RadixStore
 
+    @Binding var isExpanded: Bool
     @State private var pendingDeleteCollection: CharacterCollection?
     @State private var editingCollection: CharacterCollection?
     @State private var editingCollectionName: String = ""
     @State private var editingCollectionText: String = ""
     @State private var collectionEditorError: String?
+    let footer: Footer
+
+    init(isExpanded: Binding<Bool>) where Footer == EmptyView {
+        self._isExpanded = isExpanded
+        self.footer = EmptyView()
+    }
+
+    init(isExpanded: Binding<Bool>, @ViewBuilder footer: () -> Footer) {
+        self._isExpanded = isExpanded
+        self.footer = footer()
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label {
-                Text("Saved Pages")
-                    .font(ResponsiveFont.headline)
-            } icon: {
-                Image(systemName: "doc.text.image")
-            }
-            .foregroundStyle(Color.accentColor)
+            DisclosureGroup(isExpanded: $isExpanded) {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Delete named pages here. Removing a page deletes the saved page entry, not your dictionary or phrase data.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                    Text("Use Edit to rename a page or change which characters it contains.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
 
-            Text("Delete named pages here. Removing a page deletes the saved page entry, not your dictionary or phrase data.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-            Text("Use Edit to rename a page or change which characters it contains.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-
-            if store.allCollections.isEmpty {
-                Text("No saved pages yet.")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-            } else {
-                VStack(alignment: .leading, spacing: 10) {
-                    ForEach(store.allCollections) { collection in
-                        savedPageRow(collection)
+                    if store.allCollections.isEmpty {
+                        Text("No saved pages yet.")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        VStack(alignment: .leading, spacing: 10) {
+                            ForEach(store.allCollections) { collection in
+                                savedPageRow(collection)
+                            }
+                        }
                     }
+
+                    footer
                 }
+                .padding(.top, 10)
+            } label: {
+                Label {
+                    Text("Saved Pages (\(store.allCollections.count))")
+                        .font(ResponsiveFont.headline)
+                } icon: {
+                    Image(systemName: "doc.text.image")
+                }
+                .foregroundStyle(Color.accentColor)
             }
         }
         .padding()
@@ -1629,6 +1483,15 @@ private struct SavedPagesSection: View {
                     .font(ResponsiveFont.caption)
             }
             .buttonStyle(.bordered)
+            .controlSize(.mini)
+
+            Button {
+                store.goToAILinkTask4(collection: collection)
+            } label: {
+                Text("Extract Phrases")
+                    .font(ResponsiveFont.caption)
+            }
+            .buttonStyle(.borderedProminent)
             .controlSize(.mini)
 
             Button(role: .destructive) {

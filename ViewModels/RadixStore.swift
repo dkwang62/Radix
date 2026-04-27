@@ -401,6 +401,12 @@ final class RadixStore: ObservableObject {
     @Published var promptConfig: PromptConfig = .streamlitDefault
     @Published var promptSelectedTaskIDs: [String] = PromptConfig.defaultSelectedTaskIDs
     @Published var shouldAutoOpenAILinkTask4 = false
+    @Published var defaultAIPreset: DefaultAIPreset = .chatGPT {
+        didSet { persistPromptSettings() }
+    }
+    @Published var customAIURLString: String = "" {
+        didSet { persistPromptSettings() }
+    }
 
     // MARK: - Repositories & Helpers
     private let componentRepo = ComponentRepository()
@@ -417,6 +423,8 @@ final class RadixStore: ObservableObject {
     private let speakOnPreviewKey = "radix.speakOnPreview"
     private let promptConfigKey = "radix.promptConfig"
     private let promptTaskSelectionKey = "radix.promptSelectedTaskIDs"
+    private let defaultAIPresetKey = "radix.defaultAIPreset"
+    private let customAIURLKey = "radix.customAIURL"
     private let collectionsKey = "radix.characterCollections"
     private let selectedAICollectionKey = "radix.selectedAICollectionID"
     private let lastPreviewCharacterKey = "radix.lastPreviewCharacter"
@@ -2557,7 +2565,7 @@ final class RadixStore: ObservableObject {
         let sortedFavorites = Array(favorites).sorted()
         let sortedFavoritePhrases = Array(favoritePhrases).sorted()
         return UserProfile(
-            schemaVersion: 3,
+            schemaVersion: 4,
             favouritesList: sortedFavorites,
             favouriteEntries: sortedFavorites.map { FavouriteProfileEntry(character: $0, addedAt: favoriteAddedDates[$0]) },
             favouritePhrasesList: sortedFavoritePhrases,
@@ -2573,7 +2581,11 @@ final class RadixStore: ObservableObject {
             route: route.rawValue,
             phraseLength: phraseLength,
             promptConfig: promptConfig,
-            promptSelectedTaskIDs: promptSelectedTaskIDs
+            promptSelectedTaskIDs: promptSelectedTaskIDs,
+            defaultAISettings: DefaultAISettings(
+                preset: defaultAIPreset,
+                customURLString: customAIURLString
+            )
         )
     }
 
@@ -3086,6 +3098,13 @@ final class RadixStore: ObservableObject {
         } else if isCompleteRestore {
             promptSelectedTaskIDs = PromptConfig.defaultSelectedTaskIDs
         }
+        if let aiSettings = profile.defaultAISettings {
+            defaultAIPreset = aiSettings.preset
+            customAIURLString = aiSettings.customURLString
+        } else if isCompleteRestore {
+            defaultAIPreset = .chatGPT
+            customAIURLString = ""
+        }
         persistPromptSettings()
 
         if let candidate = profile.selectedCharacter, componentRepo.hasCharacter(candidate) {
@@ -3128,6 +3147,13 @@ final class RadixStore: ObservableObject {
         }
         if let data = UserDefaults.standard.data(forKey: promptConfigKey), let saved = try? JSONDecoder().decode(PromptConfig.self, from: data) { promptConfig = saved.normalized() }
         if let savedSelection = UserDefaults.standard.array(forKey: promptTaskSelectionKey) as? [String] { promptSelectedTaskIDs = savedSelection }
+        if let rawPreset = UserDefaults.standard.string(forKey: defaultAIPresetKey),
+           let preset = DefaultAIPreset(rawValue: rawPreset) {
+            defaultAIPreset = preset
+        }
+        if let savedCustomURL = UserDefaults.standard.string(forKey: customAIURLKey) {
+            customAIURLString = savedCustomURL
+        }
     }
 
     func speakCharacter(_ character: String) {
@@ -3137,7 +3163,71 @@ final class RadixStore: ObservableObject {
     private func persistPromptSettings() {
         if let data = try? JSONEncoder().encode(promptConfig) { UserDefaults.standard.set(data, forKey: promptConfigKey) }
         UserDefaults.standard.set(promptSelectedTaskIDs, forKey: promptTaskSelectionKey)
+        UserDefaults.standard.set(defaultAIPreset.rawValue, forKey: defaultAIPresetKey)
+        UserDefaults.standard.set(customAIURLString, forKey: customAIURLKey)
         updatePromptAutosaveStatus()
+    }
+
+    var defaultAIName: String {
+        switch defaultAIPreset {
+        case .custom:
+            if let host = normalizedCustomAIURL?.host, !host.isEmpty {
+                return host
+            }
+            return defaultAIPreset.displayName
+        default:
+            return defaultAIPreset.displayName
+        }
+    }
+
+    var defaultAIBaseURLString: String {
+        switch defaultAIPreset {
+        case .custom:
+            return normalizedCustomAIURL?.absoluteString ?? ""
+        default:
+            return defaultAIPreset.baseURLString
+        }
+    }
+
+    var defaultAIPrefillsPrompt: Bool {
+        switch defaultAIPreset {
+        case .chatGPT:
+            return true
+        case .custom:
+            return (normalizedCustomAIURL?.absoluteString.contains("{prompt}") == true)
+        default:
+            return false
+        }
+    }
+
+    func defaultAIURL(prompt: String) -> URL? {
+        switch defaultAIPreset {
+        case .chatGPT:
+            var components = URLComponents(string: defaultAIPreset.baseURLString)
+            components?.queryItems = [
+                URLQueryItem(name: "q", value: prompt)
+            ]
+            return components?.url
+        case .custom:
+            guard let custom = normalizedCustomAIURL else { return nil }
+            let urlString = custom.absoluteString
+            if urlString.contains("{prompt}") {
+                let encoded = prompt.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? prompt
+                return URL(string: urlString.replacingOccurrences(of: "{prompt}", with: encoded))
+            }
+            return custom
+        default:
+            return URL(string: defaultAIPreset.baseURLString)
+        }
+    }
+
+    private var normalizedCustomAIURL: URL? {
+        let trimmed = customAIURLString.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if let direct = URL(string: trimmed), direct.scheme != nil {
+            return direct
+        }
+        return URL(string: "https://\(trimmed)")
     }
 
     private func updatePromptAutosaveStatus(now: Date = Date()) {

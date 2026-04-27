@@ -82,7 +82,7 @@ struct DataEditTab: View {
     ## Software
 
     1. Install **Xcode (version 26.4 or newer)** from the App Store
-    2. Install **ChatGPT (for Codex use)**
+    2. Install **an AI app (for Codex use)**
 
     ---
 
@@ -123,7 +123,7 @@ struct DataEditTab: View {
 
     ## Step 1
 
-    Open ChatGPT
+    Open your AI app
 
     ## Step 2
 
