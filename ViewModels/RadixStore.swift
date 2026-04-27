@@ -815,7 +815,7 @@ final class RadixStore: ObservableObject {
 
     func goToAILinkTask4FromCapture(characters: [String]) {
         let validText = characters.joined()
-        if let collection = createCollection(name: "Apple Vision Page", sourceText: validText, sourceType: .ocr) {
+        if let collection = createCollection(name: "Apple Vision Image", sourceText: validText, sourceType: .ocr) {
             goToAILinkTask4(collection: collection)
             return
         }
@@ -1939,11 +1939,11 @@ final class RadixStore: ObservableObject {
         guard !characters.isEmpty else { return nil }
         let fallbackName: String = {
             switch sourceType {
-            case .ocr: return "OCR Page"
-            case .manual: return "Manual Page"
-            case .imported: return "Imported Page"
-            case .other: return "Page"
-            }
+            case .ocr: return "OCR Image"
+            case .manual: return "Manual Image"
+            case .imported: return "Imported Image"
+            case .other: return "Image"
+        }
         }()
         let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let collection = CharacterCollection(

@@ -365,10 +365,10 @@ struct DataEditTab: View {
 
             if showHelp {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Backup saves everything you've added or changed — custom characters, phrases, saved pages, favorites, and AI templates — into a single file.")
+                    Text("Backup saves everything you've added or changed — custom characters, phrases, saved images, favorites, and AI templates — into a single file.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
-                    Text("Additive restore merges dictionary, phrase, and saved page changes. Complete restore replaces the app's overlay data, saved pages, favorites, memory, search history, settings, and AI templates with the backup.")
+                    Text("Additive restore merges dictionary, phrase, and saved image changes. Complete restore replaces the app's overlay data, saved images, favorites, memory, search history, settings, and AI templates with the backup.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -455,7 +455,7 @@ struct DataEditTab: View {
                 .font(ResponsiveFont.headline)
 
             VStack(alignment: .leading, spacing: 12) {
-                DisclosureGroup("Saved Pages (\(store.allCollections.count))", isExpanded: $showSavedPagesPreview) {
+                DisclosureGroup("Saved Images (\(store.allCollections.count))", isExpanded: $showSavedPagesPreview) {
                     backupSavedPagesRows
                 }
 
@@ -887,7 +887,7 @@ struct DataEditTab: View {
     private var backupSavedPagesRows: some View {
         VStack(alignment: .leading, spacing: 8) {
             if store.allCollections.isEmpty {
-                Text("No saved pages.")
+                Text("No saved images.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             } else {
@@ -953,7 +953,11 @@ struct DataEditTab: View {
             summaryLine("Search mode", value: store.searchMode.rawValue)
             summaryLine("Current query", value: store.query.isEmpty ? "None" : store.query)
             summaryLine("Selected character", value: store.selectedCharacter ?? "None")
-            summaryLine("Selected AI page", value: store.selectedAICollection?.name ?? "None")
+            summaryLine("Selected AI image", value: store.selectedAICollection?.name ?? "None")
+            summaryLine("Default AI", value: store.defaultAIName)
+            if store.defaultAIPreset == .custom {
+                summaryLine("Custom AI URL", value: store.defaultAIBaseURLString.isEmpty ? "None" : store.defaultAIBaseURLString)
+            }
             summaryLine("Search history", value: "\(store.searchHistory.count) items")
             summaryLine("Remembered trail", value: "\(store.rootBreadcrumb.count) items")
             summaryLine("Phrase length", value: "\(store.phraseLength)-character")
@@ -1243,7 +1247,7 @@ struct DataEditTab: View {
                 .background(Color(.systemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                Text("Page System Preamble")
+                Text("Image System Preamble")
                     .font(ResponsiveFont.caption.bold())
                 TextEditor(text: Binding(
                     get: { store.promptConfig.collectionPreamble },
@@ -1255,7 +1259,7 @@ struct DataEditTab: View {
                 .background(Color(.systemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                Text("Page System Epilogue")
+                Text("Image System Epilogue")
                     .font(ResponsiveFont.caption.bold())
                 TextEditor(text: Binding(
                     get: { store.promptConfig.collectionEpilogue },

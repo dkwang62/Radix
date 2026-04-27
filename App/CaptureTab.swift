@@ -166,15 +166,12 @@ struct CaptureTab: View {
     }
 
     private var header: some View {
-        HStack(alignment: .center, spacing: 10) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Camera")
-                    .font(ResponsiveFont.title3.bold())
-                Text("Image to Radix results")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
+        VStack(alignment: .leading, spacing: 10) {
+            Label("Extract Chinese text from images using Apple Vision", systemImage: "camera")
+                .font(ResponsiveFont.subheadline)
+                .foregroundStyle(.secondary)
+
+            HStack(alignment: .center, spacing: 10) {
             if UIImagePickerController.isSourceTypeAvailable(.camera) {
                 Button {
                     showCamera = true
@@ -197,6 +194,8 @@ struct CaptureTab: View {
             }
             .buttonStyle(.bordered)
             .disabled(isProcessing)
+                Spacer()
+            }
         }
     }
 
@@ -209,20 +208,20 @@ struct CaptureTab: View {
     }
 
     private var defaultOCRCollectionName: String {
-        "OCR Page \(Date().formatted(date: .numeric, time: .shortened))"
+        "OCR Image \(Date().formatted(date: .numeric, time: .shortened))"
     }
 
     private var ocrCollectionSheet: some View {
         NavigationStack {
             Form {
-                Section("Page") {
+                Section("Image") {
                     TextField("Name", text: $ocrCollectionName)
                     Text("\(characters.count) unique Chinese characters will be saved.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
             }
-            .navigationTitle("Save Page")
+            .navigationTitle("Save Image")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -261,13 +260,6 @@ struct CaptureTab: View {
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 16) {
-            ContentUnavailableView(
-                "Choose an Image",
-                systemImage: "camera",
-                description: Text("Radix will extract Chinese text using Apple Vision, then let you review the characters and phrases in place.")
-            )
-            .frame(maxWidth: .infinity, minHeight: 240)
-
             SavedPagesSection(isExpanded: $isSavedPagesExpanded, footer: {
                 addChatGPTAnswerPanel
             })
@@ -302,7 +294,7 @@ struct CaptureTab: View {
     private func captureCharactersSection(scrollToTop: @escaping () -> Void) -> some View {
         captureSection("Characters") {
             HStack(spacing: 10) {
-                Button("Save Page") {
+                Button("Save Image") {
                     ocrCollectionName = defaultOCRCollectionName
                     isSavedPagesExpanded = true
                     showOCRCollectionSheet = true
@@ -1398,15 +1390,15 @@ private struct SavedPagesSection<Footer: View>: View {
         VStack(alignment: .leading, spacing: 16) {
             DisclosureGroup(isExpanded: $isExpanded) {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Delete named pages here. Removing a page deletes the saved page entry, not your dictionary or phrase data.")
+                    Text("Delete named images here. Removing an image deletes the saved image entry, not your dictionary or phrase data.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
-                    Text("Use Edit to rename a page or change which characters it contains.")
+                    Text("Use Edit to rename an image or change which characters it contains.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
 
                     if store.allCollections.isEmpty {
-                        Text("No saved pages yet.")
+                        Text("No saved images yet.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
                     } else {
@@ -1422,7 +1414,7 @@ private struct SavedPagesSection<Footer: View>: View {
                 .padding(.top, 10)
             } label: {
                 Label {
-                    Text("Saved Pages (\(store.allCollections.count))")
+                    Text("Saved Images (\(store.allCollections.count))")
                         .font(ResponsiveFont.headline)
                 } icon: {
                     Image(systemName: "doc.text.image")
@@ -1433,7 +1425,7 @@ private struct SavedPagesSection<Footer: View>: View {
         .padding()
         .background(Color(.secondarySystemBackground).opacity(0.4))
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .alert("Delete Saved Page?", isPresented: Binding(
+        .alert("Delete Saved Image?", isPresented: Binding(
             get: { pendingDeleteCollection != nil },
             set: { if !$0 { pendingDeleteCollection = nil } }
         )) {
@@ -1448,7 +1440,7 @@ private struct SavedPagesSection<Footer: View>: View {
             }
         } message: {
             if let collection = pendingDeleteCollection {
-                Text("Delete “\(collection.name)” from saved pages?")
+                Text("Delete “\(collection.name)” from saved images?")
             }
         }
         .sheet(item: $editingCollection) { collection in
@@ -1518,14 +1510,14 @@ private struct SavedPagesSection<Footer: View>: View {
     private func editCollectionSheet(_ collection: CharacterCollection) -> some View {
         NavigationStack {
             Form {
-                Section("Page") {
+                Section("Image") {
                     TextField("Name", text: $editingCollectionName)
                 }
 
                 Section("Characters") {
                     TextEditor(text: $editingCollectionText)
                         .frame(minHeight: 140)
-                    Text("Paste or type Chinese text here. Radix will keep the recognized characters for this saved page.")
+                    Text("Paste or type Chinese text here. Radix will keep the recognized characters for this saved image.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -1538,7 +1530,7 @@ private struct SavedPagesSection<Footer: View>: View {
                     }
                 }
             }
-            .navigationTitle("Edit Saved Page")
+            .navigationTitle("Edit Saved Image")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

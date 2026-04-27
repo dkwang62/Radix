@@ -83,7 +83,7 @@ struct AILinkView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Page for Task 4")
+                    Text("Image for Task 4")
                         .font(ResponsiveFont.subheadline.bold())
                     Text(selectedCollectionDescription)
                         .font(ResponsiveFont.caption)
@@ -127,14 +127,14 @@ struct AILinkView: View {
 
     private var selectedCollectionDescription: String {
         guard let selectedCollection else {
-            return hasCollectionTasks ? "Choose the page you want to use for Task 4." : "Choose the page you want to use for Task 4."
+            return hasCollectionTasks ? "Choose the image you want to use for Task 4." : "Choose the image you want to use for Task 4."
         }
-        return "Task 4 will use the selected page, not the selected character."
+        return "Task 4 will use the selected image, not the selected character."
     }
 
     private var aiCollectionMenu: some View {
         Menu {
-            Button("No Page") {
+            Button("No Image") {
                 store.selectAICollection(id: nil)
             }
             if !store.favoriteCollections.isEmpty {
@@ -147,7 +147,7 @@ struct AILinkView: View {
                 }
             }
             if !store.allCollections.isEmpty {
-                Section("Pages") {
+                Section("Images") {
                     ForEach(store.allCollections) { collection in
                         Button(collection.name) {
                             store.selectAICollection(id: collection.id)
@@ -156,7 +156,7 @@ struct AILinkView: View {
                 }
             }
         } label: {
-            Label("Choose Page", systemImage: "rectangle.stack")
+            Label("Choose Image", systemImage: "rectangle.stack")
                 .lineLimit(1)
         }
         .buttonStyle(.borderedProminent)
@@ -297,7 +297,7 @@ struct AILinkView: View {
                     Divider()
 
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Page System Preamble")
+                        Text("Image System Preamble")
                             .font(ResponsiveFont.subheadline.bold())
                         TextEditor(text: Binding(
                             get: { store.promptConfig.collectionPreamble },
@@ -313,7 +313,7 @@ struct AILinkView: View {
                     Divider()
 
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Page System Epilogue")
+                        Text("Image System Epilogue")
                             .font(ResponsiveFont.subheadline.bold())
                         TextEditor(text: Binding(
                             get: { store.promptConfig.collectionEpilogue },
@@ -476,7 +476,7 @@ struct AILinkView: View {
 
     private var generatedPromptText: String {
         if hasCollectionTasks && selectedCollection == nil {
-            return "Choose a page for Task 4."
+            return "Choose an image for Task 4."
         }
         if hasCharacterTasks && selectedCharacter == nil {
             return "Choose a character for Tasks 1-3."
@@ -500,7 +500,7 @@ struct AILinkView: View {
             if let selectedCollection {
                 parts.append("Task 4: \(selectedCollection.name)")
             } else {
-                parts.append("Task 4: no page")
+                parts.append("Task 4: no image")
             }
         }
 

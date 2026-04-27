@@ -241,9 +241,9 @@ struct FilterGridTab: View {
 
     private var browseSubjectTitle: String {
         if let collection = store.selectedBrowseCollection {
-            return "Page: \(collection.name) (\(collection.characters.count) characters)"
+            return "Image: \(collection.name) (\(collection.characters.count) characters)"
         }
-        return "All Characters"
+        return "No image selected"
     }
 
     private var browseSubjectDetail: String {
@@ -255,7 +255,7 @@ struct FilterGridTab: View {
 
     private var collectionMenu: some View {
         Menu {
-            Button("All Characters") {
+            Button("No Image") {
                 store.selectBrowseCollection(id: nil)
             }
             if !store.favoriteCollections.isEmpty {
@@ -268,7 +268,7 @@ struct FilterGridTab: View {
                 }
             }
             if !store.allCollections.isEmpty {
-                Section("Pages") {
+                Section("Images") {
                     ForEach(store.allCollections) { collection in
                         Button(collection.name) {
                             store.selectBrowseCollection(id: collection.id)
@@ -277,7 +277,7 @@ struct FilterGridTab: View {
                 }
             }
         } label: {
-            Label("Page", systemImage: "rectangle.stack")
+            Label("Image", systemImage: "rectangle.stack")
         }
         .buttonStyle(.bordered)
     }
@@ -285,7 +285,7 @@ struct FilterGridTab: View {
     private var manualCollectionSheet: some View {
         NavigationStack {
             Form {
-                Section("Page") {
+                Section("Image") {
                     TextField("Name", text: $manualCollectionName)
                     TextEditor(text: $manualCollectionText)
                         .frame(minHeight: 180)
@@ -297,7 +297,7 @@ struct FilterGridTab: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            .navigationTitle("New Page")
+            .navigationTitle("New Image")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

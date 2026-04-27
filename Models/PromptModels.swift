@@ -82,11 +82,11 @@ Compare this character with 2–3 other characters of similar meaning or usage, 
             ),
             PromptTask(
                 id: "task4",
-                title: "Task 4 – Extract Phrases from Page (image)",
+                title: "Task 4 – Extract Phrases from Image",
                 template: """
-Task 4 – Extract Phrases from Page (image)
+Task 4 – Extract Phrases from Image
 
-From the page details below, extract useful 2-, 3-, and 4-character Chinese phrases that are found as dictionary headwords.
+From the image details below, extract useful 2-, 3-, and 4-character Chinese phrases that are found as dictionary headwords.
 
 Rules:
 \t•\tKeep the OCR text context in mind.
@@ -118,13 +118,13 @@ Important:
         collectionPreamble: """
         You are a bilingual Chinese dictionary editor and teacher.
 
-        Work with a page of Chinese characters extracted from OCR or manual input. Treat the page as the subject. Do not analyze one character at a time unless the task explicitly asks for it.
+        Work with an image of Chinese characters extracted from OCR or manual input. Treat the image as the subject. Do not analyze one character at a time unless the task explicitly asks for it.
 
         ⸻
 
         """,
         collectionEpilogue: """
-        Page: {collection_name}
+        Image: {collection_name}
         Characters: {capture_chars}
         OCR text/context:
         {capture_text}
@@ -200,11 +200,30 @@ extension PromptConfig {
             return true
         }.map { task in
             guard task.id == "task4",
-                  task.template.contains("{capture_chars}") || task.template.contains("{capture_text}") || task.template.contains("{collection_name}"),
                   let defaultTask = PromptConfig.streamlitDefault.tasks.first(where: { $0.id == "task4" }) else {
                 return task
             }
-            return PromptTask(id: task.id, title: task.title, template: defaultTask.template)
+
+            let normalizedTitle: String
+            if task.title == "Task 4 – Isolate Phrases from Apple Vision" {
+                normalizedTitle = defaultTask.title
+            } else {
+                normalizedTitle = task.title
+            }
+
+            let normalizedTemplate: String
+            if task.template.contains("{capture_chars}") || task.template.contains("{capture_text}") || task.template.contains("{collection_name}") {
+                normalizedTemplate = defaultTask.template
+            } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {
+                normalizedTemplate = task.template.replacingOccurrences(
+                    of: "Task 4 – Isolate Phrases from Apple Vision",
+                    with: defaultTask.title
+                )
+            } else {
+                normalizedTemplate = task.template
+            }
+
+            return PromptTask(id: task.id, title: normalizedTitle, template: normalizedTemplate)
         }
         if cleaned.isEmpty {
             return .streamlitDefault
@@ -225,10 +244,10 @@ extension PromptConfig {
 
     private func pageTerminology(_ text: String) -> String {
         text
-            .replacingOccurrences(of: "Collections", with: "Pages")
-            .replacingOccurrences(of: "Collection", with: "Page")
-            .replacingOccurrences(of: "collections", with: "pages")
-            .replacingOccurrences(of: "collection", with: "page")
+            .replacingOccurrences(of: "Collections", with: "Images")
+            .replacingOccurrences(of: "Collection", with: "Image")
+            .replacingOccurrences(of: "collections", with: "images")
+            .replacingOccurrences(of: "collection", with: "image")
     }
 
     func renderPrompt(selectedTaskIDs: [String], context: PromptRenderContext, subject: ActiveSubject) -> String {

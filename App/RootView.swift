@@ -169,7 +169,7 @@ struct RootView: View {
         let title: String = {
             switch selection {
             case -1: return "Roots"
-            case 0: return "Camera"
+            case 0: return "Image"
             case 1: return "Search"
             case 2: return "Browse"
             case 3: return "Favorites"
@@ -267,7 +267,7 @@ struct RootView: View {
 
                 // Custom compact tab bar (keeps core workflow one tap away)
                 HStack(spacing: 6) {
-                    tabButton(id: 0, title: "Camera", system: "camera")
+                    tabButton(id: 0, title: "Image", system: "camera")
                     tabButton(id: 1, title: "Search", system: "magnifyingglass")
                     tabButton(id: 2, title: "Browse", system: "square.grid.2x2")
                     tabButton(id: 3, title: "Favs", system: "star")
@@ -402,7 +402,7 @@ struct RootView: View {
 
     private var detailPaneTitle: String {
         switch store.route {
-        case .capture:   return "Camera"
+        case .capture:   return "Image"
         case .search:
             switch store.homeTab {
             case .smart:      return "Search"
@@ -421,7 +421,7 @@ struct RootView: View {
             VStack(alignment: .leading, spacing: 10) {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                     sidebarIconButton(
-                        title: "Camera",
+                        title: "Image",
                         systemImage: "camera",
                         isActive: store.route == .capture
                     ) {
