@@ -260,17 +260,23 @@ struct CaptureTab: View {
     }
 
     private var emptyState: some View {
-        ContentUnavailableView(
-            "Choose an Image",
-            systemImage: "camera",
-            description: Text("Radix will extract Chinese text using Apple Vision, then let you review the characters and phrases in place.")
-        )
-        .frame(maxWidth: .infinity, minHeight: 240)
+        VStack(alignment: .leading, spacing: 16) {
+            ContentUnavailableView(
+                "Choose an Image",
+                systemImage: "camera",
+                description: Text("Radix will extract Chinese text using Apple Vision, then let you review the characters and phrases in place.")
+            )
+            .frame(maxWidth: .infinity, minHeight: 240)
+
+            SavedPagesSection()
+        }
     }
 
     private func captureResults(scrollToTop: @escaping () -> Void) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             captureCharactersSection(scrollToTop: scrollToTop)
+            SavedPagesSection()
+            captureBottomActions
 
             switch phraseMode {
             case .apple:
@@ -310,7 +316,29 @@ struct CaptureTab: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
             HStack(spacing: 10) {
-                if phraseMode == .apple {
+                Button("Save Page") {
+                    ocrCollectionName = defaultOCRCollectionName
+                    showOCRCollectionSheet = true
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(characters.isEmpty)
+
+                Button("Clear") {
+                    clearCaptureResults()
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+    }
+
+    private var captureBottomActions: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if phraseMode == .apple {
+                LazyVGrid(
+                    columns: [GridItem(.adaptive(minimum: 180), spacing: 8)],
+                    alignment: .leading,
+                    spacing: 8
+                ) {
                     Button("Remember Characters") {
                         for character in characters {
                             store.pushRootBreadcrumb(character)
@@ -320,28 +348,22 @@ struct CaptureTab: View {
                     .buttonStyle(.bordered)
                     .disabled(characters.isEmpty)
 
-                    Button("Save Page") {
-                        ocrCollectionName = defaultOCRCollectionName
-                        showOCRCollectionSheet = true
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(characters.isEmpty)
-
                     Button {
                         openAILinkTask4()
                     } label: {
                         Label("Isolate Phrases with AI", systemImage: "sparkles")
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .buttonStyle(.borderedProminent)
                     .disabled(characters.isEmpty)
-                } else {
-                    Button {
-                        phraseMode = .apple
-                    } label: {
-                        Label("Back to Apple-Derived Phrases", systemImage: "chevron.left")
-                    }
-                    .buttonStyle(.bordered)
                 }
+            } else {
+                Button {
+                    phraseMode = .apple
+                } label: {
+                    Label("Back to Apple-Derived Phrases", systemImage: "chevron.left")
+                }
+                .buttonStyle(.bordered)
             }
         }
     }
@@ -1037,6 +1059,18 @@ struct CaptureTab: View {
         phraseDiscoveryImportedCount = 0
     }
 
+    private func clearCaptureResults() {
+        selectedImage = nil
+        store.activeCaptureDraft = CaptureDraft()
+        gridPage = 0
+        capturePreviewCharacter = nil
+        captureDetailPreviewCharacter = nil
+        statusMessage = nil
+        errorMessage = nil
+        ocrCollectionName = ""
+        resetPhraseDiscovery()
+    }
+
     private func setAllPhraseDiscoveryCandidates(_ isSelected: Bool) {
         phraseDiscoveryCandidates = phraseDiscoveryCandidates.map { candidate in
             var candidate = candidate
@@ -1500,6 +1534,191 @@ private struct CameraCaptureView: UIViewControllerRepresentable {
 
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             dismiss()
+        }
+    }
+}
+
+private struct SavedPagesSection: View {
+    @EnvironmentObject private var store: RadixStore
+
+    @State private var pendingDeleteCollection: CharacterCollection?
+    @State private var editingCollection: CharacterCollection?
+    @State private var editingCollectionName: String = ""
+    @State private var editingCollectionText: String = ""
+    @State private var collectionEditorError: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Label {
+                Text("Saved Pages")
+                    .font(ResponsiveFont.headline)
+            } icon: {
+                Image(systemName: "doc.text.image")
+            }
+            .foregroundStyle(Color.accentColor)
+
+            Text("Delete named pages here. Removing a page deletes the saved page entry, not your dictionary or phrase data.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+            Text("Use Edit to rename a page or change which characters it contains.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+
+            if store.allCollections.isEmpty {
+                Text("No saved pages yet.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(store.allCollections) { collection in
+                        savedPageRow(collection)
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground).opacity(0.4))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .alert("Delete Saved Page?", isPresented: Binding(
+            get: { pendingDeleteCollection != nil },
+            set: { if !$0 { pendingDeleteCollection = nil } }
+        )) {
+            Button("Delete", role: .destructive) {
+                if let collection = pendingDeleteCollection {
+                    store.deleteCollection(id: collection.id)
+                }
+                pendingDeleteCollection = nil
+            }
+            Button("Cancel", role: .cancel) {
+                pendingDeleteCollection = nil
+            }
+        } message: {
+            if let collection = pendingDeleteCollection {
+                Text("Delete “\(collection.name)” from saved pages?")
+            }
+        }
+        .sheet(item: $editingCollection) { collection in
+            editCollectionSheet(collection)
+        }
+    }
+
+    private func savedPageRow(_ collection: CharacterCollection) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Text(collection.name)
+                        .font(ResponsiveFont.subheadline.bold())
+                    if collection.isFavorite {
+                        Image(systemName: "star.fill")
+                            .font(.caption)
+                            .foregroundStyle(.yellow)
+                    }
+                }
+
+                Text("\(collection.characters.count) characters • \(collectionSourceLabel(collection.sourceType))")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Button {
+                beginEditing(collection)
+            } label: {
+                Text("Edit")
+                    .font(ResponsiveFont.caption)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.mini)
+
+            Button(role: .destructive) {
+                pendingDeleteCollection = collection
+            } label: {
+                Text("Delete")
+                    .font(ResponsiveFont.caption)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.mini)
+        }
+        .padding(10)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func beginEditing(_ collection: CharacterCollection) {
+        editingCollectionName = collection.name
+        editingCollectionText = collection.characters.sorted().joined(separator: " ")
+        collectionEditorError = nil
+        editingCollection = collection
+    }
+
+    private func editCollectionSheet(_ collection: CharacterCollection) -> some View {
+        NavigationStack {
+            Form {
+                Section("Page") {
+                    TextField("Name", text: $editingCollectionName)
+                }
+
+                Section("Characters") {
+                    TextEditor(text: $editingCollectionText)
+                        .frame(minHeight: 140)
+                    Text("Paste or type Chinese text here. Radix will keep the recognized characters for this saved page.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                if let collectionEditorError {
+                    Section {
+                        Text(collectionEditorError)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+            .navigationTitle("Edit Saved Page")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        editingCollection = nil
+                        collectionEditorError = nil
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        saveEditedCollection(collection)
+                    }
+                }
+            }
+        }
+    }
+
+    private func saveEditedCollection(_ collection: CharacterCollection) {
+        guard let updated = store.updateCollection(
+            id: collection.id,
+            newName: editingCollectionName,
+            sourceText: editingCollectionText
+        ) else {
+            collectionEditorError = "Enter a name and at least one Chinese character that exists in Radix."
+            return
+        }
+
+        editingCollectionName = updated.name
+        editingCollectionText = updated.characters.sorted().joined(separator: " ")
+        collectionEditorError = nil
+        editingCollection = nil
+    }
+
+    private func collectionSourceLabel(_ source: CollectionSourceType) -> String {
+        switch source {
+        case .ocr:
+            return "OCR"
+        case .manual:
+            return "Manual"
+        case .imported:
+            return "Imported"
+        case .other:
+            return "Other"
         }
     }
 }

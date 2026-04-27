@@ -53,12 +53,6 @@ struct DataEditTab: View {
     @State private var showHelp = false
     @State private var showSourceSetupGuide = false
     @State private var showSettings = false
-    @State private var pendingDeleteCollection: CharacterCollection?
-    @State private var editingCollection: CharacterCollection?
-    @State private var editingCollectionName: String = ""
-    @State private var editingCollectionText: String = ""
-    @State private var collectionEditorError: String?
-
     // Scroll-to-top support (phones only)
     @State private var dataEditScrollProxy: ScrollViewProxy?
 
@@ -247,7 +241,6 @@ struct DataEditTab: View {
                 if showAdvancedExports {
                     premiumExportsSection
                 } else {
-                    savedPagesSection
                     backupAndRestoreSection
                     whatsInMyBackupSection
                 }
@@ -324,31 +317,10 @@ struct DataEditTab: View {
                 Text(msg)
             }
         }
-        .alert("Delete Saved Page?", isPresented: Binding(
-            get: { pendingDeleteCollection != nil },
-            set: { if !$0 { pendingDeleteCollection = nil } }
-        )) {
-            Button("Delete", role: .destructive) {
-                if let collection = pendingDeleteCollection {
-                    store.deleteCollection(id: collection.id)
-                }
-                pendingDeleteCollection = nil
-            }
-            Button("Cancel", role: .cancel) {
-                pendingDeleteCollection = nil
-            }
-        } message: {
-            if let collection = pendingDeleteCollection {
-                Text("Delete “\(collection.name)” from saved pages?")
-            }
-        }
         .sheet(isPresented: $showSettings) {
             NavigationStack {
                 SettingsView()
             }
-        }
-        .sheet(item: $editingCollection) { collection in
-            editCollectionSheet(collection)
         }
         .onAppear { dataEditScrollProxy = proxy }
         } // ScrollViewReader
@@ -518,40 +490,6 @@ struct DataEditTab: View {
             .padding(12)
             .background(Color(.systemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
-        .padding()
-        .background(Color(.secondarySystemBackground).opacity(0.4))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-
-    private var savedPagesSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Label {
-                Text("Saved Pages")
-                    .font(ResponsiveFont.headline)
-            } icon: {
-                Image(systemName: "doc.text.image")
-            }
-            .foregroundStyle(Color.accentColor)
-
-            Text("Delete named pages here. Removing a page deletes the saved page entry, not your dictionary or phrase data.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-            Text("Use Edit to rename a page or change which characters it contains.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-
-            if store.allCollections.isEmpty {
-                Text("No saved pages yet.")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-            } else {
-                VStack(alignment: .leading, spacing: 10) {
-                    ForEach(store.allCollections) { collection in
-                        savedPageRow(collection)
-                    }
-                }
-            }
         }
         .padding()
         .background(Color(.secondarySystemBackground).opacity(0.4))
@@ -946,113 +884,6 @@ struct DataEditTab: View {
         )
     }
 
-    private func savedPageRow(_ collection: CharacterCollection) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Text(collection.name)
-                        .font(ResponsiveFont.subheadline.bold())
-                    if collection.isFavorite {
-                        Image(systemName: "star.fill")
-                            .font(.caption)
-                            .foregroundStyle(.yellow)
-                    }
-                }
-
-                Text("\(collection.characters.count) characters • \(collectionSourceLabel(collection.sourceType))")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
-            Button {
-                beginEditing(collection)
-            } label: {
-                Text("Edit")
-                    .font(ResponsiveFont.caption)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.mini)
-
-            Button(role: .destructive) {
-                pendingDeleteCollection = collection
-            } label: {
-                Text("Delete")
-                    .font(ResponsiveFont.caption)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.mini)
-        }
-        .padding(10)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-
-    private func beginEditing(_ collection: CharacterCollection) {
-        editingCollectionName = collection.name
-        editingCollectionText = collection.characters.sorted().joined(separator: " ")
-        collectionEditorError = nil
-        editingCollection = collection
-    }
-
-    private func editCollectionSheet(_ collection: CharacterCollection) -> some View {
-        NavigationStack {
-            Form {
-                Section("Page") {
-                    TextField("Name", text: $editingCollectionName)
-                }
-
-                Section("Characters") {
-                    TextEditor(text: $editingCollectionText)
-                        .frame(minHeight: 140)
-                    Text("Paste or type Chinese text here. Radix will keep the recognized characters for this saved page.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                if let collectionEditorError {
-                    Section {
-                        Text(collectionEditorError)
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.red)
-                    }
-                }
-            }
-            .navigationTitle("Edit Saved Page")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
-                        editingCollection = nil
-                        collectionEditorError = nil
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save") {
-                        saveEditedCollection(collection)
-                    }
-                }
-            }
-        }
-    }
-
-    private func saveEditedCollection(_ collection: CharacterCollection) {
-        guard let updated = store.updateCollection(
-            id: collection.id,
-            newName: editingCollectionName,
-            sourceText: editingCollectionText
-        ) else {
-            collectionEditorError = "Enter a name and at least one Chinese character that exists in Radix."
-            return
-        }
-
-        editingCollectionName = updated.name
-        editingCollectionText = updated.characters.sorted().joined(separator: " ")
-        collectionEditorError = nil
-        editingCollection = nil
-    }
-
     private var backupSavedPagesRows: some View {
         VStack(alignment: .leading, spacing: 8) {
             if store.allCollections.isEmpty {
@@ -1139,15 +970,6 @@ struct DataEditTab: View {
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.trailing)
-        }
-    }
-
-    private func collectionSourceLabel(_ sourceType: CollectionSourceType) -> String {
-        switch sourceType {
-        case .ocr: return "OCR"
-        case .manual: return "Manual"
-        case .imported: return "Imported"
-        case .other: return "Other"
         }
     }
 
