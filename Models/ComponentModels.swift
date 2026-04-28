@@ -45,11 +45,15 @@ struct ComponentItem: Identifiable, Hashable {
 struct CharacterCollection: Identifiable, Codable, Equatable, Hashable {
     let id: UUID
     var name: String
-    var characters: Set<String>
+    /// All characters in reading order, including duplicates.
+    var characters: [String]
     var createdAt: Date
     var sourceType: CollectionSourceType
     var isFavorite: Bool
     var thumbnailJPEGData: Data?
+
+    /// Unique characters, computed on demand (e.g. for Browse tab filtering).
+    var uniqueCharacters: Set<String> { Set(characters) }
 }
 
 enum CollectionSourceType: String, Codable, Hashable {

@@ -34,6 +34,16 @@ struct CaptureTab: View {
         CaptureTextExtractor.uniqueCharacters(in: store.activeCaptureDraft.charactersText)
     }
 
+    private var ocrCollectionCharacterSummary: String {
+        let allCount = CaptureTextExtractor.allCharactersInOrder(in: store.activeCaptureDraft.charactersText).count
+        let uniqueCount = characters.count
+        if allCount == uniqueCount {
+            return "\(uniqueCount) Chinese characters will be saved."
+        } else {
+            return "\(allCount) characters (\(uniqueCount) unique) will be saved in reading order."
+        }
+    }
+
     private var phraseCandidates: [String] {
         CaptureTextExtractor.uniquePhrases(from: store.activeCaptureDraft.phrasesText.split(separator: "\n").map(String.init))
     }
@@ -222,7 +232,7 @@ struct CaptureTab: View {
             Form {
                 Section("Image") {
                     TextField("Name", text: $ocrCollectionName)
-                    Text("\(characters.count) unique Chinese characters will be saved.")
+                    Text(ocrCollectionCharacterSummary)
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -1086,7 +1096,7 @@ struct CaptureTab: View {
         do {
             selectedImage = image
             let text = try await CaptureOCRService().recognizeText(in: image)
-            let foundCharacters = CaptureTextExtractor.uniqueCharacters(in: text)
+            let foundCharacters = CaptureTextExtractor.allCharactersInOrder(in: text)
             let foundPhrases = CaptureTextExtractor.uniquePhrases(in: text)
             store.activeCaptureDraft = CaptureDraft(
                 rawText: text,
@@ -1547,7 +1557,7 @@ private struct SavedPagesSection<Footer: View>: View {
 
     private func beginEditing(_ collection: CharacterCollection) {
         editingCollectionName = collection.name
-        editingCollectionText = collection.characters.sorted().joined(separator: " ")
+        editingCollectionText = collection.characters.joined(separator: " ")
         collectionEditorError = nil
         editingCollection = collection
     }
@@ -1604,7 +1614,7 @@ private struct SavedPagesSection<Footer: View>: View {
         }
 
         editingCollectionName = updated.name
-        editingCollectionText = updated.characters.sorted().joined(separator: " ")
+        editingCollectionText = updated.characters.joined(separator: " ")
         collectionEditorError = nil
         editingCollection = nil
     }

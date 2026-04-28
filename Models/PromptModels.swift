@@ -16,19 +16,18 @@ struct PromptConfig: Codable, Hashable {
 
     static let streamlitDefault = PromptConfig(
         version: 1,
-        preamble: """
+        preamble: "",
+        tasks: [
+            PromptTask(
+                id: "task1",
+                title: "Task 1 – Character Analysis",
+                template: """
 You are a bilingual Chinese dictionary editor and teacher.
 
 Explain a single Chinese character in depth for language learners. Focus on modern usage, and if the character is rare, show its more widely used modern equivalent while noting the original character.
 
 ⸻
 
-""",
-        tasks: [
-            PromptTask(
-                id: "task1",
-                title: "Task 1 – Character Analysis",
-                template: """
 Task 1 – Character Analysis
 
 For the Hanzi below, provide:
@@ -84,13 +83,19 @@ Compare this character with 2–3 other characters of similar meaning or usage, 
                 id: "task4",
                 title: "Task 4 – Extract Phrases from Image",
                 template: """
+You are a bilingual Chinese dictionary editor and teacher.
+
+Work with an image of Chinese characters extracted from OCR or manual input. Treat the image as the subject. Do not analyze one character at a time unless the task explicitly asks for it.
+
+⸻
+
 Task 4 – Extract Phrases from Image
 
 From the image details below, extract useful 2-, 3-, and 4-character Chinese phrases that are found as dictionary headwords.
 
 Rules:
 \t•\tKeep the OCR text context in mind.
-\t•\tReturn only useful phrase candidates that are attested in Chinese dictionaries.
+\t•\tReturn only useful phrase candidates (in reading order sequence) that are attested in Chinese dictionaries.
 \t•\tOnly include a phrase if it would normally appear as an entry in a reputable dictionary such as CC-CEDICT, Pleco, MDBG, Wiktionary, or a standard Chinese dictionary.
 \t•\tPrioritize common, natural dictionary phrases.
 \t•\tAvoid rare, awkward, or accidental character combinations.
@@ -115,14 +120,7 @@ Important:
         Hanzi: {char}
         - English definition: {def_en}
         """,
-        collectionPreamble: """
-        You are a bilingual Chinese dictionary editor and teacher.
-
-        Work with an image of Chinese characters extracted from OCR or manual input. Treat the image as the subject. Do not analyze one character at a time unless the task explicitly asks for it.
-
-        ⸻
-
-        """,
+        collectionPreamble: "",
         collectionEpilogue: """
         Image: {collection_name}
         Characters: {capture_chars}
@@ -149,7 +147,7 @@ Important:
         self.preamble = preamble
         self.tasks = tasks
         self.epilogue = epilogue
-        self.collectionPreamble = collectionPreamble.isEmpty ? PromptConfig.defaultCollectionPreamble : collectionPreamble
+        self.collectionPreamble = collectionPreamble
         self.collectionEpilogue = collectionEpilogue.isEmpty ? PromptConfig.defaultCollectionEpilogue : collectionEpilogue
     }
 
@@ -163,7 +161,7 @@ Important:
         preamble = try container.decode(String.self, forKey: .preamble)
         tasks = try container.decode([PromptTask].self, forKey: .tasks)
         epilogue = try container.decode(String.self, forKey: .epilogue)
-        collectionPreamble = try container.decodeIfPresent(String.self, forKey: .collectionPreamble) ?? PromptConfig.defaultCollectionPreamble
+        collectionPreamble = try container.decodeIfPresent(String.self, forKey: .collectionPreamble) ?? ""
         collectionEpilogue = try container.decodeIfPresent(String.self, forKey: .collectionEpilogue) ?? PromptConfig.defaultCollectionEpilogue
     }
 

@@ -86,6 +86,7 @@ enum HomeTab: String, CaseIterable, Identifiable {
 
 /// Sorting modes for the discovery grid.
 enum GridSortMode: String, CaseIterable, Identifiable {
+    case readingOrder = "Reading Order"
     case componentFrequency = "Components"
     case characterFrequency = "All"
 
@@ -331,7 +332,7 @@ final class RadixStore: ObservableObject {
     @Published var selectedBrowseCollectionID: UUID? = nil {
         didSet {
             guard oldValue != selectedBrowseCollectionID else { return }
-            selectedBrowseCollectionCharacters = selectedBrowseCollectionID.flatMap { collection(id: $0)?.characters }
+            selectedBrowseCollectionCharacters = selectedBrowseCollectionID.flatMap { collection(id: $0).map { Set($0.characters) } }
             if let selectedBrowseCollection {
                 activeSubject = .collection(selectedBrowseCollection)
             } else if case .collection = activeSubject {
@@ -351,6 +352,7 @@ final class RadixStore: ObservableObject {
     @Published private(set) var gridFilteredComponentCount: Int = 0
     @Published var gridPage: Int = 0
     @Published private(set) var allGridItems: [ComponentItem] = []
+    @Published private(set) var allReadingOrderCharacters: [String] = []
     
     // MARK: - Computed Result Sets
     @Published private(set) var results: [ComponentItem] = []
@@ -836,7 +838,7 @@ final class RadixStore: ObservableObject {
     func goToAILinkTask4(collection: CharacterCollection) {
         selectedAICollectionID = collection.id
         selectedBrowseCollectionID = collection.id
-        selectedBrowseCollectionCharacters = collection.characters
+        selectedBrowseCollectionCharacters = Set(collection.characters)
         promptSelectedTaskIDs = ["task4"]
         shouldAutoOpenAILinkTask4 = true
         route = .aiLink
@@ -1795,9 +1797,39 @@ final class RadixStore: ObservableObject {
         }
     }
 
-    private func buildGridItemsWithCounts() -> (items: [ComponentItem], allCount: Int, componentCount: Int) {
+    private func buildGridItemsWithCounts() -> (items: [ComponentItem], allCount: Int, componentCount: Int, readingOrder: [String]) {
         let lower = min(strokeMinFilter, strokeMaxFilter)
         let upper = max(strokeMinFilter, strokeMaxFilter)
+
+        // Reading-order mode: preserve full sequence including duplicates
+        if gridSortMode == .readingOrder, let collection = selectedBrowseCollection {
+            // Filter the full character sequence (with duplicates) through active filters
+            let filteredOrdered: [String] = collection.characters.filter { char in
+                guard let item = componentRepo.byCharacter[char] else { return false }
+                let strokeValue = item.strokes ?? 999
+                let strokeMatch = strokeValue >= lower && strokeValue <= upper
+                let radicalMatch = isNoFilter(selectedRadicalFilter) || item.radical == selectedRadicalFilter
+                let structure = componentRepo.structureKey(for: item)
+                let structureMatch = isNoFilter(selectedStructureFilter) || structure == selectedStructureFilter
+                let scriptMatch: Bool = {
+                    switch gridScriptFilter {
+                    case .any: return true
+                    case .simplified: return componentRepo.isSimplifiedForGrid(char)
+                    case .traditional: return componentRepo.isTraditionalForGrid(char)
+                    }
+                }()
+                return strokeMatch && radicalMatch && structureMatch && scriptMatch
+            }
+            // Unique items for counts
+            var seen = Set<String>()
+            let uniqueItems: [ComponentItem] = filteredOrdered.compactMap { char in
+                guard seen.insert(char).inserted else { return nil }
+                return componentRepo.byCharacter[char]
+            }
+            let componentPool = uniqueItems.filter { componentRepo.isUsedComponent($0.character) }
+            return (items: uniqueItems, allCount: filteredOrdered.count, componentCount: componentPool.count, readingOrder: filteredOrdered)
+        }
+
         var items = allCharactersCache
         if let collectionCharacters = selectedBrowseCollectionCharacters {
             items = items.filter { collectionCharacters.contains($0.character) }
@@ -1825,6 +1857,8 @@ final class RadixStore: ObservableObject {
         let componentPool = items.filter { componentRepo.isUsedComponent($0.character) }
         let sorted: [ComponentItem] = {
             switch gridSortMode {
+            case .readingOrder:
+                return items.sorted(by: frequencySortPredicate)
             case .componentFrequency:
                 return componentPool.sorted(by: usageSortPredicate)
             case .characterFrequency:
@@ -1832,7 +1866,7 @@ final class RadixStore: ObservableObject {
             }
         }()
 
-        return (items: sorted, allCount: items.count, componentCount: componentPool.count)
+        return (items: sorted, allCount: items.count, componentCount: componentPool.count, readingOrder: [])
     }
 
     var gridBatchSize: Int {
@@ -1846,7 +1880,7 @@ final class RadixStore: ObservableObject {
         #endif
     }
     var gridPageCount: Int {
-        let count = allGridItems.count
+        let count = gridSortMode == .readingOrder ? allReadingOrderCharacters.count : allGridItems.count
         return count == 0 ? 1 : Int(ceil(Double(count) / Double(gridBatchSize)))
     }
     var pagedGridItems: [ComponentItem] {
@@ -1855,6 +1889,14 @@ final class RadixStore: ObservableObject {
         let end = min(start + gridBatchSize, allGridItems.count)
         guard start < end else { return [] }
         return Array(allGridItems[start..<end])
+    }
+    /// Paged slice of the full reading-order sequence (with duplicates), as (offset, character) pairs.
+    var pagedReadingOrderItems: [(offset: Int, character: String)] {
+        let page = min(max(0, gridPage), max(0, gridPageCount - 1))
+        let start = page * gridBatchSize
+        let end = min(start + gridBatchSize, allReadingOrderCharacters.count)
+        guard start < end else { return [] }
+        return allReadingOrderCharacters[start..<end].enumerated().map { (start + $0.offset, $0.element) }
     }
     func nextGridPage() {
         guard gridPage + 1 < gridPageCount else { return }
@@ -1940,7 +1982,7 @@ final class RadixStore: ObservableObject {
         sourceType: CollectionSourceType,
         thumbnailJPEGData: Data? = nil
     ) -> CharacterCollection? {
-        let characters = Set(CaptureTextExtractor.uniqueCharacters(in: sourceText).filter { componentRepo.hasCharacter($0) })
+        let characters = CaptureTextExtractor.allCharactersInOrder(in: sourceText).filter { componentRepo.hasCharacter($0) }
         guard !characters.isEmpty else { return nil }
         let fallbackName: String = {
             switch sourceType {
@@ -1972,7 +2014,7 @@ final class RadixStore: ObservableObject {
         }
         sortCollections()
         if selectedBrowseCollectionID == collection.id {
-            selectedBrowseCollectionCharacters = collection.characters
+            selectedBrowseCollectionCharacters = Set(collection.characters)
             activeSubject = .collection(collection)
         }
         persistCollections()
@@ -2004,7 +2046,7 @@ final class RadixStore: ObservableObject {
         let cleanName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanName.isEmpty else { return nil }
 
-        let characters = Set(CaptureTextExtractor.uniqueCharacters(in: sourceText).filter { componentRepo.hasCharacter($0) })
+        let characters = CaptureTextExtractor.allCharactersInOrder(in: sourceText).filter { componentRepo.hasCharacter($0) }
         guard !characters.isEmpty else { return nil }
 
         var updated = allCollections[index]
@@ -2028,6 +2070,9 @@ final class RadixStore: ObservableObject {
         selectedBrowseCollectionID = id
         if let id {
             selectedAICollectionID = id
+            gridSortMode = .readingOrder
+        } else {
+            gridSortMode = .characterFrequency
         }
     }
 
@@ -2051,7 +2096,7 @@ final class RadixStore: ObservableObject {
         }
         allCollections = decoded.map { collection in
             var copy = collection
-            copy.characters = Set(collection.characters.filter { componentRepo.hasCharacter($0) })
+            copy.characters = collection.characters.filter { componentRepo.hasCharacter($0) }
             return copy
         }.filter { !$0.characters.isEmpty }
         sortCollections()
@@ -2199,10 +2244,10 @@ final class RadixStore: ObservableObject {
             collectionCharacters = ""
             collectionCharacterSet = nil
         case .collection(let collection):
-            char = collection.characters.sorted().first ?? ""
+            char = collection.characters.first ?? ""
             collectionName = collection.name
-            collectionCharacters = collection.characters.sorted().joined(separator: " ")
-            collectionCharacterSet = collection.characters
+            collectionCharacters = collection.characters.joined(separator: " ")
+            collectionCharacterSet = collection.uniqueCharacters
         }
         let item = componentRepo.byCharacter[char]
         let analysis = componentRepo.analyzeStructure(for: char)
@@ -2376,6 +2421,7 @@ final class RadixStore: ObservableObject {
             let result = buildGridItemsWithCounts()
             await MainActor.run {
                 allGridItems = result.items
+                allReadingOrderCharacters = result.readingOrder
                 gridFilteredAllCount = result.allCount
                 gridFilteredComponentCount = result.componentCount
             }
@@ -3246,7 +3292,7 @@ final class RadixStore: ObservableObject {
     private func sanitizeCollections(_ collections: [CharacterCollection]) -> [CharacterCollection] {
         collections.map { collection in
             var copy = collection
-            copy.characters = Set(collection.characters.filter { componentRepo.hasCharacter($0) })
+            copy.characters = collection.characters.filter { componentRepo.hasCharacter($0) }
             return copy
         }.filter { !$0.characters.isEmpty }
     }

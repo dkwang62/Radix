@@ -19,7 +19,16 @@ final class CaptureOCRService {
                         return
                     }
 
-                    let observations = request.results as? [VNRecognizedTextObservation] ?? []
+                    let observations = (request.results as? [VNRecognizedTextObservation] ?? [])
+                        .sorted {
+                            // Vision boundingBox origin is bottom-left, so higher Y = higher on screen.
+                            // Group lines by proximity (within 1% of image height) before sorting left-to-right.
+                            let yDiff = abs($0.boundingBox.midY - $1.boundingBox.midY)
+                            if yDiff > 0.01 {
+                                return $0.boundingBox.midY > $1.boundingBox.midY  // top-to-bottom
+                            }
+                            return $0.boundingBox.minX < $1.boundingBox.minX      // left-to-right within same row
+                        }
                     let lines = observations.compactMap { observation in
                         observation.topCandidates(1).first?.string
                     }

@@ -137,6 +137,29 @@ struct FilterGridTab: View {
     @State private var showManualCollectionSheet = false
     @State private var manualCollectionName = ""
     @State private var manualCollectionText = ""
+    @State private var imageGridPage: Int = 0
+
+    // ── Image-mode grid (entirely separate from the smart grid) ──────────────
+    private var imageGridBatchSize: Int {
+        #if targetEnvironment(macCatalyst)
+        return 225
+        #else
+        return UIDevice.current.userInterfaceIdiom == .pad ? 96 : 120
+        #endif
+    }
+
+    private func imageGridPageCount(for collection: CharacterCollection) -> Int {
+        max(1, Int(ceil(Double(collection.characters.count) / Double(imageGridBatchSize))))
+    }
+
+    private func imagePagedCharacters(for collection: CharacterCollection) -> [(offset: Int, character: String)] {
+        let total = collection.characters.count
+        let safePage = min(imageGridPage, max(0, imageGridPageCount(for: collection) - 1))
+        let start = safePage * imageGridBatchSize
+        let end = min(start + imageGridBatchSize, total)
+        guard start < end else { return [] }
+        return collection.characters[start..<end].enumerated().map { (start + $0.offset, $0.element) }
+    }
 
     private var isRunningOnMac: Bool {
         #if targetEnvironment(macCatalyst)
@@ -194,101 +217,12 @@ struct FilterGridTab: View {
 
                     browseSubjectSection
 
-                    HStack(alignment: .center, spacing: 12) {
-                        Picker("Sort", selection: Binding(get: {
-                            store.gridSortMode
-                        }, set: { store.setGridSortMode($0) })) {
-                            ForEach(GridSortMode.allCases) { mode in
-                                Text(browseSortLabel(for: mode)).tag(mode)
-                            }
-                        }
-                        .font(ResponsiveFont.subheadline)
-                        .pickerStyle(.segmented)
-
-                        CompactScriptFilterControl(selection: store.gridScriptFilter) { store.setGridScriptFilter($0) }
-
-                        Button {
-                            showBrowseFilters = true
-                        } label: {
-                            Label(filterButtonTitle, systemImage: activeBrowseFilterCount > 0 ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
-                                .font(ResponsiveFont.subheadline.weight(.semibold))
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 10)
-                                .background(Color(.secondarySystemBackground))
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(store.gridSortMode == .componentFrequency ? 
-                             "Characters most often used as components first." :
-                             "Most common characters first.")
-                            .font(ResponsiveFont.caption2)
-                            .italic()
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 4)
-                        browseInteractionHintRow
-                            .padding(.horizontal, 4)
-                    }
-                    .padding(.bottom, 4)
-
-                    HStack {
-                        Button("◀ Prev") { store.previousGridPage() }
-                            .font(ResponsiveFont.subheadline)
-                            .disabled(store.gridPage == 0)
-                        Spacer()
-                        Text("\(store.gridPage * store.gridBatchSize + 1)-\(min((store.gridPage + 1) * store.gridBatchSize, store.allGridItems.count)) of \(store.allGridItems.count)")
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Button("Next ▶") { store.nextGridPage() }
-                            .font(ResponsiveFont.subheadline)
-                            .disabled(store.gridPage + 1 >= store.gridPageCount)
-                    }
-
-                    LazyVGrid(columns: columns, spacing: 6) {
-                        ForEach(store.pagedGridItems, id: \.character) { item in
-                            let isActive = item.character == store.previewCharacter || item.character == store.selectedCharacter
-                            Button {
-                                store.preview(character: item.character)
-                                withAnimation {
-                                    proxy.scrollTo("browseTop", anchor: .top)
-                                }
-                            } label: {
-                                VStack(spacing: 2) {
-                                    Text(item.character)
-                                        .font(.system(size: fontSize))
-                                        .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
-                                    Text(item.pinyinText.isEmpty ? " " : item.pinyinText)
-                                        .font(.system(size: 11, weight: .semibold))
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(1)
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 6)
-                                .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 2)
-                                )
-                                .overlay(alignment: .topTrailing) {
-                                    if store.isFavorite(item.character) {
-                                        Image(systemName: "star.fill")
-                                            .font(.system(size: 14))
-                                            .foregroundStyle(.yellow)
-                                            .padding(6)
-                                    }
-                                }
-                            }
-                            .buttonStyle(.plain)
-                            .simultaneousGesture(
-                                TapGesture(count: 2).onEnded {
-                                    store.select(character: item.character)
-                                }
-                            )
-                        }
+                    if let collection = store.selectedBrowseCollection {
+                        // ── Image selected: show entire character set in reading order ──
+                        imageGridContent(collection: collection, proxy: proxy)
+                    } else {
+                        // ── No image: smart grid with All / Components / Reading Order ──
+                        smartGridContent(proxy: proxy)
                     }
                 }
                 .padding(.horizontal)
@@ -296,6 +230,7 @@ struct FilterGridTab: View {
                 .onChange(of: store.strokeMaxFilter) { _, _ in store.gridPage = 0 }
                 .onChange(of: store.selectedRadicalFilter) { _, _ in store.gridPage = 0 }
                 .onChange(of: store.selectedStructureFilter) { _, _ in store.gridPage = 0 }
+                .onChange(of: store.selectedBrowseCollectionID) { _, _ in imageGridPage = 0 }
                 .onChange(of: store.previewCharacter) { _, _ in
                     withAnimation {
                         proxy.scrollTo("browseTop", anchor: .top)
@@ -307,6 +242,172 @@ struct FilterGridTab: View {
             }
             .sheet(isPresented: $showManualCollectionSheet) {
                 manualCollectionSheet
+            }
+        }
+    }
+
+    // ── Image grid: entire character sequence, unfiltered, reading order ────
+    @ViewBuilder
+    private func imageGridContent(collection: CharacterCollection, proxy: ScrollViewProxy) -> some View {
+        let total = collection.characters.count
+        let pageCount = imageGridPageCount(for: collection)
+        let safePage = min(imageGridPage, max(0, pageCount - 1))
+        let pagedItems = imagePagedCharacters(for: collection)
+        let rangeStart = safePage * imageGridBatchSize + 1
+        let rangeEnd = min((safePage + 1) * imageGridBatchSize, total)
+
+        VStack(alignment: .leading, spacing: 4) {
+            Text("All \(total) characters from this image, in reading order.")
+                .font(ResponsiveFont.caption2)
+                .italic()
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 4)
+            browseInteractionHintRow
+                .padding(.horizontal, 4)
+        }
+        .padding(.bottom, 4)
+
+        HStack {
+            Button("◀ Prev") { imageGridPage = max(0, safePage - 1) }
+                .font(ResponsiveFont.subheadline)
+                .disabled(safePage == 0)
+            Spacer()
+            Text("\(rangeStart)–\(rangeEnd) of \(total)")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Button("Next ▶") { imageGridPage = min(pageCount - 1, safePage + 1) }
+                .font(ResponsiveFont.subheadline)
+                .disabled(safePage + 1 >= pageCount)
+        }
+
+        LazyVGrid(columns: columns, spacing: 6) {
+            ForEach(pagedItems, id: \.offset) { offset, character in
+                let isActive = character == store.previewCharacter || character == store.selectedCharacter
+                let pinyin = store.item(for: character)?.pinyinText ?? ""
+                Button {
+                    store.preview(character: character)
+                    withAnimation { proxy.scrollTo("browseTop", anchor: .top) }
+                } label: {
+                    VStack(spacing: 2) {
+                        Text(character)
+                            .font(.system(size: fontSize))
+                            .copyCharacterContextMenu(character, pinyin: pinyin)
+                        Text(pinyin.isEmpty ? " " : pinyin)
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+                    .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 2))
+                    .overlay(alignment: .topTrailing) {
+                        if store.isFavorite(character) {
+                            Image(systemName: "star.fill")
+                                .font(.system(size: 14))
+                                .foregroundStyle(.yellow)
+                                .padding(6)
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+                .simultaneousGesture(TapGesture(count: 2).onEnded { store.select(character: character) })
+            }
+        }
+    }
+
+    // ── Smart grid: All / Components with filters ────────────────────────────
+    @ViewBuilder
+    private func smartGridContent(proxy: ScrollViewProxy) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Picker("Sort", selection: Binding(get: {
+                // If mode is somehow readingOrder with no image, fall back to characterFrequency
+                store.gridSortMode == .readingOrder ? .characterFrequency : store.gridSortMode
+            }, set: { store.setGridSortMode($0) })) {
+                ForEach(GridSortMode.allCases.filter { $0 != .readingOrder }) { mode in
+                    Text(browseSortLabel(for: mode)).tag(mode)
+                }
+            }
+            .font(ResponsiveFont.subheadline)
+            .pickerStyle(.segmented)
+
+            CompactScriptFilterControl(selection: store.gridScriptFilter) { store.setGridScriptFilter($0) }
+
+            Button {
+                showBrowseFilters = true
+            } label: {
+                Label(filterButtonTitle, systemImage: activeBrowseFilterCount > 0 ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .buttonStyle(.plain)
+        }
+
+        VStack(alignment: .leading, spacing: 4) {
+            Text(store.gridSortMode == .componentFrequency ?
+                 "Characters most often used as components first." :
+                 "Most common characters first.")
+                .font(ResponsiveFont.caption2)
+                .italic()
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 4)
+            browseInteractionHintRow
+                .padding(.horizontal, 4)
+        }
+        .padding(.bottom, 4)
+
+        HStack {
+            Button("◀ Prev") { store.previousGridPage() }
+                .font(ResponsiveFont.subheadline)
+                .disabled(store.gridPage == 0)
+            Spacer()
+            let totalCount = store.allGridItems.count
+            Text("\(store.gridPage * store.gridBatchSize + 1)–\(min((store.gridPage + 1) * store.gridBatchSize, totalCount)) of \(totalCount)")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Button("Next ▶") { store.nextGridPage() }
+                .font(ResponsiveFont.subheadline)
+                .disabled(store.gridPage + 1 >= store.gridPageCount)
+        }
+
+        LazyVGrid(columns: columns, spacing: 6) {
+            ForEach(store.pagedGridItems, id: \.character) { item in
+                let isActive = item.character == store.previewCharacter || item.character == store.selectedCharacter
+                Button {
+                    store.preview(character: item.character)
+                    withAnimation { proxy.scrollTo("browseTop", anchor: .top) }
+                } label: {
+                    VStack(spacing: 2) {
+                        Text(item.character)
+                            .font(.system(size: fontSize))
+                            .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
+                        Text(item.pinyinText.isEmpty ? " " : item.pinyinText)
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+                    .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 2))
+                    .overlay(alignment: .topTrailing) {
+                        if store.isFavorite(item.character) {
+                            Image(systemName: "star.fill")
+                                .font(.system(size: 14))
+                                .foregroundStyle(.yellow)
+                                .padding(6)
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+                .simultaneousGesture(TapGesture(count: 2).onEnded { store.select(character: item.character) })
             }
         }
     }
@@ -364,7 +465,13 @@ struct FilterGridTab: View {
 
     private var browseSubjectTitle: String {
         if let collection = store.selectedBrowseCollection {
-            return "Image: \(collection.name) (\(collection.characters.count) characters)"
+            let total = collection.characters.count
+            let unique = collection.uniqueCharacters.count
+            if total == unique {
+                return "Image: \(collection.name) (\(unique) characters)"
+            } else {
+                return "Image: \(collection.name) (\(unique) unique / \(total) total)"
+            }
         }
         return "No image selected"
     }
@@ -452,6 +559,8 @@ struct FilterGridTab: View {
 
     private func browseSortLabel(for mode: GridSortMode) -> String {
         switch mode {
+        case .readingOrder:
+            return "Reading Order"
         case .componentFrequency:
             return "Components (\(store.gridFilteredComponentCount))"
         case .characterFrequency:

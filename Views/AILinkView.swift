@@ -254,28 +254,12 @@ struct AILinkView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("AI settings")
                             .font(ResponsiveFont.subheadline.bold())
-                        Text("Character and page prompts use different system text, so Task 4 is not wrapped in single-character wording.")
+                        Text("Task templates contain their own context. Tasks 1–3 run for a single character; Task 4 runs for a saved image.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
                         Text(store.promptAutosaveStatus)
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
-                    }
-
-                    Divider()
-
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Character System Preamble")
-                            .font(ResponsiveFont.subheadline.bold())
-                        TextEditor(text: Binding(
-                            get: { store.promptConfig.preamble },
-                            set: { store.setPromptPreamble($0) }
-                        ))
-                        .font(.system(size: 14, design: .monospaced))
-                        .frame(minHeight: 150)
-                        .padding(8)
-                            .background(Color(.tertiarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
 
                     Divider()
@@ -289,22 +273,6 @@ struct AILinkView: View {
                         ))
                         .font(.system(size: 14, design: .monospaced))
                         .frame(minHeight: 100)
-                        .padding(8)
-                        .background(Color(.tertiarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-
-                    Divider()
-
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Image System Preamble")
-                            .font(ResponsiveFont.subheadline.bold())
-                        TextEditor(text: Binding(
-                            get: { store.promptConfig.collectionPreamble },
-                            set: { store.setCollectionPromptPreamble($0) }
-                        ))
-                        .font(.system(size: 14, design: .monospaced))
-                        .frame(minHeight: 140)
                         .padding(8)
                         .background(Color(.tertiarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 8))

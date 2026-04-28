@@ -31,6 +31,13 @@ enum CaptureTextExtractor {
         return result
     }
 
+    /// Returns all Chinese characters in reading order, including duplicates.
+    static func allCharactersInOrder(in text: String) -> [String] {
+        text.unicodeScalars
+            .filter { isChineseScalar($0) }
+            .map { String(Character($0)) }
+    }
+
     static func uniquePhrases(in text: String) -> [String] {
         let candidates = text
             .components(separatedBy: CharacterSet.whitespacesAndNewlines)
