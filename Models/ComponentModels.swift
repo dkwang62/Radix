@@ -49,6 +49,7 @@ struct CharacterCollection: Identifiable, Codable, Equatable, Hashable {
     var createdAt: Date
     var sourceType: CollectionSourceType
     var isFavorite: Bool
+    var thumbnailJPEGData: Data?
 }
 
 enum CollectionSourceType: String, Codable, Hashable {

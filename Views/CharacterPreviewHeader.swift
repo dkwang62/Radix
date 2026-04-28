@@ -57,64 +57,7 @@ struct CharacterPreviewHeader: View {
                 let container = AnyLayout(isVertical ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12)) : AnyLayout(HStackLayout(alignment: .top, spacing: 0)))
                 
                 container {
-                    if let activeVariant = activeVariant {
-                        // Show current char alongside the currently selected variant
-                        let chars = store.isTraditional(item.character)
-                            ? [activeVariant.character, item.character]
-                            : [item.character, activeVariant.character]
-                        
-                        let animContainer = AnyLayout(isVertical ? AnyLayout(HStackLayout(spacing: 0)) : AnyLayout(VStackLayout(spacing: 0)))
-                        
-                        animContainer {
-                            ForEach(chars, id: \.self) { char in
-                                VStack(spacing: 0) {
-                                    (
-                                        Text(store.isTraditional(char) ? "Traditional" : "Simplified")
-                                            .font(.system(size: 12, weight: .regular))
-                                        +
-                                        Text(store.isTraditional(char) ? "繁" : "简")
-                                            .font(.system(size: 14, weight: .regular))
-                                    )
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(1)
-                                        .minimumScaleFactor(0.85)
-                                        .padding(.vertical, 6)
-                                    
-                                    StrokeOrderWebView(
-                                        character: char,
-                                        reloadToken: UUID(),
-                                        canvasSize: isVertical ? 120 : 90
-                                    )
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: isVertical ? 120 : 100)
-                                }
-                                .background(Color.secondary.opacity(0.05))
-                                .border(Color(.separator).opacity(0.2), width: 0.5)
-                            }
-                        }
-                        .frame(width: isVertical ? nil : 100)
-                        .frame(maxWidth: isVertical ? .infinity : 100)
-                    } else {
-                        // Single animation — no variants
-                        VStack(spacing: 0) {
-                            Text("STROKE ORDER")
-                                .font(.system(size: 7, weight: .black))
-                                .foregroundStyle(.secondary)
-                                .padding(.vertical, 4)
-                            
-                            StrokeOrderWebView(
-                                character: item.character,
-                                reloadToken: UUID(),
-                                canvasSize: 120
-                            )
-                            .frame(height: 130)
-                            .frame(maxWidth: .infinity)
-                        }
-                        .background(Color.secondary.opacity(0.05))
-                        .border(Color(.separator).opacity(0.2), width: 0.5)
-                        .frame(width: isVertical ? nil : 130)
-                        .frame(maxWidth: isVertical ? .infinity : 130)
-                    }
+                    strokeAnimationPanel(item: item, allVariants: allVariants, activeVariant: activeVariant)
 
                     if isVertical {
                         previewActionArea(isInMemory: isInMemory)
@@ -150,6 +93,69 @@ struct CharacterPreviewHeader: View {
         }
         .onChange(of: character) { _, _ in
             variantIndex = 0
+        }
+    }
+
+    @ViewBuilder
+    private func strokeAnimationPanel(item: ComponentItem, allVariants: [ComponentItem], activeVariant: ComponentItem?) -> some View {
+        if let activeVariant {
+            let chars = store.isTraditional(item.character)
+                ? [activeVariant.character, item.character]
+                : [item.character, activeVariant.character]
+
+            let animContainer = AnyLayout(isVertical
+                ? AnyLayout(HStackLayout(spacing: 0))
+                : AnyLayout(VStackLayout(spacing: 0)))
+
+            animContainer {
+                ForEach(chars, id: \.self) { char in
+                    VStack(spacing: 0) {
+                        (
+                            Text(store.isTraditional(char) ? "Traditional" : "Simplified")
+                                .font(.system(size: 12, weight: .regular))
+                            +
+                            Text(store.isTraditional(char) ? "繁" : "简")
+                                .font(.system(size: 14, weight: .regular))
+                        )
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                        .padding(.vertical, 6)
+
+                        StrokeOrderWebView(
+                            character: char,
+                            reloadToken: UUID(),
+                            canvasSize: isVertical ? 120 : 90
+                        )
+                        .frame(maxWidth: .infinity)
+                        .frame(height: isVertical ? 120 : 100)
+                    }
+                    .background(Color.secondary.opacity(0.05))
+                    .border(Color(.separator).opacity(0.2), width: 0.5)
+                }
+            }
+            .frame(width: isVertical ? nil : 100)
+            .frame(maxWidth: isVertical ? .infinity : 100)
+        } else {
+            // Single animation — no variants
+            VStack(spacing: 0) {
+                Text("STROKE ORDER")
+                    .font(.system(size: 7, weight: .black))
+                    .foregroundStyle(.secondary)
+                    .padding(.vertical, 4)
+
+                StrokeOrderWebView(
+                    character: item.character,
+                    reloadToken: UUID(),
+                    canvasSize: 120
+                )
+                .frame(height: 130)
+                .frame(maxWidth: .infinity)
+            }
+            .background(Color.secondary.opacity(0.05))
+            .border(Color(.separator).opacity(0.2), width: 0.5)
+            .frame(width: isVertical ? nil : 130)
+            .frame(maxWidth: isVertical ? .infinity : 130)
         }
     }
 

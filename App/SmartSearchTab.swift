@@ -25,27 +25,11 @@ struct SmartSearchTab: View {
 
     @ViewBuilder
     private var gridInteractionHintRow: some View {
-        HStack(spacing: 10) {
-            hintChip(icon: "cursorarrow", text: isRunningOnMac ? "Click Preview" : "Tap Preview")
-            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click or Memory" : "Double-tap or Memory")
-            HStack(spacing: 4) {
-                Text(isRunningOnMac ? "Right-click" : "Long-press")
-                Image(systemName: "doc.on.doc")
-            }
-            .font(ResponsiveFont.caption)
-            .foregroundStyle(.secondary)
-        }
-        .lineLimit(1)
-        .minimumScaleFactor(0.8)
-    }
-
-    private func hintChip(icon: String, text: String) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-            Text(text)
-        }
-        .font(ResponsiveFont.caption)
-        .foregroundStyle(.secondary)
+        InteractionHintRow(
+            previewText: isRunningOnMac ? "Click to preview" : "Tap to preview",
+            memoryText: isRunningOnMac ? "Double-click to remember" : "Double-tap to remember",
+            copyText: isRunningOnMac ? "Right-click to copy" : "Long-press to copy"
+        )
     }
 
     private func runSearch(_ query: String) {

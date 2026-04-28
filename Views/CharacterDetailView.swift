@@ -101,45 +101,53 @@ struct CharacterDetailView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
             if sizeClass == .compact {
-                // iPhone/Compact Split View: Show consistent comparative animation and info card
-                CharacterPreviewHeader(
-                    character: item.character,
-                    showClearButton: false
-                )
-                .padding(.bottom, 8)
+                compactHeader
             } else {
-                HStack(alignment: .top, spacing: 16) {
-                    // Mac/iPad Regular: Show static large text (consistent with standard dictionary look)
-                    Text(item.character)
-                        .font(.system(size: 112))
-                        .lineLimit(1)
-                        .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(item.pinyinText.isEmpty ? "No pinyin" : item.pinyinText)
-                            .font(ResponsiveFont.title2)
-                            .foregroundStyle(.secondary)
-                        Text(item.definition.isEmpty ? "No definition" : item.definition)
-                            .font(ResponsiveFont.title3)
-                        let allVariants = store.allVariants(for: item.character)
-                        if !allVariants.isEmpty {
-                            HStack(spacing: 8) {
-                                ForEach(allVariants, id: \.character) { v in
-                                    Button {
-                                        store.select(character: v.character)
-                                        store.preview(character: v.character)
-                                    } label: {
-                                        Text("Variant: \(v.character)")
-                                            .font(ResponsiveFont.subheadline)
-                                    }
-                                    .buttonStyle(.bordered)
-                                }
+                regularHeader
+            }
+        }
+    }
+
+    /// iPhone / compact split-view header: animated stroke order + info card.
+    private var compactHeader: some View {
+        CharacterPreviewHeader(
+            character: item.character,
+            showClearButton: false
+        )
+        .padding(.bottom, 8)
+    }
+
+    /// iPad / Mac regular header: large static character + pinyin + definition + variant buttons.
+    private var regularHeader: some View {
+        HStack(alignment: .top, spacing: 16) {
+            Text(item.character)
+                .font(.system(size: 112))
+                .lineLimit(1)
+                .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(item.pinyinText.isEmpty ? "No pinyin" : item.pinyinText)
+                    .font(ResponsiveFont.title2)
+                    .foregroundStyle(.secondary)
+                Text(item.definition.isEmpty ? "No definition" : item.definition)
+                    .font(ResponsiveFont.title3)
+                let allVariants = store.allVariants(for: item.character)
+                if !allVariants.isEmpty {
+                    HStack(spacing: 8) {
+                        ForEach(allVariants, id: \.character) { v in
+                            Button {
+                                store.select(character: v.character)
+                                store.preview(character: v.character)
+                            } label: {
+                                Text("Variant: \(v.character)")
+                                    .font(ResponsiveFont.subheadline)
                             }
+                            .buttonStyle(.bordered)
                         }
                     }
-                    Spacer(minLength: 0)
                 }
             }
+            Spacer(minLength: 0)
         }
     }
 
@@ -214,6 +222,49 @@ struct CharacterDetailView: View {
         }
     }
 
+    private func lineageCell(_ linkedItem: ComponentItem, fontSize: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            // Character + pinyin
+            VStack(spacing: 2) {
+                Text(linkedItem.character)
+                    .font(.system(size: fontSize))
+                    .copyCharacterContextMenu(linkedItem.character, pinyin: linkedItem.pinyinText)
+                Text(linkedItem.pinyinText.isEmpty ? " " : linkedItem.pinyinText)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .foregroundStyle(Color.primary)
+
+            // Usage footer
+            if linkedItem.usageCount > 0 {
+                Text("\(linkedItem.usageCount.formatted(.number.grouping(.never)))")
+                    .font(.system(size: 13, weight: .black))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 2)
+                    .background(Color.secondary.opacity(0.15))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .background(Color.secondary.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.secondary.opacity(0.2), lineWidth: 0.5)
+        )
+        .contentShape(RoundedRectangle(cornerRadius: 8))
+        .onTapGesture {
+            store.showComponentHelp = false
+            store.preview(character: linkedItem.character)
+        }
+        .simultaneousGesture(
+            TapGesture(count: 2).onEnded {
+                store.select(character: linkedItem.character)
+            }
+        )
+    }
+
     private func metaChip(_ value: String) -> some View {
         Text(value)
             .font(ResponsiveFont.subheadline)
@@ -260,46 +311,7 @@ struct CharacterDetailView: View {
             
             LazyVGrid(columns: columns, spacing: 10) {
                 ForEach(items, id: \.character) { linkedItem in
-                    VStack(spacing: 0) {
-                        // 1. Character Area
-                        VStack(spacing: 2) {
-                            Text(linkedItem.character)
-                                .font(.system(size: fontSize))
-                                .copyCharacterContextMenu(linkedItem.character, pinyin: linkedItem.pinyinText)
-                            Text(linkedItem.pinyinText.isEmpty ? " " : linkedItem.pinyinText)
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundStyle(.secondary)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .foregroundStyle(Color.primary)
-                        
-                        // 2. Usage Footer
-                        if linkedItem.usageCount > 0 {
-                            Text("\(linkedItem.usageCount.formatted(.number.grouping(.never)))")
-                                .font(.system(size: 13, weight: .black)) // Larger & Bolder
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 2)
-                                .background(Color.secondary.opacity(0.15))
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .background(Color.secondary.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.secondary.opacity(0.2), lineWidth: 0.5)
-                    )
-                    .contentShape(RoundedRectangle(cornerRadius: 8))
-                    .onTapGesture {
-                        store.showComponentHelp = false
-                        store.preview(character: linkedItem.character)
-                    }
-                    .simultaneousGesture(
-                        TapGesture(count: 2).onEnded {
-                            store.select(character: linkedItem.character)
-                        }
-                    )
+                    lineageCell(linkedItem, fontSize: fontSize)
                 }
             }
         }

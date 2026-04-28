@@ -1560,7 +1560,7 @@ final class RadixStore: ObservableObject {
 
     func portableBackupPackage() -> UnifiedPackage {
         return UnifiedPackage(
-            schemaVersion: 3,
+            schemaVersion: 4,
             exportedAt: Date(),
             backupID: UUID(),
             baseDictionaryFingerprint: componentRepo.baseDictionaryFingerprint,
@@ -1934,7 +1934,12 @@ final class RadixStore: ObservableObject {
     }
 
     @discardableResult
-    func createCollection(name: String, sourceText: String, sourceType: CollectionSourceType) -> CharacterCollection? {
+    func createCollection(
+        name: String,
+        sourceText: String,
+        sourceType: CollectionSourceType,
+        thumbnailJPEGData: Data? = nil
+    ) -> CharacterCollection? {
         let characters = Set(CaptureTextExtractor.uniqueCharacters(in: sourceText).filter { componentRepo.hasCharacter($0) })
         guard !characters.isEmpty else { return nil }
         let fallbackName: String = {
@@ -1952,7 +1957,8 @@ final class RadixStore: ObservableObject {
             characters: characters,
             createdAt: Date(),
             sourceType: sourceType,
-            isFavorite: false
+            isFavorite: false,
+            thumbnailJPEGData: thumbnailJPEGData
         )
         saveCollection(collection)
         return collection

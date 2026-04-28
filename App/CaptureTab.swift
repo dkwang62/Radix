@@ -120,13 +120,7 @@ struct CaptureTab: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    if let selectedImage {
-                        Image(uiImage: selectedImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 260)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
+                    captureImagePreview
 
                     if isProcessing {
                         ProgressView("Reading image...")
@@ -162,6 +156,18 @@ struct CaptureTab: View {
         }
         .sheet(isPresented: $showOCRCollectionSheet) {
             ocrCollectionSheet
+        }
+    }
+
+    /// Shows the selected image thumbnail while it's loaded and before results replace it.
+    @ViewBuilder
+    private var captureImagePreview: some View {
+        if let selectedImage {
+            Image(uiImage: selectedImage)
+                .resizable()
+                .scaledToFit()
+                .frame(maxHeight: 260)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
 
@@ -243,7 +249,8 @@ struct CaptureTab: View {
         guard let collection = store.createCollection(
             name: ocrCollectionName,
             sourceText: store.activeCaptureDraft.charactersText,
-            sourceType: .ocr
+            sourceType: .ocr,
+            thumbnailJPEGData: selectedImage.flatMap(makeThumbnailJPEGData)
         ) else { return }
         store.selectBrowseCollection(id: collection.id)
         statusMessage = "Saved \(collection.name) with \(collection.characters.count) characters."
@@ -256,6 +263,20 @@ struct CaptureTab: View {
         captureDetailPreviewCharacter = nil
         ocrCollectionName = ""
         resetPhraseDiscovery()
+    }
+
+    private func makeThumbnailJPEGData(from image: UIImage) -> Data? {
+        let maxDimension: CGFloat = 240
+        let size = image.size
+        guard size.width > 0, size.height > 0 else { return image.jpegData(compressionQuality: 0.65) }
+
+        let scale = min(maxDimension / size.width, maxDimension / size.height, 1)
+        let targetSize = CGSize(width: size.width * scale, height: size.height * scale)
+        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        let rendered = renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: targetSize))
+        }
+        return rendered.jpegData(compressionQuality: 0.65)
     }
 
     private var emptyState: some View {
@@ -473,50 +494,7 @@ struct CaptureTab: View {
                         .padding(.vertical, 6)
                 }
 
-                Text("Paste \(store.defaultAIName)'s answer here. Radix will add the phrases to My Phrases.")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-
-                TextEditor(text: $phraseDiscoveryOutput)
-                    .font(ResponsiveFont.body)
-                    .frame(minHeight: 150)
-                    .padding(6)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color(.separator), lineWidth: 0.5)
-                    )
-
-                LazyVGrid(
-                    columns: [GridItem(.adaptive(minimum: 120), spacing: 8)],
-                    alignment: .leading,
-                    spacing: 8
-                ) {
-                    Button("Add from Box") {
-                        addPhraseDiscoveryOutputToMyPhrases()
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-
-                    Button("Preview Answer") {
-                        readPhraseDiscoveryOutput(addImmediately: false)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-
-                    Button("Select All") {
-                        setAllPhraseDiscoveryCandidates(true)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(phraseDiscoveryCandidates.isEmpty)
-
-                    Button("Deselect All") {
-                        setAllPhraseDiscoveryCandidates(false)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(phraseDiscoveryCandidates.isEmpty)
-                }
+                phraseDiscoveryInputArea
 
                 phraseDiscoverySummary
 
@@ -542,6 +520,56 @@ struct CaptureTab: View {
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
+            }
+        }
+    }
+
+    /// The TextEditor + action buttons in the parser phrase discovery flow.
+    private var phraseDiscoveryInputArea: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Paste \(store.defaultAIName)'s answer here. Radix will add the phrases to My Phrases.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+
+            TextEditor(text: $phraseDiscoveryOutput)
+                .font(ResponsiveFont.body)
+                .frame(minHeight: 150)
+                .padding(6)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color(.separator), lineWidth: 0.5)
+                )
+
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 120), spacing: 8)],
+                alignment: .leading,
+                spacing: 8
+            ) {
+                Button("Add from Box") {
+                    addPhraseDiscoveryOutputToMyPhrases()
+                }
+                .buttonStyle(.bordered)
+                .disabled(phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                Button("Preview Answer") {
+                    readPhraseDiscoveryOutput(addImmediately: false)
+                }
+                .buttonStyle(.bordered)
+                .disabled(phraseDiscoveryOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                Button("Select All") {
+                    setAllPhraseDiscoveryCandidates(true)
+                }
+                .buttonStyle(.bordered)
+                .disabled(phraseDiscoveryCandidates.isEmpty)
+
+                Button("Deselect All") {
+                    setAllPhraseDiscoveryCandidates(false)
+                }
+                .buttonStyle(.bordered)
+                .disabled(phraseDiscoveryCandidates.isEmpty)
             }
         }
     }
@@ -1450,6 +1478,18 @@ private struct SavedPagesSection<Footer: View>: View {
 
     private func savedPageRow(_ collection: CharacterCollection) -> some View {
         HStack(alignment: .top, spacing: 10) {
+            if let thumbnail = thumbnailImage(for: collection) {
+                Image(uiImage: thumbnail)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 56, height: 56)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color(.separator), lineWidth: 0.5)
+                    )
+            }
+
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
                     Text(collection.name)
@@ -1498,6 +1538,11 @@ private struct SavedPagesSection<Footer: View>: View {
         .padding(10)
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func thumbnailImage(for collection: CharacterCollection) -> UIImage? {
+        guard let data = collection.thumbnailJPEGData else { return nil }
+        return UIImage(data: data)
     }
 
     private func beginEditing(_ collection: CharacterCollection) {

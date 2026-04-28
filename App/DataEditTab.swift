@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 import UniformTypeIdentifiers
 
 struct DataEditTab: View {
@@ -496,6 +499,28 @@ struct DataEditTab: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
+    private var advancedExportProgressRow: some View {
+        HStack(spacing: 10) {
+            ProgressView()
+            Text("Preparing advanced export…")
+                .font(ResponsiveFont.subheadline)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func advancedExportMessageRow(_ message: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+            Text(message)
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Button("Dismiss") { reuseExportMessage = nil }
+                .font(ResponsiveFont.caption)
+        }
+    }
+
     private var premiumExportsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
@@ -510,23 +535,9 @@ struct DataEditTab: View {
             }
 
             if reuseExportInProgress && !reuseExportFilename.contains("backup") {
-                HStack(spacing: 10) {
-                    ProgressView()
-                    Text("Preparing advanced export…")
-                        .font(ResponsiveFont.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+                advancedExportProgressRow
             } else if let msg = reuseExportMessage {
-                HStack(spacing: 8) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
-                    Text(msg)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Button("Dismiss") { reuseExportMessage = nil }
-                        .font(ResponsiveFont.caption)
-                }
+                advancedExportMessageRow(msg)
             }
 
             sourceCodeHelperSection
@@ -892,7 +903,15 @@ struct DataEditTab: View {
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(store.allCollections) { collection in
-                    HStack {
+                    HStack(spacing: 8) {
+                        if let thumbnail = backupThumbnailImage(for: collection) {
+                            Image(uiImage: thumbnail)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 36, height: 36)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                        }
+
                         Text(collection.name)
                             .font(ResponsiveFont.caption)
                         Spacer()
@@ -905,6 +924,11 @@ struct DataEditTab: View {
             }
         }
         .padding(.top, 8)
+    }
+
+    private func backupThumbnailImage(for collection: CharacterCollection) -> UIImage? {
+        guard let data = collection.thumbnailJPEGData else { return nil }
+        return UIImage(data: data)
     }
 
     private var backupFavoritesSummary: some View {
@@ -1208,6 +1232,49 @@ struct DataEditTab: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
+    // MARK: - AI Templates helpers
+
+    /// The four system-level TextEditor blocks that live inside aiTemplatesSection.
+    /// Extracted to keep aiTemplatesSection readable.
+    private var promptSystemEditorsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            promptTextEditor(
+                label: "Character System Preamble",
+                text: Binding(get: { store.promptConfig.preamble }, set: { store.setPromptPreamble($0) }),
+                height: 120
+            )
+            promptTextEditor(
+                label: "Character System Epilogue",
+                text: Binding(get: { store.promptConfig.epilogue }, set: { store.setPromptEpilogue($0) }),
+                height: 100
+            )
+            promptTextEditor(
+                label: "Image System Preamble",
+                text: Binding(get: { store.promptConfig.collectionPreamble }, set: { store.setCollectionPromptPreamble($0) }),
+                height: 120
+            )
+            promptTextEditor(
+                label: "Image System Epilogue",
+                text: Binding(get: { store.promptConfig.collectionEpilogue }, set: { store.setCollectionPromptEpilogue($0) }),
+                height: 100
+            )
+        }
+    }
+
+    /// A labelled TextEditor used for the four system-level prompt blocks.
+    private func promptTextEditor(label: String, text: Binding<String>, height: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(ResponsiveFont.caption.bold())
+            TextEditor(text: text)
+                .font(ResponsiveFont.body)
+                .frame(height: height)
+                .padding(6)
+                .background(Color(.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+
     private var aiTemplatesSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Label {
@@ -1223,53 +1290,7 @@ struct DataEditTab: View {
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
 
-                Text("Character System Preamble")
-                    .font(ResponsiveFont.caption.bold())
-                TextEditor(text: Binding(
-                    get: { store.promptConfig.preamble },
-                    set: { store.setPromptPreamble($0) }
-                ))
-                .font(ResponsiveFont.body)
-                .frame(height: 120)
-                .padding(6)
-                .background(Color(.systemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                Text("Character System Epilogue")
-                    .font(ResponsiveFont.caption.bold())
-                TextEditor(text: Binding(
-                    get: { store.promptConfig.epilogue },
-                    set: { store.setPromptEpilogue($0) }
-                ))
-                .font(ResponsiveFont.body)
-                .frame(height: 100)
-                .padding(6)
-                .background(Color(.systemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                Text("Image System Preamble")
-                    .font(ResponsiveFont.caption.bold())
-                TextEditor(text: Binding(
-                    get: { store.promptConfig.collectionPreamble },
-                    set: { store.setCollectionPromptPreamble($0) }
-                ))
-                .font(ResponsiveFont.body)
-                .frame(height: 120)
-                .padding(6)
-                .background(Color(.systemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                Text("Image System Epilogue")
-                    .font(ResponsiveFont.caption.bold())
-                TextEditor(text: Binding(
-                    get: { store.promptConfig.collectionEpilogue },
-                    set: { store.setCollectionPromptEpilogue($0) }
-                ))
-                .font(ResponsiveFont.body)
-                .frame(height: 100)
-                .padding(6)
-                .background(Color(.systemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                promptSystemEditorsSection
 
                 ForEach(store.promptConfig.tasks) { task in
                     DisclosureGroup {
