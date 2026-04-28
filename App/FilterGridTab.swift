@@ -423,15 +423,6 @@ struct FilterGridTab: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                if let collection = store.selectedBrowseCollection {
-                    Button {
-                        store.toggleFavoriteCollection(id: collection.id)
-                    } label: {
-                        Image(systemName: collection.isFavorite ? "star.fill" : "star")
-                    }
-                    .buttonStyle(.bordered)
-                    .accessibilityLabel(collection.isFavorite ? "Remove page from favorites" : "Favorite page")
-                }
                 collectionMenu
                 Button {
                     showManualCollectionSheet = true
