@@ -10,6 +10,10 @@ import UIKit
 import AppKit
 #endif
 
+private extension Notification.Name {
+    static let radixShowPhraseTable = Notification.Name("radixShowPhraseTable")
+}
+
 struct CharacterPreviewHeader: View {
     @EnvironmentObject private var store: RadixStore
     let character: String
@@ -39,12 +43,6 @@ struct CharacterPreviewHeader: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            let isInMemory = store.rootBreadcrumb.contains(character)
-
-            if !isVertical {
-                previewActionArea(isInMemory: isInMemory)
-            }
-
             if let item = store.item(for: character) {
                 let allVariants = store.allVariants(for: item.character)
                 let counterpart = allVariants.first
@@ -59,14 +57,16 @@ struct CharacterPreviewHeader: View {
                 container {
                     strokeAnimationPanel(item: item, allVariants: allVariants, activeVariant: activeVariant)
 
-                    if isVertical {
-                        previewActionArea(isInMemory: isInMemory)
-                    }
-
                     CharacterInfoCard(
                         item: item,
                         variants: allVariants.map(\.character),
                         variantIndex: $variantIndex,
+                        showClearButton: showClearButton,
+                        onShowPhrases: {
+                            store.refreshPhrases(for: character)
+                            showPhraseTableSheet = true
+                        },
+                        onClear: onClear,
                         onSelectVariant: { ch in
                             #if targetEnvironment(macCatalyst)
                             store.select(character: ch)
@@ -90,6 +90,12 @@ struct CharacterPreviewHeader: View {
         .sheet(isPresented: $showPhraseTableSheet) {
             PhraseTableSheet(character: character, isVertical: isVertical)
                 .environmentObject(store)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .radixShowPhraseTable)) { notification in
+            guard let requestedCharacter = notification.object as? String,
+                  requestedCharacter == character else { return }
+            store.refreshPhrases(for: character)
+            showPhraseTableSheet = true
         }
         .onChange(of: character) { _, _ in
             variantIndex = 0
@@ -132,6 +138,10 @@ struct CharacterPreviewHeader: View {
                     }
                     .background(Color.secondary.opacity(0.05))
                     .border(Color(.separator).opacity(0.2), width: 0.5)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectPreviewCharacter(char)
+                    }
                 }
             }
             .frame(width: isVertical ? nil : 100)
@@ -159,194 +169,22 @@ struct CharacterPreviewHeader: View {
         }
     }
 
-    private var phraseTableTrigger: some View {
-        Button {
-            store.refreshPhrases(for: character)
-            showPhraseTableSheet = true
-        } label: {
-            previewActionLabel("词", systemImage: "text.quote")
-        }
-        .buttonStyle(.bordered)
-        .controlSize(previewActionControlSize)
-        .font(previewActionFont)
-    }
-
-    private var rootsTrigger: some View {
-        Button {
-            store.goToRoots(character: character)
-        } label: {
-            previewActionLabel("拆", systemImage: "tree")
-        }
-        .buttonStyle(.bordered)
-        .controlSize(previewActionControlSize)
-        .font(previewActionFont)
-    }
-
-    private var editCharacterTrigger: some View {
-        Button {
-            store.openQuickCharacterEditor(character)
-        } label: {
-            previewActionLabel("✏️", systemImage: "note.text")
-        }
-        .buttonStyle(.bordered)
-        .controlSize(previewActionControlSize)
-        .font(previewActionFont)
-    }
-
-    private var speechOptionsMenu: some View {
-        Button {
-            store.speechEnabled.toggle()
-        } label: {
-            if isVertical {
-                Image(systemName: store.speechMenuSymbolName)
-                    .frame(minWidth: 24, minHeight: 28)
-            } else {
-                Image(systemName: store.speechMenuSymbolName)
-            }
-        }
-        .buttonStyle(.bordered)
-        .controlSize(previewActionControlSize)
-        .font(previewActionFont)
-        .help(store.speechEnabled ? "Turn character speech off" : "Turn character speech on")
-    }
-
-    private var favoritesTrigger: some View {
-        Button {
-            store.setFavorite(character: character, isFavorite: !store.isFavorite(character))
-        } label: {
-            Image(systemName: store.isFavorite(character) ? "star.fill" : "star")
-                .foregroundStyle(store.isFavorite(character) ? .yellow : .secondary)
-        }
-        .buttonStyle(.bordered)
-        .controlSize(previewActionControlSize)
-        .font(previewActionFont)
-        .help(store.isFavorite(character) ? "Remove from favorites" : "Add to favorites")
-    }
-
-    @ViewBuilder
-    private func previewActionArea(isInMemory: Bool) -> some View {
-        if isVertical {
-            VStack(alignment: .leading, spacing: 8) {
-                if let statusLabel {
-                    Text(statusLabel)
-                        .font(statusLabelFont)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
-
-                HStack(spacing: 4) {
-                    if showAddToMemoryButton {
-                        memoryButton(isInMemory: isInMemory)
-                    }
-                    editCharacterTrigger
-                    phraseTableTrigger
-                    rootsTrigger
-                    speechOptionsMenu
-                    favoritesTrigger
-                    if showClearButton, store.previewCharacter != nil, store.previewCharacter != character {
-                        clearPreviewButton
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        } else {
-            HStack(spacing: statusLabel == nil ? 12 : 10) {
-                if let statusLabel {
-                    Text(statusLabel)
-                        .font(statusLabelFont)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
-                Spacer(minLength: statusLabel == nil ? 12 : 8)
-                if showAddToMemoryButton {
-                    memoryButton(isInMemory: isInMemory)
-                }
-                editCharacterTrigger
-                phraseTableTrigger
-                rootsTrigger
-                speechOptionsMenu
-                favoritesTrigger
-                if showClearButton, store.previewCharacter != nil, store.previewCharacter != character {
-                    clearPreviewButton
-                }
-            }
-            .padding(.vertical, statusLabel == nil ? 2 : 0)
-        }
-    }
-
-    @ViewBuilder
-    private func memoryButton(isInMemory: Bool) -> some View {
-        let button = Button {
-            store.toggleRootBreadcrumb(character)
-        } label: {
-            previewActionLabel("🕘", systemImage: isInMemory ? "bookmark.fill" : "bookmark")
-        }
-
-        if isInMemory {
-            button
-                .buttonStyle(.borderedProminent)
-                .controlSize(previewActionControlSize)
-                .font(previewActionFont)
-                .help("Remove this character from Memory.")
-                .accessibilityHint("Removes this character from Memory.")
-        } else {
-            button
-                .buttonStyle(.bordered)
-                .controlSize(previewActionControlSize)
-                .font(previewActionFont)
-                .help("Add this character to Memory.")
-                .accessibilityHint("Adds this character to Memory.")
-        }
-    }
-
-    private var clearPreviewButton: some View {
-        Button {
-            onClear?()
-        } label: {
-            if isVertical {
-                previewActionLabel("Clear", systemImage: "xmark")
-            } else {
-                Text("Clear Preview")
-            }
-        }
-        .font(ResponsiveFont.caption)
-    }
-
-    @ViewBuilder
-    private func previewActionLabel(_ title: String, systemImage: String) -> some View {
-        if isVertical {
-            Text(title)
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
-                .frame(minHeight: 28)
-        } else {
-            Text(title)
-        }
-    }
-
-    private var statusLabelFont: Font {
+    private func selectPreviewCharacter(_ ch: String) {
         #if targetEnvironment(macCatalyst)
-        return ResponsiveFont.caption
+        store.select(character: ch)
+        store.preview(character: ch)
         #else
-        return ResponsiveFont.headline
+        if UIDevice.current.userInterfaceIdiom == .phone &&
+            store.route == .search &&
+            store.homeTab == .filter {
+            store.browsePreview(character: ch)
+        } else {
+            store.select(character: ch)
+            store.preview(character: ch)
+        }
         #endif
     }
 
-    private var previewActionFont: Font {
-        #if targetEnvironment(macCatalyst)
-        return ResponsiveFont.caption.weight(.semibold)
-        #else
-        return (isVertical ? ResponsiveFont.caption : ResponsiveFont.subheadline).weight(.semibold)
-        #endif
-    }
-
-    private var previewActionControlSize: ControlSize {
-        #if targetEnvironment(macCatalyst)
-        return .small
-        #else
-        return .regular
-        #endif
-    }
 }
 
 private struct PhraseTableSheet: View {
@@ -555,15 +393,24 @@ private struct CharacterActionMenuContent: View {
 
     @ViewBuilder
     private var characterActions: some View {
-        Button(store.characterNotesActionTitle(for: character)) {
+        Button("✏️Notes") {
             store.openQuickCharacterEditor(character)
         }
+        Button("词Phrases") {
+            showPhraseTable(for: character, using: store)
+        }
+        Button("拆Components") {
+            store.goToRoots(character: character)
+        }
+        Button("AI Prompt to paste") {
+            store.triggerSelectedAITasks(for: character)
+        }
         Divider()
-        Button("Copy Character") {
+        Button("Copy \"\(character)\"") {
             copyToClipboard(character)
         }
         if let trimmedPinyin {
-            Button("Copy Pinyin") {
+            Button("Copy \"\(trimmedPinyin)\"") {
                 copyToClipboard(trimmedPinyin)
             }
         }
@@ -579,7 +426,7 @@ private struct CharacterActionMenuContent: View {
     @ViewBuilder
     private var extendedActions: some View {
         if let trimmedStructure {
-            Button("Copy Structure") {
+            Button("Copy \"\(trimmedStructure)\"") {
                 copyToClipboard(trimmedStructure)
             }
         }
@@ -600,12 +447,6 @@ private struct CharacterActionMenuContent: View {
             }
         }
         Divider()
-        Button("Open in Components") {
-            store.goToRoots(character: character)
-        }
-        Button("Open in AI Link") {
-            store.goToAILink(character: character)
-        }
         Button("Add New Character") {
             store.openNewCharacterEditor()
         }
@@ -633,6 +474,14 @@ private func copyToClipboard(_ value: String) {
     NSPasteboard.general.clearContents()
     NSPasteboard.general.setString(value, forType: .string)
     #endif
+}
+
+@MainActor
+private func showPhraseTable(for character: String, using store: RadixStore) {
+    store.preview(character: character, announce: false)
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+        NotificationCenter.default.post(name: .radixShowPhraseTable, object: character)
+    }
 }
 
 private func shareAnimation(for character: String) {
@@ -1008,11 +857,10 @@ private struct CopyTextContextMenuModifier: ViewModifier {
         NSPasteboard.general.setString(value, forType: .string)
         #endif
     }
+
 }
 
 private struct PhraseContextMenuModifier: ViewModifier {
-    @EnvironmentObject private var store: RadixStore
-    @Environment(\.dismiss) private var dismiss
     let phrase: PhraseItem
 
     func body(content: Content) -> some View {
@@ -1021,46 +869,89 @@ private struct PhraseContextMenuModifier: ViewModifier {
             content
         } else {
             content.contextMenu {
-                Button("Copy Phrase") {
-                    copyToClipboard(trimmedWord)
-                }
-                let trimmedPinyin = phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !trimmedPinyin.isEmpty {
-                    Button("Copy Pinyin") {
-                        copyToClipboard(trimmedPinyin)
-                    }
-                }
-                let trimmedMeaning = phrase.meanings.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !trimmedMeaning.isEmpty {
-                    Button("Copy Meaning") {
-                        copyToClipboard(trimmedMeaning)
-                    }
-                }
-                Divider()
-                Button(store.phraseNotesActionTitle(for: trimmedWord)) {
-                    dismiss()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                        store.openQuickPhraseEditor(word: trimmedWord)
-                    }
-                }
-                Button("Add New Phrase") {
-                    dismiss()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                        store.openNewPhraseEditor()
-                    }
-                }
-                if store.isPhraseInAdd(trimmedWord) {
-                    let isBuiltIn = store.isPhraseInBase(trimmedWord)
-                    Button(isBuiltIn ? "Revert Phrase" : "Delete Phrase", role: isBuiltIn ? nil : .destructive) {
-                        store.removeDataEditPhrase(word: trimmedWord)
-                    }
-                }
-                Divider()
-                Button(store.isPhraseFavorite(trimmedWord) ? "Remove from Favorites" : "Add to Favorites") {
-                    store.togglePhraseFavorite(trimmedWord)
-                }
+                PhraseActionMenuContent(phrase: phrase)
             }
         }
+    }
+}
+
+private struct PhraseActionMenuContent: View {
+    @EnvironmentObject private var store: RadixStore
+    @Environment(\.dismiss) private var dismiss
+    let phrase: PhraseItem
+
+    private var trimmedWord: String {
+        phrase.word.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var trimmedPinyin: String? {
+        let trimmed = phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
+    private var trimmedMeaning: String? {
+        let trimmed = phrase.meanings.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
+    var body: some View {
+        phraseActions
+    }
+
+    @ViewBuilder
+    private var phraseActions: some View {
+        Button("✏️Notes") {
+            dismiss()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                store.openQuickPhraseEditor(word: trimmedWord)
+            }
+        }
+        Button("AI Prompt to paste") {
+            dismiss()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                store.triggerSelectedAITasks(for: trimmedWord)
+            }
+        }
+        Divider()
+        Button("Copy \"\(trimmedWord)\"") {
+            copyToClipboard(trimmedWord)
+        }
+        if let trimmedPinyin {
+            Button("Copy \"\(trimmedPinyin)\"") {
+                copyToClipboard(trimmedPinyin)
+            }
+        }
+        if let trimmedMeaning {
+            Button("Copy Meaning") {
+                copyToClipboard(trimmedMeaning)
+            }
+        }
+        Divider()
+        Button("Add New Phrase") {
+            dismiss()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                store.openNewPhraseEditor()
+            }
+        }
+        if store.isPhraseInAdd(trimmedWord) {
+            let isBuiltIn = store.isPhraseInBase(trimmedWord)
+            Button(isBuiltIn ? "Revert Phrase" : "Delete Phrase", role: isBuiltIn ? nil : .destructive) {
+                store.removeDataEditPhrase(word: trimmedWord)
+            }
+        }
+        Divider()
+        Button(store.isPhraseFavorite(trimmedWord) ? "Remove from Favorites" : "Add to Favorites") {
+            store.togglePhraseFavorite(trimmedWord)
+        }
+    }
+
+    private func copyToClipboard(_ value: String) {
+        #if canImport(UIKit)
+        UIPasteboard.general.string = value
+        #elseif canImport(AppKit)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(value, forType: .string)
+        #endif
     }
 }
 

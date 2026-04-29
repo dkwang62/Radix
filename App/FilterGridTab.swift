@@ -176,7 +176,7 @@ struct FilterGridTab: View {
     private var browseInteractionHintRow: some View {
         InteractionHintRow(
             previewText: isRunningOnMac ? "Click to preview" : "Tap to preview",
-            memoryText: "Use 🕘 to remember",
+            memoryText: "Preview adds to 🕘",
             copyText: isRunningOnMac ? "Right-click to copy" : "Long-press to copy"
         )
     }

@@ -486,7 +486,7 @@ struct ComponentsExplorerShell: View {
     private var gridInteractionHintRow: some View {
         HStack(spacing: 10) {
             hintChip(icon: "cursorarrow", text: isRunningOnMac ? "Click Preview" : "Tap Preview")
-            hintChip(icon: "bookmark", text: "Use 🕘 to remember")
+            hintChip(icon: "bookmark", text: "Preview adds to 🕘")
             HStack(spacing: 4) {
                 Text(isRunningOnMac ? "Right-click" : "Long-press")
                 Image(systemName: "doc.on.doc")

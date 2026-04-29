@@ -102,6 +102,7 @@ struct StrokeOrderWebView: UIViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.isOpaque = false
         webView.backgroundColor = .clear
+        webView.isUserInteractionEnabled = false
         webView.navigationDelegate = context.coordinator
         context.coordinator.webView = webView
         

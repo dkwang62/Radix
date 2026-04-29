@@ -5,15 +5,30 @@ struct CharacterInfoCard: View {
     let item: ComponentItem
     let variants: [String]
     let onSelectVariant: ((String) -> Void)?
+    let showClearButton: Bool
+    let onShowPhrases: (() -> Void)?
+    let onClear: (() -> Void)?
     @State private var showFrequencyGuide = false
+    @State private var activeChipGuide: ChipGuide?
     @Binding var variantIndex: Int
 
     private let idcChars: Set<Character> = ["⿰", "⿱", "⿲", "⿳", "⿴", "⿵", "⿶", "⿷", "⿸", "⿹", "⿺", "⿻"]
 
-    init(item: ComponentItem, variants: [String], variantIndex: Binding<Int>, onSelectVariant: ((String) -> Void)? = nil) {
+    init(
+        item: ComponentItem,
+        variants: [String],
+        variantIndex: Binding<Int>,
+        showClearButton: Bool = false,
+        onShowPhrases: (() -> Void)? = nil,
+        onClear: (() -> Void)? = nil,
+        onSelectVariant: ((String) -> Void)? = nil
+    ) {
         self.item = item
         self.variants = variants
         self._variantIndex = variantIndex
+        self.showClearButton = showClearButton
+        self.onShowPhrases = onShowPhrases
+        self.onClear = onClear
         self.onSelectVariant = onSelectVariant
     }
 
@@ -22,6 +37,9 @@ struct CharacterInfoCard: View {
         self.item = item
         self.variants = counterpart.map { [$0] } ?? []
         self._variantIndex = .constant(0)
+        self.showClearButton = false
+        self.onShowPhrases = nil
+        self.onClear = nil
         self.onSelectVariant = onSelectCounterpart
     }
 
@@ -50,6 +68,10 @@ struct CharacterInfoCard: View {
         .onChange(of: item.character) { _, _ in
             variantIndex = 0
         }
+        .popover(item: $activeChipGuide, arrowEdge: .bottom) { guide in
+            chipGuideView(for: guide)
+                .applyCompactPopoverStyle()
+        }
     }
 
     private var content: some View {
@@ -60,10 +82,10 @@ struct CharacterInfoCard: View {
         VStack(alignment: .leading, spacing: 12) {
             headerRow(
                 characterSize: 40,
-                pinyinFont: ResponsiveFont.title.bold(),
-                starSize: 18,
-                starPadding: 8
+                pinyinFont: ResponsiveFont.title.bold()
             )
+
+            actionRow
 
             HStack(alignment: .center, spacing: 8) {
                 tierButton
@@ -71,19 +93,19 @@ struct CharacterInfoCard: View {
             }
 
             HStack(spacing: 6) {
-                chip("字 \(item.usageCount)")
+                chipButton("字 \(item.usageCount)", guide: .usageCount)
                 if let strokes = item.strokes {
-                    chip("✍️ \(strokes)")
+                    chipButton("✍️ \(strokes)", guide: .strokes)
                 }
             }
 
             if !structurePartsText.isEmpty || !item.radical.isEmpty {
                 HStack(spacing: 6) {
                     if !structurePartsText.isEmpty {
-                        chip(structurePartsText)
+                        chipButton(structurePartsText, guide: .structure)
                     }
                     if !item.radical.isEmpty {
-                        chip(item.radical)
+                        chipButton(item.radical, guide: .radical)
                     }
                 }
             }
@@ -92,20 +114,29 @@ struct CharacterInfoCard: View {
         }
     }
 
+    private var actionRow: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                Spacer(minLength: 0)
+                notesButton
+                phrasesButton
+                componentsButton
+                if showClearButton, onClear != nil {
+                    clearPreviewButton
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+    }
+
     private func headerRow(
         characterSize: CGFloat,
-        pinyinFont: Font,
-        starSize: CGFloat,
-        starPadding: CGFloat
+        pinyinFont: Font
     ) -> some View {
         HStack(alignment: .top, spacing: 8) {
             Text(item.character)
                 .font(.system(size: characterSize, weight: .bold))
                 .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
-
-            if let variant = currentVariant, !variant.isEmpty {
-                variantButton(for: variant, characterSize: characterSize)
-            }
 
             Text(displayPinyin)
                 .font(pinyinFont)
@@ -114,45 +145,96 @@ struct CharacterInfoCard: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .minimumScaleFactor(0.7)
                 .layoutPriority(1)
+
+            Spacer(minLength: 0)
+            favoritesButton
+            speechToggleButton
         }
     }
 
-    private func variantButton(for variant: String, characterSize: CGFloat? = nil) -> some View {
+    private var notesButton: some View {
         Button {
-            if variants.count > 1 {
-                variantIndex = (variantIndex + 1) % variants.count
-            } else {
-                onSelectVariant?(variant)
-            }
+            store.openQuickCharacterEditor(item.character)
         } label: {
-            Text(variant)
-                .font(.system(size: characterSize ?? 40, weight: .bold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-                .copyCharacterContextMenu(variant, pinyin: store.item(for: variant)?.pinyinText)
-                .foregroundStyle(Color.accentColor)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.accentColor.opacity(0.10))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.accentColor.opacity(0.28), lineWidth: 1)
-                )
-                .contentShape(RoundedRectangle(cornerRadius: 10))
+            actionLabel("✏️", systemImage: "note.text")
         }
-        .buttonStyle(.plain)
-        .help(variants.count > 1 ? "Cycle variants" : "Open variant")
-        .accessibilityLabel(variants.count > 1 ? "Cycle variant \(variant)" : "Open variant \(variant)")
-        .contextMenu {
-            ForEach(variants, id: \.self) { v in
-                Button {
-                    onSelectVariant?(v)
-                } label: {
-                    let pinyin = store.item(for: v)?.pinyinText ?? ""
-                    Label("\(v)  \(pinyin)", systemImage: "arrow.right.circle")
-                }
+        .buttonStyle(.bordered)
+        .controlSize(cardActionControlSize)
+        .font(cardActionFont)
+    }
+
+    private var phrasesButton: some View {
+        Button {
+            store.refreshPhrases(for: item.character)
+            onShowPhrases?()
+        } label: {
+            actionLabel("词", systemImage: "text.quote")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(cardActionControlSize)
+        .font(cardActionFont)
+    }
+
+    private var componentsButton: some View {
+        Button {
+            store.goToRoots(character: item.character)
+        } label: {
+            actionLabel("拆", systemImage: "tree")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(cardActionControlSize)
+        .font(cardActionFont)
+    }
+
+    private var speechToggleButton: some View {
+        Button {
+            store.speechEnabled.toggle()
+        } label: {
+            Image(systemName: store.speechMenuSymbolName)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(cardActionControlSize)
+        .font(cardActionFont)
+        .help(store.speechEnabled ? "Turn character speech off" : "Turn character speech on")
+    }
+
+    private var favoritesButton: some View {
+        Button {
+            store.setFavorite(character: item.character, isFavorite: !store.isFavorite(item.character))
+        } label: {
+            Image(systemName: store.isFavorite(item.character) ? "star.fill" : "star")
+                .foregroundStyle(store.isFavorite(item.character) ? .yellow : .secondary)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(cardActionControlSize)
+        .font(cardActionFont)
+        .help(store.isFavorite(item.character) ? "Remove from favorites" : "Add to favorites")
+    }
+
+    private var clearPreviewButton: some View {
+        Button {
+            onClear?()
+        } label: {
+            if isPhone {
+                actionLabel("Clear", systemImage: "xmark")
+            } else {
+                Text("Clear Preview")
             }
+        }
+        .buttonStyle(.bordered)
+        .controlSize(cardActionControlSize)
+        .font(cardActionFont)
+    }
+
+    @ViewBuilder
+    private func actionLabel(_ title: String, systemImage: String) -> some View {
+        if isPhone {
+            Text(title)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .frame(minHeight: 28)
+        } else {
+            Text(title)
         }
     }
 
@@ -173,6 +255,15 @@ struct CharacterInfoCard: View {
         .popover(isPresented: $showFrequencyGuide, arrowEdge: .bottom) {
             tierGuideView
         }
+    }
+
+    private func chipButton(_ text: String, guide: ChipGuide) -> some View {
+        Button {
+            activeChipGuide = guide
+        } label: {
+            chip(text)
+        }
+        .buttonStyle(.plain)
     }
 
     private var tierGuideView: some View {
@@ -199,6 +290,16 @@ struct CharacterInfoCard: View {
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
         }
+    }
+
+    private func chipGuideView(for guide: ChipGuide) -> some View {
+        Text(guide.description(for: item))
+            .font(chipGuideFont)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .frame(maxWidth: 220, alignment: .leading)
     }
 
     private var displayPinyin: String {
@@ -295,5 +396,65 @@ struct CharacterInfoCard: View {
             .padding(.vertical, 6)
             .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var cardActionFont: Font {
+        #if targetEnvironment(macCatalyst)
+        return ResponsiveFont.caption.weight(.semibold)
+        #else
+        return ResponsiveFont.subheadline.weight(.semibold)
+        #endif
+    }
+
+    private var cardActionControlSize: ControlSize {
+        #if targetEnvironment(macCatalyst)
+        return .small
+        #else
+        return .regular
+        #endif
+    }
+
+    private var chipGuideFont: Font {
+        #if targetEnvironment(macCatalyst)
+        return ResponsiveFont.footnote
+        #else
+        return isPhone ? ResponsiveFont.footnote : ResponsiveFont.subheadline
+        #endif
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func applyCompactPopoverStyle() -> some View {
+        if #available(iOS 16.4, macCatalyst 16.4, *) {
+            self.presentationCompactAdaptation(.popover)
+        } else {
+            self
+        }
+    }
+}
+
+private enum ChipGuide: String, Identifiable {
+    case usageCount
+    case strokes
+    case structure
+    case radical
+
+    var id: String { rawValue }
+
+    func description(for item: ComponentItem) -> String {
+        switch self {
+        case .usageCount:
+            if item.usageCount <= 1 {
+                return "Not present in other characters."
+            }
+            return "Present in \(item.usageCount) characters."
+        case .strokes:
+            return "Number of strokes."
+        case .structure:
+            return "How the character is built from components."
+        case .radical:
+            return "Dictionary indexing radical."
+        }
     }
 }

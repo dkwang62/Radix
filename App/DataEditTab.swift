@@ -1480,7 +1480,7 @@ struct DataEditTab: View {
             HStack {
                 Text(character)
                     .font(ResponsiveFont.headline)
-                    .copyTextContextMenu(character, buttonTitle: "Copy Character", secondaryText: pinyin, secondaryButtonTitle: "Copy Pinyin")
+                    .copyTextContextMenu(character, buttonTitle: "Copy \"\(character)\"", secondaryText: pinyin, secondaryButtonTitle: pinyin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : "Copy \"\(pinyin.trimmingCharacters(in: .whitespacesAndNewlines))\"")
                 Spacer()
                 Text(badge)
                     .font(ResponsiveFont.caption)

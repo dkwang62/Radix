@@ -4,6 +4,9 @@ import Combine
 import UniformTypeIdentifiers
 import UIKit
 import AVFoundation
+#if targetEnvironment(macCatalyst)
+import ApplicationServices
+#endif
 
 /*
  CHARACTER STUDIO ARCHITECTURE (RadixStore)
@@ -699,6 +702,7 @@ final class RadixStore: ObservableObject {
 
     func preview(character: String, announce: Bool = true) {
         activeSubject = .character(character)
+        pushRootBreadcrumb(character)
         if route == .capture {
             previewCharacter = character
             refreshPhrases(for: character)
@@ -756,6 +760,7 @@ final class RadixStore: ObservableObject {
 
     /// iPhone Browse: preview without pushing detail
     func browsePreview(character: String, announce: Bool = true) {
+        pushRootBreadcrumb(character)
         previewCharacter = character
         showiPhoneDetail = false
         // Lightweight refresh for preview context
@@ -809,6 +814,27 @@ final class RadixStore: ObservableObject {
             showiPhoneDetail = false
         }
         #endif
+    }
+
+    @MainActor
+    func triggerSelectedAITasks(for character: String) {
+        let trimmed = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        let prompt = promptText(
+            for: .character(trimmed),
+            selectedTaskIDs: selectedPromptTaskIDsForCharacterLaunch()
+        )
+        guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+
+        UIPasteboard.general.string = prompt
+        activeSubject = .character(trimmed)
+
+        guard let url = defaultAIURL(prompt: prompt) else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            UIApplication.shared.open(url)
+        }
+        scheduleMacClipboardPasteIfPossible()
     }
 
     func goToAILinkTask4FromCapture(characters: [String]) {
@@ -2243,6 +2269,10 @@ final class RadixStore: ObservableObject {
         promptConfig.renderPrompt(selectedTaskIDs: promptSelectedTaskIDs, context: promptRenderContext(for: subject), subject: subject)
     }
 
+    func promptText(for subject: ActiveSubject, selectedTaskIDs: [String]) -> String {
+        promptConfig.renderPrompt(selectedTaskIDs: selectedTaskIDs, context: promptRenderContext(for: subject), subject: subject)
+    }
+
     func promptText(character: String?, collection: CharacterCollection?) -> String {
         let selectedIDs = Set(promptSelectedTaskIDs)
         let selectedTasks = promptConfig.normalized().tasks.filter { selectedIDs.contains($0.id) }
@@ -2320,6 +2350,52 @@ final class RadixStore: ObservableObject {
     }
 
     // MARK: - Private Utilities
+
+    private func selectedPromptTaskIDsForCharacterLaunch() -> [String] {
+        let availableTaskIDs = Set(promptConfig.normalized().tasks.map(\.id))
+        let selectedCharacterTaskIDs = promptSelectedTaskIDs.filter {
+            $0 != "task4" && availableTaskIDs.contains($0)
+        }
+        if !selectedCharacterTaskIDs.isEmpty {
+            return selectedCharacterTaskIDs
+        }
+        if availableTaskIDs.contains("task1") {
+            return ["task1"]
+        }
+        return promptConfig.normalized().tasks
+            .map(\.id)
+            .filter { $0 != "task4" }
+            .prefix(1)
+            .map { $0 }
+    }
+
+    private func scheduleMacClipboardPasteIfPossible() {
+        #if targetEnvironment(macCatalyst)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.performMacPasteShortcut()
+        }
+        #endif
+    }
+
+    #if targetEnvironment(macCatalyst)
+    private func performMacPasteShortcut() {
+        guard let source = CGEventSource(stateID: .hidSystemState),
+              let commandDown = CGEvent(keyboardEventSource: source, virtualKey: 0x37, keyDown: true),
+              let vDown = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: true),
+              let vUp = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: false),
+              let commandUp = CGEvent(keyboardEventSource: source, virtualKey: 0x37, keyDown: false) else {
+            return
+        }
+
+        vDown.flags = .maskCommand
+        vUp.flags = .maskCommand
+
+        commandDown.post(tap: .cghidEventTap)
+        vDown.post(tap: .cghidEventTap)
+        vUp.post(tap: .cghidEventTap)
+        commandUp.post(tap: .cghidEventTap)
+    }
+    #endif
     
     private func persistDataEditAndRefresh() throws {
         phraseCache.removeAll()
