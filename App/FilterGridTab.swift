@@ -16,7 +16,7 @@ struct InteractionHintRow: View {
         HStack(spacing: 0) {
             hintSegment(icon: "cursorarrow", text: previewText)
             segmentDivider
-            hintSegment(icon: "cursorarrow.click.2", text: memoryText)
+            hintSegment(icon: "bookmark", text: memoryText)
             segmentDivider
             hintSegment(icon: "doc.on.doc", text: copyText)
         }
@@ -176,7 +176,7 @@ struct FilterGridTab: View {
     private var browseInteractionHintRow: some View {
         InteractionHintRow(
             previewText: isRunningOnMac ? "Click to preview" : "Tap to preview",
-            memoryText: isRunningOnMac ? "Double-click to remember" : "Double-tap to remember",
+            memoryText: "Use 🕘 to remember",
             copyText: isRunningOnMac ? "Right-click to copy" : "Long-press to copy"
         )
     }
@@ -313,7 +313,6 @@ struct FilterGridTab: View {
                     }
                 }
                 .buttonStyle(.plain)
-                .simultaneousGesture(TapGesture(count: 2).onEnded { store.select(character: character) })
             }
         }
     }
@@ -407,7 +406,6 @@ struct FilterGridTab: View {
                     }
                 }
                 .buttonStyle(.plain)
-                .simultaneousGesture(TapGesture(count: 2).onEnded { store.select(character: item.character) })
             }
         }
     }

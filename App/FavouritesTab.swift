@@ -150,11 +150,6 @@ struct FavouritesTab: View {
             }
         }
         .buttonStyle(.plain)
-        .simultaneousGesture(
-            TapGesture(count: 2).onEnded {
-                store.select(character: item.character)
-            }
-        )
     }
 
     private func favoritePhraseRow(_ phrase: PhraseItem) -> some View {

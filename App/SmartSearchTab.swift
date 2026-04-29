@@ -27,7 +27,7 @@ struct SmartSearchTab: View {
     private var gridInteractionHintRow: some View {
         InteractionHintRow(
             previewText: isRunningOnMac ? "Click to preview" : "Tap to preview",
-            memoryText: isRunningOnMac ? "Double-click to remember" : "Double-tap to remember",
+            memoryText: "Use 🕘 to remember",
             copyText: isRunningOnMac ? "Right-click to copy" : "Long-press to copy"
         )
     }

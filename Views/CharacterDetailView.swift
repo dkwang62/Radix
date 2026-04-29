@@ -258,11 +258,6 @@ struct CharacterDetailView: View {
             store.showComponentHelp = false
             store.preview(character: linkedItem.character)
         }
-        .simultaneousGesture(
-            TapGesture(count: 2).onEnded {
-                store.select(character: linkedItem.character)
-            }
-        )
     }
 
     private func metaChip(_ value: String) -> some View {
@@ -417,7 +412,7 @@ struct CharacterDetailView: View {
         Button {
             store.goToRoots(character: item.character)
         } label: {
-            Label("Roots", systemImage: "tree")
+            Label("Components", systemImage: "tree")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
@@ -491,7 +486,7 @@ struct ComponentsExplorerShell: View {
     private var gridInteractionHintRow: some View {
         HStack(spacing: 10) {
             hintChip(icon: "cursorarrow", text: isRunningOnMac ? "Click Preview" : "Tap Preview")
-            hintChip(icon: "cursorarrow.click.2", text: isRunningOnMac ? "Double-click keeps in memory" : "Double-tap keeps in memory")
+            hintChip(icon: "bookmark", text: "Use 🕘 to remember")
             HStack(spacing: 4) {
                 Text(isRunningOnMac ? "Right-click" : "Long-press")
                 Image(systemName: "doc.on.doc")
@@ -597,6 +592,8 @@ struct ComponentsExplorerShell: View {
                                         .font(ResponsiveFont.caption.bold())
                                         .foregroundStyle(.secondary)
                                 }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
 
@@ -659,6 +656,8 @@ struct ComponentsExplorerShell: View {
                                                 .font(ResponsiveFont.caption.bold())
                                                 .foregroundStyle(.secondary)
                                         }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .contentShape(Rectangle())
                                     }
                                     .buttonStyle(.plain)
 
@@ -693,25 +692,34 @@ struct ComponentsExplorerShell: View {
                 .padding()
             }
             .onChange(of: seed) { _, _ in
-                expandedComponents = []
-                derivativesExpanded = false
                 withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
             }
             .onChange(of: store.previewCharacter) { _, _ in
-                expandedComponents = []
-                derivativesExpanded = false
                 withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
             }
             .onChange(of: store.selectedCharacter) { _, _ in
-                expandedComponents = []
-                derivativesExpanded = false
                 withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
             }
         }
-        .navigationTitle("Roots")
+        .navigationTitle("Components")
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                if store.rootsReturnContext != nil {
+                    Button {
+                        store.returnFromRoots()
+                    } label: {
+                        Label(store.rootsReturnButtonTitle, systemImage: "chevron.backward")
+                    }
+                }
+            }
+        }
         .onAppear {
             let start = seedOverride ?? store.selectedCharacter ?? store.previewCharacter
             syncSeed(with: start, resetHistory: true)
+        }
+        .onDisappear {
+            expandedComponents = []
+            derivativesExpanded = false
         }
         .onChange(of: store.scriptFilter) { _, _ in
             reloadRootContextIfNeeded()
@@ -775,7 +783,7 @@ struct ComponentsExplorerShell: View {
                 }
                 .padding()
             }
-            .navigationTitle("Roots Filters")
+            .navigationTitle("Component Filters")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -863,7 +871,6 @@ struct ComponentsExplorerShell: View {
         VStack(spacing: 4) {
             Text(item.character)
                 .font(.system(size: 30, weight: .bold))
-                .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
             Text(item.pinyinText.isEmpty ? "-" : item.pinyinText)
                 .font(ResponsiveFont.caption)
                 .fontWeight(.semibold)
@@ -879,14 +886,11 @@ struct ComponentsExplorerShell: View {
         .overlay(
             RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 0.5)
         )
+        .contentShape(RoundedRectangle(cornerRadius: 8))
         .onTapGesture {
             startRootExploration(with: item.character, remember: false)
         }
-        .simultaneousGesture(
-            TapGesture(count: 2).onEnded {
-                startRootExploration(with: item.character, remember: true)
-            }
-        )
+        .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
     }
 
     private var emptyStateCard: some View {
@@ -896,7 +900,7 @@ struct ComponentsExplorerShell: View {
                 .foregroundStyle(.secondary)
             Text("No Character")
                 .font(ResponsiveFont.title3.bold())
-            Text("Choose a character from Search or Browse to explore Roots.")
+            Text("Choose a character from Search or Browse to explore Components.")
                 .font(ResponsiveFont.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -966,7 +970,6 @@ struct ComponentsExplorerShell: View {
         return VStack(spacing: 4) {
             Text(item.character)
                 .font(.system(size: 30, weight: .bold))
-                .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
             Text(item.pinyinText.isEmpty ? "-" : item.pinyinText)
                 .font(pinyinFont)
                 .fontWeight(.semibold)
@@ -982,14 +985,11 @@ struct ComponentsExplorerShell: View {
         .overlay(
             RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 0.5)
         )
+        .contentShape(RoundedRectangle(cornerRadius: 8))
         .onTapGesture {
             pivot(to: item.character, selectAfter: false)
         }
-        .simultaneousGesture(
-            TapGesture(count: 2).onEnded {
-                pivot(to: item.character, selectAfter: true)
-            }
-        )
+        .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
     }
 
     private func pivot(to character: String, selectAfter: Bool) {

@@ -8,7 +8,7 @@ struct BreadcrumbStrip: View {
     @EnvironmentObject private var store: RadixStore
 
     private var memoryLabel: String {
-        return "Memory"
+        return "🕘"
     }
 
     private var activeCharacter: String? {

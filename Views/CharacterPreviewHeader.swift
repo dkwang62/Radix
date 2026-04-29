@@ -164,7 +164,7 @@ struct CharacterPreviewHeader: View {
             store.refreshPhrases(for: character)
             showPhraseTableSheet = true
         } label: {
-            previewActionLabel(usesShortActionLabels ? "Phrase" : "Phrases", systemImage: "text.quote")
+            previewActionLabel("词", systemImage: "text.quote")
         }
         .buttonStyle(.bordered)
         .controlSize(previewActionControlSize)
@@ -175,7 +175,7 @@ struct CharacterPreviewHeader: View {
         Button {
             store.goToRoots(character: character)
         } label: {
-            previewActionLabel(usesShortActionLabels ? "Root" : "Roots", systemImage: "tree")
+            previewActionLabel("拆", systemImage: "tree")
         }
         .buttonStyle(.bordered)
         .controlSize(previewActionControlSize)
@@ -186,7 +186,7 @@ struct CharacterPreviewHeader: View {
         Button {
             store.openQuickCharacterEditor(character)
         } label: {
-            previewActionLabel(usesShortActionLabels ? "Note" : "Notes", systemImage: "note.text")
+            previewActionLabel("✏️", systemImage: "note.text")
         }
         .buttonStyle(.bordered)
         .controlSize(previewActionControlSize)
@@ -195,22 +195,32 @@ struct CharacterPreviewHeader: View {
 
     private var speechOptionsMenu: some View {
         Button {
-            store.speakCharacter(character)
+            store.speechEnabled.toggle()
         } label: {
             if isVertical {
-                Image(systemName: "speaker.wave.2")
+                Image(systemName: store.speechMenuSymbolName)
                     .frame(minWidth: 24, minHeight: 28)
             } else {
-                Image(systemName: "speaker.wave.2")
+                Image(systemName: store.speechMenuSymbolName)
             }
         }
         .buttonStyle(.bordered)
         .controlSize(previewActionControlSize)
         .font(previewActionFont)
-        .help("Speak this character")
-        .contextMenu {
-            Toggle("Speak on selection", isOn: $store.speechEnabled)
+        .help(store.speechEnabled ? "Turn character speech off" : "Turn character speech on")
+    }
+
+    private var favoritesTrigger: some View {
+        Button {
+            store.setFavorite(character: character, isFavorite: !store.isFavorite(character))
+        } label: {
+            Image(systemName: store.isFavorite(character) ? "star.fill" : "star")
+                .foregroundStyle(store.isFavorite(character) ? .yellow : .secondary)
         }
+        .buttonStyle(.bordered)
+        .controlSize(previewActionControlSize)
+        .font(previewActionFont)
+        .help(store.isFavorite(character) ? "Remove from favorites" : "Add to favorites")
     }
 
     @ViewBuilder
@@ -231,9 +241,8 @@ struct CharacterPreviewHeader: View {
                     editCharacterTrigger
                     phraseTableTrigger
                     rootsTrigger
-                    if isPhone {
-                        speechOptionsMenu
-                    }
+                    speechOptionsMenu
+                    favoritesTrigger
                     if showClearButton, store.previewCharacter != nil, store.previewCharacter != character {
                         clearPreviewButton
                     }
@@ -255,9 +264,8 @@ struct CharacterPreviewHeader: View {
                 editCharacterTrigger
                 phraseTableTrigger
                 rootsTrigger
-                if isPhone {
-                    speechOptionsMenu
-                }
+                speechOptionsMenu
+                favoritesTrigger
                 if showClearButton, store.previewCharacter != nil, store.previewCharacter != character {
                     clearPreviewButton
                 }
@@ -271,7 +279,7 @@ struct CharacterPreviewHeader: View {
         let button = Button {
             store.toggleRootBreadcrumb(character)
         } label: {
-            previewActionLabel("Memory", systemImage: isInMemory ? "bookmark.fill" : "bookmark")
+            previewActionLabel("🕘", systemImage: isInMemory ? "bookmark.fill" : "bookmark")
         }
 
         if isInMemory {
@@ -326,17 +334,17 @@ struct CharacterPreviewHeader: View {
 
     private var previewActionFont: Font {
         #if targetEnvironment(macCatalyst)
-        return ResponsiveFont.caption2.weight(.semibold)
+        return ResponsiveFont.caption.weight(.semibold)
         #else
-        return (isVertical ? ResponsiveFont.caption2 : ResponsiveFont.caption).weight(.semibold)
+        return (isVertical ? ResponsiveFont.caption : ResponsiveFont.subheadline).weight(.semibold)
         #endif
     }
 
     private var previewActionControlSize: ControlSize {
         #if targetEnvironment(macCatalyst)
-        return .mini
-        #else
         return .small
+        #else
+        return .regular
         #endif
     }
 }
@@ -592,7 +600,7 @@ private struct CharacterActionMenuContent: View {
             }
         }
         Divider()
-        Button("Open in Roots") {
+        Button("Open in Components") {
             store.goToRoots(character: character)
         }
         Button("Open in AI Link") {

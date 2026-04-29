@@ -1005,7 +1005,7 @@ struct DataEditTab: View {
         switch route {
         case .search: return "Search"
         case .capture: return "Capture"
-        case .lineage: return "Roots"
+        case .lineage: return "Components"
         case .aiLink: return "AI Link"
         case .favourites: return "Favorites"
         }

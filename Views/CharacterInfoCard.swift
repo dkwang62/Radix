@@ -6,7 +6,6 @@ struct CharacterInfoCard: View {
     let variants: [String]
     let onSelectVariant: ((String) -> Void)?
     @State private var showFrequencyGuide = false
-    @State private var showTierGuideMobile = false
     @Binding var variantIndex: Int
 
     private let idcChars: Set<Character> = ["⿰", "⿱", "⿲", "⿳", "⿴", "⿵", "⿶", "⿷", "⿸", "⿹", "⿺", "⿻"]
@@ -41,11 +40,11 @@ struct CharacterInfoCard: View {
 
     var body: some View {
         content
-        .padding(isPhone ? 12 : 16)
+        .padding(16)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: isPhone ? 14 : 16))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(
-            RoundedRectangle(cornerRadius: isPhone ? 14 : 16)
+            RoundedRectangle(cornerRadius: 16)
                 .stroke(Color(.separator), lineWidth: 1)
         )
         .onChange(of: item.character) { _, _ in
@@ -53,13 +52,8 @@ struct CharacterInfoCard: View {
         }
     }
 
-    @ViewBuilder
     private var content: some View {
-        if isPhone {
-            phoneContent
-        } else {
-            standardContent
-        }
+        standardContent
     }
 
     private var standardContent: some View {
@@ -77,70 +71,21 @@ struct CharacterInfoCard: View {
             }
 
             HStack(spacing: 6) {
-                chip("In \(item.usageCount) chars")
+                chip("字 \(item.usageCount)")
                 if let strokes = item.strokes {
-                    chip("\(strokes) strokes")
-                }
-                if !item.radical.isEmpty {
-                    chip("Rad. \(item.radical)")
+                    chip("✍️ \(strokes)")
                 }
             }
 
-            if !structurePartsText.isEmpty {
-                chip(structurePartsText)
-            }
-
-            definitionAndNotes
-
-            HStack(spacing: 8) {
-                Spacer(minLength: 0)
-                speakButton
-                favoritesButton
-            }
-        }
-    }
-
-    private var phoneContent: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            headerRow(
-                characterSize: 30,
-                pinyinFont: ResponsiveFont.title3.bold(),
-                starSize: 16,
-                starPadding: 7
-            )
-
-            HStack(alignment: .center, spacing: 6) {
-                Button {
-                    showTierGuideMobile = true
-                } label: {
-                    tierChip(for: item.tier)
+            if !structurePartsText.isEmpty || !item.radical.isEmpty {
+                HStack(spacing: 6) {
+                    if !structurePartsText.isEmpty {
+                        chip(structurePartsText)
+                    }
+                    if !item.radical.isEmpty {
+                        chip(item.radical)
+                    }
                 }
-                .buttonStyle(.plain)
-                .popover(isPresented: $showTierGuideMobile, arrowEdge: .bottom) {
-                    tierGuideView
-                        .padding()
-                }
-
-                if !item.radical.isEmpty {
-                    chip("Rad \(item.radical)")
-                }
-
-                Spacer(minLength: 0)
-            }
-
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 58), spacing: 6)],
-                alignment: .leading,
-                spacing: 6
-            ) {
-                chip("In \(item.usageCount) char\(item.usageCount == 1 ? "" : "s")")
-                if let strokes = item.strokes {
-                    chip("\(strokes) strokes")
-                }
-            }
-
-            if !phoneStructureText.isEmpty {
-                chip(phoneStructureText)
             }
 
             definitionAndNotes
@@ -153,7 +98,7 @@ struct CharacterInfoCard: View {
         starSize: CGFloat,
         starPadding: CGFloat
     ) -> some View {
-        HStack(alignment: .top, spacing: isPhone ? 6 : 8) {
+        HStack(alignment: .top, spacing: 8) {
             Text(item.character)
                 .font(.system(size: characterSize, weight: .bold))
                 .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
@@ -165,53 +110,11 @@ struct CharacterInfoCard: View {
             Text(displayPinyin)
                 .font(pinyinFont)
                 .foregroundStyle(Color.orange)
-                .lineLimit(isPhone ? 1 : 2)
+                .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
-                .minimumScaleFactor(isPhone ? 0.55 : 0.7)
+                .minimumScaleFactor(0.7)
                 .layoutPriority(1)
-
-            Spacer(minLength: 2)
-
-            if isPhone {
-                Button {
-                    store.setFavorite(character: item.character, isFavorite: !store.isFavorite(item.character))
-                } label: {
-                    Image(systemName: store.isFavorite(item.character) ? "star.fill" : "star")
-                        .font(.system(size: starSize, weight: .semibold))
-                        .foregroundStyle(store.isFavorite(item.character) ? .yellow : .secondary)
-                        .padding(starPadding)
-                        .background(Color.accentColor.opacity(0.08))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                }
-                .buttonStyle(.plain)
-            }
         }
-    }
-
-    private var speakButton: some View {
-        Button {
-            store.speakCharacter(item.character)
-        } label: {
-            Image(systemName: "speaker.wave.2")
-        }
-        .buttonStyle(.bordered)
-        .controlSize(cardActionControlSize)
-        .font(cardActionFont)
-        .help("Speak this character")
-        .contextMenu {
-            Toggle("Speak on selection", isOn: $store.speechEnabled)
-        }
-    }
-
-    private var favoritesButton: some View {
-        Button {
-            store.setFavorite(character: item.character, isFavorite: !store.isFavorite(item.character))
-        } label: {
-            Label("Favorites", systemImage: store.isFavorite(item.character) ? "star.fill" : "star")
-        }
-        .modifier(FavoritesButtonStyleModifier(isFavorite: store.isFavorite(item.character)))
-        .controlSize(cardActionControlSize)
-        .font(cardActionFont)
     }
 
     private func variantButton(for variant: String, characterSize: CGFloat? = nil) -> some View {
@@ -223,20 +126,20 @@ struct CharacterInfoCard: View {
             }
         } label: {
             Text(variant)
-                .font(.system(size: characterSize ?? (isPhone ? 34 : 40), weight: .bold))
+                .font(.system(size: characterSize ?? 40, weight: .bold))
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
                 .copyCharacterContextMenu(variant, pinyin: store.item(for: variant)?.pinyinText)
                 .foregroundStyle(Color.accentColor)
-                .padding(.horizontal, isPhone ? 6 : 8)
-                .padding(.vertical, isPhone ? 2 : 4)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
                 .background(Color.accentColor.opacity(0.10))
-                .clipShape(RoundedRectangle(cornerRadius: isPhone ? 8 : 10))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
                 .overlay(
-                    RoundedRectangle(cornerRadius: isPhone ? 8 : 10)
+                    RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.accentColor.opacity(0.28), lineWidth: 1)
                 )
-                .contentShape(RoundedRectangle(cornerRadius: isPhone ? 8 : 10))
+                .contentShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
         .help(variants.count > 1 ? "Cycle variants" : "Open variant")
@@ -303,39 +206,8 @@ struct CharacterInfoCard: View {
         return joined.isEmpty ? "—" : joined
     }
 
-    private var partsText: String {
-        let parts = item.decomposition
-            .filter { !idcChars.contains($0) }
-            .map(String.init)
-            .filter { !$0.isEmpty && $0 != "?" && $0 != "—" && $0 != item.character }
-        return parts.prefix(4).joined(separator: " ")
-    }
-
     private var structurePartsText: String {
-        let parts = partsText
-        if let symbol = structureSymbol, !parts.isEmpty {
-            return "Structure \(symbol) · \(parts)"
-        }
-        if let symbol = structureSymbol {
-            return "Structure \(symbol)"
-        }
-        return parts
-    }
-
-    private var phoneStructureText: String {
-        let parts = partsText
-        if let symbol = structureSymbol, !parts.isEmpty {
-            return "Structure \(symbol) · \(parts)"
-        }
-        if let symbol = structureSymbol {
-            return "Structure \(symbol)"
-        }
-        return parts
-    }
-
-    private var structureSymbol: String? {
-        guard let first = item.decomposition.first, idcChars.contains(first) else { return nil }
-        return String(first)
+        item.decomposition.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private var etymologyText: String {
@@ -374,9 +246,9 @@ struct CharacterInfoCard: View {
     }
 
     private var definitionAndNotes: some View {
-        VStack(alignment: .leading, spacing: isPhone ? 8 : 12) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(item.definition.isEmpty ? "No definition" : item.definition)
-                .font(isPhone ? ResponsiveFont.body : ResponsiveFont.subheadline)
+                .font(ResponsiveFont.subheadline)
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -392,7 +264,7 @@ struct CharacterInfoCard: View {
             if !notesText.isEmpty {
                 Divider()
                 VStack(alignment: .leading, spacing: 6) {
-                    Label(isPhone ? "Note" : "Notes", systemImage: "note.text")
+                    Label("✏️", systemImage: "note.text")
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Text(notesText)
@@ -405,52 +277,23 @@ struct CharacterInfoCard: View {
     }
 
     private func tierChip(for tier: Int) -> some View {
-        Text(isPhone ? "Tier\(tier)" : "Tier \(tier)")
-            .font((isPhone ? ResponsiveFont.caption : ResponsiveFont.footnote).weight(.bold))
+        Text("Tier \(tier)")
+            .font(ResponsiveFont.footnote.weight(.bold))
             .foregroundStyle(.white)
-            .padding(.horizontal, isPhone ? 9 : 10)
-            .padding(.vertical, isPhone ? 5 : 6)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
             .background(tierColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     private func chip(_ text: String) -> some View {
         Text(text)
-            .font((isPhone ? ResponsiveFont.caption : ResponsiveFont.footnote).weight(.semibold))
+            .font(ResponsiveFont.footnote.weight(.semibold))
             .lineLimit(1)
             .minimumScaleFactor(0.75)
-            .padding(.horizontal, isPhone ? 8 : 10)
-            .padding(.vertical, isPhone ? 5 : 6)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
             .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: isPhone ? 10 : 12))
-    }
-
-    private var cardActionFont: Font {
-        #if targetEnvironment(macCatalyst)
-        return ResponsiveFont.caption2.weight(.semibold)
-        #else
-        return ResponsiveFont.caption.weight(.semibold)
-        #endif
-    }
-
-    private var cardActionControlSize: ControlSize {
-        #if targetEnvironment(macCatalyst)
-        return .mini
-        #else
-        return .small
-        #endif
-    }
-}
-
-private struct FavoritesButtonStyleModifier: ViewModifier {
-    let isFavorite: Bool
-
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        if isFavorite {
-            content.buttonStyle(.borderedProminent)
-        } else {
-            content.buttonStyle(.bordered)
-        }
+            .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

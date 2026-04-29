@@ -168,7 +168,7 @@ struct RootView: View {
         }()
         let title: String = {
             switch selection {
-            case -1: return "Roots"
+            case -1: return "Components"
             case 0: return "Image"
             case 1: return "Search"
             case 2: return "Browse"
@@ -369,7 +369,7 @@ struct RootView: View {
                         emptyStateCard(
                         systemImage: "tree",
                         title: "No Character",
-                        message: "Choose a character from Search or Browse to explore Roots."
+                        message: "Choose a character from Search or Browse to explore Components."
                     )
                     } else {
                         ComponentsExplorerShell(seedOverride: store.previewCharacter ?? store.selectedCharacter)
@@ -410,7 +410,7 @@ struct RootView: View {
             case .favourites: return "Favorites"
             case .dataEdit:   return "My Data"
             }
-        case .lineage:    return "Roots"
+        case .lineage:    return "Components"
         case .favourites: return "Favorites"
         case .aiLink:     return "AI Link"
         }

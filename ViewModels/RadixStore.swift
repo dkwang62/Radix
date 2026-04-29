@@ -84,6 +84,11 @@ enum HomeTab: String, CaseIterable, Identifiable {
     }
 }
 
+struct RootsReturnContext: Equatable {
+    let route: AppRoute
+    let homeTab: HomeTab?
+}
+
 /// Sorting modes for the discovery grid.
 enum GridSortMode: String, CaseIterable, Identifiable {
     case readingOrder = "Reading Order"
@@ -174,6 +179,7 @@ final class RadixStore: ObservableObject {
         }
     }
     @Published var homeTab: HomeTab = .filter
+    @Published private(set) var rootsReturnContext: RootsReturnContext?
     @Published var selectedCharacter: String? {
         didSet {
             rememberLastPreviewedCharacter(selectedCharacter)
@@ -439,7 +445,6 @@ final class RadixStore: ObservableObject {
     private var allCharactersCache: [ComponentItem] = []
     private var selectedBrowseCollectionCharacters: Set<String>? = nil
     private var phraseCache: [String: [PhraseItem]] = [:]
-    private var lastPreviewTap: (character: String, time: Date)?
     var suppressHelpReset = false
     @Published private(set) var loadingError: String?
     @Published private(set) var dataEditSavePath: String = ""
@@ -704,16 +709,6 @@ final class RadixStore: ObservableObject {
             return
         }
 
-        // Two quick previews on the same character count as a selection (double-click alternative)
-        let now = Date()
-        if let last = lastPreviewTap, last.character == character, now.timeIntervalSince(last.time) < 0.8 {
-            lastPreviewTap = nil
-            select(character: character, announce: announce)
-            return
-        } else {
-            lastPreviewTap = (character, now)
-        }
-
         #if targetEnvironment(macCatalyst)
         // Mac: Keep distinction
         previewCharacter = character
@@ -774,6 +769,7 @@ final class RadixStore: ObservableObject {
     }
 
     func enterLineage() {
+        rootsReturnContext = nil
         if let target = previewCharacter ?? selectedCharacter {
             if let selectedCharacter, selectedCharacter != target {
                 history.append(selectedCharacter)
@@ -880,9 +876,54 @@ final class RadixStore: ObservableObject {
     }
 
     func goToRoots(character: String) {
+        if route != .lineage {
+            rootsReturnContext = RootsReturnContext(
+                route: route,
+                homeTab: route == .search ? homeTab : nil
+            )
+        }
         route = .lineage
         select(character: character, announce: false)
         showComponentHelp = true
+        #if !targetEnvironment(macCatalyst)
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            showiPhoneDetail = false
+        }
+        #endif
+    }
+
+    var rootsReturnButtonTitle: String {
+        guard let rootsReturnContext else { return "Back" }
+        switch rootsReturnContext.route {
+        case .capture:
+            return "Back to Image"
+        case .search:
+            switch rootsReturnContext.homeTab ?? .smart {
+            case .smart:
+                return "Back to Search"
+            case .filter:
+                return "Back to Browse"
+            case .favourites:
+                return "Back to Favorites"
+            case .dataEdit:
+                return "Back to My Data"
+            }
+        case .lineage:
+            return "Back to Components"
+        case .aiLink:
+            return "Back to AI Link"
+        case .favourites:
+            return "Back to Favorites"
+        }
+    }
+
+    func returnFromRoots() {
+        guard let rootsReturnContext else { return }
+        route = rootsReturnContext.route
+        if let homeTab = rootsReturnContext.homeTab {
+            self.homeTab = homeTab
+        }
+        self.rootsReturnContext = nil
         #if !targetEnvironment(macCatalyst)
         if UIDevice.current.userInterfaceIdiom == .phone {
             showiPhoneDetail = false

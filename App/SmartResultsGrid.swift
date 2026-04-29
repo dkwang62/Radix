@@ -144,11 +144,6 @@ struct SmartResultsGrid: View {
                             }
                         }
                         .buttonStyle(.plain)
-                        .simultaneousGesture(
-                            TapGesture(count: 2).onEnded {
-                                store.select(character: item.character)
-                            }
-                        )
                     }
                 }
                 .frame(maxHeight: {
@@ -169,4 +164,3 @@ struct SmartResultsGrid: View {
     }
 
 }
-
