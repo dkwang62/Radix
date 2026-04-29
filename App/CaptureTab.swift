@@ -29,6 +29,9 @@ struct CaptureTab: View {
     @State private var showOCRCollectionSheet = false
     @State private var ocrCollectionName = ""
     @State private var isSavedPagesExpanded = false
+    @State private var showPasteCollectionSheet = false
+    @State private var pasteCollectionName = ""
+    @State private var pasteCollectionText = ""
 
     private var characters: [String] {
         CaptureTextExtractor.uniqueCharacters(in: store.activeCaptureDraft.charactersText)
@@ -148,6 +151,14 @@ struct CaptureTab: View {
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }
         }
+        .onAppear {
+            #if !targetEnvironment(macCatalyst)
+            let isOnMac = ProcessInfo.processInfo.isiOSAppOnMac
+            if !isOnMac, UIImagePickerController.isSourceTypeAvailable(.camera) {
+                showCamera = true
+            }
+            #endif
+        }
         .onChange(of: selectedPhoto) { _, item in
             Task { await loadAndRecognize(item) }
         }
@@ -166,6 +177,9 @@ struct CaptureTab: View {
         }
         .sheet(isPresented: $showOCRCollectionSheet) {
             ocrCollectionSheet
+        }
+        .sheet(isPresented: $showPasteCollectionSheet) {
+            pasteCollectionSheet
         }
     }
 
@@ -188,29 +202,30 @@ struct CaptureTab: View {
                 .foregroundStyle(.secondary)
 
             HStack(alignment: .center, spacing: 10) {
-            if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                    Label("Album", systemImage: "photo.on.rectangle")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .disabled(isProcessing)
+
                 Button {
                     showCamera = true
                 } label: {
-                    Text("Camera")
+                    Label("Camera", systemImage: "camera.fill")
+                        .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(isProcessing)
-            }
-            PhotosPicker(selection: $selectedPhoto, matching: .images) {
-                Text("Album")
-            }
-            .buttonStyle(.bordered)
-            .disabled(isProcessing)
 
-            Button {
-                showImageFileImporter = true
-            } label: {
-                Text(filePickerTitle)
-            }
-            .buttonStyle(.bordered)
-            .disabled(isProcessing)
-                Spacer()
+                Button {
+                    showImageFileImporter = true
+                } label: {
+                    Label(filePickerTitle, systemImage: "folder")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .disabled(isProcessing)
             }
         }
     }
@@ -225,6 +240,84 @@ struct CaptureTab: View {
 
     private var defaultOCRCollectionName: String {
         "OCR Image \(Date().formatted(date: .numeric, time: .shortened))"
+    }
+
+    private var createFromPasteButton: some View {
+        Button {
+            pasteCollectionName = ""
+            pasteCollectionText = UIPasteboard.general.string ?? ""
+            showPasteCollectionSheet = true
+        } label: {
+            Label("Create from Paste", systemImage: "doc.on.clipboard")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+    }
+
+    private var pasteCollectionSheet: some View {
+        NavigationStack {
+            Form {
+                Section("Image Name") {
+                    TextField("Name", text: $pasteCollectionName)
+                }
+
+                Section {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("Paste characters below", systemImage: "doc.on.clipboard")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                        TextEditor(text: $pasteCollectionText)
+                            .frame(minHeight: 180)
+                            .overlay(alignment: .topLeading) {
+                                if pasteCollectionText.isEmpty {
+                                    Text("伊 朗 石 油 開 出 荷 姆 茲 仍 被 美 攔 截 川 普 暗 酸 習 近 平 戰 爭 就 另 隔 鍵 時 刻 美 元 霸 權 中 東 局 勢 關 鍵 時 刻 不 只 阿 聯 酋 要 求 美 元 互 換 貝 森 特 曝 中 東 亞 洲 多 國 求 加 入 美 元 保 護 傘 戰 爭 讓 美 元 金 穹 籠 罩 全 球 窮 國 因 戰 亂 離 不 開 穩 定 幣 美 元 霸 權 升 級 全 球")
+                                        .foregroundStyle(.tertiary)
+                                        .allowsHitTesting(false)
+                                        .padding(.top, 8)
+                                        .padding(.leading, 4)
+                                }
+                            }
+                    }
+                } header: {
+                    Text("Characters")
+                } footer: {
+                    Text("\(CaptureTextExtractor.uniqueCharacters(in: pasteCollectionText).count) unique Chinese characters detected.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("From Text")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        showPasteCollectionSheet = false
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        savePasteCollection()
+                    }
+                    .disabled(CaptureTextExtractor.uniqueCharacters(in: pasteCollectionText).isEmpty)
+                }
+            }
+        }
+    }
+
+    private func savePasteCollection() {
+        let name = pasteCollectionName.isEmpty
+            ? "Pasted \(Date().formatted(date: .numeric, time: .shortened))"
+            : pasteCollectionName
+        guard let collection = store.createCollection(
+            name: name,
+            sourceText: pasteCollectionText,
+            sourceType: .manual
+        ) else { return }
+        store.selectBrowseCollection(id: collection.id)
+        pasteCollectionName = ""
+        pasteCollectionText = ""
+        showPasteCollectionSheet = false
+        isSavedPagesExpanded = true
     }
 
     private var ocrCollectionSheet: some View {
@@ -291,7 +384,11 @@ struct CaptureTab: View {
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 16) {
-            SavedPagesSection(isExpanded: $isSavedPagesExpanded, footer: {
+            SavedPagesSection(isExpanded: $isSavedPagesExpanded, onPasteFromText: {
+                pasteCollectionName = ""
+                pasteCollectionText = UIPasteboard.general.string ?? ""
+                showPasteCollectionSheet = true
+            }, footer: {
                 addChatGPTAnswerPanel
             })
         }
@@ -300,7 +397,11 @@ struct CaptureTab: View {
     private func captureResults(scrollToTop: @escaping () -> Void) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             captureCharactersSection(scrollToTop: scrollToTop)
-            SavedPagesSection(isExpanded: $isSavedPagesExpanded, footer: {
+            SavedPagesSection(isExpanded: $isSavedPagesExpanded, onPasteFromText: {
+                pasteCollectionName = ""
+                pasteCollectionText = UIPasteboard.general.string ?? ""
+                showPasteCollectionSheet = true
+            }, footer: {
                 if phraseMode == .apple {
                     addChatGPTAnswerPanel
                 } else {
@@ -1412,15 +1513,18 @@ private struct SavedPagesSection<Footer: View>: View {
     @State private var editingCollectionName: String = ""
     @State private var editingCollectionText: String = ""
     @State private var collectionEditorError: String?
+    let onPasteFromText: () -> Void
     let footer: Footer
 
-    init(isExpanded: Binding<Bool>) where Footer == EmptyView {
+    init(isExpanded: Binding<Bool>, onPasteFromText: @escaping () -> Void = {}) where Footer == EmptyView {
         self._isExpanded = isExpanded
+        self.onPasteFromText = onPasteFromText
         self.footer = EmptyView()
     }
 
-    init(isExpanded: Binding<Bool>, @ViewBuilder footer: () -> Footer) {
+    init(isExpanded: Binding<Bool>, onPasteFromText: @escaping () -> Void = {}, @ViewBuilder footer: () -> Footer) {
         self._isExpanded = isExpanded
+        self.onPasteFromText = onPasteFromText
         self.footer = footer()
     }
 
@@ -1436,10 +1540,26 @@ private struct SavedPagesSection<Footer: View>: View {
                         .foregroundStyle(.secondary)
 
                     if store.allCollections.isEmpty {
+                        Button {
+                            onPasteFromText()
+                        } label: {
+                            Label("Paste directly from text", systemImage: "doc.on.clipboard")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+
                         Text("No saved images yet.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
                     } else {
+                        Button {
+                            onPasteFromText()
+                        } label: {
+                            Label("Paste directly from text", systemImage: "doc.on.clipboard")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+
                         VStack(alignment: .leading, spacing: 10) {
                             ForEach(store.allCollections) { collection in
                                 savedPageRow(collection)

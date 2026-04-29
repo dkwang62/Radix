@@ -424,12 +424,6 @@ struct FilterGridTab: View {
                 }
                 Spacer()
                 collectionMenu
-                Button {
-                    showManualCollectionSheet = true
-                } label: {
-                    Label("New", systemImage: "plus")
-                }
-                .buttonStyle(.bordered)
             }
 
             if !store.favoriteCollections.isEmpty {

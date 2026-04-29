@@ -472,6 +472,8 @@ struct ComponentsExplorerShell: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var seed: String = ""
     @State private var showRootFilters = false
+    @State private var expandedComponents: Set<String> = []
+    @State private var derivativesExpanded: Bool = false
     var seedOverride: String?
 
     private var isRunningOnMac: Bool {
@@ -573,6 +575,52 @@ struct ComponentsExplorerShell: View {
                     }
 
                     if hasRootContext {
+                        // ── Derivatives box first ──────────────────────────────────────
+                        VStack(alignment: .leading, spacing: derivativesExpanded ? 8 : 0) {
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    derivativesExpanded.toggle()
+                                }
+                            } label: {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Characters containing \(seed) (\(store.rootDerivativesTotal))")
+                                            .font(ResponsiveFont.headline)
+                                        if derivativesExpanded {
+                                            Text("Sorted by popular usage.")
+                                                .font(ResponsiveFont.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    Spacer()
+                                    Image(systemName: derivativesExpanded ? "chevron.up" : "chevron.down")
+                                        .font(ResponsiveFont.caption.bold())
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .buttonStyle(.plain)
+
+                            if derivativesExpanded {
+                                if store.rootDerivatives.isEmpty {
+                                    Text("No derivatives found for this character.")
+                                        .font(ResponsiveFont.caption)
+                                        .foregroundStyle(.secondary)
+                                } else {
+                                    ScrollView(.horizontal, showsIndicators: false) {
+                                        LazyHStack(spacing: 8) {
+                                            ForEach(store.rootDerivatives, id: \.character) { item in
+                                                branchRow(item)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .padding(10)
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                        // ── Shared peers by component ──────────────────────────────────
                         if !store.sharedPeersByComponent.isEmpty {
                             ForEach(Array(store.sharedPeersByComponent.keys).sorted(), id: \.self) { comp in
                                 let compItem = store.item(for: comp)
@@ -585,57 +633,56 @@ struct ComponentsExplorerShell: View {
                                         }
                                     }
                                 }()
-                                VStack(alignment: .leading, spacing: 8) {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(componentSectionTitle(for: comp, item: compItem))
-                                            .font(ResponsiveFont.headline)
-                                        Text("Sorted by how often this component appears in other characters.")
-                                            .font(ResponsiveFont.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-
-                                    #if targetEnvironment(macCatalyst)
-                                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 72, maximum: 120), spacing: 8)], spacing: 8) {
-                                        ForEach(rowItems, id: \.character) { item in
-                                            branchRow(item)
+                                let isExpanded = expandedComponents.contains(comp)
+                                VStack(alignment: .leading, spacing: isExpanded ? 8 : 0) {
+                                    Button {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            if isExpanded {
+                                                expandedComponents.remove(comp)
+                                            } else {
+                                                expandedComponents.insert(comp)
+                                            }
+                                        }
+                                    } label: {
+                                        HStack {
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(componentSectionTitle(for: comp, item: compItem) + " (\(rowItems.count))")
+                                                    .font(ResponsiveFont.headline)
+                                                if isExpanded {
+                                                    Text("Sorted by how often this component appears in other characters.")
+                                                        .font(ResponsiveFont.caption)
+                                                        .foregroundStyle(.secondary)
+                                                }
+                                            }
+                                            Spacer()
+                                            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                                                .font(ResponsiveFont.caption.bold())
+                                                .foregroundStyle(.secondary)
                                         }
                                     }
-                                    #else
-                                    ScrollView(.horizontal, showsIndicators: false) {
-                                        HStack(spacing: 8) {
+                                    .buttonStyle(.plain)
+
+                                    if isExpanded {
+                                        #if targetEnvironment(macCatalyst)
+                                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 72, maximum: 120), spacing: 8)], spacing: 8) {
                                             ForEach(rowItems, id: \.character) { item in
                                                 branchRow(item)
                                             }
                                         }
+                                        #else
+                                        ScrollView(.horizontal, showsIndicators: false) {
+                                            HStack(spacing: 8) {
+                                                ForEach(rowItems, id: \.character) { item in
+                                                    branchRow(item)
+                                                }
+                                            }
+                                        }
+                                        #endif
                                     }
-                                    #endif
                                 }
                                 .padding(10)
                                 .background(Color(.secondarySystemBackground))
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                            }
-                        }
-
-                        VStack(alignment: .leading, spacing: 8) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Characters containing \(seed) (\(store.rootDerivativesTotal))")
-                                    .font(ResponsiveFont.headline)
-                                Text("Sorted by popular usage.")
-                                    .font(ResponsiveFont.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            if store.rootDerivatives.isEmpty {
-                                Text("No derivatives found for this character.")
-                                    .font(ResponsiveFont.caption)
-                                    .foregroundStyle(.secondary)
-                            } else {
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    LazyHStack(spacing: 8) {
-                                        ForEach(store.rootDerivatives, id: \.character) { item in
-                                            branchRow(item)
-                                        }
-                                    }
-                                }
                             }
                         }
                     } else {
@@ -646,12 +693,18 @@ struct ComponentsExplorerShell: View {
                 .padding()
             }
             .onChange(of: seed) { _, _ in
+                expandedComponents = []
+                derivativesExpanded = false
                 withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
             }
             .onChange(of: store.previewCharacter) { _, _ in
+                expandedComponents = []
+                derivativesExpanded = false
                 withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
             }
             .onChange(of: store.selectedCharacter) { _, _ in
+                expandedComponents = []
+                derivativesExpanded = false
                 withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
             }
         }
