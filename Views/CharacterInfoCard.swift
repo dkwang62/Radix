@@ -68,10 +68,6 @@ struct CharacterInfoCard: View {
         .onChange(of: item.character) { _, _ in
             variantIndex = 0
         }
-        .popover(item: $activeChipGuide, arrowEdge: .bottom) { guide in
-            chipGuideView(for: guide)
-                .applyCompactPopoverStyle()
-        }
     }
 
     private var content: some View {
@@ -81,8 +77,8 @@ struct CharacterInfoCard: View {
     private var standardContent: some View {
         VStack(alignment: .leading, spacing: 12) {
             headerRow(
-                characterSize: 40,
-                pinyinFont: ResponsiveFont.title.bold()
+                characterSize: isPhone ? 32 : 40,
+                pinyinFont: isPhone ? ResponsiveFont.title3.bold() : ResponsiveFont.title.bold()
             )
 
             actionRow
@@ -216,7 +212,7 @@ struct CharacterInfoCard: View {
             onClear?()
         } label: {
             if isPhone {
-                actionLabel("Clear", systemImage: "xmark")
+                Text("❌")
             } else {
                 Text("Clear Preview")
             }
@@ -264,6 +260,23 @@ struct CharacterInfoCard: View {
             chip(text)
         }
         .buttonStyle(.plain)
+        .popover(isPresented: chipGuideBinding(for: guide), arrowEdge: .bottom) {
+            chipGuideView(for: guide)
+                .applyCompactPopoverStyle()
+        }
+    }
+
+    private func chipGuideBinding(for guide: ChipGuide) -> Binding<Bool> {
+        Binding(
+            get: { activeChipGuide == guide },
+            set: { isPresented in
+                if isPresented {
+                    activeChipGuide = guide
+                } else if activeChipGuide == guide {
+                    activeChipGuide = nil
+                }
+            }
+        )
     }
 
     private var tierGuideView: some View {
@@ -389,7 +402,7 @@ struct CharacterInfoCard: View {
 
     private func chip(_ text: String) -> some View {
         Text(text)
-            .font(ResponsiveFont.footnote.weight(.semibold))
+            .font(chipFont)
             .lineLimit(1)
             .minimumScaleFactor(0.75)
             .padding(.horizontal, 10)
@@ -418,7 +431,15 @@ struct CharacterInfoCard: View {
         #if targetEnvironment(macCatalyst)
         return ResponsiveFont.footnote
         #else
-        return isPhone ? ResponsiveFont.footnote : ResponsiveFont.subheadline
+        return isPhone ? ResponsiveFont.subheadline : ResponsiveFont.subheadline
+        #endif
+    }
+
+    private var chipFont: Font {
+        #if targetEnvironment(macCatalyst)
+        return ResponsiveFont.footnote.weight(.semibold)
+        #else
+        return isPhone ? ResponsiveFont.subheadline.weight(.semibold) : ResponsiveFont.footnote.weight(.semibold)
         #endif
     }
 }

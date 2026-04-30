@@ -2921,6 +2921,10 @@ final class RadixStore: ObservableObject {
         case .favourites:
             setFavorite(character: key, isFavorite: !favorites.contains(key))
         }
+
+        if speechEnabled {
+            speechCoordinator.speak(key)
+        }
     }
 
     // MARK: - Roots Cache
@@ -3327,6 +3331,21 @@ final class RadixStore: ObservableObject {
 
     func speakCharacter(_ character: String) {
         speechCoordinator.speak(character)
+    }
+
+    func speakPhrase(_ phrase: PhraseItem) {
+        guard speechEnabled else { return }
+        let word = phrase.word.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !word.isEmpty else { return }
+        speechCoordinator.speak(word)
+    }
+
+    @discardableResult
+    func speakCharacters(in text: String) -> Int {
+        let characters = CaptureTextExtractor.allCharactersInOrder(in: text)
+        guard !characters.isEmpty else { return 0 }
+        speechCoordinator.speak(characters.joined())
+        return characters.count
     }
 
     private func persistPromptSettings() {

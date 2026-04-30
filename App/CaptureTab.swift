@@ -212,7 +212,8 @@ struct CaptureTab: View {
                 Button {
                     showCamera = true
                 } label: {
-                    Label("Camera", systemImage: "camera.fill")
+                    Image(systemName: "camera.fill")
+                        .font(.system(size: 28, weight: .semibold))
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -432,6 +433,15 @@ struct CaptureTab: View {
                     showOCRCollectionSheet = true
                 }
                 .buttonStyle(.borderedProminent)
+                .disabled(characters.isEmpty)
+
+                Button {
+                    let count = store.speakCharacters(in: store.activeCaptureDraft.charactersText)
+                    statusMessage = count > 0 ? "Reading \(count) character\(count == 1 ? "" : "s") aloud." : "No Chinese characters to read."
+                } label: {
+                    Label("Read Aloud", systemImage: "speaker.wave.2")
+                }
+                .buttonStyle(.bordered)
                 .disabled(characters.isEmpty)
 
                 Button("Clear") {
@@ -1513,6 +1523,8 @@ private struct SavedPagesSection<Footer: View>: View {
     @State private var editingCollectionName: String = ""
     @State private var editingCollectionText: String = ""
     @State private var collectionEditorError: String?
+    @State private var collectionEditorStatus: String?
+    @FocusState private var editingCharactersFocused: Bool
     let onPasteFromText: () -> Void
     let footer: Footer
 
@@ -1575,7 +1587,7 @@ private struct SavedPagesSection<Footer: View>: View {
                     Text("Saved Images (\(store.allCollections.count))")
                         .font(ResponsiveFont.headline)
                 } icon: {
-                    Image(systemName: "doc.text.image")
+                    Text("📄")
                 }
                 .foregroundStyle(Color.accentColor)
             }
@@ -1679,6 +1691,7 @@ private struct SavedPagesSection<Footer: View>: View {
         editingCollectionName = collection.name
         editingCollectionText = collection.characters.joined(separator: " ")
         collectionEditorError = nil
+        collectionEditorStatus = nil
         editingCollection = collection
     }
 
@@ -1690,8 +1703,22 @@ private struct SavedPagesSection<Footer: View>: View {
                 }
 
                 Section("Characters") {
+                    Button {
+                        readEditedCollectionAloud()
+                    } label: {
+                        Label("Read Aloud", systemImage: "speaker.wave.2")
+                    }
+                    .disabled(CaptureTextExtractor.allCharactersInOrder(in: editingCollectionText).isEmpty)
+
+                    if let collectionEditorStatus {
+                        Text(collectionEditorStatus)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
                     TextEditor(text: $editingCollectionText)
                         .frame(minHeight: 140)
+                        .focused($editingCharactersFocused)
                     Text("Paste or type Chinese text here. Radix will keep the recognized characters for this saved image.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
@@ -1712,6 +1739,7 @@ private struct SavedPagesSection<Footer: View>: View {
                     Button("Cancel") {
                         editingCollection = nil
                         collectionEditorError = nil
+                        collectionEditorStatus = nil
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -1721,6 +1749,12 @@ private struct SavedPagesSection<Footer: View>: View {
                 }
             }
         }
+    }
+
+    private func readEditedCollectionAloud() {
+        editingCharactersFocused = false
+        let count = store.speakCharacters(in: editingCollectionText)
+        collectionEditorStatus = count > 0 ? "Reading \(count) character\(count == 1 ? "" : "s") aloud." : "No Chinese characters to read."
     }
 
     private func saveEditedCollection(_ collection: CharacterCollection) {
@@ -1736,6 +1770,7 @@ private struct SavedPagesSection<Footer: View>: View {
         editingCollectionName = updated.name
         editingCollectionText = updated.characters.joined(separator: " ")
         collectionEditorError = nil
+        collectionEditorStatus = nil
         editingCollection = nil
     }
 

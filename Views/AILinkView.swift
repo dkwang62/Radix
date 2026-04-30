@@ -95,8 +95,7 @@ struct AILinkView: View {
 
             if let selectedCollection {
                 HStack(spacing: 8) {
-                    Image(systemName: "doc.text.image")
-                        .foregroundStyle(.secondary)
+                    Text("📄")
                     Text("\(selectedCollection.name) (\(selectedCollection.characters.count) characters)")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
@@ -156,8 +155,11 @@ struct AILinkView: View {
                 }
             }
         } label: {
-            Label("Choose Image", systemImage: "rectangle.stack")
-                .lineLimit(1)
+            HStack(spacing: 6) {
+                Text("📄")
+                Text("Choose Image")
+                    .lineLimit(1)
+            }
         }
         .buttonStyle(.borderedProminent)
     }

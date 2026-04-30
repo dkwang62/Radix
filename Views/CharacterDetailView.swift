@@ -372,6 +372,9 @@ struct CharacterDetailView: View {
         .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, minHeight: phraseRowHeight, alignment: .leading)
         .contentShape(Rectangle())
+        .onTapGesture {
+            store.speakPhrase(phrase)
+        }
         .phraseContextMenu(phrase)
     }
 

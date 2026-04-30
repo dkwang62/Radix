@@ -490,7 +490,11 @@ struct FilterGridTab: View {
                 }
             }
         } label: {
-            Label("Image", systemImage: "rectangle.stack")
+            Label {
+                Text("Image")
+            } icon: {
+                Text("📄")
+            }
         }
         .buttonStyle(.bordered)
     }

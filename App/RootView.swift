@@ -267,12 +267,12 @@ struct RootView: View {
 
                 // Custom compact tab bar (keeps core workflow one tap away)
                 HStack(spacing: 6) {
-                    tabButton(id: 0, title: "Image", system: "camera")
-                    tabButton(id: 1, title: "Search", system: "magnifyingglass")
-                    tabButton(id: 2, title: "Browse", system: "square.grid.2x2")
-                    tabButton(id: 3, title: "Favs", system: "star")
-                    tabButton(id: 4, title: "AI", system: "sparkles")
-                    tabButton(id: 5, title: "My Data", system: "pencil.and.outline")
+                    tabButton(id: 0, title: "Image", icon: "camera")
+                    tabButton(id: 1, title: "Search", icon: "magnifyingglass")
+                    tabButton(id: 2, title: "Browse", icon: "square.grid.2x2")
+                    tabButton(id: 3, title: "Favs", icon: "star")
+                    tabButton(id: 4, title: "AI", icon: "sparkles")
+                    tabButton(id: 5, title: "My Data", icon: "pencil.and.outline")
                 }
                 .padding(.vertical, 6)
                 .padding(.horizontal, 8)
@@ -422,42 +422,42 @@ struct RootView: View {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                     sidebarIconButton(
                         title: "Image",
-                        systemImage: "camera",
+                        icon: "camera",
                         isActive: store.route == .capture
                     ) {
                         store.route = .capture
                     }
                     sidebarIconButton(
                         title: "Search",
-                        systemImage: "magnifyingglass",
+                        icon: "magnifyingglass",
                         isActive: store.route == .search && store.homeTab == .smart
                     ) {
                         store.goToSearchRoot()
                     }
                     sidebarIconButton(
                         title: "Browse",
-                        systemImage: "square.grid.2x2",
+                        icon: "square.grid.2x2",
                         isActive: store.route == .search && store.homeTab == .filter
                     ) {
                         store.goToBrowse()
                     }
                     sidebarIconButton(
                         title: "Favorites",
-                        systemImage: "star",
+                        icon: "star",
                         isActive: store.route == .search && store.homeTab == .favourites
                     ) {
                         store.goToFavourites()
                     }
                     sidebarIconButton(
                         title: "AI Link",
-                        systemImage: "sparkles",
+                        icon: "sparkles",
                         isActive: store.route == .aiLink
                     ) {
                         store.enterAILink()
                     }
                     sidebarIconButton(
                         title: "My Data",
-                        systemImage: "pencil.and.outline",
+                        icon: "pencil.and.outline",
                         isActive: store.route == .search && store.homeTab == .dataEdit
                     ) {
                         store.goToDataEdit()
@@ -505,14 +505,20 @@ struct RootView: View {
 
     private func sidebarIconButton(
         title: String,
-        systemImage: String,
+        icon: String,
+        usesSystemImage: Bool = true,
         isActive: Bool,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
             VStack(spacing: 4) {
-                Image(systemName: systemImage)
-                    .font(ResponsiveFont.headline)
+                if usesSystemImage {
+                    Image(systemName: icon)
+                        .font(ResponsiveFont.headline)
+                } else {
+                    Text(icon)
+                        .font(ResponsiveFont.headline)
+                }
                 Text(title)
                     .font(ResponsiveFont.caption2)
                     .lineLimit(1)
@@ -529,7 +535,7 @@ struct RootView: View {
         store.showPaywall(for: gate)
     }
     
-    private func tabButton(id: Int, title: String, system: String) -> some View {
+    private func tabButton(id: Int, title: String, icon: String, usesSystemImage: Bool = true) -> some View {
         let isActive = {
             if store.route == .capture { return id == 0 }
             if store.route == .aiLink { return id == 4 }
@@ -571,8 +577,13 @@ struct RootView: View {
             }
         } label: {
             VStack(spacing: 2) {
-                Image(systemName: system)
-                    .font(.system(size: 15, weight: .semibold))
+                if usesSystemImage {
+                    Image(systemName: icon)
+                        .font(.system(size: 15, weight: .semibold))
+                } else {
+                    Text(icon)
+                        .font(.system(size: 15, weight: .semibold))
+                }
                 Text(title)
                     .font(.system(size: 11, weight: .semibold))
             }
