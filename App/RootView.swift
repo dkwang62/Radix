@@ -275,8 +275,8 @@ struct RootView: View {
                 // Custom compact tab bar (keeps core workflow one tap away)
                 HStack(spacing: 6) {
                     tabButton(id: 0, title: "Image", icon: "camera")
-                    tabButton(id: 1, title: "Search", icon: "magnifyingglass")
                     tabButton(id: 2, title: "Browse", icon: "square.grid.2x2")
+                    tabButton(id: 1, title: "Search", icon: "magnifyingglass")
                     tabButton(id: 3, title: "Favs", icon: "star")
                     tabButton(id: 4, title: "AI", icon: "sparkles")
                     tabButton(id: 5, title: "My Data", icon: "pencil.and.outline")
@@ -445,18 +445,18 @@ struct RootView: View {
                         store.route = .capture
                     }
                     sidebarIconButton(
-                        title: "Search",
-                        icon: "magnifyingglass",
-                        isActive: store.route == .search && store.homeTab == .smart
-                    ) {
-                        store.goToSearchRoot()
-                    }
-                    sidebarIconButton(
                         title: "Browse",
                         icon: "square.grid.2x2",
                         isActive: store.route == .search && store.homeTab == .filter
                     ) {
                         store.goToBrowse()
+                    }
+                    sidebarIconButton(
+                        title: "Search",
+                        icon: "magnifyingglass",
+                        isActive: store.route == .search && store.homeTab == .smart
+                    ) {
+                        store.goToSearchRoot()
                     }
                     sidebarIconButton(
                         title: "Favorites",
