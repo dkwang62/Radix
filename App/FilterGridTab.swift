@@ -141,6 +141,12 @@ struct FilterGridTab: View {
     @State private var manualCollectionName = ""
     @State private var manualCollectionText = ""
     @State private var imageGridPage: Int = 0
+    @State private var pendingDeleteCollection: CharacterCollection?
+    @State private var editingCollection: CharacterCollection?
+    @State private var editingCollectionName = ""
+    @State private var editingCollectionText = ""
+    @State private var collectionEditorError: String?
+    @FocusState private var editingCharactersFocused: Bool
 
     // ── Image-mode grid (entirely separate from the smart grid) ──────────────
     private var imageGridBatchSize: Int {
@@ -253,6 +259,27 @@ struct FilterGridTab: View {
             .sheet(isPresented: $showManualCollectionSheet) {
                 manualCollectionSheet
             }
+            .sheet(item: $editingCollection) { collection in
+                editCollectionSheet(collection)
+            }
+            .alert("Delete Saved Image?", isPresented: Binding(
+                get: { pendingDeleteCollection != nil },
+                set: { if !$0 { pendingDeleteCollection = nil } }
+            )) {
+                Button("Delete", role: .destructive) {
+                    if let collection = pendingDeleteCollection {
+                        store.deleteCollection(id: collection.id)
+                    }
+                    pendingDeleteCollection = nil
+                }
+                Button("Cancel", role: .cancel) {
+                    pendingDeleteCollection = nil
+                }
+            } message: {
+                if let collection = pendingDeleteCollection {
+                    Text("Delete “\(collection.name)” from saved images?")
+                }
+            }
         }
     }
 
@@ -341,6 +368,7 @@ struct FilterGridTab: View {
                 let isActive = character == store.previewCharacter || character == store.selectedCharacter
                 let pinyin = store.item(for: character)?.pinyinText ?? ""
                 Button {
+                    store.speakCharacter(character)
                     store.preview(character: character)
                     scrollBrowseTopIfNeeded(proxy)
                 } label: {
@@ -415,6 +443,7 @@ struct FilterGridTab: View {
             ForEach(store.pagedGridItems, id: \.character) { item in
                 let isActive = item.character == store.previewCharacter || item.character == store.selectedCharacter
                 Button {
+                    store.speakCharacter(item.character)
                     store.preview(character: item.character)
                     scrollBrowseTopIfNeeded(proxy)
                 } label: {
@@ -531,12 +560,47 @@ struct FilterGridTab: View {
             }
 
             if let collection = store.selectedBrowseCollection {
-                readBrowseSourceButton(collection)
+                selectedImageSourceActions(collection)
             }
         }
         .padding(10)
         .background(Color(.secondarySystemBackground).opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            readBrowseSourceButton(collection)
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), spacing: 8)], spacing: 8) {
+                Button {
+                    beginEditing(collection)
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+
+                Button {
+                    store.goToAILinkTask4(collection: collection)
+                } label: {
+                    Label("Extract Phrases", systemImage: "quote.bubble")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+
+                Button(role: .destructive) {
+                    pendingDeleteCollection = collection
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+        }
     }
 
     private func readBrowseSourceButton(_ collection: CharacterCollection) -> some View {
@@ -549,6 +613,71 @@ struct FilterGridTab: View {
         }
         .buttonStyle(.bordered)
         .disabled(collection.characters.isEmpty)
+    }
+
+    private func beginEditing(_ collection: CharacterCollection) {
+        editingCollectionName = collection.name
+        editingCollectionText = collection.characters.joined(separator: " ")
+        collectionEditorError = nil
+        editingCollection = collection
+    }
+
+    private func editCollectionSheet(_ collection: CharacterCollection) -> some View {
+        NavigationStack {
+            Form {
+                Section("Image") {
+                    TextField("Name", text: $editingCollectionName)
+                }
+
+                Section("Characters") {
+                    TextEditor(text: $editingCollectionText)
+                        .frame(minHeight: 140)
+                        .focused($editingCharactersFocused)
+                    Text("Paste or type Chinese text here. Radix will keep the recognized characters for this saved image.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                if let collectionEditorError {
+                    Section {
+                        Text(collectionEditorError)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+            .navigationTitle("Edit Saved Image")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        editingCollection = nil
+                        collectionEditorError = nil
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        saveEditedCollection(collection)
+                    }
+                }
+            }
+        }
+    }
+
+    private func saveEditedCollection(_ collection: CharacterCollection) {
+        guard let updated = store.updateCollection(
+            id: collection.id,
+            newName: editingCollectionName,
+            sourceText: editingCollectionText
+        ) else {
+            collectionEditorError = "Enter a name and at least one Chinese character that exists in Radix."
+            return
+        }
+
+        editingCollectionName = updated.name
+        editingCollectionText = updated.characters.joined(separator: " ")
+        collectionEditorError = nil
+        editingCollection = nil
     }
 
     private var browseSourceOptions: some View {

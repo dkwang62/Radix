@@ -26,25 +26,13 @@ struct CaptureTab: View {
     @State private var phraseMode: CapturePhraseMode = .apple
     @State private var parserSource: PhraseParserSource = .appleCandidates
     @State private var parserInputPhrases: [String] = []
-    @State private var showOCRCollectionSheet = false
-    @State private var ocrCollectionName = ""
-    @State private var isSavedPagesExpanded = false
+    @State private var lastSavedCollectionID: UUID?
     @State private var showPasteCollectionSheet = false
     @State private var pasteCollectionName = ""
     @State private var pasteCollectionText = ""
 
     private var characters: [String] {
         CaptureTextExtractor.uniqueCharacters(in: store.activeCaptureDraft.charactersText)
-    }
-
-    private var ocrCollectionCharacterSummary: String {
-        let allCount = CaptureTextExtractor.allCharactersInOrder(in: store.activeCaptureDraft.charactersText).count
-        let uniqueCount = characters.count
-        if allCount == uniqueCount {
-            return "\(uniqueCount) Chinese characters will be saved."
-        } else {
-            return "\(allCount) characters (\(uniqueCount) unique) will be saved in reading order."
-        }
     }
 
     private var phraseCandidates: [String] {
@@ -174,9 +162,6 @@ struct CaptureTab: View {
                 showCamera = false
                 Task { await recognize(image) }
             }
-        }
-        .sheet(isPresented: $showOCRCollectionSheet) {
-            ocrCollectionSheet
         }
         .sheet(isPresented: $showPasteCollectionSheet) {
             pasteCollectionSheet
@@ -315,58 +300,11 @@ struct CaptureTab: View {
             sourceType: .manual
         ) else { return }
         store.selectBrowseCollection(id: collection.id)
+        lastSavedCollectionID = collection.id
+        statusMessage = "Saved \(collection.name) with \(collection.characters.count) characters."
         pasteCollectionName = ""
         pasteCollectionText = ""
         showPasteCollectionSheet = false
-        isSavedPagesExpanded = true
-    }
-
-    private var ocrCollectionSheet: some View {
-        NavigationStack {
-            Form {
-                Section("Image") {
-                    TextField("Name", text: $ocrCollectionName)
-                    Text(ocrCollectionCharacterSummary)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .navigationTitle("Save Image")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
-                        showOCRCollectionSheet = false
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save") {
-                        saveOCRCollection()
-                    }
-                    .disabled(characters.isEmpty)
-                }
-            }
-        }
-    }
-
-    private func saveOCRCollection() {
-        guard let collection = store.createCollection(
-            name: ocrCollectionName,
-            sourceText: store.activeCaptureDraft.charactersText,
-            sourceType: .ocr,
-            thumbnailJPEGData: selectedImage.flatMap(makeThumbnailJPEGData)
-        ) else { return }
-        store.selectBrowseCollection(id: collection.id)
-        statusMessage = "Saved \(collection.name) with \(collection.characters.count) characters."
-        showOCRCollectionSheet = false
-        isSavedPagesExpanded = true
-        selectedImage = nil
-        store.activeCaptureDraft = CaptureDraft()
-        gridPage = 0
-        capturePreviewCharacter = nil
-        captureDetailPreviewCharacter = nil
-        ocrCollectionName = ""
-        resetPhraseDiscovery()
     }
 
     private func makeThumbnailJPEGData(from image: UIImage) -> Data? {
@@ -385,24 +323,52 @@ struct CaptureTab: View {
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 16) {
-            SavedPagesSection(isExpanded: $isSavedPagesExpanded, onPasteFromText: {
-                pasteCollectionName = ""
-                pasteCollectionText = UIPasteboard.general.string ?? ""
-                showPasteCollectionSheet = true
-            }, footer: {
+            imageWorkbenchPanel {
                 addChatGPTAnswerPanel
-            })
+            }
+        }
+    }
+
+    private func imageWorkbenchPanel<Footer: View>(@ViewBuilder footer: () -> Footer) -> some View {
+        captureSection("Image Workbench") {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Create and process images here. Browse saved image characters in Browse.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+
+                HStack(spacing: 10) {
+                    createFromPasteButton
+                    browseSavedImagesButton
+                }
+
+                footer()
+            }
+        }
+    }
+
+    private var browseSavedImagesButton: some View {
+        Button {
+            browseSavedImages()
+        } label: {
+            Label("Browse Saved Images", systemImage: "square.grid.2x2")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+        .disabled(store.allCollections.isEmpty)
+    }
+
+    private func browseSavedImages() {
+        let targetID = lastSavedCollectionID ?? store.selectedBrowseCollectionID ?? store.allCollections.first?.id
+        store.goToBrowse()
+        if let targetID {
+            store.selectBrowseCollection(id: targetID)
         }
     }
 
     private func captureResults(scrollToTop: @escaping () -> Void) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             captureCharactersSection(scrollToTop: scrollToTop)
-            SavedPagesSection(isExpanded: $isSavedPagesExpanded, onPasteFromText: {
-                pasteCollectionName = ""
-                pasteCollectionText = UIPasteboard.general.string ?? ""
-                showPasteCollectionSheet = true
-            }, footer: {
+            imageWorkbenchPanel {
                 if phraseMode == .apple {
                     addChatGPTAnswerPanel
                 } else {
@@ -413,7 +379,7 @@ struct CaptureTab: View {
                     }
                     .buttonStyle(.bordered)
                 }
-            })
+            }
 
             switch phraseMode {
             case .parser:
@@ -427,14 +393,6 @@ struct CaptureTab: View {
     private func captureCharactersSection(scrollToTop: @escaping () -> Void) -> some View {
         captureSection("Characters") {
             HStack(spacing: 10) {
-                Button("Save Image") {
-                    ocrCollectionName = defaultOCRCollectionName
-                    isSavedPagesExpanded = true
-                    showOCRCollectionSheet = true
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(characters.isEmpty)
-
                 Button {
                     let count = store.speakCharacters(in: store.activeCaptureDraft.charactersText)
                     statusMessage = count > 0 ? "Reading \(count) character\(count == 1 ? "" : "s") aloud." : "No Chinese characters to read."
@@ -465,7 +423,8 @@ struct CaptureTab: View {
                     },
                     onSelect: {
                         scrollToTop()
-                    }
+                    },
+                    readOnTap: true
                 )
             }
 
@@ -1051,7 +1010,6 @@ struct CaptureTab: View {
         captureDetailPreviewCharacter = nil
         statusMessage = nil
         errorMessage = nil
-        ocrCollectionName = ""
         resetPhraseDiscovery()
     }
 
@@ -1218,10 +1176,36 @@ struct CaptureTab: View {
             capturePreviewCharacter = nil
             captureDetailPreviewCharacter = nil
             resetPhraseDiscovery()
-            statusMessage = foundCharacters.isEmpty ? "No Chinese characters found. You can edit the fields manually." : "Review, edit, then save what matters."
+            if foundCharacters.isEmpty {
+                statusMessage = "No Chinese characters found. You can edit the fields manually."
+            } else {
+                autoSaveAndBrowseRecognizedImage(image: image)
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    private func autoSaveAndBrowseRecognizedImage(image: UIImage) {
+        guard let collection = store.createCollection(
+            name: defaultOCRCollectionName,
+            sourceText: store.activeCaptureDraft.charactersText,
+            sourceType: .ocr,
+            thumbnailJPEGData: makeThumbnailJPEGData(from: image)
+        ) else {
+            statusMessage = "No Chinese characters found. You can edit the fields manually."
+            return
+        }
+
+        lastSavedCollectionID = collection.id
+        selectedImage = nil
+        store.activeCaptureDraft = CaptureDraft()
+        gridPage = 0
+        capturePreviewCharacter = nil
+        captureDetailPreviewCharacter = nil
+        resetPhraseDiscovery()
+        store.goToBrowse()
+        store.selectBrowseCollection(id: collection.id)
     }
 
 }
@@ -1510,275 +1494,6 @@ private struct CameraCaptureView: UIViewControllerRepresentable {
 
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             dismiss()
-        }
-    }
-}
-
-private struct SavedPagesSection<Footer: View>: View {
-    @EnvironmentObject private var store: RadixStore
-
-    @Binding var isExpanded: Bool
-    @State private var pendingDeleteCollection: CharacterCollection?
-    @State private var editingCollection: CharacterCollection?
-    @State private var editingCollectionName: String = ""
-    @State private var editingCollectionText: String = ""
-    @State private var collectionEditorError: String?
-    @FocusState private var editingCharactersFocused: Bool
-    let onPasteFromText: () -> Void
-    let footer: Footer
-
-    init(isExpanded: Binding<Bool>, onPasteFromText: @escaping () -> Void = {}) where Footer == EmptyView {
-        self._isExpanded = isExpanded
-        self.onPasteFromText = onPasteFromText
-        self.footer = EmptyView()
-    }
-
-    init(isExpanded: Binding<Bool>, onPasteFromText: @escaping () -> Void = {}, @ViewBuilder footer: () -> Footer) {
-        self._isExpanded = isExpanded
-        self.onPasteFromText = onPasteFromText
-        self.footer = footer()
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            DisclosureGroup(isExpanded: $isExpanded) {
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Delete named images here. Removing an image deletes the saved image entry, not your dictionary or phrase data.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                    Text("Use Edit to rename an image or change which characters it contains.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-
-                    if store.allCollections.isEmpty {
-                        Button {
-                            onPasteFromText()
-                        } label: {
-                            Label("Paste directly from text", systemImage: "doc.on.clipboard")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.bordered)
-
-                        Text("No saved images yet.")
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Button {
-                            onPasteFromText()
-                        } label: {
-                            Label("Paste directly from text", systemImage: "doc.on.clipboard")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.bordered)
-
-                        VStack(alignment: .leading, spacing: 10) {
-                            ForEach(store.allCollections) { collection in
-                                savedPageRow(collection)
-                            }
-                        }
-                    }
-
-                    footer
-                }
-                .padding(.top, 10)
-            } label: {
-                Label {
-                    Text("Saved Images (\(store.allCollections.count))")
-                        .font(ResponsiveFont.headline)
-                } icon: {
-                    Text("📄")
-                }
-                .foregroundStyle(Color.accentColor)
-            }
-        }
-        .padding()
-        .background(Color(.secondarySystemBackground).opacity(0.4))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .alert("Delete Saved Image?", isPresented: Binding(
-            get: { pendingDeleteCollection != nil },
-            set: { if !$0 { pendingDeleteCollection = nil } }
-        )) {
-            Button("Delete", role: .destructive) {
-                if let collection = pendingDeleteCollection {
-                    store.deleteCollection(id: collection.id)
-                }
-                pendingDeleteCollection = nil
-            }
-            Button("Cancel", role: .cancel) {
-                pendingDeleteCollection = nil
-            }
-        } message: {
-            if let collection = pendingDeleteCollection {
-                Text("Delete “\(collection.name)” from saved images?")
-            }
-        }
-        .sheet(item: $editingCollection) { collection in
-            editCollectionSheet(collection)
-        }
-    }
-
-    private func savedPageRow(_ collection: CharacterCollection) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top, spacing: 10) {
-                if let thumbnail = thumbnailImage(for: collection) {
-                    Image(uiImage: thumbnail)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 56, height: 56)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(.separator), lineWidth: 0.5)
-                        )
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 6) {
-                        Text(collection.name)
-                            .font(ResponsiveFont.subheadline.bold())
-                        if collection.isFavorite {
-                            Image(systemName: "star.fill")
-                                .font(.caption)
-                                .foregroundStyle(.yellow)
-                        }
-                    }
-
-                    Text("\(collection.characters.count) characters • \(collectionSourceLabel(collection.sourceType))")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-            }
-
-            readSavedImageButton(collection)
-
-            HStack(spacing: 8) {
-                Button {
-                    beginEditing(collection)
-                } label: {
-                    Text("Edit")
-                        .font(ResponsiveFont.caption)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.mini)
-
-                Button {
-                    store.goToAILinkTask4(collection: collection)
-                } label: {
-                    Text("Extract Phrases")
-                        .font(ResponsiveFont.caption)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.mini)
-
-                Button(role: .destructive) {
-                    pendingDeleteCollection = collection
-                } label: {
-                    Text("Delete")
-                        .font(ResponsiveFont.caption)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.mini)
-            }
-        }
-        .padding(10)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-
-    private func readSavedImageButton(_ collection: CharacterCollection) -> some View {
-        Button {
-            _ = store.speakCharacters(in: collection.characters.joined())
-        } label: {
-            Label("Read Aloud", systemImage: "speaker.wave.2")
-                .font(ResponsiveFont.subheadline.weight(.semibold))
-                .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.bordered)
-        .disabled(collection.characters.isEmpty)
-    }
-
-    private func thumbnailImage(for collection: CharacterCollection) -> UIImage? {
-        guard let data = collection.thumbnailJPEGData else { return nil }
-        return UIImage(data: data)
-    }
-
-    private func beginEditing(_ collection: CharacterCollection) {
-        editingCollectionName = collection.name
-        editingCollectionText = collection.characters.joined(separator: " ")
-        collectionEditorError = nil
-        editingCollection = collection
-    }
-
-    private func editCollectionSheet(_ collection: CharacterCollection) -> some View {
-        NavigationStack {
-            Form {
-                Section("Image") {
-                    TextField("Name", text: $editingCollectionName)
-                }
-
-                Section("Characters") {
-                    TextEditor(text: $editingCollectionText)
-                        .frame(minHeight: 140)
-                        .focused($editingCharactersFocused)
-                    Text("Paste or type Chinese text here. Radix will keep the recognized characters for this saved image.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                if let collectionEditorError {
-                    Section {
-                        Text(collectionEditorError)
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.red)
-                    }
-                }
-            }
-            .navigationTitle("Edit Saved Image")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
-                        editingCollection = nil
-                        collectionEditorError = nil
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save") {
-                        saveEditedCollection(collection)
-                    }
-                }
-            }
-        }
-    }
-
-    private func saveEditedCollection(_ collection: CharacterCollection) {
-        guard let updated = store.updateCollection(
-            id: collection.id,
-            newName: editingCollectionName,
-            sourceText: editingCollectionText
-        ) else {
-            collectionEditorError = "Enter a name and at least one Chinese character that exists in Radix."
-            return
-        }
-
-        editingCollectionName = updated.name
-        editingCollectionText = updated.characters.joined(separator: " ")
-        collectionEditorError = nil
-        editingCollection = nil
-    }
-
-    private func collectionSourceLabel(_ source: CollectionSourceType) -> String {
-        switch source {
-        case .ocr:
-            return "OCR"
-        case .manual:
-            return "Manual"
-        case .imported:
-            return "Imported"
-        case .other:
-            return "Other"
         }
     }
 }

@@ -407,7 +407,7 @@ struct CharacterInfoCard: View {
             set: { isPresented in
                 if isPresented {
                     activeChipGuide = guide
-                } else if activeChipGuide == guide {
+     c            } else if activeChipGuide == guide {
                     activeChipGuide = nil
                 }
             }

@@ -33,6 +33,7 @@ struct SmartResultsGrid: View {
     @Binding var currentPage: Int
     var onPreview: ((String) -> Void)? = nil
     var onSelect: (() -> Void)? = nil
+    var readOnTap = false
     
     // Dynamic column calculation for Mac vs iPad
     private var columns: [GridItem] {
@@ -113,6 +114,9 @@ struct SmartResultsGrid: View {
                     ForEach(pagedItems, id: \.character) { item in
                         let isActive = item.character == store.previewCharacter || item.character == store.selectedCharacter
                         Button {
+                            if readOnTap {
+                                store.speakCharacter(item.character)
+                            }
                             onPreview?(item.character)
                             store.preview(character: item.character)
                             onSelect?()
