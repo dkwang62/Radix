@@ -92,9 +92,7 @@ struct CharacterInfoCard: View {
                 pinyinFont: isPhone ? .system(size: 32, weight: .bold) : .system(size: 34, weight: .bold)
             )
 
-            actionRow
-
-            componentIconStrip
+            tierRow
 
             if !structurePartsText.isEmpty || !item.radical.isEmpty {
                 HStack(spacing: 6) {
@@ -104,11 +102,15 @@ struct CharacterInfoCard: View {
                 }
             }
 
+            componentIconStrip
+
             if let strokes = item.strokes {
                 HStack(spacing: 6) {
                     strokeCountButton(strokes)
                 }
             }
+
+            actionRow
 
             definitionAndNotes
         }
@@ -125,6 +127,13 @@ struct CharacterInfoCard: View {
         }
     }
 
+    private var tierRow: some View {
+        HStack(spacing: 6) {
+            tierButton
+            Spacer(minLength: 0)
+        }
+    }
+
     private func headerRow(
         characterSize: CGFloat,
         pinyinFont: Font
@@ -132,17 +141,13 @@ struct CharacterInfoCard: View {
         HStack(alignment: .top, spacing: 8) {
             usageCharactersButton(characterSize: characterSize)
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text(displayPinyin)
-                    .font(pinyinFont)
-                    .foregroundStyle(Color.orange)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .minimumScaleFactor(0.7)
-                    .layoutPriority(1)
-
-                tierButton
-            }
+            Text(displayPinyin)
+                .font(pinyinFont)
+                .foregroundStyle(Color.orange)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+                .minimumScaleFactor(0.7)
+                .layoutPriority(1)
 
             Spacer(minLength: 0)
             favoritesButton
@@ -264,7 +269,7 @@ struct CharacterInfoCard: View {
                 Text("✍️ Strokes:")
                     .font(cardActionFont)
                 Text("\(strokes)")
-                    .font(chipNumberFont)
+                    .font(cardActionFont)
             }
             .lineLimit(1)
             .minimumScaleFactor(0.75)
@@ -338,7 +343,7 @@ struct CharacterInfoCard: View {
                 character: component.character,
                 subtitle: component.pinyinText.isEmpty ? nil : component.pinyinText,
                 size: componentTileSize,
-                characterSize: isPhone ? 24 : 26,
+                characterSize: componentCharacterFontSize,
                 isHighlighted: isRadical
             )
         }
@@ -377,7 +382,7 @@ struct CharacterInfoCard: View {
     }
 
     private var componentGridColumns: [GridItem] {
-        [GridItem(.adaptive(minimum: componentTileSize, maximum: componentTileSize), spacing: 8)]
+        [GridItem(.adaptive(minimum: componentTileSize, maximum: componentTileSize), spacing: 6)]
     }
 
     private var characterTileSize: CGFloat {
@@ -385,7 +390,11 @@ struct CharacterInfoCard: View {
     }
 
     private var componentTileSize: CGFloat {
-        isPhone ? 56 : 62
+        isPhone ? 48 : 54
+    }
+
+    private var componentCharacterFontSize: CGFloat {
+        isPhone ? 20 : 22
     }
 
     private var usageCountSubtitle: String {
