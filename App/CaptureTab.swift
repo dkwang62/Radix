@@ -1523,7 +1523,6 @@ private struct SavedPagesSection<Footer: View>: View {
     @State private var editingCollectionName: String = ""
     @State private var editingCollectionText: String = ""
     @State private var collectionEditorError: String?
-    @State private var collectionEditorStatus: String?
     @FocusState private var editingCharactersFocused: Bool
     let onPasteFromText: () -> Void
     let footer: Footer
@@ -1619,67 +1618,85 @@ private struct SavedPagesSection<Footer: View>: View {
     }
 
     private func savedPageRow(_ collection: CharacterCollection) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            if let thumbnail = thumbnailImage(for: collection) {
-                Image(uiImage: thumbnail)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 56, height: 56)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color(.separator), lineWidth: 0.5)
-                    )
-            }
-
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Text(collection.name)
-                        .font(ResponsiveFont.subheadline.bold())
-                    if collection.isFavorite {
-                        Image(systemName: "star.fill")
-                            .font(.caption)
-                            .foregroundStyle(.yellow)
-                    }
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 10) {
+                if let thumbnail = thumbnailImage(for: collection) {
+                    Image(uiImage: thumbnail)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 56, height: 56)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color(.separator), lineWidth: 0.5)
+                        )
                 }
 
-                Text("\(collection.characters.count) characters • \(collectionSourceLabel(collection.sourceType))")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Text(collection.name)
+                            .font(ResponsiveFont.subheadline.bold())
+                        if collection.isFavorite {
+                            Image(systemName: "star.fill")
+                                .font(.caption)
+                                .foregroundStyle(.yellow)
+                        }
+                    }
+
+                    Text("\(collection.characters.count) characters • \(collectionSourceLabel(collection.sourceType))")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
             }
 
-            Spacer()
+            readSavedImageButton(collection)
 
-            Button {
-                beginEditing(collection)
-            } label: {
-                Text("Edit")
-                    .font(ResponsiveFont.caption)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.mini)
+            HStack(spacing: 8) {
+                Button {
+                    beginEditing(collection)
+                } label: {
+                    Text("Edit")
+                        .font(ResponsiveFont.caption)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.mini)
 
-            Button {
-                store.goToAILinkTask4(collection: collection)
-            } label: {
-                Text("Extract Phrases")
-                    .font(ResponsiveFont.caption)
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.mini)
+                Button {
+                    store.goToAILinkTask4(collection: collection)
+                } label: {
+                    Text("Extract Phrases")
+                        .font(ResponsiveFont.caption)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.mini)
 
-            Button(role: .destructive) {
-                pendingDeleteCollection = collection
-            } label: {
-                Text("Delete")
-                    .font(ResponsiveFont.caption)
+                Button(role: .destructive) {
+                    pendingDeleteCollection = collection
+                } label: {
+                    Text("Delete")
+                        .font(ResponsiveFont.caption)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.mini)
             }
-            .buttonStyle(.bordered)
-            .controlSize(.mini)
         }
         .padding(10)
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func readSavedImageButton(_ collection: CharacterCollection) -> some View {
+        Button {
+            _ = store.speakCharacters(in: collection.characters.joined())
+        } label: {
+            Label("Read Aloud", systemImage: "speaker.wave.2")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+        .disabled(collection.characters.isEmpty)
     }
 
     private func thumbnailImage(for collection: CharacterCollection) -> UIImage? {
@@ -1691,7 +1708,6 @@ private struct SavedPagesSection<Footer: View>: View {
         editingCollectionName = collection.name
         editingCollectionText = collection.characters.joined(separator: " ")
         collectionEditorError = nil
-        collectionEditorStatus = nil
         editingCollection = collection
     }
 
@@ -1703,19 +1719,6 @@ private struct SavedPagesSection<Footer: View>: View {
                 }
 
                 Section("Characters") {
-                    Button {
-                        readEditedCollectionAloud()
-                    } label: {
-                        Label("Read Aloud", systemImage: "speaker.wave.2")
-                    }
-                    .disabled(CaptureTextExtractor.allCharactersInOrder(in: editingCollectionText).isEmpty)
-
-                    if let collectionEditorStatus {
-                        Text(collectionEditorStatus)
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
                     TextEditor(text: $editingCollectionText)
                         .frame(minHeight: 140)
                         .focused($editingCharactersFocused)
@@ -1739,7 +1742,6 @@ private struct SavedPagesSection<Footer: View>: View {
                     Button("Cancel") {
                         editingCollection = nil
                         collectionEditorError = nil
-                        collectionEditorStatus = nil
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -1749,12 +1751,6 @@ private struct SavedPagesSection<Footer: View>: View {
                 }
             }
         }
-    }
-
-    private func readEditedCollectionAloud() {
-        editingCharactersFocused = false
-        let count = store.speakCharacters(in: editingCollectionText)
-        collectionEditorStatus = count > 0 ? "Reading \(count) character\(count == 1 ? "" : "s") aloud." : "No Chinese characters to read."
     }
 
     private func saveEditedCollection(_ collection: CharacterCollection) {
@@ -1770,7 +1766,6 @@ private struct SavedPagesSection<Footer: View>: View {
         editingCollectionName = updated.name
         editingCollectionText = updated.characters.joined(separator: " ")
         collectionEditorError = nil
-        collectionEditorStatus = nil
         editingCollection = nil
     }
 

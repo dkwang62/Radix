@@ -30,6 +30,7 @@ struct RootView: View {
     @State private var importExportError: String?
     @State private var importExportMessage: String?
     @State private var showImportExportAlert = false
+    @State private var showSettings = false
 
     private func readImportedFileData(from url: URL) throws -> Data {
         let accessed = url.startAccessingSecurityScopedResource()
@@ -134,6 +135,12 @@ struct RootView: View {
         .sheet(item: $store.quickEditDestination) { destination in
             QuickEditSheet(destination: destination)
                 .environmentObject(store)
+        }
+        .sheet(isPresented: $showSettings) {
+            NavigationStack {
+                SettingsView()
+                    .environmentObject(store)
+            }
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .inactive || newPhase == .background {
@@ -281,6 +288,16 @@ struct RootView: View {
             }
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                    .accessibilityLabel("Settings")
+                }
+            }
             .navigationDestination(isPresented: $store.showiPhoneDetail) {
                 if let current = store.previewCharacter ?? store.selectedCharacter,
                    let item = store.item(for: current) {
@@ -466,6 +483,23 @@ struct RootView: View {
                 .padding(10)
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                Button {
+                    showSettings = true
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "gearshape")
+                            .font(ResponsiveFont.body)
+                        Text("Settings")
+                            .font(ResponsiveFont.subheadline.weight(.semibold))
+                        Spacer()
+                    }
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
 
                 if let current = store.previewCharacter ?? store.selectedCharacter {
                     VStack(alignment: .leading, spacing: 8) {

@@ -133,8 +133,11 @@ struct InteractionHintRow: View {
 struct FilterGridTab: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.horizontalSizeClass) var sizeClass
+    @AppStorage("hasShownBrowseInteractionHintRowV1") private var hasShownBrowseInteractionHintRow = false
     @State private var showBrowseFilters = false
     @State private var showManualCollectionSheet = false
+    @State private var showBrowseSource = false
+    @State private var showBrowseInteractionHint = false
     @State private var manualCollectionName = ""
     @State private var manualCollectionText = ""
     @State private var imageGridPage: Int = 0
@@ -172,6 +175,14 @@ struct FilterGridTab: View {
         #endif
     }
 
+    private var isPhoneBrowseLayout: Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
+        return UIDevice.current.userInterfaceIdiom == .phone
+        #endif
+    }
+
     @ViewBuilder
     private var browseInteractionHintRow: some View {
         InteractionHintRow(
@@ -201,7 +212,7 @@ struct FilterGridTab: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: isPhoneBrowseLayout ? 6 : 10) {
                     Color.clear.frame(height: 0).id("browseTop")
                     // Animation Preview (phones only; sidebar handles iPad/Mac)
                     #if !targetEnvironment(macCatalyst)
@@ -215,7 +226,10 @@ struct FilterGridTab: View {
                     }
                     #endif
 
-                    browseSubjectSection
+                    browseSourceDisclosure(description: browseGridDescription)
+                    if isPhoneBrowseLayout {
+                        browseHintIfNeeded
+                    }
 
                     if let collection = store.selectedBrowseCollection {
                         // ── Image selected: show entire character set in reading order ──
@@ -231,10 +245,20 @@ struct FilterGridTab: View {
                 .onChange(of: store.selectedRadicalFilter) { _, _ in store.gridPage = 0 }
                 .onChange(of: store.selectedStructureFilter) { _, _ in store.gridPage = 0 }
                 .onChange(of: store.selectedBrowseCollectionID) { _, _ in imageGridPage = 0 }
-                .onChange(of: store.previewCharacter) { _, _ in
+                .onChange(of: store.previewCharacter) { _, newValue in
+                    focusBrowseGrid(on: newValue)
                     withAnimation {
                         proxy.scrollTo("browseTop", anchor: .top)
                     }
+                }
+                .onChange(of: store.selectedCharacter) { _, newValue in
+                    focusBrowseGrid(on: newValue)
+                    withAnimation {
+                        proxy.scrollTo("browseTop", anchor: .top)
+                    }
+                }
+                .onAppear {
+                    prepareBrowseHintIfNeeded()
                 }
             }
             .sheet(isPresented: $showBrowseFilters) {
@@ -256,16 +280,18 @@ struct FilterGridTab: View {
         let rangeStart = safePage * imageGridBatchSize + 1
         let rangeEnd = min((safePage + 1) * imageGridBatchSize, total)
 
-        VStack(alignment: .leading, spacing: 4) {
-            Text("All \(total) characters from this image, in reading order.")
-                .font(ResponsiveFont.caption2)
-                .italic()
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 4)
-            browseInteractionHintRow
-                .padding(.horizontal, 4)
+        if !isPhoneBrowseLayout {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("All \(total) characters from this image, in reading order.")
+                    .font(ResponsiveFont.caption2)
+                    .italic()
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 4)
+                browseHintIfNeeded
+                    .padding(.horizontal, 4)
+            }
+            .padding(.bottom, 4)
         }
-        .padding(.bottom, 4)
 
         HStack {
             Button("◀ Prev") { imageGridPage = max(0, safePage - 1) }
@@ -287,7 +313,7 @@ struct FilterGridTab: View {
                 let pinyin = store.item(for: character)?.pinyinText ?? ""
                 Button {
                     store.preview(character: character)
-                    withAnimation { proxy.scrollTo("browseTop", anchor: .top) }
+                    scrollBrowseTopIfNeeded(proxy)
                 } label: {
                     VStack(spacing: 2) {
                         Text(character)
@@ -320,45 +346,26 @@ struct FilterGridTab: View {
     // ── Smart grid: All / Components with filters ────────────────────────────
     @ViewBuilder
     private func smartGridContent(proxy: ScrollViewProxy) -> some View {
-        HStack(alignment: .center, spacing: 12) {
-            Picker("Sort", selection: Binding(get: {
-                // If mode is somehow readingOrder with no image, fall back to characterFrequency
-                store.gridSortMode == .readingOrder ? .characterFrequency : store.gridSortMode
-            }, set: { store.setGridSortMode($0) })) {
-                ForEach(GridSortMode.allCases.filter { $0 != .readingOrder }) { mode in
-                    Text(browseSortLabel(for: mode)).tag(mode)
-                }
+        let description = store.gridSortMode == .componentFrequency ?
+            "Characters most often used as components first." :
+            "Most common characters first."
+
+        if isPhoneBrowseLayout {
+            EmptyView()
+        } else {
+            smartGridControls
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(description)
+                    .font(ResponsiveFont.caption2)
+                    .italic()
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 4)
+                browseHintIfNeeded
+                    .padding(.horizontal, 4)
             }
-            .font(ResponsiveFont.subheadline)
-            .pickerStyle(.segmented)
-
-            CompactScriptFilterControl(selection: store.gridScriptFilter) { store.setGridScriptFilter($0) }
-
-            Button {
-                showBrowseFilters = true
-            } label: {
-                Label(filterButtonTitle, systemImage: activeBrowseFilterCount > 0 ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-            }
-            .buttonStyle(.plain)
+            .padding(.bottom, 4)
         }
-
-        VStack(alignment: .leading, spacing: 4) {
-            Text(store.gridSortMode == .componentFrequency ?
-                 "Characters most often used as components first." :
-                 "Most common characters first.")
-                .font(ResponsiveFont.caption2)
-                .italic()
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 4)
-            browseInteractionHintRow
-                .padding(.horizontal, 4)
-        }
-        .padding(.bottom, 4)
 
         HStack {
             Button("◀ Prev") { store.previousGridPage() }
@@ -380,7 +387,7 @@ struct FilterGridTab: View {
                 let isActive = item.character == store.previewCharacter || item.character == store.selectedCharacter
                 Button {
                     store.preview(character: item.character)
-                    withAnimation { proxy.scrollTo("browseTop", anchor: .top) }
+                    scrollBrowseTopIfNeeded(proxy)
                 } label: {
                     VStack(spacing: 2) {
                         Text(item.character)
@@ -410,40 +417,214 @@ struct FilterGridTab: View {
         }
     }
 
-    private var browseSubjectSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .center, spacing: 10) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(browseSubjectTitle)
-                        .font(ResponsiveFont.headline)
-                    Text(browseSubjectDetail)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
+    @ViewBuilder
+    private var smartGridControls: some View {
+        let sortPicker = Picker("Sort", selection: Binding(get: {
+            // If mode is somehow readingOrder with no image, fall back to characterFrequency
+            store.gridSortMode == .readingOrder ? .characterFrequency : store.gridSortMode
+        }, set: { store.setGridSortMode($0) })) {
+            ForEach(GridSortMode.allCases.filter { $0 != .readingOrder }) { mode in
+                Text(browseSortLabel(for: mode)).tag(mode)
+            }
+        }
+        .font(ResponsiveFont.subheadline)
+        .pickerStyle(.segmented)
+
+        let filterButton = Button {
+            showBrowseFilters = true
+        } label: {
+            Label(filterButtonTitle, systemImage: activeBrowseFilterCount > 0 ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+
+        if isPhoneBrowseLayout {
+            VStack(alignment: .leading, spacing: 10) {
+                sortPicker
+                HStack(spacing: 10) {
+                    CompactScriptFilterControl(selection: store.gridScriptFilter) { store.setGridScriptFilter($0) }
+                    filterButton
                 }
-                Spacer()
-                collectionMenu
+            }
+        } else {
+            HStack(alignment: .center, spacing: 12) {
+                sortPicker
+                CompactScriptFilterControl(selection: store.gridScriptFilter) { store.setGridScriptFilter($0) }
+                filterButton
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var browseHintIfNeeded: some View {
+        if showBrowseInteractionHint && store.showBrowseHelp {
+            browseInteractionHintRow
+        }
+    }
+
+    private func browseSourceDisclosure(description: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            DisclosureGroup(isExpanded: $showBrowseSource) {
+            VStack(alignment: .leading, spacing: 10) {
+                browseSourceOptions
+
+                if isPhoneBrowseLayout, store.selectedBrowseCollection == nil {
+                    smartGridControls
+                }
+
+                if isPhoneBrowseLayout {
+                    Text(description)
+                        .font(ResponsiveFont.caption2)
+                        .italic()
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 4)
+                }
+            }
+            .padding(.top, 8)
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "tray.full")
+                        .foregroundStyle(Color.accentColor)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("Source")
+                            .font(ResponsiveFont.subheadline.weight(.semibold))
+                        Text(browseSubjectTitle)
+                            .font(ResponsiveFont.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    Spacer()
+                }
             }
 
-            if !store.favoriteCollections.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(store.favoriteCollections) { collection in
-                            Button {
-                                store.selectBrowseCollection(id: collection.id)
-                            } label: {
-                                Label(collection.name, systemImage: "star.fill")
-                                    .lineLimit(1)
-                            }
-                            .buttonStyle(.bordered)
-                            .controlSize(.small)
-                        }
-                    }
-                }
+            if let collection = store.selectedBrowseCollection {
+                readBrowseSourceButton(collection)
             }
         }
         .padding(10)
-        .background(Color(.secondarySystemBackground).opacity(0.65))
+        .background(Color(.secondarySystemBackground).opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func readBrowseSourceButton(_ collection: CharacterCollection) -> some View {
+        Button {
+            _ = store.speakCharacters(in: collection.characters.joined())
+        } label: {
+            Label("Read Aloud", systemImage: "speaker.wave.2")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+        .disabled(collection.characters.isEmpty)
+    }
+
+    private var browseSourceOptions: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            sourceOptionButton(
+                title: "Dictionary",
+                subtitle: "Full dictionary",
+                isSelected: store.selectedBrowseCollection == nil,
+                systemImage: "book"
+            ) {
+                store.selectBrowseCollection(id: nil)
+            }
+
+            ForEach(store.allCollections) { collection in
+                sourceOptionButton(
+                    title: collection.name,
+                    subtitle: collectionSubtitle(for: collection),
+                    isSelected: store.selectedBrowseCollectionID == collection.id,
+                    systemImage: collection.isFavorite ? "star.fill" : "photo.on.rectangle"
+                ) {
+                    store.selectBrowseCollection(id: collection.id)
+                }
+            }
+        }
+    }
+
+    private func sourceOptionButton(
+        title: String,
+        subtitle: String,
+        isSelected: Bool,
+        systemImage: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button {
+            action()
+            withAnimation {
+                showBrowseSource = false
+            }
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
+                    .frame(width: 20)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                    Text(subtitle)
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+
+                Spacer(minLength: 8)
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.accentColor)
+                }
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(isSelected ? Color.accentColor.opacity(0.10) : Color(.secondarySystemBackground).opacity(0.45))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func prepareBrowseHintIfNeeded() {
+        guard !hasShownBrowseInteractionHintRow else { return }
+        showBrowseInteractionHint = true
+        hasShownBrowseInteractionHintRow = true
+        store.showBrowseHelp = true
+    }
+
+    private func scrollBrowseTopIfNeeded(_ proxy: ScrollViewProxy) {
+        withAnimation { proxy.scrollTo("browseTop", anchor: .top) }
+    }
+
+    private func focusBrowseGrid(on character: String?) {
+        guard let character else { return }
+
+        if let collection = store.selectedBrowseCollection,
+           let index = collection.characters.firstIndex(of: character) {
+            imageGridPage = index / imageGridBatchSize
+            return
+        }
+
+        if let index = store.allGridItems.firstIndex(where: { $0.character == character }) {
+            store.gridPage = index / store.gridBatchSize
+        }
+    }
+
+    private var browseGridDescription: String {
+        if let collection = store.selectedBrowseCollection {
+            return "All \(collection.characters.count) characters from this image, in reading order."
+        }
+
+        return store.gridSortMode == .componentFrequency ?
+            "Characters most often used as components first." :
+            "Most common characters first."
     }
 
     private var browseSubjectTitle: String {
@@ -456,47 +637,16 @@ struct FilterGridTab: View {
                 return "Image: \(collection.name) (\(unique) unique / \(total) total)"
             }
         }
-        return "No image selected"
+        return "Dictionary"
     }
 
-    private var browseSubjectDetail: String {
-        if store.selectedBrowseCollection == nil {
-            return "Browse is showing the full dictionary."
+    private func collectionSubtitle(for collection: CharacterCollection) -> String {
+        let total = collection.characters.count
+        let unique = collection.uniqueCharacters.count
+        if total == unique {
+            return "\(unique) characters"
         }
-        return "Browse is limited to this page; filters still apply."
-    }
-
-    private var collectionMenu: some View {
-        Menu {
-            Button("No Image") {
-                store.selectBrowseCollection(id: nil)
-            }
-            if !store.favoriteCollections.isEmpty {
-                Section("Favorites") {
-                    ForEach(store.favoriteCollections) { collection in
-                        Button(collection.name) {
-                            store.selectBrowseCollection(id: collection.id)
-                        }
-                    }
-                }
-            }
-            if !store.allCollections.isEmpty {
-                Section("Images") {
-                    ForEach(store.allCollections) { collection in
-                        Button(collection.name) {
-                            store.selectBrowseCollection(id: collection.id)
-                        }
-                    }
-                }
-            }
-        } label: {
-            Label {
-                Text("Image")
-            } icon: {
-                Text("📄")
-            }
-        }
-        .buttonStyle(.bordered)
+        return "\(unique) unique / \(total) total"
     }
 
     private var manualCollectionSheet: some View {

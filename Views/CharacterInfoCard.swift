@@ -81,6 +81,10 @@ struct CharacterInfoCard: View {
                 pinyinFont: isPhone ? ResponsiveFont.title3.bold() : ResponsiveFont.title.bold()
             )
 
+            if isPhone {
+                phonePreviewActionRow
+            }
+
             actionRow
 
             HStack(alignment: .center, spacing: 8) {
@@ -117,7 +121,7 @@ struct CharacterInfoCard: View {
                 notesButton
                 phrasesButton
                 componentsButton
-                if showClearButton, onClear != nil {
+                if !isPhone, showClearButton, onClear != nil {
                     clearPreviewButton
                 }
             }
@@ -143,9 +147,21 @@ struct CharacterInfoCard: View {
                 .layoutPriority(1)
 
             Spacer(minLength: 0)
-            favoritesButton
-            speechToggleButton
+            if !isPhone {
+                favoritesButton
+            }
         }
+    }
+
+    private var phonePreviewActionRow: some View {
+        HStack(spacing: 8) {
+            Spacer(minLength: 0)
+            favoritesButton
+            if showClearButton, onClear != nil {
+                clearPreviewButton
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
     }
 
     private var notesButton: some View {
@@ -180,18 +196,6 @@ struct CharacterInfoCard: View {
         .buttonStyle(.bordered)
         .controlSize(cardActionControlSize)
         .font(cardActionFont)
-    }
-
-    private var speechToggleButton: some View {
-        Button {
-            store.speechEnabled.toggle()
-        } label: {
-            Image(systemName: store.speechMenuSymbolName)
-        }
-        .buttonStyle(.bordered)
-        .controlSize(cardActionControlSize)
-        .font(cardActionFont)
-        .help(store.speechEnabled ? "Turn character speech off" : "Turn character speech on")
     }
 
     private var favoritesButton: some View {

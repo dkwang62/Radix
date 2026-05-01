@@ -55,7 +55,6 @@ struct DataEditTab: View {
     @State private var showAdvancedExports = false
     @State private var showHelp = false
     @State private var showSourceSetupGuide = false
-    @State private var showSettings = false
     // Scroll-to-top support (phones only)
     @State private var dataEditScrollProxy: ScrollViewProxy?
 
@@ -320,11 +319,6 @@ struct DataEditTab: View {
                 Text(msg)
             }
         }
-        .sheet(isPresented: $showSettings) {
-            NavigationStack {
-                SettingsView()
-            }
-        }
         .onAppear { dataEditScrollProxy = proxy }
         } // ScrollViewReader
     }
@@ -342,15 +336,6 @@ struct DataEditTab: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Help")
-
-                Button {
-                    showSettings = true
-                } label: {
-                    Label("Settings", systemImage: "gearshape")
-                        .font(ResponsiveFont.caption)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(Color.secondary)
 
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) { showAdvancedExports.toggle() }

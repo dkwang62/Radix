@@ -56,8 +56,6 @@ struct AILinkView: View {
 
                 collectionSelectionSection
 
-                aiDestinationSection
-
                 taskSelectionSection
 
                 configEditorSection
@@ -162,38 +160,6 @@ struct AILinkView: View {
             }
         }
         .buttonStyle(.borderedProminent)
-    }
-
-    private var aiDestinationSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Default AI")
-                .font(ResponsiveFont.headline)
-
-            Picker("Default AI", selection: $store.defaultAIPreset) {
-                ForEach(DefaultAIPreset.allCases, id: \.self) { preset in
-                    Text(preset.displayName).tag(preset)
-                }
-            }
-            .pickerStyle(.menu)
-
-            if store.defaultAIPreset == .custom {
-                TextField(
-                    "https://example.com/ or https://example.com/?prompt={prompt}",
-                    text: $store.customAIURLString
-                )
-                .textFieldStyle(.roundedBorder)
-                Text("Use `{prompt}` in a custom URL if your AI site supports direct prompt prefilling. Otherwise Radix will open the URL and copy the prompt.")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-            } else {
-                Text("Current destination: \(store.defaultAIBaseURLString)")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     private var headerSection: some View {
