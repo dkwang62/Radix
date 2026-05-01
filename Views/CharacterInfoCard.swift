@@ -10,6 +10,8 @@ struct CharacterInfoCard: View {
     let onClear: (() -> Void)?
     @State private var showFrequencyGuide = false
     @State private var activeChipGuide: ChipGuide?
+    @State private var showComponentsPopover = false
+    @State private var selectedPopupComponent: String?
     @Binding var variantIndex: Int
 
     private let idcChars: Set<Character> = ["⿰", "⿱", "⿲", "⿳", "⿴", "⿵", "⿶", "⿷", "⿸", "⿹", "⿺", "⿻"]
@@ -67,6 +69,15 @@ struct CharacterInfoCard: View {
         )
         .onChange(of: item.character) { _, _ in
             variantIndex = 0
+            selectedPopupComponent = nil
+        }
+        .popover(isPresented: $showComponentsPopover, arrowEdge: .bottom) {
+            ComponentsRootsPopover(
+                character: item.character,
+                selectedComponent: $selectedPopupComponent
+            )
+            .environmentObject(store)
+            .applyReadablePopoverStyle()
         }
     }
 
@@ -75,38 +86,27 @@ struct CharacterInfoCard: View {
     }
 
     private var standardContent: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             headerRow(
-                characterSize: isPhone ? 32 : 40,
-                pinyinFont: isPhone ? ResponsiveFont.title3.bold() : ResponsiveFont.title.bold()
+                characterSize: isPhone ? 30 : 34,
+                pinyinFont: isPhone ? .system(size: 32, weight: .bold) : .system(size: 34, weight: .bold)
             )
-
-            if isPhone {
-                phonePreviewActionRow
-            }
 
             actionRow
 
-            HStack(alignment: .center, spacing: 8) {
-                tierButton
-                Spacer(minLength: 0)
-            }
-
-            HStack(spacing: 6) {
-                chipButton("字 \(item.usageCount)", guide: .usageCount)
-                if let strokes = item.strokes {
-                    chipButton("✍️ \(strokes)", guide: .strokes)
-                }
-            }
+            componentIconStrip
 
             if !structurePartsText.isEmpty || !item.radical.isEmpty {
                 HStack(spacing: 6) {
                     if !structurePartsText.isEmpty {
                         chipButton(structurePartsText, guide: .structure)
                     }
-                    if !item.radical.isEmpty {
-                        chipButton(item.radical, guide: .radical)
-                    }
+                }
+            }
+
+            if let strokes = item.strokes {
+                HStack(spacing: 6) {
+                    strokeCountButton(strokes)
                 }
             }
 
@@ -115,17 +115,13 @@ struct CharacterInfoCard: View {
     }
 
     private var actionRow: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
-                Spacer(minLength: 0)
-                notesButton
-                phrasesButton
-                componentsButton
-                if !isPhone, showClearButton, onClear != nil {
-                    clearPreviewButton
-                }
+        HStack(spacing: 8) {
+            notesButton
+            phrasesButton
+            if !isPhone, showClearButton, onClear != nil {
+                clearPreviewButton
             }
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            Spacer(minLength: 0)
         }
     }
 
@@ -134,45 +130,32 @@ struct CharacterInfoCard: View {
         pinyinFont: Font
     ) -> some View {
         HStack(alignment: .top, spacing: 8) {
-            Text(item.character)
-                .font(.system(size: characterSize, weight: .bold))
-                .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
+            usageCharactersButton(characterSize: characterSize)
 
-            Text(displayPinyin)
-                .font(pinyinFont)
-                .foregroundStyle(Color.orange)
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
-                .minimumScaleFactor(0.7)
-                .layoutPriority(1)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(displayPinyin)
+                    .font(pinyinFont)
+                    .foregroundStyle(Color.orange)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .minimumScaleFactor(0.7)
+                    .layoutPriority(1)
 
-            Spacer(minLength: 0)
-            if !isPhone {
-                favoritesButton
+                tierButton
             }
-        }
-    }
 
-    private var phonePreviewActionRow: some View {
-        HStack(spacing: 8) {
             Spacer(minLength: 0)
             favoritesButton
-            if showClearButton, onClear != nil {
-                clearPreviewButton
-            }
         }
-        .frame(maxWidth: .infinity, alignment: .trailing)
     }
 
     private var notesButton: some View {
         Button {
             store.openQuickCharacterEditor(item.character)
         } label: {
-            actionLabel("✏️", systemImage: "note.text")
+            actionPill("✏️ Notes")
         }
-        .buttonStyle(.bordered)
-        .controlSize(cardActionControlSize)
-        .font(cardActionFont)
+        .buttonStyle(.plain)
     }
 
     private var phrasesButton: some View {
@@ -180,22 +163,9 @@ struct CharacterInfoCard: View {
             store.refreshPhrases(for: item.character)
             onShowPhrases?()
         } label: {
-            actionLabel("词", systemImage: "text.quote")
+            actionPill("词Phrases")
         }
-        .buttonStyle(.bordered)
-        .controlSize(cardActionControlSize)
-        .font(cardActionFont)
-    }
-
-    private var componentsButton: some View {
-        Button {
-            store.goToRoots(character: item.character)
-        } label: {
-            actionLabel("拆", systemImage: "tree")
-        }
-        .buttonStyle(.bordered)
-        .controlSize(cardActionControlSize)
-        .font(cardActionFont)
+        .buttonStyle(.plain)
     }
 
     private var favoritesButton: some View {
@@ -205,7 +175,7 @@ struct CharacterInfoCard: View {
             Image(systemName: store.isFavorite(item.character) ? "star.fill" : "star")
                 .foregroundStyle(store.isFavorite(item.character) ? .yellow : .secondary)
         }
-        .buttonStyle(.bordered)
+        .buttonStyle(.plain)
         .controlSize(cardActionControlSize)
         .font(cardActionFont)
         .help(store.isFavorite(item.character) ? "Remove from favorites" : "Add to favorites")
@@ -236,6 +206,22 @@ struct CharacterInfoCard: View {
         } else {
             Text(title)
         }
+    }
+
+    private func actionPill(_ title: String) -> some View {
+        Text(title)
+            .font(cardActionFont)
+            .foregroundStyle(Color.accentColor)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color(.separator), lineWidth: 0.5)
+            )
     }
 
     private var tierButton: some View {
@@ -270,6 +256,142 @@ struct CharacterInfoCard: View {
         }
     }
 
+    private func strokeCountButton(_ strokes: Int) -> some View {
+        Button {
+            activeChipGuide = .strokes
+        } label: {
+            HStack(spacing: 6) {
+                Text("✍️ Strokes:")
+                    .font(cardActionFont)
+                Text("\(strokes)")
+                    .font(chipNumberFont)
+            }
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color(.separator), lineWidth: 0.5)
+            )
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: chipGuideBinding(for: .strokes), arrowEdge: .bottom) {
+            chipGuideView(for: .strokes)
+                .applyCompactPopoverStyle()
+        }
+    }
+
+    private func usageCharactersButton(characterSize: CGFloat) -> some View {
+        Button {
+            guard item.usageCount > 1 else {
+                activeChipGuide = .usageCount
+                return
+            }
+            openComponentsPopover(component: item.character)
+        } label: {
+            characterTile(
+                character: item.character,
+                subtitle: usageCountSubtitle,
+                size: characterTileSize,
+                characterSize: characterSize,
+                isHighlighted: false
+            )
+        }
+        .buttonStyle(.plain)
+        .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
+        .popover(isPresented: chipGuideBinding(for: .usageCount), arrowEdge: .bottom) {
+            chipGuideView(for: .usageCount)
+                .applyCompactPopoverStyle()
+        }
+    }
+
+    private func openComponentsPopover(component: String?) {
+        selectedPopupComponent = component ?? item.character
+        showComponentsPopover = true
+    }
+
+    private var cardComponents: [ComponentItem] {
+        store.components(for: item.character)
+    }
+
+    @ViewBuilder
+    private var componentIconStrip: some View {
+        if !cardComponents.isEmpty {
+            LazyVGrid(columns: componentGridColumns, alignment: .leading, spacing: 8) {
+                ForEach(cardComponents, id: \.character) { component in
+                    componentIconButton(component)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func componentIconButton(_ component: ComponentItem) -> some View {
+        let isRadical = component.character == item.radical
+        Button {
+            openComponentsPopover(component: component.character)
+        } label: {
+            characterTile(
+                character: component.character,
+                subtitle: component.pinyinText.isEmpty ? nil : component.pinyinText,
+                size: componentTileSize,
+                characterSize: isPhone ? 24 : 26,
+                isHighlighted: isRadical
+            )
+        }
+        .buttonStyle(.plain)
+        .copyCharacterContextMenu(component.character, pinyin: component.pinyinText)
+    }
+
+    private func characterTile(
+        character: String,
+        subtitle: String?,
+        size: CGFloat,
+        characterSize: CGFloat,
+        isHighlighted: Bool
+    ) -> some View {
+        VStack(spacing: 2) {
+            Text(character)
+                .font(.system(size: characterSize, weight: .bold))
+                .foregroundStyle(Color.accentColor)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            if let subtitle {
+                Text(subtitle)
+                    .font(ResponsiveFont.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+        }
+        .frame(width: size, height: size)
+        .background(isHighlighted ? Color.orange.opacity(0.18) : Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(isHighlighted ? Color.orange.opacity(0.75) : Color(.separator), lineWidth: isHighlighted ? 1.5 : 0.5)
+        )
+    }
+
+    private var componentGridColumns: [GridItem] {
+        [GridItem(.adaptive(minimum: componentTileSize, maximum: componentTileSize), spacing: 8)]
+    }
+
+    private var characterTileSize: CGFloat {
+        isPhone ? 64 : 70
+    }
+
+    private var componentTileSize: CGFloat {
+        isPhone ? 56 : 62
+    }
+
+    private var usageCountSubtitle: String {
+        "\(item.usageCount)"
+    }
+
     private func chipGuideBinding(for guide: ChipGuide) -> Binding<Bool> {
         Binding(
             get: { activeChipGuide == guide },
@@ -288,11 +410,11 @@ struct CharacterInfoCard: View {
             Text("Character Learning Guide")
                 .font(ResponsiveFont.headline)
             
-            guideRow(tier: "Tier 1", label: "Core Literacy", desc: "Everyday survival characters. Essential for everyone.")
-            guideRow(tier: "Tier 2", label: "Fluency Core", desc: "Required for reading newspapers and media comfortably.")
-            guideRow(tier: "Tier 3", label: "Educated Native", desc: "Required for university-level reading and formal writing.")
-            guideRow(tier: "Tier 4", label: "Academic/Pro", desc: "Specialized, technical, or research-heavy characters.")
-            guideRow(tier: "Tier 5", label: "Niche/Rare", desc: "Rare names, dialect, or archaic forms. Safe to ignore.")
+            guideRow(tier: "Tier 1", label: "Core Literacy", desc: "Everyday survival. Essential for everyone.")
+            guideRow(tier: "Tier 2", label: "Fluency Core", desc: "Reading newspapers,  media")
+            guideRow(tier: "Tier 3", label: "Educated Native", desc: "University-level reading, formal writing")
+            guideRow(tier: "Tier 4", label: "Academic", desc: "Specialized, technical, research-heavy")
+            guideRow(tier: "Tier 5", label: "Niche/Rare", desc: "Rare names, dialect, archaic forms")
         }
         .font(ResponsiveFont.subheadline)
         .padding(16)
@@ -355,11 +477,11 @@ struct CharacterInfoCard: View {
 
     private var tierRecommendation: String {
         switch item.tier {
-        case 1: return "Essential"
-        case 2: return "Strongly Recommended"
-        case 3: return "For Intellectual Fluency"
-        case 4: return "Academic Focus"
-        default: return "Optional / Niche"
+        case 1: return "Core Literacy"
+        case 2: return "Fluency Core"
+        case 3: return "Educated Native"
+        case 4: return "Academic/Pro"
+        default: return "Niche/Rare"
         }
     }
 
@@ -396,12 +518,14 @@ struct CharacterInfoCard: View {
 
     private func tierChip(for tier: Int) -> some View {
         Text("Tier \(tier)")
-            .font(ResponsiveFont.footnote.weight(.bold))
+            .font(ResponsiveFont.caption.weight(.bold))
             .foregroundStyle(.white)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
             .background(tierColor)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private func chip(_ text: String) -> some View {
@@ -417,9 +541,9 @@ struct CharacterInfoCard: View {
 
     private var cardActionFont: Font {
         #if targetEnvironment(macCatalyst)
-        return ResponsiveFont.caption.weight(.semibold)
+        return ResponsiveFont.caption2.weight(.semibold)
         #else
-        return ResponsiveFont.subheadline.weight(.semibold)
+        return ResponsiveFont.caption.weight(.semibold)
         #endif
     }
 
@@ -446,6 +570,273 @@ struct CharacterInfoCard: View {
         return isPhone ? ResponsiveFont.subheadline.weight(.semibold) : ResponsiveFont.footnote.weight(.semibold)
         #endif
     }
+
+    private var chipNumberFont: Font {
+        #if targetEnvironment(macCatalyst)
+        return ResponsiveFont.subheadline.weight(.bold)
+        #else
+        return isPhone ? ResponsiveFont.title3.weight(.bold) : ResponsiveFont.subheadline.weight(.bold)
+        #endif
+    }
+}
+
+struct ComponentsRootsPopover: View {
+    @EnvironmentObject private var store: RadixStore
+    let character: String
+    @Binding var selectedComponent: String?
+    @State private var results: [ComponentItem] = []
+    @State private var resultsTotal: Int = 0
+    @State private var previewItem: ComponentItem?
+
+    private var activeComponent: String {
+        selectedComponent ?? character
+    }
+
+    private var title: String {
+        "Contains \(activeComponent)"
+    }
+
+    private var gridColumns: [GridItem] {
+        [GridItem(.adaptive(minimum: 48, maximum: 56), spacing: 6)]
+    }
+
+    private var isPhone: Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
+        return UIDevice.current.userInterfaceIdiom == .phone
+        #endif
+    }
+
+    var body: some View {
+        popoverContent
+            .padding(isPhone ? 18 : 14)
+            .frame(
+                minWidth: isPhone ? 320 : 300,
+                maxWidth: popoverMaxWidth,
+                minHeight: isPhone ? 260 : 120,
+                maxHeight: isPhone ? 620 : 500,
+                alignment: .topLeading
+            )
+            .onAppear {
+                load(component: activeComponent)
+            }
+            .onChange(of: character) { _, _ in
+                selectedComponent = character
+                load(component: character)
+            }
+            .onChange(of: selectedComponent) { _, _ in
+                load(component: activeComponent)
+            }
+            .onChange(of: store.scriptFilter) { _, _ in
+                load(component: activeComponent)
+            }
+            .onChange(of: store.rootMinStroke) { _, _ in
+                load(component: activeComponent)
+            }
+            .onChange(of: store.rootMaxStroke) { _, _ in
+                load(component: activeComponent)
+            }
+            .onChange(of: store.rootRadicalFilter) { _, _ in
+                load(component: activeComponent)
+            }
+            .onChange(of: store.rootStructureFilter) { _, _ in
+                load(component: activeComponent)
+            }
+            #if targetEnvironment(macCatalyst)
+            .popover(item: $previewItem, arrowEdge: .trailing) { item in
+                LightweightCharacterPreviewCard(item: item)
+                    .applyReadablePopoverStyle()
+            }
+            #else
+            .sheet(item: phonePreviewItemBinding) { item in
+                LightweightCharacterPreviewCard(item: item, showsCloseButton: true)
+                    .presentationDetents(UIDevice.current.userInterfaceIdiom == .phone ? [.medium, .large] : [.height(360)])
+                    .presentationDragIndicator(.visible)
+                    .applyFittedSheetSizing()
+            }
+            #endif
+    }
+
+    @ViewBuilder
+    private var popoverContent: some View {
+        #if targetEnvironment(macCatalyst)
+        componentResultsContent
+        #else
+        if isPhone {
+            componentResultsContent
+        } else {
+            HStack(alignment: .top, spacing: 12) {
+                componentResultsContent
+                    .frame(width: 470, alignment: .topLeading)
+                if let item = previewItem {
+                    Divider()
+                    LightweightCharacterPreviewCard(item: item, showsCloseButton: true) {
+                        previewItem = nil
+                    }
+                }
+            }
+        }
+        #endif
+    }
+
+    private var componentResultsContent: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("\(title) (\(resultsTotal))")
+                .font(isPhone ? ResponsiveFont.title3.weight(.bold) : ResponsiveFont.headline)
+            resultsGrid
+        }
+    }
+
+    private var popoverMaxWidth: CGFloat {
+        #if targetEnvironment(macCatalyst)
+        return 500
+        #else
+        if isPhone {
+            return 380
+        }
+        return previewItem == nil ? 500 : 720
+        #endif
+    }
+
+    @ViewBuilder
+    private var resultsGrid: some View {
+        if results.isEmpty {
+            Text("Not present in other characters.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 2)
+        } else {
+            ScrollView {
+                LazyVGrid(columns: gridColumns, spacing: 6) {
+                    ForEach(results, id: \.character) { item in
+                        ComponentCharacterTile(item: item, isCompact: true) {
+                            store.speakCharacter(item.character)
+                            store.pushRootBreadcrumb(item.character)
+                            previewItem = item
+                        }
+                    }
+                }
+                .padding(.vertical, 2)
+            }
+            .frame(maxHeight: isPhone ? 520 : 360)
+        }
+    }
+
+    private func load(component: String) {
+        let target = component.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !target.isEmpty else { return }
+        let result = store.rootDerivatives(for: target)
+        results = result.items
+        resultsTotal = result.total
+    }
+
+    private var phonePreviewItemBinding: Binding<ComponentItem?> {
+        Binding(
+            get: { isPhone ? previewItem : nil },
+            set: { newValue in
+                previewItem = newValue
+            }
+        )
+    }
+
+    private var tabletPreviewItemBinding: Binding<ComponentItem?> {
+        Binding(
+            get: { isPhone ? nil : previewItem },
+            set: { newValue in
+                previewItem = newValue
+            }
+        )
+    }
+}
+
+struct LightweightCharacterPreviewCard: View {
+    @Environment(\.dismiss) private var dismiss
+    let item: ComponentItem
+    var showsCloseButton = false
+    var onClose: (() -> Void)? = nil
+    @State private var reloadToken = UUID()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: isPhone ? 14 : 10) {
+            HStack(spacing: 8) {
+                Text(displayPinyin)
+                    .font(isPhone ? ResponsiveFont.title2.bold() : ResponsiveFont.title3.bold())
+                    .foregroundStyle(Color.orange)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.75)
+                Spacer(minLength: 0)
+                Button {
+                    reloadToken = UUID()
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .help("Replay stroke animation")
+
+                if showsCloseButton {
+                    Button {
+                        if let onClose {
+                            onClose()
+                        } else {
+                            dismiss()
+                        }
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .help("Close")
+                }
+            }
+
+            StrokeOrderWebView(character: item.character, reloadToken: reloadToken, canvasSize: animationCanvasSize)
+                .frame(width: animationFrameSize, height: animationFrameSize)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color(.separator), lineWidth: 0.5)
+                )
+
+            Text(displayDefinition)
+                .font(isPhone ? ResponsiveFont.title3 : ResponsiveFont.body)
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.leading)
+                .lineLimit(isPhone ? 8 : 5)
+                .frame(maxWidth: animationFrameSize, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(width: animationFrameSize, alignment: .leading)
+        .padding(isPhone ? 18 : 14)
+    }
+
+    private var isPhone: Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
+        return UIDevice.current.userInterfaceIdiom == .phone
+        #endif
+    }
+
+    private var animationCanvasSize: Int {
+        isPhone ? 230 : 170
+    }
+
+    private var animationFrameSize: CGFloat {
+        isPhone ? 250 : 190
+    }
+
+    private var displayPinyin: String {
+        let value = item.pinyinText.trimmingCharacters(in: .whitespacesAndNewlines)
+        return value.isEmpty ? "—" : value
+    }
+
+    private var displayDefinition: String {
+        let value = item.definition.trimmingCharacters(in: .whitespacesAndNewlines)
+        return value.isEmpty ? "No definition" : value
+    }
 }
 
 private extension View {
@@ -453,6 +844,39 @@ private extension View {
     func applyCompactPopoverStyle() -> some View {
         if #available(iOS 16.4, macCatalyst 16.4, *) {
             self.presentationCompactAdaptation(.popover)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
+    func applyReadablePopoverStyle() -> some View {
+        #if targetEnvironment(macCatalyst)
+        if #available(iOS 16.4, macCatalyst 16.4, *) {
+            self.presentationCompactAdaptation(.popover)
+        } else {
+            self
+        }
+        #else
+        if #available(iOS 16.4, macCatalyst 16.4, *) {
+            if UIDevice.current.userInterfaceIdiom == .phone {
+                self
+                    .presentationCompactAdaptation(.sheet)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+            } else {
+                self.presentationCompactAdaptation(.popover)
+            }
+        } else {
+            self
+        }
+        #endif
+    }
+
+    @ViewBuilder
+    func applyFittedSheetSizing() -> some View {
+        if #available(iOS 18.0, macCatalyst 18.0, *) {
+            self.presentationSizing(.fitted)
         } else {
             self
         }

@@ -955,44 +955,9 @@ struct ComponentsExplorerShell: View {
     }
 
     private func branchRow(_ item: ComponentItem) -> some View {
-        let isIPad: Bool = {
-            #if targetEnvironment(macCatalyst)
-            return false
-            #else
-            return UIDevice.current.userInterfaceIdiom == .pad
-            #endif
-        }()
-
-        let pinyinFont: Font = isIPad
-            ? .system(size: 16, weight: .semibold)
-            : ResponsiveFont.caption
-        let usageFont: Font = isIPad
-            ? .system(size: 13, weight: .semibold)
-            : ResponsiveFont.caption2
-
-        return VStack(spacing: 4) {
-            Text(item.character)
-                .font(.system(size: 30, weight: .bold))
-            Text(item.pinyinText.isEmpty ? "-" : item.pinyinText)
-                .font(pinyinFont)
-                .fontWeight(.semibold)
-                .foregroundStyle(.secondary)
-            Text("\(item.usageCount)")
-                .font(usageFont)
-                .fontWeight(.semibold)
-                .foregroundStyle(.tertiary)
-        }
-        .padding(8)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 0.5)
-        )
-        .contentShape(RoundedRectangle(cornerRadius: 8))
-        .onTapGesture {
+        ComponentCharacterTile(item: item) {
             pivot(to: item.character, selectAfter: false)
         }
-        .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
     }
 
     private func pivot(to character: String, selectAfter: Bool) {
@@ -1065,4 +1030,62 @@ struct ComponentsExplorerShell: View {
         return "Characters containing \(item?.character ?? trimmed)"
     }
 
+}
+
+struct ComponentCharacterTile: View {
+    let item: ComponentItem
+    var isCompact = false
+    let onTap: () -> Void
+
+    private var isIPad: Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
+        return UIDevice.current.userInterfaceIdiom == .pad
+        #endif
+    }
+
+    var body: some View {
+        VStack(spacing: isCompact ? 1 : 4) {
+            Text(item.character)
+                .font(.system(size: isCompact ? 24 : 30, weight: .bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Text(item.pinyinText.isEmpty ? "-" : item.pinyinText)
+                .font(pinyinFont)
+                .fontWeight(.semibold)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.65)
+            Text("\(item.usageCount)")
+                .font(countFont)
+                .fontWeight(.semibold)
+                .foregroundStyle(.tertiary)
+                .lineLimit(1)
+        }
+        .padding(isCompact ? 4 : 8)
+        .frame(minWidth: isCompact ? 48 : nil, minHeight: isCompact ? 56 : nil)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 0.5)
+        )
+        .contentShape(RoundedRectangle(cornerRadius: 8))
+        .onTapGesture(perform: onTap)
+        .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
+    }
+
+    private var pinyinFont: Font {
+        if isCompact {
+            return ResponsiveFont.caption2
+        }
+        return isIPad ? .system(size: 16, weight: .semibold) : ResponsiveFont.caption
+    }
+
+    private var countFont: Font {
+        if isCompact {
+            return ResponsiveFont.caption2
+        }
+        return isIPad ? .system(size: 13, weight: .semibold) : ResponsiveFont.caption2
+    }
 }

@@ -1122,6 +1122,10 @@ final class RadixStore: ObservableObject {
         return result
     }
 
+    func components(for character: String) -> [ComponentItem] {
+        componentRepo.components(for: character, scriptFilter: scriptFilter)
+    }
+
     func simplifiedText(_ value: String) -> String {
         componentRepo.simplifiedText(value)
     }
@@ -2805,11 +2809,15 @@ final class RadixStore: ObservableObject {
     }
 
     func loadRootDerivatives(for character: String) {
+        let result = rootDerivatives(for: character)
+        rootDerivatives = result.items
+        rootDerivativesTotal = result.total
+    }
+
+    func rootDerivatives(for character: String) -> (items: [ComponentItem], total: Int) {
         let key = RootsCacheKey(character: character, script: scriptFilter, minStroke: rootMinStroke, maxStroke: rootMaxStroke, radical: rootRadicalFilter, structure: rootStructureFilter)
         if let cached = rootsDerivativesCache[key] {
-            rootDerivatives = cached.items
-            rootDerivativesTotal = cached.total
-            return
+            return (cached.items, cached.total)
         }
 
         // Prefer current script filter; fall back to .any to avoid empties (e.g., 一)
@@ -2838,9 +2846,8 @@ final class RadixStore: ObservableObject {
         let sorted = finalSet.sorted(by: frequencySortPredicate)
         let displayLimit = 500
         let limited = Array(sorted.prefix(displayLimit))
-        rootDerivatives = limited
-        rootDerivativesTotal = sorted.count
         rootsDerivativesCache[key] = RootsDerivativesCacheValue(items: limited, total: sorted.count)
+        return (limited, sorted.count)
     }
 
     // MARK: - Remembered Bar

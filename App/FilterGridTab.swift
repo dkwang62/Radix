@@ -214,30 +214,16 @@ struct FilterGridTab: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: isPhoneBrowseLayout ? 6 : 10) {
                     Color.clear.frame(height: 0).id("browseTop")
-                    // Animation Preview (phones only; sidebar handles iPad/Mac)
                     #if !targetEnvironment(macCatalyst)
                     if UIDevice.current.userInterfaceIdiom == .phone,
                        let previewChar = store.previewCharacter {
-                        standardPhoneCharacterPreview(
-                            character: previewChar,
-                            selectedCharacter: store.selectedCharacter,
-                            onClear: { store.previewCharacter = nil }
-                        )
-                    }
-                    #endif
-
-                    browseSourceDisclosure(description: browseGridDescription)
-                    if isPhoneBrowseLayout {
-                        browseHintIfNeeded
-                    }
-
-                    if let collection = store.selectedBrowseCollection {
-                        // ── Image selected: show entire character set in reading order ──
-                        imageGridContent(collection: collection, proxy: proxy)
+                        phoneBrowsePreview(character: previewChar)
                     } else {
-                        // ── No image: smart grid with All / Components / Reading Order ──
-                        smartGridContent(proxy: proxy)
+                        browseContent(proxy: proxy)
                     }
+                    #else
+                    browseContent(proxy: proxy)
+                    #endif
                 }
                 .padding(.horizontal)
                 .onChange(of: store.strokeMinFilter) { _, _ in store.gridPage = 0 }
@@ -267,6 +253,49 @@ struct FilterGridTab: View {
             .sheet(isPresented: $showManualCollectionSheet) {
                 manualCollectionSheet
             }
+        }
+    }
+
+    @ViewBuilder
+    private func browseContent(proxy: ScrollViewProxy) -> some View {
+        browseSourceDisclosure(description: browseGridDescription)
+        if isPhoneBrowseLayout {
+            browseHintIfNeeded
+        }
+
+        if let collection = store.selectedBrowseCollection {
+            // ── Image selected: show entire character set in reading order ──
+            imageGridContent(collection: collection, proxy: proxy)
+        } else {
+            // ── No image: smart grid with All / Components / Reading Order ──
+            smartGridContent(proxy: proxy)
+        }
+    }
+
+    @ViewBuilder
+    private func phoneBrowsePreview(character: String) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Button {
+                withAnimation {
+                    store.previewCharacter = nil
+                }
+            } label: {
+                Label("Browse", systemImage: "chevron.left")
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .buttonStyle(.plain)
+
+            standardPhoneCharacterPreview(
+                character: character,
+                selectedCharacter: store.selectedCharacter,
+                showAddToMemoryButton: false,
+                onClear: { store.previewCharacter = nil }
+            )
         }
     }
 
