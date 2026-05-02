@@ -1,5 +1,45 @@
 import Foundation
 
+enum PinyinSearchNormalizer {
+    private static let canonicalInitialMappings: [(source: String, target: String)] = [
+        ("zh", "z"),
+        ("sh", "s"),
+        ("ch", "c")
+    ]
+
+    static func normalize(_ value: String, preservingSpaces: Bool = false, fuzzyInitials: Bool = true) -> String {
+        let mutable = NSMutableString(string: value.lowercased()) as CFMutableString
+        CFStringTransform(mutable, nil, kCFStringTransformStripDiacritics, false)
+
+        let words = (mutable as String)
+            .map { ch -> Character in
+                (ch.isLetter || ch.isNumber) ? ch : " "
+            }
+            .reduce(into: "") { partial, ch in
+                if ch == " " {
+                    if partial.last != " " { partial.append(ch) }
+                } else {
+                    partial.append(ch)
+                }
+            }
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .split(separator: " ")
+            .map(String.init)
+
+        let normalizedWords = fuzzyInitials ? words.map(applyCanonicalInitialMappings) : words
+        return preservingSpaces ? normalizedWords.joined(separator: " ") : normalizedWords.joined()
+    }
+
+    private static func applyCanonicalInitialMappings(_ syllable: String) -> String {
+        for mapping in canonicalInitialMappings {
+            if syllable.hasPrefix(mapping.source) {
+                return mapping.target + syllable.dropFirst(mapping.source.count)
+            }
+        }
+        return syllable
+    }
+}
+
 /*
  COMPONENT REPOSITORY
  ===================
@@ -406,7 +446,8 @@ final class ComponentRepository {
         }
 
         let normalized = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        let pinyinQuery = normalizePinyinForSearch(query)
+        let exactPinyinQuery = normalizePinyinForSearch(query, fuzzyInitials: false)
+        let normalizedPinyinQuery = normalizePinyinForSearch(query)
 
         if normalized.count == 1, let exact = byCharacter[normalized], matchesScriptFilter(item: exact, filter: scriptFilter) {
             return [exact]
@@ -419,24 +460,38 @@ final class ComponentRepository {
             guard let item = byCharacter[key] else { return nil }
             guard matchesScriptFilter(item: item, filter: scriptFilter) else { return nil }
 
-            let tokens = item.pinyin.map(normalizePinyinForSearch).filter { !$0.isEmpty }
-            let compact = tokens.joined()
+            let exactTokens = item.pinyin.map { normalizePinyinForSearch($0, fuzzyInitials: false) }.filter { !$0.isEmpty }
+            let exactCompact = exactTokens.joined()
+            let normalizedTokens = item.pinyin.map { normalizePinyinForSearch($0) }.filter { !$0.isEmpty }
+            let normalizedCompact = normalizedTokens.joined()
 
             // Streamlit-like priority: exact pinyin syllable first, then prefix/contains.
-            if !pinyinQuery.isEmpty, let exactToken = tokens.first(where: { $0 == pinyinQuery }) {
+            if !exactPinyinQuery.isEmpty, let exactToken = exactTokens.first(where: { $0 == exactPinyinQuery }) {
                 return (item, 0, exactToken.count, exactToken)
             }
-            if !pinyinQuery.isEmpty, let prefixToken = tokens.first(where: { $0.hasPrefix(pinyinQuery) }) {
+            if !exactPinyinQuery.isEmpty, let prefixToken = exactTokens.first(where: { $0.hasPrefix(exactPinyinQuery) }) {
                 return (item, 1, prefixToken.count, prefixToken)
             }
-            if !pinyinQuery.isEmpty, let containsToken = tokens.first(where: { $0.contains(pinyinQuery) }) {
+            if !exactPinyinQuery.isEmpty, let containsToken = exactTokens.first(where: { $0.contains(exactPinyinQuery) }) {
                 return (item, 2, containsToken.count, containsToken)
             }
-            if !pinyinQuery.isEmpty, compact.contains(pinyinQuery) {
-                return (item, 3, compact.count, compact)
+            if !exactPinyinQuery.isEmpty, exactCompact.contains(exactPinyinQuery) {
+                return (item, 3, exactCompact.count, exactCompact)
+            }
+            if !normalizedPinyinQuery.isEmpty, let exactToken = normalizedTokens.first(where: { $0 == normalizedPinyinQuery }) {
+                return (item, 4, exactToken.count, exactToken)
+            }
+            if !normalizedPinyinQuery.isEmpty, let prefixToken = normalizedTokens.first(where: { $0.hasPrefix(normalizedPinyinQuery) }) {
+                return (item, 5, prefixToken.count, prefixToken)
+            }
+            if !normalizedPinyinQuery.isEmpty, let containsToken = normalizedTokens.first(where: { $0.contains(normalizedPinyinQuery) }) {
+                return (item, 6, containsToken.count, containsToken)
+            }
+            if !normalizedPinyinQuery.isEmpty, normalizedCompact.contains(normalizedPinyinQuery) {
+                return (item, 7, normalizedCompact.count, normalizedCompact)
             }
             if item.searchableText.contains(normalized) {
-                return (item, 4, 999, "")
+                return (item, 8, 999, "")
             }
             return nil
         }
@@ -820,11 +875,8 @@ final class ComponentRepository {
         return stripped.filter { $0.isLetter }
     }
 
-    private func normalizePinyinForSearch(_ value: String) -> String {
-        let mutable = NSMutableString(string: value.lowercased()) as CFMutableString
-        CFStringTransform(mutable, nil, kCFStringTransformStripDiacritics, false)
-        let stripped = mutable as String
-        return stripped.filter { $0.isLetter || $0.isNumber }
+    private func normalizePinyinForSearch(_ value: String, fuzzyInitials: Bool = true) -> String {
+        PinyinSearchNormalizer.normalize(value, fuzzyInitials: fuzzyInitials)
     }
 
     private func loadSubtlexFrequencies() -> [String: Double] {

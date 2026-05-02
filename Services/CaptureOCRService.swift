@@ -1,4 +1,6 @@
 import Foundation
+import PhotosUI
+import SwiftUI
 import UIKit
 @preconcurrency import Vision
 import ImageIO
@@ -52,6 +54,49 @@ final class CaptureOCRService {
                 }
             }
         }
+    }
+}
+
+enum CaptureImageThumbnailer {
+    static func makeJPEGData(from image: UIImage, maxDimension: CGFloat = 240) -> Data? {
+        let size = image.size
+        guard size.width > 0, size.height > 0 else {
+            return image.jpegData(compressionQuality: 0.65)
+        }
+
+        let scale = min(maxDimension / size.width, maxDimension / size.height, 1)
+        let targetSize = CGSize(width: size.width * scale, height: size.height * scale)
+        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        let rendered = renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: targetSize))
+        }
+        return rendered.jpegData(compressionQuality: 0.65)
+    }
+}
+
+enum CaptureImageLoader {
+    static func image(from item: PhotosPickerItem) async throws -> UIImage {
+        guard let data = try await item.loadTransferable(type: Data.self),
+              let image = UIImage(data: data) else {
+            throw NSError(domain: "Radix", code: 3002, userInfo: [NSLocalizedDescriptionKey: "The selected image could not be loaded."])
+        }
+        return image
+    }
+
+    static func image(from urls: [URL]) throws -> UIImage? {
+        guard let url = urls.first else { return nil }
+        let canAccess = url.startAccessingSecurityScopedResource()
+        defer {
+            if canAccess {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        let data = try Data(contentsOf: url)
+        guard let image = UIImage(data: data) else {
+            throw NSError(domain: "Radix", code: 3003, userInfo: [NSLocalizedDescriptionKey: "The selected file is not a readable image."])
+        }
+        return image
     }
 }
 
