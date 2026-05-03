@@ -7,6 +7,7 @@ struct ComponentsRootsPopover: View {
     @State private var results: [ComponentItem] = []
     @State private var resultsTotal: Int = 0
     @State private var previewItem: ComponentItem?
+    @State private var spokenComponentPreview: String?
 
     private var activeComponent: String {
         selectedComponent ?? character
@@ -148,6 +149,10 @@ struct ComponentsRootsPopover: View {
         resultsTotal = result.total
         if previewItem == nil || previewItem?.character != target {
             previewItem = store.item(for: target)
+        }
+        if spokenComponentPreview != target {
+            spokenComponentPreview = target
+            store.speakCharacter(target)
         }
     }
 }
