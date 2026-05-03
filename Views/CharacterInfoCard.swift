@@ -77,7 +77,7 @@ struct CharacterInfoCard: View {
                 selectedComponent: $selectedPopupComponent
             )
             .environmentObject(store)
-            .applyReadablePopoverStyle()
+            .applyComponentsRootsPopoverStyle()
         }
     }
 

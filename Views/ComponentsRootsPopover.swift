@@ -32,10 +32,10 @@ struct ComponentsRootsPopover: View {
         popoverContent
             .padding(isPhone ? 18 : 14)
             .frame(
-                minWidth: isPhone ? 320 : 300,
+                minWidth: isPhone ? 0 : 700,
                 maxWidth: popoverMaxWidth,
-                minHeight: isPhone ? 260 : 120,
-                maxHeight: isPhone ? 620 : 500,
+                minHeight: isPhone ? 0 : 120,
+                maxHeight: isPhone ? .infinity : 560,
                 alignment: .topLeading
             )
             .onAppear {
@@ -63,41 +63,37 @@ struct ComponentsRootsPopover: View {
             .onChange(of: store.rootStructureFilter) { _, _ in
                 load(component: activeComponent)
             }
-            #if targetEnvironment(macCatalyst)
-            .popover(item: $previewItem, arrowEdge: .trailing) { item in
-                LightweightCharacterPreviewCard(item: item)
-                    .applyReadablePopoverStyle()
-            }
-            #else
-            .sheet(item: phonePreviewItemBinding) { item in
-                LightweightCharacterPreviewCard(item: item, showsCloseButton: true)
-                    .presentationDetents(UIDevice.current.userInterfaceIdiom == .phone ? [.medium, .large] : [.height(360)])
-                    .presentationDragIndicator(.visible)
-                    .applyFittedSheetSizing()
-            }
-            #endif
     }
 
     @ViewBuilder
     private var popoverContent: some View {
-        #if targetEnvironment(macCatalyst)
-        componentResultsContent
-        #else
         if isPhone {
-            componentResultsContent
+            VStack(alignment: .leading, spacing: 12) {
+                componentResultsContent
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                if let item = previewItem {
+                    Divider()
+                    LightweightCharacterPreviewCard(
+                        item: item,
+                        showsCloseButton: item.character != activeComponent
+                    ) {
+                        previewItem = store.item(for: activeComponent)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                }
+            }
         } else {
             HStack(alignment: .top, spacing: 12) {
                 componentResultsContent
                     .frame(width: 470, alignment: .topLeading)
                 if let item = previewItem {
                     Divider()
-                    LightweightCharacterPreviewCard(item: item, showsCloseButton: true) {
-                        previewItem = nil
+                    LightweightCharacterPreviewCard(item: item, showsCloseButton: item.character != activeComponent) {
+                        previewItem = store.item(for: activeComponent)
                     }
                 }
             }
         }
-        #endif
     }
 
     private var componentResultsContent: some View {
@@ -110,12 +106,12 @@ struct ComponentsRootsPopover: View {
 
     private var popoverMaxWidth: CGFloat {
         #if targetEnvironment(macCatalyst)
-        return 500
+        return 720
         #else
         if isPhone {
-            return 380
+            return .infinity
         }
-        return previewItem == nil ? 500 : 720
+        return 720
         #endif
     }
 
@@ -140,7 +136,7 @@ struct ComponentsRootsPopover: View {
                 }
                 .padding(.vertical, 2)
             }
-            .frame(maxHeight: isPhone ? 520 : 360)
+            .frame(maxHeight: isPhone ? .infinity : 420)
         }
     }
 
@@ -150,14 +146,8 @@ struct ComponentsRootsPopover: View {
         let result = store.rootDerivatives(for: target)
         results = result.items
         resultsTotal = result.total
-    }
-
-    private var phonePreviewItemBinding: Binding<ComponentItem?> {
-        Binding(
-            get: { isPhone ? previewItem : nil },
-            set: { newValue in
-                previewItem = newValue
-            }
-        )
+        if previewItem == nil || previewItem?.character != target {
+            previewItem = store.item(for: target)
+        }
     }
 }
