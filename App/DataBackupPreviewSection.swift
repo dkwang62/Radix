@@ -176,6 +176,10 @@ struct DataBackupPreviewSection: View {
                 Text(phrase.word)
                     .font(ResponsiveFont.subheadline.bold())
                     .phraseContextMenu(phrase)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        store.speakPhrase(phrase)
+                    }
 
                 Spacer()
 
@@ -264,8 +268,19 @@ struct DataBackupPreviewSection: View {
 
             summaryLine("Favorite phrases", value: "\(store.favoritePhrasesItems.count)")
             if !store.favoritePhrasesItems.isEmpty {
-                Text(store.favoritePhrasesItems.map(\.word).joined(separator: ", "))
-                    .font(ResponsiveFont.caption)
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 72), spacing: 6)], alignment: .leading, spacing: 6) {
+                    ForEach(store.favoritePhrasesItems) { phrase in
+                        Button {
+                            store.speakPhrase(phrase)
+                        } label: {
+                            Text(phrase.word)
+                                .font(ResponsiveFont.caption.weight(.semibold))
+                                .lineLimit(1)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
             }
         }
         .padding(.top, 8)

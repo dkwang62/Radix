@@ -365,17 +365,26 @@ struct FilterGridTab: View {
 
         LazyVGrid(columns: columns, spacing: 6) {
             ForEach(pagedItems, id: \.offset) { offset, character in
-                let isActive = character == store.previewCharacter || character == store.selectedCharacter
+                let highlightRole = store.imagePhraseHighlightRole(collectionID: collection.id, offset: offset)
+                let isActive = highlightRole == .target
                 let pinyin = store.item(for: character)?.pinyinText ?? ""
                 Button {
-                    store.speakCharacter(character)
-                    store.preview(character: character)
-                    scrollBrowseTopIfNeeded(proxy)
+                    if isActive {
+                        store.previewImageCharacter(character, offset: offset)
+                        scrollBrowseTopIfNeeded(proxy)
+                    } else {
+                        store.highlightImageCharacterPhrases(character, offset: offset)
+                    }
                 } label: {
                     VStack(spacing: 2) {
                         Text(character)
                             .font(.system(size: fontSize))
-                            .copyCharacterContextMenu(character, pinyin: pinyin)
+                            .copyCharacterContextMenu(character, pinyin: pinyin) {
+                                store.previewImageCharacter(character, offset: offset, announce: false)
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                    NotificationCenter.default.post(name: .radixShowPhraseTable, object: character)
+                                }
+                            }
                         Text(pinyin.isEmpty ? " " : pinyin)
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundStyle(.secondary)
@@ -383,9 +392,12 @@ struct FilterGridTab: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 6)
-                    .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
+                    .background(imageTileBackground(isActive: isActive, highlightRole: highlightRole))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 2))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(imageTileStroke(isActive: isActive, highlightRole: highlightRole), lineWidth: highlightRole == nil ? 2 : 2.5)
+                    )
                     .overlay(alignment: .topTrailing) {
                         if store.isFavorite(character) {
                             Image(systemName: "star.fill")
@@ -397,6 +409,28 @@ struct FilterGridTab: View {
                 }
                 .buttonStyle(.plain)
             }
+        }
+    }
+
+    private func imageTileBackground(isActive: Bool, highlightRole: ImagePhraseHighlightRole?) -> Color {
+        switch highlightRole {
+        case .target:
+            return Color.accentColor.opacity(0.24)
+        case .phraseMember:
+            return Color.orange.opacity(0.20)
+        case nil:
+            return isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground)
+        }
+    }
+
+    private func imageTileStroke(isActive: Bool, highlightRole: ImagePhraseHighlightRole?) -> Color {
+        switch highlightRole {
+        case .target:
+            return Color.accentColor
+        case .phraseMember:
+            return Color.orange
+        case nil:
+            return isActive ? Color.accentColor : Color.clear
         }
     }
 
@@ -569,37 +603,40 @@ struct FilterGridTab: View {
     }
 
     private func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        HStack(spacing: 8) {
             readBrowseSourceButton(collection)
 
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), spacing: 8)], spacing: 8) {
-                Button {
-                    beginEditing(collection)
-                } label: {
-                    Label("Edit", systemImage: "pencil")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-
-                Button {
-                    store.goToAILinkTask4(collection: collection)
-                } label: {
-                    Label("Extract Phrases", systemImage: "quote.bubble")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.small)
-
-                Button(role: .destructive) {
-                    pendingDeleteCollection = collection
-                } label: {
-                    Label("Delete", systemImage: "trash")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
+            Button {
+                beginEditing(collection)
+            } label: {
+                Image(systemName: "pencil")
+                    .frame(width: 34)
             }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .accessibilityLabel("Edit")
+
+            Button {
+                store.goToAILinkTask4(collection: collection)
+            } label: {
+                Text("Extract Phrases")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.78)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+
+            Button(role: .destructive) {
+                pendingDeleteCollection = collection
+            } label: {
+                Image(systemName: "trash")
+                    .frame(width: 34)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .accessibilityLabel("Delete")
         }
     }
 
@@ -607,12 +644,13 @@ struct FilterGridTab: View {
         Button {
             _ = store.speakCharacters(in: collection.characters.joined())
         } label: {
-            Label("Read Aloud", systemImage: "speaker.wave.2")
-                .font(ResponsiveFont.subheadline.weight(.semibold))
-                .frame(maxWidth: .infinity)
+            Image(systemName: "speaker.wave.2")
+                .frame(width: 34)
         }
         .buttonStyle(.bordered)
+        .controlSize(.small)
         .disabled(collection.characters.isEmpty)
+        .accessibilityLabel("Read Aloud")
     }
 
     private func beginEditing(_ collection: CharacterCollection) {

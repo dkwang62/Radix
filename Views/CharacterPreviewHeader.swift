@@ -10,7 +10,7 @@ import UIKit
 import AppKit
 #endif
 
-private extension Notification.Name {
+extension Notification.Name {
     static let radixShowPhraseTable = Notification.Name("radixShowPhraseTable")
 }
 
@@ -359,11 +359,12 @@ private struct CopyCharacterContextMenuModifier: ViewModifier {
     @EnvironmentObject private var store: RadixStore
     let character: String
     let pinyin: String?
+    let onShowPhrases: (() -> Void)?
 
     func body(content: Content) -> some View {
         if character.isSingleChineseCharacter {
             content.contextMenu {
-                CharacterActionMenuContent(character: character, pinyin: pinyin)
+                CharacterActionMenuContent(character: character, pinyin: pinyin, onShowPhrases: onShowPhrases)
             }
         } else {
             content
@@ -375,6 +376,7 @@ private struct CharacterActionMenuContent: View {
     @EnvironmentObject private var store: RadixStore
     let character: String
     let pinyin: String?
+    let onShowPhrases: (() -> Void)?
     var compact: Bool = false
 
     private var trimmedPinyin: String? {
@@ -400,7 +402,11 @@ private struct CharacterActionMenuContent: View {
             store.openQuickCharacterEditor(character)
         }
         Button("词Phrases") {
-            showPhraseTable(for: character, using: store)
+            if let onShowPhrases {
+                onShowPhrases()
+            } else {
+                showPhraseTable(for: character, using: store)
+            }
         }
         Button("拆Components") {
             store.goToRoots(character: character)
@@ -813,8 +819,8 @@ private extension UIViewController {
 #endif
 
 extension View {
-    func copyCharacterContextMenu(_ character: String, pinyin: String? = nil) -> some View {
-        modifier(CopyCharacterContextMenuModifier(character: character, pinyin: pinyin))
+    func copyCharacterContextMenu(_ character: String, pinyin: String? = nil, onShowPhrases: (() -> Void)? = nil) -> some View {
+        modifier(CopyCharacterContextMenuModifier(character: character, pinyin: pinyin, onShowPhrases: onShowPhrases))
     }
 
     func copyTextContextMenu(_ text: String, buttonTitle: String, secondaryText: String? = nil, secondaryButtonTitle: String? = nil) -> some View {

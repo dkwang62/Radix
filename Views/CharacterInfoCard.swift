@@ -117,14 +117,13 @@ struct CharacterInfoCard: View {
     }
 
     private var actionRow: some View {
-        HStack(spacing: 8) {
-            notesButton
-            phrasesButton
-            if !isPhone, showClearButton, onClear != nil {
-                clearPreviewButton
-            }
-            Spacer(minLength: 0)
-        }
+        CharacterInfoCardActions(
+            character: item.character,
+            showClearButton: showClearButton,
+            isPhone: isPhone,
+            onShowPhrases: onShowPhrases,
+            onClear: onClear
+        )
     }
 
     private var tierRow: some View {
@@ -154,25 +153,6 @@ struct CharacterInfoCard: View {
         }
     }
 
-    private var notesButton: some View {
-        Button {
-            store.openQuickCharacterEditor(item.character)
-        } label: {
-            actionPill("✏️ Notes")
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var phrasesButton: some View {
-        Button {
-            store.refreshPhrases(for: item.character)
-            onShowPhrases?()
-        } label: {
-            actionPill("词Phrases")
-        }
-        .buttonStyle(.plain)
-    }
-
     private var favoritesButton: some View {
         Button {
             store.setFavorite(character: item.character, isFavorite: !store.isFavorite(item.character))
@@ -184,49 +164,6 @@ struct CharacterInfoCard: View {
         .controlSize(cardActionControlSize)
         .font(cardActionFont)
         .help(store.isFavorite(item.character) ? "Remove from favorites" : "Add to favorites")
-    }
-
-    private var clearPreviewButton: some View {
-        Button {
-            onClear?()
-        } label: {
-            if isPhone {
-                Text("❌")
-            } else {
-                Text("Clear Preview")
-            }
-        }
-        .buttonStyle(.bordered)
-        .controlSize(cardActionControlSize)
-        .font(cardActionFont)
-    }
-
-    @ViewBuilder
-    private func actionLabel(_ title: String, systemImage: String) -> some View {
-        if isPhone {
-            Text(title)
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
-                .frame(minHeight: 28)
-        } else {
-            Text(title)
-        }
-    }
-
-    private func actionPill(_ title: String) -> some View {
-        Text(title)
-            .font(cardActionFont)
-            .foregroundStyle(Color.accentColor)
-            .lineLimit(1)
-            .minimumScaleFactor(0.8)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color(.separator), lineWidth: 0.5)
-            )
     }
 
     private var tierButton: some View {

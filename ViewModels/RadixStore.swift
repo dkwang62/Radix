@@ -92,6 +92,19 @@ struct RootsReturnContext: Equatable {
     let homeTab: HomeTab?
 }
 
+private struct ImagePhraseContext: Equatable {
+    let collectionID: UUID
+    let target: String
+    let offset: Int
+    let prev: Character?
+    let next: Character?
+}
+
+private struct ImagePhraseHighlightState {
+    let context: ImagePhraseContext
+    let offsets: Set<Int>
+}
+
 /// Sorting modes for the discovery grid.
 enum GridSortMode: String, CaseIterable, Identifiable {
     case readingOrder = "Reading Order"
@@ -99,6 +112,11 @@ enum GridSortMode: String, CaseIterable, Identifiable {
     case characterFrequency = "All"
 
     var id: String { rawValue }
+}
+
+enum ImagePhraseHighlightRole {
+    case target
+    case phraseMember
 }
 
 enum QuickEditDestination: Identifiable, Equatable {
@@ -448,6 +466,11 @@ final class RadixStore: ObservableObject {
     private var allCharactersCache: [ComponentItem] = []
     private var selectedBrowseCollectionCharacters: Set<String>? = nil
     private var phraseCache: [String: [PhraseItem]] = [:]
+    private var imagePhraseContext: ImagePhraseContext?
+    private var imagePhraseHighlightOffsets: Set<Int> = []
+    private var imagePhraseHighlightStateByCollectionID: [UUID: ImagePhraseHighlightState] = [:]
+    @Published private var imagePhraseHighlightRevision: Int = 0
+    private let imagePhraseHighlightLengths = [2, 3, 4]
     var suppressHelpReset = false
     @Published private(set) var loadingError: String?
     @Published private(set) var dataEditSavePath: String = ""
@@ -700,8 +723,13 @@ final class RadixStore: ObservableObject {
         }
     }
 
-    func preview(character: String, announce: Bool = true) {
+    func preview(character: String, announce: Bool = true, preservePhraseContext: Bool = false) {
         activeSubject = .character(character)
+        if !preservePhraseContext {
+            imagePhraseContext = nil
+            imagePhraseHighlightOffsets = []
+            imagePhraseHighlightRevision += 1
+        }
         pushRootBreadcrumb(character)
         if route == .capture {
             previewCharacter = character
@@ -726,7 +754,7 @@ final class RadixStore: ObservableObject {
             // iPhone: Stay within current tab without pushing legacy views
             if route == .search {
                 // Both Smart Search and Browse tabs should keep user in place
-                browsePreview(character: character, announce: announce)
+                browsePreview(character: character, announce: announce, preservePhraseContext: preservePhraseContext)
             } else if route == .lineage {
                 // Roots tab: preview only; do not push detail or Remembered state.
                 previewCharacter = character
@@ -759,7 +787,12 @@ final class RadixStore: ObservableObject {
     }
 
     /// iPhone Browse: preview without pushing detail
-    func browsePreview(character: String, announce: Bool = true) {
+    func browsePreview(character: String, announce: Bool = true, preservePhraseContext: Bool = false) {
+        if !preservePhraseContext {
+            imagePhraseContext = nil
+            imagePhraseHighlightOffsets = []
+            imagePhraseHighlightRevision += 1
+        }
         pushRootBreadcrumb(character)
         previewCharacter = character
         showiPhoneDetail = false
@@ -771,6 +804,43 @@ final class RadixStore: ObservableObject {
         if announce && speechEnabled {
             speechCoordinator.speak(character)
         }
+    }
+
+    func previewImageCharacter(_ character: String, offset: Int, announce: Bool = true) {
+        let context = imagePhraseContext(for: character, offset: offset)
+        imagePhraseContext = context
+        imagePhraseHighlightOffsets = context == nil ? [] : [offset]
+        imagePhraseHighlightRevision += 1
+        preview(character: character, announce: announce, preservePhraseContext: context != nil)
+    }
+
+    func highlightImageCharacterPhrases(_ character: String, offset: Int) {
+        guard let context = imagePhraseContext(for: character, offset: offset) else {
+            imagePhraseContext = nil
+            imagePhraseHighlightOffsets = []
+            imagePhraseHighlightRevision += 1
+            return
+        }
+
+        imagePhraseContext = context
+        imagePhraseHighlightOffsets = [offset]
+        imagePhraseHighlightRevision += 1
+
+        refreshImagePhraseHighlights(for: character, context: context)
+    }
+
+    func imagePhraseHighlightRole(collectionID: UUID, offset: Int) -> ImagePhraseHighlightRole? {
+        guard let context = imagePhraseContext,
+              context.collectionID == collectionID
+        else { return nil }
+
+        if offset == context.offset {
+            return .target
+        }
+        if imagePhraseHighlightOffsets.contains(offset) {
+            return .phraseMember
+        }
+        return nil
     }
 
     func enterLineage() {
@@ -1016,37 +1086,27 @@ final class RadixStore: ObservableObject {
         }
         
         let length = phraseLength
-        let cacheKey = "\(targetToLoad)|\(length)"
+        let context = phraseContext(for: targetToLoad)
+        let cacheKey = phraseCacheKey(character: targetToLoad, length: length, context: context)
+        let lookupTarget = phraseLookupTarget(for: targetToLoad)
         
         if let cached = phraseCache[cacheKey] {
             phrases = cached
+            refreshImagePhraseHighlights(for: targetToLoad, context: context)
             return
         }
         
         // Run database query in background to prevent sluggishness
         Task {
-            let primary = phraseRepo.phrases(containing: targetToLoad, length: length)
-            let counterpart = componentRepo.counterpart(for: targetToLoad)
+            let finalPhrases = phraseCandidates(containing: lookupTarget, originalTarget: targetToLoad, length: length)
             
-            var finalPhrases: [PhraseItem] = primary
-            
-            if let counterpart, counterpart != targetToLoad {
-                let secondary = phraseRepo.phrases(containing: counterpart, length: length)
-                var seen = Set<String>(primary.map { $0.id })
-                for phrase in secondary {
-                    if !seen.contains(phrase.id) {
-                        seen.insert(phrase.id)
-                        finalPhrases.append(phrase)
-                    }
-                }
-            }
-            
-            let result = finalPhrases.sorted(by: phrasePinyinSortPredicate)
+            let result = rankedPhraseResults(finalPhrases, target: targetToLoad, context: context)
             await MainActor.run {
                 // Ensure we are still looking at the same character/length before updating
-                if (char ?? previewCharacter ?? selectedCharacter) == targetToLoad && phraseLength == length {
+                if (char ?? previewCharacter ?? selectedCharacter) == targetToLoad && phraseLength == length && phraseContext(for: targetToLoad) == context {
                     self.phrases = result
                     self.phraseCache[cacheKey] = result
+                    self.refreshImagePhraseHighlights(for: targetToLoad, context: context)
                 }
             }
         }
@@ -1057,35 +1117,27 @@ final class RadixStore: ObservableObject {
         guard !targetToLoad.isEmpty else { return [] }
 
         let phraseLength = length ?? self.phraseLength
-        let cacheKey = "\(targetToLoad)|\(phraseLength)"
+        let context = phraseContext(for: targetToLoad)
+        let cacheKey = phraseCacheKey(character: targetToLoad, length: phraseLength, context: context)
+        let lookupTarget = phraseLookupTarget(for: targetToLoad)
         if let cached = phraseCache[cacheKey] {
+            refreshImagePhraseHighlights(for: targetToLoad, context: context)
             return cached
         }
 
-        let primary = phraseRepo.phrases(containing: targetToLoad, length: phraseLength)
-        let counterpart = componentRepo.counterpart(for: targetToLoad)
-        var finalPhrases = primary
-
-        if let counterpart, counterpart != targetToLoad {
-            let secondary = phraseRepo.phrases(containing: counterpart, length: phraseLength)
-            var seen = Set<String>(primary.map { $0.id })
-            for phrase in secondary where !seen.contains(phrase.id) {
-                seen.insert(phrase.id)
-                finalPhrases.append(phrase)
-            }
-        }
-
-        let result = finalPhrases.sorted(by: phrasePinyinSortPredicate)
+        let finalPhrases = phraseCandidates(containing: lookupTarget, originalTarget: targetToLoad, length: phraseLength)
+        let result = rankedPhraseResults(finalPhrases, target: targetToLoad, context: context)
         phraseCache[cacheKey] = result
+        refreshImagePhraseHighlights(for: targetToLoad, context: context)
         return result
     }
 
     func isPhraseInBase(_ word: String) -> Bool {
-        phraseRepo.isInBase(word: word)
+        phraseRepo.isInBase(word: phraseStorageWord(word))
     }
 
     func isPhraseInAdd(_ word: String) -> Bool {
-        phraseRepo.isInAdd(word: word)
+        phraseRepo.isInAdd(word: phraseStorageWord(word))
     }
 
     func phraseNotesActionTitle(for word: String) -> String {
@@ -1093,13 +1145,14 @@ final class RadixStore: ObservableObject {
     }
 
     func mergedPhrase(for word: String) -> PhraseItem? {
-        let trimmedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedWord = phraseStorageWord(word)
         guard !trimmedWord.isEmpty else { return nil }
         return phraseRepo.fetchPhrase(for: trimmedWord)
     }
 
     func existingPhraseWords(in words: Set<String>) -> Set<String> {
-        phraseRepo.existingWords(in: words)
+        let normalizedWords = Set(words.map(phraseStorageWord(_:)).filter { !$0.isEmpty })
+        return phraseRepo.existingWords(in: normalizedWords)
     }
 
     func phraseDiscoveryKnownPhrases(in text: String) -> [String] {
@@ -1473,14 +1526,15 @@ final class RadixStore: ObservableObject {
     }
 
     func removeDataEditPhrase(word: String) {
-        guard phraseRepo.isInAdd(word: word) else {
+        let storedWord = phraseStorageWord(word)
+        guard phraseRepo.isInAdd(word: storedWord) else {
             dataEditAutoSaveStatus = "Only custom phrases can be edited here."
             return
         }
-        dataEditPhrases.removeAll(where: { $0.word == word })
-        addedPhrases.removeAll(where: { $0.word == word }) // immediate UI update for Added list
+        dataEditPhrases.removeAll(where: { phraseStorageWord($0.word) == storedWord })
+        addedPhrases.removeAll(where: { phraseStorageWord($0.word) == storedWord }) // immediate UI update for Added list
         do {
-            try phraseRepo.deletePhrase(word: word)
+            try phraseRepo.deletePhrase(word: storedWord)
             refreshPhraseBackedViews(for: dataEditCharacter)
             dataEditAutoSaveStatus = "Phrase removed from your custom list."
         } catch {
@@ -1489,15 +1543,17 @@ final class RadixStore: ObservableObject {
     }
 
     func addCustomPhrase(word: String, pinyin: String, meanings: String, notes: String? = nil, refreshViews: Bool = true) throws {
-        let trimmedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedWord.isEmpty else { return }
+        let originalWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
+        let storedWord = phraseStorageWord(originalWord)
+        guard !storedWord.isEmpty else { return }
 
         try phraseRepo.addOrUpdatePhrase(
-            word: trimmedWord,
+            word: storedWord,
             pinyin: pinyin.trimmingCharacters(in: .whitespacesAndNewlines),
             meanings: meanings.trimmingCharacters(in: .whitespacesAndNewlines),
             notes: notes?.trimmingCharacters(in: .whitespacesAndNewlines)
         )
+        try removeLegacyPhraseIfNeeded(originalWord: originalWord, storedWord: storedWord)
 
         if refreshViews {
             refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
@@ -1524,14 +1580,16 @@ final class RadixStore: ObservableObject {
         
         var blockedBuiltInWords: [String] = []
         for p in dataEditPhrases {
-            let trimmedWord = p.word.trimmingCharacters(in: .whitespacesAndNewlines)
-            if !trimmedWord.isEmpty {
-                if phraseRepo.isInBase(word: trimmedWord) && !phraseRepo.isInAdd(word: trimmedWord) {
+            let originalWord = p.word.trimmingCharacters(in: .whitespacesAndNewlines)
+            let storedWord = phraseStorageWord(originalWord)
+            if !storedWord.isEmpty {
+                if phraseRepo.isInBase(word: storedWord) && !phraseRepo.isInAdd(word: storedWord) {
                     // Keep built-in phrases outside the custom-editing flow.
-                    blockedBuiltInWords.append(trimmedWord)
+                    blockedBuiltInWords.append(storedWord)
                     continue
                 }
-                try phraseRepo.addOrUpdatePhrase(word: trimmedWord, pinyin: p.pinyin, meanings: p.meanings, notes: p.notes)
+                try phraseRepo.addOrUpdatePhrase(word: storedWord, pinyin: p.pinyin, meanings: p.meanings, notes: p.notes)
+                try removeLegacyPhraseIfNeeded(originalWord: originalWord, storedWord: storedWord)
             }
         }
 
@@ -2142,6 +2200,7 @@ final class RadixStore: ObservableObject {
         if let id {
             selectedAICollectionID = id
             gridSortMode = .readingOrder
+            restoreImagePhraseHighlight(for: id)
         } else {
             gridSortMode = .characterFrequency
         }
@@ -2722,12 +2781,191 @@ final class RadixStore: ObservableObject {
         var seen = Set<String>()
         var result: [PhraseItem] = []
         for phrase in phrases {
-            let key = phrase.word.trimmingCharacters(in: .whitespacesAndNewlines)
+            let key = phraseStorageWord(phrase.word)
             guard !key.isEmpty, !seen.contains(key) else { continue }
             seen.insert(key)
-            result.append(phrase)
+            result.append(PhraseItem(
+                word: key,
+                pinyin: phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines),
+                meanings: phrase.meanings.trimmingCharacters(in: .whitespacesAndNewlines),
+                notes: phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines),
+                addedAt: phrase.addedAt
+            ))
         }
         return result
+    }
+
+    private func phraseStorageWord(_ word: String) -> String {
+        let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
+        let simplified = simplifiedText(trimmed).trimmingCharacters(in: .whitespacesAndNewlines)
+        return simplified.isEmpty ? trimmed : simplified
+    }
+
+    private func removeLegacyPhraseIfNeeded(originalWord: String, storedWord: String) throws {
+        guard originalWord != storedWord, phraseRepo.isInAdd(word: originalWord) else { return }
+        try phraseRepo.deletePhrase(word: originalWord)
+    }
+
+    private func imagePhraseContext(for character: String, offset: Int) -> ImagePhraseContext? {
+        guard route == .search,
+              homeTab == .filter,
+              let collection = selectedBrowseCollection,
+              collection.characters.indices.contains(offset),
+              collection.characters[offset] == character
+        else { return nil }
+
+        let fullText = collection.characters.joined()
+        var index = fullText.startIndex
+        for priorCharacter in collection.characters.prefix(offset) {
+            index = fullText.index(index, offsetBy: priorCharacter.count)
+        }
+        let context = PhraseContextRanker.surroundingCharacters(fullText: fullText, index: index)
+        return ImagePhraseContext(
+            collectionID: collection.id,
+            target: character,
+            offset: offset,
+            prev: context.prev,
+            next: context.next
+        )
+    }
+
+    private func phraseContext(for target: String) -> ImagePhraseContext? {
+        guard route == .search,
+              homeTab == .filter,
+              let context = imagePhraseContext,
+              context.target == target,
+              selectedBrowseCollectionID == context.collectionID
+        else { return nil }
+        return context
+    }
+
+    private func phraseCacheKey(character: String, length: Int, context: ImagePhraseContext?) -> String {
+        guard let context else { return "\(character)|\(length)" }
+        return "\(character)|\(length)|image|\(context.collectionID.uuidString)|\(context.offset)|\(context.prev.map(String.init) ?? "")|\(context.next.map(String.init) ?? "")"
+    }
+
+    private func rankedPhraseResults(_ phrases: [PhraseItem], target: String, context: ImagePhraseContext?) -> [PhraseItem] {
+        guard let context else {
+            return phrases.sorted(by: phrasePinyinSortPredicate)
+        }
+        return PhraseContextRanker.rankPhraseItems(
+            phrases,
+            target: phraseLookupTarget(for: target),
+            prev: simplifiedCharacter(context.prev),
+            next: simplifiedCharacter(context.next)
+        )
+    }
+
+    private func phraseLookupTarget(for target: String) -> String {
+        let simplified = simplifiedText(target).trimmingCharacters(in: .whitespacesAndNewlines)
+        return simplified.isEmpty ? target : simplified
+    }
+
+    private func simplifiedCharacter(_ character: Character?) -> Character? {
+        guard let character else { return nil }
+        return phraseLookupTarget(for: String(character)).first
+    }
+
+    private func phraseCandidates(containing lookupTarget: String, originalTarget: String, length: Int) -> [PhraseItem] {
+        phraseCandidates(containing: lookupTarget, originalTarget: originalTarget, lengths: [length])
+    }
+
+    private func phraseCandidates(containing lookupTarget: String, originalTarget: String, lengths: [Int]) -> [PhraseItem] {
+        let candidates = [
+            lookupTarget,
+            componentRepo.counterpart(for: originalTarget),
+            componentRepo.counterpart(for: lookupTarget)
+        ]
+        .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+
+        var seenTargets = Set<String>()
+        var seenPhrases = Set<String>()
+        var result: [PhraseItem] = []
+
+        for target in candidates where !target.isEmpty && seenTargets.insert(target).inserted {
+            for length in lengths {
+                for phrase in phraseRepo.phrases(containing: target, length: length) where seenPhrases.insert(phrase.id).inserted {
+                    result.append(phrase)
+                }
+            }
+        }
+        return result
+    }
+
+    private func refreshImagePhraseHighlights(for character: String, context: ImagePhraseContext?) {
+        guard let context else {
+            updateImagePhraseHighlights(context: nil, phrases: [])
+            return
+        }
+
+        let lookupTarget = phraseLookupTarget(for: character)
+        Task {
+            let highlightPhrases = phraseCandidates(
+                containing: lookupTarget,
+                originalTarget: character,
+                lengths: imagePhraseHighlightLengths
+            )
+            await MainActor.run {
+                guard self.imagePhraseContext == context else { return }
+                self.updateImagePhraseHighlights(context: context, phrases: highlightPhrases)
+            }
+        }
+    }
+
+    private func updateImagePhraseHighlights(context: ImagePhraseContext?, phrases: [PhraseItem]) {
+        guard let context,
+              let collection = selectedBrowseCollection,
+              collection.id == context.collectionID,
+              collection.characters.indices.contains(context.offset)
+        else {
+            imagePhraseHighlightOffsets = []
+            imagePhraseHighlightRevision += 1
+            return
+        }
+
+        let simplifiedCharacters = collection.characters.map(phraseLookupTarget(for:))
+        let target = phraseLookupTarget(for: context.target)
+        var offsets: Set<Int> = [context.offset]
+
+        for phrase in phrases {
+            let phraseCharacters = phraseStorageWord(phrase.word).map(String.init)
+            guard !phraseCharacters.isEmpty else { continue }
+
+            for phraseIndex in phraseCharacters.indices where phraseCharacters[phraseIndex] == target {
+                let start = context.offset - phraseIndex
+                let end = start + phraseCharacters.count
+                guard start >= 0, end <= simplifiedCharacters.count else { continue }
+
+                var matches = true
+                for localOffset in phraseCharacters.indices {
+                    if simplifiedCharacters[start + localOffset] != phraseCharacters[localOffset] {
+                        matches = false
+                        break
+                    }
+                }
+
+                if matches {
+                    offsets.formUnion(start..<end)
+                }
+            }
+        }
+
+        imagePhraseHighlightOffsets = offsets
+        imagePhraseHighlightRevision += 1
+        imagePhraseHighlightStateByCollectionID[context.collectionID] = ImagePhraseHighlightState(
+            context: context,
+            offsets: offsets
+        )
+    }
+
+    private func restoreImagePhraseHighlight(for collectionID: UUID) {
+        guard let state = imagePhraseHighlightStateByCollectionID[collectionID],
+              collection(id: collectionID) != nil
+        else { return }
+
+        imagePhraseContext = state.context
+        imagePhraseHighlightOffsets = state.offsets
+        imagePhraseHighlightRevision += 1
     }
 
     func exportProfileData() throws -> Data {
