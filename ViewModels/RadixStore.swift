@@ -3386,7 +3386,6 @@ final class RadixStore: ObservableObject {
         let key = saved.trimmingCharacters(in: .whitespacesAndNewlines)
         guard key.count == 1, componentRepo.hasCharacter(key) else { return }
 
-        selectedCharacter = key
         previewCharacter = key
         refreshPhrases(for: key)
         loadSharedComponentPeers(for: key)
