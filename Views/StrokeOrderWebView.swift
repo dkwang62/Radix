@@ -45,12 +45,22 @@ struct StrokeOrderWebView: UIViewRepresentable {
         var lastSize: Int = 0
         var pendingCharacter: String?
         var pendingSize: Int = 0
+        private var didRetryRenderAfterJavaScriptFailure = false
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             didLoadBootstrap = true
+            didRetryRenderAfterJavaScriptFailure = false
             guard let pendingCharacter else { return }
             render(character: pendingCharacter, size: pendingSize)
             self.pendingCharacter = nil
+        }
+
+        func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+            didLoadBootstrap = false
+            didRetryRenderAfterJavaScriptFailure = false
+            pendingCharacter = lastCharacter.count == 1 ? lastCharacter : nil
+            pendingSize = lastSize
+            reloadBootstrap(in: webView)
         }
 
         func render(character: String, size: Int) {
@@ -61,11 +71,24 @@ struct StrokeOrderWebView: UIViewRepresentable {
             let status = statusMessage(for: result)
             let statusLiteral = Self.javascriptLiteral(status)
             let js = "window.renderCharacter(\(characterLiteral), \(size), \(strokeData), \(statusLiteral));"
-            webView.evaluateJavaScript(js, completionHandler: nil)
+            webView.evaluateJavaScript(js) { [weak self, weak webView] _, error in
+                guard let self, let webView, error != nil else { return }
+                guard !self.didRetryRenderAfterJavaScriptFailure else { return }
+                self.didRetryRenderAfterJavaScriptFailure = true
+                self.pendingCharacter = character
+                self.pendingSize = size
+                self.didLoadBootstrap = false
+                self.reloadBootstrap(in: webView)
+            }
         }
 
         func clear() {
             webView?.evaluateJavaScript("window.clearCharacter();", completionHandler: nil)
+        }
+
+        func reloadBootstrap(in webView: WKWebView) {
+            let html = StrokeOrderWebView.bootstrapHTML(scriptContent: StrokeOrderWebView.cachedScriptContent)
+            webView.loadHTMLString(html, baseURL: Bundle.main.resourceURL)
         }
 
         private static func javascriptLiteral(_ input: String) -> String {

@@ -417,7 +417,7 @@ struct FilterGridTab: View {
         case .target:
             return Color.accentColor.opacity(0.24)
         case .phraseMember:
-            return Color.orange.opacity(0.20)
+            return Color.blue.opacity(0.16)
         case nil:
             return isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground)
         }
@@ -428,7 +428,7 @@ struct FilterGridTab: View {
         case .target:
             return Color.accentColor
         case .phraseMember:
-            return Color.orange
+            return Color.blue.opacity(0.72)
         case nil:
             return isActive ? Color.accentColor : Color.clear
         }
