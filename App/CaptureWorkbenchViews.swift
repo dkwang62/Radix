@@ -95,18 +95,15 @@ struct CaptureSection<Content: View>: View {
 
 struct ImageWorkbenchPanel<Footer: View>: View {
     let isBrowseDisabled: Bool
-    let onCreateFromPaste: () -> Void
     let onBrowseSavedImages: () -> Void
     @ViewBuilder let footer: () -> Footer
 
     init(
         isBrowseDisabled: Bool,
-        onCreateFromPaste: @escaping () -> Void,
         onBrowseSavedImages: @escaping () -> Void,
         @ViewBuilder footer: @escaping () -> Footer
     ) {
         self.isBrowseDisabled = isBrowseDisabled
-        self.onCreateFromPaste = onCreateFromPaste
         self.onBrowseSavedImages = onBrowseSavedImages
         self.footer = footer
     }
@@ -118,20 +115,12 @@ struct ImageWorkbenchPanel<Footer: View>: View {
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
 
-                HStack(spacing: 10) {
-                    Button(action: onCreateFromPaste) {
-                        Label("Create from Paste", systemImage: "doc.on.clipboard")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-
-                    Button(action: onBrowseSavedImages) {
-                        Label("Browse Saved Images", systemImage: "square.grid.2x2")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(isBrowseDisabled)
+                Button(action: onBrowseSavedImages) {
+                    Label("Browse Saved Images", systemImage: "square.grid.2x2")
+                        .frame(maxWidth: .infinity)
                 }
+                .buttonStyle(.bordered)
+                .disabled(isBrowseDisabled)
 
                 footer()
             }

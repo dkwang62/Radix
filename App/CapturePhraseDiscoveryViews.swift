@@ -106,7 +106,7 @@ struct AddExtractsToPhrasesPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Add extracts to Phrases")
+            Text("Add Phrases")
                 .font(ResponsiveFont.caption.weight(.semibold))
 
             Text("Paste one phrase or a batch from \(defaultAIName). Use this format: phrase | pinyin | English meaning.")

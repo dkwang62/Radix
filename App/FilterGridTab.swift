@@ -727,6 +727,14 @@ struct FilterGridTab: View {
                 store.selectBrowseCollection(id: nil)
             }
 
+            sourceActionButton(
+                title: "Create from Paste",
+                subtitle: "Paste Chinese text and save it as an image source",
+                systemImage: "doc.on.clipboard"
+            ) {
+                beginManualCollection()
+            }
+
             ForEach(store.allCollections) { collection in
                 sourceOptionButton(
                     title: collection.name,
@@ -738,6 +746,46 @@ struct FilterGridTab: View {
                 }
             }
         }
+    }
+
+    private func sourceActionButton(
+        title: String,
+        subtitle: String,
+        systemImage: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button {
+            action()
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 20)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                    Text(subtitle)
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+
+                Spacer(minLength: 8)
+
+                Image(systemName: "plus.circle.fill")
+                    .foregroundStyle(Color.accentColor)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(.secondarySystemBackground).opacity(0.45))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
     }
 
     private func sourceOptionButton(
@@ -876,6 +924,13 @@ struct FilterGridTab: View {
         }
     }
 
+    private func beginManualCollection() {
+        manualCollectionName = ""
+        manualCollectionText = clipboardText()
+        showBrowseSource = false
+        showManualCollectionSheet = true
+    }
+
     private func saveManualCollection() {
         guard let collection = store.createCollection(
             name: manualCollectionName,
@@ -886,6 +941,14 @@ struct FilterGridTab: View {
         manualCollectionName = ""
         manualCollectionText = ""
         showManualCollectionSheet = false
+    }
+
+    private func clipboardText() -> String {
+        #if canImport(UIKit)
+        return UIPasteboard.general.string ?? ""
+        #else
+        return ""
+        #endif
     }
 
     private func browseSortLabel(for mode: GridSortMode) -> String {

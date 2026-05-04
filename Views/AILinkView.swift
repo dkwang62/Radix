@@ -122,7 +122,7 @@ struct AILinkView: View {
     }
 
     private var selectedCollectionDescription: String {
-        guard let selectedCollection else {
+        guard selectedCollection != nil else {
             return hasCollectionTasks ? "Choose the image you want to use for Task 4." : "Choose the image you want to use for Task 4."
         }
         return "Task 4 will use the selected image, not the selected character."

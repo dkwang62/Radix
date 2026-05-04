@@ -12,6 +12,7 @@ import AppKit
 
 extension Notification.Name {
     static let radixShowPhraseTable = Notification.Name("radixShowPhraseTable")
+    static let radixShowAddPhrasesPopover = Notification.Name("radixShowAddPhrasesPopover")
 }
 
 struct CharacterPreviewHeader: View {
@@ -23,6 +24,7 @@ struct CharacterPreviewHeader: View {
     var isVertical: Bool = false
     var onClear: (() -> Void)? = nil
     @State private var showPhraseTableSheet = false
+    @State private var showAddPhrasesPopover = false
     @State private var variantIndex: Int = 0
 
     private var usesShortActionLabels: Bool {
@@ -91,11 +93,18 @@ struct CharacterPreviewHeader: View {
             PhraseTableSheet(character: character, isVertical: isVertical)
                 .environmentObject(store)
         }
+        .popover(isPresented: $showAddPhrasesPopover, arrowEdge: .trailing) {
+            PhraseBatchAddPopover()
+                .environmentObject(store)
+        }
         .onReceive(NotificationCenter.default.publisher(for: .radixShowPhraseTable)) { notification in
             guard let requestedCharacter = notification.object as? String,
                   requestedCharacter == character else { return }
             store.refreshPhrases(for: character)
             showPhraseTableSheet = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .radixShowAddPhrasesPopover)) { _ in
+            showAddPhrasesPopover = true
         }
         .onChange(of: character) { _, _ in
             variantIndex = 0
@@ -960,10 +969,16 @@ private struct PhraseActionMenuContent: View {
             }
         }
         Divider()
-        Button("Add New Phrase") {
+        Button("Add Phrase") {
             dismiss()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                 store.openNewPhraseEditor()
+            }
+        }
+        Button("Add Phrases") {
+            dismiss()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                NotificationCenter.default.post(name: .radixShowAddPhrasesPopover, object: nil)
             }
         }
         if store.isPhraseInAdd(trimmedWord) {
@@ -985,6 +1000,89 @@ private struct PhraseActionMenuContent: View {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(value, forType: .string)
         #endif
+    }
+}
+
+private struct PhraseBatchAddPopover: View {
+    @EnvironmentObject private var store: RadixStore
+    @Environment(\.dismiss) private var dismiss
+    @State private var output = ""
+    @State private var message: String?
+    @State private var addedPhrases: [PhraseDiscoveryCandidate] = []
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Add Phrases")
+                    .font(ResponsiveFont.headline.weight(.bold))
+                Spacer()
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark")
+                }
+                .buttonStyle(.bordered)
+            }
+
+            AddExtractsToPhrasesPanel(
+                defaultAIName: store.defaultAIName,
+                output: $output,
+                message: message,
+                addedPhrases: addedPhrases,
+                onAdd: addOutputToPhrases,
+                onClear: clear,
+                onDeleteAddedPhrase: deleteAddedPhrase
+            )
+        }
+        .padding(12)
+        .frame(minWidth: 320, idealWidth: 420, maxWidth: 520)
+    }
+
+    private func addOutputToPhrases() {
+        let parsed = PhraseDiscoveryParser.parse(output)
+        let candidates = PhraseDiscoveryCandidateTools.selectingAll(parsed.candidates, isSelected: true)
+        let prepared = PhraseDiscoveryCandidateTools.preparingForImport(candidates)
+        var added = 0
+        var addedCandidates: [PhraseDiscoveryCandidate] = []
+        var errors: [String] = []
+
+        for item in prepared.candidates {
+            do {
+                try store.addCustomPhrase(
+                    word: item.phrase,
+                    pinyin: item.candidate.pinyin,
+                    meanings: item.candidate.meaning,
+                    notes: nil,
+                    refreshViews: false
+                )
+                added += 1
+                addedCandidates.append(item.candidate)
+            } catch {
+                errors.append("\(item.phrase): \(error.localizedDescription)")
+            }
+        }
+
+        store.refreshPhraseOverlayViews()
+        addedPhrases = PhraseDiscoveryCandidateTools.mergingAddedResults(addedPhrases, addedCandidates)
+        let summary = PhraseDiscoveryImportSummary(
+            selectedCount: candidates.count,
+            addedCount: added,
+            skippedCount: prepared.skippedCount,
+            errors: errors
+        )
+        message = summary.message(defaultAIName: store.defaultAIName)
+    }
+
+    private func clear() {
+        output = ""
+        message = nil
+        addedPhrases = []
+    }
+
+    private func deleteAddedPhrase(_ candidate: PhraseDiscoveryCandidate) {
+        store.removeDataEditPhrase(word: candidate.phrase)
+        addedPhrases.removeAll { $0.phrase == candidate.phrase }
+        message = CaptureStatusText.removedPhrase(candidate.phrase)
     }
 }
 

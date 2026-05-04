@@ -195,7 +195,6 @@ struct CaptureTab: View {
     private func imageWorkbenchPanel<Footer: View>(@ViewBuilder footer: @escaping () -> Footer) -> some View {
         ImageWorkbenchPanel(
             isBrowseDisabled: store.allCollections.isEmpty,
-            onCreateFromPaste: beginPasteCollection,
             onBrowseSavedImages: browseSavedImages,
             footer: footer
         )
