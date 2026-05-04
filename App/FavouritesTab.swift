@@ -60,7 +60,6 @@ struct FavouritesTab: View {
                         VStack(alignment: .leading, spacing: 8) {
                             standardPhoneCharacterPreview(
                                 character: current,
-                                selectedCharacter: store.selectedCharacter,
                                 showAddToMemoryButton: false,
                                 onClear: { store.previewCharacter = nil }
                             )
@@ -120,7 +119,7 @@ struct FavouritesTab: View {
     }
 
     private func favoriteCharacterCell(_ item: ComponentItem) -> some View {
-        let isActive = item.character == store.previewCharacter || item.character == store.selectedCharacter
+        let isActive = item.character == store.previewCharacter
 
         return Button {
             store.preview(character: item.character, announce: false)

@@ -112,7 +112,7 @@ struct SmartResultsGrid: View {
 
                 LazyVGrid(columns: columns, spacing: 6) {
                     ForEach(pagedItems, id: \.character) { item in
-                        let isActive = item.character == store.previewCharacter || item.character == store.selectedCharacter
+                        let isActive = item.character == store.previewCharacter
                         Button {
                             if readOnTap {
                                 store.speakCharacter(item.character)

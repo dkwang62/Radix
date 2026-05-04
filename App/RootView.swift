@@ -299,7 +299,7 @@ struct RootView: View {
                 }
             }
             .navigationDestination(isPresented: $store.showiPhoneDetail) {
-                if let current = store.previewCharacter ?? store.selectedCharacter,
+                if let current = store.previewCharacter,
                    let item = store.item(for: current) {
                     VStack(spacing: 12) {
                         BreadcrumbStrip()
@@ -382,14 +382,14 @@ struct RootView: View {
                     onRequirePro: requirePro
                     )
                 case .lineage:
-                    if store.previewCharacter == nil && store.selectedCharacter == nil {
+                    if store.previewCharacter == nil {
                         emptyStateCard(
                         systemImage: "tree",
                         title: "No Character",
                         message: "Choose a character from Search or Browse to explore Components."
                     )
                     } else {
-                        ComponentsExplorerShell(seedOverride: store.previewCharacter ?? store.selectedCharacter)
+                        ComponentsExplorerShell(seedOverride: store.previewCharacter)
                     }
                 case .favourites:
                     FavouritesTab(
@@ -398,7 +398,7 @@ struct RootView: View {
                     onRequirePro: requirePro
                 )
                 case .aiLink:
-                    if let current = store.previewCharacter ?? store.selectedCharacter,
+                    if let current = store.previewCharacter,
                        let item = store.item(for: current) {
                         AILinkView(item: item)
                     } else if store.selectedAICollection != nil {
@@ -501,7 +501,7 @@ struct RootView: View {
                 }
                 .buttonStyle(.plain)
 
-                if let current = store.previewCharacter ?? store.selectedCharacter {
+                if let current = store.previewCharacter {
                     VStack(alignment: .leading, spacing: 8) {
                         CharacterPreviewHeader(
                             character: current,
@@ -691,7 +691,6 @@ private func emptyStateCard(systemImage: String, title: String, message: String)
 @MainActor
 func standardPhoneCharacterPreview(
     character: String,
-    selectedCharacter: String?,
     showAddToMemoryButton: Bool = true,
     onClear: @escaping () -> Void
 ) -> some View {

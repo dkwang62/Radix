@@ -394,7 +394,7 @@ struct ComponentsExplorerShell: View {
     }
 
     private var hasRootContext: Bool {
-        seedOverride != nil || store.previewCharacter != nil || store.selectedCharacter != nil || !seed.isEmpty
+        seedOverride != nil || store.previewCharacter != nil || !seed.isEmpty
     }
 
     var body: some View {
@@ -416,7 +416,6 @@ struct ComponentsExplorerShell: View {
                        store.item(for: current) != nil {
                         standardPhoneCharacterPreview(
                             character: current,
-                            selectedCharacter: store.selectedCharacter,
                             onClear: { store.previewCharacter = nil }
                         )
                         .padding(.bottom, 8)
@@ -583,9 +582,6 @@ struct ComponentsExplorerShell: View {
             .onChange(of: store.previewCharacter) { _, _ in
                 withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
             }
-            .onChange(of: store.selectedCharacter) { _, _ in
-                withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
-            }
         }
         .navigationTitle("Components")
         .toolbar {
@@ -600,7 +596,7 @@ struct ComponentsExplorerShell: View {
             }
         }
         .onAppear {
-            let start = seedOverride ?? store.selectedCharacter ?? store.previewCharacter
+            let start = seedOverride ?? store.previewCharacter
             syncSeed(with: start, resetHistory: true)
         }
         .onDisappear {
@@ -624,11 +620,11 @@ struct ComponentsExplorerShell: View {
         }
         // Keep in sync with sidebar selection on iPad/Mac (not needed on iPhone)
         #if targetEnvironment(macCatalyst)
-        .onChange(of: store.selectedCharacter) { _, newValue in
+        .onChange(of: store.previewCharacter) { _, newValue in
             syncSeed(with: newValue, resetHistory: false)
         }
         #else
-        .onChange(of: store.selectedCharacter) { _, newValue in
+        .onChange(of: store.previewCharacter) { _, newValue in
             if UIDevice.current.userInterfaceIdiom != .phone {
                 syncSeed(with: newValue, resetHistory: false)
             }

@@ -61,7 +61,7 @@ struct UserProfile: Codable {
     let favouritePhraseEntries: [FavouritePhraseProfileEntry]?
     let rememberedList: [String]?
     let searchHistory: [String]?
-    let selectedCharacter: String?
+    let previewCharacter: String?
     let lastSearchQuery: String?
     let currentSearchQuery: String?
     let searchMode: String?
@@ -81,7 +81,7 @@ struct UserProfile: Codable {
         favouritePhraseEntries: [FavouritePhraseProfileEntry]? = nil,
         rememberedList: [String]? = nil,
         searchHistory: [String]? = nil,
-        selectedCharacter: String? = nil,
+        previewCharacter: String? = nil,
         lastSearchQuery: String? = nil,
         currentSearchQuery: String? = nil,
         searchMode: String? = nil,
@@ -100,7 +100,7 @@ struct UserProfile: Codable {
         self.favouritePhraseEntries = favouritePhraseEntries
         self.rememberedList = rememberedList
         self.searchHistory = searchHistory
-        self.selectedCharacter = selectedCharacter
+        self.previewCharacter = previewCharacter
         self.lastSearchQuery = lastSearchQuery
         self.currentSearchQuery = currentSearchQuery
         self.searchMode = searchMode
@@ -121,7 +121,7 @@ struct UserProfile: Codable {
         case favouritePhraseEntries = "favourite_phrase_entries"
         case rememberedList = "remembered_list"
         case searchHistory = "search_history"
-        case selectedCharacter = "selected_character"
+        case previewCharacter = "preview_character"
         case lastSearchQuery = "last_search_query"
         case currentSearchQuery = "current_search_query"
         case searchMode = "search_mode"

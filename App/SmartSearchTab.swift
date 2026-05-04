@@ -172,7 +172,6 @@ struct SmartSearchTab: View {
                            store.item(for: current) != nil {
                             standardPhoneCharacterPreview(
                                 character: current,
-                                selectedCharacter: store.selectedCharacter,
                                 onClear: {
                                     searchPreviewCharacter = nil
                                     searchDetailPreviewCharacter = nil
@@ -465,9 +464,6 @@ struct SmartSearchTab: View {
             }
             .padding(.horizontal)
             .onChange(of: store.previewCharacter) { _, _ in
-                syncSearchPreviewFromStore()
-            }
-            .onChange(of: store.selectedCharacter) { _, _ in
                 syncSearchPreviewFromStore()
             }
             .onChange(of: store.query) { _, newValue in

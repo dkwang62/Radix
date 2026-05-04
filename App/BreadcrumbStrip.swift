@@ -18,7 +18,7 @@ struct BreadcrumbStrip: View {
                 return editingCharacter
             }
         }
-        return store.previewCharacter ?? store.selectedCharacter
+        return store.previewCharacter
     }
 
     var body: some View {

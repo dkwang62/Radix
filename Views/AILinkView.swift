@@ -21,7 +21,7 @@ struct AILinkView: View {
     @State private var isConfigExpanded = false
 
     private var selectedCharacter: String? {
-        item?.character ?? store.previewCharacter ?? store.selectedCharacter
+        item?.character ?? store.previewCharacter
     }
 
     private var selectedCollection: CharacterCollection? {
@@ -49,7 +49,6 @@ struct AILinkView: View {
                     // 0. Active Character Context
                     standardPhoneCharacterPreview(
                         character: item.character,
-                        selectedCharacter: store.selectedCharacter,
                         onClear: { store.previewCharacter = nil }
                     )
                 }

@@ -314,7 +314,7 @@ struct DataBackupPreviewSection: View {
             summaryLine("Home tab", value: homeTabDisplayName(store.homeTab))
             summaryLine("Search mode", value: store.searchMode.rawValue)
             summaryLine("Current query", value: store.query.isEmpty ? "None" : store.query)
-            summaryLine("Selected character", value: store.selectedCharacter ?? "None")
+            summaryLine("Selected character", value: store.previewCharacter ?? "None")
             summaryLine("Selected AI image", value: store.selectedAICollection?.name ?? "None")
             summaryLine("Default AI", value: store.defaultAIName)
             if store.defaultAIPreset == .custom {

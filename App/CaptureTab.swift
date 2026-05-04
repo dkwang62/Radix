@@ -72,7 +72,6 @@ struct CaptureTab: View {
                        store.item(for: current) != nil {
                         standardPhoneCharacterPreview(
                             character: current,
-                            selectedCharacter: store.selectedCharacter,
                             onClear: {
                                 capturePreviewCharacter = nil
                                 captureDetailPreviewCharacter = nil

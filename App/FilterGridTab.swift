@@ -243,12 +243,6 @@ struct FilterGridTab: View {
                         proxy.scrollTo("browseTop", anchor: .top)
                     }
                 }
-                .onChange(of: store.selectedCharacter) { _, newValue in
-                    focusBrowseGrid(on: newValue)
-                    withAnimation {
-                        proxy.scrollTo("browseTop", anchor: .top)
-                    }
-                }
                 .onAppear {
                     prepareBrowseHintIfNeeded()
                 }
@@ -319,7 +313,6 @@ struct FilterGridTab: View {
 
             standardPhoneCharacterPreview(
                 character: character,
-                selectedCharacter: store.selectedCharacter,
                 showAddToMemoryButton: false,
                 onClear: { store.previewCharacter = nil }
             )
@@ -475,7 +468,7 @@ struct FilterGridTab: View {
 
         LazyVGrid(columns: columns, spacing: 6) {
             ForEach(store.pagedGridItems, id: \.character) { item in
-                let isActive = item.character == store.previewCharacter || item.character == store.selectedCharacter
+                let isActive = item.character == store.previewCharacter
                 Button {
                     store.speakCharacter(item.character)
                     store.preview(character: item.character)

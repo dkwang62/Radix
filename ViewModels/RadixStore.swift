@@ -188,24 +188,10 @@ final class RadixStore: ObservableObject {
     // MARK: - Navigation State
     @Published var route: AppRoute = .search {
         didSet {
-            #if !targetEnvironment(macCatalyst)
-            if UIDevice.current.userInterfaceIdiom == .phone {
-                // iPhone: preview should only appear after explicit tap/preview action.
-                return
-            }
-            #endif
-            // iPad/Mac: keep preview aligned to selection when switching modes.
-            if let sel = selectedCharacter { previewCharacter = sel }
-            else { previewCharacter = nil }
         }
     }
     @Published var homeTab: HomeTab = .filter
     @Published private(set) var rootsReturnContext: RootsReturnContext?
-    @Published var selectedCharacter: String? {
-        didSet {
-            rememberLastPreviewedCharacter(selectedCharacter)
-        }
-    }
     @Published var previewCharacter: String? {
         didSet {
             rememberLastPreviewedCharacter(previewCharacter)
@@ -289,7 +275,7 @@ final class RadixStore: ObservableObject {
     @Published var rootMinStroke: Int = 0 {
         didSet {
             guard oldValue != rootMinStroke else { return }
-            if let current = selectedCharacter ?? previewCharacter {
+            if let current = previewCharacter {
                 loadSharedComponentPeers(for: current)
                 loadSharedPeersByComponent(for: current)
                 loadRootDerivatives(for: current)
@@ -307,7 +293,7 @@ final class RadixStore: ObservableObject {
                 return
             }
             guard oldValue != rootMaxStroke else { return }
-            if let current = selectedCharacter ?? previewCharacter {
+            if let current = previewCharacter {
                 loadSharedComponentPeers(for: current)
                 loadSharedPeersByComponent(for: current)
                 loadRootDerivatives(for: current)
@@ -317,7 +303,7 @@ final class RadixStore: ObservableObject {
     @Published var rootRadicalFilter: String = "none" {
         didSet {
             guard oldValue != rootRadicalFilter else { return }
-            if let current = selectedCharacter ?? previewCharacter {
+            if let current = previewCharacter {
                 loadSharedComponentPeers(for: current)
                 loadSharedPeersByComponent(for: current)
                 loadRootDerivatives(for: current)
@@ -327,7 +313,7 @@ final class RadixStore: ObservableObject {
     @Published var rootStructureFilter: String = "none" {
         didSet {
             guard oldValue != rootStructureFilter else { return }
-            if let current = selectedCharacter ?? previewCharacter {
+            if let current = previewCharacter {
                 loadSharedComponentPeers(for: current)
                 loadSharedPeersByComponent(for: current)
                 loadRootDerivatives(for: current)
@@ -542,8 +528,7 @@ final class RadixStore: ObservableObject {
         showBrowseHelp = true
         showComponentHelp = true
         
-        // Start with no preselected character unless we can restore the last preview
-        selectedCharacter = nil
+        // Start with no hard selection; restore only the lightweight preview.
         previewCharacter = nil
         restoreLastPreviewedCharacterIfNeeded()
         showiPhoneDetail = false
@@ -658,8 +643,7 @@ final class RadixStore: ObservableObject {
             return
         }
 
-        // 1. Instant UI update for selection
-        selectedCharacter = trimmedCharacter
+        // 1. Instant UI update for the active preview
         previewCharacter = trimmedCharacter
         #if targetEnvironment(macCatalyst)
         showiPhoneDetail = true
@@ -697,7 +681,7 @@ final class RadixStore: ObservableObject {
             
             await MainActor.run {
                 // Ensure we are still on the same character before applying results
-                guard selectedCharacter == trimmedCharacter else { return }
+                guard previewCharacter == trimmedCharacter else { return }
                 
                 self.lineageParents = parents
                 self.lineageDerivatives = derivatives
@@ -712,7 +696,7 @@ final class RadixStore: ObservableObject {
             }
         }
 
-        // Roots data should reflect the selected character (not previews)
+        // Roots data reflects the active preview.
         loadSharedComponentPeers(for: trimmedCharacter)
         loadSharedPeersByComponent(for: trimmedCharacter)
         loadRootDerivatives(for: trimmedCharacter)
@@ -845,15 +829,11 @@ final class RadixStore: ObservableObject {
 
     func enterLineage() {
         rootsReturnContext = nil
-        if let target = previewCharacter ?? selectedCharacter {
-            if let selectedCharacter, selectedCharacter != target {
-                history.append(selectedCharacter)
-            }
+        if let target = previewCharacter {
             select(character: target)
         } else {
             // Allow opening Roots with no selection to show empty-state card
             previewCharacter = nil
-            selectedCharacter = nil
         }
         route = .lineage
         showComponentHelp = true
@@ -865,13 +845,10 @@ final class RadixStore: ObservableObject {
     }
 
     func enterAILink() {
-        if let target = previewCharacter ?? selectedCharacter {
-            if selectedCharacter != target {
-                select(character: target)
-            }
+        if let target = previewCharacter {
+            select(character: target)
         } else {
             previewCharacter = nil
-            selectedCharacter = nil
         }
         route = .aiLink
     }
@@ -913,7 +890,7 @@ final class RadixStore: ObservableObject {
             goToAILinkTask4(collection: collection)
             return
         }
-        if let target = characters.first ?? previewCharacter ?? selectedCharacter {
+        if let target = characters.first ?? previewCharacter {
             select(character: target, announce: false)
         }
         promptSelectedTaskIDs = ["task4"]
@@ -1079,7 +1056,7 @@ final class RadixStore: ObservableObject {
     }
 
     func refreshPhrases(for char: String? = nil) {
-        let target = char ?? previewCharacter ?? selectedCharacter
+        let target = char ?? previewCharacter
         guard let targetToLoad = target else {
             phrases = []
             return
@@ -1103,7 +1080,7 @@ final class RadixStore: ObservableObject {
             let result = rankedPhraseResults(finalPhrases, target: targetToLoad, context: context)
             await MainActor.run {
                 // Ensure we are still looking at the same character/length before updating
-                if (char ?? previewCharacter ?? selectedCharacter) == targetToLoad && phraseLength == length && phraseContext(for: targetToLoad) == context {
+                if (char ?? previewCharacter) == targetToLoad && phraseLength == length && phraseContext(for: targetToLoad) == context {
                     self.phrases = result
                     self.phraseCache[cacheKey] = result
                     self.refreshImagePhraseHighlights(for: targetToLoad, context: context)
@@ -1330,8 +1307,8 @@ final class RadixStore: ObservableObject {
 
     func setScriptFilter(_ filter: ScriptFilter) {
         scriptFilter = filter
-        if let selectedCharacter {
-            select(character: selectedCharacter, announce: false)
+        if let previewCharacter {
+            select(character: previewCharacter, announce: false)
         }
     }
 
@@ -2416,11 +2393,11 @@ final class RadixStore: ObservableObject {
 
     private func selectedPromptTaskIDsForCharacterLaunch() -> [String] {
         let availableTaskIDs = Set(promptConfig.normalized().tasks.map(\.id))
-        let selectedCharacterTaskIDs = promptSelectedTaskIDs.filter {
+        let characterTaskIDs = promptSelectedTaskIDs.filter {
             $0 != "task4" && availableTaskIDs.contains($0)
         }
-        if !selectedCharacterTaskIDs.isEmpty {
-            return selectedCharacterTaskIDs
+        if !characterTaskIDs.isEmpty {
+            return characterTaskIDs
         }
         if availableTaskIDs.contains("task1") {
             return ["task1"]
@@ -2465,7 +2442,7 @@ final class RadixStore: ObservableObject {
         refreshAddedDictionaryCharacters()
         if hasPerformedSearch { performSearch(customQuery: lastSearchQuery, recordHistory: false) }
         recomputeGridItems()
-        if let current = previewCharacter ?? selectedCharacter, componentRepo.hasCharacter(current) {
+        if let current = previewCharacter, componentRepo.hasCharacter(current) {
             select(character: current, announce: false)
         }
         // Heavy work off main thread
@@ -2983,7 +2960,7 @@ final class RadixStore: ObservableObject {
             favouritePhraseEntries: sortedFavoritePhrases.map { FavouritePhraseProfileEntry(word: $0, addedAt: favoritePhraseDates[$0]) },
             rememberedList: rootBreadcrumb,
             searchHistory: searchHistory,
-            selectedCharacter: selectedCharacter,
+            previewCharacter: previewCharacter,
             lastSearchQuery: lastSearchQuery.isEmpty ? nil : lastSearchQuery,
             currentSearchQuery: query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : query,
             searchMode: searchMode.rawValue,
@@ -3381,7 +3358,7 @@ final class RadixStore: ObservableObject {
     }
 
     private func restoreLastPreviewedCharacterIfNeeded() {
-        guard selectedCharacter == nil, previewCharacter == nil else { return }
+        guard previewCharacter == nil else { return }
         guard let saved = UserDefaults.standard.string(forKey: lastPreviewCharacterKey) else { return }
         let key = saved.trimmingCharacters(in: .whitespacesAndNewlines)
         guard key.count == 1, componentRepo.hasCharacter(key) else { return }
@@ -3524,8 +3501,7 @@ final class RadixStore: ObservableObject {
         }
         persistPromptSettings()
 
-        if let candidate = profile.selectedCharacter, componentRepo.hasCharacter(candidate) {
-            selectedCharacter = candidate
+        if let candidate = profile.previewCharacter, componentRepo.hasCharacter(candidate) {
             previewCharacter = candidate
             UserDefaults.standard.set(candidate, forKey: lastPreviewCharacterKey)
             refreshPhrases(for: candidate)
@@ -3533,7 +3509,6 @@ final class RadixStore: ObservableObject {
             loadSharedPeersByComponent(for: candidate)
             loadRootDerivatives(for: candidate)
         } else if isCompleteRestore {
-            selectedCharacter = nil
             previewCharacter = nil
             UserDefaults.standard.removeObject(forKey: lastPreviewCharacterKey)
             phrases = []

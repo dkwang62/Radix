@@ -894,7 +894,6 @@ struct DataEditTab: View {
             if let current = store.previewCharacter {
                 standardPhoneCharacterPreview(
                     character: current,
-                    selectedCharacter: store.selectedCharacter,
                     onClear: { store.previewCharacter = nil }
                 )
             }
