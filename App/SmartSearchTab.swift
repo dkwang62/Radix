@@ -8,6 +8,7 @@ struct SmartSearchTab: View {
     @State private var searchPreviewCharacter: String? = nil
     @State private var searchDetailPreviewCharacter: String? = nil
     @State private var searchDrilldownPhrases: [PhraseItem] = []
+    @State private var selectedPhrase: PhraseItem?
     @State private var showAppleSetupGuide = false
     @State private var showAppleStrokeHelp = false
     @State private var searchCardVariantIndex: Int = 0
@@ -37,6 +38,7 @@ struct SmartSearchTab: View {
         searchPreviewCharacter = nil
         searchDetailPreviewCharacter = nil
         searchDrilldownPhrases = []
+        selectedPhrase = nil
         store.performSearch(customQuery: query)
     }
 
@@ -53,6 +55,14 @@ struct SmartSearchTab: View {
 
     private var initialPhraseMatchesForSelectedLength: [PhraseItem] {
         store.filteredSmartPhraseResults.filter { $0.word.count == store.phraseLength }
+    }
+
+    private var isPhone: Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
+        return UIDevice.current.userInterfaceIdiom == .phone
+        #endif
     }
 
     @ViewBuilder
@@ -126,6 +136,7 @@ struct SmartSearchTab: View {
                                     searchPreviewCharacter = nil
                                     searchDetailPreviewCharacter = nil
                                     searchDrilldownPhrases = []
+                                    selectedPhrase = nil
                                     store.clearSearch()
                                 } label: {
                                     Image(systemName: "xmark.circle.fill")
@@ -190,6 +201,7 @@ struct SmartSearchTab: View {
                                     searchPreviewCharacter = nil
                                     searchDetailPreviewCharacter = nil
                                     searchDrilldownPhrases = []
+                                    selectedPhrase = nil
                                     store.clearSearch()
                             }
                             .font(ResponsiveFont.caption)
@@ -274,9 +286,18 @@ struct SmartSearchTab: View {
                                             .frame(maxWidth: .infinity, alignment: .leading)
                                             .background(Color(.secondarySystemBackground))
                                             .clipShape(RoundedRectangle(cornerRadius: 10))
+                                            .contentShape(Rectangle())
+                                            .onTapGesture {
+                                                presentPhrase(phrase)
+                                            }
                                         }
                                     }
                                 }
+                            }
+
+                            if let selectedPhrase, !isPhone {
+                                PhraseInfoCard(phrase: selectedPhrase, onDone: finishPhraseLookup)
+                                    .environmentObject(store)
                             }
                         }
 
@@ -342,6 +363,10 @@ struct SmartSearchTab: View {
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .background(Color(.secondarySystemBackground))
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        presentPhrase(phrase)
+                                    }
                                 }
                             }
                         }
@@ -474,6 +499,7 @@ struct SmartSearchTab: View {
                     searchPreviewCharacter = nil
                     searchDetailPreviewCharacter = nil
                     searchDrilldownPhrases = []
+                    selectedPhrase = nil
                 }
             }
             .onChange(of: store.homeTab) { _, newTab in
@@ -481,6 +507,7 @@ struct SmartSearchTab: View {
                     searchPreviewCharacter = nil
                     searchDetailPreviewCharacter = nil
                     searchDrilldownPhrases = []
+                    selectedPhrase = nil
                 }
             }
             .onChange(of: store.phraseLength) { _, _ in
@@ -493,9 +520,42 @@ struct SmartSearchTab: View {
                 searchPreviewCharacter = nil
                 searchDetailPreviewCharacter = nil
                 searchDrilldownPhrases = []
+                selectedPhrase = nil
                 localQuery = store.query
+            }
+            .sheet(item: phonePhraseSheetBinding) { phrase in
+                NavigationStack {
+                    PhraseInfoCard(phrase: phrase, onDone: finishPhraseLookup)
+                        .environmentObject(store)
+                        .padding()
+                        .navigationTitle(phrase.word)
+                        .navigationBarTitleDisplayMode(.inline)
+                }
+                .presentationDetents([.medium, .large])
             }
         }
     }
-}
+    }
+
+    private func finishPhraseLookup() {
+        selectedPhrase = nil
+    }
+
+    private var phonePhraseSheetBinding: Binding<PhraseItem?> {
+        Binding(
+            get: { isPhone ? selectedPhrase : nil },
+            set: { newValue in
+                if isPhone {
+                    selectedPhrase = newValue
+                }
+            }
+        )
+    }
+
+    private func presentPhrase(_ phrase: PhraseItem) {
+        store.speakPhrase(phrase)
+        withAnimation(.easeInOut(duration: 0.2)) {
+            selectedPhrase = phrase
+        }
+    }
 }

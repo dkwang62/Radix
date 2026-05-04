@@ -20,7 +20,7 @@ struct AILinkView: View {
     @State private var isTasksExpanded = true // Default to expanded for better usability
     @State private var isConfigExpanded = false
 
-    private var selectedCharacter: String? {
+    private var activeCharacter: String? {
         item?.character ?? store.previewCharacter
     }
 
@@ -37,7 +37,7 @@ struct AILinkView: View {
     }
 
     private var canGeneratePrompt: Bool {
-        (!hasCharacterTasks || selectedCharacter != nil) &&
+        (!hasCharacterTasks || activeCharacter != nil) &&
         (!hasCollectionTasks || selectedCollection != nil) &&
         (hasCharacterTasks || hasCollectionTasks)
     }
@@ -413,10 +413,10 @@ struct AILinkView: View {
         if hasCollectionTasks && selectedCollection == nil {
             return "Choose an image for Task 4."
         }
-        if hasCharacterTasks && selectedCharacter == nil {
+        if hasCharacterTasks && activeCharacter == nil {
             return "Choose a character for Tasks 1-3."
         }
-        let text = store.promptText(character: selectedCharacter, collection: selectedCollection)
+        let text = store.promptText(character: activeCharacter, collection: selectedCollection)
         return text.isEmpty ? "Choose at least one AI task." : text
     }
 
@@ -424,8 +424,8 @@ struct AILinkView: View {
         var parts: [String] = []
 
         if hasCharacterTasks {
-            if let selectedCharacter {
-                parts.append("Tasks 1-3: \(selectedCharacter)")
+            if let activeCharacter {
+                parts.append("Tasks 1-3: \(activeCharacter)")
             } else {
                 parts.append("Tasks 1-3: no character")
             }

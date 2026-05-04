@@ -52,7 +52,11 @@ struct CharacterDetailView: View {
 
                     lineageSection
                     if sizeClass != .compact && showPhraseTable {
-                        CharacterPhraseLookupSection()
+                        CharacterPhraseLookupSection {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                showPhraseTable = false
+                            }
+                        }
                             .id("phraseTableSection")
                     }
                 }

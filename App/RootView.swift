@@ -503,12 +503,21 @@ struct RootView: View {
 
                 if let current = store.previewCharacter {
                     VStack(alignment: .leading, spacing: 8) {
-                        CharacterPreviewHeader(
-                            character: current,
-                            showClearButton: false,
-                            showAddToMemoryButton: !(store.route == .search && store.homeTab == .favourites),
-                            isVertical: true // Always use vertical stacking in the narrow sidebar
-                        )
+                        Group {
+                            if let phrase = store.imageBrowsePhrasePreview {
+                                PhraseInfoCard(phrase: phrase, onDone: {
+                                    store.dismissImagePhrasePreview()
+                                })
+                                .environmentObject(store)
+                            } else {
+                                CharacterPreviewHeader(
+                                    character: current,
+                                    showClearButton: false,
+                                    showAddToMemoryButton: !(store.route == .search && store.homeTab == .favourites),
+                                    isVertical: true // Always use vertical stacking in the narrow sidebar
+                                )
+                            }
+                        }
                         .padding(8)
                         .background(.ultraThinMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 12))

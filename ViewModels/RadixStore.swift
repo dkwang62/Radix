@@ -105,6 +105,13 @@ private struct ImagePhraseHighlightState {
     let offsets: Set<Int>
 }
 
+private struct ImagePhraseMatch {
+    let phrase: PhraseItem
+    let start: Int
+    let end: Int
+    let rankedIndex: Int
+}
+
 /// Sorting modes for the discovery grid.
 enum GridSortMode: String, CaseIterable, Identifiable {
     case readingOrder = "Reading Order"
@@ -456,6 +463,7 @@ final class RadixStore: ObservableObject {
     private var imagePhraseHighlightOffsets: Set<Int> = []
     private var imagePhraseHighlightStateByCollectionID: [UUID: ImagePhraseHighlightState] = [:]
     @Published private var imagePhraseHighlightRevision: Int = 0
+    @Published private(set) var imageBrowsePhrasePreview: PhraseItem?
     private let imagePhraseHighlightLengths = [2, 3, 4]
     var suppressHelpReset = false
     @Published private(set) var loadingError: String?
@@ -712,6 +720,7 @@ final class RadixStore: ObservableObject {
         if !preservePhraseContext {
             imagePhraseContext = nil
             imagePhraseHighlightOffsets = []
+            imageBrowsePhrasePreview = nil
             imagePhraseHighlightRevision += 1
         }
         pushRootBreadcrumb(character)
@@ -775,6 +784,7 @@ final class RadixStore: ObservableObject {
         if !preservePhraseContext {
             imagePhraseContext = nil
             imagePhraseHighlightOffsets = []
+            imageBrowsePhrasePreview = nil
             imagePhraseHighlightRevision += 1
         }
         pushRootBreadcrumb(character)
@@ -794,20 +804,70 @@ final class RadixStore: ObservableObject {
         let context = imagePhraseContext(for: character, offset: offset)
         imagePhraseContext = context
         imagePhraseHighlightOffsets = context == nil ? [] : [offset]
+        imageBrowsePhrasePreview = nil
         imagePhraseHighlightRevision += 1
         preview(character: character, announce: announce, preservePhraseContext: context != nil)
+    }
+
+    func handleImageCharacterTap(_ character: String, offset: Int) -> Bool {
+        let context = imagePhraseContext(for: character, offset: offset)
+        guard let context else {
+            previewImageCharacter(character, offset: offset)
+            return true
+        }
+
+        let sameHighlightedTarget = imagePhraseContext == context && imagePhraseHighlightOffsets.contains(offset)
+        if sameHighlightedTarget, imageBrowsePhrasePreview != nil {
+            previewImageCharacter(character, offset: offset)
+            return true
+        }
+
+        let matches = imagePhraseMatches(for: context)
+        guard !matches.isEmpty else {
+            previewImageCharacter(character, offset: offset)
+            return true
+        }
+
+        if sameHighlightedTarget {
+            let match = preferredImagePhraseMatch(from: matches, targetOffset: offset)
+            imageBrowsePhrasePreview = match.phrase
+            previewCharacter = character
+            pushRootBreadcrumb(character)
+            showBrowseHelp = false
+            showComponentHelp = false
+            if speechEnabled {
+                speechCoordinator.speak(match.phrase.word)
+            }
+            return true
+        }
+
+        imagePhraseContext = context
+        imageBrowsePhrasePreview = nil
+        updateImagePhraseHighlights(context: context, matches: matches)
+        return false
+    }
+
+    func clearBrowsePreview() {
+        previewCharacter = nil
+        imageBrowsePhrasePreview = nil
+    }
+
+    func dismissImagePhrasePreview() {
+        imageBrowsePhrasePreview = nil
     }
 
     func highlightImageCharacterPhrases(_ character: String, offset: Int) {
         guard let context = imagePhraseContext(for: character, offset: offset) else {
             imagePhraseContext = nil
             imagePhraseHighlightOffsets = []
+            imageBrowsePhrasePreview = nil
             imagePhraseHighlightRevision += 1
             return
         }
 
         imagePhraseContext = context
         imagePhraseHighlightOffsets = [offset]
+        imageBrowsePhrasePreview = nil
         imagePhraseHighlightRevision += 1
 
         refreshImagePhraseHighlights(for: character, context: context)
@@ -2180,6 +2240,10 @@ final class RadixStore: ObservableObject {
             restoreImagePhraseHighlight(for: id)
         } else {
             gridSortMode = .characterFrequency
+            imagePhraseContext = nil
+            imagePhraseHighlightOffsets = []
+            imageBrowsePhrasePreview = nil
+            imagePhraseHighlightRevision += 1
         }
     }
 
@@ -2889,42 +2953,92 @@ final class RadixStore: ObservableObject {
         }
     }
 
+    private func imagePhraseMatches(for context: ImagePhraseContext) -> [ImagePhraseMatch] {
+        guard let collection = selectedBrowseCollection,
+              collection.id == context.collectionID,
+              collection.characters.indices.contains(context.offset)
+        else { return [] }
+
+        let lookupTarget = phraseLookupTarget(for: context.target)
+        let candidates = phraseCandidates(
+            containing: lookupTarget,
+            originalTarget: context.target,
+            lengths: imagePhraseHighlightLengths
+        )
+        let ranked = rankedPhraseResults(candidates, target: context.target, context: context)
+        let simplifiedCharacters = collection.characters.map(phraseLookupTarget(for:))
+        var matches: [ImagePhraseMatch] = []
+        var seen = Set<String>()
+
+        for (rankedIndex, phrase) in ranked.enumerated() {
+            let phraseCharacters = phraseStorageWord(phrase.word).map(String.init)
+            guard !phraseCharacters.isEmpty else { continue }
+
+            for phraseIndex in phraseCharacters.indices where phraseCharacters[phraseIndex] == lookupTarget {
+                let start = context.offset - phraseIndex
+                let end = start + phraseCharacters.count
+                guard start >= 0, end <= simplifiedCharacters.count else { continue }
+
+                var isMatch = true
+                for localOffset in phraseCharacters.indices where simplifiedCharacters[start + localOffset] != phraseCharacters[localOffset] {
+                    isMatch = false
+                    break
+                }
+
+                if isMatch {
+                    let key = "\(phrase.id)|\(start)|\(end)"
+                    if seen.insert(key).inserted {
+                        matches.append(ImagePhraseMatch(phrase: phrase, start: start, end: end, rankedIndex: rankedIndex))
+                    }
+                }
+            }
+        }
+
+        return matches
+    }
+
+    private func preferredImagePhraseMatch(from matches: [ImagePhraseMatch], targetOffset: Int) -> ImagePhraseMatch {
+        matches.sorted { lhs, rhs in
+            let lhsStartsAtTarget = lhs.start == targetOffset
+            let rhsStartsAtTarget = rhs.start == targetOffset
+            if lhsStartsAtTarget != rhsStartsAtTarget {
+                return lhsStartsAtTarget
+            }
+
+            let lhsLength = lhs.end - lhs.start
+            let rhsLength = rhs.end - rhs.start
+            if lhsLength != rhsLength {
+                return lhsLength > rhsLength
+            }
+
+            return lhs.rankedIndex < rhs.rankedIndex
+        }.first ?? matches[0]
+    }
+
     private func updateImagePhraseHighlights(context: ImagePhraseContext?, phrases: [PhraseItem]) {
+        guard let context else {
+            updateImagePhraseHighlights(context: nil, matches: [])
+            return
+        }
+        updateImagePhraseHighlights(context: context, matches: imagePhraseMatches(for: context))
+    }
+
+    private func updateImagePhraseHighlights(context: ImagePhraseContext?, matches: [ImagePhraseMatch]) {
         guard let context,
               let collection = selectedBrowseCollection,
               collection.id == context.collectionID,
               collection.characters.indices.contains(context.offset)
         else {
             imagePhraseHighlightOffsets = []
+            imageBrowsePhrasePreview = nil
             imagePhraseHighlightRevision += 1
             return
         }
 
-        let simplifiedCharacters = collection.characters.map(phraseLookupTarget(for:))
-        let target = phraseLookupTarget(for: context.target)
         var offsets: Set<Int> = [context.offset]
 
-        for phrase in phrases {
-            let phraseCharacters = phraseStorageWord(phrase.word).map(String.init)
-            guard !phraseCharacters.isEmpty else { continue }
-
-            for phraseIndex in phraseCharacters.indices where phraseCharacters[phraseIndex] == target {
-                let start = context.offset - phraseIndex
-                let end = start + phraseCharacters.count
-                guard start >= 0, end <= simplifiedCharacters.count else { continue }
-
-                var matches = true
-                for localOffset in phraseCharacters.indices {
-                    if simplifiedCharacters[start + localOffset] != phraseCharacters[localOffset] {
-                        matches = false
-                        break
-                    }
-                }
-
-                if matches {
-                    offsets.formUnion(start..<end)
-                }
-            }
+        for match in matches {
+            offsets.formUnion(match.start..<match.end)
         }
 
         imagePhraseHighlightOffsets = offsets

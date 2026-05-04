@@ -193,6 +193,7 @@ private struct PhraseTableSheet: View {
     let character: String
     let isVertical: Bool
     private let visiblePhraseRows = 6
+    @State private var selectedPhrase: PhraseItem?
 
     private var isPhone: Bool {
         #if targetEnvironment(macCatalyst)
@@ -225,42 +226,59 @@ private struct PhraseTableSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            copyHintLabel
+            if let selectedPhrase {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        self.selectedPhrase = nil
+                    }
+                } label: {
+                    Label("Phrases", systemImage: "chevron.backward")
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                }
+                .buttonStyle(.plain)
 
-            Picker("Length", selection: $store.phraseLength) {
-                Text("2-char").tag(2)
-                Text("3-char").tag(3)
-                Text("4-char").tag(4)
-            }
-            .font(ResponsiveFont.subheadline)
-            .pickerStyle(.segmented)
-
-            if store.phrases.isEmpty {
-                ContentUnavailableView(
-                    "No phrases found",
-                    systemImage: "text.justify",
-                    description: Text("No \(store.phraseLength)-character phrases were found for \(character).")
-                )
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                PhraseInfoCard(phrase: selectedPhrase, onDone: {
+                    dismiss()
+                })
+                    .environmentObject(store)
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(store.phrases, id: \.id) { phrase in
-                            phraseRow(phrase)
-                            Divider()
+                copyHintLabel
+
+                Picker("Length", selection: $store.phraseLength) {
+                    Text("2-char").tag(2)
+                    Text("3-char").tag(3)
+                    Text("4-char").tag(4)
+                }
+                .font(ResponsiveFont.subheadline)
+                .pickerStyle(.segmented)
+
+                if store.phrases.isEmpty {
+                    ContentUnavailableView(
+                        "No phrases found",
+                        systemImage: "text.justify",
+                        description: Text("No \(store.phraseLength)-character phrases were found for \(character).")
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEach(store.phrases, id: \.id) { phrase in
+                                phraseRow(phrase)
+                                Divider()
+                            }
                         }
                     }
+                    .frame(height: phraseViewportHeight)
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                    Spacer(minLength: 0)
                 }
-                .frame(height: phraseViewportHeight)
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                Spacer(minLength: 0)
-            }
-
-            HStack {
-                Spacer()
-                DismissButton()
+                HStack {
+                    Spacer()
+                    DismissButton()
+                }
             }
         }
         .padding(20)
@@ -270,6 +288,7 @@ private struct PhraseTableSheet: View {
             store.refreshPhrases(for: character)
         }
         .onChange(of: store.phraseLength) { _, _ in
+            selectedPhrase = nil
             store.refreshPhrases(for: character)
         }
     }
@@ -315,6 +334,9 @@ private struct PhraseTableSheet: View {
         .contentShape(Rectangle())
         .onTapGesture {
             store.speakPhrase(phrase)
+            withAnimation(.easeInOut(duration: 0.2)) {
+                selectedPhrase = phrase
+            }
         }
         .phraseContextMenu(phrase)
     }
@@ -332,6 +354,20 @@ private struct PhraseTableSheet: View {
     }
 }
 
+private struct PhraseTableDetentModifier: ViewModifier {
+    let isPhone: Bool
+
+    func body(content: Content) -> some View {
+        if isPhone {
+            content
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        } else {
+            content
+        }
+    }
+}
+
 private struct DismissButton: View {
     @Environment(\.dismiss) private var dismiss
 
@@ -340,18 +376,6 @@ private struct DismissButton: View {
             dismiss()
         }
         .buttonStyle(.borderedProminent)
-    }
-}
-
-private struct PhraseTableDetentModifier: ViewModifier {
-    let isPhone: Bool
-
-    func body(content: Content) -> some View {
-        if isPhone {
-            content.presentationDetents([.medium, .large])
-        } else {
-            content
-        }
     }
 }
 

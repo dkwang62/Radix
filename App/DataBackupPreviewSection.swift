@@ -5,6 +5,7 @@ import UIKit
 
 struct DataBackupPreviewSection: View {
     @EnvironmentObject private var store: RadixStore
+    @State private var selectedPhrase: PhraseItem?
 
     let addedPhraseEntries: [PhraseItem]
     let editedPhraseEntries: [PhraseItem]
@@ -56,6 +57,7 @@ struct DataBackupPreviewSection: View {
                 DisclosureGroup("Edited Phrases (\(editedPhraseEntries.count))", isExpanded: $showEditedPhrasesPreview) {
                     backupPhraseRows(editedPhraseEntries, badge: "Edited")
                 }
+
             }
             .padding(12)
             .background(Color(.systemBackground))
@@ -64,6 +66,18 @@ struct DataBackupPreviewSection: View {
         .padding()
         .background(Color(.secondarySystemBackground).opacity(0.4))
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .sheet(item: $selectedPhrase) { phrase in
+            NavigationStack {
+                PhraseInfoCard(phrase: phrase, onDone: {
+                    selectedPhrase = nil
+                })
+                    .environmentObject(store)
+                    .padding()
+                    .navigationTitle(phrase.word)
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .presentationDetents([.medium, .large])
+        }
     }
 
     @ViewBuilder
@@ -158,7 +172,7 @@ struct DataBackupPreviewSection: View {
                 .foregroundStyle(.secondary)
                 .padding(.top, 8)
         } else {
-            VStack(alignment: .leading, spacing: 8) {
+            LazyVGrid(columns: backupPhraseColumns, alignment: .leading, spacing: 8) {
                 ForEach(phrases) { phrase in
                     backupPhraseRow(phrase, badge: badge)
                 }
@@ -169,57 +183,18 @@ struct DataBackupPreviewSection: View {
 
     @ViewBuilder
     private func backupPhraseRow(_ phrase: PhraseItem, badge: String) -> some View {
-        let isBuiltInPhrase = store.isPhraseInBase(phrase.word)
-
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .firstTextBaseline, spacing: 10) {
-                Text(phrase.word)
-                    .font(ResponsiveFont.subheadline.bold())
-                    .phraseContextMenu(phrase)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        store.speakPhrase(phrase)
-                    }
-
-                Spacer()
-
-                HStack(spacing: 6) {
-                    Button(store.phraseNotesActionTitle(for: phrase.word)) {
-                        store.openQuickPhraseEditor(word: phrase.word)
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.mini)
-
-                    Button(role: isBuiltInPhrase ? nil : .destructive) {
-                        store.removeDataEditPhrase(word: phrase.word)
-                    } label: {
-                        Text(isBuiltInPhrase ? "Revert" : "Delete")
-                            .font(ResponsiveFont.caption)
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.mini)
-                }
-            }
-
-            if !phrase.pinyin.isEmpty {
-                Text(phrase.pinyin)
-                    .font(ResponsiveFont.caption.monospaced())
+        Button {
+            presentPhrase(phrase)
+        } label: {
+            VStack(alignment: .leading, spacing: 4) {
+                PhraseSummaryTile(phrase: phrase)
+                Text(badge)
+                    .font(ResponsiveFont.caption2.weight(.semibold))
                     .foregroundStyle(.secondary)
-            }
-
-            Text(phrase.meanings.isEmpty ? "No meaning" : phrase.meanings)
-                .font(ResponsiveFont.caption)
-                .lineLimit(2)
-            if !phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                Text(phrase.notes)
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
             }
         }
-        .padding(10)
-        .background(Color(.secondarySystemBackground).opacity(0.6))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .buttonStyle(.plain)
+        .phraseContextMenu(phrase)
     }
 
     private var backupSavedPagesRows: some View {
@@ -268,22 +243,37 @@ struct DataBackupPreviewSection: View {
 
             summaryLine("Favorite phrases", value: "\(store.favoritePhrasesItems.count)")
             if !store.favoritePhrasesItems.isEmpty {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 72), spacing: 6)], alignment: .leading, spacing: 6) {
+                LazyVGrid(columns: backupPhraseColumns, alignment: .leading, spacing: 8) {
                     ForEach(store.favoritePhrasesItems) { phrase in
                         Button {
-                            store.speakPhrase(phrase)
+                            presentPhrase(phrase)
                         } label: {
-                            Text(phrase.word)
-                                .font(ResponsiveFont.caption.weight(.semibold))
-                                .lineLimit(1)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            PhraseSummaryTile(phrase: phrase)
                         }
                         .buttonStyle(.plain)
+                        .phraseContextMenu(phrase)
                     }
                 }
             }
         }
         .padding(.top, 8)
+    }
+
+    private var backupPhraseColumns: [GridItem] {
+        [GridItem(.adaptive(minimum: isPhone ? 120 : 140), spacing: 8)]
+    }
+
+    private var isPhone: Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
+        return UIDevice.current.userInterfaceIdiom == .phone
+        #endif
+    }
+
+    private func presentPhrase(_ phrase: PhraseItem) {
+        store.speakPhrase(phrase)
+        selectedPhrase = phrase
     }
 
     private var backupAITemplatesSummary: some View {

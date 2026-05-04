@@ -19,6 +19,7 @@ struct FavouritesTab: View {
     let onExportProfile: () -> Void
     let onImportProfile: () -> Void
     let onRequirePro: (EntitlementManager.FeatureGate) -> Void
+    @State private var selectedPhrase: PhraseItem?
 
     private var isPhone: Bool {
         #if targetEnvironment(macCatalyst)
@@ -86,17 +87,18 @@ struct FavouritesTab: View {
                                 .font(ResponsiveFont.caption.bold())
                                 .foregroundStyle(.secondary)
 
-                            ScrollView {
-                                LazyVStack(spacing: 0) {
-                                    ForEach(store.favoritePhrasesItems, id: \.word) { phrase in
-                                        favoritePhraseRow(phrase)
-                                        Divider()
+                            LazyVGrid(columns: favoritePhraseColumns, spacing: 8) {
+                                ForEach(store.favoritePhrasesItems, id: \.word) { phrase in
+                                    Button {
+                                        presentPhrase(phrase)
+                                    } label: {
+                                        PhraseSummaryTile(phrase: phrase)
                                     }
+                                    .buttonStyle(.plain)
+                                    .phraseContextMenu(phrase)
                                 }
                             }
-                            .frame(height: favoritePhraseViewportHeight)
-                            .background(Color(.secondarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+
                         }
                     }
                 }
@@ -104,6 +106,18 @@ struct FavouritesTab: View {
                     .padding(.bottom, 20)
                 }
             }
+        }
+        .sheet(item: $selectedPhrase) { phrase in
+            NavigationStack {
+                PhraseInfoCard(phrase: phrase, onDone: {
+                    selectedPhrase = nil
+                })
+                    .environmentObject(store)
+                    .padding()
+                    .navigationTitle(phrase.word)
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .presentationDetents([.medium, .large])
         }
     }
 
@@ -190,7 +204,26 @@ struct FavouritesTab: View {
         .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, minHeight: favoritePhraseRowHeight, alignment: .leading)
         .contentShape(Rectangle())
+        .onTapGesture {
+            presentPhrase(phrase)
+        }
         .phraseContextMenu(phrase)
+    }
+
+    private var favoritePhraseColumns: [GridItem] {
+        #if targetEnvironment(macCatalyst)
+        return Array(repeating: GridItem(.flexible(minimum: 120, maximum: 180), spacing: 8), count: 4)
+        #else
+        if isPhone {
+            return Array(repeating: GridItem(.flexible(minimum: 120), spacing: 8), count: 2)
+        }
+        return Array(repeating: GridItem(.flexible(minimum: 120, maximum: 180), spacing: 8), count: 3)
+        #endif
+    }
+
+    private func presentPhrase(_ phrase: PhraseItem) {
+        store.speakPhrase(phrase)
+        selectedPhrase = phrase
     }
 
     private var favoritePhraseRowHeight: CGFloat {

@@ -298,7 +298,7 @@ struct FilterGridTab: View {
         VStack(alignment: .leading, spacing: 10) {
             Button {
                 withAnimation {
-                    store.previewCharacter = nil
+                    store.clearBrowsePreview()
                 }
             } label: {
                 Label("Browse", systemImage: "chevron.left")
@@ -311,11 +311,18 @@ struct FilterGridTab: View {
             }
             .buttonStyle(.plain)
 
-            standardPhoneCharacterPreview(
-                character: character,
-                showAddToMemoryButton: false,
-                onClear: { store.previewCharacter = nil }
-            )
+            if let phrase = store.imageBrowsePhrasePreview {
+                PhraseInfoCard(phrase: phrase, onDone: {
+                    store.dismissImagePhrasePreview()
+                })
+                .environmentObject(store)
+            } else {
+                standardPhoneCharacterPreview(
+                    character: character,
+                    showAddToMemoryButton: false,
+                    onClear: { store.clearBrowsePreview() }
+                )
+            }
         }
     }
 
@@ -362,11 +369,9 @@ struct FilterGridTab: View {
                 let isActive = highlightRole == .target
                 let pinyin = store.item(for: character)?.pinyinText ?? ""
                 Button {
-                    if isActive {
-                        store.previewImageCharacter(character, offset: offset)
+                    let shouldScroll = store.handleImageCharacterTap(character, offset: offset)
+                    if shouldScroll {
                         scrollBrowseTopIfNeeded(proxy)
-                    } else {
-                        store.highlightImageCharacterPhrases(character, offset: offset)
                     }
                 } label: {
                     VStack(spacing: 2) {
