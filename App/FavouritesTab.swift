@@ -107,7 +107,7 @@ struct FavouritesTab: View {
                 }
             }
         }
-        .sheet(item: $selectedPhrase) { phrase in
+        .sheet(item: phonePhraseSheetBinding) { phrase in
             NavigationStack {
                 PhraseInfoCard(phrase: phrase, onDone: {
                     selectedPhrase = nil
@@ -223,7 +223,23 @@ struct FavouritesTab: View {
 
     private func presentPhrase(_ phrase: PhraseItem) {
         store.speakPhrase(phrase)
-        selectedPhrase = phrase
+        if isPhone {
+            selectedPhrase = phrase
+        } else {
+            selectedPhrase = nil
+            store.presentPhraseInSidebar(phrase)
+        }
+    }
+
+    private var phonePhraseSheetBinding: Binding<PhraseItem?> {
+        Binding(
+            get: { isPhone ? selectedPhrase : nil },
+            set: { newValue in
+                if isPhone {
+                    selectedPhrase = newValue
+                }
+            }
+        )
     }
 
     private var favoritePhraseRowHeight: CGFloat {

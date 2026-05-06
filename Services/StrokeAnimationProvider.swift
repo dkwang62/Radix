@@ -327,7 +327,10 @@ private final class CharacterStrokeDecompositionRepository {
     }
 
     private var userDictionaryOverlayURL: URL? {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        if let projectURL = ProjectLiveDataLocator.file(named: "component_map_changes.json") {
+            return projectURL
+        }
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
             .first?
             .appendingPathComponent("component_map_changes.json")
     }

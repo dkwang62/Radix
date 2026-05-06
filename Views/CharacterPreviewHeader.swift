@@ -12,7 +12,6 @@ import AppKit
 
 extension Notification.Name {
     static let radixShowPhraseTable = Notification.Name("radixShowPhraseTable")
-    static let radixShowAddPhrasesPopover = Notification.Name("radixShowAddPhrasesPopover")
 }
 
 struct CharacterPreviewHeader: View {
@@ -24,7 +23,6 @@ struct CharacterPreviewHeader: View {
     var isVertical: Bool = false
     var onClear: (() -> Void)? = nil
     @State private var showPhraseTableSheet = false
-    @State private var showAddPhrasesPopover = false
     @State private var variantIndex: Int = 0
 
     private var usesShortActionLabels: Bool {
@@ -93,18 +91,11 @@ struct CharacterPreviewHeader: View {
             PhraseTableSheet(character: character, isVertical: isVertical)
                 .environmentObject(store)
         }
-        .popover(isPresented: $showAddPhrasesPopover, arrowEdge: .trailing) {
-            PhraseBatchAddPopover()
-                .environmentObject(store)
-        }
         .onReceive(NotificationCenter.default.publisher(for: .radixShowPhraseTable)) { notification in
             guard let requestedCharacter = notification.object as? String,
                   requestedCharacter == character else { return }
             store.refreshPhrases(for: character)
             showPhraseTableSheet = true
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .radixShowAddPhrasesPopover)) { _ in
-            showAddPhrasesPopover = true
         }
         .onChange(of: character) { _, _ in
             variantIndex = 0
@@ -203,6 +194,7 @@ private struct PhraseTableSheet: View {
     let isVertical: Bool
     private let visiblePhraseRows = 6
     @State private var selectedPhrase: PhraseItem?
+    @State private var showAddPhraseSheet = false
 
     private var isPhone: Bool {
         #if targetEnvironment(macCatalyst)
@@ -285,6 +277,13 @@ private struct PhraseTableSheet: View {
                 }
 
                 HStack {
+                    Button {
+                        showAddPhraseSheet = true
+                    } label: {
+                        Label("+Phrases", systemImage: "plus.circle.fill")
+                    }
+                    .buttonStyle(.bordered)
+
                     Spacer()
                     DismissButton()
                 }
@@ -293,6 +292,10 @@ private struct PhraseTableSheet: View {
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .modifier(PhraseTableDetentModifier(isPhone: isPhone))
+        .sheet(isPresented: $showAddPhraseSheet) {
+            AddPhraseSheet()
+                .environmentObject(store)
+        }
         .onAppear {
             store.refreshPhrases(for: character)
         }
@@ -344,7 +347,12 @@ private struct PhraseTableSheet: View {
         .onTapGesture {
             store.speakPhrase(phrase)
             withAnimation(.easeInOut(duration: 0.2)) {
-                selectedPhrase = phrase
+                if isPhone {
+                    selectedPhrase = phrase
+                } else {
+                    selectedPhrase = nil
+                    store.presentPhraseInSidebar(phrase)
+                }
             }
         }
         .phraseContextMenu(phrase)
@@ -969,18 +977,6 @@ private struct PhraseActionMenuContent: View {
             }
         }
         Divider()
-        Button("Add Phrase") {
-            dismiss()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                store.openNewPhraseEditor()
-            }
-        }
-        Button("Add Phrases") {
-            dismiss()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                NotificationCenter.default.post(name: .radixShowAddPhrasesPopover, object: nil)
-            }
-        }
         if store.isPhraseInAdd(trimmedWord) {
             let isBuiltIn = store.isPhraseInBase(trimmedWord)
             Button(isBuiltIn ? "Revert Phrase" : "Delete Phrase", role: isBuiltIn ? nil : .destructive) {
@@ -1003,39 +999,220 @@ private struct PhraseActionMenuContent: View {
     }
 }
 
-private struct PhraseBatchAddPopover: View {
+struct AddPhraseSheet: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.dismiss) private var dismiss
+
+    private enum AddPhraseMode: String, CaseIterable {
+        case input = "Input"
+        case fromExtract = "From Extract"
+    }
+
+    @State private var mode: AddPhraseMode = .input
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text("+Phrases")
+                    .font(ResponsiveFont.title3.bold())
+                Spacer()
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                        .font(.title2)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal)
+            .padding(.top)
+            .padding(.bottom, 8)
+
+            Picker("Mode", selection: $mode) {
+                ForEach(AddPhraseMode.allCases, id: \.self) { m in
+                    Text(m.rawValue).tag(m)
+                }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .padding(.bottom, 12)
+
+            Divider()
+
+            switch mode {
+            case .input:
+                AddPhraseInputForm()
+                    .environmentObject(store)
+            case .fromExtract:
+                AddPhraseExtractForm()
+                    .environmentObject(store)
+            }
+        }
+        .frame(minWidth: 320, idealWidth: 460, maxWidth: 560)
+    }
+}
+
+// MARK: - Input tab (manual entry)
+private struct AddPhraseInputForm: View {
+    @EnvironmentObject private var store: RadixStore
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var word = ""
+    @State private var pinyin = ""
+    @State private var meanings = ""
+    @State private var notes = ""
+    @State private var editorError: String?
+
+    @FocusState private var focused: InputField?
+    private enum InputField: Hashable { case word, pinyin, meanings, notes }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                if let editorError {
+                    Text(editorError)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.red)
+                }
+
+                fieldBlock("Phrase") {
+                    TextField("Chinese phrase", text: $word)
+                        .font(ResponsiveFont.body.bold())
+                        .textFieldStyle(.roundedBorder)
+                        .focused($focused, equals: .word)
+                }
+
+                fieldBlock("Pinyin") {
+                    TextField("Pinyin", text: $pinyin)
+                        .font(ResponsiveFont.body.monospaced())
+                        .textFieldStyle(.roundedBorder)
+                        .focused($focused, equals: .pinyin)
+                }
+
+                fieldBlock("English Meaning") {
+                    TextEditor(text: $meanings)
+                        .font(ResponsiveFont.body)
+                        .frame(height: 80)
+                        .padding(8)
+                        .background(Color(.secondarySystemBackground).opacity(0.6))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 0.5))
+                        .focused($focused, equals: .meanings)
+                }
+
+                fieldBlock("Notes / Sentences / Practice") {
+                    ZStack(alignment: .topLeading) {
+                        TextEditor(text: $notes)
+                            .font(ResponsiveFont.body)
+                            .scrollContentBackground(.hidden)
+                            .padding(8)
+                            .focused($focused, equals: .notes)
+                        if notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            Text("Example sentences, usage notes, reminders…")
+                                .font(ResponsiveFont.body)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 16)
+                                .allowsHitTesting(false)
+                        }
+                    }
+                    .frame(height: 140)
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 1))
+                }
+            }
+            .padding()
+        }
+
+        Divider()
+
+        HStack {
+            Spacer()
+            Button("Cancel") { dismiss() }
+                .buttonStyle(.bordered)
+            Button("Save") { save() }
+                .buttonStyle(.borderedProminent)
+                .disabled(word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Button("Done") { focused = nil }
+                Spacer()
+                Button("Save") { save() }
+                    .disabled(word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+        }
+    }
+
+    private func fieldBlock<C: View>(_ label: String, @ViewBuilder content: () -> C) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(ResponsiveFont.caption.bold())
+                .foregroundStyle(.secondary)
+            content()
+        }
+    }
+
+    private func save() {
+        do {
+            let trimmed = store.simplifiedText(word.trimmingCharacters(in: .whitespacesAndNewlines))
+            try store.addCustomPhrase(word: trimmed, pinyin: pinyin, meanings: meanings, notes: notes)
+            editorError = nil
+            dismiss()
+        } catch {
+            editorError = error.localizedDescription
+        }
+    }
+}
+
+// MARK: - From Extract tab (AI paste)
+private struct AddPhraseExtractForm: View {
+    @EnvironmentObject private var store: RadixStore
+    @Environment(\.dismiss) private var dismiss
+
     @State private var output = ""
     @State private var message: String?
     @State private var addedPhrases: [PhraseDiscoveryCandidate] = []
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("Add Phrases")
-                    .font(ResponsiveFont.headline.weight(.bold))
-                Spacer()
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark")
+        VStack(spacing: 0) {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    AddExtractsToPhrasesPanel(
+                        defaultAIName: store.defaultAIName,
+                        output: $output,
+                        message: $message,
+                        addedPhrases: $addedPhrases,
+                        onAdd: addOutputToPhrases,
+                        onClear: clear,
+                        onDeleteAddedPhrase: deleteAddedPhrase
+                    )
+                    .padding(12)
+
+                    Color.clear.frame(height: 1).id("extractBottom")
                 }
-                .buttonStyle(.bordered)
+                .scrollDismissesKeyboard(.interactively)
+                .onChange(of: addedPhrases.count) { _, _ in
+                    withAnimation {
+                        proxy.scrollTo("extractBottom", anchor: .bottom)
+                    }
+                }
             }
 
-            AddExtractsToPhrasesPanel(
-                defaultAIName: store.defaultAIName,
-                output: $output,
-                message: message,
-                addedPhrases: addedPhrases,
-                onAdd: addOutputToPhrases,
-                onClear: clear,
-                onDeleteAddedPhrase: deleteAddedPhrase
-            )
+            Divider()
+
+            HStack {
+                Spacer()
+                Button("Done") { dismiss() }
+                    .buttonStyle(.borderedProminent)
+                    .padding()
+            }
+            .background(Color(.systemBackground))
         }
-        .padding(12)
-        .frame(minWidth: 320, idealWidth: 420, maxWidth: 520)
     }
 
     private func addOutputToPhrases() {
@@ -1045,7 +1222,6 @@ private struct PhraseBatchAddPopover: View {
         var added = 0
         var addedCandidates: [PhraseDiscoveryCandidate] = []
         var errors: [String] = []
-
         for item in prepared.candidates {
             do {
                 try store.addCustomPhrase(
@@ -1061,7 +1237,6 @@ private struct PhraseBatchAddPopover: View {
                 errors.append("\(item.phrase): \(error.localizedDescription)")
             }
         }
-
         store.refreshPhraseOverlayViews()
         addedPhrases = PhraseDiscoveryCandidateTools.mergingAddedResults(addedPhrases, addedCandidates)
         let summary = PhraseDiscoveryImportSummary(
@@ -1085,6 +1260,7 @@ private struct PhraseBatchAddPopover: View {
         message = CaptureStatusText.removedPhrase(candidate.phrase)
     }
 }
+
 
 private extension String {
     var isSingleChineseCharacter: Bool {

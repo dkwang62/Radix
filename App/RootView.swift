@@ -178,7 +178,7 @@ struct RootView: View {
             case -1: return "Components"
             case 0: return "Image"
             case 1: return "Search"
-            case 2: return "Browse"
+            case 2: return store.selectedBrowseCollection.map { "Browse – \($0.name)" } ?? "Browse – Dictionary"
             case 3: return "Favorites"
             case 4: return "AI"
             case 5: return "My Data"
@@ -208,12 +208,12 @@ struct RootView: View {
                                     showProfileExporter = true
                                 } catch { importExportError = error.localizedDescription }
                             },
-                            onImportProfile: { 
+                            onImportProfile: {
                                 if entitlement.requiresPro(.profileTransfer) {
                                     store.showPaywall(for: .profileTransfer)
                                     return
                                 }
-                                showProfileImporter = true 
+                                showProfileImporter = true
                             },
                             onRequirePro: { gate in store.showPaywall(for: gate) }
                         )
@@ -423,7 +423,7 @@ struct RootView: View {
         case .search:
             switch store.homeTab {
             case .smart:      return "Search"
-            case .filter:     return "Browse"
+            case .filter:     return store.selectedBrowseCollection.map { "Browse – \($0.name)" } ?? "Browse – Dictionary"
             case .favourites: return "Favorites"
             case .dataEdit:   return "My Data"
             }
@@ -501,21 +501,23 @@ struct RootView: View {
                 }
                 .buttonStyle(.plain)
 
-                if let current = store.previewCharacter {
+                if store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil {
                     VStack(alignment: .leading, spacing: 8) {
                         Group {
-                            if let phrase = store.imageBrowsePhrasePreview {
+                            if let phrase = store.activeSidebarPhrasePreview {
                                 PhraseInfoCard(phrase: phrase, onDone: {
-                                    store.dismissImagePhrasePreview()
+                                    store.dismissSidebarPhrasePreview()
                                 })
                                 .environmentObject(store)
-                            } else {
+                            } else if let current = store.previewCharacter {
                                 CharacterPreviewHeader(
                                     character: current,
                                     showClearButton: false,
                                     showAddToMemoryButton: !(store.route == .search && store.homeTab == .favourites),
                                     isVertical: true // Always use vertical stacking in the narrow sidebar
                                 )
+                            } else {
+                                EmptyView()
                             }
                         }
                         .padding(8)
@@ -611,6 +613,7 @@ struct RootView: View {
             case 2:
                 store.route = .search
                 store.homeTab = .filter
+                store.clearBrowsePreview()
             case 3:
                 store.route = .search
                 store.homeTab = .favourites

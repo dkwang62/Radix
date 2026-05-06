@@ -59,11 +59,6 @@ struct CharacterPhraseLookupSection: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
 
-            if let selectedPhrase, !isPhone {
-                PhraseInfoCard(phrase: selectedPhrase, onDone: finishLookup)
-                    .environmentObject(store)
-                    .padding(.top, 4)
-            }
         }
         .sheet(item: phonePhraseSheetBinding) { phrase in
             NavigationStack {
@@ -161,12 +156,18 @@ struct CharacterPhraseLookupSection: View {
     private func presentPhrase(_ phrase: PhraseItem) {
         store.speakPhrase(phrase)
         withAnimation(.easeInOut(duration: 0.2)) {
-            selectedPhrase = phrase
+            if isPhone {
+                selectedPhrase = phrase
+            } else {
+                selectedPhrase = nil
+                store.presentPhraseInSidebar(phrase)
+            }
         }
     }
 
     private func finishLookup() {
         selectedPhrase = nil
+        store.dismissSidebarPhrasePreview()
         if let onDone {
             onDone()
         } else {
@@ -192,42 +193,31 @@ struct PhraseInfoCard: View {
     let phrase: PhraseItem
     var onSelectCharacter: ((String) -> Void)?
     var onDone: (() -> Void)?
-    @State private var drilldownCharacter: String?
-    @State private var variantIndex: Int = 0
+    @AppStorage("phraseInfoAnimationScript") private var animationScript = "simplified"
     @State private var isEditingNotes = false
     @State private var editableNotes = ""
     @State private var hasLocalNotes = false
     @State private var editStatus: String?
+    @State private var showAddPhraseSheet = false
 
     private var phraseCharacters: [String] {
         phrase.word.map(String.init).filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     }
 
-    private var pinyinSyllables: [String] {
-        phrase.pinyin
-            .replacingOccurrences(of: ",", with: " ")
-            .split(whereSeparator: { $0.isWhitespace || $0 == "/" || $0 == ";" })
-            .map(String.init)
-    }
-
     var body: some View {
-        Group {
-            if let drilldownCharacter, let item = store.item(for: drilldownCharacter) {
-                characterDrilldown(item)
-            } else {
-                phraseContent
-                    .padding(16)
-                    .background(Color(.systemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color(.separator), lineWidth: 1)
-                    )
-            }
+        phraseContent
+            .padding(16)
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color(.separator), lineWidth: 1)
+            )
+        .sheet(isPresented: $showAddPhraseSheet) {
+            AddPhraseSheet()
+                .environmentObject(store)
         }
         .onChange(of: phrase.word) { _, _ in
-            drilldownCharacter = nil
-            variantIndex = 0
             editableNotes = phrase.notes
             hasLocalNotes = false
             editStatus = nil
@@ -241,37 +231,22 @@ struct PhraseInfoCard: View {
     }
 
     private var phraseContent: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
+            // Row 1: phrase word + icon buttons
             HStack(alignment: .top, spacing: 10) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(phrase.word)
-                        .font(.system(size: 34, weight: .bold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                        .phraseContextMenu(phrase)
-
-                    if !phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Text(phrase.pinyin)
-                            .font(ResponsiveFont.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+                Text(phrase.word)
+                    .font(.system(size: 34, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .phraseContextMenu(phrase)
 
                 Spacer(minLength: 0)
-
-                if let onDone {
-                    Button("Done") {
-                        onDone()
-                    }
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                }
 
                 Button {
                     store.togglePhraseFavorite(phrase.word)
                 } label: {
                     Image(systemName: store.isPhraseFavorite(phrase.word) ? "star.fill" : "star")
+                        .font(ResponsiveFont.body)
                         .foregroundStyle(store.isPhraseFavorite(phrase.word) ? .yellow : .secondary)
                 }
                 .buttonStyle(.plain)
@@ -285,11 +260,33 @@ struct PhraseInfoCard: View {
                     }
                 } label: {
                     Image(systemName: isEditingNotes ? "xmark.circle" : "square.and.pencil")
+                        .font(ResponsiveFont.body)
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
                 .help(isEditingNotes ? "Cancel editing" : "Edit notes")
             }
+
+            // Row 2: +Phrases + Done
+            HStack(spacing: 10) {
+                Button("+Phrases") {
+                    showAddPhraseSheet = true
+                }
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .buttonStyle(.bordered)
+
+                Spacer()
+
+                if let onDone {
+                    Button("Done") {
+                        onDone()
+                    }
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .buttonStyle(.bordered)
+                }
+            }
+
+            animationScriptToggle
 
             animationGrid
 
@@ -297,20 +294,38 @@ struct PhraseInfoCard: View {
         }
     }
 
+    private var animationScriptToggle: some View {
+        HStack(spacing: 8) {
+            scriptButton("简", value: "simplified")
+            scriptButton("繁", value: "traditional")
+            Spacer(minLength: 0)
+        }
+    }
+
+    private func scriptButton(_ label: String, value: String) -> some View {
+        Button {
+            animationScript = value
+        } label: {
+            Text(label)
+                .font(ResponsiveFont.subheadline.weight(.bold))
+                .foregroundStyle(animationScript == value ? Color.white : Color.accentColor)
+                .frame(minWidth: 42, minHeight: 30)
+                .background(animationScript == value ? Color.accentColor : Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.accentColor.opacity(animationScript == value ? 0 : 0.45), lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+
     @ViewBuilder
     private var animationGrid: some View {
-        let characters = Array(phraseCharacters.prefix(4))
-        if characters.count == 2 {
-            HStack(spacing: 10) {
-                ForEach(Array(characters.enumerated()), id: \.offset) { offset, character in
-                    phraseCharacterTile(character, pinyin: pinyin(for: character, at: offset))
-                }
-            }
-        } else {
-            LazyVGrid(columns: phraseGridColumns, spacing: 10) {
-                ForEach(Array(characters.enumerated()), id: \.offset) { offset, character in
-                    phraseCharacterTile(character, pinyin: pinyin(for: character, at: offset))
-                }
+        let characters = Array(phraseCharacters.prefix(12))
+        LazyVGrid(columns: phraseGridColumns, spacing: 10) {
+            ForEach(Array(characters.enumerated()), id: \.offset) { _, character in
+                phraseCharacterTile(character)
             }
         }
     }
@@ -322,25 +337,22 @@ struct PhraseInfoCard: View {
         ]
     }
 
-    private func phraseCharacterTile(_ character: String, pinyin: String) -> some View {
-        Button {
-            store.speakCharacter(character)
-            onSelectCharacter?(character)
-            withAnimation(.easeInOut(duration: 0.2)) {
-                drilldownCharacter = character
-                variantIndex = 0
-            }
+    private func phraseCharacterTile(_ character: String) -> some View {
+        let animationCharacter = animationCharacter(for: character)
+        let pinyin = store.item(for: animationCharacter)?.pinyinText ?? ""
+        return Button {
+            selectCharacterFromPhrase(animationCharacter)
         } label: {
             VStack(spacing: 6) {
                 Text(pinyin.isEmpty ? " " : pinyin)
-                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
                     .foregroundStyle(Color.orange)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
                     .frame(maxWidth: .infinity)
 
                 StrokeOrderWebView(
-                    character: character,
+                    character: animationCharacter,
                     reloadToken: UUID(),
                     canvasSize: 110
                 )
@@ -357,7 +369,42 @@ struct PhraseInfoCard: View {
             )
         }
         .buttonStyle(.plain)
-        .copyCharacterContextMenu(character, pinyin: store.item(for: character)?.pinyinText)
+        .copyCharacterContextMenu(animationCharacter, pinyin: store.item(for: animationCharacter)?.pinyinText)
+    }
+
+    private func animationCharacter(for character: String) -> String {
+        let variants = [character] + store.allVariants(for: character).map(\.character)
+        let preferred = variants.first { candidate in
+            animationScript == "traditional"
+                ? store.isTraditional(candidate)
+                : store.isSimplified(candidate)
+        }
+        if let preferred {
+            return preferred
+        }
+        if animationScript == "simplified" {
+            let simplified = store.simplifiedText(character).trimmingCharacters(in: .whitespacesAndNewlines)
+            if !simplified.isEmpty, store.item(for: simplified) != nil {
+                return simplified
+            }
+        }
+        return character
+    }
+
+    private func selectCharacterFromPhrase(_ character: String) {
+        store.speakCharacter(character)
+        if let onSelectCharacter {
+            onSelectCharacter(character)
+            return
+        }
+
+        if store.route == .search && store.homeTab == .filter {
+            store.dismissSidebarPhrasePreview()
+            store.browsePreview(character: character, announce: false)
+        } else {
+            store.preview(character: character, announce: false)
+        }
+        onDone?()
     }
 
     private var phraseMeaningAndNotes: some View {
@@ -409,41 +456,6 @@ struct PhraseInfoCard: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private func characterDrilldown(_ item: ComponentItem) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Button {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    drilldownCharacter = nil
-                    variantIndex = 0
-                }
-            } label: {
-                Label(phrase.word, systemImage: "chevron.backward")
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-            }
-            .buttonStyle(.plain)
-
-            CharacterInfoCard(
-                item: item,
-                variants: store.allVariants(for: item.character).map(\.character),
-                variantIndex: $variantIndex,
-                onSelectVariant: { character in
-                    store.speakCharacter(character)
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        drilldownCharacter = character
-                        variantIndex = 0
-                    }
-                }
-            )
-        }
-    }
-
-    private func pinyin(for character: String, at index: Int) -> String {
-        if pinyinSyllables.indices.contains(index) {
-            return pinyinSyllables[index]
-        }
-        return store.item(for: character)?.pinyinText ?? ""
     }
 
     private func saveNotes() {

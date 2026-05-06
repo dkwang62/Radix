@@ -464,6 +464,7 @@ final class RadixStore: ObservableObject {
     private var imagePhraseHighlightStateByCollectionID: [UUID: ImagePhraseHighlightState] = [:]
     @Published private var imagePhraseHighlightRevision: Int = 0
     @Published private(set) var imageBrowsePhrasePreview: PhraseItem?
+    @Published private(set) var sidebarPhrasePreview: PhraseItem?
     private let imagePhraseHighlightLengths = [2, 3, 4]
     var suppressHelpReset = false
     @Published private(set) var loadingError: String?
@@ -536,9 +537,7 @@ final class RadixStore: ObservableObject {
         showBrowseHelp = true
         showComponentHelp = true
         
-        // Start with no hard selection; restore only the lightweight preview.
         previewCharacter = nil
-        restoreLastPreviewedCharacterIfNeeded()
         showiPhoneDetail = false
     }
 
@@ -721,6 +720,7 @@ final class RadixStore: ObservableObject {
             imagePhraseContext = nil
             imagePhraseHighlightOffsets = []
             imageBrowsePhrasePreview = nil
+            sidebarPhrasePreview = nil
             imagePhraseHighlightRevision += 1
         }
         pushRootBreadcrumb(character)
@@ -785,6 +785,7 @@ final class RadixStore: ObservableObject {
             imagePhraseContext = nil
             imagePhraseHighlightOffsets = []
             imageBrowsePhrasePreview = nil
+            sidebarPhrasePreview = nil
             imagePhraseHighlightRevision += 1
         }
         pushRootBreadcrumb(character)
@@ -805,6 +806,7 @@ final class RadixStore: ObservableObject {
         imagePhraseContext = context
         imagePhraseHighlightOffsets = context == nil ? [] : [offset]
         imageBrowsePhrasePreview = nil
+        sidebarPhrasePreview = nil
         imagePhraseHighlightRevision += 1
         preview(character: character, announce: announce, preservePhraseContext: context != nil)
     }
@@ -830,6 +832,7 @@ final class RadixStore: ObservableObject {
 
         if sameHighlightedTarget {
             let match = preferredImagePhraseMatch(from: matches, targetOffset: offset)
+            sidebarPhrasePreview = nil
             imageBrowsePhrasePreview = match.phrase
             previewCharacter = character
             pushRootBreadcrumb(character)
@@ -843,6 +846,7 @@ final class RadixStore: ObservableObject {
 
         imagePhraseContext = context
         imageBrowsePhrasePreview = nil
+        sidebarPhrasePreview = nil
         updateImagePhraseHighlights(context: context, matches: matches)
         return false
     }
@@ -850,9 +854,25 @@ final class RadixStore: ObservableObject {
     func clearBrowsePreview() {
         previewCharacter = nil
         imageBrowsePhrasePreview = nil
+        sidebarPhrasePreview = nil
     }
 
     func dismissImagePhrasePreview() {
+        imageBrowsePhrasePreview = nil
+        sidebarPhrasePreview = nil
+    }
+
+    var activeSidebarPhrasePreview: PhraseItem? {
+        sidebarPhrasePreview ?? imageBrowsePhrasePreview
+    }
+
+    func presentPhraseInSidebar(_ phrase: PhraseItem) {
+        sidebarPhrasePreview = phrase
+        imageBrowsePhrasePreview = nil
+    }
+
+    func dismissSidebarPhrasePreview() {
+        sidebarPhrasePreview = nil
         imageBrowsePhrasePreview = nil
     }
 
@@ -861,6 +881,7 @@ final class RadixStore: ObservableObject {
             imagePhraseContext = nil
             imagePhraseHighlightOffsets = []
             imageBrowsePhrasePreview = nil
+            sidebarPhrasePreview = nil
             imagePhraseHighlightRevision += 1
             return
         }
@@ -868,6 +889,7 @@ final class RadixStore: ObservableObject {
         imagePhraseContext = context
         imagePhraseHighlightOffsets = [offset]
         imageBrowsePhrasePreview = nil
+        sidebarPhrasePreview = nil
         imagePhraseHighlightRevision += 1
 
         refreshImagePhraseHighlights(for: character, context: context)
@@ -998,7 +1020,7 @@ final class RadixStore: ObservableObject {
         activeFavouriteCharacter = nil
         showBrowseHelp = true
         showComponentHelp = false
-        restoreLastPreviewedCharacterIfNeeded()
+        clearBrowsePreview()
     }
 
     func goToDataEdit() {
@@ -2158,7 +2180,7 @@ final class RadixStore: ObservableObject {
             case .other: return "Image"
         }
         }()
-        let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanName = collectionDisplayName(name)
         let collection = CharacterCollection(
             id: UUID(),
             name: cleanName.isEmpty ? fallbackName : cleanName,
@@ -2200,7 +2222,7 @@ final class RadixStore: ObservableObject {
 
     func renameCollection(id: UUID, newName: String) {
         guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return }
-        let cleanName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanName = collectionDisplayName(newName)
         guard !cleanName.isEmpty else { return }
         allCollections[index].name = cleanName
         saveCollection(allCollections[index])
@@ -2209,7 +2231,7 @@ final class RadixStore: ObservableObject {
     @discardableResult
     func updateCollection(id: UUID, newName: String, sourceText: String) -> CharacterCollection? {
         guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return nil }
-        let cleanName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanName = collectionDisplayName(newName)
         guard !cleanName.isEmpty else { return nil }
 
         let characters = CaptureTextExtractor.allCharactersInOrder(in: sourceText).filter { componentRepo.hasCharacter($0) }
@@ -2220,6 +2242,10 @@ final class RadixStore: ObservableObject {
         updated.characters = characters
         saveCollection(updated)
         return updated
+    }
+
+    private func collectionDisplayName(_ name: String) -> String {
+        String(name.trimmingCharacters(in: .whitespacesAndNewlines).prefix(11))
     }
 
     func toggleFavoriteCollection(id: UUID) {
@@ -2243,6 +2269,7 @@ final class RadixStore: ObservableObject {
             imagePhraseContext = nil
             imagePhraseHighlightOffsets = []
             imageBrowsePhrasePreview = nil
+            sidebarPhrasePreview = nil
             imagePhraseHighlightRevision += 1
         }
     }
@@ -3031,6 +3058,7 @@ final class RadixStore: ObservableObject {
         else {
             imagePhraseHighlightOffsets = []
             imageBrowsePhrasePreview = nil
+            sidebarPhrasePreview = nil
             imagePhraseHighlightRevision += 1
             return
         }
@@ -3836,6 +3864,9 @@ final class RadixStore: ObservableObject {
     }
 
     private var dictionaryOverlayFileURL: URL {
+        if let projectURL = ProjectLiveDataLocator.file(named: "component_map_changes.json") {
+            return projectURL
+        }
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         return docs.appendingPathComponent("component_map_changes.json")
     }

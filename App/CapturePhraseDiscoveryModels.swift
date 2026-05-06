@@ -136,7 +136,9 @@ enum CaptureBrowseTargetResolver {
 
 enum CaptureCollectionName {
     static func ocrImageName(date: Date = Date()) -> String {
-        "OCR Image \(date.formatted(date: .numeric, time: .shortened))"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "ddMMyy HHmm"
+        return formatter.string(from: date)
     }
 
     static func pastedName(_ name: String, date: Date = Date()) -> String {

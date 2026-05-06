@@ -9,7 +9,6 @@ struct DataEditTab: View {
     @EnvironmentObject private var store: RadixStore
     @EnvironmentObject private var entitlement: EntitlementManager
     @Environment(\.horizontalSizeClass) var sizeClass
-    @Environment(\.openURL) private var openURL
     let onLoadAddPhrases: () -> Void
     let onExportAddPhrases: () -> Void
     let onUseDefaultAddPhrases: () -> Void
@@ -26,12 +25,16 @@ struct DataEditTab: View {
     @State private var fullDatasetFileName: String = "radix_full_dataset"
     @State private var mergedDictionaryFileName: String = "radix_merged_dictionary"
     @State private var mergedPhrasesFileName: String = "radix_merged_phrases"
+    @State private var xcodeDataFilesFileName: String = "radix_xcode_data_files"
+    @State private var projectArchiveFileName: String = DataEditTab.projectArchiveBaseName()
     @State private var reuseExportDocument = BinaryFileDocument(data: Data())
     @State private var reuseExportFilename: String = ""
     @State private var reuseExportContentType: UTType = .json
     @State private var showReuseExporter = false
     @State private var reuseExportInProgress = false
     @State private var reuseExportMessage: String?
+    @State private var activeZipExportKind: AdvancedZipExportKind = .xcodeDataFiles
+    @State private var advancedToolsTip: AdvancedExportToolsTip?
     private let dataExportService = DataExportService()
 
     // Status messages
@@ -54,176 +57,8 @@ struct DataEditTab: View {
     // UI toggles
     @State private var showAdvancedExports = false
     @State private var showHelp = false
-    @State private var showSourceSetupGuide = false
     // Scroll-to-top support (phones only)
     @State private var dataEditScrollProxy: ScrollViewProxy?
-
-    private let sourceCodeURL = URL(string: "https://github.com/dkwang62/Radix")!
-    private let sourceCloneCommand = "git clone https://github.com/dkwang62/Radix.git"
-    private let sourceSetupGuide = """
-    # 📦 Radix Project – Setup & Usage Guide
-
-    ## 🧠 Overview
-
-    This project is an Apple (Xcode) app written in Swift.
-
-    You will:
-
-    1. Download the code
-    2. Open it in Xcode
-    3. Use Codex to work on it
-
-    ---
-
-    # 🖥️ 1. Requirements
-
-    ## Hardware
-
-    * A Mac (MacBook, iMac, Mac mini, etc.)
-
-    ## Software
-
-    1. Install **Xcode (version 26.4 or newer)** from the App Store
-    2. Install **an AI app (for Codex use)**
-
-    ---
-
-    # 📥 2. Get the Code
-
-    ## Easiest way (no Git needed)
-
-    1. Open this link:
-       https://github.com/dkwang62/Radix
-    2. Click **Code → Download ZIP**
-    3. Unzip the file
-
-    ---
-
-    ## Optional (if using terminal)
-
-    ```bash
-    git clone https://github.com/dkwang62/Radix.git
-    cd Radix
-    ```
-
-    ---
-
-    # ▶️ 3. Run the Project
-
-    1. Open:
-       Radix.xcodeproj
-
-    2. Wait for Xcode to load (1–2 minutes first time)
-
-    3. Choose a simulator (e.g. iPhone)
-
-    4. Press ▶️ Run
-
-    ---
-
-    # 🤖 4. Using Codex (Important)
-
-    ## Step 1
-
-    Open your AI app
-
-    ## Step 2
-
-    Upload or point Codex to the project folder
-
-    ## Step 3
-
-    Ask Codex things like:
-
-    * “Explain this project”
-    * “Fix build errors”
-    * “Add a feature”
-    * “Refactor this code”
-
-    ---
-
-    ## 🧠 How to think about Codex
-
-    * Codex = junior developer
-    * You = decision maker
-
-    Always:
-
-    * review what it changes
-    * test the app after changes
-
-    ---
-
-    # 📁 Project Structure (Simplified)
-
-    * App/ → app entry and setup
-    * Models/ → data structures
-    * ViewModels/ → logic and state
-    * Views/ → UI
-    * Services/ → helper logic
-    * Resources/ → assets
-    * Tests/ → tests
-
-    ---
-
-    # ⚠️ Common Issues
-
-    ## 1. First run is slow
-
-    Normal — Xcode is indexing
-
-    ---
-
-    ## 2. Build fails
-
-    In Xcode:
-
-    * Press Shift + Cmd + K (clean)
-    * Run again
-
-    ---
-
-    ## 3. Real iPhone not working
-
-    Ignore — simulator works without setup
-
-    ---
-
-    # 🧠 Simple Workflow
-
-    1. Open project
-    2. Use Codex to make changes
-    3. Run in Xcode
-    4. Repeat
-
-    ---
-
-    # 🔥 Golden Rule
-
-    If something breaks:
-
-    * don’t panic
-    * undo changes
-    * try again
-
-    ---
-
-    # ✅ Summary
-
-    You only need:
-
-    * Mac
-    * Xcode
-    * This GitHub link
-
-    Everything else is optional.
-
-    ---
-
-    # 📩 Repo Link
-
-    https://github.com/dkwang62/Radix
-    """
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -276,7 +111,13 @@ struct DataEditTab: View {
                     showBackupAlert = true
                 } else {
                     reuseExportMessage = "Saved to: \(url.lastPathComponent)"
-                    if reuseExportContentType == .json { fullDatasetFileName = base }
+                    if reuseExportContentType == .zipArchive {
+                        if activeZipExportKind == .projectArchive {
+                            projectArchiveFileName = base
+                        } else {
+                            xcodeDataFilesFileName = base
+                        }
+                    } else if reuseExportContentType == .json { fullDatasetFileName = base }
                     else if reuseExportFilename.hasPrefix(mergedDictionaryFileName.isEmpty ? "radix_merged_dictionary" : mergedDictionaryFileName) {
                         mergedDictionaryFileName = base
                     } else {
@@ -494,13 +335,55 @@ struct DataEditTab: View {
                 advancedExportMessageRow(msg)
             }
 
-            sourceCodeHelperSection
+            premiumExportOption(
+                title: "Entire Project ZIP",
+                subtitle: "A complete copy of Radix for changing app features, including your latest created or edited characters and phrases.",
+                toolsTip: AdvancedExportToolsTip(
+                    title: "Tools for Entire Project ZIP",
+                    message: "Mac, Xcode/Swift, and AI coding help such as Codex, ChatGPT, or Claude Code."
+                ),
+                systemName: "folder.badge.plus",
+                color: .indigo,
+                action: {
+                    let createdAt = Date()
+                    let name = projectArchiveFileName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let stampedName = DataEditTab.stampedProjectArchiveBaseName(name.isEmpty ? "radix_project" : name, for: createdAt)
+                    let data = try dataExportService.exportProjectDirectoryArchive(createdAt: createdAt)
+                    reuseExportDocument = BinaryFileDocument(data: data)
+                    reuseExportFilename = stampedName
+                    reuseExportContentType = .zipArchive
+                    activeZipExportKind = .projectArchive
+                    projectArchiveFileName = reuseExportFilename
+                }
+            )
+
+            premiumExportOption(
+                title: "Xcode Data Files ZIP",
+                subtitle: "The core Radix data files, including your latest created or edited characters and phrases, without the Swift code.",
+                toolsTip: AdvancedExportToolsTip(
+                    title: "Tools for Xcode Data Files ZIP",
+                    message: "Mac and Xcode. Codex or ChatGPT can help place the files correctly."
+                ),
+                systemName: "doc.zipper",
+                color: .purple,
+                action: {
+                    let name = xcodeDataFilesFileName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let addPhrasesData = try? store.exportAddPhrasesDB()
+                    let data = try dataExportService.exportXcodeDataFiles(addPhrasesDBData: addPhrasesData)
+                    reuseExportDocument = BinaryFileDocument(data: data)
+                    reuseExportFilename = name.isEmpty ? "radix_xcode_data_files" : name
+                    reuseExportContentType = .zipArchive
+                    activeZipExportKind = .xcodeDataFiles
+                }
+            )
 
             premiumExportOption(
                 title: "Full Dataset JSON",
-                subtitle: "Best for analysis, transformation, or custom tooling built on both dictionary and phrase data.",
-                filename: $fullDatasetFileName,
-                fileExtension: ".json",
+                subtitle: "A readable all-in-one file for inspecting or reusing Radix data, including your latest created or edited entries.",
+                toolsTip: AdvancedExportToolsTip(
+                    title: "Tools for Full Dataset JSON",
+                    message: "VS Code, Python, Excel or Numbers after conversion, or other data tools."
+                ),
                 systemName: "shippingbox.fill",
                 color: .green,
                 action: {
@@ -514,9 +397,11 @@ struct DataEditTab: View {
 
             premiumExportOption(
                 title: "Dictionary Database Export",
-                subtitle: "Best for extending Radix-like dictionary products or building your own structured reference layer.",
-                filename: $mergedDictionaryFileName,
-                fileExtension: ".db",
+                subtitle: "The character dictionary as a database, including your latest created or edited characters.",
+                toolsTip: AdvancedExportToolsTip(
+                    title: "Tools for Dictionary Database",
+                    message: "SQLite database tools, Python, VS Code database extensions, or other database apps."
+                ),
                 systemName: "books.vertical.fill",
                 color: .blue,
                 action: {
@@ -530,9 +415,11 @@ struct DataEditTab: View {
 
             premiumExportOption(
                 title: "Phrase Database Export",
-                subtitle: "Best for phrase-study tools, corpora experiments, and custom learning products built from your phrase layer.",
-                filename: $mergedPhrasesFileName,
-                fileExtension: ".db",
+                subtitle: "The phrase list as a database, including your latest created or edited phrases.",
+                toolsTip: AdvancedExportToolsTip(
+                    title: "Tools for Phrase Database",
+                    message: "SQLite database tools, Python, VS Code database extensions, or other database apps."
+                ),
                 systemName: "text.book.closed.fill",
                 color: .teal,
                 action: {
@@ -553,111 +440,29 @@ struct DataEditTab: View {
             )
         )
         .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-
-    private var sourceCodeHelperSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 10) {
-                Image(systemName: "chevron.left.forwardslash.chevron.right")
-                    .font(ResponsiveFont.title3)
-                    .foregroundStyle(Color.indigo)
-                    .frame(width: 28)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Source Code")
-                        .font(ResponsiveFont.subheadline.bold())
-                    Text("Share a copy of the Radix project code from GitHub.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-            }
-
-            Text(sourceCodeURL.absoluteString)
-                .font(ResponsiveFont.caption.monospaced())
-                .textSelection(.enabled)
-                .padding(10)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.systemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text("No GitHub account needed: open the link, click Code, then Download ZIP.")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                Text("Git users can clone with:")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                Text(sourceCloneCommand)
-                    .font(ResponsiveFont.caption.monospaced())
-                    .textSelection(.enabled)
-            }
-
-            DisclosureGroup("Setup & Usage Guide", isExpanded: $showSourceSetupGuide) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(sourceSetupGuide)
-                        .font(ResponsiveFont.caption)
-                        .textSelection(.enabled)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    Button {
-                        copyToClipboard(sourceSetupGuide)
-                        reuseExportMessage = "Setup guide copied."
-                    } label: {
-                        Label("Copy Guide", systemImage: "doc.on.doc")
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                }
-                .padding(.top, 8)
-            }
-            .font(ResponsiveFont.subheadline.weight(.semibold))
-
-            HStack(spacing: 10) {
-                Button {
-                    openURL(sourceCodeURL)
-                } label: {
-                    Label("Open Repo", systemImage: "safari")
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.small)
-
-                Button {
-                    copyToClipboard(sourceCodeURL.absoluteString)
-                    reuseExportMessage = "Repository URL copied."
-                } label: {
-                    Label("Copy URL", systemImage: "doc.on.doc")
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-
-                Button {
-                    copyToClipboard(sourceCloneCommand)
-                    reuseExportMessage = "Clone command copied."
-                } label: {
-                    Label("Copy Git", systemImage: "terminal")
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-            }
+        .alert(item: $advancedToolsTip) { tip in
+            Alert(
+                title: Text(tip.title),
+                message: Text(tip.message),
+                dismissButton: .default(Text("OK"))
+            )
         }
-        .padding(14)
-        .background(Color.indigo.opacity(0.10))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.indigo.opacity(0.30), lineWidth: 1)
-        )
     }
 
-    private func copyToClipboard(_ value: String) {
-        #if canImport(UIKit)
-        UIPasteboard.general.string = value
-        #elseif canImport(AppKit)
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(value, forType: .string)
-        #endif
+    private static func projectArchiveBaseName(for date: Date = Date()) -> String {
+        stampedProjectArchiveBaseName("radix_project", for: date)
+    }
+
+    private static func stampedProjectArchiveBaseName(_ baseName: String, for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd-HHmm"
+        let cleanBase = baseName.replacingOccurrences(
+            of: #"_\d{4}-\d{2}-\d{2}-\d{4}$"#,
+            with: "",
+            options: .regularExpression
+        )
+        return "\(cleanBase)_\(formatter.string(from: date))"
     }
 
     private func previewBackupCharacter(_ character: String) {
@@ -704,24 +509,12 @@ struct DataEditTab: View {
     private func premiumExportOption(
         title: String,
         subtitle: String,
-        filename: Binding<String>,
-        fileExtension: String,
+        toolsTip: AdvancedExportToolsTip,
         systemName: String,
         color: Color,
         action: @escaping () throws -> Void
     ) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                TextField("Filename", text: filename)
-                    .font(ResponsiveFont.body.monospaced())
-                    .textFieldStyle(.roundedBorder)
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-                Text(fileExtension)
-                    .font(ResponsiveFont.body.monospaced())
-                    .foregroundStyle(.secondary)
-            }
-
+        HStack(spacing: 10) {
             Button {
                 guard !entitlement.requiresPro(.dataEdit) else {
                     onRequirePro(.dataEdit)
@@ -750,6 +543,19 @@ struct DataEditTab: View {
             }
             .buttonStyle(.plain)
             .disabled(reuseExportInProgress)
+
+            Button {
+                advancedToolsTip = toolsTip
+            } label: {
+                Image(systemName: "info.circle")
+                    .font(ResponsiveFont.body)
+                    .foregroundStyle(color)
+                    .frame(width: 34, height: 34)
+                    .background(color.opacity(0.10))
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Tools needed for \(title)")
         }
     }
 
@@ -991,4 +797,16 @@ struct DataEditTab: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
+}
+
+private enum AdvancedZipExportKind {
+    case projectArchive
+    case xcodeDataFiles
+}
+
+private struct AdvancedExportToolsTip: Identifiable {
+    let title: String
+    let message: String
+
+    var id: String { title }
 }

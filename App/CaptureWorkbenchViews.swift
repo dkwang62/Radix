@@ -93,38 +93,92 @@ struct CaptureSection<Content: View>: View {
     }
 }
 
-struct ImageWorkbenchPanel<Footer: View>: View {
-    let isBrowseDisabled: Bool
-    let onBrowseSavedImages: () -> Void
-    @ViewBuilder let footer: () -> Footer
-
-    init(
-        isBrowseDisabled: Bool,
-        onBrowseSavedImages: @escaping () -> Void,
-        @ViewBuilder footer: @escaping () -> Footer
-    ) {
-        self.isBrowseDisabled = isBrowseDisabled
-        self.onBrowseSavedImages = onBrowseSavedImages
-        self.footer = footer
-    }
+struct SavedImageList: View {
+    let collections: [CharacterCollection]
+    let onOpen: (CharacterCollection) -> Void
+    let onDelete: (CharacterCollection) -> Void
 
     var body: some View {
-        CaptureSection("Image Workbench") {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Create and process images here. Browse saved image characters in Browse.")
+        CaptureSection("Images") {
+            if collections.isEmpty {
+                Text("No saved images.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
-
-                Button(action: onBrowseSavedImages) {
-                    Label("Browse Saved Images", systemImage: "square.grid.2x2")
-                        .frame(maxWidth: .infinity)
+            } else {
+                LazyVStack(spacing: 6) {
+                    ForEach(collections) { collection in
+                        SavedImageRow(
+                            collection: collection,
+                            onOpen: { onOpen(collection) },
+                            onDelete: { onDelete(collection) }
+                        )
+                    }
                 }
-                .buttonStyle(.bordered)
-                .disabled(isBrowseDisabled)
-
-                footer()
             }
         }
+    }
+}
+
+private struct SavedImageRow: View {
+    let collection: CharacterCollection
+    let onOpen: () -> Void
+    let onDelete: () -> Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Button(action: onOpen) {
+                HStack(spacing: 8) {
+                    thumbnail
+
+                    Text(collection.name)
+                        .font(ResponsiveFont.body.weight(.semibold))
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text("\(collection.uniqueCharacters.count)/\(collection.characters.count)")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            Button(role: .destructive, action: onDelete) {
+                Image(systemName: "trash")
+                    .frame(width: 30, height: 30)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .accessibilityLabel("Delete \(collection.name)")
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(Color(.secondarySystemBackground).opacity(0.55))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    @ViewBuilder
+    private var thumbnail: some View {
+        if let image = thumbnailImage {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 34, height: 34)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+        } else {
+            Image(systemName: "photo")
+                .font(ResponsiveFont.body)
+                .foregroundStyle(.secondary)
+                .frame(width: 34, height: 34)
+                .background(Color(.systemBackground).opacity(0.8))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+        }
+    }
+
+    private var thumbnailImage: UIImage? {
+        guard let data = collection.thumbnailJPEGData else { return nil }
+        return UIImage(data: data)
     }
 }
 

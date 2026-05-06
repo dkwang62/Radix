@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 
 struct BinaryFileDocument: FileDocument {
     static var readableContentTypes: [UTType] { [.data] }
-    static var writableContentTypes: [UTType] { [.data, .json, .commaSeparatedText] }
+    static var writableContentTypes: [UTType] { [.data, .json, .commaSeparatedText, .zipArchive] }
 
     var data: Data
 
@@ -20,5 +20,11 @@ struct BinaryFileDocument: FileDocument {
 
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         FileWrapper(regularFileWithContents: data)
+    }
+}
+
+extension UTType {
+    static var zipArchive: UTType {
+        UTType(filenameExtension: "zip") ?? .data
     }
 }

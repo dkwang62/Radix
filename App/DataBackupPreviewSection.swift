@@ -43,19 +43,19 @@ struct DataBackupPreviewSection: View {
                 }
 
                 DisclosureGroup("Added Characters (\(store.addedDictionaryCharacters.count))", isExpanded: $showAddedCharactersPreview) {
-                    backupCharacterRows(store.addedDictionaryCharacters, badge: "Added")
+                    backupCharacterRows(store.addedDictionaryCharacters)
                 }
 
                 DisclosureGroup("Added Phrases (\(addedPhraseEntries.count))", isExpanded: $showAddedPhrasesPreview) {
-                    backupPhraseRows(addedPhraseEntries, badge: "Added")
+                    backupPhraseRows(addedPhraseEntries)
                 }
 
                 DisclosureGroup("Characters With Notes (\(store.editedDictionaryCharacters.count))", isExpanded: $showEditedCharactersPreview) {
-                    backupCharacterRows(store.editedDictionaryCharacters, badge: "Notes Added")
+                    backupCharacterRows(store.editedDictionaryCharacters)
                 }
 
                 DisclosureGroup("Edited Phrases (\(editedPhraseEntries.count))", isExpanded: $showEditedPhrasesPreview) {
-                    backupPhraseRows(editedPhraseEntries, badge: "Edited")
+                    backupPhraseRows(editedPhraseEntries)
                 }
 
             }
@@ -66,7 +66,7 @@ struct DataBackupPreviewSection: View {
         .padding()
         .background(Color(.secondarySystemBackground).opacity(0.4))
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .sheet(item: $selectedPhrase) { phrase in
+        .sheet(item: phonePhraseSheetBinding) { phrase in
             NavigationStack {
                 PhraseInfoCard(phrase: phrase, onDone: {
                     selectedPhrase = nil
@@ -81,9 +81,10 @@ struct DataBackupPreviewSection: View {
     }
 
     @ViewBuilder
-    private func backupCharacterRows(_ characters: [String], badge: String) -> some View {
-        let displayed = Array(characters.prefix(80))
-        let truncated = characters.count > displayed.count
+    private func backupCharacterRows(_ characters: [String]) -> some View {
+        let sortedCharacters = sortedBackupCharacters(characters)
+        let displayed = Array(sortedCharacters.prefix(80))
+        let truncated = sortedCharacters.count > displayed.count
 
         VStack(alignment: .leading, spacing: 8) {
             if characters.isEmpty {
@@ -91,15 +92,15 @@ struct DataBackupPreviewSection: View {
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             } else {
-                LazyVStack(alignment: .leading, spacing: 8) {
+                LazyVGrid(columns: backupCharacterColumns, alignment: .leading, spacing: 8) {
                     ForEach(displayed, id: \.self) { character in
                         let item = store.item(for: character)
-                        backupCharacterRow(character, badge: badge, item: item)
+                        backupCharacterTile(character, item: item)
                     }
                 }
 
                 if truncated {
-                    Text("Showing the first \(displayed.count) of \(characters.count) characters.")
+                    Text("Showing the first \(displayed.count) of \(sortedCharacters.count) characters.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -109,63 +110,41 @@ struct DataBackupPreviewSection: View {
     }
 
     @ViewBuilder
-    private func backupCharacterRow(_ character: String, badge: String, item: ComponentItem?) -> some View {
+    private func backupCharacterTile(_ character: String, item: ComponentItem?) -> some View {
         let pinyin = item?.pinyinText ?? ""
-        let definition = item?.definition ?? ""
-        let isBuiltInCharacter = store.editedDictionaryCharactersSet.contains(character)
 
-        HStack(alignment: .top, spacing: 10) {
+        Button {
+            onPreviewCharacter(character)
+        } label: {
+            VStack(spacing: 4) {
             Text(character)
-                .font(ResponsiveFont.title3.bold())
-                .copyCharacterContextMenu(character, pinyin: pinyin)
-                .frame(width: 34)
-
-            VStack(alignment: .leading, spacing: 2) {
-                if !pinyin.isEmpty {
-                    Text(pinyin)
-                        .font(ResponsiveFont.caption.monospaced())
-                        .foregroundStyle(.secondary)
-                }
-                Text(definition.isEmpty ? "No definition" : definition)
+                    .font(.system(size: 28, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                Text(pinyin.isEmpty ? "-" : pinyin)
                     .font(ResponsiveFont.caption)
-                    .lineLimit(2)
-            }
-
-            Spacer()
-
-            HStack(spacing: 6) {
-                Button(store.characterNotesActionTitle(for: character)) {
-                    store.openQuickCharacterEditor(character)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.mini)
-
-                Button(role: isBuiltInCharacter ? nil : .destructive) {
-                    if isBuiltInCharacter {
-                        store.restoreDictionaryCharacterFromLibrary(character)
-                    } else {
-                        store.loadDataEditEntry(for: character)
-                        try? store.deleteCurrentDataEditEntry()
-                    }
-                } label: {
-                    Text(isBuiltInCharacter ? "Revert" : "Delete")
-                        .font(ResponsiveFont.caption)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.mini)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
         }
-        .padding(10)
-        .background(Color(.secondarySystemBackground).opacity(0.6))
+        .buttonStyle(.plain)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, minHeight: 58)
+        .background(Color(.secondarySystemBackground).opacity(0.65))
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .contentShape(Rectangle())
-        .simultaneousGesture(TapGesture().onEnded {
-            onPreviewCharacter(character)
-        })
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color(.separator).opacity(0.45), lineWidth: 1)
+        )
+        .copyCharacterContextMenu(character, pinyin: pinyin)
     }
 
     @ViewBuilder
-    private func backupPhraseRows(_ phrases: [PhraseItem], badge: String) -> some View {
+    private func backupPhraseRows(_ phrases: [PhraseItem]) -> some View {
+        let sortedPhrases = sortedBackupPhrases(phrases)
+
         if phrases.isEmpty {
             Text("No matching phrases.")
                 .font(ResponsiveFont.caption)
@@ -173,8 +152,8 @@ struct DataBackupPreviewSection: View {
                 .padding(.top, 8)
         } else {
             LazyVGrid(columns: backupPhraseColumns, alignment: .leading, spacing: 8) {
-                ForEach(phrases) { phrase in
-                    backupPhraseRow(phrase, badge: badge)
+                ForEach(sortedPhrases) { phrase in
+                    backupPhraseRow(phrase)
                 }
             }
             .padding(.top, 8)
@@ -182,16 +161,11 @@ struct DataBackupPreviewSection: View {
     }
 
     @ViewBuilder
-    private func backupPhraseRow(_ phrase: PhraseItem, badge: String) -> some View {
+    private func backupPhraseRow(_ phrase: PhraseItem) -> some View {
         Button {
             presentPhrase(phrase)
         } label: {
-            VStack(alignment: .leading, spacing: 4) {
-                PhraseSummaryTile(phrase: phrase)
-                Text(badge)
-                    .font(ResponsiveFont.caption2.weight(.semibold))
-                    .foregroundStyle(.secondary)
-            }
+            PhraseSummaryTile(phrase: phrase)
         }
         .buttonStyle(.plain)
         .phraseContextMenu(phrase)
@@ -263,6 +237,33 @@ struct DataBackupPreviewSection: View {
         [GridItem(.adaptive(minimum: isPhone ? 120 : 140), spacing: 8)]
     }
 
+    private var backupCharacterColumns: [GridItem] {
+        [GridItem(.adaptive(minimum: isPhone ? 72 : 82), spacing: 8)]
+    }
+
+    private func sortedBackupCharacters(_ characters: [String]) -> [String] {
+        characters.sorted { lhs, rhs in
+            let leftItem = store.item(for: lhs)
+            let rightItem = store.item(for: rhs)
+            let leftKey = backupSortKey(primary: leftItem?.pinyinText ?? "", fallback: lhs)
+            let rightKey = backupSortKey(primary: rightItem?.pinyinText ?? "", fallback: rhs)
+            return leftKey.localizedStandardCompare(rightKey) == .orderedAscending
+        }
+    }
+
+    private func sortedBackupPhrases(_ phrases: [PhraseItem]) -> [PhraseItem] {
+        phrases.sorted { lhs, rhs in
+            let leftKey = backupSortKey(primary: lhs.pinyin, fallback: lhs.word)
+            let rightKey = backupSortKey(primary: rhs.pinyin, fallback: rhs.word)
+            return leftKey.localizedStandardCompare(rightKey) == .orderedAscending
+        }
+    }
+
+    private func backupSortKey(primary: String, fallback: String) -> String {
+        let value = primary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? fallback : primary
+        return value.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+    }
+
     private var isPhone: Bool {
         #if targetEnvironment(macCatalyst)
         return false
@@ -273,7 +274,23 @@ struct DataBackupPreviewSection: View {
 
     private func presentPhrase(_ phrase: PhraseItem) {
         store.speakPhrase(phrase)
-        selectedPhrase = phrase
+        if isPhone {
+            selectedPhrase = phrase
+        } else {
+            selectedPhrase = nil
+            store.presentPhraseInSidebar(phrase)
+        }
+    }
+
+    private var phonePhraseSheetBinding: Binding<PhraseItem?> {
+        Binding(
+            get: { isPhone ? selectedPhrase : nil },
+            set: { newValue in
+                if isPhone {
+                    selectedPhrase = newValue
+                }
+            }
+        )
     }
 
     private var backupAITemplatesSummary: some View {

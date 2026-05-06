@@ -94,8 +94,8 @@ struct AddedPhraseResultList: View {
 struct AddExtractsToPhrasesPanel: View {
     let defaultAIName: String
     @Binding var output: String
-    let message: String?
-    let addedPhrases: [PhraseDiscoveryCandidate]
+    @Binding var message: String?
+    @Binding var addedPhrases: [PhraseDiscoveryCandidate]
     let onAdd: () -> Void
     let onClear: () -> Void
     let onDeleteAddedPhrase: (PhraseDiscoveryCandidate) -> Void
@@ -105,29 +105,27 @@ struct AddExtractsToPhrasesPanel: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Add Phrases")
-                .font(ResponsiveFont.caption.weight(.semibold))
-
-            Text("Paste one phrase or a batch from \(defaultAIName). Use this format: phrase | pinyin | English meaning.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-
-            phraseAnswerEditor
-
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 150), spacing: 8)],
-                alignment: .leading,
-                spacing: 8
-            ) {
-                Button("Add Phrases", action: onAdd)
+        VStack(alignment: .leading, spacing: 10) {
+            // ── Action buttons at the top ─────────────────────────────────────
+            HStack(spacing: 8) {
+                Button("+Phrases", action: onAdd)
                     .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
                     .disabled(outputIsEmpty)
 
                 Button("Clear", action: onClear)
                     .buttonStyle(.bordered)
+                    .controlSize(.small)
                     .disabled(output.isEmpty && message == nil)
+
+                Spacer()
             }
+
+            Text("Paste one phrase or a batch from \(defaultAIName). Format: phrase | pinyin | English meaning.")
+                .font(ResponsiveFont.caption2)
+                .foregroundStyle(.secondary)
+
+            phraseAnswerEditor
 
             if let message {
                 Text(message)
@@ -151,20 +149,20 @@ struct AddExtractsToPhrasesPanel: View {
 
             if outputIsEmpty {
                 Text(Self.placeholderText)
-                    .font(ResponsiveFont.body)
+                    .font(.system(size: 11))
                     .foregroundStyle(.tertiary)
                     .padding(.horizontal, 12)
-                    .padding(.vertical, 14)
+                    .padding(.vertical, 10)
                     .allowsHitTesting(false)
             }
 
             TextEditor(text: $output)
-                .font(ResponsiveFont.body)
+                .font(.system(size: 11))
                 .scrollContentBackground(.hidden)
                 .padding(6)
                 .background(Color.clear)
         }
-        .frame(minHeight: 110)
+        .frame(minHeight: 90)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
                 .stroke(Color(.separator), lineWidth: 0.5)

@@ -295,10 +295,6 @@ struct SmartSearchTab: View {
                                 }
                             }
 
-                            if let selectedPhrase, !isPhone {
-                                PhraseInfoCard(phrase: selectedPhrase, onDone: finishPhraseLookup)
-                                    .environmentObject(store)
-                            }
                         }
 
                         if searchPreviewCharacter == nil && !store.filteredSmartPhraseResults.isEmpty {
@@ -539,6 +535,7 @@ struct SmartSearchTab: View {
 
     private func finishPhraseLookup() {
         selectedPhrase = nil
+        store.dismissSidebarPhrasePreview()
     }
 
     private var phonePhraseSheetBinding: Binding<PhraseItem?> {
@@ -555,7 +552,12 @@ struct SmartSearchTab: View {
     private func presentPhrase(_ phrase: PhraseItem) {
         store.speakPhrase(phrase)
         withAnimation(.easeInOut(duration: 0.2)) {
-            selectedPhrase = phrase
+            if isPhone {
+                selectedPhrase = phrase
+            } else {
+                selectedPhrase = nil
+                store.presentPhraseInSidebar(phrase)
+            }
         }
     }
 }

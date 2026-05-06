@@ -337,30 +337,26 @@ struct FilterGridTab: View {
         let rangeEnd = min((safePage + 1) * imageGridBatchSize, total)
 
         if !isPhoneBrowseLayout {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("All \(total) characters from this image, in reading order.")
-                    .font(ResponsiveFont.caption2)
-                    .italic()
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 4)
-                browseHintIfNeeded
-                    .padding(.horizontal, 4)
-            }
-            .padding(.bottom, 4)
+            browseHintIfNeeded
+                .padding(.horizontal, 4)
+                .padding(.bottom, 4)
         }
 
         HStack {
+            readBrowseSourceButton(collection)
+
+            Spacer()
             Button("◀ Prev") { imageGridPage = max(0, safePage - 1) }
-                .font(ResponsiveFont.subheadline)
+                .font(ResponsiveFont.caption.weight(.semibold))
                 .disabled(safePage == 0)
-            Spacer()
             Text("\(rangeStart)–\(rangeEnd) of \(total)")
-                .font(ResponsiveFont.caption)
+                .font(ResponsiveFont.caption2)
                 .foregroundStyle(.secondary)
-            Spacer()
+                .padding(.horizontal, 8)
             Button("Next ▶") { imageGridPage = min(pageCount - 1, safePage + 1) }
-                .font(ResponsiveFont.subheadline)
+                .font(ResponsiveFont.caption.weight(.semibold))
                 .disabled(safePage + 1 >= pageCount)
+            Spacer()
         }
 
         LazyVGrid(columns: columns, spacing: 6) {
@@ -435,40 +431,26 @@ struct FilterGridTab: View {
     // ── Smart grid: All / Components with filters ────────────────────────────
     @ViewBuilder
     private func smartGridContent(proxy: ScrollViewProxy) -> some View {
-        let description = store.gridSortMode == .componentFrequency ?
-            "Characters most often used as components first." :
-            "Most common characters first."
-
-        if isPhoneBrowseLayout {
-            EmptyView()
-        } else {
-            smartGridControls
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(description)
-                    .font(ResponsiveFont.caption2)
-                    .italic()
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 4)
-                browseHintIfNeeded
-                    .padding(.horizontal, 4)
-            }
-            .padding(.bottom, 4)
+        if !isPhoneBrowseLayout {
+            browseHintIfNeeded
+                .padding(.horizontal, 4)
+                .padding(.bottom, 4)
         }
 
         HStack {
+            Spacer()
             Button("◀ Prev") { store.previousGridPage() }
                 .font(ResponsiveFont.subheadline)
                 .disabled(store.gridPage == 0)
-            Spacer()
             let totalCount = store.allGridItems.count
             Text("\(store.gridPage * store.gridBatchSize + 1)–\(min((store.gridPage + 1) * store.gridBatchSize, totalCount)) of \(totalCount)")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
-            Spacer()
+                .padding(.horizontal, 8)
             Button("Next ▶") { store.nextGridPage() }
                 .font(ResponsiveFont.subheadline)
                 .disabled(store.gridPage + 1 >= store.gridPageCount)
+            Spacer()
         }
 
         LazyVGrid(columns: columns, spacing: 6) {
@@ -509,43 +491,36 @@ struct FilterGridTab: View {
 
     @ViewBuilder
     private var smartGridControls: some View {
-        let sortPicker = Picker("Sort", selection: Binding(get: {
-            // If mode is somehow readingOrder with no image, fall back to characterFrequency
-            store.gridSortMode == .readingOrder ? .characterFrequency : store.gridSortMode
-        }, set: { store.setGridSortMode($0) })) {
-            ForEach(GridSortMode.allCases.filter { $0 != .readingOrder }) { mode in
-                Text(browseSortLabel(for: mode)).tag(mode)
-            }
+        let isComponents = store.gridSortMode == .componentFrequency
+        let componentsToggle = Button {
+            store.setGridSortMode(isComponents ? .characterFrequency : .componentFrequency)
+        } label: {
+            Text("Components")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(isComponents ? Color.accentColor : Color(.secondarySystemBackground))
+                .foregroundStyle(isComponents ? Color.white : Color.primary)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .font(ResponsiveFont.subheadline)
-        .pickerStyle(.segmented)
+        .buttonStyle(.plain)
 
         let filterButton = Button {
             showBrowseFilters = true
         } label: {
             Label(filterButtonTitle, systemImage: activeBrowseFilterCount > 0 ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
-                .font(ResponsiveFont.subheadline.weight(.semibold))
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
                 .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
 
-        if isPhoneBrowseLayout {
-            VStack(alignment: .leading, spacing: 10) {
-                sortPicker
-                HStack(spacing: 10) {
-                    CompactScriptFilterControl(selection: store.gridScriptFilter) { store.setGridScriptFilter($0) }
-                    filterButton
-                }
-            }
-        } else {
-            HStack(alignment: .center, spacing: 12) {
-                sortPicker
-                CompactScriptFilterControl(selection: store.gridScriptFilter) { store.setGridScriptFilter($0) }
-                filterButton
-            }
+        HStack(alignment: .center, spacing: 8) {
+            componentsToggle
+            CompactScriptFilterControl(selection: store.gridScriptFilter) { store.setGridScriptFilter($0) }
+            filterButton
         }
     }
 
@@ -556,17 +531,27 @@ struct FilterGridTab: View {
         }
     }
 
+    @ViewBuilder
     private func browseSourceDisclosure(description: String) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        if let selectedCollection = store.selectedBrowseCollection {
+            VStack(alignment: .leading, spacing: 8) {
+                DisclosureGroup(isExpanded: $showBrowseSource) {
+                    browseSourceOptions
+                        .padding(.top, 8)
+                } label: {
+                    selectedImageSourceLabel(selectedCollection)
+                }
+            }
+            .padding(8)
+            .background(Color(.secondarySystemBackground).opacity(0.55))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
             DisclosureGroup(isExpanded: $showBrowseSource) {
             VStack(alignment: .leading, spacing: 10) {
                 browseSourceOptions
 
                 if isPhoneBrowseLayout, store.selectedBrowseCollection == nil {
-                    smartGridControls
-                }
-
-                if isPhoneBrowseLayout {
                     Text(description)
                         .font(ResponsiveFont.caption2)
                         .italic()
@@ -576,39 +561,49 @@ struct FilterGridTab: View {
             }
             .padding(.top, 8)
             } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "tray.full")
-                        .foregroundStyle(Color.accentColor)
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("Source")
-                            .font(ResponsiveFont.subheadline.weight(.semibold))
-                        Text(browseSubjectTitle)
-                            .font(ResponsiveFont.caption2)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                    Spacer()
-                }
-            }
-
-            if let collection = store.selectedBrowseCollection {
-                selectedImageSourceActions(collection)
+                browseSourceLabel(collection: nil)
             }
         }
         .padding(10)
         .background(Color(.secondarySystemBackground).opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+    }
+
+    private func selectedImageSourceLabel(_ collection: CharacterCollection) -> some View {
+        HStack(spacing: 8) {
+            selectedImageSourceActions(collection)
+            Spacer(minLength: 0)
+            Text("Source")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .lineLimit(1)
+            Image(systemName: "tray.full")
+                .foregroundStyle(Color.accentColor)
+        }
+    }
+
+    private func browseSourceLabel(collection: CharacterCollection?) -> some View {
+        HStack(spacing: 8) {
+            if collection == nil {
+                smartGridControls
+            } else {
+                Spacer()
+            }
+            Text("Source")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .lineLimit(1)
+            Image(systemName: "tray.full")
+                .foregroundStyle(Color.accentColor)
+        }
     }
 
     private func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
         HStack(spacing: 8) {
-            readBrowseSourceButton(collection)
-
             Button {
                 beginEditing(collection)
             } label: {
                 Image(systemName: "pencil")
-                    .frame(width: 34)
+                    .frame(width: 28)
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
@@ -618,10 +613,10 @@ struct FilterGridTab: View {
                 store.goToAILinkTask4(collection: collection)
             } label: {
                 Text("Extract Phrases")
-                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .font(ResponsiveFont.caption2.weight(.semibold))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.78)
-                    .frame(maxWidth: .infinity)
+                    .minimumScaleFactor(0.7)
+                    .frame(minWidth: 130)
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.small)
@@ -630,7 +625,7 @@ struct FilterGridTab: View {
                 pendingDeleteCollection = collection
             } label: {
                 Image(systemName: "trash")
-                    .frame(width: 34)
+                    .frame(width: 28)
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
@@ -658,11 +653,21 @@ struct FilterGridTab: View {
         editingCollection = collection
     }
 
+    private var limitedEditingCollectionName: Binding<String> {
+        Binding(
+            get: { editingCollectionName },
+            set: { editingCollectionName = String($0.prefix(11)) }
+        )
+    }
+
     private func editCollectionSheet(_ collection: CharacterCollection) -> some View {
         NavigationStack {
             Form {
                 Section("Image") {
-                    TextField("Name", text: $editingCollectionName)
+                    TextField("Name", text: limitedEditingCollectionName)
+                    Text("Maximum 11 characters.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
                 }
 
                 Section("Characters") {
@@ -757,30 +762,25 @@ struct FilterGridTab: View {
         Button {
             action()
         } label: {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 Image(systemName: systemImage)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Color.accentColor)
-                    .frame(width: 20)
+                    .frame(width: 18)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(ResponsiveFont.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-                    Text(subtitle)
-                        .font(ResponsiveFont.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
+                Text(title)
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
 
-                Spacer(minLength: 8)
+                Spacer(minLength: 4)
 
                 Image(systemName: "plus.circle.fill")
                     .foregroundStyle(Color.accentColor)
+                    .font(.system(size: 14))
             }
             .padding(.horizontal, 10)
-            .padding(.vertical, 8)
+            .padding(.vertical, 6)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color(.secondarySystemBackground).opacity(0.45))
             .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -801,32 +801,34 @@ struct FilterGridTab: View {
                 showBrowseSource = false
             }
         } label: {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 Image(systemName: systemImage)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-                    .frame(width: 20)
+                    .frame(width: 18)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(ResponsiveFont.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
+                Text(title)
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+
+                if !subtitle.isEmpty {
                     Text(subtitle)
                         .font(ResponsiveFont.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
 
-                Spacer(minLength: 8)
+                Spacer(minLength: 4)
 
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(Color.accentColor)
+                        .font(.system(size: 14))
                 }
             }
             .padding(.horizontal, 10)
-            .padding(.vertical, 8)
+            .padding(.vertical, 6)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(isSelected ? Color.accentColor.opacity(0.10) : Color(.secondarySystemBackground).opacity(0.45))
             .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -861,7 +863,7 @@ struct FilterGridTab: View {
 
     private var browseGridDescription: String {
         if let collection = store.selectedBrowseCollection {
-            return "All \(collection.characters.count) characters from this image, in reading order."
+            return "\(collection.characters.count) characters"
         }
 
         return store.gridSortMode == .componentFrequency ?
@@ -871,24 +873,13 @@ struct FilterGridTab: View {
 
     private var browseSubjectTitle: String {
         if let collection = store.selectedBrowseCollection {
-            let total = collection.characters.count
-            let unique = collection.uniqueCharacters.count
-            if total == unique {
-                return "Image: \(collection.name) (\(unique) characters)"
-            } else {
-                return "Image: \(collection.name) (\(unique) unique / \(total) total)"
-            }
+            return "Image: \(collection.name) (\(collection.characters.count))"
         }
         return "Dictionary"
     }
 
     private func collectionSubtitle(for collection: CharacterCollection) -> String {
-        let total = collection.characters.count
-        let unique = collection.uniqueCharacters.count
-        if total == unique {
-            return "\(unique) characters"
-        }
-        return "\(unique) unique / \(total) total"
+        "\(collection.characters.count) characters"
     }
 
     private var manualCollectionSheet: some View {

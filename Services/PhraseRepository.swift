@@ -5,11 +5,40 @@ import SQLite3
  PHRASE REPOSITORY (Dual-DB)
  ===========================
  - Base DB (phrases.db in app bundle): read-only, never mutated.
- - Add DB (phrases_add.db in Documents): all user-created/edited phrases.
+ - Add DB (phrases_add.db in the project folder when available, otherwise Documents):
+   all user-created/edited phrases.
  - Queries return the union, with Add DB overriding on word collisions.
 */
 
 private let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+
+enum ProjectLiveDataLocator {
+    static func projectRoot(fileManager: FileManager = .default) -> URL? {
+        let sourceURL = URL(fileURLWithPath: #filePath)
+        let projectRoot = sourceURL
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let projectMarker = projectRoot.appendingPathComponent("Radix.xcodeproj")
+
+        guard fileManager.fileExists(atPath: projectMarker.path) else {
+            return nil
+        }
+        return projectRoot
+    }
+
+    static func file(named filename: String, fileManager: FileManager = .default) -> URL? {
+        guard let projectRoot = projectRoot(fileManager: fileManager) else {
+            return nil
+        }
+        let projectFile = projectRoot.appendingPathComponent(filename)
+
+        if fileManager.fileExists(atPath: projectFile.path) ||
+            fileManager.isWritableFile(atPath: projectRoot.path) {
+            return projectFile
+        }
+        return nil
+    }
+}
 
 final class PhraseRepository {
     private var baseDb: OpaquePointer?
@@ -476,12 +505,18 @@ final class PhraseRepository {
     }
 
     private func resolvedAddDBURL(fileManager: FileManager) -> URL {
+        if let projectURL = ProjectLiveDataLocator.file(named: "phrases_add.db", fileManager: fileManager) {
+            return projectURL
+        }
         let localDocs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
         return localDocs.appendingPathComponent("phrases_add.db")
     }
 
     private func resolvedActiveAddDBURL(fileManager: FileManager) throws -> URL {
         let localURL = resolvedAddDBURL(fileManager: fileManager)
+        if ProjectLiveDataLocator.file(named: "phrases_add.db", fileManager: fileManager)?.path == localURL.path {
+            return localURL
+        }
         if let addOverrideURL {
             try syncWorkingAddDBFromCustomSource(addOverrideURL, to: localURL)
             return localURL
