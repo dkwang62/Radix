@@ -200,10 +200,10 @@ struct FilterGridTab: View {
     
     private var columns: [GridItem] {
         #if targetEnvironment(macCatalyst)
-        return Array(repeating: GridItem(.flexible(minimum: 40, maximum: 80), spacing: 10), count: 15)
+        return Array(repeating: GridItem(.flexible(minimum: 40, maximum: 80), spacing: 0), count: 15)
         #else
         // iPhone: fewer columns (8) to give pinyin room to stay on one line
-        return Array(repeating: GridItem(.flexible(minimum: 32, maximum: 64), spacing: 8), count: 8)
+        return Array(repeating: GridItem(.flexible(minimum: 32, maximum: 64), spacing: 0), count: 8)
         #endif
     }
 
@@ -359,7 +359,7 @@ struct FilterGridTab: View {
             Spacer()
         }
 
-        LazyVGrid(columns: columns, spacing: 6) {
+        LazyVGrid(columns: columns, spacing: 0) {
             ForEach(pagedItems, id: \.offset) { offset, character in
                 let highlightRole = store.imagePhraseHighlightRole(collectionID: collection.id, offset: offset)
                 let isActive = highlightRole == .target
@@ -387,9 +387,9 @@ struct FilterGridTab: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 6)
                     .background(imageTileBackground(isActive: isActive, highlightRole: highlightRole))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(Rectangle())
                     .overlay(
-                        RoundedRectangle(cornerRadius: 8)
+                        Rectangle()
                             .stroke(imageTileStroke(isActive: isActive, highlightRole: highlightRole), lineWidth: highlightRole == nil ? 2 : 2.5)
                     )
                     .overlay(alignment: .topTrailing) {
@@ -453,7 +453,7 @@ struct FilterGridTab: View {
             Spacer()
         }
 
-        LazyVGrid(columns: columns, spacing: 6) {
+        LazyVGrid(columns: columns, spacing: 0) {
             ForEach(store.pagedGridItems, id: \.character) { item in
                 let isActive = item.character == store.previewCharacter
                 Button {
@@ -473,8 +473,8 @@ struct FilterGridTab: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 6)
                     .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 2))
+                    .clipShape(Rectangle())
+                    .overlay(Rectangle().stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 2))
                     .overlay(alignment: .topTrailing) {
                         if store.isFavorite(item.character) {
                             Image(systemName: "star.fill")
@@ -508,7 +508,7 @@ struct FilterGridTab: View {
         let filterButton = Button {
             showBrowseFilters = true
         } label: {
-            Label(filterButtonTitle, systemImage: activeBrowseFilterCount > 0 ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+            Text("▽")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
@@ -516,6 +516,7 @@ struct FilterGridTab: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(filterButtonTitle)
 
         HStack(alignment: .center, spacing: 8) {
             componentsToggle
@@ -575,10 +576,8 @@ struct FilterGridTab: View {
             selectedImageSourceActions(collection)
             Spacer(minLength: 0)
             Text("Source")
-                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .font(ResponsiveFont.caption.weight(.semibold))
                 .lineLimit(1)
-            Image(systemName: "tray.full")
-                .foregroundStyle(Color.accentColor)
         }
     }
 
@@ -589,11 +588,10 @@ struct FilterGridTab: View {
             } else {
                 Spacer()
             }
+            Spacer(minLength: 0)
             Text("Source")
-                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .font(ResponsiveFont.caption.weight(.semibold))
                 .lineLimit(1)
-            Image(systemName: "tray.full")
-                .foregroundStyle(Color.accentColor)
         }
     }
 

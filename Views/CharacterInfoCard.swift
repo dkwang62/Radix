@@ -104,12 +104,6 @@ struct CharacterInfoCard: View {
 
             componentIconStrip
 
-            if let strokes = item.strokes {
-                HStack(spacing: 6) {
-                    strokeCountButton(strokes)
-                }
-            }
-
             actionRow
 
             definitionAndNotes
@@ -194,34 +188,6 @@ struct CharacterInfoCard: View {
         .buttonStyle(.plain)
         .popover(isPresented: chipGuideBinding(for: guide), arrowEdge: .bottom) {
             chipGuideView(for: guide)
-                .applyCompactPopoverStyle()
-        }
-    }
-
-    private func strokeCountButton(_ strokes: Int) -> some View {
-        Button {
-            activeChipGuide = .strokes
-        } label: {
-            HStack(spacing: 6) {
-                Text("✍️ Strokes:")
-                    .font(cardActionFont)
-                Text("\(strokes)")
-                    .font(cardActionFont)
-            }
-            .lineLimit(1)
-            .minimumScaleFactor(0.75)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color(.separator), lineWidth: 0.5)
-            )
-        }
-        .buttonStyle(.plain)
-        .popover(isPresented: chipGuideBinding(for: .strokes), arrowEdge: .bottom) {
-            chipGuideView(for: .strokes)
                 .applyCompactPopoverStyle()
         }
     }
@@ -528,7 +494,6 @@ struct CharacterInfoCard: View {
 
 private enum ChipGuide: String, Identifiable {
     case usageCount
-    case strokes
     case structure
     case radical
 
@@ -541,8 +506,6 @@ private enum ChipGuide: String, Identifiable {
                 return "Not present in other characters."
             }
             return "Present in \(item.usageCount) characters."
-        case .strokes:
-            return "Number of strokes."
         case .structure:
             return "How the character is built from components."
         case .radical:

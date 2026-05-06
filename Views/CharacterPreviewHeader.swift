@@ -116,13 +116,8 @@ struct CharacterPreviewHeader: View {
             animContainer {
                 ForEach(chars, id: \.self) { char in
                     VStack(spacing: 0) {
-                        (
-                            Text(store.isTraditional(char) ? "Traditional" : "Simplified")
-                                .font(.system(size: 12, weight: .regular))
-                            +
-                            Text(store.isTraditional(char) ? "繁" : "简")
-                                .font(.system(size: 14, weight: .regular))
-                        )
+                        Text(variantAnimationTitle(for: char))
+                            .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.85)
@@ -149,9 +144,11 @@ struct CharacterPreviewHeader: View {
         } else {
             // Single animation — no variants
             VStack(spacing: 0) {
-                Text("STROKE ORDER")
-                    .font(.system(size: 7, weight: .black))
+                Text(singleAnimationTitle(for: item))
+                    .font(.system(size: 12, weight: .regular))
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
                     .padding(.vertical, 4)
 
                 StrokeOrderWebView(
@@ -167,6 +164,21 @@ struct CharacterPreviewHeader: View {
             .frame(width: isVertical ? nil : 130)
             .frame(maxWidth: isVertical ? .infinity : 130)
         }
+    }
+
+    private func variantAnimationTitle(for character: String) -> String {
+        let script = store.isTraditional(character) ? "Trad繁" : "Simp简"
+        guard let strokes = store.item(for: character)?.strokes else {
+            return script
+        }
+        return "\(script) \(strokes)"
+    }
+
+    private func singleAnimationTitle(for item: ComponentItem) -> String {
+        guard let strokes = item.strokes else {
+            return "Stroke Order"
+        }
+        return "\(strokes)"
     }
 
     private func selectPreviewCharacter(_ ch: String) {
@@ -348,6 +360,7 @@ private struct PhraseTableSheet: View {
             store.speakPhrase(phrase)
             withAnimation(.easeInOut(duration: 0.2)) {
                 if isPhone {
+                    store.presentPhraseInSidebar(phrase)
                     selectedPhrase = phrase
                 } else {
                     selectedPhrase = nil

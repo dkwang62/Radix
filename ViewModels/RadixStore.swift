@@ -835,7 +835,7 @@ final class RadixStore: ObservableObject {
             sidebarPhrasePreview = nil
             imageBrowsePhrasePreview = match.phrase
             previewCharacter = character
-            pushRootBreadcrumb(character)
+            pushPhraseBreadcrumb(match.phrase)
             showBrowseHelp = false
             showComponentHelp = false
             if speechEnabled {
@@ -869,6 +869,7 @@ final class RadixStore: ObservableObject {
     func presentPhraseInSidebar(_ phrase: PhraseItem) {
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
+        pushPhraseBreadcrumb(phrase)
     }
 
     func dismissSidebarPhrasePreview() {
@@ -1362,7 +1363,9 @@ final class RadixStore: ObservableObject {
         } else {
             favoritePhrases.insert(word)
             favoritePhraseDates[word] = Date()
-            appendPhraseCharactersToBreadcrumb(word)
+            if let phrase = phraseRepo.fetchPhrase(for: word) {
+                pushPhraseBreadcrumb(phrase)
+            }
         }
         UserDefaults.standard.set(Array(favoritePhrases), forKey: favoritePhrasesKey)
         persistFavoritePhraseDates()
@@ -3213,17 +3216,25 @@ final class RadixStore: ObservableObject {
     }
 
     func pushRootBreadcrumb(_ character: String) {
-        guard componentRepo.hasCharacter(character) else { return }
-        if let existing = rootBreadcrumb.firstIndex(of: character) {
+        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard key.count == 1, componentRepo.hasCharacter(key) else { return }
+        pushRootBreadcrumbItem(key)
+    }
+
+    private func pushRootBreadcrumbItem(_ item: String) {
+        let key = item.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard isValidRootBreadcrumbItem(key) else { return }
+        if let existing = rootBreadcrumb.firstIndex(of: key) {
             rootBreadcrumb.remove(at: existing)
         }
-        rootBreadcrumb.insert(character, at: 0)
+        rootBreadcrumb.insert(key, at: 0)
         rootBreadcrumbIndex = 0
         persistRootBreadcrumb()
     }
 
     func removeRootBreadcrumb(_ character: String) {
-        guard let existing = rootBreadcrumb.firstIndex(of: character) else { return }
+        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let existing = rootBreadcrumb.firstIndex(of: key) else { return }
         rootBreadcrumb.remove(at: existing)
         rootBreadcrumbIndex = rootBreadcrumb.isEmpty ? 0 : min(rootBreadcrumbIndex, rootBreadcrumb.count - 1)
         persistRootBreadcrumb()
@@ -3231,11 +3242,11 @@ final class RadixStore: ObservableObject {
 
     func toggleRootBreadcrumb(_ character: String) {
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard key.count == 1, componentRepo.hasCharacter(key) else { return }
+        guard isValidRootBreadcrumbItem(key) else { return }
         if rootBreadcrumb.contains(key) {
             removeRootBreadcrumb(key)
         } else {
-            pushRootBreadcrumb(key)
+            pushRootBreadcrumbItem(key)
         }
     }
 
@@ -3251,8 +3262,15 @@ final class RadixStore: ObservableObject {
 
     func activateBreadcrumbCharacter(_ character: String) {
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let phrase = phraseRepo.fetchPhrase(for: key), key.count > 1 {
+            activateBreadcrumbPhrase(phrase)
+            return
+        }
+
         guard key.count == 1, componentRepo.hasCharacter(key) else { return }
         pushRootBreadcrumb(key)
+        sidebarPhrasePreview = nil
+        imageBrowsePhrasePreview = nil
 
         switch route {
         case .capture:
@@ -3288,6 +3306,46 @@ final class RadixStore: ObservableObject {
 
         if speechEnabled {
             speechCoordinator.speak(key)
+        }
+    }
+
+    private func activateBreadcrumbPhrase(_ phrase: PhraseItem) {
+        sidebarPhrasePreview = phrase
+        imageBrowsePhrasePreview = nil
+        pushPhraseBreadcrumb(phrase)
+
+        switch route {
+        case .capture:
+            break
+        case .search:
+            switch homeTab {
+            case .smart:
+                let pinyinText = phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines)
+                let searchText = pinyinText.isEmpty ? phrase.word : pinyinText
+                query = searchText
+                performSearch(customQuery: searchText)
+            case .filter:
+                break
+            case .favourites:
+                togglePhraseFavorite(phrase.word)
+            case .dataEdit:
+                openQuickPhraseEditor(word: phrase.word)
+            }
+        case .lineage:
+            if let firstCharacter = phrase.word.map(String.init).first {
+                select(character: firstCharacter, announce: false)
+                loadSharedComponentPeers(for: firstCharacter)
+                loadSharedPeersByComponent(for: firstCharacter)
+                loadRootDerivatives(for: firstCharacter)
+            }
+        case .aiLink:
+            break
+        case .favourites:
+            togglePhraseFavorite(phrase.word)
+        }
+
+        if speechEnabled {
+            speechCoordinator.speak(phrase.word)
         }
     }
 
@@ -3406,14 +3464,22 @@ final class RadixStore: ObservableObject {
         var remembered: [String] = []
         var seen = Set<String>()
 
-        for character in characters {
-            let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard key.count == 1, componentRepo.hasCharacter(key), !seen.contains(key) else { continue }
+        for item in characters {
+            let key = item.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard isValidRootBreadcrumbItem(key), !seen.contains(key) else { continue }
             seen.insert(key)
             remembered.append(key)
         }
 
         return remembered
+    }
+
+    private func isValidRootBreadcrumbItem(_ item: String) -> Bool {
+        guard !item.isEmpty else { return false }
+        if item.count == 1 {
+            return componentRepo.hasCharacter(item)
+        }
+        return phraseRepo.fetchPhrase(for: item) != nil
     }
 
     private func applySearchHistory(_ queries: [String]) {
@@ -3468,9 +3534,9 @@ final class RadixStore: ObservableObject {
         }
 
         for phrase in sortedFavoritePhrases {
-            for character in phrase.map(String.init) {
-                append(character)
-            }
+            guard phraseRepo.fetchPhrase(for: phrase) != nil, !seen.contains(phrase) else { continue }
+            seen.insert(phrase)
+            seeded.append(phrase)
         }
 
         rootBreadcrumb = seeded
@@ -3478,10 +3544,8 @@ final class RadixStore: ObservableObject {
         persistRootBreadcrumb()
     }
 
-    private func appendPhraseCharactersToBreadcrumb(_ word: String) {
-        for character in word.map(String.init) {
-            pushRootBreadcrumb(character)
-        }
+    private func pushPhraseBreadcrumb(_ phrase: PhraseItem) {
+        pushRootBreadcrumbItem(phrase.word)
     }
 
     private func requestDataEditDictionaryFocus() {

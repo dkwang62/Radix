@@ -553,6 +553,7 @@ struct SmartSearchTab: View {
         store.speakPhrase(phrase)
         withAnimation(.easeInOut(duration: 0.2)) {
             if isPhone {
+                store.presentPhraseInSidebar(phrase)
                 selectedPhrase = phrase
             } else {
                 selectedPhrase = nil

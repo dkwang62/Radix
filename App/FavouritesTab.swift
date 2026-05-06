@@ -224,6 +224,7 @@ struct FavouritesTab: View {
     private func presentPhrase(_ phrase: PhraseItem) {
         store.speakPhrase(phrase)
         if isPhone {
+            store.presentPhraseInSidebar(phrase)
             selectedPhrase = phrase
         } else {
             selectedPhrase = nil

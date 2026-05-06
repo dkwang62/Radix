@@ -38,10 +38,10 @@ struct SmartResultsGrid: View {
     // Dynamic column calculation for Mac vs iPad
     private var columns: [GridItem] {
         #if targetEnvironment(macCatalyst)
-        return Array(repeating: GridItem(.flexible(minimum: 40, maximum: 80), spacing: 10), count: 15)
+        return Array(repeating: GridItem(.flexible(minimum: 40, maximum: 80), spacing: 0), count: 15)
         #else
         // iPhone: reduce to 8 columns to avoid pinyin wrapping
-        return Array(repeating: GridItem(.flexible(minimum: 32, maximum: 64), spacing: 8), count: 8)
+        return Array(repeating: GridItem(.flexible(minimum: 32, maximum: 64), spacing: 0), count: 8)
         #endif
     }
 
@@ -110,7 +110,7 @@ struct SmartResultsGrid: View {
                     }
                 }
 
-                LazyVGrid(columns: columns, spacing: 6) {
+                LazyVGrid(columns: columns, spacing: 0) {
                     ForEach(pagedItems, id: \.character) { item in
                         let isActive = item.character == store.previewCharacter
                         Button {
@@ -133,9 +133,9 @@ struct SmartResultsGrid: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 6)
                             .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(Rectangle())
                             .overlay(
-                                RoundedRectangle(cornerRadius: 10)
+                                Rectangle()
                                     .stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 2)
                             )
                             .overlay(alignment: .topTrailing) {
