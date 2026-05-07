@@ -51,10 +51,12 @@ struct QuickCharacterEditorView: View {
                 Text(isNew ? "Add New Character" : "\(store.characterNotesActionTitle(for: initialCharacter)): \(initialCharacter)")
                     .font(ResponsiveFont.title3.bold())
                 Spacer()
-                Button("Cancel") {
-                    dismiss()
+                if isNew && !isLoaded {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .buttonStyle(.bordered)
                 }
-                .buttonStyle(.bordered)
             }
             .padding()
             .background(Color(.systemBackground))
@@ -479,10 +481,6 @@ struct QuickPhraseEditorView: View {
                 Text(sheetTitle)
                     .font(ResponsiveFont.title3.bold())
                 Spacer()
-                Button("Cancel") {
-                    dismiss()
-                }
-                .buttonStyle(.bordered)
             }
             .padding()
             .background(Color(.systemBackground))

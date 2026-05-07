@@ -117,11 +117,11 @@ struct CharacterPreviewHeader: View {
                 ForEach(chars, id: \.self) { char in
                     VStack(spacing: 0) {
                         Text(variantAnimationTitle(for: char))
-                            .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.85)
-                        .padding(.vertical, 6)
+                            .font(ResponsiveFont.subheadline.weight(.semibold))
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                            .padding(.vertical, 6)
 
                         StrokeOrderWebView(
                             character: char,
@@ -145,11 +145,11 @@ struct CharacterPreviewHeader: View {
             // Single animation — no variants
             VStack(spacing: 0) {
                 Text(singleAnimationTitle(for: item))
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundStyle(.secondary)
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.85)
-                    .padding(.vertical, 4)
+                    .minimumScaleFactor(0.75)
+                    .padding(.vertical, 6)
 
                 StrokeOrderWebView(
                     character: item.character,
@@ -167,18 +167,23 @@ struct CharacterPreviewHeader: View {
     }
 
     private func variantAnimationTitle(for character: String) -> String {
-        let script = store.isTraditional(character) ? "Trad繁" : "Simp简"
         guard let strokes = store.item(for: character)?.strokes else {
-            return script
+            return " "
         }
-        return "\(script) \(strokes)"
+        let script = store.isTraditional(character) ? "繁" : "简"
+        return "\(script)\(strokes)"
     }
 
     private func singleAnimationTitle(for item: ComponentItem) -> String {
         guard let strokes = item.strokes else {
-            return "Stroke Order"
+            return " "
         }
-        return "\(strokes)"
+        return strokeCountText(strokes)
+    }
+
+    private func strokeCountText(_ strokes: Int) -> String {
+        let unit = strokes == 1 ? "stroke" : "strokes"
+        return "\(strokes) \(unit)"
     }
 
     private func selectPreviewCharacter(_ ch: String) {
@@ -305,7 +310,7 @@ private struct PhraseTableSheet: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .modifier(PhraseTableDetentModifier(isPhone: isPhone))
         .sheet(isPresented: $showAddPhraseSheet) {
-            AddPhraseSheet()
+            AddPhraseSheet(returnTitle: "Phrases")
                 .environmentObject(store)
         }
         .onAppear {
@@ -402,10 +407,14 @@ private struct DismissButton: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        Button("Done") {
+        Button {
             dismiss()
+        } label: {
+            Image(systemName: "xmark")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
         }
         .buttonStyle(.borderedProminent)
+        .accessibilityLabel("Close")
     }
 }
 
@@ -1015,61 +1024,105 @@ private struct PhraseActionMenuContent: View {
 struct AddPhraseSheet: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.dismiss) private var dismiss
+    let returnTitle: String
 
     private enum AddPhraseMode: String, CaseIterable {
-        case input = "Input"
-        case fromExtract = "From Extract"
+        case input = "Type"
+        case fromExtract = "From AI"
+    }
+
+    private enum AddPhraseStep {
+        case add
+        case review
     }
 
     @State private var mode: AddPhraseMode = .input
+    @State private var step: AddPhraseStep = .add
+    @State private var addedPhrases: [PhraseDiscoveryCandidate] = []
+    @State private var resultMessage: String?
+
+    init(returnTitle: String = "Phrase") {
+        self.returnTitle = returnTitle
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("+Phrases")
+                Text(step == .add ? "Add Phrases" : "Review Added")
                     .font(ResponsiveFont.title3.bold())
                 Spacer()
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
-                        .font(.title2)
-                }
-                .buttonStyle(.plain)
             }
             .padding(.horizontal)
             .padding(.top)
             .padding(.bottom, 8)
 
-            Picker("Mode", selection: $mode) {
-                ForEach(AddPhraseMode.allCases, id: \.self) { m in
-                    Text(m.rawValue).tag(m)
+            if step == .add {
+                Picker("Mode", selection: $mode) {
+                    ForEach(AddPhraseMode.allCases, id: \.self) { m in
+                        Text(m.rawValue).tag(m)
+                    }
                 }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                .padding(.bottom, 12)
             }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.bottom, 12)
 
             Divider()
 
-            switch mode {
-            case .input:
-                AddPhraseInputForm()
+            switch step {
+            case .add:
+                switch mode {
+                case .input:
+                    AddPhraseInputForm(
+                        onAdd: recordAddedPhrase,
+                        onCancel: { dismiss() }
+                    )
                     .environmentObject(store)
-            case .fromExtract:
-                AddPhraseExtractForm()
+                case .fromExtract:
+                    AddPhraseExtractForm(
+                        addedPhrases: $addedPhrases,
+                        resultMessage: $resultMessage,
+                        returnTitle: returnTitle,
+                        onReviewAdded: { step = .review },
+                        onReturn: { dismiss() }
+                    )
                     .environmentObject(store)
+                }
+            case .review:
+                AddPhraseReview(
+                    addedPhrases: addedPhrases,
+                    message: resultMessage,
+                    returnTitle: returnTitle,
+                    onAddMore: {
+                        resultMessage = nil
+                        step = .add
+                    },
+                    onDelete: deleteAddedPhrase,
+                    onReturn: { dismiss() }
+                )
             }
         }
         .frame(minWidth: 320, idealWidth: 460, maxWidth: 560)
+    }
+
+    private func recordAddedPhrase(_ candidate: PhraseDiscoveryCandidate, message: String?) {
+        addedPhrases = PhraseDiscoveryCandidateTools.mergingAddedResults(addedPhrases, [candidate])
+        resultMessage = message ?? "Added \(candidate.phrase)."
+        step = .review
+    }
+
+    private func deleteAddedPhrase(_ candidate: PhraseDiscoveryCandidate) {
+        store.removeDataEditPhrase(word: candidate.phrase)
+        addedPhrases.removeAll { $0.phrase == candidate.phrase }
+        resultMessage = CaptureStatusText.removedPhrase(candidate.phrase)
     }
 }
 
 // MARK: - Input tab (manual entry)
 private struct AddPhraseInputForm: View {
     @EnvironmentObject private var store: RadixStore
-    @Environment(\.dismiss) private var dismiss
+    let onAdd: (PhraseDiscoveryCandidate, String?) -> Void
+    let onCancel: () -> Void
 
     @State private var word = ""
     @State private var pinyin = ""
@@ -1143,9 +1196,9 @@ private struct AddPhraseInputForm: View {
 
         HStack {
             Spacer()
-            Button("Cancel") { dismiss() }
+            Button("Cancel", action: onCancel)
                 .buttonStyle(.bordered)
-            Button("Save") { save() }
+            Button("Add Phrase") { addPhrase() }
                 .buttonStyle(.borderedProminent)
                 .disabled(word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
@@ -1155,7 +1208,7 @@ private struct AddPhraseInputForm: View {
             ToolbarItemGroup(placement: .keyboard) {
                 Button("Done") { focused = nil }
                 Spacer()
-                Button("Save") { save() }
+                Button("Add Phrase") { addPhrase() }
                     .disabled(word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }
@@ -1170,12 +1223,24 @@ private struct AddPhraseInputForm: View {
         }
     }
 
-    private func save() {
+    private func addPhrase() {
         do {
             let trimmed = store.simplifiedText(word.trimmingCharacters(in: .whitespacesAndNewlines))
             try store.addCustomPhrase(word: trimmed, pinyin: pinyin, meanings: meanings, notes: notes)
             editorError = nil
-            dismiss()
+            onAdd(
+                PhraseDiscoveryCandidate(
+                    phrase: trimmed,
+                    pinyin: pinyin,
+                    meaning: meanings,
+                    isSelected: true
+                ),
+                "Added \(trimmed)."
+            )
+            word = ""
+            pinyin = ""
+            meanings = ""
+            notes = ""
         } catch {
             editorError = error.localizedDescription
         }
@@ -1185,11 +1250,14 @@ private struct AddPhraseInputForm: View {
 // MARK: - From Extract tab (AI paste)
 private struct AddPhraseExtractForm: View {
     @EnvironmentObject private var store: RadixStore
-    @Environment(\.dismiss) private var dismiss
+    @Binding var addedPhrases: [PhraseDiscoveryCandidate]
+    @Binding var resultMessage: String?
+    let returnTitle: String
+    let onReviewAdded: () -> Void
+    let onReturn: () -> Void
 
     @State private var output = ""
     @State private var message: String?
-    @State private var addedPhrases: [PhraseDiscoveryCandidate] = []
 
     var body: some View {
         VStack(spacing: 0) {
@@ -1219,11 +1287,21 @@ private struct AddPhraseExtractForm: View {
             Divider()
 
             HStack {
+                if !addedPhrases.isEmpty {
+                    Button("Review Added", action: onReviewAdded)
+                        .buttonStyle(.borderedProminent)
+                }
+
                 Spacer()
-                Button("Done") { dismiss() }
-                    .buttonStyle(.borderedProminent)
-                    .padding()
+
+                Button {
+                    onReturn()
+                } label: {
+                    Text("Back to \(returnTitle)")
+                }
+                .buttonStyle(.bordered)
             }
+            .padding()
             .background(Color(.systemBackground))
         }
     }
@@ -1259,18 +1337,78 @@ private struct AddPhraseExtractForm: View {
             errors: errors
         )
         message = summary.message(defaultAIName: store.defaultAIName)
+        resultMessage = message
+        if !addedCandidates.isEmpty {
+            onReviewAdded()
+        }
     }
 
     private func clear() {
         output = ""
         message = nil
         addedPhrases = []
+        resultMessage = nil
     }
 
     private func deleteAddedPhrase(_ candidate: PhraseDiscoveryCandidate) {
         store.removeDataEditPhrase(word: candidate.phrase)
         addedPhrases.removeAll { $0.phrase == candidate.phrase }
         message = CaptureStatusText.removedPhrase(candidate.phrase)
+        resultMessage = message
+    }
+}
+
+private struct AddPhraseReview: View {
+    let addedPhrases: [PhraseDiscoveryCandidate]
+    let message: String?
+    let returnTitle: String
+    let onAddMore: () -> Void
+    let onDelete: (PhraseDiscoveryCandidate) -> Void
+    let onReturn: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    if addedPhrases.isEmpty {
+                        if let message {
+                            Text(message)
+                                .font(ResponsiveFont.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        ContentUnavailableView(
+                            "No added phrases left",
+                            systemImage: "text.badge.xmark",
+                            description: Text("You deleted all phrases added in this round.")
+                        )
+                        .frame(maxWidth: .infinity, minHeight: 220)
+                    } else {
+                        Text("\(addedPhrases.count) added to My Phrases. Delete any you do not want to keep.")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+
+                        AddedPhraseResultList(candidates: addedPhrases, onDelete: onDelete)
+                    }
+                }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+            }
+
+            Divider()
+
+            HStack {
+                Button("Add More", action: onAddMore)
+                    .buttonStyle(.bordered)
+
+                Spacer()
+
+                Button("Back to \(returnTitle)", action: onReturn)
+                    .buttonStyle(.borderedProminent)
+            }
+            .padding()
+            .background(Color(.systemBackground))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 

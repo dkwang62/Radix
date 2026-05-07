@@ -31,10 +31,13 @@ struct CharacterPhraseLookupSection: View {
                 .pickerStyle(.segmented)
                 .frame(maxWidth: 280)
                 Spacer()
-                Button("Done") {
+                Button {
                     finishLookup()
+                } label: {
+                    Image(systemName: "xmark")
                 }
                 .font(ResponsiveFont.subheadline.weight(.semibold))
+                .accessibilityLabel("Close")
             }
 
             copyHintLabel
@@ -67,13 +70,6 @@ struct CharacterPhraseLookupSection: View {
                     .padding()
                     .navigationTitle(phrase.word)
                     .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button("Done") {
-                                finishLookup()
-                            }
-                        }
-                    }
             }
             .presentationDetents([.medium, .large])
         }
@@ -236,7 +232,7 @@ struct PhraseInfoCard: View {
             // Row 1: phrase word + icon buttons
             HStack(alignment: .top, spacing: 10) {
                 Text(phrase.word)
-                    .font(.system(size: 34, weight: .bold))
+                    .font(.system(size: 28, weight: .bold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                     .phraseContextMenu(phrase)
@@ -253,37 +249,52 @@ struct PhraseInfoCard: View {
                 .buttonStyle(.plain)
                 .help(store.isPhraseFavorite(phrase.word) ? "Remove from favorites" : "Add to favorites")
 
-                Button {
-                    editableNotes = phrase.notes
-                    editStatus = nil
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        isEditingNotes.toggle()
+                if !isEditingNotes {
+                    Button {
+                        editableNotes = phrase.notes
+                        editStatus = nil
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isEditingNotes = true
+                        }
+                    } label: {
+                        Image(systemName: "square.and.pencil")
+                            .font(ResponsiveFont.body)
+                            .foregroundStyle(.secondary)
                     }
-                } label: {
-                    Image(systemName: isEditingNotes ? "xmark.circle" : "square.and.pencil")
-                        .font(ResponsiveFont.body)
-                        .foregroundStyle(.secondary)
+                    .buttonStyle(.plain)
+                    .help("Edit notes")
                 }
-                .buttonStyle(.plain)
-                .help(isEditingNotes ? "Cancel editing" : "Edit notes")
             }
 
-            // Row 2: +Phrases + Done
-            HStack(spacing: 10) {
-                Button("+Phrases") {
-                    showAddPhraseSheet = true
+            HStack(alignment: .center, spacing: 8) {
+                let trimmedPinyin = phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmedPinyin.isEmpty {
+                    Text(trimmedPinyin)
+                        .font(ResponsiveFont.headline.weight(.semibold))
+                        .foregroundStyle(Color.orange)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
                 }
-                .font(ResponsiveFont.subheadline.weight(.semibold))
-                .buttonStyle(.bordered)
 
-                Spacer()
+                Spacer(minLength: 0)
 
                 if let onDone {
-                    Button("Done") {
+                    Button {
                         onDone()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(ResponsiveFont.caption.weight(.bold))
+                            .frame(width: 24, height: 24)
                     }
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(Circle())
+                    .overlay(
+                        Circle()
+                            .stroke(Color(.separator).opacity(0.75), lineWidth: 1)
+                    )
+                    .accessibilityLabel("Close")
                 }
             }
 
@@ -299,7 +310,32 @@ struct PhraseInfoCard: View {
         HStack(spacing: 8) {
             scriptButton("简", value: "simplified")
             scriptButton("繁", value: "traditional")
+
             Spacer(minLength: 0)
+
+            Button {
+                showAddPhraseSheet = true
+            } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(ResponsiveFont.caption.weight(.bold))
+                    Text("Phrase")
+                        .font(ResponsiveFont.caption.weight(.bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+                .foregroundStyle(Color.accentColor)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
+                .background(Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Add Phrase")
         }
     }
 
@@ -340,14 +376,14 @@ struct PhraseInfoCard: View {
 
     private func phraseCharacterTile(_ character: String) -> some View {
         let animationCharacter = animationCharacter(for: character)
-        let pinyin = store.item(for: animationCharacter)?.pinyinText ?? ""
+        let strokeText = phraseTileStrokeText(for: animationCharacter)
         return Button {
             selectCharacterFromPhrase(animationCharacter)
         } label: {
             VStack(spacing: 6) {
-                Text(pinyin.isEmpty ? " " : pinyin)
+                Text(strokeText.isEmpty ? " " : strokeText)
                     .font(ResponsiveFont.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.orange)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
                     .frame(maxWidth: .infinity)
@@ -371,6 +407,12 @@ struct PhraseInfoCard: View {
         }
         .buttonStyle(.plain)
         .copyCharacterContextMenu(animationCharacter, pinyin: store.item(for: animationCharacter)?.pinyinText)
+    }
+
+    private func phraseTileStrokeText(for character: String) -> String {
+        guard let strokes = store.item(for: character)?.strokes else { return "" }
+        let unit = strokes == 1 ? "stroke" : "strokes"
+        return "\(strokes) \(unit)"
     }
 
     private func animationCharacter(for character: String) -> String {

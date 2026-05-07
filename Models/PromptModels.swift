@@ -81,37 +81,56 @@ Compare this character with 2–3 other characters of similar meaning or usage, 
             ),
             PromptTask(
                 id: "task4",
-                title: "Task 4 – Extract Phrases from Image",
+                title: "Extract Phrases",
                 template: """
-You are a bilingual Chinese dictionary editor and teacher.
+Extract Phrases
 
-Work with an image of Chinese characters extracted from OCR or manual input. Treat the image as the subject. Do not analyze one character at a time unless the task explicitly asks for it.
-
-⸻
-
-Task 4 – Extract Phrases from Image
-
-From the image details below, extract useful 2-, 3-, and 4-character Chinese phrases that are found as dictionary headwords.
+From the collection details below, extract relevant and high-impact 2-, 3-, and 4-character Chinese phrases that function as dictionary headwords.
 
 Rules:
-\t•\tKeep the OCR text context in mind.
-\t•\tReturn only useful phrase candidates (in reading order sequence) that are attested in Chinese dictionaries.
-\t•\tOnly include a phrase if it would normally appear as an entry in a reputable dictionary such as CC-CEDICT, Pleco, MDBG, Wiktionary, or a standard Chinese dictionary.
-\t•\tPrioritize common, natural dictionary phrases.
-\t•\tAvoid rare, awkward, or accidental character combinations.
-\t•\tAvoid arbitrary n-grams, sentence fragments, partial grammar patterns, names, titles, dates, and OCR accidents unless they are also normal dictionary entries.
-\t•\tDo not invent phrases that are not clearly supported by the OCR text or detected characters.
-\t•\tInclude only 2-, 3-, and 4-character Chinese phrases.
-\t•\tProvide pinyin with tone marks.
-\t•\tProvide a concise English meaning.
-\t•\tOutput only in this format:
+
+Keep the OCR text context in mind.
+
+Relevance Filter: Prioritize specialized terminology, news keywords, idioms, and high-impact phrases that define the core narrative of the text (e.g., military, geopolitical, or descriptive terms).
+
+Exclude Generic Terms: Avoid overly common words that do not contribute to the specific context of the page (e.g., "China," "Company," "Beijing," "Revenue") unless they are part of a larger specific phrase.
+
+Return only useful phrase candidates (in Reading Order sequence) that are attested in Chinese dictionaries.
+
+Provide pinyin with tone marks.
+
+Provide a concise English meaning.
+
+Output only in this format:
 Phrase | Pinyin | Concise English meaning
 
 Important:
-\t•\tDo not explain your method.
-\t•\tDo not include headings, numbering, bullets, markdown tables, or extra commentary.
 
-⸻
+Do not explain your method.
+
+"""
+            ),
+            PromptTask(
+                id: "task5",
+                title: "Translate",
+                template: """
+Translate
+
+Role: Act as an expert translator and content strategist.
+
+Task: Translate the following text into English. Instead of a literal word-for-word translation, organize the content into a structured report based on the logical patterns found in the source.
+
+Instructions:
+
+1. Identify Content Type: Briefly state what the text appears to be (e.g., news headlines, a product catalog, social media chatter, or technical logs).
+
+2. Structural Grouping: Group related items under descriptive Headings (##). Do not leave it as a single block of text.
+
+3. Clarity & Nuance: Translate idiomatic expressions into their natural English equivalents. Use Bold text for key names, dates, or high-impact phrases.
+
+4. Meta-Data & Noise: Separate any "noise" (tags, hashtags, system timestamps, or promotional calls-to-action) into a dedicated section at the bottom using a horizontal rule (---).
+
+5. Visual Scannability: Use bullet points for lists to ensure the information is easy to digest at a glance.
 
 """
             )
@@ -129,9 +148,11 @@ Important:
         """
     )
 
+    static let collectionTaskIDs: Set<String> = ["task4", "task5"]
+
     static var defaultSelectedTaskIDs: [String] {
         streamlitDefault.tasks
-            .filter { $0.id != "task4" }
+            .filter { !collectionTaskIDs.contains($0.id) }
             .map(\.id)
     }
 
@@ -197,20 +218,29 @@ extension PromptConfig {
             seen.insert($0.id)
             return true
         }.map { task in
-            guard task.id == "task4",
-                  let defaultTask = PromptConfig.streamlitDefault.tasks.first(where: { $0.id == "task4" }) else {
+            guard PromptConfig.collectionTaskIDs.contains(task.id),
+                  let defaultTask = PromptConfig.streamlitDefault.tasks.first(where: { $0.id == task.id }) else {
                 return task
             }
 
             let normalizedTitle: String
-            if task.title == "Task 4 – Isolate Phrases from Apple Vision" {
+            if task.id == "task4",
+               task.title == "Task 4 – Isolate Phrases from Apple Vision" ||
+                task.title == "Task 4 – Extract Phrases from Image" ||
+                task.title == "Task 4 – Extract Phrases from Page (image)" {
+                normalizedTitle = defaultTask.title
+            } else if task.id == "task5",
+                      task.title == "Task 5 – Universal Content Architect" {
                 normalizedTitle = defaultTask.title
             } else {
                 normalizedTitle = task.title
             }
 
             let normalizedTemplate: String
-            if task.template.contains("{capture_chars}") || task.template.contains("{capture_text}") || task.template.contains("{collection_name}") {
+            if task.template.contains("{capture_chars}") || task.template.contains("{capture_text}") || task.template.contains("{collection_name}") ||
+                task.template.contains("Task 4 – Extract Phrases from Image") ||
+                task.template.contains("Task 4 – Extract Phrases from Page (image)") ||
+                task.template.contains("Task 5 – Universal Content Architect") {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {
                 normalizedTemplate = task.template.replacingOccurrences(
@@ -228,7 +258,9 @@ extension PromptConfig {
         }
         let defaultsByID = Dictionary(uniqueKeysWithValues: PromptConfig.streamlitDefault.tasks.map { ($0.id, $0) })
         let missingDefaults = PromptConfig.streamlitDefault.tasks.filter { defaultTask in
-            !seen.contains(defaultTask.id) && defaultTask.id == "task4" && defaultsByID[defaultTask.id] != nil
+            !seen.contains(defaultTask.id) &&
+                PromptConfig.collectionTaskIDs.contains(defaultTask.id) &&
+                defaultsByID[defaultTask.id] != nil
         }
         return PromptConfig(
             version: version,

@@ -988,10 +988,14 @@ final class RadixStore: ObservableObject {
     }
 
     func goToAILinkTask4(collection: CharacterCollection) {
+        goToAILinkCollectionTask(collection: collection, taskID: "task4")
+    }
+
+    func goToAILinkCollectionTask(collection: CharacterCollection, taskID: String) {
         selectedAICollectionID = collection.id
         selectedBrowseCollectionID = collection.id
         selectedBrowseCollectionCharacters = Set(collection.characters)
-        promptSelectedTaskIDs = ["task4"]
+        promptSelectedTaskIDs = [taskID]
         shouldAutoOpenAILinkTask4 = true
         route = .aiLink
         #if !targetEnvironment(macCatalyst)
@@ -2410,8 +2414,8 @@ final class RadixStore: ObservableObject {
     func promptText(character: String?, collection: CharacterCollection?) -> String {
         let selectedIDs = Set(promptSelectedTaskIDs)
         let selectedTasks = promptConfig.normalized().tasks.filter { selectedIDs.contains($0.id) }
-        let characterTaskIDs = selectedTasks.filter { $0.id != "task4" }.map(\.id)
-        let collectionTaskIDs = selectedTasks.filter { $0.id == "task4" }.map(\.id)
+        let characterTaskIDs = selectedTasks.filter { !PromptConfig.collectionTaskIDs.contains($0.id) }.map(\.id)
+        let collectionTaskIDs = selectedTasks.filter { PromptConfig.collectionTaskIDs.contains($0.id) }.map(\.id)
         var sections: [String] = []
 
         if !characterTaskIDs.isEmpty, let character {
@@ -2488,7 +2492,7 @@ final class RadixStore: ObservableObject {
     private func selectedPromptTaskIDsForCharacterLaunch() -> [String] {
         let availableTaskIDs = Set(promptConfig.normalized().tasks.map(\.id))
         let characterTaskIDs = promptSelectedTaskIDs.filter {
-            $0 != "task4" && availableTaskIDs.contains($0)
+            !PromptConfig.collectionTaskIDs.contains($0) && availableTaskIDs.contains($0)
         }
         if !characterTaskIDs.isEmpty {
             return characterTaskIDs
@@ -2498,7 +2502,7 @@ final class RadixStore: ObservableObject {
         }
         return promptConfig.normalized().tasks
             .map(\.id)
-            .filter { $0 != "task4" }
+            .filter { !PromptConfig.collectionTaskIDs.contains($0) }
             .prefix(1)
             .map { $0 }
     }

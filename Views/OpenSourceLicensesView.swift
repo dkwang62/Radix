@@ -54,7 +54,12 @@ struct OpenSourceLicensesView: View {
             .navigationTitle("Open Source Licenses")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel("Close")
                 }
             }
         }

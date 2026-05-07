@@ -94,7 +94,8 @@ struct CharacterDetailView: View {
     private var compactHeader: some View {
         CharacterPreviewHeader(
             character: item.character,
-            showClearButton: false
+            showClearButton: false,
+            isVertical: true
         )
         .padding(.bottom, 8)
     }
@@ -683,9 +684,12 @@ struct ComponentsExplorerShell: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
+                    Button {
                         showRootFilters = false
+                    } label: {
+                        Image(systemName: "xmark")
                     }
+                    .accessibilityLabel("Close")
                 }
             }
             .presentationDetents(sizeClass == .compact ? [.medium, .large] : [.large])

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct InteractionHintRow: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -222,8 +223,8 @@ struct FilterGridTab: View {
                     Color.clear.frame(height: 0).id("browseTop")
                     #if !targetEnvironment(macCatalyst)
                     if UIDevice.current.userInterfaceIdiom == .phone,
-                       let previewChar = store.previewCharacter {
-                        phoneBrowsePreview(character: previewChar)
+                       store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil {
+                        phoneBrowsePreview()
                     } else {
                         browseContent(proxy: proxy)
                     }
@@ -294,7 +295,7 @@ struct FilterGridTab: View {
     }
 
     @ViewBuilder
-    private func phoneBrowsePreview(character: String) -> some View {
+    private func phoneBrowsePreview() -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Button {
                 withAnimation {
@@ -311,17 +312,19 @@ struct FilterGridTab: View {
             }
             .buttonStyle(.plain)
 
-            if let phrase = store.imageBrowsePhrasePreview {
+            if let phrase = store.activeSidebarPhrasePreview {
                 PhraseInfoCard(phrase: phrase, onDone: {
-                    store.dismissImagePhrasePreview()
+                    store.dismissSidebarPhrasePreview()
                 })
                 .environmentObject(store)
-            } else {
+            } else if let character = store.previewCharacter {
                 standardPhoneCharacterPreview(
                     character: character,
                     showAddToMemoryButton: false,
                     onClear: { store.clearBrowsePreview() }
                 )
+            } else {
+                EmptyView()
             }
         }
     }
@@ -607,27 +610,32 @@ struct FilterGridTab: View {
             .controlSize(.small)
             .accessibilityLabel("Edit")
 
-            Button {
-                store.goToAILinkTask4(collection: collection)
+            Menu {
+                Button {
+                    store.goToAILinkCollectionTask(collection: collection, taskID: "task4")
+                } label: {
+                    Label("Extract Phrases", systemImage: "text.badge.plus")
+                }
+
+                Button {
+                    store.goToAILinkCollectionTask(collection: collection, taskID: "task5")
+                } label: {
+                    Label("Translate", systemImage: "translate")
+                }
             } label: {
-                Text("Extract Phrases")
-                    .font(ResponsiveFont.caption2.weight(.semibold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                    .frame(minWidth: 130)
+                HStack(spacing: 5) {
+                    Image(systemName: "sparkles")
+                    Text("AI Task")
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 9, weight: .bold))
+                }
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .frame(minWidth: 92)
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.small)
-
-            Button(role: .destructive) {
-                pendingDeleteCollection = collection
-            } label: {
-                Image(systemName: "trash")
-                    .frame(width: 28)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .accessibilityLabel("Delete")
         }
     }
 
@@ -739,14 +747,7 @@ struct FilterGridTab: View {
             }
 
             ForEach(store.allCollections) { collection in
-                sourceOptionButton(
-                    title: collection.name,
-                    subtitle: collectionSubtitle(for: collection),
-                    isSelected: store.selectedBrowseCollectionID == collection.id,
-                    systemImage: collection.isFavorite ? "star.fill" : "photo.on.rectangle"
-                ) {
-                    store.selectBrowseCollection(id: collection.id)
-                }
+                sourceCollectionRow(collection)
             }
         }
     }
@@ -762,14 +763,24 @@ struct FilterGridTab: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: systemImage)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(ResponsiveFont.body)
                     .foregroundStyle(Color.accentColor)
-                    .frame(width: 18)
+                    .frame(width: 34, height: 34)
+                    .background(Color(.systemBackground).opacity(0.8))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
 
-                Text(title)
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(ResponsiveFont.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+
+                    Text(subtitle)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 Spacer(minLength: 4)
 
@@ -777,13 +788,85 @@ struct FilterGridTab: View {
                     .foregroundStyle(Color.accentColor)
                     .font(.system(size: 14))
             }
-            .padding(.horizontal, 10)
+            .padding(.horizontal, 8)
             .padding(.vertical, 6)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemBackground).opacity(0.45))
+            .background(Color(.secondarySystemBackground).opacity(0.55))
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
+    }
+
+    private func sourceCollectionRow(_ collection: CharacterCollection) -> some View {
+        let isSelected = store.selectedBrowseCollectionID == collection.id
+        return HStack(spacing: 8) {
+            Button {
+                store.selectBrowseCollection(id: collection.id)
+                withAnimation {
+                    showBrowseSource = false
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    sourceThumbnail(for: collection)
+
+                    Text(collection.name)
+                        .font(ResponsiveFont.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text("\(collection.uniqueCharacters.count)/\(collection.characters.count)")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(Color.accentColor)
+                            .font(.system(size: 14))
+                    }
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            Button(role: .destructive) {
+                pendingDeleteCollection = collection
+            } label: {
+                Image(systemName: "trash")
+                    .frame(width: 30, height: 30)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .accessibilityLabel("Delete \(collection.name)")
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(isSelected ? Color.accentColor.opacity(0.10) : Color(.secondarySystemBackground).opacity(0.55))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    @ViewBuilder
+    private func sourceThumbnail(for collection: CharacterCollection) -> some View {
+        if let image = sourceThumbnailImage(for: collection) {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 34, height: 34)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+        } else {
+            Image(systemName: collection.isFavorite ? "star.fill" : "photo")
+                .font(ResponsiveFont.body)
+                .foregroundStyle(collection.isFavorite ? Color.yellow : Color.secondary)
+                .frame(width: 34, height: 34)
+                .background(Color(.systemBackground).opacity(0.8))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+        }
+    }
+
+    private func sourceThumbnailImage(for collection: CharacterCollection) -> UIImage? {
+        guard let data = collection.thumbnailJPEGData else { return nil }
+        return UIImage(data: data)
     }
 
     private func sourceOptionButton(
@@ -801,21 +884,24 @@ struct FilterGridTab: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: systemImage)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(ResponsiveFont.body)
                     .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-                    .frame(width: 18)
+                    .frame(width: 34, height: 34)
+                    .background(Color(.systemBackground).opacity(0.8))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
 
-                Text(title)
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(ResponsiveFont.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
 
-                if !subtitle.isEmpty {
                     Text(subtitle)
-                        .font(ResponsiveFont.caption2)
+                        .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 Spacer(minLength: 4)
 
@@ -825,10 +911,10 @@ struct FilterGridTab: View {
                         .font(.system(size: 14))
                 }
             }
-            .padding(.horizontal, 10)
+            .padding(.horizontal, 8)
             .padding(.vertical, 6)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(isSelected ? Color.accentColor.opacity(0.10) : Color(.secondarySystemBackground).opacity(0.45))
+            .background(isSelected ? Color.accentColor.opacity(0.10) : Color(.secondarySystemBackground).opacity(0.55))
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
@@ -994,9 +1080,12 @@ struct FilterGridTab: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
+                    Button {
                         showBrowseFilters = false
+                    } label: {
+                        Image(systemName: "xmark")
                     }
+                    .accessibilityLabel("Close")
                 }
             }
             .presentationDetents(sizeClass == .compact ? [.medium, .large] : [.large])

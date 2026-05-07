@@ -227,7 +227,7 @@ struct RootView: View {
                             emptyStateCard(
                                 systemImage: "sparkles",
                                 title: "No Subject",
-                                message: "Choose a character for Tasks 1-3 or a page for Task 4."
+                                message: "Choose a character for Tasks 1-3 or a page for Tasks 4-5."
                             )
                         }
                     case 5:
@@ -407,7 +407,7 @@ struct RootView: View {
                         emptyStateCard(
                             systemImage: "sparkles",
                             title: "No Subject",
-                            message: "Choose a character for Tasks 1-3 or a page for Task 4."
+                            message: "Choose a character for Tasks 1-3 or a page for Tasks 4-5."
                         )
                     }
                 }
@@ -710,6 +710,7 @@ func standardPhoneCharacterPreview(
         character: character,
         showClearButton: true,
         showAddToMemoryButton: showAddToMemoryButton,
+        isVertical: true,
         onClear: onClear
     )
     .padding(.bottom, 10)

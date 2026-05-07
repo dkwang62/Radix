@@ -11,6 +11,13 @@ import UIKit
 */
 
 struct AILinkView: View {
+    private enum Mode: String, CaseIterable, Identifiable {
+        case promptGeneration = "Prompt Generation"
+        case templateEditor = "Edit Task Template"
+
+        var id: String { rawValue }
+    }
+
     @EnvironmentObject private var store: RadixStore
     @Environment(\.horizontalSizeClass) var sizeClass
     @Environment(\.openURL) private var openURL
@@ -18,7 +25,7 @@ struct AILinkView: View {
     @State private var copied = false
     @State private var openedDefaultAI = false
     @State private var isTasksExpanded = true // Default to expanded for better usability
-    @State private var isConfigExpanded = false
+    @State private var mode: Mode = .promptGeneration
 
     /// The character or phrase word that tasks 1-3 will act on.
     /// Phrase preview takes priority over single character preview.
@@ -34,11 +41,11 @@ struct AILinkView: View {
     }
 
     private var hasCharacterTasks: Bool {
-        store.promptSelectedTaskIDs.contains { $0 != "task4" }
+        store.promptSelectedTaskIDs.contains { !PromptConfig.collectionTaskIDs.contains($0) }
     }
 
     private var hasCollectionTasks: Bool {
-        store.promptSelectedTaskIDs.contains("task4")
+        store.promptSelectedTaskIDs.contains { PromptConfig.collectionTaskIDs.contains($0) }
     }
 
     private var canGeneratePrompt: Bool {
@@ -58,11 +65,14 @@ struct AILinkView: View {
                     )
                 }
 
-                taskSelectionSection
+                modePicker
 
-                configEditorSection
-
-                promptBox
+                switch mode {
+                case .promptGeneration:
+                    promptGenerationSection
+                case .templateEditor:
+                    templateEditorSection
+                }
             }
             .padding(20)
         }
@@ -89,6 +99,22 @@ struct AILinkView: View {
             Text("Create custom analytical prompts for character exploration.")
                 .font(ResponsiveFont.subheadline)
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    private var modePicker: some View {
+        Picker("AI Link Mode", selection: $mode) {
+            ForEach(Mode.allCases) { mode in
+                Text(mode.rawValue).tag(mode)
+            }
+        }
+        .pickerStyle(.segmented)
+    }
+
+    private var promptGenerationSection: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            taskSelectionSection
+            promptBox
         }
     }
 
@@ -129,8 +155,8 @@ struct AILinkView: View {
     @ViewBuilder
     private func taskToggleRow(_ task: PromptTask) -> some View {
         let isEnabled = store.promptSelectedTaskIDs.contains(task.id)
-        let isTask4 = task.id == "task4"
-        let subject: (label: String, icon: String, isMissing: Bool) = taskSubjectInfo(task: task, isTask4: isTask4)
+        let isCollectionTask = PromptConfig.collectionTaskIDs.contains(task.id)
+        let subject: (label: String, icon: String, isMissing: Bool) = taskSubjectInfo(task: task, isCollectionTask: isCollectionTask)
 
         Toggle(isOn: Binding(
             get: { isEnabled },
@@ -152,7 +178,7 @@ struct AILinkView: View {
                             .foregroundStyle(subject.isMissing ? Color.orange : Color.accentColor)
                             .lineLimit(1)
 
-                        if isTask4 {
+                        if isCollectionTask {
                             Spacer()
                             Menu {
                                 Button("No Image") { store.selectAICollection(id: nil) }
@@ -188,8 +214,8 @@ struct AILinkView: View {
         .padding(.vertical, 6)
     }
 
-    private func taskSubjectInfo(task: PromptTask, isTask4: Bool) -> (label: String, icon: String, isMissing: Bool) {
-        if isTask4 {
+    private func taskSubjectInfo(task: PromptTask, isCollectionTask: Bool) -> (label: String, icon: String, isMissing: Bool) {
+        if isCollectionTask {
             if let col = selectedCollection {
                 return ("Image: \(col.name)", "tray.full", false)
             } else {
@@ -211,87 +237,78 @@ struct AILinkView: View {
         }
     }
 
-    private var configEditorSection: some View {
+    private var templateEditorSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            DisclosureGroup(isExpanded: $isConfigExpanded) {
-                VStack(alignment: .leading, spacing: 16) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("AI settings")
-                            .font(ResponsiveFont.subheadline.bold())
-                        Text("Task templates contain their own context. Tasks 1–3 run for a single character; Task 4 runs for a saved image.")
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                        Text(store.promptAutosaveStatus)
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                    }
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Task templates contain their own context. Tasks 1-3 run for a single character or phrase; Tasks 4-5 run for a saved image.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                Text(store.promptAutosaveStatus)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            }
 
-                    Divider()
+            Divider()
 
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Character System Epilogue")
-                            .font(ResponsiveFont.subheadline.bold())
-                        TextEditor(text: Binding(
-                            get: { store.promptConfig.epilogue },
-                            set: { store.setPromptEpilogue($0) }
-                        ))
-                        .font(.system(size: 14, design: .monospaced))
-                        .frame(minHeight: 100)
-                        .padding(8)
-                        .background(Color(.tertiarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Character System Epilogue")
+                    .font(ResponsiveFont.subheadline.bold())
+                TextEditor(text: Binding(
+                    get: { store.promptConfig.epilogue },
+                    set: { store.setPromptEpilogue($0) }
+                ))
+                .font(.system(size: 14, design: .monospaced))
+                .frame(minHeight: 100)
+                .padding(8)
+                .background(Color(.tertiarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
 
-                    Divider()
+            Divider()
 
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Image System Epilogue")
-                            .font(ResponsiveFont.subheadline.bold())
-                        TextEditor(text: Binding(
-                            get: { store.promptConfig.collectionEpilogue },
-                            set: { store.setCollectionPromptEpilogue($0) }
-                        ))
-                        .font(.system(size: 14, design: .monospaced))
-                        .frame(minHeight: 140)
-                        .padding(8)
-                        .background(Color(.tertiarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Image System Epilogue")
+                    .font(ResponsiveFont.subheadline.bold())
+                TextEditor(text: Binding(
+                    get: { store.promptConfig.collectionEpilogue },
+                    set: { store.setCollectionPromptEpilogue($0) }
+                ))
+                .font(.system(size: 14, design: .monospaced))
+                .frame(minHeight: 140)
+                .padding(8)
+                .background(Color(.tertiarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
 
-                    Divider()
+            Divider()
 
-                    Text("Task Templates")
-                        .font(ResponsiveFont.subheadline.bold())
+            HStack {
+                Text("Task Templates")
+                    .font(ResponsiveFont.subheadline.bold())
 
-                    ForEach(store.promptConfig.tasks) { task in
-                        taskEditorRow(task: task)
-                    }
+                Spacer()
 
-                    HStack {
-                        Button {
-                            store.addPromptTask()
-                        } label: {
-                            Label("Add Task", systemImage: "plus.circle")
-                        }
-                        .buttonStyle(.bordered)
-
-                        Spacer()
-
-                        Button("Reset Defaults", role: .destructive) {
-                            store.resetPromptConfigToDefaults()
-                        }
-                        .buttonStyle(.bordered)
-                        .font(.caption)
-                    }
-
+                Button {
+                    store.addPromptTask()
+                } label: {
+                    Label("Add Task", systemImage: "plus.circle")
                 }
-                .padding(.top, 10)
-            } label: {
-                HStack {
-                    Image(systemName: "slider.horizontal.3")
-                    Text("AI Template Editor")
-                        .font(ResponsiveFont.headline)
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+
+            ForEach(store.promptConfig.tasks) { task in
+                taskEditorRow(task: task)
+            }
+
+            HStack {
+                Spacer()
+
+                Button("Reset Defaults", role: .destructive) {
+                    store.resetPromptConfigToDefaults()
                 }
+                .buttonStyle(.bordered)
+                .font(.caption)
             }
         }
         .padding()
@@ -408,7 +425,7 @@ struct AILinkView: View {
 
     private var generatedPromptText: String {
         if hasCollectionTasks && selectedCollection == nil {
-            return "Choose an image for Task 4."
+            return "Choose an image for Tasks 4-5."
         }
         if hasCharacterTasks && activeCharacter == nil {
             return "Choose a character for Tasks 1-3."
@@ -430,9 +447,9 @@ struct AILinkView: View {
 
         if hasCollectionTasks {
             if let selectedCollection {
-                parts.append("Task 4: \(selectedCollection.name)")
+                parts.append("Tasks 4-5: \(selectedCollection.name)")
             } else {
-                parts.append("Task 4: no image")
+                parts.append("Tasks 4-5: no image")
             }
         }
 

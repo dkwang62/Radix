@@ -108,7 +108,7 @@ struct AddExtractsToPhrasesPanel: View {
         VStack(alignment: .leading, spacing: 10) {
             // ── Action buttons at the top ─────────────────────────────────────
             HStack(spacing: 8) {
-                Button("+Phrases", action: onAdd)
+                Button("Add Selected", action: onAdd)
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
                     .disabled(outputIsEmpty)
