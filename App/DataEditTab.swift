@@ -26,7 +26,7 @@ struct DataEditTab: View {
     @State private var mergedDictionaryFileName: String = "radix_merged_dictionary"
     @State private var mergedPhrasesFileName: String = "radix_merged_phrases"
     @State private var xcodeDataFilesFileName: String = "radix_xcode_data_files"
-    @State private var projectArchiveFileName: String = DataEditTab.projectArchiveBaseName()
+    @State private var projectArchiveFileName: String = ProjectArchiveName.baseName()
     @State private var reuseExportDocument = BinaryFileDocument(data: Data())
     @State private var reuseExportFilename: String = ""
     @State private var reuseExportContentType: UTType = .json
@@ -213,7 +213,7 @@ struct DataEditTab: View {
                     pendingRestoreMode = .additive
                     showRestorePicker = true
                 } label: {
-                    backupActionButton(
+                    DataBackupActionButton(
                         title: "Additive Restore",
                         subtitle: "Keeps current data",
                         systemName: "square.and.arrow.down",
@@ -242,8 +242,8 @@ struct DataEditTab: View {
                         }
                     }
                 } label: {
-                    backupActionButton(
-                        title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing Backup…" : "Back Up My Data",
+                    DataBackupActionButton(
+                        title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing Backup..." : "Back Up My Data",
                         subtitle: "Exports your saved data",
                         systemName: "square.and.arrow.up.fill",
                         foreground: .white,
@@ -258,7 +258,7 @@ struct DataEditTab: View {
                     pendingRestoreMode = .complete
                     showRestorePicker = true
                 } label: {
-                    backupActionButton(
+                    DataBackupActionButton(
                         title: "Complete Restore",
                         subtitle: "Replaces data",
                         systemName: "square.and.arrow.down.fill",
@@ -292,28 +292,6 @@ struct DataEditTab: View {
         )
     }
 
-    private var advancedExportProgressRow: some View {
-        HStack(spacing: 10) {
-            ProgressView()
-            Text("Preparing advanced export…")
-                .font(ResponsiveFont.subheadline)
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    private func advancedExportMessageRow(_ message: String) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(.green)
-            Text(message)
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-            Spacer()
-            Button("Dismiss") { reuseExportMessage = nil }
-                .font(ResponsiveFont.caption)
-        }
-    }
-
     private var premiumExportsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
@@ -328,9 +306,11 @@ struct DataEditTab: View {
             }
 
             if reuseExportInProgress && !reuseExportFilename.contains("backup") {
-                advancedExportProgressRow
+                AdvancedExportProgressRow()
             } else if let msg = reuseExportMessage {
-                advancedExportMessageRow(msg)
+                AdvancedExportMessageRow(message: msg) {
+                    reuseExportMessage = nil
+                }
             }
 
             premiumExportOption(
@@ -345,7 +325,7 @@ struct DataEditTab: View {
                 action: {
                     let createdAt = Date()
                     let name = projectArchiveFileName.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let stampedName = DataEditTab.stampedProjectArchiveBaseName(name.isEmpty ? "radix_project" : name, for: createdAt)
+                    let stampedName = ProjectArchiveName.stampedBaseName(name.isEmpty ? "radix_project" : name, for: createdAt)
                     let data = try dataExportService.exportProjectDirectoryArchive(createdAt: createdAt)
                     reuseExportDocument = BinaryFileDocument(data: data)
                     reuseExportFilename = stampedName
@@ -447,22 +427,6 @@ struct DataEditTab: View {
         }
     }
 
-    private static func projectArchiveBaseName(for date: Date = Date()) -> String {
-        stampedProjectArchiveBaseName("radix_project", for: date)
-    }
-
-    private static func stampedProjectArchiveBaseName(_ baseName: String, for date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd-HHmm"
-        let cleanBase = baseName.replacingOccurrences(
-            of: #"_\d{4}-\d{2}-\d{2}-\d{4}$"#,
-            with: "",
-            options: .regularExpression
-        )
-        return "\(cleanBase)_\(formatter.string(from: date))"
-    }
-
     private func previewBackupCharacter(_ character: String) {
         store.preview(character: character)
         #if !targetEnvironment(macCatalyst)
@@ -470,38 +434,6 @@ struct DataEditTab: View {
             withAnimation { dataEditScrollProxy?.scrollTo("myDataTop", anchor: .top) }
         }
         #endif
-    }
-
-    private func backupActionButton(
-        title: String,
-        subtitle: String,
-        systemName: String,
-        foreground: Color,
-        background: Color,
-        border: Color
-    ) -> some View {
-        VStack(spacing: 6) {
-            Image(systemName: systemName)
-                .font(ResponsiveFont.body.bold())
-            Text(title)
-                .font(ResponsiveFont.caption.bold())
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-            Text(subtitle)
-                .font(ResponsiveFont.caption2)
-                .multilineTextAlignment(.center)
-                .opacity(0.85)
-                .lineLimit(2)
-        }
-        .frame(maxWidth: .infinity, minHeight: 84)
-        .padding(.horizontal, 8)
-        .background(background)
-        .foregroundStyle(foreground)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(border, lineWidth: 1)
-        )
     }
 
     private func premiumExportOption(
@@ -512,8 +444,15 @@ struct DataEditTab: View {
         color: Color,
         action: @escaping () throws -> Void
     ) -> some View {
-        HStack(spacing: 10) {
-            Button {
+        AdvancedExportOptionRow(
+            title: title,
+            subtitle: subtitle,
+            toolsTip: toolsTip,
+            systemName: systemName,
+            color: color,
+            isLocked: entitlement.requiresPro(.dataEdit),
+            isDisabled: reuseExportInProgress,
+            onExport: {
                 guard !entitlement.requiresPro(.dataEdit) else {
                     onRequirePro(.dataEdit)
                     return
@@ -531,30 +470,9 @@ struct DataEditTab: View {
                         reuseExportMessage = "Export failed: \(error.localizedDescription)"
                     }
                 }
-            } label: {
-                exportOptionCard(
-                    title: title,
-                    subtitle: entitlement.requiresPro(.dataEdit) ? "\(subtitle) Unlock Pro to export." : subtitle,
-                    systemName: entitlement.requiresPro(.dataEdit) ? "lock.fill" : systemName,
-                    color: color
-                )
-            }
-            .buttonStyle(.plain)
-            .disabled(reuseExportInProgress)
-
-            Button {
-                advancedToolsTip = toolsTip
-            } label: {
-                Image(systemName: "info.circle")
-                    .font(ResponsiveFont.body)
-                    .foregroundStyle(color)
-                    .frame(width: 34, height: 34)
-                    .background(color.opacity(0.10))
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Tools needed for \(title)")
-        }
+            },
+            onShowTools: { advancedToolsTip = $0 }
+        )
     }
 
     private var addedPhraseEntries: [PhraseItem] {
@@ -581,35 +499,6 @@ struct DataEditTab: View {
         return merged
     }
 
-    private func exportOptionCard(title: String, subtitle: String, systemName: String, color: Color) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: systemName)
-                .font(ResponsiveFont.title3)
-                .foregroundStyle(color)
-                .frame(width: 28)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(ResponsiveFont.subheadline.bold())
-                    .foregroundStyle(.primary)
-                Text(subtitle)
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 14)
-        .padding(.horizontal, 14)
-        .background(color.opacity(0.12))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(color.opacity(0.35), lineWidth: 1)
-        )
-    }
-
     private var activeCharacterContext: some View {
         VStack(alignment: .leading, spacing: 8) {
             if let current = store.previewCharacter {
@@ -620,17 +509,4 @@ struct DataEditTab: View {
             }
         }
     }
-
-}
-
-private enum AdvancedZipExportKind {
-    case projectArchive
-    case xcodeDataFiles
-}
-
-private struct AdvancedExportToolsTip: Identifiable {
-    let title: String
-    let message: String
-
-    var id: String { title }
 }
