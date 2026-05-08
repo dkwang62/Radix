@@ -683,17 +683,6 @@ struct FilterGridTab: View {
             "Most common characters first."
     }
 
-    private var browseSubjectTitle: String {
-        if let collection = store.selectedBrowseCollection {
-            return "Image: \(collection.name) (\(collection.characters.count))"
-        }
-        return "Dictionary"
-    }
-
-    private func collectionSubtitle(for collection: CharacterCollection) -> String {
-        "\(collection.characters.count) characters"
-    }
-
     private func beginManualCollection() {
         manualCollectionName = ""
         manualCollectionText = clipboardText()
@@ -719,17 +708,6 @@ struct FilterGridTab: View {
         #else
         return ""
         #endif
-    }
-
-    private func browseSortLabel(for mode: GridSortMode) -> String {
-        switch mode {
-        case .readingOrder:
-            return "Reading Order"
-        case .componentFrequency:
-            return "Components (\(store.gridFilteredComponentCount))"
-        case .characterFrequency:
-            return "All (\(store.gridFilteredAllCount))"
-        }
     }
 
     private var activeBrowseFilterCount: Int {

@@ -41,9 +41,6 @@ struct DataEditTab: View {
     @State private var editorMessage: String?
     @State private var editorError: String?
 
-    // Dictionary change editor search
-    @State private var dictionaryChangeSearch: String = ""
-
     // Progressive disclosure — all collapsed on launch
     @State private var showAddedCharactersPreview = false
     @State private var showEditedCharactersPreview = false
@@ -560,82 +557,8 @@ struct DataEditTab: View {
         }
     }
 
-    @ViewBuilder
-    private var dictionaryDataSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Label {
-                Text("1. Core Dictionary")
-                    .font(ResponsiveFont.headline)
-            } icon: {
-                Image(systemName: "book.closed")
-            }
-            .foregroundStyle(Color.accentColor)
-
-            Button {
-                store.openNewCharacterEditor()
-            } label: {
-                Label("New Character", systemImage: "plus.circle.fill")
-                    .font(ResponsiveFont.subheadline.bold())
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.accentColor)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Add New Character")
-
-            DataChangedDictionarySection(
-                searchText: $dictionaryChangeSearch,
-                onPreviewCharacter: previewBackupCharacter
-            )
-        }
-        .padding()
-        .background(Color(.secondarySystemBackground).opacity(0.4))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-
-    private var phraseIntegrationSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Label {
-                Text("2. Phrases & English Meanings")
-                    .font(ResponsiveFont.headline)
-            } icon: {
-                Image(systemName: "character.bubble")
-            }
-            .foregroundStyle(Color.accentColor)
-
-            Button {
-                store.openNewPhraseEditor()
-            } label: {
-                Label("New Phrase", systemImage: "plus.circle.fill")
-                    .font(ResponsiveFont.subheadline.bold())
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.accentColor)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Add New Phrase")
-
-            DataChangedPhrasesSection(
-                changedPhraseEntries: changedPhraseEntries,
-                addedPhraseEntries: addedPhraseEntries,
-                editedPhraseEntries: editedPhraseEntries
-            )
-        }
-        .padding()
-        .background(Color(.secondarySystemBackground).opacity(0.4))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-
     private var addedPhraseEntries: [PhraseItem] {
         changedPhraseEntries.filter { !store.isPhraseInBase($0.word) }
-    }
-
-    private var editedPhraseEntries: [PhraseItem] {
-        changedPhraseEntries.filter { store.isPhraseInBase($0.word) }
     }
 
     private var phraseEntriesWithNotes: [PhraseItem] {
@@ -656,24 +579,6 @@ struct DataEditTab: View {
             }
         }
         return merged
-    }
-
-    private func exportFormatDetail(title: String, path: String, intendedUse: String) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(ResponsiveFont.caption.bold())
-                .foregroundStyle(.secondary)
-            Text(path)
-                .font(ResponsiveFont.caption.monospaced())
-                .textSelection(.enabled)
-                .padding(10)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            Text("Best for: \(intendedUse)")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-        }
     }
 
     private func exportOptionCard(title: String, subtitle: String, systemName: String, color: Color) -> some View {
@@ -716,97 +621,6 @@ struct DataEditTab: View {
         }
     }
 
-    private func varianceGrid(items: [DictionaryVariance]) -> some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 160))], spacing: 8) {
-            ForEach(items) { variance in
-                Button {
-                    // For phrases, we try to load the first character of the word into the studio
-                    let target = String(variance.character.prefix(1))
-                    store.loadDataEditEntry(for: target)
-                } label: {
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack {
-                            Text(variance.character)
-                                .font(ResponsiveFont.subheadline.bold())
-                                .lineLimit(1)
-                            Spacer()
-                            varianceIcon(for: variance.type)
-                        }
-                        Text(variance.type.rawValue)
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(8)
-                    .background(Color(.systemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(varianceColor(for: variance.type).opacity(0.3), lineWidth: 1)
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-
-    private func varianceIcon(for type: DictionaryVariance.VarianceType) -> some View {
-        switch type {
-        case .added:
-            return Image(systemName: "plus.circle.fill").font(ResponsiveFont.body).foregroundStyle(.green)
-        case .missing:
-            return Image(systemName: "exclamationmark.circle.fill").font(ResponsiveFont.body).foregroundStyle(.red)
-        }
-    }
-
-    private func varianceColor(for type: DictionaryVariance.VarianceType) -> Color {
-        switch type {
-        case .added: return .green
-        case .missing: return .red
-        }
-    }
-
-    private func explainerGridRow(title: String, desc: String) -> some View {
-        let titleWidth: CGFloat = {
-            #if targetEnvironment(macCatalyst)
-            return 110 // Wider for Mac to prevent "Restore" from wrapping
-            #else
-            return 80
-            #endif
-        }()
-        
-        return GridRow {
-            Text(title)
-                .font(ResponsiveFont.subheadline.bold())
-                .frame(width: titleWidth, alignment: .leading)
-            Text(desc)
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    private func explainerRow(title: String, desc: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title)
-                .font(ResponsiveFont.subheadline.bold())
-            Text(desc)
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    private func labeledEditor(_ label: String, text: Binding<String>) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(label)
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-            TextEditor(text: text)
-                .font(ResponsiveFont.body)
-                .frame(minHeight: 100, maxHeight: 180)
-                .padding(6)
-                .background(Color(.secondarySystemBackground).opacity(0.6))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-    }
 }
 
 private enum AdvancedZipExportKind {
