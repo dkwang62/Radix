@@ -59,6 +59,7 @@
 		850000322F9D0001001B9AA7 /* DataEditExportSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000312F9D0001001B9AA7 /* DataEditExportSupport.swift */; };
 		850000342F9D0001001B9AA7 /* RootViewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000332F9D0001001B9AA7 /* RootViewSupport.swift */; };
 		850000362F9D0001001B9AA7 /* ComponentsExplorerShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000352F9D0001001B9AA7 /* ComponentsExplorerShell.swift */; };
+		850000382F9D0001001B9AA7 /* QuickPhraseEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000372F9D0001001B9AA7 /* QuickPhraseEditorView.swift */; };
 		859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */; };
 		864DAB762F93ADA3001B9AA7 /* ComponentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */; };
 		864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB872F93B701001B9AA7 /* RadixStore.swift */; };
@@ -202,6 +203,7 @@
 		850000312F9D0001001B9AA7 /* DataEditExportSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditExportSupport.swift; sourceTree = "<group>"; };
 		850000332F9D0001001B9AA7 /* RootViewSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewSupport.swift; sourceTree = "<group>"; };
 		850000352F9D0001001B9AA7 /* ComponentsExplorerShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentsExplorerShell.swift; sourceTree = "<group>"; };
+		850000372F9D0001001B9AA7 /* QuickPhraseEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickPhraseEditorView.swift; sourceTree = "<group>"; };
 		911F85BE195D61BDA4442400 /* PhraseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseModels.swift; sourceTree = "<group>"; };
 		850000092F9D0001001B9AA7 /* BrowseGridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseGridLayout.swift; sourceTree = "<group>"; };
 		8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreExtractedHelpers.swift; sourceTree = "<group>"; };
@@ -249,6 +251,7 @@
 				850000152F9D0001001B9AA7 /* BrowseSourceMenuViews.swift */,
 				86CD143B2F9822B300D7BDBD /* QuickEditSheets.swift */,
 				850000192F9D0001001B9AA7 /* QuickEditFieldRows.swift */,
+				850000372F9D0001001B9AA7 /* QuickPhraseEditorView.swift */,
 				86CD143C2F9822B300D7BDBD /* RootView.swift */,
 				850000332F9D0001001B9AA7 /* RootViewSupport.swift */,
 				86CD143D2F9822B300D7BDBD /* SmartResultsGrid.swift */,
@@ -512,6 +515,7 @@
 				850000322F9D0001001B9AA7 /* DataEditExportSupport.swift in Sources */,
 				850000342F9D0001001B9AA7 /* RootViewSupport.swift in Sources */,
 				850000362F9D0001001B9AA7 /* ComponentsExplorerShell.swift in Sources */,
+				850000382F9D0001001B9AA7 /* QuickPhraseEditorView.swift in Sources */,
 				864DAB9B2F9B0001001B9AA7 /* OpenSourceLicensesView.swift in Sources */,
 				864DABAF2F9B0001001B9AA7 /* SettingsView.swift in Sources */,
 				864DABB12F9B0001001B9AA7 /* CreditsView.swift in Sources */,
