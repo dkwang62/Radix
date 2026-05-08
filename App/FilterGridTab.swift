@@ -135,6 +135,7 @@ struct FilterGridTab: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.horizontalSizeClass) var sizeClass
     @AppStorage("hasShownBrowseInteractionHintRowV1") private var hasShownBrowseInteractionHintRow = false
+    @AppStorage("browseImageScriptMode") private var browseImageScriptMode = "simplified"
     @State private var showBrowseFilters = false
     @State private var showManualCollectionSheet = false
     @State private var showBrowseSource = false
@@ -190,6 +191,10 @@ struct FilterGridTab: View {
 
     private var fontSize: CGFloat {
         browseGridLayout.characterFontSize
+    }
+
+    private var useTraditionalBrowseImageScript: Bool {
+        browseImageScriptMode == "traditional"
     }
 
     var body: some View {
@@ -340,6 +345,7 @@ struct FilterGridTab: View {
 
         LazyVGrid(columns: columns, spacing: 0) {
             ForEach(allItems, id: \.offset) { offset, character in
+                let displayCharacter = browseImageDisplayCharacter(character)
                 let highlightRole = store.imagePhraseHighlightRole(collectionID: collection.id, offset: offset)
                 let isMemoryHighlighted = store.isBrowseMemoryHighlighted(collectionID: collection.id, offset: offset)
                 let isActive = highlightRole == .target
@@ -351,9 +357,9 @@ struct FilterGridTab: View {
                     }
                 } label: {
                     VStack(spacing: 2) {
-                        Text(character)
+                        Text(displayCharacter)
                             .font(.system(size: fontSize))
-                            .copyCharacterContextMenu(character, pinyin: pinyin) {
+                            .copyCharacterContextMenu(displayCharacter, pinyin: pinyin) {
                                 store.previewImageCharacter(character, offset: offset, announce: false)
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                                     NotificationCenter.default.post(name: .radixShowPhraseTable, object: character)
@@ -631,13 +637,15 @@ struct FilterGridTab: View {
                 store.goToAILinkCollectionTask(collection: collection, taskID: taskID)
             }
 
+            browseImageScriptToggle
+
             readBrowseSourceButton(collection)
         }
     }
 
     private func readBrowseSourceButton(_ collection: CharacterCollection) -> some View {
         Button {
-            _ = store.speakCharacters(in: collection.characters.joined())
+            _ = store.speakCharacters(in: browseImageDisplayText(collection.characters.joined()))
         } label: {
             Image(systemName: "speaker.wave.2")
                 .frame(width: 34)
@@ -646,6 +654,39 @@ struct FilterGridTab: View {
         .controlSize(.small)
         .disabled(collection.characters.isEmpty)
         .accessibilityLabel("Read Aloud")
+    }
+
+    private var browseImageScriptToggle: some View {
+        HStack(spacing: 4) {
+            browseImageScriptButton("简", mode: "simplified", accessibilityLabel: "Read image as simplified Chinese")
+            browseImageScriptButton("繁", mode: "traditional", accessibilityLabel: "Read image as traditional Chinese")
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Image script")
+        .accessibilityValue(useTraditionalBrowseImageScript ? "Traditional" : "Simplified")
+    }
+
+    private func browseImageScriptButton(_ title: String, mode: String, accessibilityLabel: String) -> some View {
+        Button {
+            browseImageScriptMode = mode
+        } label: {
+            Text(title)
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .frame(width: 28, height: 28)
+                .background(browseImageScriptMode == mode ? Color.accentColor : Color(.secondarySystemBackground))
+                .foregroundStyle(browseImageScriptMode == mode ? .white : .primary)
+                .clipShape(RoundedRectangle(cornerRadius: 7))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel)
+    }
+
+    private func browseImageDisplayCharacter(_ character: String) -> String {
+        browseImageDisplayText(character)
+    }
+
+    private func browseImageDisplayText(_ text: String) -> String {
+        useTraditionalBrowseImageScript ? store.traditionalText(text) : store.simplifiedText(text)
     }
 
     private func beginEditing(_ collection: CharacterCollection) {

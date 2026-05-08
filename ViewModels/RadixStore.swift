@@ -1372,6 +1372,10 @@ final class RadixStore: ObservableObject {
         componentRepo.simplifiedText(value)
     }
 
+    func traditionalText(_ value: String) -> String {
+        componentRepo.traditionalText(value)
+    }
+
     func normalizedPhraseWord(_ word: String) -> String {
         phraseStorageWord(word)
     }

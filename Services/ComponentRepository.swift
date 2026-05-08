@@ -690,6 +690,10 @@ final class ComponentRepository {
         toSimplified(value)
     }
 
+    func traditionalText(_ value: String) -> String {
+        toTraditional(value)
+    }
+
     func availableRadicals() -> [String] {
         let radicals = Set(byCharacter.values.map(\.radical).filter { !$0.isEmpty && $0 != "—" })
         return radicals.sorted { lhs, rhs in
