@@ -3,7 +3,6 @@ import SwiftUI
 import Combine
 import UniformTypeIdentifiers
 import UIKit
-import AVFoundation
 #if targetEnvironment(macCatalyst)
 import ApplicationServices
 #endif
@@ -92,26 +91,6 @@ struct RootsReturnContext: Equatable {
     let homeTab: HomeTab?
 }
 
-private struct ImagePhraseContext: Equatable {
-    let collectionID: UUID
-    let target: String
-    let offset: Int
-    let prev: Character?
-    let next: Character?
-}
-
-private struct ImagePhraseHighlightState {
-    let context: ImagePhraseContext
-    let offsets: Set<Int>
-}
-
-private struct ImagePhraseMatch {
-    let phrase: PhraseItem
-    let start: Int
-    let end: Int
-    let rankedIndex: Int
-}
-
 /// Sorting modes for the discovery grid.
 enum GridSortMode: String, CaseIterable, Identifiable {
     case readingOrder = "Reading Order"
@@ -143,41 +122,6 @@ enum QuickEditDestination: Identifiable, Equatable {
         case .newPhrase:
             return "newPhrase"
         }
-    }
-}
-
-@MainActor
-final class CharacterSpeechCoordinator {
-    private let synthesizer = AVSpeechSynthesizer()
-
-    func speak(_ text: String) {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-
-        #if !targetEnvironment(macCatalyst)
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-        try? AVAudioSession.sharedInstance().setActive(true)
-        #endif
-
-        synthesizer.stopSpeaking(at: .immediate)
-
-        let utterance = AVSpeechUtterance(string: trimmed)
-        utterance.voice = preferredVoice()
-        utterance.rate = AVSpeechUtteranceDefaultSpeechRate * 0.92
-        utterance.pitchMultiplier = 1.0
-        utterance.volume = 1.0
-        utterance.prefersAssistiveTechnologySettings = true
-        synthesizer.speak(utterance)
-    }
-
-    private func preferredVoice() -> AVSpeechSynthesisVoice? {
-        for language in ["zh-CN", "zh-TW", "zh-HK"] {
-            if let voice = AVSpeechSynthesisVoice(language: language) {
-                return voice
-            }
-        }
-
-        return AVSpeechSynthesisVoice(language: Locale.preferredLanguages.first ?? Locale.current.identifier)
     }
 }
 
@@ -440,7 +384,7 @@ final class RadixStore: ObservableObject {
     private let componentRepo = ComponentRepository()
     private let phraseRepo = PhraseRepository()
     private let entitlement = EntitlementManager()
-    private let speechCoordinator = CharacterSpeechCoordinator()
+    private let speechService = CharacterSpeechService()
     private let favoritesKey = "radix.favorites"
     private let favoriteEntriesKey = "radix.favoriteEntries"
     private let favoritePhrasesKey = "radix.favoritePhrases"
@@ -657,7 +601,7 @@ final class RadixStore: ObservableObject {
             pushRootBreadcrumb(trimmedCharacter)
             showiPhoneDetail = false
             if announce && speechEnabled {
-                speechCoordinator.speak(trimmedCharacter)
+                speechService.speak(trimmedCharacter)
             }
             return
         }
@@ -722,7 +666,7 @@ final class RadixStore: ObservableObject {
         // The Remembered bar tracks explicit selections globally.
 
         if announce && speechEnabled {
-            speechCoordinator.speak(trimmedCharacter)
+            speechService.speak(trimmedCharacter)
         }
     }
 
@@ -741,7 +685,7 @@ final class RadixStore: ObservableObject {
             refreshPhrases(for: character)
             showiPhoneDetail = false
             if announce && speechEnabled {
-                speechCoordinator.speak(character)
+                speechService.speak(character)
             }
             return
         }
@@ -787,7 +731,7 @@ final class RadixStore: ObservableObject {
         #endif
 
         if announce && speechEnabled {
-            speechCoordinator.speak(character)
+            speechService.speak(character)
         }
     }
 
@@ -809,7 +753,7 @@ final class RadixStore: ObservableObject {
         showComponentHelp = false
 
         if announce && speechEnabled {
-            speechCoordinator.speak(character)
+            speechService.speak(character)
         }
     }
 
@@ -853,7 +797,7 @@ final class RadixStore: ObservableObject {
             showBrowseHelp = false
             showComponentHelp = false
             if speechEnabled {
-                speechCoordinator.speak(match.phrase.word)
+                speechService.speak(match.phrase.word)
             }
             return true
         }
@@ -1334,14 +1278,8 @@ final class RadixStore: ObservableObject {
     }
 
     func isBasePhraseCoreEdited(_ phrase: PhraseItem) -> Bool {
-        let storedWord = phraseStorageWord(phrase.word)
-        guard phraseRepo.isInBase(word: storedWord),
-              phraseRepo.isInAdd(word: storedWord),
-              let basePhrase = phraseRepo.fetchBasePhrase(for: storedWord)
-        else { return false }
-
-        return phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines) != basePhrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines)
-            || phrase.meanings.trimmingCharacters(in: .whitespacesAndNewlines) != basePhrase.meanings.trimmingCharacters(in: .whitespacesAndNewlines)
+        PhraseEditService(repository: phraseRepo, normalizeWord: phraseStorageWord(_:))
+            .isBaseCoreEdited(phrase)
     }
 
     func phraseDiscoveryKnownPhrases(in text: String) -> [String] {
@@ -1724,12 +1662,8 @@ final class RadixStore: ObservableObject {
 
     @discardableResult
     func removeAllUnnotedAddedPhrases() throws -> [String] {
-        let removableWords = phraseRepo.fetchAddedPhrases()
-            .filter {
-                phraseRepo.isInBase(word: phraseStorageWord($0.word))
-                    && $0.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            }
-            .map(\.word)
+        let removableWords = PhraseEditService(repository: phraseRepo, normalizeWord: phraseStorageWord(_:))
+            .unnotedBasePhraseEditWords()
 
         guard !removableWords.isEmpty else {
             dataEditAutoSaveStatus = "No edited phrases without notes to revert."
@@ -2808,28 +2742,17 @@ final class RadixStore: ObservableObject {
     }
 
     private func baseDictionaryCoreFieldsChanged(_ character: String) -> Bool {
-        guard let base = componentRepo.baseEntry(for: character),
-              let edited = componentRepo.overlayUpserts[character]
-        else { return false }
-
-        return edited.relatedCharacters != base.relatedCharacters
-            || edited.meta.variant != base.meta.variant
-            || edited.meta.additionalVariants != base.meta.additionalVariants
-            || edited.meta.pinyin != base.meta.pinyin
-            || edited.meta.definition != base.meta.definition
-            || edited.meta.decomposition != base.meta.decomposition
-            || edited.meta.idc != base.meta.idc
-            || edited.meta.radical != base.meta.radical
-            || edited.meta.strokes != base.meta.strokes
-            || edited.meta.compounds != base.meta.compounds
-            || edited.meta.etymology != base.meta.etymology
+        BackupSummaryBuilder.dictionaryCoreFieldsChanged(
+            base: componentRepo.baseEntry(for: character),
+            edited: componentRepo.overlayUpserts[character]
+        )
     }
 
     private func dictionaryNotesChangedAndNonEmpty(_ character: String) -> Bool {
-        guard let edited = componentRepo.overlayUpserts[character] else { return false }
-        let baseNotes = componentRepo.baseEntry(for: character)?.meta.notes
-        guard edited.meta.notes != baseNotes else { return false }
-        return !(edited.meta.notes?.list.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines) ?? "").isEmpty
+        BackupSummaryBuilder.dictionaryNotesChangedAndNonEmpty(
+            base: componentRepo.baseEntry(for: character),
+            edited: componentRepo.overlayUpserts[character]
+        )
     }
 
     private func scheduleGridRecompute() {
@@ -3053,24 +2976,10 @@ final class RadixStore: ObservableObject {
     private func imagePhraseContext(for character: String, offset: Int) -> ImagePhraseContext? {
         guard route == .search,
               homeTab == .filter,
-              let collection = selectedBrowseCollection,
-              collection.characters.indices.contains(offset),
-              collection.characters[offset] == character
+              let collection = selectedBrowseCollection
         else { return nil }
 
-        let fullText = collection.characters.joined()
-        var index = fullText.startIndex
-        for priorCharacter in collection.characters.prefix(offset) {
-            index = fullText.index(index, offsetBy: priorCharacter.count)
-        }
-        let context = PhraseContextRanker.surroundingCharacters(fullText: fullText, index: index)
-        return ImagePhraseContext(
-            collectionID: collection.id,
-            target: character,
-            offset: offset,
-            prev: context.prev,
-            next: context.next
-        )
+        return ImagePhraseMatcher.context(for: character, offset: offset, collection: collection)
     }
 
     private func phraseContext(for target: String) -> ImagePhraseContext? {
@@ -3084,30 +2993,22 @@ final class RadixStore: ObservableObject {
     }
 
     private func phraseCacheKey(character: String, length: Int, context: ImagePhraseContext?) -> String {
-        guard let context else { return "\(character)|\(length)" }
-        return "\(character)|\(length)|image|\(context.collectionID.uuidString)|\(context.offset)|\(context.prev.map(String.init) ?? "")|\(context.next.map(String.init) ?? "")"
+        ImagePhraseMatcher.cacheKey(character: character, length: length, context: context)
     }
 
     private func rankedPhraseResults(_ phrases: [PhraseItem], target: String, context: ImagePhraseContext?) -> [PhraseItem] {
-        guard let context else {
-            return phrases.sorted(by: phrasePinyinSortPredicate)
-        }
-        return PhraseContextRanker.rankPhraseItems(
+        ImagePhraseMatcher.rankedPhraseResults(
             phrases,
-            target: phraseLookupTarget(for: target),
-            prev: simplifiedCharacter(context.prev),
-            next: simplifiedCharacter(context.next)
+            target: target,
+            context: context,
+            lookupTarget: phraseLookupTarget(for:),
+            pinyinSort: phrasePinyinSortPredicate
         )
     }
 
     private func phraseLookupTarget(for target: String) -> String {
         let simplified = simplifiedText(target).trimmingCharacters(in: .whitespacesAndNewlines)
         return simplified.isEmpty ? target : simplified
-    }
-
-    private func simplifiedCharacter(_ character: Character?) -> Character? {
-        guard let character else { return nil }
-        return phraseLookupTarget(for: String(character)).first
     }
 
     private func phraseCandidates(containing lookupTarget: String, originalTarget: String, length: Int) -> [PhraseItem] {
@@ -3158,8 +3059,7 @@ final class RadixStore: ObservableObject {
 
     private func imagePhraseMatches(for context: ImagePhraseContext) -> [ImagePhraseMatch] {
         guard let collection = selectedBrowseCollection,
-              collection.id == context.collectionID,
-              collection.characters.indices.contains(context.offset)
+              collection.id == context.collectionID
         else { return [] }
 
         let lookupTarget = phraseLookupTarget(for: context.target)
@@ -3168,54 +3068,18 @@ final class RadixStore: ObservableObject {
             originalTarget: context.target,
             lengths: imagePhraseHighlightLengths
         )
-        let ranked = rankedPhraseResults(candidates, target: context.target, context: context)
-        let simplifiedCharacters = collection.characters.map(phraseLookupTarget(for:))
-        var matches: [ImagePhraseMatch] = []
-        var seen = Set<String>()
-
-        for (rankedIndex, phrase) in ranked.enumerated() {
-            let phraseCharacters = phraseStorageWord(phrase.word).map(String.init)
-            guard !phraseCharacters.isEmpty else { continue }
-
-            for phraseIndex in phraseCharacters.indices where phraseCharacters[phraseIndex] == lookupTarget {
-                let start = context.offset - phraseIndex
-                let end = start + phraseCharacters.count
-                guard start >= 0, end <= simplifiedCharacters.count else { continue }
-
-                var isMatch = true
-                for localOffset in phraseCharacters.indices where simplifiedCharacters[start + localOffset] != phraseCharacters[localOffset] {
-                    isMatch = false
-                    break
-                }
-
-                if isMatch {
-                    let key = "\(phrase.id)|\(start)|\(end)"
-                    if seen.insert(key).inserted {
-                        matches.append(ImagePhraseMatch(phrase: phrase, start: start, end: end, rankedIndex: rankedIndex))
-                    }
-                }
-            }
-        }
-
-        return matches
+        return ImagePhraseMatcher.matches(
+            context: context,
+            collection: collection,
+            candidates: candidates,
+            phraseStorageWord: phraseStorageWord(_:),
+            lookupTarget: phraseLookupTarget(for:),
+            pinyinSort: phrasePinyinSortPredicate
+        )
     }
 
     private func preferredImagePhraseMatch(from matches: [ImagePhraseMatch], targetOffset: Int) -> ImagePhraseMatch {
-        matches.sorted { lhs, rhs in
-            let lhsStartsAtTarget = lhs.start == targetOffset
-            let rhsStartsAtTarget = rhs.start == targetOffset
-            if lhsStartsAtTarget != rhsStartsAtTarget {
-                return lhsStartsAtTarget
-            }
-
-            let lhsLength = lhs.end - lhs.start
-            let rhsLength = rhs.end - rhs.start
-            if lhsLength != rhsLength {
-                return lhsLength > rhsLength
-            }
-
-            return lhs.rankedIndex < rhs.rankedIndex
-        }.first ?? matches[0]
+        ImagePhraseMatcher.preferredMatch(from: matches, targetOffset: targetOffset)
     }
 
     private func updateImagePhraseHighlights(context: ImagePhraseContext?, phrases: [PhraseItem]) {
@@ -3477,7 +3341,7 @@ final class RadixStore: ObservableObject {
         }
 
         if speechEnabled {
-            speechCoordinator.speak(key)
+            speechService.speak(key)
         }
     }
 
@@ -3517,7 +3381,7 @@ final class RadixStore: ObservableObject {
         }
 
         if speechEnabled {
-            speechCoordinator.speak(phrase.word)
+            speechService.speak(phrase.word)
         }
     }
 
@@ -3907,22 +3771,17 @@ final class RadixStore: ObservableObject {
     }
 
     func speakCharacter(_ character: String) {
-        speechCoordinator.speak(character)
+        speechService.speak(character)
     }
 
     func speakPhrase(_ phrase: PhraseItem) {
         guard speechEnabled else { return }
-        let word = phrase.word.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !word.isEmpty else { return }
-        speechCoordinator.speak(word)
+        speechService.speakPhrase(phrase)
     }
 
     @discardableResult
     func speakCharacters(in text: String) -> Int {
-        let characters = CaptureTextExtractor.allCharactersInOrder(in: text)
-        guard !characters.isEmpty else { return 0 }
-        speechCoordinator.speak(characters.joined())
-        return characters.count
+        speechService.speakCharacters(in: text)
     }
 
     private func persistPromptSettings() {

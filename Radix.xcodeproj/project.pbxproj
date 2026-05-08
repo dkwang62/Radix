@@ -38,6 +38,10 @@
 		850000072F9D0001001B9AA7 /* ComponentsRootsPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000062F9D0001001B9AA7 /* ComponentsRootsPopover.swift */; };
 		8500000A2F9D0001001B9AA7 /* BrowseGridLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000092F9D0001001B9AA7 /* BrowseGridLayout.swift */; };
 		8500000C2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */; };
+		8500000E2F9D0001001B9AA7 /* BackupSummaryBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500000D2F9D0001001B9AA7 /* BackupSummaryBuilder.swift */; };
+		850000102F9D0001001B9AA7 /* ImagePhraseMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500000F2F9D0001001B9AA7 /* ImagePhraseMatcher.swift */; };
+		850000122F9D0001001B9AA7 /* CharacterSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000112F9D0001001B9AA7 /* CharacterSpeechService.swift */; };
+		850000142F9D0001001B9AA7 /* PhraseEditService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000132F9D0001001B9AA7 /* PhraseEditService.swift */; };
 		859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */; };
 		864DAB762F93ADA3001B9AA7 /* ComponentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */; };
 		864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB872F93B701001B9AA7 /* RadixStore.swift */; };
@@ -167,6 +171,10 @@
 		911F85BE195D61BDA4442400 /* PhraseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseModels.swift; sourceTree = "<group>"; };
 		850000092F9D0001001B9AA7 /* BrowseGridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseGridLayout.swift; sourceTree = "<group>"; };
 		8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreExtractedHelpers.swift; sourceTree = "<group>"; };
+		8500000D2F9D0001001B9AA7 /* BackupSummaryBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupSummaryBuilder.swift; sourceTree = "<group>"; };
+		8500000F2F9D0001001B9AA7 /* ImagePhraseMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePhraseMatcher.swift; sourceTree = "<group>"; };
+		850000112F9D0001001B9AA7 /* CharacterSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterSpeechService.swift; sourceTree = "<group>"; };
+		850000132F9D0001001B9AA7 /* PhraseEditService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseEditService.swift; sourceTree = "<group>"; };
 		AB37C9B2A3908035B4225770 /* UnifiedPackage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedPackage.swift; sourceTree = "<group>"; };
 		B3E1E5265391156C8C615A28 /* ResponsiveFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsiveFont.swift; sourceTree = "<group>"; };
 		BD0FD27099E93C0B3DBCC55A /* AILinkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AILinkView.swift; sourceTree = "<group>"; };
@@ -230,6 +238,8 @@
 				864DABAE2F9B0001001B9AA7 /* LicenseTextLoader.swift */,
 				5638FC4C06278901129EF9DF /* DataExportService.swift */,
 				4559296FCA5B2061336BA302 /* EntitlementManager.swift */,
+				850000112F9D0001001B9AA7 /* CharacterSpeechService.swift */,
+				850000132F9D0001001B9AA7 /* PhraseEditService.swift */,
 				6C168A03A00D507535219249 /* JSONFileDocument.swift */,
 			);
 			path = Services;
@@ -244,6 +254,8 @@
 				1223C8F12F180001001B9AA7 /* PhraseContextRanker.swift */,
 				850000092F9D0001001B9AA7 /* BrowseGridLayout.swift */,
 				8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */,
+				8500000D2F9D0001001B9AA7 /* BackupSummaryBuilder.swift */,
+				8500000F2F9D0001001B9AA7 /* ImagePhraseMatcher.swift */,
 				6AFF92F2BA13EBA1A3A64D44 /* PromptModels.swift */,
 				B3E1E5265391156C8C615A28 /* ResponsiveFont.swift */,
 				AB37C9B2A3908035B4225770 /* UnifiedPackage.swift */,
@@ -429,6 +441,8 @@
 				1223C8F22F180001001B9AA7 /* PhraseContextRanker.swift in Sources */,
 				8500000A2F9D0001001B9AA7 /* BrowseGridLayout.swift in Sources */,
 				8500000C2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift in Sources */,
+				8500000E2F9D0001001B9AA7 /* BackupSummaryBuilder.swift in Sources */,
+				850000102F9D0001001B9AA7 /* ImagePhraseMatcher.swift in Sources */,
 				167CA0032F9C0001001B9AA7 /* CaptureModels.swift in Sources */,
 				864DAB902F93BD51001B9AA7 /* CharacterPreviewHeader.swift in Sources */,
 				864DAB9B2F9B0001001B9AA7 /* OpenSourceLicensesView.swift in Sources */,
@@ -436,6 +450,8 @@
 				864DABB12F9B0001001B9AA7 /* CreditsView.swift in Sources */,
 				864DABB32F9B0001001B9AA7 /* LicenseTextLoader.swift in Sources */,
 				864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */,
+				850000122F9D0001001B9AA7 /* CharacterSpeechService.swift in Sources */,
+				850000142F9D0001001B9AA7 /* PhraseEditService.swift in Sources */,
 				A05EBFC59DC951C9EFDB9FF9 /* PromptModels.swift in Sources */,
 				CB360F3972D55FBFD1555152 /* RadixApp.swift in Sources */,
 				864DAB8A2F93B722001B9AA7 /* PhraseRepository.swift in Sources */,
