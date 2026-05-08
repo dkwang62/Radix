@@ -412,6 +412,8 @@ final class RadixStore: ObservableObject {
     @Published private(set) var phraseVariances: [DictionaryVariance] = []
     @Published private(set) var addedDictionaryCharacters: [String] = []
     @Published private(set) var editedDictionaryCharacters: [String] = []
+    @Published private(set) var baseDictionaryCoreEditedCharacters: [String] = []
+    @Published private(set) var dictionaryCharactersWithNotes: [String] = []
     /// O(1) lookup companion for `editedDictionaryCharacters`. Always kept in sync.
     @Published private(set) var editedDictionaryCharactersSet: Set<String> = []
     @Published private(set) var changedDictionaryCharacters: [String] = []
@@ -516,9 +518,11 @@ final class RadixStore: ObservableObject {
         dataEditSavePath = dictionaryOverlayFileURL.path
         loadPromptSettings()
         promptConfig = promptConfig.normalized()
-        if promptSelectedTaskIDs.isEmpty {
-            promptSelectedTaskIDs = PromptConfig.defaultSelectedTaskIDs
-        }
+        promptSelectedTaskIDs = PromptTaskSelection.normalized(
+            promptSelectedTaskIDs,
+            availableIDs: promptConfig.tasks.map(\.id),
+            defaultIDs: PromptConfig.defaultSelectedTaskIDs
+        )
         loadCollections()
         loadFavorites()
         loadSearchHistory()
@@ -894,26 +898,8 @@ final class RadixStore: ObservableObject {
         imageBrowsePhrasePreview = nil
         imagePhraseHighlightRevision += 1
 
-        let offsets: Set<Int>
-        if key.count == 1 {
-            offsets = Set(characters.indices.filter { characters[$0] == key })
-        } else {
-            let phraseCharacters = key.map(String.init)
-            guard !phraseCharacters.isEmpty, phraseCharacters.count <= characters.count else {
-                clearBrowseMemoryHighlight()
-                return false
-            }
-
-            var matchedOffsets = Set<Int>()
-            let maxStart = characters.count - phraseCharacters.count
-            for start in 0...maxStart {
-                let end = start + phraseCharacters.count
-                if Array(characters[start..<end]) == phraseCharacters {
-                    matchedOffsets.formUnion(start..<end)
-                }
-            }
-            offsets = matchedOffsets
-        }
+        let result = BrowseMemoryHighlighter.matches(in: characters, item: key)
+        let offsets = result.offsets
 
         guard !offsets.isEmpty else {
             clearBrowseMemoryHighlight()
@@ -922,7 +908,7 @@ final class RadixStore: ObservableObject {
 
         browseMemoryHighlightCollectionID = collection.id
         browseMemoryHighlightOffsets = offsets
-        if let firstOffset = offsets.min() {
+        if let firstOffset = result.firstOffset {
             pendingBrowseScrollTarget = BrowseScrollTarget(
                 collectionID: collection.id,
                 character: characters.indices.contains(firstOffset) ? characters[firstOffset] : nil,
@@ -1347,6 +1333,17 @@ final class RadixStore: ObservableObject {
         return phraseRepo.existingWords(in: normalizedWords)
     }
 
+    func isBasePhraseCoreEdited(_ phrase: PhraseItem) -> Bool {
+        let storedWord = phraseStorageWord(phrase.word)
+        guard phraseRepo.isInBase(word: storedWord),
+              phraseRepo.isInAdd(word: storedWord),
+              let basePhrase = phraseRepo.fetchBasePhrase(for: storedWord)
+        else { return false }
+
+        return phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines) != basePhrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines)
+            || phrase.meanings.trimmingCharacters(in: .whitespacesAndNewlines) != basePhrase.meanings.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     func phraseDiscoveryKnownPhrases(in text: String) -> [String] {
         let candidates = phraseDiscoverySubstrings(in: text)
         let known = phraseRepo.existingWords(in: candidates)
@@ -1373,6 +1370,10 @@ final class RadixStore: ObservableObject {
 
     func simplifiedText(_ value: String) -> String {
         componentRepo.simplifiedText(value)
+    }
+
+    func normalizedPhraseWord(_ word: String) -> String {
+        phraseStorageWord(word)
     }
 
     private func phraseDiscoverySubstrings(in text: String) -> Set<String> {
@@ -1411,39 +1412,20 @@ final class RadixStore: ObservableObject {
     }
 
     var favoriteItems: [ComponentItem] {
-        favorites.compactMap { componentRepo.byCharacter[$0] }
-            .sorted {
-                let lhsDate = favoriteAddedDates[$0.character]
-                let rhsDate = favoriteAddedDates[$1.character]
-
-                switch (lhsDate, rhsDate) {
-                case let (lhs?, rhs?):
-                    if lhs != rhs { return lhs > rhs }
-                case (.some, nil):
-                    return true
-                case (nil, .some):
-                    return false
-                case (nil, nil):
-                    break
-                }
-
-                return $0.character < $1.character
-            }
+        FavoriteOrdering.sortedByAddedDate(
+            favorites.compactMap { componentRepo.byCharacter[$0] },
+            dateForValue: { favoriteAddedDates[$0.character] },
+            fallbackSort: { $0.character < $1.character }
+        )
     }
 
     /// Favorited phrases sorted by date added (most recent first).
     var favoritePhrasesItems: [PhraseItem] {
-        phraseRepo.fetchPhrases(matching: favoritePhrases)
-            .sorted {
-                let l = favoritePhraseDates[$0.word]
-                let r = favoritePhraseDates[$1.word]
-                switch (l, r) {
-                case let (lhs?, rhs?): return lhs > rhs
-                case (.some, nil): return true
-                case (nil, .some): return false
-                default: return $0.word < $1.word
-                }
-            }
+        FavoriteOrdering.sortedByAddedDate(
+            phraseRepo.fetchPhrases(matching: favoritePhrases),
+            dateForValue: { favoritePhraseDates[$0.word] },
+            fallbackSort: { $0.word < $1.word }
+        )
     }
 
     func item(for character: String?) -> ComponentItem? {
@@ -1736,6 +1718,32 @@ final class RadixStore: ObservableObject {
         }
     }
 
+    @discardableResult
+    func removeAllUnnotedAddedPhrases() throws -> [String] {
+        let removableWords = phraseRepo.fetchAddedPhrases()
+            .filter {
+                phraseRepo.isInBase(word: phraseStorageWord($0.word))
+                    && $0.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            }
+            .map(\.word)
+
+        guard !removableWords.isEmpty else {
+            dataEditAutoSaveStatus = "No edited phrases without notes to revert."
+            return []
+        }
+
+        for word in removableWords {
+            try phraseRepo.deletePhrase(word: phraseStorageWord(word))
+        }
+
+        let removableSet = Set(removableWords.map(phraseStorageWord(_:)))
+        dataEditPhrases.removeAll { removableSet.contains(phraseStorageWord($0.word)) }
+        addedPhrases.removeAll { removableSet.contains(phraseStorageWord($0.word)) }
+        refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
+        dataEditAutoSaveStatus = "Reverted \(removableWords.count) edited phrase\(removableWords.count == 1 ? "" : "s") without notes."
+        return removableWords
+    }
+
     func addCustomPhrase(word: String, pinyin: String, meanings: String, notes: String? = nil, refreshViews: Bool = true) throws {
         let originalWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
         let storedWord = phraseStorageWord(originalWord)
@@ -1753,6 +1761,28 @@ final class RadixStore: ObservableObject {
             refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
         }
         dataEditAutoSaveStatus = "Phrase notes saved."
+    }
+
+    @discardableResult
+    func addAIPastedPhraseIfNew(word: String, pinyin: String, meanings: String, refreshViews: Bool = true) throws -> Bool {
+        let originalWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
+        let storedWord = phraseStorageWord(originalWord)
+        guard !storedWord.isEmpty else { return false }
+        guard phraseRepo.existingWords(in: [storedWord]).isEmpty else { return false }
+
+        try phraseRepo.addOrUpdatePhrase(
+            word: storedWord,
+            pinyin: pinyin.trimmingCharacters(in: .whitespacesAndNewlines),
+            meanings: meanings.trimmingCharacters(in: .whitespacesAndNewlines),
+            notes: nil
+        )
+        try removeLegacyPhraseIfNeeded(originalWord: originalWord, storedWord: storedWord)
+
+        if refreshViews {
+            refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
+        }
+        dataEditAutoSaveStatus = "Phrase added."
+        return true
     }
 
     func refreshPhraseOverlayViews() {
@@ -2197,30 +2227,21 @@ final class RadixStore: ObservableObject {
     }
     var gridPageCount: Int {
         let count = gridSortMode == .readingOrder ? allReadingOrderCharacters.count : allGridItems.count
-        return count == 0 ? 1 : Int(ceil(Double(count) / Double(gridBatchSize)))
+        return GridPaging.pageCount(totalCount: count, pageSize: gridBatchSize)
     }
     var pagedGridItems: [ComponentItem] {
-        let page = min(max(0, gridPage), max(0, gridPageCount - 1))
-        let start = page * gridBatchSize
-        let end = min(start + gridBatchSize, allGridItems.count)
-        guard start < end else { return [] }
-        return Array(allGridItems[start..<end])
+        GridPaging.pageSlice(allGridItems, page: gridPage, pageSize: gridBatchSize).items
     }
     /// Paged slice of the full reading-order sequence (with duplicates), as (offset, character) pairs.
     var pagedReadingOrderItems: [(offset: Int, character: String)] {
-        let page = min(max(0, gridPage), max(0, gridPageCount - 1))
-        let start = page * gridBatchSize
-        let end = min(start + gridBatchSize, allReadingOrderCharacters.count)
-        guard start < end else { return [] }
-        return allReadingOrderCharacters[start..<end].enumerated().map { (start + $0.offset, $0.element) }
+        let slice = GridPaging.pageSlice(allReadingOrderCharacters, page: gridPage, pageSize: gridBatchSize)
+        return slice.items.enumerated().map { (slice.start + $0.offset, $0.element) }
     }
     func nextGridPage() {
-        guard gridPage + 1 < gridPageCount else { return }
-        gridPage += 1
+        gridPage = GridPaging.nextPage(current: gridPage, pageCount: gridPageCount)
     }
     func previousGridPage() {
-        guard gridPage > 0 else { return }
-        gridPage -= 1
+        gridPage = GridPaging.previousPage(current: gridPage)
     }
 
     func setGridSortMode(_ mode: GridSortMode) { gridSortMode = mode }
@@ -2231,7 +2252,7 @@ final class RadixStore: ObservableObject {
             previewCharacter = character
             return false
         }
-        gridPage = index / gridBatchSize
+        gridPage = GridPaging.pageForIndex(index, pageSize: gridBatchSize)
         previewCharacter = character
         return true
     }
@@ -2504,11 +2525,7 @@ final class RadixStore: ObservableObject {
         persistPromptSettings()
     }
     func setPromptTask(_ taskID: String, enabled: Bool) {
-        if enabled {
-            if !promptSelectedTaskIDs.contains(taskID) { promptSelectedTaskIDs.append(taskID) }
-        } else {
-            promptSelectedTaskIDs.removeAll { $0 == taskID }
-        }
+        promptSelectedTaskIDs = PromptTaskSelection.toggled(taskID, in: promptSelectedTaskIDs, isEnabled: enabled)
         persistPromptSettings()
     }
 
@@ -2781,7 +2798,34 @@ final class RadixStore: ObservableObject {
         addedDictionaryCharacters = sorted.filter { added.contains($0) }
         changedDictionaryCharacters = sorted
         editedDictionaryCharacters = sorted.filter { !added.contains($0) }
+        baseDictionaryCoreEditedCharacters = sorted.filter { baseDictionaryCoreFieldsChanged($0) }
+        dictionaryCharactersWithNotes = sorted.filter { dictionaryNotesChangedAndNonEmpty($0) }
         editedDictionaryCharactersSet = Set(editedDictionaryCharacters)
+    }
+
+    private func baseDictionaryCoreFieldsChanged(_ character: String) -> Bool {
+        guard let base = componentRepo.baseEntry(for: character),
+              let edited = componentRepo.overlayUpserts[character]
+        else { return false }
+
+        return edited.relatedCharacters != base.relatedCharacters
+            || edited.meta.variant != base.meta.variant
+            || edited.meta.additionalVariants != base.meta.additionalVariants
+            || edited.meta.pinyin != base.meta.pinyin
+            || edited.meta.definition != base.meta.definition
+            || edited.meta.decomposition != base.meta.decomposition
+            || edited.meta.idc != base.meta.idc
+            || edited.meta.radical != base.meta.radical
+            || edited.meta.strokes != base.meta.strokes
+            || edited.meta.compounds != base.meta.compounds
+            || edited.meta.etymology != base.meta.etymology
+    }
+
+    private func dictionaryNotesChangedAndNonEmpty(_ character: String) -> Bool {
+        guard let edited = componentRepo.overlayUpserts[character] else { return false }
+        let baseNotes = componentRepo.baseEntry(for: character)?.meta.notes
+        guard edited.meta.notes != baseNotes else { return false }
+        return !(edited.meta.notes?.list.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines) ?? "").isEmpty
     }
 
     private func scheduleGridRecompute() {
@@ -3349,19 +3393,17 @@ final class RadixStore: ObservableObject {
     private func pushRootBreadcrumbItem(_ item: String) {
         let key = item.trimmingCharacters(in: .whitespacesAndNewlines)
         guard isValidRootBreadcrumbItem(key) else { return }
-        if let existing = rootBreadcrumb.firstIndex(of: key) {
-            rootBreadcrumb.remove(at: existing)
-        }
-        rootBreadcrumb.insert(key, at: 0)
-        rootBreadcrumbIndex = 0
+        let next = MemoryStripState.inserting(key, into: rootBreadcrumb)
+        rootBreadcrumb = next.0
+        rootBreadcrumbIndex = next.1
         persistRootBreadcrumb()
     }
 
     func removeRootBreadcrumb(_ character: String) {
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let existing = rootBreadcrumb.firstIndex(of: key) else { return }
-        rootBreadcrumb.remove(at: existing)
-        rootBreadcrumbIndex = rootBreadcrumb.isEmpty ? 0 : min(rootBreadcrumbIndex, rootBreadcrumb.count - 1)
+        let next = MemoryStripState.removing(key, from: rootBreadcrumb, currentIndex: rootBreadcrumbIndex)
+        rootBreadcrumb = next.0
+        rootBreadcrumbIndex = next.1
         persistRootBreadcrumb()
     }
 
@@ -3376,14 +3418,13 @@ final class RadixStore: ObservableObject {
     }
 
     func stepRootBreadcrumb(by delta: Int) -> String? {
-        let newIndex = rootBreadcrumbIndex + delta
-        guard rootBreadcrumb.indices.contains(newIndex) else { return nil }
-        rootBreadcrumbIndex = newIndex
-        return rootBreadcrumb[newIndex]
+        guard let next = MemoryStripState.stepping(in: rootBreadcrumb, currentIndex: rootBreadcrumbIndex, delta: delta) else { return nil }
+        rootBreadcrumbIndex = next.index
+        return next.item
     }
 
-    var canRootGoBack: Bool { rootBreadcrumbIndex > 0 }
-    var canRootGoForward: Bool { rootBreadcrumbIndex + 1 < rootBreadcrumb.count }
+    var canRootGoBack: Bool { MemoryStripState.canGoBack(currentIndex: rootBreadcrumbIndex) }
+    var canRootGoForward: Bool { MemoryStripState.canGoForward(currentIndex: rootBreadcrumbIndex, count: rootBreadcrumb.count) }
 
     func activateBreadcrumbCharacter(_ character: String) {
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -3620,21 +3661,11 @@ final class RadixStore: ObservableObject {
         var seeded: [String] = []
         var seen = Set<String>()
 
-        let sortedFavoriteCharacters = favorites.sorted {
-            let lhsDate = favoriteAddedDates[$0]
-            let rhsDate = favoriteAddedDates[$1]
-            switch (lhsDate, rhsDate) {
-            case let (lhs?, rhs?):
-                if lhs != rhs { return lhs > rhs }
-            case (.some, nil):
-                return true
-            case (nil, .some):
-                return false
-            case (nil, nil):
-                break
-            }
-            return $0 < $1
-        }
+        let sortedFavoriteCharacters = FavoriteOrdering.sortedByAddedDate(
+            Array(favorites),
+            dateForValue: { favoriteAddedDates[$0] },
+            fallbackSort: <
+        )
 
         func append(_ character: String) {
             guard character.count == 1, componentRepo.hasCharacter(character), !seen.contains(character) else { return }
@@ -3644,21 +3675,11 @@ final class RadixStore: ObservableObject {
 
         sortedFavoriteCharacters.forEach(append)
 
-        let sortedFavoritePhrases = favoritePhrases.sorted {
-            let lhsDate = favoritePhraseDates[$0]
-            let rhsDate = favoritePhraseDates[$1]
-            switch (lhsDate, rhsDate) {
-            case let (lhs?, rhs?):
-                if lhs != rhs { return lhs > rhs }
-            case (.some, nil):
-                return true
-            case (nil, .some):
-                return false
-            case (nil, nil):
-                break
-            }
-            return $0 < $1
-        }
+        let sortedFavoritePhrases = FavoriteOrdering.sortedByAddedDate(
+            Array(favoritePhrases),
+            dateForValue: { favoritePhraseDates[$0] },
+            fallbackSort: <
+        )
 
         for phrase in sortedFavoritePhrases {
             guard phraseRepo.fetchPhrase(for: phrase) != nil, !seen.contains(phrase) else { continue }

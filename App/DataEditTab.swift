@@ -281,7 +281,8 @@ struct DataEditTab: View {
     private var whatsInMyBackupSection: some View {
         DataBackupPreviewSection(
             addedPhraseEntries: addedPhraseEntries,
-            editedPhraseEntries: editedPhraseEntries,
+            basePhraseCoreEditEntries: basePhraseCoreEditEntries,
+            phraseEntriesWithNotes: phraseEntriesWithNotes,
             onPreviewCharacter: previewBackupCharacter,
             showSavedPagesPreview: $showSavedPagesPreview,
             showFavoritesPreview: $showFavoritesPreview,
@@ -635,6 +636,14 @@ struct DataEditTab: View {
 
     private var editedPhraseEntries: [PhraseItem] {
         changedPhraseEntries.filter { store.isPhraseInBase($0.word) }
+    }
+
+    private var phraseEntriesWithNotes: [PhraseItem] {
+        changedPhraseEntries.filter { !$0.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    }
+
+    private var basePhraseCoreEditEntries: [PhraseItem] {
+        changedPhraseEntries.filter { store.isBasePhraseCoreEdited($0) }
     }
 
     private var changedPhraseEntries: [PhraseItem] {

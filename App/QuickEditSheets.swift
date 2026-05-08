@@ -680,9 +680,7 @@ struct QuickPhraseEditorView: View {
 
     private func savePhrase() {
         do {
-            let wordToSave = isNew
-                ? store.simplifiedText(phraseEditorWord.trimmingCharacters(in: .whitespacesAndNewlines))
-                : phraseEditorWord
+            let wordToSave = store.normalizedPhraseWord(phraseEditorWord)
             try store.addCustomPhrase(
                 word: wordToSave,
                 pinyin: phraseEditorPinyin,

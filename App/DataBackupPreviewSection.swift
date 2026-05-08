@@ -6,9 +6,11 @@ import UIKit
 struct DataBackupPreviewSection: View {
     @EnvironmentObject private var store: RadixStore
     @State private var selectedPhrase: PhraseItem?
+    @State private var revertBasePhraseMessage: String?
 
     let addedPhraseEntries: [PhraseItem]
-    let editedPhraseEntries: [PhraseItem]
+    let basePhraseCoreEditEntries: [PhraseItem]
+    let phraseEntriesWithNotes: [PhraseItem]
     let onPreviewCharacter: (String) -> Void
 
     @Binding var showSavedPagesPreview: Bool
@@ -50,12 +52,21 @@ struct DataBackupPreviewSection: View {
                     backupPhraseRows(addedPhraseEntries)
                 }
 
-                DisclosureGroup("Characters With Notes (\(store.editedDictionaryCharacters.count))", isExpanded: $showEditedCharactersPreview) {
-                    backupCharacterRows(store.editedDictionaryCharacters)
+                DisclosureGroup("Edits to Base Dictionary (\(store.baseDictionaryCoreEditedCharacters.count))", isExpanded: $showEditedCharactersPreview) {
+                    backupCharacterRows(store.baseDictionaryCoreEditedCharacters)
                 }
 
-                DisclosureGroup("Edited Phrases (\(editedPhraseEntries.count))", isExpanded: $showEditedPhrasesPreview) {
-                    backupPhraseRows(editedPhraseEntries)
+                DisclosureGroup("Edits to Base Phrases (\(basePhraseCoreEditEntries.count))", isExpanded: $showEditedPhrasesPreview) {
+                    revertBasePhrasesRow
+                    backupPhraseRows(basePhraseCoreEditEntries)
+                }
+
+                DisclosureGroup("Characters With Notes (\(store.dictionaryCharactersWithNotes.count))") {
+                    backupCharacterRows(store.dictionaryCharactersWithNotes)
+                }
+
+                DisclosureGroup("Phrases With Notes (\(phraseEntriesWithNotes.count))") {
+                    backupPhraseRows(phraseEntriesWithNotes)
                 }
 
             }
@@ -77,6 +88,41 @@ struct DataBackupPreviewSection: View {
                     .navigationBarTitleDisplayMode(.inline)
             }
             .presentationDetents([.medium, .large])
+        }
+    }
+
+    private var revertBasePhrasesRow: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Revert base phrase edits that have no notes.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                Button("Revert All", role: .destructive, action: revertAllUnnotedBasePhraseEdits)
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+            }
+
+            if let revertBasePhraseMessage {
+                Text(revertBasePhraseMessage)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.top, 8)
+    }
+
+    private func revertAllUnnotedBasePhraseEdits() {
+        do {
+            let revertedWords = try store.removeAllUnnotedAddedPhrases()
+            let phraseWord = revertedWords.count == 1 ? "phrase" : "phrases"
+            revertBasePhraseMessage = revertedWords.isEmpty
+                ? "No edited base phrases without notes to revert."
+                : "Reverted \(revertedWords.count) edited base \(phraseWord) without notes."
+        } catch {
+            revertBasePhraseMessage = "Revert failed: \(error.localizedDescription)"
         }
     }
 

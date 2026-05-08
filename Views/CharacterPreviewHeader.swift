@@ -1218,7 +1218,7 @@ private struct AddPhraseInputForm: View {
 
     private func addPhrase() {
         do {
-            let trimmed = store.simplifiedText(word.trimmingCharacters(in: .whitespacesAndNewlines))
+            let trimmed = store.normalizedPhraseWord(word)
             try store.addCustomPhrase(word: trimmed, pinyin: pinyin, meanings: meanings, notes: notes)
             editorError = nil
             onAdd(
@@ -1304,19 +1304,23 @@ private struct AddPhraseExtractForm: View {
         let candidates = PhraseDiscoveryCandidateTools.selectingAll(parsed.candidates, isSelected: true)
         let prepared = PhraseDiscoveryCandidateTools.preparingForImport(candidates)
         var added = 0
+        var skippedExisting = 0
         var addedCandidates: [PhraseDiscoveryCandidate] = []
         var errors: [String] = []
         for item in prepared.candidates {
             do {
-                try store.addCustomPhrase(
+                let wasAdded = try store.addAIPastedPhraseIfNew(
                     word: item.phrase,
                     pinyin: item.candidate.pinyin,
                     meanings: item.candidate.meaning,
-                    notes: nil,
                     refreshViews: false
                 )
-                added += 1
-                addedCandidates.append(item.candidate)
+                if wasAdded {
+                    added += 1
+                    addedCandidates.append(item.candidate)
+                } else {
+                    skippedExisting += 1
+                }
             } catch {
                 errors.append("\(item.phrase): \(error.localizedDescription)")
             }
@@ -1326,7 +1330,8 @@ private struct AddPhraseExtractForm: View {
         let summary = PhraseDiscoveryImportSummary(
             selectedCount: candidates.count,
             addedCount: added,
-            skippedCount: prepared.skippedCount,
+            skippedCount: prepared.skippedCount + skippedExisting,
+            skippedExistingCount: skippedExisting,
             errors: errors
         )
         message = summary.message(defaultAIName: store.defaultAIName)

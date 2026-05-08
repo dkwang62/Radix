@@ -217,6 +217,14 @@ final class PhraseRepository {
         return runQuery(db: baseDb, sql: baseSQL, binder: binder).first
     }
 
+    func fetchBasePhrase(for word: String) -> PhraseItem? {
+        let baseSQL = "SELECT word, pinyin, meanings FROM phrases WHERE word = ? LIMIT 1"
+        let binder: (OpaquePointer?) -> Void = { stmt in
+            sqlite3_bind_text(stmt, 1, (word as NSString).utf8String, -1, SQLITE_TRANSIENT)
+        }
+        return runQuery(db: baseDb, sql: baseSQL, binder: binder).first
+    }
+
     func fetchPhrases(matching words: Set<String>) -> [PhraseItem] {
         guard !words.isEmpty else { return [] }
         let lookup = phraseLookupCache()

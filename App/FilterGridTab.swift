@@ -971,7 +971,7 @@ struct FilterGridTab: View {
         }
 
         if let index = store.allGridItems.firstIndex(where: { $0.character == character }) {
-            store.gridPage = index / store.gridBatchSize
+            store.gridPage = GridPaging.pageForIndex(index, pageSize: store.gridBatchSize)
         }
     }
 
