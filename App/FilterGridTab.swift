@@ -17,7 +17,6 @@ struct FilterGridTab: View {
     @State private var editingCollectionName = ""
     @State private var editingCollectionText = ""
     @State private var collectionEditorError: String?
-    @FocusState private var editingCharactersFocused: Bool
 
     private var isRunningOnMac: Bool {
         #if targetEnvironment(macCatalyst)
@@ -131,10 +130,27 @@ struct FilterGridTab: View {
                 .environmentObject(store)
             }
             .sheet(isPresented: $showManualCollectionSheet) {
-                manualCollectionSheet
+                ManualBrowseCollectionSheet(
+                    name: $manualCollectionName,
+                    text: $manualCollectionText,
+                    onCancel: { showManualCollectionSheet = false },
+                    onSave: saveManualCollection
+                )
             }
             .sheet(item: $editingCollection) { collection in
-                editCollectionSheet(collection)
+                EditBrowseCollectionSheet(
+                    collection: collection,
+                    name: $editingCollectionName,
+                    text: $editingCollectionText,
+                    error: collectionEditorError,
+                    onCancel: {
+                        editingCollection = nil
+                        collectionEditorError = nil
+                    },
+                    onSave: {
+                        saveEditedCollection(collection)
+                    }
+                )
             }
             .alert("Delete Saved Image?", isPresented: Binding(
                 get: { pendingDeleteCollection != nil },
@@ -174,34 +190,79 @@ struct FilterGridTab: View {
 
     @ViewBuilder
     private func phoneBrowsePreview(proxy: ScrollViewProxy) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Button {
-                returnToBrowse(proxy: proxy)
-            } label: {
-                Label("Browse", systemImage: "chevron.left")
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
-            .buttonStyle(.plain)
+        BrowsePhonePreview(
+            phrase: store.activeSidebarPhrasePreview,
+            character: store.previewCharacter,
+            onReturn: { returnToBrowse(proxy: proxy) }
+        )
+        .environmentObject(store)
+    }
 
-            if let phrase = store.activeSidebarPhrasePreview {
-                PhraseInfoCard(phrase: phrase, onDone: {
-                    returnToBrowse(proxy: proxy)
-                })
-                .environmentObject(store)
-            } else if let character = store.previewCharacter {
-                standardPhoneCharacterPreview(
-                    character: character,
-                    showAddToMemoryButton: false,
-                    onClear: { returnToBrowse(proxy: proxy) }
-                )
-            } else {
-                EmptyView()
+    private var dictionaryGridSwipeGesture: some Gesture {
+        DragGesture(minimumDistance: 35, coordinateSpace: .local)
+            .onEnded { value in
+                let horizontal = value.translation.width
+                let vertical = value.translation.height
+                guard abs(horizontal) > 70, abs(horizontal) > abs(vertical) * 1.35 else { return }
+
+                withAnimation(.easeInOut(duration: 0.18)) {
+                    if horizontal < 0 {
+                        store.nextGridPage()
+                    } else {
+                        store.previousGridPage()
+                    }
+                }
             }
+    }
+
+    private var dictionaryGridFooter: some View {
+        DictionaryGridFooter(
+            totalCount: store.allGridItems.count,
+            page: store.gridPage,
+            pageSize: store.gridBatchSize,
+            pageCount: store.gridPageCount,
+            onPrevious: {
+                store.previousGridPage()
+            },
+            onNext: {
+                store.nextGridPage()
+            }
+        )
+    }
+
+    @ViewBuilder
+    private var smartGridControls: some View {
+        let isComponents = store.gridSortMode == .componentFrequency
+        let componentsToggle = Button {
+            store.setGridSortMode(isComponents ? .characterFrequency : .componentFrequency)
+        } label: {
+            Text("Components")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(isComponents ? Color.accentColor : Color(.secondarySystemBackground))
+                .foregroundStyle(isComponents ? Color.white : Color.primary)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+
+        let filterButton = Button {
+            showBrowseFilters = true
+        } label: {
+            Text("▽")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(filterButtonTitle)
+
+        HStack(alignment: .center, spacing: 8) {
+            componentsToggle
+            CompactScriptFilterControl(selection: store.gridScriptFilter) { store.setGridScriptFilter($0) }
+            filterButton
         }
     }
 
@@ -234,8 +295,8 @@ struct FilterGridTab: View {
                         pinyin: pinyin,
                         fontSize: fontSize,
                         isFavorite: store.isFavorite(character),
-                        background: imageTileBackground(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted),
-                        stroke: imageTileStroke(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted),
+                        background: BrowseImageTileStyle.background(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted),
+                        stroke: BrowseImageTileStyle.stroke(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted),
                         strokeWidth: highlightRole == nil ? 2 : 2.5
                     ) {
                         store.previewImageCharacter(character, offset: offset, announce: false)
@@ -247,34 +308,6 @@ struct FilterGridTab: View {
                 .buttonStyle(.plain)
                 .id(imageTileAnchorID(offset))
             }
-        }
-    }
-
-    private func imageTileBackground(isActive: Bool, highlightRole: ImagePhraseHighlightRole?, isMemoryHighlighted: Bool) -> Color {
-        switch highlightRole {
-        case .target:
-            return Color.accentColor.opacity(0.24)
-        case .phraseMember:
-            return Color.blue.opacity(0.16)
-        case nil:
-            if isMemoryHighlighted {
-                return Color.accentColor.opacity(0.18)
-            }
-            return isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground)
-        }
-    }
-
-    private func imageTileStroke(isActive: Bool, highlightRole: ImagePhraseHighlightRole?, isMemoryHighlighted: Bool) -> Color {
-        switch highlightRole {
-        case .target:
-            return Color.accentColor
-        case .phraseMember:
-            return Color.blue.opacity(0.72)
-        case nil:
-            if isMemoryHighlighted {
-                return Color.accentColor
-            }
-            return isActive ? Color.accentColor : Color.clear
         }
     }
 
@@ -312,74 +345,6 @@ struct FilterGridTab: View {
         .simultaneousGesture(dictionaryGridSwipeGesture)
 
         dictionaryGridFooter
-    }
-
-    private var dictionaryGridFooter: some View {
-        DictionaryGridFooter(
-            totalCount: store.allGridItems.count,
-            page: store.gridPage,
-            pageSize: store.gridBatchSize,
-            pageCount: store.gridPageCount,
-            onPrevious: {
-                store.previousGridPage()
-            },
-            onNext: {
-                store.nextGridPage()
-            }
-        )
-    }
-
-    private var dictionaryGridSwipeGesture: some Gesture {
-        DragGesture(minimumDistance: 35, coordinateSpace: .local)
-            .onEnded { value in
-                let horizontal = value.translation.width
-                let vertical = value.translation.height
-                guard abs(horizontal) > 70, abs(horizontal) > abs(vertical) * 1.35 else { return }
-
-                withAnimation(.easeInOut(duration: 0.18)) {
-                    if horizontal < 0 {
-                        store.nextGridPage()
-                    } else {
-                        store.previousGridPage()
-                    }
-                }
-            }
-    }
-
-    @ViewBuilder
-    private var smartGridControls: some View {
-        let isComponents = store.gridSortMode == .componentFrequency
-        let componentsToggle = Button {
-            store.setGridSortMode(isComponents ? .characterFrequency : .componentFrequency)
-        } label: {
-            Text("Components")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(isComponents ? Color.accentColor : Color(.secondarySystemBackground))
-                .foregroundStyle(isComponents ? Color.white : Color.primary)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-        .buttonStyle(.plain)
-
-        let filterButton = Button {
-            showBrowseFilters = true
-        } label: {
-            Text("▽")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(filterButtonTitle)
-
-        HStack(alignment: .center, spacing: 8) {
-            componentsToggle
-            CompactScriptFilterControl(selection: store.gridScriptFilter) { store.setGridScriptFilter($0) }
-            filterButton
-        }
     }
 
     @ViewBuilder
@@ -489,58 +454,6 @@ struct FilterGridTab: View {
         editingCollectionText = collection.characters.joined(separator: " ")
         collectionEditorError = nil
         editingCollection = collection
-    }
-
-    private var limitedEditingCollectionName: Binding<String> {
-        Binding(
-            get: { editingCollectionName },
-            set: { editingCollectionName = String($0.prefix(11)) }
-        )
-    }
-
-    private func editCollectionSheet(_ collection: CharacterCollection) -> some View {
-        NavigationStack {
-            Form {
-                Section("Image") {
-                    TextField("Name", text: limitedEditingCollectionName)
-                    Text("Maximum 11 characters.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Section("Characters") {
-                    TextEditor(text: $editingCollectionText)
-                        .frame(minHeight: 140)
-                        .focused($editingCharactersFocused)
-                    Text("Paste or type Chinese text here. Radix will keep the recognized characters for this saved image.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                if let collectionEditorError {
-                    Section {
-                        Text(collectionEditorError)
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.red)
-                    }
-                }
-            }
-            .navigationTitle("Edit Saved Image")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
-                        editingCollection = nil
-                        collectionEditorError = nil
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save") {
-                        saveEditedCollection(collection)
-                    }
-                }
-            }
-        }
     }
 
     private func saveEditedCollection(_ collection: CharacterCollection) {
@@ -779,39 +692,6 @@ struct FilterGridTab: View {
 
     private func collectionSubtitle(for collection: CharacterCollection) -> String {
         "\(collection.characters.count) characters"
-    }
-
-    private var manualCollectionSheet: some View {
-        NavigationStack {
-            Form {
-                Section("Image") {
-                    TextField("Name", text: $manualCollectionName)
-                    TextEditor(text: $manualCollectionText)
-                        .frame(minHeight: 180)
-                }
-
-                Section {
-                    Text("\(CaptureTextExtractor.uniqueCharacters(in: manualCollectionText).count) unique Chinese characters detected.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .navigationTitle("New Image")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
-                        showManualCollectionSheet = false
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save") {
-                        saveManualCollection()
-                    }
-                    .disabled(CaptureTextExtractor.uniqueCharacters(in: manualCollectionText).isEmpty)
-                }
-            }
-        }
     }
 
     private func beginManualCollection() {
