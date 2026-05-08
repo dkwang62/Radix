@@ -171,6 +171,10 @@ struct FilterGridTab: View {
         isPhoneBrowseLayout && (store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil)
     }
 
+    private var browseGridLayout: BrowseGridLayout {
+        .current
+    }
+
     @ViewBuilder
     private var browseInteractionHintRow: some View {
         InteractionHintRow(
@@ -181,20 +185,11 @@ struct FilterGridTab: View {
     }
     
     private var columns: [GridItem] {
-        #if targetEnvironment(macCatalyst)
-        return Array(repeating: GridItem(.flexible(minimum: 40, maximum: 80), spacing: 0), count: 15)
-        #else
-        // iPhone: fewer columns (8) to give pinyin room to stay on one line
-        return Array(repeating: GridItem(.flexible(minimum: 32, maximum: 64), spacing: 0), count: 8)
-        #endif
+        browseGridLayout.gridColumns
     }
 
     private var fontSize: CGFloat {
-        #if targetEnvironment(macCatalyst)
-        return 28
-        #else
-        return 24
-        #endif
+        browseGridLayout.characterFontSize
     }
 
     var body: some View {
@@ -246,6 +241,9 @@ struct FilterGridTab: View {
                 if newValue == nil {
                     scrollToPendingBrowseTarget(proxy: proxy)
                 }
+            }
+            .onChange(of: store.browseMemoryHighlightOffsets) { _, _ in
+                scrollToPendingBrowseTarget(proxy: proxy)
             }
             .onAppear {
                 prepareBrowseHintIfNeeded()
@@ -343,6 +341,7 @@ struct FilterGridTab: View {
         LazyVGrid(columns: columns, spacing: 0) {
             ForEach(allItems, id: \.offset) { offset, character in
                 let highlightRole = store.imagePhraseHighlightRole(collectionID: collection.id, offset: offset)
+                let isMemoryHighlighted = store.isBrowseMemoryHighlighted(collectionID: collection.id, offset: offset)
                 let isActive = highlightRole == .target
                 let pinyin = store.item(for: character)?.pinyinText ?? ""
                 Button {
@@ -367,11 +366,11 @@ struct FilterGridTab: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 6)
-                    .background(imageTileBackground(isActive: isActive, highlightRole: highlightRole))
+                    .background(imageTileBackground(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted))
                     .clipShape(Rectangle())
                     .overlay(
                         Rectangle()
-                            .stroke(imageTileStroke(isActive: isActive, highlightRole: highlightRole), lineWidth: highlightRole == nil ? 2 : 2.5)
+                            .stroke(imageTileStroke(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted), lineWidth: highlightRole == nil ? 2 : 2.5)
                     )
                     .overlay(alignment: .topTrailing) {
                         if store.isFavorite(character) {
@@ -388,24 +387,30 @@ struct FilterGridTab: View {
         }
     }
 
-    private func imageTileBackground(isActive: Bool, highlightRole: ImagePhraseHighlightRole?) -> Color {
+    private func imageTileBackground(isActive: Bool, highlightRole: ImagePhraseHighlightRole?, isMemoryHighlighted: Bool) -> Color {
         switch highlightRole {
         case .target:
             return Color.accentColor.opacity(0.24)
         case .phraseMember:
             return Color.blue.opacity(0.16)
         case nil:
+            if isMemoryHighlighted {
+                return Color.accentColor.opacity(0.18)
+            }
             return isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground)
         }
     }
 
-    private func imageTileStroke(isActive: Bool, highlightRole: ImagePhraseHighlightRole?) -> Color {
+    private func imageTileStroke(isActive: Bool, highlightRole: ImagePhraseHighlightRole?, isMemoryHighlighted: Bool) -> Color {
         switch highlightRole {
         case .target:
             return Color.accentColor
         case .phraseMember:
             return Color.blue.opacity(0.72)
         case nil:
+            if isMemoryHighlighted {
+                return Color.accentColor
+            }
             return isActive ? Color.accentColor : Color.clear
         }
     }

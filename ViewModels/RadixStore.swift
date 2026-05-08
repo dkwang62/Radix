@@ -100,12 +100,6 @@ private struct ImagePhraseContext: Equatable {
     let next: Character?
 }
 
-struct BrowseScrollTarget: Equatable {
-    let collectionID: UUID?
-    let character: String?
-    let offset: Int?
-}
-
 private struct ImagePhraseHighlightState {
     let context: ImagePhraseContext
     let offsets: Set<Int>
@@ -359,6 +353,7 @@ final class RadixStore: ObservableObject {
         didSet {
             guard oldValue != selectedBrowseCollectionID else { return }
             selectedBrowseCollectionCharacters = selectedBrowseCollectionID.flatMap { collection(id: $0).map { Set($0.characters) } }
+            clearBrowseMemoryHighlight()
             if selectedBrowseCollectionID != nil {
                 browseHighlightedCharacter = nil
             }
@@ -476,6 +471,8 @@ final class RadixStore: ObservableObject {
     @Published private(set) var sidebarPhrasePreview: PhraseItem?
     @Published private(set) var pendingBrowseScrollTarget: BrowseScrollTarget?
     @Published var browseHighlightedCharacter: String?
+    @Published private(set) var browseMemoryHighlightCollectionID: UUID?
+    @Published private(set) var browseMemoryHighlightOffsets: Set<Int> = []
     private let imagePhraseHighlightLengths = [2, 3, 4]
     var suppressHelpReset = false
     @Published private(set) var loadingError: String?
@@ -813,6 +810,7 @@ final class RadixStore: ObservableObject {
     }
 
     func previewImageCharacter(_ character: String, offset: Int, announce: Bool = true) {
+        clearBrowseMemoryHighlight()
         let context = imagePhraseContext(for: character, offset: offset)
         imagePhraseContext = context
         imagePhraseHighlightOffsets = context == nil ? [] : [offset]
@@ -823,6 +821,7 @@ final class RadixStore: ObservableObject {
     }
 
     func handleImageCharacterTap(_ character: String, offset: Int) -> Bool {
+        clearBrowseMemoryHighlight()
         let context = imagePhraseContext(for: character, offset: offset)
         guard let context else {
             previewImageCharacter(character, offset: offset)
@@ -870,6 +869,71 @@ final class RadixStore: ObservableObject {
 
     func highlightBrowseDictionaryCharacter(_ character: String?) {
         browseHighlightedCharacter = character
+    }
+
+    func clearBrowseMemoryHighlight() {
+        browseMemoryHighlightCollectionID = nil
+        browseMemoryHighlightOffsets = []
+    }
+
+    @discardableResult
+    func highlightMemoryMatchesInCurrentBrowseSource(_ item: String) -> Bool {
+        let key = item.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard route == .search,
+              homeTab == .filter,
+              let collection = selectedBrowseCollection,
+              !key.isEmpty
+        else {
+            clearBrowseMemoryHighlight()
+            return false
+        }
+
+        let characters = collection.characters
+        imagePhraseContext = nil
+        imagePhraseHighlightOffsets = []
+        imageBrowsePhrasePreview = nil
+        imagePhraseHighlightRevision += 1
+
+        let offsets: Set<Int>
+        if key.count == 1 {
+            offsets = Set(characters.indices.filter { characters[$0] == key })
+        } else {
+            let phraseCharacters = key.map(String.init)
+            guard !phraseCharacters.isEmpty, phraseCharacters.count <= characters.count else {
+                clearBrowseMemoryHighlight()
+                return false
+            }
+
+            var matchedOffsets = Set<Int>()
+            let maxStart = characters.count - phraseCharacters.count
+            for start in 0...maxStart {
+                let end = start + phraseCharacters.count
+                if Array(characters[start..<end]) == phraseCharacters {
+                    matchedOffsets.formUnion(start..<end)
+                }
+            }
+            offsets = matchedOffsets
+        }
+
+        guard !offsets.isEmpty else {
+            clearBrowseMemoryHighlight()
+            return false
+        }
+
+        browseMemoryHighlightCollectionID = collection.id
+        browseMemoryHighlightOffsets = offsets
+        if let firstOffset = offsets.min() {
+            pendingBrowseScrollTarget = BrowseScrollTarget(
+                collectionID: collection.id,
+                character: characters.indices.contains(firstOffset) ? characters[firstOffset] : nil,
+                offset: firstOffset
+            )
+        }
+        return true
+    }
+
+    func isBrowseMemoryHighlighted(collectionID: UUID, offset: Int) -> Bool {
+        browseMemoryHighlightCollectionID == collectionID && browseMemoryHighlightOffsets.contains(offset)
     }
 
     func prepareBrowseReturnScrollTarget() {
@@ -2129,14 +2193,7 @@ final class RadixStore: ObservableObject {
     }
 
     var gridBatchSize: Int {
-        #if targetEnvironment(macCatalyst)
-        return 150
-        #else
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            return 112
-        }
-        return 64
-        #endif
+        BrowseGridLayout.current.dictionaryPageSize
     }
     var gridPageCount: Int {
         let count = gridSortMode == .readingOrder ? allReadingOrderCharacters.count : allGridItems.count
@@ -3353,7 +3410,9 @@ final class RadixStore: ObservableObject {
                 performSearch(customQuery: searchText)
                 refreshPhrases(for: key)
             case .filter:
-                _ = focusGridCharacter(key)
+                if !highlightMemoryMatchesInCurrentBrowseSource(key) {
+                    _ = focusGridCharacter(key)
+                }
                 refreshPhrases(for: key)
             case .favourites:
                 setFavorite(character: key, isFavorite: !favorites.contains(key))
@@ -3393,7 +3452,7 @@ final class RadixStore: ObservableObject {
                 query = searchText
                 performSearch(customQuery: searchText)
             case .filter:
-                break
+                _ = highlightMemoryMatchesInCurrentBrowseSource(phrase.word)
             case .favourites:
                 togglePhraseFavorite(phrase.word)
             case .dataEdit:
