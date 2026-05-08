@@ -381,16 +381,12 @@ struct PhraseInfoCard: View {
             selectCharacterFromPhrase(animationCharacter)
         } label: {
             VStack(spacing: 6) {
-                Text(strokeText.isEmpty ? " " : strokeText)
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
+                StrokeAnimationHeaderLabel(text: strokeText)
                     .frame(maxWidth: .infinity)
 
                 StrokeOrderWebView(
                     character: animationCharacter,
-                    reloadToken: UUID(),
+                    reloadToken: StrokeAnimationToken.stable(for: "phrase-card-\(phrase)-\(animationCharacter)"),
                     canvasSize: 110
                 )
                 .frame(height: 118)

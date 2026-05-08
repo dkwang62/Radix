@@ -416,7 +416,7 @@ struct CharacterInfoCard: View {
             if !notesText.isEmpty {
                 Divider()
                 VStack(alignment: .leading, spacing: 6) {
-                    Label("✏️", systemImage: "note.text")
+                    Label("Notes", systemImage: "note.text")
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Text(notesText)

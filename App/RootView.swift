@@ -596,7 +596,11 @@ struct RootView: View {
         return Button {
             #if !targetEnvironment(macCatalyst)
             if UIDevice.current.userInterfaceIdiom == .phone {
-                store.previewCharacter = nil
+                if id == 2 {
+                    store.prepareBrowseReturnScrollTarget()
+                } else {
+                    store.previewCharacter = nil
+                }
                 store.showiPhoneDetail = false
             }
             #endif
@@ -613,6 +617,7 @@ struct RootView: View {
             case 2:
                 store.route = .search
                 store.homeTab = .filter
+                store.prepareBrowseReturnScrollTarget()
                 store.clearBrowsePreview()
             case 3:
                 store.route = .search

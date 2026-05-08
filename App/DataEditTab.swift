@@ -570,11 +570,10 @@ struct DataEditTab: View {
             }
             .foregroundStyle(Color.accentColor)
 
-            // Add New Character button
             Button {
                 store.openNewCharacterEditor()
             } label: {
-                Label("Add New Character", systemImage: "plus.circle.fill")
+                Label("New Character", systemImage: "plus.circle.fill")
                     .font(ResponsiveFont.subheadline.bold())
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
@@ -583,6 +582,7 @@ struct DataEditTab: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Add New Character")
 
             DataChangedDictionarySection(
                 searchText: $dictionaryChangeSearch,
@@ -607,7 +607,7 @@ struct DataEditTab: View {
             Button {
                 store.openNewPhraseEditor()
             } label: {
-                Label("Add New Phrase", systemImage: "plus.circle.fill")
+                Label("New Phrase", systemImage: "plus.circle.fill")
                     .font(ResponsiveFont.subheadline.bold())
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
@@ -616,6 +616,7 @@ struct DataEditTab: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Add New Phrase")
 
             DataChangedPhrasesSection(
                 changedPhraseEntries: changedPhraseEntries,

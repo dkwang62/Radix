@@ -116,16 +116,12 @@ struct CharacterPreviewHeader: View {
             animContainer {
                 ForEach(chars, id: \.self) { char in
                     VStack(spacing: 0) {
-                        Text(variantAnimationTitle(for: char))
-                            .font(ResponsiveFont.subheadline.weight(.semibold))
-                            .foregroundStyle(.primary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
+                        StrokeAnimationHeaderLabel(text: variantAnimationTitle(for: char))
                             .padding(.vertical, 6)
 
                         StrokeOrderWebView(
                             character: char,
-                            reloadToken: UUID(),
+                            reloadToken: StrokeAnimationToken.stable(for: "preview-variant-\(char)-\(isVertical)"),
                             canvasSize: isVertical ? 120 : 90
                         )
                         .frame(maxWidth: .infinity)
@@ -144,16 +140,12 @@ struct CharacterPreviewHeader: View {
         } else {
             // Single animation — no variants
             VStack(spacing: 0) {
-                Text(singleAnimationTitle(for: item))
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
+                StrokeAnimationHeaderLabel(text: singleAnimationTitle(for: item))
                     .padding(.vertical, 6)
 
                 StrokeOrderWebView(
                     character: item.character,
-                    reloadToken: UUID(),
+                    reloadToken: StrokeAnimationToken.stable(for: "preview-single-\(item.character)-\(isVertical)"),
                     canvasSize: 120
                 )
                 .frame(height: 130)
@@ -297,9 +289,10 @@ private struct PhraseTableSheet: View {
                     Button {
                         showAddPhraseSheet = true
                     } label: {
-                        Label("+Phrases", systemImage: "plus.circle.fill")
+                        Label("Phrases", systemImage: "plus.circle.fill")
                     }
                     .buttonStyle(.bordered)
+                    .accessibilityLabel("Add Phrases")
 
                     Spacer()
                     DismissButton()
@@ -461,17 +454,17 @@ private struct CharacterActionMenuContent: View {
 
     @ViewBuilder
     private var characterActions: some View {
-        Button("✏️Notes") {
+        Button("Notes") {
             store.openQuickCharacterEditor(character)
         }
-        Button("词Phrases") {
+        Button("Phrases") {
             if let onShowPhrases {
                 onShowPhrases()
             } else {
                 showPhraseTable(for: character, using: store)
             }
         }
-        Button("拆Components") {
+        Button("Components") {
             store.goToRoots(character: character)
         }
         Button("AI Prompt to paste") {
@@ -519,7 +512,7 @@ private struct CharacterActionMenuContent: View {
             }
         }
         Divider()
-        Button("Add New Character") {
+        Button("New Character") {
             store.openNewCharacterEditor()
         }
         if store.addedDictionaryCharacters.contains(character) {
@@ -972,7 +965,7 @@ private struct PhraseActionMenuContent: View {
 
     @ViewBuilder
     private var phraseActions: some View {
-        Button("✏️Notes") {
+        Button("Notes") {
             dismiss()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                 store.openQuickPhraseEditor(word: trimmedWord)

@@ -322,7 +322,9 @@ struct DataExportService {
         bundleSubdirectory: String?
     ) throws -> Data? {
         if let projectURL = ProjectLiveDataLocator.file(named: projectPath) {
-            return try Data(contentsOf: projectURL)
+            if let data = try? Data(contentsOf: projectURL) {
+                return data
+            }
         }
         if let url = Bundle.main.url(forResource: bundleResource, withExtension: bundleExtension, subdirectory: bundleSubdirectory) {
             return try Data(contentsOf: url)

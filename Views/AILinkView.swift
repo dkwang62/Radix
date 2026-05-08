@@ -291,10 +291,11 @@ struct AILinkView: View {
                 Button {
                     store.addPromptTask()
                 } label: {
-                    Label("Add Task", systemImage: "plus.circle")
+                    Label("Task", systemImage: "plus.circle")
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
+                .accessibilityLabel("Add Task")
             }
 
             ForEach(store.promptConfig.tasks) { task in

@@ -141,35 +141,12 @@ struct FilterGridTab: View {
     @State private var showBrowseInteractionHint = false
     @State private var manualCollectionName = ""
     @State private var manualCollectionText = ""
-    @State private var imageGridPage: Int = 0
     @State private var pendingDeleteCollection: CharacterCollection?
     @State private var editingCollection: CharacterCollection?
     @State private var editingCollectionName = ""
     @State private var editingCollectionText = ""
     @State private var collectionEditorError: String?
     @FocusState private var editingCharactersFocused: Bool
-
-    // ── Image-mode grid (entirely separate from the smart grid) ──────────────
-    private var imageGridBatchSize: Int {
-        #if targetEnvironment(macCatalyst)
-        return 225
-        #else
-        return UIDevice.current.userInterfaceIdiom == .pad ? 96 : 120
-        #endif
-    }
-
-    private func imageGridPageCount(for collection: CharacterCollection) -> Int {
-        max(1, Int(ceil(Double(collection.characters.count) / Double(imageGridBatchSize))))
-    }
-
-    private func imagePagedCharacters(for collection: CharacterCollection) -> [(offset: Int, character: String)] {
-        let total = collection.characters.count
-        let safePage = min(imageGridPage, max(0, imageGridPageCount(for: collection) - 1))
-        let start = safePage * imageGridBatchSize
-        let end = min(start + imageGridBatchSize, total)
-        guard start < end else { return [] }
-        return collection.characters[start..<end].enumerated().map { (start + $0.offset, $0.element) }
-    }
 
     private var isRunningOnMac: Bool {
         #if targetEnvironment(macCatalyst)
@@ -188,6 +165,10 @@ struct FilterGridTab: View {
         #else
         return UIDevice.current.userInterfaceIdiom == .phone
         #endif
+    }
+
+    private var isPhoneBrowsePreviewActive: Bool {
+        isPhoneBrowseLayout && (store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil)
     }
 
     @ViewBuilder
@@ -218,35 +199,57 @@ struct FilterGridTab: View {
 
     var body: some View {
         ScrollViewReader { proxy in
-            ScrollView {
-                VStack(alignment: .leading, spacing: isPhoneBrowseLayout ? 6 : 10) {
-                    Color.clear.frame(height: 0).id("browseTop")
-                    #if !targetEnvironment(macCatalyst)
-                    if UIDevice.current.userInterfaceIdiom == .phone,
-                       store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil {
-                        phoneBrowsePreview()
-                    } else {
-                        browseContent(proxy: proxy)
+            Group {
+                if isPhoneBrowsePreviewActive {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Color.clear.frame(height: 0).id("browseTop")
+                            #if !targetEnvironment(macCatalyst)
+                            if UIDevice.current.userInterfaceIdiom == .phone {
+                                phoneBrowsePreview(proxy: proxy)
+                            }
+                            #endif
+                        }
+                        .padding(.horizontal)
                     }
-                    #else
-                    browseContent(proxy: proxy)
-                    #endif
+                } else {
+                    VStack(alignment: .leading, spacing: 0) {
+                        browseSourceDisclosure(description: browseGridDescription)
+                            .padding(.horizontal)
+
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 0) {
+                                Color.clear.frame(height: 0).id("browseTop")
+                                browseContent(proxy: proxy)
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
                 }
-                .padding(.horizontal)
-                .onChange(of: store.strokeMinFilter) { _, _ in store.gridPage = 0 }
-                .onChange(of: store.strokeMaxFilter) { _, _ in store.gridPage = 0 }
-                .onChange(of: store.selectedRadicalFilter) { _, _ in store.gridPage = 0 }
-                .onChange(of: store.selectedStructureFilter) { _, _ in store.gridPage = 0 }
-                .onChange(of: store.selectedBrowseCollectionID) { _, _ in imageGridPage = 0 }
-                .onChange(of: store.previewCharacter) { _, newValue in
+            }
+            .onChange(of: store.strokeMinFilter) { _, _ in store.gridPage = 0 }
+            .onChange(of: store.strokeMaxFilter) { _, _ in store.gridPage = 0 }
+            .onChange(of: store.selectedRadicalFilter) { _, _ in store.gridPage = 0 }
+            .onChange(of: store.selectedStructureFilter) { _, _ in store.gridPage = 0 }
+            .onChange(of: store.previewCharacter) { _, newValue in
+                if let newValue {
+                    if store.selectedBrowseCollection == nil {
+                        store.highlightBrowseDictionaryCharacter(newValue)
+                    }
                     focusBrowseGrid(on: newValue)
-                    withAnimation {
-                        proxy.scrollTo("browseTop", anchor: .top)
-                    }
+                    scrollToBrowseTile(activeBrowseTileAnchorID() ?? dictionaryTileAnchorID(newValue), proxy: proxy)
+                } else {
+                    scrollToPendingBrowseTarget(proxy: proxy)
                 }
-                .onAppear {
-                    prepareBrowseHintIfNeeded()
+            }
+            .onChange(of: store.activeSidebarPhrasePreview?.word) { _, newValue in
+                if newValue == nil {
+                    scrollToPendingBrowseTarget(proxy: proxy)
                 }
+            }
+            .onAppear {
+                prepareBrowseHintIfNeeded()
+                scrollToPendingBrowseTarget(proxy: proxy)
             }
             .sheet(isPresented: $showBrowseFilters) {
                 browseFiltersSheet
@@ -280,7 +283,6 @@ struct FilterGridTab: View {
 
     @ViewBuilder
     private func browseContent(proxy: ScrollViewProxy) -> some View {
-        browseSourceDisclosure(description: browseGridDescription)
         if isPhoneBrowseLayout {
             browseHintIfNeeded
         }
@@ -295,12 +297,10 @@ struct FilterGridTab: View {
     }
 
     @ViewBuilder
-    private func phoneBrowsePreview() -> some View {
+    private func phoneBrowsePreview(proxy: ScrollViewProxy) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Button {
-                withAnimation {
-                    store.clearBrowsePreview()
-                }
+                returnToBrowse(proxy: proxy)
             } label: {
                 Label("Browse", systemImage: "chevron.left")
                     .font(ResponsiveFont.subheadline.weight(.semibold))
@@ -314,14 +314,14 @@ struct FilterGridTab: View {
 
             if let phrase = store.activeSidebarPhrasePreview {
                 PhraseInfoCard(phrase: phrase, onDone: {
-                    store.dismissSidebarPhrasePreview()
+                    returnToBrowse(proxy: proxy)
                 })
                 .environmentObject(store)
             } else if let character = store.previewCharacter {
                 standardPhoneCharacterPreview(
                     character: character,
                     showAddToMemoryButton: false,
-                    onClear: { store.clearBrowsePreview() }
+                    onClear: { returnToBrowse(proxy: proxy) }
                 )
             } else {
                 EmptyView()
@@ -332,12 +332,7 @@ struct FilterGridTab: View {
     // ── Image grid: entire character sequence, unfiltered, reading order ────
     @ViewBuilder
     private func imageGridContent(collection: CharacterCollection, proxy: ScrollViewProxy) -> some View {
-        let total = collection.characters.count
-        let pageCount = imageGridPageCount(for: collection)
-        let safePage = min(imageGridPage, max(0, pageCount - 1))
-        let pagedItems = imagePagedCharacters(for: collection)
-        let rangeStart = safePage * imageGridBatchSize + 1
-        let rangeEnd = min((safePage + 1) * imageGridBatchSize, total)
+        let allItems = Array(collection.characters.enumerated())
 
         if !isPhoneBrowseLayout {
             browseHintIfNeeded
@@ -345,32 +340,15 @@ struct FilterGridTab: View {
                 .padding(.bottom, 4)
         }
 
-        HStack {
-            readBrowseSourceButton(collection)
-
-            Spacer()
-            Button("◀ Prev") { imageGridPage = max(0, safePage - 1) }
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .disabled(safePage == 0)
-            Text("\(rangeStart)–\(rangeEnd) of \(total)")
-                .font(ResponsiveFont.caption2)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 8)
-            Button("Next ▶") { imageGridPage = min(pageCount - 1, safePage + 1) }
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .disabled(safePage + 1 >= pageCount)
-            Spacer()
-        }
-
         LazyVGrid(columns: columns, spacing: 0) {
-            ForEach(pagedItems, id: \.offset) { offset, character in
+            ForEach(allItems, id: \.offset) { offset, character in
                 let highlightRole = store.imagePhraseHighlightRole(collectionID: collection.id, offset: offset)
                 let isActive = highlightRole == .target
                 let pinyin = store.item(for: character)?.pinyinText ?? ""
                 Button {
                     let shouldScroll = store.handleImageCharacterTap(character, offset: offset)
                     if shouldScroll {
-                        scrollBrowseTopIfNeeded(proxy)
+                        scrollToBrowseTile(activeBrowseTileAnchorID() ?? imageTileAnchorID(offset), proxy: proxy)
                     }
                 } label: {
                     VStack(spacing: 2) {
@@ -405,6 +383,7 @@ struct FilterGridTab: View {
                     }
                 }
                 .buttonStyle(.plain)
+                .id(imageTileAnchorID(offset))
             }
         }
     }
@@ -440,29 +419,14 @@ struct FilterGridTab: View {
                 .padding(.bottom, 4)
         }
 
-        HStack {
-            Spacer()
-            Button("◀ Prev") { store.previousGridPage() }
-                .font(ResponsiveFont.subheadline)
-                .disabled(store.gridPage == 0)
-            let totalCount = store.allGridItems.count
-            Text("\(store.gridPage * store.gridBatchSize + 1)–\(min((store.gridPage + 1) * store.gridBatchSize, totalCount)) of \(totalCount)")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 8)
-            Button("Next ▶") { store.nextGridPage() }
-                .font(ResponsiveFont.subheadline)
-                .disabled(store.gridPage + 1 >= store.gridPageCount)
-            Spacer()
-        }
-
         LazyVGrid(columns: columns, spacing: 0) {
             ForEach(store.pagedGridItems, id: \.character) { item in
-                let isActive = item.character == store.previewCharacter
+                let isActive = item.character == store.previewCharacter || item.character == store.browseHighlightedCharacter
                 Button {
+                    store.highlightBrowseDictionaryCharacter(item.character)
                     store.speakCharacter(item.character)
                     store.preview(character: item.character)
-                    scrollBrowseTopIfNeeded(proxy)
+                    scrollToBrowseTile(dictionaryTileAnchorID(item.character), proxy: proxy)
                 } label: {
                     VStack(spacing: 2) {
                         Text(item.character)
@@ -488,8 +452,67 @@ struct FilterGridTab: View {
                     }
                 }
                 .buttonStyle(.plain)
+                .id(dictionaryTileAnchorID(item.character))
             }
         }
+        .simultaneousGesture(dictionaryGridSwipeGesture)
+
+        dictionaryGridFooter
+    }
+
+    private var dictionaryGridFooter: some View {
+        let totalCount = store.allGridItems.count
+        let rangeStart = totalCount == 0 ? 0 : store.gridPage * store.gridBatchSize + 1
+        let rangeEnd = min((store.gridPage + 1) * store.gridBatchSize, totalCount)
+
+        return HStack(spacing: 18) {
+            Button {
+                store.previousGridPage()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .frame(width: 36, height: 32)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .disabled(store.gridPage == 0)
+            .accessibilityLabel("Previous page")
+
+            Text("\(rangeStart)–\(rangeEnd) of \(totalCount)")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+
+            Button {
+                store.nextGridPage()
+            } label: {
+                Image(systemName: "chevron.right")
+                    .frame(width: 36, height: 32)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .disabled(store.gridPage + 1 >= store.gridPageCount)
+            .accessibilityLabel("Next page")
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 8)
+        .padding(.bottom, 12)
+    }
+
+    private var dictionaryGridSwipeGesture: some Gesture {
+        DragGesture(minimumDistance: 35, coordinateSpace: .local)
+            .onEnded { value in
+                let horizontal = value.translation.width
+                let vertical = value.translation.height
+                guard abs(horizontal) > 70, abs(horizontal) > abs(vertical) * 1.35 else { return }
+
+                withAnimation(.easeInOut(duration: 0.18)) {
+                    if horizontal < 0 {
+                        store.nextGridPage()
+                    } else {
+                        store.previousGridPage()
+                    }
+                }
+            }
     }
 
     @ViewBuilder
@@ -537,50 +560,39 @@ struct FilterGridTab: View {
 
     @ViewBuilder
     private func browseSourceDisclosure(description: String) -> some View {
-        if let selectedCollection = store.selectedBrowseCollection {
-            VStack(alignment: .leading, spacing: 8) {
-                DisclosureGroup(isExpanded: $showBrowseSource) {
-                    browseSourceOptions
-                        .padding(.top, 8)
-                } label: {
-                    selectedImageSourceLabel(selectedCollection)
-                }
-            }
-            .padding(8)
-            .background(Color(.secondarySystemBackground).opacity(0.55))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-        } else {
-            VStack(alignment: .leading, spacing: 8) {
-            DisclosureGroup(isExpanded: $showBrowseSource) {
-            VStack(alignment: .leading, spacing: 10) {
-                browseSourceOptions
+        let selectedCollection = store.selectedBrowseCollection
 
-                if isPhoneBrowseLayout, store.selectedBrowseCollection == nil {
-                    Text(description)
-                        .font(ResponsiveFont.caption2)
-                        .italic()
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 4)
+        VStack(alignment: .leading, spacing: 8) {
+            DisclosureGroup(isExpanded: $showBrowseSource) {
+                VStack(alignment: .leading, spacing: 10) {
+                    browseSourceOptions
+
+                    if isPhoneBrowseLayout, selectedCollection == nil {
+                        Text(description)
+                            .font(ResponsiveFont.caption2)
+                            .italic()
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 4)
+                    }
                 }
-            }
-            .padding(.top, 8)
+                .padding(.top, 8)
             } label: {
-                browseSourceLabel(collection: nil)
+                if let selectedCollection {
+                    selectedImageSourceLabel(selectedCollection)
+                } else {
+                    browseSourceLabel(collection: nil)
+                }
             }
         }
-        .padding(10)
+        .padding(selectedCollection == nil ? 10 : 8)
         .background(Color(.secondarySystemBackground).opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        }
     }
 
     private func selectedImageSourceLabel(_ collection: CharacterCollection) -> some View {
         HStack(spacing: 8) {
             selectedImageSourceActions(collection)
             Spacer(minLength: 0)
-            Text("Source")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .lineLimit(1)
         }
     }
 
@@ -610,32 +622,11 @@ struct FilterGridTab: View {
             .controlSize(.small)
             .accessibilityLabel("Edit")
 
-            Menu {
-                Button {
-                    store.goToAILinkCollectionTask(collection: collection, taskID: "task4")
-                } label: {
-                    Label("Extract Phrases", systemImage: "text.badge.plus")
-                }
-
-                Button {
-                    store.goToAILinkCollectionTask(collection: collection, taskID: "task5")
-                } label: {
-                    Label("Translate", systemImage: "translate")
-                }
-            } label: {
-                HStack(spacing: 5) {
-                    Image(systemName: "sparkles")
-                    Text("AI Task")
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 9, weight: .bold))
-                }
-                .font(ResponsiveFont.caption2.weight(.semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
-                .frame(minWidth: 92)
+            CollectionAITaskMenu(collection: collection) { taskID in
+                store.goToAILinkCollectionTask(collection: collection, taskID: taskID)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.small)
+
+            readBrowseSourceButton(collection)
         }
     }
 
@@ -761,38 +752,13 @@ struct FilterGridTab: View {
         Button {
             action()
         } label: {
-            HStack(spacing: 8) {
-                Image(systemName: systemImage)
-                    .font(ResponsiveFont.body)
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 34, height: 34)
-                    .background(Color(.systemBackground).opacity(0.8))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(ResponsiveFont.body.weight(.semibold))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-
-                    Text(subtitle)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                Spacer(minLength: 4)
-
-                Image(systemName: "plus.circle.fill")
-                    .foregroundStyle(Color.accentColor)
-                    .font(.system(size: 14))
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemBackground).opacity(0.55))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            SourceMenuRow(
+                title: title,
+                subtitle: subtitle,
+                systemImage: systemImage,
+                iconColor: .accentColor,
+                trailingSystemImage: "plus.circle.fill"
+            )
         }
         .buttonStyle(.plain)
     }
@@ -882,40 +848,14 @@ struct FilterGridTab: View {
                 showBrowseSource = false
             }
         } label: {
-            HStack(spacing: 8) {
-                Image(systemName: systemImage)
-                    .font(ResponsiveFont.body)
-                    .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-                    .frame(width: 34, height: 34)
-                    .background(Color(.systemBackground).opacity(0.8))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(ResponsiveFont.body.weight(.semibold))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-
-                    Text(subtitle)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                Spacer(minLength: 4)
-
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(Color.accentColor)
-                        .font(.system(size: 14))
-                }
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(isSelected ? Color.accentColor.opacity(0.10) : Color(.secondarySystemBackground).opacity(0.55))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            SourceMenuRow(
+                title: title,
+                subtitle: subtitle,
+                systemImage: systemImage,
+                isSelected: isSelected,
+                iconColor: isSelected ? .accentColor : .secondary,
+                trailingSystemImage: isSelected ? "checkmark.circle.fill" : nil
+            )
         }
         .buttonStyle(.plain)
     }
@@ -927,16 +867,101 @@ struct FilterGridTab: View {
         store.showBrowseHelp = true
     }
 
-    private func scrollBrowseTopIfNeeded(_ proxy: ScrollViewProxy) {
-        withAnimation { proxy.scrollTo("browseTop", anchor: .top) }
+    private func returnToBrowse(proxy: ScrollViewProxy) {
+        let anchorID = activeBrowseTileAnchorID()
+        if let character = store.previewCharacter, store.selectedBrowseCollection == nil {
+            focusBrowseGrid(on: character)
+        }
+
+        withAnimation {
+            store.clearBrowsePreview()
+        }
+
+        scrollToBrowseTile(anchorID, proxy: proxy)
+    }
+
+    private func scrollToBrowseTile(_ anchorID: String?, proxy: ScrollViewProxy) {
+        guard let anchorID else { return }
+        DispatchQueue.main.async {
+            withAnimation(.easeInOut(duration: 0.22)) {
+                proxy.scrollTo(anchorID, anchor: .center)
+            }
+        }
+    }
+
+    private func scrollToPendingBrowseTarget(proxy: ScrollViewProxy) {
+        guard let target = store.consumePendingBrowseScrollTarget() else { return }
+
+        if let collectionID = target.collectionID,
+           store.selectedBrowseCollectionID == collectionID {
+            if let offset = target.offset {
+                scrollToBrowseTile(imageTileAnchorID(offset), proxy: proxy)
+                return
+            }
+
+            if let character = target.character,
+               let offset = store.selectedBrowseCollection?.characters.firstIndex(of: character) {
+                scrollToBrowseTile(imageTileAnchorID(offset), proxy: proxy)
+                return
+            }
+        }
+
+        if let character = target.character {
+            focusBrowseGrid(on: character)
+            scrollToBrowseTile(dictionaryTileAnchorID(character), proxy: proxy)
+        }
+    }
+
+    private func activeBrowseTileAnchorID() -> String? {
+        if let collection = store.selectedBrowseCollection {
+            if let targetOffset = collection.characters.indices.first(where: {
+                store.imagePhraseHighlightRole(collectionID: collection.id, offset: $0) == .target
+            }) {
+                return imageTileAnchorID(targetOffset)
+            }
+
+            if let phraseOffset = collection.characters.indices.first(where: {
+                store.imagePhraseHighlightRole(collectionID: collection.id, offset: $0) == .phraseMember
+            }) {
+                return imageTileAnchorID(phraseOffset)
+            }
+
+            if let character = store.previewCharacter,
+               let offset = collection.characters.firstIndex(of: character) {
+                return imageTileAnchorID(offset)
+            }
+
+            if let phraseCharacter = store.activeSidebarPhrasePreview?.word.first.map(String.init),
+               let offset = collection.characters.firstIndex(of: phraseCharacter) {
+                return imageTileAnchorID(offset)
+            }
+
+            return nil
+        }
+
+        if let character = store.previewCharacter {
+            return dictionaryTileAnchorID(character)
+        }
+
+        if let phraseCharacter = store.activeSidebarPhrasePreview?.word.first.map(String.init) {
+            return dictionaryTileAnchorID(phraseCharacter)
+        }
+
+        return nil
+    }
+
+    private func imageTileAnchorID(_ offset: Int) -> String {
+        "browse-image-tile-\(offset)"
+    }
+
+    private func dictionaryTileAnchorID(_ character: String) -> String {
+        "browse-dictionary-tile-\(character)"
     }
 
     private func focusBrowseGrid(on character: String?) {
         guard let character else { return }
 
-        if let collection = store.selectedBrowseCollection,
-           let index = collection.characters.firstIndex(of: character) {
-            imageGridPage = index / imageGridBatchSize
+        if store.selectedBrowseCollection != nil {
             return
         }
 
@@ -1127,6 +1152,87 @@ struct FilterGridTab: View {
         }
         .padding(.horizontal, 8)
         .background(Color(.secondarySystemBackground).opacity(0.5))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+}
+
+private struct CollectionAITaskMenu: View {
+    let collection: CharacterCollection
+    let onSelect: (String) -> Void
+
+    var body: some View {
+        Menu {
+            Button {
+                onSelect("task4")
+            } label: {
+                Label("Extract Phrases", systemImage: "text.badge.plus")
+            }
+
+            Button {
+                onSelect("task5")
+            } label: {
+                Label("Translate", systemImage: "translate")
+            }
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: "sparkles")
+                Text("AI Task")
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 9, weight: .bold))
+            }
+            .font(ResponsiveFont.caption2.weight(.semibold))
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+            .frame(minWidth: 92)
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.small)
+        .accessibilityLabel("AI Task for \(collection.name)")
+    }
+}
+
+private struct SourceMenuRow: View {
+    let title: String
+    let subtitle: String
+    let systemImage: String
+    var isSelected = false
+    var iconColor: Color = .secondary
+    var trailingSystemImage: String?
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .font(ResponsiveFont.body)
+                .foregroundStyle(iconColor)
+                .frame(width: 34, height: 34)
+                .background(Color(.systemBackground).opacity(0.8))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(ResponsiveFont.body.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+
+                Text(subtitle)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Spacer(minLength: 4)
+
+            if let trailingSystemImage {
+                Image(systemName: trailingSystemImage)
+                    .foregroundStyle(Color.accentColor)
+                    .font(.system(size: 14))
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(isSelected ? Color.accentColor.opacity(0.10) : Color(.secondarySystemBackground).opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

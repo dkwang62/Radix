@@ -100,6 +100,12 @@ private struct ImagePhraseContext: Equatable {
     let next: Character?
 }
 
+struct BrowseScrollTarget: Equatable {
+    let collectionID: UUID?
+    let character: String?
+    let offset: Int?
+}
+
 private struct ImagePhraseHighlightState {
     let context: ImagePhraseContext
     let offsets: Set<Int>
@@ -353,6 +359,9 @@ final class RadixStore: ObservableObject {
         didSet {
             guard oldValue != selectedBrowseCollectionID else { return }
             selectedBrowseCollectionCharacters = selectedBrowseCollectionID.flatMap { collection(id: $0).map { Set($0.characters) } }
+            if selectedBrowseCollectionID != nil {
+                browseHighlightedCharacter = nil
+            }
             if let selectedBrowseCollection {
                 activeSubject = .collection(selectedBrowseCollection)
             } else if case .collection = activeSubject {
@@ -465,6 +474,8 @@ final class RadixStore: ObservableObject {
     @Published private var imagePhraseHighlightRevision: Int = 0
     @Published private(set) var imageBrowsePhrasePreview: PhraseItem?
     @Published private(set) var sidebarPhrasePreview: PhraseItem?
+    @Published private(set) var pendingBrowseScrollTarget: BrowseScrollTarget?
+    @Published var browseHighlightedCharacter: String?
     private let imagePhraseHighlightLengths = [2, 3, 4]
     var suppressHelpReset = false
     @Published private(set) var loadingError: String?
@@ -855,6 +866,59 @@ final class RadixStore: ObservableObject {
         previewCharacter = nil
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
+    }
+
+    func highlightBrowseDictionaryCharacter(_ character: String?) {
+        browseHighlightedCharacter = character
+    }
+
+    func prepareBrowseReturnScrollTarget() {
+        let phraseCharacter = activeSidebarPhrasePreview?.word.first.map(String.init)
+        let targetCharacter = previewCharacter ?? phraseCharacter
+
+        if let collection = selectedBrowseCollection {
+            if let context = imagePhraseContext, context.collectionID == collection.id {
+                pendingBrowseScrollTarget = BrowseScrollTarget(
+                    collectionID: collection.id,
+                    character: targetCharacter ?? context.target,
+                    offset: context.offset
+                )
+                return
+            }
+
+            if let targetCharacter,
+               let offset = collection.characters.firstIndex(of: targetCharacter) {
+                pendingBrowseScrollTarget = BrowseScrollTarget(
+                    collectionID: collection.id,
+                    character: targetCharacter,
+                    offset: offset
+                )
+                return
+            }
+
+            if let offset = imagePhraseHighlightOffsets.sorted().first,
+               collection.characters.indices.contains(offset) {
+                pendingBrowseScrollTarget = BrowseScrollTarget(
+                    collectionID: collection.id,
+                    character: collection.characters[offset],
+                    offset: offset
+                )
+                return
+            }
+        }
+
+        guard let targetCharacter else { return }
+        pendingBrowseScrollTarget = BrowseScrollTarget(
+            collectionID: nil,
+            character: targetCharacter,
+            offset: nil
+        )
+    }
+
+    func consumePendingBrowseScrollTarget() -> BrowseScrollTarget? {
+        let target = pendingBrowseScrollTarget
+        pendingBrowseScrollTarget = nil
+        return target
     }
 
     func dismissImagePhrasePreview() {
@@ -2066,12 +2130,12 @@ final class RadixStore: ObservableObject {
 
     var gridBatchSize: Int {
         #if targetEnvironment(macCatalyst)
-        return 225
+        return 150
         #else
         if UIDevice.current.userInterfaceIdiom == .pad {
-            return 96
+            return 112
         }
-        return 120
+        return 64
         #endif
     }
     var gridPageCount: Int {

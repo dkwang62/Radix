@@ -31,11 +31,22 @@ enum ProjectLiveDataLocator {
             return nil
         }
         let projectFile = projectRoot.appendingPathComponent(filename)
+        let projectPath = projectRoot.path
+        let filePath = projectFile.path
 
-        if fileManager.fileExists(atPath: projectFile.path) ||
-            fileManager.isWritableFile(atPath: projectRoot.path) {
+        if fileManager.fileExists(atPath: filePath) {
+            guard fileManager.isReadableFile(atPath: filePath),
+                  fileManager.isWritableFile(atPath: filePath) else {
+                return nil
+            }
             return projectFile
         }
+
+        if fileManager.isReadableFile(atPath: projectPath),
+           fileManager.isWritableFile(atPath: projectPath) {
+            return projectFile
+        }
+
         return nil
     }
 }

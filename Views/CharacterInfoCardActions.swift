@@ -24,7 +24,7 @@ struct CharacterInfoCardActions: View {
         Button {
             store.openQuickCharacterEditor(character)
         } label: {
-            actionPill("✏️ Notes")
+            actionPill("Notes", systemImage: "square.and.pencil")
         }
         .buttonStyle(.plain)
     }
@@ -34,7 +34,7 @@ struct CharacterInfoCardActions: View {
             store.refreshPhrases(for: character)
             onShowPhrases?()
         } label: {
-            actionPill("词Phrases")
+            actionPill("Phrases", systemImage: "character.bubble")
         }
         .buttonStyle(.plain)
     }
@@ -50,8 +50,8 @@ struct CharacterInfoCardActions: View {
         .font(cardActionFont)
     }
 
-    private func actionPill(_ title: String) -> some View {
-        Text(title)
+    private func actionPill(_ title: String, systemImage: String) -> some View {
+        Label(title, systemImage: systemImage)
             .font(cardActionFont)
             .foregroundStyle(Color.accentColor)
             .lineLimit(1)
