@@ -47,6 +47,12 @@
 		8500001A2F9D0001001B9AA7 /* QuickEditFieldRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000192F9D0001001B9AA7 /* QuickEditFieldRows.swift */; };
 		8500001C2F9D0001001B9AA7 /* CharacterPreviewAnimationPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500001B2F9D0001001B9AA7 /* CharacterPreviewAnimationPanel.swift */; };
 		8500001E2F9D0001001B9AA7 /* PhraseTableSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500001D2F9D0001001B9AA7 /* PhraseTableSheet.swift */; };
+		850000202F9D0001001B9AA7 /* CharacterAnimationSharing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500001F2F9D0001001B9AA7 /* CharacterAnimationSharing.swift */; };
+		850000222F9D0001001B9AA7 /* CharacterContextMenus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000212F9D0001001B9AA7 /* CharacterContextMenus.swift */; };
+		850000242F9D0001001B9AA7 /* AddPhraseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000232F9D0001001B9AA7 /* AddPhraseSheet.swift */; };
+		850000262F9D0001001B9AA7 /* InteractionHintRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000252F9D0001001B9AA7 /* InteractionHintRow.swift */; };
+		850000282F9D0001001B9AA7 /* BrowseGridComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000272F9D0001001B9AA7 /* BrowseGridComponents.swift */; };
+		8500002A2F9D0001001B9AA7 /* BrowseFiltersSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000292F9D0001001B9AA7 /* BrowseFiltersSheet.swift */; };
 		859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */; };
 		864DAB762F93ADA3001B9AA7 /* ComponentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */; };
 		864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB872F93B701001B9AA7 /* RadixStore.swift */; };
@@ -178,6 +184,12 @@
 		86CD14682F9822B300D7BDBD /* DataAITemplatesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataAITemplatesSection.swift; sourceTree = "<group>"; };
 		8500001B2F9D0001001B9AA7 /* CharacterPreviewAnimationPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterPreviewAnimationPanel.swift; sourceTree = "<group>"; };
 		8500001D2F9D0001001B9AA7 /* PhraseTableSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseTableSheet.swift; sourceTree = "<group>"; };
+		8500001F2F9D0001001B9AA7 /* CharacterAnimationSharing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterAnimationSharing.swift; sourceTree = "<group>"; };
+		850000212F9D0001001B9AA7 /* CharacterContextMenus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterContextMenus.swift; sourceTree = "<group>"; };
+		850000232F9D0001001B9AA7 /* AddPhraseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPhraseSheet.swift; sourceTree = "<group>"; };
+		850000252F9D0001001B9AA7 /* InteractionHintRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionHintRow.swift; sourceTree = "<group>"; };
+		850000272F9D0001001B9AA7 /* BrowseGridComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseGridComponents.swift; sourceTree = "<group>"; };
+		850000292F9D0001001B9AA7 /* BrowseFiltersSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseFiltersSheet.swift; sourceTree = "<group>"; };
 		911F85BE195D61BDA4442400 /* PhraseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseModels.swift; sourceTree = "<group>"; };
 		850000092F9D0001001B9AA7 /* BrowseGridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseGridLayout.swift; sourceTree = "<group>"; };
 		8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreExtractedHelpers.swift; sourceTree = "<group>"; };
@@ -311,6 +323,12 @@
 				864DAB8F2F93BD51001B9AA7 /* CharacterPreviewHeader.swift */,
 				8500001B2F9D0001001B9AA7 /* CharacterPreviewAnimationPanel.swift */,
 				8500001D2F9D0001001B9AA7 /* PhraseTableSheet.swift */,
+				8500001F2F9D0001001B9AA7 /* CharacterAnimationSharing.swift */,
+				850000212F9D0001001B9AA7 /* CharacterContextMenus.swift */,
+				850000232F9D0001001B9AA7 /* AddPhraseSheet.swift */,
+				850000252F9D0001001B9AA7 /* InteractionHintRow.swift */,
+				850000272F9D0001001B9AA7 /* BrowseGridComponents.swift */,
+				850000292F9D0001001B9AA7 /* BrowseFiltersSheet.swift */,
 				BD0FD27099E93C0B3DBCC55A /* AILinkView.swift */,
 				864DABAC2F9B0001001B9AA7 /* SettingsView.swift */,
 				864DABAD2F9B0001001B9AA7 /* CreditsView.swift */,
@@ -464,6 +482,12 @@
 				864DAB902F93BD51001B9AA7 /* CharacterPreviewHeader.swift in Sources */,
 				8500001C2F9D0001001B9AA7 /* CharacterPreviewAnimationPanel.swift in Sources */,
 				8500001E2F9D0001001B9AA7 /* PhraseTableSheet.swift in Sources */,
+				850000202F9D0001001B9AA7 /* CharacterAnimationSharing.swift in Sources */,
+				850000222F9D0001001B9AA7 /* CharacterContextMenus.swift in Sources */,
+				850000242F9D0001001B9AA7 /* AddPhraseSheet.swift in Sources */,
+				850000262F9D0001001B9AA7 /* InteractionHintRow.swift in Sources */,
+				850000282F9D0001001B9AA7 /* BrowseGridComponents.swift in Sources */,
+				8500002A2F9D0001001B9AA7 /* BrowseFiltersSheet.swift in Sources */,
 				864DAB9B2F9B0001001B9AA7 /* OpenSourceLicensesView.swift in Sources */,
 				864DABAF2F9B0001001B9AA7 /* SettingsView.swift in Sources */,
 				864DABB12F9B0001001B9AA7 /* CreditsView.swift in Sources */,

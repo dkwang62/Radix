@@ -6,7 +6,7 @@ enum BrowseGridDeviceClass {
     case iPad
     case iPhone
 
-    static var current: BrowseGridDeviceClass {
+    @MainActor static var current: BrowseGridDeviceClass {
         #if targetEnvironment(macCatalyst)
         return .mac
         #else
@@ -18,7 +18,7 @@ enum BrowseGridDeviceClass {
 struct BrowseGridLayout {
     let deviceClass: BrowseGridDeviceClass
 
-    static var current: BrowseGridLayout {
+    @MainActor static var current: BrowseGridLayout {
         BrowseGridLayout(deviceClass: .current)
     }
 

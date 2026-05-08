@@ -1,136 +1,6 @@
 import SwiftUI
 import UIKit
 
-struct InteractionHintRow: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.scenePhase) private var scenePhase
-    @AppStorage("hasAnimatedInteractionHintRowV2") private var hasAnimatedInteractionHintRow = false
-
-    let previewText: String
-    let memoryText: String
-    let copyText: String
-
-    @State private var isPulsing = false
-    @State private var pulseTask: Task<Void, Never>?
-
-    var body: some View {
-        HStack(spacing: 0) {
-            hintSegment(icon: "cursorarrow", text: previewText)
-            segmentDivider
-            hintSegment(icon: "bookmark", text: memoryText)
-            segmentDivider
-            hintSegment(icon: "doc.on.doc", text: copyText)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color(.secondarySystemBackground))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(
-                    isPulsing ? Color.accentColor.opacity(0.26) : Color.primary.opacity(0.06),
-                    lineWidth: 1
-                )
-        )
-        .scaleEffect(isPulsing ? 1.10 : 1.0)
-        .shadow(color: Color.accentColor.opacity(isPulsing ? 0.34 : 0), radius: 16)
-        .onAppear {
-            schedulePulseIfNeeded()
-        }
-        .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .active {
-                schedulePulseIfNeeded()
-            } else {
-                cancelPulse()
-            }
-        }
-        .onDisappear {
-            cancelPulse()
-        }
-    }
-
-    private func hintSegment(icon: String, text: String) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(Color.accentColor.opacity(0.9))
-                .frame(width: 14, alignment: .center)
-
-            Text(text)
-                .foregroundStyle(Color.primary.opacity(0.72))
-        }
-        .font(ResponsiveFont.caption)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .multilineTextAlignment(.leading)
-        .fixedSize(horizontal: false, vertical: true)
-    }
-
-    private var segmentDivider: some View {
-        Rectangle()
-            .fill(Color.primary.opacity(0.08))
-            .frame(width: 1)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 2)
-    }
-
-    private func schedulePulseIfNeeded() {
-        guard scenePhase == .active else { return }
-        guard !hasAnimatedInteractionHintRow else { return }
-        guard pulseTask == nil else { return }
-
-        pulseTask = Task {
-            try? await Task.sleep(for: .milliseconds(700))
-            guard !Task.isCancelled else { return }
-
-            hasAnimatedInteractionHintRow = true
-
-            guard !reduceMotion else {
-                pulseTask = nil
-                return
-            }
-
-            await MainActor.run {
-                runPulseSequence()
-            }
-
-            try? await Task.sleep(for: .milliseconds(3000))
-            guard !Task.isCancelled else { return }
-
-            await MainActor.run {
-                pulseTask = nil
-            }
-        }
-    }
-
-    private func cancelPulse() {
-        pulseTask?.cancel()
-        pulseTask = nil
-        isPulsing = false
-    }
-
-    @MainActor
-    private func runPulseSequence() {
-        Task { @MainActor in
-            for cycle in 0..<3 {
-                withAnimation(.easeInOut(duration: 0.30)) {
-                    isPulsing = true
-                }
-
-                try? await Task.sleep(for: .milliseconds(320))
-                withAnimation(.easeInOut(duration: 0.26)) {
-                    isPulsing = false
-                }
-
-                if cycle < 2 {
-                    try? await Task.sleep(for: .milliseconds(300))
-                }
-            }
-        }
-    }
-}
-
 struct FilterGridTab: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.horizontalSizeClass) var sizeClass
@@ -255,7 +125,10 @@ struct FilterGridTab: View {
                 scrollToPendingBrowseTarget(proxy: proxy)
             }
             .sheet(isPresented: $showBrowseFilters) {
-                browseFiltersSheet
+                BrowseFiltersSheet(sizeClass: sizeClass) {
+                    showBrowseFilters = false
+                }
+                .environmentObject(store)
             }
             .sheet(isPresented: $showManualCollectionSheet) {
                 manualCollectionSheet
@@ -354,36 +227,20 @@ struct FilterGridTab: View {
                     let shouldScroll = store.handleImageCharacterTap(character, offset: offset)
                     if shouldScroll {
                         scrollToBrowseTile(activeBrowseTileAnchorID() ?? imageTileAnchorID(offset), proxy: proxy)
-                    }
-                } label: {
-                    VStack(spacing: 2) {
-                        Text(displayCharacter)
-                            .font(.system(size: fontSize))
-                            .copyCharacterContextMenu(displayCharacter, pinyin: pinyin) {
-                                store.previewImageCharacter(character, offset: offset, announce: false)
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                    NotificationCenter.default.post(name: .radixShowPhraseTable, object: character)
-                                }
-                            }
-                        Text(pinyin.isEmpty ? " " : pinyin)
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 6)
-                    .background(imageTileBackground(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted))
-                    .clipShape(Rectangle())
-                    .overlay(
-                        Rectangle()
-                            .stroke(imageTileStroke(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted), lineWidth: highlightRole == nil ? 2 : 2.5)
-                    )
-                    .overlay(alignment: .topTrailing) {
-                        if store.isFavorite(character) {
-                            Image(systemName: "star.fill")
-                                .font(.system(size: 14))
-                                .foregroundStyle(.yellow)
-                                .padding(6)
+                }
+            } label: {
+                    BrowseGridTileLabel(
+                        displayCharacter: displayCharacter,
+                        pinyin: pinyin,
+                        fontSize: fontSize,
+                        isFavorite: store.isFavorite(character),
+                        background: imageTileBackground(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted),
+                        stroke: imageTileStroke(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted),
+                        strokeWidth: highlightRole == nil ? 2 : 2.5
+                    ) {
+                        store.previewImageCharacter(character, offset: offset, announce: false)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                            NotificationCenter.default.post(name: .radixShowPhraseTable, object: character)
                         }
                     }
                 }
@@ -439,28 +296,14 @@ struct FilterGridTab: View {
                     store.preview(character: item.character)
                     scrollToBrowseTile(dictionaryTileAnchorID(item.character), proxy: proxy)
                 } label: {
-                    VStack(spacing: 2) {
-                        Text(item.character)
-                            .font(.system(size: fontSize))
-                            .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
-                        Text(item.pinyinText.isEmpty ? " " : item.pinyinText)
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 6)
-                    .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
-                    .clipShape(Rectangle())
-                    .overlay(Rectangle().stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 2))
-                    .overlay(alignment: .topTrailing) {
-                        if store.isFavorite(item.character) {
-                            Image(systemName: "star.fill")
-                                .font(.system(size: 14))
-                                .foregroundStyle(.yellow)
-                                .padding(6)
-                        }
-                    }
+                    BrowseGridTileLabel(
+                        displayCharacter: item.character,
+                        pinyin: item.pinyinText,
+                        fontSize: fontSize,
+                        isFavorite: store.isFavorite(item.character),
+                        background: isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground),
+                        stroke: isActive ? Color.accentColor : Color.clear
+                    )
                 }
                 .buttonStyle(.plain)
                 .id(dictionaryTileAnchorID(item.character))
@@ -472,41 +315,18 @@ struct FilterGridTab: View {
     }
 
     private var dictionaryGridFooter: some View {
-        let totalCount = store.allGridItems.count
-        let rangeStart = totalCount == 0 ? 0 : store.gridPage * store.gridBatchSize + 1
-        let rangeEnd = min((store.gridPage + 1) * store.gridBatchSize, totalCount)
-
-        return HStack(spacing: 18) {
-            Button {
+        DictionaryGridFooter(
+            totalCount: store.allGridItems.count,
+            page: store.gridPage,
+            pageSize: store.gridBatchSize,
+            pageCount: store.gridPageCount,
+            onPrevious: {
                 store.previousGridPage()
-            } label: {
-                Image(systemName: "chevron.left")
-                    .frame(width: 36, height: 32)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .disabled(store.gridPage == 0)
-            .accessibilityLabel("Previous page")
-
-            Text("\(rangeStart)–\(rangeEnd) of \(totalCount)")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .monospacedDigit()
-
-            Button {
+            },
+            onNext: {
                 store.nextGridPage()
-            } label: {
-                Image(systemName: "chevron.right")
-                    .frame(width: 36, height: 32)
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .disabled(store.gridPage + 1 >= store.gridPageCount)
-            .accessibilityLabel("Next page")
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 8)
-        .padding(.bottom, 12)
+        )
     }
 
     private var dictionaryGridSwipeGesture: some Gesture {
@@ -1033,95 +853,10 @@ struct FilterGridTab: View {
     }
 
     private var activeBrowseFilterCount: Int {
-        var count = 0
-        if store.strokeMinFilter > 0 { count += 1 }
-        if store.selectedRadicalFilter != "none" { count += 1 }
-        if store.selectedStructureFilter != "none" { count += 1 }
-        return count
+        BrowseFilterSummary.activeCount(store: store)
     }
 
     private var filterButtonTitle: String {
         activeBrowseFilterCount > 0 ? "Filters (\(activeBrowseFilterCount))" : "Filters"
-    }
-
-    private var browseFiltersSheet: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Minimum Strokes")
-                            .font(ResponsiveFont.caption.bold())
-                            .foregroundStyle(.secondary)
-                        StrokeRangeSlider(minValue: $store.strokeMinFilter, maxValue: $store.strokeMaxFilter)
-                    }
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        radicalPicker
-                        structurePicker
-                    }
-                }
-                .padding()
-            }
-            .navigationTitle("Browse Filters")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    if activeBrowseFilterCount > 0 {
-                        Button("Reset") {
-                            store.strokeMinFilter = 0
-                            store.selectedRadicalFilter = "none"
-                            store.selectedStructureFilter = "none"
-                        }
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showBrowseFilters = false
-                    } label: {
-                        Image(systemName: "xmark")
-                    }
-                    .accessibilityLabel("Close")
-                }
-            }
-            .presentationDetents(sizeClass == .compact ? [.medium, .large] : [.large])
-        }
-    }
-
-    private var radicalPicker: some View {
-        HStack(spacing: 8) {
-            Text("Radical")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-            Picker("Radical", selection: $store.selectedRadicalFilter) {
-                ForEach(store.availableRadicalFilters, id: \.self) { radical in
-                    Text(store.radicalFilterLabel(radical)).tag(radical)
-                }
-            }
-            .font(ResponsiveFont.body)
-            .pickerStyle(.menu)
-            .frame(minWidth: 80)
-        }
-        .padding(.horizontal, 8)
-        .background(Color(.secondarySystemBackground).opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    private var structurePicker: some View {
-        HStack(spacing: 8) {
-            Text("Structure")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-            Picker("Structure", selection: $store.selectedStructureFilter) {
-                ForEach(store.availableStructureFilters, id: \.self) { structKey in
-                    Text(structKey).tag(structKey)
-                }
-            }
-            .font(ResponsiveFont.body)
-            .pickerStyle(.menu)
-            .frame(minWidth: 80)
-        }
-        .padding(.horizontal, 8)
-        .background(Color(.secondarySystemBackground).opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
