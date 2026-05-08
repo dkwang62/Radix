@@ -42,6 +42,9 @@
 		850000102F9D0001001B9AA7 /* ImagePhraseMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500000F2F9D0001001B9AA7 /* ImagePhraseMatcher.swift */; };
 		850000122F9D0001001B9AA7 /* CharacterSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000112F9D0001001B9AA7 /* CharacterSpeechService.swift */; };
 		850000142F9D0001001B9AA7 /* PhraseEditService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000132F9D0001001B9AA7 /* PhraseEditService.swift */; };
+		850000162F9D0001001B9AA7 /* BrowseSourceMenuViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000152F9D0001001B9AA7 /* BrowseSourceMenuViews.swift */; };
+		850000182F9D0001001B9AA7 /* DataBackupPreviewRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000172F9D0001001B9AA7 /* DataBackupPreviewRows.swift */; };
+		8500001A2F9D0001001B9AA7 /* QuickEditFieldRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000192F9D0001001B9AA7 /* QuickEditFieldRows.swift */; };
 		859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */; };
 		864DAB762F93ADA3001B9AA7 /* ComponentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */; };
 		864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB872F93B701001B9AA7 /* RadixStore.swift */; };
@@ -154,7 +157,9 @@
 		86CD14382F9822B300D7BDBD /* FavouritesTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesTab.swift; sourceTree = "<group>"; };
 		86CD14392F9822B300D7BDBD /* FileTransferModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileTransferModifier.swift; sourceTree = "<group>"; };
 		86CD143A2F9822B300D7BDBD /* FilterGridTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterGridTab.swift; sourceTree = "<group>"; };
+		850000152F9D0001001B9AA7 /* BrowseSourceMenuViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseSourceMenuViews.swift; sourceTree = "<group>"; };
 		86CD143B2F9822B300D7BDBD /* QuickEditSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEditSheets.swift; sourceTree = "<group>"; };
+		850000192F9D0001001B9AA7 /* QuickEditFieldRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEditFieldRows.swift; sourceTree = "<group>"; };
 		86CD143C2F9822B300D7BDBD /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		86CD143D2F9822B300D7BDBD /* SmartResultsGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartResultsGrid.swift; sourceTree = "<group>"; };
 		86CD143E2F9822B300D7BDBD /* SmartSearchTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartSearchTab.swift; sourceTree = "<group>"; };
@@ -165,6 +170,7 @@
 		86CD145E2F9822B300D7BDBD /* PasteCollectionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteCollectionSheet.swift; sourceTree = "<group>"; };
 		86CD14602F9822B300D7BDBD /* CaptureWorkbenchViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureWorkbenchViews.swift; sourceTree = "<group>"; };
 		86CD14622F9822B300D7BDBD /* DataBackupPreviewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBackupPreviewSection.swift; sourceTree = "<group>"; };
+		850000172F9D0001001B9AA7 /* DataBackupPreviewRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBackupPreviewRows.swift; sourceTree = "<group>"; };
 		86CD14642F9822B300D7BDBD /* DataChangedDictionarySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataChangedDictionarySection.swift; sourceTree = "<group>"; };
 		86CD14662F9822B300D7BDBD /* DataChangedPhrasesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataChangedPhrasesSection.swift; sourceTree = "<group>"; };
 		86CD14682F9822B300D7BDBD /* DataAITemplatesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataAITemplatesSection.swift; sourceTree = "<group>"; };
@@ -203,6 +209,7 @@
 				86CD14602F9822B300D7BDBD /* CaptureWorkbenchViews.swift */,
 				86CD145E2F9822B300D7BDBD /* PasteCollectionSheet.swift */,
 				86CD14622F9822B300D7BDBD /* DataBackupPreviewSection.swift */,
+				850000172F9D0001001B9AA7 /* DataBackupPreviewRows.swift */,
 				86CD14682F9822B300D7BDBD /* DataAITemplatesSection.swift */,
 				86CD14642F9822B300D7BDBD /* DataChangedDictionarySection.swift */,
 				86CD14662F9822B300D7BDBD /* DataChangedPhrasesSection.swift */,
@@ -210,7 +217,9 @@
 				86CD14382F9822B300D7BDBD /* FavouritesTab.swift */,
 				86CD14392F9822B300D7BDBD /* FileTransferModifier.swift */,
 				86CD143A2F9822B300D7BDBD /* FilterGridTab.swift */,
+				850000152F9D0001001B9AA7 /* BrowseSourceMenuViews.swift */,
 				86CD143B2F9822B300D7BDBD /* QuickEditSheets.swift */,
+				850000192F9D0001001B9AA7 /* QuickEditFieldRows.swift */,
 				86CD143C2F9822B300D7BDBD /* RootView.swift */,
 				86CD143D2F9822B300D7BDBD /* SmartResultsGrid.swift */,
 				86CD143E2F9822B300D7BDBD /* SmartSearchTab.swift */,
@@ -424,6 +433,7 @@
 				86CD14482F9822B300D7BDBD /* SmartSearchTab.swift in Sources */,
 				86CD14492F9822B300D7BDBD /* AddPhrasesFileDocument.swift in Sources */,
 				86CD144A2F9822B300D7BDBD /* FilterGridTab.swift in Sources */,
+				850000162F9D0001001B9AA7 /* BrowseSourceMenuViews.swift in Sources */,
 				86CD144B2F9822B300D7BDBD /* SmartResultsGrid.swift in Sources */,
 				86CD14582F9822B300D7BDBD /* CapturePhraseDiscoveryModels.swift in Sources */,
 				86CD145A2F9822B300D7BDBD /* CameraCaptureView.swift in Sources */,
@@ -432,6 +442,7 @@
 				86CD14612F9822B300D7BDBD /* CaptureWorkbenchViews.swift in Sources */,
 				86CD145F2F9822B300D7BDBD /* PasteCollectionSheet.swift in Sources */,
 				86CD14632F9822B300D7BDBD /* DataBackupPreviewSection.swift in Sources */,
+				850000182F9D0001001B9AA7 /* DataBackupPreviewRows.swift in Sources */,
 				86CD14692F9822B300D7BDBD /* DataAITemplatesSection.swift in Sources */,
 				86CD14652F9822B300D7BDBD /* DataChangedDictionarySection.swift in Sources */,
 				86CD14672F9822B300D7BDBD /* DataChangedPhrasesSection.swift in Sources */,
@@ -452,6 +463,7 @@
 				864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */,
 				850000122F9D0001001B9AA7 /* CharacterSpeechService.swift in Sources */,
 				850000142F9D0001001B9AA7 /* PhraseEditService.swift in Sources */,
+				8500001A2F9D0001001B9AA7 /* QuickEditFieldRows.swift in Sources */,
 				A05EBFC59DC951C9EFDB9FF9 /* PromptModels.swift in Sources */,
 				CB360F3972D55FBFD1555152 /* RadixApp.swift in Sources */,
 				864DAB8A2F93B722001B9AA7 /* PhraseRepository.swift in Sources */,

@@ -372,33 +372,15 @@ struct QuickCharacterEditorView: View {
 
     @ViewBuilder
     private func formField<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(label)
-                .font(ResponsiveFont.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.85)
-            content()
-        }
-        .frame(maxWidth: .infinity)
+        QuickEditField(label: label, content: content)
     }
 
     private func compactFormField<Content: View>(_ label: String, width: CGFloat, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(label)
-                .font(ResponsiveFont.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.85)
-            content()
-        }
-        .frame(width: width)
+        QuickEditField(label: label, width: width, content: content)
     }
 
     private func compactFieldRow<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            content()
-        }
+        QuickEditFieldRow(content: content)
     }
 
     @ViewBuilder
@@ -700,12 +682,6 @@ struct QuickPhraseEditorView: View {
     }
 
     private func phraseField<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(label)
-                .font(ResponsiveFont.caption2)
-                .foregroundStyle(.secondary)
-            content()
-        }
-        .frame(maxWidth: .infinity)
+        QuickEditField(label: label, allowLabelScaling: false, content: content)
     }
 }

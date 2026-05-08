@@ -141,7 +141,9 @@ struct DataBackupPreviewSection: View {
                 LazyVGrid(columns: backupCharacterColumns, alignment: .leading, spacing: 8) {
                     ForEach(displayed, id: \.self) { character in
                         let item = store.item(for: character)
-                        backupCharacterTile(character, item: item)
+                        BackupCharacterTile(character: character, pinyin: item?.pinyinText ?? "") {
+                            onPreviewCharacter(character)
+                        }
                     }
                 }
 
@@ -156,38 +158,6 @@ struct DataBackupPreviewSection: View {
     }
 
     @ViewBuilder
-    private func backupCharacterTile(_ character: String, item: ComponentItem?) -> some View {
-        let pinyin = item?.pinyinText ?? ""
-
-        Button {
-            onPreviewCharacter(character)
-        } label: {
-            VStack(spacing: 4) {
-            Text(character)
-                    .font(.system(size: 28, weight: .bold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                Text(pinyin.isEmpty ? "-" : pinyin)
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-            }
-        }
-        .buttonStyle(.plain)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .frame(maxWidth: .infinity, minHeight: 58)
-        .background(Color(.secondarySystemBackground).opacity(0.65))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(Color(.separator).opacity(0.45), lineWidth: 1)
-        )
-        .copyCharacterContextMenu(character, pinyin: pinyin)
-    }
-
-    @ViewBuilder
     private func backupPhraseRows(_ phrases: [PhraseItem]) -> some View {
         let sortedPhrases = sortedBackupPhrases(phrases)
 
@@ -199,22 +169,13 @@ struct DataBackupPreviewSection: View {
         } else {
             LazyVGrid(columns: backupPhraseColumns, alignment: .leading, spacing: 8) {
                 ForEach(sortedPhrases) { phrase in
-                    backupPhraseRow(phrase)
+                    BackupPhraseRow(phrase: phrase) {
+                        presentPhrase(phrase)
+                    }
                 }
             }
             .padding(.top, 8)
         }
-    }
-
-    @ViewBuilder
-    private func backupPhraseRow(_ phrase: PhraseItem) -> some View {
-        Button {
-            presentPhrase(phrase)
-        } label: {
-            PhraseSummaryTile(phrase: phrase)
-        }
-        .buttonStyle(.plain)
-        .phraseContextMenu(phrase)
     }
 
     private var backupSavedPagesRows: some View {
@@ -225,23 +186,7 @@ struct DataBackupPreviewSection: View {
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(store.allCollections) { collection in
-                    HStack(spacing: 8) {
-                        if let thumbnail = backupThumbnailImage(for: collection) {
-                            Image(uiImage: thumbnail)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 36, height: 36)
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
-                        }
-
-                        Text(collection.name)
-                            .font(ResponsiveFont.caption)
-                        Spacer()
-                        Text("\(collection.characters.count) chars")
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 2)
+                    BackupSavedPageRow(collection: collection, thumbnail: backupThumbnailImage(for: collection))
                 }
             }
         }
@@ -255,23 +200,19 @@ struct DataBackupPreviewSection: View {
 
     private var backupFavoritesSummary: some View {
         VStack(alignment: .leading, spacing: 8) {
-            summaryLine("Favorite characters", value: "\(store.favoriteItems.count)")
+            BackupSummaryLine(title: "Favorite characters", value: "\(store.favoriteItems.count)")
             if !store.favoriteItems.isEmpty {
                 Text(store.favoriteItems.map(\.character).joined(separator: " "))
                     .font(ResponsiveFont.caption)
             }
 
-            summaryLine("Favorite phrases", value: "\(store.favoritePhrasesItems.count)")
+            BackupSummaryLine(title: "Favorite phrases", value: "\(store.favoritePhrasesItems.count)")
             if !store.favoritePhrasesItems.isEmpty {
                 LazyVGrid(columns: backupPhraseColumns, alignment: .leading, spacing: 8) {
                     ForEach(store.favoritePhrasesItems) { phrase in
-                        Button {
+                        BackupPhraseRow(phrase: phrase) {
                             presentPhrase(phrase)
-                        } label: {
-                            PhraseSummaryTile(phrase: phrase)
                         }
-                        .buttonStyle(.plain)
-                        .phraseContextMenu(phrase)
                     }
                 }
             }
@@ -291,23 +232,18 @@ struct DataBackupPreviewSection: View {
         characters.sorted { lhs, rhs in
             let leftItem = store.item(for: lhs)
             let rightItem = store.item(for: rhs)
-            let leftKey = backupSortKey(primary: leftItem?.pinyinText ?? "", fallback: lhs)
-            let rightKey = backupSortKey(primary: rightItem?.pinyinText ?? "", fallback: rhs)
+            let leftKey = BackupPreviewSort.key(primary: leftItem?.pinyinText ?? "", fallback: lhs)
+            let rightKey = BackupPreviewSort.key(primary: rightItem?.pinyinText ?? "", fallback: rhs)
             return leftKey.localizedStandardCompare(rightKey) == .orderedAscending
         }
     }
 
     private func sortedBackupPhrases(_ phrases: [PhraseItem]) -> [PhraseItem] {
         phrases.sorted { lhs, rhs in
-            let leftKey = backupSortKey(primary: lhs.pinyin, fallback: lhs.word)
-            let rightKey = backupSortKey(primary: rhs.pinyin, fallback: rhs.word)
+            let leftKey = BackupPreviewSort.key(primary: lhs.pinyin, fallback: lhs.word)
+            let rightKey = BackupPreviewSort.key(primary: rhs.pinyin, fallback: rhs.word)
             return leftKey.localizedStandardCompare(rightKey) == .orderedAscending
         }
-    }
-
-    private func backupSortKey(primary: String, fallback: String) -> String {
-        let value = primary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? fallback : primary
-        return value.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
     }
 
     private var isPhone: Bool {
@@ -342,9 +278,9 @@ struct DataBackupPreviewSection: View {
 
     private var backupAITemplatesSummary: some View {
         VStack(alignment: .leading, spacing: 8) {
-            summaryLine("Template blocks", value: "4 system sections")
-            summaryLine("Prompt tasks", value: "\(store.promptConfig.tasks.count)")
-            summaryLine("Selected tasks", value: "\(store.promptSelectedTaskIDs.count)")
+            BackupSummaryLine(title: "Template blocks", value: "4 system sections")
+            BackupSummaryLine(title: "Prompt tasks", value: "\(store.promptConfig.tasks.count)")
+            BackupSummaryLine(title: "Selected tasks", value: "\(store.promptSelectedTaskIDs.count)")
 
             ForEach(store.promptConfig.tasks) { task in
                 HStack {
@@ -364,33 +300,21 @@ struct DataBackupPreviewSection: View {
 
     private var backupAppStateSummary: some View {
         VStack(alignment: .leading, spacing: 8) {
-            summaryLine("Current route", value: routeDisplayName(store.route))
-            summaryLine("Home tab", value: homeTabDisplayName(store.homeTab))
-            summaryLine("Search mode", value: store.searchMode.rawValue)
-            summaryLine("Current query", value: store.query.isEmpty ? "None" : store.query)
-            summaryLine("Selected character", value: store.previewCharacter ?? "None")
-            summaryLine("Selected AI image", value: store.selectedAICollection?.name ?? "None")
-            summaryLine("Default AI", value: store.defaultAIName)
+            BackupSummaryLine(title: "Current route", value: routeDisplayName(store.route))
+            BackupSummaryLine(title: "Home tab", value: homeTabDisplayName(store.homeTab))
+            BackupSummaryLine(title: "Search mode", value: store.searchMode.rawValue)
+            BackupSummaryLine(title: "Current query", value: store.query.isEmpty ? "None" : store.query)
+            BackupSummaryLine(title: "Selected character", value: store.previewCharacter ?? "None")
+            BackupSummaryLine(title: "Selected AI image", value: store.selectedAICollection?.name ?? "None")
+            BackupSummaryLine(title: "Default AI", value: store.defaultAIName)
             if store.defaultAIPreset == .custom {
-                summaryLine("Custom AI URL", value: store.defaultAIBaseURLString.isEmpty ? "None" : store.defaultAIBaseURLString)
+                BackupSummaryLine(title: "Custom AI URL", value: store.defaultAIBaseURLString.isEmpty ? "None" : store.defaultAIBaseURLString)
             }
-            summaryLine("Search history", value: "\(store.searchHistory.count) items")
-            summaryLine("Remembered trail", value: "\(store.rootBreadcrumb.count) items")
-            summaryLine("Phrase length", value: "\(store.phraseLength)-character")
+            BackupSummaryLine(title: "Search history", value: "\(store.searchHistory.count) items")
+            BackupSummaryLine(title: "Remembered trail", value: "\(store.rootBreadcrumb.count) items")
+            BackupSummaryLine(title: "Phrase length", value: "\(store.phraseLength)-character")
         }
         .padding(.top, 8)
-    }
-
-    private func summaryLine(_ title: String, value: String) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            Text(title)
-                .font(ResponsiveFont.caption.bold())
-            Spacer()
-            Text(value)
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.trailing)
-        }
     }
 
     private func routeDisplayName(_ route: AppRoute) -> String {
