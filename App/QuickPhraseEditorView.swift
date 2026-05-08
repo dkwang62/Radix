@@ -24,6 +24,10 @@ struct QuickPhraseEditorView: View {
         self.isNew = isNew
     }
 
+    private var canSavePhrase: Bool {
+        !phraseEditorWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
@@ -67,7 +71,7 @@ struct QuickPhraseEditorView: View {
                 Button("Save") {
                     savePhrase()
                 }
-                .disabled(phraseEditorWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .disabled(!canSavePhrase)
             }
         }
         .onAppear {
@@ -223,7 +227,7 @@ struct QuickPhraseEditorView: View {
                 savePhrase()
             }
             .buttonStyle(.borderedProminent)
-            .disabled(phraseEditorWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .disabled(!canSavePhrase)
         }
     }
 
