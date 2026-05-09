@@ -80,7 +80,7 @@ struct CharacterPreviewHeader: View {
                             if UIDevice.current.userInterfaceIdiom == .phone &&
                                 store.route == .search &&
                                 store.homeTab == .filter {
-                                store.browsePreview(character: ch)
+                                store.browsePreview(character: ch, preservePhraseContext: true)
                             } else {
                                 store.select(character: ch)
                                 store.preview(character: ch)
@@ -115,7 +115,7 @@ struct CharacterPreviewHeader: View {
         if UIDevice.current.userInterfaceIdiom == .phone &&
             store.route == .search &&
             store.homeTab == .filter {
-            store.browsePreview(character: ch)
+            store.browsePreview(character: ch, preservePhraseContext: true)
         } else {
             store.select(character: ch)
             store.preview(character: ch)

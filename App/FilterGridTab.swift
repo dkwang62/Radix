@@ -577,7 +577,7 @@ struct FilterGridTab: View {
         }
 
         withAnimation {
-            store.clearBrowsePreview()
+            store.returnToBrowseGrid()
         }
 
         scrollToBrowseTile(anchorID, proxy: proxy)

@@ -11,7 +11,7 @@ struct BrowsePhonePreview: View {
             Button {
                 onReturn()
             } label: {
-                Label("Browse", systemImage: "chevron.left")
+                Label("Browse", systemImage: "square.grid.2x2")
                     .font(ResponsiveFont.subheadline.weight(.semibold))
                     .foregroundStyle(Color.accentColor)
                     .padding(.horizontal, 12)
@@ -22,7 +22,13 @@ struct BrowsePhonePreview: View {
             .buttonStyle(.plain)
 
             if let phrase {
-                PhraseInfoCard(phrase: phrase, onDone: onReturn)
+                PhraseInfoCard(
+                    phrase: phrase,
+                    onSelectCharacter: { character in
+                        store.previewPhraseCardCharacter(character, in: phrase, announce: false)
+                    },
+                    onDone: onReturn
+                )
                     .environmentObject(store)
             } else if let character {
                 standardPhoneCharacterPreview(

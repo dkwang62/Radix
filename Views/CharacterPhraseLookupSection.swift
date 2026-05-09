@@ -282,16 +282,17 @@ struct PhraseInfoCard: View {
                     Button {
                         onDone()
                     } label: {
-                        Image(systemName: "xmark")
-                            .font(ResponsiveFont.caption.weight(.bold))
-                            .frame(width: 24, height: 24)
+                        Text("Done")
+                            .font(ResponsiveFont.caption.weight(.semibold))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(.secondary)
                     .background(Color(.secondarySystemBackground))
-                    .clipShape(Circle())
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay(
-                        Circle()
+                        RoundedRectangle(cornerRadius: 10)
                             .stroke(Color(.separator).opacity(0.75), lineWidth: 1)
                     )
                     .accessibilityLabel("Close")
@@ -438,8 +439,7 @@ struct PhraseInfoCard: View {
         }
 
         if store.route == .search && store.homeTab == .filter {
-            store.dismissSidebarPhrasePreview()
-            store.browsePreview(character: character, announce: false)
+            store.previewPhraseCardCharacter(character, in: phrase, announce: false)
         } else {
             store.preview(character: character, announce: false)
         }

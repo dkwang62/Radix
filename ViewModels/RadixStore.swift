@@ -411,6 +411,10 @@ final class RadixStore: ObservableObject {
     private var phraseCache: [String: [PhraseItem]] = [:]
     private var imagePhraseContext: ImagePhraseContext?
     private var imagePhraseHighlightOffsets: Set<Int> = []
+    private var anchoredImagePhraseContext: ImagePhraseContext?
+    private var anchoredImagePhraseHighlightOffsets: Set<Int> = []
+    private var anchoredImagePhraseWord: String?
+    private var anchoredImagePhraseCollectionID: UUID?
     private var imagePhraseHighlightStateByCollectionID: [UUID: ImagePhraseHighlightState] = [:]
     @Published private var imagePhraseHighlightRevision: Int = 0
     @Published private(set) var imageBrowsePhrasePreview: PhraseItem?
@@ -419,6 +423,7 @@ final class RadixStore: ObservableObject {
     @Published var browseHighlightedCharacter: String?
     @Published private(set) var browseMemoryHighlightCollectionID: UUID?
     @Published private(set) var browseMemoryHighlightOffsets: Set<Int> = []
+    private var browseMemoryHighlightedItem: String?
     private let imagePhraseHighlightLengths = [2, 3, 4]
     var suppressHelpReset = false
     @Published private(set) var loadingError: String?
@@ -672,9 +677,11 @@ final class RadixStore: ObservableObject {
 
     func preview(character: String, announce: Bool = true, preservePhraseContext: Bool = false) {
         activeSubject = .character(character)
-        if !preservePhraseContext {
+        let shouldPreservePhraseHighlight = preservePhraseContext || shouldPreserveBrowseImagePhraseHighlight
+        if !shouldPreservePhraseHighlight {
             imagePhraseContext = nil
             imagePhraseHighlightOffsets = []
+            clearAnchoredImagePhraseHighlight()
             imageBrowsePhrasePreview = nil
             sidebarPhrasePreview = nil
             imagePhraseHighlightRevision += 1
@@ -737,9 +744,11 @@ final class RadixStore: ObservableObject {
 
     /// iPhone Browse: preview without pushing detail
     func browsePreview(character: String, announce: Bool = true, preservePhraseContext: Bool = false) {
-        if !preservePhraseContext {
+        let shouldPreservePhraseHighlight = preservePhraseContext || shouldPreserveBrowseImagePhraseHighlight
+        if !shouldPreservePhraseHighlight {
             imagePhraseContext = nil
             imagePhraseHighlightOffsets = []
+            clearAnchoredImagePhraseHighlight()
             imageBrowsePhrasePreview = nil
             sidebarPhrasePreview = nil
             imagePhraseHighlightRevision += 1
@@ -757,8 +766,134 @@ final class RadixStore: ObservableObject {
         }
     }
 
+    private var shouldPreserveBrowseImagePhraseHighlight: Bool {
+        guard route == .search,
+              homeTab == .filter,
+              selectedBrowseCollection != nil,
+              !activeImagePhraseHighlightOffsets.isEmpty
+        else { return false }
+        return true
+    }
+
+    private var activeImagePhraseHighlightOffsets: Set<Int> {
+        if !anchoredImagePhraseHighlightOffsets.isEmpty {
+            return anchoredImagePhraseHighlightOffsets
+        }
+        if imagePhraseHighlightOffsets.count > 1 {
+            return imagePhraseHighlightOffsets
+        }
+        return []
+    }
+
+    private func anchorImagePhraseHighlight(context: ImagePhraseContext?, offsets: Set<Int>) {
+        guard let context, offsets.count > 1 else { return }
+        anchoredImagePhraseContext = context
+        anchoredImagePhraseHighlightOffsets = offsets
+        anchoredImagePhraseCollectionID = context.collectionID
+    }
+
+    private func anchorImagePhraseHighlight(phraseWord: String, context: ImagePhraseContext?, offsets: Set<Int>) {
+        anchorImagePhraseHighlight(context: context, offsets: offsets)
+        if offsets.count > 1 {
+            anchoredImagePhraseWord = phraseStorageWord(phraseWord)
+        }
+    }
+
+    private func clearAnchoredImagePhraseHighlight() {
+        anchoredImagePhraseContext = nil
+        anchoredImagePhraseHighlightOffsets = []
+        anchoredImagePhraseWord = nil
+        anchoredImagePhraseCollectionID = nil
+    }
+
+    private func restoreAnchoredImagePhraseHighlightIfNeeded() {
+        guard let collection = selectedBrowseCollection,
+              let collectionID = anchoredImagePhraseCollectionID,
+              collection.id == collectionID
+        else { return }
+
+        if let word = anchoredImagePhraseWord {
+            let offsets = phraseHighlightOffsets(in: collection, word: word)
+            if !offsets.isEmpty {
+                let context = phraseHighlightContext(in: collection, offsets: offsets)
+                imagePhraseContext = context
+                imagePhraseHighlightOffsets = offsets
+                anchoredImagePhraseContext = context
+                anchoredImagePhraseHighlightOffsets = offsets
+                imagePhraseHighlightRevision += 1
+                return
+            }
+        }
+
+        guard let context = anchoredImagePhraseContext,
+              !anchoredImagePhraseHighlightOffsets.isEmpty
+        else { return }
+        imagePhraseContext = context
+        imagePhraseHighlightOffsets = anchoredImagePhraseHighlightOffsets
+        imagePhraseHighlightRevision += 1
+    }
+
+    private func phraseHighlightOffsets(in collection: CharacterCollection, word: String) -> Set<Int> {
+        let lookupCharacters = collection.characters.map { phraseLookupTarget(for: $0) }
+        let lookupWord = phraseLookupTarget(for: phraseStorageWord(word))
+        return BrowseMemoryHighlighter.matches(in: lookupCharacters, item: lookupWord).offsets
+    }
+
+    private func phraseHighlightContext(in collection: CharacterCollection, offsets: Set<Int>) -> ImagePhraseContext? {
+        if let context = anchoredImagePhraseContext,
+           context.collectionID == collection.id,
+           offsets.contains(context.offset),
+           collection.characters.indices.contains(context.offset) {
+            let character = collection.characters[context.offset]
+            return imagePhraseContext(for: character, offset: context.offset) ?? context
+        }
+
+        guard let offset = offsets.sorted().first,
+              collection.characters.indices.contains(offset)
+        else { return nil }
+        return imagePhraseContext(for: collection.characters[offset], offset: offset)
+    }
+
+    func previewPhraseCardCharacter(_ character: String, in phrase: PhraseItem, announce: Bool = false) {
+        guard route == .search,
+              homeTab == .filter,
+              let collection = selectedBrowseCollection
+        else {
+            preview(character: character, announce: announce)
+            return
+        }
+
+        let existingContext = imagePhraseContext
+        let existingOffsets = imagePhraseHighlightOffsets
+        let phraseOffsets = phraseHighlightOffsets(in: collection, word: phrase.word)
+
+        dismissSidebarPhrasePreview()
+        browsePreview(character: character, announce: announce, preservePhraseContext: true)
+
+        let offsets = phraseOffsets.isEmpty ? existingOffsets : phraseOffsets
+        guard !offsets.isEmpty else { return }
+
+        let contextOffset: Int?
+        if let existingContext,
+           existingContext.collectionID == collection.id,
+           collection.characters.indices.contains(existingContext.offset) {
+            contextOffset = existingContext.offset
+        } else {
+            contextOffset = offsets.sorted().first { collection.characters.indices.contains($0) }
+        }
+
+        if let contextOffset {
+            let contextCharacter = collection.characters[contextOffset]
+            imagePhraseContext = imagePhraseContext(for: contextCharacter, offset: contextOffset) ?? existingContext
+        }
+        imagePhraseHighlightOffsets = offsets
+        anchorImagePhraseHighlight(phraseWord: phrase.word, context: imagePhraseContext, offsets: offsets)
+        imagePhraseHighlightRevision += 1
+    }
+
     func previewImageCharacter(_ character: String, offset: Int, announce: Bool = true) {
         clearBrowseMemoryHighlight()
+        clearAnchoredImagePhraseHighlight()
         let context = imagePhraseContext(for: character, offset: offset)
         imagePhraseContext = context
         imagePhraseHighlightOffsets = context == nil ? [] : [offset]
@@ -769,6 +904,10 @@ final class RadixStore: ObservableObject {
     }
 
     func handleImageCharacterTap(_ character: String, offset: Int) -> Bool {
+        if handleMemoryHighlightedImageTap(character: character, offset: offset) {
+            return true
+        }
+
         clearBrowseMemoryHighlight()
         let context = imagePhraseContext(for: character, offset: offset)
         guard let context else {
@@ -809,10 +948,50 @@ final class RadixStore: ObservableObject {
         return false
     }
 
+    private func handleMemoryHighlightedImageTap(character: String, offset: Int) -> Bool {
+        guard let collection = selectedBrowseCollection,
+              browseMemoryHighlightCollectionID == collection.id,
+              browseMemoryHighlightOffsets.contains(offset),
+              let highlightedItem = browseMemoryHighlightedItem,
+              !highlightedItem.isEmpty
+        else { return false }
+
+        if highlightedItem.count == 1 {
+            previewImageCharacter(character, offset: offset)
+            return true
+        }
+
+        guard let phrase = mergedPhrase(for: highlightedItem) else { return false }
+
+        let highlightedOffsets = browseMemoryHighlightOffsets
+        clearBrowseMemoryHighlight()
+        imagePhraseContext = imagePhraseContext(for: character, offset: offset)
+        imagePhraseHighlightOffsets = highlightedOffsets
+        anchorImagePhraseHighlight(phraseWord: phrase.word, context: imagePhraseContext, offsets: highlightedOffsets)
+        imageBrowsePhrasePreview = phrase
+        sidebarPhrasePreview = nil
+        previewCharacter = character
+        imagePhraseHighlightRevision += 1
+        pushPhraseBreadcrumb(phrase)
+        showBrowseHelp = false
+        showComponentHelp = false
+        if speechEnabled {
+            speechService.speak(phrase.word)
+        }
+        return true
+    }
+
     func clearBrowsePreview() {
         previewCharacter = nil
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
+    }
+
+    func returnToBrowseGrid() {
+        restoreAnchoredImagePhraseHighlightIfNeeded()
+        prepareBrowseReturnScrollTarget()
+        clearBrowsePreview()
+        showiPhoneDetail = false
     }
 
     func highlightBrowseDictionaryCharacter(_ character: String?) {
@@ -822,6 +1001,7 @@ final class RadixStore: ObservableObject {
     func clearBrowseMemoryHighlight() {
         browseMemoryHighlightCollectionID = nil
         browseMemoryHighlightOffsets = []
+        browseMemoryHighlightedItem = nil
     }
 
     @discardableResult
@@ -837,12 +1017,15 @@ final class RadixStore: ObservableObject {
         }
 
         let characters = collection.characters
+        let lookupCharacters = characters.map { phraseLookupTarget(for: $0) }
+        let lookupKey = phraseLookupTarget(for: key)
         imagePhraseContext = nil
         imagePhraseHighlightOffsets = []
+        clearAnchoredImagePhraseHighlight()
         imageBrowsePhrasePreview = nil
         imagePhraseHighlightRevision += 1
 
-        let result = BrowseMemoryHighlighter.matches(in: characters, item: key)
+        let result = BrowseMemoryHighlighter.matches(in: lookupCharacters, item: lookupKey)
         let offsets = result.offsets
 
         guard !offsets.isEmpty else {
@@ -852,6 +1035,7 @@ final class RadixStore: ObservableObject {
 
         browseMemoryHighlightCollectionID = collection.id
         browseMemoryHighlightOffsets = offsets
+        browseMemoryHighlightedItem = key
         if let firstOffset = result.firstOffset {
             pendingBrowseScrollTarget = BrowseScrollTarget(
                 collectionID: collection.id,
@@ -939,6 +1123,7 @@ final class RadixStore: ObservableObject {
         guard let context = imagePhraseContext(for: character, offset: offset) else {
             imagePhraseContext = nil
             imagePhraseHighlightOffsets = []
+            clearAnchoredImagePhraseHighlight()
             imageBrowsePhrasePreview = nil
             sidebarPhrasePreview = nil
             imagePhraseHighlightRevision += 1
@@ -947,6 +1132,7 @@ final class RadixStore: ObservableObject {
 
         imagePhraseContext = context
         imagePhraseHighlightOffsets = [offset]
+        clearAnchoredImagePhraseHighlight()
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
         imagePhraseHighlightRevision += 1
@@ -2355,6 +2541,7 @@ final class RadixStore: ObservableObject {
             gridSortMode = .characterFrequency
             imagePhraseContext = nil
             imagePhraseHighlightOffsets = []
+            clearAnchoredImagePhraseHighlight()
             imageBrowsePhrasePreview = nil
             sidebarPhrasePreview = nil
             imagePhraseHighlightRevision += 1
@@ -3097,6 +3284,7 @@ final class RadixStore: ObservableObject {
               collection.characters.indices.contains(context.offset)
         else {
             imagePhraseHighlightOffsets = []
+            clearAnchoredImagePhraseHighlight()
             imageBrowsePhrasePreview = nil
             sidebarPhrasePreview = nil
             imagePhraseHighlightRevision += 1
@@ -3110,6 +3298,7 @@ final class RadixStore: ObservableObject {
         }
 
         imagePhraseHighlightOffsets = offsets
+        anchorImagePhraseHighlight(context: context, offsets: offsets)
         imagePhraseHighlightRevision += 1
         imagePhraseHighlightStateByCollectionID[context.collectionID] = ImagePhraseHighlightState(
             context: context,
@@ -3294,6 +3483,17 @@ final class RadixStore: ObservableObject {
     var canRootGoBack: Bool { MemoryStripState.canGoBack(currentIndex: rootBreadcrumbIndex) }
     var canRootGoForward: Bool { MemoryStripState.canGoForward(currentIndex: rootBreadcrumbIndex, count: rootBreadcrumb.count) }
 
+    private var shouldHighlightBrowseImageMemoryOnly: Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
+        return UIDevice.current.userInterfaceIdiom == .phone
+            && route == .search
+            && homeTab == .filter
+            && selectedBrowseCollection != nil
+        #endif
+    }
+
     func activateBreadcrumbCharacter(_ character: String) {
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
         if let phrase = phraseRepo.fetchPhrase(for: key), key.count > 1 {
@@ -3319,7 +3519,14 @@ final class RadixStore: ObservableObject {
                 performSearch(customQuery: searchText)
                 refreshPhrases(for: key)
             case .filter:
-                if !highlightMemoryMatchesInCurrentBrowseSource(key) {
+                let shouldHighlightOnly = shouldHighlightBrowseImageMemoryOnly
+                if !shouldHighlightOnly {
+                    previewCharacter = key
+                }
+                let didHighlight = highlightMemoryMatchesInCurrentBrowseSource(key)
+                if shouldHighlightOnly, didHighlight {
+                    previewCharacter = nil
+                } else if !didHighlight {
                     _ = focusGridCharacter(key)
                 }
                 refreshPhrases(for: key)
@@ -3346,6 +3553,21 @@ final class RadixStore: ObservableObject {
     }
 
     private func activateBreadcrumbPhrase(_ phrase: PhraseItem) {
+        let shouldHighlightOnly = shouldHighlightBrowseImageMemoryOnly
+        if shouldHighlightOnly {
+            let didHighlight = highlightMemoryMatchesInCurrentBrowseSource(phrase.word)
+            if didHighlight {
+                sidebarPhrasePreview = nil
+                imageBrowsePhrasePreview = nil
+                previewCharacter = nil
+                pushPhraseBreadcrumb(phrase)
+                if speechEnabled {
+                    speechService.speak(phrase.word)
+                }
+                return
+            }
+        }
+
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         pushPhraseBreadcrumb(phrase)

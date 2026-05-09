@@ -32,6 +32,17 @@ struct RootView: View {
     @State private var showImportExportAlert = false
     @State private var showSettings = false
 
+    private var phoneDetailNavigationBinding: Binding<Bool> {
+        Binding(
+            get: {
+                store.showiPhoneDetail && !(store.route == .search && store.homeTab == .filter)
+            },
+            set: { isPresented in
+                store.showiPhoneDetail = isPresented
+            }
+        )
+    }
+
     private func readImportedFileData(from url: URL) throws -> Data {
         let accessed = url.startAccessingSecurityScopedResource()
         defer {
@@ -298,13 +309,14 @@ struct RootView: View {
                     .accessibilityLabel("Settings")
                 }
             }
-            .navigationDestination(isPresented: $store.showiPhoneDetail) {
+            .navigationDestination(isPresented: phoneDetailNavigationBinding) {
                 if let current = store.previewCharacter,
                    let item = store.item(for: current) {
                     VStack(spacing: 12) {
                         BreadcrumbStrip()
                         CharacterDetailView(item: item)
                     }
+                    .navigationBarBackButtonHidden(true)
                 }
             }
         }
@@ -596,12 +608,10 @@ struct RootView: View {
         return Button {
             #if !targetEnvironment(macCatalyst)
             if UIDevice.current.userInterfaceIdiom == .phone {
-                if id == 2 {
-                    store.prepareBrowseReturnScrollTarget()
-                } else {
+                if id != 2 {
                     store.previewCharacter = nil
+                    store.showiPhoneDetail = false
                 }
-                store.showiPhoneDetail = false
             }
             #endif
             switch id {
@@ -617,8 +627,7 @@ struct RootView: View {
             case 2:
                 store.route = .search
                 store.homeTab = .filter
-                store.prepareBrowseReturnScrollTarget()
-                store.clearBrowsePreview()
+                store.returnToBrowseGrid()
             case 3:
                 store.route = .search
                 store.homeTab = .favourites
