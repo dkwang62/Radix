@@ -411,6 +411,12 @@ final class RadixStore: ObservableObject {
     private var phraseCache: [String: [PhraseItem]] = [:]
     private var imagePhraseContext: ImagePhraseContext?
     private var imagePhraseHighlightOffsets: Set<Int> = []
+    // Keep phrase-origin highlight state in the store, not in Browse UI views.
+    // iPhone phrase previews can drill into component characters; when returning
+    // to Browse, this anchor restores the original full phrase highlight instead
+    // of leaving the last previewed character highlighted. Future refactors should
+    // preserve this store-level ownership so layout/navigation changes do not
+    // break phrase highlighting.
     private var anchoredImagePhraseContext: ImagePhraseContext?
     private var anchoredImagePhraseHighlightOffsets: Set<Int> = []
     private var anchoredImagePhraseWord: String?
@@ -988,6 +994,9 @@ final class RadixStore: ObservableObject {
     }
 
     func returnToBrowseGrid() {
+        // Restore the phrase anchor before clearing preview state. This keeps the
+        // image grid aligned with the originating memory-strip phrase after a user
+        // previews one of that phrase's component characters.
         restoreAnchoredImagePhraseHighlightIfNeeded()
         prepareBrowseReturnScrollTarget()
         clearBrowsePreview()
