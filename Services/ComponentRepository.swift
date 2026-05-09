@@ -1,45 +1,5 @@
 import Foundation
 
-enum PinyinSearchNormalizer {
-    private static let canonicalInitialMappings: [(source: String, target: String)] = [
-        ("zh", "z"),
-        ("sh", "s"),
-        ("ch", "c")
-    ]
-
-    static func normalize(_ value: String, preservingSpaces: Bool = false, fuzzyInitials: Bool = true) -> String {
-        let mutable = NSMutableString(string: value.lowercased()) as CFMutableString
-        CFStringTransform(mutable, nil, kCFStringTransformStripDiacritics, false)
-
-        let words = (mutable as String)
-            .map { ch -> Character in
-                (ch.isLetter || ch.isNumber) ? ch : " "
-            }
-            .reduce(into: "") { partial, ch in
-                if ch == " " {
-                    if partial.last != " " { partial.append(ch) }
-                } else {
-                    partial.append(ch)
-                }
-            }
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .split(separator: " ")
-            .map(String.init)
-
-        let normalizedWords = fuzzyInitials ? words.map(applyCanonicalInitialMappings) : words
-        return preservingSpaces ? normalizedWords.joined(separator: " ") : normalizedWords.joined()
-    }
-
-    private static func applyCanonicalInitialMappings(_ syllable: String) -> String {
-        for mapping in canonicalInitialMappings {
-            if syllable.hasPrefix(mapping.source) {
-                return mapping.target + syllable.dropFirst(mapping.source.count)
-            }
-        }
-        return syllable
-    }
-}
-
 /*
  COMPONENT REPOSITORY
  ===================
@@ -822,30 +782,12 @@ final class ComponentRepository {
         scriptClass(for: value) != .simplifiedOnly
     }
 
-    private func convert(_ value: String, transform: String) -> String {
-        let mutable = NSMutableString(string: value)
-        if CFStringTransform(mutable, nil, transform as CFString, false) {
-            return String(mutable)
-        }
-        return value
-    }
-
     private func toSimplified(_ value: String) -> String {
-        convertWithFallback(value, transforms: ["Hant-Hans", "Traditional-Simplified", "Any-Hans"])
+        ScriptTextConverter.simplified(value)
     }
 
     private func toTraditional(_ value: String) -> String {
-        convertWithFallback(value, transforms: ["Hans-Hant", "Simplified-Traditional", "Any-Hant"])
-    }
-
-    private func convertWithFallback(_ value: String, transforms: [String]) -> String {
-        for transform in transforms {
-            let converted = convert(value, transform: transform)
-            if converted != value {
-                return converted
-            }
-        }
-        return value
+        ScriptTextConverter.traditional(value)
     }
 
     private func decompositionParts(from decomposition: String, excluding character: String) -> [String] {

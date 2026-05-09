@@ -26,6 +26,7 @@ struct AILinkView: View {
     @State private var openedDefaultAI = false
     @State private var isTasksExpanded = true // Default to expanded for better usability
     @State private var mode: Mode = .promptGeneration
+    @State private var selectedAIPreset: DefaultAIPreset?
 
     /// The character or phrase word that tasks 1-3 will act on.
     /// Phrase preview takes priority over single character preview.
@@ -83,6 +84,9 @@ struct AILinkView: View {
             if store.shouldAutoOpenAILinkTask4 {
                 store.shouldAutoOpenAILinkTask4 = false
                 openPromptInDefaultAI()
+            }
+            if selectedAIPreset == nil {
+                selectedAIPreset = store.defaultAIPreset
             }
         }
     }
@@ -391,7 +395,10 @@ struct AILinkView: View {
     }
 
     private var promptActions: some View {
-        HStack(spacing: 12) {
+        let currentPreset = selectedAIPreset ?? store.defaultAIPreset
+        let currentAIName = store.aiName(for: currentPreset)
+
+        return HStack(spacing: 12) {
             Button("Copy Prompt") {
                 copyPromptToClipboard()
             }
@@ -399,23 +406,35 @@ struct AILinkView: View {
             .font(ResponsiveFont.headline)
             .disabled(!canGeneratePrompt)
 
-            Button {
-                openPromptInDefaultAI()
+            Menu {
+                ForEach(DefaultAIPreset.allCases, id: \.self) { preset in
+                    Button {
+                        selectedAIPreset = preset
+                        openPromptInAI(preset)
+                    } label: {
+                        Label(
+                            "Open \(store.aiName(for: preset))",
+                            systemImage: preset == currentPreset ? "checkmark" : "arrow.up.forward.app"
+                        )
+                    }
+                    .disabled(preset == .custom && store.aiBaseURLString(for: .custom).isEmpty)
+                }
             } label: {
-                Label("Open \(store.defaultAIName)", systemImage: "arrow.up.forward.app")
+                Label("Open \(currentAIName)", systemImage: "arrow.up.forward.app")
             }
+            .menuStyle(.button)
             .buttonStyle(.borderedProminent)
             .font(ResponsiveFont.headline)
             .disabled(!canGeneratePrompt)
 
             if openedDefaultAI {
-                Text(store.defaultAIPrefillsPrompt
-                     ? "Opening \(store.defaultAIName). Prompt copied as backup."
-                     : "Opening \(store.defaultAIName). Prompt copied. Paste it into \(store.defaultAIName).")
+                Text(store.aiPrefillsPrompt(for: currentPreset)
+                     ? "Opening \(currentAIName). Prompt copied as backup."
+                     : "Opening \(currentAIName). Prompt copied. Paste it into \(currentAIName).")
                     .font(ResponsiveFont.footnote)
                     .foregroundStyle(.secondary)
             } else if copied {
-                Text("Copied. Paste into \(store.defaultAIName).")
+                Text("Copied. Paste into \(currentAIName).")
                     .font(ResponsiveFont.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -458,12 +477,16 @@ struct AILinkView: View {
     }
 
     private func openPromptInDefaultAI() {
+        openPromptInAI(selectedAIPreset ?? store.defaultAIPreset)
+    }
+
+    private func openPromptInAI(_ preset: DefaultAIPreset) {
         guard canGeneratePrompt else { return }
         let text = generatedPromptText
         copyPromptToClipboard(showStatus: false)
         openedDefaultAI = true
 
-        if let url = store.defaultAIURL(prompt: text) {
+        if let url = store.aiURL(for: preset, prompt: text) {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                 openURL(url)
             }

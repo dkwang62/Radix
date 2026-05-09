@@ -61,6 +61,15 @@
 		850000362F9D0001001B9AA7 /* ComponentsExplorerShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000352F9D0001001B9AA7 /* ComponentsExplorerShell.swift */; };
 		850000382F9D0001001B9AA7 /* QuickPhraseEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000372F9D0001001B9AA7 /* QuickPhraseEditorView.swift */; };
 		8500003A2F9D0001001B9AA7 /* QuickCharacterEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000392F9D0001001B9AA7 /* QuickCharacterEditorView.swift */; };
+		8500003C2F9D0001001B9AA7 /* StoredZipArchive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500003B2F9D0001001B9AA7 /* StoredZipArchive.swift */; };
+		8500003E2F9D0001001B9AA7 /* PinyinSearchNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500003D2F9D0001001B9AA7 /* PinyinSearchNormalizer.swift */; };
+		850000402F9D0001001B9AA7 /* StrokeSynthesisSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500003F2F9D0001001B9AA7 /* StrokeSynthesisSupport.swift */; };
+		850000422F9D0001001B9AA7 /* StrokeRepositories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000412F9D0001001B9AA7 /* StrokeRepositories.swift */; };
+		850000442F9D0001001B9AA7 /* ProjectLiveDataLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000432F9D0001001B9AA7 /* ProjectLiveDataLocator.swift */; };
+		850000462F9D0001001B9AA7 /* StrokeSynthesisEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000452F9D0001001B9AA7 /* StrokeSynthesisEngine.swift */; };
+		850000482F9D0001001B9AA7 /* DataExportDatabaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000472F9D0001001B9AA7 /* DataExportDatabaseBuilder.swift */; };
+		8500004A2F9D0001001B9AA7 /* DataExportArchiveBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000492F9D0001001B9AA7 /* DataExportArchiveBuilder.swift */; };
+		8500004C2F9D0001001B9AA7 /* ScriptTextConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500004B2F9D0001001B9AA7 /* ScriptTextConverter.swift */; };
 		859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */; };
 		864DAB762F93ADA3001B9AA7 /* ComponentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */; };
 		864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB872F93B701001B9AA7 /* RadixStore.swift */; };
@@ -206,6 +215,15 @@
 		850000352F9D0001001B9AA7 /* ComponentsExplorerShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentsExplorerShell.swift; sourceTree = "<group>"; };
 		850000372F9D0001001B9AA7 /* QuickPhraseEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickPhraseEditorView.swift; sourceTree = "<group>"; };
 		850000392F9D0001001B9AA7 /* QuickCharacterEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCharacterEditorView.swift; sourceTree = "<group>"; };
+		8500003B2F9D0001001B9AA7 /* StoredZipArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredZipArchive.swift; sourceTree = "<group>"; };
+		8500003D2F9D0001001B9AA7 /* PinyinSearchNormalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinyinSearchNormalizer.swift; sourceTree = "<group>"; };
+		8500003F2F9D0001001B9AA7 /* StrokeSynthesisSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeSynthesisSupport.swift; sourceTree = "<group>"; };
+		850000412F9D0001001B9AA7 /* StrokeRepositories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeRepositories.swift; sourceTree = "<group>"; };
+		850000432F9D0001001B9AA7 /* ProjectLiveDataLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectLiveDataLocator.swift; sourceTree = "<group>"; };
+		850000452F9D0001001B9AA7 /* StrokeSynthesisEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeSynthesisEngine.swift; sourceTree = "<group>"; };
+		850000472F9D0001001B9AA7 /* DataExportDatabaseBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExportDatabaseBuilder.swift; sourceTree = "<group>"; };
+		850000492F9D0001001B9AA7 /* DataExportArchiveBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExportArchiveBuilder.swift; sourceTree = "<group>"; };
+		8500004B2F9D0001001B9AA7 /* ScriptTextConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptTextConverter.swift; sourceTree = "<group>"; };
 		911F85BE195D61BDA4442400 /* PhraseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseModels.swift; sourceTree = "<group>"; };
 		850000092F9D0001001B9AA7 /* BrowseGridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseGridLayout.swift; sourceTree = "<group>"; };
 		8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreExtractedHelpers.swift; sourceTree = "<group>"; };
@@ -280,8 +298,16 @@
 				864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */,
 				167CA0042F9C0001001B9AA7 /* CaptureOCRService.swift */,
 				864DAB982F9A0001001B9AA7 /* StrokeAnimationProvider.swift */,
+				850000412F9D0001001B9AA7 /* StrokeRepositories.swift */,
+				8500003F2F9D0001001B9AA7 /* StrokeSynthesisSupport.swift */,
+				850000452F9D0001001B9AA7 /* StrokeSynthesisEngine.swift */,
 				864DABAE2F9B0001001B9AA7 /* LicenseTextLoader.swift */,
 				5638FC4C06278901129EF9DF /* DataExportService.swift */,
+				850000472F9D0001001B9AA7 /* DataExportDatabaseBuilder.swift */,
+				850000492F9D0001001B9AA7 /* DataExportArchiveBuilder.swift */,
+				8500003B2F9D0001001B9AA7 /* StoredZipArchive.swift */,
+				850000432F9D0001001B9AA7 /* ProjectLiveDataLocator.swift */,
+				8500004B2F9D0001001B9AA7 /* ScriptTextConverter.swift */,
 				4559296FCA5B2061336BA302 /* EntitlementManager.swift */,
 				850000112F9D0001001B9AA7 /* CharacterSpeechService.swift */,
 				850000132F9D0001001B9AA7 /* PhraseEditService.swift */,
@@ -301,6 +327,7 @@
 				8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */,
 				8500000D2F9D0001001B9AA7 /* BackupSummaryBuilder.swift */,
 				8500000F2F9D0001001B9AA7 /* ImagePhraseMatcher.swift */,
+				8500003D2F9D0001001B9AA7 /* PinyinSearchNormalizer.swift */,
 				6AFF92F2BA13EBA1A3A64D44 /* PromptModels.swift */,
 				B3E1E5265391156C8C615A28 /* ResponsiveFont.swift */,
 				AB37C9B2A3908035B4225770 /* UnifiedPackage.swift */,
@@ -469,6 +496,7 @@
 				850000052F9D0001001B9AA7 /* PopoverSizingModifiers.swift in Sources */,
 				54A51BF66D66F0EB5BCB894C /* ComponentModels.swift in Sources */,
 				DA63DDFD6499D503D37A05AF /* DataExportService.swift in Sources */,
+				8500003C2F9D0001001B9AA7 /* StoredZipArchive.swift in Sources */,
 				7D4B9955F84B9C520D7702E8 /* EntitlementManager.swift in Sources */,
 				86CD14402F9822B300D7BDBD /* DataEditTab.swift in Sources */,
 				86CD14412F9822B300D7BDBD /* FileTransferModifier.swift in Sources */,
@@ -502,6 +530,7 @@
 				8500000C2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift in Sources */,
 				8500000E2F9D0001001B9AA7 /* BackupSummaryBuilder.swift in Sources */,
 				850000102F9D0001001B9AA7 /* ImagePhraseMatcher.swift in Sources */,
+				8500003E2F9D0001001B9AA7 /* PinyinSearchNormalizer.swift in Sources */,
 				167CA0032F9C0001001B9AA7 /* CaptureModels.swift in Sources */,
 				864DAB902F93BD51001B9AA7 /* CharacterPreviewHeader.swift in Sources */,
 				8500001C2F9D0001001B9AA7 /* CharacterPreviewAnimationPanel.swift in Sources */,
@@ -533,6 +562,13 @@
 				864DAB8A2F93B722001B9AA7 /* PhraseRepository.swift in Sources */,
 				6ABB3E4EB6475449496F9C71 /* ResponsiveFont.swift in Sources */,
 				864DAB972F9A0001001B9AA7 /* StrokeAnimationProvider.swift in Sources */,
+				850000422F9D0001001B9AA7 /* StrokeRepositories.swift in Sources */,
+				850000402F9D0001001B9AA7 /* StrokeSynthesisSupport.swift in Sources */,
+				850000442F9D0001001B9AA7 /* ProjectLiveDataLocator.swift in Sources */,
+				850000462F9D0001001B9AA7 /* StrokeSynthesisEngine.swift in Sources */,
+				850000482F9D0001001B9AA7 /* DataExportDatabaseBuilder.swift in Sources */,
+				8500004A2F9D0001001B9AA7 /* DataExportArchiveBuilder.swift in Sources */,
+				8500004C2F9D0001001B9AA7 /* ScriptTextConverter.swift in Sources */,
 				A2A5920563DDE95E066515ED /* StrokeOrderWebView.swift in Sources */,
 				C0F73A1B704F91F0BB8E1C07 /* UnifiedPackage.swift in Sources */,
 				167CA0062F9C0001001B9AA7 /* CaptureOCRService.swift in Sources */,

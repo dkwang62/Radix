@@ -4024,28 +4024,40 @@ final class RadixStore: ObservableObject {
     }
 
     var defaultAIName: String {
-        switch defaultAIPreset {
+        aiName(for: defaultAIPreset)
+    }
+
+    func aiName(for preset: DefaultAIPreset) -> String {
+        switch preset {
         case .custom:
             if let host = normalizedCustomAIURL?.host, !host.isEmpty {
                 return host
             }
-            return defaultAIPreset.displayName
+            return preset.displayName
         default:
-            return defaultAIPreset.displayName
+            return preset.displayName
         }
     }
 
     var defaultAIBaseURLString: String {
-        switch defaultAIPreset {
+        aiBaseURLString(for: defaultAIPreset)
+    }
+
+    func aiBaseURLString(for preset: DefaultAIPreset) -> String {
+        switch preset {
         case .custom:
             return normalizedCustomAIURL?.absoluteString ?? ""
         default:
-            return defaultAIPreset.baseURLString
+            return preset.baseURLString
         }
     }
 
     var defaultAIPrefillsPrompt: Bool {
-        switch defaultAIPreset {
+        aiPrefillsPrompt(for: defaultAIPreset)
+    }
+
+    func aiPrefillsPrompt(for preset: DefaultAIPreset) -> Bool {
+        switch preset {
         case .chatGPT:
             return true
         case .custom:
@@ -4056,9 +4068,13 @@ final class RadixStore: ObservableObject {
     }
 
     func defaultAIURL(prompt: String) -> URL? {
-        switch defaultAIPreset {
+        aiURL(for: defaultAIPreset, prompt: prompt)
+    }
+
+    func aiURL(for preset: DefaultAIPreset, prompt: String) -> URL? {
+        switch preset {
         case .chatGPT:
-            var components = URLComponents(string: defaultAIPreset.baseURLString)
+            var components = URLComponents(string: preset.baseURLString)
             components?.queryItems = [
                 URLQueryItem(name: "q", value: prompt)
             ]
@@ -4072,7 +4088,7 @@ final class RadixStore: ObservableObject {
             }
             return custom
         default:
-            return URL(string: defaultAIPreset.baseURLString)
+            return URL(string: preset.baseURLString)
         }
     }
 
