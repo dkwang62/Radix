@@ -73,6 +73,8 @@
 		8500004E2F9D0001001B9AA7 /* PhraseAddDatabaseLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500004D2F9D0001001B9AA7 /* PhraseAddDatabaseLocationManager.swift */; };
 		850000502F9D0001001B9AA7 /* PhraseAddDatabaseSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500004F2F9D0001001B9AA7 /* PhraseAddDatabaseSchema.swift */; };
 		850000522F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000512F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift */; };
+		850000542F9D0001001B9AA7 /* ComponentScriptClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000532F9D0001001B9AA7 /* ComponentScriptClassifier.swift */; };
+		850000562F9D0001001B9AA7 /* ComponentDecompositionParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000552F9D0001001B9AA7 /* ComponentDecompositionParser.swift */; };
 		859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */; };
 		864DAB762F93ADA3001B9AA7 /* ComponentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */; };
 		864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB872F93B701001B9AA7 /* RadixStore.swift */; };
@@ -230,6 +232,8 @@
 		8500004D2F9D0001001B9AA7 /* PhraseAddDatabaseLocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseAddDatabaseLocationManager.swift; sourceTree = "<group>"; };
 		8500004F2F9D0001001B9AA7 /* PhraseAddDatabaseSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseAddDatabaseSchema.swift; sourceTree = "<group>"; };
 		850000512F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhrasePinyinSearchIndex.swift; sourceTree = "<group>"; };
+		850000532F9D0001001B9AA7 /* ComponentScriptClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentScriptClassifier.swift; sourceTree = "<group>"; };
+		850000552F9D0001001B9AA7 /* ComponentDecompositionParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentDecompositionParser.swift; sourceTree = "<group>"; };
 		911F85BE195D61BDA4442400 /* PhraseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseModels.swift; sourceTree = "<group>"; };
 		850000092F9D0001001B9AA7 /* BrowseGridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseGridLayout.swift; sourceTree = "<group>"; };
 		8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreExtractedHelpers.swift; sourceTree = "<group>"; };
@@ -305,6 +309,8 @@
 				8500004F2F9D0001001B9AA7 /* PhraseAddDatabaseSchema.swift */,
 				850000512F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift */,
 				864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */,
+				850000532F9D0001001B9AA7 /* ComponentScriptClassifier.swift */,
+				850000552F9D0001001B9AA7 /* ComponentDecompositionParser.swift */,
 				167CA0042F9C0001001B9AA7 /* CaptureOCRService.swift */,
 				864DAB982F9A0001001B9AA7 /* StrokeAnimationProvider.swift */,
 				850000412F9D0001001B9AA7 /* StrokeRepositories.swift */,
@@ -581,6 +587,8 @@
 				8500004E2F9D0001001B9AA7 /* PhraseAddDatabaseLocationManager.swift in Sources */,
 				850000502F9D0001001B9AA7 /* PhraseAddDatabaseSchema.swift in Sources */,
 				850000522F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift in Sources */,
+				850000542F9D0001001B9AA7 /* ComponentScriptClassifier.swift in Sources */,
+				850000562F9D0001001B9AA7 /* ComponentDecompositionParser.swift in Sources */,
 				A2A5920563DDE95E066515ED /* StrokeOrderWebView.swift in Sources */,
 				C0F73A1B704F91F0BB8E1C07 /* UnifiedPackage.swift in Sources */,
 				167CA0062F9C0001001B9AA7 /* CaptureOCRService.swift in Sources */,

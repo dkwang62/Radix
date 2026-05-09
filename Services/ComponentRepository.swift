@@ -20,7 +20,6 @@ enum ScriptFilter: String, CaseIterable, Identifiable {
 }
 
 final class ComponentRepository {
-    private let idcChars: Set<Character> = ["⿰", "⿱", "⿲", "⿳", "⿴", "⿵", "⿶", "⿷", "⿸", "⿹", "⿺", "⿻"]
     private(set) var byCharacter: [String: ComponentItem] = [:]
     private(set) var allCharacters: [String] = []
     private(set) var subtlexLoadedCount: Int = 0
@@ -30,9 +29,10 @@ final class ComponentRepository {
     private(set) var overlayUpserts: [String: RawComponentEntry] = [:]
     private(set) var overlayDeletions: Set<String> = []
     private var usedComponents: Set<String> = []
+    private var knownCharacters: Set<String> = []
     private var cachedSubtlexFrequencies: [String: Double]?
-    private var scriptClassCache: [String: ScriptClass] = [:]
-    private var decompositionPartsCache: [DecompositionPartsCacheKey: [String]] = [:]
+    private var scriptClassifier = ComponentScriptClassifier()
+    private var decompositionParser = ComponentDecompositionParser()
 
     var hasOverlayChanges: Bool {
         !overlayUpserts.isEmpty || !overlayDeletions.isEmpty
@@ -326,8 +326,8 @@ final class ComponentRepository {
     }
 
     private func rebuildIndices(from raw: [String: RawComponentEntry]) {
-        scriptClassCache.removeAll()
-        decompositionPartsCache.removeAll()
+        scriptClassifier.reset()
+        decompositionParser.reset()
         let subtlexFreq = loadSubtlexFrequencies()
         subtlexLoadedCount = subtlexFreq.count
 
@@ -393,7 +393,8 @@ final class ComponentRepository {
 
         byCharacter = mapped
         allCharacters = mapped.keys.sorted()
-        usedComponents = computeUsedComponents(from: mapped)
+        knownCharacters = Set(mapped.keys)
+        usedComponents = ComponentDecompositionParser.usedComponents(from: mapped)
     }
 
     func search(query: String, scriptFilter: ScriptFilter, limit: Int = 300) -> [ComponentItem] {
@@ -670,10 +671,7 @@ final class ComponentRepository {
     }
 
     func structureKey(for item: ComponentItem) -> String {
-        guard let first = item.decomposition.first, idcChars.contains(first) else {
-            return "None"
-        }
-        return String(first)
+        decompositionParser.structureKey(for: item.decomposition)
     }
 
     func isSimplifiedForGrid(_ value: String) -> Bool {
@@ -699,79 +697,8 @@ final class ComponentRepository {
         }
     }
 
-    // MARK: - Script Classification
-
-    private enum ScriptClass {
-        case simplifiedOnly   // has a variant and fewer strokes than it → simplified form
-        case traditionalOnly  // has a variant and more strokes than it → traditional form
-        case both             // no variant, or strokes equal/missing → neutral (both scripts)
-    }
-
-    private struct DecompositionPartsCacheKey: Hashable {
-        let decomposition: String
-        let excluding: String
-    }
-
-    /// Primary classifier. Uses the character's own variant + stroke data first;
-    /// falls back to Apple CFStringTransform when the data is inconclusive.
-    private func scriptClass(for value: String) -> ScriptClass {
-        if let cached = scriptClassCache[value] {
-            return cached
-        }
-
-        let resolved: ScriptClass
-        guard let item = byCharacter[value] else {
-            resolved = scriptClassViaCFTransform(value)
-            scriptClassCache[value] = resolved
-            return resolved
-        }
-
-        let variantChars = item.allVariants.filter { !$0.isEmpty && $0 != value }
-        guard !variantChars.isEmpty else {
-            // No variants → neutral, exists in both scripts
-            scriptClassCache[value] = .both
-            return .both
-        }
-
-        guard let ownStrokes = item.strokes else {
-            resolved = scriptClassViaCFTransform(value)
-            scriptClassCache[value] = resolved
-            return resolved
-        }
-
-        // Collect stroke counts for all variants that are in the dictionary
-        let variantStrokes = variantChars.compactMap { byCharacter[$0]?.strokes }
-        guard !variantStrokes.isEmpty else {
-            // Variants exist but none have stroke data → fall back
-            resolved = scriptClassViaCFTransform(value)
-            scriptClassCache[value] = resolved
-            return resolved
-        }
-
-        let minVariantStrokes = variantStrokes.min()!
-        let maxVariantStrokes = variantStrokes.max()!
-
-        if ownStrokes < minVariantStrokes {
-            scriptClassCache[value] = .simplifiedOnly
-            return .simplifiedOnly
-        }
-        if ownStrokes > maxVariantStrokes {
-            scriptClassCache[value] = .traditionalOnly
-            return .traditionalOnly
-        }
-        // Own strokes within variant range → fall back
-        resolved = scriptClassViaCFTransform(value)
-        scriptClassCache[value] = resolved
-        return resolved
-    }
-
-    /// Fallback classifier using Apple's Unicode transform tables.
-    private func scriptClassViaCFTransform(_ value: String) -> ScriptClass {
-        let s = toSimplified(value)
-        let t = toTraditional(value)
-        if s == value && t != value { return .simplifiedOnly }
-        if t == value && s != value { return .traditionalOnly }
-        return .both
+    private func scriptClass(for value: String) -> ComponentScriptClass {
+        scriptClassifier.scriptClass(for: value, in: byCharacter)
     }
 
     private func isSimplified(_ value: String) -> Bool {
@@ -791,22 +718,11 @@ final class ComponentRepository {
     }
 
     private func decompositionParts(from decomposition: String, excluding character: String) -> [String] {
-        let key = DecompositionPartsCacheKey(decomposition: decomposition, excluding: character)
-        if let cached = decompositionPartsCache[key] {
-            return cached
-        }
-
-        var out: [String] = []
-        for ch in decomposition {
-            guard !idcChars.contains(ch) else { continue }
-            let token = String(ch)
-            guard token != character, token != "?", token != "—", byCharacter[token] != nil else { continue }
-            if !out.contains(token) {
-                out.append(token)
-            }
-        }
-        decompositionPartsCache[key] = out
-        return out
+        decompositionParser.parts(
+            from: decomposition,
+            excluding: character,
+            knownCharacters: knownCharacters
+        )
     }
 
     private func matchesSound(lhs: String?, rhs: String?) -> Bool {
@@ -911,16 +827,6 @@ final class ComponentRepository {
             }
         }
         return nil
-    }
-
-    private func computeUsedComponents(from data: [String: ComponentItem]) -> Set<String> {
-        var used: Set<String> = []
-        for item in data.values {
-            for ch in item.decomposition where !idcChars.contains(ch) {
-                used.insert(String(ch))
-            }
-        }
-        return used
     }
 
     private func frequencyThenUsageSort(_ lhs: ComponentItem, _ rhs: ComponentItem) -> Bool {
