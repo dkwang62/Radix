@@ -30,7 +30,7 @@ final class ComponentRepository {
     private(set) var overlayDeletions: Set<String> = []
     private var usedComponents: Set<String> = []
     private var knownCharacters: Set<String> = []
-    private var cachedSubtlexFrequencies: [String: Double]?
+    private var frequencyProvider = ComponentFrequencyProvider()
     private var scriptClassifier = ComponentScriptClassifier()
     private var decompositionParser = ComponentDecompositionParser()
 
@@ -154,7 +154,7 @@ final class ComponentRepository {
                 continue
             }
 
-            let patch = makePatch(character: character, base: baseEntry, edited: entry, updatedAt: updatedAt)
+            let patch = ComponentOverlayBuilder.makePatch(character: character, base: baseEntry, edited: entry, updatedAt: updatedAt)
             if patch.relatedCharacters != nil || !patch.meta.isEmpty {
                 patches.append(patch)
             }
@@ -178,7 +178,7 @@ final class ComponentRepository {
                   let baseEntry = baseRawMap[patch.character] else {
                 continue
             }
-            let entry = applyPatch(patch, to: baseEntry)
+            let entry = ComponentOverlayBuilder.applyPatch(patch, to: baseEntry)
             if entry != baseEntry {
                 upserts[patch.character] = entry
             }
@@ -206,18 +206,7 @@ final class ComponentRepository {
     }
 
     static func makeOverlay(base: [String: RawComponentEntry], effective: [String: RawComponentEntry]) -> DictionaryOverlayPackage {
-        var upserts: [String: RawComponentEntry] = [:]
-        var deletions: [String] = []
-
-        for (character, entry) in effective where base[character] != entry {
-            upserts[character] = entry
-        }
-
-        for character in base.keys where effective[character] == nil {
-            deletions.append(character)
-        }
-
-        return DictionaryOverlayPackage(schemaVersion: 2, upserts: upserts, deletions: deletions.sorted())
+        ComponentOverlayBuilder.makeOverlay(base: base, effective: effective)
     }
 
     private func rebuildCurrentMap() {
@@ -227,7 +216,7 @@ final class ComponentRepository {
         }
         for (character, entry) in overlayUpserts {
             if let baseEntry = baseRawMap[character] {
-                effective[character] = mergedOverlayEntry(entry, onto: baseEntry)
+                effective[character] = ComponentOverlayBuilder.mergedOverlayEntry(entry, onto: baseEntry)
             } else {
                 effective[character] = entry
             }
@@ -236,99 +225,10 @@ final class ComponentRepository {
         rebuildIndices(from: effective)
     }
 
-    // Keep newer metadata fields from the bundled dictionary when older overlays
-    // don't carry them yet. This prevents legacy mobile edits from wiping fields
-    // like `variant` that were added later.
-    private func mergedOverlayEntry(_ overlay: RawComponentEntry, onto base: RawComponentEntry) -> RawComponentEntry {
-        let baseMeta = base.meta
-        let overlayMeta = overlay.meta
-        let mergedPinyin = overlayMeta.pinyin ?? baseMeta.pinyin
-        let mergedDefinition = overlayMeta.definition ?? baseMeta.definition
-        let mergedDecomposition = overlayMeta.decomposition ?? baseMeta.decomposition
-        let mergedIDC = overlayMeta.idc ?? baseMeta.idc
-        let mergedRadical = overlayMeta.radical ?? baseMeta.radical
-        let mergedStrokes = overlayMeta.strokes ?? baseMeta.strokes
-        let mergedVariant = overlayMeta.variant ?? baseMeta.variant
-        let mergedCompounds = overlayMeta.compounds ?? baseMeta.compounds
-        let mergedEtymology = overlayMeta.etymology ?? baseMeta.etymology
-        let mergedNotes = overlayMeta.notes ?? baseMeta.notes
-        // Union additional variants, preserving order and removing duplicates
-        var mergedAdditional: [String] = baseMeta.additionalVariants ?? []
-        for v in overlayMeta.additionalVariants ?? [] where !mergedAdditional.contains(v) {
-            mergedAdditional.append(v)
-        }
-
-        let mergedMeta = RawMeta(
-            variant: mergedVariant,
-            additionalVariants: mergedAdditional.isEmpty ? nil : mergedAdditional,
-            pinyin: mergedPinyin,
-            definition: mergedDefinition,
-            decomposition: mergedDecomposition,
-            idc: mergedIDC,
-            radical: mergedRadical,
-            strokes: mergedStrokes,
-            compounds: mergedCompounds,
-            etymology: mergedEtymology,
-            notes: mergedNotes
-        )
-
-        return RawComponentEntry(
-            relatedCharacters: overlay.relatedCharacters,
-            meta: mergedMeta
-        )
-    }
-
-    private func makePatch(character: String, base: RawComponentEntry, edited: RawComponentEntry, updatedAt: Date) -> DictionaryEntryPatch {
-        let baseMeta = base.meta
-        let editedMeta = edited.meta
-        let metaPatch = RawMetaPatch(
-            variant: editedMeta.variant != baseMeta.variant ? editedMeta.variant : nil,
-            additionalVariants: editedMeta.additionalVariants != baseMeta.additionalVariants ? editedMeta.additionalVariants : nil,
-            pinyin: editedMeta.pinyin != baseMeta.pinyin ? editedMeta.pinyin : nil,
-            definition: editedMeta.definition != baseMeta.definition ? editedMeta.definition : nil,
-            decomposition: editedMeta.decomposition != baseMeta.decomposition ? editedMeta.decomposition : nil,
-            idc: editedMeta.idc != baseMeta.idc ? editedMeta.idc : nil,
-            radical: editedMeta.radical != baseMeta.radical ? editedMeta.radical : nil,
-            strokes: editedMeta.strokes != baseMeta.strokes ? editedMeta.strokes : nil,
-            compounds: editedMeta.compounds != baseMeta.compounds ? editedMeta.compounds : nil,
-            etymology: editedMeta.etymology != baseMeta.etymology ? editedMeta.etymology : nil,
-            notes: editedMeta.notes != baseMeta.notes ? editedMeta.notes : nil
-        )
-
-        return DictionaryEntryPatch(
-            character: character,
-            relatedCharacters: edited.relatedCharacters != base.relatedCharacters ? edited.relatedCharacters : nil,
-            meta: metaPatch,
-            updatedAt: updatedAt
-        )
-    }
-
-    private func applyPatch(_ patch: DictionaryEntryPatch, to base: RawComponentEntry) -> RawComponentEntry {
-        let baseMeta = base.meta
-        let patchMeta = patch.meta
-        let meta = RawMeta(
-            variant: patchMeta.variant ?? baseMeta.variant,
-            additionalVariants: patchMeta.additionalVariants ?? baseMeta.additionalVariants,
-            pinyin: patchMeta.pinyin ?? baseMeta.pinyin,
-            definition: patchMeta.definition ?? baseMeta.definition,
-            decomposition: patchMeta.decomposition ?? baseMeta.decomposition,
-            idc: patchMeta.idc ?? baseMeta.idc,
-            radical: patchMeta.radical ?? baseMeta.radical,
-            strokes: patchMeta.strokes ?? baseMeta.strokes,
-            compounds: patchMeta.compounds ?? baseMeta.compounds,
-            etymology: patchMeta.etymology ?? baseMeta.etymology,
-            notes: patchMeta.notes ?? baseMeta.notes
-        )
-        return RawComponentEntry(
-            relatedCharacters: patch.relatedCharacters ?? base.relatedCharacters,
-            meta: meta
-        )
-    }
-
     private func rebuildIndices(from raw: [String: RawComponentEntry]) {
         scriptClassifier.reset()
         decompositionParser.reset()
-        let subtlexFreq = loadSubtlexFrequencies()
+        let subtlexFreq = frequencyProvider.subtlexFrequencies()
         subtlexLoadedCount = subtlexFreq.count
 
         // 1. Calculate Base Ranks (1-6000)
@@ -739,94 +639,6 @@ final class ComponentRepository {
 
     private func normalizePinyinForSearch(_ value: String, fuzzyInitials: Bool = true) -> String {
         PinyinSearchNormalizer.normalize(value, fuzzyInitials: fuzzyInitials)
-    }
-
-    private func loadSubtlexFrequencies() -> [String: Double] {
-        if let cachedSubtlexFrequencies {
-            return cachedSubtlexFrequencies
-        }
-
-        if let jsonURL = locateSubtlexJSONURL(),
-           let data = try? Data(contentsOf: jsonURL),
-           let parsed = try? JSONDecoder().decode([String: Double].self, from: data),
-           !parsed.isEmpty {
-            cachedSubtlexFrequencies = parsed
-            return parsed
-        }
-
-        guard let url = locateSubtlexFileURL(),
-              let data = try? Data(contentsOf: url) else {
-            cachedSubtlexFrequencies = [:]
-            return [:]
-        }
-        let gb18030 = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.GB_18030_2000.rawValue)))
-        let gb2312 = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.GB_2312_80.rawValue)))
-        let content =
-            String(data: data, encoding: gb18030) ??
-            String(data: data, encoding: gb2312) ??
-            String(data: data, encoding: .utf8) ??
-            String(decoding: data, as: UTF8.self)
-        if content.isEmpty {
-            cachedSubtlexFrequencies = [:]
-            return [:]
-        }
-
-        var out: [String: Double] = [:]
-        for line in content.split(separator: "\n") {
-            if line.hasPrefix("Character") || line.hasPrefix("Total") {
-                continue
-            }
-            let parts = line.split(separator: "\t")
-            guard parts.count >= 3 else { continue }
-            let char = String(parts[0]).trimmingCharacters(in: .whitespacesAndNewlines)
-            let freq = Double(parts[2]) ?? 0
-            if char.count == 1, freq > 0 {
-                out[char] = freq
-            }
-        }
-        cachedSubtlexFrequencies = out
-        return out
-    }
-
-    private func locateSubtlexFileURL() -> URL? {
-        if let direct = Bundle.main.url(forResource: "SUBTLEX-CH-CHR", withExtension: "txt") {
-            return direct
-        }
-        if let txts = Bundle.main.urls(forResourcesWithExtension: "txt", subdirectory: nil),
-           let match = txts.first(where: { $0.lastPathComponent.uppercased().contains("SUBTLEX") }) {
-            return match
-        }
-        if let all = Bundle.main.urls(forResourcesWithExtension: nil, subdirectory: nil),
-           let match = all.first(where: { $0.lastPathComponent.uppercased().contains("SUBTLEX-CH-CHR") }) {
-            return match
-        }
-        return nil
-    }
-
-    private func locateSubtlexJSONURL() -> URL? {
-        if let direct = Bundle.main.url(forResource: "subtlex_freq", withExtension: "json") {
-            return direct
-        }
-        if let inResources = Bundle.main.url(forResource: "subtlex_freq", withExtension: "json", subdirectory: "Resources") {
-            return inResources
-        }
-        if let jsons = Bundle.main.urls(forResourcesWithExtension: "json", subdirectory: nil),
-           let match = jsons.first(where: { $0.lastPathComponent.lowercased().contains("subtlex_freq") }) {
-            return match
-        }
-        if let jsonsInResources = Bundle.main.urls(forResourcesWithExtension: "json", subdirectory: "Resources"),
-           let match = jsonsInResources.first(where: { $0.lastPathComponent.lowercased().contains("subtlex_freq") }) {
-            return match
-        }
-        let fm = FileManager.default
-        if let enumerator = fm.enumerator(at: Bundle.main.bundleURL, includingPropertiesForKeys: nil) {
-            for case let fileURL as URL in enumerator {
-                if fileURL.lastPathComponent.lowercased() == "subtlex_freq.json" {
-                    return fileURL
-                }
-            }
-        }
-        return nil
     }
 
     private func frequencyThenUsageSort(_ lhs: ComponentItem, _ rhs: ComponentItem) -> Bool {
