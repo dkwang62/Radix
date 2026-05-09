@@ -19,10 +19,7 @@ final class PhraseRepository {
     private var pinyinIndexBuilt = false
     private var mergedPhrasesCache: [PhraseItem]?
     private var mergedPhraseLookup: [String: PhraseItem] = [:]
-    private var addOverrideURL: URL?
-    private let addOverrideKey = "radix.phrasesAddOverridePath"
-    private let addOverrideBookmarkKey = "radix.phrasesAddOverrideBookmark"
-    private var activeSecurityScopedURL: URL?
+    private let addDBLocationManager = PhraseAddDatabaseLocationManager()
 
     deinit { close() }
 
@@ -73,7 +70,7 @@ final class PhraseRepository {
         baseDb = nil
         addDb = nil
         invalidateReadCaches()
-        stopAccessingActiveSecurityScope()
+        addDBLocationManager.stopAccessingActiveSecurityScope()
     }
 
     // MARK: - Writes (Add DB only)
@@ -118,7 +115,7 @@ final class PhraseRepository {
                 throw phraseWriteError(code: 5, prefix: "Insert failed", db: addDb)
             }
         }
-        try syncWorkingAddDBToCustomSourceIfNeeded()
+        try addDBLocationManager.syncWorkingAddDBToCustomSourceIfNeeded()
         invalidateReadCaches()
     }
 
@@ -139,7 +136,7 @@ final class PhraseRepository {
         if sqlite3_changes(addDb) == 0 {
             throw NSError(domain: "Radix", code: 13, userInfo: [NSLocalizedDescriptionKey: "Phrase not found in add DB"])
         }
-        try syncWorkingAddDBToCustomSourceIfNeeded()
+        try addDBLocationManager.syncWorkingAddDBToCustomSourceIfNeeded()
         invalidateReadCaches()
     }
 
@@ -245,7 +242,7 @@ final class PhraseRepository {
             sqlite3_bind_text(mergeStmt, 6, (p.word as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_step(mergeStmt)
         }
-        try syncWorkingAddDBToCustomSourceIfNeeded()
+        try addDBLocationManager.syncWorkingAddDBToCustomSourceIfNeeded()
         invalidateReadCaches()
     }
 
@@ -288,7 +285,7 @@ final class PhraseRepository {
             throw phraseWriteError(code: 18, prefix: "Commit restore failed", db: addDb)
         }
         shouldRollback = false
-        try syncWorkingAddDBToCustomSourceIfNeeded()
+        try addDBLocationManager.syncWorkingAddDBToCustomSourceIfNeeded()
         invalidateReadCaches()
     }
 
@@ -305,13 +302,11 @@ final class PhraseRepository {
     }
     
     var currentAddDBPath: String {
-        if let addOverrideURL { return addOverrideURL.path }
-        let fm = FileManager.default
-        return resolvedAddDBURL(fileManager: fm).path
+        addDBLocationManager.currentDisplayPath
     }
 
     var currentAddDBURL: URL {
-        return resolvedAddDBURL(fileManager: .default)
+        addDBLocationManager.currentLocalURL
     }
 
     func phrases(containing character: String, length: Int, limit: Int = 120) -> [PhraseItem] {
@@ -444,108 +439,19 @@ final class PhraseRepository {
     // MARK: - Helpers
 
     private func ensureAddTable() throws {
-        guard let addDb else { return }
-        let sql = "CREATE TABLE IF NOT EXISTS phrases (word TEXT PRIMARY KEY, pinyin TEXT, meanings TEXT, notes TEXT, added_at REAL)"
-        if sqlite3_exec(addDb, sql, nil, nil, nil) != SQLITE_OK {
-            throw NSError(domain: "Radix", code: 10, userInfo: [NSLocalizedDescriptionKey: "Failed to create phrases_add table"])
-        }
-        // Idempotent migration: add added_at only if the column is missing.
-        if !tableHasColumn(db: addDb, table: "phrases", column: "added_at") {
-            if sqlite3_exec(addDb, "ALTER TABLE phrases ADD COLUMN added_at REAL", nil, nil, nil) != SQLITE_OK {
-                throw NSError(domain: "Radix", code: 11, userInfo: [NSLocalizedDescriptionKey: "Failed to migrate phrases_add schema"])
-            }
-        }
-        if !tableHasColumn(db: addDb, table: "phrases", column: "notes") {
-            if sqlite3_exec(addDb, "ALTER TABLE phrases ADD COLUMN notes TEXT", nil, nil, nil) != SQLITE_OK {
-                throw NSError(domain: "Radix", code: 11, userInfo: [NSLocalizedDescriptionKey: "Failed to migrate phrases_add notes schema"])
-            }
-        }
-    }
-
-    private func tableHasColumn(db: OpaquePointer?, table: String, column: String) -> Bool {
-        guard let db else { return false }
-        let escapedTable = table.replacingOccurrences(of: "\"", with: "\"\"")
-        let sql = "PRAGMA table_info(\"\(escapedTable)\")"
-        var stmt: OpaquePointer?
-        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
-            return false
-        }
-        defer { sqlite3_finalize(stmt) }
-
-        while sqlite3_step(stmt) == SQLITE_ROW {
-            // PRAGMA table_info columns: cid, name, type, notnull, dflt_value, pk
-            if let namePtr = sqlite3_column_text(stmt, 1) {
-                let name = String(cString: namePtr)
-                if name.caseInsensitiveCompare(column) == .orderedSame {
-                    return true
-                }
-            }
-        }
-        return false
-    }
-
-    private func resolvedAddDBURL(fileManager: FileManager) -> URL {
-        if let projectURL = ProjectLiveDataLocator.file(named: "phrases_add.db", fileManager: fileManager) {
-            return projectURL
-        }
-        let localDocs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        return localDocs.appendingPathComponent("phrases_add.db")
+        try PhraseAddDatabaseSchema.ensureTable(in: addDb)
     }
 
     private func resolvedActiveAddDBURL(fileManager: FileManager) throws -> URL {
-        let localURL = resolvedAddDBURL(fileManager: fileManager)
-        if ProjectLiveDataLocator.file(named: "phrases_add.db", fileManager: fileManager)?.path == localURL.path {
-            return localURL
-        }
-        if let addOverrideURL {
-            try syncWorkingAddDBFromCustomSource(addOverrideURL, to: localURL)
-            return localURL
-        }
-        if let bookmarkData = UserDefaults.standard.data(forKey: addOverrideBookmarkKey) {
-            var isStale = false
-            if let resolvedURL = try? URL(
-                resolvingBookmarkData: bookmarkData,
-                options: bookmarkResolutionOptions,
-                relativeTo: nil,
-                bookmarkDataIsStale: &isStale
-            ) {
-                if fileManager.fileExists(atPath: resolvedURL.path) {
-                    if beginAccessingSecurityScopeIfNeeded(for: resolvedURL) {
-                        addOverrideURL = resolvedURL
-                        if isStale {
-                            persistSecurityScopedBookmark(for: resolvedURL)
-                        }
-                        UserDefaults.standard.set(resolvedURL.path, forKey: addOverrideKey)
-                        try syncWorkingAddDBFromCustomSource(resolvedURL, to: localURL)
-                        return localURL
-                    }
-                } else {
-                    UserDefaults.standard.removeObject(forKey: addOverrideBookmarkKey)
-                }
-            }
-        }
-        if let saved = UserDefaults.standard.string(forKey: addOverrideKey) {
-            let url = URL(fileURLWithPath: saved)
-            if fileManager.fileExists(atPath: url.path) {
-                addOverrideURL = url
-                try syncWorkingAddDBFromCustomSource(url, to: localURL)
-                return localURL
-            }
-            UserDefaults.standard.removeObject(forKey: addOverrideKey)
-            UserDefaults.standard.removeObject(forKey: addOverrideBookmarkKey)
-        }
-        return localURL
+        try addDBLocationManager.resolvedActiveAddDBURL(fileManager: fileManager)
     }
 
     func restoreDefaultAddDB() throws {
         if let addDb { sqlite3_close(addDb) }
         addDb = nil
-        stopAccessingActiveSecurityScope()
-        addOverrideURL = nil
-        UserDefaults.standard.removeObject(forKey: addOverrideKey)
-        UserDefaults.standard.removeObject(forKey: addOverrideBookmarkKey)
+        addDBLocationManager.resetToDefault()
 
-        let localURL = resolvedAddDBURL(fileManager: .default)
+        let localURL = addDBLocationManager.currentLocalURL
         var newDb: OpaquePointer?
         if sqlite3_open_v2(localURL.path, &newDb, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) != SQLITE_OK {
             let err = String(cString: sqlite3_errmsg(newDb))
@@ -560,15 +466,8 @@ final class PhraseRepository {
         // Close current add DB
         if let addDb { sqlite3_close(addDb) }
         addDb = nil
-        stopAccessingActiveSecurityScope()
 
-        _ = beginAccessingSecurityScopeIfNeeded(for: url)
-        addOverrideURL = url
-        UserDefaults.standard.set(url.path, forKey: addOverrideKey)
-        persistSecurityScopedBookmark(for: url)
-
-        let localURL = resolvedAddDBURL(fileManager: .default)
-        try syncWorkingAddDBFromCustomSource(url, to: localURL)
+        let localURL = try addDBLocationManager.applyOverride(url)
 
         var newDb: OpaquePointer?
         if sqlite3_open_v2(localURL.path, &newDb, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) != SQLITE_OK {
@@ -578,48 +477,6 @@ final class PhraseRepository {
         addDb = newDb
         try ensureAddTable()
         invalidateReadCaches()
-    }
-
-    private func beginAccessingSecurityScopeIfNeeded(for url: URL) -> Bool {
-        if activeSecurityScopedURL?.path == url.path {
-            return true
-        }
-        stopAccessingActiveSecurityScope()
-        if url.startAccessingSecurityScopedResource() {
-            activeSecurityScopedURL = url
-            return true
-        }
-        return false
-    }
-
-    private func stopAccessingActiveSecurityScope() {
-        guard let activeSecurityScopedURL else { return }
-        activeSecurityScopedURL.stopAccessingSecurityScopedResource()
-        self.activeSecurityScopedURL = nil
-    }
-
-    private func persistSecurityScopedBookmark(for url: URL) {
-        guard let bookmarkData = try? url.bookmarkData(options: bookmarkCreationOptions, includingResourceValuesForKeys: nil, relativeTo: nil) else {
-            UserDefaults.standard.removeObject(forKey: addOverrideBookmarkKey)
-            return
-        }
-        UserDefaults.standard.set(bookmarkData, forKey: addOverrideBookmarkKey)
-    }
-
-    private var bookmarkCreationOptions: URL.BookmarkCreationOptions {
-        #if targetEnvironment(macCatalyst)
-        return [.withSecurityScope]
-        #else
-        return []
-        #endif
-    }
-
-    private var bookmarkResolutionOptions: URL.BookmarkResolutionOptions {
-        #if targetEnvironment(macCatalyst)
-        return [.withSecurityScope]
-        #else
-        return []
-        #endif
     }
 
     private func runQuery(db: OpaquePointer?, sql: String, binder: ((OpaquePointer?) -> Void)? = nil) -> [PhraseItem] {
@@ -651,59 +508,6 @@ final class PhraseRepository {
         let readonly = db.map { sqlite3_db_readonly($0, "main") } ?? -1
         let details = "\(prefix): \(message) [errcode=\(errCode) extended=\(extendedCode) readonly=\(readonly) path=\(currentAddDBPath)]"
         return NSError(domain: "Radix", code: code, userInfo: [NSLocalizedDescriptionKey: details])
-    }
-
-    private func syncWorkingAddDBFromCustomSource(_ sourceURL: URL, to localURL: URL) throws {
-        let coordinator = NSFileCoordinator()
-        var coordinationError: NSError?
-        var copied = false
-        var readError: NSError?
-
-        coordinator.coordinate(readingItemAt: sourceURL, options: [], error: &coordinationError) { coordinatedURL in
-            do {
-                let data = try Data(contentsOf: coordinatedURL)
-                let dir = localURL.deletingLastPathComponent()
-                try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true, attributes: nil)
-                try data.write(to: localURL, options: .atomic)
-                copied = true
-            } catch {
-                readError = error as NSError
-            }
-        }
-
-        if let readError {
-            throw readError
-        }
-        if let coordinationError {
-            throw coordinationError
-        }
-        if !copied {
-            throw NSError(domain: "Radix", code: 14, userInfo: [NSLocalizedDescriptionKey: "Failed to load custom phrases file."])
-        }
-    }
-
-    private func syncWorkingAddDBToCustomSourceIfNeeded() throws {
-        guard let sourceURL = addOverrideURL else { return }
-        let localURL = resolvedAddDBURL(fileManager: .default)
-        let data = try Data(contentsOf: localURL)
-        let coordinator = NSFileCoordinator()
-        var coordinationError: NSError?
-        var writeError: NSError?
-
-        coordinator.coordinate(writingItemAt: sourceURL, options: .forReplacing, error: &coordinationError) { coordinatedURL in
-            do {
-                try data.write(to: coordinatedURL, options: .atomic)
-            } catch {
-                writeError = error as NSError
-            }
-        }
-
-        if let writeError {
-            throw writeError
-        }
-        if let coordinationError {
-            throw coordinationError
-        }
     }
 
     private func mergedQueries(baseSQL: String, addSQL: String, binder: ((OpaquePointer?) -> Void)? = nil) -> [PhraseItem] {
