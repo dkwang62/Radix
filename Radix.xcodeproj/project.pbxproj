@@ -79,6 +79,8 @@
 		8500005A2F9D0001001B9AA7 /* ComponentFrequencyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000592F9D0001001B9AA7 /* ComponentFrequencyProvider.swift */; };
 		8500005C2F9D0001001B9AA7 /* ComponentIndexBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500005B2F9D0001001B9AA7 /* ComponentIndexBuilder.swift */; };
 		8500005E2F9D0001001B9AA7 /* ComponentSearchEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500005D2F9D0001001B9AA7 /* ComponentSearchEngine.swift */; };
+		850000602F9D0001001B9AA7 /* StrokePathTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500005F2F9D0001001B9AA7 /* StrokePathTransformer.swift */; };
+		850000622F9D0001001B9AA7 /* StrokeIDSParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000612F9D0001001B9AA7 /* StrokeIDSParser.swift */; };
 		859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */; };
 		864DAB762F93ADA3001B9AA7 /* ComponentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */; };
 		864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB872F93B701001B9AA7 /* RadixStore.swift */; };
@@ -242,6 +244,8 @@
 		850000592F9D0001001B9AA7 /* ComponentFrequencyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentFrequencyProvider.swift; sourceTree = "<group>"; };
 		8500005B2F9D0001001B9AA7 /* ComponentIndexBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentIndexBuilder.swift; sourceTree = "<group>"; };
 		8500005D2F9D0001001B9AA7 /* ComponentSearchEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentSearchEngine.swift; sourceTree = "<group>"; };
+		8500005F2F9D0001001B9AA7 /* StrokePathTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokePathTransformer.swift; sourceTree = "<group>"; };
+		850000612F9D0001001B9AA7 /* StrokeIDSParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeIDSParser.swift; sourceTree = "<group>"; };
 		911F85BE195D61BDA4442400 /* PhraseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseModels.swift; sourceTree = "<group>"; };
 		850000092F9D0001001B9AA7 /* BrowseGridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseGridLayout.swift; sourceTree = "<group>"; };
 		8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreExtractedHelpers.swift; sourceTree = "<group>"; };
@@ -328,6 +332,8 @@
 				850000412F9D0001001B9AA7 /* StrokeRepositories.swift */,
 				8500003F2F9D0001001B9AA7 /* StrokeSynthesisSupport.swift */,
 				850000452F9D0001001B9AA7 /* StrokeSynthesisEngine.swift */,
+				8500005F2F9D0001001B9AA7 /* StrokePathTransformer.swift */,
+				850000612F9D0001001B9AA7 /* StrokeIDSParser.swift */,
 				864DABAE2F9B0001001B9AA7 /* LicenseTextLoader.swift */,
 				5638FC4C06278901129EF9DF /* DataExportService.swift */,
 				850000472F9D0001001B9AA7 /* DataExportDatabaseBuilder.swift */,
@@ -593,6 +599,8 @@
 				850000402F9D0001001B9AA7 /* StrokeSynthesisSupport.swift in Sources */,
 				850000442F9D0001001B9AA7 /* ProjectLiveDataLocator.swift in Sources */,
 				850000462F9D0001001B9AA7 /* StrokeSynthesisEngine.swift in Sources */,
+				850000602F9D0001001B9AA7 /* StrokePathTransformer.swift in Sources */,
+				850000622F9D0001001B9AA7 /* StrokeIDSParser.swift in Sources */,
 				850000482F9D0001001B9AA7 /* DataExportDatabaseBuilder.swift in Sources */,
 				8500004A2F9D0001001B9AA7 /* DataExportArchiveBuilder.swift in Sources */,
 				8500004C2F9D0001001B9AA7 /* ScriptTextConverter.swift in Sources */,
