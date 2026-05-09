@@ -229,148 +229,21 @@ final class ComponentRepository {
         scriptClassifier.reset()
         decompositionParser.reset()
         let subtlexFreq = frequencyProvider.subtlexFrequencies()
-        subtlexLoadedCount = subtlexFreq.count
-
-        // 1. Calculate Base Ranks (1-6000)
-        let sortedByFreq = subtlexFreq
-            .filter { $0.key.count == 1 }
-            .sorted { $0.value > $1.value }
-            .prefix(6000)
-        
-        var charToRank: [String: Int] = [:]
-        for (index, pair) in sortedByFreq.enumerated() {
-            charToRank[pair.key] = index + 1
-        }
-
-        var mapped: [String: ComponentItem] = [:]
-        mapped.reserveCapacity(raw.count)
-
-        for (character, entry) in raw {
-            let meta = entry.meta
-            let lookupChar = toSimplified(character)
-            let baseRank = charToRank[lookupChar]
-            let usage = Set(entry.relatedCharacters.filter { $0.count == 1 }).count
-            
-            // 2. Assign Tier based on Rank + Utility Adjustment
-            var assignedTier = 5
-            if let rank = baseRank {
-                if rank <= 1500 { assignedTier = 1 }
-                else if rank <= 3000 { assignedTier = 2 }
-                else if rank <= 4000 { assignedTier = 3 }
-                else if rank <= 6000 { assignedTier = 4 }
-            }
-            
-            // Aggressive Utility Promotion: 
-            // If a character is a vital component (used in 15+ characters) but has a low frequency, 
-            // promote it to Tier 2 to ensure the learner doesn't skip it.
-            if assignedTier > 2 && usage >= 15 {
-                assignedTier = 2
-            }
-
-            let item = ComponentItem(
-                id: character,
-                character: character,
-                variant: meta.variant?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty,
-                additionalVariants: (meta.additionalVariants ?? [])
-                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                    .filter { !$0.isEmpty },
-                pinyin: meta.pinyin?.list ?? [],
-                definition: (meta.definition ?? "").trimmingCharacters(in: .whitespacesAndNewlines),
-                decomposition: (meta.decomposition ?? meta.idc ?? "").trimmingCharacters(in: .whitespacesAndNewlines),
-                radical: (meta.radical ?? "").trimmingCharacters(in: .whitespacesAndNewlines),
-                strokes: meta.strokes?.intValue,
-                relatedCharacters: entry.relatedCharacters,
-                etymologyHint: meta.etymology?.hint?.text ?? "",
-                etymologyDetails: meta.etymology?.details?.text ?? "",
-                notes: meta.notes?.text ?? "",
-                usageCount: usage,
-                freqPerMillion: subtlexFreq[lookupChar] ?? 0,
-                rank: baseRank,
-                tier: assignedTier
-            )
-            mapped[character] = item
-        }
-
-        byCharacter = mapped
-        allCharacters = mapped.keys.sorted()
-        knownCharacters = Set(mapped.keys)
-        usedComponents = ComponentDecompositionParser.usedComponents(from: mapped)
+        let snapshot = ComponentIndexBuilder.build(from: raw, frequencies: subtlexFreq)
+        byCharacter = snapshot.byCharacter
+        allCharacters = snapshot.allCharacters
+        knownCharacters = snapshot.knownCharacters
+        usedComponents = snapshot.usedComponents
+        subtlexLoadedCount = snapshot.subtlexLoadedCount
     }
 
     func search(query: String, scriptFilter: ScriptFilter, limit: Int = 300) -> [ComponentItem] {
-        if query.isEmpty {
-            return allCharacters
-                .compactMap { byCharacter[$0] }
-                .filter { matchesScriptFilter(item: $0, filter: scriptFilter) }
-                .prefix(limit)
-                .map { $0 }
-        }
-
-        let normalized = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        let exactPinyinQuery = normalizePinyinForSearch(query, fuzzyInitials: false)
-        let normalizedPinyinQuery = normalizePinyinForSearch(query)
-
-        if normalized.count == 1, let exact = byCharacter[normalized], matchesScriptFilter(item: exact, filter: scriptFilter) {
-            return [exact]
-        }
-
-        let directCharMatch = byCharacter[query].map { item in
-            matchesScriptFilter(item: item, filter: scriptFilter) ? [item] : []
-        } ?? []
-        let ranked = allCharacters.compactMap { key -> (item: ComponentItem, rank: Int, tokenLen: Int, token: String)? in
-            guard let item = byCharacter[key] else { return nil }
-            guard matchesScriptFilter(item: item, filter: scriptFilter) else { return nil }
-
-            let exactTokens = item.pinyin.map { normalizePinyinForSearch($0, fuzzyInitials: false) }.filter { !$0.isEmpty }
-            let exactCompact = exactTokens.joined()
-            let normalizedTokens = item.pinyin.map { normalizePinyinForSearch($0) }.filter { !$0.isEmpty }
-            let normalizedCompact = normalizedTokens.joined()
-
-            // Streamlit-like priority: exact pinyin syllable first, then prefix/contains.
-            if !exactPinyinQuery.isEmpty, let exactToken = exactTokens.first(where: { $0 == exactPinyinQuery }) {
-                return (item, 0, exactToken.count, exactToken)
-            }
-            if !exactPinyinQuery.isEmpty, let prefixToken = exactTokens.first(where: { $0.hasPrefix(exactPinyinQuery) }) {
-                return (item, 1, prefixToken.count, prefixToken)
-            }
-            if !exactPinyinQuery.isEmpty, let containsToken = exactTokens.first(where: { $0.contains(exactPinyinQuery) }) {
-                return (item, 2, containsToken.count, containsToken)
-            }
-            if !exactPinyinQuery.isEmpty, exactCompact.contains(exactPinyinQuery) {
-                return (item, 3, exactCompact.count, exactCompact)
-            }
-            if !normalizedPinyinQuery.isEmpty, let exactToken = normalizedTokens.first(where: { $0 == normalizedPinyinQuery }) {
-                return (item, 4, exactToken.count, exactToken)
-            }
-            if !normalizedPinyinQuery.isEmpty, let prefixToken = normalizedTokens.first(where: { $0.hasPrefix(normalizedPinyinQuery) }) {
-                return (item, 5, prefixToken.count, prefixToken)
-            }
-            if !normalizedPinyinQuery.isEmpty, let containsToken = normalizedTokens.first(where: { $0.contains(normalizedPinyinQuery) }) {
-                return (item, 6, containsToken.count, containsToken)
-            }
-            if !normalizedPinyinQuery.isEmpty, normalizedCompact.contains(normalizedPinyinQuery) {
-                return (item, 7, normalizedCompact.count, normalizedCompact)
-            }
-            if item.searchableText.contains(normalized) {
-                return (item, 8, 999, "")
-            }
-            return nil
-        }
-        .sorted { lhs, rhs in
-            if lhs.rank != rhs.rank { return lhs.rank < rhs.rank }
-            if lhs.tokenLen != rhs.tokenLen { return lhs.tokenLen < rhs.tokenLen }
-            
-            // Primary tie-breaker: Rank (1-6000). Ranked characters come before unranked (nil).
-            let lRank = lhs.item.rank ?? 999999
-            let rRank = rhs.item.rank ?? 999999
-            if lRank != rRank { return lRank < rRank }
-            
-            if lhs.item.usageCount != rhs.item.usageCount { return lhs.item.usageCount > rhs.item.usageCount }
-            return lhs.item.character < rhs.item.character
-        }
-        .map(\.item)
-
-        return Array((directCharMatch + ranked).orderedUnique().prefix(limit))
+        ComponentSearchEngine.search(
+            query: query,
+            allCharacters: allCharacters,
+            byCharacter: byCharacter,
+            limit: limit
+        ) { matchesScriptFilter(item: $0, filter: scriptFilter) }
     }
 
     func related(for character: String, scriptFilter: ScriptFilter, max: Int = 120) -> [ComponentItem] {
@@ -501,28 +374,13 @@ final class ComponentRepository {
     }
 
     func searchDefinitions(query: String, scriptFilter: ScriptFilter, limit: Int = 120, isStrict: Bool = false) -> [ComponentItem] {
-        let normalized = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        guard normalized.count >= 2 else { return [] }
-
-        return allCharacters.compactMap { key in
-            guard let item = byCharacter[key] else { return nil }
-            guard matchesScriptFilter(item: item, filter: scriptFilter) else { return nil }
-            
-            let definition = item.definition.lowercased()
-            if isStrict {
-                // Use a simple word boundary check for " car " vs "cart"
-                // We check if it's the start/end or surrounded by non-alphanumeric chars
-                let pattern = "\\b\(NSRegularExpression.escapedPattern(for: normalized))\\b"
-                if definition.range(of: pattern, options: .regularExpression) != nil {
-                    return item
-                }
-                return nil
-            } else {
-                return definition.contains(normalized) ? item : nil
-            }
-        }
-        .prefix(limit)
-        .map { $0 }
+        ComponentSearchEngine.searchDefinitions(
+            query: query,
+            allCharacters: allCharacters,
+            byCharacter: byCharacter,
+            limit: limit,
+            isStrict: isStrict
+        ) { matchesScriptFilter(item: $0, filter: scriptFilter) }
     }
 
     func hasCharacter(_ character: String) -> Bool {
@@ -637,10 +495,6 @@ final class ComponentRepository {
         return stripped.filter { $0.isLetter }
     }
 
-    private func normalizePinyinForSearch(_ value: String, fuzzyInitials: Bool = true) -> String {
-        PinyinSearchNormalizer.normalize(value, fuzzyInitials: fuzzyInitials)
-    }
-
     private func frequencyThenUsageSort(_ lhs: ComponentItem, _ rhs: ComponentItem) -> Bool {
         let lRank = lhs.rank ?? 999999
         let rRank = rhs.rank ?? 999999
@@ -648,24 +502,5 @@ final class ComponentRepository {
         
         if lhs.usageCount != rhs.usageCount { return lhs.usageCount > rhs.usageCount }
         return lhs.character < rhs.character
-    }
-}
-
-private extension String {
-    var nilIfEmpty: String? {
-        let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? nil : trimmed
-    }
-}
-
-private extension Array where Element: Hashable {
-    func orderedUnique() -> [Element] {
-        var seen = Set<Element>()
-        var out: [Element] = []
-        for item in self where !seen.contains(item) {
-            seen.insert(item)
-            out.append(item)
-        }
-        return out
     }
 }

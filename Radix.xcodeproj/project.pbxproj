@@ -77,6 +77,8 @@
 		850000562F9D0001001B9AA7 /* ComponentDecompositionParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000552F9D0001001B9AA7 /* ComponentDecompositionParser.swift */; };
 		850000582F9D0001001B9AA7 /* ComponentOverlayBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000572F9D0001001B9AA7 /* ComponentOverlayBuilder.swift */; };
 		8500005A2F9D0001001B9AA7 /* ComponentFrequencyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000592F9D0001001B9AA7 /* ComponentFrequencyProvider.swift */; };
+		8500005C2F9D0001001B9AA7 /* ComponentIndexBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500005B2F9D0001001B9AA7 /* ComponentIndexBuilder.swift */; };
+		8500005E2F9D0001001B9AA7 /* ComponentSearchEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500005D2F9D0001001B9AA7 /* ComponentSearchEngine.swift */; };
 		859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */; };
 		864DAB762F93ADA3001B9AA7 /* ComponentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */; };
 		864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB872F93B701001B9AA7 /* RadixStore.swift */; };
@@ -238,6 +240,8 @@
 		850000552F9D0001001B9AA7 /* ComponentDecompositionParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentDecompositionParser.swift; sourceTree = "<group>"; };
 		850000572F9D0001001B9AA7 /* ComponentOverlayBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentOverlayBuilder.swift; sourceTree = "<group>"; };
 		850000592F9D0001001B9AA7 /* ComponentFrequencyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentFrequencyProvider.swift; sourceTree = "<group>"; };
+		8500005B2F9D0001001B9AA7 /* ComponentIndexBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentIndexBuilder.swift; sourceTree = "<group>"; };
+		8500005D2F9D0001001B9AA7 /* ComponentSearchEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentSearchEngine.swift; sourceTree = "<group>"; };
 		911F85BE195D61BDA4442400 /* PhraseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseModels.swift; sourceTree = "<group>"; };
 		850000092F9D0001001B9AA7 /* BrowseGridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseGridLayout.swift; sourceTree = "<group>"; };
 		8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreExtractedHelpers.swift; sourceTree = "<group>"; };
@@ -317,6 +321,8 @@
 				850000552F9D0001001B9AA7 /* ComponentDecompositionParser.swift */,
 				850000572F9D0001001B9AA7 /* ComponentOverlayBuilder.swift */,
 				850000592F9D0001001B9AA7 /* ComponentFrequencyProvider.swift */,
+				8500005B2F9D0001001B9AA7 /* ComponentIndexBuilder.swift */,
+				8500005D2F9D0001001B9AA7 /* ComponentSearchEngine.swift */,
 				167CA0042F9C0001001B9AA7 /* CaptureOCRService.swift */,
 				864DAB982F9A0001001B9AA7 /* StrokeAnimationProvider.swift */,
 				850000412F9D0001001B9AA7 /* StrokeRepositories.swift */,
@@ -597,6 +603,8 @@
 				850000562F9D0001001B9AA7 /* ComponentDecompositionParser.swift in Sources */,
 				850000582F9D0001001B9AA7 /* ComponentOverlayBuilder.swift in Sources */,
 				8500005A2F9D0001001B9AA7 /* ComponentFrequencyProvider.swift in Sources */,
+				8500005C2F9D0001001B9AA7 /* ComponentIndexBuilder.swift in Sources */,
+				8500005E2F9D0001001B9AA7 /* ComponentSearchEngine.swift in Sources */,
 				A2A5920563DDE95E066515ED /* StrokeOrderWebView.swift in Sources */,
 				C0F73A1B704F91F0BB8E1C07 /* UnifiedPackage.swift in Sources */,
 				167CA0062F9C0001001B9AA7 /* CaptureOCRService.swift in Sources */,
