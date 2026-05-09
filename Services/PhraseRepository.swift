@@ -15,8 +15,7 @@ private let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.sel
 final class PhraseRepository {
     private var baseDb: OpaquePointer?
     private var addDb: OpaquePointer?
-    private var pinyinIndex: [(item: PhraseItem, exact: String, exactCompact: String, normalized: String, compact: String)] = []
-    private var pinyinIndexBuilt = false
+    private var pinyinSearchIndex = PhrasePinyinSearchIndex()
     private var mergedPhrasesCache: [PhraseItem]?
     private var mergedPhraseLookup: [String: PhraseItem] = [:]
     private let addDBLocationManager = PhraseAddDatabaseLocationManager()
@@ -374,30 +373,8 @@ final class PhraseRepository {
     }
 
     func searchByPinyin(term: String, limit: Int = 120) -> [PhraseItem] {
-        let exactQuery = normalizePinyinLoose(term, fuzzyInitials: false)
-        let exactCompactQuery = exactQuery.replacingOccurrences(of: " ", with: "")
-        let normalizedQuery = normalizePinyinLoose(term)
-        let compactQuery = normalizedQuery.replacingOccurrences(of: " ", with: "")
-        guard compactQuery.count >= 2 else { return [] }
-
         buildPinyinIndexIfNeeded()
-        guard !pinyinIndex.isEmpty else { return [] }
-
-        var exactMatches: [PhraseItem] = []
-        var normalizedMatches: [PhraseItem] = []
-        exactMatches.reserveCapacity(min(limit, 200))
-        normalizedMatches.reserveCapacity(min(limit, 200))
-        for row in pinyinIndex {
-            if row.exact.contains(exactQuery) || row.exactCompact.contains(exactCompactQuery) {
-                exactMatches.append(row.item)
-            } else if row.normalized.contains(normalizedQuery) || row.compact.contains(compactQuery) {
-                normalizedMatches.append(row.item)
-            }
-            if exactMatches.count + normalizedMatches.count >= limit {
-                break
-            }
-        }
-        return Array((exactMatches + normalizedMatches).prefix(limit))
+        return pinyinSearchIndex.search(term: term, limit: limit)
     }
 
     func searchByCharacters(term: String, limit: Int = 120) -> [PhraseItem] {
@@ -521,39 +498,13 @@ final class PhraseRepository {
         return Array(map.values)
     }
 
-    private func normalizePinyinForSearch(_ value: String, fuzzyInitials: Bool = true) -> String {
-        PinyinSearchNormalizer.normalize(value, fuzzyInitials: fuzzyInitials)
-    }
-
-    private func normalizePinyinLoose(_ value: String, fuzzyInitials: Bool = true) -> String {
-        PinyinSearchNormalizer.normalize(value, preservingSpaces: true, fuzzyInitials: fuzzyInitials)
-    }
-
     private func buildPinyinIndexIfNeeded() {
-        guard !pinyinIndexBuilt else { return }
-        pinyinIndexBuilt = true
-        let merged = fetchAllPhrases()
-        var built: [(item: PhraseItem, exact: String, exactCompact: String, normalized: String, compact: String)] = []
-        built.reserveCapacity(merged.count)
-        for item in merged {
-            let exact = normalizePinyinLoose(item.pinyin, fuzzyInitials: false)
-            let exactCompact = normalizePinyinForSearch(item.pinyin, fuzzyInitials: false)
-            let normalized = normalizePinyinLoose(item.pinyin)
-            let compact = normalizePinyinForSearch(item.pinyin)
-            if !exactCompact.isEmpty || !compact.isEmpty {
-                built.append((item, exact, exactCompact, normalized, compact))
-            }
-        }
-        built.sort { lhs, rhs in
-            if lhs.item.word.count != rhs.item.word.count { return lhs.item.word.count < rhs.item.word.count }
-            return lhs.item.word < rhs.item.word
-        }
-        pinyinIndex = built
+        guard !pinyinSearchIndex.isBuilt else { return }
+        pinyinSearchIndex.rebuild(with: fetchAllPhrases())
     }
 
     private func invalidateReadCaches() {
-        pinyinIndex = []
-        pinyinIndexBuilt = false
+        pinyinSearchIndex.reset()
         mergedPhrasesCache = nil
         mergedPhraseLookup = [:]
     }
