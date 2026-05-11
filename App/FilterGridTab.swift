@@ -172,4 +172,17 @@ struct FilterGridTab: View {
             }
         }
     }
+
+    @ViewBuilder
+    func browseContent(proxy: ScrollViewProxy) -> some View {
+        if isPhoneBrowseLayout {
+            browseHintIfNeeded
+        }
+
+        if let collection = store.selectedBrowseCollection {
+            imageGridContent(collection: collection, proxy: proxy)
+        } else {
+            smartGridContent(proxy: proxy)
+        }
+    }
 }

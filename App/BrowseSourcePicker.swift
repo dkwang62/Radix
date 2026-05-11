@@ -1,0 +1,95 @@
+import SwiftUI
+import UIKit
+
+extension FilterGridTab {
+    var browseSourceOptions: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            sourceOptionButton(
+                title: "Dictionary",
+                subtitle: "Full dictionary",
+                isSelected: store.selectedBrowseCollection == nil,
+                systemImage: "book"
+            ) {
+                store.selectBrowseCollection(id: nil)
+            }
+
+            sourceActionButton(
+                title: "Create from Paste",
+                subtitle: "Paste Chinese text and save it as an image source",
+                systemImage: "doc.on.clipboard"
+            ) {
+                beginManualCollection()
+            }
+
+            ForEach(store.allCollections) { collection in
+                sourceCollectionRow(collection)
+            }
+        }
+    }
+
+    func sourceActionButton(
+        title: String,
+        subtitle: String,
+        systemImage: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button {
+            action()
+        } label: {
+            SourceMenuRow(
+                title: title,
+                subtitle: subtitle,
+                systemImage: systemImage,
+                iconColor: .accentColor,
+                trailingSystemImage: "plus.circle.fill"
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    func sourceCollectionRow(_ collection: CharacterCollection) -> some View {
+        let isSelected = store.selectedBrowseCollectionID == collection.id
+        return SourceCollectionRow(
+            collection: collection,
+            isSelected: isSelected,
+            thumbnail: sourceThumbnailImage(for: collection)
+        ) {
+            store.selectBrowseCollection(id: collection.id)
+            withAnimation {
+                showBrowseSource = false
+            }
+        } onDelete: {
+            pendingDeleteCollection = collection
+        }
+    }
+
+    func sourceThumbnailImage(for collection: CharacterCollection) -> UIImage? {
+        guard let data = collection.thumbnailJPEGData else { return nil }
+        return UIImage(data: data)
+    }
+
+    func sourceOptionButton(
+        title: String,
+        subtitle: String,
+        isSelected: Bool,
+        systemImage: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button {
+            action()
+            withAnimation {
+                showBrowseSource = false
+            }
+        } label: {
+            SourceMenuRow(
+                title: title,
+                subtitle: subtitle,
+                systemImage: systemImage,
+                isSelected: isSelected,
+                iconColor: isSelected ? .accentColor : .secondary,
+                trailingSystemImage: isSelected ? "checkmark.circle.fill" : nil
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}

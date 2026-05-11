@@ -10,9 +10,31 @@ Last verified build: `xcodebuild -project Radix.xcodeproj -scheme Radix -destina
 `FilterGridTab.swift` has now been split into focused Browse extensions:
 
 - `FilterGridTab.swift` — state, layout shell, sheets, alerts
-- `FilterGridTabGrid.swift` — dictionary/image grid content, paging footer, swipe gesture, grid controls
-- `FilterGridTabSource.swift` — source row, source picker, image-source actions, collection editing helpers
-- `FilterGridTabNavigation.swift` — browse return flow, scroll restoration, tile anchors, manual collection creation
+- `BrowseSourceBar.swift` — source disclosure bar, selected image actions, read-aloud controls
+- `BrowseSourcePicker.swift` — dictionary/manual/image source picker rows
+- `BrowseDictionaryGrid.swift` — dictionary grid content, paging footer, swipe gesture, grid controls
+- `BrowseImageGrid.swift` — saved-image grid content and simplified/traditional display text
+- `BrowseScrollRestoration.swift` — browse return flow, preview restoration, tile anchors
+- `BrowseCollectionEditing.swift` — manual collection creation and image collection editing
+
+The iOS build was verified clean after this behavior-based split.
+
+`CharacterPhraseLookupSection.swift` has also been split so the reusable phrase views live in focused files:
+
+- `CharacterPhraseLookupSection.swift` — phrase lookup list, row presentation, selection/dismiss flow
+- `PhraseInfoCard.swift` — reusable detailed phrase card with animation tiles and note editing
+- `PhraseSummaryTile.swift` — compact reusable phrase summary tile
+
+The iOS build was verified clean after this continuation split.
+
+`SmartSearchTab.swift` has now been split into focused Smart Search extensions:
+
+- `SmartSearchTab.swift` — state, body shell, top-level search/reset actions
+- `SmartSearchHeader.swift` — search field, history menu, clear/search controls
+- `SmartSearchResults.swift` — results header, grid, empty-results state
+- `SmartSearchPhraseDrilldown.swift` — phrase length picker, phrase rows, character buttons
+- `SmartSearchPreview.swift` — phone preview and phrase info sheet routing
+- `SmartSearchExamples.swift` — starter examples and Apple stroke keyboard help
 
 The iOS build was verified clean after this split.
 

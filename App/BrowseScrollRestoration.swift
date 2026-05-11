@@ -1,7 +1,16 @@
 import SwiftUI
-import UIKit
 
 extension FilterGridTab {
+    @ViewBuilder
+    func phoneBrowsePreview(proxy: ScrollViewProxy) -> some View {
+        BrowsePhonePreview(
+            phrase: store.activeSidebarPhrasePreview,
+            character: store.previewCharacter,
+            onReturn: { returnToBrowse(proxy: proxy) }
+        )
+        .environmentObject(store)
+    }
+
     func prepareBrowseHintIfNeeded() {
         guard !hasShownBrowseInteractionHintRow else { return }
         showBrowseInteractionHint = true
@@ -112,48 +121,10 @@ extension FilterGridTab {
         }
     }
 
-    var browseGridDescription: String {
-        if let collection = store.selectedBrowseCollection {
-            return "\(collection.characters.count) characters"
+    @ViewBuilder
+    var browseHintIfNeeded: some View {
+        if showBrowseInteractionHint && store.showBrowseHelp {
+            browseInteractionHintRow
         }
-
-        return store.gridSortMode == .componentFrequency ?
-            "Characters most often used as components first." :
-            "Most common characters first."
-    }
-
-    func beginManualCollection() {
-        manualCollectionName = ""
-        manualCollectionText = clipboardText()
-        showBrowseSource = false
-        showManualCollectionSheet = true
-    }
-
-    func saveManualCollection() {
-        guard let collection = store.createCollection(
-            name: manualCollectionName,
-            sourceText: manualCollectionText,
-            sourceType: .manual
-        ) else { return }
-        store.selectBrowseCollection(id: collection.id)
-        manualCollectionName = ""
-        manualCollectionText = ""
-        showManualCollectionSheet = false
-    }
-
-    func clipboardText() -> String {
-        #if canImport(UIKit)
-        return UIPasteboard.general.string ?? ""
-        #else
-        return ""
-        #endif
-    }
-
-    var activeBrowseFilterCount: Int {
-        BrowseFilterSummary.activeCount(store: store)
-    }
-
-    var filterButtonTitle: String {
-        activeBrowseFilterCount > 0 ? "Filters (\(activeBrowseFilterCount))" : "Filters"
     }
 }

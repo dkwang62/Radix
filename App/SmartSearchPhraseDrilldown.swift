@@ -1,0 +1,139 @@
+import SwiftUI
+
+extension SmartSearchTab {
+    func setSearchDrilldownAnchor(_ character: String) {
+        searchPreviewCharacter = character
+        searchDetailPreviewCharacter = character
+        searchDrilldownPhrases = store.phraseMatches(for: character, length: store.phraseLength)
+    }
+
+    var initialPhraseMatchesForSelectedLength: [PhraseItem] {
+        store.filteredSmartPhraseResults.filter { $0.word.count == store.phraseLength }
+    }
+
+    var phraseLengthPicker: some View {
+        HStack {
+            Picker("Length", selection: $store.phraseLength) {
+                Text("2-char").tag(2)
+                Text("3-char").tag(3)
+                Text("4-char").tag(4)
+            }
+            .font(ResponsiveFont.subheadline)
+            .pickerStyle(.segmented)
+            .frame(maxWidth: 280)
+            Spacer()
+        }
+    }
+
+    @ViewBuilder
+    func phraseDrilldown(proxy: ScrollViewProxy) -> some View {
+        if let current = searchPreviewCharacter,
+           store.item(for: current) != nil {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Phrase Drilldown")
+                    .font(ResponsiveFont.headline)
+                Text("Preview a character from the grid to update this phrase layer. Characters inside phrases only update the preview card.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+
+                phraseLengthPicker
+
+                if searchDrilldownPhrases.isEmpty {
+                    emptyPhraseMessage("No \(store.phraseLength)-character phrase matches are available yet for \(current).")
+                } else {
+                    LazyVStack(alignment: .leading, spacing: 8) {
+                        ForEach(searchDrilldownPhrases.prefix(30)) { phrase in
+                            phraseResultRow(phrase, proxy: proxy)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    func initialPhraseMatches(proxy: ScrollViewProxy) -> some View {
+        if searchPreviewCharacter == nil && !store.filteredSmartPhraseResults.isEmpty {
+            Divider().padding(.vertical, 8)
+            Text("Phrase Matches")
+                .font(ResponsiveFont.headline)
+            phraseLengthPicker
+            if initialPhraseMatchesForSelectedLength.isEmpty {
+                emptyPhraseMessage("No \(store.phraseLength)-character phrase matches for this search.")
+            }
+            LazyVStack(alignment: .leading, spacing: 8) {
+                ForEach(initialPhraseMatchesForSelectedLength.prefix(50)) { phrase in
+                    phraseResultRow(phrase, proxy: proxy)
+                }
+            }
+        }
+    }
+
+    func emptyPhraseMessage(_ message: String) -> some View {
+        Text(message)
+            .font(ResponsiveFont.caption)
+            .foregroundStyle(.secondary)
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    func phraseResultRow(_ phrase: PhraseItem, proxy: ScrollViewProxy) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(phrase.word)
+                .font(ResponsiveFont.title3)
+                .phraseContextMenu(phrase)
+            if !phrase.pinyin.isEmpty {
+                Text(phrase.pinyin)
+                    .font(ResponsiveFont.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            if !phrase.meanings.isEmpty {
+                Text(phrase.meanings)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+            if !phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Text(phrase.notes)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+
+            phraseCharacterButtons(phrase, proxy: proxy)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .contentShape(Rectangle())
+        .onTapGesture {
+            presentPhrase(phrase)
+        }
+    }
+
+    @ViewBuilder
+    func phraseCharacterButtons(_ phrase: PhraseItem, proxy: ScrollViewProxy) -> some View {
+        let chars = phrase.word.map(String.init).filter { store.item(for: $0) != nil }
+        if !chars.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(Array(chars.enumerated()), id: \.offset) { _, ch in
+                        Button(ch) {
+                            searchDetailPreviewCharacter = ch
+                            store.preview(character: ch)
+                            withAnimation { proxy.scrollTo("searchTop", anchor: .top) }
+                        }
+                        .copyCharacterContextMenu(ch, pinyin: store.item(for: ch)?.pinyinText)
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                        .font(ResponsiveFont.body)
+                    }
+                }
+            }
+            .padding(.top, 2)
+        }
+    }
+}
