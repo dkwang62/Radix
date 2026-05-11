@@ -142,13 +142,13 @@ final class RadixStore: ObservableObject {
         }
     }
     @Published var homeTab: HomeTab = .filter
-    @Published private(set) var rootsReturnContext: RootsReturnContext?
+    @Published var rootsReturnContext: RootsReturnContext?
     @Published var previewCharacter: String? {
         didSet {
             rememberLastPreviewedCharacter(previewCharacter)
         }
     }
-    @Published private(set) var history: [String] = []
+    @Published var history: [String] = []
     @Published var showLineageExplorer: Bool = false // retained for legacy, no sheet currently
     @Published var showPaywall: Bool = false
     @Published var paywallFeatureName: String = "Pro Feature"
@@ -158,8 +158,8 @@ final class RadixStore: ObservableObject {
     @Published var searchMode: SearchMode = .smart
     @Published var scriptFilter: ScriptFilter = .any
     @Published var hasPerformedSearch: Bool = false
-    @Published private(set) var lastSearchQuery: String = ""
-    @Published private(set) var searchHistory: [String] = []
+    @Published var lastSearchQuery: String = ""
+    @Published var searchHistory: [String] = []
     
     // MARK: - DataEdit (Character Studio) State
     @Published var dataEditCharacter: String = ""
@@ -175,14 +175,14 @@ final class RadixStore: ObservableObject {
     @Published var dataEditRelatedCharacters: String = ""
     @Published var dataEditIsFavourite: Bool = false
     @Published var dataEditPhrases: [PhraseItem] = []
-    @Published private(set) var dataEditAutoSaveStatus: String = ""
+    @Published var dataEditAutoSaveStatus: String = ""
     @Published private(set) var dataEditFocusRequestID: Int = 0
     @Published private(set) var phraseEditFocusRequestID: Int = 0
     @Published private(set) var phraseEditRequestedWord: String = ""
-    private var dataEditLoadTask: Task<Void, Never>?
+    var dataEditLoadTask: Task<Void, Never>?
     /// Cache to avoid reloading heavy entries when toggling between AI/Data.
-    private var dataEditCache: [String: (entry: RawComponentEntry, phrases: [PhraseItem], isFav: Bool)] = [:]
-    private var dataEditEtymologyType: String?
+    var dataEditCache: [String: (entry: RawComponentEntry, phrases: [PhraseItem], isFav: Bool)] = [:]
+    var dataEditEtymologyType: String?
     @Published var dataEditVariant: String = ""
     @Published var dataEditAdditionalVariants: String = ""  // comma-separated
     
@@ -273,12 +273,12 @@ final class RadixStore: ObservableObject {
     }
     // Remembered bar state. The older rootBreadcrumb name is retained because
     // routing and saved behavior were built around that identifier.
-    @Published private(set) var rootBreadcrumb: [String] = []
-    @Published private(set) var rootBreadcrumbIndex: Int = 0
-    @Published private(set) var rootDerivatives: [ComponentItem] = []
-    @Published private(set) var rootDerivativesTotal: Int = 0
-    @Published private(set) var availableRadicalFilters: [String] = ["none"]
-    @Published private(set) var availableStructureFilters: [String] = ["none"]
+    @Published var rootBreadcrumb: [String] = []
+    @Published var rootBreadcrumbIndex: Int = 0
+    @Published var rootDerivatives: [ComponentItem] = []
+    @Published var rootDerivativesTotal: Int = 0
+    @Published var availableRadicalFilters: [String] = ["none"]
+    @Published var availableStructureFilters: [String] = ["none"]
     @Published var gridSortMode: GridSortMode = .characterFrequency {
         didSet {
             guard oldValue != gridSortMode else { return }
@@ -316,55 +316,55 @@ final class RadixStore: ObservableObject {
             persistSelectedAICollection()
         }
     }
-    @Published private(set) var gridFilteredAllCount: Int = 0
-    @Published private(set) var gridFilteredComponentCount: Int = 0
+    @Published var gridFilteredAllCount: Int = 0
+    @Published var gridFilteredComponentCount: Int = 0
     @Published var gridPage: Int = 0
-    @Published private(set) var allGridItems: [ComponentItem] = []
-    @Published private(set) var allReadingOrderCharacters: [String] = []
+    @Published var allGridItems: [ComponentItem] = []
+    @Published var allReadingOrderCharacters: [String] = []
     
     // MARK: - Computed Result Sets
-    @Published private(set) var results: [ComponentItem] = []
-    @Published private(set) var definitionCharacterResults: [ComponentItem] = []
-    @Published private(set) var definitionPhraseResults: [PhraseItem] = []
-    @Published private(set) var smartPhraseResults: [PhraseItem] = []
-    @Published private(set) var lineageParents: [ComponentItem] = []
-    @Published private(set) var lineageDerivatives: [ComponentItem] = []
-    @Published private(set) var sortedLineageDerivatives: [ComponentItem] = []
-    @Published private(set) var phoneticFamily: [ComponentItem] = []
-    @Published private(set) var semanticFamily: [ComponentItem] = []
-    @Published private(set) var structureAnalysis: ComponentStructureAnalysis?
+    @Published var results: [ComponentItem] = []
+    @Published var definitionCharacterResults: [ComponentItem] = []
+    @Published var definitionPhraseResults: [PhraseItem] = []
+    @Published var smartPhraseResults: [PhraseItem] = []
+    @Published var lineageParents: [ComponentItem] = []
+    @Published var lineageDerivatives: [ComponentItem] = []
+    @Published var sortedLineageDerivatives: [ComponentItem] = []
+    @Published var phoneticFamily: [ComponentItem] = []
+    @Published var semanticFamily: [ComponentItem] = []
+    @Published var structureAnalysis: ComponentStructureAnalysis?
     @Published var lineageSortMode: LineageSortMode = .usage
     @Published var lineagePage: Int = 0
-    @Published private(set) var related: [ComponentItem] = []
-    @Published private(set) var phrases: [PhraseItem] = []
+    @Published var related: [ComponentItem] = []
+    @Published var phrases: [PhraseItem] = []
     @Published var phraseLength: Int = 2
-    @Published private(set) var sharedComponentPeers: [ComponentItem] = []
-    @Published private(set) var sharedPeersByComponent: [String: [ComponentItem]] = [:]
-    @Published private(set) var addedPhrases: [PhraseItem] = []
+    @Published var sharedComponentPeers: [ComponentItem] = []
+    @Published var sharedPeersByComponent: [String: [ComponentItem]] = [:]
+    @Published var addedPhrases: [PhraseItem] = []
     
     // MARK: - User Settings & Variances
-    @Published private(set) var favorites: Set<String> = []
-    @Published private(set) var favoriteAddedDates: [String: Date] = [:]
-    @Published private(set) var favoritePhrases: Set<String> = []
-    @Published private(set) var favoritePhraseDates: [String: Date] = [:]
-    @Published private(set) var overlayAddedDates: [String: Date] = [:]
+    @Published var favorites: Set<String> = []
+    @Published var favoriteAddedDates: [String: Date] = [:]
+    @Published var favoritePhrases: Set<String> = []
+    @Published var favoritePhraseDates: [String: Date] = [:]
+    @Published var overlayAddedDates: [String: Date] = [:]
     @Published var speechEnabled: Bool = true {
         didSet { UserDefaults.standard.set(speechEnabled, forKey: speechEnabledKey) }
     }
     @Published var activeFavouriteCharacter: String? = nil
-    @Published private(set) var dictionaryVariances: [DictionaryVariance] = []
-    @Published private(set) var phraseVariances: [DictionaryVariance] = []
-    @Published private(set) var addedDictionaryCharacters: [String] = []
-    @Published private(set) var editedDictionaryCharacters: [String] = []
-    @Published private(set) var baseDictionaryCoreEditedCharacters: [String] = []
-    @Published private(set) var dictionaryCharactersWithNotes: [String] = []
+    @Published var dictionaryVariances: [DictionaryVariance] = []
+    @Published var phraseVariances: [DictionaryVariance] = []
+    @Published var addedDictionaryCharacters: [String] = []
+    @Published var editedDictionaryCharacters: [String] = []
+    @Published var baseDictionaryCoreEditedCharacters: [String] = []
+    @Published var dictionaryCharactersWithNotes: [String] = []
     /// O(1) lookup companion for `editedDictionaryCharacters`. Always kept in sync.
-    @Published private(set) var editedDictionaryCharactersSet: Set<String> = []
-    @Published private(set) var changedDictionaryCharacters: [String] = []
+    @Published var editedDictionaryCharactersSet: Set<String> = []
+    @Published var changedDictionaryCharacters: [String] = []
     @Published var quickEditDestination: QuickEditDestination? = nil
-    @Published private(set) var allCollections: [CharacterCollection] = []
+    @Published var allCollections: [CharacterCollection] = []
     @Published var activeSubject: ActiveSubject? = nil
-    @Published private(set) var promptAutosaveStatus: String = "Changes save automatically."
+    @Published var promptAutosaveStatus: String = "Changes save automatically."
     
     // MARK: - iPhone UI State
     @Published var showiPhoneDetail: Bool = false
@@ -381,60 +381,75 @@ final class RadixStore: ObservableObject {
     }
 
     // MARK: - Repositories & Helpers
-    private let componentRepo = ComponentRepository()
-    private let phraseRepo = PhraseRepository()
+    let componentRepo = ComponentRepository()
+    let phraseRepo = PhraseRepository()
     private let entitlement = EntitlementManager()
-    private let speechService = CharacterSpeechService()
-    private let favoritesKey = "radix.favorites"
-    private let favoriteEntriesKey = "radix.favoriteEntries"
-    private let favoritePhrasesKey = "radix.favoritePhrases"
-    private let favoritePhraseDatesKey = "radix.favoritePhraseDates"
-    private let overlayAddedDatesKey = "radix.overlayAddedDates"
+    let speechService = CharacterSpeechService()
+    let favoritesKey = "radix.favorites"
+    let favoriteEntriesKey = "radix.favoriteEntries"
+    let favoritePhrasesKey = "radix.favoritePhrases"
+    let favoritePhraseDatesKey = "radix.favoritePhraseDates"
+    let overlayAddedDatesKey = "radix.overlayAddedDates"
     private let speechEnabledKey = "radix.speechEnabled"
     private let speakOnSelectionKey = "radix.speakOnSelection"
     private let speakOnPreviewKey = "radix.speakOnPreview"
-    private let promptConfigKey = "radix.promptConfig"
-    private let promptTaskSelectionKey = "radix.promptSelectedTaskIDs"
-    private let defaultAIPresetKey = "radix.defaultAIPreset"
-    private let customAIURLKey = "radix.customAIURL"
-    private let collectionsKey = "radix.characterCollections"
-    private let selectedAICollectionKey = "radix.selectedAICollectionID"
+    let promptConfigKey = "radix.promptConfig"
+    let promptTaskSelectionKey = "radix.promptSelectedTaskIDs"
+    let defaultAIPresetKey = "radix.defaultAIPreset"
+    let customAIURLKey = "radix.customAIURL"
+    let collectionsKey = "radix.characterCollections"
+    let selectedAICollectionKey = "radix.selectedAICollectionID"
     private let lastPreviewCharacterKey = "radix.lastPreviewCharacter"
-    private let searchHistoryKey = "radix.searchHistory"
-    private let rootBreadcrumbKey = "radix.rootBreadcrumb"
+    let searchHistoryKey = "radix.searchHistory"
+    let rootBreadcrumbKey = "radix.rootBreadcrumb"
     private var pendingSearchWorkItem: DispatchWorkItem?
-    private var pendingDatasetAutosaveWorkItem: DispatchWorkItem?
-    private var pendingGridRecomputeWorkItem: DispatchWorkItem?
-    private var isApplyingDatasetEntry = false
-    private var allCharactersCache: [ComponentItem] = []
-    private var selectedBrowseCollectionCharacters: Set<String>? = nil
-    private var phraseCache: [String: [PhraseItem]] = [:]
-    private var imagePhraseContext: ImagePhraseContext?
-    private var imagePhraseHighlightOffsets: Set<Int> = []
+    var pendingDatasetAutosaveWorkItem: DispatchWorkItem?
+    var pendingGridRecomputeWorkItem: DispatchWorkItem?
+    var isApplyingDatasetEntry = false
+    var allCharactersCache: [ComponentItem] = []
+    var selectedBrowseCollectionCharacters: Set<String>? = nil
+    var phraseCache: [String: [PhraseItem]] = [:]
+    var rootsDerivativesCache: [RootsCacheKey: RootsDerivativesCacheValue] = [:]
+
+    struct RootsCacheKey: Hashable {
+        let character: String
+        let script: ScriptFilter
+        let minStroke: Int
+        let maxStroke: Int
+        let radical: String
+        let structure: String
+    }
+
+    struct RootsDerivativesCacheValue {
+        let items: [ComponentItem]
+        let total: Int
+    }
+    var imagePhraseContext: ImagePhraseContext?
+    var imagePhraseHighlightOffsets: Set<Int> = []
     // Keep phrase-origin highlight state in the store, not in Browse UI views.
     // iPhone phrase previews can drill into component characters; when returning
     // to Browse, this anchor restores the original full phrase highlight instead
     // of leaving the last previewed character highlighted. Future refactors should
     // preserve this store-level ownership so layout/navigation changes do not
     // break phrase highlighting.
-    private var anchoredImagePhraseContext: ImagePhraseContext?
-    private var anchoredImagePhraseHighlightOffsets: Set<Int> = []
-    private var anchoredImagePhraseWord: String?
-    private var anchoredImagePhraseCollectionID: UUID?
-    private var imagePhraseHighlightStateByCollectionID: [UUID: ImagePhraseHighlightState] = [:]
-    @Published private var imagePhraseHighlightRevision: Int = 0
-    @Published private(set) var imageBrowsePhrasePreview: PhraseItem?
-    @Published private(set) var sidebarPhrasePreview: PhraseItem?
-    @Published private(set) var pendingBrowseScrollTarget: BrowseScrollTarget?
+    var anchoredImagePhraseContext: ImagePhraseContext?
+    var anchoredImagePhraseHighlightOffsets: Set<Int> = []
+    var anchoredImagePhraseWord: String?
+    var anchoredImagePhraseCollectionID: UUID?
+    var imagePhraseHighlightStateByCollectionID: [UUID: ImagePhraseHighlightState] = [:]
+    @Published var imagePhraseHighlightRevision: Int = 0
+    @Published var imageBrowsePhrasePreview: PhraseItem?
+    @Published var sidebarPhrasePreview: PhraseItem?
+    @Published var pendingBrowseScrollTarget: BrowseScrollTarget?
     @Published var browseHighlightedCharacter: String?
-    @Published private(set) var browseMemoryHighlightCollectionID: UUID?
-    @Published private(set) var browseMemoryHighlightOffsets: Set<Int> = []
-    private var browseMemoryHighlightedItem: String?
-    private let imagePhraseHighlightLengths = [2, 3, 4]
+    @Published var browseMemoryHighlightCollectionID: UUID?
+    @Published var browseMemoryHighlightOffsets: Set<Int> = []
+    var browseMemoryHighlightedItem: String?
+    let imagePhraseHighlightLengths = [2, 3, 4]
     var suppressHelpReset = false
     @Published private(set) var loadingError: String?
     @Published private(set) var dataEditSavePath: String = ""
-    @Published private(set) var addPhrasesPath: String = ""
+    @Published var addPhrasesPath: String = ""
     @Published var showBrowseHelp: Bool = true
     @Published var showComponentHelp: Bool = true
     @Published var activeCaptureDraft = CaptureDraft()
@@ -508,1724 +523,6 @@ final class RadixStore: ObservableObject {
         showiPhoneDetail = false
     }
 
-    // MARK: - Search & Navigation
-    
-    func performSearch(customQuery: String? = nil, recordHistory: Bool = true) {
-        let targetQuery = customQuery ?? query
-        let trimmed = targetQuery.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        guard !trimmed.isEmpty else {
-            clearSearch()
-            return
-        }
-
-        hasPerformedSearch = true
-        lastSearchQuery = trimmed
-        if recordHistory {
-            appendSearchHistory(trimmed)
-        }
-
-        // Detect Exact English:
-        // 1. Starts with '=' (e.g. =car)
-        // 2. Enclosed in quotes (straight or curly)
-        let hasEqualPrefix = trimmed.hasPrefix("=")
-        let hasQuotes = (trimmed.hasPrefix("'") && trimmed.hasSuffix("'")) ||
-                        (trimmed.hasPrefix("\"") && trimmed.hasSuffix("\"")) ||
-                        (trimmed.hasPrefix("‘") && trimmed.hasSuffix("’")) ||
-                        (trimmed.hasPrefix("“") && trimmed.hasSuffix("”"))
-        
-        let isForcedEnglish = hasEqualPrefix || hasQuotes
-        
-        let searchQuery: String = {
-            if hasEqualPrefix {
-                return String(trimmed.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
-            } else if hasQuotes {
-                return String(trimmed.dropFirst().dropLast()).trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-            return trimmed
-        }()
-
-        switch searchMode {
-        case .smart:
-            if isForcedEnglish {
-                results = componentRepo.searchDefinitions(query: searchQuery, scriptFilter: .any, isStrict: true)
-                smartPhraseResults = phraseRepo.searchByDefinition(term: searchQuery, isStrict: true)
-                definitionCharacterResults = []
-                definitionPhraseResults = []
-            } else {
-                results = componentRepo.search(query: searchQuery, scriptFilter: .any)
-                let meaningPhrases = searchQuery.count >= 2
-                    ? phraseRepo.searchByDefinition(term: searchQuery)
-                    : []
-                let pinyinPhrases = normalizedCompactQuery(searchQuery).count > 2
-                    ? phraseRepo.searchByPinyin(term: searchQuery)
-                    : []
-                smartPhraseResults = mergePhraseResults(primary: meaningPhrases, secondary: pinyinPhrases)
-                definitionCharacterResults = []
-                definitionPhraseResults = []
-            }
-        case .definition:
-            definitionCharacterResults = componentRepo.searchDefinitions(query: searchQuery, scriptFilter: .any, isStrict: isForcedEnglish)
-            definitionPhraseResults = phraseRepo.searchByDefinition(term: searchQuery, isStrict: isForcedEnglish)
-            smartPhraseResults = []
-            results = []
-        }
-        
-        if customQuery == nil {
-            query = ""
-        }
-    }
-
-    func clearSearch() {
-        results = []
-        smartPhraseResults = []
-        definitionCharacterResults = []
-        definitionPhraseResults = []
-        hasPerformedSearch = false
-    }
-
-    func clearSearchHistory() {
-        searchHistory = []
-        UserDefaults.standard.removeObject(forKey: searchHistoryKey)
-    }
-
-    func showPaywall(for feature: EntitlementManager.FeatureGate) {
-        paywallFeatureName = feature.rawValue
-        showPaywall = true
-    }
-
-    var speechMenuSymbolName: String {
-        if speechEnabled {
-            return "speaker.wave.2"
-        }
-        return "speaker.slash"
-    }
-
-    func select(character: String, announce: Bool = true) {
-        let trimmedCharacter = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedCharacter.count == 1 else { return }
-        activeSubject = .character(trimmedCharacter)
-
-        if route == .capture {
-            previewCharacter = trimmedCharacter
-            refreshPhrases(for: trimmedCharacter)
-            pushRootBreadcrumb(trimmedCharacter)
-            showiPhoneDetail = false
-            if announce && speechEnabled {
-                speechService.speak(trimmedCharacter)
-            }
-            return
-        }
-
-        // 1. Instant UI update for the active preview
-        previewCharacter = trimmedCharacter
-        #if targetEnvironment(macCatalyst)
-        showiPhoneDetail = true
-        #else
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            if route == .lineage || route == .search {
-                // Roots or Search tabs: keep user in the tab (no navigation push)
-                showiPhoneDetail = false
-            } else {
-                showiPhoneDetail = true
-            }
-        } else {
-            showiPhoneDetail = true
-        }
-        #endif
-        if !suppressHelpReset {
-            showBrowseHelp = false
-            showComponentHelp = false
-        }
-        pushRootBreadcrumb(trimmedCharacter)
-        
-        // 2. Clear previous data instantly to prevent showing old info
-        phrases = []
-        related = []
-        lineageParents = []
-        lineageDerivatives = []
-        
-        // 3. Load heavy data in background to prevent sluggishness
-        Task {
-            let derivatives = componentRepo.related(for: trimmedCharacter, scriptFilter: scriptFilter)
-            let parents = componentRepo.components(for: trimmedCharacter, scriptFilter: scriptFilter)
-            let phonetic = componentRepo.pronunciationFamily(for: trimmedCharacter).compactMap { componentRepo.byCharacter[$0] }
-            let semantic = componentRepo.semanticFamily(for: trimmedCharacter).compactMap { componentRepo.byCharacter[$0] }
-            let analysis = componentRepo.analyzeStructure(for: trimmedCharacter)
-            
-            await MainActor.run {
-                // Ensure we are still on the same character before applying results
-                guard previewCharacter == trimmedCharacter else { return }
-                
-                self.lineageParents = parents
-                self.lineageDerivatives = derivatives
-                self.sortedLineageDerivatives = derivatives.sorted(by: frequencySortPredicate)
-                self.phoneticFamily = phonetic
-                self.semanticFamily = semantic
-                self.structureAnalysis = analysis
-                self.lineagePage = 0
-                self.related = derivatives
-                
-                self.refreshPhrases(for: trimmedCharacter)
-            }
-        }
-
-        // Roots data reflects the active preview.
-        loadSharedComponentPeers(for: trimmedCharacter)
-        loadSharedPeersByComponent(for: trimmedCharacter)
-        loadRootDerivatives(for: trimmedCharacter)
-        // The Remembered bar tracks explicit selections globally.
-
-        if announce && speechEnabled {
-            speechService.speak(trimmedCharacter)
-        }
-    }
-
-    func preview(character: String, announce: Bool = true, preservePhraseContext: Bool = false) {
-        activeSubject = .character(character)
-        let shouldPreservePhraseHighlight = preservePhraseContext || shouldPreserveBrowseImagePhraseHighlight
-        if !shouldPreservePhraseHighlight {
-            imagePhraseContext = nil
-            imagePhraseHighlightOffsets = []
-            clearAnchoredImagePhraseHighlight()
-            imageBrowsePhrasePreview = nil
-            sidebarPhrasePreview = nil
-            imagePhraseHighlightRevision += 1
-        }
-        pushRootBreadcrumb(character)
-        if route == .capture {
-            previewCharacter = character
-            refreshPhrases(for: character)
-            showiPhoneDetail = false
-            if announce && speechEnabled {
-                speechService.speak(character)
-            }
-            return
-        }
-
-        #if targetEnvironment(macCatalyst)
-        // Mac: Keep distinction
-        previewCharacter = character
-        refreshPhrases()
-        if homeTab == .dataEdit {
-            loadDataEditEntry(for: character)
-        }
-        showiPhoneDetail = true
-        #else
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            // iPhone: Stay within current tab without pushing legacy views
-            if route == .search {
-                // Both Smart Search and Browse tabs should keep user in place
-                browsePreview(character: character, announce: announce, preservePhraseContext: preservePhraseContext)
-            } else if route == .lineage {
-                // Roots tab: preview only; do not push detail or Remembered state.
-                previewCharacter = character
-                refreshPhrases(for: character)
-                showiPhoneDetail = false
-            } else if route == .aiLink || route == .favourites {
-                // AI Link and Favorites should preview in-place and let the
-                // shared header handle promotion to a selection.
-                previewCharacter = character
-                refreshPhrases(for: character)
-                showiPhoneDetail = false
-            } else {
-                // Other tabs: behave like select (opens detail)
-                select(character: character)
-            }
-        } else {
-            // iPad: Keep distinction (Desktop-like)
-            previewCharacter = character
-            refreshPhrases()
-            if homeTab == .dataEdit {
-                loadDataEditEntry(for: character)
-            }
-            showiPhoneDetail = true
-        }
-        #endif
-
-        if announce && speechEnabled {
-            speechService.speak(character)
-        }
-    }
-
-    /// iPhone Browse: preview without pushing detail
-    func browsePreview(character: String, announce: Bool = true, preservePhraseContext: Bool = false) {
-        let shouldPreservePhraseHighlight = preservePhraseContext || shouldPreserveBrowseImagePhraseHighlight
-        if !shouldPreservePhraseHighlight {
-            imagePhraseContext = nil
-            imagePhraseHighlightOffsets = []
-            clearAnchoredImagePhraseHighlight()
-            imageBrowsePhrasePreview = nil
-            sidebarPhrasePreview = nil
-            imagePhraseHighlightRevision += 1
-        }
-        pushRootBreadcrumb(character)
-        previewCharacter = character
-        showiPhoneDetail = false
-        // Lightweight refresh for preview context
-        refreshPhrases(for: character)
-        showBrowseHelp = false
-        showComponentHelp = false
-
-        if announce && speechEnabled {
-            speechService.speak(character)
-        }
-    }
-
-    private var shouldPreserveBrowseImagePhraseHighlight: Bool {
-        guard route == .search,
-              homeTab == .filter,
-              selectedBrowseCollection != nil,
-              !activeImagePhraseHighlightOffsets.isEmpty
-        else { return false }
-        return true
-    }
-
-    private var activeImagePhraseHighlightOffsets: Set<Int> {
-        if !anchoredImagePhraseHighlightOffsets.isEmpty {
-            return anchoredImagePhraseHighlightOffsets
-        }
-        if imagePhraseHighlightOffsets.count > 1 {
-            return imagePhraseHighlightOffsets
-        }
-        return []
-    }
-
-    private func anchorImagePhraseHighlight(context: ImagePhraseContext?, offsets: Set<Int>) {
-        guard let context, offsets.count > 1 else { return }
-        anchoredImagePhraseContext = context
-        anchoredImagePhraseHighlightOffsets = offsets
-        anchoredImagePhraseCollectionID = context.collectionID
-    }
-
-    private func anchorImagePhraseHighlight(phraseWord: String, context: ImagePhraseContext?, offsets: Set<Int>) {
-        anchorImagePhraseHighlight(context: context, offsets: offsets)
-        if offsets.count > 1 {
-            anchoredImagePhraseWord = phraseStorageWord(phraseWord)
-        }
-    }
-
-    private func clearAnchoredImagePhraseHighlight() {
-        anchoredImagePhraseContext = nil
-        anchoredImagePhraseHighlightOffsets = []
-        anchoredImagePhraseWord = nil
-        anchoredImagePhraseCollectionID = nil
-    }
-
-    private func restoreAnchoredImagePhraseHighlightIfNeeded() {
-        guard let collection = selectedBrowseCollection,
-              let collectionID = anchoredImagePhraseCollectionID,
-              collection.id == collectionID
-        else { return }
-
-        if let word = anchoredImagePhraseWord {
-            let offsets = phraseHighlightOffsets(in: collection, word: word)
-            if !offsets.isEmpty {
-                let context = phraseHighlightContext(in: collection, offsets: offsets)
-                imagePhraseContext = context
-                imagePhraseHighlightOffsets = offsets
-                anchoredImagePhraseContext = context
-                anchoredImagePhraseHighlightOffsets = offsets
-                imagePhraseHighlightRevision += 1
-                return
-            }
-        }
-
-        guard let context = anchoredImagePhraseContext,
-              !anchoredImagePhraseHighlightOffsets.isEmpty
-        else { return }
-        imagePhraseContext = context
-        imagePhraseHighlightOffsets = anchoredImagePhraseHighlightOffsets
-        imagePhraseHighlightRevision += 1
-    }
-
-    private func phraseHighlightOffsets(in collection: CharacterCollection, word: String) -> Set<Int> {
-        let lookupCharacters = collection.characters.map { phraseLookupTarget(for: $0) }
-        let lookupWord = phraseLookupTarget(for: phraseStorageWord(word))
-        return BrowseMemoryHighlighter.matches(in: lookupCharacters, item: lookupWord).offsets
-    }
-
-    private func phraseHighlightContext(in collection: CharacterCollection, offsets: Set<Int>) -> ImagePhraseContext? {
-        if let context = anchoredImagePhraseContext,
-           context.collectionID == collection.id,
-           offsets.contains(context.offset),
-           collection.characters.indices.contains(context.offset) {
-            let character = collection.characters[context.offset]
-            return imagePhraseContext(for: character, offset: context.offset) ?? context
-        }
-
-        guard let offset = offsets.sorted().first,
-              collection.characters.indices.contains(offset)
-        else { return nil }
-        return imagePhraseContext(for: collection.characters[offset], offset: offset)
-    }
-
-    func previewPhraseCardCharacter(_ character: String, in phrase: PhraseItem, announce: Bool = false) {
-        guard route == .search,
-              homeTab == .filter,
-              let collection = selectedBrowseCollection
-        else {
-            preview(character: character, announce: announce)
-            return
-        }
-
-        let existingContext = imagePhraseContext
-        let existingOffsets = imagePhraseHighlightOffsets
-        let phraseOffsets = phraseHighlightOffsets(in: collection, word: phrase.word)
-
-        dismissSidebarPhrasePreview()
-        browsePreview(character: character, announce: announce, preservePhraseContext: true)
-
-        let offsets = phraseOffsets.isEmpty ? existingOffsets : phraseOffsets
-        guard !offsets.isEmpty else { return }
-
-        let contextOffset: Int?
-        if let existingContext,
-           existingContext.collectionID == collection.id,
-           collection.characters.indices.contains(existingContext.offset) {
-            contextOffset = existingContext.offset
-        } else {
-            contextOffset = offsets.sorted().first { collection.characters.indices.contains($0) }
-        }
-
-        if let contextOffset {
-            let contextCharacter = collection.characters[contextOffset]
-            imagePhraseContext = imagePhraseContext(for: contextCharacter, offset: contextOffset) ?? existingContext
-        }
-        imagePhraseHighlightOffsets = offsets
-        anchorImagePhraseHighlight(phraseWord: phrase.word, context: imagePhraseContext, offsets: offsets)
-        imagePhraseHighlightRevision += 1
-    }
-
-    func previewImageCharacter(_ character: String, offset: Int, announce: Bool = true) {
-        clearBrowseMemoryHighlight()
-        clearAnchoredImagePhraseHighlight()
-        let context = imagePhraseContext(for: character, offset: offset)
-        imagePhraseContext = context
-        imagePhraseHighlightOffsets = context == nil ? [] : [offset]
-        imageBrowsePhrasePreview = nil
-        sidebarPhrasePreview = nil
-        imagePhraseHighlightRevision += 1
-        preview(character: character, announce: announce, preservePhraseContext: context != nil)
-    }
-
-    func handleImageCharacterTap(_ character: String, offset: Int) -> Bool {
-        if handleMemoryHighlightedImageTap(character: character, offset: offset) {
-            return true
-        }
-
-        clearBrowseMemoryHighlight()
-        let context = imagePhraseContext(for: character, offset: offset)
-        guard let context else {
-            previewImageCharacter(character, offset: offset)
-            return true
-        }
-
-        let sameHighlightedTarget = imagePhraseContext == context && imagePhraseHighlightOffsets.contains(offset)
-        if sameHighlightedTarget, imageBrowsePhrasePreview != nil {
-            previewImageCharacter(character, offset: offset)
-            return true
-        }
-
-        let matches = imagePhraseMatches(for: context)
-        guard !matches.isEmpty else {
-            previewImageCharacter(character, offset: offset)
-            return true
-        }
-
-        if sameHighlightedTarget {
-            let match = preferredImagePhraseMatch(from: matches, targetOffset: offset)
-            sidebarPhrasePreview = nil
-            imageBrowsePhrasePreview = match.phrase
-            previewCharacter = character
-            pushPhraseBreadcrumb(match.phrase)
-            showBrowseHelp = false
-            showComponentHelp = false
-            if speechEnabled {
-                speechService.speak(match.phrase.word)
-            }
-            return true
-        }
-
-        imagePhraseContext = context
-        imageBrowsePhrasePreview = nil
-        sidebarPhrasePreview = nil
-        updateImagePhraseHighlights(context: context, matches: matches)
-        return false
-    }
-
-    private func handleMemoryHighlightedImageTap(character: String, offset: Int) -> Bool {
-        guard let collection = selectedBrowseCollection,
-              browseMemoryHighlightCollectionID == collection.id,
-              browseMemoryHighlightOffsets.contains(offset),
-              let highlightedItem = browseMemoryHighlightedItem,
-              !highlightedItem.isEmpty
-        else { return false }
-
-        if highlightedItem.count == 1 {
-            previewImageCharacter(character, offset: offset)
-            return true
-        }
-
-        guard let phrase = mergedPhrase(for: highlightedItem) else { return false }
-
-        let highlightedOffsets = browseMemoryHighlightOffsets
-        clearBrowseMemoryHighlight()
-        imagePhraseContext = imagePhraseContext(for: character, offset: offset)
-        imagePhraseHighlightOffsets = highlightedOffsets
-        anchorImagePhraseHighlight(phraseWord: phrase.word, context: imagePhraseContext, offsets: highlightedOffsets)
-        imageBrowsePhrasePreview = phrase
-        sidebarPhrasePreview = nil
-        previewCharacter = character
-        imagePhraseHighlightRevision += 1
-        pushPhraseBreadcrumb(phrase)
-        showBrowseHelp = false
-        showComponentHelp = false
-        if speechEnabled {
-            speechService.speak(phrase.word)
-        }
-        return true
-    }
-
-    func clearBrowsePreview() {
-        previewCharacter = nil
-        imageBrowsePhrasePreview = nil
-        sidebarPhrasePreview = nil
-    }
-
-    func returnToBrowseGrid() {
-        // Restore the phrase anchor before clearing preview state. This keeps the
-        // image grid aligned with the originating memory-strip phrase after a user
-        // previews one of that phrase's component characters.
-        restoreAnchoredImagePhraseHighlightIfNeeded()
-        prepareBrowseReturnScrollTarget()
-        clearBrowsePreview()
-        showiPhoneDetail = false
-    }
-
-    func highlightBrowseDictionaryCharacter(_ character: String?) {
-        browseHighlightedCharacter = character
-    }
-
-    func clearBrowseMemoryHighlight() {
-        browseMemoryHighlightCollectionID = nil
-        browseMemoryHighlightOffsets = []
-        browseMemoryHighlightedItem = nil
-    }
-
-    @discardableResult
-    func highlightMemoryMatchesInCurrentBrowseSource(_ item: String) -> Bool {
-        let key = item.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard route == .search,
-              homeTab == .filter,
-              let collection = selectedBrowseCollection,
-              !key.isEmpty
-        else {
-            clearBrowseMemoryHighlight()
-            return false
-        }
-
-        let characters = collection.characters
-        let lookupCharacters = characters.map { phraseLookupTarget(for: $0) }
-        let lookupKey = phraseLookupTarget(for: key)
-        imagePhraseContext = nil
-        imagePhraseHighlightOffsets = []
-        clearAnchoredImagePhraseHighlight()
-        imageBrowsePhrasePreview = nil
-        imagePhraseHighlightRevision += 1
-
-        let result = BrowseMemoryHighlighter.matches(in: lookupCharacters, item: lookupKey)
-        let offsets = result.offsets
-
-        guard !offsets.isEmpty else {
-            clearBrowseMemoryHighlight()
-            return false
-        }
-
-        browseMemoryHighlightCollectionID = collection.id
-        browseMemoryHighlightOffsets = offsets
-        browseMemoryHighlightedItem = key
-        if let firstOffset = result.firstOffset {
-            pendingBrowseScrollTarget = BrowseScrollTarget(
-                collectionID: collection.id,
-                character: characters.indices.contains(firstOffset) ? characters[firstOffset] : nil,
-                offset: firstOffset
-            )
-        }
-        return true
-    }
-
-    func isBrowseMemoryHighlighted(collectionID: UUID, offset: Int) -> Bool {
-        browseMemoryHighlightCollectionID == collectionID && browseMemoryHighlightOffsets.contains(offset)
-    }
-
-    func prepareBrowseReturnScrollTarget() {
-        let phraseCharacter = activeSidebarPhrasePreview?.word.first.map(String.init)
-        let targetCharacter = previewCharacter ?? phraseCharacter
-
-        if let collection = selectedBrowseCollection {
-            if let context = imagePhraseContext, context.collectionID == collection.id {
-                pendingBrowseScrollTarget = BrowseScrollTarget(
-                    collectionID: collection.id,
-                    character: targetCharacter ?? context.target,
-                    offset: context.offset
-                )
-                return
-            }
-
-            if let targetCharacter,
-               let offset = collection.characters.firstIndex(of: targetCharacter) {
-                pendingBrowseScrollTarget = BrowseScrollTarget(
-                    collectionID: collection.id,
-                    character: targetCharacter,
-                    offset: offset
-                )
-                return
-            }
-
-            if let offset = imagePhraseHighlightOffsets.sorted().first,
-               collection.characters.indices.contains(offset) {
-                pendingBrowseScrollTarget = BrowseScrollTarget(
-                    collectionID: collection.id,
-                    character: collection.characters[offset],
-                    offset: offset
-                )
-                return
-            }
-        }
-
-        guard let targetCharacter else { return }
-        pendingBrowseScrollTarget = BrowseScrollTarget(
-            collectionID: nil,
-            character: targetCharacter,
-            offset: nil
-        )
-    }
-
-    func consumePendingBrowseScrollTarget() -> BrowseScrollTarget? {
-        let target = pendingBrowseScrollTarget
-        pendingBrowseScrollTarget = nil
-        return target
-    }
-
-    func dismissImagePhrasePreview() {
-        imageBrowsePhrasePreview = nil
-        sidebarPhrasePreview = nil
-    }
-
-    var activeSidebarPhrasePreview: PhraseItem? {
-        sidebarPhrasePreview ?? imageBrowsePhrasePreview
-    }
-
-    func presentPhraseInSidebar(_ phrase: PhraseItem) {
-        sidebarPhrasePreview = phrase
-        imageBrowsePhrasePreview = nil
-        pushPhraseBreadcrumb(phrase)
-    }
-
-    func dismissSidebarPhrasePreview() {
-        sidebarPhrasePreview = nil
-        imageBrowsePhrasePreview = nil
-    }
-
-    func highlightImageCharacterPhrases(_ character: String, offset: Int) {
-        guard let context = imagePhraseContext(for: character, offset: offset) else {
-            imagePhraseContext = nil
-            imagePhraseHighlightOffsets = []
-            clearAnchoredImagePhraseHighlight()
-            imageBrowsePhrasePreview = nil
-            sidebarPhrasePreview = nil
-            imagePhraseHighlightRevision += 1
-            return
-        }
-
-        imagePhraseContext = context
-        imagePhraseHighlightOffsets = [offset]
-        clearAnchoredImagePhraseHighlight()
-        imageBrowsePhrasePreview = nil
-        sidebarPhrasePreview = nil
-        imagePhraseHighlightRevision += 1
-
-        refreshImagePhraseHighlights(for: character, context: context)
-    }
-
-    func imagePhraseHighlightRole(collectionID: UUID, offset: Int) -> ImagePhraseHighlightRole? {
-        guard let context = imagePhraseContext,
-              context.collectionID == collectionID
-        else { return nil }
-
-        if offset == context.offset {
-            return .target
-        }
-        if imagePhraseHighlightOffsets.contains(offset) {
-            return .phraseMember
-        }
-        return nil
-    }
-
-    func enterLineage() {
-        rootsReturnContext = nil
-        if let target = previewCharacter {
-            select(character: target)
-        } else {
-            // Allow opening Roots with no selection to show empty-state card
-            previewCharacter = nil
-        }
-        route = .lineage
-        showComponentHelp = true
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            showiPhoneDetail = false
-        }
-        #endif
-    }
-
-    func enterAILink() {
-        if let target = previewCharacter {
-            select(character: target)
-        } else {
-            previewCharacter = nil
-        }
-        route = .aiLink
-    }
-
-    func goToAILink(character: String) {
-        select(character: character, announce: false)
-        route = .aiLink
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            showiPhoneDetail = false
-        }
-        #endif
-    }
-
-    @MainActor
-    func triggerSelectedAITasks(for character: String) {
-        let trimmed = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-
-        let prompt = promptText(
-            for: .character(trimmed),
-            selectedTaskIDs: selectedPromptTaskIDsForCharacterLaunch()
-        )
-        guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-
-        UIPasteboard.general.string = prompt
-        activeSubject = .character(trimmed)
-
-        guard let url = defaultAIURL(prompt: prompt) else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            UIApplication.shared.open(url)
-        }
-        scheduleMacClipboardPasteIfPossible()
-    }
-
-    func goToAILinkTask4FromCapture(characters: [String]) {
-        let validText = characters.joined()
-        if let collection = createCollection(name: "Apple Vision Image", sourceText: validText, sourceType: .ocr) {
-            goToAILinkTask4(collection: collection)
-            return
-        }
-        if let target = characters.first ?? previewCharacter {
-            select(character: target, announce: false)
-        }
-        promptSelectedTaskIDs = ["task4"]
-        shouldAutoOpenAILinkTask4 = true
-        route = .aiLink
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            showiPhoneDetail = false
-        }
-        #endif
-        persistPromptSettings()
-    }
-
-    func goToAILinkTask4(collection: CharacterCollection) {
-        goToAILinkCollectionTask(collection: collection, taskID: "task4")
-    }
-
-    func goToAILinkCollectionTask(collection: CharacterCollection, taskID: String) {
-        selectedAICollectionID = collection.id
-        selectedBrowseCollectionID = collection.id
-        selectedBrowseCollectionCharacters = Set(collection.characters)
-        promptSelectedTaskIDs = [taskID]
-        shouldAutoOpenAILinkTask4 = true
-        route = .aiLink
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            showiPhoneDetail = false
-        }
-        #endif
-        persistPromptSettings()
-    }
-
-    func goToSearchRoot() {
-        route = .search
-        homeTab = .smart
-        activeFavouriteCharacter = nil
-        restoreLastPreviewedCharacterIfNeeded()
-    }
-
-    func goToFavourites() {
-        route = .favourites
-        activeFavouriteCharacter = nil
-    }
-
-    func goToBrowse() {
-        route = .search
-        homeTab = .filter
-        gridSortMode = .characterFrequency
-        activeFavouriteCharacter = nil
-        showBrowseHelp = true
-        showComponentHelp = false
-        clearBrowsePreview()
-    }
-
-    func goToDataEdit() {
-        route = .search
-        homeTab = .dataEdit
-        startBlankDataEdit()
-        requestDataEditDictionaryFocus()
-    }
-
-    func goToRoots(character: String) {
-        if route != .lineage {
-            rootsReturnContext = RootsReturnContext(
-                route: route,
-                homeTab: route == .search ? homeTab : nil
-            )
-        }
-        route = .lineage
-        select(character: character, announce: false)
-        showComponentHelp = true
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            showiPhoneDetail = false
-        }
-        #endif
-    }
-
-    var rootsReturnButtonTitle: String {
-        guard let rootsReturnContext else { return "Back" }
-        switch rootsReturnContext.route {
-        case .capture:
-            return "Back to Image"
-        case .search:
-            switch rootsReturnContext.homeTab ?? .smart {
-            case .smart:
-                return "Back to Search"
-            case .filter:
-                return "Back to Browse"
-            case .favourites:
-                return "Back to Favorites"
-            case .dataEdit:
-                return "Back to My Data"
-            }
-        case .lineage:
-            return "Back to Components"
-        case .aiLink:
-            return "Back to AI Link"
-        case .favourites:
-            return "Back to Favorites"
-        }
-    }
-
-    func returnFromRoots() {
-        guard let rootsReturnContext else { return }
-        route = rootsReturnContext.route
-        if let homeTab = rootsReturnContext.homeTab {
-            self.homeTab = homeTab
-        }
-        self.rootsReturnContext = nil
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            showiPhoneDetail = false
-        }
-        #endif
-    }
-
-    func openQuickCharacterEditor(_ character: String) {
-        let trimmed = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmed.count == 1 else { return }
-        select(character: trimmed, announce: false)
-        loadDataEditEntry(for: trimmed)
-        quickEditDestination = .character(trimmed)
-    }
-
-    func characterNotesActionTitle(for character: String) -> String {
-        "Notes"
-    }
-
-    func openNewCharacterEditor() {
-        quickEditDestination = .newCharacter
-    }
-
-    func openQuickPhraseEditor(word: String) {
-        let trimmedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedWord.isEmpty else { return }
-        quickEditDestination = .phrase(simplifiedText(trimmedWord))
-    }
-
-    func openNewPhraseEditor() {
-        quickEditDestination = .newPhrase
-    }
-
-    func selectFavouriteCharacter(_ character: String) {
-        activeFavouriteCharacter = character
-        preview(character: character)
-    }
-
-    func isTraditional(_ character: String) -> Bool {
-        componentRepo.isTraditionalForGrid(character)
-    }
-
-    func isSimplified(_ character: String) -> Bool {
-        componentRepo.isSimplifiedForGrid(character)
-    }
-
-    func goBack() {
-        if route == .aiLink { route = .lineage; return }
-        if route == .favourites { route = .search; return }
-        if route == .lineage { route = .search; return }
-        if let previous = history.popLast() {
-            select(character: previous)
-            route = .lineage
-        } else {
-            route = .search
-        }
-    }
-
-    func refreshPhrases(for char: String? = nil) {
-        let target = char ?? previewCharacter
-        guard let targetToLoad = target else {
-            phrases = []
-            return
-        }
-        
-        let length = phraseLength
-        let context = phraseContext(for: targetToLoad)
-        let cacheKey = phraseCacheKey(character: targetToLoad, length: length, context: context)
-        let lookupTarget = phraseLookupTarget(for: targetToLoad)
-        
-        if let cached = phraseCache[cacheKey] {
-            phrases = cached
-            refreshImagePhraseHighlights(for: targetToLoad, context: context)
-            return
-        }
-        
-        // Run database query in background to prevent sluggishness
-        Task {
-            let finalPhrases = phraseCandidates(containing: lookupTarget, originalTarget: targetToLoad, length: length)
-            
-            let result = rankedPhraseResults(finalPhrases, target: targetToLoad, context: context)
-            await MainActor.run {
-                // Ensure we are still looking at the same character/length before updating
-                if (char ?? previewCharacter) == targetToLoad && phraseLength == length && phraseContext(for: targetToLoad) == context {
-                    self.phrases = result
-                    self.phraseCache[cacheKey] = result
-                    self.refreshImagePhraseHighlights(for: targetToLoad, context: context)
-                }
-            }
-        }
-    }
-
-    func phraseMatches(for character: String, length: Int? = nil) -> [PhraseItem] {
-        let targetToLoad = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !targetToLoad.isEmpty else { return [] }
-
-        let phraseLength = length ?? self.phraseLength
-        let context = phraseContext(for: targetToLoad)
-        let cacheKey = phraseCacheKey(character: targetToLoad, length: phraseLength, context: context)
-        let lookupTarget = phraseLookupTarget(for: targetToLoad)
-        if let cached = phraseCache[cacheKey] {
-            refreshImagePhraseHighlights(for: targetToLoad, context: context)
-            return cached
-        }
-
-        let finalPhrases = phraseCandidates(containing: lookupTarget, originalTarget: targetToLoad, length: phraseLength)
-        let result = rankedPhraseResults(finalPhrases, target: targetToLoad, context: context)
-        phraseCache[cacheKey] = result
-        refreshImagePhraseHighlights(for: targetToLoad, context: context)
-        return result
-    }
-
-    func isPhraseInBase(_ word: String) -> Bool {
-        phraseRepo.isInBase(word: phraseStorageWord(word))
-    }
-
-    func isPhraseInAdd(_ word: String) -> Bool {
-        phraseRepo.isInAdd(word: phraseStorageWord(word))
-    }
-
-    func phraseNotesActionTitle(for word: String) -> String {
-        "Notes"
-    }
-
-    func mergedPhrase(for word: String) -> PhraseItem? {
-        let trimmedWord = phraseStorageWord(word)
-        guard !trimmedWord.isEmpty else { return nil }
-        return phraseRepo.fetchPhrase(for: trimmedWord)
-    }
-
-    func existingPhraseWords(in words: Set<String>) -> Set<String> {
-        let normalizedWords = Set(words.map(phraseStorageWord(_:)).filter { !$0.isEmpty })
-        return phraseRepo.existingWords(in: normalizedWords)
-    }
-
-    func isBasePhraseCoreEdited(_ phrase: PhraseItem) -> Bool {
-        PhraseEditService(repository: phraseRepo, normalizeWord: phraseStorageWord(_:))
-            .isBaseCoreEdited(phrase)
-    }
-
-    func phraseDiscoveryKnownPhrases(in text: String) -> [String] {
-        let candidates = phraseDiscoverySubstrings(in: text)
-        let known = phraseRepo.existingWords(in: candidates)
-        return known.sorted {
-            if $0.count != $1.count { return $0.count < $1.count }
-            return $0 < $1
-        }
-    }
-
-    func items(for characters: [String]) -> [ComponentItem] {
-        var seen = Set<String>()
-        var result: [ComponentItem] = []
-        for character in characters {
-            let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard key.count == 1, seen.insert(key).inserted, let item = componentRepo.byCharacter[key] else { continue }
-            result.append(item)
-        }
-        return result
-    }
-
-    func components(for character: String) -> [ComponentItem] {
-        componentRepo.components(for: character, scriptFilter: scriptFilter)
-    }
-
-    func simplifiedText(_ value: String) -> String {
-        componentRepo.simplifiedText(value)
-    }
-
-    func traditionalText(_ value: String) -> String {
-        componentRepo.traditionalText(value)
-    }
-
-    func normalizedPhraseWord(_ word: String) -> String {
-        phraseStorageWord(word)
-    }
-
-    private func phraseDiscoverySubstrings(in text: String) -> Set<String> {
-        var results = Set<String>()
-        var run: [Character] = []
-
-        func flushRun() {
-            guard run.count >= 2 else {
-                run.removeAll()
-                return
-            }
-            for start in run.indices {
-                for length in 2...4 {
-                    let end = start + length
-                    guard end <= run.count else { continue }
-                    results.insert(String(run[start..<end]))
-                }
-            }
-            run.removeAll()
-        }
-
-        for character in text {
-            let isChinese = character.unicodeScalars.contains {
-                (0x3400...0x4DBF).contains($0.value)
-                || (0x4E00...0x9FFF).contains($0.value)
-                || (0x20000...0x2EBEF).contains($0.value)
-            }
-            if isChinese {
-                run.append(character)
-            } else {
-                flushRun()
-            }
-        }
-        flushRun()
-        return results
-    }
-
-    var favoriteItems: [ComponentItem] {
-        FavoriteOrdering.sortedByAddedDate(
-            favorites.compactMap { componentRepo.byCharacter[$0] },
-            dateForValue: { favoriteAddedDates[$0.character] },
-            fallbackSort: { $0.character < $1.character }
-        )
-    }
-
-    /// Favorited phrases sorted by date added (most recent first).
-    var favoritePhrasesItems: [PhraseItem] {
-        FavoriteOrdering.sortedByAddedDate(
-            phraseRepo.fetchPhrases(matching: favoritePhrases),
-            dateForValue: { favoritePhraseDates[$0.word] },
-            fallbackSort: { $0.word < $1.word }
-        )
-    }
-
-    func item(for character: String?) -> ComponentItem? {
-        guard let character else { return nil }
-        return componentRepo.byCharacter[character]
-    }
-
-    func structureText(for character: String) -> String? {
-        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard key.count == 1 else { return nil }
-        let raw = componentRepo.entry(for: key)?.meta
-        let value = (raw?.decomposition ?? raw?.idc ?? item(for: key)?.decomposition ?? "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        return value.isEmpty ? nil : value
-    }
-
-    func meaningText(for character: String) -> String? {
-        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard key.count == 1 else { return nil }
-        let value = (componentRepo.entry(for: key)?.meta.definition ?? item(for: key)?.definition ?? "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        return value.isEmpty ? nil : value
-    }
-
-    func counterpart(for character: String?) -> ComponentItem? {
-        guard let character else { return nil }
-        guard let counterpartChar = componentRepo.counterpart(for: character) else { return nil }
-        return componentRepo.byCharacter[counterpartChar]
-    }
-
-    /// Returns all script variant ComponentItems for a character, in order.
-    func allVariants(for character: String?) -> [ComponentItem] {
-        guard let character else { return [] }
-        return componentRepo.allVariants(for: character).compactMap { componentRepo.byCharacter[$0] }
-    }
-
-    func isFavorite(_ character: String) -> Bool {
-        favorites.contains(character)
-    }
-
-    func isPhraseFavorite(_ word: String) -> Bool {
-        favoritePhrases.contains(word)
-    }
-
-    func togglePhraseFavorite(_ word: String) {
-        if favoritePhrases.contains(word) {
-            favoritePhrases.remove(word)
-            favoritePhraseDates.removeValue(forKey: word)
-        } else {
-            favoritePhrases.insert(word)
-            favoritePhraseDates[word] = Date()
-            if let phrase = phraseRepo.fetchPhrase(for: word) {
-                pushPhraseBreadcrumb(phrase)
-            }
-        }
-        UserDefaults.standard.set(Array(favoritePhrases), forKey: favoritePhrasesKey)
-        persistFavoritePhraseDates()
-    }
-
-    private func persistFavoritePhraseDates() {
-        let encoded = favoritePhraseDates.mapValues { $0.timeIntervalSince1970 }
-        UserDefaults.standard.set(encoded, forKey: favoritePhraseDatesKey)
-    }
-
-    func persistOverlayAddedDates() {
-        let encoded = overlayAddedDates.mapValues { $0.timeIntervalSince1970 }
-        UserDefaults.standard.set(encoded, forKey: overlayAddedDatesKey)
-    }
-
-    func favoriteAddedDate(for character: String) -> Date? {
-        favoriteAddedDates[character]
-    }
-
-    func setSearchMode(_ mode: SearchMode) {
-        searchMode = mode
-        performSearch(recordHistory: false)
-    }
-
-    func setScriptFilter(_ filter: ScriptFilter) {
-        scriptFilter = filter
-        if let previewCharacter {
-            select(character: previewCharacter, announce: false)
-        }
-    }
-
-    func setLineageSortMode(_ mode: LineageSortMode) {
-        lineageSortMode = mode
-        lineagePage = 0
-    }
-
-    func toggleFavorite(character: String) {
-        if favorites.contains(character) {
-            favorites.remove(character)
-            favoriteAddedDates.removeValue(forKey: character)
-        } else {
-            favorites.insert(character)
-            favoriteAddedDates[character] = Date()
-            pushRootBreadcrumb(character)
-        }
-        Task {
-            persistFavorites()
-        }
-    }
-
-    func setFavorite(character: String, isFavorite: Bool) {
-        if isFavorite {
-            favorites.insert(character)
-            if favoriteAddedDates[character] == nil {
-                favoriteAddedDates[character] = Date()
-            }
-            pushRootBreadcrumb(character)
-        } else {
-            favorites.remove(character)
-            favoriteAddedDates.removeValue(forKey: character)
-        }
-        Task {
-            persistFavorites()
-        }
-    }
-
-    // MARK: - Character Studio (DataEdit) Operations
-    
-    func loadDataEditEntry(for character: String) {
-        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard key.count == 1 else { return }
-
-        // If cached, hydrate instantly to keep UI smooth when switching tabs.
-        if let cached = dataEditCache[key] {
-            let currentPhrases = phraseRepo.fetchAddedPhrases()
-            dataEditCache[key] = (entry: cached.entry, phrases: currentPhrases, isFav: cached.isFav)
-            dataEditCharacter = key
-            dataEditPhrases = currentPhrases
-            applyDataEditEntryToForm(cached.entry, currentPhrases, cached.isFav)
-            dataEditAutoSaveStatus = "Ready to edit \(key)"
-            return
-        }
-
-        dataEditLoadTask?.cancel()
-        isApplyingDatasetEntry = true
-        dataEditAutoSaveStatus = "Loading \(key)..."
-
-        dataEditLoadTask = Task { [weak self] in
-            guard let self else { return }
-            let entry = componentRepo.entry(for: key) ?? emptyEntryTemplate()
-            let currentPhrases = phraseRepo.fetchAddedPhrases()
-            let isFav = favorites.contains(key)
-
-            if Task.isCancelled { return }
-
-            dataEditCache[key] = (entry: entry, phrases: currentPhrases, isFav: isFav)
-
-            if Task.isCancelled { return }
-
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                dataEditCharacter = key
-                dataEditPhrases = currentPhrases
-                applyDataEditEntryToForm(entry, currentPhrases, isFav)
-                isApplyingDatasetEntry = false
-                dataEditAutoSaveStatus = "Ready to edit \(key)"
-            }
-        }
-    }
-
-    func restoreFromLibrary() {
-        let key = dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard key.count == 1 else { return }
-        restoreDictionaryCharacterFromLibrary(key)
-    }
-
-    func restoreDictionaryCharacterFromLibrary(_ character: String, preserveNotes: Bool = true) {
-        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard key.count == 1 else { return }
-        pendingDatasetAutosaveWorkItem?.cancel()
-        pendingDatasetAutosaveWorkItem = nil
-
-        guard let baseEntry = componentRepo.baseEntry(for: key) else {
-            dataEditAutoSaveStatus = "Only built-in characters can be reverted."
-            return
-        }
-
-        do {
-            if preserveNotes,
-               let currentNotes = componentRepo.entry(for: key)?.meta.notes,
-               !(currentNotes.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty),
-               currentNotes != baseEntry.meta.notes {
-                componentRepo.replaceEntry(character: key, entry: entryByReplacingNotes(in: baseEntry, with: currentNotes))
-            } else {
-                componentRepo.restoreEntryFromBase(character: key)
-            }
-            try persistDictionaryOverlay()
-            try persistDataEditAndRefresh()
-
-            if let restoredEntry = componentRepo.entry(for: key) {
-                dataEditCharacter = key
-                dataEditPhrases = phraseRepo.fetchAddedPhrases()
-                applyDataEditEntryToForm(restoredEntry, dataEditPhrases, favorites.contains(key))
-                dataEditCache[key] = (entry: restoredEntry, phrases: dataEditPhrases, isFav: favorites.contains(key))
-            }
-
-            dataEditAutoSaveStatus = preserveNotes ? "Reverted to main dictionary. Notes kept." : "Reverted to main dictionary."
-        } catch {
-            dataEditAutoSaveStatus = "Library error: \(error.localizedDescription)"
-        }
-    }
-
-    func createCustomDictionaryEntry(character: String) throws {
-        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard key.count == 1 else {
-            throw NSError(domain: "Radix", code: 2, userInfo: [NSLocalizedDescriptionKey: "Enter exactly one Chinese character."])
-        }
-
-        if let existing = componentRepo.entry(for: key) {
-            dataEditCharacter = key
-            applyDataEditEntryToForm(existing, phraseRepo.fetchAddedPhrases(), favorites.contains(key))
-            dataEditAutoSaveStatus = componentRepo.baseEntry(for: key) == nil
-                ? "Custom character already exists."
-                : "That character is already in the built-in dictionary, so it was opened for editing instead."
-            return
-        }
-
-        dataEditCharacter = key
-        dataEditPhrases = phraseRepo.fetchAddedPhrases()
-        let entry = emptyEntryTemplate()
-        applyDataEditEntryToForm(entry, dataEditPhrases, favorites.contains(key))
-        pendingDatasetAutosaveWorkItem?.cancel()
-        pendingDatasetAutosaveWorkItem = nil
-        dataEditAutoSaveStatus = "New character loaded into the editor."
-    }
-
-    func discardCurrentDataEditDraft() {
-        pendingDatasetAutosaveWorkItem?.cancel()
-        pendingDatasetAutosaveWorkItem = nil
-
-        let key = dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard key.count == 1 else {
-            clearDataEditForm()
-            dataEditAutoSaveStatus = "Draft cleared."
-            return
-        }
-
-        if componentRepo.entry(for: key) != nil {
-            loadDataEditEntry(for: key)
-        } else {
-            clearDataEditForm()
-            dataEditAutoSaveStatus = "Draft cleared."
-        }
-    }
-
-    func startBlankDataEdit() {
-        pendingDatasetAutosaveWorkItem?.cancel()
-        pendingDatasetAutosaveWorkItem = nil
-        clearDataEditForm()
-        dataEditPhrases = phraseRepo.fetchAddedPhrases()
-        dataEditAutoSaveStatus = "Open a character to start editing."
-    }
-
-    func saveCurrentDictionaryDraft() throws {
-        pendingDatasetAutosaveWorkItem?.cancel()
-        pendingDatasetAutosaveWorkItem = nil
-        try saveDataEdit(reloadCaches: true)
-    }
-
-    func resetStudioToMaster() throws {
-        try componentRepo.loadFromBundle()
-        try removeDictionaryOverlayFiles()
-        try persistDataEditAndRefresh()
-        
-        if !dataEditCharacter.isEmpty {
-            loadDataEditEntry(for: dataEditCharacter)
-        }
-        
-        dataEditAutoSaveStatus = "Dictionary changes reset to Master copy."
-    }
-
-    func removeDataEditPhrase(word: String) {
-        let storedWord = phraseStorageWord(word)
-        guard phraseRepo.isInAdd(word: storedWord) else {
-            dataEditAutoSaveStatus = "Only custom phrases can be edited here."
-            return
-        }
-        dataEditPhrases.removeAll(where: { phraseStorageWord($0.word) == storedWord })
-        addedPhrases.removeAll(where: { phraseStorageWord($0.word) == storedWord }) // immediate UI update for Added list
-        do {
-            try phraseRepo.deletePhrase(word: storedWord)
-            refreshPhraseBackedViews(for: dataEditCharacter)
-            dataEditAutoSaveStatus = "Phrase removed from your custom list."
-        } catch {
-            dataEditAutoSaveStatus = "Delete failed: \(error.localizedDescription)"
-        }
-    }
-
-    @discardableResult
-    func removeAllUnnotedAddedPhrases() throws -> [String] {
-        let removableWords = PhraseEditService(repository: phraseRepo, normalizeWord: phraseStorageWord(_:))
-            .unnotedBasePhraseEditWords()
-
-        guard !removableWords.isEmpty else {
-            dataEditAutoSaveStatus = "No edited phrases without notes to revert."
-            return []
-        }
-
-        for word in removableWords {
-            try phraseRepo.deletePhrase(word: phraseStorageWord(word))
-        }
-
-        let removableSet = Set(removableWords.map(phraseStorageWord(_:)))
-        dataEditPhrases.removeAll { removableSet.contains(phraseStorageWord($0.word)) }
-        addedPhrases.removeAll { removableSet.contains(phraseStorageWord($0.word)) }
-        refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
-        dataEditAutoSaveStatus = "Reverted \(removableWords.count) edited phrase\(removableWords.count == 1 ? "" : "s") without notes."
-        return removableWords
-    }
-
-    func addCustomPhrase(word: String, pinyin: String, meanings: String, notes: String? = nil, refreshViews: Bool = true) throws {
-        let originalWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
-        let storedWord = phraseStorageWord(originalWord)
-        guard !storedWord.isEmpty else { return }
-
-        try phraseRepo.addOrUpdatePhrase(
-            word: storedWord,
-            pinyin: pinyin.trimmingCharacters(in: .whitespacesAndNewlines),
-            meanings: meanings.trimmingCharacters(in: .whitespacesAndNewlines),
-            notes: notes?.trimmingCharacters(in: .whitespacesAndNewlines)
-        )
-        try removeLegacyPhraseIfNeeded(originalWord: originalWord, storedWord: storedWord)
-
-        if refreshViews {
-            refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
-        }
-        dataEditAutoSaveStatus = "Phrase notes saved."
-    }
-
-    @discardableResult
-    func addAIPastedPhraseIfNew(word: String, pinyin: String, meanings: String, refreshViews: Bool = true) throws -> Bool {
-        let originalWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
-        let storedWord = phraseStorageWord(originalWord)
-        guard !storedWord.isEmpty else { return false }
-        guard phraseRepo.existingWords(in: [storedWord]).isEmpty else { return false }
-
-        try phraseRepo.addOrUpdatePhrase(
-            word: storedWord,
-            pinyin: pinyin.trimmingCharacters(in: .whitespacesAndNewlines),
-            meanings: meanings.trimmingCharacters(in: .whitespacesAndNewlines),
-            notes: nil
-        )
-        try removeLegacyPhraseIfNeeded(originalWord: originalWord, storedWord: storedWord)
-
-        if refreshViews {
-            refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
-        }
-        dataEditAutoSaveStatus = "Phrase added."
-        return true
-    }
-
-    func refreshPhraseOverlayViews() {
-        refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
-    }
-
-    func saveDataEdit(reloadCaches: Bool = true) throws {
-        let key = dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines)
-        let hasDictionaryTarget = key.count == 1
-
-        if hasDictionaryTarget {
-            componentRepo.replaceEntry(character: key, entry: buildDataEditEntryFromForm())
-            // Stamp the save time so the list can sort by recency
-            if overlayAddedDates[key] == nil {
-                overlayAddedDates[key] = Date()
-                persistOverlayAddedDates()
-            }
-        }
-        
-        var blockedBuiltInWords: [String] = []
-        for p in dataEditPhrases {
-            let originalWord = p.word.trimmingCharacters(in: .whitespacesAndNewlines)
-            let storedWord = phraseStorageWord(originalWord)
-            if !storedWord.isEmpty {
-                if phraseRepo.isInBase(word: storedWord) && !phraseRepo.isInAdd(word: storedWord) {
-                    // Keep built-in phrases outside the custom-editing flow.
-                    blockedBuiltInWords.append(storedWord)
-                    continue
-                }
-                try phraseRepo.addOrUpdatePhrase(word: storedWord, pinyin: p.pinyin, meanings: p.meanings, notes: p.notes)
-                try removeLegacyPhraseIfNeeded(originalWord: originalWord, storedWord: storedWord)
-            }
-        }
-
-        if hasDictionaryTarget {
-            dataEditCache[key] = (
-                entry: buildDataEditEntryFromForm(),
-                phrases: dataEditPhrases,
-                isFav: dataEditIsFavourite
-            )
-        }
-        
-        if hasDictionaryTarget {
-            setFavorite(character: key, isFavorite: dataEditIsFavourite)
-        }
-        
-        if reloadCaches {
-            if hasDictionaryTarget {
-                try persistDictionaryOverlay()
-                try persistDataEditAndRefresh()
-                refreshPhraseBackedViews(for: key)
-            } else {
-                refreshPhraseBackedViews(for: nil)
-            }
-            if blockedBuiltInWords.isEmpty {
-                dataEditAutoSaveStatus = hasDictionaryTarget ? "All changes saved." : "Custom phrases saved."
-            } else {
-                dataEditAutoSaveStatus = "Some entries match built-in phrases and were not saved: \(blockedBuiltInWords.joined(separator: ", "))"
-            }
-        } else {
-            // Lightweight auto-save: persist only the datasets that were actually edited.
-            if hasDictionaryTarget {
-                try persistDictionaryOverlay()
-                refreshAddedDictionaryCharacters()
-            }
-            dataEditAutoSaveStatus = blockedBuiltInWords.isEmpty
-                ? (hasDictionaryTarget ? "Auto-saved." : "Custom phrases auto-saved.")
-                : "Built-in phrase matches were skipped during auto-save."
-        }
-    }
-
-    func scheduleDataEditAutoSave() {
-        guard !isApplyingDatasetEntry else { return }
-        pendingDatasetAutosaveWorkItem?.cancel()
-        let work = DispatchWorkItem { [weak self] in
-            guard let self else { return }
-            do {
-                try self.saveDataEdit(reloadCaches: false)
-            } catch {
-                self.dataEditAutoSaveStatus = "Auto-save failed: \(error.localizedDescription)"
-            }
-        }
-        pendingDatasetAutosaveWorkItem = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2), execute: work)
-    }
-
-    func flushPendingDataEditAutoSave() {
-        pendingDatasetAutosaveWorkItem?.cancel()
-        pendingDatasetAutosaveWorkItem = nil
-        guard !isApplyingDatasetEntry else { return }
-        do {
-            try saveDataEdit(reloadCaches: false)
-        } catch {
-            dataEditAutoSaveStatus = "Auto-save failed: \(error.localizedDescription)"
-        }
-    }
-
-    func deleteCurrentDataEditEntry() throws {
-        let key = dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard key.count == 1 else { return }
-        guard componentRepo.baseEntry(for: key) == nil else {
-            throw NSError(domain: "Radix", code: 3, userInfo: [NSLocalizedDescriptionKey: "Only custom added characters can be deleted. Use Restore for built-in characters."])
-        }
-        componentRepo.deleteEntry(character: key)
-        try persistDictionaryOverlay()
-        try persistDataEditAndRefresh()
-        dataEditCharacter = ""
-        dataEditDefinition = ""
-        dataEditPinyin = ""
-        dataEditDecomposition = ""
-        dataEditRadical = ""
-        dataEditStrokes = ""
-        dataEditCompounds = ""
-        dataEditEtymHint = ""
-        dataEditEtymDetails = ""
-        dataEditNotes = ""
-        dataEditRelatedCharacters = ""
-        dataEditIsFavourite = false
-        dataEditAutoSaveStatus = "Custom character deleted."
-    }
-
-    func currentDataEditSnapshotJSON() -> String? {
-        let key = dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard key.count == 1, let entry = componentRepo.entry(for: key) else { return nil }
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
-        guard let data = try? encoder.encode(entry) else { return nil }
-        return String(data: data, encoding: .utf8)
-    }
-
-    func portableBackupPackage() -> UnifiedPackage {
-        return UnifiedPackage(
-            schemaVersion: 4,
-            exportedAt: Date(),
-            backupID: UUID(),
-            baseDictionaryFingerprint: componentRepo.baseDictionaryFingerprint,
-            dictionary: nil,
-            dictionaryOverlay: nil,
-            dictionaryPatchOverlay: componentRepo.overlayPatchPackage(),
-            phrases: phraseRepo.fetchAddedPhrases(),
-            profile: currentUserProfile(),
-            collections: allCollections,
-            selectedAICollectionID: selectedAICollectionID
-        )
-    }
-
-    func fullDatasetExportPackage() -> FullDatasetExportPackage {
-        FullDatasetExportPackage(
-            schemaVersion: 1,
-            exportedAt: Date(),
-            dictionary: componentRepo.rawMap,
-            phrases: phraseRepo.fetchAllPhrases()
-        )
-    }
-
-    func mergedDictionaryExportRecords() -> [DictionaryExportRecord] {
-        componentRepo.rawMap.keys.sorted().compactMap { character in
-            guard let entry = componentRepo.rawMap[character] else { return nil }
-            let item = componentRepo.byCharacter[character]
-            return DictionaryExportRecord(
-                character: character,
-                entry: entry,
-                pinyin: item?.pinyinText ?? "",
-                definition: item?.definition ?? "",
-                decomposition: item?.decomposition ?? "",
-                radical: item?.radical ?? "",
-                strokes: item?.strokes
-            )
-        }
-    }
-
-    func mergedPhrasesForExport() -> [PhraseItem] {
-        phraseRepo.fetchAllPhrases()
-    }
-
-    func importDataEditData(_ data: Data, mode: RestoreMode = .additive) throws {
-        pendingDatasetAutosaveWorkItem?.cancel()
-        pendingDatasetAutosaveWorkItem = nil
-
-        if let package = try? JSONDecoder().decode(UnifiedPackage.self, from: data) {
-            let backupOverlay: DictionaryOverlayPackage
-            if let patchOverlay = package.dictionaryPatchOverlay {
-                backupOverlay = componentRepo.overlayPackage(from: patchOverlay)
-            } else {
-                backupOverlay = package.dictionaryOverlay
-                    ?? ComponentRepository.makeOverlay(base: componentRepo.baseRawMap, effective: package.dictionary ?? [:])
-            }
-
-            switch mode {
-
-            case .additive:
-                // Dictionary: add missing entries and merge non-conflicting built-in edits.
-                // Deletions from the backup are ignored so local data wins.
-                let now = Date()
-                for (char, entry) in backupOverlay.upserts where char.count == 1 {
-                    if let localOverlay = componentRepo.overlayUpserts[char] {
-                        guard let baseEntry = componentRepo.baseEntry(for: char) else { continue }
-                        let merged = mergeNonConflictingEntry(
-                            local: localOverlay,
-                            backup: entry,
-                            base: baseEntry,
-                            restoredAt: package.exportedAt ?? now
-                        )
-                        componentRepo.replaceEntry(character: char, entry: merged)
-                        if overlayAddedDates[char] == nil { overlayAddedDates[char] = now }
-                    } else {
-                        componentRepo.addEntry(character: char, entry: entry)
-                        if overlayAddedDates[char] == nil { overlayAddedDates[char] = now }
-                    }
-                }
-                persistOverlayAddedDates()
-                // Phrases: insert only words not already in the add-DB.
-                try phraseRepo.addPhrasesAdditively(uniquePhrases(package.phrases))
-                mergeImportedCollections(package.collections, selectedAICollectionID: package.selectedAICollectionID)
-                // Additive applies only to dictionary and phrases; profile state restores as the migrated device state.
-                applyImportedProfile(package.profile, mode: .additive)
-
-            case .complete:
-                // Dictionary: apply the backup overlay in full, replacing everything.
-                componentRepo.applyOverlay(backupOverlay)
-                overlayAddedDates = [:]
-                let now = Date()
-                for char in backupOverlay.upserts.keys where overlayAddedDates[char] == nil {
-                    overlayAddedDates[char] = now
-                }
-                persistOverlayAddedDates()
-                // Phrases: replace the add-DB entirely with backup contents.
-                try phraseRepo.replaceAllPhrases(uniquePhrases(package.phrases))
-                replaceCollections(with: package.collections, selectedAICollectionID: package.selectedAICollectionID)
-                // Profile: replace everything — favourites, settings, templates.
-                applyImportedProfile(package.profile, mode: .complete)
-            }
-
-            try persistDictionaryOverlay()
-            try persistDataEditAndRefresh()
-        } else {
-            // Legacy plain-map format — always a full replace.
-            let map = try JSONDecoder().decode([String: RawComponentEntry].self, from: data)
-            try componentRepo.loadFromBundle()
-            let overlay = ComponentRepository.makeOverlay(base: componentRepo.baseRawMap, effective: map)
-            componentRepo.applyOverlay(overlay)
-            try persistDictionaryOverlay()
-            try persistDataEditAndRefresh()
-        }
-
-        if !dataEditCharacter.isEmpty {
-            if componentRepo.hasCharacter(dataEditCharacter) {
-                loadDataEditEntry(for: dataEditCharacter)
-            } else {
-                dataEditCharacter = ""
-                dataEditDefinition = ""
-                dataEditPinyin = ""
-                dataEditDecomposition = ""
-                dataEditRadical = ""
-                dataEditStrokes = ""
-                dataEditCompounds = ""
-                dataEditEtymHint = ""
-                dataEditEtymDetails = ""
-                dataEditNotes = ""
-                dataEditRelatedCharacters = ""
-                dataEditIsFavourite = false
-            }
-        }
-        refreshAddedPhrases()
-        syncDataEditPhraseCaches()
-        dataEditPhrases = addedPhrases
-    }
-
-    func calculateDictionaryVariances() {
-        let masterRepo = ComponentRepository()
-        let masterPhraseRepo = PhraseRepository()
-        do {
-            try masterRepo.loadFromBundle()
-            let masterMap = masterRepo.rawMap
-            let studioMap = componentRepo.rawMap
-            
-            var dictVars: [DictionaryVariance] = []
-            for char in studioMap.keys {
-                if masterMap[char] == nil {
-                    dictVars.append(DictionaryVariance(character: char, type: .added))
-                }
-            }
-            for char in masterMap.keys {
-                if studioMap[char] == nil {
-                    dictVars.append(DictionaryVariance(character: char, type: .missing))
-                }
-            }
-            self.dictionaryVariances = dictVars.sorted { $0.character < $1.character }
-            
-            try masterPhraseRepo.openMasterBundleOnly()
-            let masterPhrases = Set(masterPhraseRepo.fetchAllPhrases().map(\.word))
-            let studioPhrases = Set(phraseRepo.fetchAllPhrases().map(\.word))
-            
-            var phVars: [DictionaryVariance] = []
-            for word in studioPhrases {
-                if !masterPhrases.contains(word) {
-                    phVars.append(DictionaryVariance(character: word, type: .added))
-                }
-            }
-            for word in masterPhrases {
-                if !studioPhrases.contains(word) {
-                    phVars.append(DictionaryVariance(character: word, type: .missing))
-                }
-            }
-            self.phraseVariances = phVars.sorted { $0.character < $1.character }
-            
-        } catch {
-            dataEditAutoSaveStatus = "Variance check failed: \(error.localizedDescription)"
-        }
-    }
 
     // MARK: - Filter Logic & Caching
     
@@ -2283,7 +580,7 @@ final class RadixStore: ObservableObject {
         }
     }
 
-    private func buildGridItemsWithCounts() -> (items: [ComponentItem], allCount: Int, componentCount: Int, readingOrder: [String]) {
+    func buildGridItemsWithCounts() -> (items: [ComponentItem], allCount: Int, componentCount: Int, readingOrder: [String]) {
         let lower = min(strokeMinFilter, strokeMaxFilter)
         let upper = max(strokeMinFilter, strokeMaxFilter)
 
@@ -2432,1385 +729,86 @@ final class RadixStore: ObservableObject {
         lineagePage -= 1
     }
 
-    // MARK: - Collections
-    var favoriteCollections: [CharacterCollection] {
-        allCollections.filter(\.isFavorite)
-    }
-
-    var selectedBrowseCollection: CharacterCollection? {
-        selectedBrowseCollectionID.flatMap { collection(id: $0) }
-    }
-
-    var selectedAICollection: CharacterCollection? {
-        selectedAICollectionID.flatMap { collection(id: $0) }
-    }
-
-    @discardableResult
-    func createCollection(
-        name: String,
-        sourceText: String,
-        sourceType: CollectionSourceType,
-        thumbnailJPEGData: Data? = nil
-    ) -> CharacterCollection? {
-        let characters = CaptureTextExtractor.allCharactersInOrder(in: sourceText).filter { componentRepo.hasCharacter($0) }
-        guard !characters.isEmpty else { return nil }
-        let fallbackName: String = {
-            switch sourceType {
-            case .ocr: return "OCR Image"
-            case .manual: return "Manual Image"
-            case .imported: return "Imported Image"
-            case .other: return "Image"
-        }
-        }()
-        let cleanName = collectionDisplayName(name)
-        let collection = CharacterCollection(
-            id: UUID(),
-            name: cleanName.isEmpty ? fallbackName : cleanName,
-            characters: characters,
-            createdAt: Date(),
-            sourceType: sourceType,
-            isFavorite: false,
-            thumbnailJPEGData: thumbnailJPEGData
-        )
-        saveCollection(collection)
-        return collection
-    }
-
-    func saveCollection(_ collection: CharacterCollection) {
-        if let index = allCollections.firstIndex(where: { $0.id == collection.id }) {
-            allCollections[index] = collection
-        } else {
-            allCollections.append(collection)
-        }
-        sortCollections()
-        if selectedBrowseCollectionID == collection.id {
-            selectedBrowseCollectionCharacters = Set(collection.characters)
-            activeSubject = .collection(collection)
-        }
-        persistCollections()
-    }
-
-    func deleteCollection(id: UUID) {
-        allCollections.removeAll { $0.id == id }
-        if selectedBrowseCollectionID == id {
-            selectedBrowseCollectionID = nil
-            selectedBrowseCollectionCharacters = nil
-        }
-        if selectedAICollectionID == id {
-            selectedAICollectionID = nil
-        }
-        persistCollections()
-    }
-
-    func renameCollection(id: UUID, newName: String) {
-        guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return }
-        let cleanName = collectionDisplayName(newName)
-        guard !cleanName.isEmpty else { return }
-        allCollections[index].name = cleanName
-        saveCollection(allCollections[index])
-    }
-
-    @discardableResult
-    func updateCollection(id: UUID, newName: String, sourceText: String) -> CharacterCollection? {
-        guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return nil }
-        let cleanName = collectionDisplayName(newName)
-        guard !cleanName.isEmpty else { return nil }
-
-        let characters = CaptureTextExtractor.allCharactersInOrder(in: sourceText).filter { componentRepo.hasCharacter($0) }
-        guard !characters.isEmpty else { return nil }
-
-        var updated = allCollections[index]
-        updated.name = cleanName
-        updated.characters = characters
-        saveCollection(updated)
-        return updated
-    }
-
-    private func collectionDisplayName(_ name: String) -> String {
-        String(name.trimmingCharacters(in: .whitespacesAndNewlines).prefix(11))
-    }
-
-    func toggleFavoriteCollection(id: UUID) {
-        guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return }
-        allCollections[index].isFavorite.toggle()
-        saveCollection(allCollections[index])
-    }
-
-    func collection(id: UUID) -> CharacterCollection? {
-        allCollections.first { $0.id == id }
-    }
-
-    func selectBrowseCollection(id: UUID?) {
-        selectedBrowseCollectionID = id
-        if let id {
-            selectedAICollectionID = id
-            gridSortMode = .readingOrder
-            restoreImagePhraseHighlight(for: id)
-        } else {
-            gridSortMode = .characterFrequency
-            imagePhraseContext = nil
-            imagePhraseHighlightOffsets = []
-            clearAnchoredImagePhraseHighlight()
-            imageBrowsePhrasePreview = nil
-            sidebarPhrasePreview = nil
-            imagePhraseHighlightRevision += 1
-        }
-    }
-
-    func selectAICollection(id: UUID?) {
-        selectedAICollectionID = id
-    }
-
-    private func sortCollections() {
-        allCollections.sort {
-            if $0.isFavorite != $1.isFavorite { return $0.isFavorite && !$1.isFavorite }
-            if $0.createdAt != $1.createdAt { return $0.createdAt > $1.createdAt }
-            return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
-        }
-    }
-
-    private func loadCollections() {
-        guard let data = UserDefaults.standard.data(forKey: collectionsKey),
-              let decoded = try? JSONDecoder().decode([CharacterCollection].self, from: data) else {
-            allCollections = []
-            return
-        }
-        allCollections = decoded.map { collection in
-            var copy = collection
-            copy.characters = collection.characters.filter { componentRepo.hasCharacter($0) }
-            return copy
-        }.filter { !$0.characters.isEmpty }
-        sortCollections()
-        if let saved = UserDefaults.standard.string(forKey: selectedAICollectionKey),
-           let id = UUID(uuidString: saved),
-           collection(id: id) != nil {
-            selectedAICollectionID = id
-        } else {
-            selectedAICollectionID = nil
-        }
-    }
-
-    private func persistCollections() {
-        if let data = try? JSONEncoder().encode(allCollections) {
-            UserDefaults.standard.set(data, forKey: collectionsKey)
-        }
-    }
-
-    private func persistSelectedAICollection() {
-        if let selectedAICollectionID {
-            UserDefaults.standard.set(selectedAICollectionID.uuidString, forKey: selectedAICollectionKey)
-        } else {
-            UserDefaults.standard.removeObject(forKey: selectedAICollectionKey)
-        }
-    }
-
-    // MARK: - AI Template Persistence
-    func selectAllPromptTasks() {
-        promptSelectedTaskIDs = promptConfig.tasks.map(\.id)
-        persistPromptSettings()
-    }
-    func setPromptPreamble(_ value: String) {
-        promptConfig.preamble = value
-        persistPromptSettings()
-    }
-    func setPromptEpilogue(_ value: String) {
-        promptConfig.epilogue = value
-        persistPromptSettings()
-    }
-    func setCollectionPromptPreamble(_ value: String) {
-        promptConfig.collectionPreamble = value
-        persistPromptSettings()
-    }
-    func setCollectionPromptEpilogue(_ value: String) {
-        promptConfig.collectionEpilogue = value
-        persistPromptSettings()
-    }
-    func setPromptTaskTitle(taskID: String, title: String) {
-        guard let idx = promptConfig.tasks.firstIndex(where: { $0.id == taskID }) else { return }
-        promptConfig.tasks[idx].title = title
-        persistPromptSettings()
-    }
-    func setPromptTaskTemplate(taskID: String, template: String) {
-        guard let idx = promptConfig.tasks.firstIndex(where: { $0.id == taskID }) else { return }
-        promptConfig.tasks[idx].template = template
-        persistPromptSettings()
-    }
-    func addPromptTask() {
-        let next = (promptConfig.tasks.count + 1)
-        var id = "task\(next)"
-        var suffix = 1
-        while promptConfig.tasks.contains(where: { $0.id == id }) {
-            suffix += 1
-            id = "task\(next)_\(suffix)"
-        }
-        let task = PromptTask(id: id, title: "Task \(next)", template: "Task \(next)\n\n")
-        promptConfig.tasks.append(task)
-        promptSelectedTaskIDs.append(id)
-        persistPromptSettings()
-    }
-    func removePromptTask(taskID: String) {
-        promptConfig.tasks.removeAll { $0.id == taskID }
-        promptSelectedTaskIDs.removeAll { $0 == taskID }
-        persistPromptSettings()
-    }
-    func resetPromptConfigToDefaults() {
-        promptConfig = .streamlitDefault
-        promptSelectedTaskIDs = PromptConfig.defaultSelectedTaskIDs
-        persistPromptSettings()
-    }
-    func setPromptTask(_ taskID: String, enabled: Bool) {
-        promptSelectedTaskIDs = PromptTaskSelection.toggled(taskID, in: promptSelectedTaskIDs, isEnabled: enabled)
-        persistPromptSettings()
-    }
-
-    func promptForTask(_ task: PromptTask, subject: ActiveSubject) -> String {
-        let config = PromptConfig(
-            version: promptConfig.version,
-            preamble: promptConfig.preamble,
-            tasks: [task],
-            epilogue: promptConfig.epilogue,
-            collectionPreamble: promptConfig.collectionPreamble,
-            collectionEpilogue: promptConfig.collectionEpilogue
-        )
-        return config.renderPrompt(selectedTaskIDs: [task.id], context: promptRenderContext(for: subject), subject: subject)
-    }
-
-    func promptText(for subject: ActiveSubject) -> String {
-        promptConfig.renderPrompt(selectedTaskIDs: promptSelectedTaskIDs, context: promptRenderContext(for: subject), subject: subject)
-    }
-
-    func promptText(for subject: ActiveSubject, selectedTaskIDs: [String]) -> String {
-        promptConfig.renderPrompt(selectedTaskIDs: selectedTaskIDs, context: promptRenderContext(for: subject), subject: subject)
-    }
-
-    func promptText(character: String?, collection: CharacterCollection?) -> String {
-        let selectedIDs = Set(promptSelectedTaskIDs)
-        let selectedTasks = promptConfig.normalized().tasks.filter { selectedIDs.contains($0.id) }
-        let characterTaskIDs = selectedTasks.filter { !PromptConfig.collectionTaskIDs.contains($0.id) }.map(\.id)
-        let collectionTaskIDs = selectedTasks.filter { PromptConfig.collectionTaskIDs.contains($0.id) }.map(\.id)
-        var sections: [String] = []
-
-        if !characterTaskIDs.isEmpty, let character {
-            sections.append(promptConfig.renderPrompt(
-                selectedTaskIDs: characterTaskIDs,
-                context: promptRenderContext(for: .character(character)),
-                subject: .character(character)
-            ))
-        }
-
-        if !collectionTaskIDs.isEmpty, let collection {
-            sections.append(promptConfig.renderPrompt(
-                selectedTaskIDs: collectionTaskIDs,
-                context: promptRenderContext(for: .collection(collection)),
-                subject: .collection(collection)
-            ))
-        }
-
-        return sections.joined(separator: "\n\n")
-    }
-
-    func promptText(for character: String) -> String {
-        promptText(for: .character(character))
-    }
-
-    private func promptRenderContext(for subject: ActiveSubject) -> PromptRenderContext {
-        let char: String
-        let collectionName: String
-        let collectionCharacters: String
-        let collectionCharacterSet: Set<String>?
-        switch subject {
-        case .character(let character):
-            char = character.trimmingCharacters(in: .whitespacesAndNewlines)
-            collectionName = ""
-            collectionCharacters = ""
-            collectionCharacterSet = nil
-        case .collection(let collection):
-            char = collection.characters.first ?? ""
-            collectionName = collection.name
-            collectionCharacters = collection.characters.joined(separator: " ")
-            collectionCharacterSet = collection.uniqueCharacters
-        }
-        let item = componentRepo.byCharacter[char]
-        let analysis = componentRepo.analyzeStructure(for: char)
-        let pFamily = componentRepo.pronunciationFamily(for: char)
-        let sFamily = componentRepo.semanticFamily(for: char)
-        let rawCaptureText = activeCaptureDraft.rawText.trimmingCharacters(in: .whitespacesAndNewlines)
-        let captureText: String = {
-            guard let collectionCharacterSet else { return rawCaptureText }
-            let rawCharacters = Set(CaptureTextExtractor.uniqueCharacters(in: rawCaptureText))
-            if !rawCharacters.isEmpty && rawCharacters == collectionCharacterSet {
-                return ""
-            }
-            return rawCaptureText
-        }()
-        return PromptRenderContext(
-            char: char,
-            definitionEN: item?.definition ?? "",
-            decomposition: item?.decomposition.isEmpty == false ? (item?.decomposition ?? "") : "None",
-            semantic: analysis?.semantic ?? "None",
-            phonetic: analysis?.phonetic ?? "None",
-            phoneticPinyin: analysis?.phoneticPinyin ?? "None",
-            isSoundMatch: String(analysis?.isSoundMatch ?? false),
-            pronunciationFamily: pFamily.isEmpty ? "None" : pFamily.joined(separator: ", "),
-            semanticFamily: sFamily.isEmpty ? "None" : sFamily.joined(separator: ", "),
-            collectionName: collectionName,
-            captureCharacters: collectionCharacters.isEmpty ? CaptureTextExtractor.uniqueCharacters(in: activeCaptureDraft.charactersText).joined(separator: " ") : collectionCharacters,
-            captureText: captureText
-        )
-    }
-
     // MARK: - Private Utilities
 
-    private func selectedPromptTaskIDsForCharacterLaunch() -> [String] {
-        let availableTaskIDs = Set(promptConfig.normalized().tasks.map(\.id))
-        let characterTaskIDs = promptSelectedTaskIDs.filter {
-            !PromptConfig.collectionTaskIDs.contains($0) && availableTaskIDs.contains($0)
-        }
-        if !characterTaskIDs.isEmpty {
-            return characterTaskIDs
-        }
-        if availableTaskIDs.contains("task1") {
-            return ["task1"]
-        }
-        return promptConfig.normalized().tasks
-            .map(\.id)
-            .filter { !PromptConfig.collectionTaskIDs.contains($0) }
-            .prefix(1)
-            .map { $0 }
-    }
-
-    private func scheduleMacClipboardPasteIfPossible() {
-        #if targetEnvironment(macCatalyst)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.performMacPasteShortcut()
-        }
-        #endif
-    }
-
-    #if targetEnvironment(macCatalyst)
-    private func performMacPasteShortcut() {
-        guard let source = CGEventSource(stateID: .hidSystemState),
-              let commandDown = CGEvent(keyboardEventSource: source, virtualKey: 0x37, keyDown: true),
-              let vDown = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: true),
-              let vUp = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: false),
-              let commandUp = CGEvent(keyboardEventSource: source, virtualKey: 0x37, keyDown: false) else {
-            return
-        }
-
-        vDown.flags = .maskCommand
-        vUp.flags = .maskCommand
-
-        commandDown.post(tap: .cghidEventTap)
-        vDown.post(tap: .cghidEventTap)
-        vUp.post(tap: .cghidEventTap)
-        commandUp.post(tap: .cghidEventTap)
-    }
-    #endif
-    
-    private func persistDataEditAndRefresh() throws {
-        phraseCache.removeAll()
-        refreshAddedDictionaryCharacters()
-        if hasPerformedSearch { performSearch(customQuery: lastSearchQuery, recordHistory: false) }
-        recomputeGridItems()
-        if let current = previewCharacter, componentRepo.hasCharacter(current) {
-            select(character: current, announce: false)
-        }
-        // Heavy work off main thread
-        Task {
-            let allChars = componentRepo.search(query: "", scriptFilter: .any, limit: Int.max)
-            let radicals = ["none"] + componentRepo.availableRadicals()
-            let structures = ["none"] + componentRepo.availableStructures()
-            await MainActor.run {
-                allCharactersCache = allChars
-                availableRadicalFilters = radicals
-                availableStructureFilters = structures
-                if !radicals.contains(rootRadicalFilter) { rootRadicalFilter = "none" }
-                if !structures.contains(rootStructureFilter) { rootStructureFilter = "none" }
-            }
-            await MainActor.run { calculateDictionaryVariances() }
-        }
-    }
-
-    private func applyDataEditEntryToForm(_ entry: RawComponentEntry, _ phrases: [PhraseItem], _ isFav: Bool) {
-        isApplyingDatasetEntry = true
-        defer { isApplyingDatasetEntry = false }
-        let meta = entry.meta
-        dataEditVariant = meta.variant?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        dataEditAdditionalVariants = (meta.additionalVariants ?? []).joined(separator: ", ")
-        dataEditDefinition = meta.definition ?? ""
-        dataEditPinyin = meta.pinyin?.list.joined(separator: "\n") ?? ""
-        dataEditDecomposition = (meta.decomposition ?? meta.idc ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        dataEditRadical = meta.radical ?? ""
-        switch meta.strokes {
-        case .int(let value): dataEditStrokes = String(value)
-        case .string(let value): dataEditStrokes = value
-        case .none: dataEditStrokes = ""
-        }
-        dataEditCompounds = (meta.compounds?.list ?? []).joined(separator: "\n")
-        dataEditEtymologyType = meta.etymology?.type
-        dataEditEtymHint = meta.etymology?.hint?.text ?? ""
-        dataEditEtymDetails = meta.etymology?.details?.text ?? ""
-        dataEditNotes = meta.notes?.list.joined(separator: "\n") ?? ""
-        dataEditRelatedCharacters = entry.relatedCharacters.joined(separator: "\n")
-        dataEditIsFavourite = isFav
-    }
-
-    private func buildDataEditEntryFromForm() -> RawComponentEntry {
-        let pinyinParts = splitCSVOrLines(dataEditPinyin)
-        let pinyinValue: StringOrMany = pinyinParts.count <= 1
-            ? .single(pinyinParts.first ?? "")
-            : .many(pinyinParts)
-        let strokesText = dataEditStrokes.trimmingCharacters(in: .whitespacesAndNewlines)
-        let strokesValue: IntOrString = Int(strokesText).map(IntOrString.int) ?? .string(strokesText)
-        let etymology = RawEtymology(
-            type: dataEditEtymologyType?.trimmingCharacters(in: .whitespacesAndNewlines),
-            hint: .single(dataEditEtymHint.trimmingCharacters(in: .whitespacesAndNewlines)),
-            details: .single(dataEditEtymDetails.trimmingCharacters(in: .whitespacesAndNewlines))
-        )
-        let decompValue = dataEditDecomposition.trimmingCharacters(in: .whitespacesAndNewlines)
-        return RawComponentEntry(
-            relatedCharacters: splitCSVOrLines(dataEditRelatedCharacters),
-            meta: RawMeta(variant: {
-                let trimmed = dataEditVariant.trimmingCharacters(in: .whitespacesAndNewlines)
-                return trimmed.isEmpty ? nil : trimmed
-            }(), additionalVariants: {
-                let parts = splitCSVOrLines(dataEditAdditionalVariants)
-                return parts.isEmpty ? nil : parts
-            }(), pinyin: pinyinValue, definition: dataEditDefinition.trimmingCharacters(in: .whitespacesAndNewlines), decomposition: decompValue, idc: decompValue, radical: dataEditRadical.trimmingCharacters(in: .whitespacesAndNewlines), strokes: strokesValue, compounds: .many(splitCSVOrLines(dataEditCompounds)), etymology: etymology, notes: .many(splitLinesKeepingSentences(dataEditNotes)))
-        )
-    }
-
-    private func splitCSVOrLines(_ value: String) -> [String] {
-        value.split(whereSeparator: { $0 == "\n" || $0 == "," }).map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
-    }
-
-    private func splitLinesKeepingSentences(_ value: String) -> [String] {
-        value.split(whereSeparator: { $0 == "\n" })
-            .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-    }
-
-    private func clearDataEditForm() {
-        isApplyingDatasetEntry = true
-        defer { isApplyingDatasetEntry = false }
-        dataEditCharacter = ""
-        dataEditDefinition = ""
-        dataEditPinyin = ""
-        dataEditDecomposition = ""
-        dataEditRadical = ""
-        dataEditStrokes = ""
-        dataEditCompounds = ""
-        dataEditVariant = ""
-        dataEditAdditionalVariants = ""
-        dataEditEtymologyType = nil
-        dataEditEtymHint = ""
-        dataEditEtymDetails = ""
-        dataEditNotes = ""
-        dataEditRelatedCharacters = ""
-        dataEditIsFavourite = false
-    }
-
-    private func refreshAllCharactersCache() {
-        allCharactersCache = componentRepo.search(query: "", scriptFilter: .any, limit: Int.max)
-    }
-
-    private func refreshAddedDictionaryCharacters() {
-        rootsDerivativesCache.removeAll()
-        let allChanged = componentRepo.changedCharacters
-        let added = Set(componentRepo.addedCharacters)
-        // Sort by overlayAddedDates desc (most recently added first), then alphabetically
-        let sorted = allChanged.sorted {
-            let lhsDate = overlayAddedDates[$0]
-            let rhsDate = overlayAddedDates[$1]
-            switch (lhsDate, rhsDate) {
-            case let (l?, r?): return l > r
-            case (.some, nil): return true
-            case (nil, .some): return false
-            default: return $0 < $1
-            }
-        }
-        addedDictionaryCharacters = sorted.filter { added.contains($0) }
-        changedDictionaryCharacters = sorted
-        editedDictionaryCharacters = sorted.filter { !added.contains($0) }
-        baseDictionaryCoreEditedCharacters = sorted.filter { baseDictionaryCoreFieldsChanged($0) }
-        dictionaryCharactersWithNotes = sorted.filter { dictionaryNotesChangedAndNonEmpty($0) }
-        editedDictionaryCharactersSet = Set(editedDictionaryCharacters)
-    }
-
-    private func baseDictionaryCoreFieldsChanged(_ character: String) -> Bool {
-        BackupSummaryBuilder.dictionaryCoreFieldsChanged(
-            base: componentRepo.baseEntry(for: character),
-            edited: componentRepo.overlayUpserts[character]
-        )
-    }
-
-    private func dictionaryNotesChangedAndNonEmpty(_ character: String) -> Bool {
-        BackupSummaryBuilder.dictionaryNotesChangedAndNonEmpty(
-            base: componentRepo.baseEntry(for: character),
-            edited: componentRepo.overlayUpserts[character]
-        )
-    }
-
-    private func scheduleGridRecompute() {
-        pendingGridRecomputeWorkItem?.cancel()
-        let work = DispatchWorkItem { [weak self] in self?.recomputeGridItems() }
-        pendingGridRecomputeWorkItem = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(40), execute: work)
-    }
-
-    private func recomputeGridItems() {
-        // Move heavy filtering/sorting to a background task
-        Task {
-            let result = buildGridItemsWithCounts()
-            await MainActor.run {
-                allGridItems = result.items
-                allReadingOrderCharacters = result.readingOrder
-                gridFilteredAllCount = result.allCount
-                gridFilteredComponentCount = result.componentCount
-            }
-        }
-    }
-
-    private func isNoFilter(_ value: String) -> Bool {
-        let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        return normalized == "none" || normalized == "any"
-    }
-
-    private func rootFilterPredicate(_ item: ComponentItem) -> Bool {
-        let lower = min(rootMinStroke, rootMaxStroke)
-        let upper = max(rootMinStroke, rootMaxStroke)
-        let strokeValue = item.strokes ?? 999
-        let strokeMatch = strokeValue >= lower && strokeValue <= upper
-        let radicalMatch = isNoFilter(rootRadicalFilter) || item.radical == rootRadicalFilter
-        let structure = componentRepo.structureKey(for: item)
-        let structureMatch = isNoFilter(rootStructureFilter) || structure == rootStructureFilter
-        return strokeMatch && radicalMatch && structureMatch
-    }
-
-    private func usageSortPredicate(_ lhs: ComponentItem, _ rhs: ComponentItem) -> Bool {
-        // Prioritize characters with at least 5 usages (important components)
-        let lhsGroup = lhs.usageCount >= 5 ? 0 : 1
-        let rhsGroup = rhs.usageCount >= 5 ? 0 : 1
-        if lhsGroup != rhsGroup { return lhsGroup < rhsGroup }
-        
-        if lhsGroup == 0 {
-            // Group 0: Major components sorted by usage count
-            if lhs.usageCount != rhs.usageCount { return lhs.usageCount > rhs.usageCount }
-        }
-        
-        // Tie-breaker for all: Ranking (top 6,000) then raw frequency
-        let lRank = lhs.rank ?? 999999
-        let rRank = rhs.rank ?? 999999
-        if lRank != rRank { return lRank < rRank }
-        
-        if lhs.freqPerMillion != rhs.freqPerMillion { return lhs.freqPerMillion > rhs.freqPerMillion }
-        return lhs.character < rhs.character
-    }
-
-    private func frequencySortPredicate(_ lhs: ComponentItem, _ rhs: ComponentItem) -> Bool {
-        // Primary sort: Rank (1 to 6,000). Unranked characters (nil) are treated as 999,999.
-        let lRank = lhs.rank ?? 999999
-        let rRank = rhs.rank ?? 999999
-        if lRank != rRank { return lRank < rRank }
-        
-        // Secondary sort: Raw frequency for unranked items
-        if lhs.freqPerMillion != rhs.freqPerMillion { return lhs.freqPerMillion > rhs.freqPerMillion }
-        
-        // Tertiary sort: Usage count
-        if lhs.usageCount != rhs.usageCount { return lhs.usageCount > rhs.usageCount }
-        
-        return lhs.character < rhs.character
-    }
-
-    private func isLikelyPinyinQuery(_ text: String) -> Bool {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmed.count >= 2 else { return false }
-        return trimmed.unicodeScalars.allSatisfy { CharacterSet.letters.union(.decimalDigits).union(.whitespaces).contains($0) }
-    }
-
-    private func normalizedCompactQuery(_ text: String) -> String {
-        let mutable = NSMutableString(string: text.lowercased()) as CFMutableString
-        CFStringTransform(mutable, nil, kCFStringTransformStripDiacritics, false)
-        return (mutable as String).filter { $0.isLetter || $0.isNumber }
-    }
-
-    private func containsChineseCharacters(_ text: String) -> Bool {
-        for scalar in text.unicodeScalars {
-            if (0x4E00...0x9FFF).contains(scalar.value) || (0x3400...0x4DBF).contains(scalar.value) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private func mergePhraseResults(primary: [PhraseItem], secondary: [PhraseItem]) -> [PhraseItem] {
-        var seen = Set<String>()
-        var out: [PhraseItem] = []
-        for item in (primary + secondary) {
-            if !seen.contains(item.word) {
-                seen.insert(item.word)
-                out.append(item)
-            }
-        }
-        return out
-    }
-
-    private func phrasePinyinSortPredicate(_ lhs: PhraseItem, _ rhs: PhraseItem) -> Bool {
-        let lhsPinyin = normalizedCompactQuery(lhs.pinyin)
-        let rhsPinyin = normalizedCompactQuery(rhs.pinyin)
-        if lhsPinyin != rhsPinyin { return lhsPinyin < rhsPinyin }
-        if lhs.pinyin != rhs.pinyin { return lhs.pinyin < rhs.pinyin }
-        return lhs.word < rhs.word
-    }
-
-    private func mergeNonConflictingEntry(local: RawComponentEntry, backup: RawComponentEntry, base: RawComponentEntry, restoredAt: Date) -> RawComponentEntry {
-        let localMeta = local.meta
-        let backupMeta = backup.meta
-        let baseMeta = base.meta
-        let mergedMeta = RawMeta(
-            variant: mergeField(localMeta.variant, backupMeta.variant, baseMeta.variant),
-            additionalVariants: mergeField(localMeta.additionalVariants, backupMeta.additionalVariants, baseMeta.additionalVariants),
-            pinyin: mergeField(localMeta.pinyin, backupMeta.pinyin, baseMeta.pinyin),
-            definition: mergeField(localMeta.definition, backupMeta.definition, baseMeta.definition),
-            decomposition: mergeField(localMeta.decomposition, backupMeta.decomposition, baseMeta.decomposition),
-            idc: mergeField(localMeta.idc, backupMeta.idc, baseMeta.idc),
-            radical: mergeField(localMeta.radical, backupMeta.radical, baseMeta.radical),
-            strokes: mergeField(localMeta.strokes, backupMeta.strokes, baseMeta.strokes),
-            compounds: mergeField(localMeta.compounds, backupMeta.compounds, baseMeta.compounds),
-            etymology: mergeField(localMeta.etymology, backupMeta.etymology, baseMeta.etymology),
-            notes: mergeNotes(local: localMeta.notes, backup: backupMeta.notes, restoredAt: restoredAt)
-        )
-
-        return RawComponentEntry(
-            relatedCharacters: mergeRequiredField(local.relatedCharacters, backup.relatedCharacters, base.relatedCharacters),
-            meta: mergedMeta
-        )
-    }
-
-    private func entryByReplacingNotes(in entry: RawComponentEntry, with notes: StringOrMany) -> RawComponentEntry {
-        let meta = entry.meta
-        return RawComponentEntry(
-            relatedCharacters: entry.relatedCharacters,
-            meta: RawMeta(
-                variant: meta.variant,
-                additionalVariants: meta.additionalVariants,
-                pinyin: meta.pinyin,
-                definition: meta.definition,
-                decomposition: meta.decomposition,
-                idc: meta.idc,
-                radical: meta.radical,
-                strokes: meta.strokes,
-                compounds: meta.compounds,
-                etymology: meta.etymology,
-                notes: notes
-            )
-        )
-    }
-
-    private func mergeField<T: Equatable>(_ local: T?, _ backup: T?, _ base: T?) -> T? {
-        guard let backup else { return local }
-        if local == nil || local == base {
-            return backup
-        }
-        return local
-    }
-
-    private func mergeRequiredField<T: Equatable>(_ local: T, _ backup: T, _ base: T) -> T {
-        local == base ? backup : local
-    }
-
-    private func mergeNotes(local: StringOrMany?, backup: StringOrMany?, restoredAt: Date) -> StringOrMany? {
-        let localLines = local?.list ?? []
-        let backupLines = backup?.list ?? []
-        guard !backupLines.isEmpty else { return local }
-        guard !localLines.isEmpty else { return backup }
-        if localLines == backupLines || local?.text == backup?.text {
-            return local
-        }
-
-        let formatter = ISO8601DateFormatter()
-        let marker = "Restored backup notes \(formatter.string(from: restoredAt))"
-        var merged = localLines
-        if !merged.contains(marker) {
-            merged.append(marker)
-        }
-        for line in backupLines where !merged.contains(line) {
-            merged.append(line)
-        }
-        return .many(merged)
-    }
-
-    private func uniquePhrases(_ phrases: [PhraseItem]) -> [PhraseItem] {
-        var seen = Set<String>()
-        var result: [PhraseItem] = []
-        for phrase in phrases {
-            let key = phraseStorageWord(phrase.word)
-            guard !key.isEmpty, !seen.contains(key) else { continue }
-            seen.insert(key)
-            result.append(PhraseItem(
-                word: key,
-                pinyin: phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines),
-                meanings: phrase.meanings.trimmingCharacters(in: .whitespacesAndNewlines),
-                notes: phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines),
-                addedAt: phrase.addedAt
-            ))
-        }
-        return result
-    }
-
-    private func phraseStorageWord(_ word: String) -> String {
-        let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
-        let simplified = simplifiedText(trimmed).trimmingCharacters(in: .whitespacesAndNewlines)
-        return simplified.isEmpty ? trimmed : simplified
-    }
-
-    private func removeLegacyPhraseIfNeeded(originalWord: String, storedWord: String) throws {
-        guard originalWord != storedWord, phraseRepo.isInAdd(word: originalWord) else { return }
-        try phraseRepo.deletePhrase(word: originalWord)
-    }
-
-    private func imagePhraseContext(for character: String, offset: Int) -> ImagePhraseContext? {
-        guard route == .search,
-              homeTab == .filter,
-              let collection = selectedBrowseCollection
-        else { return nil }
-
-        return ImagePhraseMatcher.context(for: character, offset: offset, collection: collection)
-    }
-
-    private func phraseContext(for target: String) -> ImagePhraseContext? {
-        guard route == .search,
-              homeTab == .filter,
-              let context = imagePhraseContext,
-              context.target == target,
-              selectedBrowseCollectionID == context.collectionID
-        else { return nil }
-        return context
-    }
-
-    private func phraseCacheKey(character: String, length: Int, context: ImagePhraseContext?) -> String {
-        ImagePhraseMatcher.cacheKey(character: character, length: length, context: context)
-    }
-
-    private func rankedPhraseResults(_ phrases: [PhraseItem], target: String, context: ImagePhraseContext?) -> [PhraseItem] {
-        ImagePhraseMatcher.rankedPhraseResults(
-            phrases,
-            target: target,
-            context: context,
-            lookupTarget: phraseLookupTarget(for:),
-            pinyinSort: phrasePinyinSortPredicate
-        )
-    }
-
-    private func phraseLookupTarget(for target: String) -> String {
-        let simplified = simplifiedText(target).trimmingCharacters(in: .whitespacesAndNewlines)
-        return simplified.isEmpty ? target : simplified
-    }
-
-    private func phraseCandidates(containing lookupTarget: String, originalTarget: String, length: Int) -> [PhraseItem] {
-        phraseCandidates(containing: lookupTarget, originalTarget: originalTarget, lengths: [length])
-    }
-
-    private func phraseCandidates(containing lookupTarget: String, originalTarget: String, lengths: [Int]) -> [PhraseItem] {
-        let candidates = [
-            lookupTarget,
-            componentRepo.counterpart(for: originalTarget),
-            componentRepo.counterpart(for: lookupTarget)
-        ]
-        .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
-
-        var seenTargets = Set<String>()
-        var seenPhrases = Set<String>()
-        var result: [PhraseItem] = []
-
-        for target in candidates where !target.isEmpty && seenTargets.insert(target).inserted {
-            for length in lengths {
-                for phrase in phraseRepo.phrases(containing: target, length: length) where seenPhrases.insert(phrase.id).inserted {
-                    result.append(phrase)
-                }
-            }
-        }
-        return result
-    }
-
-    private func refreshImagePhraseHighlights(for character: String, context: ImagePhraseContext?) {
-        guard let context else {
-            updateImagePhraseHighlights(context: nil, phrases: [])
-            return
-        }
-
-        let lookupTarget = phraseLookupTarget(for: character)
-        Task {
-            let highlightPhrases = phraseCandidates(
-                containing: lookupTarget,
-                originalTarget: character,
-                lengths: imagePhraseHighlightLengths
-            )
-            await MainActor.run {
-                guard self.imagePhraseContext == context else { return }
-                self.updateImagePhraseHighlights(context: context, phrases: highlightPhrases)
-            }
-        }
-    }
-
-    private func imagePhraseMatches(for context: ImagePhraseContext) -> [ImagePhraseMatch] {
-        guard let collection = selectedBrowseCollection,
-              collection.id == context.collectionID
-        else { return [] }
-
-        let lookupTarget = phraseLookupTarget(for: context.target)
-        let candidates = phraseCandidates(
-            containing: lookupTarget,
-            originalTarget: context.target,
-            lengths: imagePhraseHighlightLengths
-        )
-        return ImagePhraseMatcher.matches(
-            context: context,
-            collection: collection,
-            candidates: candidates,
-            phraseStorageWord: phraseStorageWord(_:),
-            lookupTarget: phraseLookupTarget(for:),
-            pinyinSort: phrasePinyinSortPredicate
-        )
-    }
-
-    private func preferredImagePhraseMatch(from matches: [ImagePhraseMatch], targetOffset: Int) -> ImagePhraseMatch {
-        ImagePhraseMatcher.preferredMatch(from: matches, targetOffset: targetOffset)
-    }
-
-    private func updateImagePhraseHighlights(context: ImagePhraseContext?, phrases: [PhraseItem]) {
-        guard let context else {
-            updateImagePhraseHighlights(context: nil, matches: [])
-            return
-        }
-        updateImagePhraseHighlights(context: context, matches: imagePhraseMatches(for: context))
-    }
-
-    private func updateImagePhraseHighlights(context: ImagePhraseContext?, matches: [ImagePhraseMatch]) {
-        guard let context,
-              let collection = selectedBrowseCollection,
-              collection.id == context.collectionID,
-              collection.characters.indices.contains(context.offset)
-        else {
-            imagePhraseHighlightOffsets = []
-            clearAnchoredImagePhraseHighlight()
-            imageBrowsePhrasePreview = nil
-            sidebarPhrasePreview = nil
-            imagePhraseHighlightRevision += 1
-            return
-        }
-
-        var offsets: Set<Int> = [context.offset]
-
-        for match in matches {
-            offsets.formUnion(match.start..<match.end)
-        }
-
-        imagePhraseHighlightOffsets = offsets
-        anchorImagePhraseHighlight(context: context, offsets: offsets)
-        imagePhraseHighlightRevision += 1
-        imagePhraseHighlightStateByCollectionID[context.collectionID] = ImagePhraseHighlightState(
-            context: context,
-            offsets: offsets
-        )
-    }
-
-    private func restoreImagePhraseHighlight(for collectionID: UUID) {
-        guard let state = imagePhraseHighlightStateByCollectionID[collectionID],
-              collection(id: collectionID) != nil
-        else { return }
-
-        imagePhraseContext = state.context
-        imagePhraseHighlightOffsets = state.offsets
-        imagePhraseHighlightRevision += 1
-    }
-
-    func exportProfileData() throws -> Data {
-        return try JSONEncoder().encode(currentUserProfile())
-    }
-
-    private func currentUserProfile() -> UserProfile {
-        let sortedFavorites = Array(favorites).sorted()
-        let sortedFavoritePhrases = Array(favoritePhrases).sorted()
-        return UserProfile(
-            schemaVersion: 4,
-            favouritesList: sortedFavorites,
-            favouriteEntries: sortedFavorites.map { FavouriteProfileEntry(character: $0, addedAt: favoriteAddedDates[$0]) },
-            favouritePhrasesList: sortedFavoritePhrases,
-            favouritePhraseEntries: sortedFavoritePhrases.map { FavouritePhraseProfileEntry(word: $0, addedAt: favoritePhraseDates[$0]) },
-            rememberedList: rootBreadcrumb,
-            searchHistory: searchHistory,
-            previewCharacter: previewCharacter,
-            lastSearchQuery: lastSearchQuery.isEmpty ? nil : lastSearchQuery,
-            currentSearchQuery: query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : query,
-            searchMode: searchMode.rawValue,
-            scriptFilter: scriptFilter.rawValue,
-            homeTab: homeTab.rawValue,
-            route: route.rawValue,
-            phraseLength: phraseLength,
-            promptConfig: promptConfig,
-            promptSelectedTaskIDs: promptSelectedTaskIDs,
-            defaultAISettings: DefaultAISettings(
-                preset: defaultAIPreset,
-                customURLString: customAIURLString
-            )
-        )
-    }
-
-    func importProfileData(_ data: Data) throws {
-        let profile = try JSONDecoder().decode(UserProfile.self, from: data)
-        applyImportedProfile(profile, mode: .complete)
-    }
-
-    func refreshAddedPhrases() {
-        addedPhrases = phraseRepo.fetchAddedPhrases()
-    }
-
-    func loadSharedComponentPeers(for character: String) {
-        sharedComponentPeers = componentRepo.sharedComponentPeers(for: character, scriptFilter: scriptFilter)
-            .filter(rootFilterPredicate)
-            .sorted(by: usageSortPredicate)
-    }
-
-    func loadSharedPeersByComponent(for character: String) {
-        let raw = componentRepo.sharedPeersByComponent(for: character, scriptFilter: scriptFilter)
-        var filtered: [String: [ComponentItem]] = [:]
-        for (key, list) in raw {
-            let keep = list
-                .filter(rootFilterPredicate)
-                .sorted(by: usageSortPredicate)
-            if !keep.isEmpty { filtered[key] = keep }
-        }
-        sharedPeersByComponent = filtered
-
-        // Derivatives are loaded separately via loadRootDerivatives; no coupling needed here
-    }
-
-    func rootInitialGridItems(limit: Int = Int.max) -> (items: [ComponentItem], total: Int) {
-        let filtered = allCharactersCache
-            .filter(rootFilterPredicate)
-            .filter { item in
-                switch scriptFilter {
-                case .any:
-                    return true
-                case .simplified:
-                    return componentRepo.isSimplifiedForGrid(item.character)
-                case .traditional:
-                    return componentRepo.isTraditionalForGrid(item.character)
-                }
-            }
-            .sorted(by: frequencySortPredicate)
-        return (Array(filtered.prefix(limit)), filtered.count)
-    }
-
-    func loadRootDerivatives(for character: String) {
-        let result = rootDerivatives(for: character)
-        rootDerivatives = result.items
-        rootDerivativesTotal = result.total
-    }
-
-    func rootDerivatives(for character: String) -> (items: [ComponentItem], total: Int) {
-        let key = RootsCacheKey(character: character, script: scriptFilter, minStroke: rootMinStroke, maxStroke: rootMaxStroke, radical: rootRadicalFilter, structure: rootStructureFilter)
-        if let cached = rootsDerivativesCache[key] {
-            return (cached.items, cached.total)
-        }
-
-        // Prefer current script filter; fall back to .any to avoid empties (e.g., 一)
-        let preferred = componentRepo.related(for: character, scriptFilter: scriptFilter, max: 8000)
-        let relatedAny = componentRepo.related(for: character, scriptFilter: .any, max: 8000)
-        let universe = componentRepo.containingCharacters(for: character, scriptFilter: scriptFilter, max: 8000)
-        let universeAny = componentRepo.containingCharacters(for: character, scriptFilter: .any, max: 8000)
-        let rawIDs = componentRepo.entry(for: character)?.relatedCharacters ?? []
-        let rawFromIDs = rawIDs.compactMap { componentRepo.byCharacter[$0] }.filter { componentRepo.matchesScriptFilter(item: $0, filter: scriptFilter) }
-
-        // Prefer explicit related list; else raw IDs; else containment universe.
-        let baseSet: [ComponentItem] = {
-            if !preferred.isEmpty { return preferred }
-            if !relatedAny.isEmpty { return relatedAny }
-            if !rawFromIDs.isEmpty { return rawFromIDs }
-            if !universe.isEmpty { return universe }
-            return universeAny
-        }()
-
-        // Apply roots filters (min strokes + structure) to derivatives
-        let filtered = baseSet.filter(rootFilterPredicate)
-
-        // If filters remove everything, fall back to unfiltered base to avoid empty UI
-        let finalSet = filtered.isEmpty ? baseSet : filtered
-
-        let sorted = finalSet.sorted(by: frequencySortPredicate)
-        let displayLimit = 500
-        let limited = Array(sorted.prefix(displayLimit))
-        rootsDerivativesCache[key] = RootsDerivativesCacheValue(items: limited, total: sorted.count)
-        return (limited, sorted.count)
-    }
-
-    // MARK: - Remembered Bar
-    func resetRootBreadcrumb(to character: String) {
-        pushRootBreadcrumb(character)
-    }
-
-    func pushRootBreadcrumb(_ character: String) {
-        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard key.count == 1, componentRepo.hasCharacter(key) else { return }
-        pushRootBreadcrumbItem(key)
-    }
-
-    private func pushRootBreadcrumbItem(_ item: String) {
-        let key = item.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard isValidRootBreadcrumbItem(key) else { return }
-        let next = MemoryStripState.inserting(key, into: rootBreadcrumb)
-        rootBreadcrumb = next.0
-        rootBreadcrumbIndex = next.1
-        persistRootBreadcrumb()
-    }
-
-    func removeRootBreadcrumb(_ character: String) {
-        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        let next = MemoryStripState.removing(key, from: rootBreadcrumb, currentIndex: rootBreadcrumbIndex)
-        rootBreadcrumb = next.0
-        rootBreadcrumbIndex = next.1
-        persistRootBreadcrumb()
-    }
-
-    func toggleRootBreadcrumb(_ character: String) {
-        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard isValidRootBreadcrumbItem(key) else { return }
-        if rootBreadcrumb.contains(key) {
-            removeRootBreadcrumb(key)
-        } else {
-            pushRootBreadcrumbItem(key)
-        }
-    }
-
-    func stepRootBreadcrumb(by delta: Int) -> String? {
-        guard let next = MemoryStripState.stepping(in: rootBreadcrumb, currentIndex: rootBreadcrumbIndex, delta: delta) else { return nil }
-        rootBreadcrumbIndex = next.index
-        return next.item
-    }
-
-    var canRootGoBack: Bool { MemoryStripState.canGoBack(currentIndex: rootBreadcrumbIndex) }
-    var canRootGoForward: Bool { MemoryStripState.canGoForward(currentIndex: rootBreadcrumbIndex, count: rootBreadcrumb.count) }
-
-    private var shouldHighlightBrowseImageMemoryOnly: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone
-            && route == .search
-            && homeTab == .filter
-            && selectedBrowseCollection != nil
-        #endif
-    }
-
-    func activateBreadcrumbCharacter(_ character: String) {
-        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        if let phrase = phraseRepo.fetchPhrase(for: key), key.count > 1 {
-            activateBreadcrumbPhrase(phrase)
-            return
-        }
-
-        guard key.count == 1, componentRepo.hasCharacter(key) else { return }
-        pushRootBreadcrumb(key)
-        sidebarPhrasePreview = nil
-        imageBrowsePhrasePreview = nil
-
-        switch route {
-        case .capture:
-            select(character: key, announce: false)
-        case .search:
-            switch homeTab {
-            case .smart:
-                let pinyinText = item(for: key)?.pinyinText.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-                let searchText = pinyinText.isEmpty ? key : pinyinText
-                query = searchText
-                previewCharacter = key
-                performSearch(customQuery: searchText)
-                refreshPhrases(for: key)
-            case .filter:
-                let shouldHighlightOnly = shouldHighlightBrowseImageMemoryOnly
-                if !shouldHighlightOnly {
-                    previewCharacter = key
-                }
-                let didHighlight = highlightMemoryMatchesInCurrentBrowseSource(key)
-                if shouldHighlightOnly, didHighlight {
-                    previewCharacter = nil
-                } else if !didHighlight {
-                    _ = focusGridCharacter(key)
-                }
-                refreshPhrases(for: key)
-            case .favourites:
-                setFavorite(character: key, isFavorite: !favorites.contains(key))
-            case .dataEdit:
-                openQuickCharacterEditor(key)
-            }
-        case .lineage:
-            select(character: key, announce: false)
-            loadSharedComponentPeers(for: key)
-            loadSharedPeersByComponent(for: key)
-            loadRootDerivatives(for: key)
-        case .aiLink:
-            previewCharacter = key
-            refreshPhrases(for: key)
-        case .favourites:
-            setFavorite(character: key, isFavorite: !favorites.contains(key))
-        }
-
-        if speechEnabled {
-            speechService.speak(key)
-        }
-    }
-
-    private func activateBreadcrumbPhrase(_ phrase: PhraseItem) {
-        let shouldHighlightOnly = shouldHighlightBrowseImageMemoryOnly
-        if shouldHighlightOnly {
-            let didHighlight = highlightMemoryMatchesInCurrentBrowseSource(phrase.word)
-            if didHighlight {
-                sidebarPhrasePreview = nil
-                imageBrowsePhrasePreview = nil
-                previewCharacter = nil
-                pushPhraseBreadcrumb(phrase)
-                if speechEnabled {
-                    speechService.speak(phrase.word)
-                }
-                return
-            }
-        }
-
-        sidebarPhrasePreview = phrase
-        imageBrowsePhrasePreview = nil
-        pushPhraseBreadcrumb(phrase)
-
-        switch route {
-        case .capture:
-            break
-        case .search:
-            switch homeTab {
-            case .smart:
-                let pinyinText = phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines)
-                let searchText = pinyinText.isEmpty ? phrase.word : pinyinText
-                query = searchText
-                performSearch(customQuery: searchText)
-            case .filter:
-                _ = highlightMemoryMatchesInCurrentBrowseSource(phrase.word)
-            case .favourites:
-                togglePhraseFavorite(phrase.word)
-            case .dataEdit:
-                openQuickPhraseEditor(word: phrase.word)
-            }
-        case .lineage:
-            if let firstCharacter = phrase.word.map(String.init).first {
-                select(character: firstCharacter, announce: false)
-                loadSharedComponentPeers(for: firstCharacter)
-                loadSharedPeersByComponent(for: firstCharacter)
-                loadRootDerivatives(for: firstCharacter)
-            }
-        case .aiLink:
-            break
-        case .favourites:
-            togglePhraseFavorite(phrase.word)
-        }
-
-        if speechEnabled {
-            speechService.speak(phrase.word)
-        }
-    }
-
-    // MARK: - Roots Cache
-    private struct RootsCacheKey: Hashable {
-        let character: String
-        let script: ScriptFilter
-        let minStroke: Int
-        let maxStroke: Int
-        let radical: String
-        let structure: String
-    }
-    private struct RootsDerivativesCacheValue {
-        let items: [ComponentItem]
-        let total: Int
-    }
-    private var rootsDerivativesCache: [RootsCacheKey: RootsDerivativesCacheValue] = [:]
-
-    func setAddPhrasesFile(url: URL) throws {
-        try phraseRepo.setAddDBOverride(url)
-        addPhrasesPath = phraseRepo.currentAddDBPath
-        refreshPhraseBackedViews(for: dataEditCharacter)
-        dataEditAutoSaveStatus = "Using custom phrases file: \(url.lastPathComponent)"
-    }
-
-    func restoreDefaultAddPhrasesFile() throws {
-        try phraseRepo.restoreDefaultAddDB()
-        addPhrasesPath = phraseRepo.currentAddDBPath
-        refreshPhraseBackedViews(for: dataEditCharacter)
-        dataEditAutoSaveStatus = "Using default phrases_add.db"
-    }
-
-    func exportAddPhrasesDB() throws -> Data {
-        let url = phraseRepo.currentAddDBURL
-        return try Data(contentsOf: url)
-    }
-
-    private func refreshPhraseBackedViews(for character: String?) {
-        phraseCache.removeAll()
-        refreshAddedPhrases()
-        syncDataEditPhraseCaches()
-        dataEditPhrases = addedPhrases
-
-        if let character, !character.isEmpty {
-            let entry = componentRepo.entry(for: character) ?? emptyEntryTemplate()
-            applyDataEditEntryToForm(entry, addedPhrases, favorites.contains(character))
-        }
-
-        refreshPhrases()
-        if hasPerformedSearch || !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            performSearch(recordHistory: false)
-        }
-    }
-
-    private func syncDataEditPhraseCaches() {
-        for (key, value) in dataEditCache {
-            dataEditCache[key] = (entry: value.entry, phrases: addedPhrases, isFav: value.isFav)
-        }
-    }
-
-    private func loadFavorites() {
-        if let data = UserDefaults.standard.data(forKey: favoriteEntriesKey),
-           let entries = try? JSONDecoder().decode([FavouriteProfileEntry].self, from: data) {
-            applyFavoriteEntries(entries)
-        } else if let saved = UserDefaults.standard.array(forKey: favoritesKey) as? [String] {
-            applyFavoriteCharacters(saved)
-        }
-
-        if let savedPhrases = UserDefaults.standard.array(forKey: favoritePhrasesKey) as? [String] {
-            favoritePhrases = Set(savedPhrases)
-        }
-
-        if let rawPhraseDates = UserDefaults.standard.dictionary(forKey: favoritePhraseDatesKey) as? [String: Double] {
-            favoritePhraseDates = rawPhraseDates.mapValues { Date(timeIntervalSince1970: $0) }
-        }
-
-        if let rawOverlayDates = UserDefaults.standard.dictionary(forKey: overlayAddedDatesKey) as? [String: Double] {
-            overlayAddedDates = rawOverlayDates.mapValues { Date(timeIntervalSince1970: $0) }
-        }
-    }
-
-    private func loadSearchHistory() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    func loadSearchHistory() {
         guard let saved = UserDefaults.standard.array(forKey: searchHistoryKey) as? [String] else { return }
         searchHistory = saved
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
     }
 
-    private func appendSearchHistory(_ query: String) {
+    func appendSearchHistory(_ query: String) {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         searchHistory.append(trimmed)
         UserDefaults.standard.set(searchHistory, forKey: searchHistoryKey)
     }
 
-    private func loadRootBreadcrumb() {
-        guard let saved = UserDefaults.standard.array(forKey: rootBreadcrumbKey) as? [String] else { return }
-        let loaded = sanitizedRootBreadcrumb(saved)
 
-        rootBreadcrumb = loaded
-        rootBreadcrumbIndex = loaded.isEmpty ? 0 : min(rootBreadcrumbIndex, loaded.count - 1)
-    }
 
-    private func persistRootBreadcrumb() {
-        UserDefaults.standard.set(rootBreadcrumb, forKey: rootBreadcrumbKey)
-    }
-
-    private func applyRootBreadcrumb(_ characters: [String]) {
-        let remembered = sanitizedRootBreadcrumb(characters)
-        rootBreadcrumb = remembered
-        rootBreadcrumbIndex = remembered.isEmpty ? 0 : min(rootBreadcrumbIndex, remembered.count - 1)
-        persistRootBreadcrumb()
-    }
-
-    private func sanitizedRootBreadcrumb(_ characters: [String]) -> [String] {
-        var remembered: [String] = []
-        var seen = Set<String>()
-
-        for item in characters {
-            let key = item.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard isValidRootBreadcrumbItem(key), !seen.contains(key) else { continue }
-            seen.insert(key)
-            remembered.append(key)
-        }
-
-        return remembered
-    }
-
-    private func isValidRootBreadcrumbItem(_ item: String) -> Bool {
-        guard !item.isEmpty else { return false }
-        if item.count == 1 {
-            return componentRepo.hasCharacter(item)
-        }
-        return phraseRepo.fetchPhrase(for: item) != nil
-    }
-
-    private func applySearchHistory(_ queries: [String]) {
-        searchHistory = queries
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-        UserDefaults.standard.set(searchHistory, forKey: searchHistoryKey)
-    }
-
-    private func seedBreadcrumbFromFavorites() {
-        var seeded: [String] = []
-        var seen = Set<String>()
-
-        let sortedFavoriteCharacters = FavoriteOrdering.sortedByAddedDate(
-            Array(favorites),
-            dateForValue: { favoriteAddedDates[$0] },
-            fallbackSort: <
-        )
-
-        func append(_ character: String) {
-            guard character.count == 1, componentRepo.hasCharacter(character), !seen.contains(character) else { return }
-            seen.insert(character)
-            seeded.append(character)
-        }
-
-        sortedFavoriteCharacters.forEach(append)
-
-        let sortedFavoritePhrases = FavoriteOrdering.sortedByAddedDate(
-            Array(favoritePhrases),
-            dateForValue: { favoritePhraseDates[$0] },
-            fallbackSort: <
-        )
-
-        for phrase in sortedFavoritePhrases {
-            guard phraseRepo.fetchPhrase(for: phrase) != nil, !seen.contains(phrase) else { continue }
-            seen.insert(phrase)
-            seeded.append(phrase)
-        }
-
-        rootBreadcrumb = seeded
-        rootBreadcrumbIndex = seeded.isEmpty ? 0 : min(rootBreadcrumbIndex, seeded.count - 1)
-        persistRootBreadcrumb()
-    }
-
-    private func pushPhraseBreadcrumb(_ phrase: PhraseItem) {
+    func pushPhraseBreadcrumb(_ phrase: PhraseItem) {
         pushRootBreadcrumbItem(phrase.word)
     }
 
-    private func requestDataEditDictionaryFocus() {
+    func requestDataEditDictionaryFocus() {
         dataEditFocusRequestID += 1
     }
 
-    private func requestPhraseEditFocus() {
+    func requestPhraseEditFocus() {
         phraseEditFocusRequestID += 1
     }
 
-    private func rememberLastPreviewedCharacter(_ character: String?) {
+    func rememberLastPreviewedCharacter(_ character: String?) {
         guard let character else { return }
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
         guard key.count == 1, componentRepo.hasCharacter(key) else { return }
         UserDefaults.standard.set(key, forKey: lastPreviewCharacterKey)
     }
 
-    private func restoreLastPreviewedCharacterIfNeeded() {
+    func restoreLastPreviewedCharacterIfNeeded() {
         guard previewCharacter == nil else { return }
         guard let saved = UserDefaults.standard.string(forKey: lastPreviewCharacterKey) else { return }
         let key = saved.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -3823,64 +821,7 @@ final class RadixStore: ObservableObject {
         loadRootDerivatives(for: key)
     }
 
-    private func persistFavorites() {
-        let sortedFavorites = Array(favorites).sorted()
-        let entries = sortedFavorites.map { FavouriteProfileEntry(character: $0, addedAt: favoriteAddedDates[$0]) }
-        UserDefaults.standard.set(sortedFavorites, forKey: favoritesKey)
-        if let data = try? JSONEncoder().encode(entries) {
-            UserDefaults.standard.set(data, forKey: favoriteEntriesKey)
-        }
-    }
-
-    private func persistFavoritePhrases() {
-        UserDefaults.standard.set(Array(favoritePhrases), forKey: favoritePhrasesKey)
-        persistFavoritePhraseDates()
-    }
-
-    private func applyFavoriteCharacters(_ characters: [String]) {
-        favorites = Set(characters.filter { componentRepo.hasCharacter($0) })
-        favoriteAddedDates = [:]
-    }
-
-    private func applyFavoriteEntries(_ entries: [FavouriteProfileEntry]) {
-        var characters = Set<String>()
-        var datedEntries: [String: Date] = [:]
-
-        for entry in entries {
-            guard componentRepo.hasCharacter(entry.character) else { continue }
-            characters.insert(entry.character)
-            if let addedAt = entry.addedAt {
-                datedEntries[entry.character] = addedAt
-            }
-        }
-
-        favorites = characters
-        favoriteAddedDates = datedEntries
-    }
-
-    private func applyFavoritePhraseWords(_ words: [String]) {
-        favoritePhrases = Set(words)
-        favoritePhraseDates = [:]
-    }
-
-    private func applyFavoritePhraseEntries(_ entries: [FavouritePhraseProfileEntry]) {
-        var words = Set<String>()
-        var datedEntries: [String: Date] = [:]
-
-        for entry in entries {
-            let trimmedWord = entry.word.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmedWord.isEmpty else { continue }
-            words.insert(trimmedWord)
-            if let addedAt = entry.addedAt {
-                datedEntries[trimmedWord] = addedAt
-            }
-        }
-
-        favoritePhrases = words
-        favoritePhraseDates = datedEntries
-    }
-
-    private func applyImportedProfile(_ profile: UserProfile, mode: RestoreMode) {
+    func applyImportedProfile(_ profile: UserProfile, mode: RestoreMode) {
         let isCompleteRestore = mode == .complete
 
         if let entries = profile.favouriteEntries, !entries.isEmpty {
@@ -3981,7 +922,7 @@ final class RadixStore: ObservableObject {
         }
     }
 
-    private func loadPromptSettings() {
+    func loadPromptSettings() {
         if UserDefaults.standard.object(forKey: speechEnabledKey) != nil {
             speechEnabled = UserDefaults.standard.bool(forKey: speechEnabledKey)
         } else if UserDefaults.standard.object(forKey: speakOnSelectionKey) != nil ||
@@ -4015,7 +956,7 @@ final class RadixStore: ObservableObject {
         speechService.speakCharacters(in: text)
     }
 
-    private func persistPromptSettings() {
+    func persistPromptSettings() {
         if let data = try? JSONEncoder().encode(promptConfig) { UserDefaults.standard.set(data, forKey: promptConfigKey) }
         UserDefaults.standard.set(promptSelectedTaskIDs, forKey: promptTaskSelectionKey)
         UserDefaults.standard.set(defaultAIPreset.rawValue, forKey: defaultAIPresetKey)
@@ -4023,100 +964,18 @@ final class RadixStore: ObservableObject {
         updatePromptAutosaveStatus()
     }
 
-    var defaultAIName: String {
-        aiName(for: defaultAIPreset)
-    }
 
-    func aiName(for preset: DefaultAIPreset) -> String {
-        switch preset {
-        case .custom:
-            if let host = normalizedCustomAIURL?.host, !host.isEmpty {
-                return host
-            }
-            return preset.displayName
-        default:
-            return preset.displayName
-        }
-    }
 
-    var defaultAIBaseURLString: String {
-        aiBaseURLString(for: defaultAIPreset)
-    }
 
-    func aiBaseURLString(for preset: DefaultAIPreset) -> String {
-        switch preset {
-        case .custom:
-            return normalizedCustomAIURL?.absoluteString ?? ""
-        default:
-            return preset.baseURLString
-        }
-    }
 
-    var defaultAIPrefillsPrompt: Bool {
-        aiPrefillsPrompt(for: defaultAIPreset)
-    }
 
-    func aiPrefillsPrompt(for preset: DefaultAIPreset) -> Bool {
-        switch preset {
-        case .chatGPT:
-            return true
-        case .custom:
-            return (normalizedCustomAIURL?.absoluteString.contains("{prompt}") == true)
-        default:
-            return false
-        }
-    }
 
-    func defaultAIURL(prompt: String) -> URL? {
-        aiURL(for: defaultAIPreset, prompt: prompt)
-    }
 
-    func aiURL(for preset: DefaultAIPreset, prompt: String) -> URL? {
-        switch preset {
-        case .chatGPT:
-            var components = URLComponents(string: preset.baseURLString)
-            components?.queryItems = [
-                URLQueryItem(name: "q", value: prompt)
-            ]
-            return components?.url
-        case .custom:
-            guard let custom = normalizedCustomAIURL else { return nil }
-            let urlString = custom.absoluteString
-            if urlString.contains("{prompt}") {
-                let encoded = prompt.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? prompt
-                return URL(string: urlString.replacingOccurrences(of: "{prompt}", with: encoded))
-            }
-            return custom
-        default:
-            return URL(string: preset.baseURLString)
-        }
-    }
 
-    private var normalizedCustomAIURL: URL? {
-        let trimmed = customAIURLString.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return nil }
-        if let direct = URL(string: trimmed), direct.scheme != nil {
-            return direct
-        }
-        return URL(string: "https://\(trimmed)")
-    }
 
-    private func updatePromptAutosaveStatus(now: Date = Date()) {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        let savedText = formatter.localizedString(for: now, relativeTo: now)
-        promptAutosaveStatus = "Changes save automatically. Last saved \(savedText)."
-    }
 
-    private func sanitizeCollections(_ collections: [CharacterCollection]) -> [CharacterCollection] {
-        collections.map { collection in
-            var copy = collection
-            copy.characters = collection.characters.filter { componentRepo.hasCharacter($0) }
-            return copy
-        }.filter { !$0.characters.isEmpty }
-    }
 
-    private func mergeImportedCollections(_ importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
+    func mergeImportedCollections(_ importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
         guard let importedCollections else { return }
         var mergedByID = Dictionary(uniqueKeysWithValues: allCollections.map { ($0.id, $0) })
         for collection in sanitizeCollections(importedCollections) {
@@ -4134,7 +993,7 @@ final class RadixStore: ObservableObject {
         }
     }
 
-    private func replaceCollections(with importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
+    func replaceCollections(with importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
         allCollections = sanitizeCollections(importedCollections ?? [])
         sortCollections()
         persistCollections()
@@ -4150,7 +1009,7 @@ final class RadixStore: ObservableObject {
         }
     }
 
-    private func loadDictionaryRepository() throws {
+    func loadDictionaryRepository() throws {
         try componentRepo.loadFromBundle()
 
         if FileManager.default.fileExists(atPath: dictionaryOverlayFileURL.path) {
@@ -4167,7 +1026,7 @@ final class RadixStore: ObservableObject {
         }
     }
 
-    private func persistDictionaryOverlay() throws {
+    func persistDictionaryOverlay() throws {
         dataEditSavePath = dictionaryOverlayFileURL.path
         if componentRepo.hasOverlayChanges {
             try componentRepo.saveOverlay(to: dictionaryOverlayFileURL)
@@ -4176,7 +1035,7 @@ final class RadixStore: ObservableObject {
         }
     }
 
-    private func removeDictionaryOverlayFiles() throws {
+    func removeDictionaryOverlayFiles() throws {
         if FileManager.default.fileExists(atPath: dictionaryOverlayFileURL.path) {
             try FileManager.default.removeItem(at: dictionaryOverlayFileURL)
         }
@@ -4185,7 +1044,7 @@ final class RadixStore: ObservableObject {
         }
     }
 
-    private var dictionaryOverlayFileURL: URL {
+    var dictionaryOverlayFileURL: URL {
         if let projectURL = ProjectLiveDataLocator.file(named: "component_map_changes.json") {
             return projectURL
         }
@@ -4193,12 +1052,27 @@ final class RadixStore: ObservableObject {
         return docs.appendingPathComponent("component_map_changes.json")
     }
 
-    private var legacyEditableDictionaryFileURL: URL {
+    var legacyEditableDictionaryFileURL: URL {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         return docs.appendingPathComponent("component_map_editable.json")
     }
 
-    private func emptyEntryTemplate() -> RawComponentEntry {
+    func emptyEntryTemplate() -> RawComponentEntry {
         RawComponentEntry(relatedCharacters: [], meta: RawMeta(variant: nil, additionalVariants: nil, pinyin: .single(""), definition: "", decomposition: "", idc: "", radical: "", strokes: .string(""), compounds: .many([]), etymology: RawEtymology(type: "", hint: .single(""), details: .single("")), notes: .many([])))
+    }
+
+    func updatePromptAutosaveStatus(now: Date = Date()) {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        let savedText = formatter.localizedString(for: now, relativeTo: now)
+        promptAutosaveStatus = "Changes save automatically. Last saved \(savedText)."
+    }
+
+    func sanitizeCollections(_ collections: [CharacterCollection]) -> [CharacterCollection] {
+        collections.map { collection in
+            var copy = collection
+            copy.characters = collection.characters.filter { componentRepo.hasCharacter($0) }
+            return copy
+        }.filter { !$0.characters.isEmpty }
     }
 }

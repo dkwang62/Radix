@@ -38,6 +38,19 @@
 		850000072F9D0001001B9AA7 /* ComponentsRootsPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000062F9D0001001B9AA7 /* ComponentsRootsPopover.swift */; };
 		8500000A2F9D0001001B9AA7 /* BrowseGridLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000092F9D0001001B9AA7 /* BrowseGridLayout.swift */; };
 		8500000C2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */; };
+		8500000E2F9D0003001B9AA7 /* RadixStoreCollections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500000D2F9D0003001B9AA7 /* RadixStoreCollections.swift */; };
+		850000102F9D0004001B9AA7 /* RadixStorePrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500000F2F9D0004001B9AA7 /* RadixStorePrompts.swift */; };
+		850000122F9D0005001B9AA7 /* RadixStoreFavorites.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000112F9D0005001B9AA7 /* RadixStoreFavorites.swift */; };
+		850000142F9D0006001B9AA7 /* RadixStorePhraseFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000132F9D0006001B9AA7 /* RadixStorePhraseFile.swift */; };
+		850000162F9D0007001B9AA7 /* RadixStoreDataEdit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000152F9D0007001B9AA7 /* RadixStoreDataEdit.swift */; };
+		850000182F9D0008001B9AA7 /* RadixStoreSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000172F9D0008001B9AA7 /* RadixStoreSearch.swift */; };
+		8500001A2F9D0009001B9AA7 /* RadixStoreNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000192F9D0009001B9AA7 /* RadixStoreNavigation.swift */; };
+		8500001C2F9D000A001B9AA7 /* RadixStoreImagePhrase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500001B2F9D000A001B9AA7 /* RadixStoreImagePhrase.swift */; };
+		8500001E2F9D000B001B9AA7 /* RadixStoreRootsBreadcrumb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500001D2F9D000B001B9AA7 /* RadixStoreRootsBreadcrumb.swift */; };
+		850000202F9D000C001B9AA7 /* RadixStoreRootsCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500001F2F9D000C001B9AA7 /* RadixStoreRootsCache.swift */; };
+		850000222F9D000D001B9AA7 /* RadixStoreDataEditHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000212F9D000D001B9AA7 /* RadixStoreDataEditHelpers.swift */; };
+		850000242F9D000E001B9AA7 /* RadixStoreAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000232F9D000E001B9AA7 /* RadixStoreAI.swift */; };
+		850000262F9D000F001B9AA7 /* RadixStoreGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000252F9D000F001B9AA7 /* RadixStoreGrid.swift */; };
 		8500000E2F9D0001001B9AA7 /* BackupSummaryBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500000D2F9D0001001B9AA7 /* BackupSummaryBuilder.swift */; };
 		850000102F9D0001001B9AA7 /* ImagePhraseMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500000F2F9D0001001B9AA7 /* ImagePhraseMatcher.swift */; };
 		850000122F9D0001001B9AA7 /* CharacterSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000112F9D0001001B9AA7 /* CharacterSpeechService.swift */; };
@@ -73,6 +86,7 @@
 		8500004E2F9D0001001B9AA7 /* PhraseAddDatabaseLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500004D2F9D0001001B9AA7 /* PhraseAddDatabaseLocationManager.swift */; };
 		850000502F9D0001001B9AA7 /* PhraseAddDatabaseSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500004F2F9D0001001B9AA7 /* PhraseAddDatabaseSchema.swift */; };
 		850000522F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000512F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift */; };
+		850000542F9D0002001B9AA7 /* PhraseQueryRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000532F9D0002001B9AA7 /* PhraseQueryRunner.swift */; };
 		850000542F9D0001001B9AA7 /* ComponentScriptClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000532F9D0001001B9AA7 /* ComponentScriptClassifier.swift */; };
 		850000562F9D0001001B9AA7 /* ComponentDecompositionParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000552F9D0001001B9AA7 /* ComponentDecompositionParser.swift */; };
 		850000582F9D0001001B9AA7 /* ComponentOverlayBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000572F9D0001001B9AA7 /* ComponentOverlayBuilder.swift */; };
@@ -238,6 +252,7 @@
 		8500004D2F9D0001001B9AA7 /* PhraseAddDatabaseLocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseAddDatabaseLocationManager.swift; sourceTree = "<group>"; };
 		8500004F2F9D0001001B9AA7 /* PhraseAddDatabaseSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseAddDatabaseSchema.swift; sourceTree = "<group>"; };
 		850000512F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhrasePinyinSearchIndex.swift; sourceTree = "<group>"; };
+		850000532F9D0002001B9AA7 /* PhraseQueryRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseQueryRunner.swift; sourceTree = "<group>"; };
 		850000532F9D0001001B9AA7 /* ComponentScriptClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentScriptClassifier.swift; sourceTree = "<group>"; };
 		850000552F9D0001001B9AA7 /* ComponentDecompositionParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentDecompositionParser.swift; sourceTree = "<group>"; };
 		850000572F9D0001001B9AA7 /* ComponentOverlayBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentOverlayBuilder.swift; sourceTree = "<group>"; };
@@ -246,9 +261,23 @@
 		8500005D2F9D0001001B9AA7 /* ComponentSearchEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentSearchEngine.swift; sourceTree = "<group>"; };
 		8500005F2F9D0001001B9AA7 /* StrokePathTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokePathTransformer.swift; sourceTree = "<group>"; };
 		850000612F9D0001001B9AA7 /* StrokeIDSParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeIDSParser.swift; sourceTree = "<group>"; };
+		850000632F9D0001001B9AA7 /* REFACTOR_STATUS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = REFACTOR_STATUS.md; sourceTree = "<group>"; };
 		911F85BE195D61BDA4442400 /* PhraseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseModels.swift; sourceTree = "<group>"; };
 		850000092F9D0001001B9AA7 /* BrowseGridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseGridLayout.swift; sourceTree = "<group>"; };
 		8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreExtractedHelpers.swift; sourceTree = "<group>"; };
+		8500000D2F9D0003001B9AA7 /* RadixStoreCollections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreCollections.swift; sourceTree = "<group>"; };
+		8500000F2F9D0004001B9AA7 /* RadixStorePrompts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStorePrompts.swift; sourceTree = "<group>"; };
+		850000112F9D0005001B9AA7 /* RadixStoreFavorites.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreFavorites.swift; sourceTree = "<group>"; };
+		850000132F9D0006001B9AA7 /* RadixStorePhraseFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStorePhraseFile.swift; sourceTree = "<group>"; };
+		850000152F9D0007001B9AA7 /* RadixStoreDataEdit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreDataEdit.swift; sourceTree = "<group>"; };
+		850000172F9D0008001B9AA7 /* RadixStoreSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreSearch.swift; sourceTree = "<group>"; };
+		850000192F9D0009001B9AA7 /* RadixStoreNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreNavigation.swift; sourceTree = "<group>"; };
+		8500001B2F9D000A001B9AA7 /* RadixStoreImagePhrase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreImagePhrase.swift; sourceTree = "<group>"; };
+		8500001D2F9D000B001B9AA7 /* RadixStoreRootsBreadcrumb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreRootsBreadcrumb.swift; sourceTree = "<group>"; };
+		8500001F2F9D000C001B9AA7 /* RadixStoreRootsCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreRootsCache.swift; sourceTree = "<group>"; };
+		850000212F9D000D001B9AA7 /* RadixStoreDataEditHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreDataEditHelpers.swift; sourceTree = "<group>"; };
+		850000232F9D000E001B9AA7 /* RadixStoreAI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreAI.swift; sourceTree = "<group>"; };
+		850000252F9D000F001B9AA7 /* RadixStoreGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreGrid.swift; sourceTree = "<group>"; };
 		8500000D2F9D0001001B9AA7 /* BackupSummaryBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupSummaryBuilder.swift; sourceTree = "<group>"; };
 		8500000F2F9D0001001B9AA7 /* ImagePhraseMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePhraseMatcher.swift; sourceTree = "<group>"; };
 		850000112F9D0001001B9AA7 /* CharacterSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterSpeechService.swift; sourceTree = "<group>"; };
@@ -320,6 +349,7 @@
 				8500004D2F9D0001001B9AA7 /* PhraseAddDatabaseLocationManager.swift */,
 				8500004F2F9D0001001B9AA7 /* PhraseAddDatabaseSchema.swift */,
 				850000512F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift */,
+				850000532F9D0002001B9AA7 /* PhraseQueryRunner.swift */,
 				864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */,
 				850000532F9D0001001B9AA7 /* ComponentScriptClassifier.swift */,
 				850000552F9D0001001B9AA7 /* ComponentDecompositionParser.swift */,
@@ -384,6 +414,7 @@
 		D05A58803F821C8C3F50E993 = {
 			isa = PBXGroup;
 			children = (
+				850000632F9D0001001B9AA7 /* REFACTOR_STATUS.md */,
 				C94D867F618771FE33C19738 /* enhanced_component_map_with_etymology.json */,
 				6C8EA1AAC376266D445DC85F /* phrases.db */,
 				D355D0DC4BFD564CD930A664 /* SUBTLEX-CH-CHR.txt */,
@@ -435,6 +466,19 @@
 			isa = PBXGroup;
 			children = (
 				864DAB872F93B701001B9AA7 /* RadixStore.swift */,
+				8500000D2F9D0003001B9AA7 /* RadixStoreCollections.swift */,
+				8500000F2F9D0004001B9AA7 /* RadixStorePrompts.swift */,
+				850000112F9D0005001B9AA7 /* RadixStoreFavorites.swift */,
+				850000132F9D0006001B9AA7 /* RadixStorePhraseFile.swift */,
+				850000152F9D0007001B9AA7 /* RadixStoreDataEdit.swift */,
+				850000172F9D0008001B9AA7 /* RadixStoreSearch.swift */,
+				850000192F9D0009001B9AA7 /* RadixStoreNavigation.swift */,
+				8500001B2F9D000A001B9AA7 /* RadixStoreImagePhrase.swift */,
+				8500001D2F9D000B001B9AA7 /* RadixStoreRootsBreadcrumb.swift */,
+				8500001F2F9D000C001B9AA7 /* RadixStoreRootsCache.swift */,
+				850000212F9D000D001B9AA7 /* RadixStoreDataEditHelpers.swift */,
+				850000232F9D000E001B9AA7 /* RadixStoreAI.swift */,
+				850000252F9D000F001B9AA7 /* RadixStoreGrid.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -561,6 +605,19 @@
 				1223C8F22F180001001B9AA7 /* PhraseContextRanker.swift in Sources */,
 				8500000A2F9D0001001B9AA7 /* BrowseGridLayout.swift in Sources */,
 				8500000C2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift in Sources */,
+				8500000E2F9D0003001B9AA7 /* RadixStoreCollections.swift in Sources */,
+				850000102F9D0004001B9AA7 /* RadixStorePrompts.swift in Sources */,
+				850000122F9D0005001B9AA7 /* RadixStoreFavorites.swift in Sources */,
+				850000142F9D0006001B9AA7 /* RadixStorePhraseFile.swift in Sources */,
+				850000162F9D0007001B9AA7 /* RadixStoreDataEdit.swift in Sources */,
+				850000182F9D0008001B9AA7 /* RadixStoreSearch.swift in Sources */,
+				8500001A2F9D0009001B9AA7 /* RadixStoreNavigation.swift in Sources */,
+				8500001C2F9D000A001B9AA7 /* RadixStoreImagePhrase.swift in Sources */,
+				8500001E2F9D000B001B9AA7 /* RadixStoreRootsBreadcrumb.swift in Sources */,
+				850000202F9D000C001B9AA7 /* RadixStoreRootsCache.swift in Sources */,
+				850000222F9D000D001B9AA7 /* RadixStoreDataEditHelpers.swift in Sources */,
+				850000242F9D000E001B9AA7 /* RadixStoreAI.swift in Sources */,
+				850000262F9D000F001B9AA7 /* RadixStoreGrid.swift in Sources */,
 				8500000E2F9D0001001B9AA7 /* BackupSummaryBuilder.swift in Sources */,
 				850000102F9D0001001B9AA7 /* ImagePhraseMatcher.swift in Sources */,
 				8500003E2F9D0001001B9AA7 /* PinyinSearchNormalizer.swift in Sources */,
@@ -607,6 +664,7 @@
 				8500004E2F9D0001001B9AA7 /* PhraseAddDatabaseLocationManager.swift in Sources */,
 				850000502F9D0001001B9AA7 /* PhraseAddDatabaseSchema.swift in Sources */,
 				850000522F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift in Sources */,
+				850000542F9D0002001B9AA7 /* PhraseQueryRunner.swift in Sources */,
 				850000542F9D0001001B9AA7 /* ComponentScriptClassifier.swift in Sources */,
 				850000562F9D0001001B9AA7 /* ComponentDecompositionParser.swift in Sources */,
 				850000582F9D0001001B9AA7 /* ComponentOverlayBuilder.swift in Sources */,

@@ -136,7 +136,7 @@ struct FavouritesTab: View {
         let isActive = item.character == store.previewCharacter
 
         return Button {
-            store.preview(character: item.character, announce: false)
+            store.preview(character: item.character)
         } label: {
             VStack(spacing: 2) {
                 Text(item.character)

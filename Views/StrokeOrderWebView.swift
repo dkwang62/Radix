@@ -251,7 +251,7 @@ struct StrokeAnimationHeaderLabel: View {
 
     var body: some View {
         Text(text.isEmpty ? " " : text)
-            .font(.system(size: 9, weight: .semibold))
+            .font(.system(size: 11, weight: .semibold))
             .foregroundStyle(.primary)
             .lineLimit(1)
             .minimumScaleFactor(0.75)
