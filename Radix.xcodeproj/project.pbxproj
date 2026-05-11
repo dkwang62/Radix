@@ -95,6 +95,9 @@
 		8500005E2F9D0001001B9AA7 /* ComponentSearchEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500005D2F9D0001001B9AA7 /* ComponentSearchEngine.swift */; };
 		850000602F9D0001001B9AA7 /* StrokePathTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8500005F2F9D0001001B9AA7 /* StrokePathTransformer.swift */; };
 		850000622F9D0001001B9AA7 /* StrokeIDSParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000612F9D0001001B9AA7 /* StrokeIDSParser.swift */; };
+		850000662F9D0001001B9AA7 /* FilterGridTabGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000652F9D0001001B9AA7 /* FilterGridTabGrid.swift */; };
+		850000682F9D0001001B9AA7 /* FilterGridTabSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000672F9D0001001B9AA7 /* FilterGridTabSource.swift */; };
+		8500006A2F9D0001001B9AA7 /* FilterGridTabNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000692F9D0001001B9AA7 /* FilterGridTabNavigation.swift */; };
 		859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */; };
 		864DAB762F93ADA3001B9AA7 /* ComponentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */; };
 		864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB872F93B701001B9AA7 /* RadixStore.swift */; };
@@ -262,6 +265,9 @@
 		8500005F2F9D0001001B9AA7 /* StrokePathTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokePathTransformer.swift; sourceTree = "<group>"; };
 		850000612F9D0001001B9AA7 /* StrokeIDSParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeIDSParser.swift; sourceTree = "<group>"; };
 		850000632F9D0001001B9AA7 /* REFACTOR_STATUS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = REFACTOR_STATUS.md; sourceTree = "<group>"; };
+		850000652F9D0001001B9AA7 /* FilterGridTabGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterGridTabGrid.swift; sourceTree = "<group>"; };
+		850000672F9D0001001B9AA7 /* FilterGridTabSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterGridTabSource.swift; sourceTree = "<group>"; };
+		850000692F9D0001001B9AA7 /* FilterGridTabNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterGridTabNavigation.swift; sourceTree = "<group>"; };
 		911F85BE195D61BDA4442400 /* PhraseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseModels.swift; sourceTree = "<group>"; };
 		850000092F9D0001001B9AA7 /* BrowseGridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseGridLayout.swift; sourceTree = "<group>"; };
 		8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreExtractedHelpers.swift; sourceTree = "<group>"; };
@@ -319,6 +325,9 @@
 				86CD14382F9822B300D7BDBD /* FavouritesTab.swift */,
 				86CD14392F9822B300D7BDBD /* FileTransferModifier.swift */,
 				86CD143A2F9822B300D7BDBD /* FilterGridTab.swift */,
+				850000652F9D0001001B9AA7 /* FilterGridTabGrid.swift */,
+				850000672F9D0001001B9AA7 /* FilterGridTabSource.swift */,
+				850000692F9D0001001B9AA7 /* FilterGridTabNavigation.swift */,
 				850000152F9D0001001B9AA7 /* BrowseSourceMenuViews.swift */,
 				86CD143B2F9822B300D7BDBD /* QuickEditSheets.swift */,
 				850000192F9D0001001B9AA7 /* QuickEditFieldRows.swift */,
@@ -586,6 +595,9 @@
 				86CD14482F9822B300D7BDBD /* SmartSearchTab.swift in Sources */,
 				86CD14492F9822B300D7BDBD /* AddPhrasesFileDocument.swift in Sources */,
 				86CD144A2F9822B300D7BDBD /* FilterGridTab.swift in Sources */,
+				850000662F9D0001001B9AA7 /* FilterGridTabGrid.swift in Sources */,
+				850000682F9D0001001B9AA7 /* FilterGridTabSource.swift in Sources */,
+				8500006A2F9D0001001B9AA7 /* FilterGridTabNavigation.swift in Sources */,
 				850000162F9D0001001B9AA7 /* BrowseSourceMenuViews.swift in Sources */,
 				86CD144B2F9822B300D7BDBD /* SmartResultsGrid.swift in Sources */,
 				86CD14582F9822B300D7BDBD /* CapturePhraseDiscoveryModels.swift in Sources */,

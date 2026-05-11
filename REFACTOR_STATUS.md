@@ -5,6 +5,19 @@ Last verified build: `xcodebuild -project Radix.xcodeproj -scheme Radix -destina
 
 ---
 
+## Post-checkpoint update
+
+`FilterGridTab.swift` has now been split into focused Browse extensions:
+
+- `FilterGridTab.swift` — state, layout shell, sheets, alerts
+- `FilterGridTabGrid.swift` — dictionary/image grid content, paging footer, swipe gesture, grid controls
+- `FilterGridTabSource.swift` — source row, source picker, image-source actions, collection editing helpers
+- `FilterGridTabNavigation.swift` — browse return flow, scroll restoration, tile anchors, manual collection creation
+
+The iOS build was verified clean after this split.
+
+---
+
 ## Summary
 
 The full maintainability refactor is complete. `RadixStore.swift` was reduced from **4,204 → 1,078 lines** (−74%) by extracting every logical domain into focused `extension RadixStore` files. The Services layer was similarly split. Total line count across the codebase is stable — no logic was removed, only reorganised.
