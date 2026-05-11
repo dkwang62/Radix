@@ -312,17 +312,34 @@ final class PhraseRepository {
         addDBLocationManager.currentLocalURL
     }
 
-    func phrases(containing character: String, length: Int, limit: Int = 120) -> [PhraseItem] {
-        let baseSQL = "SELECT word, pinyin, meanings FROM phrases WHERE word LIKE ? AND length(word) = ? LIMIT ?"
-        let addSQL = "SELECT word, pinyin, meanings, added_at, notes FROM phrases WHERE word LIKE ? AND length(word) = ? LIMIT ?"
+    func phrases(containing character: String, length: Int, limit: Int? = nil) -> [PhraseItem] {
+        let baseSQL = "SELECT word, pinyin, meanings FROM phrases WHERE word LIKE ? AND length(word) = ?" + (limit == nil ? "" : " LIMIT ?")
+        let addSQL = "SELECT word, pinyin, meanings, added_at, notes FROM phrases WHERE word LIKE ? AND length(word) = ?" + (limit == nil ? "" : " LIMIT ?")
         let bind: (OpaquePointer?) -> Void = { stmt in
             guard let stmt else { return }
             sqlite3_bind_text(stmt, 1, ("%\(character)%" as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_int(stmt, 2, Int32(length))
-            sqlite3_bind_int(stmt, 3, Int32(limit))
+            if let limit {
+                sqlite3_bind_int(stmt, 3, Int32(limit))
+            }
         }
         let results = queryRunner.mergedQueries(baseSQL: baseSQL, addSQL: addSQL, binder: bind)
         return results.filter { $0.word.contains(character) }
+    }
+
+    func maxPhraseLength(default fallback: Int = 7) -> Int {
+        max(maxPhraseLength(in: baseDb), maxPhraseLength(in: addDb), fallback)
+    }
+
+    private func maxPhraseLength(in db: OpaquePointer?) -> Int {
+        guard let db else { return 0 }
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, "SELECT MAX(length(word)) FROM phrases", -1, &stmt, nil) == SQLITE_OK else {
+            return 0
+        }
+        defer { sqlite3_finalize(stmt) }
+        guard sqlite3_step(stmt) == SQLITE_ROW else { return 0 }
+        return Int(sqlite3_column_int(stmt, 0))
     }
 
     func searchByDefinition(term: String, limit: Int = 120, isStrict: Bool = false) -> [PhraseItem] {

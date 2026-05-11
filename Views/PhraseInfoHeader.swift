@@ -6,7 +6,9 @@ extension PhraseInfoCard {
             Text(phrase.word)
                 .font(.system(size: 28, weight: .bold))
                 .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .minimumScaleFactor(0.35)
+                .allowsTightening(true)
+                .layoutPriority(1)
                 .phraseContextMenu(phrase)
 
             Spacer(minLength: 0)
@@ -40,37 +42,19 @@ extension PhraseInfoCard {
     }
 
     var phrasePinyinRow: some View {
-        HStack(alignment: .center, spacing: 8) {
+        HStack(alignment: .top, spacing: 8) {
             let trimmedPinyin = phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines)
             if !trimmedPinyin.isEmpty {
                 Text(trimmedPinyin)
                     .font(ResponsiveFont.headline.weight(.semibold))
                     .foregroundStyle(Color.orange)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.75)
+                    .minimumScaleFactor(0.45)
+                    .allowsTightening(true)
+                    .layoutPriority(1)
             }
 
             Spacer(minLength: 0)
-
-            if let onDone {
-                Button {
-                    onDone()
-                } label: {
-                    Text("Done")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color(.separator).opacity(0.75), lineWidth: 1)
-                )
-                .accessibilityLabel("Close")
-            }
         }
     }
 }

@@ -157,6 +157,11 @@ extension RadixStore {
         return result
     }
 
+    func phraseMatchesActiveLength(_ phrase: PhraseItem) -> Bool {
+        guard let phraseLength else { return true }
+        return phraseLength >= 7 ? phrase.word.count >= 7 : phrase.word.count == phraseLength
+    }
+
     func isPhraseInBase(_ word: String) -> Bool {
         phraseRepo.isInBase(word: phraseStorageWord(word))
     }

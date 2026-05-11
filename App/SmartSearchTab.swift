@@ -69,7 +69,6 @@ struct SmartSearchTab: View {
                     PhraseInfoCard(phrase: phrase, onDone: finishPhraseLookup)
                         .environmentObject(store)
                         .padding()
-                        .navigationTitle(phrase.word)
                         .navigationBarTitleDisplayMode(.inline)
                 }
                 .presentationDetents([.medium, .large])

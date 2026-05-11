@@ -337,7 +337,7 @@ final class RadixStore: ObservableObject {
     @Published var lineagePage: Int = 0
     @Published var related: [ComponentItem] = []
     @Published var phrases: [PhraseItem] = []
-    @Published var phraseLength: Int = 2
+    @Published var phraseLength: Int? = nil
     @Published var sharedComponentPeers: [ComponentItem] = []
     @Published var sharedPeersByComponent: [String: [ComponentItem]] = [:]
     @Published var addedPhrases: [PhraseItem] = []
@@ -871,10 +871,10 @@ final class RadixStore: ObservableObject {
         } else if isCompleteRestore {
             homeTab = .filter
         }
-        if let importedPhraseLength = profile.phraseLength, [2, 3, 4].contains(importedPhraseLength) {
+        if let importedPhraseLength = profile.phraseLength, (2...7).contains(importedPhraseLength) {
             phraseLength = importedPhraseLength
         } else if isCompleteRestore {
-            phraseLength = 2
+            phraseLength = nil
         }
         if let cfg = profile.promptConfig {
             promptConfig = cfg.normalized()

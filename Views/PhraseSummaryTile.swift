@@ -13,8 +13,8 @@ struct PhraseSummaryTile: View {
             Text(phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "-" : phrase.pinyin)
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
-                .lineLimit(2)
-                .minimumScaleFactor(0.75)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)

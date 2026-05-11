@@ -2,10 +2,59 @@ import SwiftUI
 
 extension PhraseInfoCard {
     @ViewBuilder
-    var animationGrid: some View {
-        let characters = Array(phraseCharacters.prefix(12))
-        LazyVGrid(columns: phraseGridColumns, spacing: 10) {
-            ForEach(Array(characters.enumerated()), id: \.offset) { _, character in
+    var phraseAnimationPicker: some View {
+        let characters = phraseCharacters
+        if !characters.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                phraseAnimationPageButtons(characters)
+                phraseAnimationTileGrid(characters)
+            }
+        }
+    }
+
+    @ViewBuilder
+    func phraseAnimationPageButtons(_ characters: [String]) -> some View {
+        let pageCount = phraseAnimationPageCount(for: characters)
+        if pageCount > 1 {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(0..<pageCount, id: \.self) { page in
+                        phraseAnimationPageButton(page: page, characters: characters)
+                    }
+                }
+                .padding(.vertical, 1)
+            }
+        }
+    }
+
+    func phraseAnimationPageButton(page: Int, characters: [String]) -> some View {
+        let isSelected = selectedAnimationPage == page
+        let label = phraseAnimationPageLabel(page: page, characters: characters)
+        return Button {
+            selectedAnimationPage = page
+        }
+        label: {
+            Text(label)
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                .foregroundStyle(isSelected ? Color.white : Color.primary)
+                .background(isSelected ? Color.accentColor : Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.accentColor.opacity(isSelected ? 0 : 0.35), lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Show phrase characters \(label)")
+    }
+
+    func phraseAnimationTileGrid(_ characters: [String]) -> some View {
+        let safePage = min(selectedAnimationPage, max(phraseAnimationPageCount(for: characters) - 1, 0))
+        let pageCharacters = phraseAnimationCharacters(on: safePage, from: characters)
+        return LazyVGrid(columns: phraseGridColumns, spacing: 10) {
+            ForEach(Array(pageCharacters.enumerated()), id: \.offset) { _, character in
                 phraseCharacterTile(character)
             }
         }
@@ -21,6 +70,7 @@ extension PhraseInfoCard {
     func phraseCharacterTile(_ character: String) -> some View {
         let animationCharacter = animationCharacter(for: character)
         let strokeText = phraseTileStrokeText(for: animationCharacter)
+
         return Button {
             selectCharacterFromPhrase(animationCharacter)
         } label: {
@@ -47,6 +97,21 @@ extension PhraseInfoCard {
         }
         .buttonStyle(.plain)
         .copyCharacterContextMenu(animationCharacter, pinyin: store.item(for: animationCharacter)?.pinyinText)
+    }
+
+    func phraseAnimationPageCount(for characters: [String]) -> Int {
+        max(1, Int(ceil(Double(characters.count) / 4.0)))
+    }
+
+    func phraseAnimationCharacters(on page: Int, from characters: [String]) -> [String] {
+        let start = page * 4
+        guard start < characters.count else { return Array(characters.prefix(4)) }
+        let end = min(start + 4, characters.count)
+        return Array(characters[start..<end])
+    }
+
+    func phraseAnimationPageLabel(page: Int, characters: [String]) -> String {
+        phraseAnimationCharacters(on: page, from: characters).joined()
     }
 
     func phraseTileStrokeText(for character: String) -> String {

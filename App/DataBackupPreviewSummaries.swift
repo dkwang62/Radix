@@ -59,7 +59,7 @@ extension DataBackupPreviewSection {
             }
             BackupSummaryLine(title: "Search history", value: "\(store.searchHistory.count) items")
             BackupSummaryLine(title: "Remembered trail", value: "\(store.rootBreadcrumb.count) items")
-            BackupSummaryLine(title: "Phrase length", value: "\(store.phraseLength)-character")
+            BackupSummaryLine(title: "Phrase length", value: store.activePhraseLengthFilterLabel)
         }
         .padding(.top, 8)
     }

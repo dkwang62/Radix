@@ -85,6 +85,8 @@ Compare this character with 2–3 other characters of similar meaning or usage, 
                 template: """
 Extract Phrases
 
+You are producing data for an automatic parser. Follow the output contract exactly.
+
 From the collection details below, extract relevant and high-impact 2-, 3-, and 4-character Chinese phrases that function as dictionary headwords.
 
 Rules:
@@ -101,12 +103,37 @@ Provide pinyin with tone marks.
 
 Provide a concise English meaning.
 
-Output only in this format:
-Phrase | Pinyin | Concise English meaning
+STRICT OUTPUT CONTRACT:
+
+Output records only. No introduction, no conclusion, no explanation.
+
+Do not output a header row.
+
+Do not use Markdown tables, bullets, numbering, code blocks, or labels.
+
+Every non-empty output line must contain exactly one phrase record.
+
+Every record must contain exactly 3 fields separated by exactly 2 pipe characters.
+
+Field order must be: Chinese phrase | pinyin with tone marks | concise English meaning.
+
+Do not put pipe characters inside the English meaning.
+
+VALID OUTPUT EXAMPLE:
+人工智能 | rén gōng zhì néng | artificial intelligence
+国际关系 | guó jì guān xì | international relations
+
+INVALID OUTPUT EXAMPLES:
+Phrase | Pinyin | Meaning
+| Phrase | Pinyin | Meaning |
+1. 人工智能 | rén gōng zhì néng | artificial intelligence
 
 Important:
 
 Do not explain your method.
+
+Before answering, silently verify that every non-empty line has exactly this structure:
+Chinese phrase | pinyin | meaning
 
 """
             ),
@@ -240,6 +267,7 @@ extension PromptConfig {
             if task.template.contains("{capture_chars}") || task.template.contains("{capture_text}") || task.template.contains("{collection_name}") ||
                 task.template.contains("Task 4 – Extract Phrases from Image") ||
                 task.template.contains("Task 4 – Extract Phrases from Page (image)") ||
+                (task.id == "task4" && !task.template.contains("STRICT OUTPUT CONTRACT")) ||
                 task.template.contains("Task 5 – Universal Content Architect") {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {

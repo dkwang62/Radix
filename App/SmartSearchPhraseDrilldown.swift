@@ -8,19 +8,12 @@ extension SmartSearchTab {
     }
 
     var initialPhraseMatchesForSelectedLength: [PhraseItem] {
-        store.filteredSmartPhraseResults.filter { $0.word.count == store.phraseLength }
+        store.filteredSmartPhraseResults.filter(store.phraseMatchesActiveLength)
     }
 
     var phraseLengthPicker: some View {
         HStack {
-            Picker("Length", selection: $store.phraseLength) {
-                Text("2-char").tag(2)
-                Text("3-char").tag(3)
-                Text("4-char").tag(4)
-            }
-            .font(ResponsiveFont.subheadline)
-            .pickerStyle(.segmented)
-            .frame(maxWidth: 280)
+            PhraseLengthFilterChips(selection: $store.phraseLength)
             Spacer()
         }
     }
@@ -39,7 +32,7 @@ extension SmartSearchTab {
                 phraseLengthPicker
 
                 if searchDrilldownPhrases.isEmpty {
-                    emptyPhraseMessage("No \(store.phraseLength)-character phrase matches are available yet for \(current).")
+                    emptyPhraseMessage("No \(store.activePhraseLengthFilterLabel)-length phrase matches are available yet for \(current).")
                 } else {
                     LazyVStack(alignment: .leading, spacing: 8) {
                         ForEach(searchDrilldownPhrases.prefix(30)) { phrase in
@@ -59,7 +52,7 @@ extension SmartSearchTab {
                 .font(ResponsiveFont.headline)
             phraseLengthPicker
             if initialPhraseMatchesForSelectedLength.isEmpty {
-                emptyPhraseMessage("No \(store.phraseLength)-character phrase matches for this search.")
+                emptyPhraseMessage("No \(store.activePhraseLengthFilterLabel)-length phrase matches for this search.")
             }
             LazyVStack(alignment: .leading, spacing: 8) {
                 ForEach(initialPhraseMatchesForSelectedLength.prefix(50)) { phrase in

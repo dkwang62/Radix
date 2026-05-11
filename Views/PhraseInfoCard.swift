@@ -11,9 +11,17 @@ struct PhraseInfoCard: View {
     @State var hasLocalNotes = false
     @State var editStatus: String?
     @State var showAddPhraseSheet = false
+    @State var selectedAnimationPage = 0
 
     var phraseCharacters: [String] {
-        phrase.word.map(String.init).filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        phrase.word.map(String.init).filter { character in
+            let trimmed = character.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return false }
+            guard !trimmed.unicodeScalars.contains(where: { CharacterSet.punctuationCharacters.contains($0) }) else {
+                return false
+            }
+            return store.item(for: trimmed) != nil
+        }
     }
 
     var body: some View {
@@ -34,6 +42,7 @@ struct PhraseInfoCard: View {
                 hasLocalNotes = false
                 editStatus = nil
                 isEditingNotes = false
+                selectedAnimationPage = 0
             }
             .onAppear {
                 if !hasLocalNotes {
@@ -47,7 +56,7 @@ struct PhraseInfoCard: View {
             phraseHeader
             phrasePinyinRow
             animationScriptToggle
-            animationGrid
+            phraseAnimationPicker
             phraseMeaningAndNotes
         }
     }

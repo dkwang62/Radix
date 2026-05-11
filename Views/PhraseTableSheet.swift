@@ -58,19 +58,13 @@ struct PhraseTableSheet: View {
             } else {
                 copyHintLabel
 
-                Picker("Length", selection: $store.phraseLength) {
-                    Text("2-char").tag(2)
-                    Text("3-char").tag(3)
-                    Text("4-char").tag(4)
-                }
-                .font(ResponsiveFont.subheadline)
-                .pickerStyle(.segmented)
+                PhraseLengthFilterChips(selection: $store.phraseLength)
 
                 if store.phrases.isEmpty {
                     ContentUnavailableView(
                         "No phrases found",
                         systemImage: "text.justify",
-                        description: Text("No \(store.phraseLength)-character phrases were found for \(character).")
+                        description: Text("No \(store.activePhraseLengthFilterLabel)-length phrases were found for \(character).")
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -172,7 +166,7 @@ private struct PhraseTableRow: View {
                     .font(ResponsiveFont.body.bold())
                 Text(phrase.pinyin.isEmpty ? "-" : phrase.pinyin)
                     .font(ResponsiveFont.caption)
-                    .lineLimit(2)
+                    .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
                     .minimumScaleFactor(0.85)
                     .foregroundStyle(.secondary)

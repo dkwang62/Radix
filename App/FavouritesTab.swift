@@ -46,10 +46,9 @@ struct FavouritesTab: View {
             NavigationStack {
                 PhraseInfoCard(phrase: phrase, onDone: {
                     selectedPhrase = nil
-                })
+                    })
                     .environmentObject(store)
                     .padding()
-                    .navigationTitle(phrase.word)
                     .navigationBarTitleDisplayMode(.inline)
             }
             .presentationDetents([.medium, .large])

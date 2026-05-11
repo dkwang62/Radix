@@ -39,7 +39,6 @@ struct DataBackupPreviewSection: View {
                 })
                     .environmentObject(store)
                     .padding()
-                    .navigationTitle(phrase.word)
                     .navigationBarTitleDisplayMode(.inline)
             }
             .presentationDetents([.medium, .large])

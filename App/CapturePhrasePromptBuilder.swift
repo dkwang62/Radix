@@ -19,19 +19,36 @@ enum CapturePhrasePromptBuilder {
         let phraseList = phrases.joined(separator: "\n")
 
         return """
-        For each Chinese phrase below, provide pinyin with tone marks and a concise English meaning.
+        You are producing data for an automatic parser. Follow the output contract exactly.
 
-        Output only in this format:
-        Phrase | Pinyin | Concise English meaning
+        For each valid Chinese phrase below, provide pinyin with tone marks and one concise English meaning.
+
+        STRICT OUTPUT CONTRACT:
+        - Output records only. No introduction, no conclusion, no explanation.
+        - Do not output a header row.
+        - Do not use Markdown tables, bullets, numbering, code blocks, or labels.
+        - Every non-empty output line must contain exactly one phrase record.
+        - Every record must contain exactly 3 fields separated by exactly 2 pipe characters.
+        - Field order must be: Chinese phrase | pinyin with tone marks | concise English meaning
+        - Preserve each Chinese phrase exactly as written in the input.
+        - Do not add phrases that are not in the input list.
+        - If a phrase is invalid or not a real phrase, omit it.
+        - Do not put pipe characters inside the English meaning.
+
+        VALID OUTPUT EXAMPLE:
+        人工智能 | rén gōng zhì néng | artificial intelligence
+        国际关系 | guó jì guān xì | international relations
+
+        INVALID OUTPUT EXAMPLES:
+        Phrase | Pinyin | Meaning
+        | Phrase | Pinyin | Meaning |
+        1. 人工智能 | rén gōng zhì néng | artificial intelligence
 
         Phrases:
         \(phraseList)
 
-        Important:
-        - Preserve each phrase exactly as written.
-        - Do not add phrases that are not in the list.
-        - Do not include headings, numbering, bullets, markdown tables, or explanations.
-        - If a phrase is invalid or not a real phrase, omit it.
+        Before answering, silently verify that every non-empty line has exactly this structure:
+        Chinese phrase | pinyin | meaning
         """
     }
 
@@ -39,6 +56,8 @@ enum CapturePhrasePromptBuilder {
         let knownList = knownPhrases.isEmpty ? "(none)" : knownPhrases.joined(separator: "\n")
 
         return """
+        You are producing data for an automatic parser. Follow the output contract exactly.
+
         From the Chinese text below, extract useful 2-, 3-, and 4-character Chinese phrases that are found as dictionary headwords.
 
         Ignore phrases already in this known list:
@@ -56,8 +75,24 @@ enum CapturePhrasePromptBuilder {
         - Include only 2-, 3-, and 4-character Chinese phrases.
         - Provide pinyin with tone marks.
         - Provide a concise English meaning.
-        - Output only in this format:
-        Phrase | Pinyin | Concise English meaning
+
+        STRICT OUTPUT CONTRACT:
+        - Output records only. No introduction, no conclusion, no explanation.
+        - Do not output a header row.
+        - Do not use Markdown tables, bullets, numbering, code blocks, or labels.
+        - Every non-empty output line must contain exactly one phrase record.
+        - Every record must contain exactly 3 fields separated by exactly 2 pipe characters.
+        - Field order must be: Chinese phrase | pinyin with tone marks | concise English meaning
+        - Do not put pipe characters inside the English meaning.
+
+        VALID OUTPUT EXAMPLE:
+        人工智能 | rén gōng zhì néng | artificial intelligence
+        国际关系 | guó jì guān xì | international relations
+
+        INVALID OUTPUT EXAMPLES:
+        Phrase | Pinyin | Meaning
+        | Phrase | Pinyin | Meaning |
+        1. 人工智能 | rén gōng zhì néng | artificial intelligence
 
         Chinese text:
         \(rawText)
@@ -66,6 +101,8 @@ enum CapturePhrasePromptBuilder {
         - Do not delete or shorten the OCR text.
         - Do not analyze one character at a time unless explicitly asked.
         - The known phrase list is for ignoring existing phrases, not for removing context.
+        - Before answering, silently verify that every non-empty line has exactly this structure:
+          Chinese phrase | pinyin | meaning
         """
     }
 }

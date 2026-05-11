@@ -27,7 +27,7 @@ extension CharacterDetailView {
                 Image(systemName: showPhraseTable ? "text.justify" : "text.justify.left")
                 Text(showPhraseTable ? "Hide Phrase Table" : "Show Phrase Table")
                 Spacer()
-                Text("\(store.phraseLength)-char")
+                Text("\(store.activePhraseLengthFilterLabel)-char")
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
             }

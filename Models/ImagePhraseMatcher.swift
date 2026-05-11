@@ -41,9 +41,9 @@ enum ImagePhraseMatcher {
         )
     }
 
-    static func cacheKey(character: String, length: Int, context: ImagePhraseContext?) -> String {
-        guard let context else { return "\(character)|\(length)" }
-        return "\(character)|\(length)|image|\(context.collectionID.uuidString)|\(context.offset)|\(context.prev.map(String.init) ?? "")|\(context.next.map(String.init) ?? "")"
+    static func cacheKey(character: String, lengthKey: String, context: ImagePhraseContext?) -> String {
+        guard let context else { return "\(character)|\(lengthKey)" }
+        return "\(character)|\(lengthKey)|image|\(context.collectionID.uuidString)|\(context.offset)|\(context.prev.map(String.init) ?? "")|\(context.next.map(String.init) ?? "")"
     }
 
     static func rankedPhraseResults(

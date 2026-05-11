@@ -22,14 +22,7 @@ struct CharacterPhraseLookupSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Picker("Length", selection: $store.phraseLength) {
-                    Text("2-char").tag(2)
-                    Text("3-char").tag(3)
-                    Text("4-char").tag(4)
-                }
-                .font(ResponsiveFont.subheadline)
-                .pickerStyle(.segmented)
-                .frame(maxWidth: 280)
+                PhraseLengthFilterChips(selection: $store.phraseLength)
                 Spacer()
                 Button {
                     finishLookup()
@@ -68,7 +61,6 @@ struct CharacterPhraseLookupSection: View {
                 PhraseInfoCard(phrase: phrase, onDone: finishLookup)
                     .environmentObject(store)
                     .padding()
-                    .navigationTitle(phrase.word)
                     .navigationBarTitleDisplayMode(.inline)
             }
             .presentationDetents([.medium, .large])
@@ -100,7 +92,7 @@ struct CharacterPhraseLookupSection: View {
                     .font(ResponsiveFont.body.bold())
                 Text(phrase.pinyin.isEmpty ? "-" : phrase.pinyin)
                     .font(ResponsiveFont.caption)
-                    .lineLimit(2)
+                    .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
                     .minimumScaleFactor(0.85)
                     .foregroundStyle(.secondary)
@@ -182,5 +174,39 @@ struct CharacterPhraseLookupSection: View {
 
     private var phraseViewportHeight: CGFloat {
         (phraseRowHeight * CGFloat(visiblePhraseRows)) + 5
+    }
+}
+
+struct PhraseLengthFilterChips: View {
+    @Binding var selection: Int?
+
+    private let options: [Int?] = [nil, 2, 3, 4, 5, 6, 7]
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(Array(options.enumerated()), id: \.offset) { _, option in
+                    Button {
+                        selection = option
+                    } label: {
+                        Text(label(for: option))
+                            .font(ResponsiveFont.caption.weight(.semibold))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(selection == option ? Color.accentColor : Color(.secondarySystemBackground))
+                            .foregroundStyle(selection == option ? Color.white : Color.primary)
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(option.map { $0 >= 7 ? "7 or more characters" : "\($0) characters" } ?? "All phrase lengths")
+                }
+            }
+            .padding(.vertical, 1)
+        }
+    }
+
+    private func label(for option: Int?) -> String {
+        guard let option else { return "All" }
+        return option >= 7 ? "7+" : "\(option)"
     }
 }

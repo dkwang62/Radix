@@ -71,7 +71,7 @@ extension FavouritesTab {
                     .font(ResponsiveFont.body.bold())
                 Text(phrase.pinyin.isEmpty ? "-" : phrase.pinyin)
                     .font(ResponsiveFont.caption)
-                    .lineLimit(2)
+                    .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
                     .minimumScaleFactor(0.85)
                     .foregroundStyle(.secondary)
