@@ -1,0 +1,137 @@
+import SwiftUI
+
+struct AddPhraseInputForm: View {
+    @EnvironmentObject private var store: RadixStore
+    let onAdd: (PhraseDiscoveryCandidate, String?) -> Void
+    let onCancel: () -> Void
+
+    @State private var word = ""
+    @State private var pinyin = ""
+    @State private var meanings = ""
+    @State private var notes = ""
+    @State private var editorError: String?
+
+    @FocusState private var focused: InputField?
+    private enum InputField: Hashable { case word, pinyin, meanings, notes }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                if let editorError {
+                    Text(editorError)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.red)
+                }
+
+                fieldBlock("Phrase") {
+                    TextField("Chinese phrase", text: $word)
+                        .font(ResponsiveFont.body.bold())
+                        .textFieldStyle(.roundedBorder)
+                        .focused($focused, equals: .word)
+                }
+
+                fieldBlock("Pinyin") {
+                    TextField("Pinyin", text: $pinyin)
+                        .font(ResponsiveFont.body.monospaced())
+                        .textFieldStyle(.roundedBorder)
+                        .focused($focused, equals: .pinyin)
+                }
+
+                fieldBlock("English Meaning") {
+                    TextEditor(text: $meanings)
+                        .font(ResponsiveFont.body)
+                        .frame(height: 80)
+                        .padding(8)
+                        .background(Color(.secondarySystemBackground).opacity(0.6))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 0.5))
+                        .focused($focused, equals: .meanings)
+                }
+
+                fieldBlock("Notes / Sentences / Practice") {
+                    notesEditor
+                }
+            }
+            .padding()
+        }
+
+        Divider()
+
+        actionRow
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Button("Done") { focused = nil }
+                    Spacer()
+                    Button("Add Phrase") { addPhrase() }
+                        .disabled(word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+            }
+    }
+
+    private var notesEditor: some View {
+        ZStack(alignment: .topLeading) {
+            TextEditor(text: $notes)
+                .font(ResponsiveFont.body)
+                .scrollContentBackground(.hidden)
+                .padding(8)
+                .focused($focused, equals: .notes)
+            if notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Text("Example sentences, usage notes, reminders...")
+                    .font(ResponsiveFont.body)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 16)
+                    .allowsHitTesting(false)
+            }
+        }
+        .frame(height: 140)
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 1))
+    }
+
+    private var actionRow: some View {
+        HStack {
+            Spacer()
+            Button("Cancel", action: onCancel)
+                .buttonStyle(.bordered)
+            Button("Add Phrase") { addPhrase() }
+                .buttonStyle(.borderedProminent)
+                .disabled(word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
+        .padding()
+        .background(Color(.systemBackground))
+    }
+
+    private func fieldBlock<C: View>(_ label: String, @ViewBuilder content: () -> C) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(ResponsiveFont.caption.bold())
+                .foregroundStyle(.secondary)
+            content()
+        }
+    }
+
+    private func addPhrase() {
+        do {
+            let trimmed = store.normalizedPhraseWord(word)
+            try store.addCustomPhrase(word: trimmed, pinyin: pinyin, meanings: meanings, notes: notes)
+            editorError = nil
+            onAdd(
+                PhraseDiscoveryCandidate(
+                    phrase: trimmed,
+                    pinyin: pinyin,
+                    meaning: meanings,
+                    isSelected: true
+                ),
+                "Added \(trimmed)."
+            )
+            word = ""
+            pinyin = ""
+            meanings = ""
+            notes = ""
+        } catch {
+            editorError = error.localizedDescription
+        }
+    }
+}

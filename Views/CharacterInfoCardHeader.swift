@@ -1,0 +1,86 @@
+import SwiftUI
+
+extension CharacterInfoCard {
+    var tierRow: some View {
+        HStack(spacing: 6) {
+            tierButton
+            Spacer(minLength: 0)
+        }
+    }
+
+    func headerRow(
+        characterSize: CGFloat,
+        pinyinFont: Font
+    ) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            usageCharactersButton(characterSize: characterSize)
+
+            Text(displayPinyin)
+                .font(pinyinFont)
+                .foregroundStyle(Color.orange)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+                .minimumScaleFactor(0.7)
+                .layoutPriority(1)
+
+            Spacer(minLength: 0)
+            favoritesButton
+        }
+    }
+
+    var favoritesButton: some View {
+        Button {
+            store.setFavorite(character: item.character, isFavorite: !store.isFavorite(item.character))
+        } label: {
+            Image(systemName: store.isFavorite(item.character) ? "star.fill" : "star")
+                .foregroundStyle(store.isFavorite(item.character) ? .yellow : .secondary)
+        }
+        .buttonStyle(.plain)
+        .controlSize(cardActionControlSize)
+        .font(cardActionFont)
+        .help(store.isFavorite(item.character) ? "Remove from favorites" : "Add to favorites")
+    }
+
+    var tierButton: some View {
+        Button {
+            showFrequencyGuide = true
+        } label: {
+            HStack(spacing: 6) {
+                tierChip(for: item.tier)
+                Text(tierRecommendation)
+                    .font(ResponsiveFont.caption2.italic())
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: $showFrequencyGuide, arrowEdge: .bottom) {
+            tierGuideView
+        }
+    }
+
+    func usageCharactersButton(characterSize: CGFloat) -> some View {
+        Button {
+            guard item.usageCount > 1 else {
+                activeChipGuide = .usageCount
+                return
+            }
+            openComponentsPopover(component: item.character)
+        } label: {
+            characterTile(
+                character: item.character,
+                subtitle: usageCountSubtitle,
+                size: characterTileSize,
+                characterSize: characterSize,
+                isHighlighted: false
+            )
+        }
+        .buttonStyle(.plain)
+        .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
+        .popover(isPresented: chipGuideBinding(for: .usageCount), arrowEdge: .bottom) {
+            chipGuideView(for: .usageCount)
+                .applyCompactPopoverStyle()
+        }
+    }
+}

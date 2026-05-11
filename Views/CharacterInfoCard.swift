@@ -1,17 +1,20 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct CharacterInfoCard: View {
-    @EnvironmentObject private var store: RadixStore
+    @EnvironmentObject var store: RadixStore
     let item: ComponentItem
     let variants: [String]
     let onSelectVariant: ((String) -> Void)?
     let showClearButton: Bool
     let onShowPhrases: (() -> Void)?
     let onClear: (() -> Void)?
-    @State private var showFrequencyGuide = false
-    @State private var activeChipGuide: ChipGuide?
-    @State private var showComponentsPopover = false
-    @State private var selectedPopupComponent: String?
+    @State var showFrequencyGuide = false
+    @State var activeChipGuide: ChipGuide?
+    @State var showComponentsPopover = false
+    @State var selectedPopupComponent: String?
     @Binding var variantIndex: Int
 
     init(
@@ -32,7 +35,6 @@ struct CharacterInfoCard: View {
         self.onSelectVariant = onSelectVariant
     }
 
-    // Backwards-compat init for call sites still passing a single counterpart
     init(item: ComponentItem, counterpart: String?, onSelectCounterpart: ((String) -> Void)? = nil) {
         self.item = item
         self.variants = counterpart.map { [$0] } ?? []
@@ -43,7 +45,7 @@ struct CharacterInfoCard: View {
         self.onSelectVariant = onSelectCounterpart
     }
 
-    private var isPhone: Bool {
+    var isPhone: Bool {
         #if targetEnvironment(macCatalyst)
         return false
         #else
@@ -52,33 +54,29 @@ struct CharacterInfoCard: View {
     }
 
     var body: some View {
-        content
-        .padding(16)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color(.separator), lineWidth: 1)
-        )
-        .onChange(of: item.character) { _, _ in
-            variantIndex = 0
-            selectedPopupComponent = nil
-        }
-        .popover(isPresented: $showComponentsPopover, arrowEdge: .bottom) {
-            ComponentsRootsPopover(
-                character: item.character,
-                selectedComponent: $selectedPopupComponent
-            )
-            .environmentObject(store)
-            .applyComponentsRootsPopoverStyle()
-        }
-    }
-
-    private var content: some View {
         standardContent
+            .padding(16)
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color(.separator), lineWidth: 1)
+            )
+            .onChange(of: item.character) { _, _ in
+                variantIndex = 0
+                selectedPopupComponent = nil
+            }
+            .popover(isPresented: $showComponentsPopover, arrowEdge: .bottom) {
+                ComponentsRootsPopover(
+                    character: item.character,
+                    selectedComponent: $selectedPopupComponent
+                )
+                .environmentObject(store)
+                .applyComponentsRootsPopoverStyle()
+            }
     }
 
-    private var standardContent: some View {
+    var standardContent: some View {
         VStack(alignment: .leading, spacing: 10) {
             headerRow(
                 characterSize: isPhone ? 30 : 34,
@@ -86,24 +84,14 @@ struct CharacterInfoCard: View {
             )
 
             tierRow
-
-            if !structurePartsText.isEmpty || !item.radical.isEmpty {
-                HStack(spacing: 6) {
-                    if !structurePartsText.isEmpty {
-                        chipButton(structurePartsText, guide: .structure)
-                    }
-                }
-            }
-
+            structureChipRow
             componentIconStrip
-
             actionRow
-
             definitionAndNotes
         }
     }
 
-    private var actionRow: some View {
+    var actionRow: some View {
         CharacterInfoCardActions(
             character: item.character,
             showClearButton: showClearButton,
@@ -112,332 +100,4 @@ struct CharacterInfoCard: View {
             onClear: onClear
         )
     }
-
-    private var tierRow: some View {
-        HStack(spacing: 6) {
-            tierButton
-            Spacer(minLength: 0)
-        }
-    }
-
-    private func headerRow(
-        characterSize: CGFloat,
-        pinyinFont: Font
-    ) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            usageCharactersButton(characterSize: characterSize)
-
-            Text(displayPinyin)
-                .font(pinyinFont)
-                .foregroundStyle(Color.orange)
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
-                .minimumScaleFactor(0.7)
-                .layoutPriority(1)
-
-            Spacer(minLength: 0)
-            favoritesButton
-        }
-    }
-
-    private var favoritesButton: some View {
-        Button {
-            store.setFavorite(character: item.character, isFavorite: !store.isFavorite(item.character))
-        } label: {
-            Image(systemName: store.isFavorite(item.character) ? "star.fill" : "star")
-                .foregroundStyle(store.isFavorite(item.character) ? .yellow : .secondary)
-        }
-        .buttonStyle(.plain)
-        .controlSize(cardActionControlSize)
-        .font(cardActionFont)
-        .help(store.isFavorite(item.character) ? "Remove from favorites" : "Add to favorites")
-    }
-
-    private var tierButton: some View {
-        Button {
-            showFrequencyGuide = true
-        } label: {
-            HStack(spacing: 6) {
-                tierChip(for: item.tier)
-                Text(tierRecommendation)
-                    .font(ResponsiveFont.caption2.italic())
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-            }
-        }
-        .buttonStyle(.plain)
-        .popover(isPresented: $showFrequencyGuide, arrowEdge: .bottom) {
-            tierGuideView
-        }
-    }
-
-    private func chipButton(_ text: String, guide: ChipGuide) -> some View {
-        Button {
-            activeChipGuide = guide
-        } label: {
-            chip(text)
-        }
-        .buttonStyle(.plain)
-        .popover(isPresented: chipGuideBinding(for: guide), arrowEdge: .bottom) {
-            chipGuideView(for: guide)
-                .applyCompactPopoverStyle()
-        }
-    }
-
-    private func usageCharactersButton(characterSize: CGFloat) -> some View {
-        Button {
-            guard item.usageCount > 1 else {
-                activeChipGuide = .usageCount
-                return
-            }
-            openComponentsPopover(component: item.character)
-        } label: {
-            characterTile(
-                character: item.character,
-                subtitle: usageCountSubtitle,
-                size: characterTileSize,
-                characterSize: characterSize,
-                isHighlighted: false
-            )
-        }
-        .buttonStyle(.plain)
-        .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
-        .popover(isPresented: chipGuideBinding(for: .usageCount), arrowEdge: .bottom) {
-            chipGuideView(for: .usageCount)
-                .applyCompactPopoverStyle()
-        }
-    }
-
-    private func openComponentsPopover(component: String?) {
-        selectedPopupComponent = component ?? item.character
-        showComponentsPopover = true
-    }
-
-    private var cardComponents: [ComponentItem] {
-        store.components(for: item.character)
-    }
-
-    @ViewBuilder
-    private var componentIconStrip: some View {
-        if !cardComponents.isEmpty {
-            LazyVGrid(columns: componentGridColumns, alignment: .leading, spacing: 8) {
-                ForEach(cardComponents, id: \.character) { component in
-                    componentIconButton(component)
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func componentIconButton(_ component: ComponentItem) -> some View {
-        let isRadical = component.character == item.radical
-        Button {
-            openComponentsPopover(component: component.character)
-        } label: {
-            characterTile(
-                character: component.character,
-                subtitle: component.pinyinText.isEmpty ? nil : component.pinyinText,
-                size: componentTileSize,
-                characterSize: componentCharacterFontSize,
-                isHighlighted: isRadical
-            )
-        }
-        .buttonStyle(.plain)
-        .copyCharacterContextMenu(component.character, pinyin: component.pinyinText)
-    }
-
-    private func characterTile(
-        character: String,
-        subtitle: String?,
-        size: CGFloat,
-        characterSize: CGFloat,
-        isHighlighted: Bool
-    ) -> some View {
-        CharacterInfoTile(
-            character: character,
-            subtitle: subtitle,
-            size: size,
-            characterSize: characterSize,
-            isHighlighted: isHighlighted
-        )
-    }
-
-    private var componentGridColumns: [GridItem] {
-        [GridItem(.adaptive(minimum: componentTileSize, maximum: componentTileSize), spacing: 6)]
-    }
-
-    private var characterTileSize: CGFloat {
-        isPhone ? 64 : 70
-    }
-
-    private var componentTileSize: CGFloat {
-        isPhone ? 48 : 54
-    }
-
-    private var componentCharacterFontSize: CGFloat {
-        isPhone ? 20 : 22
-    }
-
-    private var usageCountSubtitle: String {
-        "\(item.usageCount)"
-    }
-
-    private func chipGuideBinding(for guide: ChipGuide) -> Binding<Bool> {
-        Binding(
-            get: { activeChipGuide == guide },
-            set: { isPresented in
-                if isPresented {
-                    activeChipGuide = guide
-                } else if activeChipGuide == guide {
-                    activeChipGuide = nil
-                }
-            }
-        )
-    }
-
-    private var tierGuideView: some View {
-        CharacterLearningTierGuide()
-    }
-
-    private func chipGuideView(for guide: ChipGuide) -> some View {
-        Text(guide.description(for: item))
-            .font(chipGuideFont)
-            .foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            .frame(maxWidth: 220, alignment: .leading)
-    }
-
-    private var displayPinyin: String {
-        let joined = item.pinyinText.trimmingCharacters(in: .whitespacesAndNewlines)
-        return joined.isEmpty ? "—" : joined
-    }
-
-    private var structurePartsText: String {
-        item.decomposition.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var etymologyText: String {
-        [item.etymologyHint, item.etymologyDetails]
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-            .joined(separator: " ")
-    }
-
-    private var notesText: String {
-        item.notes.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var tierLabel: String {
-        "Tier \(item.tier)"
-    }
-
-    private var tierColor: Color {
-        switch item.tier {
-        case 1: return .green
-        case 2: return .teal
-        case 3: return .blue
-        case 4: return .orange
-        default: return .secondary
-        }
-    }
-
-    private var tierRecommendation: String {
-        switch item.tier {
-        case 1: return "Core Literacy"
-        case 2: return "Fluency Core"
-        case 3: return "Educated Native"
-        case 4: return "Academic/Pro"
-        default: return "Niche/Rare"
-        }
-    }
-
-    private var definitionAndNotes: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(item.definition.isEmpty ? "No definition" : item.definition)
-                .font(ResponsiveFont.subheadline)
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            if !etymologyText.isEmpty {
-                Divider()
-                Text(etymologyText)
-                    .font(ResponsiveFont.footnote)
-                    .italic()
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            if !notesText.isEmpty {
-                Divider()
-                VStack(alignment: .leading, spacing: 6) {
-                    Label("Notes", systemImage: "note.text")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Text(notesText)
-                        .font(ResponsiveFont.footnote)
-                        .foregroundStyle(.primary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-        }
-    }
-
-    private func tierChip(for tier: Int) -> some View {
-        Text("Tier \(tier)")
-            .font(ResponsiveFont.caption.weight(.bold))
-            .foregroundStyle(.white)
-            .lineLimit(1)
-            .minimumScaleFactor(0.8)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(tierColor)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    private func chip(_ text: String) -> some View {
-        Text(text)
-            .font(chipFont)
-            .lineLimit(1)
-            .minimumScaleFactor(0.75)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var cardActionFont: Font {
-        #if targetEnvironment(macCatalyst)
-        return ResponsiveFont.caption2.weight(.semibold)
-        #else
-        return ResponsiveFont.caption.weight(.semibold)
-        #endif
-    }
-
-    private var cardActionControlSize: ControlSize {
-        #if targetEnvironment(macCatalyst)
-        return .small
-        #else
-        return .regular
-        #endif
-    }
-
-    private var chipGuideFont: Font {
-        #if targetEnvironment(macCatalyst)
-        return ResponsiveFont.footnote
-        #else
-        return isPhone ? ResponsiveFont.subheadline : ResponsiveFont.subheadline
-        #endif
-    }
-
-    private var chipFont: Font {
-        #if targetEnvironment(macCatalyst)
-        return ResponsiveFont.footnote.weight(.semibold)
-        #else
-        return isPhone ? ResponsiveFont.subheadline.weight(.semibold) : ResponsiveFont.footnote.weight(.semibold)
-        #endif
-    }
-
 }
