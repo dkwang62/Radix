@@ -75,10 +75,29 @@ extension AILinkView {
             .font(ResponsiveFont.headline)
             .disabled(!canGeneratePrompt)
 
+            if canRunGeminiPhraseAPI {
+                Button {
+                    runGeminiPhraseAPI()
+                } label: {
+                    if isRunningGeminiPhraseAPI {
+                        Label("Running Gemini", systemImage: "hourglass")
+                    } else {
+                        Label("Run Gemini API and Add", systemImage: "curlybraces")
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .font(ResponsiveFont.headline)
+                .disabled(isRunningGeminiPhraseAPI)
+            }
+
             if openedDefaultAI {
                 Text(store.aiPrefillsPrompt(for: currentPreset)
                      ? "Opening \(currentAIName). Prompt copied as backup."
                      : "Opening \(currentAIName). Prompt copied. Paste it into \(currentAIName).")
+                    .font(ResponsiveFont.footnote)
+                    .foregroundStyle(.secondary)
+            } else if let geminiPhraseAPIMessage {
+                Text(geminiPhraseAPIMessage)
                     .font(ResponsiveFont.footnote)
                     .foregroundStyle(.secondary)
             } else if copied {
@@ -89,9 +108,35 @@ extension AILinkView {
         }
     }
 
+    func runGeminiPhraseAPI() {
+        guard let collection = selectedCollection else { return }
+        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else {
+            geminiPhraseAPIMessage = "Add a Gemini API key in Settings first."
+            return
+        }
+
+        isRunningGeminiPhraseAPI = true
+        geminiPhraseAPIMessage = "Running Gemini API..."
+        Task {
+            do {
+                let summary = try await store.runGeminiPhraseExtraction(for: collection)
+                await MainActor.run {
+                    geminiPhraseAPIMessage = summary.message(defaultAIName: "Gemini API")
+                    isRunningGeminiPhraseAPI = false
+                }
+            } catch {
+                await MainActor.run {
+                    geminiPhraseAPIMessage = error.localizedDescription
+                    isRunningGeminiPhraseAPI = false
+                }
+            }
+        }
+    }
+
     var generatedPromptText: String {
         if hasCollectionTasks && selectedCollection == nil {
-            return "Choose an image for Tasks 4-5."
+            return "Choose an image for Tasks 4-6."
         }
         if hasCharacterTasks && activeCharacter == nil {
             return "Choose a character for Tasks 1-3."
@@ -113,9 +158,9 @@ extension AILinkView {
 
         if hasCollectionTasks {
             if let selectedCollection {
-                parts.append("Tasks 4-5: \(selectedCollection.name)")
+                parts.append("Tasks 4-6: \(selectedCollection.name)")
             } else {
-                parts.append("Tasks 4-5: no image")
+                parts.append("Tasks 4-6: no image")
             }
         }
 

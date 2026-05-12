@@ -1,6 +1,125 @@
 import Foundation
 import CoreGraphics
 
+struct GeminiPhraseExtractionService {
+    func extractPhrases(
+        apiKey: String,
+        modelID: String,
+        collectionName: String,
+        characters: String,
+        knownPhrases: [String]
+    ) async throws -> String {
+        let cleanKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanModel = modelID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanKey.isEmpty else {
+            throw NSError(domain: "Radix", code: 4001, userInfo: [NSLocalizedDescriptionKey: "Missing Gemini API key."])
+        }
+        guard !cleanModel.isEmpty else {
+            throw NSError(domain: "Radix", code: 4002, userInfo: [NSLocalizedDescriptionKey: "Missing Gemini model ID."])
+        }
+        guard let encodedModel = cleanModel.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+              let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(encodedModel):generateContent") else {
+            throw NSError(domain: "Radix", code: 4003, userInfo: [NSLocalizedDescriptionKey: "Invalid Gemini model ID."])
+        }
+
+        let prompt = makePrompt(
+            collectionName: collectionName,
+            characters: characters,
+            knownPhrases: knownPhrases
+        )
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue(cleanKey, forHTTPHeaderField: "x-goog-api-key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody(prompt: prompt))
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+            let body = String(data: data, encoding: .utf8) ?? "No response body."
+            throw NSError(
+                domain: "Radix",
+                code: http.statusCode,
+                userInfo: [NSLocalizedDescriptionKey: "Gemini API request failed (\(http.statusCode)): \(body)"]
+            )
+        }
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+
+    private func makePrompt(collectionName: String, characters: String, knownPhrases: [String]) -> String {
+        let knownList = knownPhrases.isEmpty ? "(none)" : knownPhrases.joined(separator: "\n")
+        return """
+        Image: \(collectionName)
+        Characters / OCR text in reading order:
+        \(characters)
+
+        Known phrases to ignore:
+        \(knownList)
+
+        Extract useful NEW 2-, 3-, and 4-character Chinese dictionary headwords from the text. Return only the JSON object required by the schema.
+        """
+    }
+
+    private func requestBody(prompt: String) -> [String: Any] {
+        [
+            "systemInstruction": [
+                "parts": [
+                    [
+                        "text": """
+                        You are a bilingual Chinese dictionary editor producing structured data for Radix. Extract only useful, dictionary-attested phrase headwords. Return valid JSON only.
+                        """
+                    ]
+                ]
+            ],
+            "contents": [
+                [
+                    "role": "user",
+                    "parts": [
+                        ["text": prompt]
+                    ]
+                ]
+            ],
+            "generationConfig": [
+                "temperature": 0.2,
+                "responseMimeType": "application/json",
+                "responseJsonSchema": responseSchema()
+            ]
+        ]
+    }
+
+    private func responseSchema() -> [String: Any] {
+        [
+            "type": "object",
+            "properties": [
+                "phrases": [
+                    "type": "array",
+                    "items": [
+                        "type": "object",
+                        "properties": [
+                            "phrase": [
+                                "type": "string",
+                                "description": "A 2-, 3-, or 4-character Chinese dictionary headword found in or strongly supported by the text."
+                            ],
+                            "pinyin": [
+                                "type": "string",
+                                "description": "Pinyin with tone marks."
+                            ],
+                            "meaning": [
+                                "type": "string",
+                                "description": "A concise English meaning with no pipe characters."
+                            ]
+                        ],
+                        "required": ["phrase", "pinyin", "meaning"],
+                        "additionalProperties": false
+                    ]
+                ]
+            ],
+            "required": ["phrases"],
+            "additionalProperties": false
+        ]
+    }
+}
+
 /*
  RADIX STORE — AI HELPERS
  =========================
@@ -25,6 +144,50 @@ extension RadixStore {
             .filter { !PromptConfig.collectionTaskIDs.contains($0) }
             .prefix(1)
             .map { $0 }
+    }
+
+    func runGeminiPhraseExtraction(for collection: CharacterCollection) async throws -> PhraseDiscoveryImportSummary {
+        let text = collection.characters.joined()
+        let responseText = try await GeminiPhraseExtractionService().extractPhrases(
+            apiKey: geminiAPIKey,
+            modelID: geminiModelID,
+            collectionName: collection.name,
+            characters: text,
+            knownPhrases: phraseDiscoveryKnownPhrases(in: text)
+        )
+        let parsed = PhraseDiscoveryParser.parse(responseText)
+        let candidates = PhraseDiscoveryCandidateTools.selectingAll(parsed.candidates, isSelected: true)
+        let prepared = PhraseDiscoveryCandidateTools.preparingForImport(candidates)
+        var added = 0
+        var skippedExisting = 0
+        var errors: [String] = []
+
+        for item in prepared.candidates {
+            do {
+                let wasAdded = try addAIPastedPhraseIfNew(
+                    word: item.phrase,
+                    pinyin: item.candidate.pinyin,
+                    meanings: item.candidate.meaning,
+                    refreshViews: false
+                )
+                if wasAdded {
+                    added += 1
+                } else {
+                    skippedExisting += 1
+                }
+            } catch {
+                errors.append("\(item.phrase): \(error.localizedDescription)")
+            }
+        }
+
+        refreshPhraseOverlayViews()
+        return PhraseDiscoveryImportSummary(
+            selectedCount: candidates.count,
+            addedCount: added,
+            skippedCount: prepared.skippedCount + skippedExisting,
+            skippedExistingCount: skippedExisting,
+            errors: errors
+        )
     }
 
     // MARK: - Mac clipboard paste

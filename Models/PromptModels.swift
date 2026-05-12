@@ -138,6 +138,78 @@ Chinese phrase | pinyin | meaning
 """
             ),
             PromptTask(
+                id: "task6",
+                title: "Gemini JSON Extract Phrases",
+                template: """
+Gemini JSON Extract Phrases
+
+Use this task with the Gemini API using responseMimeType application/json and the JSON schema below. If you are using Gemini in a chat window instead of the API, return the same JSON object only.
+
+System instruction:
+You are a bilingual Chinese dictionary editor producing structured data for Radix. Extract only useful, dictionary-attested 2-, 3-, and 4-character Chinese phrase headwords from the supplied OCR text/context. Return valid JSON only.
+
+Response JSON schema:
+{
+  "type": "object",
+  "properties": {
+    "phrases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "phrase": {
+            "type": "string",
+            "description": "A 2-, 3-, or 4-character Chinese dictionary headword found in or strongly supported by the OCR text."
+          },
+          "pinyin": {
+            "type": "string",
+            "description": "Pinyin with tone marks."
+          },
+          "meaning": {
+            "type": "string",
+            "description": "A concise English meaning with no pipe characters."
+          }
+        },
+        "required": ["phrase", "pinyin", "meaning"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["phrases"],
+  "additionalProperties": false
+}
+
+Extraction rules:
+- Keep the OCR text context in mind.
+- Prioritize specialized terminology, news keywords, idioms, and high-impact phrases that define the core narrative of the text.
+- Avoid overly common words that do not contribute to the specific page context unless they are part of a larger specific phrase.
+- Return only phrase candidates that are attested in Chinese dictionaries.
+- Preserve reading-order sequence.
+- Do not include names, dates, arbitrary n-grams, sentence fragments, or OCR accidents unless they are also normal dictionary entries.
+- If unsure whether a phrase is dictionary-attested, omit it.
+- Use an empty phrases array if no useful new candidates are found.
+
+Valid output example:
+{
+  "phrases": [
+    {
+      "phrase": "人工智能",
+      "pinyin": "rén gōng zhì néng",
+      "meaning": "artificial intelligence"
+    },
+    {
+      "phrase": "国际关系",
+      "pinyin": "guó jì guān xì",
+      "meaning": "international relations"
+    }
+  ]
+}
+
+Do not output Markdown, comments, code fences, explanations, or any text outside the JSON object.
+
+"""
+            ),
+            PromptTask(
                 id: "task5",
                 title: "Translate",
                 template: """
@@ -175,7 +247,7 @@ Instructions:
         """
     )
 
-    static let collectionTaskIDs: Set<String> = ["task4", "task5"]
+    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task6"]
 
     static var defaultSelectedTaskIDs: [String] {
         streamlitDefault.tasks

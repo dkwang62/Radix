@@ -379,6 +379,12 @@ final class RadixStore: ObservableObject {
     @Published var customAIURLString: String = "" {
         didSet { persistPromptSettings() }
     }
+    @Published var geminiAPIKey: String = "" {
+        didSet { persistPromptSettings() }
+    }
+    @Published var geminiModelID: String = "gemini-2.5-flash-lite" {
+        didSet { persistPromptSettings() }
+    }
 
     // MARK: - Repositories & Helpers
     let componentRepo = ComponentRepository()
@@ -397,6 +403,8 @@ final class RadixStore: ObservableObject {
     let promptTaskSelectionKey = "radix.promptSelectedTaskIDs"
     let defaultAIPresetKey = "radix.defaultAIPreset"
     let customAIURLKey = "radix.customAIURL"
+    let geminiAPIKeyKey = "radix.geminiAPIKey"
+    let geminiModelIDKey = "radix.geminiModelID"
     let collectionsKey = "radix.characterCollections"
     let selectedAICollectionKey = "radix.selectedAICollectionID"
     private let lastPreviewCharacterKey = "radix.lastPreviewCharacter"
@@ -940,6 +948,13 @@ final class RadixStore: ObservableObject {
         if let savedCustomURL = UserDefaults.standard.string(forKey: customAIURLKey) {
             customAIURLString = savedCustomURL
         }
+        if let savedGeminiAPIKey = UserDefaults.standard.string(forKey: geminiAPIKeyKey) {
+            geminiAPIKey = savedGeminiAPIKey
+        }
+        if let savedGeminiModelID = UserDefaults.standard.string(forKey: geminiModelIDKey),
+           !savedGeminiModelID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            geminiModelID = savedGeminiModelID
+        }
     }
 
     func speakCharacter(_ character: String) {
@@ -961,6 +976,8 @@ final class RadixStore: ObservableObject {
         UserDefaults.standard.set(promptSelectedTaskIDs, forKey: promptTaskSelectionKey)
         UserDefaults.standard.set(defaultAIPreset.rawValue, forKey: defaultAIPresetKey)
         UserDefaults.standard.set(customAIURLString, forKey: customAIURLKey)
+        UserDefaults.standard.set(geminiAPIKey, forKey: geminiAPIKeyKey)
+        UserDefaults.standard.set(geminiModelID, forKey: geminiModelIDKey)
         updatePromptAutosaveStatus()
     }
 

@@ -25,6 +25,8 @@ struct AILinkView: View {
     @State var isTasksExpanded = true
     @State var mode: Mode = .promptGeneration
     @State var selectedAIPreset: DefaultAIPreset?
+    @State var isRunningGeminiPhraseAPI = false
+    @State var geminiPhraseAPIMessage: String?
 
     /// The character or phrase word that tasks 1-3 will act on.
     /// Phrase preview takes priority over single character preview.
@@ -51,6 +53,10 @@ struct AILinkView: View {
         (!hasCharacterTasks || activeCharacter != nil) &&
         (!hasCollectionTasks || selectedCollection != nil) &&
         (hasCharacterTasks || hasCollectionTasks)
+    }
+
+    var canRunGeminiPhraseAPI: Bool {
+        store.promptSelectedTaskIDs.contains("task6") && selectedCollection != nil
     }
 
     var body: some View {

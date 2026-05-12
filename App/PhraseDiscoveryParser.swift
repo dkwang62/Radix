@@ -2,6 +2,10 @@ import Foundation
 
 enum PhraseDiscoveryParser {
     static func parse(_ text: String) -> PhraseDiscoveryParseResult {
+        if let jsonResult = parseJSON(text) {
+            return jsonResult
+        }
+
         var candidates: [PhraseDiscoveryCandidate] = []
         var seen = Set<String>()
         var totalParsed = 0
@@ -72,6 +76,139 @@ enum PhraseDiscoveryParser {
             : ""
 
         return PhraseDiscoveryCandidate(phrase: phrase, pinyin: pinyin, meaning: meaning)
+    }
+
+    private static func parseJSON(_ text: String) -> PhraseDiscoveryParseResult? {
+        guard let root = decodeJSONObject(from: text) else { return nil }
+        guard let rawRecords = phraseRecords(in: root) else { return nil }
+
+        var candidates: [PhraseDiscoveryCandidate] = []
+        var seen = Set<String>()
+        var totalParsed = 0
+        var duplicatesRemoved = 0
+        var invalidLines = 0
+
+        for record in rawRecords {
+            guard let candidate = candidate(from: record) else {
+                invalidLines += 1
+                continue
+            }
+            totalParsed += 1
+            guard seen.insert(candidate.phrase).inserted else {
+                duplicatesRemoved += 1
+                continue
+            }
+            candidates.append(candidate)
+        }
+
+        return PhraseDiscoveryParseResult(
+            candidates: candidates,
+            totalParsed: totalParsed,
+            duplicatesRemoved: duplicatesRemoved,
+            invalidLines: invalidLines
+        )
+    }
+
+    private static func decodeJSONObject(from text: String) -> Any? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        for candidate in jsonTextCandidates(from: trimmed) {
+            guard let data = candidate.data(using: .utf8),
+                  let object = try? JSONSerialization.jsonObject(with: data) else {
+                continue
+            }
+            return object
+        }
+        return nil
+    }
+
+    private static func jsonTextCandidates(from text: String) -> [String] {
+        var candidates = [text]
+
+        if text.hasPrefix("```") {
+            let lines = text.components(separatedBy: .newlines)
+            if lines.count >= 3, lines.last?.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("```") == true {
+                candidates.append(lines.dropFirst().dropLast().joined(separator: "\n"))
+            }
+        }
+
+        if let objectStart = text.firstIndex(of: "{"),
+           let objectEnd = text.lastIndex(of: "}"),
+           objectStart < objectEnd {
+            candidates.append(String(text[objectStart...objectEnd]))
+        }
+
+        if let arrayStart = text.firstIndex(of: "["),
+           let arrayEnd = text.lastIndex(of: "]"),
+           arrayStart < arrayEnd {
+            candidates.append(String(text[arrayStart...arrayEnd]))
+        }
+
+        var seen = Set<String>()
+        return candidates
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && seen.insert($0).inserted }
+    }
+
+    private static func phraseRecords(in value: Any) -> [[String: Any]]? {
+        if let records = value as? [[String: Any]] {
+            return records
+        }
+
+        guard let object = value as? [String: Any] else { return nil }
+
+        if let records = object["phrases"] as? [[String: Any]] {
+            return records
+        }
+        if let records = object["items"] as? [[String: Any]] {
+            return records
+        }
+        if let records = object["results"] as? [[String: Any]] {
+            return records
+        }
+
+        if let text = geminiResponseText(in: object),
+           let nested = decodeJSONObject(from: text) {
+            return phraseRecords(in: nested)
+        }
+
+        return nil
+    }
+
+    private static func geminiResponseText(in object: [String: Any]) -> String? {
+        guard let candidates = object["candidates"] as? [[String: Any]] else { return nil }
+        for candidate in candidates {
+            guard let content = candidate["content"] as? [String: Any],
+                  let parts = content["parts"] as? [[String: Any]] else { continue }
+            for part in parts {
+                if let text = part["text"] as? String, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    return text
+                }
+            }
+        }
+        return nil
+    }
+
+    private static func candidate(from record: [String: Any]) -> PhraseDiscoveryCandidate? {
+        let phrase = firstString(in: record, keys: ["phrase", "word", "chinese", "hanzi", "term"])
+            .map(cleanPhrase) ?? ""
+        guard isValidPhrase(phrase) else { return nil }
+
+        let pinyin = firstString(in: record, keys: ["pinyin", "pronunciation", "reading"])
+            .map(cleanLabeledValue) ?? ""
+        let meaning = firstString(in: record, keys: ["meaning", "english", "definition", "gloss"])
+            .map(cleanLabeledValue) ?? ""
+
+        return PhraseDiscoveryCandidate(phrase: phrase, pinyin: pinyin, meaning: meaning)
+    }
+
+    private static func firstString(in record: [String: Any], keys: [String]) -> String? {
+        for key in keys {
+            if let value = record[key] as? String {
+                return value
+            }
+        }
+        return nil
     }
 
     private static func cleanedLine(_ rawLine: String) -> String {

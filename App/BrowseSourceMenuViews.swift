@@ -43,6 +43,12 @@ struct CollectionAITaskMenu: View {
             }
 
             Button {
+                onSelect("task6")
+            } label: {
+                Label("Gemini JSON Phrases", systemImage: "curlybraces")
+            }
+
+            Button {
                 onSelect("task5")
             } label: {
                 Label("Translate", systemImage: "translate")
