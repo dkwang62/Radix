@@ -215,21 +215,30 @@ Do not output Markdown, comments, code fences, explanations, or any text outside
                 template: """
 Translate
 
-Role: Act as an expert translator and content strategist.
+Role: Act as an expert Bilingual Chinese Dictionary Editor, Translator, and Content Strategist.
 
-Task: Translate the following text into English. Instead of a literal word-for-word translation, organize the content into a structured report based on the logical patterns found in the source.
+Task: Translate the provided Chinese text into English. Instead of a literal word-for-word translation, organize the content into a structured report based on the logical patterns and emotional nuances found in the source.
 
 Instructions:
 
-1. Identify Content Type: Briefly state what the text appears to be (e.g., news headlines, a product catalog, social media chatter, or technical logs).
+Identify Content Type: Briefly state what the text appears to be (e.g., social media caption, technical manual, news headline, or poetic prose).
 
-2. Structural Grouping: Group related items under descriptive Headings (##). Do not leave it as a single block of text.
+Structural Grouping: Group related ideas under descriptive headings (##).
 
-3. Clarity & Nuance: Translate idiomatic expressions into their natural English equivalents. Use Bold text for key names, dates, or high-impact phrases.
+Linguistic Mapping: For each key point, include the original Chinese characters in parentheses—e.g., Key Concept (中文版本)—to show how the source was interpreted.
 
-4. Meta-Data & Noise: Separate any "noise" (tags, hashtags, system timestamps, or promotional calls-to-action) into a dedicated section at the bottom using a horizontal rule (---).
+Clarity & Nuance: Translate idiomatic expressions into natural English equivalents. Use Bold text for high-impact phrases or key themes.
 
-5. Visual Scannability: Use bullet points for lists to ensure the information is easy to digest at a glance.
+Meta-Data & Noise: Separate any hashtags, timestamps, or system noise into a dedicated section at the bottom using a horizontal rule (---).
+
+Visual Scannability: Use bullet points for lists to ensure the information is easy to digest at a glance.
+
+Source Material:
+
+Characters: {capture_chars}
+
+Context/OCR Note: {collection_name}
+{capture_text}
 
 """
             )
@@ -241,7 +250,7 @@ Instructions:
         collectionPreamble: "",
         collectionEpilogue: """
         Image: {collection_name}
-        Characters: {capture_chars}
+        Referenced Chinese characters: {capture_chars}
         OCR text/context:
         {capture_text}
         """
@@ -340,7 +349,8 @@ extension PromptConfig {
                 task.template.contains("Task 4 – Extract Phrases from Image") ||
                 task.template.contains("Task 4 – Extract Phrases from Page (image)") ||
                 (task.id == "task4" && !task.template.contains("STRICT OUTPUT CONTRACT")) ||
-                task.template.contains("Task 5 – Universal Content Architect") {
+                task.template.contains("Task 5 – Universal Content Architect") ||
+                (task.id == "task5" && !task.template.contains("Bilingual Chinese Dictionary Editor")) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {
                 normalizedTemplate = task.template.replacingOccurrences(
@@ -392,7 +402,11 @@ extension PromptConfig {
         case .character:
             full = cfg.preamble + body + cfg.epilogue
         case .collection:
-            full = cfg.collectionPreamble + body + cfg.collectionEpilogue
+            if selected == ["task5"] {
+                full = cfg.collectionPreamble + body
+            } else {
+                full = cfg.collectionPreamble + body + cfg.collectionEpilogue
+            }
         }
         return full
             .replacingOccurrences(of: "{char}", with: context.char)

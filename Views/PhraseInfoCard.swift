@@ -11,6 +11,7 @@ struct PhraseInfoCard: View {
     @State var hasLocalNotes = false
     @State var editStatus: String?
     @State var showAddPhraseSheet = false
+    @State var showPhraseTableSheet = false
     @State var selectedAnimationPage = 0
 
     var phraseCharacters: [String] {
@@ -37,11 +38,20 @@ struct PhraseInfoCard: View {
                 AddPhraseSheet()
                     .environmentObject(store)
             }
+            .sheet(isPresented: $showPhraseTableSheet) {
+                PhraseTableSheet(
+                    character: phraseCharacters.first ?? phrase.word,
+                    isVertical: true,
+                    requiredCharacters: phraseCharacters.isEmpty ? phrase.word.map(String.init) : phraseCharacters
+                )
+                .environmentObject(store)
+            }
             .onChange(of: phrase.word) { _, _ in
                 editableNotes = phrase.notes
                 hasLocalNotes = false
                 editStatus = nil
                 isEditingNotes = false
+                showPhraseTableSheet = false
                 selectedAnimationPage = 0
             }
             .onAppear {

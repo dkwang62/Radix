@@ -5,6 +5,7 @@ struct BrowsePhonePreview: View {
     let phrase: PhraseItem?
     let character: String?
     let onReturn: () -> Void
+    @State private var phraseReturnTarget: PhraseItem?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -25,17 +26,45 @@ struct BrowsePhonePreview: View {
                 PhraseInfoCard(
                     phrase: phrase,
                     onSelectCharacter: { character in
+                        phraseReturnTarget = phrase
                         store.previewPhraseCardCharacter(character, in: phrase, announce: false)
                     },
                     onDone: onReturn
                 )
                     .environmentObject(store)
             } else if let character {
+                if let phraseReturnTarget {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            store.presentPhraseInSidebar(phraseReturnTarget)
+                        }
+                    } label: {
+                        Label("Phrase", systemImage: "chevron.backward")
+                            .font(ResponsiveFont.subheadline.weight(.semibold))
+                            .foregroundStyle(Color.accentColor)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(Color(.secondarySystemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    .buttonStyle(.plain)
+                }
+
                 standardPhoneCharacterPreview(
                     character: character,
                     showAddToMemoryButton: false,
                     onClear: onReturn
                 )
+            }
+        }
+        .onAppear {
+            if let phrase {
+                phraseReturnTarget = phrase
+            }
+        }
+        .onChange(of: phrase) { _, newValue in
+            if let newValue {
+                phraseReturnTarget = newValue
             }
         }
     }

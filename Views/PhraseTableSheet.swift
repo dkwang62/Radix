@@ -4,10 +4,17 @@ struct PhraseTableSheet: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.dismiss) private var dismiss
     let character: String
+    let requiredCharacters: [String]
     let isVertical: Bool
     private let visiblePhraseRows = 6
     @State private var selectedPhrase: PhraseItem?
     @State private var showAddPhraseSheet = false
+
+    init(character: String, isVertical: Bool, requiredCharacters: [String]? = nil) {
+        self.character = character
+        self.requiredCharacters = requiredCharacters ?? [character]
+        self.isVertical = isVertical
+    }
 
     private var isPhone: Bool {
         #if targetEnvironment(macCatalyst)
@@ -39,6 +46,7 @@ struct PhraseTableSheet: View {
     }
 
     var body: some View {
+        let displayedPhrases = matchingPhrases
         VStack(alignment: .leading, spacing: 12) {
             if let selectedPhrase {
                 Button {
@@ -46,7 +54,7 @@ struct PhraseTableSheet: View {
                         self.selectedPhrase = nil
                     }
                 } label: {
-                    Label("Phrases", systemImage: "chevron.backward")
+                    Label("词Phrase", systemImage: "chevron.backward")
                         .font(ResponsiveFont.subheadline.weight(.semibold))
                 }
                 .buttonStyle(.plain)
@@ -57,20 +65,21 @@ struct PhraseTableSheet: View {
                     .environmentObject(store)
             } else {
                 copyHintLabel
+                phraseScopeLabel
 
                 PhraseLengthFilterChips(selection: $store.phraseLength)
 
-                if store.phrases.isEmpty {
+                if displayedPhrases.isEmpty {
                     ContentUnavailableView(
                         "No phrases found",
                         systemImage: "text.justify",
-                        description: Text("No \(store.activePhraseLengthFilterLabel)-length phrases were found for \(character).")
+                        description: Text(emptyPhraseDescription)
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 0) {
-                            ForEach(store.phrases, id: \.id) { phrase in
+                            ForEach(displayedPhrases, id: \.id) { phrase in
                                 PhraseTableRow(
                                     phrase: phrase,
                                     isPhone: isPhone,
@@ -93,10 +102,10 @@ struct PhraseTableSheet: View {
                     Button {
                         showAddPhraseSheet = true
                     } label: {
-                        Label("Phrases", systemImage: "plus.circle.fill")
+                        Label("Phrase", systemImage: "plus.circle.fill")
                     }
                     .buttonStyle(.bordered)
-                    .accessibilityLabel("Add Phrases")
+                    .accessibilityLabel("Add Phrase")
 
                     Spacer()
                     DismissButton()
@@ -107,16 +116,47 @@ struct PhraseTableSheet: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .modifier(PhraseTableDetentModifier(isPhone: isPhone))
         .sheet(isPresented: $showAddPhraseSheet) {
-            AddPhraseSheet(returnTitle: "Phrases")
+            AddPhraseSheet(returnTitle: "Phrase")
                 .environmentObject(store)
         }
         .onAppear {
-            store.refreshPhrases(for: character)
+            if !isMultiCharacterLookup {
+                store.refreshPhrases(for: character)
+            }
         }
         .onChange(of: store.phraseLength) { _, _ in
             selectedPhrase = nil
-            store.refreshPhrases(for: character)
+            if !isMultiCharacterLookup {
+                store.refreshPhrases(for: character)
+            }
         }
+    }
+
+    private var matchingPhrases: [PhraseItem] {
+        if isMultiCharacterLookup {
+            return store.phraseMatches(for: requiredCharacters.joined(), length: store.phraseLength)
+        }
+        return store.phrases
+    }
+
+    private var isMultiCharacterLookup: Bool {
+        Set(requiredCharacters).count > 1
+    }
+
+    @ViewBuilder
+    private var phraseScopeLabel: some View {
+        if isMultiCharacterLookup {
+            Text("Containing \(requiredCharacters.joined(separator: " "))")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var emptyPhraseDescription: String {
+        if isMultiCharacterLookup {
+            return "No \(store.activePhraseLengthFilterLabel)-length phrases contain matching parts of \(requiredCharacters.joined(separator: " "))."
+        }
+        return "No \(store.activePhraseLengthFilterLabel)-length phrases were found for \(character)."
     }
 
     private func presentPhrase(_ phrase: PhraseItem) {

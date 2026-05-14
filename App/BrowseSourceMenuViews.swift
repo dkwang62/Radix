@@ -39,13 +39,13 @@ struct CollectionAITaskMenu: View {
             Button {
                 onSelect("task4")
             } label: {
-                Label("Extract Phrases", systemImage: "text.badge.plus")
+                Label("Extract Phrases (Manual)", systemImage: "text.badge.plus")
             }
 
             Button {
                 onSelect("task6")
             } label: {
-                Label("Gemini JSON Phrases", systemImage: "curlybraces")
+                Label("Extract Phrase AI", systemImage: "curlybraces")
             }
 
             Button {

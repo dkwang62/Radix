@@ -31,10 +31,10 @@ extension DataEditTab {
 
             if showHelp {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Backup saves everything you've added or changed — custom characters, phrases, saved images, favorites, and AI templates — into a single file.")
+                    Text("Backup saves everything you've added or changed — custom characters, phrases, saved images, favorites, API keys, and AI templates — into a single file.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
-                    Text("Additive restore merges dictionary, phrase, and saved image changes. Complete restore replaces the app's overlay data, saved images, favorites, memory, search history, settings, and AI templates with the backup.")
+                    Text("Additive restore merges dictionary, phrase, saved image, and API key changes. Complete restore replaces the app's overlay data, saved images, favorites, memory, search history, settings, API keys, and AI templates with the backup.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }

@@ -373,13 +373,26 @@ final class RadixStore: ObservableObject {
     @Published var promptConfig: PromptConfig = .streamlitDefault
     @Published var promptSelectedTaskIDs: [String] = PromptConfig.defaultSelectedTaskIDs
     @Published var shouldAutoOpenAILinkTask4 = false
+    @Published var shouldAutoRunGeminiPhraseAPI = false
     @Published var defaultAIPreset: DefaultAIPreset = .chatGPT {
         didSet { persistPromptSettings() }
     }
     @Published var customAIURLString: String = "" {
         didSet { persistPromptSettings() }
     }
+    @Published var openAIAPIKey: String = "" {
+        didSet { persistPromptSettings() }
+    }
     @Published var geminiAPIKey: String = "" {
+        didSet { persistPromptSettings() }
+    }
+    @Published var claudeAPIKey: String = "" {
+        didSet { persistPromptSettings() }
+    }
+    @Published var deepSeekAPIKey: String = "" {
+        didSet { persistPromptSettings() }
+    }
+    @Published var customAIAPIKey: String = "" {
         didSet { persistPromptSettings() }
     }
     @Published var geminiModelID: String = "gemini-2.5-flash-lite" {
@@ -403,7 +416,11 @@ final class RadixStore: ObservableObject {
     let promptTaskSelectionKey = "radix.promptSelectedTaskIDs"
     let defaultAIPresetKey = "radix.defaultAIPreset"
     let customAIURLKey = "radix.customAIURL"
+    let openAIAPIKeyKey = "radix.openAIAPIKey"
     let geminiAPIKeyKey = "radix.geminiAPIKey"
+    let claudeAPIKeyKey = "radix.claudeAPIKey"
+    let deepSeekAPIKeyKey = "radix.deepSeekAPIKey"
+    let customAIAPIKeyKey = "radix.customAIAPIKey"
     let geminiModelIDKey = "radix.geminiModelID"
     let collectionsKey = "radix.characterCollections"
     let selectedAICollectionKey = "radix.selectedAICollectionID"
@@ -948,8 +965,20 @@ final class RadixStore: ObservableObject {
         if let savedCustomURL = UserDefaults.standard.string(forKey: customAIURLKey) {
             customAIURLString = savedCustomURL
         }
+        if let savedOpenAIAPIKey = UserDefaults.standard.string(forKey: openAIAPIKeyKey) {
+            openAIAPIKey = savedOpenAIAPIKey
+        }
         if let savedGeminiAPIKey = UserDefaults.standard.string(forKey: geminiAPIKeyKey) {
             geminiAPIKey = savedGeminiAPIKey
+        }
+        if let savedClaudeAPIKey = UserDefaults.standard.string(forKey: claudeAPIKeyKey) {
+            claudeAPIKey = savedClaudeAPIKey
+        }
+        if let savedDeepSeekAPIKey = UserDefaults.standard.string(forKey: deepSeekAPIKeyKey) {
+            deepSeekAPIKey = savedDeepSeekAPIKey
+        }
+        if let savedCustomAIAPIKey = UserDefaults.standard.string(forKey: customAIAPIKeyKey) {
+            customAIAPIKey = savedCustomAIAPIKey
         }
         if let savedGeminiModelID = UserDefaults.standard.string(forKey: geminiModelIDKey),
            !savedGeminiModelID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -976,7 +1005,11 @@ final class RadixStore: ObservableObject {
         UserDefaults.standard.set(promptSelectedTaskIDs, forKey: promptTaskSelectionKey)
         UserDefaults.standard.set(defaultAIPreset.rawValue, forKey: defaultAIPresetKey)
         UserDefaults.standard.set(customAIURLString, forKey: customAIURLKey)
+        UserDefaults.standard.set(openAIAPIKey, forKey: openAIAPIKeyKey)
         UserDefaults.standard.set(geminiAPIKey, forKey: geminiAPIKeyKey)
+        UserDefaults.standard.set(claudeAPIKey, forKey: claudeAPIKeyKey)
+        UserDefaults.standard.set(deepSeekAPIKey, forKey: deepSeekAPIKeyKey)
+        UserDefaults.standard.set(customAIAPIKey, forKey: customAIAPIKeyKey)
         UserDefaults.standard.set(geminiModelID, forKey: geminiModelIDKey)
         updatePromptAutosaveStatus()
     }

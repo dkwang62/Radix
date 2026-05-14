@@ -36,9 +36,11 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                SecureField("Gemini API key", text: $store.geminiAPIKey)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
+                apiKeyField("OpenAI API key", text: $store.openAIAPIKey)
+                apiKeyField("Gemini API key", text: $store.geminiAPIKey)
+                apiKeyField("Claude API key", text: $store.claudeAPIKey)
+                apiKeyField("DeepSeek API key", text: $store.deepSeekAPIKey)
+                apiKeyField("Custom AI API key", text: $store.customAIAPIKey)
 
                 TextField("Gemini model", text: $store.geminiModelID)
                     .textInputAutocapitalization(.never)
@@ -88,5 +90,11 @@ struct SettingsView: View {
                 .accessibilityLabel("Close")
             }
         }
+    }
+
+    private func apiKeyField(_ title: String, text: Binding<String>) -> some View {
+        SecureField(title, text: text)
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
     }
 }

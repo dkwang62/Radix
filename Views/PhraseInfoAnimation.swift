@@ -32,6 +32,7 @@ extension PhraseInfoCard {
         let label = phraseAnimationPageLabel(page: page, characters: characters)
         return Button {
             selectedAnimationPage = page
+            store.speakCharacters(in: label)
         }
         label: {
             Text(label)

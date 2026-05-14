@@ -138,6 +138,12 @@ extension RadixStore {
     }
 
     func phraseMatches(for character: String, length: Int? = nil) -> [PhraseItem] {
+        let targetLength = length ?? phraseLength
+        if character.count > 1 {
+            let matches = phraseRepo.phrases(matchingPartsOf: character, length: nil)
+            guard let targetLength else { return matches }
+            return matches.filter { targetLength >= 7 ? $0.word.count >= 7 : $0.word.count == targetLength }
+        }
         let targetToLoad = character.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !targetToLoad.isEmpty else { return [] }
 

@@ -54,6 +54,7 @@ extension DataBackupPreviewSection {
             BackupSummaryLine(title: "Selected character", value: store.previewCharacter ?? "None")
             BackupSummaryLine(title: "Selected AI image", value: store.selectedAICollection?.name ?? "None")
             BackupSummaryLine(title: "Default AI", value: store.defaultAIName)
+            BackupSummaryLine(title: "API keys", value: "\(store.currentAPIKeyBackup().savedCount) saved")
             if store.defaultAIPreset == .custom {
                 BackupSummaryLine(title: "Custom AI URL", value: store.defaultAIBaseURLString.isEmpty ? "None" : store.defaultAIBaseURLString)
             }

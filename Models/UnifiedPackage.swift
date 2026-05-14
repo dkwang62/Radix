@@ -88,6 +88,28 @@ struct FullDatasetExportPackage: Codable {
     }
 }
 
+struct APIKeyBackup: Codable, Equatable {
+    let openAI: String
+    let gemini: String
+    let claude: String
+    let deepSeek: String
+    let custom: String
+
+    enum CodingKeys: String, CodingKey {
+        case openAI = "open_ai"
+        case gemini
+        case claude
+        case deepSeek = "deep_seek"
+        case custom
+    }
+
+    var savedCount: Int {
+        [openAI, gemini, claude, deepSeek, custom]
+            .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .count
+    }
+}
+
 /// A unified package containing all user-editable data across dictionary, phrases, and settings.
 struct UnifiedPackage: Codable {
     let schemaVersion: Int
@@ -101,6 +123,7 @@ struct UnifiedPackage: Codable {
     let profile: UserProfile
     let collections: [CharacterCollection]?
     let selectedAICollectionID: UUID?
+    let apiKeys: APIKeyBackup?
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version"
@@ -114,6 +137,7 @@ struct UnifiedPackage: Codable {
         case profile
         case collections
         case selectedAICollectionID = "selected_ai_collection_id"
+        case apiKeys = "api_keys"
     }
 
     init(
@@ -127,7 +151,8 @@ struct UnifiedPackage: Codable {
         phrases: [PhraseItem],
         profile: UserProfile,
         collections: [CharacterCollection]? = nil,
-        selectedAICollectionID: UUID? = nil
+        selectedAICollectionID: UUID? = nil,
+        apiKeys: APIKeyBackup? = nil
     ) {
         self.schemaVersion = schemaVersion
         self.exportedAt = exportedAt
@@ -140,5 +165,6 @@ struct UnifiedPackage: Codable {
         self.profile = profile
         self.collections = collections
         self.selectedAICollectionID = selectedAICollectionID
+        self.apiKeys = apiKeys
     }
 }

@@ -54,12 +54,14 @@ private struct CharacterActionMenuContent: View {
         Button("Notes") {
             store.openQuickCharacterEditor(character)
         }
-        Button("Phrases") {
+        Button {
             if let onShowPhrases {
                 onShowPhrases()
             } else {
                 showPhraseTable(for: character, using: store)
             }
+        } label: {
+            Text("词Phrase")
         }
         Button("Components") {
             store.goToRoots(character: character)

@@ -341,7 +341,8 @@ extension RadixStore {
         selectedBrowseCollectionID = collection.id
         selectedBrowseCollectionCharacters = Set(collection.characters)
         promptSelectedTaskIDs = [taskID]
-        shouldAutoOpenAILinkTask4 = true
+        shouldAutoOpenAILinkTask4 = taskID != "task6"
+        shouldAutoRunGeminiPhraseAPI = taskID == "task6"
         route = .aiLink
         #if !targetEnvironment(macCatalyst)
         if UIDevice.current.userInterfaceIdiom == .phone { showiPhoneDetail = false }

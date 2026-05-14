@@ -12,6 +12,26 @@ import SQLite3
 
 private let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
 
+private struct PhraseSequentialSegment {
+    let text: String
+    let start: Int
+    let length: Int
+}
+
+private struct PhrasePartMatchRank: Comparable {
+    let category: Int
+    let segmentLength: Int
+    let start: Int
+    let phraseLength: Int
+
+    static func < (lhs: PhrasePartMatchRank, rhs: PhrasePartMatchRank) -> Bool {
+        if lhs.category != rhs.category { return lhs.category < rhs.category }
+        if lhs.segmentLength != rhs.segmentLength { return lhs.segmentLength < rhs.segmentLength }
+        if lhs.start != rhs.start { return lhs.start < rhs.start }
+        return lhs.phraseLength < rhs.phraseLength
+    }
+}
+
 final class PhraseRepository {
     private var baseDb: OpaquePointer?
     private var addDb: OpaquePointer?
@@ -325,6 +345,85 @@ final class PhraseRepository {
         }
         let results = queryRunner.mergedQueries(baseSQL: baseSQL, addSQL: addSQL, binder: bind)
         return results.filter { $0.word.contains(character) }
+    }
+
+    func phrases(containingAll characters: [String], length: Int?, limit: Int? = nil) -> [PhraseItem] {
+        let required = Array(Set(characters.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }))
+        guard !required.isEmpty else { return [] }
+
+        var results = fetchAllPhrases().filter { phrase in
+            required.allSatisfy { phrase.word.contains($0) }
+        }
+
+        if let length {
+            results = results.filter { $0.word.count == length }
+        }
+
+        results.sort {
+            if $0.word.count != $1.word.count { return $0.word.count < $1.word.count }
+            return $0.word < $1.word
+        }
+
+        if let limit {
+            return Array(results.prefix(limit))
+        }
+        return results
+    }
+
+    func phrases(matchingPartsOf text: String, length: Int?, limit: Int? = nil) -> [PhraseItem] {
+        let characters = text.map(String.init).filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        guard characters.count > 1 else { return [] }
+        let fullText = characters.joined()
+        let allCharacterMatches = Set(characters)
+        let segments = sequentialSegments(in: characters)
+
+        var ranked: [(phrase: PhraseItem, rank: PhrasePartMatchRank)] = []
+        for phrase in fetchAllPhrases() {
+            if let length, phrase.word.count != length {
+                continue
+            }
+            guard phrase.word != fullText else {
+                ranked.append((phrase, PhrasePartMatchRank(category: 0, segmentLength: 0, start: 0, phraseLength: phrase.word.count)))
+                continue
+            }
+            if let bestSegment = bestSequentialSegmentMatch(in: phrase.word, segments: segments) {
+                ranked.append((phrase, PhrasePartMatchRank(category: 1, segmentLength: bestSegment.length, start: bestSegment.start, phraseLength: phrase.word.count)))
+            } else if allCharacterMatches.allSatisfy({ phrase.word.contains($0) }) {
+                ranked.append((phrase, PhrasePartMatchRank(category: 2, segmentLength: phrase.word.count, start: characters.count, phraseLength: phrase.word.count)))
+            }
+        }
+
+        ranked.sort {
+            if $0.rank != $1.rank { return $0.rank < $1.rank }
+            return $0.phrase.word < $1.phrase.word
+        }
+
+        let results = ranked.map(\.phrase)
+        if let limit {
+            return Array(results.prefix(limit))
+        }
+        return results
+    }
+
+    private func sequentialSegments(in characters: [String]) -> [PhraseSequentialSegment] {
+        guard characters.count > 1 else { return [] }
+        var segments: [PhraseSequentialSegment] = []
+        for length in 2...characters.count {
+            for start in 0...(characters.count - length) {
+                let segment = characters[start..<(start + length)].joined()
+                segments.append(PhraseSequentialSegment(text: segment, start: start, length: length))
+            }
+        }
+        return segments
+    }
+
+    private func bestSequentialSegmentMatch(in word: String, segments: [PhraseSequentialSegment]) -> PhraseSequentialSegment? {
+        segments
+            .filter { word.contains($0.text) }
+            .min {
+                if $0.length != $1.length { return $0.length < $1.length }
+                return $0.start < $1.start
+            }
     }
 
     func maxPhraseLength(default fallback: Int = 7) -> Int {

@@ -316,6 +316,25 @@ extension RadixStore {
         )
     }
 
+    func currentAPIKeyBackup() -> APIKeyBackup {
+        APIKeyBackup(
+            openAI: openAIAPIKey,
+            gemini: geminiAPIKey,
+            claude: claudeAPIKey,
+            deepSeek: deepSeekAPIKey,
+            custom: customAIAPIKey
+        )
+    }
+
+    func applyImportedAPIKeys(_ apiKeys: APIKeyBackup?) {
+        guard let apiKeys else { return }
+        openAIAPIKey = apiKeys.openAI
+        geminiAPIKey = apiKeys.gemini
+        claudeAPIKey = apiKeys.claude
+        deepSeekAPIKey = apiKeys.deepSeek
+        customAIAPIKey = apiKeys.custom
+    }
+
     func importProfileData(_ data: Data) throws {
         let profile = try JSONDecoder().decode(UserProfile.self, from: data)
         applyImportedProfile(profile, mode: .complete)

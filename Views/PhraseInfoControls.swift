@@ -8,6 +8,16 @@ extension PhraseInfoCard {
 
             Spacer(minLength: 0)
 
+            if phraseCharacters.count > 1 {
+                Button {
+                    showPhraseTableSheet = true
+                } label: {
+                    PhraseActionPill()
+                }
+                .buttonStyle(.plain)
+                .help("Show phrases containing \(phraseCharacters.joined())")
+            }
+
             Button {
                 showAddPhraseSheet = true
             } label: {

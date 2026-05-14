@@ -88,6 +88,10 @@ struct AILinkView: View {
                 store.shouldAutoOpenAILinkTask4 = false
                 openPromptInDefaultAI()
             }
+            if store.shouldAutoRunGeminiPhraseAPI {
+                store.shouldAutoRunGeminiPhraseAPI = false
+                runGeminiPhraseAPI()
+            }
             if selectedAIPreset == nil {
                 selectedAIPreset = store.defaultAIPreset
             }

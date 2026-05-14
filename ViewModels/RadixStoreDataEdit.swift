@@ -387,7 +387,8 @@ extension RadixStore {
             phrases: phraseRepo.fetchAddedPhrases(),
             profile: currentUserProfile(),
             collections: allCollections,
-            selectedAICollectionID: selectedAICollectionID
+            selectedAICollectionID: selectedAICollectionID,
+            apiKeys: currentAPIKeyBackup()
         )
     }
 
@@ -455,6 +456,7 @@ extension RadixStore {
                 persistOverlayAddedDates()
                 try phraseRepo.addPhrasesAdditively(uniquePhrases(package.phrases))
                 mergeImportedCollections(package.collections, selectedAICollectionID: package.selectedAICollectionID)
+                applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .additive)
 
             case .complete:
@@ -467,6 +469,7 @@ extension RadixStore {
                 persistOverlayAddedDates()
                 try phraseRepo.replaceAllPhrases(uniquePhrases(package.phrases))
                 replaceCollections(with: package.collections, selectedAICollectionID: package.selectedAICollectionID)
+                applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .complete)
             }
 

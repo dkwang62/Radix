@@ -34,7 +34,7 @@ struct CharacterInfoCardActions: View {
             store.refreshPhrases(for: character)
             onShowPhrases?()
         } label: {
-            actionPill("Phrases", systemImage: "character.bubble")
+            PhraseActionPill()
         }
         .buttonStyle(.plain)
     }
@@ -81,4 +81,31 @@ struct CharacterInfoCardActions: View {
         return .regular
         #endif
     }
+}
+
+struct PhraseActionPill: View {
+    var body: some View {
+        Text("词Phrase")
+            .font(cardActionFont)
+            .foregroundStyle(Color.accentColor)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color(.separator), lineWidth: 0.5)
+            )
+    }
+
+    private var cardActionFont: Font {
+        #if targetEnvironment(macCatalyst)
+        return ResponsiveFont.caption2.weight(.semibold)
+        #else
+        return ResponsiveFont.caption.weight(.semibold)
+        #endif
+    }
+
 }
