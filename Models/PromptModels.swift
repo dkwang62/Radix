@@ -215,29 +215,53 @@ Do not output Markdown, comments, code fences, explanations, or any text outside
                 template: """
 Translate
 
-Role: Act as an expert Bilingual Chinese Dictionary Editor, Translator, and Content Strategist.
+Master Prompt: The Bilingual Editor's Analytical Report
 
-Task: Translate the provided Chinese text into English. Instead of a literal word-for-word translation, organize the content into a structured report based on the logical patterns and emotional nuances found in the source.
+Role: Act as an expert Bilingual Chinese Dictionary Editor, Translator, and Content Strategist. Your specialty is deconstructing high-impact media language, "clickbait" shorthand, and neologisms.
 
-Instructions:
+Task: Translate the provided Chinese text into a structured English report. Do not provide a literal word-for-word translation. Instead, decode the underlying logic, emotional subtext, and editorial techniques.
 
-Identify Content Type: Briefly state what the text appears to be (e.g., social media caption, technical manual, news headline, or poetic prose).
+Instructions for Processing:
+
+Identify Content Type: Briefly state the nature of the text (e.g., Tabloid Headlines, Viral Social Media Post, Technical Manual).
+
+Linguistic Spotlight (Shorthand & Contractions):
+
+Identify "Telegraphic Shorthand" (e.g., 2-character mashups like 恐害, 驚爆, 疑遭).
+
+Create a table to deconstruct these: Contraction | Grammatical Expansion (the full phrase) | Nuance/Effect.
 
 Structural Grouping: Group related ideas under descriptive headings (##).
 
 Linguistic Mapping: For each key point, include the original Chinese characters in parentheses—e.g., Key Concept (中文版本)—to show how the source was interpreted.
 
-Clarity & Nuance: Translate idiomatic expressions into natural English equivalents. Use Bold text for high-impact phrases or key themes.
+Clarity & Nuance:
 
-Meta-Data & Noise: Separate any hashtags, timestamps, or system noise into a dedicated section at the bottom using a horizontal rule (---).
+Translate idioms into natural English equivalents.
 
-Visual Scannability: Use bullet points for lists to ensure the information is easy to digest at a glance.
+Use Bold for high-impact phrases or central themes.
+
+Meta-Data & Noise: Separate hashtags, timestamps, and channel promotions into a dedicated section at the bottom.
+
+Report Structure Requirements:
+
+Header: Brief Content Overview.
+
+Section 1: ## Linguistic Deconstruction (Shorthand Analysis).
+
+Section 2: ## Thematic Analysis (Grouped by Subject Matter).
+
+Section 3: ## Emotional Tone & Impact.
+
+Section 4: --- (Horizontal Rule) Meta-Data & System Noise.
 
 Source Material:
 
+Image/Source: {collection_name}
+
 Characters: {capture_chars}
 
-Context/OCR Note: {collection_name}
+OCR Text/Context:
 {capture_text}
 
 """

@@ -113,7 +113,7 @@ struct CaptureTab: View {
     }
 
     private var defaultOCRCollectionName: String {
-        CaptureCollectionName.ocrImageName()
+        ""
     }
 
     private var emptyState: some View {

@@ -32,31 +32,43 @@ struct BrowseImageScriptToggle: View {
 
 struct CollectionAITaskMenu: View {
     let collection: CharacterCollection
-    let onSelect: (String) -> Void
+    let onManualExtract: () -> Void
+    let onAIExtract: () -> Void
+    let onTranslate: () -> Void
+    let onTranslationReport: () -> Void
 
     var body: some View {
         Menu {
             Button {
-                onSelect("task4")
+                onManualExtract()
             } label: {
                 Label("Extract Phrases (Manual)", systemImage: "text.badge.plus")
             }
 
             Button {
-                onSelect("task6")
+                onAIExtract()
             } label: {
-                Label("Extract Phrase AI", systemImage: "curlybraces")
+                Label("Extract Phrases with Key", systemImage: "curlybraces")
             }
 
             Button {
-                onSelect("task5")
+                onTranslate()
             } label: {
                 Label("Translate", systemImage: "translate")
             }
+
+            Button {
+                onTranslationReport()
+            } label: {
+                Label(
+                    collection.translationReport == nil ? "Save Translation Report" : "View Translation Report",
+                    systemImage: collection.translationReport == nil ? "doc.badge.plus" : "doc.text"
+                )
+            }
         } label: {
             HStack(spacing: 5) {
-                Image(systemName: "sparkles")
-                Text("AI Task")
+                Image(systemName: "photo.on.rectangle")
+                Text("Image Actions")
                 Image(systemName: "chevron.down")
                     .font(.system(size: 9, weight: .bold))
             }
@@ -67,7 +79,7 @@ struct CollectionAITaskMenu: View {
         }
         .buttonStyle(.borderedProminent)
         .controlSize(.small)
-        .accessibilityLabel("AI Task for \(collection.name)")
+        .accessibilityLabel("Image actions for \(collection.name)")
     }
 }
 

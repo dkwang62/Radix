@@ -10,7 +10,6 @@ struct PhraseInfoCard: View {
     @State var editableNotes = ""
     @State var hasLocalNotes = false
     @State var editStatus: String?
-    @State var showAddPhraseSheet = false
     @State var showPhraseTableSheet = false
     @State var selectedAnimationPage = 0
 
@@ -34,10 +33,6 @@ struct PhraseInfoCard: View {
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(Color(.separator), lineWidth: 1)
             )
-            .sheet(isPresented: $showAddPhraseSheet) {
-                AddPhraseSheet()
-                    .environmentObject(store)
-            }
             .sheet(isPresented: $showPhraseTableSheet) {
                 PhraseTableSheet(
                     character: phraseCharacters.first ?? phrase.word,

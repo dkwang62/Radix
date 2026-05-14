@@ -64,8 +64,22 @@ struct PhraseTableSheet: View {
                 })
                     .environmentObject(store)
             } else {
-                copyHintLabel
-                phraseScopeLabel
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        copyHintLabel
+                        phraseScopeLabel
+                    }
+
+                    Spacer()
+
+                    Button {
+                        showAddPhraseSheet = true
+                    } label: {
+                        Label("Phrase", systemImage: "plus.circle.fill")
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityLabel("Add Phrase")
+                }
 
                 PhraseLengthFilterChips(selection: $store.phraseLength)
 
@@ -97,16 +111,7 @@ struct PhraseTableSheet: View {
 
                     Spacer(minLength: 0)
                 }
-
                 HStack {
-                    Button {
-                        showAddPhraseSheet = true
-                    } label: {
-                        Label("Phrase", systemImage: "plus.circle.fill")
-                    }
-                    .buttonStyle(.bordered)
-                    .accessibilityLabel("Add Phrase")
-
                     Spacer()
                     DismissButton()
                 }
@@ -241,7 +246,7 @@ private struct PhraseTableDetentModifier: ViewModifier {
     func body(content: Content) -> some View {
         if isPhone {
             content
-                .presentationDetents([.medium, .large])
+                .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
         } else {
             content

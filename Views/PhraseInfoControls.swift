@@ -17,30 +17,6 @@ extension PhraseInfoCard {
                 .buttonStyle(.plain)
                 .help("Show phrases containing \(phraseCharacters.joined())")
             }
-
-            Button {
-                showAddPhraseSheet = true
-            } label: {
-                HStack(spacing: 5) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(ResponsiveFont.caption.weight(.bold))
-                    Text("Phrase")
-                        .font(ResponsiveFont.caption.weight(.bold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
-                }
-                .foregroundStyle(Color.accentColor)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 6)
-                .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Add Phrase")
         }
     }
 

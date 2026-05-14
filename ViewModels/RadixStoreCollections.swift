@@ -45,9 +45,10 @@ extension RadixStore {
         }
         }()
         let cleanName = collectionDisplayName(name)
+        let sourceName = collectionNameFromSourceCharacters(characters)
         let collection = CharacterCollection(
             id: UUID(),
-            name: cleanName.isEmpty ? fallbackName : cleanName,
+            name: cleanName.isEmpty ? (sourceName.isEmpty ? fallbackName : sourceName) : cleanName,
             characters: characters,
             createdAt: Date(),
             sourceType: sourceType,
@@ -89,6 +90,14 @@ extension RadixStore {
         let cleanName = collectionDisplayName(newName)
         guard !cleanName.isEmpty else { return }
         allCollections[index].name = cleanName
+        saveCollection(allCollections[index])
+    }
+
+    func updateCollectionTranslationReport(id: UUID, report: String?) {
+        guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return }
+        let cleanReport = report?.trimmingCharacters(in: .whitespacesAndNewlines)
+        allCollections[index].translationReport = cleanReport?.isEmpty == true ? nil : cleanReport
+        allCollections[index].translationReportUpdatedAt = allCollections[index].translationReport == nil ? nil : Date()
         saveCollection(allCollections[index])
     }
 
@@ -190,5 +199,9 @@ extension RadixStore {
 
     func collectionDisplayName(_ name: String) -> String {
         String(name.trimmingCharacters(in: .whitespacesAndNewlines).prefix(11))
+    }
+
+    func collectionNameFromSourceCharacters(_ characters: [String]) -> String {
+        String(characters.prefix(11).joined())
     }
 }

@@ -4,6 +4,7 @@ import UIKit
 struct FilterGridTab: View {
     @EnvironmentObject var store: RadixStore
     @Environment(\.horizontalSizeClass) var sizeClass
+    @Environment(\.openURL) var openURL
     @AppStorage("hasShownBrowseInteractionHintRowV1") var hasShownBrowseInteractionHintRow = false
     @AppStorage("browseImageScriptMode") var browseImageScriptMode = "simplified"
     @State var showBrowseFilters = false
@@ -17,6 +18,12 @@ struct FilterGridTab: View {
     @State var editingCollectionName = ""
     @State var editingCollectionText = ""
     @State var collectionEditorError: String?
+    @State var translationReportCollection: CharacterCollection?
+    @State var translationReportDraft = ""
+    @State var phraseExtractionCollection: CharacterCollection?
+    @State var phraseExtractionOutput = ""
+    @State var imageActionMessage: String?
+    @State var isRunningImageAction = false
 
     var isRunningOnMac: Bool {
         #if targetEnvironment(macCatalyst)
@@ -151,6 +158,31 @@ struct FilterGridTab: View {
                         saveEditedCollection(collection)
                     }
                 )
+            }
+            .sheet(item: $translationReportCollection) { collection in
+                BrowseTranslationReportSheet(
+                    collectionName: collection.name,
+                    report: $translationReportDraft,
+                    updatedAt: collection.translationReportUpdatedAt,
+                    onPaste: pasteTranslationReport,
+                    onSave: { saveTranslationReport(collection) },
+                    onClear: { clearTranslationReport(collection) },
+                    onDone: { translationReportCollection = nil }
+                )
+            }
+            .sheet(item: $phraseExtractionCollection) { collection in
+                BrowsePhraseExtractionSheet(
+                    collectionName: collection.name,
+                    prompt: store.promptText(for: .collection(collection), selectedTaskIDs: ["task4"]),
+                    output: $phraseExtractionOutput,
+                    message: imageActionMessage,
+                    onCopyPrompt: { copyImageActionPrompt(collection: collection, taskID: "task4") },
+                    onOpenAI: { openImageActionPrompt(collection: collection, taskID: "task4") },
+                    onPaste: { phraseExtractionOutput = clipboardText() },
+                    onAdd: { addManualExtractedPhrases(collection) },
+                    onDone: { phraseExtractionCollection = nil }
+                )
+                .environmentObject(store)
             }
             .alert("Delete Saved Image?", isPresented: Binding(
                 get: { pendingDeleteCollection != nil },

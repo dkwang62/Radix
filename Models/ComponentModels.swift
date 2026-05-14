@@ -51,6 +51,8 @@ struct CharacterCollection: Identifiable, Codable, Equatable, Hashable {
     var sourceType: CollectionSourceType
     var isFavorite: Bool
     var thumbnailJPEGData: Data?
+    var translationReport: String? = nil
+    var translationReportUpdatedAt: Date? = nil
 
     /// Unique characters, computed on demand (e.g. for Browse tab filtering).
     var uniqueCharacters: Set<String> { Set(characters) }

@@ -28,14 +28,26 @@ extension FilterGridTab {
             }
         }
         .padding(selectedCollection == nil ? 10 : 8)
-        .background(Color(.secondarySystemBackground).opacity(0.55))
+        .background((selectedCollection == nil ? Color.red.opacity(0.14) : Color(.secondarySystemBackground).opacity(0.55)))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(selectedCollection == nil ? Color.red.opacity(0.45) : Color.clear, lineWidth: 1)
+        )
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     func selectedImageSourceLabel(_ collection: CharacterCollection) -> some View {
-        HStack(spacing: 8) {
-            selectedImageSourceActions(collection)
-            Spacer(minLength: 0)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                selectedImageSourceActions(collection)
+                Spacer(minLength: 0)
+            }
+            if let imageActionMessage {
+                Text(imageActionMessage)
+                    .font(ResponsiveFont.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
         }
     }
 
@@ -47,8 +59,9 @@ extension FilterGridTab {
                 Spacer()
             }
             Spacer(minLength: 0)
-            Text("Source")
+            Text(collection == nil ? "Images" : "Source")
                 .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(collection == nil ? Color.red : Color.primary)
                 .lineLimit(1)
         }
     }
@@ -65,9 +78,15 @@ extension FilterGridTab {
             .controlSize(.small)
             .accessibilityLabel("Edit")
 
-            CollectionAITaskMenu(collection: collection) { taskID in
-                store.goToAILinkCollectionTask(collection: collection, taskID: taskID)
-            }
+            CollectionAITaskMenu(collection: collection, onManualExtract: {
+                beginManualPhraseExtraction(collection)
+            }, onAIExtract: {
+                runBrowseGeminiPhraseExtraction(collection)
+            }, onTranslate: {
+                beginBrowseTranslation(collection)
+            }, onTranslationReport: {
+                beginTranslationReport(collection)
+            })
 
             BrowseImageScriptToggle(mode: $browseImageScriptMode)
 
