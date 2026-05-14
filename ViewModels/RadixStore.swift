@@ -560,11 +560,11 @@ final class RadixStore: ObservableObject {
     }
 
     var filteredSmartPhraseResults: [PhraseItem] {
-        applyPhraseScriptFilter(to: smartPhraseResults)
+        sortPhrasesByPinyin(applyPhraseScriptFilter(to: smartPhraseResults))
     }
 
     var filteredDefinitionPhraseResults: [PhraseItem] {
-        applyPhraseScriptFilter(to: definitionPhraseResults)
+        sortPhrasesByPinyin(applyPhraseScriptFilter(to: definitionPhraseResults))
     }
 
     private func applyScriptFilter(to items: [ComponentItem]) -> [ComponentItem] {

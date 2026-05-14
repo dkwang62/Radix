@@ -82,6 +82,10 @@ extension RadixStore {
         return lhs.word < rhs.word
     }
 
+    func sortPhrasesByPinyin(_ phrases: [PhraseItem]) -> [PhraseItem] {
+        phrases.sorted(by: phrasePinyinSortPredicate)
+    }
+
     // MARK: - Text normalization
 
     func normalizedCompactQuery(_ text: String) -> String {
@@ -112,7 +116,7 @@ extension RadixStore {
         for item in (primary + secondary) {
             if seen.insert(item.word).inserted { out.append(item) }
         }
-        return out
+        return sortPhrasesByPinyin(out)
     }
 
     func phraseLookupTarget(for target: String) -> String {
@@ -153,11 +157,7 @@ extension RadixStore {
     }
 
     func rankedPhraseResults(_ phrases: [PhraseItem], target: String, context: ImagePhraseContext?) -> [PhraseItem] {
-        ImagePhraseMatcher.rankedPhraseResults(
-            phrases, target: target, context: context,
-            lookupTarget: phraseLookupTarget(for:),
-            pinyinSort: phrasePinyinSortPredicate
-        )
+        sortPhrasesByPinyin(phrases)
     }
 
     func phraseCandidates(containing lookupTarget: String, originalTarget: String, length: Int) -> [PhraseItem] {

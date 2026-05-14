@@ -47,7 +47,7 @@ extension RadixStore {
         case .smart:
             if isForcedEnglish {
                 results = componentRepo.searchDefinitions(query: searchQuery, scriptFilter: .any, isStrict: true)
-                smartPhraseResults = phraseRepo.searchByDefinition(term: searchQuery, isStrict: true)
+                smartPhraseResults = sortPhrasesByPinyin(phraseRepo.searchByDefinition(term: searchQuery, isStrict: true))
                 definitionCharacterResults = []
                 definitionPhraseResults = []
             } else {
@@ -64,7 +64,7 @@ extension RadixStore {
             }
         case .definition:
             definitionCharacterResults = componentRepo.searchDefinitions(query: searchQuery, scriptFilter: .any, isStrict: isForcedEnglish)
-            definitionPhraseResults = phraseRepo.searchByDefinition(term: searchQuery, isStrict: isForcedEnglish)
+            definitionPhraseResults = sortPhrasesByPinyin(phraseRepo.searchByDefinition(term: searchQuery, isStrict: isForcedEnglish))
             smartPhraseResults = []
             results = []
         }
@@ -141,8 +141,8 @@ extension RadixStore {
         let targetLength = length ?? phraseLength
         if character.count > 1 {
             let matches = phraseRepo.phrases(matchingPartsOf: character, length: nil)
-            guard let targetLength else { return matches }
-            return matches.filter { targetLength >= 7 ? $0.word.count >= 7 : $0.word.count == targetLength }
+            guard let targetLength else { return sortPhrasesByPinyin(matches) }
+            return sortPhrasesByPinyin(matches.filter { targetLength >= 7 ? $0.word.count >= 7 : $0.word.count == targetLength })
         }
         let targetToLoad = character.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !targetToLoad.isEmpty else { return [] }
