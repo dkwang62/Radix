@@ -14,6 +14,12 @@ struct RadixHomeDashboard: View {
         Array(store.allCollections.prefix(4))
     }
 
+    private var aiReadyPages: [CharacterCollection] {
+        Array(store.allCollections.filter {
+            $0.translationReport?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false || $0.characters.count >= 6
+        }.prefix(4))
+    }
+
     private var savedThingCount: Int {
         store.favoriteItems.count + store.favoritePhrasesItems.count + store.allCollections.count + store.addedPhrases.count + store.changedDictionaryCharacters.count
     }
@@ -28,6 +34,7 @@ struct RadixHomeDashboard: View {
                 hero
                 commandBar
                 continueSection
+                smartCollectionsSection
                 actionGrid
                 companionStats
                 portabilityPanel
@@ -121,6 +128,7 @@ struct RadixHomeDashboard: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     commandSuggestion("Scan a page")
+                    commandSuggestion("Collections")
                     commandSuggestion("Browse dictionary")
                     commandSuggestion("Study saved")
                     commandSuggestion("AI Link")
@@ -219,6 +227,77 @@ struct RadixHomeDashboard: View {
         }
     }
 
+    private var smartCollectionsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                sectionHeader("Smart Collections")
+                Spacer()
+                Text("Automatic")
+                    .font(ResponsiveFont.caption2.bold())
+                    .foregroundStyle(Color.accentColor)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.accentColor.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            LazyVGrid(columns: collectionColumns, spacing: 10) {
+                smartCollectionCard(
+                    title: "Real-World Pages",
+                    value: "\(store.allCollections.count)",
+                    text: "Photos, files, and pasted text you turned into browsable Chinese.",
+                    icon: "doc.text.viewfinder",
+                    tint: .purple
+                ) {
+                    store.goToBrowse()
+                }
+
+                smartCollectionCard(
+                    title: "Favorite Characters",
+                    value: "\(store.favoriteItems.count)",
+                    text: "Characters you marked worth keeping.",
+                    icon: "star.fill",
+                    tint: .orange
+                ) {
+                    store.goToFavourites()
+                }
+
+                smartCollectionCard(
+                    title: "Favorite Phrases",
+                    value: "\(store.favoritePhrasesItems.count)",
+                    text: "Phrases that are becoming part of your own Chinese.",
+                    icon: "text.quote",
+                    tint: .green
+                ) {
+                    store.goToFavourites()
+                }
+
+                smartCollectionCard(
+                    title: "My Added Chinese",
+                    value: "\(customDataCount)",
+                    text: "Characters, phrases, and notes you created or changed.",
+                    icon: "pencil.and.list.clipboard",
+                    tint: .blue
+                ) {
+                    store.goToDataEdit()
+                }
+
+                smartCollectionCard(
+                    title: "AI-Ready Pages",
+                    value: "\(aiReadyPages.count)",
+                    text: "Saved pages ready for AI Link extraction, interpretation, or translation.",
+                    icon: "sparkles",
+                    tint: .indigo
+                ) {
+                    if let page = aiReadyPages.first {
+                        store.selectAICollection(id: page.id)
+                    }
+                    store.enterAILink()
+                }
+            }
+        }
+    }
+
     private var companionStats: some View {
         LazyVGrid(columns: statColumns, spacing: 8) {
             statTile("Saved", "\(savedThingCount)", "heart.text.square", .pink)
@@ -312,6 +391,14 @@ struct RadixHomeDashboard: View {
         Array(repeating: GridItem(.flexible(minimum: 120), spacing: 8), count: 2)
     }
 
+    private var collectionColumns: [GridItem] {
+        #if targetEnvironment(macCatalyst)
+        return Array(repeating: GridItem(.flexible(minimum: 190), spacing: 10), count: 3)
+        #else
+        return Array(repeating: GridItem(.flexible(minimum: 150), spacing: 10), count: 2)
+        #endif
+    }
+
     private var pageColumns: [GridItem] {
         #if targetEnvironment(macCatalyst)
         return Array(repeating: GridItem(.flexible(minimum: 160), spacing: 8), count: 4)
@@ -360,6 +447,11 @@ struct RadixHomeDashboard: View {
 
         if command.contains("scan") || command.contains("camera") || command.contains("photo") || command.contains("image") || command.contains("ocr") {
             store.route = .capture
+            return
+        }
+
+        if command.contains("collection") || command.contains("set") || command.contains("library") {
+            store.goToFavourites()
             return
         }
 
@@ -447,6 +539,47 @@ struct RadixHomeDashboard: View {
             }
             .padding(12)
             .frame(maxWidth: .infinity, minHeight: 138, alignment: .topLeading)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func smartCollectionCard(title: String, value: String, text: String, icon: String, tint: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 10) {
+                    Image(systemName: icon)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(tint)
+                        .frame(width: 36, height: 36)
+                        .background(tint.opacity(0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                    Spacer(minLength: 0)
+
+                    Text(value)
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(ResponsiveFont.headline)
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                    Text(text)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, minHeight: 132, alignment: .topLeading)
             .background(Color(.secondarySystemGroupedBackground))
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
