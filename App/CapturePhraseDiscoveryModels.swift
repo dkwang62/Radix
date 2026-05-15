@@ -35,7 +35,7 @@ struct PhraseDiscoveryImportSummary {
             }
             return "Radix read \(selectedCount) phrase\(selectedCount == 1 ? "" : "s"), but none were added to My Phrases.\(skippedSuffix)\(errorSuffix)"
         }
-        return "Added \(addedCount) to My Phrases. Delete any phrase below that you do not want to keep.\(skippedSuffix)\(errorSuffix)"
+        return "Added \(addedCount) to My Phrases.\(skippedSuffix)\(errorSuffix)"
     }
 
     private var skippedSuffix: String {

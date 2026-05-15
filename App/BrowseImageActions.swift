@@ -52,6 +52,8 @@ extension FilterGridTab {
             do {
                 let summary = try await store.runGeminiPhraseExtraction(for: collection)
                 await MainActor.run {
+                    store.goToBrowse()
+                    store.selectBrowseCollection(id: collection.id)
                     imageActionMessage = summary.message(defaultAIName: "Gemini API")
                     isRunningImageAction = false
                 }

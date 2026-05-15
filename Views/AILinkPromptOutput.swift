@@ -80,9 +80,9 @@ extension AILinkView {
                     runGeminiPhraseAPI()
                 } label: {
                     if isRunningGeminiPhraseAPI {
-                        Label("Running Gemini", systemImage: "hourglass")
+                        Label("Running Extract Phrases with Key", systemImage: "hourglass")
                     } else {
-                        Label("Run Gemini API and Add", systemImage: "curlybraces")
+                        Label("Extract Phrases with Key", systemImage: "curlybraces")
                     }
                 }
                 .buttonStyle(.borderedProminent)
@@ -117,7 +117,7 @@ extension AILinkView {
         }
 
         isRunningGeminiPhraseAPI = true
-        geminiPhraseAPIMessage = "Running Gemini API..."
+        geminiPhraseAPIMessage = "Running Extract Phrases with Key..."
         Task {
             do {
                 let summary = try await store.runGeminiPhraseExtraction(for: collection)
