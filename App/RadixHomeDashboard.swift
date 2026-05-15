@@ -3,6 +3,7 @@ import SwiftUI
 struct RadixHomeDashboard: View {
     @EnvironmentObject private var store: RadixStore
     @EnvironmentObject private var entitlement: EntitlementManager
+    @State private var commandText = ""
     let onRequirePro: (EntitlementManager.FeatureGate) -> Void
 
     private var recentItems: [String] {
@@ -25,6 +26,7 @@ struct RadixHomeDashboard: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 hero
+                commandBar
                 continueSection
                 actionGrid
                 companionStats
@@ -67,6 +69,67 @@ struct RadixHomeDashboard: View {
             }
         }
         .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var commandBar: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 10) {
+                Image(systemName: "sparkle.magnifyingglass")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 38, height: 38)
+                    .background(Color.accentColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Ask Radix")
+                        .font(ResponsiveFont.headline)
+                    Text("Type a character, phrase, or action like scan, study, AI, or My Data.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            HStack(spacing: 8) {
+                TextField("Character, phrase, or action", text: $commandText)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .submitLabel(.go)
+                    .onSubmit(runCommand)
+                    .padding(.horizontal, 12)
+                    .frame(minHeight: 42)
+                    .background(Color(.systemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color(.separator), lineWidth: 0.5)
+                    )
+
+                Button(action: runCommand) {
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 17, weight: .bold))
+                        .frame(width: 42, height: 42)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(commandText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    commandSuggestion("Scan a page")
+                    commandSuggestion("Browse dictionary")
+                    commandSuggestion("Study saved")
+                    commandSuggestion("AI Link")
+                    commandSuggestion("Move My Data")
+                }
+                .padding(.trailing, 8)
+            }
+        }
+        .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -271,6 +334,70 @@ struct RadixHomeDashboard: View {
             .padding(.vertical, 5)
             .background(Color.accentColor.opacity(0.1))
             .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func commandSuggestion(_ text: String) -> some View {
+        Button {
+            commandText = text
+            runCommand()
+        } label: {
+            Text(text)
+                .font(ResponsiveFont.caption.bold())
+                .foregroundStyle(.primary)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                .background(Color(.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func runCommand() {
+        let raw = commandText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !raw.isEmpty else { return }
+        let command = raw.lowercased()
+        commandText = ""
+
+        if command.contains("scan") || command.contains("camera") || command.contains("photo") || command.contains("image") || command.contains("ocr") {
+            store.route = .capture
+            return
+        }
+
+        if command.contains("browse") || command.contains("dictionary") || command.contains("grid") {
+            store.goToBrowse()
+            return
+        }
+
+        if command.contains("study") || command.contains("saved") || command.contains("favorite") || command.contains("favourite") || command.contains("remember") {
+            store.goToFavourites()
+            return
+        }
+
+        if command.contains("ai") || command.contains("translate") || command.contains("interpret") || command.contains("extract") || command.contains("template") {
+            store.enterAILink()
+            return
+        }
+
+        if command.contains("data") || command.contains("backup") || command.contains("move") || command.contains("iphone") || command.contains("ipad") || command.contains("mac") || command.contains("portable") {
+            store.goToDataEdit()
+            return
+        }
+
+        if raw.count == 1, store.item(for: raw) != nil {
+            store.goToBrowse()
+            store.preview(character: raw)
+            return
+        }
+
+        if let phrase = store.mergedPhrase(for: raw), raw.count > 1 {
+            store.goToBrowse()
+            store.presentPhraseInSidebar(phrase)
+            return
+        }
+
+        store.goToSearchRoot()
+        store.query = raw
+        store.performSearch(customQuery: raw)
     }
 
     private func recentItemButton(_ item: String) -> some View {
