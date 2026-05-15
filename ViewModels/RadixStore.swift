@@ -49,6 +49,7 @@ enum SmartResultsViewMode: String, CaseIterable, Identifiable {
 
 /// Primary navigation routes for the app sidebar.
 enum AppRoute: String, CaseIterable, Identifiable {
+    case home = "Home"
     case search = "Search"
     case capture = "Capture"
     case lineage = "Lineage"
@@ -137,7 +138,7 @@ enum RestoreMode {
 @MainActor
 final class RadixStore: ObservableObject {
     // MARK: - Navigation State
-    @Published var route: AppRoute = .search {
+    @Published var route: AppRoute = .home {
         didSet {
         }
     }

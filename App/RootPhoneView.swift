@@ -16,6 +16,7 @@ extension RootView {
     }
 
     var phoneSelection: Int {
+        if store.route == .home { return 6 }
         if store.route == .capture { return 0 }
         if store.route == .favourites { return 3 }
         if store.route == .aiLink { return 4 }
@@ -37,6 +38,7 @@ extension RootView {
         case 3: return "Study"
         case 4: return "AI Link"
         case 5: return "My Data"
+        case 6: return "Radix"
         default: return "Radix"
         }
     }
@@ -53,6 +55,16 @@ extension RootView {
             .navigationTitle(phoneTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if store.route != .home {
+                        Button {
+                            store.goHome()
+                        } label: {
+                            Image(systemName: "house")
+                        }
+                        .accessibilityLabel("Home")
+                    }
+                }
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button {
                         showSettings = true
@@ -87,6 +99,10 @@ extension RootView {
     @ViewBuilder
     var phoneContent: some View {
         switch phoneSelection {
+        case 6:
+            RadixHomeDashboard(
+                onRequirePro: { gate in store.showPaywall(for: gate) }
+            )
         case -1:
             ComponentsExplorerShell()
         case 0:

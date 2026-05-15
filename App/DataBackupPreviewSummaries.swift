@@ -67,6 +67,7 @@ extension DataBackupPreviewSection {
 
     func routeDisplayName(_ route: AppRoute) -> String {
         switch route {
+        case .home: return "Home"
         case .search: return "Search"
         case .capture: return "Scan"
         case .lineage: return "Character Breakdown"

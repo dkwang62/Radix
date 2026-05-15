@@ -12,6 +12,15 @@ extension RootView {
 
                 VStack(alignment: .leading, spacing: 8) {
                     sidebarTaskButton(
+                        title: "Home",
+                        subtitle: "Your lifelong Chinese companion: continue, scan, save, study, and carry your data across devices.",
+                        icon: "house",
+                        isActive: store.route == .home
+                    ) {
+                        store.goHome()
+                    }
+
+                    sidebarTaskButton(
                         title: "Scan",
                         subtitle: "Use a camera, photo, or file to turn real text into a browsable page.",
                         icon: "camera.viewfinder",
@@ -89,7 +98,9 @@ extension RootView {
 
     var sidebarBrandHeader: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Scan, understand, and save Chinese characters.")
+            Text("Your lifelong Chinese companion.")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+            Text("Scan, understand, save, study, and take your Radix data across iPhone, iPad, and Mac.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

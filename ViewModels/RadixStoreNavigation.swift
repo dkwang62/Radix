@@ -163,6 +163,12 @@ extension RadixStore {
 
     // MARK: - Route transitions
 
+    func goHome() {
+        route = .home
+        activeFavouriteCharacter = nil
+        showiPhoneDetail = false
+    }
+
     func enterLineage() {
         rootsReturnContext = nil
         if let target = previewCharacter { select(character: target) } else { previewCharacter = nil }
@@ -231,6 +237,7 @@ extension RadixStore {
     }
 
     func goBack() {
+        if route == .home { route = .search; homeTab = .filter; return }
         if route == .aiLink { route = .lineage; return }
         if route == .favourites { route = .search; return }
         if route == .lineage { route = .search; return }
@@ -262,6 +269,7 @@ extension RadixStore {
     var rootsReturnButtonTitle: String {
         guard let rootsReturnContext else { return "Back" }
         switch rootsReturnContext.route {
+        case .home: return "Back to Home"
         case .capture: return "Back to Image"
         case .search:
             switch rootsReturnContext.homeTab ?? .smart {
