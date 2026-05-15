@@ -405,8 +405,6 @@
 		850000A22FA10001001B9AA7 /* PhraseDiscoverySummaryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseDiscoverySummaryViews.swift; sourceTree = "<group>"; };
 		850000A42FA10001001B9AA7 /* PhraseDiscoveryInputViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseDiscoveryInputViews.swift; sourceTree = "<group>"; };
 		850000A62FA10001001B9AA7 /* PhraseDiscoveryRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseDiscoveryRows.swift; sourceTree = "<group>"; };
-		850000A92FB00001001B9AA7 /* RadixProjectSource.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = RadixProjectSource.zip; sourceTree = "<group>"; };
-		850000AB2FB00001001B9AA7 /* RadixProjectSourceManifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = RadixProjectSourceManifest.json; sourceTree = "<group>"; };
 		911F85BE195D61BDA4442400 /* PhraseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseModels.swift; sourceTree = "<group>"; };
 		850000092F9D0001001B9AA7 /* BrowseGridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseGridLayout.swift; sourceTree = "<group>"; };
 		8500000B2F9D0001001B9AA7 /* RadixStoreExtractedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreExtractedHelpers.swift; sourceTree = "<group>"; };
@@ -595,8 +593,6 @@
 				51F6A1B6C8E94D3BA2F0D645 /* character_strokes.db */,
 				0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */,
 				864DAB9D2F9B0001001B9AA7 /* Licenses */,
-				850000A92FB00001001B9AA7 /* RadixProjectSource.zip */,
-				850000AB2FB00001001B9AA7 /* RadixProjectSourceManifest.json */,
 				E9C3F33A9386C399BF9BA6BD /* subtlex_freq.json */,
 			);
 			path = Resources;
