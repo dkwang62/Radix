@@ -33,63 +33,6 @@ extension DataEditTab {
             }
 
             premiumExportOption(
-                title: "Project Source Package",
-                subtitle: projectArchiveSubtitle,
-                toolsTip: AdvancedExportToolsTip(
-                    title: "Tools for Project Source Package",
-                    message: projectArchiveToolsMessage
-                ),
-                systemName: "folder.badge.plus",
-                color: .indigo,
-                action: {
-                    let name = projectArchiveFileName.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let data = try dataExportService.exportBundledProjectArchive()
-                    reuseExportDocument = BinaryFileDocument(data: data)
-                    reuseExportFilename = name.isEmpty ? ProjectArchiveName.baseName() : name
-                    reuseExportContentType = .zipArchive
-                    activeZipExportKind = .projectArchive
-                    activeAdvancedExportKind = .projectArchive
-                    projectArchiveFileName = reuseExportFilename
-                }
-            )
-
-            premiumExportOption(
-                title: "Project Manifest JSON",
-                subtitle: "Readable receipt for the fixed source package: filename, generated date, byte count, and checksum.",
-                toolsTip: AdvancedExportToolsTip(
-                    title: "Tools for Project Manifest JSON",
-                    message: "Open with any text editor, VS Code, Xcode, Terminal, or JSON viewer. Use it to verify the bundled source package."
-                ),
-                systemName: "checkmark.seal.fill",
-                color: .cyan,
-                action: {
-                    let data = try dataExportService.exportBundledProjectManifest()
-                    reuseExportDocument = BinaryFileDocument(data: data)
-                    reuseExportFilename = "radix_project_source_manifest"
-                    reuseExportContentType = .json
-                    activeAdvancedExportKind = .projectManifest
-                }
-            )
-
-            premiumExportOption(
-                title: "Project Source README",
-                subtitle: "Plain text explanation of what the fixed source package is and how to refresh it before release.",
-                toolsTip: AdvancedExportToolsTip(
-                    title: "Tools for Project Source README",
-                    message: "Open with Notes, TextEdit, VS Code, Xcode, or any plain text editor. It is meant for quick inspection and sharing."
-                ),
-                systemName: "doc.text.fill",
-                color: .gray,
-                action: {
-                    let data = try dataExportService.exportBundledProjectReadme()
-                    reuseExportDocument = BinaryFileDocument(data: data)
-                    reuseExportFilename = "radix_project_source_readme"
-                    reuseExportContentType = .plainText
-                    activeAdvancedExportKind = .projectReadme
-                }
-            )
-
-            premiumExportOption(
                 title: "Xcode Data Files ZIP",
                 subtitle: "The core Radix data files, including your latest created or edited characters and phrases, without the Swift code.",
                 toolsTip: AdvancedExportToolsTip(
@@ -224,20 +167,4 @@ extension DataEditTab {
         )
     }
 
-    var projectArchiveSubtitle: String {
-        guard let info = dataExportService.bundledProjectArchiveInfo() else {
-            return "The fixed Radix source package is not included in this app build."
-        }
-        let generated = info.displayGeneratedAt.map { ", generated \($0)" } ?? ""
-        return "Fixed source package bundled with this app build, with manifest and README available separately. \(info.filename), \(info.displaySize)\(generated)."
-    }
-
-    var projectArchiveToolsMessage: String {
-        guard let info = dataExportService.bundledProjectArchiveInfo() else {
-            return "The bundled source package is missing from this build. Refresh Resources/RadixProjectSource.zip before release."
-        }
-        let generated = info.displayGeneratedAt.map { " Generated \($0)." } ?? ""
-        let checksum = info.sha256.map { " SHA-256: \($0)." } ?? ""
-        return "Mac, Xcode/Swift, and AI coding help such as Codex, ChatGPT, or Claude Code. This build includes \(info.filename) at \(info.displaySize).\(generated)\(checksum) Refresh the bundled source package before each release."
-    }
 }

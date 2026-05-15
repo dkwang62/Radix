@@ -153,8 +153,6 @@
 		850000A32FA10001001B9AA7 /* PhraseDiscoverySummaryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000A22FA10001001B9AA7 /* PhraseDiscoverySummaryViews.swift */; };
 		850000A52FA10001001B9AA7 /* PhraseDiscoveryInputViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000A42FA10001001B9AA7 /* PhraseDiscoveryInputViews.swift */; };
 		850000A72FA10001001B9AA7 /* PhraseDiscoveryRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000A62FA10001001B9AA7 /* PhraseDiscoveryRows.swift */; };
-		850000AA2FB00001001B9AA7 /* RadixProjectSource.zip in Resources */ = {isa = PBXBuildFile; fileRef = 850000A92FB00001001B9AA7 /* RadixProjectSource.zip */; };
-		850000AC2FB00001001B9AA7 /* RadixProjectSourceManifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 850000AB2FB00001001B9AA7 /* RadixProjectSourceManifest.json */; };
 		859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */; };
 		864DAB762F93ADA3001B9AA7 /* ComponentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */; };
 		864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864DAB872F93B701001B9AA7 /* RadixStore.swift */; };
@@ -774,8 +772,6 @@
 				859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */,
 				864DAB9E2F9B0001001B9AA7 /* Licenses in Resources */,
 				33BD34622FD7927FF5D00EDA /* phrases.db in Resources */,
-				850000AA2FB00001001B9AA7 /* RadixProjectSource.zip in Resources */,
-				850000AC2FB00001001B9AA7 /* RadixProjectSourceManifest.json in Resources */,
 				9D7AF752F6083FC689726598 /* subtlex_freq.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

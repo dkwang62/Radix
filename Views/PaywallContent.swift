@@ -51,7 +51,7 @@ extension PaywallView {
                 spacing: 10
             ) {
                 benefit("My Backup gives your Radix data portability across iPhone, iPad, and Mac")
-                benefit("Advanced exports datasets, databases, source package, and manifests")
+                benefit("Advanced exports reusable datasets and databases")
                 benefit("Advanced includes My Backup")
                 benefit("The main learning app stays free")
             }
