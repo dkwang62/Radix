@@ -2,7 +2,18 @@ import SwiftUI
 
 extension CharacterDetailView {
     func regularActionRow(proxy: ScrollViewProxy) -> some View {
-        HStack(spacing: 8) {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                detailActionButtons(proxy: proxy)
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                detailActionButtons(proxy: proxy)
+            }
+        }
+    }
+
+    private func detailActionButtons(proxy: ScrollViewProxy) -> some View {
+        Group {
             editCharacterButton
             phraseTableButton {
                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -25,7 +36,7 @@ extension CharacterDetailView {
         Button(action: action) {
             HStack(spacing: 8) {
                 Image(systemName: showPhraseTable ? "text.justify" : "text.justify.left")
-                Text(showPhraseTable ? "Hide Phrase Table" : "Show Phrase Table")
+                Text(showPhraseTable ? "Hide Phrases" : "Phrases")
                 Spacer()
                 Text("\(store.activePhraseLengthFilterLabel)-char")
                     .font(ResponsiveFont.caption.weight(.semibold))
@@ -35,7 +46,8 @@ extension CharacterDetailView {
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
             .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .frame(minHeight: 42)
         }
         .buttonStyle(.plain)
     }
@@ -49,7 +61,8 @@ extension CharacterDetailView {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .frame(minHeight: 42)
         }
         .buttonStyle(.plain)
     }
@@ -58,12 +71,13 @@ extension CharacterDetailView {
         Button {
             store.goToRoots(character: item.character)
         } label: {
-            Label("Components", systemImage: "tree")
+            Label("Breakdown", systemImage: "tree")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .frame(minHeight: 42)
         }
         .buttonStyle(.plain)
     }

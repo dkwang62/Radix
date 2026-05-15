@@ -27,6 +27,36 @@ extension SmartSearchTab {
         #endif
     }
 
+    var isPhoneSearchPreviewActive: Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
+        guard UIDevice.current.userInterfaceIdiom == .phone else { return false }
+        return store.activeSidebarPhrasePreview != nil || searchDetailPreviewCharacter != nil || searchPreviewCharacter != nil
+        #endif
+    }
+
+    @ViewBuilder
+    func phoneSearchPreview(proxy: ScrollViewProxy) -> some View {
+        PhoneContextPreview(
+            returnTitle: "Search",
+            returnSystemImage: "magnifyingglass",
+            phrase: store.activeSidebarPhrasePreview,
+            character: searchDetailPreviewCharacter ?? searchPreviewCharacter ?? store.previewCharacter,
+            onReturn: {
+                selectedPhrase = nil
+                store.dismissSidebarPhrasePreview()
+                searchPreviewCharacter = nil
+                searchDetailPreviewCharacter = nil
+                store.previewCharacter = nil
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    proxy.scrollTo("searchTop", anchor: .top)
+                }
+            }
+        )
+        .environmentObject(store)
+    }
+
     func syncSearchPreviewFromStore() {
         guard store.hasPerformedSearch, searchPreviewCharacter == nil else { return }
         searchDetailPreviewCharacter = store.previewCharacter
@@ -39,7 +69,7 @@ extension SmartSearchTab {
 
     var phonePhraseSheetBinding: Binding<PhraseItem?> {
         Binding(
-            get: { isPhone ? selectedPhrase : nil },
+            get: { nil },
             set: { newValue in
                 if isPhone {
                     selectedPhrase = newValue
@@ -53,7 +83,7 @@ extension SmartSearchTab {
         withAnimation(.easeInOut(duration: 0.2)) {
             if isPhone {
                 store.presentPhraseInSidebar(phrase)
-                selectedPhrase = phrase
+                selectedPhrase = nil
             } else {
                 selectedPhrase = nil
                 store.presentPhraseInSidebar(phrase)

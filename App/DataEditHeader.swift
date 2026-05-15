@@ -4,6 +4,13 @@ extension DataEditTab {
     var myDataHeader: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Review your additions and move them between iPhone, iPad, and Mac.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
                 Spacer()
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) { showHelp.toggle() }
@@ -14,27 +21,25 @@ extension DataEditTab {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Help")
-
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) { showAdvancedExports.toggle() }
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: showAdvancedExports ? "arrow.uturn.backward.circle" : "square.and.arrow.up.on.square")
-                        Text(showAdvancedExports ? "Backup & Restore" : "Advanced")
-                            .font(ResponsiveFont.caption)
-                    }
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(showAdvancedExports ? Color.accentColor : Color.secondary)
-                }
-                .buttonStyle(.plain)
             }
+
+            Picker("My Data section", selection: $activeDataEditSection) {
+                ForEach(DataEditSection.allCases) { section in
+                    Text(section.rawValue).tag(section)
+                }
+            }
+            .pickerStyle(.segmented)
+            .accessibilityLabel("My Data section")
 
             if showHelp {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Backup saves everything you've added or changed — custom characters, phrases, saved images, favorites, API keys, and AI templates — into a single file.")
+                    Text("My Data preview is free.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
-                    Text("Additive restore merges dictionary, phrase, saved image, and API key changes. Complete restore replaces the app's overlay data, saved images, favorites, memory, search history, settings, API keys, and AI templates with the backup.")
+                    Text("Data portability is the key paid feature: what you add on one device can be carried to the others.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                    Text("Advanced exports files for developers and reuse.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }

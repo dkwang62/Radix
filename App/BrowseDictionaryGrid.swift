@@ -14,7 +14,6 @@ extension FilterGridTab {
                 let isActive = item.character == store.previewCharacter || item.character == store.browseHighlightedCharacter
                 Button {
                     store.highlightBrowseDictionaryCharacter(item.character)
-                    store.speakCharacter(item.character)
                     store.preview(character: item.character)
                     scrollToBrowseTile(dictionaryTileAnchorID(item.character), proxy: proxy)
                 } label: {
@@ -74,20 +73,29 @@ extension FilterGridTab {
         let componentsToggle = Button {
             store.setGridSortMode(isComponents ? .characterFrequency : .componentFrequency)
         } label: {
-            Text("Components")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
+            Group {
+                if isPhoneBrowseLayout {
+                    Image(systemName: "puzzlepiece.extension")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .frame(width: 34, height: 34)
+                } else {
+                    Label("Parts", systemImage: "puzzlepiece.extension")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                }
+            }
                 .background(isComponents ? Color.accentColor : Color(.secondarySystemBackground))
                 .foregroundStyle(isComponents ? Color.white : Color.primary)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(isComponents ? "Show common characters first" : "Show component parts first")
 
         let filterButton = Button {
             showBrowseFilters = true
         } label: {
-            Text("▽")
+            Image(systemName: activeBrowseFilterCount > 0 ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
@@ -97,11 +105,12 @@ extension FilterGridTab {
         .buttonStyle(.plain)
         .accessibilityLabel(filterButtonTitle)
 
-        HStack(alignment: .center, spacing: 8) {
+        HStack(alignment: .center, spacing: isPhoneBrowseLayout ? 4 : 8) {
             componentsToggle
             CompactScriptFilterControl(selection: store.gridScriptFilter) { store.setGridScriptFilter($0) }
             filterButton
         }
+        .fixedSize(horizontal: true, vertical: false)
     }
 
     var activeBrowseFilterCount: Int {

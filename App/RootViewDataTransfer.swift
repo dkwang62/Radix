@@ -2,8 +2,8 @@ import SwiftUI
 
 extension RootView {
     func exportProfile() {
-        if entitlement.requiresPro(.profileTransfer) {
-            presentPaywall(for: .profileTransfer)
+        if entitlement.requiresPro(.myBackup) {
+            presentPaywall(for: .myBackup)
             return
         }
         do {
@@ -15,24 +15,24 @@ extension RootView {
     }
 
     func importProfile() {
-        if entitlement.requiresPro(.profileTransfer) {
-            presentPaywall(for: .profileTransfer)
+        if entitlement.requiresPro(.myBackup) {
+            presentPaywall(for: .myBackup)
             return
         }
         showProfileImporter = true
     }
 
     func loadAddPhrases() {
-        if entitlement.requiresPro(.dataEdit) {
-            presentPaywall(for: .dataEdit)
+        if entitlement.requiresPro(.advanced) {
+            presentPaywall(for: .advanced)
             return
         }
         showAddPhrasesImporter = true
     }
 
     func exportAddPhrases() {
-        if entitlement.requiresPro(.dataEdit) {
-            presentPaywall(for: .dataEdit)
+        if entitlement.requiresPro(.advanced) {
+            presentPaywall(for: .advanced)
             return
         }
         do {
@@ -44,8 +44,8 @@ extension RootView {
     }
 
     func useDefaultAddPhrases() {
-        if entitlement.requiresPro(.dataEdit) {
-            presentPaywall(for: .dataEdit)
+        if entitlement.requiresPro(.advanced) {
+            presentPaywall(for: .advanced)
             return
         }
         do {

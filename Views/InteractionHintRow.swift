@@ -33,8 +33,8 @@ struct InteractionHintRow: View {
                     lineWidth: 1
                 )
         )
-        .scaleEffect(isPulsing ? 1.10 : 1.0)
-        .shadow(color: Color.accentColor.opacity(isPulsing ? 0.34 : 0), radius: 16)
+        .scaleEffect(isPulsing ? 1.025 : 1.0)
+        .shadow(color: Color.accentColor.opacity(isPulsing ? 0.16 : 0), radius: 8)
         .onAppear {
             schedulePulseIfNeeded()
         }

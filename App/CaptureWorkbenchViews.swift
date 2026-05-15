@@ -3,6 +3,7 @@ import PhotosUI
 import UIKit
 
 struct CaptureHeaderView: View {
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @Binding var selectedPhoto: PhotosPickerItem?
     let isProcessing: Bool
     let filePickerTitle: String
@@ -10,33 +11,119 @@ struct CaptureHeaderView: View {
     let onFiles: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label("Extract Chinese text from images using Apple Vision", systemImage: "camera")
-                .font(ResponsiveFont.subheadline)
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Scan or import Chinese text. Saved pages open in Browse.")
+                .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
 
-            HStack(alignment: .center, spacing: 10) {
-                PhotosPicker(selection: $selectedPhoto, matching: .images) {
-                    Label("Album", systemImage: "photo.on.rectangle")
-                        .frame(maxWidth: .infinity)
+            LazyVGrid(columns: sourceColumns, spacing: 10) {
+                Button(action: onCamera) {
+                    CaptureSourceButton(
+                        title: "Camera",
+                        subtitle: "Scan now",
+                        systemName: "camera.fill",
+                        isPrimary: true
+                    )
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.plain)
+                .accessibilityLabel("Camera")
                 .disabled(isProcessing)
 
-                Button(action: onCamera) {
-                    Image(systemName: "camera.fill")
-                        .font(.system(size: 28, weight: .semibold))
-                        .frame(maxWidth: .infinity)
+                PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                    CaptureSourceButton(title: "Album", subtitle: "Photos", systemName: "photo.on.rectangle")
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.plain)
                 .disabled(isProcessing)
 
                 Button(action: onFiles) {
-                    Label(filePickerTitle, systemImage: "folder")
-                        .frame(maxWidth: .infinity)
+                    CaptureSourceButton(title: filePickerTitle, subtitle: "Import", systemName: "folder")
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.plain)
                 .disabled(isProcessing)
+            }
+
+            CaptureWorkflowHint()
+        }
+    }
+
+    private var sourceColumns: [GridItem] {
+        if sizeClass == .compact {
+            return [GridItem(.flexible(minimum: 220), spacing: 10)]
+        }
+        return Array(repeating: GridItem(.flexible(minimum: 150), spacing: 10), count: 3)
+    }
+}
+
+private struct CaptureSourceButton: View {
+    let title: String
+    let subtitle: String
+    let systemName: String
+    var isPrimary = false
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: systemName)
+                .font(.system(size: 18, weight: .semibold))
+                .frame(width: 34, height: 34)
+                .background((isPrimary ? Color.white : Color.accentColor).opacity(isPrimary ? 0.18 : 0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(ResponsiveFont.body.bold())
+                    .lineLimit(1)
+                Text(subtitle)
+                    .font(ResponsiveFont.caption)
+                    .opacity(0.82)
+                    .lineLimit(1)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
+        .foregroundStyle(isPrimary ? Color.white : Color.primary)
+        .background(isPrimary ? Color.accentColor : Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(isPrimary ? Color.accentColor : Color(.separator).opacity(0.35), lineWidth: 1)
+        )
+    }
+}
+
+private struct CaptureWorkflowHint: View {
+    private let steps: [(String, String)] = [
+        ("1", "Choose image"),
+        ("2", "Read text"),
+        ("3", "Browse page")
+    ]
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) { stepContent }
+            VStack(alignment: .leading, spacing: 8) { stepContent }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemBackground).opacity(0.55))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var stepContent: some View {
+        ForEach(steps, id: \.0) { step in
+            HStack(spacing: 6) {
+                Text(step.0)
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 22, height: 22)
+                    .background(Color.accentColor.opacity(0.12))
+                    .clipShape(Circle())
+                Text(step.1)
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
             }
         }
     }
@@ -51,6 +138,9 @@ struct CaptureImagePreview: View {
                 .resizable()
                 .scaledToFit()
                 .frame(maxHeight: 260)
+                .frame(maxWidth: .infinity)
+                .padding(8)
+                .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
@@ -62,15 +152,32 @@ struct CaptureStatusMessages: View {
 
     var body: some View {
         if let errorMessage {
-            Text(errorMessage)
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.red)
+            CaptureMessageBanner(message: errorMessage, systemName: "exclamationmark.triangle.fill", color: .red)
         }
         if let statusMessage {
-            Text(statusMessage)
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
+            CaptureMessageBanner(message: statusMessage, systemName: "checkmark.circle.fill", color: .green)
         }
+    }
+}
+
+private struct CaptureMessageBanner: View {
+    let message: String
+    let systemName: String
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemName)
+                .foregroundStyle(color)
+            Text(message)
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+        }
+        .padding(10)
+        .background(color.opacity(0.10))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -99,11 +206,14 @@ struct SavedImageList: View {
     let onDelete: (CharacterCollection) -> Void
 
     var body: some View {
-        CaptureSection("Images") {
+        CaptureSection("Scanned Pages") {
             if collections.isEmpty {
-                Text("No saved images.")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
+                ContentUnavailableView(
+                    "No Pages",
+                    systemImage: "photo.on.rectangle.angled",
+                    description: Text("Scan or import an image.")
+                )
+                .frame(maxWidth: .infinity)
             } else {
                 LazyVStack(spacing: 6) {
                     ForEach(collections) { collection in
@@ -120,6 +230,13 @@ struct SavedImageList: View {
 }
 
 private struct SavedImageRow: View {
+    static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
+
     let collection: CharacterCollection
     let onOpen: () -> Void
     let onDelete: () -> Void
@@ -130,12 +247,18 @@ private struct SavedImageRow: View {
                 HStack(spacing: 8) {
                     thumbnail
 
-                    Text(collection.name)
-                        .font(ResponsiveFont.body.weight(.semibold))
-                        .lineLimit(1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(displayName)
+                            .font(ResponsiveFont.body.weight(.semibold))
+                            .lineLimit(1)
+                        Text(Self.dateFormatter.string(from: collection.createdAt))
+                            .font(ResponsiveFont.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Text("\(collection.uniqueCharacters.count)/\(collection.characters.count)")
+                    Text("\(collection.uniqueCharacters.count) chars")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
@@ -146,11 +269,11 @@ private struct SavedImageRow: View {
 
             Button(role: .destructive, action: onDelete) {
                 Image(systemName: "trash")
-                    .frame(width: 30, height: 30)
+                    .frame(width: 34, height: 34)
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
-            .accessibilityLabel("Delete \(collection.name)")
+            .accessibilityLabel("Delete \(displayName)")
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
@@ -180,6 +303,11 @@ private struct SavedImageRow: View {
         guard let data = collection.thumbnailJPEGData else { return nil }
         return UIImage(data: data)
     }
+
+    private var displayName: String {
+        let name = collection.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        return name.isEmpty ? "Scanned Page" : name
+    }
 }
 
 struct CaptureCharactersSection: View {
@@ -194,19 +322,13 @@ struct CaptureCharactersSection: View {
 
     var body: some View {
         CaptureSection("Characters") {
-            HStack(spacing: 10) {
-                Button(action: onReadAloud) {
-                    Label("Read Aloud", systemImage: "speaker.wave.2")
-                }
-                .buttonStyle(.bordered)
-                .disabled(characters.isEmpty)
-
-                Button("Clear", action: onClear)
-                    .buttonStyle(.bordered)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) { captureCharacterActions }
+                VStack(alignment: .leading, spacing: 8) { captureCharacterActions }
             }
 
             if characterItems.isEmpty {
-                Text("No Chinese characters found yet.")
+                Text("No characters yet.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             } else {
@@ -225,6 +347,21 @@ struct CaptureCharactersSection: View {
                 .padding(6)
                 .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+
+    private var captureCharacterActions: some View {
+        Group {
+            Button(action: onReadAloud) {
+                Label("Read Aloud", systemImage: "speaker.wave.2")
+            }
+            .buttonStyle(.bordered)
+            .disabled(characters.isEmpty)
+
+            Button(action: onClear) {
+                Label("Clear", systemImage: "xmark.circle")
+            }
+            .buttonStyle(.bordered)
         }
     }
 }

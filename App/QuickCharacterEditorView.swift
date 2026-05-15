@@ -62,9 +62,25 @@ struct QuickCharacterEditorView: View {
     }
 
     var header: some View {
-        HStack {
-            Text(isNew ? "Add New Character" : "\(store.characterNotesActionTitle(for: initialCharacter)): \(initialCharacter)")
-                .font(ResponsiveFont.title3.bold())
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: isNew ? "character.book.closed" : "square.and.pencil")
+                .font(ResponsiveFont.title3.weight(.semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 34, height: 34)
+                .background(Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(isNew ? "Add Character" : "\(store.characterNotesActionTitle(for: initialCharacter)): \(initialCharacter)")
+                    .font(ResponsiveFont.title3.bold())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                Text(isNew ? "Create a custom dictionary entry." : "Save personal notes and dictionary details.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .layoutPriority(1)
+
             Spacer()
             if isNew && !isLoaded {
                 Button("Cancel") {

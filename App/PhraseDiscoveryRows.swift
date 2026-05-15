@@ -68,7 +68,7 @@ struct AddedPhraseResultRow: View {
     let onDelete: (PhraseDiscoveryCandidate) -> Void
 
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
+        HStack(alignment: .top, spacing: 10) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(candidate.phrase)
                     .font(ResponsiveFont.body.bold())
@@ -86,14 +86,17 @@ struct AddedPhraseResultRow: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            Button("Delete", role: .destructive) {
+            Button(role: .destructive) {
                 onDelete(candidate)
+            } label: {
+                Image(systemName: "trash")
+                    .font(ResponsiveFont.caption.weight(.semibold))
             }
             .buttonStyle(.bordered)
             .controlSize(.mini)
-            .font(ResponsiveFont.caption2.weight(.semibold))
+            .accessibilityLabel("Delete \(candidate.phrase)")
         }
-        .padding(8)
+        .padding(10)
     }
 }
 

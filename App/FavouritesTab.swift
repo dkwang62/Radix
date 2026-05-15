@@ -32,14 +32,27 @@ struct FavouritesTab: View {
         #endif
     }
 
+    var hasStudyContent: Bool {
+        !store.rootBreadcrumb.isEmpty
+            || !store.favoriteItems.isEmpty
+            || !store.favoritePhrasesItems.isEmpty
+            || !store.allCollections.isEmpty
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             favouritesHeader
 
-            if store.favoriteItems.isEmpty && store.favoritePhrasesItems.isEmpty {
-                ContentUnavailableView("No Favorites", systemImage: "star.slash", description: Text("Tap the star icon on any character or phrase to add it to this list."))
-            } else {
+            if isPhoneStudyPreviewActive {
+                ScrollView {
+                    phoneStudyPreview
+                        .padding(.horizontal)
+                        .padding(.bottom, 20)
+                }
+            } else if hasStudyContent {
                 favouritesScrollContent
+            } else {
+                ContentUnavailableView("No Study Items", systemImage: "clock.badge.questionmark", description: Text("Search, scan, or star a character."))
             }
         }
         .sheet(item: phonePhraseSheetBinding) { phrase in
@@ -53,5 +66,24 @@ struct FavouritesTab: View {
             }
             .presentationDetents([.medium, .large])
         }
+    }
+
+    var isPhoneStudyPreviewActive: Bool {
+        isPhone && (store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil)
+    }
+
+    var phoneStudyPreview: some View {
+        PhoneContextPreview(
+            returnTitle: "Study",
+            returnSystemImage: "star",
+            phrase: store.activeSidebarPhrasePreview,
+            character: store.previewCharacter,
+            onReturn: {
+                selectedPhrase = nil
+                store.dismissSidebarPhrasePreview()
+                store.previewCharacter = nil
+            }
+        )
+        .environmentObject(store)
     }
 }

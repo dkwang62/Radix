@@ -9,7 +9,7 @@ extension AILinkView {
             promptActions
 
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("Generated Prompt")
+                Text("Instruction")
                     .font(ResponsiveFont.subheadline)
                     .foregroundStyle(.secondary)
 
@@ -34,77 +34,119 @@ extension AILinkView {
             }
             .frame(minHeight: 350)
             .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 8)
                     .stroke(Color(.separator), lineWidth: 1)
             )
         }
     }
 
+    @ViewBuilder
     var promptActions: some View {
         let currentPreset = selectedAIPreset ?? store.defaultAIPreset
         let currentAIName = store.aiName(for: currentPreset)
 
-        return HStack(spacing: 12) {
-            Button("Copy Prompt") {
-                copyPromptToClipboard()
+        if sizeClass == .compact {
+            VStack(alignment: .leading, spacing: 10) {
+                promptActionButtons(currentPreset: currentPreset, currentAIName: currentAIName)
+                promptStatusText(currentPreset: currentPreset, currentAIName: currentAIName)
             }
-            .buttonStyle(.bordered)
-            .font(ResponsiveFont.headline)
-            .disabled(!canGeneratePrompt)
+        } else {
+            HStack(spacing: 12) {
+                promptActionButtons(currentPreset: currentPreset, currentAIName: currentAIName)
+                promptStatusText(currentPreset: currentPreset, currentAIName: currentAIName)
+            }
+        }
+    }
 
-            Menu {
-                ForEach(DefaultAIPreset.allCases, id: \.self) { preset in
-                    Button {
-                        selectedAIPreset = preset
-                        openPromptInAI(preset)
-                    } label: {
-                        Label(
-                            "Open \(store.aiName(for: preset))",
-                            systemImage: preset == currentPreset ? "checkmark" : "arrow.up.forward.app"
-                        )
-                    }
-                    .disabled(preset == .custom && store.aiBaseURLString(for: .custom).isEmpty)
-                }
-            } label: {
-                Label("Open \(currentAIName)", systemImage: "arrow.up.forward.app")
+    func promptActionButtons(currentPreset: DefaultAIPreset, currentAIName: String) -> some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                promptCopyButton
+                promptOpenMenu(currentPreset: currentPreset, currentAIName: currentAIName)
+                geminiPhraseButton
             }
-            .menuStyle(.button)
+
+            VStack(alignment: .leading, spacing: 8) {
+                promptCopyButton
+                promptOpenMenu(currentPreset: currentPreset, currentAIName: currentAIName)
+                geminiPhraseButton
+            }
+        }
+    }
+
+    var promptCopyButton: some View {
+        Button {
+            copyPromptToClipboard()
+        } label: {
+            Label("Copy", systemImage: "doc.on.doc")
+        }
+        .buttonStyle(.bordered)
+        .font(ResponsiveFont.headline)
+        .disabled(!canGeneratePrompt)
+    }
+
+    func promptOpenMenu(currentPreset: DefaultAIPreset, currentAIName: String) -> some View {
+        Menu {
+            ForEach(DefaultAIPreset.allCases, id: \.self) { preset in
+                Button {
+                    selectedAIPreset = preset
+                    openPromptInAI(preset)
+                } label: {
+                    Label(
+                        "Open \(store.aiName(for: preset))",
+                        systemImage: preset == currentPreset ? "checkmark" : "arrow.up.forward.app"
+                    )
+                }
+                .disabled(preset == .custom && store.aiBaseURLString(for: .custom).isEmpty)
+            }
+        } label: {
+            Label("Open \(currentAIName)", systemImage: "arrow.up.forward.app")
+        }
+        .menuStyle(.button)
+        .buttonStyle(.borderedProminent)
+        .font(ResponsiveFont.headline)
+        .disabled(!canGeneratePrompt)
+    }
+
+    @ViewBuilder
+    var geminiPhraseButton: some View {
+        if canRunGeminiPhraseAPI {
+            Button {
+                runGeminiPhraseAPI()
+            } label: {
+                if isRunningGeminiPhraseAPI {
+                    Label("Running", systemImage: "hourglass")
+                } else {
+                    Label("Extract Phrases", systemImage: "curlybraces")
+                }
+            }
             .buttonStyle(.borderedProminent)
             .font(ResponsiveFont.headline)
-            .disabled(!canGeneratePrompt)
+            .disabled(isRunningGeminiPhraseAPI)
+        }
+    }
 
-            if canRunGeminiPhraseAPI {
-                Button {
-                    runGeminiPhraseAPI()
-                } label: {
-                    if isRunningGeminiPhraseAPI {
-                        Label("Running Extract Phrases with Key", systemImage: "hourglass")
-                    } else {
-                        Label("Extract Phrases with Key", systemImage: "curlybraces")
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-                .font(ResponsiveFont.headline)
-                .disabled(isRunningGeminiPhraseAPI)
-            }
-
-            if openedDefaultAI {
-                Text(store.aiPrefillsPrompt(for: currentPreset)
-                     ? "Opening \(currentAIName). Prompt copied as backup."
-                     : "Opening \(currentAIName). Prompt copied. Paste it into \(currentAIName).")
-                    .font(ResponsiveFont.footnote)
-                    .foregroundStyle(.secondary)
-            } else if let geminiPhraseAPIMessage {
-                Text(geminiPhraseAPIMessage)
-                    .font(ResponsiveFont.footnote)
-                    .foregroundStyle(.secondary)
-            } else if copied {
-                Text("Copied. Paste into \(currentAIName).")
-                    .font(ResponsiveFont.footnote)
-                    .foregroundStyle(.secondary)
-            }
+    @ViewBuilder
+    func promptStatusText(currentPreset: DefaultAIPreset, currentAIName: String) -> some View {
+        if openedDefaultAI {
+            Text(store.aiPrefillsPrompt(for: currentPreset)
+                 ? "Opening \(currentAIName). Instruction copied as backup."
+                 : "Opening \(currentAIName). Instruction copied. Paste it into \(currentAIName).")
+                .font(ResponsiveFont.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        } else if let geminiPhraseAPIMessage {
+            Text(geminiPhraseAPIMessage)
+                .font(ResponsiveFont.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        } else if copied {
+            Text("Copied. Paste into \(currentAIName).")
+                .font(ResponsiveFont.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -117,7 +159,7 @@ extension AILinkView {
         }
 
         isRunningGeminiPhraseAPI = true
-        geminiPhraseAPIMessage = "Running Extract Phrases with Key..."
+            geminiPhraseAPIMessage = "Extracting phrases..."
         Task {
             do {
                 let summary = try await store.runGeminiPhraseExtraction(for: collection)
@@ -136,13 +178,13 @@ extension AILinkView {
 
     var generatedPromptText: String {
         if hasCollectionTasks && selectedCollection == nil {
-            return "Choose an image for Tasks 4-6."
+            return "Choose a saved page for page instructions."
         }
         if hasCharacterTasks && activeCharacter == nil {
-            return "Choose a character for Tasks 1-3."
+            return "Choose a character or phrase first."
         }
         let text = store.promptText(character: activeCharacter, collection: selectedCollection)
-        return text.isEmpty ? "Choose at least one AI task." : text
+        return text.isEmpty ? "Choose at least one instruction." : text
     }
 
     var promptContextLine: String? {
@@ -150,17 +192,18 @@ extension AILinkView {
 
         if hasCharacterTasks {
             if let activeCharacter {
-                parts.append("Tasks 1-3: \(activeCharacter)")
+                parts.append("Subject: \(activeCharacter)")
             } else {
-                parts.append("Tasks 1-3: no character")
+                parts.append("Choose subject")
             }
         }
 
         if hasCollectionTasks {
             if let selectedCollection {
-                parts.append("Tasks 4-6: \(selectedCollection.name)")
+                let name = selectedCollection.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                parts.append("Page: \(name.isEmpty ? "Scanned Page" : name)")
             } else {
-                parts.append("Tasks 4-6: no image")
+                parts.append("Choose page")
             }
         }
 

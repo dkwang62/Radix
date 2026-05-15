@@ -4,6 +4,14 @@ import UIKit
 #endif
 import UniformTypeIdentifiers
 
+enum DataEditSection: String, CaseIterable, Identifiable {
+    case library = "My Data"
+    case myBackup = "My Backup"
+    case advanced = "Advanced"
+
+    var id: String { rawValue }
+}
+
 struct DataEditTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
@@ -31,6 +39,7 @@ struct DataEditTab: View {
     @State var reuseExportInProgress = false
     @State var reuseExportMessage: String?
     @State var activeZipExportKind: AdvancedZipExportKind = .xcodeDataFiles
+    @State var activeAdvancedExportKind: AdvancedExportKind = .fullDataset
     @State var advancedToolsTip: AdvancedExportToolsTip?
     let dataExportService = DataExportService()
 
@@ -46,7 +55,7 @@ struct DataEditTab: View {
     @State var showAITemplatesPreview = false
     @State var showAppStatePreview = false
 
-    @State var showAdvancedExports = false
+    @State var activeDataEditSection: DataEditSection = .library
     @State var showHelp = false
     @State var dataEditScrollProxy: ScrollViewProxy?
 
@@ -64,11 +73,13 @@ struct DataEditTab: View {
 
                     myDataHeader
 
-                    if showAdvancedExports {
-                        premiumExportsSection
-                    } else {
+                    switch activeDataEditSection {
+                    case .library:
+                        libraryOverviewSection
+                    case .myBackup:
                         backupAndRestoreSection
-                        whatsInMyBackupSection
+                    case .advanced:
+                        premiumExportsSection
                     }
 
                     if let editorError {
@@ -107,7 +118,7 @@ struct DataEditTab: View {
             ) { result in
                 restoreBackup(from: result)
             }
-            .alert("Backup / Restore", isPresented: $showBackupAlert) {
+            .alert("Data Portability", isPresented: $showBackupAlert) {
                 Button("OK", role: .cancel) {
                     backupMessage = nil
                     backupError = nil
@@ -126,34 +137,36 @@ struct DataEditTab: View {
     func handleReuseExportSuccess(_ url: URL) {
         let base = url.deletingPathExtension().lastPathComponent
         if reuseExportContentType == .json && reuseExportFilename == "radix_unified_backup" {
-            backupMessage = "Backup saved to: \(url.lastPathComponent)"
+            backupMessage = "My Data export saved to: \(url.lastPathComponent)"
             showBackupAlert = true
         } else {
             reuseExportMessage = "Saved to: \(url.lastPathComponent)"
-            if reuseExportContentType == .zipArchive {
-                if activeZipExportKind == .projectArchive {
-                    projectArchiveFileName = base
-                } else {
-                    xcodeDataFilesFileName = base
-                }
-            } else if reuseExportContentType == .json {
+            if activeAdvancedExportKind == .projectArchive {
+                projectArchiveFileName = base
+            } else if activeAdvancedExportKind == .xcodeDataFiles {
+                xcodeDataFilesFileName = base
+            } else if activeAdvancedExportKind == .fullDataset {
                 fullDatasetFileName = base
-            } else if reuseExportFilename.hasPrefix(mergedDictionaryFileName.isEmpty ? "radix_merged_dictionary" : mergedDictionaryFileName) {
+            } else if activeAdvancedExportKind == .dictionaryDatabase {
                 mergedDictionaryFileName = base
-            } else {
+            } else if activeAdvancedExportKind == .phraseDatabase {
                 mergedPhrasesFileName = base
             }
         }
     }
 
     func restoreBackup(from result: Result<[URL], Error>) {
+        guard !entitlement.requiresPro(.myBackup) else {
+            onRequirePro(.myBackup)
+            return
+        }
         do {
             guard let url = try result.get().first else { return }
             let accessed = url.startAccessingSecurityScopedResource()
             defer { if accessed { url.stopAccessingSecurityScopedResource() } }
             let data = try Data(contentsOf: url)
             try store.importDataEditData(data, mode: pendingRestoreMode)
-            let modeLabel = pendingRestoreMode == .complete ? "Complete restore" : "Additive restore"
+            let modeLabel = pendingRestoreMode == .complete ? "Replaced this device's data" : "Added data to this device"
             backupMessage = "\(modeLabel) from: \(url.lastPathComponent)"
             showBackupAlert = true
         } catch {

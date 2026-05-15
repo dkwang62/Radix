@@ -2,11 +2,13 @@ import SwiftUI
 import Combine
 import StoreKit
 
-/// Manages the user's "Pro" status. Current policy: only My Data requires Pro.
+/// Manages paid access. Current policy: the app is free except My Backup and Advanced exports.
 @MainActor
 class EntitlementManager: ObservableObject {
-    static let annualProductID = "com.radix.pro.annual"
-    static let lifetimeProductID = "com.radix.pro.lifetime"
+    static let myBackupProductID = "com.radix.pro.annual"
+    static let advancedProductID = "com.radix.pro.lifetime"
+    static let annualProductID = myBackupProductID
+    static let lifetimeProductID = advancedProductID
     #if DEBUG
     private static let debugOverrideKey = "com.radix.debugProOverride"
     #endif
@@ -14,7 +16,9 @@ class EntitlementManager: ObservableObject {
     enum FeatureGate: String {
         case lineage = "Roots"
         case favourites = "Favourites"
-        case dataEdit = "My Data"
+        case myBackup = "My Backup"
+        case advanced = "Advanced"
+        case dataEdit = "Data Editing"
         case aiLink = "AI Link"
         case profileTransfer = "Profile Transfer"
     }
@@ -79,7 +83,7 @@ class EntitlementManager: ObservableObject {
         isLoadingProducts = true
         defer { isLoadingProducts = false }
         do {
-            let identifiers: Set<String> = [Self.annualProductID, Self.lifetimeProductID]
+            let identifiers: Set<String> = [Self.myBackupProductID, Self.advancedProductID]
             let loadedProducts = try await Product.products(for: identifiers)
             self.products = loadedProducts.sorted(by: productSortPredicate)
             self.lastError = nil
@@ -129,8 +133,18 @@ class EntitlementManager: ObservableObject {
     // MARK: - Feature Gates
 
     func requiresPro(_ feature: FeatureGate) -> Bool {
-        if isProUnlocked { return false }
-        return feature == .dataEdit
+        #if DEBUG
+        if debugProOverrideEnabled { return false }
+        #endif
+
+        switch feature {
+        case .myBackup, .profileTransfer:
+            return !(hasActiveAnnualSubscription || hasLifetimeAccess || isPro)
+        case .advanced, .dataEdit:
+            return !hasLifetimeAccess
+        case .lineage, .favourites, .aiLink:
+            return false
+        }
     }
     
     func limitLineage(_ items: [ComponentItem]) -> [ComponentItem] {
@@ -150,9 +164,9 @@ class EntitlementManager: ObservableObject {
         for await result in StoreKit.Transaction.currentEntitlements {
             guard case .verified(let transaction) = result else { continue }
             switch transaction.productID {
-            case Self.annualProductID:
+            case Self.myBackupProductID:
                 annual = true
-            case Self.lifetimeProductID:
+            case Self.advancedProductID:
                 lifetime = true
             default:
                 break
@@ -170,8 +184,8 @@ class EntitlementManager: ObservableObject {
 
     private func rank(for productID: String) -> Int {
         switch productID {
-        case Self.annualProductID: return 0
-        case Self.lifetimeProductID: return 1
+        case Self.myBackupProductID: return 0
+        case Self.advancedProductID: return 1
         default: return 99
         }
     }

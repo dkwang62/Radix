@@ -106,7 +106,7 @@ struct QuickPhraseEditorView: View {
     private var phraseNotesSection: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
-                Text("Notes / Sentences / Practice")
+                Text("Notes / Sentences / Examples")
                     .font(ResponsiveFont.caption2)
                     .foregroundStyle(.secondary)
                 if !phraseEditorNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {

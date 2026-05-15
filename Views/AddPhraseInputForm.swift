@@ -18,10 +18,19 @@ struct AddPhraseInputForm: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
                 if let editorError {
-                    Text(editorError)
+                    Label(editorError, systemImage: "exclamationmark.triangle")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.red)
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.red.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Phrase Details", systemImage: "text.quote")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
 
                 fieldBlock("Phrase") {
                     TextField("Chinese phrase", text: $word)
@@ -47,10 +56,22 @@ struct AddPhraseInputForm: View {
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 0.5))
                         .focused($focused, equals: .meanings)
                 }
+                }
+                .padding(12)
+                .background(Color(.secondarySystemBackground).opacity(0.45))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                fieldBlock("Notes / Sentences / Practice") {
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Study Notes", systemImage: "note.text")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                fieldBlock("Notes / Sentences / Examples") {
                     notesEditor
                 }
+                }
+                .padding(12)
+                .background(Color(.secondarySystemBackground).opacity(0.35))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .padding()
         }
@@ -91,16 +112,35 @@ struct AddPhraseInputForm: View {
     }
 
     private var actionRow: some View {
-        HStack {
-            Spacer()
-            Button("Cancel", action: onCancel)
-                .buttonStyle(.bordered)
-            Button("Add Phrase") { addPhrase() }
-                .buttonStyle(.borderedProminent)
-                .disabled(word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                Spacer()
+                cancelButton
+                addButton
+            }
+
+            VStack(spacing: 10) {
+                addButton
+                cancelButton
+            }
         }
         .padding()
         .background(Color(.systemBackground))
+    }
+
+    private var cancelButton: some View {
+        Button("Cancel", action: onCancel)
+            .buttonStyle(.bordered)
+    }
+
+    private var addButton: some View {
+        Button {
+            addPhrase()
+        } label: {
+            Label("Add Phrase", systemImage: "plus")
+        }
+        .buttonStyle(.borderedProminent)
+        .disabled(word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
     }
 
     private func fieldBlock<C: View>(_ label: String, @ViewBuilder content: () -> C) -> some View {

@@ -57,9 +57,9 @@ struct CharacterInfoCard: View {
         standardContent
             .padding(16)
             .background(Color(.systemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 8)
                     .stroke(Color(.separator), lineWidth: 1)
             )
             .onChange(of: item.character) { _, _ in
@@ -77,16 +77,15 @@ struct CharacterInfoCard: View {
     }
 
     var standardContent: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             headerRow(
                 characterSize: isPhone ? 30 : 34,
                 pinyinFont: isPhone ? .system(size: 32, weight: .bold) : .system(size: 34, weight: .bold)
             )
 
-            tierRow
-            structureChipRow
-            componentIconStrip
             actionRow
+            referenceMetaRow
+            componentIconStrip
             definitionAndNotes
         }
     }

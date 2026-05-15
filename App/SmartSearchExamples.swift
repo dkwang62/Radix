@@ -4,51 +4,35 @@ extension SmartSearchTab {
     var searchExamplesAndHelp: some View {
         VStack(spacing: 14) {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Search by English")
-                    .font(ResponsiveFont.subheadline)
-                    .foregroundStyle(.secondary)
-                HStack(spacing: 8) {
-                    SearchExampleButton(label: "=water ->", query: "水") { _ in
+                Label("Search by example", systemImage: "sparkle.magnifyingglass")
+                    .font(ResponsiveFont.headline)
+
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: isRunningOnMac ? 150 : 132), spacing: 8)], spacing: 8) {
+                    SearchExampleButton(label: "Pinyin", query: "shui", desc: "水") { query in
+                        localQuery = query
+                        runSearch(query)
+                    }
+                    SearchExampleButton(label: "Meaning", query: "water", desc: "水") { _ in
                         localQuery = "=water"
                         runSearch("=water")
                     }
-                    SearchExampleButton(label: "watery ->", query: "含水") { _ in
-                        localQuery = "watery"
-                        runSearch("watery")
+                    SearchExampleButton(label: "Phrase", query: "hanshui", desc: "含水") { query in
+                        localQuery = query
+                        runSearch(query)
                     }
-                }
-
-                Text("Search by Pinyin")
-                    .font(ResponsiveFont.subheadline)
-                    .foregroundStyle(.secondary)
-                HStack(spacing: 8) {
-                    SearchExampleButton(label: "shui ->", query: "水") { _ in
-                        localQuery = "shui"
-                        runSearch("shui")
+                    SearchExampleButton(label: "Strokes", query: "ノ丶丶フ丨", desc: "含") { query in
+                        localQuery = query
+                        runSearch(query)
                     }
-                    SearchExampleButton(label: "hanshui ->", query: "含水") { _ in
-                        localQuery = "hanshui"
-                        runSearch("hanshui")
-                    }
-                }
-
-                Text("Search by Apple IME Strokes")
-                    .font(ResponsiveFont.subheadline)
-                    .foregroundStyle(.secondary)
-                HStack(spacing: 8) {
-                    SearchExampleButton(label: "ノ丶丶フ丨 ->", query: "含") { _ in
-                        localQuery = "ノ丶丶フ丨"
-                        runSearch("ノ丶丶フ丨")
-                    }
-                    SearchExampleButton(label: "丨フノ丶 ->", query: "水") { _ in
-                        localQuery = "丨フノ丶"
-                        runSearch("丨フノ丶")
+                    SearchExampleButton(label: "Strokes", query: "丨フノ丶", desc: "水") { query in
+                        localQuery = query
+                        runSearch(query)
                     }
                 }
             }
             .padding(isRunningOnMac ? 20 : 14)
-            .background(Color(.secondarySystemBackground).opacity(0.5))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .background(Color(.secondarySystemBackground).opacity(0.55))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .frame(maxWidth: {
                 #if targetEnvironment(macCatalyst)
                 return 900
@@ -68,7 +52,7 @@ extension SmartSearchTab {
                         }
                     }
                 } label: {
-                    Label("Show IME Chinese Strokes examples", systemImage: "keyboard")
+                    Label("Stroke input examples", systemImage: "keyboard")
                         .font(ResponsiveFont.caption.weight(.semibold))
                 }
                 .font(ResponsiveFont.caption)
@@ -98,7 +82,7 @@ extension SmartSearchTab {
                         }
                     }
                 } label: {
-                    Label("Show keyboard setup", systemImage: "gearshape")
+                    Label("Keyboard setup", systemImage: "gearshape")
                         .font(ResponsiveFont.caption.weight(.semibold))
                 }
                 .font(ResponsiveFont.caption)
@@ -107,7 +91,7 @@ extension SmartSearchTab {
             .padding(isRunningOnMac ? 14 : 10)
             .frame(maxWidth: isRunningOnMac ? 760 : .infinity)
             .background(Color(.secondarySystemBackground).opacity(0.55))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .frame(maxWidth: .infinity)
         .padding(.top, isRunningOnMac ? 40 : 12)

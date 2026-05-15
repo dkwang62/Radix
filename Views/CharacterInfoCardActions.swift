@@ -85,7 +85,12 @@ struct CharacterInfoCardActions: View {
 
 struct PhraseActionPill: View {
     var body: some View {
-        Text("词Phrase")
+        Label {
+            Text("Phrases")
+        } icon: {
+            Text("词")
+                .font(cardActionFont)
+        }
             .font(cardActionFont)
             .foregroundStyle(Color.accentColor)
             .lineLimit(1)

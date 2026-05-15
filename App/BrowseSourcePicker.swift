@@ -15,16 +15,66 @@ extension FilterGridTab {
 
             sourceActionButton(
                 title: "Create from Paste",
-                subtitle: "Paste Chinese text and save it as an image source",
+                subtitle: "Paste Chinese text",
                 systemImage: "doc.on.clipboard"
             ) {
                 beginManualCollection()
             }
 
-            ForEach(store.allCollections) { collection in
-                sourceCollectionRow(collection)
+            if !store.allCollections.isEmpty {
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 6) {
+                        ForEach(store.allCollections) { collection in
+                            sourceCollectionRow(collection)
+                        }
+                    }
+                }
+                .frame(maxHeight: browseSourceCollectionListMaxHeight)
             }
         }
+    }
+
+    var browseSavedPageOptions: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            sourceActionButton(
+                title: "Create from Paste",
+                subtitle: "Paste Chinese text and save it as a page",
+                systemImage: "doc.on.clipboard"
+            ) {
+                beginManualCollection()
+            }
+
+            if store.allCollections.isEmpty {
+                ContentUnavailableView(
+                    "No Pages",
+                    systemImage: "photo.on.rectangle.angled",
+                    description: Text("Scan or paste Chinese text.")
+                )
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+            } else {
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 6) {
+                        ForEach(store.allCollections) { collection in
+                            sourceCollectionRow(collection)
+                        }
+                    }
+                }
+                .frame(maxHeight: browseSourceCollectionListMaxHeight)
+            }
+        }
+    }
+
+    var browseSourceCollectionListMaxHeight: CGFloat {
+        if isPhoneBrowseLayout {
+            return 260
+        }
+
+        #if targetEnvironment(macCatalyst)
+        return 360
+        #else
+        return 420
+        #endif
     }
 
     func sourceActionButton(

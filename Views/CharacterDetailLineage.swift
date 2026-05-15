@@ -4,14 +4,9 @@ extension CharacterDetailView {
     var lineageSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             lineageControls
-            VStack(alignment: .leading, spacing: 6) {
-                EmptyView()
-            }
-            .font(ResponsiveFont.subheadline)
-            .foregroundStyle(.tertiary)
 
             if !store.lineageParents.isEmpty {
-                lineageStrip(title: "Components (How it's built)", items: store.lineageParents)
+                lineageStrip(title: "Breakdown (How it's built)", items: store.lineageParents)
             }
 
             lineageStrip(title: "Derivatives", items: store.pagedLineageDerivatives)
@@ -28,7 +23,7 @@ extension CharacterDetailView {
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.accentColor.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
         }
@@ -93,11 +88,11 @@ extension CharacterDetailView {
                     .font(ResponsiveFont.headline)
                     .foregroundStyle(.secondary)
                 Spacer()
-                if title.contains("Components") {
+                if title.contains("Breakdown") {
                     Button {
                         store.showComponentHelp = false
                     } label: {
-                        Label("Components Explorer", systemImage: "point.3.connected.trianglepath.dotted")
+                        Label("Explore Breakdown", systemImage: "point.3.connected.trianglepath.dotted")
                             .font(ResponsiveFont.subheadline)
                     }
                     .buttonStyle(.borderedProminent)
@@ -120,17 +115,34 @@ extension CharacterDetailView {
 
             Spacer(minLength: 8)
 
-            Button("Prev") { store.previousLineagePage() }
-                .font(ResponsiveFont.subheadline)
+            Button {
+                store.previousLineagePage()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .frame(width: 32, height: 30)
+            }
                 .buttonStyle(.bordered)
+                .controlSize(.small)
                 .disabled(store.lineagePage == 0)
-            Text("Batch \(store.lineagePage + 1)/\(store.lineagePageCount)")
+
+            Text("\(store.lineagePage + 1) / \(store.lineagePageCount)")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
-            Button("Next") { store.nextLineagePage() }
-                .font(ResponsiveFont.subheadline)
+                .monospacedDigit()
+                .frame(minWidth: 52)
+
+            Button {
+                store.nextLineagePage()
+            } label: {
+                Image(systemName: "chevron.right")
+                    .frame(width: 32, height: 30)
+            }
                 .buttonStyle(.bordered)
+                .controlSize(.small)
                 .disabled(store.lineagePage + 1 >= store.lineagePageCount)
         }
+        .padding(10)
+        .background(Color(.secondarySystemBackground).opacity(0.55))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

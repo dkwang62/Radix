@@ -2,7 +2,7 @@ import SwiftUI
 
 extension AILinkView {
     var promptGenerationSection: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 18) {
             taskSelectionSection
             promptBox
         }
@@ -12,11 +12,20 @@ extension AILinkView {
         VStack(alignment: .leading, spacing: 12) {
             DisclosureGroup(isExpanded: $isTasksExpanded) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Button("Enable all tasks") {
-                        store.selectAllPromptTasks()
+                    HStack {
+                        Text("Choose what the AI should do.")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer(minLength: 8)
+                        Button {
+                            store.selectAllPromptTasks()
+                        } label: {
+                            Label("All", systemImage: "checkmark.circle")
+                        }
+                        .buttonStyle(.bordered)
+                        .font(ResponsiveFont.caption.bold())
+                        .controlSize(.small)
                     }
-                    .buttonStyle(.bordered)
-                    .font(ResponsiveFont.subheadline)
                     .padding(.vertical, 4)
 
                     Divider()
@@ -32,14 +41,14 @@ extension AILinkView {
             } label: {
                 HStack {
                     Image(systemName: "checklist")
-                    Text("Tasks (\(store.promptSelectedTaskIDs.count)/\(store.promptConfig.tasks.count) active)")
+                    Text("Instructions \(store.promptSelectedTaskIDs.count)/\(store.promptConfig.tasks.count)")
                         .font(ResponsiveFont.headline)
                 }
             }
         }
         .padding()
         .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     @ViewBuilder
@@ -85,7 +94,7 @@ extension AILinkView {
 
     var aiCollectionMenu: some View {
         Menu {
-            Button("No Image") { store.selectAICollection(id: nil) }
+            Button("None") { store.selectAICollection(id: nil) }
             if !store.favoriteCollections.isEmpty {
                 Section("Favorites") {
                     ForEach(store.favoriteCollections) { collection in
@@ -94,38 +103,40 @@ extension AILinkView {
                 }
             }
             if !store.allCollections.isEmpty {
-                Section("All Images") {
+                Section("All Pages") {
                     ForEach(store.allCollections) { collection in
                         Button(collection.name) { store.selectAICollection(id: collection.id) }
                     }
                 }
             }
         } label: {
-            Text("Change")
-                .font(ResponsiveFont.caption2.weight(.semibold))
+            Image(systemName: "ellipsis.circle")
+                .font(.system(size: 16, weight: .semibold))
         }
         .buttonStyle(.bordered)
-        .controlSize(.mini)
+        .controlSize(.small)
+        .accessibilityLabel("Choose Saved Page")
     }
 
     func taskSubjectInfo(task: PromptTask, isCollectionTask: Bool) -> (label: String, icon: String, isMissing: Bool) {
         if isCollectionTask {
             if let collection = selectedCollection {
-                return ("Image: \(collection.name)", "tray.full", false)
+                let name = collection.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                return (name.isEmpty ? "Page" : name, "tray.full", false)
             } else {
-                return ("No image selected — choose one below", "exclamationmark.triangle", true)
+                return ("Choose page", "exclamationmark.triangle", true)
             }
         } else {
             if let phrase = store.activeSidebarPhrasePreview {
                 let pinyin = phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines)
-                let label = pinyin.isEmpty ? "Phrase: \(phrase.word)" : "Phrase: \(phrase.word)  \(pinyin)"
+                let label = pinyin.isEmpty ? phrase.word : "\(phrase.word)  \(pinyin)"
                 return (label, "text.quote", false)
             } else if let char = activeCharacter {
                 let pinyin = store.item(for: char)?.pinyinText ?? ""
-                let label = pinyin.isEmpty ? "Character: \(char)" : "Character: \(char)  \(pinyin)"
+                let label = pinyin.isEmpty ? char : "\(char)  \(pinyin)"
                 return (label, "character", false)
             } else {
-                return ("No character selected", "exclamationmark.triangle", true)
+                return ("Choose character", "exclamationmark.triangle", true)
             }
         }
     }

@@ -31,34 +31,23 @@ struct CaptureTab: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     Color.clear.frame(height: 0).id("captureTop")
-                    header
-
-                    #if !targetEnvironment(macCatalyst)
-                    if UIDevice.current.userInterfaceIdiom == .phone,
-                       let current = captureDetailPreviewCharacter ?? capturePreviewCharacter ?? store.previewCharacter,
-                       store.item(for: current) != nil {
-                        standardPhoneCharacterPreview(
-                            character: current,
-                            onClear: {
-                                capturePreviewCharacter = nil
-                                captureDetailPreviewCharacter = nil
-                                store.previewCharacter = nil
-                            }
-                        )
-                    }
-                    #endif
-
-                    CaptureStatusMessages(errorMessage: errorMessage, statusMessage: statusMessage)
-
-                    CaptureImagePreview(image: selectedImage)
-
-                    if isProcessing {
-                        ProgressView("Reading image...")
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.vertical, 24)
+                    if isPhoneCapturePreviewActive {
+                        phoneCapturePreview
                     } else if store.activeCaptureDraft.rawText.isEmpty {
-                        emptyState
+                        header
+                        CaptureStatusMessages(errorMessage: errorMessage, statusMessage: statusMessage)
+                        CaptureImagePreview(image: selectedImage)
+                        if isProcessing {
+                            ProgressView("Reading image...")
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(.vertical, 24)
+                        } else {
+                            emptyState
+                        }
                     } else {
+                        header
+                        CaptureStatusMessages(errorMessage: errorMessage, statusMessage: statusMessage)
+                        CaptureImagePreview(image: selectedImage)
                         captureResults(scrollToTop: {
                             withAnimation { proxy.scrollTo("captureTop", anchor: .top) }
                         })
@@ -67,14 +56,14 @@ struct CaptureTab: View {
                 .padding()
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }
-        }
-        .onAppear {
-            #if !targetEnvironment(macCatalyst)
-            let isOnMac = ProcessInfo.processInfo.isiOSAppOnMac
-            if !isOnMac, UIImagePickerController.isSourceTypeAvailable(.camera) {
-                showCamera = true
+            .onChange(of: store.activeSidebarPhrasePreview?.word) { _, newValue in
+                guard newValue != nil else { return }
+                capturePreviewCharacter = nil
+                captureDetailPreviewCharacter = nil
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    proxy.scrollTo("captureTop", anchor: .top)
+                }
             }
-            #endif
         }
         .onChange(of: selectedPhoto) { _, item in
             Task { await loadAndRecognize(item) }
@@ -118,6 +107,33 @@ struct CaptureTab: View {
 
     private var emptyState: some View {
         savedImagesList
+    }
+
+    private var isPhoneCapturePreviewActive: Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
+        guard UIDevice.current.userInterfaceIdiom == .phone else { return false }
+        if store.activeSidebarPhrasePreview != nil { return true }
+        let current = captureDetailPreviewCharacter ?? capturePreviewCharacter ?? store.previewCharacter
+        return current.flatMap { store.item(for: $0) } != nil
+        #endif
+    }
+
+    private var phoneCapturePreview: some View {
+        PhoneContextPreview(
+            returnTitle: "Scan",
+            returnSystemImage: "camera.viewfinder",
+            phrase: store.activeSidebarPhrasePreview,
+            character: captureDetailPreviewCharacter ?? capturePreviewCharacter ?? store.previewCharacter,
+            onReturn: {
+                capturePreviewCharacter = nil
+                captureDetailPreviewCharacter = nil
+                store.previewCharacter = nil
+                store.dismissSidebarPhrasePreview()
+            }
+        )
+        .environmentObject(store)
     }
 
     private var savedImagesList: some View {

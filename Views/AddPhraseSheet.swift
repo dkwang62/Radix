@@ -40,14 +40,26 @@ struct AddPhraseSheet: View {
     }
 
     private var header: some View {
-        HStack {
-            Text(step == .add ? "Add Phrases" : "Review Added")
-                .font(ResponsiveFont.title3.bold())
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: step == .add ? "text.badge.plus" : "checkmark.circle")
+                .font(ResponsiveFont.title3.weight(.semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 34, height: 34)
+                .background(Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(step == .add ? "Add Phrases" : "Review Added")
+                    .font(ResponsiveFont.title3.bold())
+                Text(step == .add ? "Type one phrase or import from AI extraction." : "\(addedPhrases.count) saved \(addedPhrases.count == 1 ? "phrase" : "phrases").")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Spacer()
         }
-        .padding(.horizontal)
-        .padding(.top)
-        .padding(.bottom, 8)
+        .padding()
+        .background(Color(.systemBackground))
     }
 
     private var modePicker: some View {
@@ -59,6 +71,7 @@ struct AddPhraseSheet: View {
         .pickerStyle(.segmented)
         .padding(.horizontal)
         .padding(.bottom, 12)
+        .background(Color(.systemBackground))
     }
 
     @ViewBuilder

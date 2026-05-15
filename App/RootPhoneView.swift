@@ -17,6 +17,7 @@ extension RootView {
 
     var phoneSelection: Int {
         if store.route == .capture { return 0 }
+        if store.route == .favourites { return 3 }
         if store.route == .aiLink { return 4 }
         if store.route == .lineage { return -1 }
         switch store.homeTab {
@@ -29,12 +30,12 @@ extension RootView {
 
     var phoneTitle: String {
         switch phoneSelection {
-        case -1: return "Components"
-        case 0: return "Image"
+        case -1: return "Character Breakdown"
+        case 0: return "Scan"
         case 1: return "Search"
-        case 2: return store.selectedBrowseCollection.map { "Browse – \($0.name)" } ?? "Browse – Dictionary"
-        case 3: return "Favorites"
-        case 4: return "AI"
+        case 2: return "Browse"
+        case 3: return "Study"
+        case 4: return "AI Link"
         case 5: return "My Data"
         default: return "Radix"
         }
@@ -52,7 +53,7 @@ extension RootView {
             .navigationTitle(phoneTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
                     Button {
                         showSettings = true
                     } label: {
@@ -69,6 +70,15 @@ extension RootView {
                         CharacterDetailView(item: item)
                     }
                     .navigationBarBackButtonHidden(true)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button {
+                                store.showiPhoneDetail = false
+                            } label: {
+                                Label("Back", systemImage: "chevron.left")
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -106,23 +116,28 @@ extension RootView {
     }
 
     var phoneTabBar: some View {
-        HStack(spacing: 6) {
-            tabButton(id: 0, title: "Image", icon: "camera")
-            tabButton(id: 2, title: "Browse", icon: "square.grid.2x2")
-            tabButton(id: 1, title: "Search", icon: "magnifyingglass")
-            tabButton(id: 3, title: "Favs", icon: "star")
-            tabButton(id: 4, title: "AI", icon: "sparkles")
-            tabButton(id: 5, title: "My Data", icon: "pencil.and.outline")
+        VStack(spacing: 0) {
+            Divider()
+            HStack(spacing: 4) {
+                tabButton(id: 0, title: "Scan", icon: "camera.viewfinder")
+                tabButton(id: 2, title: "Browse", icon: "square.grid.2x2")
+                tabButton(id: 1, title: "Search", icon: "magnifyingglass")
+                tabButton(id: 3, title: "Study", icon: "star")
+                tabButton(id: 4, title: "AI", icon: "sparkles")
+                tabButton(id: 5, title: "My Data", icon: "externaldrive")
+            }
+            .padding(.top, 8)
+            .padding(.bottom, 7)
+            .padding(.horizontal, 6)
         }
-        .padding(.vertical, 6)
-        .padding(.horizontal, 8)
-        .background(Color(.systemBackground).opacity(0.95))
-        .overlay(Divider(), alignment: .top)
+        .background(.bar)
+        .shadow(color: Color.black.opacity(0.06), radius: 8, y: -2)
     }
 
     func tabButton(id: Int, title: String, icon: String, usesSystemImage: Bool = true) -> some View {
         let isActive = {
             if store.route == .capture { return id == 0 }
+            if store.route == .favourites { return id == 3 }
             if store.route == .aiLink { return id == 4 }
             if store.route == .lineage { return false }
             switch store.homeTab {
@@ -147,8 +162,6 @@ extension RootView {
                 store.route = .capture
             case 4:
                 store.route = .aiLink
-            case 5:
-                store.goToDataEdit()
             case 1:
                 store.route = .search
                 store.homeTab = .smart
@@ -159,6 +172,8 @@ extension RootView {
             case 3:
                 store.route = .search
                 store.homeTab = .favourites
+            case 5:
+                store.goToDataEdit()
             default:
                 store.route = .search
                 store.homeTab = .smart
@@ -167,22 +182,27 @@ extension RootView {
             VStack(spacing: 2) {
                 if usesSystemImage {
                     Image(systemName: icon)
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: isActive ? 16 : 15, weight: .semibold))
                 } else {
                     Text(icon)
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: isActive ? 16 : 15, weight: .semibold))
                 }
                 Text(title)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: 10, weight: isActive ? .bold : .semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.58)
             }
-            .foregroundStyle(isActive ? Color.accentColor : Color.secondary)
+            .foregroundStyle(isActive ? Color.white : Color.secondary)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 4)
+            .frame(height: 48)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(isActive ? Color.accentColor.opacity(0.12) : Color.clear)
+                    .fill(isActive ? Color.accentColor : Color.clear)
             )
+            .contentShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(title)
+        .accessibilityValue(isActive ? "Selected" : "")
     }
 }

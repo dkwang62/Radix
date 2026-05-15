@@ -36,7 +36,7 @@ extension RootView {
                         emptyStateCard(
                             systemImage: "tree",
                             title: "No Character",
-                            message: "Choose a character from Search or Browse to explore Components."
+                            message: "Choose a character from Search or Browse."
                         )
                     } else {
                         ComponentsExplorerShell(seedOverride: store.previewCharacter)
@@ -59,22 +59,22 @@ extension RootView {
     var detailPaneTitle: String {
         switch store.route {
         case .capture:
-            return "Image"
+            return "Scan"
         case .search:
             switch store.homeTab {
             case .smart:
                 return "Search"
             case .filter:
-                return store.selectedBrowseCollection.map { "Browse – \($0.name)" } ?? "Browse – Dictionary"
+                return store.selectedBrowseCollection.map { "Browse - \($0.name)" } ?? "Browse Dictionary"
             case .favourites:
-                return "Favorites"
+                return "Study"
             case .dataEdit:
                 return "My Data"
             }
         case .lineage:
-            return "Components"
+            return "Character Breakdown"
         case .favourites:
-            return "Favorites"
+            return "Study"
         case .aiLink:
             return "AI Link"
         }
@@ -91,7 +91,7 @@ extension RootView {
             emptyStateCard(
                 systemImage: "sparkles",
                 title: "No Subject",
-                message: "Choose a character for Tasks 1-3 or a page for Tasks 4-5."
+                message: "Choose a character, phrase, or page first."
             )
         }
     }

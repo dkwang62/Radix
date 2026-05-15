@@ -2,23 +2,40 @@ import SwiftUI
 
 extension QuickCharacterEditorView {
     var actionRow: some View {
-        HStack(spacing: 10) {
-            destructiveOrRevertAction
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                destructiveOrRevertAction
 
-            Spacer()
+                Spacer()
 
-            Button("Cancel") {
-                dismiss()
+                cancelButton
+                saveButton
             }
-            .buttonStyle(.bordered)
 
-            Button("Save") {
-                saveCharacter()
+            VStack(spacing: 10) {
+                saveButton
+                cancelButton
+                destructiveOrRevertAction
             }
-            .buttonStyle(.borderedProminent)
         }
         .padding(.vertical, 4)
         .background(Color(.systemBackground))
+    }
+
+    var cancelButton: some View {
+        Button("Cancel") {
+            dismiss()
+        }
+        .buttonStyle(.bordered)
+    }
+
+    var saveButton: some View {
+        Button {
+            saveCharacter()
+        } label: {
+            Label("Save", systemImage: "checkmark")
+        }
+        .buttonStyle(.borderedProminent)
     }
 
     @ViewBuilder

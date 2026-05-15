@@ -5,7 +5,7 @@ extension FavouritesTab {
         store.speakPhrase(phrase)
         if isPhone {
             store.presentPhraseInSidebar(phrase)
-            selectedPhrase = phrase
+            selectedPhrase = nil
         } else {
             selectedPhrase = nil
             store.presentPhraseInSidebar(phrase)
@@ -14,7 +14,7 @@ extension FavouritesTab {
 
     var phonePhraseSheetBinding: Binding<PhraseItem?> {
         Binding(
-            get: { isPhone ? selectedPhrase : nil },
+            get: { nil },
             set: { newValue in
                 if isPhone {
                     selectedPhrase = newValue

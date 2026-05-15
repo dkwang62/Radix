@@ -5,12 +5,12 @@ extension QuickCharacterEditorView {
     var notesSection: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
-                Text("Notes / Sentences / Phrases")
-                    .font(ResponsiveFont.caption2)
+                Label("Notes / Sentences / Phrases", systemImage: "note.text")
+                    .font(ResponsiveFont.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
                 if !store.dataEditNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     Image(systemName: "text.badge.checkmark")
-                        .font(ResponsiveFont.caption2)
+                        .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
             }

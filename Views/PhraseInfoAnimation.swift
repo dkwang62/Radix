@@ -6,9 +6,23 @@ extension PhraseInfoCard {
         let characters = phraseCharacters
         if !characters.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Label("Characters", systemImage: "square.grid.2x2")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Spacer(minLength: 0)
+                    if characters.count > 4 {
+                        Text("\(min(selectedAnimationPage + 1, phraseAnimationPageCount(for: characters)))/\(phraseAnimationPageCount(for: characters))")
+                            .font(ResponsiveFont.caption2.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 phraseAnimationPageButtons(characters)
                 phraseAnimationTileGrid(characters)
             }
+            .padding(10)
+            .background(Color(.secondarySystemBackground).opacity(0.45))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
 
@@ -89,10 +103,10 @@ extension PhraseInfoCard {
             }
             .padding(8)
             .frame(maxWidth: .infinity, minHeight: 154)
-            .background(Color(.secondarySystemBackground).opacity(0.55))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: 8)
                     .stroke(Color(.separator).opacity(0.6), lineWidth: 1)
             )
         }

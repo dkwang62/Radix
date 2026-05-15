@@ -11,6 +11,14 @@ extension RadixStore {
 
     // MARK: - Search execution
 
+    func prepareFirstInteractionWarmup() {
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 450_000_000)
+            speechService.prepareForFirstUtterance()
+            _ = phraseRepo.maxPhraseLength()
+        }
+    }
+
     func performSearch(customQuery: String? = nil, recordHistory: Bool = true) {
         let targetQuery = customQuery ?? query
         let trimmed = targetQuery.trimmingCharacters(in: .whitespacesAndNewlines)

@@ -37,11 +37,23 @@ extension CharacterInfoCard {
     @ViewBuilder
     var componentIconStrip: some View {
         if !cardComponents.isEmpty {
-            LazyVGrid(columns: componentGridColumns, alignment: .leading, spacing: 8) {
-                ForEach(cardComponents, id: \.character) { component in
-                    componentIconButton(component)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Label("Parts", systemImage: "square.grid.2x2")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Spacer(minLength: 0)
+                }
+
+                LazyVGrid(columns: componentGridColumns, alignment: .leading, spacing: 8) {
+                    ForEach(cardComponents, id: \.character) { component in
+                        componentIconButton(component)
+                    }
                 }
             }
+            .padding(10)
+            .background(Color(.secondarySystemBackground).opacity(0.45))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
 

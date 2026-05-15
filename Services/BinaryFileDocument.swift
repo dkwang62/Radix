@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 
 struct BinaryFileDocument: FileDocument {
     static var readableContentTypes: [UTType] { [.data] }
-    static var writableContentTypes: [UTType] { [.data, .json, .commaSeparatedText, .zipArchive] }
+    static var writableContentTypes: [UTType] { [.data, .json, .plainText, .commaSeparatedText, .zipArchive] }
 
     var data: Data
 

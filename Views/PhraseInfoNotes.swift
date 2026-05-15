@@ -2,10 +2,20 @@ import SwiftUI
 
 extension PhraseInfoCard {
     var phraseMeaningAndNotes: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(phrase.meanings.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "No meaning" : phrase.meanings)
-                .font(ResponsiveFont.body)
-                .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 6) {
+                Label("Meaning", systemImage: "text.book.closed")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+
+                Text(phrase.meanings.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "No meaning saved" : phrase.meanings)
+                    .font(ResponsiveFont.body)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(.secondarySystemBackground).opacity(0.45))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
 
             if isEditingNotes {
                 noteEditor
@@ -33,23 +43,41 @@ extension PhraseInfoCard {
     }
 
     var noteEditActions: some View {
-        HStack(spacing: 8) {
-            Button("Save Notes") {
-                saveNotes()
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                saveNotesButton
+                cancelNotesButton
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.small)
 
-            Button("Cancel") {
-                editableNotes = phrase.notes
-                editStatus = nil
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    isEditingNotes = false
-                }
+            VStack(alignment: .leading, spacing: 8) {
+                saveNotesButton
+                cancelNotesButton
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
         }
+    }
+
+    var saveNotesButton: some View {
+        Button {
+            saveNotes()
+        } label: {
+            Label("Save", systemImage: "checkmark")
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.small)
+    }
+
+    var cancelNotesButton: some View {
+        Button {
+            editableNotes = phrase.notes
+            editStatus = nil
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isEditingNotes = false
+            }
+        } label: {
+            Label("Cancel", systemImage: "xmark")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
     }
 
     @ViewBuilder
@@ -57,10 +85,20 @@ extension PhraseInfoCard {
         let noteSource = hasLocalNotes ? editableNotes : phrase.notes
         let trimmedNotes = noteSource.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedNotes.isEmpty {
-            Text(trimmedNotes)
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+            VStack(alignment: .leading, spacing: 6) {
+                Label("Notes", systemImage: "note.text")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+
+                Text(trimmedNotes)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(.secondarySystemBackground).opacity(0.35))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
 

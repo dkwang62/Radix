@@ -28,9 +28,9 @@ struct PhraseInfoCard: View {
         phraseContent
             .padding(16)
             .background(Color(.systemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 8)
                     .stroke(Color(.separator), lineWidth: 1)
             )
             .sheet(isPresented: $showPhraseTableSheet) {
@@ -57,9 +57,8 @@ struct PhraseInfoCard: View {
     }
 
     var phraseContent: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 14) {
             phraseHeader
-            phrasePinyinRow
             animationScriptToggle
             phraseAnimationPicker
             phraseMeaningAndNotes

@@ -3,54 +3,68 @@ import SwiftUI
 extension RootView {
     var sidebar: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                    sidebarIconButton(
-                        title: "Image",
-                        icon: "camera",
+            VStack(alignment: .leading, spacing: 12) {
+                sidebarBrandHeader
+
+                if store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil {
+                    sidebarPreview
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    sidebarTaskButton(
+                        title: "Scan",
+                        subtitle: "Use a camera, photo, or file to turn real text into a browsable page.",
+                        icon: "camera.viewfinder",
                         isActive: store.route == .capture
                     ) {
                         store.route = .capture
                     }
-                    sidebarIconButton(
-                        title: "Browse",
-                        icon: "square.grid.2x2",
-                        isActive: store.route == .search && store.homeTab == .filter
-                    ) {
-                        store.goToBrowse()
-                    }
-                    sidebarIconButton(
+
+                    sidebarTaskButton(
                         title: "Search",
+                        subtitle: "Find characters and phrases by Chinese, pinyin, English meaning, or strokes.",
                         icon: "magnifyingglass",
                         isActive: store.route == .search && store.homeTab == .smart
                     ) {
                         store.goToSearchRoot()
                     }
-                    sidebarIconButton(
-                        title: "Favorites",
+
+                    sidebarTaskButton(
+                        title: "Browse",
+                        subtitle: "Explore the dictionary or open saved pages from scans and pasted text.",
+                        icon: "square.grid.2x2",
+                        isActive: store.route == .search && store.homeTab == .filter
+                    ) {
+                        store.goToBrowse()
+                    }
+
+                    sidebarTaskButton(
+                        title: "Study",
+                        subtitle: "Return to favorites, remembered items, and pages you want to revisit.",
                         icon: "star",
-                        isActive: store.route == .search && store.homeTab == .favourites
+                        isActive: store.route == .favourites || (store.route == .search && store.homeTab == .favourites)
                     ) {
                         store.goToFavourites()
                     }
-                    sidebarIconButton(
+
+                    sidebarTaskButton(
                         title: "AI Link",
+                        subtitle: "Use repeatable AI actions for phrases, interpretation, translation, and saved pages.",
                         icon: "sparkles",
                         isActive: store.route == .aiLink
                     ) {
                         store.enterAILink()
                     }
-                    sidebarIconButton(
+
+                    sidebarTaskButton(
                         title: "My Data",
-                        icon: "pencil.and.outline",
+                        subtitle: "Your additions can travel between iPhone, iPad, and Mac.",
+                        icon: "externaldrive",
                         isActive: store.route == .search && store.homeTab == .dataEdit
                     ) {
                         store.goToDataEdit()
                     }
                 }
-                .padding(10)
-                .background(.ultraThinMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
 
                 Button {
                     showSettings = true
@@ -62,19 +76,26 @@ extension RootView {
                             .font(ResponsiveFont.subheadline.weight(.semibold))
                         Spacer()
                     }
-                    .padding(10)
+                    .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .background(Color(.secondarySystemBackground).opacity(0.7))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .buttonStyle(.plain)
-
-                if store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil {
-                    sidebarPreview
-                }
             }
             .padding(8)
         }
+    }
+
+    var sidebarBrandHeader: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Scan, understand, and save Chinese characters.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.horizontal, 4)
+        .padding(.top, 4)
     }
 
     @ViewBuilder
@@ -98,53 +119,51 @@ extension RootView {
                 }
             }
             .padding(8)
-            .background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .background(Color(.secondarySystemBackground).opacity(0.7))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 8)
                     .stroke(Color(.separator), lineWidth: 0.5)
             )
-
-            HStack {
-                Spacer()
-
-                Button {
-                    store.goToFavourites()
-                } label: {
-                    Image(systemName: "list.star")
-                        .font(ResponsiveFont.body)
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-            }
         }
     }
 
-    func sidebarIconButton(
+    func sidebarTaskButton(
         title: String,
+        subtitle: String,
         icon: String,
-        usesSystemImage: Bool = true,
         isActive: Bool,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
-            VStack(spacing: 4) {
-                if usesSystemImage {
-                    Image(systemName: icon)
-                        .font(ResponsiveFont.headline)
-                } else {
-                    Text(icon)
-                        .font(ResponsiveFont.headline)
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(ResponsiveFont.headline)
+                    .foregroundStyle(isActive ? Color.accentColor : Color.secondary)
+                    .frame(width: 30, height: 30)
+                    .background(isActive ? Color.accentColor.opacity(0.12) : Color(.systemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                    Text(subtitle)
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                Text(title)
-                    .font(ResponsiveFont.caption2)
-                    .lineLimit(1)
+
+                Spacer(minLength: 0)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .background(isActive ? Color.accentColor.opacity(0.16) : Color.clear)
+            .padding(10)
+            .background(isActive ? Color.accentColor.opacity(0.1) : Color(.secondarySystemBackground).opacity(0.55))
             .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isActive ? Color.accentColor.opacity(0.35) : Color.clear, lineWidth: 1)
+            )
         }
         .buttonStyle(.plain)
     }

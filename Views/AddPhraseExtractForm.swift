@@ -43,23 +43,41 @@ struct AddPhraseExtractForm: View {
     }
 
     private var actionRow: some View {
-        HStack {
-            if !addedPhrases.isEmpty {
-                Button("Review Added", action: onReviewAdded)
-                    .buttonStyle(.borderedProminent)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                reviewAddedButton
+                Spacer()
+                returnButton
             }
 
-            Spacer()
-
-            Button {
-                onReturn()
-            } label: {
-                Text("Back to \(returnTitle)")
+            VStack(spacing: 10) {
+                reviewAddedButton
+                returnButton
             }
-            .buttonStyle(.bordered)
         }
         .padding()
         .background(Color(.systemBackground))
+    }
+
+    @ViewBuilder
+    private var reviewAddedButton: some View {
+        if !addedPhrases.isEmpty {
+            Button {
+                onReviewAdded()
+            } label: {
+                Label("Review Added", systemImage: "checklist")
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
+    private var returnButton: some View {
+        Button {
+            onReturn()
+        } label: {
+            Label("Back to \(returnTitle)", systemImage: "arrow.uturn.backward")
+        }
+        .buttonStyle(.bordered)
     }
 
     private func addOutputToPhrases() {

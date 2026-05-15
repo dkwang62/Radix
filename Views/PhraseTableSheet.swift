@@ -64,11 +64,16 @@ struct PhraseTableSheet: View {
                 })
                     .environmentObject(store)
             } else {
-                HStack(alignment: .firstTextBaseline) {
+                HStack(alignment: .center, spacing: 12) {
                     VStack(alignment: .leading, spacing: 4) {
-                        copyHintLabel
+                        Label("Phrase Library", systemImage: "text.quote")
+                            .font(ResponsiveFont.headline.weight(.semibold))
+                        Text("\(displayedPhrases.count) \(displayedPhrases.count == 1 ? "match" : "matches")")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
                         phraseScopeLabel
                     }
+                    .layoutPriority(1)
 
                     Spacer()
 
@@ -79,6 +84,14 @@ struct PhraseTableSheet: View {
                     }
                     .buttonStyle(.bordered)
                     .accessibilityLabel("Add Phrase")
+                }
+                .padding(12)
+                .background(Color(.secondarySystemBackground).opacity(0.55))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                HStack {
+                    copyHintLabel
+                    Spacer(minLength: 0)
                 }
 
                 PhraseLengthFilterChips(selection: $store.phraseLength)
@@ -106,8 +119,8 @@ struct PhraseTableSheet: View {
                         }
                     }
                     .frame(height: phraseViewportHeight)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .background(Color(.secondarySystemBackground).opacity(0.7))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
 
                     Spacer(minLength: 0)
                 }
@@ -234,6 +247,7 @@ private struct PhraseTableRow: View {
         }
         .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, minHeight: rowHeight, alignment: .leading)
+        .background(Color(.systemBackground).opacity(0.001))
         .contentShape(Rectangle())
         .onTapGesture(perform: onSelect)
         .phraseContextMenu(phrase)

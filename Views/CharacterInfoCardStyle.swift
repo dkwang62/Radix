@@ -41,7 +41,7 @@ extension CharacterInfoCard {
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     var cardActionFont: Font {

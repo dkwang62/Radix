@@ -50,7 +50,7 @@ func emptyStateCard(systemImage: String, title: String, message: String) -> some
     .padding()
     .frame(maxWidth: .infinity, alignment: .center)
     .background(Color(.secondarySystemBackground))
-    .clipShape(RoundedRectangle(cornerRadius: 16))
+    .clipShape(RoundedRectangle(cornerRadius: 8))
     .padding()
 }
 
@@ -121,5 +121,99 @@ struct CompactScriptFilterControl: View {
                 .clipShape(RoundedRectangle(cornerRadius: 9))
         }
         .buttonStyle(.plain)
+    }
+}
+
+struct RadixWelcomeView: View {
+    let onDone: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Radix")
+                            .font(ResponsiveFont.title.bold())
+                        Text("Scan, understand, and save Chinese characters.")
+                            .font(ResponsiveFont.title3)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    VStack(spacing: 12) {
+                        welcomeStep(
+                            icon: "camera.viewfinder",
+                            title: "Scan real text",
+                            text: "Turn a photo, file, or pasted text into a saved page you can browse."
+                        )
+                        welcomeStep(
+                            icon: "square.grid.2x2",
+                            title: "Browse the dictionary",
+                            text: "Explore characters, saved pages, parts, variants, stroke order, and phrases."
+                        )
+                        welcomeStep(
+                            icon: "magnifyingglass",
+                            title: "Search naturally",
+                            text: "Find Chinese by character, pinyin, English meaning, stroke input, or phrase."
+                        )
+                        welcomeStep(
+                            icon: "star",
+                            title: "Keep what matters",
+                            text: "Save useful characters, phrases, notes, and pages in Study."
+                        )
+                        welcomeStep(
+                            icon: "externaldrive",
+                            title: "Move My Data",
+                            text: "What you add on iPhone can travel to iPad and Mac with My Backup."
+                        )
+                        welcomeStep(
+                            icon: "sparkles",
+                            title: "Use AI Link",
+                            text: "Send repeatable AI actions for phrase extraction, translation, and interpretation."
+                        )
+                    }
+
+                    Button(action: onDone) {
+                        Text("Start Using Radix")
+                            .font(ResponsiveFont.body.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                }
+                .padding(24)
+            }
+            .navigationTitle("Welcome")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Skip", action: onDone)
+                }
+            }
+        }
+    }
+
+    private func welcomeStep(icon: String, title: String, text: String) -> some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: icon)
+                .font(ResponsiveFont.title3)
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 40, height: 40)
+                .background(Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                Text(text)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemBackground).opacity(0.7))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

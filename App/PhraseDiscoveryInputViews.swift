@@ -15,35 +15,53 @@ struct AddExtractsToPhrasesPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Button("Add Selected", action: onAdd)
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
-                    .disabled(outputIsEmpty)
-
-                Button("Clear", action: onClear)
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                    .disabled(output.isEmpty && message == nil)
+            HStack(alignment: .center, spacing: 10) {
+                Label("Import From AI", systemImage: "sparkles")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
 
                 Spacer()
+
+                Button {
+                    onClear()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .disabled(output.isEmpty && message == nil)
+                .accessibilityLabel("Clear")
             }
 
-            Text("Paste one phrase or a batch from \(defaultAIName). Format: phrase | pinyin | English meaning.")
+            Text("Paste one phrase or a batch from \(defaultAIName).")
                 .font(ResponsiveFont.caption2)
                 .foregroundStyle(.secondary)
 
             phraseAnswerEditor
 
             if let message {
-                Text(message)
+                Label(message, systemImage: addedPhrases.isEmpty ? "info.circle" : "checkmark.circle")
                     .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(addedPhrases.isEmpty ? Color.secondary : Color.green)
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background((addedPhrases.isEmpty ? Color(.secondarySystemBackground) : Color.green.opacity(0.1)))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
             if !addedPhrases.isEmpty {
                 AddedPhraseResultList(candidates: addedPhrases, onDelete: onDeleteAddedPhrase)
             }
+
+            Button {
+                onAdd()
+            } label: {
+                Label("Add Phrases", systemImage: "plus")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(outputIsEmpty)
         }
         .padding(10)
         .background(Color(.secondarySystemBackground).opacity(0.65))
@@ -78,9 +96,9 @@ struct AddExtractsToPhrasesPanel: View {
     }
 
     private static let placeholderText = """
-    常年 | cqíng yìán | year-round; all year; perennial
-    性情 | xìng qíng | temperament; disposition; nature
-    情意 | qíng yì | affection; goodwill; feelings
+    常年 | cháng nián | year-round; perennial
+    性情 | xìng qíng | temperament; disposition
+    情意 | qíng yì | affection; goodwill
     """
 }
 

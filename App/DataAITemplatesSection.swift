@@ -6,7 +6,7 @@ struct DataAITemplatesSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Label {
-                Text("3. AI Prompt Templates")
+                Text("3. AI Link Templates")
                     .font(ResponsiveFont.headline)
             } icon: {
                 Image(systemName: "sparkles")
@@ -23,7 +23,7 @@ struct DataAITemplatesSection: View {
                 ForEach(store.promptConfig.tasks) { task in
                     DisclosureGroup {
                         VStack(alignment: .leading, spacing: 8) {
-                            TextField("Task Title", text: Binding(
+                            TextField("Instruction Title", text: Binding(
                                 get: { store.promptConfig.tasks.first(where: { $0.id == task.id })?.title ?? "" },
                                 set: { store.setPromptTaskTitle(taskID: task.id, title: $0) }
                             ))
@@ -56,22 +56,22 @@ struct DataAITemplatesSection: View {
     private var promptSystemEditorsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             promptTextEditor(
-                label: "Character System Preamble",
+                label: "Character Instruction Opening",
                 text: Binding(get: { store.promptConfig.preamble }, set: { store.setPromptPreamble($0) }),
                 height: 120
             )
             promptTextEditor(
-                label: "Character System Epilogue",
+                label: "Character Instruction Closing",
                 text: Binding(get: { store.promptConfig.epilogue }, set: { store.setPromptEpilogue($0) }),
                 height: 100
             )
             promptTextEditor(
-                label: "Image System Preamble",
+                label: "Image Instruction Opening",
                 text: Binding(get: { store.promptConfig.collectionPreamble }, set: { store.setCollectionPromptPreamble($0) }),
                 height: 120
             )
             promptTextEditor(
-                label: "Image System Epilogue",
+                label: "Image Instruction Closing",
                 text: Binding(get: { store.promptConfig.collectionEpilogue }, set: { store.setCollectionPromptEpilogue($0) }),
                 height: 100
             )

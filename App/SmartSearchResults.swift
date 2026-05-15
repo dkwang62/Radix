@@ -4,7 +4,6 @@ extension SmartSearchTab {
     @ViewBuilder
     func searchResults(proxy: ScrollViewProxy) -> some View {
         VStack(alignment: .leading, spacing: 15) {
-            phoneSearchPreviewIfNeeded
             searchResultsHeader
             gridInteractionHintRow
 
@@ -27,23 +26,65 @@ extension SmartSearchTab {
     }
 
     var searchResultsHeader: some View {
-        HStack {
-            Text("\(store.filteredResults.count) characters for \"\(store.lastSearchQuery)\"")
-                .font(ResponsiveFont.title3)
-            Spacer()
-            CompactScriptFilterControl(selection: store.scriptFilter) { store.setScriptFilter($0) }
-            Button("Clear Results") {
-                clearSearchResults()
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 10) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(store.lastSearchQuery.isEmpty ? "Search Results" : "\"\(store.lastSearchQuery)\"")
+                        .font(ResponsiveFont.title3.bold())
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+
+                    Text(resultSummaryText)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer(minLength: 8)
+
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 8) {
+                        CompactScriptFilterControl(selection: store.scriptFilter) { store.setScriptFilter($0) }
+                        clearResultsButton
+                    }
+                    VStack(alignment: .trailing, spacing: 8) {
+                        CompactScriptFilterControl(selection: store.scriptFilter) { store.setScriptFilter($0) }
+                        clearResultsButton
+                    }
+                }
             }
-            .font(ResponsiveFont.caption)
         }
+        .padding(12)
+        .background(Color(.secondarySystemBackground).opacity(0.55))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    var resultSummaryText: String {
+        let characterCount = store.filteredResults.count
+        let phraseCount = store.filteredSmartPhraseResults.count
+        if phraseCount > 0 {
+            return "\(characterCount) characters • \(phraseCount) phrases"
+        }
+        return "\(characterCount) characters"
+    }
+
+    var clearResultsButton: some View {
+        Button {
+            clearSearchResults()
+        } label: {
+            Image(systemName: "xmark.circle")
+                .font(.system(size: 16, weight: .semibold))
+                .frame(width: 32, height: 32)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .accessibilityLabel("Clear Results")
     }
 
     @ViewBuilder
     var gridInteractionHintRow: some View {
         InteractionHintRow(
             previewText: isRunningOnMac ? "Click to preview" : "Tap to preview",
-            memoryText: "Preview adds to 🕘",
+            memoryText: "Adds to Recent",
             copyText: isRunningOnMac ? "Right-click to copy" : "Long-press to copy"
         )
     }

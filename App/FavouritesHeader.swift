@@ -2,8 +2,15 @@ import SwiftUI
 
 extension FavouritesTab {
     var favouritesHeader: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Saved characters, phrases, and recent items.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
                 Spacer()
                 HStack(spacing: 12) {
                     Button(action: onExportProfile) {
@@ -16,10 +23,7 @@ extension FavouritesTab {
                 .font(ResponsiveFont.body)
                 .foregroundStyle(Color.accentColor)
             }
-            Text("Whatever is remembered will be forgotten once the app is closed. Add to Favorites to keep.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+
         }
         .padding()
     }

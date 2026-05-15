@@ -5,6 +5,16 @@ enum AdvancedZipExportKind {
     case xcodeDataFiles
 }
 
+enum AdvancedExportKind {
+    case projectArchive
+    case projectManifest
+    case projectReadme
+    case xcodeDataFiles
+    case fullDataset
+    case dictionaryDatabase
+    case phraseDatabase
+}
+
 struct AdvancedExportToolsTip: Identifiable {
     let title: String
     let message: String
@@ -37,30 +47,104 @@ struct DataBackupActionButton: View {
     let foreground: Color
     let background: Color
     let border: Color
+    var isLocked: Bool = false
 
     var body: some View {
-        VStack(spacing: 6) {
-            Image(systemName: systemName)
-                .font(ResponsiveFont.body.bold())
-            Text(title)
-                .font(ResponsiveFont.caption.bold())
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-            Text(subtitle)
-                .font(ResponsiveFont.caption2)
-                .multilineTextAlignment(.center)
-                .opacity(0.85)
-                .lineLimit(2)
+        HStack(spacing: 10) {
+            Image(systemName: isLocked ? "lock.fill" : systemName)
+                .font(.system(size: 18, weight: .bold))
+                .frame(width: 34, height: 34)
+                .background(foreground.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(ResponsiveFont.caption.bold())
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+                Text(subtitle)
+                    .font(ResponsiveFont.caption2)
+                    .opacity(0.85)
+                    .lineLimit(2)
+            }
+
+            Spacer(minLength: 0)
+
+            if isLocked {
+                Text("$19")
+                    .font(ResponsiveFont.caption.bold())
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(Color(.systemBackground).opacity(0.75))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
         }
-        .frame(maxWidth: .infinity, minHeight: 84)
-        .padding(.horizontal, 8)
+        .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
         .background(background)
         .foregroundStyle(foreground)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: 8)
                 .stroke(border, lineWidth: 1)
         )
+    }
+}
+
+struct DataEditPathCard: View {
+    let title: String
+    let subtitle: String
+    let systemName: String
+    let tint: Color
+    let badge: String
+    let isLocked: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: isLocked ? "lock.fill" : systemName)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(tint)
+                    .frame(width: 36, height: 36)
+                    .background(tint.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        Text(title)
+                            .font(ResponsiveFont.subheadline.bold())
+                            .lineLimit(1)
+                        Text(badge)
+                            .font(ResponsiveFont.caption2.bold())
+                            .foregroundStyle(tint)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 3)
+                            .background(tint.opacity(0.12))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                    Text(subtitle)
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right")
+                    .font(ResponsiveFont.caption.bold())
+                    .foregroundStyle(.secondary)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, minHeight: 78, alignment: .leading)
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(tint.opacity(0.22), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -109,9 +193,10 @@ struct AdvancedExportOptionRow: View {
             Button(action: onExport) {
                 AdvancedExportOptionCard(
                     title: title,
-                    subtitle: isLocked ? "\(subtitle) Unlock Pro to export." : subtitle,
+                    subtitle: isLocked ? "\(subtitle) Unlock Advanced to export." : subtitle,
                     systemName: isLocked ? "lock.fill" : systemName,
-                    color: color
+                    color: color,
+                    badge: isLocked ? "$99" : nil
                 )
             }
             .buttonStyle(.plain)
@@ -138,6 +223,7 @@ private struct AdvancedExportOptionCard: View {
     let subtitle: String
     let systemName: String
     let color: Color
+    let badge: String?
 
     var body: some View {
         HStack(spacing: 12) {
@@ -156,14 +242,24 @@ private struct AdvancedExportOptionCard: View {
             }
 
             Spacer()
+
+            if let badge {
+                Text(badge)
+                    .font(ResponsiveFont.caption.bold())
+                    .foregroundStyle(color)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(color.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 14)
         .padding(.horizontal, 14)
         .background(color.opacity(0.12))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 8)
                 .stroke(color.opacity(0.35), lineWidth: 1)
         )
     }

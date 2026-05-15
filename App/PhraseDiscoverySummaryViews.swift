@@ -71,8 +71,8 @@ struct AddedPhraseResultList: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Added to My Phrases")
-                .font(ResponsiveFont.caption2.weight(.semibold))
+            Label("Added to My Phrases", systemImage: "text.badge.checkmark")
+                .font(ResponsiveFont.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
 
             VStack(spacing: 0) {

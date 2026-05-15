@@ -42,23 +42,41 @@ extension CharacterInfoCard {
     }
 
     var definitionAndNotes: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(item.definition.isEmpty ? "No definition" : item.definition)
-                .font(ResponsiveFont.subheadline)
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 6) {
+                Label("Definition", systemImage: "text.book.closed")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+
+                Text(item.definition.isEmpty ? "No definition" : item.definition)
+                    .font(ResponsiveFont.subheadline)
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(.secondarySystemBackground).opacity(0.45))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
 
             if !etymologyText.isEmpty {
-                Divider()
-                Text(etymologyText)
-                    .font(ResponsiveFont.footnote)
-                    .italic()
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: 6) {
+                    Label("Origin", systemImage: "sparkle.magnifyingglass")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+
+                    Text(etymologyText)
+                        .font(ResponsiveFont.footnote)
+                        .italic()
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.secondarySystemBackground).opacity(0.35))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
             if !notesText.isEmpty {
-                Divider()
                 VStack(alignment: .leading, spacing: 6) {
                     Label("Notes", systemImage: "note.text")
                         .font(ResponsiveFont.caption.weight(.semibold))
@@ -68,6 +86,10 @@ extension CharacterInfoCard {
                         .foregroundStyle(.primary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.secondarySystemBackground).opacity(0.35))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
     }

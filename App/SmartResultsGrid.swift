@@ -91,22 +91,34 @@ struct SmartResultsGrid: View {
                 if pageCount > 1 {
                     HStack {
                         Spacer()
-                        Button("◀ Prev") {
+                        Button {
                             currentPage = max(0, safePage - 1)
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .frame(width: 30, height: 30)
                         }
                         .font(ResponsiveFont.caption)
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
                         .disabled(safePage == 0)
+                        .accessibilityLabel("Previous Page")
 
                         Text("Page \(safePage + 1) of \(pageCount)")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
                             .frame(minWidth: 80)
 
-                        Button("Next ▶") {
+                        Button {
                             currentPage = min(pageCount - 1, safePage + 1)
+                        } label: {
+                            Image(systemName: "chevron.right")
+                                .frame(width: 30, height: 30)
                         }
                         .font(ResponsiveFont.caption)
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
                         .disabled(safePage + 1 >= pageCount)
+                        .accessibilityLabel("Next Page")
                     }
                 }
 
@@ -114,11 +126,11 @@ struct SmartResultsGrid: View {
                     ForEach(pagedItems, id: \.character) { item in
                         let isActive = item.character == store.previewCharacter
                         Button {
+                            onPreview?(item.character)
+                            store.preview(character: item.character, announce: !readOnTap)
                             if readOnTap {
                                 store.speakCharacter(item.character)
                             }
-                            onPreview?(item.character)
-                            store.preview(character: item.character)
                             onSelect?()
                         } label: {
                             VStack(spacing: 2) {
@@ -133,9 +145,9 @@ struct SmartResultsGrid: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 6)
                             .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
-                            .clipShape(Rectangle())
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
                             .overlay(
-                                Rectangle()
+                                RoundedRectangle(cornerRadius: 6)
                                     .stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 2)
                             )
                             .overlay(alignment: .topTrailing) {

@@ -11,7 +11,7 @@ extension FilterGridTab {
         copyImageActionPrompt(collection: collection, taskID: "task5")
         openImageActionPrompt(collection: collection, taskID: "task5")
         beginTranslationReport(collection)
-        imageActionMessage = "Translate prompt copied. Paste the AI result into the report sheet and save it."
+        imageActionMessage = "Translation instruction copied. Paste the AI result into the report sheet and save it."
     }
 
     func beginManualPhraseExtraction(_ collection: CharacterCollection) {
@@ -47,7 +47,7 @@ extension FilterGridTab {
             return
         }
         isRunningImageAction = true
-        imageActionMessage = "Running Extract Phrases with Key..."
+        imageActionMessage = "Extracting phrases automatically..."
         Task {
             do {
                 let summary = try await store.runGeminiPhraseExtraction(for: collection)
@@ -71,7 +71,7 @@ extension FilterGridTab {
         #if canImport(UIKit)
         UIPasteboard.general.string = prompt
         #endif
-        imageActionMessage = "Prompt copied."
+        imageActionMessage = "Instruction copied."
     }
 
     func openImageActionPrompt(collection: CharacterCollection, taskID: String) {

@@ -987,7 +987,12 @@ final class RadixStore: ObservableObject {
     }
 
     func speakCharacter(_ character: String) {
-        speechService.speak(character)
+        guard speechEnabled else { return }
+        let target = character
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 70_000_000)
+            speechService.speak(target)
+        }
     }
 
     func speakPhrase(_ phrase: PhraseItem) {

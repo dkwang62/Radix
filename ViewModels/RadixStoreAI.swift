@@ -14,6 +14,13 @@ struct GeminiPhraseExtractionService {
         guard !cleanKey.isEmpty else {
             throw NSError(domain: "Radix", code: 4001, userInfo: [NSLocalizedDescriptionKey: "Missing Gemini API key."])
         }
+        guard cleanKey.count >= 30 else {
+            throw NSError(
+                domain: "Radix",
+                code: 4004,
+                userInfo: [NSLocalizedDescriptionKey: "The Gemini API key looks incomplete. Paste the full key from Google AI Studio."]
+            )
+        }
         guard !cleanModel.isEmpty else {
             throw NSError(domain: "Radix", code: 4002, userInfo: [NSLocalizedDescriptionKey: "Missing Gemini model ID."])
         }
@@ -36,14 +43,54 @@ struct GeminiPhraseExtractionService {
 
         let (data, response) = try await URLSession.shared.data(for: request)
         if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
-            let body = String(data: data, encoding: .utf8) ?? "No response body."
+            let message = Self.userFacingErrorMessage(statusCode: http.statusCode, data: data)
             throw NSError(
                 domain: "Radix",
                 code: http.statusCode,
-                userInfo: [NSLocalizedDescriptionKey: "Gemini API request failed (\(http.statusCode)): \(body)"]
+                userInfo: [NSLocalizedDescriptionKey: message]
             )
         }
         return String(data: data, encoding: .utf8) ?? ""
+    }
+
+    private static func userFacingErrorMessage(statusCode: Int, data: Data) -> String {
+        let fallback = "Gemini API request failed (\(statusCode)). Check your Gemini API key and model in Settings."
+        guard
+            let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+            let error = object["error"] as? [String: Any]
+        else {
+            return fallback
+        }
+
+        let message = error["message"] as? String ?? ""
+        let status = error["status"] as? String ?? ""
+        let reason = (error["details"] as? [[String: Any]])?
+            .compactMap { detail -> String? in
+                if let reason = detail["reason"] as? String { return reason }
+                if let metadata = detail["metadata"] as? [String: Any],
+                   let reason = metadata["reason"] as? String {
+                    return reason
+                }
+                return nil
+            }
+            .first
+
+        if status == "INVALID_ARGUMENT" && (reason == "API_KEY_INVALID" || message.localizedCaseInsensitiveContains("API key not valid")) {
+            return "Gemini API key is not valid. Paste the full key from Google AI Studio, then try again."
+        }
+        if status == "PERMISSION_DENIED" || statusCode == 403 {
+            return "Gemini API access was denied. Check that the key is enabled for the Gemini API and not blocked by project restrictions."
+        }
+        if status == "RESOURCE_EXHAUSTED" || statusCode == 429 {
+            return "Gemini API quota was reached. Wait a bit or check billing/quota in Google AI Studio."
+        }
+        if statusCode == 404 {
+            return "Gemini model was not found. Check the Gemini model name in Settings."
+        }
+        if !message.isEmpty {
+            return "Gemini API request failed (\(statusCode)): \(message)"
+        }
+        return fallback
     }
 
     private func makePrompt(collectionName: String, characters: String, knownPhrases: [String]) -> String {

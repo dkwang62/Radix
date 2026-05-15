@@ -21,17 +21,17 @@ struct DataBackupPreviewSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("What's In My Backup")
+            Text("Included for Portability")
                 .font(ResponsiveFont.headline)
 
             previewDisclosureList
                 .padding(12)
                 .background(Color(.systemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .padding()
         .background(Color(.secondarySystemBackground).opacity(0.4))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .sheet(item: phonePhraseSheetBinding) { phrase in
             NavigationStack {
                 PhraseInfoCard(phrase: phrase, onDone: {
@@ -47,15 +47,15 @@ struct DataBackupPreviewSection: View {
 
     var previewDisclosureList: some View {
         VStack(alignment: .leading, spacing: 12) {
-            DisclosureGroup("Saved Images (\(store.allCollections.count))", isExpanded: $showSavedPagesPreview) {
+            DisclosureGroup("Pages (\(store.allCollections.count))", isExpanded: $showSavedPagesPreview) {
                 backupSavedPagesRows
             }
 
-            DisclosureGroup("Favorites (\(store.favoriteItems.count) characters, \(store.favoritePhrasesItems.count) phrases)", isExpanded: $showFavoritesPreview) {
+            DisclosureGroup("Study (\(store.favoriteItems.count) characters, \(store.favoritePhrasesItems.count) phrases)", isExpanded: $showFavoritesPreview) {
                 backupFavoritesSummary
             }
 
-            DisclosureGroup("AI Templates (\(store.promptConfig.tasks.count) tasks)", isExpanded: $showAITemplatesPreview) {
+            DisclosureGroup("AI Link Templates (\(store.promptConfig.tasks.count) items)", isExpanded: $showAITemplatesPreview) {
                 backupAITemplatesSummary
             }
 
@@ -71,11 +71,11 @@ struct DataBackupPreviewSection: View {
                 backupPhraseRows(addedPhraseEntries)
             }
 
-            DisclosureGroup("Edits to Base Dictionary (\(store.baseDictionaryCoreEditedCharacters.count))", isExpanded: $showEditedCharactersPreview) {
+            DisclosureGroup("Edited Characters (\(store.baseDictionaryCoreEditedCharacters.count))", isExpanded: $showEditedCharactersPreview) {
                 backupCharacterRows(store.baseDictionaryCoreEditedCharacters)
             }
 
-            DisclosureGroup("Edits to Base Phrases (\(basePhraseCoreEditEntries.count))", isExpanded: $showEditedPhrasesPreview) {
+            DisclosureGroup("Edited Phrases (\(basePhraseCoreEditEntries.count))", isExpanded: $showEditedPhrasesPreview) {
                 revertBasePhrasesRow
                 backupPhraseRows(basePhraseCoreEditEntries)
             }

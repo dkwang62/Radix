@@ -16,9 +16,10 @@ extension FilterGridTab {
                 let displayCharacter = browseImageDisplayCharacter(character)
                 let highlightRole = store.imagePhraseHighlightRole(collectionID: collection.id, offset: offset)
                 let isMemoryHighlighted = store.isBrowseMemoryHighlighted(collectionID: collection.id, offset: offset)
-                let isActive = highlightRole == .target
+                let isActive = highlightRole == .target || lastTappedImageOffset == offset
                 let pinyin = store.item(for: character)?.pinyinText ?? ""
                 Button {
+                    lastTappedImageOffset = offset
                     let shouldScroll = store.handleImageCharacterTap(character, offset: offset)
                     if shouldScroll {
                         scrollToBrowseTile(activeBrowseTileAnchorID() ?? imageTileAnchorID(offset), proxy: proxy)

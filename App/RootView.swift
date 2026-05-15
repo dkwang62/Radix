@@ -16,6 +16,7 @@ struct RootView: View {
     @EnvironmentObject var entitlement: EntitlementManager
     @Environment(\.horizontalSizeClass) var sizeClass
     @Environment(\.scenePhase) var scenePhase
+    @AppStorage("hasSeenRadixWelcomeV1") var hasSeenWelcome = false
     @State var profileExportDocument = JSONFileDocument(data: Data())
     @State var addPhrasesExportDocument = AddPhrasesFileDocument(data: Data())
     @State var showProfileExporter = false
@@ -123,14 +124,32 @@ struct RootView: View {
         }
         .sheet(isPresented: $showSettings) {
             NavigationStack {
-                SettingsView()
+                SettingsView {
+                    showSettings = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                        hasSeenWelcome = false
+                    }
+                }
                     .environmentObject(store)
+            }
+        }
+        .sheet(isPresented: Binding(
+            get: { !hasSeenWelcome },
+            set: { isPresented in
+                if !isPresented { hasSeenWelcome = true }
+            }
+        )) {
+            RadixWelcomeView {
+                hasSeenWelcome = true
             }
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .inactive || newPhase == .background {
                 store.flushPendingDataEditAutoSave()
             }
+        }
+        .onAppear {
+            store.prepareFirstInteractionWarmup()
         }
     }
 

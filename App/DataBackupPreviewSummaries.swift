@@ -25,9 +25,9 @@ extension DataBackupPreviewSection {
 
     var backupAITemplatesSummary: some View {
         VStack(alignment: .leading, spacing: 8) {
-            BackupSummaryLine(title: "Template blocks", value: "4 system sections")
-            BackupSummaryLine(title: "Prompt tasks", value: "\(store.promptConfig.tasks.count)")
-            BackupSummaryLine(title: "Selected tasks", value: "\(store.promptSelectedTaskIDs.count)")
+            BackupSummaryLine(title: "Shared instructions", value: "4 sections")
+            BackupSummaryLine(title: "Instruction items", value: "\(store.promptConfig.tasks.count)")
+            BackupSummaryLine(title: "Selected instructions", value: "\(store.promptSelectedTaskIDs.count)")
 
             ForEach(store.promptConfig.tasks) { task in
                 HStack {
@@ -52,7 +52,7 @@ extension DataBackupPreviewSection {
             BackupSummaryLine(title: "Search mode", value: store.searchMode.rawValue)
             BackupSummaryLine(title: "Current query", value: store.query.isEmpty ? "None" : store.query)
             BackupSummaryLine(title: "Selected character", value: store.previewCharacter ?? "None")
-            BackupSummaryLine(title: "Selected AI image", value: store.selectedAICollection?.name ?? "None")
+            BackupSummaryLine(title: "Selected saved page", value: store.selectedAICollection?.name ?? "None")
             BackupSummaryLine(title: "Default AI", value: store.defaultAIName)
             BackupSummaryLine(title: "API keys", value: "\(store.currentAPIKeyBackup().savedCount) saved")
             if store.defaultAIPreset == .custom {
@@ -68,19 +68,19 @@ extension DataBackupPreviewSection {
     func routeDisplayName(_ route: AppRoute) -> String {
         switch route {
         case .search: return "Search"
-        case .capture: return "Capture"
-        case .lineage: return "Components"
+        case .capture: return "Scan"
+        case .lineage: return "Character Breakdown"
         case .aiLink: return "AI Link"
-        case .favourites: return "Favorites"
+        case .favourites: return "Study"
         }
     }
 
     func homeTabDisplayName(_ tab: HomeTab) -> String {
         switch tab {
-        case .smart: return "Smart Search"
-        case .filter: return "Filter"
-        case .favourites: return "Favorites"
-        case .dataEdit: return "DataEdit"
+        case .smart: return "Search"
+        case .filter: return "Browse"
+        case .favourites: return "Study"
+        case .dataEdit: return "My Data"
         }
     }
 }

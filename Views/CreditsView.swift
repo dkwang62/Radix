@@ -3,7 +3,7 @@ import SwiftUI
 struct CreditsView: View {
     var body: some View {
         List {
-            Section("Third-Party Data Sources") {
+            Section("Data Sources") {
                 dataSourceCard(
                     title: "CC-CEDICT",
                     detail: "Chinese-English dictionary data from CC-CEDICT.",
@@ -39,7 +39,7 @@ struct CreditsView: View {
                 .padding(.vertical, 6)
             }
 
-            Section("Legal Notice") {
+            Section("Legal") {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Radix includes third-party data and software. Ownership remains with the original licensors.")
                         .font(ResponsiveFont.caption)
@@ -53,7 +53,7 @@ struct CreditsView: View {
                 }
             }
         }
-        .navigationTitle("Credits / Data Sources")
+        .navigationTitle("Credits")
     }
 
     @ViewBuilder

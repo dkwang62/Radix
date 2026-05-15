@@ -86,7 +86,7 @@ extension ComponentsExplorerShell {
                         Text(componentSectionTitle(for: comp, item: compItem) + " (\(rowItems.count))")
                             .font(ResponsiveFont.headline)
                         if isExpanded {
-                            Text("Sorted by how often this component appears in other characters.")
+                            Text("Sorted by component frequency.")
                                 .font(ResponsiveFont.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -134,13 +134,13 @@ extension ComponentsExplorerShell {
             VStack(alignment: .leading, spacing: 2) {
                 Text("All characters (\(total))")
                     .font(ResponsiveFont.headline)
-                Text("Choose a character to explore its roots.")
+                Text("Choose a character.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             }
 
             if items.isEmpty {
-                Text("No characters match the current filters.")
+                Text("No matches.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             } else {

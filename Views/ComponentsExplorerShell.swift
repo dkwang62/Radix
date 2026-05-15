@@ -71,7 +71,7 @@ struct ComponentsExplorerShell: View {
                 withAnimation { proxy.scrollTo("rootsTop", anchor: .top) }
             }
         }
-        .navigationTitle("Components")
+        .navigationTitle("Character Breakdown")
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 if store.rootsReturnContext != nil {
@@ -135,36 +135,20 @@ struct ComponentsExplorerShell: View {
 
     @ViewBuilder
     var gridInteractionHintRow: some View {
-        HStack(spacing: 10) {
-            hintChip(icon: "cursorarrow", text: isRunningOnMac ? "Click Preview" : "Tap Preview")
-            hintChip(icon: "bookmark", text: "Preview adds to 🕘")
-            HStack(spacing: 4) {
-                Text(isRunningOnMac ? "Right-click" : "Long-press")
-                Image(systemName: "doc.on.doc")
-            }
-            .font(ResponsiveFont.caption)
-            .foregroundStyle(.secondary)
-        }
-        .lineLimit(1)
-        .minimumScaleFactor(0.8)
-    }
-
-    func hintChip(icon: String, text: String) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-            Text(text)
-        }
-        .font(ResponsiveFont.caption)
-        .foregroundStyle(.secondary)
+        InteractionHintRow(
+            previewText: isRunningOnMac ? "Click to preview" : "Tap to preview",
+            memoryText: "Adds to Recent",
+            copyText: isRunningOnMac ? "Right-click to copy" : "Long-press to copy"
+        )
     }
 
     @ViewBuilder
     var helpSection: some View {
         if store.showComponentHelp {
             VStack(alignment: .leading, spacing: 4) {
-                Text("How to use Components Explorer")
+                Text("Breakdown")
                     .font(ResponsiveFont.subheadline.bold())
-                Text("Link characters through a shared component: start from a familiar character, tap a component to pivot, view characters built with that part, and keep pivoting until you find the one you need.")
+                Text("Tap a component to pivot through related characters.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             }

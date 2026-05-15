@@ -7,58 +7,58 @@ extension PaywallView {
                 Image(systemName: "sparkles.rectangle.stack.fill")
                     .font(.system(size: 30))
                     .foregroundStyle(Color.accentColor)
-                Text("Radix Pro")
+                Text("Upgrade Radix")
                     .font(ResponsiveFont.title.bold())
             }
 
-            Text("Advanced tools for serious learners")
+            Text("Keep learning for free. Pay when you need data portability.")
                 .font(ResponsiveFont.title3.bold())
 
-            Text("Unlock \(featureName), save your work, and turn Radix into a long-term study system.")
+            Text("Scan, Browse, Search, Study, AI Link, and editing stay free. My Backup lets the work you do on iPhone travel to iPad and Mac.")
                 .font(ResponsiveFont.body)
                 .foregroundStyle(.secondary)
 
-            HStack(spacing: 8) {
-                heroChip("15-day free trial")
-                heroChip("$25/year")
-                heroChip("$99 lifetime")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    heroChip("Everything else free")
+                    heroChip("My Backup $19")
+                    heroChip("Advanced $99")
+                }
+                VStack(alignment: .leading, spacing: 8) {
+                    heroChip("Everything else free")
+                    heroChip("My Backup $19")
+                    heroChip("Advanced $99")
+                }
             }
         }
         .padding(20)
-        .background(
-            LinearGradient(
-                colors: [
-                    Color.accentColor.opacity(0.16),
-                    Color.accentColor.opacity(0.05),
-                    Color(.secondarySystemBackground)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.accentColor.opacity(0.15), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.accentColor.opacity(0.18), lineWidth: 1)
         )
     }
 
     var featureSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("What Pro unlocks")
+            Text("What unlocks")
                 .font(ResponsiveFont.headline)
 
-            VStack(alignment: .leading, spacing: 12) {
-                benefit("AI-powered study workflows")
-                benefit("Character and phrase data editing")
-                benefit("Cross-platform data portability")
-                benefit("Backup and restore across devices")
-                benefit("Future Pro features included")
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 260), spacing: 10)],
+                alignment: .leading,
+                spacing: 10
+            ) {
+                benefit("My Backup gives your Radix data portability across iPhone, iPad, and Mac")
+                benefit("Advanced exports datasets, databases, source package, and manifests")
+                benefit("Advanced includes My Backup")
+                benefit("The main learning app stays free")
             }
         }
         .padding(18)
         .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     func benefit(_ text: String) -> some View {
@@ -67,7 +67,9 @@ extension PaywallView {
                 .foregroundStyle(.green)
             Text(text)
                 .font(ResponsiveFont.body)
+                .fixedSize(horizontal: false, vertical: true)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     func heroChip(_ text: String) -> some View {
@@ -76,6 +78,6 @@ extension PaywallView {
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(Color(.systemBackground).opacity(0.8))
-            .clipShape(Capsule())
+            .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

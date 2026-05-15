@@ -93,63 +93,6 @@ enum DataExportArchiveBuilder {
         return try StoredZipArchive.makeData(entries: entries)
     }
 
-    static func makeProjectDirectoryArchive(createdAt: Date = Date()) throws -> Data {
-        let fileManager = FileManager.default
-        guard let projectRoot = ProjectLiveDataLocator.projectRoot(fileManager: fileManager) else {
-            throw NSError(domain: "Radix", code: 2041, userInfo: [NSLocalizedDescriptionKey: "Unable to locate the Radix project folder on this device."])
-        }
-
-        let archiveRootName = "Radix-\(archiveTimestamp.string(from: createdAt))"
-        var entries: [DataExportZipEntry] = [
-            DataExportZipEntry(
-                path: "\(archiveRootName)/README_PROJECT_COPY.txt",
-                data: Data(projectArchiveManifest(createdAt: createdAt, projectRoot: projectRoot).utf8)
-            )
-        ]
-
-        let resourceKeys: Set<URLResourceKey> = [.isDirectoryKey, .isRegularFileKey, .isSymbolicLinkKey]
-        guard let enumerator = fileManager.enumerator(
-            at: projectRoot,
-            includingPropertiesForKeys: Array(resourceKeys),
-            options: [],
-            errorHandler: nil
-        ) else {
-            throw NSError(domain: "Radix", code: 2042, userInfo: [NSLocalizedDescriptionKey: "Unable to read the Radix project folder."])
-        }
-
-        var fileURLs: [URL] = []
-        for case let url as URL in enumerator {
-            let relativePath = url.path.replacingOccurrences(of: projectRoot.path + "/", with: "")
-            guard shouldIncludeProjectArchivePath(relativePath) else {
-                if (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true {
-                    enumerator.skipDescendants()
-                }
-                continue
-            }
-
-            let values = try url.resourceValues(forKeys: resourceKeys)
-            if values.isDirectory == true {
-                continue
-            }
-            guard values.isRegularFile == true, values.isSymbolicLink != true else {
-                continue
-            }
-            fileURLs.append(url)
-        }
-
-        for url in fileURLs.sorted(by: { $0.path < $1.path }) {
-            let relativePath = url.path.replacingOccurrences(of: projectRoot.path + "/", with: "")
-            entries.append(
-                DataExportZipEntry(
-                    path: "\(archiveRootName)/\(relativePath)",
-                    data: try Data(contentsOf: url)
-                )
-            )
-        }
-
-        return try StoredZipArchive.makeData(entries: entries, timestamp: createdAt)
-    }
-
     private static func appendFileEntry(
         to entries: inout [DataExportZipEntry],
         archivePath: String,
@@ -225,42 +168,4 @@ enum DataExportArchiveBuilder {
         """
     }
 
-    private static func projectArchiveManifest(createdAt: Date, projectRoot: URL) -> String {
-        """
-        Radix Project Copy
-
-        Created: \(displayTimestamp.string(from: createdAt))
-        Source folder: \(projectRoot.path)
-
-        This ZIP contains the local Radix project files needed to open and rebuild the app in Xcode, including Swift source, project metadata, resources, JSON files, and databases.
-        """
-    }
-
-    private static func shouldIncludeProjectArchivePath(_ relativePath: String) -> Bool {
-        let components = relativePath.split(separator: "/").map(String.init)
-        guard let last = components.last else { return false }
-        let excludedNames: Set<String> = [
-            ".DS_Store",
-            ".codex_write_test",
-            ".git",
-            "DerivedData",
-            "build"
-        ]
-        return !components.contains(where: excludedNames.contains) && !last.hasSuffix(".xcuserstate")
-    }
-
-    private static let archiveTimestamp: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd-HHmm"
-        return formatter
-    }()
-
-    private static let displayTimestamp: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale.current
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter
-    }()
 }

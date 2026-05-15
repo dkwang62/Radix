@@ -28,7 +28,7 @@ enum CaptureWorkflowStepBuilder {
             ),
             CaptureWorkflowStep(
                 title: "Copy",
-                detail: promptCopied ? "Prompt copied" : "Open \(defaultAIName)",
+                detail: promptCopied ? "Instruction copied" : "Open \(defaultAIName)",
                 isComplete: promptCopied,
                 systemImage: "doc.on.doc"
             ),

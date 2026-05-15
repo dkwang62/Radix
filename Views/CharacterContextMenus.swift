@@ -66,7 +66,7 @@ private struct CharacterActionMenuContent: View {
         Button("Components") {
             store.goToRoots(character: character)
         }
-        Button("AI Prompt to paste") {
+        Button("Send to AI Link") {
             store.triggerSelectedAITasks(for: character)
         }
         Divider()
@@ -218,7 +218,7 @@ private struct PhraseActionMenuContent: View {
                 store.openQuickPhraseEditor(word: trimmedWord)
             }
         }
-        Button("AI Prompt to paste") {
+        Button("Send to AI Link") {
             dismiss()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                 store.triggerSelectedAITasks(for: trimmedWord)

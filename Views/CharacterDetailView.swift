@@ -13,6 +13,8 @@ struct CharacterDetailView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     if sizeClass == .compact {
                         header
+                    } else {
+                        regularHeader
                     }
 
                     if sizeClass != .compact {
@@ -55,12 +57,9 @@ struct CharacterDetailView: View {
 
     var componentsExplorerHelp: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Components Explorer")
+            Text("Breakdown")
                 .font(ResponsiveFont.subheadline.bold())
-            Text("Link characters through a shared component: start from a familiar character, tap a component to pivot, view characters built with that part, and keep pivoting until you find the one you need.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-            Text("Tap any character to preview. Numbers in boxes show how many characters contain that part.")
+            Text("Tap a component to pivot. Counts show matching characters.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
         }

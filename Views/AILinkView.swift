@@ -3,15 +3,15 @@ import SwiftUI
 /*
  AI LINK VIEW
  ============
- Manages character, phrase, and image prompt generation for the user's default AI.
+ Manages character, phrase, and image instruction generation for the user's default AI.
  The root view owns state and high-level mode switching; focused extensions own
- task selection, template editing, prompt display, and launch/copy actions.
+ task selection, template editing, instruction display, and launch/copy actions.
 */
 
 struct AILinkView: View {
     enum Mode: String, CaseIterable, Identifiable {
-        case promptGeneration = "Prompt Generation"
-        case templateEditor = "Edit Task Template"
+        case promptGeneration = "Instructions"
+        case templateEditor = "Customize"
 
         var id: String { rawValue }
     }
@@ -69,6 +69,7 @@ struct AILinkView: View {
                     )
                 }
 
+                aiPracticeContextSection
                 modePicker
 
                 switch mode {
@@ -105,5 +106,121 @@ struct AILinkView: View {
             }
         }
         .pickerStyle(.segmented)
+    }
+
+    var aiPracticeContextSection: some View {
+        LazyVGrid(columns: aiPracticeContextColumns, spacing: 10) {
+            aiSubjectCard
+            aiCollectionCard
+        }
+    }
+
+    var aiPracticeContextColumns: [GridItem] {
+        if sizeClass == .compact {
+            return [GridItem(.flexible(minimum: 220), spacing: 10)]
+        }
+        return Array(repeating: GridItem(.flexible(minimum: 220), spacing: 10), count: 2)
+    }
+
+    var aiSubjectCard: some View {
+        HStack(spacing: 12) {
+            Image(systemName: store.activeSidebarPhrasePreview == nil ? "character" : "text.quote")
+                .font(.system(size: 19, weight: .semibold))
+                .foregroundStyle(activeCharacter == nil ? Color.secondary : Color.accentColor)
+                .frame(width: 34, height: 34)
+                .background((activeCharacter == nil ? Color.secondary : Color.accentColor).opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Subject")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                Text(aiSubjectTitle)
+                    .font(ResponsiveFont.body.bold())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                Text(aiSubjectSubtitle)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+
+            Spacer(minLength: 0)
+
+            Button {
+                store.goToSearchRoot()
+            } label: {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 15, weight: .semibold))
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .accessibilityLabel("Choose AI Link Subject")
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    var aiCollectionCard: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "photo.on.rectangle")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(selectedCollection == nil ? Color.secondary : Color.accentColor)
+                .frame(width: 34, height: 34)
+                .background((selectedCollection == nil ? Color.secondary : Color.accentColor).opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Saved Page")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                Text(selectedCollection?.name ?? "No page selected")
+                    .font(ResponsiveFont.body.bold())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                Text(aiCollectionSubtitle)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+
+            Spacer(minLength: 0)
+
+            aiCollectionMenu
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    var aiSubjectTitle: String {
+        if let phrase = store.activeSidebarPhrasePreview {
+            return phrase.word
+        }
+        if let activeCharacter {
+            return activeCharacter
+        }
+        return "No subject selected"
+    }
+
+    var aiSubjectSubtitle: String {
+        if let phrase = store.activeSidebarPhrasePreview {
+            return phrase.pinyin.isEmpty ? "Phrase" : phrase.pinyin
+        }
+        if let activeCharacter {
+            let pinyin = store.item(for: activeCharacter)?.pinyinText ?? ""
+            return pinyin.isEmpty ? "Character" : pinyin
+        }
+        return "Search or browse first"
+    }
+
+    var aiCollectionSubtitle: String {
+        guard let selectedCollection else {
+            return store.allCollections.isEmpty ? "No saved pages" : "\(store.allCollections.count) available"
+        }
+        return "\(selectedCollection.characters.count) characters"
     }
 }

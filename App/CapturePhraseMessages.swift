@@ -4,7 +4,7 @@ enum CapturePhrasePromptLaunchMessage {
     static func opening(defaultAIName: String, prefillsPrompt: Bool) -> String {
         prefillsPrompt
             ? "Opening \(defaultAIName) in 3 seconds. Copy its answer, then come back and tap Add Phrases."
-            : "Opening \(defaultAIName) in 3 seconds. The prompt was copied, so paste it into \(defaultAIName), then come back and tap Add Phrases."
+            : "Opening \(defaultAIName) in 3 seconds. The instruction was copied, so paste it into \(defaultAIName), then come back and tap Add Phrases."
     }
 }
 

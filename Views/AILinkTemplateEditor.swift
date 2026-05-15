@@ -4,7 +4,7 @@ extension AILinkView {
     var templateEditorSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Task templates contain their own context. Tasks 1-3 run for a single character or phrase; Tasks 4-5 run for a saved image.")
+                Text("Customize the repeatable AI actions. Character actions use one character or phrase; page actions use a saved page.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
                 Text(store.promptAutosaveStatus)
@@ -15,7 +15,7 @@ extension AILinkView {
             Divider()
 
             epilogueEditor(
-                title: "Character System Epilogue",
+                title: "Character Instruction Closing",
                 minHeight: 100,
                 text: Binding(
                     get: { store.promptConfig.epilogue },
@@ -26,7 +26,7 @@ extension AILinkView {
             Divider()
 
             epilogueEditor(
-                title: "Image System Epilogue",
+                title: "Saved Page Instruction Closing",
                 minHeight: 140,
                 text: Binding(
                     get: { store.promptConfig.collectionEpilogue },
@@ -37,7 +37,7 @@ extension AILinkView {
             Divider()
 
             HStack {
-                Text("Task Templates")
+                Text("AI Link Templates")
                     .font(ResponsiveFont.subheadline.bold())
 
                 Spacer()
@@ -45,11 +45,11 @@ extension AILinkView {
                 Button {
                     store.addPromptTask()
                 } label: {
-                    Label("Task", systemImage: "plus.circle")
+                    Label("Instruction", systemImage: "plus.circle")
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
-                .accessibilityLabel("Add Task")
+                .accessibilityLabel("Add Instruction")
             }
 
             ForEach(store.promptConfig.tasks) { task in
@@ -87,7 +87,7 @@ extension AILinkView {
     func taskEditorRow(task: PromptTask) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                TextField("Task Title", text: Binding(
+                TextField("Instruction Title", text: Binding(
                     get: { taskTitle(task.id) },
                     set: { store.setPromptTaskTitle(taskID: task.id, title: $0) }
                 ))

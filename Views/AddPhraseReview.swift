@@ -15,9 +15,23 @@ struct AddPhraseReview: View {
                     if addedPhrases.isEmpty {
                         emptyState
                     } else {
-                        Text("\(addedPhrases.count) added to My Phrases. Delete any you do not want to keep.")
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
+                        HStack(alignment: .center, spacing: 10) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(ResponsiveFont.title3)
+                                .foregroundStyle(Color.green)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("\(addedPhrases.count) Added")
+                                    .font(ResponsiveFont.headline.weight(.semibold))
+                                Text("Review the phrases saved to My Phrases.")
+                                    .font(ResponsiveFont.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.green.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
 
                         AddedPhraseResultList(candidates: addedPhrases, onDelete: onDelete)
                     }
@@ -49,16 +63,37 @@ struct AddPhraseReview: View {
     }
 
     private var actionRow: some View {
-        HStack {
-            Button("Add More", action: onAddMore)
-                .buttonStyle(.bordered)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                addMoreButton
+                Spacer()
+                returnButton
+            }
 
-            Spacer()
-
-            Button("Back to \(returnTitle)", action: onReturn)
-                .buttonStyle(.borderedProminent)
+            VStack(spacing: 10) {
+                returnButton
+                addMoreButton
+            }
         }
         .padding()
         .background(Color(.systemBackground))
+    }
+
+    private var addMoreButton: some View {
+        Button {
+            onAddMore()
+        } label: {
+            Label("Add More", systemImage: "plus")
+        }
+        .buttonStyle(.bordered)
+    }
+
+    private var returnButton: some View {
+        Button {
+            onReturn()
+        } label: {
+            Label("Back to \(returnTitle)", systemImage: "arrow.uturn.backward")
+        }
+        .buttonStyle(.borderedProminent)
     }
 }

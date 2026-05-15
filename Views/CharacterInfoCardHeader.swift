@@ -1,13 +1,6 @@
 import SwiftUI
 
 extension CharacterInfoCard {
-    var tierRow: some View {
-        HStack(spacing: 6) {
-            tierButton
-            Spacer(minLength: 0)
-        }
-    }
-
     func headerRow(
         characterSize: CGFloat,
         pinyinFont: Font
@@ -34,6 +27,9 @@ extension CharacterInfoCard {
         } label: {
             Image(systemName: store.isFavorite(item.character) ? "star.fill" : "star")
                 .foregroundStyle(store.isFavorite(item.character) ? .yellow : .secondary)
+                .frame(width: 32, height: 32)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
         .controlSize(cardActionControlSize)
@@ -45,14 +41,7 @@ extension CharacterInfoCard {
         Button {
             showFrequencyGuide = true
         } label: {
-            HStack(spacing: 6) {
-                tierChip(for: item.tier)
-                Text(tierRecommendation)
-                    .font(ResponsiveFont.caption2.italic())
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-            }
+            tierChip(for: item.tier)
         }
         .buttonStyle(.plain)
         .popover(isPresented: $showFrequencyGuide, arrowEdge: .bottom) {
@@ -81,6 +70,28 @@ extension CharacterInfoCard {
         .popover(isPresented: chipGuideBinding(for: .usageCount), arrowEdge: .bottom) {
             chipGuideView(for: .usageCount)
                 .applyCompactPopoverStyle()
+        }
+    }
+
+    @ViewBuilder
+    var referenceMetaRow: some View {
+        if !structurePartsText.isEmpty || item.tier > 0 {
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    tierButton
+                    if !structurePartsText.isEmpty {
+                        chipButton(structurePartsText, guide: .structure)
+                    }
+                    Spacer(minLength: 0)
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    tierButton
+                    if !structurePartsText.isEmpty {
+                        chipButton(structurePartsText, guide: .structure)
+                    }
+                }
+            }
         }
     }
 }

@@ -21,25 +21,22 @@ struct PaywallView: View {
                 .frame(maxWidth: 760, alignment: .leading)
                 .frame(maxWidth: .infinity)
             }
-            .navigationTitle("Radix Pro")
+            .navigationTitle("Upgrade")
             .background(paywallBackground.ignoresSafeArea())
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Close") { dismiss() }
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel("Close")
                 }
             }
         }
     }
 
     var paywallBackground: some View {
-        LinearGradient(
-            colors: [
-                Color(.systemGroupedBackground),
-                Color.accentColor.opacity(0.03),
-                Color(.systemGroupedBackground)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
+        Color(.systemGroupedBackground)
     }
 }

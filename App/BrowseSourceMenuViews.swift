@@ -42,13 +42,13 @@ struct CollectionAITaskMenu: View {
             Button {
                 onManualExtract()
             } label: {
-                Label("Extract Phrases (Manual)", systemImage: "text.badge.plus")
+                Label("Extract Phrases by Paste", systemImage: "text.badge.plus")
             }
 
             Button {
                 onAIExtract()
             } label: {
-                Label("Extract Phrases with Key", systemImage: "curlybraces")
+                Label("Extract Phrases Automatically", systemImage: "curlybraces")
             }
 
             Button {
@@ -67,19 +67,19 @@ struct CollectionAITaskMenu: View {
             }
         } label: {
             HStack(spacing: 5) {
-                Image(systemName: "photo.on.rectangle")
-                Text("Image Actions")
+                Image(systemName: "sparkles")
+                Text("AI Link")
                 Image(systemName: "chevron.down")
                     .font(.system(size: 9, weight: .bold))
             }
             .font(ResponsiveFont.caption2.weight(.semibold))
             .lineLimit(1)
             .minimumScaleFactor(0.75)
-            .frame(minWidth: 92)
+            .frame(minWidth: 78)
         }
         .buttonStyle(.borderedProminent)
         .controlSize(.small)
-        .accessibilityLabel("Image actions for \(collection.name)")
+        .accessibilityLabel("AI Link actions for \(collection.name)")
     }
 }
 

@@ -27,17 +27,25 @@ struct SmartSearchTab: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    Color.clear.frame(height: 0).id("searchTop")
-                    searchHeader
-
-                    if store.hasPerformedSearch {
-                        searchResults(proxy: proxy)
-                    } else {
-                        searchExamplesAndHelp
+                if isPhoneSearchPreviewActive {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Color.clear.frame(height: 0).id("searchTop")
+                        phoneSearchPreview(proxy: proxy)
                     }
+                    .padding(.horizontal)
+                } else {
+                    VStack(alignment: .leading, spacing: 20) {
+                        Color.clear.frame(height: 0).id("searchTop")
+                        searchHeader
+
+                        if store.hasPerformedSearch {
+                            searchResults(proxy: proxy)
+                        } else {
+                            searchExamplesAndHelp
+                        }
+                    }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
             }
             .onChange(of: store.previewCharacter) { _, _ in
                 syncSearchPreviewFromStore()

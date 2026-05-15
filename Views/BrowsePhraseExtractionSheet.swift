@@ -30,7 +30,7 @@ struct BrowsePhraseExtractionSheet: View {
                     Button("Done", action: onDone)
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button("Copy Prompt", action: onCopyPrompt)
+                    Button("Copy Instruction", action: onCopyPrompt)
                     Button("Open AI", action: onOpenAI)
                     Button("Paste", action: onPaste)
                     Button("Add", action: onAdd)
@@ -46,7 +46,7 @@ struct BrowsePhraseExtractionSheet: View {
             Text(collectionName)
                 .font(ResponsiveFont.headline.weight(.semibold))
                 .lineLimit(1)
-            Text("Copy or open the prompt, paste the AI answer, then add the parsed phrases.")
+            Text("Copy or open the instruction, paste the AI answer, then add the parsed phrases.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
             if let message {
@@ -59,7 +59,7 @@ struct BrowsePhraseExtractionSheet: View {
 
     private var promptPanel: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Prompt")
+            Text("Instruction")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
             ScrollView {

@@ -24,6 +24,7 @@ struct FilterGridTab: View {
     @State var phraseExtractionOutput = ""
     @State var imageActionMessage: String?
     @State var isRunningImageAction = false
+    @State var lastTappedImageOffset: Int?
 
     var isRunningOnMac: Bool {
         #if targetEnvironment(macCatalyst)
@@ -56,7 +57,7 @@ struct FilterGridTab: View {
     var browseInteractionHintRow: some View {
         InteractionHintRow(
             previewText: isRunningOnMac ? "Click to preview" : "Tap to preview",
-            memoryText: "Preview adds to 🕘",
+            memoryText: "Adds to Recent",
             copyText: isRunningOnMac ? "Right-click to copy" : "Long-press to copy"
         )
     }
@@ -122,6 +123,9 @@ struct FilterGridTab: View {
                 if newValue == nil {
                     scrollToPendingBrowseTarget(proxy: proxy)
                 }
+            }
+            .onChange(of: store.selectedBrowseCollectionID) { _, _ in
+                lastTappedImageOffset = nil
             }
             .onChange(of: store.browseMemoryHighlightOffsets) { _, _ in
                 scrollToPendingBrowseTarget(proxy: proxy)
@@ -209,6 +213,7 @@ struct FilterGridTab: View {
     func browseContent(proxy: ScrollViewProxy) -> some View {
         if isPhoneBrowseLayout {
             browseHintIfNeeded
+                .padding(.top, 10)
         }
 
         if let collection = store.selectedBrowseCollection {
@@ -217,4 +222,6 @@ struct FilterGridTab: View {
             smartGridContent(proxy: proxy)
         }
     }
+
+    var browseWorkspaceHeader: some View { EmptyView() }
 }

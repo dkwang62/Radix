@@ -23,8 +23,8 @@ struct BrowseGridTileLabel: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 6)
         .background(background)
-        .clipShape(Rectangle())
-        .overlay(Rectangle().stroke(stroke, lineWidth: strokeWidth))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .overlay(RoundedRectangle(cornerRadius: 6).stroke(stroke, lineWidth: strokeWidth))
         .overlay(alignment: .topTrailing) {
             if isFavorite {
                 Image(systemName: "star.fill")
