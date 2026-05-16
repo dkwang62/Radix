@@ -6,10 +6,8 @@ import UIKit
 extension DataEditTab {
     var libraryOverviewSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            libraryPathCards
             libraryHealthSummary
             personalLibraryTimelineSection
-            whatsInMyBackupSection
         }
     }
 
@@ -59,7 +57,7 @@ extension DataEditTab {
     var backupAndRestoreSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("My Backup")
+                Text("Move Between Devices")
                     .font(ResponsiveFont.headline)
                 Text("$19")
                     .font(ResponsiveFont.caption.bold())
@@ -137,6 +135,8 @@ extension DataEditTab {
                 }
                 .buttonStyle(.plain)
             }
+
+            whatsInMyBackupSection
         }
         .padding()
         .background(Color(.secondarySystemBackground).opacity(0.4))
@@ -159,7 +159,7 @@ extension DataEditTab {
     var libraryHealthSummary: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Label("Your Data", systemImage: "externaldrive.fill")
+                Label("Saved In Radix", systemImage: "tray.full.fill")
                     .font(ResponsiveFont.headline)
                 Spacer()
                 Text("\(libraryProtectedItemCount) items")
@@ -215,10 +215,10 @@ extension DataEditTab {
     var personalLibraryTimelineSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Label("Personal Library", systemImage: "clock.arrow.circlepath")
+                Label("Recent Saved Items", systemImage: "clock.arrow.circlepath")
                     .font(ResponsiveFont.headline)
                 Spacer()
-                Text("Your Chinese over time")
+                Text("Tap to open")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             }

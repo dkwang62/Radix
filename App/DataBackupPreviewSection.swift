@@ -21,8 +21,13 @@ struct DataBackupPreviewSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Included for Portability")
-                .font(ResponsiveFont.headline)
+            VStack(alignment: .leading, spacing: 3) {
+                Text("What Moves With My Backup")
+                    .font(ResponsiveFont.headline)
+                Text("Preview is free. Exporting and importing need My Backup.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             previewDisclosureList
                 .padding(12)
@@ -47,19 +52,19 @@ struct DataBackupPreviewSection: View {
 
     var previewDisclosureList: some View {
         VStack(alignment: .leading, spacing: 12) {
-            DisclosureGroup("Pages (\(store.allCollections.count))", isExpanded: $showSavedPagesPreview) {
+            DisclosureGroup("Saved Pages (\(store.allCollections.count))", isExpanded: $showSavedPagesPreview) {
                 backupSavedPagesRows
             }
 
-            DisclosureGroup("Study (\(store.favoriteItems.count) characters, \(store.favoritePhrasesItems.count) phrases)", isExpanded: $showFavoritesPreview) {
+            DisclosureGroup("Favorites (\(store.favoriteItems.count) characters, \(store.favoritePhrasesItems.count) phrases)", isExpanded: $showFavoritesPreview) {
                 backupFavoritesSummary
             }
 
-            DisclosureGroup("AI Link Templates (\(store.promptConfig.tasks.count) items)", isExpanded: $showAITemplatesPreview) {
+            DisclosureGroup("AI Link Actions (\(store.promptConfig.tasks.count))", isExpanded: $showAITemplatesPreview) {
                 backupAITemplatesSummary
             }
 
-            DisclosureGroup("App State", isExpanded: $showAppStatePreview) {
+            DisclosureGroup("App Settings", isExpanded: $showAppStatePreview) {
                 backupAppStateSummary
             }
 

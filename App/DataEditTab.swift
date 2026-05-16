@@ -5,8 +5,8 @@ import UIKit
 import UniformTypeIdentifiers
 
 enum DataEditSection: String, CaseIterable, Identifiable {
-    case library = "My Data"
-    case myBackup = "My Backup"
+    case library = "Saved"
+    case myBackup = "Move Devices"
     case advanced = "Advanced"
 
     var id: String { rawValue }

@@ -89,9 +89,9 @@ extension RootView {
 
     var sidebarBrandHeader: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Your lifelong Chinese companion.")
+            Text("Lifelong Chinese Companion")
                 .font(ResponsiveFont.subheadline.weight(.semibold))
-            Text("Scan, understand, save, study, and take your Radix data across iPhone, iPad, and Mac.")
+            Text("Scan, save, study, and carry your Chinese across devices.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
