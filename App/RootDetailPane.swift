@@ -20,10 +20,6 @@ extension RootView {
                 ContentUnavailableView("Failed to Load", systemImage: "exclamationmark.triangle", description: Text(error))
             } else {
                 switch store.route {
-                case .home:
-                    RadixHomeDashboard(
-                        onRequirePro: presentPaywall(for:)
-                    )
                 case .capture:
                     CaptureTab()
                 case .search:
@@ -62,8 +58,6 @@ extension RootView {
 
     var detailPaneTitle: String {
         switch store.route {
-        case .home:
-            return "Radix"
         case .capture:
             return "Scan"
         case .search:

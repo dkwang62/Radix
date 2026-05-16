@@ -74,9 +74,6 @@ extension RadixStore {
         imageBrowsePhrasePreview = nil
 
         switch route {
-        case .home:
-            goToBrowse()
-            preview(character: key, announce: false)
         case .capture:
             select(character: key, announce: false)
         case .search:
@@ -137,9 +134,6 @@ extension RadixStore {
         pushPhraseBreadcrumb(phrase)
 
         switch route {
-        case .home:
-            goToBrowse()
-            sidebarPhrasePreview = phrase
         case .capture:
             break
         case .search:

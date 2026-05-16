@@ -12,15 +12,6 @@ extension RootView {
 
                 VStack(alignment: .leading, spacing: 8) {
                     sidebarTaskButton(
-                        title: "Home",
-                        subtitle: "Your lifelong Chinese companion: continue, scan, save, study, and carry your data across devices.",
-                        icon: "house",
-                        isActive: store.route == .home
-                    ) {
-                        store.goHome()
-                    }
-
-                    sidebarTaskButton(
                         title: "Scan",
                         subtitle: "Use a camera, photo, or file to turn real text into a browsable page.",
                         icon: "camera.viewfinder",
