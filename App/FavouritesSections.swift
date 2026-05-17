@@ -3,7 +3,7 @@ import SwiftUI
 extension FavouritesTab {
     var favouritesScrollContent: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 22) {
                 if !hasDismissedStudyIntro {
                     studyIntroCard
                 }
@@ -24,71 +24,43 @@ extension FavouritesTab {
     }
 
     var studyIntroCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 30, height: 30)
-                    .background(Color.accentColor.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: RadixIcon.help)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 26, height: 26)
+                .background(Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Choose what deserves more study.")
-                        .font(ResponsiveFont.body.weight(.semibold))
-                    Text("Review recent characters and phrases, star the ones worth keeping, then clear Recent when the session is done.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Spacer(minLength: 0)
-
-                Button {
-                    withAnimation { hasDismissedStudyIntro = true }
-                } label: {
-                    Image(systemName: "xmark")
-                        .frame(width: 28, height: 28)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
-                .accessibilityLabel("Hide Study help")
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Choose what deserves more study.")
+                    .font(ResponsiveFont.body.weight(.semibold))
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Review recent items, favorite the useful ones, then clear Recent.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
-            LazyVGrid(columns: studyIntroColumns, spacing: 8) {
-                studyIntroPill("All", "Review recent and saved items")
-                studyIntroPill("Saved", "Keep the smaller study set")
-                studyIntroPill("Clear Recent", "Finish today’s session")
+            Spacer(minLength: 8)
+
+            Button {
+                withAnimation { hasDismissedStudyIntro = true }
+            } label: {
+                Image(systemName: "xmark")
+                    .frame(width: 28, height: 28)
             }
+            .buttonStyle(.plain)
+            .foregroundStyle(.secondary)
+            .accessibilityLabel("Hide Study help")
         }
-        .padding(12)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    var studyIntroColumns: [GridItem] {
-        [GridItem(.adaptive(minimum: 104), spacing: 8)]
-    }
-
-    func studyIntroPill(_ title: String, _ subtitle: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title)
-                .font(ResponsiveFont.caption.weight(.bold))
-                .foregroundStyle(.primary)
-            Text(subtitle)
-                .font(ResponsiveFont.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemBackground))
+        .padding(10)
+        .background(Color(.secondarySystemBackground).opacity(0.72))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     var studyDashboardSummary: some View {
-        LazyVGrid(columns: studySummaryColumns, spacing: 8) {
+        LazyVGrid(columns: studySummaryColumns, spacing: 6) {
             studySummaryTile(
                 title: "Recent",
                 value: "\(store.recentCharacterCount)",
@@ -98,7 +70,7 @@ extension FavouritesTab {
             studySummaryTile(
                 title: "Characters",
                 value: "\(store.favoriteItems.count)",
-                systemImage: "star.fill",
+                systemImage: RadixIcon.saved,
                 tint: .yellow
             )
             studySummaryTile(
@@ -114,42 +86,37 @@ extension FavouritesTab {
                 tint: .purple
             )
         }
-        .padding(.top, 4)
+        .padding(.top, 2)
     }
 
     var studySummaryColumns: [GridItem] {
         #if targetEnvironment(macCatalyst)
-        return [GridItem(.adaptive(minimum: 112), spacing: 8)]
+        return [GridItem(.adaptive(minimum: 136), spacing: 6)]
         #else
-        return [GridItem(.adaptive(minimum: isNarrowStudyLayout ? 132 : 128), spacing: 8)]
+        return [GridItem(.adaptive(minimum: isNarrowStudyLayout ? 132 : 136), spacing: 6)]
         #endif
     }
 
     func studySummaryTile(title: String, value: String, systemImage: String, tint: Color) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 6) {
             Image(systemName: systemImage)
-                .font(.system(size: 17, weight: .semibold))
+                .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(tint)
-                .frame(width: 30, height: 30)
+                .frame(width: 20, height: 20)
                 .background(tint.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
 
-            VStack(alignment: .leading, spacing: 1) {
-                Text(value)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-                Text(title)
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
+            Text("\(value) \(title)")
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+
             Spacer(minLength: 0)
         }
-        .padding(10)
-        .frame(maxWidth: .infinity, minHeight: 62, alignment: .leading)
-        .background(Color(.secondarySystemBackground))
+        .padding(.horizontal, 8)
+        .frame(maxWidth: .infinity, minHeight: 34, alignment: .leading)
+        .background(Color(.secondarySystemBackground).opacity(0.48))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 

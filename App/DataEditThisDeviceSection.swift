@@ -30,7 +30,7 @@ extension DataEditTab {
             librarySummaryTile(
                 title: "AI Links",
                 value: "\(store.promptConfig.tasks.count)",
-                systemImage: "wand.and.stars",
+                systemImage: RadixIcon.aiLink,
                 tint: .teal
             )
             librarySummaryTile(

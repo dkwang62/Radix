@@ -9,7 +9,7 @@ struct DataAITemplatesSection: View {
                 Text("3. AI Link Templates")
                     .font(ResponsiveFont.headline)
             } icon: {
-                Image(systemName: "sparkles")
+                Image(systemName: RadixIcon.aiLink)
             }
             .foregroundStyle(Color.accentColor)
 

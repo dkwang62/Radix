@@ -7,10 +7,6 @@ import UIKit
 struct BreadcrumbStrip: View {
     @EnvironmentObject private var store: RadixStore
 
-    private var memoryLabel: String {
-        return "🕘"
-    }
-
     private var activeMemoryItem: String? {
         if let phrase = store.activeSidebarPhrasePreview {
             return phrase.word
@@ -27,13 +23,14 @@ struct BreadcrumbStrip: View {
     var body: some View {
         if !store.rootBreadcrumb.isEmpty {
             HStack(spacing: 6) {
-                Text(memoryLabel)
-                    .font(ResponsiveFont.caption)
+                Image(systemName: "clock")
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(.secondary)
-                    .accessibilityLabel("Memory items")
+                    .frame(width: 22, height: 32)
+                    .accessibilityLabel("Recent study items")
 
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 6) {
                         ForEach(Array(store.rootBreadcrumb.enumerated()), id: \.offset) { index, item in
                             let phrase = store.mergedPhrase(for: item)
                             let isPhrase = phrase != nil && item.count > 1
@@ -42,19 +39,22 @@ struct BreadcrumbStrip: View {
                                 store.activateBreadcrumbCharacter(item)
                             } label: {
                                 Text(item)
-                                    .font(.system(size: isPhrase ? 16 : 22, weight: .bold))
+                                    .font(.system(size: isPhrase ? 15 : 19, weight: .bold))
                                     .lineLimit(1)
-                                    .padding(.horizontal, isPhrase ? 12 : 10)
-                                    .padding(.vertical, 6)
-                                    .background(isActive ? Color.accentColor.opacity(0.2) : Color(.secondarySystemBackground))
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .truncationMode(.tail)
+                                    .frame(maxWidth: isPhrase ? 132 : 28, alignment: .center)
+                                    .padding(.horizontal, isPhrase ? 10 : 8)
+                                    .frame(height: 32)
+                                    .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground).opacity(0.72))
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .contentShape(RoundedRectangle(cornerRadius: 8))
                             }
                             .buttonStyle(.plain)
                             .modifier(BreadcrumbContextMenu(item: item, phrase: phrase))
                         }
                     }
                     .padding(.trailing, 8)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 3)
                 }
             }
             .padding(.leading, 8)

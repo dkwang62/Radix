@@ -67,7 +67,7 @@ struct CollectionAITaskMenu: View {
             }
         } label: {
             HStack(spacing: 5) {
-                Image(systemName: "sparkles")
+                Image(systemName: RadixIcon.aiLink)
                 Text("AI Link")
                 Image(systemName: "chevron.down")
                     .font(.system(size: 9, weight: .bold))

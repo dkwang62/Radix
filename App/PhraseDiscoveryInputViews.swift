@@ -16,7 +16,7 @@ struct AddExtractsToPhrasesPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .center, spacing: 10) {
-                Label("Import From AI", systemImage: "sparkles")
+                Label("Import From AI", systemImage: RadixIcon.aiLink)
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
 

@@ -87,10 +87,17 @@ enum HomeTab: String, CaseIterable, Identifiable {
 }
 
 enum SidebarNavigationStyle: String, CaseIterable, Identifiable, Codable {
-    case descriptive = "Full"
+    case descriptive = "Descriptive"
     case compact = "Compact"
 
     var id: String { rawValue }
+
+    var displayName: String { rawValue }
+
+    static func fromStoredValue(_ value: String) -> SidebarNavigationStyle? {
+        if value == "Full" { return .descriptive }
+        return SidebarNavigationStyle(rawValue: value)
+    }
 }
 
 struct RootsReturnContext: Equatable {
@@ -562,7 +569,7 @@ final class RadixStore: ObservableObject {
 
     func loadSidebarNavigationStyle() {
         if let saved = UserDefaults.standard.string(forKey: sidebarNavigationStyleKey),
-           let style = SidebarNavigationStyle(rawValue: saved) {
+           let style = SidebarNavigationStyle.fromStoredValue(saved) {
             sidebarNavigationStyle = style
         } else {
             sidebarNavigationStyle = .descriptive
@@ -917,7 +924,7 @@ final class RadixStore: ObservableObject {
         } else if isCompleteRestore {
             homeTab = .filter
         }
-        if let importedSidebarStyle = SidebarNavigationStyle(rawValue: profile.sidebarNavigationStyle ?? "") {
+        if let importedSidebarStyle = SidebarNavigationStyle.fromStoredValue(profile.sidebarNavigationStyle ?? "") {
             sidebarNavigationStyle = importedSidebarStyle
         } else if isCompleteRestore {
             sidebarNavigationStyle = .descriptive

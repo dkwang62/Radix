@@ -3801,6 +3801,30 @@
         "鹣"
       ]
     },
+    "凪" : {
+      "meta" : {
+        "IDC" : "⿵几止",
+        "compounds" : [
+
+        ],
+        "decomposition" : "⿵几止",
+        "definition" : "calm; lull; calm sea",
+        "etymology" : {
+          "details" : "Japanese なぎ nagi",
+          "hint" : "",
+          "type" : ""
+        },
+        "notes" : [
+
+        ],
+        "pinyin" : "zhǐ",
+        "radical" : "几",
+        "strokes" : 6
+      },
+      "related_characters" : [
+
+      ]
+    },
     "地" : {
       "meta" : {
         "IDC" : "⿰土也",
@@ -7237,6 +7261,30 @@
         "韆",
         "鰱",
         "鲢"
+      ]
+    },
+    "辻" : {
+      "meta" : {
+        "IDC" : "⿺辶十",
+        "compounds" : [
+
+        ],
+        "decomposition" : "⿺辶十",
+        "definition" : "crossroads; street; intersection",
+        "etymology" : {
+          "details" : "Japanese つじ tsuji",
+          "hint" : "",
+          "type" : ""
+        },
+        "notes" : [
+
+        ],
+        "pinyin" : "shí",
+        "radical" : "辶",
+        "strokes" : 6
+      },
+      "related_characters" : [
+
       ]
     },
     "込" : {

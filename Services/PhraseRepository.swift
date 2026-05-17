@@ -208,8 +208,7 @@ final class PhraseRepository {
 
     func fetchPhrases(matching words: Set<String>) -> [PhraseItem] {
         guard !words.isEmpty else { return [] }
-        let lookup = phraseLookupCache()
-        return words.compactMap { lookup[$0] }
+        return words.compactMap { fetchPhrase(for: $0) }
     }
 
     func phraseWordSet() -> Set<String> {

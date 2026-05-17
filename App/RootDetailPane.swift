@@ -89,7 +89,7 @@ extension RootView {
             AILinkView(item: nil)
         } else {
             emptyStateCard(
-                systemImage: "sparkles",
+                systemImage: RadixIcon.aiLink,
                 title: "No Subject",
                 message: "Choose a character, phrase, or page first."
             )

@@ -5,30 +5,29 @@ extension FavouritesTab {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Saved characters, phrases, pages, and recently viewed characters.")
+                    Text("Favorite characters, phrases, pages, and recently viewed characters.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
                 Spacer()
-                HStack(spacing: 12) {
+                if hasDismissedStudyIntro {
                     Button {
                         withAnimation { hasDismissedStudyIntro = false }
                     } label: {
-                        Image(systemName: "questionmark.circle")
+                        if store.sidebarNavigationStyle == .compact {
+                            Image(systemName: RadixIcon.help)
+                        } else {
+                            Label("Help", systemImage: RadixIcon.help)
+                        }
                     }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
                     .accessibilityLabel("Show Study help")
-
-                    Button(action: onExportProfile) {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                    Button(action: onImportProfile) {
-                        Image(systemName: "square.and.arrow.down")
-                    }
                 }
-                .font(ResponsiveFont.body)
-                .foregroundStyle(Color.accentColor)
             }
 
         }

@@ -2,29 +2,29 @@ import SwiftUI
 
 extension FavouritesTab {
     var recentStudySection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             recentStudyHeader
 
             if studyGridEntries.isEmpty {
-                Text(studyGridScope == .saved ? "No saved study items yet." : "No study characters yet.")
+                Text(studyGridScope == .favorites ? "No favorite study items yet." : "No study characters yet.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
                     .padding(.vertical, 10)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
-                VStack(alignment: .leading, spacing: 8) {
-                    if !studyPhraseGridEntries.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    if !studyPhraseRows.isEmpty {
                         studyGridGroupLabel("Phrases")
-                        LazyVGrid(columns: recentCharacterColumns, spacing: 0) {
-                            ForEach(studyPhraseGridEntries) { entry in
-                                recentStudyButton(entry)
+                        StudyPhraseFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
+                            ForEach(studyPhraseRows) { row in
+                                studyPhraseRow(row)
                             }
                         }
                     }
 
                     if !studyCharacterGridEntries.isEmpty {
                         studyGridGroupLabel("Characters")
-                            .padding(.top, studyPhraseGridEntries.isEmpty ? 0 : 4)
+                            .padding(.top, studyPhraseRows.isEmpty ? 0 : 10)
                         LazyVGrid(columns: recentCharacterColumns, spacing: 0) {
                             ForEach(studyCharacterGridEntries) { entry in
                                 recentStudyButton(entry)
@@ -36,103 +36,27 @@ extension FavouritesTab {
         }
     }
 
-    var hasStudyGridItems: Bool {
-        !studyGridEntries.isEmpty
-    }
-
-    var studyGridEntries: [StudyGridEntry] {
-        studyPhraseGridEntries + studyCharacterGridEntries
-    }
-
-    var studyPhraseGridEntries: [StudyGridEntry] {
-        let favoritePhrases = store.favoritePhrasesItems
-        let recentPhrases = studyGridScope == .all ? recentStudyPhrases : []
-
-        let phraseEntries = favoritePhrases.flatMap { phrase in
-            Array(phrase.word).enumerated().compactMap { offset, rawCharacter -> StudyGridEntry? in
-                let character = String(rawCharacter)
-                guard let item = store.item(for: character) else { return nil }
-                return StudyGridEntry(
-                    id: "phrase:\(phrase.word):\(offset)",
-                    character: character,
-                    pinyin: item.pinyinText,
-                    phrase: phrase,
-                    phraseRole: offset == 0 ? .target : .phraseMember,
-                    isFavoriteCharacter: offset == 0
-                )
-            }
-        }
-
-        let recentPhraseEntries = recentPhrases.flatMap { phrase in
-            Array(phrase.word).enumerated().compactMap { offset, rawCharacter -> StudyGridEntry? in
-                let character = String(rawCharacter)
-                guard let item = store.item(for: character) else { return nil }
-                return StudyGridEntry(
-                    id: "recentPhrase:\(phrase.word):\(offset)",
-                    character: character,
-                    pinyin: item.pinyinText,
-                    phrase: phrase,
-                    phraseRole: offset == 0 ? .target : .phraseMember,
-                    isFavoriteCharacter: false
-                )
-            }
-        }
-
-        return phraseEntries + recentPhraseEntries
-    }
-
-    var studyCharacterGridEntries: [StudyGridEntry] {
-        let visiblePhraseCharacters = Set(studyVisiblePhrases.flatMap { phrase in
-            phrase.word.map { String($0) }
-        })
-
-        let favoriteCharacterEntries = store.favoriteItems
-            .filter { !visiblePhraseCharacters.contains($0.character) }
-            .map { item in
-                StudyGridEntry(
-                    id: "character:\(item.character)",
-                    character: item.character,
-                    pinyin: item.pinyinText,
-                    phrase: nil,
-                    phraseRole: nil,
-                    isFavoriteCharacter: true
-                )
-            }
-
-        let recentCharacterEntries = store.recentOnlyCharacterItems
-            .filter { !visiblePhraseCharacters.contains($0.character) }
-            .filter { _ in studyGridScope == .all }
-            .map { item in
-                StudyGridEntry(
-                    id: "recent:\(item.character)",
-                    character: item.character,
-                    pinyin: item.pinyinText,
-                    phrase: nil,
-                    phraseRole: nil,
-                    isFavoriteCharacter: false
-                )
-            }
-
-        return favoriteCharacterEntries + recentCharacterEntries
-    }
-
-    var studyVisiblePhrases: [PhraseItem] {
-        store.favoritePhrasesItems + (studyGridScope == .all ? recentStudyPhrases : [])
-    }
-
-    var recentStudyPhrases: [PhraseItem] {
-        store.rootBreadcrumb
-            .filter { $0.count > 1 && !store.isPhraseFavorite($0) }
-            .compactMap { store.mergedPhrase(for: $0) }
-    }
-
     func studyGridGroupLabel(_ title: String) -> some View {
         Text(title)
             .font(ResponsiveFont.caption.weight(.bold))
             .foregroundStyle(.secondary)
             .textCase(.uppercase)
-            .padding(.top, 2)
             .accessibilityAddTraits(.isHeader)
+    }
+
+    func studyPhraseRow(_ row: StudyPhraseRowData) -> some View {
+        HStack(spacing: 0) {
+            ForEach(studyPhraseEntries(
+                for: row.phrase,
+                idPrefix: row.marker.idPrefix,
+                marker: row.marker
+            )) { entry in
+                recentStudyButton(entry)
+                    .frame(width: studyPhraseTileWidth)
+            }
+        }
+        .fixedSize(horizontal: true, vertical: false)
+        .accessibilityElement(children: .contain)
     }
 
     @ViewBuilder
@@ -140,27 +64,49 @@ extension FavouritesTab {
         if isNarrowStudyLayout {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .center, spacing: 8) {
-                    sectionTitle("Recent & Saved")
-                }
-                HStack(spacing: 8) {
-                    studyScopePicker
-                    studyScriptToggle
+                    sectionTitle("Recent & Favorites")
+                    Spacer(minLength: 8)
                     if studyGridScope == .all {
                         clearRecentButton
                     }
                 }
+                HStack(spacing: 8) {
+                    studyScopePicker
+                    studyScriptToggle
+                }
+                studyFavoriteLegend
             }
         } else {
-            HStack(alignment: .center, spacing: 8) {
-                sectionTitle("Recent & Saved")
-                Spacer(minLength: 8)
-                studyScopePicker
-                studyScriptToggle
-                if studyGridScope == .all {
-                    clearRecentButton
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(alignment: .center, spacing: 8) {
+                    sectionTitle("Recent & Favorites")
+                    Spacer(minLength: 8)
+                    studyScopePicker
+                    studyScriptToggle
                 }
+                if studyGridScope == .all {
+                    HStack {
+                        Spacer(minLength: 0)
+                        clearRecentButton
+                    }
+                }
+                studyFavoriteLegend
             }
         }
+    }
+
+    var studyFavoriteLegend: some View {
+        HStack(spacing: 5) {
+            Image(systemName: RadixIcon.saved)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(.yellow)
+            Text("Tap a phrase star to favorite the whole phrase. Character stars mark favorite characters.")
+                .font(ResponsiveFont.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .accessibilityElement(children: .combine)
     }
 
     var studyScopePicker: some View {
@@ -169,12 +115,12 @@ extension FavouritesTab {
             set: { studyGridScope = $0 }
         )) {
             ForEach(StudyGridScope.allCases) { scope in
-                Text(scope.rawValue).tag(scope)
+                Text(scope.title).tag(scope)
             }
         }
         .pickerStyle(.segmented)
         .controlSize(.small)
-        .frame(maxWidth: isNarrowStudyLayout ? 150 : 170)
+        .frame(maxWidth: isNarrowStudyLayout ? 144 : 160)
         .accessibilityLabel("Study items")
     }
 
@@ -182,12 +128,18 @@ extension FavouritesTab {
         Button(role: .destructive) {
             store.clearRecentCharacters()
         } label: {
-            Label("Clear Recent", systemImage: "trash")
-                .font(ResponsiveFont.caption.weight(.semibold))
+            Label("Clear Recent", systemImage: RadixIcon.delete)
+                .font(ResponsiveFont.caption2.weight(.semibold))
         }
-        .buttonStyle(.bordered)
+        .buttonStyle(.plain)
         .controlSize(.small)
+        .foregroundStyle(store.rootBreadcrumb.isEmpty ? Color.secondary : Color.red.opacity(0.82))
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(Color.red.opacity(store.rootBreadcrumb.isEmpty ? 0.04 : 0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .disabled(store.rootBreadcrumb.isEmpty)
+        .accessibilityLabel("Clear Recent")
     }
 
     var recentCharacterColumns: [GridItem] {
@@ -206,6 +158,14 @@ extension FavouritesTab {
         return 28
         #else
         return isNarrowStudyLayout ? 24 : 26
+        #endif
+    }
+
+    var studyPhraseTileWidth: CGFloat {
+        #if targetEnvironment(macCatalyst)
+        return 58
+        #else
+        return isNarrowStudyLayout ? 50 : 56
         #endif
     }
 
@@ -228,7 +188,7 @@ extension FavouritesTab {
         Button(action: action) {
             Text(title)
                 .font(ResponsiveFont.subheadline.weight(.semibold))
-                .frame(width: 34, height: 30)
+                .frame(width: 32, height: 28)
                 .background(isActive ? Color.accentColor : Color(.secondarySystemBackground))
                 .foregroundStyle(isActive ? .white : .primary)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -237,8 +197,12 @@ extension FavouritesTab {
     }
 
     func recentStudyButton(_ entry: StudyGridEntry) -> some View {
+        if let marker = entry.phraseMarker {
+            return AnyView(studyPhraseMarkerButton(entry, marker: marker))
+        }
+
         let isActive = entry.character == store.previewCharacter || entry.phrase?.word == store.activeSidebarPhrasePreview?.word
-        return Button {
+        return AnyView(Button {
             if let phrase = entry.phrase {
                 presentPhrase(phrase)
             } else {
@@ -266,13 +230,13 @@ extension FavouritesTab {
                 Button {
                     store.togglePhraseFavorite(phrase.word)
                 } label: {
-                    Label("Remove Phrase from Study", systemImage: "star.slash")
+                    Label(store.isPhraseFavorite(phrase.word) ? "Remove Phrase from Favorites" : "Add Phrase to Favorites", systemImage: store.isPhraseFavorite(phrase.word) ? "star.slash" : "star")
                 }
             } else {
                 Button {
                     store.toggleFavorite(character: entry.character)
                 } label: {
-                    Label(store.isFavorite(entry.character) ? "Remove from Study" : "Add to Study", systemImage: store.isFavorite(entry.character) ? "star.slash" : "star")
+                    Label(store.isFavorite(entry.character) ? "Remove from Favorites" : "Add to Favorites", systemImage: store.isFavorite(entry.character) ? "star.slash" : "star")
                 }
                 if store.rootBreadcrumb.contains(entry.character) {
                     Button {
@@ -282,19 +246,27 @@ extension FavouritesTab {
                     }
                 }
             }
+        })
+    }
+
+    func studyPhraseMarkerButton(_ entry: StudyGridEntry, marker: StudyPhraseMarker) -> some View {
+        Button {
+            if let phrase = entry.phrase {
+                store.togglePhraseFavorite(phrase.word)
+            }
+        } label: {
+            StudyPhraseMarkerTile(marker: marker)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(marker == .favorite ? "Remove phrase from Favorites" : "Add phrase to Favorites")
+        .contextMenu {
+            if let phrase = entry.phrase {
+                Button {
+                    store.togglePhraseFavorite(phrase.word)
+                } label: {
+                    Label(marker == .favorite ? "Remove Phrase from Favorites" : "Add Phrase to Favorites", systemImage: marker == .favorite ? "star.slash" : "star")
+                }
+            }
         }
     }
-
-    func studyGridDisplayText(_ text: String) -> String {
-        studyGridUsesTraditionalScript ? store.traditionalText(text) : store.simplifiedText(text)
-    }
-}
-
-struct StudyGridEntry: Identifiable {
-    let id: String
-    let character: String
-    let pinyin: String
-    let phrase: PhraseItem?
-    let phraseRole: ImagePhraseHighlightRole?
-    let isFavoriteCharacter: Bool
 }

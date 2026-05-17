@@ -45,6 +45,13 @@ enum DataExportArchiveBuilder {
             bundleResource: "character_strokes",
             bundleExtension: "db"
         )
+        try appendOptionalFileEntry(
+            to: &entries,
+            archivePath: "Resources/japanese_character_strokes.db",
+            projectPath: "Resources/japanese_character_strokes.db",
+            bundleResource: "japanese_character_strokes",
+            bundleExtension: "db"
+        )
         try appendFileEntry(
             to: &entries,
             archivePath: "SUBTLEX-CH-CHR.txt",

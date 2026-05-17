@@ -42,6 +42,8 @@ targets:
         buildPhase: resources
       - path: Resources/character_strokes.db
         buildPhase: resources
+      - path: Resources/japanese_character_strokes.db
+        buildPhase: resources
       - path: ./enhanced_component_map_with_etymology.json
         buildPhase: resources
       - path: ./phrases.db

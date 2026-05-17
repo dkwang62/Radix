@@ -57,7 +57,7 @@ extension RootView {
                     Button {
                         showSettings = true
                     } label: {
-                        Image(systemName: "gearshape")
+                        Image(systemName: RadixIcon.settings)
                     }
                     .accessibilityLabel("Settings")
                 }
@@ -119,12 +119,12 @@ extension RootView {
         VStack(spacing: 0) {
             Divider()
             HStack(spacing: 4) {
-                tabButton(id: 0, title: "Scan", icon: "camera.viewfinder")
-                tabButton(id: 2, title: "Browse", icon: "square.grid.2x2")
-                tabButton(id: 1, title: "Search", icon: "magnifyingglass")
-                tabButton(id: 3, title: "Study", icon: "star")
-                tabButton(id: 4, title: "AI", icon: "sparkles")
-                tabButton(id: 5, title: "My Data", icon: "externaldrive")
+                tabButton(.scan)
+                tabButton(.browse)
+                tabButton(.search)
+                tabButton(.study)
+                tabButton(.aiLink)
+                tabButton(.myData)
             }
             .padding(.top, 8)
             .padding(.bottom, 7)
@@ -134,7 +134,9 @@ extension RootView {
         .shadow(color: Color.black.opacity(0.06), radius: 8, y: -2)
     }
 
-    func tabButton(id: Int, title: String, icon: String, usesSystemImage: Bool = true) -> some View {
+    func tabButton(_ item: RadixNavigationItem) -> some View {
+        let id = item.rawValue
+        let showsTitle = store.sidebarNavigationStyle == .descriptive
         let isActive = {
             if store.route == .capture { return id == 0 }
             if store.route == .favourites { return id == 3 }
@@ -179,22 +181,20 @@ extension RootView {
                 store.homeTab = .smart
             }
         } label: {
-            VStack(spacing: 2) {
-                if usesSystemImage {
-                    Image(systemName: icon)
-                        .font(.system(size: isActive ? 16 : 15, weight: .semibold))
-                } else {
-                    Text(icon)
-                        .font(.system(size: isActive ? 16 : 15, weight: .semibold))
+            VStack(spacing: showsTitle ? 2 : 0) {
+                Image(systemName: item.icon)
+                    .font(.system(size: isActive ? 17 : 16, weight: .semibold))
+                if showsTitle {
+                    Text(item.compactTitle)
+                        .font(.system(size: 10, weight: isActive ? .bold : .semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.58)
+                        .transition(.opacity)
                 }
-                Text(title)
-                    .font(.system(size: 10, weight: isActive ? .bold : .semibold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.58)
             }
             .foregroundStyle(isActive ? Color.white : Color.secondary)
             .frame(maxWidth: .infinity)
-            .frame(height: 48)
+            .frame(height: showsTitle ? 48 : 42)
             .background(
                 RoundedRectangle(cornerRadius: 8)
                     .fill(isActive ? Color.accentColor : Color.clear)
@@ -202,7 +202,7 @@ extension RootView {
             .contentShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(title)
+        .accessibilityLabel(item.title)
         .accessibilityValue(isActive ? "Selected" : "")
     }
 }

@@ -47,7 +47,7 @@ struct FavouritesTab: View {
 
     var hasStudyContent: Bool {
         store.recentCharacterCount > 0
-            || !recentStudyPhrases.isEmpty
+            || store.rootBreadcrumb.contains { $0.count > 1 }
             || !store.favoriteItems.isEmpty
             || !store.favoritePhrasesItems.isEmpty
             || !store.allCollections.isEmpty
@@ -99,7 +99,7 @@ struct FavouritesTab: View {
     var phoneStudyPreview: some View {
         PhoneContextPreview(
             returnTitle: "Study",
-            returnSystemImage: "star",
+            returnSystemImage: RadixIcon.study,
             phrase: store.activeSidebarPhrasePreview,
             character: store.previewCharacter,
             onReturn: {
@@ -114,7 +114,14 @@ struct FavouritesTab: View {
 
 enum StudyGridScope: String, CaseIterable, Identifiable {
     case all = "All"
-    case saved = "Saved"
+    case favorites = "Saved"
 
     var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .all: return "All"
+        case .favorites: return "Favorites"
+        }
+    }
 }

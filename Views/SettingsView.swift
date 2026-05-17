@@ -23,7 +23,7 @@ struct SettingsView: View {
 
             Section("AI Link") {
                 VStack(alignment: .leading, spacing: 10) {
-                    Label("Open AI links in", systemImage: "sparkles")
+                    Label("Open AI links in", systemImage: RadixIcon.aiLink)
                         .font(ResponsiveFont.subheadline.weight(.semibold))
 
                     Picker("Open AI links in", selection: $store.defaultAIPreset) {
@@ -104,7 +104,7 @@ struct SettingsView: View {
                         dismiss()
                         onShowWelcome()
                     } label: {
-                        Label("Show Welcome", systemImage: "sparkles")
+                        Label("Show Welcome", systemImage: RadixIcon.help)
                     }
                 }
             }

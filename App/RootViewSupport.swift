@@ -142,32 +142,32 @@ struct RadixWelcomeView: View {
 
                     VStack(spacing: 12) {
                         welcomeStep(
-                            icon: "camera.viewfinder",
+                            icon: RadixIcon.scan,
                             title: "Scan real text",
                             text: "Turn a photo, file, or pasted text into a saved page you can browse."
                         )
                         welcomeStep(
-                            icon: "square.grid.2x2",
+                            icon: RadixIcon.browse,
                             title: "Browse the dictionary",
                             text: "Explore characters, saved pages, parts, variants, stroke order, and phrases."
                         )
                         welcomeStep(
-                            icon: "magnifyingglass",
+                            icon: RadixIcon.search,
                             title: "Search naturally",
                             text: "Find Chinese by character, pinyin, English meaning, stroke input, or phrase."
                         )
                         welcomeStep(
-                            icon: "star",
+                            icon: RadixIcon.study,
                             title: "Keep what matters",
                             text: "Save useful characters, phrases, notes, and pages in Study."
                         )
                         welcomeStep(
-                            icon: "externaldrive",
+                            icon: RadixIcon.myData,
                             title: "Move My Data",
                             text: "What you add on iPhone can travel to iPad and Mac with My Backup."
                         )
                         welcomeStep(
-                            icon: "sparkles",
+                            icon: RadixIcon.aiLink,
                             title: "Use AI Link",
                             text: "Send repeatable AI actions for phrase extraction, translation, and interpretation."
                         )

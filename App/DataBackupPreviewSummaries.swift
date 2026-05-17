@@ -51,7 +51,7 @@ extension DataBackupPreviewSection {
             BackupSummaryLine(title: "Current search", value: store.query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "None" : store.query)
             BackupSummaryLine(title: "Search mode", value: store.searchMode.rawValue.capitalized)
             BackupSummaryLine(title: "Script choice", value: store.scriptFilter.rawValue.capitalized)
-            BackupSummaryLine(title: "Sidebar buttons", value: store.sidebarNavigationStyle.rawValue)
+            BackupSummaryLine(title: "Sidebar buttons", value: store.sidebarNavigationStyle.displayName)
             BackupSummaryLine(title: "Chosen AI app", value: store.defaultAIName)
             BackupSummaryLine(title: "Saved AI keys", value: "\(store.currentAPIKeyBackup().savedCount)")
             if store.defaultAIPreset == .custom {

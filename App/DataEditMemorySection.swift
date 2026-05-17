@@ -45,7 +45,7 @@ extension DataEditTab {
                         title: "Your Radix library starts here",
                         subtitle: "Scan a page, save a phrase, mark a favorite, or add your own notes.",
                         detail: nil,
-                        systemName: "sparkles",
+                        systemName: "plus.circle",
                         tint: .accentColor
                     ) {
                         store.route = .capture

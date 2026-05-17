@@ -20,7 +20,7 @@ extension RootView {
                     showSettings = true
                 } label: {
                     HStack(spacing: 10) {
-                        Image(systemName: "gearshape")
+                        Image(systemName: RadixIcon.settings)
                             .font(ResponsiveFont.body)
                         Text("Settings")
                             .font(ResponsiveFont.subheadline.weight(.semibold))
@@ -49,8 +49,8 @@ extension RootView {
             }
 
             Picker("Sidebar navigation style", selection: $store.sidebarNavigationStyle) {
-                Text("Full").tag(SidebarNavigationStyle.descriptive)
-                Text("Compact").tag(SidebarNavigationStyle.compact)
+                Text(SidebarNavigationStyle.descriptive.displayName).tag(SidebarNavigationStyle.descriptive)
+                Text(SidebarNavigationStyle.compact.displayName).tag(SidebarNavigationStyle.compact)
             }
             .pickerStyle(.segmented)
             .padding(.top, 4)
@@ -62,62 +62,32 @@ extension RootView {
 
     var descriptiveSidebarNavigation: some View {
         VStack(alignment: .leading, spacing: 8) {
-            sidebarTaskButton(
-                title: "Scan",
-                subtitle: "Use a camera, photo, or file to turn real text into a browsable page.",
-                icon: "camera.viewfinder",
-                isActive: store.route == .capture
-            ) {
+            sidebarTaskButton(.scan, isActive: store.route == .capture) {
                 hasUsedSidebarNavigation = true
                 store.route = .capture
             }
 
-            sidebarTaskButton(
-                title: "Search",
-                subtitle: "Find characters and phrases by Chinese, pinyin, English meaning, or strokes.",
-                icon: "magnifyingglass",
-                isActive: store.route == .search && store.homeTab == .smart
-            ) {
+            sidebarTaskButton(.search, isActive: store.route == .search && store.homeTab == .smart) {
                 hasUsedSidebarNavigation = true
                 store.goToSearchRoot()
             }
 
-            sidebarTaskButton(
-                title: "Browse",
-                subtitle: "Explore the dictionary or open saved pages from scans and pasted text.",
-                icon: "square.grid.2x2",
-                isActive: store.route == .search && store.homeTab == .filter
-            ) {
+            sidebarTaskButton(.browse, isActive: store.route == .search && store.homeTab == .filter) {
                 hasUsedSidebarNavigation = true
                 store.goToBrowse()
             }
 
-            sidebarTaskButton(
-                title: "Study",
-                subtitle: "Return to favorites, recent characters, and pages you want to revisit.",
-                icon: "star",
-                isActive: store.route == .favourites || (store.route == .search && store.homeTab == .favourites)
-            ) {
+            sidebarTaskButton(.study, isActive: store.route == .favourites || (store.route == .search && store.homeTab == .favourites)) {
                 hasUsedSidebarNavigation = true
                 store.goToFavourites()
             }
 
-            sidebarTaskButton(
-                title: "AI Link",
-                subtitle: "Use repeatable AI actions for phrases, interpretation, translation, and saved pages.",
-                icon: "sparkles",
-                isActive: store.route == .aiLink
-            ) {
+            sidebarTaskButton(.aiLink, isActive: store.route == .aiLink) {
                 hasUsedSidebarNavigation = true
                 store.enterAILink()
             }
 
-            sidebarTaskButton(
-                title: "My Data",
-                subtitle: "Your additions can travel between iPhone, iPad, and Mac.",
-                icon: "externaldrive",
-                isActive: store.route == .search && store.homeTab == .dataEdit
-            ) {
+            sidebarTaskButton(.myData, isActive: store.route == .search && store.homeTab == .dataEdit) {
                 hasUsedSidebarNavigation = true
                 store.goToDataEdit()
             }
@@ -126,27 +96,27 @@ extension RootView {
 
     var compactSidebarNavigation: some View {
         HStack(spacing: 6) {
-            compactSidebarButton(title: "Scan", icon: "camera.viewfinder", isActive: store.route == .capture) {
+            compactSidebarButton(.scan, isActive: store.route == .capture) {
                 hasUsedSidebarNavigation = true
                 store.route = .capture
             }
-            compactSidebarButton(title: "Search", icon: "magnifyingglass", isActive: store.route == .search && store.homeTab == .smart) {
+            compactSidebarButton(.search, isActive: store.route == .search && store.homeTab == .smart) {
                 hasUsedSidebarNavigation = true
                 store.goToSearchRoot()
             }
-            compactSidebarButton(title: "Browse", icon: "square.grid.2x2", isActive: store.route == .search && store.homeTab == .filter) {
+            compactSidebarButton(.browse, isActive: store.route == .search && store.homeTab == .filter) {
                 hasUsedSidebarNavigation = true
                 store.goToBrowse()
             }
-            compactSidebarButton(title: "Study", icon: "star", isActive: store.route == .favourites || (store.route == .search && store.homeTab == .favourites)) {
+            compactSidebarButton(.study, isActive: store.route == .favourites || (store.route == .search && store.homeTab == .favourites)) {
                 hasUsedSidebarNavigation = true
                 store.goToFavourites()
             }
-            compactSidebarButton(title: "AI Link", icon: "sparkles", isActive: store.route == .aiLink) {
+            compactSidebarButton(.aiLink, isActive: store.route == .aiLink) {
                 hasUsedSidebarNavigation = true
                 store.enterAILink()
             }
-            compactSidebarButton(title: "My Data", icon: "externaldrive", isActive: store.route == .search && store.homeTab == .dataEdit) {
+            compactSidebarButton(.myData, isActive: store.route == .search && store.homeTab == .dataEdit) {
                 hasUsedSidebarNavigation = true
                 store.goToDataEdit()
             }
@@ -184,15 +154,13 @@ extension RootView {
     }
 
     func sidebarTaskButton(
-        title: String,
-        subtitle: String,
-        icon: String,
+        _ item: RadixNavigationItem,
         isActive: Bool,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                Image(systemName: icon)
+                Image(systemName: item.icon)
                     .font(ResponsiveFont.headline)
                     .foregroundStyle(isActive ? Color.accentColor : Color.secondary)
                     .frame(width: 30, height: 30)
@@ -200,9 +168,9 @@ extension RootView {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
+                    Text(item.title)
                         .font(ResponsiveFont.subheadline.weight(.semibold))
-                    Text(subtitle)
+                    Text(item.subtitle)
                         .font(ResponsiveFont.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(3)
@@ -224,13 +192,12 @@ extension RootView {
     }
 
     func compactSidebarButton(
-        title: String,
-        icon: String,
+        _ item: RadixNavigationItem,
         isActive: Bool,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
-            Image(systemName: icon)
+            Image(systemName: item.icon)
                 .font(ResponsiveFont.headline)
                 .frame(maxWidth: .infinity, minHeight: 42)
             .foregroundStyle(isActive ? Color.accentColor : Color.primary)
@@ -242,6 +209,6 @@ extension RootView {
             )
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(title)
+        .accessibilityLabel(item.title)
     }
 }
