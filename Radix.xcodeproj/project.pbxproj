@@ -173,6 +173,9 @@
 		86CD14402F9822B300D7BDBD /* DataEditTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14372F9822B300D7BDBD /* DataEditTab.swift */; };
 		86CD14712FA2000100D7BDBD /* DataEditHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14702FA2000100D7BDBD /* DataEditHeader.swift */; };
 		86CD14732FA2000100D7BDBD /* DataEditBackupSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14722FA2000100D7BDBD /* DataEditBackupSection.swift */; };
+		C0DE00062FB10002001B9AA7 /* DataEditMemorySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00052FB10002001B9AA7 /* DataEditMemorySection.swift */; };
+		C0DE00082FB10002001B9AA7 /* DataEditThisDeviceSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00072FB10002001B9AA7 /* DataEditThisDeviceSection.swift */; };
+		C0DE000A2FB10002001B9AA7 /* DataEditOtherDevicesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00092FB10002001B9AA7 /* DataEditOtherDevicesSection.swift */; };
 		86CD14752FA2000100D7BDBD /* DataEditPremiumExports.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14742FA2000100D7BDBD /* DataEditPremiumExports.swift */; };
 		86CD14772FA2000100D7BDBD /* DataEditBackupEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14762FA2000100D7BDBD /* DataEditBackupEntries.swift */; };
 		86CD14412F9822B300D7BDBD /* FileTransferModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14392F9822B300D7BDBD /* FileTransferModifier.swift */; };
@@ -185,6 +188,8 @@
 		86CD14822FAB000100D7BDBD /* FavouritesCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14812FAB000100D7BDBD /* FavouritesCells.swift */; };
 		86CD14842FAB000100D7BDBD /* FavouritesPhrasePresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14832FAB000100D7BDBD /* FavouritesPhrasePresentation.swift */; };
 		86CD14862FAB000100D7BDBD /* ProLockedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14852FAB000100D7BDBD /* ProLockedView.swift */; };
+		C0DE00022FB10001001B9AA7 /* FavouritesStudyGridSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00012FB10001001B9AA7 /* FavouritesStudyGridSection.swift */; };
+		C0DE00042FB10001001B9AA7 /* FavouritesStudyPagesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00032FB10001001B9AA7 /* FavouritesStudyPagesSection.swift */; };
 		86CD14462F9822B300D7BDBD /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD143C2F9822B300D7BDBD /* RootView.swift */; };
 		86CD14472F9822B300D7BDBD /* BreadcrumbStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14362F9822B300D7BDBD /* BreadcrumbStrip.swift */; };
 		86CD14482F9822B300D7BDBD /* SmartSearchTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD143E2F9822B300D7BDBD /* SmartSearchTab.swift */; };
@@ -296,6 +301,9 @@
 		86CD14372F9822B300D7BDBD /* DataEditTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditTab.swift; sourceTree = "<group>"; };
 		86CD14702FA2000100D7BDBD /* DataEditHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditHeader.swift; sourceTree = "<group>"; };
 		86CD14722FA2000100D7BDBD /* DataEditBackupSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditBackupSection.swift; sourceTree = "<group>"; };
+		C0DE00052FB10002001B9AA7 /* DataEditMemorySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditMemorySection.swift; sourceTree = "<group>"; };
+		C0DE00072FB10002001B9AA7 /* DataEditThisDeviceSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditThisDeviceSection.swift; sourceTree = "<group>"; };
+		C0DE00092FB10002001B9AA7 /* DataEditOtherDevicesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditOtherDevicesSection.swift; sourceTree = "<group>"; };
 		86CD14742FA2000100D7BDBD /* DataEditPremiumExports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditPremiumExports.swift; sourceTree = "<group>"; };
 		86CD14762FA2000100D7BDBD /* DataEditBackupEntries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditBackupEntries.swift; sourceTree = "<group>"; };
 		86CD14382F9822B300D7BDBD /* FavouritesTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesTab.swift; sourceTree = "<group>"; };
@@ -304,6 +312,8 @@
 		86CD14812FAB000100D7BDBD /* FavouritesCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesCells.swift; sourceTree = "<group>"; };
 		86CD14832FAB000100D7BDBD /* FavouritesPhrasePresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesPhrasePresentation.swift; sourceTree = "<group>"; };
 		86CD14852FAB000100D7BDBD /* ProLockedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProLockedView.swift; sourceTree = "<group>"; };
+		C0DE00012FB10001001B9AA7 /* FavouritesStudyGridSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesStudyGridSection.swift; sourceTree = "<group>"; };
+		C0DE00032FB10001001B9AA7 /* FavouritesStudyPagesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesStudyPagesSection.swift; sourceTree = "<group>"; };
 		86CD14392F9822B300D7BDBD /* FileTransferModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileTransferModifier.swift; sourceTree = "<group>"; };
 		86CD143A2F9822B300D7BDBD /* FilterGridTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterGridTab.swift; sourceTree = "<group>"; };
 		850000152F9D0001001B9AA7 /* BrowseSourceMenuViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseSourceMenuViews.swift; sourceTree = "<group>"; };
@@ -474,12 +484,17 @@
 				86CD14372F9822B300D7BDBD /* DataEditTab.swift */,
 				86CD14702FA2000100D7BDBD /* DataEditHeader.swift */,
 				86CD14722FA2000100D7BDBD /* DataEditBackupSection.swift */,
+				C0DE00052FB10002001B9AA7 /* DataEditMemorySection.swift */,
+				C0DE00072FB10002001B9AA7 /* DataEditThisDeviceSection.swift */,
+				C0DE00092FB10002001B9AA7 /* DataEditOtherDevicesSection.swift */,
 				86CD14742FA2000100D7BDBD /* DataEditPremiumExports.swift */,
 				86CD14762FA2000100D7BDBD /* DataEditBackupEntries.swift */,
 				850000312F9D0001001B9AA7 /* DataEditExportSupport.swift */,
 				86CD14382F9822B300D7BDBD /* FavouritesTab.swift */,
 				86CD147D2FAB000100D7BDBD /* FavouritesHeader.swift */,
 				86CD147F2FAB000100D7BDBD /* FavouritesSections.swift */,
+				C0DE00012FB10001001B9AA7 /* FavouritesStudyGridSection.swift */,
+				C0DE00032FB10001001B9AA7 /* FavouritesStudyPagesSection.swift */,
 				86CD14812FAB000100D7BDBD /* FavouritesCells.swift */,
 				86CD14832FAB000100D7BDBD /* FavouritesPhrasePresentation.swift */,
 				86CD14852FAB000100D7BDBD /* ProLockedView.swift */,
@@ -819,6 +834,8 @@
 				86CD14452F9822B300D7BDBD /* FavouritesTab.swift in Sources */,
 				86CD147E2FAB000100D7BDBD /* FavouritesHeader.swift in Sources */,
 				86CD14802FAB000100D7BDBD /* FavouritesSections.swift in Sources */,
+				C0DE00022FB10001001B9AA7 /* FavouritesStudyGridSection.swift in Sources */,
+				C0DE00042FB10001001B9AA7 /* FavouritesStudyPagesSection.swift in Sources */,
 				86CD14822FAB000100D7BDBD /* FavouritesCells.swift in Sources */,
 				86CD14842FAB000100D7BDBD /* FavouritesPhrasePresentation.swift in Sources */,
 				86CD14862FAB000100D7BDBD /* ProLockedView.swift in Sources */,
@@ -869,6 +886,9 @@
 				86CD14672F9822B300D7BDBD /* DataChangedPhrasesSection.swift in Sources */,
 				86CD14712FA2000100D7BDBD /* DataEditHeader.swift in Sources */,
 				86CD14732FA2000100D7BDBD /* DataEditBackupSection.swift in Sources */,
+				C0DE00062FB10002001B9AA7 /* DataEditMemorySection.swift in Sources */,
+				C0DE00082FB10002001B9AA7 /* DataEditThisDeviceSection.swift in Sources */,
+				C0DE000A2FB10002001B9AA7 /* DataEditOtherDevicesSection.swift in Sources */,
 				86CD14752FA2000100D7BDBD /* DataEditPremiumExports.swift in Sources */,
 				86CD14772FA2000100D7BDBD /* DataEditBackupEntries.swift in Sources */,
 				2CD095BC1FB95FF4971726EC /* JSONFileDocument.swift in Sources */,

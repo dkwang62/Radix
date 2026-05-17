@@ -7,6 +7,7 @@ struct FilterGridTab: View {
     @Environment(\.openURL) var openURL
     @AppStorage("hasShownBrowseInteractionHintRowV1") var hasShownBrowseInteractionHintRow = false
     @AppStorage("browseImageScriptMode") var browseImageScriptMode = "simplified"
+    @AppStorage("browsePageSortOrder") var browsePageSortRawValue = PageCollectionSortOrder.lastViewed.rawValue
     @State var showBrowseFilters = false
     @State var showManualCollectionSheet = false
     @State var showBrowseSource = false

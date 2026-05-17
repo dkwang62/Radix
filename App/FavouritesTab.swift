@@ -19,10 +19,15 @@ struct FavouritesTab: View {
 
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     let onExportProfile: () -> Void
     let onImportProfile: () -> Void
     let onRequirePro: (EntitlementManager.FeatureGate) -> Void
     @State var selectedPhrase: PhraseItem?
+    @AppStorage("studyGridUsesTraditionalScript") var studyGridUsesTraditionalScript = false
+    @AppStorage("studyGridScope") var studyGridScopeRawValue = StudyGridScope.all.rawValue
+    @AppStorage("studyPageSortOrder") var studyPageSortRawValue = PageCollectionSortOrder.lastViewed.rawValue
+    @AppStorage("hasDismissedStudyIntroV1") var hasDismissedStudyIntro = false
 
     var isPhone: Bool {
         #if targetEnvironment(macCatalyst)
@@ -32,11 +37,30 @@ struct FavouritesTab: View {
         #endif
     }
 
+    var isNarrowStudyLayout: Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
+        return isPhone || horizontalSizeClass == .compact
+        #endif
+    }
+
     var hasStudyContent: Bool {
-        !store.rootBreadcrumb.isEmpty
+        store.recentCharacterCount > 0
+            || !recentStudyPhrases.isEmpty
             || !store.favoriteItems.isEmpty
             || !store.favoritePhrasesItems.isEmpty
             || !store.allCollections.isEmpty
+    }
+
+    var studyPageSortOrder: PageCollectionSortOrder {
+        get { PageCollectionSortOrder(rawValue: studyPageSortRawValue) ?? .lastViewed }
+        nonmutating set { studyPageSortRawValue = newValue.rawValue }
+    }
+
+    var studyGridScope: StudyGridScope {
+        get { StudyGridScope(rawValue: studyGridScopeRawValue) ?? .all }
+        nonmutating set { studyGridScopeRawValue = newValue.rawValue }
     }
 
     var body: some View {
@@ -86,4 +110,11 @@ struct FavouritesTab: View {
         )
         .environmentObject(store)
     }
+}
+
+enum StudyGridScope: String, CaseIterable, Identifiable {
+    case all = "All"
+    case saved = "Saved"
+
+    var id: String { rawValue }
 }

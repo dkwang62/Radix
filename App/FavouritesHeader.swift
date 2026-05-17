@@ -5,7 +5,7 @@ extension FavouritesTab {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Saved characters, phrases, and recent items.")
+                    Text("Saved characters, phrases, pages, and recently viewed characters.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -13,6 +13,13 @@ extension FavouritesTab {
 
                 Spacer()
                 HStack(spacing: 12) {
+                    Button {
+                        withAnimation { hasDismissedStudyIntro = false }
+                    } label: {
+                        Image(systemName: "questionmark.circle")
+                    }
+                    .accessibilityLabel("Show Study help")
+
                     Button(action: onExportProfile) {
                         Image(systemName: "square.and.arrow.up")
                     }

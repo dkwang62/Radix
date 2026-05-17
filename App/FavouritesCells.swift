@@ -3,12 +3,9 @@ import SwiftUI
 extension FavouritesTab {
     var favoriteCharacterColumns: [GridItem] {
         #if targetEnvironment(macCatalyst)
-        return Array(repeating: GridItem(.flexible(minimum: 44, maximum: 82), spacing: 10), count: 10)
+        return [GridItem(.adaptive(minimum: 44, maximum: 82), spacing: 8)]
         #else
-        if isPhone {
-            return Array(repeating: GridItem(.flexible(minimum: 44, maximum: 72), spacing: 8), count: 4)
-        }
-        return Array(repeating: GridItem(.flexible(minimum: 44, maximum: 78), spacing: 8), count: 8)
+        return [GridItem(.adaptive(minimum: 44, maximum: isNarrowStudyLayout ? 72 : 78), spacing: 8)]
         #endif
     }
 
@@ -47,12 +44,9 @@ extension FavouritesTab {
 
     var favoritePhraseColumns: [GridItem] {
         #if targetEnvironment(macCatalyst)
-        return Array(repeating: GridItem(.flexible(minimum: 120, maximum: 180), spacing: 8), count: 4)
+        return [GridItem(.adaptive(minimum: 120, maximum: 180), spacing: 8)]
         #else
-        if isPhone {
-            return Array(repeating: GridItem(.flexible(minimum: 120), spacing: 8), count: 2)
-        }
-        return Array(repeating: GridItem(.flexible(minimum: 120, maximum: 180), spacing: 8), count: 3)
+        return [GridItem(.adaptive(minimum: 120, maximum: isNarrowStudyLayout ? 170 : 180), spacing: 8)]
         #endif
     }
 

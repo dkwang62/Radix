@@ -308,6 +308,7 @@ extension RadixStore {
             searchMode: searchMode.rawValue,
             scriptFilter: scriptFilter.rawValue,
             homeTab: homeTab.rawValue,
+            sidebarNavigationStyle: sidebarNavigationStyle.rawValue,
             route: route.rawValue,
             phraseLength: phraseLength,
             promptConfig: promptConfig,

@@ -86,6 +86,13 @@ enum HomeTab: String, CaseIterable, Identifiable {
     }
 }
 
+enum SidebarNavigationStyle: String, CaseIterable, Identifiable, Codable {
+    case descriptive = "Full"
+    case compact = "Compact"
+
+    var id: String { rawValue }
+}
+
 struct RootsReturnContext: Equatable {
     let route: AppRoute
     let homeTab: HomeTab?
@@ -142,6 +149,9 @@ final class RadixStore: ObservableObject {
         }
     }
     @Published var homeTab: HomeTab = .filter
+    @Published var sidebarNavigationStyle: SidebarNavigationStyle = .descriptive {
+        didSet { UserDefaults.standard.set(sidebarNavigationStyle.rawValue, forKey: sidebarNavigationStyleKey) }
+    }
     @Published var rootsReturnContext: RootsReturnContext?
     @Published var previewCharacter: String? {
         didSet {
@@ -427,6 +437,7 @@ final class RadixStore: ObservableObject {
     private let lastPreviewCharacterKey = "radix.lastPreviewCharacter"
     let searchHistoryKey = "radix.searchHistory"
     let rootBreadcrumbKey = "radix.rootBreadcrumb"
+    let sidebarNavigationStyleKey = "radix.sidebarNavigationStyle"
     private var pendingSearchWorkItem: DispatchWorkItem?
     var pendingDatasetAutosaveWorkItem: DispatchWorkItem?
     var pendingGridRecomputeWorkItem: DispatchWorkItem?
@@ -511,6 +522,7 @@ final class RadixStore: ObservableObject {
         if !availableStructureFilters.contains(selectedStructureFilter) { selectedStructureFilter = "none" }
         if !availableStructureFilters.contains(rootStructureFilter) { rootStructureFilter = "none" }
         dataEditSavePath = dictionaryOverlayFileURL.path
+        loadSidebarNavigationStyle()
         loadPromptSettings()
         promptConfig = promptConfig.normalized()
         promptSelectedTaskIDs = PromptTaskSelection.normalized(
@@ -546,6 +558,15 @@ final class RadixStore: ObservableObject {
         
         previewCharacter = nil
         showiPhoneDetail = false
+    }
+
+    func loadSidebarNavigationStyle() {
+        if let saved = UserDefaults.standard.string(forKey: sidebarNavigationStyleKey),
+           let style = SidebarNavigationStyle(rawValue: saved) {
+            sidebarNavigationStyle = style
+        } else {
+            sidebarNavigationStyle = .descriptive
+        }
     }
 
 
@@ -895,6 +916,11 @@ final class RadixStore: ObservableObject {
             homeTab = importedHomeTab
         } else if isCompleteRestore {
             homeTab = .filter
+        }
+        if let importedSidebarStyle = SidebarNavigationStyle(rawValue: profile.sidebarNavigationStyle ?? "") {
+            sidebarNavigationStyle = importedSidebarStyle
+        } else if isCompleteRestore {
+            sidebarNavigationStyle = .descriptive
         }
         if let importedPhraseLength = profile.phraseLength, (2...7).contains(importedPhraseLength) {
             phraseLength = importedPhraseLength

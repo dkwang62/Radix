@@ -2,6 +2,11 @@ import SwiftUI
 import UIKit
 
 extension FilterGridTab {
+    var browsePageSortOrder: PageCollectionSortOrder {
+        get { PageCollectionSortOrder(rawValue: browsePageSortRawValue) ?? .lastViewed }
+        nonmutating set { browsePageSortRawValue = newValue.rawValue }
+    }
+
     var browseSourceOptions: some View {
         VStack(alignment: .leading, spacing: 6) {
             sourceOptionButton(
@@ -24,7 +29,7 @@ extension FilterGridTab {
             if !store.allCollections.isEmpty {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 6) {
-                        ForEach(store.allCollections) { collection in
+                        ForEach(store.sortedCollections(order: browsePageSortOrder)) { collection in
                             sourceCollectionRow(collection)
                         }
                     }
@@ -53,9 +58,14 @@ extension FilterGridTab {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
             } else {
+                pageSortControl(selection: Binding(
+                    get: { browsePageSortOrder },
+                    set: { browsePageSortOrder = $0 }
+                ))
+
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 6) {
-                        ForEach(store.allCollections) { collection in
+                        ForEach(store.sortedCollections(order: browsePageSortOrder)) { collection in
                             sourceCollectionRow(collection)
                         }
                     }
@@ -102,7 +112,8 @@ extension FilterGridTab {
         return SourceCollectionRow(
             collection: collection,
             isSelected: isSelected,
-            thumbnail: sourceThumbnailImage(for: collection)
+            thumbnail: sourceThumbnailImage(for: collection),
+            dateMode: browsePageSortOrder
         ) {
             store.selectBrowseCollection(id: collection.id)
             withAnimation {
@@ -141,5 +152,16 @@ extension FilterGridTab {
             )
         }
         .buttonStyle(.plain)
+    }
+
+    func pageSortControl(selection: Binding<PageCollectionSortOrder>) -> some View {
+        Picker("Page order", selection: selection) {
+            ForEach(PageCollectionSortOrder.allCases) { order in
+                Text(order.rawValue).tag(order)
+            }
+        }
+        .pickerStyle(.segmented)
+        .controlSize(.small)
+        .accessibilityLabel("Page order")
     }
 }

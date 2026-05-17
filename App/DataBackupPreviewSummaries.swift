@@ -25,8 +25,8 @@ extension DataBackupPreviewSection {
 
     var backupAITemplatesSummary: some View {
         VStack(alignment: .leading, spacing: 8) {
-            BackupSummaryLine(title: "Saved AI actions", value: "\(store.promptConfig.tasks.count)")
-            BackupSummaryLine(title: "Selected actions", value: "\(store.promptSelectedTaskIDs.count)")
+            BackupSummaryLine(title: "Saved AI Link buttons", value: "\(store.promptConfig.tasks.count)")
+            BackupSummaryLine(title: "Buttons turned on", value: "\(store.promptSelectedTaskIDs.count)")
 
             ForEach(store.promptConfig.tasks) { task in
                 HStack {
@@ -46,14 +46,20 @@ extension DataBackupPreviewSection {
 
     var backupAppStateSummary: some View {
         VStack(alignment: .leading, spacing: 8) {
-            BackupSummaryLine(title: "AI service", value: store.defaultAIName)
-            BackupSummaryLine(title: "Saved API keys", value: "\(store.currentAPIKeyBackup().savedCount)")
+            BackupSummaryLine(title: "Current screen", value: store.route.rawValue.capitalized)
+            BackupSummaryLine(title: "Last character opened", value: store.previewCharacter ?? "None")
+            BackupSummaryLine(title: "Current search", value: store.query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "None" : store.query)
+            BackupSummaryLine(title: "Search mode", value: store.searchMode.rawValue.capitalized)
+            BackupSummaryLine(title: "Script choice", value: store.scriptFilter.rawValue.capitalized)
+            BackupSummaryLine(title: "Sidebar buttons", value: store.sidebarNavigationStyle.rawValue)
+            BackupSummaryLine(title: "Chosen AI app", value: store.defaultAIName)
+            BackupSummaryLine(title: "Saved AI keys", value: "\(store.currentAPIKeyBackup().savedCount)")
             if store.defaultAIPreset == .custom {
                 BackupSummaryLine(title: "Custom AI URL", value: store.defaultAIBaseURLString.isEmpty ? "None" : store.defaultAIBaseURLString)
             }
-            BackupSummaryLine(title: "Search history", value: "\(store.searchHistory.count) items")
-            BackupSummaryLine(title: "Remembered items", value: "\(store.rootBreadcrumb.count)")
-            BackupSummaryLine(title: "Phrase filter", value: store.activePhraseLengthFilterLabel)
+            BackupSummaryLine(title: "Recent searches", value: "\(store.searchHistory.count)")
+            BackupSummaryLine(title: "Remembered characters", value: "\(store.rootBreadcrumb.count)")
+            BackupSummaryLine(title: "Phrase length choice", value: store.activePhraseLengthFilterLabel)
         }
         .padding(.top, 8)
     }

@@ -48,6 +48,7 @@ struct CharacterCollection: Identifiable, Codable, Equatable, Hashable {
     /// All characters in reading order, including duplicates.
     var characters: [String]
     var createdAt: Date
+    var lastViewedAt: Date? = nil
     var sourceType: CollectionSourceType
     var isFavorite: Bool
     var thumbnailJPEGData: Data?
@@ -63,6 +64,13 @@ enum CollectionSourceType: String, Codable, Hashable {
     case manual
     case imported
     case other
+}
+
+enum PageCollectionSortOrder: String, CaseIterable, Identifiable {
+    case lastViewed = "Viewed"
+    case scanned = "Scanned"
+
+    var id: String { rawValue }
 }
 
 enum ActiveSubject: Equatable {

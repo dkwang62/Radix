@@ -5,8 +5,9 @@ import UIKit
 import UniformTypeIdentifiers
 
 enum DataEditSection: String, CaseIterable, Identifiable {
-    case library = "Saved"
-    case myBackup = "Move Devices"
+    case library = "Memory"
+    case localBackup = "This Device"
+    case myBackup = "Other Devices"
     case advanced = "Advanced"
 
     var id: String { rawValue }
@@ -38,10 +39,14 @@ struct DataEditTab: View {
     @State var showReuseExporter = false
     @State var reuseExportInProgress = false
     @State var reuseExportMessage: String?
+    @AppStorage("dataEditLastOtherDeviceBackupPath") var lastOtherDeviceBackupPath = ""
+    @AppStorage("dataEditLastOtherDeviceBackupDate") var lastOtherDeviceBackupDate = 0.0
     @State var activeZipExportKind: AdvancedZipExportKind = .xcodeDataFiles
     @State var activeAdvancedExportKind: AdvancedExportKind = .fullDataset
     @State var advancedToolsTip: AdvancedExportToolsTip?
     let dataExportService = DataExportService()
+    let localSnapshotStore = LocalDataSnapshotStore()
+    @State var localSnapshots: [LocalDataSnapshot] = []
 
     @State var editorMessage: String?
     @State var editorError: String?
@@ -61,40 +66,53 @@ struct DataEditTab: View {
 
     var body: some View {
         ScrollViewReader { proxy in
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    Color.clear.frame(height: 0).id("myDataTop")
-
-                    #if !targetEnvironment(macCatalyst)
-                    if UIDevice.current.userInterfaceIdiom == .phone {
-                        activeCharacterContext
+            VStack(spacing: 0) {
+                myDataHeader
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    .padding(.bottom, 10)
+                    .background(Color(.systemBackground))
+                    .overlay(alignment: .bottom) {
+                        Divider()
                     }
-                    #endif
+                    .zIndex(1)
 
-                    myDataHeader
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        Color.clear.frame(height: 0).id("myDataTop")
 
-                    switch activeDataEditSection {
-                    case .library:
-                        libraryOverviewSection
-                    case .myBackup:
-                        backupAndRestoreSection
-                    case .advanced:
-                        premiumExportsSection
-                    }
+                        #if !targetEnvironment(macCatalyst)
+                        if UIDevice.current.userInterfaceIdiom == .phone {
+                            activeCharacterContext
+                        }
+                        #endif
 
-                    if let editorError {
-                        Text(editorError)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        switch activeDataEditSection {
+                        case .library:
+                            libraryOverviewSection
+                        case .localBackup:
+                            localSnapshotsSection
+                        case .myBackup:
+                            backupAndRestoreSection
+                        case .advanced:
+                            premiumExportsSection
+                        }
+
+                        if let editorError {
+                            Text(editorError)
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                        }
+                        if let editorMessage {
+                            Text(editorMessage)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                    if let editorMessage {
-                        Text(editorMessage)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                    .padding(.horizontal)
+                    .padding(.top, 16)
+                    .padding(.bottom, 32)
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 32)
             }
             .fileExporter(
                 isPresented: $showReuseExporter,
@@ -118,7 +136,7 @@ struct DataEditTab: View {
             ) { result in
                 restoreBackup(from: result)
             }
-            .alert("Data Portability", isPresented: $showBackupAlert) {
+            .alert("My Data", isPresented: $showBackupAlert) {
                 Button("OK", role: .cancel) {
                     backupMessage = nil
                     backupError = nil
@@ -130,14 +148,22 @@ struct DataEditTab: View {
                     Text(msg)
                 }
             }
-            .onAppear { dataEditScrollProxy = proxy }
+            .onAppear {
+                dataEditScrollProxy = proxy
+                refreshLocalSnapshots()
+            }
+            .onChange(of: activeDataEditSection) { _, _ in
+                refreshLocalSnapshots()
+            }
         }
     }
 
     func handleReuseExportSuccess(_ url: URL) {
         let base = url.deletingPathExtension().lastPathComponent
         if reuseExportContentType == .json && reuseExportFilename == "radix_unified_backup" {
-            backupMessage = "My Data export saved to: \(url.lastPathComponent)"
+            lastOtherDeviceBackupPath = url.path
+            lastOtherDeviceBackupDate = Date().timeIntervalSince1970
+            backupMessage = "Saved file: \(url.lastPathComponent)"
             showBackupAlert = true
         } else {
             reuseExportMessage = "Saved to: \(url.lastPathComponent)"
@@ -169,6 +195,15 @@ struct DataEditTab: View {
             let modeLabel = pendingRestoreMode == .complete ? "Replaced this device's data" : "Added data to this device"
             backupMessage = "\(modeLabel) from: \(url.lastPathComponent)"
             showBackupAlert = true
+        } catch {
+            backupError = error.localizedDescription
+            showBackupAlert = true
+        }
+    }
+
+    func refreshLocalSnapshots() {
+        do {
+            localSnapshots = try localSnapshotStore.snapshots()
         } catch {
             backupError = error.localizedDescription
             showBackupAlert = true

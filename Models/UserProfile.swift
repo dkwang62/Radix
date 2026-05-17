@@ -67,6 +67,7 @@ struct UserProfile: Codable {
     let searchMode: String?
     let scriptFilter: String?
     let homeTab: String?
+    let sidebarNavigationStyle: String?
     let route: String?
     let phraseLength: Int?
     let promptConfig: PromptConfig?
@@ -87,6 +88,7 @@ struct UserProfile: Codable {
         searchMode: String? = nil,
         scriptFilter: String? = nil,
         homeTab: String? = nil,
+        sidebarNavigationStyle: String? = nil,
         route: String? = nil,
         phraseLength: Int? = nil,
         promptConfig: PromptConfig? = nil,
@@ -106,6 +108,7 @@ struct UserProfile: Codable {
         self.searchMode = searchMode
         self.scriptFilter = scriptFilter
         self.homeTab = homeTab
+        self.sidebarNavigationStyle = sidebarNavigationStyle
         self.route = route
         self.phraseLength = phraseLength
         self.promptConfig = promptConfig
@@ -127,6 +130,7 @@ struct UserProfile: Codable {
         case searchMode = "search_mode"
         case scriptFilter = "script_filter"
         case homeTab = "home_tab"
+        case sidebarNavigationStyle = "sidebar_navigation_style"
         case route
         case phraseLength = "phrase_length"
         case promptConfig = "prompt_config"

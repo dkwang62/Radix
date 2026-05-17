@@ -14,11 +14,13 @@ extension DataEditTab {
             Group {
                 switch activeDataEditSection {
                 case .library:
-                    Label("View is free. This is the personal Radix work you have built up.", systemImage: "checkmark.circle")
+                    Label("Your Radix memory: everything you added, saved, marked, or set up.", systemImage: "checkmark.circle")
+                case .localBackup:
+                    Label("Save the same Radix memory as a dated copy kept on this device.", systemImage: "clock.badge.checkmark")
                 case .myBackup:
-                    Label("Export and import unlock with My Backup so your data can travel between devices.", systemImage: "arrow.left.arrow.right")
+                    Label("Save the same Radix memory as a file for another iPhone, iPad, or Mac.", systemImage: "arrow.left.arrow.right")
                 case .advanced:
-                    Label("Advanced is for developer-style exports and reuse outside the normal app flow.", systemImage: "shippingbox")
+                    Label("For people who want Radix data as separate files for outside tools.", systemImage: "shippingbox")
                 }
             }
             .font(ResponsiveFont.caption)

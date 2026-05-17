@@ -84,11 +84,19 @@ struct CollectionAITaskMenu: View {
 }
 
 struct SourceCollectionRow: View {
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
+
     let collection: CharacterCollection
     let isSelected: Bool
     let thumbnail: UIImage?
+    var dateMode: PageCollectionSortOrder = .lastViewed
     let onSelect: () -> Void
-    let onDelete: () -> Void
+    var onDelete: (() -> Void)? = nil
 
     var body: some View {
         HStack(spacing: 8) {
@@ -96,11 +104,17 @@ struct SourceCollectionRow: View {
                 HStack(spacing: 8) {
                     sourceThumbnail
 
-                    Text(collection.name)
-                        .font(ResponsiveFont.body.weight(.semibold))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(collection.name)
+                            .font(ResponsiveFont.body.weight(.semibold))
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+                        Text(dateText)
+                            .font(ResponsiveFont.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                     Text("\(collection.uniqueCharacters.count)/\(collection.characters.count)")
                         .font(ResponsiveFont.caption)
@@ -117,18 +131,30 @@ struct SourceCollectionRow: View {
             }
             .buttonStyle(.plain)
 
-            Button(role: .destructive, action: onDelete) {
-                Image(systemName: "trash")
-                    .frame(width: 30, height: 30)
+            if let onDelete {
+                Button(role: .destructive, action: onDelete) {
+                    Image(systemName: "trash")
+                        .frame(width: 30, height: 30)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .accessibilityLabel("Delete \(collection.name)")
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .accessibilityLabel("Delete \(collection.name)")
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
         .background(isSelected ? Color.accentColor.opacity(0.10) : Color(.secondarySystemBackground).opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var dateText: String {
+        switch dateMode {
+        case .lastViewed:
+            let date = collection.lastViewedAt ?? collection.createdAt
+            return "Viewed \(Self.dateFormatter.string(from: date))"
+        case .scanned:
+            return "Scanned \(Self.dateFormatter.string(from: collection.createdAt))"
+        }
     }
 
     @ViewBuilder

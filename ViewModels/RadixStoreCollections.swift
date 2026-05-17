@@ -51,6 +51,7 @@ extension RadixStore {
             name: cleanName.isEmpty ? (sourceName.isEmpty ? fallbackName : sourceName) : cleanName,
             characters: characters,
             createdAt: Date(),
+            lastViewedAt: Date(),
             sourceType: sourceType,
             isFavorite: false,
             thumbnailJPEGData: thumbnailJPEGData
@@ -130,6 +131,10 @@ extension RadixStore {
     // MARK: - Selection
 
     func selectBrowseCollection(id: UUID?) {
+        if let id, let index = allCollections.firstIndex(where: { $0.id == id }) {
+            allCollections[index].lastViewedAt = Date()
+            persistCollections()
+        }
         selectedBrowseCollectionID = id
         if let id {
             selectedAICollectionID = id
@@ -193,6 +198,21 @@ extension RadixStore {
         allCollections.sort {
             if $0.isFavorite != $1.isFavorite { return $0.isFavorite && !$1.isFavorite }
             if $0.createdAt != $1.createdAt { return $0.createdAt > $1.createdAt }
+            return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+        }
+    }
+
+    func sortedCollections(order: PageCollectionSortOrder) -> [CharacterCollection] {
+        allCollections.sorted {
+            if $0.isFavorite != $1.isFavorite { return $0.isFavorite && !$1.isFavorite }
+            switch order {
+            case .lastViewed:
+                let lhsDate = $0.lastViewedAt ?? $0.createdAt
+                let rhsDate = $1.lastViewedAt ?? $1.createdAt
+                if lhsDate != rhsDate { return lhsDate > rhsDate }
+            case .scanned:
+                if $0.createdAt != $1.createdAt { return $0.createdAt > $1.createdAt }
+            }
             return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
         }
     }

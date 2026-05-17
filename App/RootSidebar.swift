@@ -6,64 +6,14 @@ extension RootView {
             VStack(alignment: .leading, spacing: 12) {
                 sidebarBrandHeader
 
-                if store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil {
-                    sidebarPreview
+                if store.sidebarNavigationStyle == .compact {
+                    compactSidebarNavigation
+                } else {
+                    descriptiveSidebarNavigation
                 }
 
-                VStack(alignment: .leading, spacing: 8) {
-                    sidebarTaskButton(
-                        title: "Scan",
-                        subtitle: "Use a camera, photo, or file to turn real text into a browsable page.",
-                        icon: "camera.viewfinder",
-                        isActive: store.route == .capture
-                    ) {
-                        store.route = .capture
-                    }
-
-                    sidebarTaskButton(
-                        title: "Search",
-                        subtitle: "Find characters and phrases by Chinese, pinyin, English meaning, or strokes.",
-                        icon: "magnifyingglass",
-                        isActive: store.route == .search && store.homeTab == .smart
-                    ) {
-                        store.goToSearchRoot()
-                    }
-
-                    sidebarTaskButton(
-                        title: "Browse",
-                        subtitle: "Explore the dictionary or open saved pages from scans and pasted text.",
-                        icon: "square.grid.2x2",
-                        isActive: store.route == .search && store.homeTab == .filter
-                    ) {
-                        store.goToBrowse()
-                    }
-
-                    sidebarTaskButton(
-                        title: "Study",
-                        subtitle: "Return to favorites, remembered items, and pages you want to revisit.",
-                        icon: "star",
-                        isActive: store.route == .favourites || (store.route == .search && store.homeTab == .favourites)
-                    ) {
-                        store.goToFavourites()
-                    }
-
-                    sidebarTaskButton(
-                        title: "AI Link",
-                        subtitle: "Use repeatable AI actions for phrases, interpretation, translation, and saved pages.",
-                        icon: "sparkles",
-                        isActive: store.route == .aiLink
-                    ) {
-                        store.enterAILink()
-                    }
-
-                    sidebarTaskButton(
-                        title: "My Data",
-                        subtitle: "Your additions can travel between iPhone, iPad, and Mac.",
-                        icon: "externaldrive",
-                        isActive: store.route == .search && store.homeTab == .dataEdit
-                    ) {
-                        store.goToDataEdit()
-                    }
+                if store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil {
+                    sidebarPreview
                 }
 
                 Button {
@@ -89,15 +39,118 @@ extension RootView {
 
     var sidebarBrandHeader: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Lifelong Chinese Companion")
-                .font(ResponsiveFont.subheadline.weight(.semibold))
-            Text("Scan, save, study, and carry your Chinese across devices.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+            if !hasUsedSidebarNavigation {
+                Text("Lifelong Chinese Companion")
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                Text("Scan, save, study, and carry your Chinese across devices.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Picker("Sidebar navigation style", selection: $store.sidebarNavigationStyle) {
+                Text("Full").tag(SidebarNavigationStyle.descriptive)
+                Text("Compact").tag(SidebarNavigationStyle.compact)
+            }
+            .pickerStyle(.segmented)
+            .padding(.top, 4)
+            .accessibilityLabel("Sidebar navigation style")
         }
         .padding(.horizontal, 4)
         .padding(.top, 4)
+    }
+
+    var descriptiveSidebarNavigation: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            sidebarTaskButton(
+                title: "Scan",
+                subtitle: "Use a camera, photo, or file to turn real text into a browsable page.",
+                icon: "camera.viewfinder",
+                isActive: store.route == .capture
+            ) {
+                hasUsedSidebarNavigation = true
+                store.route = .capture
+            }
+
+            sidebarTaskButton(
+                title: "Search",
+                subtitle: "Find characters and phrases by Chinese, pinyin, English meaning, or strokes.",
+                icon: "magnifyingglass",
+                isActive: store.route == .search && store.homeTab == .smart
+            ) {
+                hasUsedSidebarNavigation = true
+                store.goToSearchRoot()
+            }
+
+            sidebarTaskButton(
+                title: "Browse",
+                subtitle: "Explore the dictionary or open saved pages from scans and pasted text.",
+                icon: "square.grid.2x2",
+                isActive: store.route == .search && store.homeTab == .filter
+            ) {
+                hasUsedSidebarNavigation = true
+                store.goToBrowse()
+            }
+
+            sidebarTaskButton(
+                title: "Study",
+                subtitle: "Return to favorites, recent characters, and pages you want to revisit.",
+                icon: "star",
+                isActive: store.route == .favourites || (store.route == .search && store.homeTab == .favourites)
+            ) {
+                hasUsedSidebarNavigation = true
+                store.goToFavourites()
+            }
+
+            sidebarTaskButton(
+                title: "AI Link",
+                subtitle: "Use repeatable AI actions for phrases, interpretation, translation, and saved pages.",
+                icon: "sparkles",
+                isActive: store.route == .aiLink
+            ) {
+                hasUsedSidebarNavigation = true
+                store.enterAILink()
+            }
+
+            sidebarTaskButton(
+                title: "My Data",
+                subtitle: "Your additions can travel between iPhone, iPad, and Mac.",
+                icon: "externaldrive",
+                isActive: store.route == .search && store.homeTab == .dataEdit
+            ) {
+                hasUsedSidebarNavigation = true
+                store.goToDataEdit()
+            }
+        }
+    }
+
+    var compactSidebarNavigation: some View {
+        HStack(spacing: 6) {
+            compactSidebarButton(title: "Scan", icon: "camera.viewfinder", isActive: store.route == .capture) {
+                hasUsedSidebarNavigation = true
+                store.route = .capture
+            }
+            compactSidebarButton(title: "Search", icon: "magnifyingglass", isActive: store.route == .search && store.homeTab == .smart) {
+                hasUsedSidebarNavigation = true
+                store.goToSearchRoot()
+            }
+            compactSidebarButton(title: "Browse", icon: "square.grid.2x2", isActive: store.route == .search && store.homeTab == .filter) {
+                hasUsedSidebarNavigation = true
+                store.goToBrowse()
+            }
+            compactSidebarButton(title: "Study", icon: "star", isActive: store.route == .favourites || (store.route == .search && store.homeTab == .favourites)) {
+                hasUsedSidebarNavigation = true
+                store.goToFavourites()
+            }
+            compactSidebarButton(title: "AI Link", icon: "sparkles", isActive: store.route == .aiLink) {
+                hasUsedSidebarNavigation = true
+                store.enterAILink()
+            }
+            compactSidebarButton(title: "My Data", icon: "externaldrive", isActive: store.route == .search && store.homeTab == .dataEdit) {
+                hasUsedSidebarNavigation = true
+                store.goToDataEdit()
+            }
+        }
     }
 
     @ViewBuilder
@@ -168,5 +221,27 @@ extension RootView {
             )
         }
         .buttonStyle(.plain)
+    }
+
+    func compactSidebarButton(
+        title: String,
+        icon: String,
+        isActive: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(ResponsiveFont.headline)
+                .frame(maxWidth: .infinity, minHeight: 42)
+            .foregroundStyle(isActive ? Color.accentColor : Color.primary)
+            .background(isActive ? Color.accentColor.opacity(0.12) : Color(.secondarySystemBackground).opacity(0.65))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isActive ? Color.accentColor.opacity(0.35) : Color.clear, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
     }
 }

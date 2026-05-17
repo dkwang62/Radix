@@ -22,6 +22,104 @@ struct AdvancedExportToolsTip: Identifiable {
     var id: String { title }
 }
 
+struct LocalDataSnapshot: Identifiable, Hashable {
+    let id: String
+    let createdAt: Date
+    let url: URL
+    let byteCount: Int
+
+    var title: String {
+        Self.titleFormatter.string(from: createdAt)
+    }
+
+    var subtitle: String {
+        ByteCountFormatter.string(fromByteCount: Int64(byteCount), countStyle: .file)
+    }
+
+    var relativeSavedText: String {
+        Self.relativeText(for: createdAt)
+    }
+
+    static func relativeText(for date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return formatter.localizedString(for: date, relativeTo: Date())
+    }
+
+    private static let titleFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
+}
+
+struct LocalDataSnapshotStore {
+    func snapshots() throws -> [LocalDataSnapshot] {
+        let directory = try snapshotsDirectory()
+        let urls = try FileManager.default.contentsOfDirectory(
+            at: directory,
+            includingPropertiesForKeys: [.creationDateKey, .contentModificationDateKey, .fileSizeKey],
+            options: [.skipsHiddenFiles]
+        )
+        return urls
+            .filter { $0.pathExtension == "json" }
+            .compactMap(snapshot(from:))
+            .sorted { $0.createdAt > $1.createdAt }
+    }
+
+    func save(_ data: Data, createdAt: Date = Date()) throws -> [LocalDataSnapshot] {
+        let directory = try snapshotsDirectory()
+        let filename = "radix-local-\(Self.filenameFormatter.string(from: createdAt)).json"
+        let url = directory.appendingPathComponent(filename)
+        try data.write(to: url, options: .atomic)
+        return try snapshots()
+    }
+
+    func data(for snapshot: LocalDataSnapshot) throws -> Data {
+        try Data(contentsOf: snapshot.url)
+    }
+
+    func delete(_ snapshot: LocalDataSnapshot) throws -> [LocalDataSnapshot] {
+        try FileManager.default.removeItem(at: snapshot.url)
+        return try snapshots()
+    }
+
+    private func snapshotsDirectory() throws -> URL {
+        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let directory = base.appendingPathComponent("Radix/LocalSnapshots", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory
+    }
+
+    private func snapshot(from url: URL) -> LocalDataSnapshot? {
+        let values = try? url.resourceValues(forKeys: [.creationDateKey, .contentModificationDateKey, .fileSizeKey])
+        let createdAt = values?.creationDate
+            ?? values?.contentModificationDate
+            ?? Self.dateFromFilename(url.deletingPathExtension().lastPathComponent)
+            ?? Date.distantPast
+        return LocalDataSnapshot(
+            id: url.lastPathComponent,
+            createdAt: createdAt,
+            url: url,
+            byteCount: values?.fileSize ?? 0
+        )
+    }
+
+    private static let filenameFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd-HHmmss"
+        return formatter
+    }()
+
+    private static func dateFromFilename(_ filename: String) -> Date? {
+        let stamp = filename.replacingOccurrences(of: "radix-local-", with: "")
+        return filenameFormatter.date(from: stamp)
+    }
+}
+
 enum ProjectArchiveName {
     static func baseName(for date: Date = Date()) -> String {
         stampedBaseName("radix_project", for: date)

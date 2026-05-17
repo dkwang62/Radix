@@ -40,6 +40,12 @@ extension RadixStore {
         persistRootBreadcrumb()
     }
 
+    func clearRecentCharacters() {
+        rootBreadcrumb = []
+        rootBreadcrumbIndex = 0
+        persistRootBreadcrumb()
+    }
+
     func toggleRootBreadcrumb(_ character: String) {
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
         guard isValidRootBreadcrumbItem(key) else { return }
@@ -96,7 +102,8 @@ extension RadixStore {
                 }
                 refreshPhrases(for: key)
             case .favourites:
-                setFavorite(character: key, isFavorite: !favorites.contains(key))
+                previewCharacter = key
+                refreshPhrases(for: key)
             case .dataEdit:
                 openQuickCharacterEditor(key)
             }
@@ -109,7 +116,8 @@ extension RadixStore {
             previewCharacter = key
             refreshPhrases(for: key)
         case .favourites:
-            setFavorite(character: key, isFavorite: !favorites.contains(key))
+            previewCharacter = key
+            refreshPhrases(for: key)
         }
 
         if speechEnabled { speechService.speak(key) }
@@ -146,7 +154,7 @@ extension RadixStore {
             case .filter:
                 _ = highlightMemoryMatchesInCurrentBrowseSource(phrase.word)
             case .favourites:
-                togglePhraseFavorite(phrase.word)
+                break
             case .dataEdit:
                 openQuickPhraseEditor(word: phrase.word)
             }
@@ -160,7 +168,7 @@ extension RadixStore {
         case .aiLink:
             break
         case .favourites:
-            togglePhraseFavorite(phrase.word)
+            break
         }
 
         if speechEnabled { speechService.speak(phrase.word) }
@@ -215,6 +223,26 @@ extension RadixStore {
         guard !item.isEmpty else { return false }
         if item.count == 1 { return componentRepo.hasCharacter(item) }
         return phraseRepo.fetchPhrase(for: item) != nil
+    }
+
+    var recentCharacterItems: [ComponentItem] {
+        let combinedCharacters = rootBreadcrumb.filter { $0.count == 1 } + Array(favorites)
+        var seen = Set<String>()
+        let uniqueCharacters = combinedCharacters.filter { seen.insert($0).inserted }
+        return uniqueCharacters
+            .compactMap { componentRepo.byCharacter[$0] }
+            .sorted(by: frequencySortPredicate)
+    }
+
+    var recentOnlyCharacterItems: [ComponentItem] {
+        rootBreadcrumb
+            .filter { $0.count == 1 && !favorites.contains($0) }
+            .compactMap { componentRepo.byCharacter[$0] }
+            .sorted(by: frequencySortPredicate)
+    }
+
+    var recentCharacterCount: Int {
+        rootBreadcrumb.filter { $0.count == 1 && componentRepo.hasCharacter($0) }.count
     }
 
     func applySearchHistory(_ queries: [String]) {

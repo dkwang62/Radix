@@ -8,6 +8,8 @@ struct DataBackupPreviewSection: View {
     let addedPhraseEntries: [PhraseItem]
     let basePhraseCoreEditEntries: [PhraseItem]
     let phraseEntriesWithNotes: [PhraseItem]
+    var title: String = "What Goes With the File"
+    var subtitle: String = "This is the Radix work that can travel to another device."
     let onPreviewCharacter: (String) -> Void
 
     @Binding var showSavedPagesPreview: Bool
@@ -22,9 +24,9 @@ struct DataBackupPreviewSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 3) {
-                Text("What Moves With My Backup")
+                Text(title)
                     .font(ResponsiveFont.headline)
-                Text("Preview is free. Exporting and importing need My Backup.")
+                Text(subtitle)
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             }
@@ -60,36 +62,36 @@ struct DataBackupPreviewSection: View {
                 backupFavoritesSummary
             }
 
-            DisclosureGroup("AI Link Actions (\(store.promptConfig.tasks.count))", isExpanded: $showAITemplatesPreview) {
+            DisclosureGroup("AI Link Buttons (\(store.promptConfig.tasks.count))", isExpanded: $showAITemplatesPreview) {
                 backupAITemplatesSummary
             }
 
-            DisclosureGroup("App Settings", isExpanded: $showAppStatePreview) {
+            DisclosureGroup("App State & Settings", isExpanded: $showAppStatePreview) {
                 backupAppStateSummary
             }
 
-            DisclosureGroup("Added Characters (\(store.addedDictionaryCharacters.count))", isExpanded: $showAddedCharactersPreview) {
+            DisclosureGroup("Characters You Added (\(store.addedDictionaryCharacters.count))", isExpanded: $showAddedCharactersPreview) {
                 backupCharacterRows(store.addedDictionaryCharacters)
             }
 
-            DisclosureGroup("Added Phrases (\(addedPhraseEntries.count))", isExpanded: $showAddedPhrasesPreview) {
+            DisclosureGroup("Phrases You Added (\(addedPhraseEntries.count))", isExpanded: $showAddedPhrasesPreview) {
                 backupPhraseRows(addedPhraseEntries)
             }
 
-            DisclosureGroup("Edited Characters (\(store.baseDictionaryCoreEditedCharacters.count))", isExpanded: $showEditedCharactersPreview) {
+            DisclosureGroup("Characters You Changed (\(store.baseDictionaryCoreEditedCharacters.count))", isExpanded: $showEditedCharactersPreview) {
                 backupCharacterRows(store.baseDictionaryCoreEditedCharacters)
             }
 
-            DisclosureGroup("Edited Phrases (\(basePhraseCoreEditEntries.count))", isExpanded: $showEditedPhrasesPreview) {
+            DisclosureGroup("Phrases You Changed (\(basePhraseCoreEditEntries.count))", isExpanded: $showEditedPhrasesPreview) {
                 revertBasePhrasesRow
                 backupPhraseRows(basePhraseCoreEditEntries)
             }
 
-            DisclosureGroup("Characters With Notes (\(store.dictionaryCharactersWithNotes.count))") {
+            DisclosureGroup("Character Notes (\(store.dictionaryCharactersWithNotes.count))") {
                 backupCharacterRows(store.dictionaryCharactersWithNotes)
             }
 
-            DisclosureGroup("Phrases With Notes (\(phraseEntriesWithNotes.count))") {
+            DisclosureGroup("Phrase Notes (\(phraseEntriesWithNotes.count))") {
                 backupPhraseRows(phraseEntriesWithNotes)
             }
         }

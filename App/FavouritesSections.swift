@@ -4,22 +4,18 @@ extension FavouritesTab {
     var favouritesScrollContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
+                if !hasDismissedStudyIntro {
+                    studyIntroCard
+                }
+
                 studyDashboardSummary
 
-                if !store.rootBreadcrumb.isEmpty {
+                if hasStudyGridItems {
                     recentStudySection
                 }
 
                 if !store.allCollections.isEmpty {
                     scannedPagesStudySection
-                }
-
-                if !store.favoriteItems.isEmpty {
-                    favoriteCharactersSection
-                }
-
-                if !store.favoritePhrasesItems.isEmpty {
-                    favoritePhrasesSection
                 }
             }
             .padding(.horizontal)
@@ -27,11 +23,75 @@ extension FavouritesTab {
         }
     }
 
+    var studyIntroCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 30, height: 30)
+                    .background(Color.accentColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Choose what deserves more study.")
+                        .font(ResponsiveFont.body.weight(.semibold))
+                    Text("Review recent characters and phrases, star the ones worth keeping, then clear Recent when the session is done.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 0)
+
+                Button {
+                    withAnimation { hasDismissedStudyIntro = true }
+                } label: {
+                    Image(systemName: "xmark")
+                        .frame(width: 28, height: 28)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+                .accessibilityLabel("Hide Study help")
+            }
+
+            LazyVGrid(columns: studyIntroColumns, spacing: 8) {
+                studyIntroPill("All", "Review recent and saved items")
+                studyIntroPill("Saved", "Keep the smaller study set")
+                studyIntroPill("Clear Recent", "Finish today’s session")
+            }
+        }
+        .padding(12)
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    var studyIntroColumns: [GridItem] {
+        [GridItem(.adaptive(minimum: 104), spacing: 8)]
+    }
+
+    func studyIntroPill(_ title: String, _ subtitle: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(ResponsiveFont.caption.weight(.bold))
+                .foregroundStyle(.primary)
+            Text(subtitle)
+                .font(ResponsiveFont.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
     var studyDashboardSummary: some View {
         LazyVGrid(columns: studySummaryColumns, spacing: 8) {
             studySummaryTile(
                 title: "Recent",
-                value: "\(store.rootBreadcrumb.count)",
+                value: "\(store.recentCharacterCount)",
                 systemImage: "clock",
                 tint: .blue
             )
@@ -59,12 +119,9 @@ extension FavouritesTab {
 
     var studySummaryColumns: [GridItem] {
         #if targetEnvironment(macCatalyst)
-        return Array(repeating: GridItem(.flexible(minimum: 112), spacing: 8), count: 4)
+        return [GridItem(.adaptive(minimum: 112), spacing: 8)]
         #else
-        if isPhone {
-            return Array(repeating: GridItem(.flexible(minimum: 120), spacing: 8), count: 2)
-        }
-        return Array(repeating: GridItem(.flexible(minimum: 128), spacing: 8), count: 4)
+        return [GridItem(.adaptive(minimum: isNarrowStudyLayout ? 132 : 128), spacing: 8)]
         #endif
     }
 
@@ -94,122 +151,6 @@ extension FavouritesTab {
         .frame(maxWidth: .infinity, minHeight: 62, alignment: .leading)
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    var recentStudySection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            sectionTitle("Recent")
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(Array(store.rootBreadcrumb.prefix(18).enumerated()), id: \.offset) { _, item in
-                        recentStudyButton(item)
-                    }
-                }
-                .padding(.vertical, 2)
-                .padding(.trailing, 8)
-            }
-        }
-    }
-
-    func recentStudyButton(_ item: String) -> some View {
-        let phrase = store.mergedPhrase(for: item)
-        let isPhrase = phrase != nil && item.count > 1
-
-        return Button {
-            store.activateBreadcrumbCharacter(item)
-        } label: {
-            VStack(spacing: 2) {
-                Text(item)
-                    .font(.system(size: isPhrase ? 18 : 30, weight: .bold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                if isPhrase {
-                    Text(phrase?.pinyin.isEmpty == false ? phrase?.pinyin ?? "" : "Phrase")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                } else {
-                    Text(store.item(for: item)?.pinyinText.isEmpty == false ? store.item(for: item)?.pinyinText ?? "" : " ")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-            }
-            .frame(width: isPhrase ? 118 : 64, height: 64)
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-        .buttonStyle(.plain)
-        .modifier(RecentStudyContextMenu(item: item, phrase: phrase))
-    }
-
-    var scannedPagesStudySection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                sectionTitle("Pages")
-                Spacer()
-                Button {
-                    store.goToBrowse()
-                } label: {
-                    Label("Browse", systemImage: "square.grid.2x2")
-                        .font(ResponsiveFont.caption.bold())
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-            }
-
-            LazyVGrid(columns: scannedPageColumns, spacing: 8) {
-                ForEach(Array(store.allCollections.prefix(isPhone ? 4 : 6))) { collection in
-                    scannedPageStudyButton(collection)
-                }
-            }
-        }
-    }
-
-    var scannedPageColumns: [GridItem] {
-        #if targetEnvironment(macCatalyst)
-        return Array(repeating: GridItem(.flexible(minimum: 150, maximum: 220), spacing: 8), count: 3)
-        #else
-        if isPhone {
-            return Array(repeating: GridItem(.flexible(minimum: 140), spacing: 8), count: 2)
-        }
-        return Array(repeating: GridItem(.flexible(minimum: 150, maximum: 220), spacing: 8), count: 3)
-        #endif
-    }
-
-    func scannedPageStudyButton(_ collection: CharacterCollection) -> some View {
-        Button {
-            store.goToBrowse()
-            store.selectBrowseCollection(id: collection.id)
-        } label: {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 8) {
-                    Image(systemName: collection.sourceType == .ocr ? "doc.text.viewfinder" : "doc.text")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color.accentColor)
-                    Spacer(minLength: 0)
-                    Text("\(collection.characters.count)")
-                        .font(ResponsiveFont.caption.bold())
-                        .foregroundStyle(.secondary)
-                }
-
-                Text(collectionDisplayName(collection))
-                    .font(ResponsiveFont.body.bold())
-                    .lineLimit(1)
-
-                Text(collection.characters.prefix(10).joined(separator: " "))
-                    .font(.system(size: 17, weight: .semibold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-                    .foregroundStyle(.primary.opacity(0.8))
-            }
-            .padding(10)
-            .frame(maxWidth: .infinity, minHeight: 104, alignment: .leading)
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-        .buttonStyle(.plain)
     }
 
     func sectionTitle(_ title: String) -> some View {
@@ -251,19 +192,5 @@ extension FavouritesTab {
     func collectionDisplayName(_ collection: CharacterCollection) -> String {
         let name = collection.name.trimmingCharacters(in: .whitespacesAndNewlines)
         return name.isEmpty ? "Scanned Page" : name
-    }
-}
-
-private struct RecentStudyContextMenu: ViewModifier {
-    let item: String
-    let phrase: PhraseItem?
-    @EnvironmentObject private var store: RadixStore
-
-    func body(content: Content) -> some View {
-        if let phrase {
-            content.phraseContextMenu(phrase)
-        } else {
-            content.copyCharacterContextMenu(item, pinyin: store.item(for: item)?.pinyinText)
-        }
     }
 }

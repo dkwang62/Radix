@@ -4,7 +4,7 @@ extension DataEditTab {
     var premiumExportsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("Advanced Exports")
+                Text("Advanced Files")
                     .font(ResponsiveFont.headline)
                 Text("$99")
                     .font(ResponsiveFont.caption.bold())
@@ -15,7 +15,7 @@ extension DataEditTab {
             }
 
             if entitlement.requiresPro(.advanced) {
-                Label("You can inspect every Advanced export option. Exporting unlocks with Advanced.", systemImage: "lock.open")
+                Label("You can see every file type here. Creating the files unlocks with Advanced.", systemImage: "lock.open")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
                     .padding(10)
@@ -33,11 +33,11 @@ extension DataEditTab {
             }
 
             premiumExportOption(
-                title: "Xcode Data Files ZIP",
-                subtitle: "The core Radix data files, including your latest created or edited characters and phrases, without the Swift code.",
+                title: "App Data Files",
+                subtitle: "The main Radix data files, including your latest characters and phrases.",
                 toolsTip: AdvancedExportToolsTip(
-                    title: "Tools for Xcode Data Files ZIP",
-                    message: "Mac and Xcode. Codex or ChatGPT can help place the files correctly."
+                    title: "Where This Is Used",
+                    message: "For working with the Radix project on a Mac."
                 ),
                 systemName: "doc.zipper",
                 color: .purple,
@@ -54,11 +54,11 @@ extension DataEditTab {
             )
 
             premiumExportOption(
-                title: "Full Dataset JSON",
-                subtitle: "A readable all-in-one file for inspecting or reusing Radix data, including your latest created or edited entries.",
+                title: "All Data Text File",
+                subtitle: "One readable file with the Radix data in it.",
                 toolsTip: AdvancedExportToolsTip(
-                    title: "Tools for Full Dataset JSON",
-                    message: "VS Code, Python, Excel or Numbers after conversion, or other data tools."
+                    title: "Where This Is Used",
+                    message: "For reading or reusing Radix data in other apps."
                 ),
                 systemName: "shippingbox.fill",
                 color: .green,
@@ -73,11 +73,11 @@ extension DataEditTab {
             )
 
             premiumExportOption(
-                title: "Dictionary Database Export",
-                subtitle: "The character dictionary as a database, including your latest created or edited characters.",
+                title: "Character Database",
+                subtitle: "A database file for the character dictionary.",
                 toolsTip: AdvancedExportToolsTip(
-                    title: "Tools for Dictionary Database",
-                    message: "SQLite database tools, Python, VS Code database extensions, or other database apps."
+                    title: "Where This Is Used",
+                    message: "For database apps or custom tools."
                 ),
                 systemName: "books.vertical.fill",
                 color: .blue,
@@ -92,11 +92,11 @@ extension DataEditTab {
             )
 
             premiumExportOption(
-                title: "Phrase Database Export",
-                subtitle: "The phrase list as a database, including your latest created or edited phrases.",
+                title: "Phrase Database",
+                subtitle: "A database file for saved and edited phrases.",
                 toolsTip: AdvancedExportToolsTip(
-                    title: "Tools for Phrase Database",
-                    message: "SQLite database tools, Python, VS Code database extensions, or other database apps."
+                    title: "Where This Is Used",
+                    message: "For database apps or custom tools."
                 ),
                 systemName: "text.book.closed.fill",
                 color: .teal,

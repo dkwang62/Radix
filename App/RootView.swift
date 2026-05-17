@@ -17,6 +17,7 @@ struct RootView: View {
     @Environment(\.horizontalSizeClass) var sizeClass
     @Environment(\.scenePhase) var scenePhase
     @AppStorage("hasSeenRadixWelcomeV1") var hasSeenWelcome = false
+    @AppStorage("hasUsedSidebarNavigationV1") var hasUsedSidebarNavigation = false
     @State var profileExportDocument = JSONFileDocument(data: Data())
     @State var addPhrasesExportDocument = AddPhrasesFileDocument(data: Data())
     @State var showProfileExporter = false
