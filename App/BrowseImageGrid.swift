@@ -11,7 +11,7 @@ extension FilterGridTab {
                 .padding(.bottom, 4)
         }
 
-        BrowseImageFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
+        RadixTileFlowLayout(horizontalSpacing: RadixTileMetrics.compactSpacing, verticalSpacing: RadixTileMetrics.compactSpacing) {
             ForEach(allItems) { item in
                 switch item.kind {
                 case .character(let character):
@@ -26,7 +26,6 @@ extension FilterGridTab {
                         // Page phrases are now explicit tiles. Character tiles must preview only
                         // the tapped character so the old neighboring-phrase inference cannot leak in.
                         store.previewImageCharacter(character, offset: offset)
-                        scrollToBrowseTile(imageTileAnchorID(offset), proxy: proxy)
                     } label: {
                         BrowseGridTileLabel(
                             displayCharacter: displayCharacter,
@@ -49,11 +48,11 @@ extension FilterGridTab {
                     .id(imageTileAnchorID(offset))
 
                 case .phrase(let phrase, let offsets):
+                    let isActive = offsets.contains(lastTappedImageOffset ?? -1)
                     BrowseImagePhraseTile(
                         phraseText: browseImageDisplayText(phrase.word),
                         pinyin: phrase.pinyin,
-                        fontSize: fontSize,
-                        isFavorite: store.isPhraseFavorite(phrase.word)
+                        isActive: isActive
                     ) {
                         if let offset = offsets.first, collection.characters.indices.contains(offset) {
                             lastTappedImageOffset = offset
@@ -96,8 +95,8 @@ extension FilterGridTab {
 
     func phraseTileWidth(for characterCount: Int) -> CGFloat {
         let tileWidth = browseGridLayout.tileMaximumWidth
-        let spacing: CGFloat = 6
-        return min(260, tileWidth * CGFloat(max(2, characterCount)) + spacing * CGFloat(max(1, characterCount - 1)))
+        let spacing = RadixTileMetrics.compactSpacing
+        return min(RadixTileMetrics.browsePhraseWidth, tileWidth * CGFloat(max(2, characterCount)) + spacing * CGFloat(max(1, characterCount - 1)))
     }
 }
 

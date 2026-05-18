@@ -489,7 +489,6 @@ final class RadixStore: ObservableObject {
     @Published var browseMemoryHighlightCollectionID: UUID?
     @Published var browseMemoryHighlightOffsets: Set<Int> = []
     var browseMemoryHighlightedItem: String?
-    let imagePhraseHighlightLengths = [2, 3, 4]
     var suppressHelpReset = false
     @Published private(set) var loadingError: String?
     @Published private(set) var dataEditSavePath: String = ""

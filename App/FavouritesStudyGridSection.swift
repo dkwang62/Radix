@@ -5,43 +5,29 @@ extension FavouritesTab {
         VStack(alignment: .leading, spacing: 12) {
             recentStudyHeader
 
-            if studyGridEntries.isEmpty {
-                Text(studyGridScope == .favorites ? "No favorite study items yet." : "No study characters yet.")
+            if studyReviewTiles.isEmpty {
+                Text(studyGridScope == .favorites ? "No favorite study items yet." : "No study items yet.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
                     .padding(.vertical, 10)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
-                VStack(alignment: .leading, spacing: 10) {
-                    if !studyPhraseRows.isEmpty {
-                        studyGridGroupLabel("Phrases")
-                        StudyPhraseFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
-                            ForEach(studyPhraseRows) { row in
-                                studyPhraseTile(row)
-                            }
-                        }
-                    }
-
-                    if !studyCharacterGridEntries.isEmpty {
-                        studyGridGroupLabel("Characters")
-                            .padding(.top, studyPhraseRows.isEmpty ? 0 : 10)
-                        LazyVGrid(columns: recentCharacterColumns, spacing: 0) {
-                            ForEach(studyCharacterGridEntries) { entry in
-                                recentStudyButton(entry)
-                            }
+                RadixTileFlowLayout(
+                    horizontalSpacing: RadixTileMetrics.compactSpacing,
+                    verticalSpacing: RadixTileMetrics.compactSpacing
+                ) {
+                    ForEach(studyReviewTiles) { tile in
+                        switch tile.kind {
+                        case .phrase(let row):
+                            studyPhraseTile(row)
+                        case .character(let entry):
+                            recentStudyButton(entry)
+                                .frame(width: recentStudyCharacterTileWidth)
                         }
                     }
                 }
             }
         }
-    }
-
-    func studyGridGroupLabel(_ title: String) -> some View {
-        Text(title)
-            .font(ResponsiveFont.caption.weight(.bold))
-            .foregroundStyle(.secondary)
-            .textCase(.uppercase)
-            .accessibilityAddTraits(.isHeader)
     }
 
     func studyPhraseTile(_ row: StudyPhraseRowData) -> some View {
@@ -150,17 +136,6 @@ extension FavouritesTab {
         .accessibilityLabel("Clear Recent")
     }
 
-    var recentCharacterColumns: [GridItem] {
-        #if targetEnvironment(macCatalyst)
-        return [GridItem(.adaptive(minimum: 44, maximum: 80), spacing: 0)]
-        #else
-        if isNarrowStudyLayout {
-            return [GridItem(.adaptive(minimum: 44, maximum: 72), spacing: 0)]
-        }
-        return [GridItem(.adaptive(minimum: 44, maximum: 76), spacing: 0)]
-        #endif
-    }
-
     var recentGridFontSize: CGFloat {
         #if targetEnvironment(macCatalyst)
         return 28
@@ -169,11 +144,11 @@ extension FavouritesTab {
         #endif
     }
 
-    var studyPhraseTileWidth: CGFloat {
+    var recentStudyCharacterTileWidth: CGFloat {
         #if targetEnvironment(macCatalyst)
-        return 58
+        return 80
         #else
-        return isNarrowStudyLayout ? 50 : 56
+        return isNarrowStudyLayout ? 72 : 76
         #endif
     }
 
@@ -205,27 +180,20 @@ extension FavouritesTab {
     }
 
     func recentStudyButton(_ entry: StudyGridEntry) -> some View {
-        if let marker = entry.phraseMarker {
-            return AnyView(studyPhraseMarkerButton(entry, marker: marker))
-        }
-
-        let isActive = entry.character == store.previewCharacter || entry.phrase?.word == store.activeSidebarPhrasePreview?.word
+        let isActive = entry.character == store.previewCharacter
         return AnyView(Button {
-            if let phrase = entry.phrase {
-                presentPhrase(phrase)
-            } else {
-                store.preview(character: entry.character)
-                store.refreshPhrases(for: entry.character)
-            }
+            store.preview(character: entry.character)
+            store.refreshPhrases(for: entry.character)
         } label: {
             BrowseGridTileLabel(
                 displayCharacter: studyGridDisplayText(entry.character),
                 pinyin: entry.pinyin,
                 fontSize: recentGridFontSize,
                 isFavorite: entry.isFavoriteCharacter,
-                background: BrowseImageTileStyle.background(isActive: isActive, highlightRole: entry.phraseRole, isMemoryHighlighted: false),
-                stroke: BrowseImageTileStyle.stroke(isActive: isActive, highlightRole: entry.phraseRole, isMemoryHighlighted: false),
-                strokeWidth: entry.phraseRole == nil ? 2 : 2.5,
+                background: BrowseImageTileStyle.background(isActive: isActive, highlightRole: nil, isMemoryHighlighted: false),
+                stroke: BrowseImageTileStyle.stroke(isActive: isActive, highlightRole: nil, isMemoryHighlighted: false),
+                strokeWidth: RadixTileMetrics.borderWidth,
+                matchPhraseTileTextSize: true,
                 onShowPhrases: {
                     store.refreshPhrases(for: entry.character)
                     NotificationCenter.default.post(name: .radixShowPhraseTable, object: entry.character)
@@ -234,47 +202,18 @@ extension FavouritesTab {
         }
         .buttonStyle(.plain)
         .contextMenu {
-            if let phrase = entry.phrase {
+            Button {
+                store.toggleFavorite(character: entry.character)
+            } label: {
+                Label(store.isFavorite(entry.character) ? "Remove from Favorites" : "Add to Favorites", systemImage: store.isFavorite(entry.character) ? "star.slash" : "star")
+            }
+            if store.rootBreadcrumb.contains(entry.character) {
                 Button {
-                    store.togglePhraseFavorite(phrase.word)
+                    store.removeRootBreadcrumb(entry.character)
                 } label: {
-                    Label(store.isPhraseFavorite(phrase.word) ? "Remove Phrase from Favorites" : "Add Phrase to Favorites", systemImage: store.isPhraseFavorite(phrase.word) ? "star.slash" : "star")
-                }
-            } else {
-                Button {
-                    store.toggleFavorite(character: entry.character)
-                } label: {
-                    Label(store.isFavorite(entry.character) ? "Remove from Favorites" : "Add to Favorites", systemImage: store.isFavorite(entry.character) ? "star.slash" : "star")
-                }
-                if store.rootBreadcrumb.contains(entry.character) {
-                    Button {
-                        store.removeRootBreadcrumb(entry.character)
-                    } label: {
-                        Label("Remove from Recent", systemImage: "clock.badge.xmark")
-                    }
+                    Label("Remove from Recent", systemImage: "clock.badge.xmark")
                 }
             }
         })
-    }
-
-    func studyPhraseMarkerButton(_ entry: StudyGridEntry, marker: StudyPhraseMarker) -> some View {
-        Button {
-            if let phrase = entry.phrase {
-                store.togglePhraseFavorite(phrase.word)
-            }
-        } label: {
-            StudyPhraseMarkerTile(marker: marker)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(marker == .favorite ? "Remove phrase from Favorites" : "Add phrase to Favorites")
-        .contextMenu {
-            if let phrase = entry.phrase {
-                Button {
-                    store.togglePhraseFavorite(phrase.word)
-                } label: {
-                    Label(marker == .favorite ? "Remove Phrase from Favorites" : "Add Phrase to Favorites", systemImage: marker == .favorite ? "star.slash" : "star")
-                }
-            }
-        }
     }
 }

@@ -23,12 +23,6 @@ extension RadixStore {
         preview(character: character, announce: announce, preservePhraseContext: false)
     }
 
-    func handleImageCharacterTap(_ character: String, offset: Int) -> Bool {
-        if handleMemoryHighlightedImageTap(character: character, offset: offset) { return true }
-        previewImageCharacter(character, offset: offset)
-        return true
-    }
-
     func previewPhraseCardCharacter(_ character: String, in phrase: PhraseItem, announce: Bool = false) {
         guard route == .search, homeTab == .filter, let collection = selectedBrowseCollection else {
             preview(character: character, announce: announce)
@@ -60,15 +54,6 @@ extension RadixStore {
         }
         imagePhraseHighlightOffsets = offsets
         anchorImagePhraseHighlight(phraseWord: phrase.word, context: imagePhraseContext, offsets: offsets)
-        imagePhraseHighlightRevision += 1
-    }
-
-    func highlightImageCharacterPhrases(_ character: String, offset: Int) {
-        imagePhraseContext = nil
-        imagePhraseHighlightOffsets = []
-        clearAnchoredImagePhraseHighlight()
-        imageBrowsePhrasePreview = nil
-        sidebarPhrasePreview = nil
         imagePhraseHighlightRevision += 1
     }
 
@@ -277,25 +262,6 @@ extension RadixStore {
         return true
     }
 
-    func activeBrowseImagePhraseTile(in collection: CharacterCollection) -> BrowseImagePhraseTileData? {
-        guard route == .search, homeTab == .filter,
-              selectedBrowseCollectionID == collection.id
-        else { return nil }
-
-        if let phrase = imageBrowsePhrasePreview ?? sidebarPhrasePreview,
-           let tile = browseImagePhraseTile(for: phrase, in: collection) {
-            return tile
-        }
-
-        if let word = anchoredImagePhraseWord,
-           let phrase = mergedPhrase(for: word),
-           let tile = browseImagePhraseTile(for: phrase, in: collection) {
-            return tile
-        }
-
-        return nil
-    }
-
     func browsePagePhraseTile(in collection: CharacterCollection, at offset: Int) -> BrowseImagePhraseTileData? {
         browsePagePhraseTiles(in: collection)[offset]
     }
@@ -419,18 +385,4 @@ extension RadixStore {
         if speechEnabled { speechService.speak(phrase.word) }
     }
 
-    private func browseImagePhraseTile(for phrase: PhraseItem, in collection: CharacterCollection) -> BrowseImagePhraseTileData? {
-        let phraseOffsets = phraseHighlightOffsets(in: collection, word: phrase.word)
-        let offsets = phraseOffsets.isEmpty ? activeImagePhraseHighlightOffsets : phraseOffsets
-        guard !offsets.isEmpty else { return nil }
-        let sortedOffsets = offsets.sorted()
-        guard let start = sortedOffsets.first,
-              let last = sortedOffsets.last,
-              collection.characters.indices.contains(start),
-              collection.characters.indices.contains(last)
-        else { return nil }
-        let end = last + 1
-        guard end - start == phraseStorageWord(phrase.word).count else { return nil }
-        return BrowseImagePhraseTileData(phrase: phrase, start: start, end: end)
-    }
 }

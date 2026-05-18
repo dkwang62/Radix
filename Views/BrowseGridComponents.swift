@@ -15,17 +15,20 @@ struct BrowseGridTileLabel: View {
         VStack(spacing: 2) {
             Text(displayCharacter)
                 .font(characterFont)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
                 .copyCharacterContextMenu(displayCharacter, pinyin: pinyin, onShowPhrases: onShowPhrases)
             Text(pinyin.isEmpty ? " " : pinyin)
                 .font(pinyinFont)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
+                .minimumScaleFactor(0.72)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity, minHeight: tileHeight, maxHeight: tileHeight, alignment: .center)
+        .padding(.horizontal, matchPhraseTileTextSize ? 10 : 0)
         .background(background)
-        .clipShape(RoundedRectangle(cornerRadius: 6))
-        .overlay(RoundedRectangle(cornerRadius: 6).stroke(stroke, lineWidth: strokeWidth))
+        .clipShape(RoundedRectangle(cornerRadius: RadixTileMetrics.cornerRadius))
+        .overlay(RoundedRectangle(cornerRadius: RadixTileMetrics.cornerRadius).stroke(stroke, lineWidth: strokeWidth))
         .overlay(alignment: .topTrailing) {
             if isFavorite {
                 Image(systemName: "star.fill")
@@ -41,15 +44,19 @@ struct BrowseGridTileLabel: View {
     }
 
     private var pinyinFont: Font {
-        matchPhraseTileTextSize ? ResponsiveFont.caption2 : ResponsiveFont.tinySystem(size: 11, weight: .semibold)
+        matchPhraseTileTextSize ? ResponsiveFont.caption2 : ResponsiveFont.tinySystem(size: RadixTileMetrics.characterPinyinSize, weight: .semibold)
     }
+
+    private var tileHeight: CGFloat {
+        matchPhraseTileTextSize ? RadixTileMetrics.compactHeight : 56
+    }
+
 }
 
 struct BrowseImagePhraseTile: View {
     let phraseText: String
     let pinyin: String
-    let fontSize: CGFloat
-    let isFavorite: Bool
+    let isActive: Bool
     let onSelect: () -> Void
 
     var body: some View {
@@ -58,64 +65,15 @@ struct BrowseImagePhraseTile: View {
                 phraseText: phraseText,
                 pinyin: pinyin,
                 isFavorite: nil,
-                minimumHeight: 52,
-                maximumWidth: 260
+                isActive: isActive,
+                minimumHeight: RadixTileMetrics.compactHeight,
+                maximumWidth: RadixTileMetrics.browsePhraseWidth,
+                textAlignment: .center
             )
+            .frame(height: RadixTileMetrics.compactHeight)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(phraseText), phrase")
-    }
-}
-
-struct BrowseImageFlowLayout: Layout {
-    var horizontalSpacing: CGFloat = 6
-    var verticalSpacing: CGFloat = 6
-
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let maxWidth = proposal.width ?? subviews.map { $0.sizeThatFits(.unspecified).width }.reduce(0, +)
-        var lineWidth: CGFloat = 0
-        var lineHeight: CGFloat = 0
-        var totalWidth: CGFloat = 0
-        var totalHeight: CGFloat = 0
-
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            let proposedWidth = lineWidth == 0 ? size.width : lineWidth + horizontalSpacing + size.width
-            if proposedWidth > maxWidth, lineWidth > 0 {
-                totalWidth = max(totalWidth, lineWidth)
-                totalHeight += lineHeight + verticalSpacing
-                lineWidth = size.width
-                lineHeight = size.height
-            } else {
-                lineWidth = proposedWidth
-                lineHeight = max(lineHeight, size.height)
-            }
-        }
-
-        totalWidth = max(totalWidth, lineWidth)
-        totalHeight += lineHeight
-        return CGSize(width: min(totalWidth, maxWidth), height: totalHeight)
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        var origin = CGPoint(x: bounds.minX, y: bounds.minY)
-        var lineHeight: CGFloat = 0
-
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            let proposedMaxX = origin.x == bounds.minX ? origin.x + size.width : origin.x + horizontalSpacing + size.width
-            if proposedMaxX > bounds.maxX, origin.x > bounds.minX {
-                origin.x = bounds.minX
-                origin.y += lineHeight + verticalSpacing
-                lineHeight = 0
-            } else if origin.x > bounds.minX {
-                origin.x += horizontalSpacing
-            }
-
-            subview.place(at: origin, proposal: ProposedViewSize(width: min(size.width, bounds.width), height: size.height))
-            origin.x += min(size.width, bounds.width)
-            lineHeight = max(lineHeight, size.height)
-        }
     }
 }
 

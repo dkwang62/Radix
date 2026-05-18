@@ -114,9 +114,9 @@ struct FilterGridTab: View {
                 if let newValue {
                     if store.selectedBrowseCollection == nil {
                         store.highlightBrowseDictionaryCharacter(newValue)
+                        focusBrowseGrid(on: newValue)
+                        scrollToBrowseTile(activeBrowseTileAnchorID() ?? dictionaryTileAnchorID(newValue), proxy: proxy)
                     }
-                    focusBrowseGrid(on: newValue)
-                    scrollToBrowseTile(activeBrowseTileAnchorID() ?? dictionaryTileAnchorID(newValue), proxy: proxy)
                 } else {
                     scrollToPendingBrowseTarget(proxy: proxy)
                 }

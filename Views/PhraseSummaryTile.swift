@@ -1,5 +1,74 @@
 import SwiftUI
 
+enum RadixTileMetrics {
+    static let cornerRadius: CGFloat = 8
+    static let compactHeight: CGFloat = 52
+    static let compactSpacing: CGFloat = 4
+    static let defaultPhraseWidth: CGFloat = 180
+    static let browsePhraseWidth: CGFloat = 260
+    static let characterPinyinSize: CGFloat = 11
+    static let borderWidth: CGFloat = 2
+    static let activeBorderWidth: CGFloat = 2.5
+}
+
+struct RadixTileFlowLayout: Layout {
+    var horizontalSpacing: CGFloat = RadixTileMetrics.compactSpacing
+    var verticalSpacing: CGFloat = RadixTileMetrics.compactSpacing
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let maxWidth = proposal.width ?? subviews.map { $0.sizeThatFits(.unspecified).width }.reduce(0, +)
+        var lineWidth: CGFloat = 0
+        var lineHeight: CGFloat = 0
+        var totalWidth: CGFloat = 0
+        var totalHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            let proposedWidth = lineWidth == 0 ? size.width : lineWidth + horizontalSpacing + size.width
+
+            if proposedWidth > maxWidth, lineWidth > 0 {
+                totalWidth = max(totalWidth, lineWidth)
+                totalHeight += lineHeight + verticalSpacing
+                lineWidth = size.width
+                lineHeight = size.height
+            } else {
+                lineWidth = proposedWidth
+                lineHeight = max(lineHeight, size.height)
+            }
+        }
+
+        totalWidth = max(totalWidth, lineWidth)
+        totalHeight += lineHeight
+        return CGSize(width: min(totalWidth, maxWidth), height: totalHeight)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var origin = CGPoint(x: bounds.minX, y: bounds.minY)
+        var lineHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            let proposedMaxX = origin.x == bounds.minX ? origin.x + size.width : origin.x + horizontalSpacing + size.width
+
+            if proposedMaxX > bounds.maxX, origin.x > bounds.minX {
+                origin.x = bounds.minX
+                origin.y += lineHeight + verticalSpacing
+                lineHeight = 0
+            } else if origin.x > bounds.minX {
+                origin.x += horizontalSpacing
+            }
+
+            let width = min(size.width, bounds.width)
+            subview.place(
+                at: origin,
+                proposal: ProposedViewSize(width: width, height: size.height)
+            )
+            origin.x += width
+            lineHeight = max(lineHeight, size.height)
+        }
+    }
+}
+
 struct PhraseSummaryTile: View {
     let phraseText: String
     let pinyin: String
@@ -7,6 +76,7 @@ struct PhraseSummaryTile: View {
     let isActive: Bool
     let minimumHeight: CGFloat
     let maximumWidth: CGFloat
+    let textAlignment: HorizontalAlignment
     let onSelect: (() -> Void)?
     let onToggleFavorite: (() -> Void)?
 
@@ -15,7 +85,8 @@ struct PhraseSummaryTile: View {
         isFavorite: Bool? = nil,
         isActive: Bool = false,
         minimumHeight: CGFloat = 46,
-        maximumWidth: CGFloat = 180,
+        maximumWidth: CGFloat = RadixTileMetrics.defaultPhraseWidth,
+        textAlignment: HorizontalAlignment = .leading,
         onSelect: (() -> Void)? = nil,
         onToggleFavorite: (() -> Void)? = nil
     ) {
@@ -25,6 +96,7 @@ struct PhraseSummaryTile: View {
         self.isActive = isActive
         self.minimumHeight = minimumHeight
         self.maximumWidth = maximumWidth
+        self.textAlignment = textAlignment
         self.onSelect = onSelect
         self.onToggleFavorite = onToggleFavorite
     }
@@ -35,7 +107,8 @@ struct PhraseSummaryTile: View {
         isFavorite: Bool? = nil,
         isActive: Bool = false,
         minimumHeight: CGFloat = 46,
-        maximumWidth: CGFloat = 180,
+        maximumWidth: CGFloat = RadixTileMetrics.defaultPhraseWidth,
+        textAlignment: HorizontalAlignment = .leading,
         onSelect: (() -> Void)? = nil,
         onToggleFavorite: (() -> Void)? = nil
     ) {
@@ -45,36 +118,33 @@ struct PhraseSummaryTile: View {
         self.isActive = isActive
         self.minimumHeight = minimumHeight
         self.maximumWidth = maximumWidth
+        self.textAlignment = textAlignment
         self.onSelect = onSelect
         self.onToggleFavorite = onToggleFavorite
     }
 
-    private var hasFavoriteControl: Bool {
-        isFavorite != nil
-    }
-
     var body: some View {
-        HStack(spacing: 0) {
-            if let isFavorite {
+        ZStack(alignment: .topTrailing) {
+            phraseContent
+
+            if isFavorite == true {
                 Button(action: { onToggleFavorite?() }) {
-                    Image(systemName: isFavorite ? RadixIcon.saved : RadixIcon.unsaved)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(isFavorite ? Color.yellow : Color.secondary.opacity(0.75))
-                        .frame(width: 34, height: minimumHeight)
+                    Image(systemName: RadixIcon.saved)
+                        .font(.system(size: 14))
+                        .foregroundStyle(.yellow)
+                        .padding(6)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .disabled(onToggleFavorite == nil)
-                .accessibilityLabel(isFavorite ? "Remove phrase from Favorites" : "Add phrase to Favorites")
+                .accessibilityLabel("Remove phrase from Favorites")
             }
-
-            phraseContent
         }
         .background(tileBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: RadixTileMetrics.cornerRadius))
         .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(tileStroke, lineWidth: isActive ? 2.5 : 2)
+            RoundedRectangle(cornerRadius: RadixTileMetrics.cornerRadius)
+                .stroke(tileStroke, lineWidth: isActive ? RadixTileMetrics.activeBorderWidth : RadixTileMetrics.borderWidth)
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(phraseText), \(favoriteAccessibility)")
@@ -93,7 +163,7 @@ struct PhraseSummaryTile: View {
     }
 
     private var phraseTextStack: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: textAlignment, spacing: 2) {
             Text(phraseText)
                 .font(ResponsiveFont.subheadline.weight(.semibold))
                 .lineLimit(1)
@@ -105,10 +175,13 @@ struct PhraseSummaryTile: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.72)
         }
-        .padding(.leading, hasFavoriteControl ? 0 : 10)
-        .padding(.trailing, 10)
-        .frame(minWidth: hasFavoriteControl ? 74 : 96, maxWidth: maximumWidth, minHeight: minimumHeight, alignment: .leading)
+        .padding(.horizontal, 10)
+        .frame(minWidth: 96, maxWidth: maximumWidth, minHeight: minimumHeight, alignment: frameAlignment)
         .contentShape(Rectangle())
+    }
+
+    private var frameAlignment: Alignment {
+        textAlignment == .center ? .center : .leading
     }
 
     private var displayPinyin: String {

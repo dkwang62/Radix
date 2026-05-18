@@ -1,5 +1,7 @@
 import Foundation
 
+// Browse page phrases are explicit user-visible tiles. Keep these as plain data
+// models so page phrase selection does not grow hidden preview behaviour again.
 struct ImagePhraseContext: Equatable {
     let collectionID: UUID
     let target: String
@@ -22,11 +24,4 @@ struct BrowsePagePhraseCandidate: Identifiable, Hashable {
     let occurrenceCount: Int
 
     var id: String { phrase.word }
-}
-
-enum ImagePhraseMatcher {
-    static func cacheKey(character: String, lengthKey: String, context: ImagePhraseContext?) -> String {
-        guard let context else { return "\(character)|\(lengthKey)" }
-        return "\(character)|\(lengthKey)|image|\(context.collectionID.uuidString)|\(context.offset)"
-    }
 }

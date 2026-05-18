@@ -147,8 +147,8 @@ extension RadixStore {
         return [length]
     }
 
-    func phraseCacheKey(character: String, length: Int?, context: ImagePhraseContext?) -> String {
-        ImagePhraseMatcher.cacheKey(character: character, lengthKey: phraseLengthCacheKey(for: length), context: context)
+    func phraseCacheKey(character: String, length: Int?) -> String {
+        "\(character)|\(phraseLengthCacheKey(for: length))"
     }
 
     private func phraseLengthCacheKey(for length: Int?) -> String {
@@ -156,7 +156,7 @@ extension RadixStore {
         return length >= 7 ? "7plus" : String(length)
     }
 
-    func rankedPhraseResults(_ phrases: [PhraseItem], target: String, context: ImagePhraseContext?) -> [PhraseItem] {
+    func rankedPhraseResults(_ phrases: [PhraseItem]) -> [PhraseItem] {
         sortPhrasesByPinyin(phrases)
     }
 
@@ -196,21 +196,6 @@ extension RadixStore {
               collection.characters[offset] == character
         else { return nil }
         return ImagePhraseContext(collectionID: collection.id, target: character, offset: offset)
-    }
-
-    func phraseContext(for target: String) -> ImagePhraseContext? {
-        guard route == .search, homeTab == .filter,
-              let context = imagePhraseContext,
-              context.target == target,
-              selectedBrowseCollectionID == context.collectionID
-        else { return nil }
-        return context
-    }
-
-    func refreshImagePhraseHighlights(for character: String, context: ImagePhraseContext?) {
-        // Page phrases are explicit tiles now. Do not infer phrase highlights from
-        // a single image character and its neighbours; that old behaviour made
-        // character taps look like accidental phrase taps.
     }
 
 }

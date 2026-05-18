@@ -122,24 +122,21 @@ extension RadixStore {
         }
 
         let length = phraseLength
-        let context = phraseContext(for: targetToLoad)
-        let cacheKey = phraseCacheKey(character: targetToLoad, length: length, context: context)
+        let cacheKey = phraseCacheKey(character: targetToLoad, length: length)
         let lookupTarget = phraseLookupTarget(for: targetToLoad)
 
         if let cached = phraseCache[cacheKey] {
             phrases = cached
-            refreshImagePhraseHighlights(for: targetToLoad, context: context)
             return
         }
 
         Task {
             let finalPhrases = phraseCandidates(containing: lookupTarget, originalTarget: targetToLoad, length: length)
-            let result = rankedPhraseResults(finalPhrases, target: targetToLoad, context: context)
+            let result = rankedPhraseResults(finalPhrases)
             await MainActor.run {
-                if (char ?? previewCharacter) == targetToLoad && phraseLength == length && phraseContext(for: targetToLoad) == context {
+                if (char ?? previewCharacter) == targetToLoad && phraseLength == length {
                     self.phrases = result
                     self.phraseCache[cacheKey] = result
-                    self.refreshImagePhraseHighlights(for: targetToLoad, context: context)
                 }
             }
         }
@@ -156,18 +153,15 @@ extension RadixStore {
         guard !targetToLoad.isEmpty else { return [] }
 
         let phraseLength = length ?? self.phraseLength
-        let context = phraseContext(for: targetToLoad)
-        let cacheKey = phraseCacheKey(character: targetToLoad, length: phraseLength, context: context)
+        let cacheKey = phraseCacheKey(character: targetToLoad, length: phraseLength)
         let lookupTarget = phraseLookupTarget(for: targetToLoad)
         if let cached = phraseCache[cacheKey] {
-            refreshImagePhraseHighlights(for: targetToLoad, context: context)
             return cached
         }
 
         let finalPhrases = phraseCandidates(containing: lookupTarget, originalTarget: targetToLoad, length: phraseLength)
-        let result = rankedPhraseResults(finalPhrases, target: targetToLoad, context: context)
+        let result = rankedPhraseResults(finalPhrases)
         phraseCache[cacheKey] = result
-        refreshImagePhraseHighlights(for: targetToLoad, context: context)
         return result
     }
 
