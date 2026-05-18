@@ -34,7 +34,10 @@ extension FilterGridTab {
                         }
                     }
                 }
-                .frame(maxHeight: browseSourceCollectionListMaxHeight)
+                .frame(
+                    minHeight: browseSourceCollectionListMinHeight,
+                    maxHeight: browseSourceCollectionListMaxHeight
+                )
             }
         }
     }
@@ -70,20 +73,35 @@ extension FilterGridTab {
                         }
                     }
                 }
-                .frame(maxHeight: browseSourceCollectionListMaxHeight)
+                .frame(
+                    minHeight: browseSourceCollectionListMinHeight,
+                    maxHeight: browseSourceCollectionListMaxHeight
+                )
             }
         }
     }
 
-    var browseSourceCollectionListMaxHeight: CGFloat {
+    var browseSourceCollectionListMinHeight: CGFloat {
         if isPhoneBrowseLayout {
-            return 260
+            return 220
         }
 
         #if targetEnvironment(macCatalyst)
-        return 360
+        return 320
         #else
-        return 420
+        return 360
+        #endif
+    }
+
+    var browseSourceCollectionListMaxHeight: CGFloat {
+        if isPhoneBrowseLayout {
+            return 320
+        }
+
+        #if targetEnvironment(macCatalyst)
+        return 460
+        #else
+        return 520
         #endif
     }
 

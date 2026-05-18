@@ -14,6 +14,30 @@ extension FilterGridTab {
         imageActionMessage = "Translation instruction copied. Paste the AI result into the report sheet and save it."
     }
 
+    func runBrowseGeminiTranslationAndSave(_ collection: CharacterCollection) {
+        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else {
+            imageActionMessage = "Add a Gemini API key in Settings first."
+            return
+        }
+        isRunningImageAction = true
+        imageActionMessage = "Translating and saving report..."
+        Task {
+            do {
+                _ = try await store.runGeminiTranslationReport(for: collection)
+                await MainActor.run {
+                    imageActionMessage = "Translation report saved."
+                    isRunningImageAction = false
+                }
+            } catch {
+                await MainActor.run {
+                    imageActionMessage = error.localizedDescription
+                    isRunningImageAction = false
+                }
+            }
+        }
+    }
+
     func beginManualPhraseExtraction(_ collection: CharacterCollection) {
         phraseExtractionOutput = ""
         imageActionMessage = nil

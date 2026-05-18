@@ -114,7 +114,7 @@ extension FilterGridTab {
                     Text(collection.name.isEmpty ? "Scanned Page" : collection.name)
                         .font(ResponsiveFont.body.weight(.semibold))
                         .lineLimit(1)
-                    Text("\(collection.uniqueCharacters.count) unique / \(collection.characters.count) total")
+                    Text("\(collection.characters.count) characters")
                         .font(ResponsiveFont.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
@@ -186,9 +186,23 @@ extension FilterGridTab {
                 runBrowseGeminiPhraseExtraction(collection)
             }, onTranslate: {
                 beginBrowseTranslation(collection)
-            }, onTranslationReport: {
-                beginTranslationReport(collection)
+            }, onTranslateAndSave: {
+                runBrowseGeminiTranslationAndSave(collection)
             })
+
+            Button {
+                beginTranslationReport(collection)
+            } label: {
+                Label(
+                    collection.translationReport == nil ? "Save Translation" : "View Translation",
+                    systemImage: collection.translationReport == nil ? "doc.badge.plus" : "doc.text"
+                )
+                .labelStyle(.titleAndIcon)
+                .frame(minWidth: 130)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .accessibilityLabel(collection.translationReport == nil ? "Save Translation" : "View Translation")
 
             Button {
                 pagePhraseListCollection = collection

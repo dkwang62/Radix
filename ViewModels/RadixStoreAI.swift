@@ -53,7 +53,7 @@ struct GeminiPhraseExtractionService {
         return String(data: data, encoding: .utf8) ?? ""
     }
 
-    private static func userFacingErrorMessage(statusCode: Int, data: Data) -> String {
+    static func userFacingErrorMessage(statusCode: Int, data: Data) -> String {
         let fallback = "Gemini API request failed (\(statusCode)). Check your Gemini API key and model in Settings."
         guard
             let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -167,6 +167,100 @@ struct GeminiPhraseExtractionService {
     }
 }
 
+struct GeminiTextGenerationService {
+    func generateText(
+        apiKey: String,
+        modelID: String,
+        prompt: String,
+        systemInstruction: String
+    ) async throws -> String {
+        let cleanKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanModel = modelID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanKey.isEmpty else {
+            throw NSError(domain: "Radix", code: 4001, userInfo: [NSLocalizedDescriptionKey: "Missing Gemini API key."])
+        }
+        guard cleanKey.count >= 30 else {
+            throw NSError(
+                domain: "Radix",
+                code: 4004,
+                userInfo: [NSLocalizedDescriptionKey: "The Gemini API key looks incomplete. Paste the full key from Google AI Studio."]
+            )
+        }
+        guard !cleanModel.isEmpty else {
+            throw NSError(domain: "Radix", code: 4002, userInfo: [NSLocalizedDescriptionKey: "Missing Gemini model ID."])
+        }
+        guard let encodedModel = cleanModel.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+              let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(encodedModel):generateContent") else {
+            throw NSError(domain: "Radix", code: 4003, userInfo: [NSLocalizedDescriptionKey: "Invalid Gemini model ID."])
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue(cleanKey, forHTTPHeaderField: "x-goog-api-key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody(prompt: prompt, systemInstruction: systemInstruction))
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+            let message = GeminiPhraseExtractionService.userFacingErrorMessage(statusCode: http.statusCode, data: data)
+            throw NSError(
+                domain: "Radix",
+                code: http.statusCode,
+                userInfo: [NSLocalizedDescriptionKey: message]
+            )
+        }
+
+        let text = Self.responseText(from: data).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else {
+            throw NSError(domain: "Radix", code: 4005, userInfo: [NSLocalizedDescriptionKey: "Gemini returned an empty translation report."])
+        }
+        return text
+    }
+
+    private func requestBody(prompt: String, systemInstruction: String) -> [String: Any] {
+        [
+            "systemInstruction": [
+                "parts": [
+                    ["text": systemInstruction]
+                ]
+            ],
+            "contents": [
+                [
+                    "role": "user",
+                    "parts": [
+                        ["text": prompt]
+                    ]
+                ]
+            ],
+            "generationConfig": [
+                "temperature": 0.35
+            ]
+        ]
+    }
+
+    private static func responseText(from data: Data) -> String {
+        guard
+            let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+            let candidates = object["candidates"] as? [[String: Any]]
+        else {
+            return String(data: data, encoding: .utf8) ?? ""
+        }
+
+        return candidates
+            .compactMap { candidate -> String? in
+                guard let content = candidate["content"] as? [String: Any],
+                      let parts = content["parts"] as? [[String: Any]] else {
+                    return nil
+                }
+                return parts
+                    .compactMap { $0["text"] as? String }
+                    .joined(separator: "\n")
+            }
+            .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .joined(separator: "\n\n")
+    }
+}
+
 /*
  RADIX STORE — AI HELPERS
  =========================
@@ -235,6 +329,20 @@ extension RadixStore {
             skippedExistingCount: skippedExisting,
             errors: errors
         )
+    }
+
+    func runGeminiTranslationReport(for collection: CharacterCollection) async throws -> String {
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: ["task5"])
+        let report = try await GeminiTextGenerationService().generateText(
+            apiKey: geminiAPIKey,
+            modelID: geminiModelID,
+            prompt: prompt,
+            systemInstruction: """
+            You are an expert bilingual Chinese editor and translator. Return a polished translation report only, with no preface about being an AI and no follow-up questions.
+            """
+        )
+        updateCollectionTranslationReport(id: collection.id, report: report)
+        return report
     }
 
     // MARK: - Mac clipboard paste

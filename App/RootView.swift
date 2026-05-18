@@ -12,6 +12,7 @@ import UniformTypeIdentifiers
 struct RootView: View {
     static let stableStrokeToken = UUID(uuidString: "00000000-0000-0000-0000-000000000001") ?? UUID()
     let dataExportService = DataExportService()
+    let localSnapshotStore = LocalDataSnapshotStore()
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
     @Environment(\.horizontalSizeClass) var sizeClass
@@ -28,6 +29,10 @@ struct RootView: View {
     @State var importExportMessage: String?
     @State var showImportExportAlert = false
     @State var showSettings = false
+    @State var isQuickSavingMemory = false
+    @State var isQuickRestoringMemory = false
+    @AppStorage("dataEditLastOtherDeviceBackupPath") var lastOtherDeviceBackupPath = ""
+    @AppStorage("dataEditLastOtherDeviceBackupDate") var lastOtherDeviceBackupDate = 0.0
 
     var body: some View {
         Group {

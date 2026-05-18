@@ -35,35 +35,36 @@ struct CollectionAITaskMenu: View {
     let onManualExtract: () -> Void
     let onAIExtract: () -> Void
     let onTranslate: () -> Void
-    let onTranslationReport: () -> Void
+    let onTranslateAndSave: () -> Void
 
     var body: some View {
         Menu {
-            Button {
-                onManualExtract()
-            } label: {
-                Label("Extract Phrases by Paste", systemImage: "text.badge.plus")
+            Section("Manual / Without API Key") {
+                Button {
+                    onManualExtract()
+                } label: {
+                    Label("Extract Phrases by Paste", systemImage: "text.badge.plus")
+                }
+
+                Button {
+                    onTranslate()
+                } label: {
+                    Label("Translate", systemImage: "translate")
+                }
             }
 
-            Button {
-                onAIExtract()
-            } label: {
-                Label("Extract Phrases Automatically", systemImage: "curlybraces")
-            }
+            Section("With API Key") {
+                Button {
+                    onAIExtract()
+                } label: {
+                    Label("Extract Phrases Automatically", systemImage: "curlybraces")
+                }
 
-            Button {
-                onTranslate()
-            } label: {
-                Label("Translate", systemImage: "translate")
-            }
-
-            Button {
-                onTranslationReport()
-            } label: {
-                Label(
-                    collection.translationReport == nil ? "Save Translation Report" : "View Translation Report",
-                    systemImage: collection.translationReport == nil ? "doc.badge.plus" : "doc.text"
-                )
+                Button {
+                    onTranslateAndSave()
+                } label: {
+                    Label("Translate and Save", systemImage: "tray.and.arrow.down")
+                }
             }
         } label: {
             HStack(spacing: 5) {
@@ -116,7 +117,7 @@ struct SourceCollectionRow: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Text("\(collection.uniqueCharacters.count)/\(collection.characters.count)")
+                    Text("\(collection.characters.count)")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)

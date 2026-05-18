@@ -12,6 +12,8 @@ extension RootView {
                     descriptiveSidebarNavigation
                 }
 
+                sidebarMemoryButtons
+
                 if store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil {
                     sidebarPreview
                 }
@@ -58,6 +60,54 @@ extension RootView {
         }
         .padding(.horizontal, 4)
         .padding(.top, 4)
+    }
+
+    var sidebarMemoryButtons: some View {
+        HStack(spacing: 8) {
+            sidebarMemoryButton(
+                title: isQuickSavingMemory ? "Saving..." : "Save Memory",
+                systemImage: isQuickSavingMemory ? "hourglass" : "tray.and.arrow.down",
+                isBusy: isQuickSavingMemory,
+                action: quickSaveMemory
+            )
+
+            sidebarMemoryButton(
+                title: isQuickRestoringMemory ? "Restoring..." : "Restore Memory",
+                systemImage: isQuickRestoringMemory ? "hourglass" : "arrow.counterclockwise",
+                isBusy: isQuickRestoringMemory,
+                action: quickRestoreMemory
+            )
+        }
+    }
+
+    func sidebarMemoryButton(
+        title: String,
+        systemImage: String,
+        isBusy: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: systemImage)
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 18, height: 18)
+
+                Text(title)
+                    .font(ResponsiveFont.caption2.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: 32)
+            .background(Color(.secondarySystemBackground).opacity(0.7))
+            .clipShape(RoundedRectangle(cornerRadius: 7))
+        }
+        .buttonStyle(.plain)
+        .disabled(isBusy || isQuickSavingMemory || isQuickRestoringMemory)
+        .accessibilityLabel(title)
     }
 
     var descriptiveSidebarNavigation: some View {
