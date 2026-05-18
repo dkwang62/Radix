@@ -298,6 +298,38 @@ extension RadixStore {
     }
 
     @discardableResult
+    func removeAddedPhrases(words: [String]) throws -> Int {
+        let storedWords = Array(Set(words.map(phraseStorageWord(_:)).filter { !$0.isEmpty && phraseRepo.isInAdd(word: $0) && !phraseRepo.isInBase(word: $0) }))
+        guard !storedWords.isEmpty else {
+            dataEditAutoSaveStatus = "No added phrases to delete."
+            return 0
+        }
+
+        for word in storedWords {
+            try phraseRepo.deletePhrase(word: word)
+        }
+
+        let deletedSet = Set(storedWords)
+        dataEditPhrases.removeAll { deletedSet.contains(phraseStorageWord($0.word)) }
+        addedPhrases.removeAll { deletedSet.contains(phraseStorageWord($0.word)) }
+        refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
+        dataEditAutoSaveStatus = "Deleted \(storedWords.count) added phrase\(storedWords.count == 1 ? "" : "s")."
+        return storedWords.count
+    }
+
+    func updateAddedPhraseReviewStatus(word: String, status: PhraseReviewStatus?) throws {
+        let storedWord = phraseStorageWord(word)
+        guard !storedWord.isEmpty else { return }
+        try phraseRepo.updateReviewStatus(for: storedWord, status: status)
+        dataEditPhrases = phraseRepo.fetchAddedPhrases()
+        refreshAddedPhrases()
+        syncDataEditPhraseCaches()
+        refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
+        let statusText = status?.title ?? "New"
+        dataEditAutoSaveStatus = "\(storedWord) marked \(statusText)."
+    }
+
+    @discardableResult
     func removeAllUnnotedAddedPhrases() throws -> [String] {
         let removableWords = PhraseEditService(repository: phraseRepo, normalizeWord: phraseStorageWord(_:))
             .unnotedBasePhraseEditWords()

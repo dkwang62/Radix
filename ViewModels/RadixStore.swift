@@ -479,7 +479,8 @@ final class RadixStore: ObservableObject {
     var anchoredImagePhraseHighlightOffsets: Set<Int> = []
     var anchoredImagePhraseWord: String?
     var anchoredImagePhraseCollectionID: UUID?
-    var imagePhraseHighlightStateByCollectionID: [UUID: ImagePhraseHighlightState] = [:]
+    var browsePagePhraseTileCache: [UUID: [Int: BrowseImagePhraseTileData]] = [:]
+    var browsePagePhraseCandidateCache: [UUID: [BrowsePagePhraseCandidate]] = [:]
     @Published var imagePhraseHighlightRevision: Int = 0
     @Published var imageBrowsePhrasePreview: PhraseItem?
     @Published var sidebarPhrasePreview: PhraseItem?

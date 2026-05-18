@@ -160,15 +160,15 @@ extension RadixStore {
         sortPhrasesByPinyin(phrases)
     }
 
-    func phraseCandidates(containing lookupTarget: String, originalTarget: String, length: Int) -> [PhraseItem] {
-        phraseCandidates(containing: lookupTarget, originalTarget: originalTarget, lengths: [length])
+    func phraseCandidates(containing lookupTarget: String, originalTarget: String, length: Int, includeHidden: Bool = false) -> [PhraseItem] {
+        phraseCandidates(containing: lookupTarget, originalTarget: originalTarget, lengths: [length], includeHidden: includeHidden)
     }
 
-    func phraseCandidates(containing lookupTarget: String, originalTarget: String, length: Int?) -> [PhraseItem] {
-        phraseCandidates(containing: lookupTarget, originalTarget: originalTarget, lengths: phraseLookupLengths(for: length))
+    func phraseCandidates(containing lookupTarget: String, originalTarget: String, length: Int?, includeHidden: Bool = false) -> [PhraseItem] {
+        phraseCandidates(containing: lookupTarget, originalTarget: originalTarget, lengths: phraseLookupLengths(for: length), includeHidden: includeHidden)
     }
 
-    func phraseCandidates(containing lookupTarget: String, originalTarget: String, lengths: [Int]) -> [PhraseItem] {
+    func phraseCandidates(containing lookupTarget: String, originalTarget: String, lengths: [Int], includeHidden: Bool = false) -> [PhraseItem] {
         let candidates = [
             lookupTarget,
             componentRepo.counterpart(for: originalTarget),
@@ -180,7 +180,7 @@ extension RadixStore {
         var result: [PhraseItem] = []
         for target in candidates where !target.isEmpty && seenTargets.insert(target).inserted {
             for length in lengths {
-                for phrase in phraseRepo.phrases(containing: target, length: length) where seenPhrases.insert(phrase.id).inserted {
+                for phrase in phraseRepo.phrases(containing: target, length: length, includeHidden: includeHidden) where seenPhrases.insert(phrase.id).inserted {
                     result.append(phrase)
                 }
             }
@@ -192,7 +192,10 @@ extension RadixStore {
 
     func imagePhraseContext(for character: String, offset: Int) -> ImagePhraseContext? {
         guard route == .search, homeTab == .filter, let collection = selectedBrowseCollection else { return nil }
-        return ImagePhraseMatcher.context(for: character, offset: offset, collection: collection)
+        guard collection.characters.indices.contains(offset),
+              collection.characters[offset] == character
+        else { return nil }
+        return ImagePhraseContext(collectionID: collection.id, target: character, offset: offset)
     }
 
     func phraseContext(for target: String) -> ImagePhraseContext? {
@@ -205,67 +208,9 @@ extension RadixStore {
     }
 
     func refreshImagePhraseHighlights(for character: String, context: ImagePhraseContext?) {
-        guard let context else { updateImagePhraseHighlights(context: nil, phrases: []); return }
-        let lookupTarget = phraseLookupTarget(for: character)
-        Task {
-            let highlightPhrases = phraseCandidates(
-                containing: lookupTarget, originalTarget: character, lengths: imagePhraseHighlightLengths)
-            await MainActor.run {
-                guard self.imagePhraseContext == context else { return }
-                self.updateImagePhraseHighlights(context: context, phrases: highlightPhrases)
-            }
-        }
+        // Page phrases are explicit tiles now. Do not infer phrase highlights from
+        // a single image character and its neighbours; that old behaviour made
+        // character taps look like accidental phrase taps.
     }
 
-    func imagePhraseMatches(for context: ImagePhraseContext) -> [ImagePhraseMatch] {
-        guard let collection = selectedBrowseCollection, collection.id == context.collectionID else { return [] }
-        let lookupTarget = phraseLookupTarget(for: context.target)
-        let candidates = phraseCandidates(
-            containing: lookupTarget, originalTarget: context.target, lengths: imagePhraseHighlightLengths)
-        return ImagePhraseMatcher.matches(
-            context: context, collection: collection, candidates: candidates,
-            phraseStorageWord: phraseStorageWord(_:),
-            lookupTarget: phraseLookupTarget(for:),
-            pinyinSort: phrasePinyinSortPredicate
-        )
-    }
-
-    func preferredImagePhraseMatch(from matches: [ImagePhraseMatch], targetOffset: Int) -> ImagePhraseMatch {
-        ImagePhraseMatcher.preferredMatch(from: matches, targetOffset: targetOffset)
-    }
-
-    func updateImagePhraseHighlights(context: ImagePhraseContext?, phrases: [PhraseItem]) {
-        guard let context else { updateImagePhraseHighlights(context: nil, matches: []); return }
-        updateImagePhraseHighlights(context: context, matches: imagePhraseMatches(for: context))
-    }
-
-    func updateImagePhraseHighlights(context: ImagePhraseContext?, matches: [ImagePhraseMatch]) {
-        guard let context,
-              let collection = selectedBrowseCollection,
-              collection.id == context.collectionID,
-              collection.characters.indices.contains(context.offset)
-        else {
-            imagePhraseHighlightOffsets = []
-            clearAnchoredImagePhraseHighlight()
-            imageBrowsePhrasePreview = nil
-            sidebarPhrasePreview = nil
-            imagePhraseHighlightRevision += 1
-            return
-        }
-        var offsets: Set<Int> = [context.offset]
-        for match in matches { offsets.formUnion(match.start..<match.end) }
-        imagePhraseHighlightOffsets = offsets
-        anchorImagePhraseHighlight(context: context, offsets: offsets)
-        imagePhraseHighlightRevision += 1
-        imagePhraseHighlightStateByCollectionID[context.collectionID] = ImagePhraseHighlightState(
-            context: context, offsets: offsets)
-    }
-
-    func restoreImagePhraseHighlight(for collectionID: UUID) {
-        guard let state = imagePhraseHighlightStateByCollectionID[collectionID],
-              collection(id: collectionID) != nil else { return }
-        imagePhraseContext = state.context
-        imagePhraseHighlightOffsets = state.offsets
-        imagePhraseHighlightRevision += 1
-    }
 }

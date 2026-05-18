@@ -47,9 +47,8 @@ struct DataChangedPhrasesSection: View {
         let isBuiltInPhrase = store.isPhraseInBase(phrase.word)
 
         return VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(phrase.word)
-                    .font(ResponsiveFont.headline)
+            HStack(alignment: .top, spacing: 10) {
+                PhraseSummaryTile(phrase: phrase)
                     .phraseContextMenu(phrase)
                 Spacer()
                 Button(store.phraseNotesActionTitle(for: phrase.word)) {
@@ -67,9 +66,6 @@ struct DataChangedPhrasesSection: View {
                 .buttonStyle(.bordered)
                 .controlSize(.mini)
             }
-
-            Text(phrase.pinyin)
-                .font(ResponsiveFont.body.monospaced())
 
             Text(phrase.meanings)
                 .font(ResponsiveFont.body)

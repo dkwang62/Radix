@@ -35,7 +35,23 @@ struct PhraseQueryRunner {
                 addedAt = Date(timeIntervalSince1970: sqlite3_column_double(stmt, 3))
             }
             let notes = colCount > 4 ? (sqlite3_column_text(stmt, 4).map { String(cString: $0) } ?? "") : ""
-            out.append(PhraseItem(word: word, pinyin: pinyin, meanings: meanings, notes: notes, addedAt: addedAt))
+            let statusText = colCount > 5 ? (sqlite3_column_text(stmt, 5).map { String(cString: $0) } ?? "") : ""
+            let reviewStatus = PhraseReviewStatus(rawValue: statusText)
+            var lastReviewedAt: Date? = nil
+            if colCount > 6 && sqlite3_column_type(stmt, 6) != SQLITE_NULL {
+                lastReviewedAt = Date(timeIntervalSince1970: sqlite3_column_double(stmt, 6))
+            }
+            out.append(
+                PhraseItem(
+                    word: word,
+                    pinyin: pinyin,
+                    meanings: meanings,
+                    notes: notes,
+                    addedAt: addedAt,
+                    reviewStatus: reviewStatus,
+                    lastReviewedAt: lastReviewedAt
+                )
+            )
         }
         return out
     }

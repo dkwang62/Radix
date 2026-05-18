@@ -2,6 +2,7 @@ import SwiftUI
 
 extension RootView {
     var iPadView: some View {
+        #if targetEnvironment(macCatalyst)
         NavigationSplitView {
             sidebar
                 .navigationTitle("Radix")
@@ -10,6 +11,28 @@ extension RootView {
             detailPane
         }
         .navigationSplitViewStyle(.balanced)
+        #else
+        GeometryReader { proxy in
+            NavigationStack {
+                HStack(spacing: 0) {
+                    sidebar
+                        .frame(width: iPadSidebarWidth(for: proxy.size.width))
+                        .background(Color(.systemBackground))
+                        .overlay(alignment: .trailing) {
+                            Divider()
+                        }
+
+                    detailPane
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            }
+        }
+        #endif
+    }
+
+    private func iPadSidebarWidth(for availableWidth: CGFloat) -> CGFloat {
+        min(420, max(320, availableWidth * 0.42))
     }
 
     @ViewBuilder

@@ -69,7 +69,7 @@ extension AILinkView {
                 if isEnabled {
                     HStack(spacing: 6) {
                         Image(systemName: subject.icon)
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(ResponsiveFont.tinySystem(size: 11, weight: .semibold))
                             .foregroundStyle(subject.isMissing ? Color.orange : Color.accentColor)
 
                         Text(subject.label)

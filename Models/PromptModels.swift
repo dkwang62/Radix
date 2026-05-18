@@ -85,52 +85,19 @@ Compare this character with 2–3 other characters of similar meaning or usage, 
                 template: """
 Extract Phrases
 
-You are producing data for an automatic parser. Follow the output contract exactly.
+Extract useful 2-character, 3-character, and 4-character Chinese phrases found within the characters provided that serve as standard dictionary headwords.
 
-From the collection details below, extract relevant and high-impact 2-, 3-, and 4-character Chinese phrases that function as dictionary headwords.
+[CRITICAL RULES]
+1. Reading Order: Scan and extract candidates in natural reading order sequence from the character pool.
+2. Dictionary Attestation: Only include a phrase if it is an established entry in a reputable dictionary (e.g., CC-CEDICT, Pleco, MDBG, Wiktionary, or standard contemporary Chinese dictionaries).
+3. No Arbitrary N-grams: Do NOT combine adjacent characters into a phrase unless they genuinely form a standalone dictionary word. Avoid partial grammar patterns, sentence fragments, or accidental OCR groupings.
+4. No Exclusions: Do not include proper nouns, individual person names, specific dates, or titles unless they double as standard cultural vocabulary items.
+5. Absolute Fidelity: Do not invent words or use characters not explicitly present in the provided text.
+6. Output Format: You must output the results strictly in the following plain text format, one per line:
+Phrase | Pinyin | Concise English meaning
 
-Rules:
-
-Keep the OCR text context in mind.
-
-Relevance Filter: Prioritize specialized terminology, news keywords, idioms, and high-impact phrases that define the core narrative of the text (e.g., military, geopolitical, or descriptive terms).
-
-Exclude Generic Terms: Avoid overly common words that do not contribute to the specific context of the page (e.g., "China," "Company," "Beijing," "Revenue") unless they are part of a larger specific phrase.
-
-Return only useful phrase candidates (in Reading Order sequence) that are attested in Chinese dictionaries.
-
-Provide pinyin with tone marks.
-
-Provide a concise English meaning.
-
-STRICT OUTPUT CONTRACT:
-
-Output records only. No introduction, no conclusion, no explanation.
-
-Do not output a header row.
-
-Do not use Markdown tables, bullets, numbering, code blocks, or labels.
-
-Every non-empty output line must contain exactly one phrase record.
-
-Every record must contain exactly 3 fields separated by exactly 2 pipe characters.
-
-Field order must be: Chinese phrase | pinyin with tone marks | concise English meaning.
-
-Do not put pipe characters inside the English meaning.
-
-VALID OUTPUT EXAMPLE:
-人工智能 | rén gōng zhì néng | artificial intelligence
-国际关系 | guó jì guān xì | international relations
-
-INVALID OUTPUT EXAMPLES:
-Phrase | Pinyin | Meaning
-| Phrase | Pinyin | Meaning |
-1. 人工智能 | rén gōng zhì néng | artificial intelligence
-
-Important:
-
-Do not explain your method.
+[OUTPUT CONSTRAINT]
+Do not include markdown tables, markdown column formatting, numbered lists, bullet points, headers, intro text, or concluding commentary. Output ONLY the raw lines matching the format above.
 
 Before answering, silently verify that every non-empty line has exactly this structure:
 Chinese phrase | pinyin | meaning
@@ -180,12 +147,12 @@ Response JSON schema:
 }
 
 Extraction rules:
-- Keep the OCR text context in mind.
-- Prioritize specialized terminology, news keywords, idioms, and high-impact phrases that define the core narrative of the text.
-- Avoid overly common words that do not contribute to the specific page context unless they are part of a larger specific phrase.
-- Return only phrase candidates that are attested in Chinese dictionaries.
-- Preserve reading-order sequence.
-- Do not include names, dates, arbitrary n-grams, sentence fragments, or OCR accidents unless they are also normal dictionary entries.
+- Scan and extract candidates in natural reading order sequence from the character pool.
+- Only include a phrase if it is an established entry in a reputable dictionary (e.g., CC-CEDICT, Pleco, MDBG, Wiktionary, or standard contemporary Chinese dictionaries).
+- Do not combine adjacent characters into a phrase unless they genuinely form a standalone dictionary word.
+- Avoid partial grammar patterns, sentence fragments, or accidental OCR groupings.
+- Do not include proper nouns, individual person names, specific dates, or titles unless they double as standard cultural vocabulary items.
+- Do not invent words or use characters not explicitly present in the provided text.
 - If unsure whether a phrase is dictionary-attested, omit it.
 - Use an empty phrases array if no useful new candidates are found.
 
@@ -372,9 +339,10 @@ extension PromptConfig {
             if task.template.contains("{capture_chars}") || task.template.contains("{capture_text}") || task.template.contains("{collection_name}") ||
                 task.template.contains("Task 4 – Extract Phrases from Image") ||
                 task.template.contains("Task 4 – Extract Phrases from Page (image)") ||
-                (task.id == "task4" && !task.template.contains("STRICT OUTPUT CONTRACT")) ||
+                (task.id == "task4" && !task.template.contains("[CRITICAL RULES]")) ||
                 task.template.contains("Task 5 – Universal Content Architect") ||
-                (task.id == "task5" && !task.template.contains("Bilingual Chinese Dictionary Editor")) {
+                (task.id == "task5" && !task.template.contains("Bilingual Chinese Dictionary Editor")) ||
+                (task.id == "task6" && !task.template.contains("CC-CEDICT")) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {
                 normalizedTemplate = task.template.replacingOccurrences(

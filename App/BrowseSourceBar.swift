@@ -190,6 +190,16 @@ extension FilterGridTab {
                 beginTranslationReport(collection)
             })
 
+            Button {
+                pagePhraseListCollection = collection
+            } label: {
+                Image(systemName: "text.quote")
+                    .frame(width: 34)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .accessibilityLabel("Choose Page Phrases")
+
             BrowseImageScriptToggle(mode: $browseImageScriptMode)
 
             readBrowseSourceButton(collection)

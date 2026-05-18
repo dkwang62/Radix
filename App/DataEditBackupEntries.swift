@@ -2,7 +2,7 @@ import SwiftUI
 
 extension DataEditTab {
     var addedPhraseEntries: [PhraseItem] {
-        changedPhraseEntries.filter { !store.isPhraseInBase($0.word) }
+        changedPhraseEntries.filter { !store.isPhraseInBase($0.word) && $0.isActivePhrase }
     }
 
     var phraseEntriesWithNotes: [PhraseItem] {

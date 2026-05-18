@@ -192,6 +192,12 @@ extension RadixStore {
         return phraseRepo.fetchPhrase(for: trimmedWord)
     }
 
+    func addedPhraseForReview(word: String) -> PhraseItem? {
+        let trimmedWord = phraseStorageWord(word)
+        guard !trimmedWord.isEmpty else { return nil }
+        return phraseRepo.fetchAddedPhrase(for: trimmedWord)
+    }
+
     func existingPhraseWords(in words: Set<String>) -> Set<String> {
         let normalizedWords = Set(words.map(phraseStorageWord(_:)).filter { !$0.isEmpty })
         return phraseRepo.existingWords(in: normalizedWords)

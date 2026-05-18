@@ -54,6 +54,8 @@ struct CharacterCollection: Identifiable, Codable, Equatable, Hashable {
     var thumbnailJPEGData: Data?
     var translationReport: String? = nil
     var translationReportUpdatedAt: Date? = nil
+    /// Phrase words the user has hidden for this saved page because they do not fit the page context.
+    var hiddenPhraseWords: Set<String>? = nil
 
     /// Unique characters, computed on demand (e.g. for Browse tab filtering).
     var uniqueCharacters: Set<String> { Set(characters) }

@@ -70,7 +70,7 @@ struct CollectionAITaskMenu: View {
                 Image(systemName: RadixIcon.aiLink)
                 Text("AI Link")
                 Image(systemName: "chevron.down")
-                    .font(.system(size: 9, weight: .bold))
+                    .font(ResponsiveFont.tinySystem(size: 9, weight: .bold))
             }
             .font(ResponsiveFont.caption2.weight(.semibold))
             .lineLimit(1)

@@ -53,7 +53,7 @@ struct InteractionHintRow: View {
     private func hintSegment(icon: String, text: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 11, weight: .semibold))
+                .font(ResponsiveFont.tinySystem(size: 11, weight: .semibold))
                 .foregroundStyle(Color.accentColor.opacity(0.9))
                 .frame(width: 14, alignment: .center)
 

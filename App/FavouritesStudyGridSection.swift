@@ -17,7 +17,7 @@ extension FavouritesTab {
                         studyGridGroupLabel("Phrases")
                         StudyPhraseFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
                             ForEach(studyPhraseRows) { row in
-                                studyPhraseRow(row)
+                                studyPhraseTile(row)
                             }
                         }
                     }
@@ -44,19 +44,27 @@ extension FavouritesTab {
             .accessibilityAddTraits(.isHeader)
     }
 
-    func studyPhraseRow(_ row: StudyPhraseRowData) -> some View {
-        HStack(spacing: 0) {
-            ForEach(studyPhraseEntries(
-                for: row.phrase,
-                idPrefix: row.marker.idPrefix,
-                marker: row.marker
-            )) { entry in
-                recentStudyButton(entry)
-                    .frame(width: studyPhraseTileWidth)
+    func studyPhraseTile(_ row: StudyPhraseRowData) -> some View {
+        let isActive = row.phrase.word == store.activeSidebarPhrasePreview?.word
+        return StudyPhraseSingleTile(
+            phraseText: studyGridDisplayText(row.phrase.word),
+            pinyin: row.phrase.pinyin,
+            marker: row.marker,
+            isActive: isActive,
+            onPreview: {
+                presentPhrase(row.phrase)
+            },
+            onToggleFavorite: {
+                store.togglePhraseFavorite(row.phrase.word)
+            }
+        )
+        .contextMenu {
+            Button {
+                store.togglePhraseFavorite(row.phrase.word)
+            } label: {
+                Label(store.isPhraseFavorite(row.phrase.word) ? "Remove Phrase from Favorites" : "Add Phrase to Favorites", systemImage: store.isPhraseFavorite(row.phrase.word) ? "star.slash" : "star")
             }
         }
-        .fixedSize(horizontal: true, vertical: false)
-        .accessibilityElement(children: .contain)
     }
 
     @ViewBuilder
@@ -98,9 +106,9 @@ extension FavouritesTab {
     var studyFavoriteLegend: some View {
         HStack(spacing: 5) {
             Image(systemName: RadixIcon.saved)
-                .font(.system(size: 10, weight: .semibold))
+                .font(ResponsiveFont.tinySystem(size: 10, weight: .semibold))
                 .foregroundStyle(.yellow)
-            Text("Tap a phrase star to favorite the whole phrase. Character stars mark favorite characters.")
+            Text("Tap a phrase to preview it. Tap its star to favorite the whole phrase.")
                 .font(ResponsiveFont.caption2)
                 .foregroundStyle(.secondary)
                 .lineLimit(2)

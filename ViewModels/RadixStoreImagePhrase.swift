@@ -15,54 +15,18 @@ extension RadixStore {
     func previewImageCharacter(_ character: String, offset: Int, announce: Bool = true) {
         clearBrowseMemoryHighlight()
         clearAnchoredImagePhraseHighlight()
-        let context = imagePhraseContext(for: character, offset: offset)
-        imagePhraseContext = context
-        imagePhraseHighlightOffsets = context == nil ? [] : [offset]
+        imagePhraseContext = nil
+        imagePhraseHighlightOffsets = []
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
         imagePhraseHighlightRevision += 1
-        preview(character: character, announce: announce, preservePhraseContext: context != nil)
+        preview(character: character, announce: announce, preservePhraseContext: false)
     }
 
     func handleImageCharacterTap(_ character: String, offset: Int) -> Bool {
         if handleMemoryHighlightedImageTap(character: character, offset: offset) { return true }
-
-        clearBrowseMemoryHighlight()
-        let context = imagePhraseContext(for: character, offset: offset)
-        guard let context else {
-            previewImageCharacter(character, offset: offset)
-            return true
-        }
-
-        let sameHighlightedTarget = imagePhraseContext == context && imagePhraseHighlightOffsets.contains(offset)
-        if sameHighlightedTarget, imageBrowsePhrasePreview != nil {
-            previewImageCharacter(character, offset: offset)
-            return true
-        }
-
-        let matches = imagePhraseMatches(for: context)
-        guard !matches.isEmpty else {
-            previewImageCharacter(character, offset: offset)
-            return true
-        }
-
-        if sameHighlightedTarget {
-            let match = preferredImagePhraseMatch(from: matches, targetOffset: offset)
-            sidebarPhrasePreview = nil
-            imageBrowsePhrasePreview = match.phrase
-            previewCharacter = character
-            pushPhraseBreadcrumb(match.phrase)
-            showBrowseHelp = false
-            showComponentHelp = false
-            if speechEnabled { speechService.speak(match.phrase.word) }
-            return true
-        }
-
-        imagePhraseContext = context
-        imageBrowsePhrasePreview = nil
-        sidebarPhrasePreview = nil
-        updateImagePhraseHighlights(context: context, matches: matches)
-        return false
+        previewImageCharacter(character, offset: offset)
+        return true
     }
 
     func previewPhraseCardCharacter(_ character: String, in phrase: PhraseItem, announce: Bool = false) {
@@ -100,23 +64,12 @@ extension RadixStore {
     }
 
     func highlightImageCharacterPhrases(_ character: String, offset: Int) {
-        guard let context = imagePhraseContext(for: character, offset: offset) else {
-            imagePhraseContext = nil
-            imagePhraseHighlightOffsets = []
-            clearAnchoredImagePhraseHighlight()
-            imageBrowsePhrasePreview = nil
-            sidebarPhrasePreview = nil
-            imagePhraseHighlightRevision += 1
-            return
-        }
-
-        imagePhraseContext = context
-        imagePhraseHighlightOffsets = [offset]
+        imagePhraseContext = nil
+        imagePhraseHighlightOffsets = []
         clearAnchoredImagePhraseHighlight()
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
         imagePhraseHighlightRevision += 1
-        refreshImagePhraseHighlights(for: character, context: context)
     }
 
     func imagePhraseHighlightRole(collectionID: UUID, offset: Int) -> ImagePhraseHighlightRole? {
@@ -285,8 +238,7 @@ extension RadixStore {
            context.collectionID == collection.id,
            offsets.contains(context.offset),
            collection.characters.indices.contains(context.offset) {
-            let character = collection.characters[context.offset]
-            return imagePhraseContext(for: character, offset: context.offset) ?? context
+            return context
         }
         guard let offset = offsets.sorted().first,
               collection.characters.indices.contains(offset)
@@ -323,5 +275,162 @@ extension RadixStore {
         showComponentHelp = false
         if speechEnabled { speechService.speak(phrase.word) }
         return true
+    }
+
+    func activeBrowseImagePhraseTile(in collection: CharacterCollection) -> BrowseImagePhraseTileData? {
+        guard route == .search, homeTab == .filter,
+              selectedBrowseCollectionID == collection.id
+        else { return nil }
+
+        if let phrase = imageBrowsePhrasePreview ?? sidebarPhrasePreview,
+           let tile = browseImagePhraseTile(for: phrase, in: collection) {
+            return tile
+        }
+
+        if let word = anchoredImagePhraseWord,
+           let phrase = mergedPhrase(for: word),
+           let tile = browseImagePhraseTile(for: phrase, in: collection) {
+            return tile
+        }
+
+        return nil
+    }
+
+    func browsePagePhraseTile(in collection: CharacterCollection, at offset: Int) -> BrowseImagePhraseTileData? {
+        browsePagePhraseTiles(in: collection)[offset]
+    }
+
+    func browsePagePhraseTiles(in collection: CharacterCollection) -> [Int: BrowseImagePhraseTileData] {
+        guard route == .search, homeTab == .filter,
+              selectedBrowseCollectionID == collection.id,
+              collection.characters.count > 1
+        else { return [:] }
+        if let cached = browsePagePhraseTileCache[collection.id] {
+            return cached
+        }
+
+        let lookupCharacters = collection.characters.map { phraseLookupTarget(for: $0) }
+        let phraseByLookupWord = browsePagePhraseLookup(in: collection)
+        let hiddenWords = collection.hiddenPhraseWords ?? []
+
+        var tiles: [Int: BrowseImagePhraseTileData] = [:]
+        var offset = 0
+        while offset < lookupCharacters.count {
+            var matchedTile: BrowseImagePhraseTileData?
+            let maxLength = min(4, lookupCharacters.count - offset)
+
+            if maxLength >= 2 {
+                for length in stride(from: maxLength, through: 2, by: -1) {
+                    let end = offset + length
+                    let segment = lookupCharacters[offset..<end].joined()
+                    if let phrase = phraseByLookupWord[segment],
+                       !hiddenWords.contains(phraseStorageWord(phrase.word)) {
+                        matchedTile = BrowseImagePhraseTileData(phrase: phrase, start: offset, end: end)
+                        break
+                    }
+                }
+            }
+
+            if let matchedTile {
+                tiles[offset] = matchedTile
+                offset = matchedTile.end
+            } else {
+                offset += 1
+            }
+        }
+
+        browsePagePhraseTileCache[collection.id] = tiles
+        return tiles
+    }
+
+    func browsePagePhraseCandidates(in collection: CharacterCollection) -> [BrowsePagePhraseCandidate] {
+        if let cached = browsePagePhraseCandidateCache[collection.id] {
+            return cached
+        }
+        let lookupCharacters = collection.characters.map { phraseLookupTarget(for: $0) }
+        let phraseByLookupWord = browsePagePhraseLookup(in: collection)
+        var firstStartByWord: [String: Int] = [:]
+        var countByWord: [String: Int] = [:]
+        var phraseByWord: [String: PhraseItem] = [:]
+
+        for offset in lookupCharacters.indices {
+            let maxLength = min(4, lookupCharacters.count - offset)
+            guard maxLength >= 2 else { continue }
+            for length in 2...maxLength {
+                let segment = lookupCharacters[offset..<(offset + length)].joined()
+                guard let phrase = phraseByLookupWord[segment] else { continue }
+                let word = phraseStorageWord(phrase.word)
+                phraseByWord[word] = phrase
+                firstStartByWord[word] = min(firstStartByWord[word] ?? offset, offset)
+                countByWord[word, default: 0] += 1
+            }
+        }
+
+        let candidates = phraseByWord.values.map { phrase in
+            let word = phraseStorageWord(phrase.word)
+            return BrowsePagePhraseCandidate(
+                phrase: phrase,
+                firstStart: firstStartByWord[word] ?? 0,
+                occurrenceCount: countByWord[word] ?? 1
+            )
+        }
+        .sorted {
+            if $0.firstStart != $1.firstStart { return $0.firstStart < $1.firstStart }
+            if $0.phrase.word.count != $1.phrase.word.count { return $0.phrase.word.count > $1.phrase.word.count }
+            return $0.phrase.pinyin < $1.phrase.pinyin
+        }
+        browsePagePhraseCandidateCache[collection.id] = candidates
+        return candidates
+    }
+
+    private func browsePagePhraseLookup(in collection: CharacterCollection) -> [String: PhraseItem] {
+        let lookupCharacters = collection.characters.map { phraseLookupTarget(for: $0) }
+        var candidateWords = Set<String>()
+
+        for offset in lookupCharacters.indices {
+            let maxLength = min(4, lookupCharacters.count - offset)
+            guard maxLength >= 2 else { continue }
+            for length in 2...maxLength {
+                candidateWords.insert(lookupCharacters[offset..<(offset + length)].joined())
+            }
+        }
+
+        let phrases = phraseRepo.fetchPhrases(matching: candidateWords, includeHidden: true)
+        var phraseByLookupWord: [String: PhraseItem] = [:]
+        for phrase in phrases {
+            let key = phraseLookupTarget(for: phraseStorageWord(phrase.word))
+            phraseByLookupWord[key] = phrase
+        }
+        return phraseByLookupWord
+    }
+
+    func presentPhraseFromBrowseImageTile(_ phrase: PhraseItem, in collection: CharacterCollection, offsets: Set<Int>) {
+        let context = phraseHighlightContext(in: collection, offsets: offsets)
+        imagePhraseContext = context
+        imagePhraseHighlightOffsets = offsets
+        anchorImagePhraseHighlight(phraseWord: phrase.word, context: context, offsets: offsets)
+        imageBrowsePhrasePreview = phrase
+        sidebarPhrasePreview = nil
+        previewCharacter = phrase.word.first.map(String.init)
+        imagePhraseHighlightRevision += 1
+        pushPhraseBreadcrumb(phrase)
+        showBrowseHelp = false
+        showComponentHelp = false
+        if speechEnabled { speechService.speak(phrase.word) }
+    }
+
+    private func browseImagePhraseTile(for phrase: PhraseItem, in collection: CharacterCollection) -> BrowseImagePhraseTileData? {
+        let phraseOffsets = phraseHighlightOffsets(in: collection, word: phrase.word)
+        let offsets = phraseOffsets.isEmpty ? activeImagePhraseHighlightOffsets : phraseOffsets
+        guard !offsets.isEmpty else { return nil }
+        let sortedOffsets = offsets.sorted()
+        guard let start = sortedOffsets.first,
+              let last = sortedOffsets.last,
+              collection.characters.indices.contains(start),
+              collection.characters.indices.contains(last)
+        else { return nil }
+        let end = last + 1
+        guard end - start == phraseStorageWord(phrase.word).count else { return nil }
+        return BrowseImagePhraseTileData(phrase: phrase, start: start, end: end)
     }
 }

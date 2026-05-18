@@ -219,16 +219,12 @@ private struct PhraseTableRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(phrase.word)
-                    .font(ResponsiveFont.body.bold())
-                Text(phrase.pinyin.isEmpty ? "-" : phrase.pinyin)
-                    .font(ResponsiveFont.caption)
-                    .lineLimit(nil)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .minimumScaleFactor(0.85)
-                    .foregroundStyle(.secondary)
-            }
+            PhraseSummaryTile(
+                phrase: phrase,
+                minimumHeight: pagePhraseTileHeight,
+                maximumWidth: leadingColumnWidth,
+                onSelect: onSelect
+            )
             .frame(width: leadingColumnWidth, alignment: .leading)
 
             VStack(alignment: .leading, spacing: 4) {
@@ -248,9 +244,15 @@ private struct PhraseTableRow: View {
         .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, minHeight: rowHeight, alignment: .leading)
         .background(Color(.systemBackground).opacity(0.001))
-        .contentShape(Rectangle())
-        .onTapGesture(perform: onSelect)
         .phraseContextMenu(phrase)
+    }
+
+    private var pagePhraseTileHeight: CGFloat {
+        #if targetEnvironment(macCatalyst)
+        return 58
+        #else
+        return isPhone ? 54 : 58
+        #endif
     }
 }
 

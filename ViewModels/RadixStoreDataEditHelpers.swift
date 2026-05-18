@@ -62,6 +62,8 @@ extension RadixStore {
     }
 
     func refreshAddedPhrases() {
+        browsePagePhraseTileCache.removeAll()
+        browsePagePhraseCandidateCache.removeAll()
         addedPhrases = phraseRepo.fetchAddedPhrases()
     }
 
@@ -268,7 +270,9 @@ extension RadixStore {
                 pinyin: phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines),
                 meanings: phrase.meanings.trimmingCharacters(in: .whitespacesAndNewlines),
                 notes: phrase.notes.trimmingCharacters(in: .whitespacesAndNewlines),
-                addedAt: phrase.addedAt
+                addedAt: phrase.addedAt,
+                reviewStatus: phrase.reviewStatus,
+                lastReviewedAt: phrase.lastReviewedAt
             ))
         }
         return result

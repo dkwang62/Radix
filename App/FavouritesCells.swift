@@ -20,7 +20,7 @@ extension FavouritesTab {
                     .font(.system(size: isPhone ? 28 : 30, weight: .bold))
                     .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
                 Text(item.pinyinText.isEmpty ? " " : item.pinyinText)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(ResponsiveFont.tinySystem(size: 11, weight: .semibold))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }

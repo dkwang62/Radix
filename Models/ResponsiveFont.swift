@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 public struct ResponsiveFont {
     #if targetEnvironment(macCatalyst)
@@ -12,7 +15,18 @@ public struct ResponsiveFont {
     public static let footnote = Font.system(size: 20)
     public static let caption = Font.system(size: 18)
     public static let caption2 = Font.system(size: 16)
+    public static func tinySystem(size: CGFloat, weight: Font.Weight? = nil, design: Font.Design? = nil) -> Font {
+        .system(size: size, weight: weight, design: design)
+    }
     #else
+    @MainActor private static var isIPad: Bool {
+        #if canImport(UIKit)
+        UIDevice.current.userInterfaceIdiom == .pad
+        #else
+        false
+        #endif
+    }
+
     public static let title = Font.title
     public static let title2 = Font.title2
     public static let title3 = Font.title3
@@ -22,6 +36,11 @@ public struct ResponsiveFont {
     public static let callout = Font.callout
     public static let footnote = Font.footnote
     public static let caption = Font.caption
-    public static let caption2 = Font.caption2
+    @MainActor public static var caption2: Font { isIPad ? .caption : .caption2 }
+
+    @MainActor public static func tinySystem(size: CGFloat, weight: Font.Weight? = nil, design: Font.Design? = nil) -> Font {
+        let adjustedSize = isIPad ? size + 1 : size
+        return .system(size: adjustedSize, weight: weight, design: design)
+    }
     #endif
 }

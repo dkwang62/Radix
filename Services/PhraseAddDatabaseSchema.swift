@@ -4,7 +4,7 @@ import SQLite3
 enum PhraseAddDatabaseSchema {
     static func ensureTable(in db: OpaquePointer?) throws {
         guard let db else { return }
-        let sql = "CREATE TABLE IF NOT EXISTS phrases (word TEXT PRIMARY KEY, pinyin TEXT, meanings TEXT, notes TEXT, added_at REAL)"
+        let sql = "CREATE TABLE IF NOT EXISTS phrases (word TEXT PRIMARY KEY, pinyin TEXT, meanings TEXT, notes TEXT, added_at REAL, review_status TEXT, last_reviewed_at REAL)"
         if sqlite3_exec(db, sql, nil, nil, nil) != SQLITE_OK {
             throw NSError(domain: "Radix", code: 10, userInfo: [NSLocalizedDescriptionKey: "Failed to create phrases_add table"])
         }
@@ -17,6 +17,16 @@ enum PhraseAddDatabaseSchema {
         if !tableHasColumn(db: db, table: "phrases", column: "notes") {
             if sqlite3_exec(db, "ALTER TABLE phrases ADD COLUMN notes TEXT", nil, nil, nil) != SQLITE_OK {
                 throw NSError(domain: "Radix", code: 11, userInfo: [NSLocalizedDescriptionKey: "Failed to migrate phrases_add notes schema"])
+            }
+        }
+        if !tableHasColumn(db: db, table: "phrases", column: "review_status") {
+            if sqlite3_exec(db, "ALTER TABLE phrases ADD COLUMN review_status TEXT", nil, nil, nil) != SQLITE_OK {
+                throw NSError(domain: "Radix", code: 11, userInfo: [NSLocalizedDescriptionKey: "Failed to migrate phrases_add review schema"])
+            }
+        }
+        if !tableHasColumn(db: db, table: "phrases", column: "last_reviewed_at") {
+            if sqlite3_exec(db, "ALTER TABLE phrases ADD COLUMN last_reviewed_at REAL", nil, nil, nil) != SQLITE_OK {
+                throw NSError(domain: "Radix", code: 11, userInfo: [NSLocalizedDescriptionKey: "Failed to migrate phrases_add review date schema"])
             }
         }
     }

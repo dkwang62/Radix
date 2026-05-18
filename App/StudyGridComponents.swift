@@ -13,7 +13,7 @@ struct StudyPhraseMarkerTile: View {
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(isFavorite ? Color.yellow : Color.secondary.opacity(0.72))
             Text(" ")
-                .font(.system(size: 11, weight: .semibold))
+                .font(ResponsiveFont.tinySystem(size: 11, weight: .semibold))
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 6)
@@ -24,6 +24,30 @@ struct StudyPhraseMarkerTile: View {
                 .stroke(isFavorite ? Color.yellow.opacity(0.65) : Color.secondary.opacity(0.22), lineWidth: 2)
         )
         .accessibilityLabel(isFavorite ? "Favorite phrase" : "Recent phrase")
+    }
+}
+
+struct StudyPhraseSingleTile: View {
+    let phraseText: String
+    let pinyin: String
+    let marker: StudyPhraseMarker
+    let isActive: Bool
+    let onPreview: () -> Void
+    let onToggleFavorite: () -> Void
+
+    private var isFavorite: Bool {
+        marker == .favorite
+    }
+
+    var body: some View {
+        PhraseSummaryTile(
+            phraseText: phraseText,
+            pinyin: pinyin,
+            isFavorite: isFavorite,
+            isActive: isActive,
+            onSelect: onPreview,
+            onToggleFavorite: onToggleFavorite
+        )
     }
 }
 

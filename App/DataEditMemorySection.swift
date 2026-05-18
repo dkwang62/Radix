@@ -4,6 +4,7 @@ extension DataEditTab {
     var libraryOverviewSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             memoryContentsSection
+            addedPhrasesPageActionSection
             personalLibraryTimelineSection
         }
     }
@@ -68,6 +69,83 @@ extension DataEditTab {
         .padding(12)
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    var addedPhrasesPageActionSection: some View {
+        let phraseCount = addedPhraseWordsForPage.count
+        let reviewCount = store.addedPhrases.filter { !store.isPhraseInBase($0.word) }.count
+        let characterCount = addedPhrasePageText.count
+        return HStack(alignment: .center, spacing: 12) {
+            Image(systemName: "doc.text.magnifyingglass")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 34, height: 34)
+                .background(Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Make AI Review Page")
+                    .font(ResponsiveFont.body.weight(.semibold))
+                Text(characterCount == 0 ? "Add phrases first, then make them a Browse page." : "\(phraseCount) phrases in order, \(characterCount) characters including repeats.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+
+            VStack(alignment: .trailing, spacing: 8) {
+                Button {
+                    showAddedPhraseReview = true
+                } label: {
+                    Label("Review Added", systemImage: "checklist")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .disabled(reviewCount == 0)
+
+                Button {
+                    createAddedPhrasesPage()
+                } label: {
+                    Label("Create Page", systemImage: "plus.square.on.square")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .disabled(characterCount == 0)
+
+                Button(role: .destructive) {
+                    showDeleteAddedPhrasesConfirmation = true
+                } label: {
+                    Label("Delete All", systemImage: RadixIcon.delete)
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .disabled(phraseCount == 0)
+            }
+        }
+        .padding(12)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    var addedPhraseWordsForPage: [String] {
+        addedPhraseEntries
+            .filter(\.isVisibleInPhraseLibrary)
+            .map { store.normalizedPhraseWord($0.word) }
+            .filter { !$0.isEmpty }
+    }
+
+    var activeAddedPhraseWords: [String] {
+        addedPhraseEntries
+            .map { store.normalizedPhraseWord($0.word) }
+            .filter { !$0.isEmpty }
+    }
+
+    var addedPhrasePageText: String {
+        addedPhraseWordsForPage.joined(separator: " ")
     }
 
     var personalLibraryMoments: [DataLibraryMoment] {
@@ -168,6 +246,42 @@ extension DataEditTab {
             withAnimation { dataEditScrollProxy?.scrollTo("myDataTop", anchor: .top) }
         }
         #endif
+    }
+
+    func createAddedPhrasesPage() {
+        let pageText = addedPhrasePageText
+        let characterCount = CaptureTextExtractor.allCharactersInOrder(in: pageText).count
+        guard characterCount > 0 else {
+            editorMessage = nil
+            editorError = "Add phrases first, then create a page from them."
+            return
+        }
+
+        guard let collection = store.createCollection(
+            name: "AI Review",
+            sourceText: pageText,
+            sourceType: .manual
+        ) else {
+            editorMessage = nil
+            editorError = "Radix could not create a page from those phrases."
+            return
+        }
+
+        editorError = nil
+        editorMessage = "Created AI Review page from \(characterCount) characters in added phrases."
+        store.goToBrowse()
+        store.selectBrowseCollection(id: collection.id)
+    }
+
+    func deleteAllAddedPhrases() {
+        do {
+            let deletedCount = try store.removeAddedPhrases(words: activeAddedPhraseWords)
+            editorError = nil
+            editorMessage = deletedCount == 0 ? "No added phrases to delete." : "Deleted \(deletedCount) added phrase\(deletedCount == 1 ? "" : "s")."
+        } catch {
+            editorMessage = nil
+            editorError = "Delete failed: \(error.localizedDescription)"
+        }
     }
 }
 

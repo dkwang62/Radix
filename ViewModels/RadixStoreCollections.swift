@@ -61,6 +61,8 @@ extension RadixStore {
     }
 
     func saveCollection(_ collection: CharacterCollection) {
+        browsePagePhraseTileCache.removeValue(forKey: collection.id)
+        browsePagePhraseCandidateCache.removeValue(forKey: collection.id)
         if let index = allCollections.firstIndex(where: { $0.id == collection.id }) {
             allCollections[index] = collection
         } else {
@@ -76,6 +78,8 @@ extension RadixStore {
 
     func deleteCollection(id: UUID) {
         allCollections.removeAll { $0.id == id }
+        browsePagePhraseTileCache.removeValue(forKey: id)
+        browsePagePhraseCandidateCache.removeValue(forKey: id)
         if selectedBrowseCollectionID == id {
             selectedBrowseCollectionID = nil
             selectedBrowseCollectionCharacters = nil
@@ -124,6 +128,19 @@ extension RadixStore {
         saveCollection(allCollections[index])
     }
 
+    func setCollectionPhraseHidden(collectionID: UUID, phraseWord: String, hidden: Bool) {
+        guard let index = allCollections.firstIndex(where: { $0.id == collectionID }) else { return }
+        var hiddenWords = allCollections[index].hiddenPhraseWords ?? []
+        if hidden {
+            hiddenWords.insert(phraseStorageWord(phraseWord))
+        } else {
+            hiddenWords.remove(phraseStorageWord(phraseWord))
+        }
+        allCollections[index].hiddenPhraseWords = hiddenWords.isEmpty ? nil : hiddenWords
+        saveCollection(allCollections[index])
+        imagePhraseHighlightRevision += 1
+    }
+
     func collection(id: UUID) -> CharacterCollection? {
         allCollections.first { $0.id == id }
     }
@@ -139,7 +156,6 @@ extension RadixStore {
         if let id {
             selectedAICollectionID = id
             gridSortMode = .readingOrder
-            restoreImagePhraseHighlight(for: id)
         } else {
             gridSortMode = .characterFrequency
             imagePhraseContext = nil

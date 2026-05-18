@@ -22,6 +22,7 @@ struct FilterGridTab: View {
     @State var translationReportCollection: CharacterCollection?
     @State var translationReportDraft = ""
     @State var phraseExtractionCollection: CharacterCollection?
+    @State var pagePhraseListCollection: CharacterCollection?
     @State var phraseExtractionOutput = ""
     @State var imageActionMessage: String?
     @State var isRunningImageAction = false
@@ -188,6 +189,10 @@ struct FilterGridTab: View {
                     onDone: { phraseExtractionCollection = nil }
                 )
                 .environmentObject(store)
+            }
+            .sheet(item: $pagePhraseListCollection) { collection in
+                BrowsePagePhraseListSheet(collectionID: collection.id)
+                    .environmentObject(store)
             }
             .alert("Delete Saved Image?", isPresented: Binding(
                 get: { pendingDeleteCollection != nil },

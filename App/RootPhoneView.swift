@@ -186,7 +186,7 @@ extension RootView {
                     .font(.system(size: isActive ? 17 : 16, weight: .semibold))
                 if showsTitle {
                     Text(item.compactTitle)
-                        .font(.system(size: 10, weight: isActive ? .bold : .semibold))
+                        .font(ResponsiveFont.tinySystem(size: 10, weight: isActive ? .bold : .semibold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.58)
                         .transition(.opacity)

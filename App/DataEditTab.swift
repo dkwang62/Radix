@@ -59,6 +59,8 @@ struct DataEditTab: View {
     @State var showFavoritesPreview = false
     @State var showAITemplatesPreview = false
     @State var showAppStatePreview = false
+    @State var showDeleteAddedPhrasesConfirmation = false
+    @State var showAddedPhraseReview = false
 
     @State var activeDataEditSection: DataEditSection = .library
     @State var showHelp = false
@@ -147,6 +149,18 @@ struct DataEditTab: View {
                 } else if let msg = backupMessage {
                     Text(msg)
                 }
+            }
+            .alert("Delete Added Phrases?", isPresented: $showDeleteAddedPhrasesConfirmation) {
+                Button("Delete All", role: .destructive) {
+                    deleteAllAddedPhrases()
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("This removes every phrase you added from Memory. Built-in phrases and phrase notes on built-in phrases are kept.")
+            }
+            .sheet(isPresented: $showAddedPhraseReview) {
+                AddedPhraseReviewSheet()
+                    .environmentObject(store)
             }
             .onAppear {
                 dataEditScrollProxy = proxy

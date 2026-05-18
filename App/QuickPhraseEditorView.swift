@@ -82,7 +82,7 @@ struct QuickPhraseEditorView: View {
                 phraseEditorNotes = ""
             } else {
                 let simplifiedWord = store.simplifiedText(initialWord)
-                if let phrase = store.mergedPhrase(for: simplifiedWord) {
+                if let phrase = store.addedPhraseForReview(word: simplifiedWord) ?? store.mergedPhrase(for: simplifiedWord) {
                     phraseEditorWord = phrase.word
                     phraseEditorPinyin = phrase.pinyin
                     phraseEditorMeanings = phrase.meanings

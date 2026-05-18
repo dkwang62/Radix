@@ -115,7 +115,7 @@ private struct CaptureWorkflowHint: View {
         ForEach(steps, id: \.0) { step in
             HStack(spacing: 6) {
                 Text(step.0)
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(ResponsiveFont.tinySystem(size: 11, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.accentColor)
                     .frame(width: 22, height: 22)
                     .background(Color.accentColor.opacity(0.12))

@@ -22,6 +22,17 @@ struct AddExtractsToPhrasesPanel: View {
 
                 Spacer()
 
+                // Keep Add above the pasted AI answer. Long bulk imports can fill the
+                // editor and trap iPhone/iPad users before they can scroll to a bottom action.
+                Button {
+                    onAdd()
+                } label: {
+                    Label("Add", systemImage: "plus")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .disabled(outputIsEmpty)
+
                 Button {
                     onClear()
                 } label: {
@@ -53,15 +64,6 @@ struct AddExtractsToPhrasesPanel: View {
             if !addedPhrases.isEmpty {
                 AddedPhraseResultList(candidates: addedPhrases, onDelete: onDeleteAddedPhrase)
             }
-
-            Button {
-                onAdd()
-            } label: {
-                Label("Add Phrases", systemImage: "plus")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(outputIsEmpty)
         }
         .padding(10)
         .background(Color(.secondarySystemBackground).opacity(0.65))
@@ -75,7 +77,7 @@ struct AddExtractsToPhrasesPanel: View {
 
             if outputIsEmpty {
                 Text(Self.placeholderText)
-                    .font(.system(size: 11))
+                    .font(ResponsiveFont.tinySystem(size: 11))
                     .foregroundStyle(.tertiary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 10)
@@ -83,12 +85,14 @@ struct AddExtractsToPhrasesPanel: View {
             }
 
             TextEditor(text: $output)
-                .font(.system(size: 11))
+                .font(ResponsiveFont.tinySystem(size: 11))
                 .scrollContentBackground(.hidden)
                 .padding(6)
                 .background(Color.clear)
         }
-        .frame(minHeight: 90)
+        // Fixed height is intentional: large AI output should scroll inside this box
+        // while the surrounding sheet keeps its Add action reachable.
+        .frame(height: 150)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
                 .stroke(Color(.separator), lineWidth: 0.5)
