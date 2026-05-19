@@ -11,21 +11,23 @@ extension PaywallView {
                     .font(ResponsiveFont.title.bold())
             }
 
-            Text("Keep learning for free. Pay when you need data portability.")
+            Text("Keep learning for free. Pay when you need local copies or data portability.")
                 .font(ResponsiveFont.title3.bold())
 
-            Text("Scan, Browse, Search, Study, AI Link, and editing stay free. My Backup lets the work you do on iPhone travel to iPad and Mac.")
+            Text("Scan, Browse, Search, Study, AI Link, and editing stay free. Dated Copies saves your memory on this device; My Backup lets it travel to iPad and Mac.")
                 .font(ResponsiveFont.body)
                 .foregroundStyle(.secondary)
 
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 8) {
                     heroChip("Everything else free")
+                    heroChip("Dated Copies $9")
                     heroChip("My Backup $19")
                     heroChip("Advanced $99")
                 }
                 VStack(alignment: .leading, spacing: 8) {
                     heroChip("Everything else free")
+                    heroChip("Dated Copies $9")
                     heroChip("My Backup $19")
                     heroChip("Advanced $99")
                 }
@@ -50,9 +52,10 @@ extension PaywallView {
                 alignment: .leading,
                 spacing: 10
             ) {
+                benefit("Dated Copies saves and restores your Radix memory on this device")
                 benefit("My Backup gives your Radix data portability across iPhone, iPad, and Mac")
                 benefit("Advanced exports reusable datasets and databases")
-                benefit("Advanced includes My Backup")
+                benefit("My Backup and Advanced include Dated Copies")
                 benefit("The main learning app stays free")
             }
         }

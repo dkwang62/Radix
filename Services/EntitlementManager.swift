@@ -2,9 +2,10 @@ import SwiftUI
 import Combine
 import StoreKit
 
-/// Manages paid access. Current policy: the app is free except My Backup and Advanced exports.
+/// Manages paid access. Current policy: the app is free except Dated Copies, My Backup, and Advanced exports.
 @MainActor
 class EntitlementManager: ObservableObject {
+    static let datedCopiesProductID = "com.radix.datedcopies"
     static let myBackupProductID = "com.radix.pro.annual"
     static let advancedProductID = "com.radix.pro.lifetime"
     static let annualProductID = myBackupProductID
@@ -16,6 +17,7 @@ class EntitlementManager: ObservableObject {
     enum FeatureGate: String {
         case lineage = "Roots"
         case favourites = "Favourites"
+        case datedCopies = "Dated Copies"
         case myBackup = "My Backup"
         case advanced = "Advanced"
         case dataEdit = "Data Editing"
@@ -26,6 +28,7 @@ class EntitlementManager: ObservableObject {
     @Published private(set) var products: [Product] = []
     @Published private(set) var isLoadingProducts: Bool = false
     @Published private(set) var lastError: String? = nil
+    @Published private(set) var hasDatedCopiesAccess: Bool = false
     @Published private(set) var hasActiveAnnualSubscription: Bool = false
     @Published private(set) var hasLifetimeAccess: Bool = false
     
@@ -83,7 +86,7 @@ class EntitlementManager: ObservableObject {
         isLoadingProducts = true
         defer { isLoadingProducts = false }
         do {
-            let identifiers: Set<String> = [Self.myBackupProductID, Self.advancedProductID]
+            let identifiers: Set<String> = [Self.datedCopiesProductID, Self.myBackupProductID, Self.advancedProductID]
             let loadedProducts = try await Product.products(for: identifiers)
             self.products = loadedProducts.sorted(by: productSortPredicate)
             self.lastError = nil
@@ -98,7 +101,7 @@ class EntitlementManager: ObservableObject {
             switch result {
             case .success(let verification):
                 await handle(transaction: verification)
-                return isPro
+                return !requiresPro(featureGate(for: product.id))
             case .pending, .userCancelled:
                 return false
             @unknown default:
@@ -138,6 +141,8 @@ class EntitlementManager: ObservableObject {
         #endif
 
         switch feature {
+        case .datedCopies:
+            return !(hasDatedCopiesAccess || hasActiveAnnualSubscription || hasLifetimeAccess || isPro)
         case .myBackup, .profileTransfer:
             return !(hasActiveAnnualSubscription || hasLifetimeAccess || isPro)
         case .advanced, .dataEdit:
@@ -158,12 +163,15 @@ class EntitlementManager: ObservableObject {
     #endif
 
     private func refreshEntitlements() async {
+        var datedCopies = false
         var annual = false
         var lifetime = false
 
         for await result in StoreKit.Transaction.currentEntitlements {
             guard case .verified(let transaction) = result else { continue }
             switch transaction.productID {
+            case Self.datedCopiesProductID:
+                datedCopies = true
             case Self.myBackupProductID:
                 annual = true
             case Self.advancedProductID:
@@ -173,9 +181,23 @@ class EntitlementManager: ObservableObject {
             }
         }
 
+        hasDatedCopiesAccess = datedCopies
         hasActiveAnnualSubscription = annual
         hasLifetimeAccess = lifetime
         isPro = annual || lifetime
+    }
+
+    private func featureGate(for productID: String) -> FeatureGate {
+        switch productID {
+        case Self.datedCopiesProductID:
+            return .datedCopies
+        case Self.myBackupProductID:
+            return .myBackup
+        case Self.advancedProductID:
+            return .advanced
+        default:
+            return .advanced
+        }
     }
 
     private func productSortPredicate(_ lhs: Product, _ rhs: Product) -> Bool {
@@ -184,8 +206,9 @@ class EntitlementManager: ObservableObject {
 
     private func rank(for productID: String) -> Int {
         switch productID {
-        case Self.myBackupProductID: return 0
-        case Self.advancedProductID: return 1
+        case Self.datedCopiesProductID: return 0
+        case Self.myBackupProductID: return 1
+        case Self.advancedProductID: return 2
         default: return 99
         }
     }

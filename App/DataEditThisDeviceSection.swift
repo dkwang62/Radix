@@ -66,22 +66,34 @@ extension DataEditTab {
             HStack(alignment: .firstTextBaseline) {
                 Label("Save a Copy Here", systemImage: "clock.badge.checkmark")
                     .font(ResponsiveFont.headline)
+                Text("$9")
+                    .font(ResponsiveFont.caption.bold())
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.accentColor.opacity(0.14))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 Spacer()
                 Text("\(localSnapshots.count) copies")
                     .font(ResponsiveFont.caption.bold())
                     .foregroundStyle(.secondary)
             }
 
-            Text("Free dated copies kept on this device. Each copy contains the same Radix Memory shown below.")
+            Text("Dated copies are kept on this device. Each copy contains the same Radix Memory shown below.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+
+            datedCopiesVisibilityNote
 
             memorySavedStatusRow
 
             currentMemorySummaryTiles
 
             Button {
+                guard !entitlement.requiresPro(.datedCopies) else {
+                    onRequirePro(.datedCopies)
+                    return
+                }
                 createLocalSnapshot()
             } label: {
                 DataBackupActionButton(
@@ -90,7 +102,9 @@ extension DataEditTab {
                     systemName: "clock.badge.plus",
                     foreground: .white,
                     background: Color.accentColor,
-                    border: Color.accentColor
+                    border: Color.accentColor,
+                    isLocked: entitlement.requiresPro(.datedCopies),
+                    lockBadge: "$9"
                 )
             }
             .buttonStyle(.plain)
@@ -108,8 +122,21 @@ extension DataEditTab {
                     ForEach(localSnapshots) { snapshot in
                         LocalDataSnapshotRow(
                             snapshot: snapshot,
-                            onAdd: { restoreLocalSnapshot(snapshot, mode: .additive) },
-                            onReplace: { restoreLocalSnapshot(snapshot, mode: .complete) },
+                            isLocked: entitlement.requiresPro(.datedCopies),
+                            onAdd: {
+                                guard !entitlement.requiresPro(.datedCopies) else {
+                                    onRequirePro(.datedCopies)
+                                    return
+                                }
+                                restoreLocalSnapshot(snapshot, mode: .additive)
+                            },
+                            onReplace: {
+                                guard !entitlement.requiresPro(.datedCopies) else {
+                                    onRequirePro(.datedCopies)
+                                    return
+                                }
+                                restoreLocalSnapshot(snapshot, mode: .complete)
+                            },
                             onDelete: { deleteLocalSnapshot(snapshot) }
                         )
                     }
@@ -119,6 +146,19 @@ extension DataEditTab {
         .padding(12)
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    @ViewBuilder
+    var datedCopiesVisibilityNote: some View {
+        if entitlement.requiresPro(.datedCopies) {
+            Label("You can see existing dated copies for free. Saving and restoring dated copies unlocks for $9.", systemImage: "lock.open")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
     }
 
     func createLocalSnapshot() {
@@ -162,6 +202,7 @@ extension DataEditTab {
 struct LocalDataSnapshotRow: View {
     @Environment(\.horizontalSizeClass) var sizeClass
     let snapshot: LocalDataSnapshot
+    var isLocked = false
     let onAdd: () -> Void
     let onReplace: () -> Void
     let onDelete: () -> Void
@@ -217,7 +258,7 @@ struct LocalDataSnapshotRow: View {
 
     var addButton: some View {
         Button(action: onAdd) {
-            Label("Add to Memory", systemImage: "plus")
+            Label("Add to Memory", systemImage: isLocked ? "lock.fill" : "plus")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)
@@ -225,7 +266,7 @@ struct LocalDataSnapshotRow: View {
 
     var replaceButton: some View {
         Button(role: .destructive, action: onReplace) {
-            Label("Replace Memory", systemImage: "arrow.triangle.2.circlepath")
+            Label("Replace Memory", systemImage: isLocked ? "lock.fill" : "arrow.triangle.2.circlepath")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)

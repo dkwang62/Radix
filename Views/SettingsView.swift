@@ -3,6 +3,8 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var store: RadixStore
+    @State private var showResetMemoryConfirmation = false
+    @State private var resetMemoryStatus: String?
     let onShowWelcome: (() -> Void)?
 
     init(onShowWelcome: (() -> Void)? = nil) {
@@ -109,6 +111,26 @@ struct SettingsView: View {
                 }
             }
 
+            Section {
+                Button(role: .destructive) {
+                    showResetMemoryConfirmation = true
+                } label: {
+                    Label("Reset Radix Memory", systemImage: "trash")
+                }
+
+                Text("Clears current added characters, phrases, saved pages, favorites, recent items, and AI Link templates. Dated copies and API keys are kept.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+
+                if let resetMemoryStatus {
+                    Text(resetMemoryStatus)
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(resetMemoryStatus.hasPrefix("Could not") ? .red : .secondary)
+                }
+            } header: {
+                Text("Reset")
+            }
+
             Section("About") {
                 NavigationLink("Credits and Data Sources") {
                     CreditsView()
@@ -126,12 +148,29 @@ struct SettingsView: View {
                 .accessibilityLabel("Close")
             }
         }
+        .alert("Reset Radix Memory?", isPresented: $showResetMemoryConfirmation) {
+            Button("Reset Memory", role: .destructive) {
+                resetRadixMemory()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This clears the current Radix memory on this device. Dated copies are not deleted, so you can restore from My Data if you have a copy.")
+        }
     }
 
     private func apiKeyField(_ title: String, text: Binding<String>) -> some View {
         SecureField(title, text: text)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
+    }
+
+    private func resetRadixMemory() {
+        do {
+            try store.resetRadixMemory()
+            resetMemoryStatus = "Radix Memory reset. Dated copies and API keys were kept."
+        } catch {
+            resetMemoryStatus = "Could not reset memory: \(error.localizedDescription)"
+        }
     }
 
     private var geminiKeyHealthRow: some View {

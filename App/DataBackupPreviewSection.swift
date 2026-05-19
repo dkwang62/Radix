@@ -10,6 +10,11 @@ struct DataBackupPreviewSection: View {
     let phraseEntriesWithNotes: [PhraseItem]
     var title: String = "What Goes With the File"
     var subtitle: String = "This is the Radix work that can travel to another device."
+    var addedPhraseReviewCount: Int = 0
+    var addedPhrasePageCharacterCount: Int = 0
+    var onReviewAddedPhrases: (() -> Void)?
+    var onCreateAddedPhrasesPage: (() -> Void)?
+    var onDeleteAddedPhrases: (() -> Void)?
     let onPreviewCharacter: (String) -> Void
 
     @Binding var showSavedPagesPreview: Bool
@@ -75,6 +80,7 @@ struct DataBackupPreviewSection: View {
             }
 
             DisclosureGroup("Phrases You Added (\(addedPhraseEntries.count))", isExpanded: $showAddedPhrasesPreview) {
+                addedPhraseManagementRow
                 backupPhraseRows(addedPhraseEntries)
             }
 
@@ -95,5 +101,79 @@ struct DataBackupPreviewSection: View {
                 backupPhraseRows(phraseEntriesWithNotes)
             }
         }
+    }
+
+    var addedPhraseManagementRow: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "checklist")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 26, height: 26)
+                    .background(Color.accentColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 7))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Review Added Phrases")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                    Text(addedPhraseManagementText)
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    addedPhraseManagementButtons
+                }
+                VStack(alignment: .leading, spacing: 8) {
+                    addedPhraseManagementButtons
+                }
+            }
+        }
+        .padding(10)
+        .background(Color(.secondarySystemBackground).opacity(0.55))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    @ViewBuilder
+    var addedPhraseManagementButtons: some View {
+        Button {
+            onReviewAddedPhrases?()
+        } label: {
+            Label("Classify & Prune", systemImage: "checklist")
+                .font(ResponsiveFont.caption.weight(.semibold))
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .disabled(addedPhraseReviewCount == 0)
+
+        Button {
+            onCreateAddedPhrasesPage?()
+        } label: {
+            Label("Make AI Text Page", systemImage: "doc.text.magnifyingglass")
+                .font(ResponsiveFont.caption.weight(.semibold))
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.small)
+        .disabled(addedPhrasePageCharacterCount == 0)
+
+        Button(role: .destructive) {
+            onDeleteAddedPhrases?()
+        } label: {
+            Label("Delete Added", systemImage: RadixIcon.delete)
+                .font(ResponsiveFont.caption.weight(.semibold))
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .disabled(addedPhraseEntries.isEmpty)
+    }
+
+    var addedPhraseManagementText: String {
+        if addedPhraseEntries.isEmpty {
+            return "Add phrases first, then review which ones belong in Memory."
+        }
+        return "\(addedPhraseEntries.count) phrases in Memory. Review them, hide weak phrase groupings, or make one text page to ask AI for a cleaner phrase list."
     }
 }

@@ -165,6 +165,81 @@ extension RadixStore {
         dataEditIsFavourite = false
     }
 
+    /// Clears the current Radix Memory while leaving dated copies and private API keys intact.
+    /// This keeps reset recoverable through My Data > This Device, and avoids surprising
+    /// users by deleting credentials that live in Settings rather than learning memory.
+    func resetRadixMemory() throws {
+        pendingDatasetAutosaveWorkItem?.cancel()
+        pendingDatasetAutosaveWorkItem = nil
+        dataEditLoadTask?.cancel()
+        dataEditLoadTask = nil
+
+        try componentRepo.loadFromBundle()
+        try removeDictionaryOverlayFiles()
+        overlayAddedDates = [:]
+        persistOverlayAddedDates()
+
+        try phraseRepo.replaceAllPhrases([])
+        addedPhrases = []
+        dataEditPhrases = []
+        phraseCache.removeAll()
+        browsePagePhraseTileCache.removeAll()
+        browsePagePhraseCandidateCache.removeAll()
+
+        favorites = []
+        favoriteAddedDates = [:]
+        favoritePhrases = []
+        favoritePhraseDates = [:]
+        persistFavorites()
+        persistFavoritePhrases()
+
+        allCollections = []
+        selectedBrowseCollectionID = nil
+        selectedBrowseCollectionCharacters = nil
+        selectedAICollectionID = nil
+        activeSubject = nil
+        persistCollections()
+        persistSelectedAICollection()
+
+        applyRootBreadcrumb([])
+        applySearchHistory([])
+        clearBrowsePreview()
+        clearBrowseMemoryHighlight()
+        clearAnchoredImagePhraseHighlight()
+        imageBrowsePhrasePreview = nil
+        sidebarPhrasePreview = nil
+        imagePhraseContext = nil
+        imagePhraseHighlightOffsets = []
+        imagePhraseHighlightRevision += 1
+
+        promptConfig = .streamlitDefault
+        promptSelectedTaskIDs = PromptConfig.defaultSelectedTaskIDs
+        persistPromptSettings()
+
+        clearDataEditForm()
+        dataEditCache.removeAll()
+        dataEditAutoSaveStatus = "Radix Memory reset."
+
+        query = ""
+        lastSearchQuery = ""
+        hasPerformedSearch = false
+        results = []
+        definitionCharacterResults = []
+        definitionPhraseResults = []
+        smartPhraseResults = []
+        previewCharacter = nil
+
+        route = .search
+        homeTab = .filter
+        gridSortMode = .characterFrequency
+        gridPage = 0
+
+        try persistDataEditAndRefresh()
+        refreshAddedPhrases()
+        refreshAddedDictionaryCharacters()
+        calculateDictionaryVariances()
+    }
+
     // MARK: - Form parsing helpers
 
     func splitCSVOrLines(_ value: String) -> [String] {

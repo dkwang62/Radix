@@ -96,6 +96,9 @@ extension DataBackupPreviewSection {
 
     func sortedBackupPhrases(_ phrases: [PhraseItem]) -> [PhraseItem] {
         phrases.sorted { lhs, rhs in
+            if lhs.word.count != rhs.word.count {
+                return lhs.word.count < rhs.word.count
+            }
             let leftKey = BackupPreviewSort.key(primary: lhs.pinyin, fallback: lhs.word)
             let rightKey = BackupPreviewSort.key(primary: rhs.pinyin, fallback: rhs.word)
             return leftKey.localizedStandardCompare(rightKey) == .orderedAscending

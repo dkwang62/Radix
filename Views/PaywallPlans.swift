@@ -32,6 +32,7 @@ extension PaywallView {
 
     func planCard(_ product: Product) -> some View {
         let isMyBackup = product.id == EntitlementManager.myBackupProductID
+        let isDatedCopies = product.id == EntitlementManager.datedCopiesProductID
 
         return Button {
             Task {
@@ -51,13 +52,13 @@ extension PaywallView {
                                 Text(productTitle(product))
                                     .font(ResponsiveFont.subheadline.bold())
                                     .foregroundStyle(.primary)
-                                badge(isMyBackup ? "$19" : "$99", emphasized: isMyBackup)
+                                badge(planBadgeText(product), emphasized: isMyBackup || isDatedCopies)
                             }
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(productTitle(product))
                                     .font(ResponsiveFont.subheadline.bold())
                                     .foregroundStyle(.primary)
-                                badge(isMyBackup ? "$19" : "$99", emphasized: isMyBackup)
+                                badge(planBadgeText(product), emphasized: isMyBackup || isDatedCopies)
                             }
                         }
                         Text(productSubtitle(product))
@@ -74,7 +75,11 @@ extension PaywallView {
                             Text(productPriceLabel(product))
                                 .font(ResponsiveFont.subheadline.bold())
                                 .foregroundStyle(.primary)
-                            if isMyBackup {
+                            if isDatedCopies {
+                                Text("This device")
+                                    .font(ResponsiveFont.caption2)
+                                    .foregroundStyle(.secondary)
+                            } else if isMyBackup {
                                 Text("Data portability")
                                     .font(ResponsiveFont.caption2)
                                     .foregroundStyle(.secondary)
@@ -91,22 +96,22 @@ extension PaywallView {
                     Text(productCallToAction(product))
                         .font(ResponsiveFont.body.weight(.semibold))
                     Spacer()
-                    Image(systemName: isMyBackup ? "externaldrive.fill" : "star.circle.fill")
+                    Image(systemName: productActionIcon(product))
                         .font(.system(size: 20))
                 }
-                .foregroundStyle(isMyBackup ? .white : Color.accentColor)
+                .foregroundStyle(isMyBackup || isDatedCopies ? .white : Color.accentColor)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(isMyBackup ? Color.accentColor : Color.accentColor.opacity(0.08))
+                .background(isMyBackup || isDatedCopies ? Color.accentColor : Color.accentColor.opacity(0.08))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(isMyBackup ? Color.accentColor.opacity(0.07) : Color(.secondarySystemBackground))
+            .background(isMyBackup || isDatedCopies ? Color.accentColor.opacity(0.07) : Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isMyBackup ? Color.accentColor.opacity(0.35) : Color(.separator), lineWidth: isMyBackup ? 2 : 1)
+                    .stroke(isMyBackup || isDatedCopies ? Color.accentColor.opacity(0.35) : Color(.separator), lineWidth: isMyBackup || isDatedCopies ? 2 : 1)
             )
         }
         .buttonStyle(.plain)
@@ -114,6 +119,8 @@ extension PaywallView {
 
     func productTitle(_ product: Product) -> String {
         switch product.id {
+        case EntitlementManager.datedCopiesProductID:
+            return "Dated Copies"
         case EntitlementManager.myBackupProductID:
             return "My Backup"
         case EntitlementManager.advancedProductID:
@@ -125,10 +132,12 @@ extension PaywallView {
 
     func productSubtitle(_ product: Product) -> String {
         switch product.id {
+        case EntitlementManager.datedCopiesProductID:
+            return "Save and restore dated copies of your Radix memory on this device."
         case EntitlementManager.myBackupProductID:
-            return "Move your characters, phrases, pages, favorites, settings, and AI Link templates across iPhone, iPad, and Mac."
+            return "Dated Copies plus moving your characters, phrases, pages, favorites, settings, and AI Link templates across iPhone, iPad, and Mac."
         case EntitlementManager.advancedProductID:
-            return "Developer exports plus My Backup: datasets, databases, project source, and manifests."
+            return "Developer exports plus Dated Copies and My Backup: datasets, databases, project source, and manifests."
         default:
             return product.description
         }
@@ -145,6 +154,8 @@ extension PaywallView {
 
     func productCallToAction(_ product: Product) -> String {
         switch product.id {
+        case EntitlementManager.datedCopiesProductID:
+            return "Unlock Dated Copies"
         case EntitlementManager.myBackupProductID:
             return "Unlock My Backup"
         case EntitlementManager.advancedProductID:
@@ -155,7 +166,36 @@ extension PaywallView {
     }
 
     func featureGate(for product: Product) -> EntitlementManager.FeatureGate {
-        product.id == EntitlementManager.myBackupProductID ? .myBackup : .advanced
+        switch product.id {
+        case EntitlementManager.datedCopiesProductID:
+            return .datedCopies
+        case EntitlementManager.myBackupProductID:
+            return .myBackup
+        default:
+            return .advanced
+        }
+    }
+
+    func planBadgeText(_ product: Product) -> String {
+        switch product.id {
+        case EntitlementManager.datedCopiesProductID:
+            return "$9"
+        case EntitlementManager.myBackupProductID:
+            return "$19"
+        default:
+            return "$99"
+        }
+    }
+
+    func productActionIcon(_ product: Product) -> String {
+        switch product.id {
+        case EntitlementManager.datedCopiesProductID:
+            return "clock.badge.checkmark"
+        case EntitlementManager.myBackupProductID:
+            return "externaldrive.fill"
+        default:
+            return "star.circle.fill"
+        }
     }
 
     func badge(_ text: String, emphasized: Bool = false) -> some View {

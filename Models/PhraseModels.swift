@@ -9,7 +9,7 @@ enum PhraseReviewStatus: String, Codable, CaseIterable {
         switch self {
         case .checked: return "Checked"
         case .hidden: return "Hidden"
-        case .removed: return "Removed"
+        case .removed: return "Rejected"
         }
     }
 }

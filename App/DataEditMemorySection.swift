@@ -4,7 +4,6 @@ extension DataEditTab {
     var libraryOverviewSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             memoryContentsSection
-            addedPhrasesPageActionSection
             personalLibraryTimelineSection
         }
     }
@@ -16,6 +15,15 @@ extension DataEditTab {
             phraseEntriesWithNotes: phraseEntriesWithNotes,
             title: "Memory",
             subtitle: "Everything you add, save, favorite, set up, or leave in progress in Radix. Dated copies and files for other devices both save this same Memory.",
+            addedPhraseReviewCount: store.addedPhrases.filter { !store.isPhraseInBase($0.word) }.count,
+            addedPhrasePageCharacterCount: addedPhrasePageText.count,
+            onReviewAddedPhrases: {
+                showAddedPhraseReview = true
+            },
+            onCreateAddedPhrasesPage: createAddedPhrasesPage,
+            onDeleteAddedPhrases: {
+                showDeleteAddedPhrasesConfirmation = true
+            },
             onPreviewCharacter: previewBackupCharacter,
             showSavedPagesPreview: $showSavedPagesPreview,
             showFavoritesPreview: $showFavoritesPreview,
@@ -71,77 +79,17 @@ extension DataEditTab {
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
-    var addedPhrasesPageActionSection: some View {
-        let phraseCount = addedPhraseWordsForPage.count
-        let reviewCount = store.addedPhrases.filter { !store.isPhraseInBase($0.word) }.count
-        let characterCount = addedPhrasePageText.count
-        return HStack(alignment: .center, spacing: 12) {
-            Image(systemName: "doc.text.magnifyingglass")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
-                .frame(width: 34, height: 34)
-                .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Make AI Review Page")
-                    .font(ResponsiveFont.body.weight(.semibold))
-                Text(characterCount == 0 ? "Add phrases first, then make them a Browse page." : "\(phraseCount) phrases in order, \(characterCount) characters including repeats.")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            Spacer(minLength: 0)
-
-            VStack(alignment: .trailing, spacing: 8) {
-                Button {
-                    showAddedPhraseReview = true
-                } label: {
-                    Label("Review Added", systemImage: "checklist")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .disabled(reviewCount == 0)
-
-                Button {
-                    createAddedPhrasesPage()
-                } label: {
-                    Label("Create Page", systemImage: "plus.square.on.square")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.small)
-                .disabled(characterCount == 0)
-
-                Button(role: .destructive) {
-                    showDeleteAddedPhrasesConfirmation = true
-                } label: {
-                    Label("Delete All", systemImage: RadixIcon.delete)
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .disabled(phraseCount == 0)
-            }
-        }
-        .padding(12)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
     var addedPhraseWordsForPage: [String] {
         addedPhraseEntries
             .filter(\.isVisibleInPhraseLibrary)
             .map { store.normalizedPhraseWord($0.word) }
-            .filter { !$0.isEmpty }
+            .filter { $0.count >= 2 }
     }
 
     var activeAddedPhraseWords: [String] {
         addedPhraseEntries
             .map { store.normalizedPhraseWord($0.word) }
-            .filter { !$0.isEmpty }
+            .filter { $0.count >= 2 }
     }
 
     var addedPhrasePageText: String {

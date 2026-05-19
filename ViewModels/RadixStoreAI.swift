@@ -212,7 +212,7 @@ struct GeminiTextGenerationService {
 
         let text = Self.responseText(from: data).trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else {
-            throw NSError(domain: "Radix", code: 4005, userInfo: [NSLocalizedDescriptionKey: "Gemini returned an empty translation report."])
+            throw NSError(domain: "Radix", code: 4005, userInfo: [NSLocalizedDescriptionKey: "Gemini returned an empty translation."])
         }
         return text
     }
@@ -338,7 +338,7 @@ extension RadixStore {
             modelID: geminiModelID,
             prompt: prompt,
             systemInstruction: """
-            You are an expert bilingual Chinese editor and translator. Return a polished translation report only, with no preface about being an AI and no follow-up questions.
+            You are an expert bilingual Chinese editor and translator. Return a polished translation only, with no preface about being an AI and no follow-up questions.
             """
         )
         updateCollectionTranslationReport(id: collection.id, report: report)

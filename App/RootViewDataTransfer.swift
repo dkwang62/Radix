@@ -5,6 +5,10 @@ extension RootView {
         !entitlement.requiresPro(.myBackup)
     }
 
+    var hasDatedCopiesMemoryAccess: Bool {
+        !entitlement.requiresPro(.datedCopies)
+    }
+
     func exportProfile() {
         if entitlement.requiresPro(.myBackup) {
             presentPaywall(for: .myBackup)
@@ -67,6 +71,10 @@ extension RootView {
 
     func quickSaveMemory() {
         guard !isQuickSavingMemory else { return }
+        guard hasDatedCopiesMemoryAccess else {
+            presentPaywall(for: .datedCopies)
+            return
+        }
         isQuickSavingMemory = true
 
         Task { @MainActor in
@@ -90,6 +98,10 @@ extension RootView {
 
     func quickRestoreMemory() {
         guard !isQuickRestoringMemory else { return }
+        guard hasDatedCopiesMemoryAccess else {
+            presentPaywall(for: .datedCopies)
+            return
+        }
         isQuickRestoringMemory = true
 
         Task { @MainActor in

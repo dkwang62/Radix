@@ -355,6 +355,9 @@ extension RadixStore {
         let originalWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
         let storedWord = phraseStorageWord(originalWord)
         guard !storedWord.isEmpty else { return }
+        guard storedWord.count >= 2 else {
+            throw NSError(domain: "Radix", code: 17, userInfo: [NSLocalizedDescriptionKey: "Phrases need two or more characters. Add single characters as characters instead."])
+        }
 
         try phraseRepo.addOrUpdatePhrase(
             word: storedWord,
@@ -375,6 +378,7 @@ extension RadixStore {
         let originalWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
         let storedWord = phraseStorageWord(originalWord)
         guard !storedWord.isEmpty else { return false }
+        guard storedWord.count >= 2 else { return false }
         guard phraseRepo.existingWords(in: [storedWord]).isEmpty else { return false }
 
         try phraseRepo.addOrUpdatePhrase(

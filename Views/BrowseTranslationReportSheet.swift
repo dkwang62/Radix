@@ -26,7 +26,7 @@ struct BrowseTranslationReportSheet: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay(alignment: .topLeading) {
                         if report.isEmpty {
-                            Text("Paste the AI translate result here, then tap Save.")
+                            Text("Paste the AI translation here, then tap Save.")
                                 .foregroundStyle(.tertiary)
                                 .padding(.top, 18)
                                 .padding(.leading, 16)
@@ -35,7 +35,6 @@ struct BrowseTranslationReportSheet: View {
                     }
             }
             .padding()
-            .navigationTitle("Translation Report")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -63,7 +62,7 @@ struct BrowseTranslationReportSheet: View {
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             } else {
-                Text("No saved translation report yet.")
+                Text("No saved translation yet.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             }

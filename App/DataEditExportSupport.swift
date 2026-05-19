@@ -146,6 +146,7 @@ struct DataBackupActionButton: View {
     let background: Color
     let border: Color
     var isLocked: Bool = false
+    var lockBadge: String = "$19"
 
     var body: some View {
         HStack(spacing: 10) {
@@ -169,7 +170,7 @@ struct DataBackupActionButton: View {
             Spacer(minLength: 0)
 
             if isLocked {
-                Text("$19")
+                Text(lockBadge)
                     .font(ResponsiveFont.caption.bold())
                     .padding(.horizontal, 8)
                     .padding(.vertical, 5)

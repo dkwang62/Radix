@@ -63,18 +63,22 @@ extension RootView {
     }
 
     var sidebarMemoryButtons: some View {
-        HStack(spacing: 8) {
+        let datedCopiesLocked = entitlement.requiresPro(.datedCopies)
+
+        return HStack(spacing: 8) {
             sidebarMemoryButton(
                 title: isQuickSavingMemory ? "Saving..." : "Save Memory",
-                systemImage: isQuickSavingMemory ? "hourglass" : "tray.and.arrow.down",
+                systemImage: isQuickSavingMemory ? "hourglass" : (datedCopiesLocked ? "lock.fill" : "tray.and.arrow.down"),
                 isBusy: isQuickSavingMemory,
+                lockBadge: datedCopiesLocked ? "$9" : nil,
                 action: quickSaveMemory
             )
 
             sidebarMemoryButton(
                 title: isQuickRestoringMemory ? "Restoring..." : "Restore Memory",
-                systemImage: isQuickRestoringMemory ? "hourglass" : "arrow.counterclockwise",
+                systemImage: isQuickRestoringMemory ? "hourglass" : (datedCopiesLocked ? "lock.fill" : "arrow.counterclockwise"),
                 isBusy: isQuickRestoringMemory,
+                lockBadge: datedCopiesLocked ? "$9" : nil,
                 action: quickRestoreMemory
             )
         }
@@ -84,6 +88,7 @@ extension RootView {
         title: String,
         systemImage: String,
         isBusy: Bool,
+        lockBadge: String? = nil,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
@@ -97,6 +102,17 @@ extension RootView {
                     .font(ResponsiveFont.caption2.weight(.semibold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
+
+                if let lockBadge {
+                    Text(lockBadge)
+                        .font(ResponsiveFont.caption2.weight(.bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(Color.accentColor)
+                        .clipShape(Capsule())
+                        .accessibilityHidden(true)
+                }
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
