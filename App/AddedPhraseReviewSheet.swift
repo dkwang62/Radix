@@ -3,11 +3,16 @@ import SwiftUI
 struct AddedPhraseReviewSheet: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.dismiss) private var dismiss
-    @State private var filter: AddedPhraseReviewFilter = .new
+    @State private var filter: AddedPhraseReviewFilter = .all
+    @State private var selectedTool: AddedPhraseReviewTool?
     @State private var searchText = ""
     @State private var selectedPhrase: PhraseItem?
+    @State private var pageIndex = 0
     @State private var message: String?
-    @State private var bulkMessage: String?
+    @State private var showsFilterPicker = false
+
+    private let pageSize = 40
+    private let detailTextMaxWidth: CGFloat = 640
 
     private var addedPhrases: [PhraseItem] {
         store.addedPhrases.filter { $0.word.count >= 2 && !store.isPhraseInBase($0.word) }
@@ -27,11 +32,19 @@ struct AddedPhraseReviewSheet: View {
             .sorted(by: reviewSort)
     }
 
+    // Layout guardrails for this sheet:
+    // - Keep the filter row, status tool row, Done button, and page controls fully inside the sheet.
+    //   Past versions clipped "Done", "Clear", and the selected-count text at the left/right edges.
+    // - Classification is a paint-style flow: choose a status tool, then tap tiles to apply it.
+    // - Keep the selected phrase preview compact. If it becomes too tall, the phrase grid loses the
+    //   screen space this workflow needs for fast classification.
+    // - Default to All so review can begin from the complete set before switching to a status filter.
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 6) {
                 topControlRow
                 searchField
+                toolRow
                 selectedPhraseDetailCard
 
                 if filteredPhrases.isEmpty {
@@ -51,84 +64,151 @@ struct AddedPhraseReviewSheet: View {
             .onAppear {
                 store.refreshAddedPhrases()
             }
+            .onChange(of: searchText) { _, _ in
+                resetPageAndSelection()
+            }
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
     }
 
-    private var topControlRow: some View {
-        HStack(spacing: 6) {
-            helpMenu
-                .buttonStyle(.bordered)
-                .controlSize(.small)
+    private var pageCount: Int {
+        max(1, Int(ceil(Double(filteredPhrases.count) / Double(pageSize))))
+    }
 
+    private var visibleMessage: String? {
+        message
+    }
+
+    private var currentPageIndex: Int {
+        min(max(pageIndex, 0), pageCount - 1)
+    }
+
+    private var pagedPhrases: [PhraseItem] {
+        let start = currentPageIndex * pageSize
+        guard filteredPhrases.indices.contains(start) else { return [] }
+        return Array(filteredPhrases.dropFirst(start).prefix(pageSize))
+    }
+
+    private var topControlRow: some View {
+        // Keep Done next to the filters, not flush to the far edge, so it remains visible
+        // in narrower modal widths and does not repeat the old off-screen Done-button bug.
+        HStack(spacing: 6) {
             Spacer(minLength: 0)
 
             filterRow
 
-            Spacer(minLength: 0)
-
             Button("Done") { dismiss() }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)
-        }
-    }
 
-    private var helpMenu: some View {
-        Menu {
-            statusHelpLine(
-                title: "Checked",
-                detail: "Good phrase. It stays in phrase lists and can appear on pages."
-            )
-            statusHelpLine(
-                title: "Hidden",
-                detail: "Page-only phrase. It can help page highlighting but stays out of normal phrase lists."
-            )
-            statusHelpLine(
-                title: "Rejected",
-                detail: "Not a phrase. Radix remembers the rejection so it does not quietly come back."
-            )
-        } label: {
-            Image(systemName: RadixIcon.help)
-                .accessibilityLabel("Help")
+            Spacer(minLength: 0)
         }
-    }
-
-    private func statusHelpLine(title: String, detail: String) -> some View {
-        Button {
-        } label: {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                Text(detail)
-                    .font(ResponsiveFont.caption2)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .disabled(true)
     }
 
     private var filterRow: some View {
-        HStack(spacing: 4) {
-            ForEach(AddedPhraseReviewFilter.allCases) { option in
+        HStack(spacing: 8) {
+            Text("Filter")
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            Button {
+                showsFilterPicker.toggle()
+            } label: {
+                HStack(spacing: 7) {
+                    Image(systemName: filter.icon)
+                        .symbolRenderingMode(.hierarchical)
+                    Text(filter.title)
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 8, weight: .bold))
+                        .opacity(0.75)
+                }
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .lineLimit(1)
+                .frame(minWidth: 112)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+            .tint(filter.color)
+            .foregroundStyle(Color.white)
+            .popover(isPresented: $showsFilterPicker, arrowEdge: .top) {
+                filterPickerPopover
+            }
+        }
+    }
+
+    private var filterPickerPopover: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            ForEach(AddedPhraseReviewFilter.menuCases) { option in
                 Button {
                     filter = option
-                    if let selectedPhrase, !option.includes(selectedPhrase) {
-                        self.selectedPhrase = nil
-                    }
+                    selectedTool = AddedPhraseReviewTool.tool(for: option)
+                    resetPageAndSelection()
+                    showsFilterPicker = false
                 } label: {
-                    Text(option.title)
-                        .font(ResponsiveFont.caption2.weight(.semibold))
-                        .lineLimit(1)
-                        .frame(width: 66)
+                    HStack(spacing: 12) {
+                        filterPill(for: option)
+
+                        Text(option.title)
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.9)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        Group {
+                            if filter == option {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundStyle(option.color)
+                            }
+                        }
+                        .frame(width: 18)
+                    }
+                    .font(ResponsiveFont.subheadline)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(8)
+        .frame(width: 260)
+        .presentationCompactAdaptation(.popover)
+    }
+
+    private func filterPill(for option: AddedPhraseReviewFilter) -> some View {
+        ZStack {
+            Capsule()
+                .fill(option.color)
+
+            Image(systemName: option.icon)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(.white)
+        }
+        .frame(width: 48, height: 24)
+        .accessibilityHidden(true)
+    }
+
+    private var toolRow: some View {
+        HStack(spacing: 4) {
+            ForEach(AddedPhraseReviewTool.allCases) { option in
+                Button {
+                    toggleTool(option)
+                } label: {
+                    Image(systemName: option.icon)
+                        .font(.system(size: 13, weight: .semibold))
+                        .frame(width: 34, height: 24)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)
-                .tint(filter == option ? Color.accentColor : Color(.systemGray5))
-                .foregroundStyle(filter == option ? Color.white : Color.primary)
+                .tint(selectedTool == option ? option.color : Color(.systemGray5))
+                .foregroundStyle(selectedTool == option ? Color.white : Color.primary)
+                .accessibilityLabel("Mark as \(option.title)")
+                .help("Mark as \(option.title)")
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 
     private var searchField: some View {
@@ -156,36 +236,88 @@ struct AddedPhraseReviewSheet: View {
     }
 
     private var phraseGrid: some View {
-        ScrollView {
-            LazyVGrid(
-                columns: Array(repeating: GridItem(.fixed(112), spacing: 4, alignment: .center), count: 4),
-                alignment: .center,
-                spacing: 4
-            ) {
-                ForEach(filteredPhrases) { phrase in
-                    AddedPhraseReviewTile(
-                        phrase: phrase,
-                        isSelected: selectedPhrase?.word == phrase.word,
-                        onSelect: { selectedPhrase = phrase },
-                        onMarkNew: { setStatus(nil, for: phrase) },
-                        onCheck: { setStatus(.checked, for: phrase) },
-                        onHide: { setStatus(.hidden, for: phrase) },
-                        onReject: { setStatus(.removed, for: phrase) }
-                    )
-                }
-            }
-            .padding(.vertical, 2)
-            .frame(maxWidth: .infinity, alignment: .center)
+        VStack(spacing: 6) {
+            phrasePageGrid
+            pageFooter
         }
+        .frame(maxWidth: .infinity, alignment: .center)
+    }
+
+    private var phrasePageGrid: some View {
+        LazyVGrid(
+            columns: Array(repeating: GridItem(.fixed(112), spacing: 4, alignment: .center), count: 4),
+            alignment: .center,
+            spacing: 4
+        ) {
+            ForEach(pagedPhrases) { phrase in
+                AddedPhraseReviewTile(
+                    phrase: phrase,
+                    isSelected: selectedPhrase?.word == phrase.word,
+                    onSelect: { applySelectedTool(to: phrase) },
+                    onMarkNew: { setStatus(nil, for: phrase) },
+                    onCheck: { setStatus(.checked, for: phrase) },
+                    onHide: { setStatus(.hidden, for: phrase) },
+                    onReject: { setStatus(.removed, for: phrase) }
+                )
+            }
+        }
+        .padding(.vertical, 2)
+        .frame(width: 460, alignment: .center)
+    }
+
+    private var pageFooter: some View {
+        HStack(spacing: 10) {
+            pageButton(systemImage: "chevron.left", action: previousPage, isEnabled: currentPageIndex > 0)
+
+            Text("Page \(currentPageIndex + 1) of \(pageCount) · \(filteredPhrases.count) phrases")
+                .font(ResponsiveFont.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .frame(minWidth: 150)
+
+            pageButton(systemImage: "chevron.right", action: nextPage, isEnabled: currentPageIndex < pageCount - 1)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+    }
+
+    private func pageButton(systemImage: String, action: @escaping () -> Void, isEnabled: Bool) -> some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.system(size: 12, weight: .semibold))
+                .frame(width: 30, height: 24)
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.small)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : 0.25)
+        .accessibilityLabel(systemImage.contains("left") ? "Previous page" : "Next page")
     }
 
     private var selectedPhraseDetailCard: some View {
+        // This preview explains the selected tile, but the grid is the main work area.
+        // Keep this card compact and centered so it does not push the phrase page down.
         VStack(alignment: .leading, spacing: 8) {
             if let phrase = selectedPhrase {
                 phraseDetails(phrase)
             } else {
-                Text("Select a phrase to see pinyin, meaning, and classify it.")
+                Text("Choose a status, then tap phrases to mark them.")
                     .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+
+            if selectedPhrase == nil, selectedTool == nil {
+                Text("No status selected. Showing all phrases.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+
+            if let visibleMessage {
+                Text(visibleMessage)
+                    .font(ResponsiveFont.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -202,10 +334,10 @@ struct AddedPhraseReviewSheet: View {
     }
 
     private func phraseDetails(_ phrase: PhraseItem) -> some View {
-        VStack(alignment: .center, spacing: 3) {
+        VStack(alignment: .center, spacing: 2) {
             HStack(spacing: 8) {
                 Text(phrase.word)
-                    .font(ResponsiveFont.title2.weight(.semibold))
+                    .font(ResponsiveFont.title3.weight(.semibold))
                     .lineLimit(2)
                     .minimumScaleFactor(0.75)
                     .fixedSize(horizontal: false, vertical: true)
@@ -222,12 +354,15 @@ struct AddedPhraseReviewSheet: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .multilineTextAlignment(.center)
+                .frame(maxWidth: detailTextMaxWidth, alignment: .center)
 
             Text(phrase.meanings.isEmpty ? "No meaning yet" : phrase.meanings)
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(phrase.meanings.isEmpty ? Color.secondary : Color.primary)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
+                .truncationMode(.tail)
+                .frame(maxWidth: detailTextMaxWidth, alignment: .center)
         }
         .frame(maxWidth: .infinity, alignment: .center)
     }
@@ -281,75 +416,55 @@ struct AddedPhraseReviewSheet: View {
     ) {
         do {
             try store.updateAddedPhraseReviewStatus(word: phrase.word, status: status)
-            selectedPhrase = closeSelection ? nil : (store.addedPhrases.first { $0.word == phrase.word } ?? phrase)
+            let updatedPhrase = store.addedPhrases.first { $0.word == phrase.word } ?? phrase
+            selectedPhrase = closeSelection || !filter.includes(updatedPhrase) ? nil : updatedPhrase
+            selectedTool = AddedPhraseReviewTool.tool(for: status)
+            filter = AddedPhraseReviewFilter.filter(for: status)
+            clampPage()
             message = statusMessage(status, phrase: phrase)
-            bulkMessage = nil
         } catch {
             message = "Could not update \(phrase.word): \(error.localizedDescription)"
-            bulkMessage = nil
         }
     }
 
-    private func setStatusAndAdvance(_ status: PhraseReviewStatus?, for phrase: PhraseItem) {
-        let before = filteredPhrases
-        let currentIndex = before.firstIndex { $0.word == phrase.word }
-        let laterWords = currentIndex.map { index in
-            Array(before.dropFirst(index + 1).map(\.word))
-        } ?? []
-
-        do {
-            try store.updateAddedPhraseReviewStatus(word: phrase.word, status: status)
-            message = statusMessage(status, phrase: phrase)
-            bulkMessage = nil
-            store.refreshAddedPhrases()
-
-            let after = filteredPhrases
-            if after.isEmpty {
-                selectedPhrase = nil
-            } else if let next = after.first(where: { laterWords.contains($0.word) }) {
-                selectedPhrase = next
-            } else {
-                selectedPhrase = after.first
-            }
-        } catch {
-            message = "Could not update \(phrase.word): \(error.localizedDescription)"
-            bulkMessage = nil
+    private func applySelectedTool(to phrase: PhraseItem) {
+        guard let selectedTool else {
+            selectedPhrase = phrase
+            message = nil
+            return
         }
+        let isSameTile = selectedPhrase?.word == phrase.word
+        let nextStatus = isSameTile ? AddedPhraseReviewTool.nextStatus(after: phrase.reviewStatus) : selectedTool.status
+        setStatus(nextStatus, for: phrase)
     }
 
-    private func setFilteredStatus(_ status: PhraseReviewStatus?) {
-        let phrases = filteredPhrases
-        guard !phrases.isEmpty else { return }
-
-        var changed = 0
-        var failed = 0
-        for phrase in phrases {
-            do {
-                try store.updateAddedPhraseReviewStatus(word: phrase.word, status: status)
-                changed += 1
-            } catch {
-                failed += 1
-            }
+    private func toggleTool(_ tool: AddedPhraseReviewTool) {
+        if selectedTool == tool {
+            selectedTool = nil
+            filter = .all
+        } else {
+            selectedTool = tool
+            filter = AddedPhraseReviewFilter.filter(for: tool.status)
         }
-        bulkMessage = bulkStatusMessage(status, changed: changed, failed: failed)
+        resetPageAndSelection()
+    }
+
+    private func resetPageAndSelection() {
+        pageIndex = 0
+        selectedPhrase = nil
         message = nil
-        store.refreshAddedPhrases()
-        if let selectedWord = selectedPhrase?.word {
-            selectedPhrase = store.addedPhrases.first { $0.word == selectedWord }
-        }
     }
 
-    private func bulkStatusMessage(_ status: PhraseReviewStatus?, changed: Int, failed: Int) -> String {
-        let action: String = {
-            switch status {
-            case .checked: return "checked"
-            case .hidden: return "hidden"
-            case .removed: return "rejected"
-            case nil: return "moved to New"
-            }
-        }()
-        let failureText = failed == 0 ? "" : " \(failed) failed."
-        return "\(changed) shown phrase\(changed == 1 ? "" : "s") \(action).\(failureText)"
+    private func clampPage() {
+        pageIndex = currentPageIndex
+    }
+
+    private func previousPage() {
+        pageIndex = max(0, currentPageIndex - 1)
+    }
+
+    private func nextPage() {
+        pageIndex = min(pageCount - 1, currentPageIndex + 1)
     }
 
     private func statusMessage(_ status: PhraseReviewStatus?, phrase: PhraseItem) -> String {
@@ -373,9 +488,6 @@ struct AddedPhraseReviewSheet: View {
         return lhsDate > rhsDate
     }
 
-    private var visibleMessage: String? {
-        bulkMessage ?? message
-    }
 }
 
 private struct AddedPhraseReviewTile: View {
@@ -486,6 +598,8 @@ private enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    static let menuCases: [AddedPhraseReviewFilter] = [.removed, .checked, .hidden, .new, .all]
+
     var title: String {
         switch self {
         case .new: return "New"
@@ -496,6 +610,26 @@ private enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
         }
     }
 
+    var icon: String {
+        switch self {
+        case .new: return "sparkle"
+        case .checked: return "checkmark.circle.fill"
+        case .hidden: return "eye.slash.fill"
+        case .removed: return "xmark.circle.fill"
+        case .all: return "line.3.horizontal.decrease.circle"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .new: return Color.secondary
+        case .checked: return Color.accentColor
+        case .hidden: return Color.orange
+        case .removed: return Color.red
+        case .all: return Color.accentColor
+        }
+    }
+
     func includes(_ phrase: PhraseItem) -> Bool {
         switch self {
         case .new: return phrase.reviewStatus == nil
@@ -503,6 +637,88 @@ private enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
         case .hidden: return phrase.reviewStatus == .hidden
         case .removed: return phrase.reviewStatus == .removed
         case .all: return true
+        }
+    }
+
+    static func filter(for status: PhraseReviewStatus?) -> AddedPhraseReviewFilter {
+        switch status {
+        case .checked: return .checked
+        case .hidden: return .hidden
+        case .removed: return .removed
+        case nil: return .new
+        }
+    }
+}
+
+private enum AddedPhraseReviewTool: String, CaseIterable, Identifiable {
+    case removed
+    case checked
+    case hidden
+    case new
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .removed: return "Rejected"
+        case .checked: return "Checked"
+        case .hidden: return "Hidden"
+        case .new: return "New"
+        }
+    }
+
+    var status: PhraseReviewStatus? {
+        switch self {
+        case .removed: return .removed
+        case .checked: return .checked
+        case .hidden: return .hidden
+        case .new: return nil
+        }
+    }
+
+    static func tool(for status: PhraseReviewStatus?) -> AddedPhraseReviewTool {
+        switch status {
+        case .removed: return .removed
+        case .checked: return .checked
+        case .hidden: return .hidden
+        case nil: return .new
+        }
+    }
+
+    static func tool(for filter: AddedPhraseReviewFilter) -> AddedPhraseReviewTool? {
+        switch filter {
+        case .removed: return .removed
+        case .checked: return .checked
+        case .hidden: return .hidden
+        case .new: return .new
+        case .all: return nil
+        }
+    }
+
+    static func nextStatus(after status: PhraseReviewStatus?) -> PhraseReviewStatus? {
+        switch status {
+        case nil: return .removed
+        case .removed: return .checked
+        case .checked: return .hidden
+        case .hidden: return nil
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .removed: return "xmark.circle.fill"
+        case .checked: return "checkmark.circle.fill"
+        case .hidden: return "eye.slash.fill"
+        case .new: return "sparkle"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .removed: return Color.red
+        case .checked: return Color.accentColor
+        case .hidden: return Color.orange
+        case .new: return Color.secondary
         }
     }
 }

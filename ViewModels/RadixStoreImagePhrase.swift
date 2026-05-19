@@ -341,9 +341,12 @@ extension RadixStore {
             )
         }
         .sorted {
-            if $0.firstStart != $1.firstStart { return $0.firstStart < $1.firstStart }
-            if $0.phrase.word.count != $1.phrase.word.count { return $0.phrase.word.count > $1.phrase.word.count }
-            return $0.phrase.pinyin < $1.phrase.pinyin
+            let leftKey = BackupPreviewSort.key(primary: $0.phrase.pinyin, fallback: $0.phrase.word)
+            let rightKey = BackupPreviewSort.key(primary: $1.phrase.pinyin, fallback: $1.phrase.word)
+            let pinyinOrder = leftKey.localizedStandardCompare(rightKey)
+            if pinyinOrder != .orderedSame { return pinyinOrder == .orderedAscending }
+            if $0.phrase.word != $1.phrase.word { return $0.phrase.word < $1.phrase.word }
+            return $0.firstStart < $1.firstStart
         }
         browsePagePhraseCandidateCache[collection.id] = candidates
         return candidates

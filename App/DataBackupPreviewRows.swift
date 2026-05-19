@@ -37,10 +37,11 @@ struct BackupCharacterTile: View {
 struct BackupPhraseRow: View {
     let phrase: PhraseItem
     let onSelect: () -> Void
+    var showsReviewStatus: Bool = false
 
     var body: some View {
         Button(action: onSelect) {
-            PhraseSummaryTile(phrase: phrase)
+            PhraseSummaryTile(phrase: phrase, showsReviewStatus: showsReviewStatus)
         }
         .buttonStyle(.plain)
         .phraseContextMenu(phrase)

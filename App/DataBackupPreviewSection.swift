@@ -3,6 +3,7 @@ import SwiftUI
 struct DataBackupPreviewSection: View {
     @EnvironmentObject var store: RadixStore
     @State var selectedPhrase: PhraseItem?
+    @State var lastAddedPhraseReviewPreviewedWord: String?
     @State var revertBasePhraseMessage: String?
 
     let addedPhraseEntries: [PhraseItem]
@@ -81,7 +82,7 @@ struct DataBackupPreviewSection: View {
 
             DisclosureGroup("Phrases You Added (\(addedPhraseEntries.count))", isExpanded: $showAddedPhrasesPreview) {
                 addedPhraseManagementRow
-                backupPhraseRows(addedPhraseEntries)
+                addedPhraseReviewRows(addedPhraseEntries)
             }
 
             DisclosureGroup("Characters You Changed (\(store.baseDictionaryCoreEditedCharacters.count))", isExpanded: $showEditedCharactersPreview) {

@@ -79,6 +79,8 @@ struct PhraseSummaryTile: View {
     let textAlignment: HorizontalAlignment
     let onSelect: (() -> Void)?
     let onToggleFavorite: (() -> Void)?
+    let reviewStatus: PhraseReviewStatus?
+    let showsReviewStatus: Bool
 
     init(
         phrase: PhraseItem,
@@ -88,7 +90,8 @@ struct PhraseSummaryTile: View {
         maximumWidth: CGFloat = RadixTileMetrics.defaultPhraseWidth,
         textAlignment: HorizontalAlignment = .leading,
         onSelect: (() -> Void)? = nil,
-        onToggleFavorite: (() -> Void)? = nil
+        onToggleFavorite: (() -> Void)? = nil,
+        showsReviewStatus: Bool = false
     ) {
         self.phraseText = phrase.word
         self.pinyin = phrase.pinyin
@@ -99,6 +102,8 @@ struct PhraseSummaryTile: View {
         self.textAlignment = textAlignment
         self.onSelect = onSelect
         self.onToggleFavorite = onToggleFavorite
+        self.reviewStatus = phrase.reviewStatus
+        self.showsReviewStatus = showsReviewStatus
     }
 
     init(
@@ -110,7 +115,9 @@ struct PhraseSummaryTile: View {
         maximumWidth: CGFloat = RadixTileMetrics.defaultPhraseWidth,
         textAlignment: HorizontalAlignment = .leading,
         onSelect: (() -> Void)? = nil,
-        onToggleFavorite: (() -> Void)? = nil
+        onToggleFavorite: (() -> Void)? = nil,
+        reviewStatus: PhraseReviewStatus? = nil,
+        showsReviewStatus: Bool = false
     ) {
         self.phraseText = phraseText
         self.pinyin = pinyin
@@ -121,23 +128,35 @@ struct PhraseSummaryTile: View {
         self.textAlignment = textAlignment
         self.onSelect = onSelect
         self.onToggleFavorite = onToggleFavorite
+        self.reviewStatus = reviewStatus
+        self.showsReviewStatus = showsReviewStatus
     }
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
             phraseContent
 
-            if isFavorite == true {
-                Button(action: { onToggleFavorite?() }) {
-                    Image(systemName: RadixIcon.saved)
-                        .font(.system(size: 14))
-                        .foregroundStyle(.yellow)
-                        .padding(6)
-                        .contentShape(Rectangle())
+            VStack(spacing: 2) {
+                if isFavorite == true {
+                    Button(action: { onToggleFavorite?() }) {
+                        Image(systemName: RadixIcon.saved)
+                            .font(.system(size: 14))
+                            .foregroundStyle(.yellow)
+                            .padding(6)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(onToggleFavorite == nil)
+                    .accessibilityLabel("Remove phrase from Favorites")
                 }
-                .buttonStyle(.plain)
-                .disabled(onToggleFavorite == nil)
-                .accessibilityLabel("Remove phrase from Favorites")
+
+                if showsReviewStatus {
+                    Image(systemName: reviewStatusIcon)
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(reviewStatusColor)
+                        .padding(6)
+                        .accessibilityLabel(reviewStatusTitle)
+                }
             }
         }
         .background(tileBackground)
@@ -192,17 +211,45 @@ struct PhraseSummaryTile: View {
     private var tileBackground: Color {
         if isActive { return Color.accentColor.opacity(0.16) }
         if isFavorite == true { return Color.yellow.opacity(0.12) }
+        if showsReviewStatus, reviewStatus == .removed { return Color.red.opacity(0.08) }
+        if showsReviewStatus, reviewStatus == .checked { return Color.accentColor.opacity(0.10) }
+        if showsReviewStatus, reviewStatus == .hidden { return Color.orange.opacity(0.10) }
         return Color(.secondarySystemBackground).opacity(0.62)
     }
 
     private var tileStroke: Color {
         if isActive { return Color.accentColor.opacity(0.8) }
         if isFavorite == true { return Color.yellow.opacity(0.65) }
+        if showsReviewStatus, reviewStatus == .removed { return Color.red.opacity(0.38) }
+        if showsReviewStatus, reviewStatus == .checked { return Color.accentColor.opacity(0.45) }
+        if showsReviewStatus, reviewStatus == .hidden { return Color.orange.opacity(0.38) }
         return Color.secondary.opacity(0.22)
     }
 
     private var favoriteAccessibility: String {
         guard let isFavorite else { return "phrase" }
         return isFavorite ? "favorite phrase" : "phrase"
+    }
+
+    private var reviewStatusIcon: String {
+        switch reviewStatus {
+        case .checked: return "checkmark.circle.fill"
+        case .hidden: return "eye.slash.fill"
+        case .removed: return "xmark.circle.fill"
+        case nil: return "circle.fill"
+        }
+    }
+
+    private var reviewStatusColor: Color {
+        switch reviewStatus {
+        case .checked: return Color.accentColor
+        case .hidden: return Color.orange
+        case .removed: return Color.red
+        case nil: return Color.secondary.opacity(0.45)
+        }
+    }
+
+    private var reviewStatusTitle: String {
+        reviewStatus?.title ?? "New"
     }
 }

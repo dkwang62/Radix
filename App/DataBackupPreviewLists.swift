@@ -56,6 +56,27 @@ extension DataBackupPreviewSection {
         }
     }
 
+    @ViewBuilder
+    func addedPhraseReviewRows(_ phrases: [PhraseItem]) -> some View {
+        let sortedPhrases = sortedBackupPhrases(phrases)
+
+        if phrases.isEmpty {
+            Text("No matching phrases.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .padding(.top, 8)
+        } else {
+            LazyVGrid(columns: backupPhraseColumns, alignment: .leading, spacing: 8) {
+                ForEach(sortedPhrases) { phrase in
+                    BackupPhraseRow(phrase: phrase, onSelect: {
+                        previewOrCycleAddedPhrase(phrase)
+                    }, showsReviewStatus: true)
+                }
+            }
+            .padding(.top, 8)
+        }
+    }
+
     var backupSavedPagesRows: some View {
         VStack(alignment: .leading, spacing: 8) {
             if store.allCollections.isEmpty {
@@ -102,6 +123,40 @@ extension DataBackupPreviewSection {
             let leftKey = BackupPreviewSort.key(primary: lhs.pinyin, fallback: lhs.word)
             let rightKey = BackupPreviewSort.key(primary: rhs.pinyin, fallback: rhs.word)
             return leftKey.localizedStandardCompare(rightKey) == .orderedAscending
+        }
+    }
+
+    func previewOrCycleAddedPhrase(_ phrase: PhraseItem) {
+        let word = store.normalizedPhraseWord(phrase.word)
+        defer {
+            lastAddedPhraseReviewPreviewedWord = word
+            presentPhrase(phrase)
+        }
+
+        guard lastAddedPhraseReviewPreviewedWord == word else { return }
+        cycleAddedPhraseReviewStatus(phrase)
+    }
+
+    func cycleAddedPhraseReviewStatus(_ phrase: PhraseItem) {
+        let currentStatus = currentAddedPhraseReviewStatus(for: phrase)
+        do {
+            try store.updateAddedPhraseReviewStatus(word: phrase.word, status: nextAddedPhraseReviewStatus(after: currentStatus))
+        } catch {
+            revertBasePhraseMessage = "Could not update \(phrase.word): \(error.localizedDescription)"
+        }
+    }
+
+    func currentAddedPhraseReviewStatus(for phrase: PhraseItem) -> PhraseReviewStatus? {
+        let word = store.normalizedPhraseWord(phrase.word)
+        return store.addedPhrases.first { store.normalizedPhraseWord($0.word) == word }?.reviewStatus ?? phrase.reviewStatus
+    }
+
+    func nextAddedPhraseReviewStatus(after status: PhraseReviewStatus?) -> PhraseReviewStatus? {
+        switch status {
+        case nil: return .removed
+        case .removed: return .checked
+        case .checked: return .hidden
+        case .hidden: return nil
         }
     }
 }
