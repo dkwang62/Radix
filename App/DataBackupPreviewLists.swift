@@ -128,19 +128,21 @@ extension DataBackupPreviewSection {
 
     func previewOrCycleAddedPhrase(_ phrase: PhraseItem) {
         let word = store.normalizedPhraseWord(phrase.word)
+        let action = addedPhraseReviewCycle.action(
+            for: word,
+            currentStatus: currentAddedPhraseReviewStatus(for: phrase)
+        )
         defer {
-            lastAddedPhraseReviewPreviewedWord = word
             presentPhrase(phrase)
         }
 
-        guard lastAddedPhraseReviewPreviewedWord == word else { return }
-        cycleAddedPhraseReviewStatus(phrase)
+        guard case let .apply(status) = action else { return }
+        setAddedPhraseReviewStatus(status, for: phrase)
     }
 
-    func cycleAddedPhraseReviewStatus(_ phrase: PhraseItem) {
-        let currentStatus = currentAddedPhraseReviewStatus(for: phrase)
+    func setAddedPhraseReviewStatus(_ status: PhraseReviewStatus?, for phrase: PhraseItem) {
         do {
-            try store.updateAddedPhraseReviewStatus(word: phrase.word, status: nextAddedPhraseReviewStatus(after: currentStatus))
+            try store.updateAddedPhraseReviewStatus(word: phrase.word, status: status)
         } catch {
             revertBasePhraseMessage = "Could not update \(phrase.word): \(error.localizedDescription)"
         }
@@ -151,12 +153,4 @@ extension DataBackupPreviewSection {
         return store.addedPhrases.first { store.normalizedPhraseWord($0.word) == word }?.reviewStatus ?? phrase.reviewStatus
     }
 
-    func nextAddedPhraseReviewStatus(after status: PhraseReviewStatus?) -> PhraseReviewStatus? {
-        switch status {
-        case nil: return .removed
-        case .removed: return .checked
-        case .checked: return .hidden
-        case .hidden: return nil
-        }
-    }
 }

@@ -14,6 +14,96 @@ enum PhraseReviewStatus: String, Codable, CaseIterable {
     }
 }
 
+enum PhraseReviewStatusTool: String, CaseIterable, Identifiable {
+    case removed
+    case checked
+    case hidden
+    case new
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .removed: return "Rejected"
+        case .checked: return "Checked"
+        case .hidden: return "Hidden"
+        case .new: return "New"
+        }
+    }
+
+    var status: PhraseReviewStatus? {
+        switch self {
+        case .removed: return .removed
+        case .checked: return .checked
+        case .hidden: return .hidden
+        case .new: return nil
+        }
+    }
+
+    static func tool(for status: PhraseReviewStatus?) -> PhraseReviewStatusTool {
+        switch status {
+        case .removed: return .removed
+        case .checked: return .checked
+        case .hidden: return .hidden
+        case nil: return .new
+        }
+    }
+
+    static func nextStatus(after status: PhraseReviewStatus?) -> PhraseReviewStatus? {
+        switch status {
+        case nil: return .removed
+        case .removed: return .checked
+        case .checked: return .hidden
+        case .hidden: return nil
+        }
+    }
+}
+
+enum PhraseReviewStatusCycleAction {
+    case previewOnly
+    case apply(PhraseReviewStatus?)
+}
+
+struct PhraseReviewStatusCycleState {
+    private(set) var lastInteractedID: String?
+    private(set) var activeTool: PhraseReviewStatusTool?
+
+    mutating func action(
+        for id: String,
+        currentStatus: PhraseReviewStatus?,
+        selectedTool: PhraseReviewStatusTool? = nil
+    ) -> PhraseReviewStatusCycleAction {
+        defer { lastInteractedID = id }
+
+        if let selectedTool {
+            activeTool = selectedTool
+            if lastInteractedID == id {
+                let nextStatus = PhraseReviewStatusTool.nextStatus(after: currentStatus)
+                activeTool = PhraseReviewStatusTool.tool(for: nextStatus)
+                return .apply(nextStatus)
+            }
+            return .apply(selectedTool.status)
+        }
+
+        if let activeTool, lastInteractedID != id {
+            return .apply(activeTool.status)
+        }
+
+        guard lastInteractedID == id else { return .previewOnly }
+        let nextStatus = PhraseReviewStatusTool.nextStatus(after: currentStatus)
+        activeTool = PhraseReviewStatusTool.tool(for: nextStatus)
+        return .apply(nextStatus)
+    }
+
+    mutating func setActiveTool(_ tool: PhraseReviewStatusTool?) {
+        activeTool = tool
+    }
+
+    mutating func resetPreview() {
+        lastInteractedID = nil
+    }
+}
+
 struct PhraseItem: Identifiable, Hashable, Equatable, Codable {
     let id: String
     let word: String

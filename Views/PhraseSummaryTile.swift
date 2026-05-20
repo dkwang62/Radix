@@ -11,6 +11,41 @@ enum RadixTileMetrics {
     static let activeBorderWidth: CGFloat = 2.5
 }
 
+extension PhraseReviewStatusTool {
+    var icon: String {
+        switch self {
+        case .removed: return "xmark.circle.fill"
+        case .checked: return "checkmark.circle.fill"
+        case .hidden: return "eye.slash.fill"
+        case .new: return "sparkle"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .removed: return Color.red
+        case .checked: return Color.accentColor
+        case .hidden: return Color.orange
+        case .new: return Color.secondary
+        }
+    }
+}
+
+struct PhraseReviewStatusCycleHint: View {
+    var body: some View {
+        Label {
+            Text("Tap once to preview. Tap again to cycle status. Once a status is chosen, tap other phrase tiles to apply it.")
+                .font(ResponsiveFont.caption2)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        } icon: {
+            Image(systemName: "hand.tap")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(Color.accentColor)
+        }
+    }
+}
+
 struct RadixTileFlowLayout: Layout {
     var horizontalSpacing: CGFloat = RadixTileMetrics.compactSpacing
     var verticalSpacing: CGFloat = RadixTileMetrics.compactSpacing

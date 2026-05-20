@@ -141,7 +141,7 @@ struct BrowsePagePhraseListSheet: View {
                         ContentUnavailableView(
                             "No page phrases",
                             systemImage: "text.quote",
-                            description: Text("Radix did not find any 2, 3, or 4 character dictionary phrases on this page.")
+                            description: Text("Radix did not find any dictionary phrases on this page.")
                         )
                     } else {
                         List {

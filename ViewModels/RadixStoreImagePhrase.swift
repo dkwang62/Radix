@@ -276,33 +276,27 @@ extension RadixStore {
         }
 
         let lookupCharacters = collection.characters.map { phraseLookupTarget(for: $0) }
-        let phraseByLookupWord = browsePagePhraseLookup(in: collection)
+        let maxPhraseLength = browsePageMaximumPhraseLength
+        let phraseByLookupWord = browsePagePhraseLookup(in: collection, maxPhraseLength: maxPhraseLength)
         let hiddenWords = collection.hiddenPhraseWords ?? []
 
+        let matches = browsePagePhraseTileMatches(
+            lookupCharacters: lookupCharacters,
+            phraseByLookupWord: phraseByLookupWord,
+            hiddenWords: hiddenWords,
+            maxPhraseLength: maxPhraseLength
+        )
+
         var tiles: [Int: BrowseImagePhraseTileData] = [:]
-        var offset = 0
-        while offset < lookupCharacters.count {
-            var matchedTile: BrowseImagePhraseTileData?
-            let maxLength = min(4, lookupCharacters.count - offset)
+        var claimedOffsets = Set<Int>()
 
-            if maxLength >= 2 {
-                for length in stride(from: maxLength, through: 2, by: -1) {
-                    let end = offset + length
-                    let segment = lookupCharacters[offset..<end].joined()
-                    if let phrase = phraseByLookupWord[segment],
-                       !hiddenWords.contains(phraseStorageWord(phrase.word)) {
-                        matchedTile = BrowseImagePhraseTileData(phrase: phrase, start: offset, end: end)
-                        break
-                    }
-                }
-            }
-
-            if let matchedTile {
-                tiles[offset] = matchedTile
-                offset = matchedTile.end
-            } else {
-                offset += 1
-            }
+        // Prefer the longest enabled phrase before shorter overlapping phrases.
+        // This keeps 兵家必争之地 as one tile instead of consuming 兵家 first.
+        for match in matches {
+            let offsets = Set(match.start..<match.end)
+            guard claimedOffsets.isDisjoint(with: offsets) else { continue }
+            tiles[match.start] = match
+            claimedOffsets.formUnion(offsets)
         }
 
         browsePagePhraseTileCache[collection.id] = tiles
@@ -314,13 +308,14 @@ extension RadixStore {
             return cached
         }
         let lookupCharacters = collection.characters.map { phraseLookupTarget(for: $0) }
-        let phraseByLookupWord = browsePagePhraseLookup(in: collection)
+        let maxPhraseLength = browsePageMaximumPhraseLength
+        let phraseByLookupWord = browsePagePhraseLookup(in: collection, maxPhraseLength: maxPhraseLength)
         var firstStartByWord: [String: Int] = [:]
         var countByWord: [String: Int] = [:]
         var phraseByWord: [String: PhraseItem] = [:]
 
         for offset in lookupCharacters.indices {
-            let maxLength = min(4, lookupCharacters.count - offset)
+            let maxLength = min(maxPhraseLength, lookupCharacters.count - offset)
             guard maxLength >= 2 else { continue }
             for length in 2...maxLength {
                 let segment = lookupCharacters[offset..<(offset + length)].joined()
@@ -352,12 +347,12 @@ extension RadixStore {
         return candidates
     }
 
-    private func browsePagePhraseLookup(in collection: CharacterCollection) -> [String: PhraseItem] {
+    private func browsePagePhraseLookup(in collection: CharacterCollection, maxPhraseLength: Int) -> [String: PhraseItem] {
         let lookupCharacters = collection.characters.map { phraseLookupTarget(for: $0) }
         var candidateWords = Set<String>()
 
         for offset in lookupCharacters.indices {
-            let maxLength = min(4, lookupCharacters.count - offset)
+            let maxLength = min(maxPhraseLength, lookupCharacters.count - offset)
             guard maxLength >= 2 else { continue }
             for length in 2...maxLength {
                 candidateWords.insert(lookupCharacters[offset..<(offset + length)].joined())
@@ -371,6 +366,48 @@ extension RadixStore {
             phraseByLookupWord[key] = phrase
         }
         return phraseByLookupWord
+    }
+
+    private var browsePageMaximumPhraseLength: Int {
+        max(2, phraseRepo.maxPhraseLength())
+    }
+
+    private func browsePagePhraseTileMatches(
+        lookupCharacters: [String],
+        phraseByLookupWord: [String: PhraseItem],
+        hiddenWords: Set<String>,
+        maxPhraseLength: Int
+    ) -> [BrowseImagePhraseTileData] {
+        guard lookupCharacters.count > 1 else { return [] }
+
+        var matches: [BrowseImagePhraseTileData] = []
+        for offset in lookupCharacters.indices {
+            let maxLength = min(maxPhraseLength, lookupCharacters.count - offset)
+            guard maxLength >= 2 else { continue }
+
+            for length in 2...maxLength {
+                let end = offset + length
+                let segment = lookupCharacters[offset..<end].joined()
+                guard let phrase = phraseByLookupWord[segment],
+                      !hiddenWords.contains(phraseStorageWord(phrase.word))
+                else { continue }
+
+                matches.append(BrowseImagePhraseTileData(phrase: phrase, start: offset, end: end))
+            }
+        }
+
+        return matches.sorted {
+            let leftLength = $0.end - $0.start
+            let rightLength = $1.end - $1.start
+            if leftLength != rightLength { return leftLength > rightLength }
+            if $0.start != $1.start { return $0.start < $1.start }
+
+            let leftKey = BackupPreviewSort.key(primary: $0.phrase.pinyin, fallback: $0.phrase.word)
+            let rightKey = BackupPreviewSort.key(primary: $1.phrase.pinyin, fallback: $1.phrase.word)
+            let pinyinOrder = leftKey.localizedStandardCompare(rightKey)
+            if pinyinOrder != .orderedSame { return pinyinOrder == .orderedAscending }
+            return $0.phrase.word < $1.phrase.word
+        }
     }
 
     func presentPhraseFromBrowseImageTile(_ phrase: PhraseItem, in collection: CharacterCollection, offsets: Set<Int>) {

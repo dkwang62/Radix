@@ -4,7 +4,8 @@ struct AddedPhraseReviewSheet: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.dismiss) private var dismiss
     @State private var filter: AddedPhraseReviewFilter = .all
-    @State private var selectedTool: AddedPhraseReviewTool?
+    @State private var selectedTool: PhraseReviewStatusTool?
+    @State private var reviewCycle = PhraseReviewStatusCycleState()
     @State private var searchText = ""
     @State private var selectedPhrase: PhraseItem?
     @State private var pageIndex = 0
@@ -142,7 +143,8 @@ struct AddedPhraseReviewSheet: View {
             ForEach(AddedPhraseReviewFilter.menuCases) { option in
                 Button {
                     filter = option
-                    selectedTool = AddedPhraseReviewTool.tool(for: option)
+                    selectedTool = option.tool
+                    reviewCycle.setActiveTool(selectedTool)
                     resetPageAndSelection()
                     showsFilterPicker = false
                 } label: {
@@ -192,7 +194,7 @@ struct AddedPhraseReviewSheet: View {
 
     private var toolRow: some View {
         HStack(spacing: 4) {
-            ForEach(AddedPhraseReviewTool.allCases) { option in
+            ForEach(PhraseReviewStatusTool.allCases) { option in
                 Button {
                     toggleTool(option)
                 } label: {
@@ -300,10 +302,7 @@ struct AddedPhraseReviewSheet: View {
             if let phrase = selectedPhrase {
                 phraseDetails(phrase)
             } else {
-                Text("Choose a status, then tap phrases to mark them.")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                PhraseReviewStatusCycleHint()
                     .frame(maxWidth: .infinity, alignment: .center)
             }
 
@@ -418,7 +417,8 @@ struct AddedPhraseReviewSheet: View {
             try store.updateAddedPhraseReviewStatus(word: phrase.word, status: status)
             let updatedPhrase = store.addedPhrases.first { $0.word == phrase.word } ?? phrase
             selectedPhrase = closeSelection || !filter.includes(updatedPhrase) ? nil : updatedPhrase
-            selectedTool = AddedPhraseReviewTool.tool(for: status)
+            selectedTool = PhraseReviewStatusTool.tool(for: status)
+            reviewCycle.setActiveTool(selectedTool)
             if filter != .all {
                 filter = AddedPhraseReviewFilter.filter(for: status)
             }
@@ -430,26 +430,29 @@ struct AddedPhraseReviewSheet: View {
     }
 
     private func applySelectedTool(to phrase: PhraseItem) {
-        let isSameTile = selectedPhrase?.word == phrase.word
-        guard let selectedTool else {
-            if isSameTile {
-                setStatus(AddedPhraseReviewTool.nextStatus(after: phrase.reviewStatus), for: phrase)
-                return
-            }
+        store.speakPhrase(phrase)
+        let action = reviewCycle.action(
+            for: store.normalizedPhraseWord(phrase.word),
+            currentStatus: phrase.reviewStatus,
+            selectedTool: selectedTool
+        )
+
+        guard case let .apply(status) = action else {
             selectedPhrase = phrase
             message = nil
             return
         }
-        let nextStatus = isSameTile ? AddedPhraseReviewTool.nextStatus(after: phrase.reviewStatus) : selectedTool.status
-        setStatus(nextStatus, for: phrase)
+        setStatus(status, for: phrase)
     }
 
-    private func toggleTool(_ tool: AddedPhraseReviewTool) {
+    private func toggleTool(_ tool: PhraseReviewStatusTool) {
         if selectedTool == tool {
             selectedTool = nil
+            reviewCycle.setActiveTool(nil)
             filter = .all
         } else {
             selectedTool = tool
+            reviewCycle.setActiveTool(tool)
             filter = AddedPhraseReviewFilter.filter(for: tool.status)
         }
         resetPageAndSelection()
@@ -458,6 +461,7 @@ struct AddedPhraseReviewSheet: View {
     private func resetPageAndSelection() {
         pageIndex = 0
         selectedPhrase = nil
+        reviewCycle.resetPreview()
         message = nil
     }
 
@@ -654,77 +658,14 @@ private enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
         case nil: return .new
         }
     }
-}
 
-private enum AddedPhraseReviewTool: String, CaseIterable, Identifiable {
-    case removed
-    case checked
-    case hidden
-    case new
-
-    var id: String { rawValue }
-
-    var title: String {
+    var tool: PhraseReviewStatusTool? {
         switch self {
-        case .removed: return "Rejected"
-        case .checked: return "Checked"
-        case .hidden: return "Hidden"
-        case .new: return "New"
-        }
-    }
-
-    var status: PhraseReviewStatus? {
-        switch self {
-        case .removed: return .removed
-        case .checked: return .checked
-        case .hidden: return .hidden
-        case .new: return nil
-        }
-    }
-
-    static func tool(for status: PhraseReviewStatus?) -> AddedPhraseReviewTool {
-        switch status {
-        case .removed: return .removed
-        case .checked: return .checked
-        case .hidden: return .hidden
-        case nil: return .new
-        }
-    }
-
-    static func tool(for filter: AddedPhraseReviewFilter) -> AddedPhraseReviewTool? {
-        switch filter {
         case .removed: return .removed
         case .checked: return .checked
         case .hidden: return .hidden
         case .new: return .new
         case .all: return nil
-        }
-    }
-
-    static func nextStatus(after status: PhraseReviewStatus?) -> PhraseReviewStatus? {
-        switch status {
-        case nil: return .removed
-        case .removed: return .checked
-        case .checked: return .hidden
-        case .hidden: return nil
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .removed: return "xmark.circle.fill"
-        case .checked: return "checkmark.circle.fill"
-        case .hidden: return "eye.slash.fill"
-        case .new: return "sparkle"
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .removed: return Color.red
-        case .checked: return Color.accentColor
-        case .hidden: return Color.orange
-        case .new: return Color.secondary
         }
     }
 }

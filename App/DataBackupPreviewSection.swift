@@ -3,7 +3,7 @@ import SwiftUI
 struct DataBackupPreviewSection: View {
     @EnvironmentObject var store: RadixStore
     @State var selectedPhrase: PhraseItem?
-    @State var lastAddedPhraseReviewPreviewedWord: String?
+    @State var addedPhraseReviewCycle = PhraseReviewStatusCycleState()
     @State var revertBasePhraseMessage: String?
 
     let addedPhraseEntries: [PhraseItem]
@@ -121,6 +121,8 @@ struct DataBackupPreviewSection: View {
                         .font(ResponsiveFont.caption2)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
+                    PhraseReviewStatusCycleHint()
+                        .padding(.top, 2)
                 }
             }
 
