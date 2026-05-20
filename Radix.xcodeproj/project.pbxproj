@@ -178,6 +178,7 @@
 		C0DE00102FC00001001B9AA7 /* AddedPhraseReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE000F2FC00001001B9AA7 /* AddedPhraseReviewSheet.swift */; };
 		C0DE00082FB10002001B9AA7 /* DataEditThisDeviceSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00072FB10002001B9AA7 /* DataEditThisDeviceSection.swift */; };
 		C0DE000A2FB10002001B9AA7 /* DataEditOtherDevicesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00092FB10002001B9AA7 /* DataEditOtherDevicesSection.swift */; };
+		C0DE00122FC10001001B9AA7 /* GlossaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00112FC10001001B9AA7 /* GlossaryView.swift */; };
 		86CD14752FA2000100D7BDBD /* DataEditPremiumExports.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14742FA2000100D7BDBD /* DataEditPremiumExports.swift */; };
 		86CD14772FA2000100D7BDBD /* DataEditBackupEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14762FA2000100D7BDBD /* DataEditBackupEntries.swift */; };
 		86CD14412F9822B300D7BDBD /* FileTransferModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14392F9822B300D7BDBD /* FileTransferModifier.swift */; };
@@ -311,6 +312,7 @@
 		C0DE000F2FC00001001B9AA7 /* AddedPhraseReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddedPhraseReviewSheet.swift; sourceTree = "<group>"; };
 		C0DE00072FB10002001B9AA7 /* DataEditThisDeviceSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditThisDeviceSection.swift; sourceTree = "<group>"; };
 		C0DE00092FB10002001B9AA7 /* DataEditOtherDevicesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditOtherDevicesSection.swift; sourceTree = "<group>"; };
+		C0DE00112FC10001001B9AA7 /* GlossaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlossaryView.swift; sourceTree = "<group>"; };
 		86CD14742FA2000100D7BDBD /* DataEditPremiumExports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditPremiumExports.swift; sourceTree = "<group>"; };
 		86CD14762FA2000100D7BDBD /* DataEditBackupEntries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditBackupEntries.swift; sourceTree = "<group>"; };
 		86CD14382F9822B300D7BDBD /* FavouritesTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesTab.swift; sourceTree = "<group>"; };
@@ -674,6 +676,7 @@
 				08FB856CC66A00010051E0E2 /* AILinkTemplateEditor.swift */,
 				08FB856EC66A00010051E0E2 /* AILinkPromptOutput.swift */,
 				864DABAC2F9B0001001B9AA7 /* SettingsView.swift */,
+				C0DE00112FC10001001B9AA7 /* GlossaryView.swift */,
 				864DABAD2F9B0001001B9AA7 /* CreditsView.swift */,
 				CD17FEE8A50EC8A49C37A2FF /* CharacterDetailView.swift */,
 				388A8F5F2FAA0001001B9AA7 /* CharacterDetailHeader.swift */,
@@ -909,6 +912,7 @@
 				C0DE00102FC00001001B9AA7 /* AddedPhraseReviewSheet.swift in Sources */,
 				C0DE00082FB10002001B9AA7 /* DataEditThisDeviceSection.swift in Sources */,
 				C0DE000A2FB10002001B9AA7 /* DataEditOtherDevicesSection.swift in Sources */,
+				C0DE00122FC10001001B9AA7 /* GlossaryView.swift in Sources */,
 				86CD14752FA2000100D7BDBD /* DataEditPremiumExports.swift in Sources */,
 				86CD14772FA2000100D7BDBD /* DataEditBackupEntries.swift in Sources */,
 				2CD095BC1FB95FF4971726EC /* JSONFileDocument.swift in Sources */,

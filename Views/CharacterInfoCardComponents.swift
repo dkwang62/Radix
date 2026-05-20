@@ -42,6 +42,7 @@ extension CharacterInfoCard {
                     Label("Parts", systemImage: "puzzlepiece.extension")
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
+                    GlossaryTermButton(term: "Parts")
                     Spacer(minLength: 0)
                 }
 

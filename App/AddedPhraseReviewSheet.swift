@@ -419,7 +419,9 @@ struct AddedPhraseReviewSheet: View {
             let updatedPhrase = store.addedPhrases.first { $0.word == phrase.word } ?? phrase
             selectedPhrase = closeSelection || !filter.includes(updatedPhrase) ? nil : updatedPhrase
             selectedTool = AddedPhraseReviewTool.tool(for: status)
-            filter = AddedPhraseReviewFilter.filter(for: status)
+            if filter != .all {
+                filter = AddedPhraseReviewFilter.filter(for: status)
+            }
             clampPage()
             message = statusMessage(status, phrase: phrase)
         } catch {
@@ -428,12 +430,16 @@ struct AddedPhraseReviewSheet: View {
     }
 
     private func applySelectedTool(to phrase: PhraseItem) {
+        let isSameTile = selectedPhrase?.word == phrase.word
         guard let selectedTool else {
+            if isSameTile {
+                setStatus(AddedPhraseReviewTool.nextStatus(after: phrase.reviewStatus), for: phrase)
+                return
+            }
             selectedPhrase = phrase
             message = nil
             return
         }
-        let isSameTile = selectedPhrase?.word == phrase.word
         let nextStatus = isSameTile ? AddedPhraseReviewTool.nextStatus(after: phrase.reviewStatus) : selectedTool.status
         setStatus(nextStatus, for: phrase)
     }

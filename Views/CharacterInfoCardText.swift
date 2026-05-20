@@ -44,9 +44,12 @@ extension CharacterInfoCard {
     var definitionAndNotes: some View {
         VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 6) {
-                Label("Definition", systemImage: "text.book.closed")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 4) {
+                    Label("Definition", systemImage: "text.book.closed")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    GlossaryTermButton(term: "Definition")
+                }
 
                 Text(item.definition.isEmpty ? "No definition" : item.definition)
                     .font(ResponsiveFont.subheadline)
@@ -60,9 +63,12 @@ extension CharacterInfoCard {
 
             if !etymologyText.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
-                    Label("Origin", systemImage: "sparkle.magnifyingglass")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                    HStack(spacing: 4) {
+                        Label("Origin", systemImage: "sparkle.magnifyingglass")
+                            .font(ResponsiveFont.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        GlossaryTermButton(term: "Origin")
+                    }
 
                     Text(etymologyText)
                         .font(ResponsiveFont.footnote)
@@ -78,9 +84,12 @@ extension CharacterInfoCard {
 
             if !notesText.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
-                    Label("Notes", systemImage: "note.text")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                    HStack(spacing: 4) {
+                        Label("Notes", systemImage: "note.text")
+                            .font(ResponsiveFont.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        GlossaryTermButton(term: "Notes")
+                    }
                     Text(notesText)
                         .font(ResponsiveFont.footnote)
                         .foregroundStyle(.primary)

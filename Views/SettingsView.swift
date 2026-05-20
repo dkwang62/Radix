@@ -100,8 +100,14 @@ struct SettingsView: View {
                 }
             }
 
-            if let onShowWelcome {
-                Section("Help") {
+            Section("Help") {
+                NavigationLink {
+                    GlossaryView()
+                } label: {
+                    Label("Glossary", systemImage: "book.closed")
+                }
+
+                if let onShowWelcome {
                     Button {
                         dismiss()
                         onShowWelcome()
