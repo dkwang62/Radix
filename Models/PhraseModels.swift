@@ -4,12 +4,14 @@ enum PhraseReviewStatus: String, Codable, CaseIterable {
     case checked
     case hidden
     case removed
+    case completed
 
     var title: String {
         switch self {
         case .checked: return "Checked"
         case .hidden: return "Hidden"
         case .removed: return "Rejected"
+        case .completed: return "Completed"
         }
     }
 }
@@ -45,6 +47,7 @@ enum PhraseReviewStatusTool: String, CaseIterable, Identifiable {
         case .removed: return .removed
         case .checked: return .checked
         case .hidden: return .hidden
+        case .completed: return .checked
         case nil: return .new
         }
     }
@@ -54,7 +57,7 @@ enum PhraseReviewStatusTool: String, CaseIterable, Identifiable {
         case nil: return .removed
         case .removed: return .checked
         case .checked: return .hidden
-        case .hidden: return nil
+        case .hidden, .completed: return nil
         }
     }
 }

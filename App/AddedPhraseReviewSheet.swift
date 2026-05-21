@@ -11,6 +11,7 @@ struct AddedPhraseReviewSheet: View {
     @State private var pageIndex = 0
     @State private var message: String?
     @State private var showsFilterPicker = false
+    @State private var phrasePendingDeletion: PhraseItem?
 
     private let pageSize = 40
     private let detailTextMaxWidth: CGFloat = 640
@@ -33,6 +34,10 @@ struct AddedPhraseReviewSheet: View {
             .sorted(by: reviewSort)
     }
 
+    private var checkedPhrases: [PhraseItem] {
+        addedPhrases.filter { $0.reviewStatus == .checked }
+    }
+
     // Layout guardrails for this sheet:
     // - Keep the filter row, status tool row, Done button, and page controls fully inside the sheet.
     //   Past versions clipped "Done", "Clear", and the selected-count text at the left/right edges.
@@ -46,6 +51,7 @@ struct AddedPhraseReviewSheet: View {
                 topControlRow
                 searchField
                 toolRow
+                promoteCheckedRow
                 selectedPhraseDetailCard
 
                 if filteredPhrases.isEmpty {
@@ -67,6 +73,16 @@ struct AddedPhraseReviewSheet: View {
             }
             .onChange(of: searchText) { _, _ in
                 resetPageAndSelection()
+            }
+            .alert("Delete Completed Phrase?", isPresented: deleteConfirmationBinding) {
+                Button("Delete", role: .destructive) {
+                    deletePendingCompletedPhrase()
+                }
+                Button("Cancel", role: .cancel) {
+                    phrasePendingDeletion = nil
+                }
+            } message: {
+                Text(deleteConfirmationMessage)
             }
         }
         .presentationDetents([.large])
@@ -192,22 +208,43 @@ struct AddedPhraseReviewSheet: View {
         .accessibilityHidden(true)
     }
 
+    @ViewBuilder
     private var toolRow: some View {
-        HStack(spacing: 4) {
-            ForEach(PhraseReviewStatusTool.allCases) { option in
+        if filter != .completed {
+            HStack(spacing: 4) {
+                ForEach(PhraseReviewStatusTool.allCases) { option in
+                    Button {
+                        toggleTool(option)
+                    } label: {
+                        Image(systemName: option.icon)
+                            .font(.system(size: 13, weight: .semibold))
+                            .frame(width: 34, height: 24)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+                    .tint(selectedTool == option ? option.color : Color(.systemGray5))
+                    .foregroundStyle(selectedTool == option ? Color.white : Color.primary)
+                    .accessibilityLabel("Mark as \(option.title)")
+                    .help("Mark as \(option.title)")
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+    }
+
+    private var promoteCheckedRow: some View {
+        HStack(spacing: 8) {
+            if filter != .completed, !checkedPhrases.isEmpty {
                 Button {
-                    toggleTool(option)
+                    completeCheckedPhrases()
                 } label: {
-                    Image(systemName: option.icon)
-                        .font(.system(size: 13, weight: .semibold))
-                        .frame(width: 34, height: 24)
+                    Label("Complete Checked (\(checkedPhrases.count))", systemImage: "checkmark.seal.fill")
+                        .font(ResponsiveFont.caption2.weight(.semibold))
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)
-                .tint(selectedTool == option ? option.color : Color(.systemGray5))
-                .foregroundStyle(selectedTool == option ? Color.white : Color.primary)
-                .accessibilityLabel("Mark as \(option.title)")
-                .help("Mark as \(option.title)")
+                .tint(Color.accentColor)
+                .help("Move checked phrases out of the review pool. Completed phrases can only be deleted from their detail card.")
             }
         }
         .frame(maxWidth: .infinity, alignment: .center)
@@ -259,7 +296,8 @@ struct AddedPhraseReviewSheet: View {
                     onMarkNew: { setStatus(nil, for: phrase) },
                     onCheck: { setStatus(.checked, for: phrase) },
                     onHide: { setStatus(.hidden, for: phrase) },
-                    onReject: { setStatus(.removed, for: phrase) }
+                    onReject: { setStatus(.removed, for: phrase) },
+                    showsStatusActions: phrase.reviewStatus != .completed
                 )
             }
         }
@@ -362,6 +400,18 @@ struct AddedPhraseReviewSheet: View {
                 .multilineTextAlignment(.center)
                 .truncationMode(.tail)
                 .frame(maxWidth: detailTextMaxWidth, alignment: .center)
+
+            if phrase.reviewStatus == .completed {
+                Button(role: .destructive) {
+                    phrasePendingDeletion = phrase
+                } label: {
+                    Label("Delete Phrase", systemImage: RadixIcon.delete)
+                        .font(ResponsiveFont.caption2.weight(.semibold))
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .padding(.top, 4)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .center)
     }
@@ -375,6 +425,7 @@ struct AddedPhraseReviewSheet: View {
         case .checked: return "checkmark.circle.fill"
         case .hidden: return "eye.slash.fill"
         case .removed: return "xmark.circle.fill"
+        case .completed: return "checkmark.seal.fill"
         case nil: return "sparkle"
         }
     }
@@ -384,6 +435,7 @@ struct AddedPhraseReviewSheet: View {
         case .checked: return Color.accentColor
         case .hidden: return Color.orange
         case .removed: return Color.red
+        case .completed: return Color.purple
         case nil: return Color.secondary
         }
     }
@@ -394,17 +446,19 @@ struct AddedPhraseReviewSheet: View {
         case .checked: return "No checked phrases"
         case .hidden: return "No hidden phrases"
         case .removed: return "No rejected phrases"
-        case .all: return "No added phrases"
+        case .completed: return "No completed phrases"
+        case .all: return "No active added phrases"
         }
     }
 
     private var emptyDescription: String {
         switch filter {
         case .new: return "New means not checked, hidden, or rejected."
-        case .checked: return "Checked phrases stay visible in normal phrase lists."
+        case .checked: return "Checked phrases stay in review until you complete them."
         case .hidden: return "Hidden phrases stay useful on pages but stay out of the phrase library."
         case .removed: return "Rejected phrases are remembered as not-a-phrase groupings. Mark one New if you want to restore it."
-        case .all: return "Added phrases with two or more characters will appear here after you add them."
+        case .completed: return "Completed phrases are finished. Open one here if you need to delete it."
+        case .all: return "Active added phrases with two or more characters appear here. Completed phrases have their own filter."
         }
     }
 
@@ -419,7 +473,7 @@ struct AddedPhraseReviewSheet: View {
             selectedPhrase = closeSelection || !filter.includes(updatedPhrase) ? nil : updatedPhrase
             selectedTool = PhraseReviewStatusTool.tool(for: status)
             reviewCycle.setActiveTool(selectedTool)
-            if filter != .all {
+            if filter != .all && filter != .completed {
                 filter = AddedPhraseReviewFilter.filter(for: status)
             }
             clampPage()
@@ -431,6 +485,12 @@ struct AddedPhraseReviewSheet: View {
 
     private func applySelectedTool(to phrase: PhraseItem) {
         store.speakPhrase(phrase)
+        if phrase.reviewStatus == .completed {
+            selectedPhrase = phrase
+            message = nil
+            return
+        }
+
         let action = reviewCycle.action(
             for: store.normalizedPhraseWord(phrase.word),
             currentStatus: phrase.reviewStatus,
@@ -482,7 +542,58 @@ struct AddedPhraseReviewSheet: View {
         case .checked: return "\(phrase.word) checked."
         case .hidden: return "\(phrase.word) hidden from phrase lists, still available on pages."
         case .removed: return "\(phrase.word) rejected as not a phrase."
+        case .completed: return "\(phrase.word) completed."
         case nil: return "\(phrase.word) restored to New."
+        }
+    }
+
+    private func completeCheckedPhrases() {
+        let phrasesToComplete = checkedPhrases
+        guard !phrasesToComplete.isEmpty else { return }
+
+        var completedCount = 0
+        for phrase in phrasesToComplete {
+            do {
+                try store.updateAddedPhraseReviewStatus(word: phrase.word, status: .completed)
+                completedCount += 1
+            } catch {
+                message = "Could not complete \(phrase.word): \(error.localizedDescription)"
+                break
+            }
+        }
+
+        selectedPhrase = nil
+        reviewCycle.resetPreview()
+        clampPage()
+        if completedCount > 0 {
+            message = "Completed \(completedCount) checked phrase\(completedCount == 1 ? "" : "s")."
+        }
+    }
+
+    private var deleteConfirmationBinding: Binding<Bool> {
+        Binding(
+            get: { phrasePendingDeletion != nil },
+            set: { if !$0 { phrasePendingDeletion = nil } }
+        )
+    }
+
+    private var deleteConfirmationMessage: String {
+        guard let phrasePendingDeletion else {
+            return "This removes the phrase from your added phrases."
+        }
+        return "Delete \(phrasePendingDeletion.word)? This removes it from your added phrases."
+    }
+
+    private func deletePendingCompletedPhrase() {
+        guard let phrase = phrasePendingDeletion else { return }
+        phrasePendingDeletion = nil
+        do {
+            _ = try store.removeAddedPhrases(words: [phrase.word])
+            selectedPhrase = nil
+            resetPageAndSelection()
+            message = "\(phrase.word) deleted."
+        } catch {
+            message = "Could not delete \(phrase.word): \(error.localizedDescription)"
         }
     }
 
@@ -508,6 +619,7 @@ private struct AddedPhraseReviewTile: View {
     let onCheck: () -> Void
     let onHide: () -> Void
     let onReject: () -> Void
+    let showsStatusActions: Bool
 
     var body: some View {
         Button(action: onSelect) {
@@ -534,15 +646,17 @@ private struct AddedPhraseReviewTile: View {
         }
         .buttonStyle(.plain)
         .contextMenu {
-            if phrase.reviewStatus != nil {
-                Button("New", action: onMarkNew)
+            if showsStatusActions {
+                if phrase.reviewStatus != nil {
+                    Button("New", action: onMarkNew)
+                }
+                Button("Checked", action: onCheck)
+                    .disabled(phrase.reviewStatus == .checked)
+                Button("Hide", action: onHide)
+                    .disabled(phrase.reviewStatus == .hidden)
+                Button("Reject", role: .destructive, action: onReject)
+                    .disabled(phrase.reviewStatus == .removed)
             }
-            Button("Checked", action: onCheck)
-                .disabled(phrase.reviewStatus == .checked)
-            Button("Hide", action: onHide)
-                .disabled(phrase.reviewStatus == .hidden)
-            Button("Reject", role: .destructive, action: onReject)
-                .disabled(phrase.reviewStatus == .removed)
         }
         .accessibilityLabel(accessibilityText)
     }
@@ -552,6 +666,7 @@ private struct AddedPhraseReviewTile: View {
         case .checked: return "checkmark.circle.fill"
         case .hidden: return "eye.slash.fill"
         case .removed: return "xmark.circle.fill"
+        case .completed: return "checkmark.seal.fill"
         case nil: return "circle.fill"
         }
     }
@@ -561,6 +676,7 @@ private struct AddedPhraseReviewTile: View {
         case .checked: return Color.accentColor
         case .hidden: return Color.orange
         case .removed: return Color.red
+        case .completed: return Color.purple
         case nil: return Color.secondary.opacity(0.45)
         }
     }
@@ -573,6 +689,8 @@ private struct AddedPhraseReviewTile: View {
             return Color.orange.opacity(0.13)
         case .removed:
             return Color.red.opacity(0.10)
+        case .completed:
+            return Color.purple.opacity(0.10)
         case nil:
             return Color(.secondarySystemBackground)
         }
@@ -587,6 +705,8 @@ private struct AddedPhraseReviewTile: View {
             return Color.orange.opacity(0.38)
         case .removed:
             return Color.red.opacity(0.34)
+        case .completed:
+            return Color.purple.opacity(0.38)
         case nil:
             return Color(.separator).opacity(0.35)
         }
@@ -604,11 +724,12 @@ private enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
     case checked
     case hidden
     case removed
+    case completed
     case all
 
     var id: String { rawValue }
 
-    static let menuCases: [AddedPhraseReviewFilter] = [.removed, .checked, .hidden, .new, .all]
+    static let menuCases: [AddedPhraseReviewFilter] = [.removed, .checked, .hidden, .new, .completed, .all]
 
     var title: String {
         switch self {
@@ -616,6 +737,7 @@ private enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
         case .checked: return "Checked"
         case .hidden: return "Hidden"
         case .removed: return "Rejected"
+        case .completed: return "Completed"
         case .all: return "All"
         }
     }
@@ -626,6 +748,7 @@ private enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
         case .checked: return "checkmark.circle.fill"
         case .hidden: return "eye.slash.fill"
         case .removed: return "xmark.circle.fill"
+        case .completed: return "checkmark.seal.fill"
         case .all: return "line.3.horizontal.decrease.circle"
         }
     }
@@ -636,6 +759,7 @@ private enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
         case .checked: return Color.accentColor
         case .hidden: return Color.orange
         case .removed: return Color.red
+        case .completed: return Color.purple
         case .all: return Color.accentColor
         }
     }
@@ -646,7 +770,8 @@ private enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
         case .checked: return phrase.reviewStatus == .checked
         case .hidden: return phrase.reviewStatus == .hidden
         case .removed: return phrase.reviewStatus == .removed
-        case .all: return true
+        case .completed: return phrase.reviewStatus == .completed
+        case .all: return phrase.reviewStatus != .completed
         }
     }
 
@@ -655,6 +780,7 @@ private enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
         case .checked: return .checked
         case .hidden: return .hidden
         case .removed: return .removed
+        case .completed: return .completed
         case nil: return .new
         }
     }
@@ -665,6 +791,7 @@ private enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
         case .checked: return .checked
         case .hidden: return .hidden
         case .new: return .new
+        case .completed: return nil
         case .all: return nil
         }
     }

@@ -249,6 +249,7 @@ struct PhraseSummaryTile: View {
         if showsReviewStatus, reviewStatus == .removed { return Color.red.opacity(0.08) }
         if showsReviewStatus, reviewStatus == .checked { return Color.accentColor.opacity(0.10) }
         if showsReviewStatus, reviewStatus == .hidden { return Color.orange.opacity(0.10) }
+        if showsReviewStatus, reviewStatus == .completed { return Color.purple.opacity(0.10) }
         return Color(.secondarySystemBackground).opacity(0.62)
     }
 
@@ -258,6 +259,7 @@ struct PhraseSummaryTile: View {
         if showsReviewStatus, reviewStatus == .removed { return Color.red.opacity(0.38) }
         if showsReviewStatus, reviewStatus == .checked { return Color.accentColor.opacity(0.45) }
         if showsReviewStatus, reviewStatus == .hidden { return Color.orange.opacity(0.38) }
+        if showsReviewStatus, reviewStatus == .completed { return Color.purple.opacity(0.38) }
         return Color.secondary.opacity(0.22)
     }
 
@@ -271,6 +273,7 @@ struct PhraseSummaryTile: View {
         case .checked: return "checkmark.circle.fill"
         case .hidden: return "eye.slash.fill"
         case .removed: return "xmark.circle.fill"
+        case .completed: return "checkmark.seal.fill"
         case nil: return "circle.fill"
         }
     }
@@ -280,6 +283,7 @@ struct PhraseSummaryTile: View {
         case .checked: return Color.accentColor
         case .hidden: return Color.orange
         case .removed: return Color.red
+        case .completed: return Color.purple
         case nil: return Color.secondary.opacity(0.45)
         }
     }

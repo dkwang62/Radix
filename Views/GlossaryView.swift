@@ -126,7 +126,7 @@ enum RadixGlossary {
             shortDefinition: "A phrase you added yourself, often from AI extraction or manual entry.",
             significance: "Added phrases may need review because AI or OCR can produce weak groupings. Review lets you keep, hide, or reject them.",
             contexts: ["Phrases You Added", "Review Added Phrases", "Classify & Prune", "Make AI Text Page"],
-            relatedTerms: ["Checked", "Hidden", "Rejected", "Make AI Text Page"]
+            relatedTerms: ["Checked", "Completed", "Hidden", "Rejected", "Make AI Text Page"]
         ),
         GlossaryEntry(
             term: "Favorite",
@@ -152,9 +152,16 @@ enum RadixGlossary {
         GlossaryEntry(
             term: "Checked",
             shortDefinition: "An added phrase you reviewed and accept as a useful phrase.",
-            significance: "Checked phrases stay visible in normal phrase lists and can continue to help Browse and Study.",
+            significance: "Checked phrases stay in the fast review cycle. When you are done reviewing them, use Complete Checked to move them out of the active review pool.",
             contexts: ["Review Added Phrases", "Phrases You Added"],
-            relatedTerms: ["Added Phrase", "Hidden", "Rejected"]
+            relatedTerms: ["Added Phrase", "Completed", "Hidden", "Rejected"]
+        ),
+        GlossaryEntry(
+            term: "Completed",
+            shortDefinition: "A checked phrase you have finished reviewing.",
+            significance: "Completed phrases leave the active review pool. They remain available to Radix, and the only cleanup action is deleting them from the completed phrase detail card.",
+            contexts: ["Review Added Phrases", "Classify & Prune"],
+            relatedTerms: ["Checked", "Added Phrase", "Delete"]
         ),
         GlossaryEntry(
             term: "Hidden",
@@ -257,9 +264,9 @@ enum RadixGlossary {
         GlossaryEntry(
             term: "Classify & Prune",
             shortDefinition: "Review added phrases and mark them as New, Checked, Hidden, or Rejected.",
-            significance: "This keeps your phrase memory useful instead of becoming a long list of weak AI/OCR groupings.",
+            significance: "Use the tile cycle for fast classification. Complete Checked moves accepted phrases out of the active review pool; completed phrases can only be removed by deleting them from the detail card.",
             contexts: ["My Data > Memory > Phrases You Added"],
-            relatedTerms: ["Added Phrase", "Checked", "Hidden", "Rejected"]
+            relatedTerms: ["Added Phrase", "Checked", "Completed", "Hidden", "Rejected"]
         ),
         GlossaryEntry(
             term: "Make AI Text Page",

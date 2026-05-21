@@ -177,6 +177,6 @@ struct DataBackupPreviewSection: View {
         if addedPhraseEntries.isEmpty {
             return "Add phrases first, then review which ones belong in Memory."
         }
-        return "\(addedPhraseEntries.count) phrases in Memory. Review them, hide weak phrase groupings, or make one text page to ask AI for a cleaner phrase list."
+        return "\(addedPhraseEntries.count) phrases in Memory. Check good phrases while reviewing, then complete checked phrases when you are done with them."
     }
 }
