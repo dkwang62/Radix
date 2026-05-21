@@ -17,9 +17,7 @@ extension DataEditTab {
             subtitle: "Everything you add, save, favorite, set up, or leave in progress in Radix. Dated copies and files for other devices both save this same Memory.",
             addedPhraseReviewCount: store.addedPhrases.filter { !store.isPhraseInBase($0.word) }.count,
             addedPhrasePageCharacterCount: addedPhrasePageText.count,
-            onReviewAddedPhrases: {
-                showAddedPhraseReview = true
-            },
+            onReviewAddedPhrases: presentAddedPhraseReview,
             onCreateAddedPhrasesPage: createAddedPhrasesPage,
             onDeleteAddedPhrases: {
                 showDeleteAddedPhrasesConfirmation = true
@@ -185,6 +183,18 @@ extension DataEditTab {
 
     func displayDate(_ date: Date) -> String {
         date.formatted(date: .abbreviated, time: .omitted)
+    }
+
+    func presentAddedPhraseReview() {
+        showBackupAlert = false
+        showDeleteAddedPhrasesConfirmation = false
+        showRestorePicker = false
+        showReuseExporter = false
+        addedPhraseReviewPresentation = nil
+
+        DispatchQueue.main.async {
+            addedPhraseReviewPresentation = AddedPhraseReviewPresentation()
+        }
     }
 
     func previewBackupCharacter(_ character: String) {

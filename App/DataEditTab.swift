@@ -13,6 +13,10 @@ enum DataEditSection: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+struct AddedPhraseReviewPresentation: Identifiable {
+    let id = UUID()
+}
+
 struct DataEditTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
@@ -60,7 +64,7 @@ struct DataEditTab: View {
     @State var showAITemplatesPreview = false
     @State var showAppStatePreview = false
     @State var showDeleteAddedPhrasesConfirmation = false
-    @State var showAddedPhraseReview = false
+    @State var addedPhraseReviewPresentation: AddedPhraseReviewPresentation?
 
     @State var activeDataEditSection: DataEditSection = .library
     @State var showHelp = false
@@ -158,7 +162,9 @@ struct DataEditTab: View {
             } message: {
                 Text("This removes every phrase you added from Memory. Built-in phrases and phrase notes on built-in phrases are kept.")
             }
-            .sheet(isPresented: $showAddedPhraseReview) {
+            .sheet(item: $addedPhraseReviewPresentation, onDismiss: {
+                addedPhraseReviewPresentation = nil
+            }) { _ in
                 AddedPhraseReviewSheet()
                     .environmentObject(store)
             }

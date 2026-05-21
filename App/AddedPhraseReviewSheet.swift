@@ -55,18 +55,15 @@ struct AddedPhraseReviewSheet: View {
                 selectedPhraseDetailCard
 
                 if filteredPhrases.isEmpty {
-                    ContentUnavailableView(
-                        emptyTitle,
-                        systemImage: "text.badge.checkmark",
-                        description: Text(emptyDescription)
-                    )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    emptyStateView
                 } else {
                     phraseGrid
                 }
             }
-            .padding(8)
-            .frame(minWidth: 720, idealWidth: 980, maxWidth: .infinity, minHeight: 680)
+            .padding(.horizontal, 12)
+            .padding(.bottom, 8)
+            .padding(.top, 18)
+            .frame(idealWidth: 820, maxWidth: 980, minHeight: 680)
             .toolbar(.hidden, for: .navigationBar)
             .onAppear {
                 store.refreshAddedPhrases()
@@ -438,6 +435,29 @@ struct AddedPhraseReviewSheet: View {
         case .completed: return Color.purple
         case nil: return Color.secondary
         }
+    }
+
+    private var emptyStateView: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "text.badge.checkmark")
+                .font(.system(size: 44, weight: .semibold))
+                .foregroundStyle(.secondary.opacity(0.55))
+
+            Text(emptyTitle)
+                .font(ResponsiveFont.title3.weight(.semibold))
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.center)
+
+            Text(emptyDescription)
+                .font(ResponsiveFont.subheadline)
+                .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: 520)
+        }
+        .padding(.horizontal, 24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 
     private var emptyTitle: String {

@@ -33,16 +33,19 @@ extension PhraseReviewStatusTool {
 
 struct PhraseReviewStatusCycleHint: View {
     var body: some View {
-        Label {
-            Text("Tap once to preview. Tap again to cycle status. Once a status is chosen, tap other phrase tiles to apply it.")
-                .font(ResponsiveFont.caption2)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-        } icon: {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
             Image(systemName: "hand.tap")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .foregroundStyle(Color.accentColor)
+
+            Text("Tap once to preview. Tap again to cycle status. Once a status is chosen, tap other phrase tiles to apply it.")
+                .font(ResponsiveFont.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(nil)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
         }
+        .frame(maxWidth: 560, alignment: .center)
     }
 }
 
