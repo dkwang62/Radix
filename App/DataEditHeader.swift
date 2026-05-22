@@ -3,6 +3,15 @@ import SwiftUI
 extension DataEditTab {
     var myDataHeader: some View {
         VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Choose What to Do")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Text("Use the Memory summary above, then choose where to save, restore, or move it.")
+                    .font(ResponsiveFont.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
             Picker("My Data section", selection: $activeDataEditSection) {
                 ForEach(DataEditSection.allCases) { section in
                     Text(section.rawValue).tag(section)
@@ -13,21 +22,15 @@ extension DataEditTab {
 
             Group {
                 switch activeDataEditSection {
-                case .library:
-                    glossaryHeaderLine(
-                        "Your Radix memory: everything you added, saved, marked, or set up.",
-                        systemImage: "checkmark.circle",
-                        term: "Memory"
-                    )
                 case .localBackup:
                     glossaryHeaderLine(
-                        "Save the same Radix memory as a dated copy kept on this device.",
+                        "Create or restore Memory Stamps on this device. Each stamp contains the Memory shown above.",
                         systemImage: "clock.badge.checkmark",
                         term: "Dated Copy"
                     )
                 case .myBackup:
                     glossaryHeaderLine(
-                        "Save the same Radix memory as a file for another iPhone, iPad, or Mac.",
+                        "Export or import the Memory shown above for another iPhone, iPad, or Mac.",
                         systemImage: "arrow.left.arrow.right",
                         term: "Other Devices"
                     )

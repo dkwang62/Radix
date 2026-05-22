@@ -14,7 +14,7 @@ extension DataEditTab {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
-            Text("Save the same Radix memory as a file, then open it on another iPhone, iPad, or Mac.")
+            Text("Save the Memory summarized above as a file, then open it on another iPhone, iPad, or Mac.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -84,8 +84,6 @@ extension DataEditTab {
                 }
                 .buttonStyle(.plain)
             }
-
-            whatsInMyBackupSection
         }
         .padding()
         .background(Color(.secondarySystemBackground).opacity(0.4))
@@ -130,25 +128,6 @@ extension DataEditTab {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(hasSavedFile ? Color.green.opacity(0.1) : Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    var whatsInMyBackupSection: some View {
-        DataBackupPreviewSection(
-            addedPhraseEntries: addedPhraseEntries,
-            basePhraseCoreEditEntries: basePhraseCoreEditEntries,
-            phraseEntriesWithNotes: phraseEntriesWithNotes,
-            title: "What Goes With the File",
-            subtitle: "Your Radix Memory, saved as a file for another device.",
-            onPreviewCharacter: previewBackupCharacter,
-            showSavedPagesPreview: $showSavedPagesPreview,
-            showFavoritesPreview: $showFavoritesPreview,
-            showAITemplatesPreview: $showAITemplatesPreview,
-            showAppStatePreview: $showAppStatePreview,
-            showAddedCharactersPreview: $showAddedCharactersPreview,
-            showAddedPhrasesPreview: $showAddedPhrasesPreview,
-            showEditedCharactersPreview: $showEditedCharactersPreview,
-            showEditedPhrasesPreview: $showEditedPhrasesPreview
-        )
     }
 
     func createPortableBackup() {

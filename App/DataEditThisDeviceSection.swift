@@ -78,7 +78,7 @@ extension DataEditTab {
                     .foregroundStyle(.secondary)
             }
 
-            Text("Dated copies are kept on this device. Each copy contains the same Radix Memory shown below.")
+            Text("Dated copies are kept on this device. Each Memory Stamp contains the Memory summarized above.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -86,8 +86,6 @@ extension DataEditTab {
             datedCopiesVisibilityNote
 
             memorySavedStatusRow
-
-            currentMemorySummaryTiles
 
             Button {
                 guard !entitlement.requiresPro(.datedCopies) else {

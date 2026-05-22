@@ -1,20 +1,14 @@
 import SwiftUI
 
 extension DataEditTab {
-    var libraryOverviewSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            memoryContentsSection
-            personalLibraryTimelineSection
-        }
-    }
-
-    var memoryContentsSection: some View {
+    var sharedMemorySaveSection: some View {
         DataBackupPreviewSection(
             addedPhraseEntries: addedPhraseEntries,
             basePhraseCoreEditEntries: basePhraseCoreEditEntries,
             phraseEntriesWithNotes: phraseEntriesWithNotes,
-            title: "Memory",
-            subtitle: "Everything you add, save, favorite, set up, or leave in progress in Radix. Dated copies and files for other devices both save this same Memory.",
+            title: "What Will Be Saved",
+            subtitle: "This is your current Memory. It will be included in file exports and Memory Stamps, and it is the same data used by Memory, This Device, and Other Devices.",
+            badges: ["File Export", "Memory Stamp", "Same Memory"],
             addedPhraseReviewCount: store.addedPhrases.filter { !store.isPhraseInBase($0.word) }.count,
             addedPhrasePageCharacterCount: addedPhrasePageText.count,
             onReviewAddedPhrases: presentAddedPhraseReview,

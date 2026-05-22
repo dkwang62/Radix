@@ -9,8 +9,9 @@ struct DataBackupPreviewSection: View {
     let addedPhraseEntries: [PhraseItem]
     let basePhraseCoreEditEntries: [PhraseItem]
     let phraseEntriesWithNotes: [PhraseItem]
-    var title: String = "What Goes With the File"
-    var subtitle: String = "This is the Radix work that can travel to another device."
+    var title: String = "What Will Be Saved"
+    var subtitle: String = "This is your current Memory."
+    var badges: [String] = []
     var addedPhraseReviewCount: Int = 0
     var addedPhrasePageCharacterCount: Int = 0
     var onReviewAddedPhrases: (() -> Void)?
@@ -29,21 +30,21 @@ struct DataBackupPreviewSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(ResponsiveFont.headline)
-                Text(subtitle)
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-            }
+            saveSummaryHeader
 
             previewDisclosureList
                 .padding(12)
                 .background(Color(.systemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .padding()
-        .background(Color(.secondarySystemBackground).opacity(0.4))
+        .padding(12)
+        .background(
+            LinearGradient(
+                colors: [Color.accentColor.opacity(0.10), Color(.secondarySystemBackground).opacity(0.55)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .sheet(item: phonePhraseSheetBinding) { phrase in
             NavigationStack {
@@ -55,6 +56,53 @@ struct DataBackupPreviewSection: View {
                     .navigationBarTitleDisplayMode(.inline)
             }
             .presentationDetents([.medium, .large])
+        }
+    }
+
+    var saveSummaryHeader: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "externaldrive.badge.checkmark")
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 42, height: 42)
+                .background(Color.accentColor.opacity(0.14))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(ResponsiveFont.title3.weight(.semibold))
+                    Text(subtitle)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                if !badges.isEmpty {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 6) {
+                            saveBadges
+                        }
+                        VStack(alignment: .leading, spacing: 6) {
+                            saveBadges
+                        }
+                    }
+                }
+            }
+
+            Spacer(minLength: 0)
+        }
+    }
+
+    var saveBadges: some View {
+        ForEach(badges, id: \.self) { badge in
+            Text(badge)
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .foregroundStyle(Color.accentColor)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
 

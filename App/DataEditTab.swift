@@ -5,7 +5,6 @@ import UIKit
 import UniformTypeIdentifiers
 
 enum DataEditSection: String, CaseIterable, Identifiable {
-    case library = "Memory"
     case localBackup = "This Device"
     case myBackup = "Other Devices"
     case advanced = "Advanced"
@@ -66,26 +65,23 @@ struct DataEditTab: View {
     @State var showDeleteAddedPhrasesConfirmation = false
     @State var addedPhraseReviewPresentation: AddedPhraseReviewPresentation?
 
-    @State var activeDataEditSection: DataEditSection = .library
+    @State var activeDataEditSection: DataEditSection = .localBackup
     @State var showHelp = false
     @State var dataEditScrollProxy: ScrollViewProxy?
 
     var body: some View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
-                myDataHeader
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .padding(.bottom, 10)
-                    .background(Color(.systemBackground))
-                    .overlay(alignment: .bottom) {
-                        Divider()
-                    }
-                    .zIndex(1)
-
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         Color.clear.frame(height: 0).id("myDataTop")
+
+                        sharedMemorySaveSection
+
+                        myDataHeader
+                            .padding(12)
+                            .background(Color(.systemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
 
                         #if !targetEnvironment(macCatalyst)
                         if UIDevice.current.userInterfaceIdiom == .phone {
@@ -94,8 +90,6 @@ struct DataEditTab: View {
                         #endif
 
                         switch activeDataEditSection {
-                        case .library:
-                            libraryOverviewSection
                         case .localBackup:
                             localSnapshotsSection
                         case .myBackup:
