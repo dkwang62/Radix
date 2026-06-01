@@ -57,23 +57,38 @@ struct BrowseImagePhraseTile: View {
     let phraseText: String
     let pinyin: String
     let isActive: Bool
+    var contextMenuPhrase: PhraseItem?
     let onSelect: () -> Void
 
     var body: some View {
         Button(action: onSelect) {
-            PhraseSummaryTile(
-                phraseText: phraseText,
-                pinyin: pinyin,
-                isFavorite: nil,
-                isActive: isActive,
-                minimumHeight: RadixTileMetrics.compactHeight,
-                maximumWidth: RadixTileMetrics.browsePhraseWidth,
-                textAlignment: .center
-            )
-            .frame(height: RadixTileMetrics.compactHeight)
+            phraseTileContent
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(phraseText), phrase")
+    }
+
+    @ViewBuilder
+    private var phraseTileContent: some View {
+        if let contextMenuPhrase {
+            phraseTile
+                .phraseContextMenu(contextMenuPhrase)
+        } else {
+            phraseTile
+        }
+    }
+
+    private var phraseTile: some View {
+        PhraseSummaryTile(
+            phraseText: phraseText,
+            pinyin: pinyin,
+            isFavorite: nil,
+            isActive: isActive,
+            minimumHeight: RadixTileMetrics.compactHeight,
+            maximumWidth: RadixTileMetrics.browsePhraseWidth,
+            textAlignment: .center
+        )
+        .frame(height: RadixTileMetrics.compactHeight)
     }
 }
 
@@ -123,7 +138,6 @@ struct DictionaryGridFooter: View {
         .padding(.bottom, 12)
     }
 }
-
 enum BrowseImageTileStyle {
     static func background(isActive: Bool, highlightRole: ImagePhraseHighlightRole?, isMemoryHighlighted: Bool) -> Color {
         switch highlightRole {

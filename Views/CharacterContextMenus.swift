@@ -99,17 +99,6 @@ private struct CharacterActionMenuContent: View {
                 copyToClipboard(trimmedMeaning)
             }
         }
-        Menu("Stroke Animation") {
-            Button("Share Animation") {
-                shareAnimation(for: character)
-            }
-            Button("Open in Browser") {
-                openAnimationInBrowser(for: character)
-            }
-            Button("Copy Player Link") {
-                copyAnimationPlayerLink(for: character)
-            }
-        }
         Divider()
         Button("New Character") {
             store.openNewCharacterEditor()

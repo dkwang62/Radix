@@ -52,7 +52,8 @@ extension FilterGridTab {
                     BrowseImagePhraseTile(
                         phraseText: browseImageDisplayText(phrase.word),
                         pinyin: phrase.pinyin,
-                        isActive: isActive
+                        isActive: isActive,
+                        contextMenuPhrase: phrase
                     ) {
                         if let offset = offsets.first, collection.characters.indices.contains(offset) {
                             lastTappedImageOffset = offset
@@ -186,6 +187,7 @@ struct BrowsePagePhraseListSheet: View {
                     )
                 }
             )
+            .phraseContextMenu(candidate.phrase)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(candidate.occurrenceCount == 1 ? "1 place" : "\(candidate.occurrenceCount) places")
