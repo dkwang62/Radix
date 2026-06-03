@@ -5,8 +5,7 @@ import UIKit
 import UniformTypeIdentifiers
 
 enum DataEditSection: String, CaseIterable, Identifiable {
-    case localBackup = "This Device"
-    case myBackup = "Other Devices"
+    case myBackup = "iCloud Backup"
     case advanced = "Advanced"
 
     var id: String { rawValue }
@@ -65,7 +64,7 @@ struct DataEditTab: View {
     @State var showDeleteAddedPhrasesConfirmation = false
     @State var addedPhraseReviewPresentation: AddedPhraseReviewPresentation?
 
-    @State var activeDataEditSection: DataEditSection = .localBackup
+    @State var activeDataEditSection: DataEditSection = .myBackup
     @State var showHelp = false
     @State var dataEditScrollProxy: ScrollViewProxy?
 
@@ -90,8 +89,6 @@ struct DataEditTab: View {
                         #endif
 
                         switch activeDataEditSection {
-                        case .localBackup:
-                            localSnapshotsSection
                         case .myBackup:
                             backupAndRestoreSection
                         case .advanced:
@@ -164,20 +161,16 @@ struct DataEditTab: View {
             }
             .onAppear {
                 dataEditScrollProxy = proxy
-                refreshLocalSnapshots()
-            }
-            .onChange(of: activeDataEditSection) { _, _ in
-                refreshLocalSnapshots()
             }
         }
     }
 
     func handleReuseExportSuccess(_ url: URL) {
         let base = url.deletingPathExtension().lastPathComponent
-        if reuseExportContentType == .json && reuseExportFilename == "radix_unified_backup" {
+        if reuseExportContentType == .json && reuseExportFilename == "radix_icloud_backup" {
             lastOtherDeviceBackupPath = url.path
             lastOtherDeviceBackupDate = Date().timeIntervalSince1970
-            backupMessage = "Saved file: \(url.lastPathComponent)"
+            backupMessage = "Created iCloud backup: \(url.lastPathComponent)"
             showBackupAlert = true
         } else {
             reuseExportMessage = "Saved to: \(url.lastPathComponent)"
@@ -206,7 +199,7 @@ struct DataEditTab: View {
             defer { if accessed { url.stopAccessingSecurityScopedResource() } }
             let data = try Data(contentsOf: url)
             try store.importDataEditData(data, mode: pendingRestoreMode)
-            let modeLabel = pendingRestoreMode == .complete ? "Replaced this device's data" : "Added data to this device"
+            let modeLabel = pendingRestoreMode == .complete ? "Restored this device" : "Added backup data"
             backupMessage = "\(modeLabel) from: \(url.lastPathComponent)"
             showBackupAlert = true
         } catch {

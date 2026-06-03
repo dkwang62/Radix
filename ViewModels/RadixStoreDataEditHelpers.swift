@@ -165,8 +165,8 @@ extension RadixStore {
         dataEditIsFavourite = false
     }
 
-    /// Clears the current Radix Memory while leaving dated copies and private API keys intact.
-    /// This keeps reset recoverable through My Data > This Device, and avoids surprising
+    /// Clears the current Radix Memory while leaving local snapshots and private API keys intact.
+    /// This keeps reset recoverable through Restore Snapshot, and avoids surprising
     /// users by deleting credentials that live in Settings rather than learning memory.
     func resetRadixMemory() throws {
         pendingDatasetAutosaveWorkItem?.cancel()

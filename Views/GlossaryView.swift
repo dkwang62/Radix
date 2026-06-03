@@ -110,9 +110,9 @@ enum RadixGlossary {
         GlossaryEntry(
             term: "Memory",
             shortDefinition: "Everything you have added, saved, favorited, changed, or set up in Radix.",
-            significance: "Memory is what you protect with dated copies or move to another device. It includes your work, not just dictionary data.",
-            contexts: ["My Data > Memory", "Save Memory", "Restore Memory", "Reset Radix Memory"],
-            relatedTerms: ["Dated Copy", "Other Devices", "Added", "Favorite"]
+            significance: "Memory is what you preserve with local snapshots and protect with iCloud backups. It includes your work, not just dictionary data.",
+            contexts: ["My Data", "Save Snapshot", "Restore Snapshot", "Reset Radix Memory"],
+            relatedTerms: ["Snapshot", "iCloud Backup", "Added", "Favorite"]
         ),
         GlossaryEntry(
             term: "Added",
@@ -199,32 +199,25 @@ enum RadixGlossary {
             relatedTerms: ["Saved Page", "Hidden", "Phrase"]
         ),
         GlossaryEntry(
-            term: "Dated Copy",
-            shortDefinition: "A time-stamped copy of your Radix Memory kept on this device.",
-            significance: "Dated copies let you restore your work on the same device. They are not files for moving to another device.",
-            contexts: ["My Data > This Device", "Save Dated Copy", "Restore Memory"],
-            relatedTerms: ["Memory", "This Device", "Other Devices"]
+            term: "Snapshot",
+            shortDefinition: "A time-stamped local version of your Radix Memory kept inside the app on this device.",
+            significance: "Snapshots let you quickly save or restore your work on the same device. They are managed by Radix and are not files for moving to another device.",
+            contexts: ["Save Snapshot", "Restore Snapshot"],
+            relatedTerms: ["Memory", "iCloud Backup"]
         ),
         GlossaryEntry(
-            term: "This Device",
-            shortDefinition: "Backups kept on the current iPhone, iPad, or Mac.",
-            significance: "Use This Device when you want a dated copy you can restore here later.",
-            contexts: ["My Data > This Device"],
-            relatedTerms: ["Dated Copy", "Other Devices", "Memory"]
-        ),
-        GlossaryEntry(
-            term: "Other Devices",
-            shortDefinition: "Files meant to move your Radix Memory to another iPhone, iPad, or Mac.",
-            significance: "Other Devices is for data portability across devices. It is separate from dated copies kept on this device.",
-            contexts: ["My Data > Other Devices", "Save Memory", "Restore Memory"],
-            relatedTerms: ["Memory", "This Device", "Data Portability"]
+            term: "iCloud Backup",
+            shortDefinition: "A backup meant to make your Radix Memory available to another iPhone, iPad, or Mac.",
+            significance: "iCloud Backup is for cross-device use and recovery. It is separate from local snapshots kept inside the app on this device.",
+            contexts: ["My Data > iCloud Backup", "Back Up to iCloud", "Restore Backup"],
+            relatedTerms: ["Memory", "Snapshot", "Data Portability"]
         ),
         GlossaryEntry(
             term: "Data Portability",
             shortDefinition: "The ability to carry your Radix work between iPhone, iPad, and Mac.",
             significance: "This is why Radix separates Memory from the app itself: your work can move with you.",
-            contexts: ["My Data", "Other Devices", "Upgrade"],
-            relatedTerms: ["Memory", "Other Devices"]
+            contexts: ["My Data", "iCloud Backup", "Upgrade"],
+            relatedTerms: ["Memory", "iCloud Backup"]
         ),
         GlossaryEntry(
             term: "AI Link",

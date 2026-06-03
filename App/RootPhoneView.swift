@@ -48,6 +48,7 @@ extension RootView {
                 BreadcrumbStrip()
                 phoneContent
                     .frame(maxHeight: .infinity, alignment: .top)
+                phoneSnapshotSaveBar
                 phoneTabBar
             }
             .navigationTitle(phoneTitle)
@@ -113,6 +114,43 @@ extension RootView {
         default:
             SmartSearchTab()
         }
+    }
+
+    var phoneSnapshotSaveBar: some View {
+        let datedCopiesLocked = entitlement.requiresPro(.datedCopies)
+
+        return VStack(spacing: 0) {
+            Divider()
+            Button(action: quickSaveMemory) {
+                HStack(spacing: 8) {
+                    Image(systemName: isQuickSavingMemory ? "hourglass" : (datedCopiesLocked ? "lock.fill" : "tray.and.arrow.down"))
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                    Text(isQuickSavingMemory ? "Saving..." : "Save Snapshot")
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                    if datedCopiesLocked {
+                        Text("$9")
+                            .font(ResponsiveFont.caption2.weight(.bold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.accentColor)
+                            .clipShape(Capsule())
+                            .accessibilityHidden(true)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 9)
+                .foregroundStyle(Color.accentColor)
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+            .disabled(isQuickSavingMemory || isQuickRestoringMemory)
+            .accessibilityLabel(isQuickSavingMemory ? "Saving snapshot" : "Save Snapshot")
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+        }
+        .background(.bar)
     }
 
     var phoneTabBar: some View {

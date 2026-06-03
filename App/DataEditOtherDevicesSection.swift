@@ -4,7 +4,7 @@ extension DataEditTab {
     var backupAndRestoreSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("Move to Other Devices")
+                Text("iCloud Backup")
                     .font(ResponsiveFont.headline)
                 Text("$19")
                     .font(ResponsiveFont.caption.bold())
@@ -14,7 +14,7 @@ extension DataEditTab {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
-            Text("Save the Memory summarized above as a file, then open it on another iPhone, iPad, or Mac.")
+            Text("Create a backup in iCloud Drive, then restore it on another iPhone, iPad, or Mac.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -32,9 +32,9 @@ extension DataEditTab {
                     createPortableBackup()
                 } label: {
                     DataBackupActionButton(
-                        title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : "Save File",
-                        subtitle: "For another device",
-                        systemName: "square.and.arrow.up.fill",
+                        title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : "Back Up to iCloud",
+                        subtitle: "Choose iCloud Drive",
+                        systemName: "icloud.and.arrow.up.fill",
                         foreground: .white,
                         background: Color.accentColor,
                         border: Color.accentColor,
@@ -53,9 +53,9 @@ extension DataEditTab {
                     showRestorePicker = true
                 } label: {
                     DataBackupActionButton(
-                        title: "Add From File",
+                        title: "Add From Backup",
                         subtitle: "Keep what is here",
-                        systemName: "square.and.arrow.down",
+                        systemName: "icloud.and.arrow.down",
                         foreground: Color.accentColor,
                         background: Color.accentColor.opacity(0.1),
                         border: Color.accentColor.opacity(0.35),
@@ -73,9 +73,9 @@ extension DataEditTab {
                     showRestorePicker = true
                 } label: {
                     DataBackupActionButton(
-                        title: "Replace From File",
-                        subtitle: "Use the file instead",
-                        systemName: "square.and.arrow.down.fill",
+                        title: "Restore Backup",
+                        subtitle: "Replace this device",
+                        systemName: "icloud.and.arrow.down.fill",
                         foreground: Color.orange,
                         background: Color.orange.opacity(0.1),
                         border: Color.orange.opacity(0.35),
@@ -93,7 +93,7 @@ extension DataEditTab {
     @ViewBuilder
     var myBackupVisibilityNote: some View {
         if entitlement.requiresPro(.myBackup) {
-            Label("You can see what will move for free. Saving and opening files unlock with My Backup.", systemImage: "lock.open")
+            Label("You can preview backup contents for free. Creating and restoring iCloud backups unlocks with My Backup.", systemImage: "lock.open")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .padding(10)
@@ -106,7 +106,6 @@ extension DataEditTab {
     var otherDeviceSavedStatusRow: some View {
         let hasSavedFile = !lastOtherDeviceBackupPath.isEmpty && lastOtherDeviceBackupDate > 0
         let fileURL = URL(fileURLWithPath: lastOtherDeviceBackupPath)
-        let directory = fileURL.deletingLastPathComponent().path
         let filename = fileURL.lastPathComponent
         let relativeText = hasSavedFile
             ? LocalDataSnapshot.relativeText(for: Date(timeIntervalSince1970: lastOtherDeviceBackupDate))
@@ -116,7 +115,7 @@ extension DataEditTab {
             Image(systemName: hasSavedFile ? "checkmark.circle.fill" : "externaldrive")
                 .foregroundStyle(hasSavedFile ? Color.green : Color.secondary)
 
-            Text(hasSavedFile ? "Last saved as \(directory)/\(filename) \(relativeText ?? "")." : "No file saved for other devices yet.")
+            Text(hasSavedFile ? "Last iCloud backup: \(filename) \(relativeText ?? "")." : "No iCloud backup created yet.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(hasSavedFile ? Color.green : Color.secondary)
                 .lineLimit(3)
@@ -141,7 +140,7 @@ extension DataEditTab {
             do {
                 let data = try dataExportService.exportPortableBackup(store.portableBackupPackage())
                 reuseExportDocument = BinaryFileDocument(data: data)
-                reuseExportFilename = "radix_unified_backup"
+                reuseExportFilename = "radix_icloud_backup"
                 reuseExportContentType = .json
                 reuseExportInProgress = false
                 showReuseExporter = true

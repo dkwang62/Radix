@@ -67,7 +67,7 @@ extension RootView {
 
         return HStack(spacing: 8) {
             sidebarMemoryButton(
-                title: isQuickSavingMemory ? "Saving..." : "Save Memory",
+                title: isQuickSavingMemory ? "Saving..." : "Save Snapshot",
                 systemImage: isQuickSavingMemory ? "hourglass" : (datedCopiesLocked ? "lock.fill" : "tray.and.arrow.down"),
                 isBusy: isQuickSavingMemory,
                 lockBadge: datedCopiesLocked ? "$9" : nil,
@@ -75,7 +75,7 @@ extension RootView {
             )
 
             sidebarMemoryButton(
-                title: isQuickRestoringMemory ? "Restoring..." : "Restore Memory",
+                title: isQuickRestoringMemory ? "Restoring..." : "Restore Snapshot",
                 systemImage: isQuickRestoringMemory ? "hourglass" : (datedCopiesLocked ? "lock.fill" : "arrow.counterclockwise"),
                 isBusy: isQuickRestoringMemory,
                 lockBadge: datedCopiesLocked ? "$9" : nil,
