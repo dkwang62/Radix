@@ -25,8 +25,8 @@ extension DataEditTab {
                 case .myBackup:
                     glossaryHeaderLine(
                         "Create or restore an iCloud backup for another iPhone, iPad, or Mac.",
-                        systemImage: "icloud.and.arrow.up",
-                        term: "My Backup"
+                        systemImage: "externaldrive.badge.icloud",
+                        term: "iCloud Backup"
                     )
                 case .advanced:
                     glossaryHeaderLine(

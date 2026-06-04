@@ -31,6 +31,7 @@ struct RootView: View {
     @State var showSettings = false
     @State var isQuickSavingMemory = false
     @State var isQuickRestoringMemory = false
+    @State var quickLocalSnapshots: [LocalDataSnapshot] = []
     @AppStorage("dataEditLastOtherDeviceBackupPath") var lastOtherDeviceBackupPath = ""
     @AppStorage("dataEditLastOtherDeviceBackupDate") var lastOtherDeviceBackupDate = 0.0
 
@@ -156,6 +157,7 @@ struct RootView: View {
         }
         .onAppear {
             store.prepareFirstInteractionWarmup()
+            refreshQuickLocalSnapshots()
         }
     }
 

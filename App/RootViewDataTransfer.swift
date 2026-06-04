@@ -77,6 +77,7 @@ extension RootView {
             do {
                 let data = try dataExportService.exportPortableBackup(store.portableBackupPackage())
                 let snapshots = try localSnapshotStore.save(data)
+                quickLocalSnapshots = snapshots
                 let latestSnapshotTitle = snapshots.first?.title ?? "now"
                 importExportMessage = "Saved locally: \(latestSnapshotTitle)."
                 showImportExportAlert = true
@@ -88,7 +89,7 @@ extension RootView {
         }
     }
 
-    func quickRestoreMemory() {
+    func quickRestoreMemory(from snapshot: LocalDataSnapshot? = nil) {
         guard !isQuickRestoringMemory else { return }
         guard hasDatedCopiesMemoryAccess else {
             presentPaywall(for: .datedCopies)
@@ -98,8 +99,9 @@ extension RootView {
 
         Task { @MainActor in
             do {
-                let source = try quickRestoreMemorySource()
+                let source = try quickRestoreMemorySource(snapshot: snapshot)
                 try store.importDataEditData(source.data, mode: .complete)
+                refreshQuickLocalSnapshots()
                 importExportMessage = "Restored local snapshot: \(source.name)"
                 showImportExportAlert = true
                 isQuickRestoringMemory = false
@@ -110,8 +112,39 @@ extension RootView {
         }
     }
 
-    private func quickRestoreMemorySource() throws -> (data: Data, name: String) {
-        let snapshot = try latestLocalSnapshot()
+    func refreshQuickLocalSnapshots() {
+        do {
+            quickLocalSnapshots = try localSnapshotStore.snapshots()
+        } catch {
+            quickLocalSnapshots = []
+        }
+    }
+
+    @ViewBuilder
+    var restoreSnapshotMenuContent: some View {
+        if quickLocalSnapshots.isEmpty {
+            Text("No snapshots saved")
+        } else {
+            ForEach(quickLocalSnapshots) { snapshot in
+                Button {
+                    quickRestoreMemory(from: snapshot)
+                } label: {
+                    Label(snapshot.title, systemImage: "clock.arrow.circlepath")
+                }
+            }
+        }
+
+        Divider()
+
+        Button {
+            refreshQuickLocalSnapshots()
+        } label: {
+            Label("Refresh List", systemImage: "arrow.clockwise")
+        }
+    }
+
+    private func quickRestoreMemorySource(snapshot: LocalDataSnapshot?) throws -> (data: Data, name: String) {
+        let snapshot = try snapshot ?? latestLocalSnapshot()
         return (try localSnapshotStore.data(for: snapshot), snapshot.title)
     }
 

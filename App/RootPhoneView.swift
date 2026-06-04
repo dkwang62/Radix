@@ -121,36 +121,79 @@ extension RootView {
 
         return VStack(spacing: 0) {
             Divider()
-            Button(action: quickSaveMemory) {
-                HStack(spacing: 8) {
-                    Image(systemName: isQuickSavingMemory ? "hourglass" : (datedCopiesLocked ? "lock.fill" : "tray.and.arrow.down"))
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                    Text(isQuickSavingMemory ? "Saving..." : "Save Snapshot")
-                        .font(ResponsiveFont.subheadline.weight(.semibold))
-                    if datedCopiesLocked {
-                        Text("$9")
-                            .font(ResponsiveFont.caption2.weight(.bold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.accentColor)
-                            .clipShape(Capsule())
-                            .accessibilityHidden(true)
+            HStack(spacing: 8) {
+                Button(action: quickSaveMemory) {
+                    phoneSnapshotBarLabel(
+                        title: isQuickSavingMemory ? "Saving..." : "Save Snapshot",
+                        systemImage: isQuickSavingMemory ? "hourglass" : (datedCopiesLocked ? "lock.fill" : "tray.and.arrow.down"),
+                        lockBadge: datedCopiesLocked ? "$9" : nil
+                    )
+                }
+                .buttonStyle(.plain)
+                .disabled(isQuickSavingMemory || isQuickRestoringMemory)
+                .accessibilityLabel(isQuickSavingMemory ? "Saving snapshot" : "Save Snapshot")
+
+                if datedCopiesLocked {
+                    Button {
+                        presentPaywall(for: .datedCopies)
+                    } label: {
+                        phoneSnapshotBarLabel(
+                            title: "Restore",
+                            systemImage: "lock.fill",
+                            lockBadge: "$9"
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isQuickSavingMemory || isQuickRestoringMemory)
+                    .accessibilityLabel("Restore Snapshot")
+                } else {
+                    Menu {
+                        restoreSnapshotMenuContent
+                    } label: {
+                        phoneSnapshotBarLabel(
+                            title: isQuickRestoringMemory ? "Restoring..." : "Restore",
+                            systemImage: isQuickRestoringMemory ? "hourglass" : "arrow.counterclockwise",
+                            lockBadge: nil
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isQuickSavingMemory || isQuickRestoringMemory)
+                    .accessibilityLabel("Restore Snapshot")
+                    .onAppear {
+                        refreshQuickLocalSnapshots()
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 9)
-                .foregroundStyle(Color.accentColor)
-                .background(Color.accentColor.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
-            .buttonStyle(.plain)
-            .disabled(isQuickSavingMemory || isQuickRestoringMemory)
-            .accessibilityLabel(isQuickSavingMemory ? "Saving snapshot" : "Save Snapshot")
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
         }
         .background(.bar)
+    }
+
+    func phoneSnapshotBarLabel(title: String, systemImage: String, lockBadge: String?) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .font(ResponsiveFont.caption.weight(.semibold))
+            Text(title)
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            if let lockBadge {
+                Text(lockBadge)
+                    .font(ResponsiveFont.caption2.weight(.bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.accentColor)
+                    .clipShape(Capsule())
+                    .accessibilityHidden(true)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 9)
+        .foregroundStyle(Color.accentColor)
+        .background(Color.accentColor.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     var phoneTabBar: some View {

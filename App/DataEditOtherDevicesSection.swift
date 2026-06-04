@@ -34,7 +34,7 @@ extension DataEditTab {
                     DataBackupActionButton(
                         title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : "Back Up to iCloud",
                         subtitle: "Choose iCloud Drive",
-                        systemName: "icloud.and.arrow.up.fill",
+                        systemName: "square.and.arrow.up.fill",
                         foreground: .white,
                         background: Color.accentColor,
                         border: Color.accentColor,
@@ -55,7 +55,7 @@ extension DataEditTab {
                     DataBackupActionButton(
                         title: "Add From Backup",
                         subtitle: "Keep what is here",
-                        systemName: "icloud.and.arrow.down",
+                        systemName: "square.and.arrow.down",
                         foreground: Color.accentColor,
                         background: Color.accentColor.opacity(0.1),
                         border: Color.accentColor.opacity(0.35),
@@ -75,7 +75,7 @@ extension DataEditTab {
                     DataBackupActionButton(
                         title: "Restore Backup",
                         subtitle: "Replace this device",
-                        systemName: "icloud.and.arrow.down.fill",
+                        systemName: "square.and.arrow.down.fill",
                         foreground: Color.orange,
                         background: Color.orange.opacity(0.1),
                         border: Color.orange.opacity(0.35),

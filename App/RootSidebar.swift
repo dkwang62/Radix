@@ -74,13 +74,36 @@ extension RootView {
                 action: quickSaveMemory
             )
 
+            sidebarRestoreSnapshotMenu(datedCopiesLocked: datedCopiesLocked)
+        }
+    }
+
+    @ViewBuilder
+    func sidebarRestoreSnapshotMenu(datedCopiesLocked: Bool) -> some View {
+        if datedCopiesLocked {
             sidebarMemoryButton(
-                title: isQuickRestoringMemory ? "Restoring..." : "Restore Snapshot",
-                systemImage: isQuickRestoringMemory ? "hourglass" : (datedCopiesLocked ? "lock.fill" : "arrow.counterclockwise"),
+                title: "Restore Snapshot",
+                systemImage: "lock.fill",
                 isBusy: isQuickRestoringMemory,
-                lockBadge: datedCopiesLocked ? "$9" : nil,
-                action: quickRestoreMemory
+                lockBadge: "$9",
+                action: { presentPaywall(for: .datedCopies) }
             )
+        } else {
+            Menu {
+                restoreSnapshotMenuContent
+            } label: {
+                sidebarMemoryButtonLabel(
+                    title: isQuickRestoringMemory ? "Restoring..." : "Restore Snapshot",
+                    systemImage: isQuickRestoringMemory ? "hourglass" : "arrow.counterclockwise",
+                    lockBadge: nil
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(isQuickSavingMemory || isQuickRestoringMemory)
+            .accessibilityLabel("Restore Snapshot")
+            .onAppear {
+                refreshQuickLocalSnapshots()
+            }
         }
     }
 
@@ -92,38 +115,42 @@ extension RootView {
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
-            HStack(spacing: 6) {
-                Image(systemName: systemImage)
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 18, height: 18)
-
-                Text(title)
-                    .font(ResponsiveFont.caption2.weight(.semibold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-
-                if let lockBadge {
-                    Text(lockBadge)
-                        .font(ResponsiveFont.caption2.weight(.bold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(Color.accentColor)
-                        .clipShape(Capsule())
-                        .accessibilityHidden(true)
-                }
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .frame(maxWidth: .infinity)
-            .frame(minHeight: 32)
-            .background(Color(.secondarySystemBackground).opacity(0.7))
-            .clipShape(RoundedRectangle(cornerRadius: 7))
+            sidebarMemoryButtonLabel(title: title, systemImage: systemImage, lockBadge: lockBadge)
         }
         .buttonStyle(.plain)
         .disabled(isBusy || isQuickSavingMemory || isQuickRestoringMemory)
         .accessibilityLabel(title)
+    }
+
+    func sidebarMemoryButtonLabel(title: String, systemImage: String, lockBadge: String?) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: systemImage)
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 18, height: 18)
+
+            Text(title)
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+
+            if let lockBadge {
+                Text(lockBadge)
+                    .font(ResponsiveFont.caption2.weight(.bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 2)
+                    .background(Color.accentColor)
+                    .clipShape(Capsule())
+                    .accessibilityHidden(true)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity)
+        .frame(minHeight: 32)
+        .background(Color(.secondarySystemBackground).opacity(0.7))
+        .clipShape(RoundedRectangle(cornerRadius: 7))
     }
 
     var descriptiveSidebarNavigation: some View {
