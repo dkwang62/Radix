@@ -25,6 +25,11 @@ portable domain behavior rather than screens.
   - Sorts phrase results by normalized pinyin, original pinyin, then word.
   - Merges primary and secondary phrase results by unique word.
 
+- `AddedPhraseReviewFilter` in `Models/PhraseModels.swift`
+  - Defines the review filter buckets used by the added-phrase review workflow.
+  - Maps filters to review tools/statuses without SwiftUI dependencies.
+  - Leaves icon/color styling in the SwiftUI layer.
+
 These rules should be mirrored exactly in Kotlin before porting UI behavior.
 
 ## Recommended Migration Order
@@ -32,6 +37,7 @@ These rules should be mirrored exactly in Kotlin before porting UI behavior.
 1. Port pure models and value rules.
    - `PhraseItem`
    - `PhraseReviewStatus`
+   - `AddedPhraseReviewFilter`
    - `PhraseLengthRule`
    - `PhraseResultRules`
    - `RadixSearchQuery`

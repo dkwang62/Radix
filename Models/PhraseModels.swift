@@ -67,6 +67,62 @@ enum PhraseReviewStatusCycleAction {
     case apply(PhraseReviewStatus?)
 }
 
+enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
+    case new
+    case checked
+    case hidden
+    case removed
+    case completed
+    case all
+
+    var id: String { rawValue }
+
+    static let menuCases: [AddedPhraseReviewFilter] = [.removed, .checked, .hidden, .new, .completed, .all]
+
+    var title: String {
+        switch self {
+        case .new: return "New"
+        case .checked: return "Checked"
+        case .hidden: return "Hidden"
+        case .removed: return "Rejected"
+        case .completed: return "Completed"
+        case .all: return "All"
+        }
+    }
+
+    func includes(_ phrase: PhraseItem) -> Bool {
+        switch self {
+        case .new: return phrase.reviewStatus == nil
+        case .checked: return phrase.reviewStatus == .checked
+        case .hidden: return phrase.reviewStatus == .hidden
+        case .removed: return phrase.reviewStatus == .removed
+        case .completed: return phrase.reviewStatus == .completed
+        case .all: return phrase.reviewStatus != .completed
+        }
+    }
+
+    static func filter(for status: PhraseReviewStatus?) -> AddedPhraseReviewFilter {
+        switch status {
+        case .checked: return .checked
+        case .hidden: return .hidden
+        case .removed: return .removed
+        case .completed: return .completed
+        case nil: return .new
+        }
+    }
+
+    var tool: PhraseReviewStatusTool? {
+        switch self {
+        case .removed: return .removed
+        case .checked: return .checked
+        case .hidden: return .hidden
+        case .new: return .new
+        case .completed: return nil
+        case .all: return nil
+        }
+    }
+}
+
 struct PhraseReviewStatusCycleState {
     private(set) var lastInteractedID: String?
     private(set) var activeTool: PhraseReviewStatusTool?
