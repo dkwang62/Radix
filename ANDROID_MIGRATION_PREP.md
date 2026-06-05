@@ -34,6 +34,10 @@ portable domain behavior rather than screens.
   - Owns user-visible status/completion messages for review actions.
   - Defines the review sort order: word length, pinyin/fallback key, then most recent review/add date.
 
+- `StudyGridEntry`, `StudyReviewTile`, `StudyPhraseRowData`, `StudyPhraseMarker`, and `StudyReviewRules`
+  - Define study/favourites review tile data without SwiftUI dependencies.
+  - Sort study items by folded pinyin and display text.
+
 These rules should be mirrored exactly in Kotlin before porting UI behavior.
 
 ## Recommended Migration Order
@@ -45,6 +49,7 @@ These rules should be mirrored exactly in Kotlin before porting UI behavior.
    - `AddedPhraseReviewRules`
    - `PhraseLengthRule`
    - `PhraseResultRules`
+   - `StudyReviewRules`
    - `RadixSearchQuery`
    - `RadixTextClassifier`
    - `PinyinSearchNormalizer`

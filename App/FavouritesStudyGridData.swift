@@ -8,13 +8,7 @@ extension FavouritesTab {
     var studyReviewTiles: [StudyReviewTile] {
         (studyPhraseRows.map(StudyReviewTile.phraseTile)
             + studyCharacterGridEntries.map(StudyReviewTile.characterTile))
-            .sorted { lhs, rhs in
-                let leftPinyin = studySortPinyin(lhs.pinyin)
-                let rightPinyin = studySortPinyin(rhs.pinyin)
-                if leftPinyin != rightPinyin { return leftPinyin < rightPinyin }
-
-                return lhs.sortText < rhs.sortText
-            }
+            .sorted(by: StudyReviewRules.reviewTileSortPredicate)
     }
 
     var studyPhraseRows: [StudyPhraseRowData] {
@@ -36,13 +30,7 @@ extension FavouritesTab {
             }
         }
 
-        return keyedPhrases.values.sorted { lhs, rhs in
-            let leftPinyin = studySortPinyin(lhs.phrase.pinyin)
-            let rightPinyin = studySortPinyin(rhs.phrase.pinyin)
-            if leftPinyin != rightPinyin { return leftPinyin < rightPinyin }
-
-            return lhs.phrase.word < rhs.phrase.word
-        }
+        return keyedPhrases.values.sorted(by: StudyReviewRules.phraseMarkerSortPredicate)
     }
 
     var studyCharacterGridEntries: [StudyGridEntry] {
@@ -88,69 +76,5 @@ extension FavouritesTab {
 
     func studyGridDisplayText(_ text: String) -> String {
         studyGridUsesTraditionalScript ? store.traditionalText(text) : store.simplifiedText(text)
-    }
-
-    private func studySortPinyin(_ pinyin: String) -> String {
-        pinyin
-            .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-}
-
-struct StudyGridEntry: Identifiable {
-    let id: String
-    let character: String
-    let pinyin: String
-    let isFavoriteCharacter: Bool
-}
-
-struct StudyReviewTile: Identifiable {
-    let id: String
-    let kind: Kind
-
-    enum Kind {
-        case phrase(StudyPhraseRowData)
-        case character(StudyGridEntry)
-    }
-
-    var pinyin: String {
-        switch kind {
-        case .phrase(let row): return row.phrase.pinyin
-        case .character(let entry): return entry.pinyin
-        }
-    }
-
-    var sortText: String {
-        switch kind {
-        case .phrase(let row): return row.phrase.word
-        case .character(let entry): return entry.character
-        }
-    }
-
-    static func phraseTile(_ row: StudyPhraseRowData) -> StudyReviewTile {
-        StudyReviewTile(id: "phraseTile:\(row.id)", kind: .phrase(row))
-    }
-
-    static func characterTile(_ entry: StudyGridEntry) -> StudyReviewTile {
-        StudyReviewTile(id: "characterTile:\(entry.id)", kind: .character(entry))
-    }
-}
-
-struct StudyPhraseRowData: Identifiable {
-    let phrase: PhraseItem
-    let marker: StudyPhraseMarker
-
-    var id: String { "\(marker.idPrefix):\(phrase.word)" }
-}
-
-enum StudyPhraseMarker {
-    case favorite
-    case recent
-
-    var idPrefix: String {
-        switch self {
-        case .favorite: return "phrase"
-        case .recent: return "recentPhrase"
-        }
     }
 }

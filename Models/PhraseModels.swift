@@ -315,3 +315,86 @@ enum PhraseResultRules {
         return sortedByPinyin(output)
     }
 }
+
+struct StudyGridEntry: Identifiable {
+    let id: String
+    let character: String
+    let pinyin: String
+    let isFavoriteCharacter: Bool
+}
+
+struct StudyReviewTile: Identifiable {
+    let id: String
+    let kind: Kind
+
+    enum Kind {
+        case phrase(StudyPhraseRowData)
+        case character(StudyGridEntry)
+    }
+
+    var pinyin: String {
+        switch kind {
+        case .phrase(let row): return row.phrase.pinyin
+        case .character(let entry): return entry.pinyin
+        }
+    }
+
+    var sortText: String {
+        switch kind {
+        case .phrase(let row): return row.phrase.word
+        case .character(let entry): return entry.character
+        }
+    }
+
+    static func phraseTile(_ row: StudyPhraseRowData) -> StudyReviewTile {
+        StudyReviewTile(id: "phraseTile:\(row.id)", kind: .phrase(row))
+    }
+
+    static func characterTile(_ entry: StudyGridEntry) -> StudyReviewTile {
+        StudyReviewTile(id: "characterTile:\(entry.id)", kind: .character(entry))
+    }
+}
+
+struct StudyPhraseRowData: Identifiable {
+    let phrase: PhraseItem
+    let marker: StudyPhraseMarker
+
+    var id: String { "\(marker.idPrefix):\(phrase.word)" }
+}
+
+enum StudyPhraseMarker {
+    case favorite
+    case recent
+
+    var idPrefix: String {
+        switch self {
+        case .favorite: return "phrase"
+        case .recent: return "recentPhrase"
+        }
+    }
+}
+
+enum StudyReviewRules {
+    static func reviewTileSortPredicate(_ lhs: StudyReviewTile, _ rhs: StudyReviewTile) -> Bool {
+        let leftPinyin = sortPinyin(lhs.pinyin)
+        let rightPinyin = sortPinyin(rhs.pinyin)
+        if leftPinyin != rightPinyin { return leftPinyin < rightPinyin }
+        return lhs.sortText < rhs.sortText
+    }
+
+    static func phraseMarkerSortPredicate(
+        _ lhs: (phrase: PhraseItem, marker: StudyPhraseMarker),
+        _ rhs: (phrase: PhraseItem, marker: StudyPhraseMarker)
+    ) -> Bool {
+        let leftPinyin = sortPinyin(lhs.phrase.pinyin)
+        let rightPinyin = sortPinyin(rhs.phrase.pinyin)
+        if leftPinyin != rightPinyin { return leftPinyin < rightPinyin }
+        return lhs.phrase.word < rhs.phrase.word
+    }
+
+    private static func sortPinyin(_ pinyin: String) -> String {
+        pinyin
+            .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
