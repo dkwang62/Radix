@@ -177,6 +177,11 @@
 		86CD14732FA2000100D7BDBD /* DataEditBackupSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14722FA2000100D7BDBD /* DataEditBackupSection.swift */; };
 		C0DE00062FB10002001B9AA7 /* DataEditMemorySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00052FB10002001B9AA7 /* DataEditMemorySection.swift */; };
 		C0DE00102FC00001001B9AA7 /* AddedPhraseReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE000F2FC00001001B9AA7 /* AddedPhraseReviewSheet.swift */; };
+		C0DE00202FC00003001B9AA7 /* AddedPhraseReviewControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE001F2FC00003001B9AA7 /* AddedPhraseReviewControls.swift */; };
+		C0DE00222FC00004001B9AA7 /* AddedPhraseReviewDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00212FC00004001B9AA7 /* AddedPhraseReviewDetail.swift */; };
+		C0DE00242FC00005001B9AA7 /* AddedPhraseReviewGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00232FC00005001B9AA7 /* AddedPhraseReviewGrid.swift */; };
+		C0DE00262FC00006001B9AA7 /* AddedPhraseReviewFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00252FC00006001B9AA7 /* AddedPhraseReviewFilter.swift */; };
+		C0DE00282FC00007001B9AA7 /* GeminiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00272FC00007001B9AA7 /* GeminiClient.swift */; };
 		C0DE00082FB10002001B9AA7 /* DataEditThisDeviceSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00072FB10002001B9AA7 /* DataEditThisDeviceSection.swift */; };
 		C0DE000A2FB10002001B9AA7 /* DataEditOtherDevicesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00092FB10002001B9AA7 /* DataEditOtherDevicesSection.swift */; };
 		86CD14752FA2000100D7BDBD /* DataEditPremiumExports.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14742FA2000100D7BDBD /* DataEditPremiumExports.swift */; };
@@ -311,6 +316,11 @@
 		86CD14722FA2000100D7BDBD /* DataEditBackupSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditBackupSection.swift; sourceTree = "<group>"; };
 		C0DE00052FB10002001B9AA7 /* DataEditMemorySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditMemorySection.swift; sourceTree = "<group>"; };
 		C0DE000F2FC00001001B9AA7 /* AddedPhraseReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddedPhraseReviewSheet.swift; sourceTree = "<group>"; };
+		C0DE001F2FC00003001B9AA7 /* AddedPhraseReviewControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddedPhraseReviewControls.swift; sourceTree = "<group>"; };
+		C0DE00212FC00004001B9AA7 /* AddedPhraseReviewDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddedPhraseReviewDetail.swift; sourceTree = "<group>"; };
+		C0DE00232FC00005001B9AA7 /* AddedPhraseReviewGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddedPhraseReviewGrid.swift; sourceTree = "<group>"; };
+		C0DE00252FC00006001B9AA7 /* AddedPhraseReviewFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddedPhraseReviewFilter.swift; sourceTree = "<group>"; };
+		C0DE00272FC00007001B9AA7 /* GeminiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiClient.swift; sourceTree = "<group>"; };
 		C0DE00072FB10002001B9AA7 /* DataEditThisDeviceSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditThisDeviceSection.swift; sourceTree = "<group>"; };
 		C0DE00092FB10002001B9AA7 /* DataEditOtherDevicesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditOtherDevicesSection.swift; sourceTree = "<group>"; };
 		86CD14742FA2000100D7BDBD /* DataEditPremiumExports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditPremiumExports.swift; sourceTree = "<group>"; };
@@ -498,6 +508,10 @@
 				86CD14722FA2000100D7BDBD /* DataEditBackupSection.swift */,
 				C0DE00052FB10002001B9AA7 /* DataEditMemorySection.swift */,
 				C0DE000F2FC00001001B9AA7 /* AddedPhraseReviewSheet.swift */,
+				C0DE001F2FC00003001B9AA7 /* AddedPhraseReviewControls.swift */,
+				C0DE00212FC00004001B9AA7 /* AddedPhraseReviewDetail.swift */,
+				C0DE00232FC00005001B9AA7 /* AddedPhraseReviewGrid.swift */,
+				C0DE00252FC00006001B9AA7 /* AddedPhraseReviewFilter.swift */,
 				C0DE00072FB10002001B9AA7 /* DataEditThisDeviceSection.swift */,
 				C0DE00092FB10002001B9AA7 /* DataEditOtherDevicesSection.swift */,
 				86CD14742FA2000100D7BDBD /* DataEditPremiumExports.swift */,
@@ -589,6 +603,7 @@
 				8500003B2F9D0001001B9AA7 /* StoredZipArchive.swift */,
 				850000432F9D0001001B9AA7 /* ProjectLiveDataLocator.swift */,
 				8500004B2F9D0001001B9AA7 /* ScriptTextConverter.swift */,
+				C0DE00272FC00007001B9AA7 /* GeminiClient.swift */,
 				4559296FCA5B2061336BA302 /* EntitlementManager.swift */,
 				850000112F9D0001001B9AA7 /* CharacterSpeechService.swift */,
 				850000132F9D0001001B9AA7 /* PhraseEditService.swift */,
@@ -911,6 +926,10 @@
 				86CD14732FA2000100D7BDBD /* DataEditBackupSection.swift in Sources */,
 				C0DE00062FB10002001B9AA7 /* DataEditMemorySection.swift in Sources */,
 				C0DE00102FC00001001B9AA7 /* AddedPhraseReviewSheet.swift in Sources */,
+				C0DE00202FC00003001B9AA7 /* AddedPhraseReviewControls.swift in Sources */,
+				C0DE00222FC00004001B9AA7 /* AddedPhraseReviewDetail.swift in Sources */,
+				C0DE00242FC00005001B9AA7 /* AddedPhraseReviewGrid.swift in Sources */,
+				C0DE00262FC00006001B9AA7 /* AddedPhraseReviewFilter.swift in Sources */,
 				C0DE00082FB10002001B9AA7 /* DataEditThisDeviceSection.swift in Sources */,
 				C0DE000A2FB10002001B9AA7 /* DataEditOtherDevicesSection.swift in Sources */,
 				86CD14752FA2000100D7BDBD /* DataEditPremiumExports.swift in Sources */,
@@ -982,6 +1001,7 @@
 				864DAB882F93B701001B9AA7 /* RadixStore.swift in Sources */,
 				850000122F9D0001001B9AA7 /* CharacterSpeechService.swift in Sources */,
 				850000142F9D0001001B9AA7 /* PhraseEditService.swift in Sources */,
+				C0DE00282FC00007001B9AA7 /* GeminiClient.swift in Sources */,
 				8500001A2F9D0001001B9AA7 /* QuickEditFieldRows.swift in Sources */,
 				A05EBFC59DC951C9EFDB9FF9 /* PromptModels.swift in Sources */,
 				CB360F3972D55FBFD1555152 /* RadixApp.swift in Sources */,

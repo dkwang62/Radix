@@ -1,11 +1,23 @@
 # Radix maintainability refactor — completed status
 
-**Build status: CLEAN (PaywallView split)**
-Last verified build: `xcodebuild -project Radix.xcodeproj -scheme Radix -destination generic/platform=iOS build`
+**Build status: CLEAN (Added phrase review + Gemini client split)**
+Last verified build: `xcodebuild -project Radix.xcodeproj -scheme Radix -destination generic/platform=iOS CODE_SIGNING_ALLOWED=NO build`
 
 ---
 
 ## Post-checkpoint update
+
+`AddedPhraseReviewSheet.swift` has now been split into focused added-phrase review files:
+
+- `AddedPhraseReviewSheet.swift` — review state, filtered data, status mutations, paging/delete actions
+- `AddedPhraseReviewControls.swift` — filter picker, status tool row, search field, page controls
+- `AddedPhraseReviewDetail.swift` — selected phrase detail card and empty-state copy
+- `AddedPhraseReviewGrid.swift` — paged phrase grid and reusable review tile
+- `AddedPhraseReviewFilter.swift` — review filter enum, status inclusion, and tool mapping
+
+The duplicated Gemini request validation, URL construction, HTTP handling, and user-facing API error messages have also been extracted into `GeminiClient.swift`. `RadixStoreAI.swift` now only coordinates store-level AI actions and URL/paste helpers.
+
+The iOS build was verified clean with signing disabled after this cleanup. A normal signed build still depends on local provisioning for `com.desmond.radix`.
 
 `FilterGridTab.swift` has now been split into focused Browse extensions:
 
@@ -223,7 +235,7 @@ This is the irreducible core. Do not attempt to split further without an archite
 | `RadixStoreCollections.swift` | 194 | `CharacterCollection` CRUD, selection, persistence |
 | `RadixStorePrompts.swift` | 185 | Prompt config mutations, task CRUD, `promptText` overloads, `promptRenderContext` |
 | `RadixStoreFavorites.swift` | 116 | Load/persist/apply favorites and phrase favorites, `setFavorite`, `persistFavoritePhraseDates` |
-| `RadixStoreAI.swift` | 116 | Task selection for character launch, AI URL construction, Mac clipboard paste |
+| `RadixStoreAI.swift` | 174 | Store-level Gemini action orchestration, AI URL construction, Mac clipboard paste |
 | `RadixStoreRootsCache.swift` | 92 | `loadSharedComponentPeers`, `loadSharedPeersByComponent`, `loadRootDerivatives`, `rootDerivatives` |
 | `RadixStorePhraseFile.swift` | 30 | `setAddPhrasesFile`, `restoreDefaultAddPhrasesFile`, `exportAddPhrasesDB` |
 
@@ -259,6 +271,10 @@ This is the irreducible core. Do not attempt to split further without an archite
 - `StrokeSynthesisSupport.swift` (189 lines)
 - `StrokePathTransformer.swift` (108 lines)
 - `StrokeIDSParser.swift` (~60 lines)
+
+**Gemini support** split:
+- `GeminiClient.swift` (236 lines) — shared Gemini request validation, HTTP transport, error mapping, phrase extraction, and text generation services
+- `RadixStoreAI.swift` (174 lines) — store-level orchestration, AI URLs, and Mac clipboard paste
 
 ### Remaining Services — at natural floor, do not split
 
