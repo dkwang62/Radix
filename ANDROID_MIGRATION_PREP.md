@@ -30,6 +30,10 @@ portable domain behavior rather than screens.
   - Maps filters to review tools/statuses without SwiftUI dependencies.
   - Leaves icon/color styling in the SwiftUI layer.
 
+- `AddedPhraseReviewRules` in `Models/PhraseModels.swift`
+  - Owns user-visible status/completion messages for review actions.
+  - Defines the review sort order: word length, pinyin/fallback key, then most recent review/add date.
+
 These rules should be mirrored exactly in Kotlin before porting UI behavior.
 
 ## Recommended Migration Order
@@ -38,6 +42,7 @@ These rules should be mirrored exactly in Kotlin before porting UI behavior.
    - `PhraseItem`
    - `PhraseReviewStatus`
    - `AddedPhraseReviewFilter`
+   - `AddedPhraseReviewRules`
    - `PhraseLengthRule`
    - `PhraseResultRules`
    - `RadixSearchQuery`

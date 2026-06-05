@@ -123,6 +123,41 @@ enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
     }
 }
 
+enum AddedPhraseReviewRules {
+    static func statusMessage(_ status: PhraseReviewStatus?, word: String) -> String {
+        switch status {
+        case .checked: return "\(word) checked."
+        case .hidden: return "\(word) hidden from phrase lists, still available on pages."
+        case .removed: return "\(word) rejected as not a phrase."
+        case .completed: return "\(word) completed."
+        case nil: return "\(word) restored to New."
+        }
+    }
+
+    static func completionMessage(count: Int) -> String? {
+        guard count > 0 else { return nil }
+        return "Completed \(count) checked phrase\(count == 1 ? "" : "s")."
+    }
+
+    static func reviewSortPredicate(_ lhs: PhraseItem, _ rhs: PhraseItem) -> Bool {
+        if lhs.word.count != rhs.word.count { return lhs.word.count < rhs.word.count }
+
+        let leftKey = sortKey(primary: lhs.pinyin, fallback: lhs.word)
+        let rightKey = sortKey(primary: rhs.pinyin, fallback: rhs.word)
+        let pinyinOrder = leftKey.localizedStandardCompare(rightKey)
+        if pinyinOrder != .orderedSame { return pinyinOrder == .orderedAscending }
+
+        let lhsDate = lhs.lastReviewedAt ?? lhs.addedAt ?? .distantPast
+        let rhsDate = rhs.lastReviewedAt ?? rhs.addedAt ?? .distantPast
+        return lhsDate > rhsDate
+    }
+
+    private static func sortKey(primary: String, fallback: String) -> String {
+        let value = primary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? fallback : primary
+        return value.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+    }
+}
+
 struct PhraseReviewStatusCycleState {
     private(set) var lastInteractedID: String?
     private(set) var activeTool: PhraseReviewStatusTool?

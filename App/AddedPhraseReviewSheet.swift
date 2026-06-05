@@ -119,7 +119,7 @@ extension AddedPhraseReviewSheet {
                 filter = AddedPhraseReviewFilter.filter(for: status)
             }
             clampPage()
-            message = statusMessage(status, phrase: phrase)
+            message = AddedPhraseReviewRules.statusMessage(status, word: phrase.word)
         } catch {
             message = "Could not update \(phrase.word): \(error.localizedDescription)"
         }
@@ -179,16 +179,6 @@ extension AddedPhraseReviewSheet {
         pageIndex = min(pageCount - 1, currentPageIndex + 1)
     }
 
-    func statusMessage(_ status: PhraseReviewStatus?, phrase: PhraseItem) -> String {
-        switch status {
-        case .checked: return "\(phrase.word) checked."
-        case .hidden: return "\(phrase.word) hidden from phrase lists, still available on pages."
-        case .removed: return "\(phrase.word) rejected as not a phrase."
-        case .completed: return "\(phrase.word) completed."
-        case nil: return "\(phrase.word) restored to New."
-        }
-    }
-
     func completeCheckedPhrases() {
         let phrasesToComplete = checkedPhrases
         guard !phrasesToComplete.isEmpty else { return }
@@ -207,9 +197,7 @@ extension AddedPhraseReviewSheet {
         selectedPhrase = nil
         reviewCycle.resetPreview()
         clampPage()
-        if completedCount > 0 {
-            message = "Completed \(completedCount) checked phrase\(completedCount == 1 ? "" : "s")."
-        }
+        message = AddedPhraseReviewRules.completionMessage(count: completedCount)
     }
 
     var deleteConfirmationBinding: Binding<Bool> {
@@ -240,14 +228,6 @@ extension AddedPhraseReviewSheet {
     }
 
     func reviewSort(_ lhs: PhraseItem, _ rhs: PhraseItem) -> Bool {
-        if lhs.word.count != rhs.word.count { return lhs.word.count < rhs.word.count }
-        let leftKey = BackupPreviewSort.key(primary: lhs.pinyin, fallback: lhs.word)
-        let rightKey = BackupPreviewSort.key(primary: rhs.pinyin, fallback: rhs.word)
-        let pinyinOrder = leftKey.localizedStandardCompare(rightKey)
-        if pinyinOrder != .orderedSame { return pinyinOrder == .orderedAscending }
-
-        let lhsDate = lhs.lastReviewedAt ?? lhs.addedAt ?? .distantPast
-        let rhsDate = rhs.lastReviewedAt ?? rhs.addedAt ?? .distantPast
-        return lhsDate > rhsDate
+        AddedPhraseReviewRules.reviewSortPredicate(lhs, rhs)
     }
 }
