@@ -125,12 +125,11 @@ extension RadixStore {
     }
 
     var phraseLengthFilterOptions: [Int?] {
-        [nil, 2, 3, 4, 5, 6, 7]
+        PhraseLengthRule.filterOptions
     }
 
     func phraseLengthFilterLabel(for length: Int?) -> String {
-        guard let length else { return "All" }
-        return length >= 7 ? "7+" : "\(length)"
+        PhraseLengthRule.label(for: length)
     }
 
     var activePhraseLengthFilterLabel: String {
@@ -138,13 +137,7 @@ extension RadixStore {
     }
 
     func phraseLookupLengths(for length: Int?) -> [Int] {
-        guard let length else {
-            return Array(2...max(2, phraseRepo.maxPhraseLength()))
-        }
-        if length >= 7 {
-            return Array(7...max(7, phraseRepo.maxPhraseLength()))
-        }
-        return [length]
+        PhraseLengthRule.lookupLengths(selectedLength: length, maxPhraseLength: phraseRepo.maxPhraseLength())
     }
 
     func phraseCacheKey(character: String, length: Int?) -> String {
@@ -152,8 +145,7 @@ extension RadixStore {
     }
 
     private func phraseLengthCacheKey(for length: Int?) -> String {
-        guard let length else { return "all" }
-        return length >= 7 ? "7plus" : String(length)
+        PhraseLengthRule.cacheKey(for: length)
     }
 
     func rankedPhraseResults(_ phrases: [PhraseItem]) -> [PhraseItem] {

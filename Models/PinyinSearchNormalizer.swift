@@ -39,3 +39,36 @@ enum PinyinSearchNormalizer {
         return syllable
     }
 }
+
+struct RadixSearchQuery: Equatable {
+    let rawText: String
+    let effectiveText: String
+    let isForcedEnglish: Bool
+    let isEmpty: Bool
+
+    init(_ value: String) {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        let hasEqualPrefix = trimmed.hasPrefix("=")
+        let hasQuotes = Self.isWrappedInQuotes(trimmed)
+
+        rawText = trimmed
+        isForcedEnglish = hasEqualPrefix || hasQuotes
+
+        if hasEqualPrefix {
+            effectiveText = String(trimmed.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
+        } else if hasQuotes {
+            effectiveText = String(trimmed.dropFirst().dropLast()).trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            effectiveText = trimmed
+        }
+
+        isEmpty = trimmed.isEmpty
+    }
+
+    private static func isWrappedInQuotes(_ value: String) -> Bool {
+        (value.hasPrefix("'") && value.hasSuffix("'")) ||
+        (value.hasPrefix("\"") && value.hasSuffix("\"")) ||
+        (value.hasPrefix("\u{2018}") && value.hasSuffix("\u{2019}")) ||
+        (value.hasPrefix("\u{201C}") && value.hasSuffix("\u{201D}"))
+    }
+}

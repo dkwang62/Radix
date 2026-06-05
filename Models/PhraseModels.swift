@@ -167,3 +167,37 @@ struct PhraseItem: Identifiable, Hashable, Equatable, Codable {
         reviewStatus != .hidden && reviewStatus != .removed
     }
 }
+
+enum PhraseLengthRule {
+    static let allOption: Int? = nil
+    static let minimumLength = 2
+    static let overflowBucket = 7
+    static let filterOptions: [Int?] = [allOption, 2, 3, 4, 5, 6, overflowBucket]
+
+    static func label(for length: Int?) -> String {
+        guard let length else { return "All" }
+        return length >= overflowBucket ? "\(overflowBucket)+" : "\(length)"
+    }
+
+    static func cacheKey(for length: Int?) -> String {
+        guard let length else { return "all" }
+        return length >= overflowBucket ? "\(overflowBucket)plus" : String(length)
+    }
+
+    static func matches(word: String, selectedLength: Int?) -> Bool {
+        guard let selectedLength else { return true }
+        return selectedLength >= overflowBucket
+            ? word.count >= overflowBucket
+            : word.count == selectedLength
+    }
+
+    static func lookupLengths(selectedLength: Int?, maxPhraseLength: Int) -> [Int] {
+        guard let selectedLength else {
+            return Array(minimumLength...max(minimumLength, maxPhraseLength))
+        }
+        if selectedLength >= overflowBucket {
+            return Array(overflowBucket...max(overflowBucket, maxPhraseLength))
+        }
+        return [selectedLength]
+    }
+}

@@ -21,58 +21,41 @@ extension RadixStore {
 
     func performSearch(customQuery: String? = nil, recordHistory: Bool = true) {
         let targetQuery = customQuery ?? query
-        let trimmed = targetQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        let parsedQuery = RadixSearchQuery(targetQuery)
 
-        guard !trimmed.isEmpty else {
+        guard !parsedQuery.isEmpty else {
             clearSearch()
             return
         }
 
         hasPerformedSearch = true
-        lastSearchQuery = trimmed
+        lastSearchQuery = parsedQuery.rawText
         if recordHistory {
-            appendSearchHistory(trimmed)
+            appendSearchHistory(parsedQuery.rawText)
         }
-
-        let hasEqualPrefix = trimmed.hasPrefix("=")
-        let hasQuotes = (trimmed.hasPrefix("'") && trimmed.hasSuffix("'")) ||
-                        (trimmed.hasPrefix("\"") && trimmed.hasSuffix("\"")) ||
-                        (trimmed.hasPrefix("\u{2018}") && trimmed.hasSuffix("\u{2019}")) ||
-                        (trimmed.hasPrefix("\u{201C}") && trimmed.hasSuffix("\u{201D}"))
-
-        let isForcedEnglish = hasEqualPrefix || hasQuotes
-
-        let searchQuery: String = {
-            if hasEqualPrefix {
-                return String(trimmed.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
-            } else if hasQuotes {
-                return String(trimmed.dropFirst().dropLast()).trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-            return trimmed
-        }()
 
         switch searchMode {
         case .smart:
-            if isForcedEnglish {
-                results = componentRepo.searchDefinitions(query: searchQuery, scriptFilter: .any, isStrict: true)
-                smartPhraseResults = sortPhrasesByPinyin(phraseRepo.searchByDefinition(term: searchQuery, isStrict: true))
+            if parsedQuery.isForcedEnglish {
+                results = componentRepo.searchDefinitions(query: parsedQuery.effectiveText, scriptFilter: .any, isStrict: true)
+                smartPhraseResults = sortPhrasesByPinyin(phraseRepo.searchByDefinition(term: parsedQuery.effectiveText, isStrict: true))
                 definitionCharacterResults = []
                 definitionPhraseResults = []
             } else {
-                results = componentRepo.search(query: searchQuery, scriptFilter: .any)
-                let meaningPhrases = searchQuery.count >= 2
-                    ? phraseRepo.searchByDefinition(term: searchQuery)
+                results = componentRepo.search(query: parsedQuery.effectiveText, scriptFilter: .any)
+                let meaningPhrases = parsedQuery.effectiveText.count >= 2
+                    ? phraseRepo.searchByDefinition(term: parsedQuery.effectiveText)
                     : []
-                let pinyinPhrases = normalizedCompactQuery(searchQuery).count > 2
-                    ? phraseRepo.searchByPinyin(term: searchQuery)
+                let pinyinPhrases = normalizedCompactQuery(parsedQuery.effectiveText).count > 2
+                    ? phraseRepo.searchByPinyin(term: parsedQuery.effectiveText)
                     : []
                 smartPhraseResults = mergePhraseResults(primary: meaningPhrases, secondary: pinyinPhrases)
                 definitionCharacterResults = []
                 definitionPhraseResults = []
             }
         case .definition:
-            definitionCharacterResults = componentRepo.searchDefinitions(query: searchQuery, scriptFilter: .any, isStrict: isForcedEnglish)
-            definitionPhraseResults = sortPhrasesByPinyin(phraseRepo.searchByDefinition(term: searchQuery, isStrict: isForcedEnglish))
+            definitionCharacterResults = componentRepo.searchDefinitions(query: parsedQuery.effectiveText, scriptFilter: .any, isStrict: parsedQuery.isForcedEnglish)
+            definitionPhraseResults = sortPhrasesByPinyin(phraseRepo.searchByDefinition(term: parsedQuery.effectiveText, isStrict: parsedQuery.isForcedEnglish))
             smartPhraseResults = []
             results = []
         }
@@ -147,7 +130,7 @@ extension RadixStore {
         if character.count > 1 {
             let matches = phraseRepo.phrases(matchingPartsOf: character, length: nil)
             guard let targetLength else { return sortPhrasesByPinyin(matches) }
-            return sortPhrasesByPinyin(matches.filter { targetLength >= 7 ? $0.word.count >= 7 : $0.word.count == targetLength })
+            return sortPhrasesByPinyin(matches.filter { PhraseLengthRule.matches(word: $0.word, selectedLength: targetLength) })
         }
         let targetToLoad = character.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !targetToLoad.isEmpty else { return [] }
@@ -166,8 +149,7 @@ extension RadixStore {
     }
 
     func phraseMatchesActiveLength(_ phrase: PhraseItem) -> Bool {
-        guard let phraseLength else { return true }
-        return phraseLength >= 7 ? phrase.word.count >= 7 : phrase.word.count == phraseLength
+        PhraseLengthRule.matches(word: phrase.word, selectedLength: phraseLength)
     }
 
     func isPhraseInBase(_ word: String) -> Bool {
