@@ -38,6 +38,11 @@ portable domain behavior rather than screens.
   - Define study/favourites review tile data without SwiftUI dependencies.
   - Sort study items by folded pinyin and display text.
 
+- `BrowsePagePhraseRules` in `Models/ImagePhraseMatcher.swift`
+  - Builds browse-page phrase candidate word windows.
+  - Selects non-overlapping phrase tiles by longest match, start offset, pinyin, then word.
+  - Sorts browse-page phrase candidates independently of SwiftUI/store state.
+
 These rules should be mirrored exactly in Kotlin before porting UI behavior.
 
 ## Recommended Migration Order
@@ -50,6 +55,7 @@ These rules should be mirrored exactly in Kotlin before porting UI behavior.
    - `PhraseLengthRule`
    - `PhraseResultRules`
    - `StudyReviewRules`
+   - `BrowsePagePhraseRules`
    - `RadixSearchQuery`
    - `RadixTextClassifier`
    - `PinyinSearchNormalizer`

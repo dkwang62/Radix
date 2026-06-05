@@ -287,17 +287,7 @@ extension RadixStore {
             maxPhraseLength: maxPhraseLength
         )
 
-        var tiles: [Int: BrowseImagePhraseTileData] = [:]
-        var claimedOffsets = Set<Int>()
-
-        // Prefer the longest enabled phrase before shorter overlapping phrases.
-        // This keeps 兵家必争之地 as one tile instead of consuming 兵家 first.
-        for match in matches {
-            let offsets = Set(match.start..<match.end)
-            guard claimedOffsets.isDisjoint(with: offsets) else { continue }
-            tiles[match.start] = match
-            claimedOffsets.formUnion(offsets)
-        }
+        let tiles = BrowsePagePhraseRules.tiles(from: matches)
 
         browsePagePhraseTileCache[collection.id] = tiles
         return tiles
@@ -310,55 +300,22 @@ extension RadixStore {
         let lookupCharacters = collection.characters.map { phraseLookupTarget(for: $0) }
         let maxPhraseLength = browsePageMaximumPhraseLength
         let phraseByLookupWord = browsePagePhraseLookup(in: collection, maxPhraseLength: maxPhraseLength)
-        var firstStartByWord: [String: Int] = [:]
-        var countByWord: [String: Int] = [:]
-        var phraseByWord: [String: PhraseItem] = [:]
-
-        for offset in lookupCharacters.indices {
-            let maxLength = min(maxPhraseLength, lookupCharacters.count - offset)
-            guard maxLength >= 2 else { continue }
-            for length in 2...maxLength {
-                let segment = lookupCharacters[offset..<(offset + length)].joined()
-                guard let phrase = phraseByLookupWord[segment] else { continue }
-                let word = phraseStorageWord(phrase.word)
-                phraseByWord[word] = phrase
-                firstStartByWord[word] = min(firstStartByWord[word] ?? offset, offset)
-                countByWord[word, default: 0] += 1
-            }
-        }
-
-        let candidates = phraseByWord.values.map { phrase in
-            let word = phraseStorageWord(phrase.word)
-            return BrowsePagePhraseCandidate(
-                phrase: phrase,
-                firstStart: firstStartByWord[word] ?? 0,
-                occurrenceCount: countByWord[word] ?? 1
-            )
-        }
-        .sorted {
-            let leftKey = BackupPreviewSort.key(primary: $0.phrase.pinyin, fallback: $0.phrase.word)
-            let rightKey = BackupPreviewSort.key(primary: $1.phrase.pinyin, fallback: $1.phrase.word)
-            let pinyinOrder = leftKey.localizedStandardCompare(rightKey)
-            if pinyinOrder != .orderedSame { return pinyinOrder == .orderedAscending }
-            if $0.phrase.word != $1.phrase.word { return $0.phrase.word < $1.phrase.word }
-            return $0.firstStart < $1.firstStart
-        }
+        let candidates = BrowsePagePhraseRules.candidates(
+            lookupCharacters: lookupCharacters,
+            phraseByLookupWord: phraseByLookupWord,
+            maxPhraseLength: maxPhraseLength,
+            phraseWordKey: phraseStorageWord
+        )
         browsePagePhraseCandidateCache[collection.id] = candidates
         return candidates
     }
 
     private func browsePagePhraseLookup(in collection: CharacterCollection, maxPhraseLength: Int) -> [String: PhraseItem] {
         let lookupCharacters = collection.characters.map { phraseLookupTarget(for: $0) }
-        var candidateWords = Set<String>()
-
-        for offset in lookupCharacters.indices {
-            let maxLength = min(maxPhraseLength, lookupCharacters.count - offset)
-            guard maxLength >= 2 else { continue }
-            for length in 2...maxLength {
-                candidateWords.insert(lookupCharacters[offset..<(offset + length)].joined())
-            }
-        }
-
+        let candidateWords = BrowsePagePhraseRules.candidateWords(
+            lookupCharacters: lookupCharacters,
+            maxPhraseLength: maxPhraseLength
+        )
         let phrases = phraseRepo.fetchPhrases(matching: candidateWords, includeHidden: true)
         var phraseByLookupWord: [String: PhraseItem] = [:]
         for phrase in phrases {
@@ -378,36 +335,13 @@ extension RadixStore {
         hiddenWords: Set<String>,
         maxPhraseLength: Int
     ) -> [BrowseImagePhraseTileData] {
-        guard lookupCharacters.count > 1 else { return [] }
-
-        var matches: [BrowseImagePhraseTileData] = []
-        for offset in lookupCharacters.indices {
-            let maxLength = min(maxPhraseLength, lookupCharacters.count - offset)
-            guard maxLength >= 2 else { continue }
-
-            for length in 2...maxLength {
-                let end = offset + length
-                let segment = lookupCharacters[offset..<end].joined()
-                guard let phrase = phraseByLookupWord[segment],
-                      !hiddenWords.contains(phraseStorageWord(phrase.word))
-                else { continue }
-
-                matches.append(BrowseImagePhraseTileData(phrase: phrase, start: offset, end: end))
-            }
-        }
-
-        return matches.sorted {
-            let leftLength = $0.end - $0.start
-            let rightLength = $1.end - $1.start
-            if leftLength != rightLength { return leftLength > rightLength }
-            if $0.start != $1.start { return $0.start < $1.start }
-
-            let leftKey = BackupPreviewSort.key(primary: $0.phrase.pinyin, fallback: $0.phrase.word)
-            let rightKey = BackupPreviewSort.key(primary: $1.phrase.pinyin, fallback: $1.phrase.word)
-            let pinyinOrder = leftKey.localizedStandardCompare(rightKey)
-            if pinyinOrder != .orderedSame { return pinyinOrder == .orderedAscending }
-            return $0.phrase.word < $1.phrase.word
-        }
+        BrowsePagePhraseRules.tileMatches(
+            lookupCharacters: lookupCharacters,
+            phraseByLookupWord: phraseByLookupWord,
+            hiddenWords: hiddenWords,
+            maxPhraseLength: maxPhraseLength,
+            phraseWordKey: phraseStorageWord
+        )
     }
 
     func presentPhraseFromBrowseImageTile(_ phrase: PhraseItem, in collection: CharacterCollection, offsets: Set<Int>) {
