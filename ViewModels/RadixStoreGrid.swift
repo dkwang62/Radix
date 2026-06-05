@@ -75,48 +75,31 @@ extension RadixStore {
     }
 
     func phrasePinyinSortPredicate(_ lhs: PhraseItem, _ rhs: PhraseItem) -> Bool {
-        let lhsPinyin = normalizedCompactQuery(lhs.pinyin)
-        let rhsPinyin = normalizedCompactQuery(rhs.pinyin)
-        if lhsPinyin != rhsPinyin { return lhsPinyin < rhsPinyin }
-        if lhs.pinyin != rhs.pinyin { return lhs.pinyin < rhs.pinyin }
-        return lhs.word < rhs.word
+        PhraseResultRules.pinyinSortPredicate(lhs, rhs)
     }
 
     func sortPhrasesByPinyin(_ phrases: [PhraseItem]) -> [PhraseItem] {
-        phrases.sorted(by: phrasePinyinSortPredicate)
+        PhraseResultRules.sortedByPinyin(phrases)
     }
 
     // MARK: - Text normalization
 
     func normalizedCompactQuery(_ text: String) -> String {
-        let mutable = NSMutableString(string: text.lowercased()) as CFMutableString
-        CFStringTransform(mutable, nil, kCFStringTransformStripDiacritics, false)
-        return (mutable as String).filter { $0.isLetter || $0.isNumber }
+        PinyinSearchNormalizer.normalizedCompactQuery(text)
     }
 
     func isLikelyPinyinQuery(_ text: String) -> Bool {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmed.count >= 2 else { return false }
-        return trimmed.unicodeScalars.allSatisfy {
-            CharacterSet.letters.union(.decimalDigits).union(.whitespaces).contains($0)
-        }
+        RadixTextClassifier.isLikelyPinyinQuery(text)
     }
 
     func containsChineseCharacters(_ text: String) -> Bool {
-        text.unicodeScalars.contains {
-            (0x4E00...0x9FFF).contains($0.value) || (0x3400...0x4DBF).contains($0.value)
-        }
+        RadixTextClassifier.containsChineseCharacters(text)
     }
 
     // MARK: - Phrase lookup helpers
 
     func mergePhraseResults(primary: [PhraseItem], secondary: [PhraseItem]) -> [PhraseItem] {
-        var seen = Set<String>()
-        var out: [PhraseItem] = []
-        for item in (primary + secondary) {
-            if seen.insert(item.word).inserted { out.append(item) }
-        }
-        return sortPhrasesByPinyin(out)
+        PhraseResultRules.mergedUniqueByWord(primary: primary, secondary: secondary)
     }
 
     func phraseLookupTarget(for target: String) -> String {

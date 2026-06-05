@@ -30,6 +30,10 @@ enum PinyinSearchNormalizer {
         return preservingSpaces ? normalizedWords.joined(separator: " ") : normalizedWords.joined()
     }
 
+    static func normalizedCompactQuery(_ value: String) -> String {
+        normalize(value, preservingSpaces: false, fuzzyInitials: false)
+    }
+
     private static func applyCanonicalInitialMappings(_ syllable: String) -> String {
         for mapping in canonicalInitialMappings {
             if syllable.hasPrefix(mapping.source) {
@@ -37,6 +41,22 @@ enum PinyinSearchNormalizer {
             }
         }
         return syllable
+    }
+}
+
+enum RadixTextClassifier {
+    static func isLikelyPinyinQuery(_ text: String) -> Bool {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.count >= 2 else { return false }
+        return trimmed.unicodeScalars.allSatisfy {
+            CharacterSet.letters.union(.decimalDigits).union(.whitespaces).contains($0)
+        }
+    }
+
+    static func containsChineseCharacters(_ text: String) -> Bool {
+        text.unicodeScalars.contains {
+            (0x4E00...0x9FFF).contains($0.value) || (0x3400...0x4DBF).contains($0.value)
+        }
     }
 }
 

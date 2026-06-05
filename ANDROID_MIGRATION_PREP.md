@@ -11,10 +11,19 @@ portable domain behavior rather than screens.
   - Supports forced English search with straight or curly quotes.
   - Exposes `rawText`, `effectiveText`, `isForcedEnglish`, and `isEmpty`.
 
+- `RadixTextClassifier` and `PinyinSearchNormalizer.normalizedCompactQuery`
+  - Identify likely pinyin queries.
+  - Identify Chinese character text.
+  - Normalize pinyin-like text for searching and sorting.
+
 - `PhraseLengthRule` in `Models/PhraseModels.swift`
   - Owns phrase length filter options.
   - Defines the `7+` overflow bucket.
   - Provides labels, cache keys, lookup lengths, and phrase match checks.
+
+- `PhraseResultRules` in `Models/PhraseModels.swift`
+  - Sorts phrase results by normalized pinyin, original pinyin, then word.
+  - Merges primary and secondary phrase results by unique word.
 
 These rules should be mirrored exactly in Kotlin before porting UI behavior.
 
@@ -24,7 +33,9 @@ These rules should be mirrored exactly in Kotlin before porting UI behavior.
    - `PhraseItem`
    - `PhraseReviewStatus`
    - `PhraseLengthRule`
+   - `PhraseResultRules`
    - `RadixSearchQuery`
+   - `RadixTextClassifier`
    - `PinyinSearchNormalizer`
 
 2. Port repository/query services.

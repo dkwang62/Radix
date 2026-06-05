@@ -201,3 +201,26 @@ enum PhraseLengthRule {
         return [selectedLength]
     }
 }
+
+enum PhraseResultRules {
+    static func pinyinSortPredicate(_ lhs: PhraseItem, _ rhs: PhraseItem) -> Bool {
+        let lhsPinyin = PinyinSearchNormalizer.normalizedCompactQuery(lhs.pinyin)
+        let rhsPinyin = PinyinSearchNormalizer.normalizedCompactQuery(rhs.pinyin)
+        if lhsPinyin != rhsPinyin { return lhsPinyin < rhsPinyin }
+        if lhs.pinyin != rhs.pinyin { return lhs.pinyin < rhs.pinyin }
+        return lhs.word < rhs.word
+    }
+
+    static func sortedByPinyin(_ phrases: [PhraseItem]) -> [PhraseItem] {
+        phrases.sorted(by: pinyinSortPredicate)
+    }
+
+    static func mergedUniqueByWord(primary: [PhraseItem], secondary: [PhraseItem]) -> [PhraseItem] {
+        var seen = Set<String>()
+        var output: [PhraseItem] = []
+        for item in primary + secondary where seen.insert(item.word).inserted {
+            output.append(item)
+        }
+        return sortedByPinyin(output)
+    }
+}
