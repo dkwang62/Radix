@@ -2,7 +2,7 @@ import SwiftUI
 import Combine
 import StoreKit
 
-/// Manages paid access. Current policy: the app is free except Dated Copies, My Backup, and Advanced exports.
+/// Manages paid access. Current policy: 100 free Camera/Text pages; Radix Plus unlocks unlimited pages, import tools, snapshots, and backup; Advanced Pro unlocks exports.
 @MainActor
 class EntitlementManager: ObservableObject {
     static let datedCopiesProductID = "com.radix.datedcopies"
@@ -17,9 +17,9 @@ class EntitlementManager: ObservableObject {
     enum FeatureGate: String {
         case lineage = "Roots"
         case favourites = "Favourites"
-        case datedCopies = "Dated Copies"
-        case myBackup = "My Backup"
-        case advanced = "Advanced"
+        case datedCopies = "Radix Plus"
+        case myBackup = "Radix Plus Backup"
+        case advanced = "Advanced Pro"
         case dataEdit = "Data Editing"
         case aiLink = "AI Link"
         case profileTransfer = "Profile Transfer"
@@ -86,7 +86,7 @@ class EntitlementManager: ObservableObject {
         isLoadingProducts = true
         defer { isLoadingProducts = false }
         do {
-            let identifiers: Set<String> = [Self.datedCopiesProductID, Self.myBackupProductID, Self.advancedProductID]
+            let identifiers: Set<String> = [Self.myBackupProductID, Self.advancedProductID]
             let loadedProducts = try await Product.products(for: identifiers)
             self.products = loadedProducts.sorted(by: productSortPredicate)
             self.lastError = nil
@@ -142,7 +142,7 @@ class EntitlementManager: ObservableObject {
 
         switch feature {
         case .datedCopies:
-            return !(hasDatedCopiesAccess || hasActiveAnnualSubscription || hasLifetimeAccess || isPro)
+            return !(hasActiveAnnualSubscription || hasLifetimeAccess || isPro)
         case .myBackup, .profileTransfer:
             return !(hasActiveAnnualSubscription || hasLifetimeAccess || isPro)
         case .advanced, .dataEdit:
@@ -189,10 +189,8 @@ class EntitlementManager: ObservableObject {
 
     private func featureGate(for productID: String) -> FeatureGate {
         switch productID {
-        case Self.datedCopiesProductID:
-            return .datedCopies
         case Self.myBackupProductID:
-            return .myBackup
+            return .datedCopies
         case Self.advancedProductID:
             return .advanced
         default:
@@ -206,8 +204,7 @@ class EntitlementManager: ObservableObject {
 
     private func rank(for productID: String) -> Int {
         switch productID {
-        case Self.datedCopiesProductID: return 0
-        case Self.myBackupProductID: return 1
+        case Self.myBackupProductID: return 0
         case Self.advancedProductID: return 2
         default: return 99
         }

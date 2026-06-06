@@ -112,7 +112,7 @@ enum RadixGlossary {
             shortDefinition: "Everything you have added, saved, favorited, changed, or set up in Radix.",
             significance: "Memory is what you preserve with local snapshots and protect with iCloud backups. It includes your work, not just dictionary data.",
             contexts: ["Backup Contents", "Save Snapshot", "Restore Snapshot", "Reset Radix Memory", "My Data > iCloud Backup"],
-            relatedTerms: ["Snapshot", "Dated Copies", "iCloud Backup", "Added", "Favorite"]
+            relatedTerms: ["Snapshot", "Radix Plus", "Dated Copies", "iCloud Backup", "Added", "Favorite"]
         ),
         GlossaryEntry(
             term: "Added",
@@ -192,11 +192,18 @@ enum RadixGlossary {
             relatedTerms: ["Page Phrases", "Translation", "AI Link"]
         ),
         GlossaryEntry(
+            term: "Radix Plus",
+            shortDefinition: "The annual Radix tier for unlimited page creation, import tools, local snapshots, and iCloud backup.",
+            significance: "Radix Plus keeps the first 100 Camera or Text pages free, then unlocks unlimited pages, page creation from Album or Files, same-device snapshot save/restore, and iCloud backup.",
+            contexts: ["Upgrade", "Camera", "Album", "Files", "Create from Paste", "Save Snapshot", "Restore Snapshot", "iCloud Backup"],
+            relatedTerms: ["Saved Page", "Dated Copies", "Snapshot", "iCloud Backup"]
+        ),
+        GlossaryEntry(
             term: "Dated Copies",
             shortDefinition: "The local save-and-restore feature for keeping dated snapshots on this device.",
-            significance: "Dated Copies are for quick same-device recovery. They do not create a user-managed file and are separate from iCloud Backup.",
+            significance: "Dated Copies are unlocked by Radix Plus and are for quick same-device recovery. They do not create a user-managed file and are separate from iCloud Backup.",
             contexts: ["Save Snapshot", "Restore Snapshot", "Local snapshots", "Upgrade"],
-            relatedTerms: ["Snapshot", "Memory", "iCloud Backup", "My Backup"]
+            relatedTerms: ["Radix Plus", "Snapshot", "Memory", "iCloud Backup"]
         ),
         GlossaryEntry(
             term: "Page Phrases",
@@ -210,28 +217,21 @@ enum RadixGlossary {
             shortDefinition: "A time-stamped local version of your Radix Memory kept inside the app on this device.",
             significance: "Snapshots let you quickly save or restore your work on the same device. They are managed by Radix and are not files for moving to another device.",
             contexts: ["Save Snapshot", "Restore Snapshot"],
-            relatedTerms: ["Memory", "Dated Copies", "iCloud Backup"]
+            relatedTerms: ["Memory", "Radix Plus", "Dated Copies", "iCloud Backup"]
         ),
         GlossaryEntry(
             term: "iCloud Backup",
             shortDefinition: "A backup meant to make your Radix Memory available to another iPhone, iPad, or Mac.",
-            significance: "iCloud Backup is for cross-device use and recovery. It is separate from local snapshots kept inside the app on this device.",
+            significance: "iCloud Backup is included with Radix Plus and is for cross-device use and recovery. It is separate from local snapshots kept inside the app on this device.",
             contexts: ["My Data > iCloud Backup", "Back Up to iCloud", "Restore Backup"],
-            relatedTerms: ["Memory", "Snapshot", "My Backup", "Data Portability"]
-        ),
-        GlossaryEntry(
-            term: "My Backup",
-            shortDefinition: "The paid Radix feature for creating and restoring cross-device iCloud backups.",
-            significance: "My Backup is about portability and recovery across iPhone, iPad, and Mac. It is not the same as Dated Copies, which stay on the current device.",
-            contexts: ["My Data > iCloud Backup", "Back Up to iCloud", "Restore Backup", "Upgrade"],
-            relatedTerms: ["iCloud Backup", "Data Portability", "Dated Copies", "Memory"]
+            relatedTerms: ["Memory", "Snapshot", "Radix Plus", "Data Portability"]
         ),
         GlossaryEntry(
             term: "Data Portability",
             shortDefinition: "The ability to carry your Radix work between devices.",
             significance: "This is why Radix separates Memory from the app itself: your work can move with you. Today this is focused on iPhone, iPad, and Mac; Android migration should preserve the same backup package meaning.",
             contexts: ["My Data > iCloud Backup", "iCloud Backup", "Upgrade", "Android migration"],
-            relatedTerms: ["Memory", "iCloud Backup", "My Backup"]
+            relatedTerms: ["Memory", "iCloud Backup", "Radix Plus"]
         ),
         GlossaryEntry(
             term: "AI Link",

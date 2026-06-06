@@ -4,7 +4,7 @@ extension DataEditTab {
     var premiumExportsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("Advanced Files")
+                Text("Advanced Pro Files")
                     .font(ResponsiveFont.headline)
                 Text("$99")
                     .font(ResponsiveFont.caption.bold())
@@ -15,7 +15,7 @@ extension DataEditTab {
             }
 
             if entitlement.requiresPro(.advanced) {
-                Label("You can see every file type here. Creating the files unlocks with Advanced.", systemImage: "lock.open")
+                Label("You can see every file type here. Creating the files unlocks with Advanced Pro.", systemImage: "lock.open")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
                     .padding(10)

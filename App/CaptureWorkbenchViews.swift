@@ -7,12 +7,15 @@ struct CaptureHeaderView: View {
     @Binding var selectedPhoto: PhotosPickerItem?
     let isProcessing: Bool
     let filePickerTitle: String
+    let isImportLocked: Bool
+    let freeScanStatusText: String
     let onCamera: () -> Void
+    let onLockedImport: () -> Void
     let onFiles: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Scan or import Chinese text. Saved pages open in Browse.")
+            Text("Scan real-world Chinese text. Saved pages open in Browse.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -21,7 +24,7 @@ struct CaptureHeaderView: View {
                 Button(action: onCamera) {
                     CaptureSourceButton(
                         title: "Camera",
-                        subtitle: "Scan now",
+                        subtitle: freeScanStatusText,
                         systemName: "camera.fill",
                         isPrimary: true
                     )
@@ -30,14 +33,32 @@ struct CaptureHeaderView: View {
                 .accessibilityLabel("Camera")
                 .disabled(isProcessing)
 
-                PhotosPicker(selection: $selectedPhoto, matching: .images) {
-                    CaptureSourceButton(title: "Album", subtitle: "Photos", systemName: "photo.on.rectangle")
+                if isImportLocked {
+                    Button(action: onLockedImport) {
+                        CaptureSourceButton(
+                            title: "Album",
+                            subtitle: "Radix Plus",
+                            systemName: "photo.on.rectangle",
+                            lockBadge: "Plus"
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isProcessing)
+                } else {
+                    PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                        CaptureSourceButton(title: "Album", subtitle: "Photos", systemName: "photo.on.rectangle")
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isProcessing)
                 }
-                .buttonStyle(.plain)
-                .disabled(isProcessing)
 
                 Button(action: onFiles) {
-                    CaptureSourceButton(title: filePickerTitle, subtitle: "Import", systemName: "folder")
+                    CaptureSourceButton(
+                        title: filePickerTitle,
+                        subtitle: isImportLocked ? "Radix Plus" : "Import",
+                        systemName: "folder",
+                        lockBadge: isImportLocked ? "Plus" : nil
+                    )
                 }
                 .buttonStyle(.plain)
                 .disabled(isProcessing)
@@ -60,6 +81,7 @@ private struct CaptureSourceButton: View {
     let subtitle: String
     let systemName: String
     var isPrimary = false
+    var lockBadge: String?
 
     var body: some View {
         HStack(spacing: 10) {
@@ -80,6 +102,16 @@ private struct CaptureSourceButton: View {
             }
 
             Spacer(minLength: 0)
+
+            if let lockBadge {
+                Text(lockBadge)
+                    .font(ResponsiveFont.caption2.weight(.bold))
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 4)
+                    .foregroundStyle(Color.accentColor)
+                    .background(Color.accentColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
         }
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)

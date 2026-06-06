@@ -20,8 +20,9 @@ extension FilterGridTab {
 
             sourceActionButton(
                 title: "Create from Paste",
-                subtitle: "Paste Chinese text",
-                systemImage: "doc.on.clipboard"
+                subtitle: pastePageActionSubtitle("Paste Chinese text"),
+                systemImage: "doc.on.clipboard",
+                isLocked: !hasUnlimitedFreePages && freePagesRemaining == 0
             ) {
                 beginManualCollection()
             }
@@ -46,8 +47,9 @@ extension FilterGridTab {
         VStack(alignment: .leading, spacing: 6) {
             sourceActionButton(
                 title: "Create from Paste",
-                subtitle: "Paste Chinese text and save it as a page",
-                systemImage: "doc.on.clipboard"
+                subtitle: pastePageActionSubtitle("Paste Chinese text and save it as a page"),
+                systemImage: "doc.on.clipboard",
+                isLocked: !hasUnlimitedFreePages && freePagesRemaining == 0
             ) {
                 beginManualCollection()
             }
@@ -105,10 +107,21 @@ extension FilterGridTab {
         #endif
     }
 
+    func pastePageActionSubtitle(_ unlockedText: String) -> String {
+        if hasUnlimitedFreePages {
+            return unlockedText
+        }
+        if freePagesRemaining > 0 {
+            return "\(freePagesRemaining) free pages left"
+        }
+        return "Radix Plus"
+    }
+
     func sourceActionButton(
         title: String,
         subtitle: String,
         systemImage: String,
+        isLocked: Bool = false,
         action: @escaping () -> Void
     ) -> some View {
         Button {
@@ -119,7 +132,7 @@ extension FilterGridTab {
                 subtitle: subtitle,
                 systemImage: systemImage,
                 iconColor: .accentColor,
-                trailingSystemImage: "plus.circle.fill"
+                trailingSystemImage: isLocked ? "lock.fill" : "plus.circle.fill"
             )
         }
         .buttonStyle(.plain)

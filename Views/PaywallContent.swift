@@ -11,25 +11,25 @@ extension PaywallView {
                     .font(ResponsiveFont.title.bold())
             }
 
-            Text("Keep learning for free. Pay when you need local copies or data portability.")
+            Text("Read Chinese around you for free. Upgrade when Radix becomes part of daily life.")
                 .font(ResponsiveFont.title3.bold())
 
-            Text("Scan, Browse, Search, Study, AI Link, and editing stay free. Dated Copies saves your memory on this device; My Backup lets it travel to iPad and Mac.")
+            Text("Your first 100 Camera or Text pages are free, and saved items stay reviewable. Radix Plus unlocks unlimited pages, Album/File import, local snapshots, and iCloud backup.")
                 .font(ResponsiveFont.body)
                 .foregroundStyle(.secondary)
 
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 8) {
                     heroChip("Everything else free")
-                    heroChip("Dated Copies $9")
-                    heroChip("My Backup $19")
-                    heroChip("Advanced $99")
+                    heroChip("100 free pages")
+                    heroChip("Radix Plus yearly")
+                    heroChip("Advanced Pro")
                 }
                 VStack(alignment: .leading, spacing: 8) {
                     heroChip("Everything else free")
-                    heroChip("Dated Copies $9")
-                    heroChip("My Backup $19")
-                    heroChip("Advanced $99")
+                    heroChip("100 free pages")
+                    heroChip("Radix Plus yearly")
+                    heroChip("Advanced Pro")
                 }
             }
         }
@@ -52,11 +52,11 @@ extension PaywallView {
                 alignment: .leading,
                 spacing: 10
             ) {
-                benefit("Dated Copies saves and restores your Radix memory on this device")
-                benefit("My Backup gives your Radix data portability across iPhone, iPad, and Mac")
-                benefit("Advanced exports reusable datasets and databases")
-                benefit("My Backup and Advanced include Dated Copies")
-                benefit("The main learning app stays free")
+                benefit("Free includes 100 Camera or Text pages and unlimited review of saved items")
+                benefit("Radix Plus unlocks unlimited pages, Album/File import, and local snapshots")
+                benefit("Radix Plus includes iCloud backup across iPhone, iPad, and Mac")
+                benefit("Advanced Pro exports reusable datasets and databases")
+                benefit("Browse, Search, Study, AI Link, and editing stay free")
             }
         }
         .padding(18)

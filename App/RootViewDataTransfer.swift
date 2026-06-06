@@ -150,7 +150,7 @@ extension RootView {
 
     private func latestLocalSnapshot() throws -> LocalDataSnapshot {
         guard let snapshot = try localSnapshotStore.snapshots().first else {
-            throw NSError(domain: "Radix", code: 2, userInfo: [NSLocalizedDescriptionKey: "No local snapshot is available yet. Save Snapshot first."])
+            throw NSError(domain: "Radix", code: 2, userInfo: [NSLocalizedDescriptionKey: "No saved copy is available yet. Save first."])
         }
 
         return snapshot

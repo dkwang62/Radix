@@ -67,10 +67,10 @@ extension RootView {
 
         return HStack(spacing: 8) {
             sidebarMemoryButton(
-                title: isQuickSavingMemory ? "Saving..." : "Save Snapshot",
+                title: isQuickSavingMemory ? "Saving..." : "Save",
                 systemImage: isQuickSavingMemory ? "hourglass" : (datedCopiesLocked ? "lock.fill" : "tray.and.arrow.down"),
                 isBusy: isQuickSavingMemory,
-                lockBadge: datedCopiesLocked ? "$9" : nil,
+                lockBadge: datedCopiesLocked ? "Plus" : nil,
                 action: quickSaveMemory
             )
 
@@ -82,10 +82,10 @@ extension RootView {
     func sidebarRestoreSnapshotMenu(datedCopiesLocked: Bool) -> some View {
         if datedCopiesLocked {
             sidebarMemoryButton(
-                title: "Restore Snapshot",
+                title: "Restore",
                 systemImage: "lock.fill",
                 isBusy: isQuickRestoringMemory,
-                lockBadge: "$9",
+                lockBadge: "Plus",
                 action: { presentPaywall(for: .datedCopies) }
             )
         } else {
@@ -93,14 +93,14 @@ extension RootView {
                 restoreSnapshotMenuContent
             } label: {
                 sidebarMemoryButtonLabel(
-                    title: isQuickRestoringMemory ? "Restoring..." : "Restore Snapshot",
+                    title: isQuickRestoringMemory ? "Restoring..." : "Restore",
                     systemImage: isQuickRestoringMemory ? "hourglass" : "arrow.counterclockwise",
                     lockBadge: nil
                 )
             }
             .buttonStyle(.plain)
             .disabled(isQuickSavingMemory || isQuickRestoringMemory)
-            .accessibilityLabel("Restore Snapshot")
+            .accessibilityLabel("Restore")
             .onAppear {
                 refreshQuickLocalSnapshots()
             }

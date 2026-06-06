@@ -37,7 +37,7 @@ extension PaywallView {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
-            Label("Browse, Scan, Search, Study, AI Link, and editing are free. My Backup is for data portability across your devices.", systemImage: "info.circle")
+            Label("The first 100 Camera or Text pages are free. Saved items, Browse, Search, Study, AI Link, and editing stay available; Radix Plus is for unlimited pages, import tools, snapshots, and backup.", systemImage: "info.circle")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
         }

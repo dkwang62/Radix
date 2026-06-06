@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 
 struct CaptureTab: View {
     @EnvironmentObject private var store: RadixStore
+    @EnvironmentObject private var entitlement: EntitlementManager
     @Environment(\.openURL) private var openURL
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var showImageFileImporter = false
@@ -17,6 +18,14 @@ struct CaptureTab: View {
     @State private var capturePreviewCharacter: String?
     @State private var captureDetailPreviewCharacter: String?
     @State private var lastSavedCollectionID: UUID?
+    @AppStorage("radixFreeCameraScanCount") private var freePageUseCount = 0
+
+    private let freePageLimit = 100
+
+    private enum CaptureSource {
+        case camera
+        case importTool
+    }
 
     private var characters: [String] {
         CaptureTextExtractor.uniqueCharacters(in: store.activeCaptureDraft.charactersText)
@@ -78,7 +87,7 @@ struct CaptureTab: View {
         .sheet(isPresented: $showCamera) {
             CameraCaptureView { image in
                 showCamera = false
-                Task { await recognize(image) }
+                Task { await recognize(image, source: .camera) }
             }
         }
     }
@@ -88,9 +97,30 @@ struct CaptureTab: View {
             selectedPhoto: $selectedPhoto,
             isProcessing: isProcessing,
             filePickerTitle: filePickerTitle,
-            onCamera: { showCamera = true },
-            onFiles: { showImageFileImporter = true }
+            isImportLocked: entitlement.requiresPro(.datedCopies),
+            freeScanStatusText: freeScanStatusText,
+            onCamera: startCameraScan,
+            onLockedImport: { store.showPaywall(for: .datedCopies) },
+            onFiles: {
+                guard !entitlement.requiresPro(.datedCopies) else {
+                    store.showPaywall(for: .datedCopies)
+                    return
+                }
+                showImageFileImporter = true
+            }
         )
+    }
+
+    private var hasUnlimitedFreePages: Bool {
+        !entitlement.requiresPro(.datedCopies)
+    }
+
+    private var freePagesRemaining: Int {
+        max(0, freePageLimit - freePageUseCount)
+    }
+
+    private var freeScanStatusText: String {
+        hasUnlimitedFreePages ? "Unlimited pages" : "\(freePagesRemaining) free pages left"
     }
 
     private var filePickerTitle: String {
@@ -199,8 +229,13 @@ struct CaptureTab: View {
     @MainActor
     private func loadAndRecognize(_ item: PhotosPickerItem?) async {
         guard let item else { return }
+        guard !entitlement.requiresPro(.datedCopies) else {
+            selectedPhoto = nil
+            store.showPaywall(for: .datedCopies)
+            return
+        }
         do {
-            await recognize(try await CaptureImageLoader.image(from: item))
+            await recognize(try await CaptureImageLoader.image(from: item), source: .importTool)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -208,16 +243,20 @@ struct CaptureTab: View {
 
     @MainActor
     private func loadAndRecognizeFile(_ result: Result<[URL], Error>) async {
+        guard !entitlement.requiresPro(.datedCopies) else {
+            store.showPaywall(for: .datedCopies)
+            return
+        }
         do {
             guard let image = try CaptureImageLoader.image(from: result.get()) else { return }
-            await recognize(image)
+            await recognize(image, source: .importTool)
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
     @MainActor
-    private func recognize(_ image: UIImage) async {
+    private func recognize(_ image: UIImage, source: CaptureSource) async {
         isProcessing = true
         errorMessage = nil
         statusMessage = nil
@@ -238,14 +277,14 @@ struct CaptureTab: View {
             if foundCharacters.isEmpty {
                 statusMessage = CaptureStatusText.noChineseCharactersFound
             } else {
-                autoSaveAndBrowseRecognizedImage(image: image)
+                autoSaveAndBrowseRecognizedImage(image: image, source: source)
             }
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
-    private func autoSaveAndBrowseRecognizedImage(image: UIImage) {
+    private func autoSaveAndBrowseRecognizedImage(image: UIImage, source: CaptureSource) {
         guard let collection = store.createCollection(
             name: defaultOCRCollectionName,
             sourceText: store.activeCaptureDraft.charactersText,
@@ -254,6 +293,10 @@ struct CaptureTab: View {
         ) else {
             statusMessage = CaptureStatusText.noChineseCharactersFound
             return
+        }
+
+        if source == .camera && !hasUnlimitedFreePages {
+            freePageUseCount = min(freePageLimit, freePageUseCount + 1)
         }
 
         lastSavedCollectionID = collection.id
@@ -284,4 +327,11 @@ struct CaptureTab: View {
         captureDetailPreviewCharacter = nil
     }
 
+    private func startCameraScan() {
+        guard hasUnlimitedFreePages || freePagesRemaining > 0 else {
+            store.showPaywall(for: .datedCopies)
+            return
+        }
+        showCamera = true
+    }
 }

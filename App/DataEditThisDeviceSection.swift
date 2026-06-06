@@ -78,7 +78,7 @@ extension DataEditTab {
                     .foregroundStyle(.secondary)
             }
 
-            Text("Dated copies are kept on this device. Each Memory Stamp contains the Memory summarized above.")
+            Text("Dated copies are kept on this device. Radix Plus unlocks saving and restoring these local snapshots.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -102,7 +102,7 @@ extension DataEditTab {
                     background: Color.accentColor,
                     border: Color.accentColor,
                     isLocked: entitlement.requiresPro(.datedCopies),
-                    lockBadge: "$9"
+                    lockBadge: "Plus"
                 )
             }
             .buttonStyle(.plain)
@@ -149,7 +149,7 @@ extension DataEditTab {
     @ViewBuilder
     var datedCopiesVisibilityNote: some View {
         if entitlement.requiresPro(.datedCopies) {
-            Label("You can see existing dated copies for free. Saving and restoring dated copies unlocks for $9.", systemImage: "lock.open")
+            Label("You can see existing dated copies for free. Saving and restoring dated copies unlocks with Radix Plus.", systemImage: "lock.open")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .padding(10)

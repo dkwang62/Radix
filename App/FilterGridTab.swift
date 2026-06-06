@@ -3,11 +3,13 @@ import UIKit
 
 struct FilterGridTab: View {
     @EnvironmentObject var store: RadixStore
+    @EnvironmentObject var entitlement: EntitlementManager
     @Environment(\.horizontalSizeClass) var sizeClass
     @Environment(\.openURL) var openURL
     @AppStorage("hasShownBrowseInteractionHintRowV1") var hasShownBrowseInteractionHintRow = false
     @AppStorage("browseImageScriptMode") var browseImageScriptMode = "simplified"
     @AppStorage("browsePageSortOrder") var browsePageSortRawValue = PageCollectionSortOrder.lastViewed.rawValue
+    @AppStorage("radixFreeCameraScanCount") var freePageUseCount = 0
     @State var showBrowseFilters = false
     @State var showManualCollectionSheet = false
     @State var showBrowseSource = false
@@ -74,6 +76,16 @@ struct FilterGridTab: View {
 
     var useTraditionalBrowseImageScript: Bool {
         browseImageScriptMode == "traditional"
+    }
+
+    var freePageLimit: Int { 100 }
+
+    var hasUnlimitedFreePages: Bool {
+        !entitlement.requiresPro(.datedCopies)
+    }
+
+    var freePagesRemaining: Int {
+        max(0, freePageLimit - freePageUseCount)
     }
 
     var body: some View {

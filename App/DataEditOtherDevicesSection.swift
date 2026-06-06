@@ -6,7 +6,7 @@ extension DataEditTab {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text("iCloud Backup")
                     .font(ResponsiveFont.headline)
-                Text("$19")
+                Text("Plus")
                     .font(ResponsiveFont.caption.bold())
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -14,7 +14,7 @@ extension DataEditTab {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
-            Text("Create a backup in iCloud Drive, then restore it on another iPhone, iPad, or Mac.")
+            Text("Create a backup in iCloud Drive, then restore it on another iPhone, iPad, or Mac. Included with Radix Plus.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -93,7 +93,7 @@ extension DataEditTab {
     @ViewBuilder
     var myBackupVisibilityNote: some View {
         if entitlement.requiresPro(.myBackup) {
-            Label("You can preview backup contents for free. Creating and restoring iCloud backups unlocks with My Backup.", systemImage: "lock.open")
+            Label("You can preview backup contents for free. Creating and restoring iCloud backups unlocks with Radix Plus.", systemImage: "lock.open")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .padding(10)

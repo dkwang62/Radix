@@ -164,7 +164,7 @@ struct RadixWelcomeView: View {
                         welcomeStep(
                             icon: RadixIcon.myData,
                             title: "Move My Data",
-                            text: "What you add on iPhone can travel to iPad and Mac with My Backup."
+                            text: "What you add on iPhone can travel to iPad and Mac with Radix Plus."
                         )
                         welcomeStep(
                             icon: RadixIcon.aiLink,

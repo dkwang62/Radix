@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 
 enum DataEditSection: String, CaseIterable, Identifiable {
     case myBackup = "iCloud Backup"
-    case advanced = "Advanced"
+    case advanced = "Advanced Pro"
 
     var id: String { rawValue }
 }

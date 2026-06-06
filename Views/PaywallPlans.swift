@@ -31,8 +31,7 @@ extension PaywallView {
     }
 
     func planCard(_ product: Product) -> some View {
-        let isMyBackup = product.id == EntitlementManager.myBackupProductID
-        let isDatedCopies = product.id == EntitlementManager.datedCopiesProductID
+        let isRadixPlus = product.id == EntitlementManager.myBackupProductID || product.id == EntitlementManager.datedCopiesProductID
 
         return Button {
             Task {
@@ -52,13 +51,13 @@ extension PaywallView {
                                 Text(productTitle(product))
                                     .font(ResponsiveFont.subheadline.bold())
                                     .foregroundStyle(.primary)
-                                badge(planBadgeText(product), emphasized: isMyBackup || isDatedCopies)
+                                badge(planBadgeText(product), emphasized: isRadixPlus)
                             }
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(productTitle(product))
                                     .font(ResponsiveFont.subheadline.bold())
                                     .foregroundStyle(.primary)
-                                badge(planBadgeText(product), emphasized: isMyBackup || isDatedCopies)
+                                badge(planBadgeText(product), emphasized: isRadixPlus)
                             }
                         }
                         Text(productSubtitle(product))
@@ -75,16 +74,12 @@ extension PaywallView {
                             Text(productPriceLabel(product))
                                 .font(ResponsiveFont.subheadline.bold())
                                 .foregroundStyle(.primary)
-                            if isDatedCopies {
-                                Text("This device")
-                                    .font(ResponsiveFont.caption2)
-                                    .foregroundStyle(.secondary)
-                            } else if isMyBackup {
-                                Text("Data portability")
+                            if isRadixPlus {
+                                Text("Annual")
                                     .font(ResponsiveFont.caption2)
                                     .foregroundStyle(.secondary)
                             } else {
-                                Text("Includes My Backup")
+                                Text("Lifetime")
                                     .font(ResponsiveFont.caption2)
                                     .foregroundStyle(.secondary)
                             }
@@ -99,19 +94,19 @@ extension PaywallView {
                     Image(systemName: productActionIcon(product))
                         .font(.system(size: 20))
                 }
-                .foregroundStyle(isMyBackup || isDatedCopies ? .white : Color.accentColor)
+                .foregroundStyle(isRadixPlus ? .white : Color.accentColor)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(isMyBackup || isDatedCopies ? Color.accentColor : Color.accentColor.opacity(0.08))
+                .background(isRadixPlus ? Color.accentColor : Color.accentColor.opacity(0.08))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(isMyBackup || isDatedCopies ? Color.accentColor.opacity(0.07) : Color(.secondarySystemBackground))
+            .background(isRadixPlus ? Color.accentColor.opacity(0.07) : Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isMyBackup || isDatedCopies ? Color.accentColor.opacity(0.35) : Color(.separator), lineWidth: isMyBackup || isDatedCopies ? 2 : 1)
+                    .stroke(isRadixPlus ? Color.accentColor.opacity(0.35) : Color(.separator), lineWidth: isRadixPlus ? 2 : 1)
             )
         }
         .buttonStyle(.plain)
@@ -120,11 +115,11 @@ extension PaywallView {
     func productTitle(_ product: Product) -> String {
         switch product.id {
         case EntitlementManager.datedCopiesProductID:
-            return "Dated Copies"
+            return "Radix Plus"
         case EntitlementManager.myBackupProductID:
-            return "My Backup"
+            return "Radix Plus"
         case EntitlementManager.advancedProductID:
-            return "Advanced"
+            return "Advanced Pro"
         default:
             return product.displayName
         }
@@ -133,11 +128,11 @@ extension PaywallView {
     func productSubtitle(_ product: Product) -> String {
         switch product.id {
         case EntitlementManager.datedCopiesProductID:
-            return "Save and restore dated copies of your Radix memory on this device."
+            return "Create pages from Album, Files, or pasted text, plus save and restore local snapshots on this device."
         case EntitlementManager.myBackupProductID:
-            return "Dated Copies plus moving your characters, phrases, pages, favorites, settings, and AI Link templates across iPhone, iPad, and Mac."
+            return "Unlimited Camera/Text pages, Album/File import, local snapshots, and iCloud backup across iPhone, iPad, and Mac."
         case EntitlementManager.advancedProductID:
-            return "Developer exports plus Dated Copies and My Backup: datasets, databases, project source, and manifests."
+            return "Everything in Radix Plus, plus developer exports: datasets, databases, project source, and manifests."
         default:
             return product.description
         }
@@ -155,11 +150,11 @@ extension PaywallView {
     func productCallToAction(_ product: Product) -> String {
         switch product.id {
         case EntitlementManager.datedCopiesProductID:
-            return "Unlock Dated Copies"
+            return "Unlock Radix Plus"
         case EntitlementManager.myBackupProductID:
-            return "Unlock My Backup"
+            return "Start Radix Plus"
         case EntitlementManager.advancedProductID:
-            return "Unlock Advanced"
+            return "Unlock Advanced Pro"
         default:
             return "Continue"
         }
@@ -170,7 +165,7 @@ extension PaywallView {
         case EntitlementManager.datedCopiesProductID:
             return .datedCopies
         case EntitlementManager.myBackupProductID:
-            return .myBackup
+            return .datedCopies
         default:
             return .advanced
         }
@@ -179,11 +174,11 @@ extension PaywallView {
     func planBadgeText(_ product: Product) -> String {
         switch product.id {
         case EntitlementManager.datedCopiesProductID:
-            return "$9"
+            return "Page tools"
         case EntitlementManager.myBackupProductID:
-            return "$19"
+            return "Recommended"
         default:
-            return "$99"
+            return "Advanced Pro"
         }
     }
 
@@ -192,7 +187,7 @@ extension PaywallView {
         case EntitlementManager.datedCopiesProductID:
             return "clock.badge.checkmark"
         case EntitlementManager.myBackupProductID:
-            return "externaldrive.fill"
+            return "camera.viewfinder"
         default:
             return "star.circle.fill"
         }

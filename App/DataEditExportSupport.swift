@@ -292,7 +292,7 @@ struct AdvancedExportOptionRow: View {
             Button(action: onExport) {
                 AdvancedExportOptionCard(
                     title: title,
-                    subtitle: isLocked ? "\(subtitle) Unlock Advanced to export." : subtitle,
+                    subtitle: isLocked ? "\(subtitle) Unlock Advanced Pro to export." : subtitle,
                     systemName: isLocked ? "lock.fill" : systemName,
                     color: color,
                     badge: isLocked ? "$99" : nil

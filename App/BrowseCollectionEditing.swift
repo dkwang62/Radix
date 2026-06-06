@@ -26,6 +26,10 @@ extension FilterGridTab {
     }
 
     func beginManualCollection() {
+        guard hasUnlimitedFreePages || freePagesRemaining > 0 else {
+            store.showPaywall(for: .datedCopies)
+            return
+        }
         manualCollectionName = ""
         manualCollectionText = clipboardText()
         showBrowseSource = false
@@ -38,6 +42,9 @@ extension FilterGridTab {
             sourceText: manualCollectionText,
             sourceType: .manual
         ) else { return }
+        if !hasUnlimitedFreePages {
+            freePageUseCount = min(freePageLimit, freePageUseCount + 1)
+        }
         store.selectBrowseCollection(id: collection.id)
         manualCollectionName = ""
         manualCollectionText = ""

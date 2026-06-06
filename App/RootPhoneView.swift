@@ -124,14 +124,14 @@ extension RootView {
             HStack(spacing: 8) {
                 Button(action: quickSaveMemory) {
                     phoneSnapshotBarLabel(
-                        title: isQuickSavingMemory ? "Saving..." : "Save Snapshot",
+                        title: isQuickSavingMemory ? "Saving..." : "Save",
                         systemImage: isQuickSavingMemory ? "hourglass" : (datedCopiesLocked ? "lock.fill" : "tray.and.arrow.down"),
-                        lockBadge: datedCopiesLocked ? "$9" : nil
+                        lockBadge: datedCopiesLocked ? "Plus" : nil
                     )
                 }
                 .buttonStyle(.plain)
                 .disabled(isQuickSavingMemory || isQuickRestoringMemory)
-                .accessibilityLabel(isQuickSavingMemory ? "Saving snapshot" : "Save Snapshot")
+                .accessibilityLabel(isQuickSavingMemory ? "Saving" : "Save")
 
                 if datedCopiesLocked {
                     Button {
@@ -140,12 +140,12 @@ extension RootView {
                         phoneSnapshotBarLabel(
                             title: "Restore",
                             systemImage: "lock.fill",
-                            lockBadge: "$9"
+                            lockBadge: "Plus"
                         )
                     }
                     .buttonStyle(.plain)
                     .disabled(isQuickSavingMemory || isQuickRestoringMemory)
-                    .accessibilityLabel("Restore Snapshot")
+                    .accessibilityLabel("Restore")
                 } else {
                     Menu {
                         restoreSnapshotMenuContent
@@ -158,7 +158,7 @@ extension RootView {
                     }
                     .buttonStyle(.plain)
                     .disabled(isQuickSavingMemory || isQuickRestoringMemory)
-                    .accessibilityLabel("Restore Snapshot")
+                    .accessibilityLabel("Restore")
                     .onAppear {
                         refreshQuickLocalSnapshots()
                     }
