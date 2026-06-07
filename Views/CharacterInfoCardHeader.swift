@@ -28,7 +28,7 @@ extension CharacterInfoCard {
             Image(systemName: store.isFavorite(item.character) ? "star.fill" : "star")
                 .foregroundStyle(store.isFavorite(item.character) ? .yellow : .secondary)
                 .frame(width: 32, height: 32)
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)

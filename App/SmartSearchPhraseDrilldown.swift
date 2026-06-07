@@ -68,7 +68,7 @@ extension SmartSearchTab {
             .foregroundStyle(.secondary)
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemBackground))
+            .background(RadixTheme.secondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -99,7 +99,7 @@ extension SmartSearchTab {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .contentShape(Rectangle())
         .onTapGesture {

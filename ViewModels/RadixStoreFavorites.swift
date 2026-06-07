@@ -12,22 +12,22 @@ extension RadixStore {
     // MARK: - Load
 
     func loadFavorites() {
-        if let data = UserDefaults.standard.data(forKey: favoriteEntriesKey),
+        if let data = preferences.data(forKey: favoriteEntriesKey),
            let entries = try? JSONDecoder().decode([FavouriteProfileEntry].self, from: data) {
             applyFavoriteEntries(entries)
-        } else if let saved = UserDefaults.standard.array(forKey: favoritesKey) as? [String] {
+        } else if let saved = preferences.array(forKey: favoritesKey) as? [String] {
             applyFavoriteCharacters(saved)
         }
 
-        if let savedPhrases = UserDefaults.standard.array(forKey: favoritePhrasesKey) as? [String] {
+        if let savedPhrases = preferences.array(forKey: favoritePhrasesKey) as? [String] {
             favoritePhrases = Set(savedPhrases)
         }
 
-        if let rawPhraseDates = UserDefaults.standard.dictionary(forKey: favoritePhraseDatesKey) as? [String: Double] {
+        if let rawPhraseDates = preferences.dictionary(forKey: favoritePhraseDatesKey) as? [String: Double] {
             favoritePhraseDates = rawPhraseDates.mapValues { Date(timeIntervalSince1970: $0) }
         }
 
-        if let rawOverlayDates = UserDefaults.standard.dictionary(forKey: overlayAddedDatesKey) as? [String: Double] {
+        if let rawOverlayDates = preferences.dictionary(forKey: overlayAddedDatesKey) as? [String: Double] {
             overlayAddedDates = rawOverlayDates.mapValues { Date(timeIntervalSince1970: $0) }
         }
     }
@@ -37,20 +37,20 @@ extension RadixStore {
     func persistFavorites() {
         let sortedFavorites = Array(favorites).sorted()
         let entries = sortedFavorites.map { FavouriteProfileEntry(character: $0, addedAt: favoriteAddedDates[$0]) }
-        UserDefaults.standard.set(sortedFavorites, forKey: favoritesKey)
+        preferences.set(sortedFavorites, forKey: favoritesKey)
         if let data = try? JSONEncoder().encode(entries) {
-            UserDefaults.standard.set(data, forKey: favoriteEntriesKey)
+            preferences.set(data, forKey: favoriteEntriesKey)
         }
     }
 
     func persistFavoritePhrases() {
-        UserDefaults.standard.set(Array(favoritePhrases), forKey: favoritePhrasesKey)
+        preferences.set(Array(favoritePhrases), forKey: favoritePhrasesKey)
         persistFavoritePhraseDates()
     }
 
     func persistFavoritePhraseDates() {
         let encoded = favoritePhraseDates.mapValues { $0.timeIntervalSince1970 }
-        UserDefaults.standard.set(encoded, forKey: favoritePhraseDatesKey)
+        preferences.set(encoded, forKey: favoritePhraseDatesKey)
     }
 
     // MARK: - Imperative set (used by DataEdit and keyboard shortcut handler)

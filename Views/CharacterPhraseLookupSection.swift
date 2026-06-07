@@ -9,14 +9,7 @@ struct CharacterPhraseLookupSection: View {
     private let visiblePhraseRows = 6
 
     private var isRunningOnMac: Bool {
-        #if targetEnvironment(macCatalyst)
-        return true
-        #else
-        if #available(iOS 14.0, *) {
-            return ProcessInfo.processInfo.isiOSAppOnMac
-        }
-        return false
-        #endif
+        RadixPlatform.isRunningOnMac
     }
 
     var body: some View {
@@ -51,7 +44,7 @@ struct CharacterPhraseLookupSection: View {
                     }
                     .frame(height: phraseViewportHeight)
                 }
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
 
@@ -123,11 +116,7 @@ struct CharacterPhraseLookupSection: View {
     }
 
     private var isPhone: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone
-        #endif
+        RadixPlatform.isPhone
     }
 
     private var phonePhraseSheetBinding: Binding<PhraseItem?> {
@@ -193,7 +182,7 @@ struct PhraseLengthFilterChips: View {
                             .font(ResponsiveFont.caption.weight(.semibold))
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
-                            .background(selection == option ? Color.accentColor : Color(.secondarySystemBackground))
+                            .background(selection == option ? Color.accentColor : RadixTheme.secondaryBackground)
                             .foregroundStyle(selection == option ? Color.white : Color.primary)
                             .clipShape(Capsule())
                     }

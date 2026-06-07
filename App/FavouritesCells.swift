@@ -2,11 +2,8 @@ import SwiftUI
 
 extension FavouritesTab {
     var favoriteCharacterColumns: [GridItem] {
-        #if targetEnvironment(macCatalyst)
-        return [GridItem(.adaptive(minimum: 44, maximum: 82), spacing: 8)]
-        #else
-        return [GridItem(.adaptive(minimum: 44, maximum: isNarrowStudyLayout ? 72 : 78), spacing: 8)]
-        #endif
+        let maximum: CGFloat = RadixPlatform.isDesktop ? 82 : (isNarrowStudyLayout ? 72 : 78)
+        return [GridItem(.adaptive(minimum: 44, maximum: maximum), spacing: 8)]
     }
 
     func favoriteCharacterCell(_ item: ComponentItem) -> some View {
@@ -26,7 +23,7 @@ extension FavouritesTab {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 6)
-            .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
+            .background(isActive ? Color.accentColor.opacity(0.18) : RadixTheme.secondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
@@ -43,21 +40,12 @@ extension FavouritesTab {
     }
 
     var favoritePhraseColumns: [GridItem] {
-        #if targetEnvironment(macCatalyst)
-        return [GridItem(.adaptive(minimum: 120, maximum: 180), spacing: 8)]
-        #else
-        return [GridItem(.adaptive(minimum: 120, maximum: isNarrowStudyLayout ? 170 : 180), spacing: 8)]
-        #endif
+        let maximum: CGFloat = RadixPlatform.isDesktop ? 180 : (isNarrowStudyLayout ? 170 : 180)
+        return [GridItem(.adaptive(minimum: 120, maximum: maximum), spacing: 8)]
     }
 
     func favoritePhraseRow(_ phrase: PhraseItem) -> some View {
-        let leadingColumnWidth: CGFloat = {
-            #if targetEnvironment(macCatalyst)
-            return 150
-            #else
-            return isPhone ? 96 : 120
-            #endif
-        }()
+        let leadingColumnWidth: CGFloat = RadixPlatform.isDesktop ? 150 : (isPhone ? 96 : 120)
 
         return HStack(alignment: .top, spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
@@ -96,11 +84,7 @@ extension FavouritesTab {
     }
 
     var favoritePhraseRowHeight: CGFloat {
-        #if targetEnvironment(macCatalyst)
-        return 84
-        #else
-        return isPhone ? 72 : 82
-        #endif
+        RadixPlatform.isDesktop ? 84 : (isPhone ? 72 : 82)
     }
 
     var favoritePhraseViewportHeight: CGFloat {

@@ -14,7 +14,7 @@ extension PhraseInfoCard {
             }
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemBackground).opacity(0.45))
+            .background(RadixTheme.secondaryBackground.opacity(0.45))
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
             if isEditingNotes {
@@ -38,7 +38,7 @@ extension PhraseInfoCard {
             .font(ResponsiveFont.body)
             .frame(minHeight: 96)
             .padding(6)
-            .background(Color(.secondarySystemBackground).opacity(0.6))
+            .background(RadixTheme.secondaryBackground.opacity(0.6))
             .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -97,7 +97,7 @@ extension PhraseInfoCard {
             }
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemBackground).opacity(0.35))
+            .background(RadixTheme.secondaryBackground.opacity(0.35))
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }

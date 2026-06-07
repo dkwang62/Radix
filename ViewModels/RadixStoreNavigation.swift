@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 
 /*
  RADIX STORE — NAVIGATION
@@ -28,15 +27,11 @@ extension RadixStore {
         }
 
         previewCharacter = trimmedCharacter
-        #if targetEnvironment(macCatalyst)
-        showiPhoneDetail = true
-        #else
-        if UIDevice.current.userInterfaceIdiom == .phone {
+        if RadixPlatform.isPhone {
             showiPhoneDetail = (route != .lineage && route != .search)
         } else {
             showiPhoneDetail = true
         }
-        #endif
         if !suppressHelpReset {
             showBrowseHelp = false
             showComponentHelp = false
@@ -99,13 +94,7 @@ extension RadixStore {
             return
         }
 
-        #if targetEnvironment(macCatalyst)
-        previewCharacter = character
-        refreshPhrases()
-        if homeTab == .dataEdit { loadDataEditEntry(for: character) }
-        showiPhoneDetail = true
-        #else
-        if UIDevice.current.userInterfaceIdiom == .phone {
+        if RadixPlatform.isPhone {
             if route == .search {
                 browsePreview(character: character, announce: announce, preservePhraseContext: preservePhraseContext)
             } else if route == .lineage {
@@ -125,7 +114,6 @@ extension RadixStore {
             if homeTab == .dataEdit { loadDataEditEntry(for: character) }
             showiPhoneDetail = true
         }
-        #endif
 
         if announce && speechEnabled { speechService.speak(character) }
     }
@@ -168,9 +156,7 @@ extension RadixStore {
         if let target = previewCharacter { select(character: target) } else { previewCharacter = nil }
         route = .lineage
         showComponentHelp = true
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone { showiPhoneDetail = false }
-        #endif
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
     }
 
     func enterAILink() {
@@ -217,17 +203,13 @@ extension RadixStore {
         route = .lineage
         select(character: character, announce: false)
         showComponentHelp = true
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone { showiPhoneDetail = false }
-        #endif
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
     }
 
     func goToAILink(character: String) {
         select(character: character, announce: false)
         route = .aiLink
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone { showiPhoneDetail = false }
-        #endif
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
     }
 
     func goBack() {
@@ -247,9 +229,7 @@ extension RadixStore {
         route = rootsReturnContext.route
         if let homeTab = rootsReturnContext.homeTab { self.homeTab = homeTab }
         self.rootsReturnContext = nil
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone { showiPhoneDetail = false }
-        #endif
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
     }
 
     func returnToBrowseGrid() {
@@ -309,10 +289,10 @@ extension RadixStore {
         guard !trimmed.isEmpty else { return }
         let prompt = promptText(for: .character(trimmed), selectedTaskIDs: selectedPromptTaskIDsForCharacterLaunch())
         guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        UIPasteboard.general.string = prompt
+        RadixPlatform.copyToPasteboard(prompt)
         activeSubject = .character(trimmed)
         guard let url = defaultAIURL(prompt: prompt) else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { UIApplication.shared.open(url) }
+        RadixPlatform.open(url, after: 0.1)
         scheduleMacClipboardPasteIfPossible()
     }
 
@@ -326,9 +306,7 @@ extension RadixStore {
         promptSelectedTaskIDs = ["task4"]
         shouldAutoOpenAILinkTask4 = true
         route = .aiLink
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone { showiPhoneDetail = false }
-        #endif
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
         persistPromptSettings()
     }
 
@@ -344,9 +322,7 @@ extension RadixStore {
         shouldAutoOpenAILinkTask4 = taskID != "task6"
         shouldAutoRunGeminiPhraseAPI = taskID == "task6"
         route = .aiLink
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone { showiPhoneDetail = false }
-        #endif
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
         persistPromptSettings()
     }
 

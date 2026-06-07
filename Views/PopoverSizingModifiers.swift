@@ -12,15 +12,8 @@ extension View {
 
     @ViewBuilder
     func applyReadablePopoverStyle() -> some View {
-        #if targetEnvironment(macCatalyst)
         if #available(iOS 16.4, macCatalyst 16.4, *) {
-            self.presentationCompactAdaptation(.popover)
-        } else {
-            self
-        }
-        #else
-        if #available(iOS 16.4, macCatalyst 16.4, *) {
-            if UIDevice.current.userInterfaceIdiom == .phone {
+            if RadixPlatform.isPhone {
                 self
                     .presentationCompactAdaptation(.sheet)
                     .presentationDetents([.medium, .large])
@@ -31,20 +24,12 @@ extension View {
         } else {
             self
         }
-        #endif
     }
 
     @ViewBuilder
     func applyComponentsRootsPopoverStyle() -> some View {
-        #if targetEnvironment(macCatalyst)
         if #available(iOS 16.4, macCatalyst 16.4, *) {
-            self.presentationCompactAdaptation(.popover)
-        } else {
-            self
-        }
-        #else
-        if #available(iOS 16.4, macCatalyst 16.4, *) {
-            if UIDevice.current.userInterfaceIdiom == .phone {
+            if RadixPlatform.isPhone {
                 self
                     .presentationCompactAdaptation(.sheet)
                     .presentationDetents([.large])
@@ -55,7 +40,6 @@ extension View {
         } else {
             self
         }
-        #endif
     }
 
     @ViewBuilder

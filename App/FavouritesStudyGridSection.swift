@@ -137,19 +137,11 @@ extension FavouritesTab {
     }
 
     var recentGridFontSize: CGFloat {
-        #if targetEnvironment(macCatalyst)
-        return 28
-        #else
-        return isNarrowStudyLayout ? 24 : 26
-        #endif
+        RadixPlatform.isDesktop ? 28 : (isNarrowStudyLayout ? 24 : 26)
     }
 
     var recentStudyCharacterTileWidth: CGFloat {
-        #if targetEnvironment(macCatalyst)
-        return 80
-        #else
-        return isNarrowStudyLayout ? 72 : 76
-        #endif
+        RadixPlatform.isDesktop ? 80 : (isNarrowStudyLayout ? 72 : 76)
     }
 
     var studyScriptToggle: some View {
@@ -172,7 +164,7 @@ extension FavouritesTab {
             Text(title)
                 .font(ResponsiveFont.subheadline.weight(.semibold))
                 .frame(width: 32, height: 28)
-                .background(isActive ? Color.accentColor : Color(.secondarySystemBackground))
+                .background(isActive ? Color.accentColor : RadixTheme.secondaryBackground)
                 .foregroundStyle(isActive ? .white : .primary)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }

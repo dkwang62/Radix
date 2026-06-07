@@ -1,7 +1,4 @@
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 extension DataBackupPreviewSection {
     var revertBasePhrasesRow: some View {
@@ -40,11 +37,7 @@ extension DataBackupPreviewSection {
     }
 
     var isPhone: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone
-        #endif
+        RadixPlatform.isPhone
     }
 
     func presentPhrase(_ phrase: PhraseItem) {

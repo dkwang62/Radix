@@ -31,7 +31,7 @@ extension SmartSearchTab {
                 }
             }
             .padding(isRunningOnMac ? 20 : 14)
-            .background(Color(.secondarySystemBackground).opacity(0.55))
+            .background(RadixTheme.secondaryBackground.opacity(0.55))
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .frame(maxWidth: {
                 #if targetEnvironment(macCatalyst)
@@ -90,7 +90,7 @@ extension SmartSearchTab {
             }
             .padding(isRunningOnMac ? 14 : 10)
             .frame(maxWidth: isRunningOnMac ? 760 : .infinity)
-            .background(Color(.secondarySystemBackground).opacity(0.55))
+            .background(RadixTheme.secondaryBackground.opacity(0.55))
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .frame(maxWidth: .infinity)

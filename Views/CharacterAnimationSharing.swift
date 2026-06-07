@@ -1,21 +1,9 @@
 import Foundation
 import SwiftUI
 
-#if canImport(UIKit)
-import UIKit
-#endif
-
-#if canImport(AppKit)
-import AppKit
-#endif
-
+@MainActor
 func copyToClipboard(_ value: String) {
-    #if canImport(UIKit)
-    UIPasteboard.general.string = value
-    #elseif canImport(AppKit)
-    NSPasteboard.general.clearContents()
-    NSPasteboard.general.setString(value, forType: .string)
-    #endif
+    RadixPlatform.copyToPasteboard(value)
 }
 
 @MainActor
@@ -48,13 +36,10 @@ func openAnimationInBrowser(for character: String) {
         return
     }
 
-    #if canImport(UIKit)
-    UIApplication.shared.open(url)
-    #elseif canImport(AppKit)
-    NSWorkspace.shared.open(url)
-    #endif
+    RadixPlatform.open(url)
 }
 
+@MainActor
 func copyAnimationPlayerLink(for character: String) {
     guard let url = hostedHanziWriterAnimationURL(for: character) else {
         return

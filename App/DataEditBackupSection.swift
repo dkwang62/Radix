@@ -39,7 +39,7 @@ extension DataEditTab {
         }
         .padding(8)
         .frame(maxWidth: .infinity, minHeight: 54, alignment: .leading)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

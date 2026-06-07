@@ -1,5 +1,4 @@
 import SwiftUI
-import UniformTypeIdentifiers
 
 /*
  RADIX - ROOT UI ARCHITECTURE
@@ -17,8 +16,8 @@ struct RootView: View {
     @EnvironmentObject var entitlement: EntitlementManager
     @Environment(\.horizontalSizeClass) var sizeClass
     @Environment(\.scenePhase) var scenePhase
-    @AppStorage("hasSeenRadixWelcomeV1") var hasSeenWelcome = false
-    @AppStorage("hasUsedSidebarNavigationV1") var hasUsedSidebarNavigation = false
+    @State var hasSeenWelcome = RadixRootPreferences.hasSeenWelcome
+    @State var hasUsedSidebarNavigation = RadixRootPreferences.hasUsedSidebarNavigation
     @State var profileExportDocument = JSONFileDocument(data: Data())
     @State var addPhrasesExportDocument = AddPhrasesFileDocument(data: Data())
     @State var showProfileExporter = false
@@ -32,8 +31,6 @@ struct RootView: View {
     @State var isQuickSavingMemory = false
     @State var isQuickRestoringMemory = false
     @State var quickLocalSnapshots: [LocalDataSnapshot] = []
-    @AppStorage("dataEditLastOtherDeviceBackupPath") var lastOtherDeviceBackupPath = ""
-    @AppStorage("dataEditLastOtherDeviceBackupDate") var lastOtherDeviceBackupDate = 0.0
 
     var body: some View {
         Group {
@@ -46,81 +43,23 @@ struct RootView: View {
         #if targetEnvironment(macCatalyst)
         .dynamicTypeSize(.accessibility3)
         #endif
-        .fileExporter(
-            isPresented: $showProfileExporter,
-            document: profileExportDocument,
-            contentType: .json,
-            defaultFilename: "radix_user_data"
-        ) { result in
-            switch result {
-            case .success(let url):
-                importExportMessage = "Profile backup saved successfully to: \(url.lastPathComponent)"
-                showImportExportAlert = true
-            case .failure(let error):
-                importExportError = error.localizedDescription
-            }
-        }
-        .fileImporter(
-            isPresented: $showProfileImporter,
-            allowedContentTypes: [.json, .data],
-            allowsMultipleSelection: false
-        ) { result in
-            do {
-                let url = try result.get().first
-                guard let url else { return }
-                let data = try readImportedFileData(from: url)
+        .modifier(FileTransferModifier(
+            profileExportDocument: $profileExportDocument,
+            addPhrasesExportDocument: $addPhrasesExportDocument,
+            showProfileExporter: $showProfileExporter,
+            showProfileImporter: $showProfileImporter,
+            showAddPhrasesExporter: $showAddPhrasesExporter,
+            showAddPhrasesImporter: $showAddPhrasesImporter,
+            importExportError: $importExportError,
+            importExportMessage: $importExportMessage,
+            showImportExportAlert: $showImportExportAlert,
+            onProfileImport: { data in
                 try store.importProfileData(data)
-                importExportMessage = "Profile successfully imported from: \(url.lastPathComponent)"
-                showImportExportAlert = true
-            } catch {
-                importExportError = error.localizedDescription
-            }
-        }
-        .fileExporter(
-            isPresented: $showAddPhrasesExporter,
-            document: addPhrasesExportDocument,
-            contentType: AddPhrasesFileDocument.contentType,
-            defaultFilename: "phrases_add.db"
-        ) { result in
-            switch result {
-            case .success(let url):
-                importExportMessage = "Phrases additions file exported to: \(url.lastPathComponent)"
-                showImportExportAlert = true
-            case .failure(let error):
-                importExportError = error.localizedDescription
-            }
-        }
-        .fileImporter(
-            isPresented: $showAddPhrasesImporter,
-            allowedContentTypes: AddPhrasesFileDocument.readableContentTypes,
-            allowsMultipleSelection: false
-        ) { result in
-            do {
-                let url = try result.get().first
-                guard let url else { return }
+            },
+            onAddPhrasesImport: { url in
                 try store.setAddPhrasesFile(url: url)
-                importExportMessage = "Using phrase additions file: \(url.lastPathComponent)"
-                showImportExportAlert = true
-            } catch {
-                importExportError = error.localizedDescription
             }
-        }
-        .alert("Data Transfer", isPresented: $showImportExportAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            if let msg = importExportMessage {
-                Text(msg)
-            }
-        }
-        .alert("Transfer Error", isPresented: Binding(get: {
-            importExportError != nil
-        }, set: { newValue in
-            if !newValue { importExportError = nil }
-        })) {
-            Button("OK", role: .cancel) { importExportError = nil }
-        } message: {
-            Text(importExportError ?? "")
-        }
+        ))
         .sheet(isPresented: $store.showPaywall) {
             PaywallView(featureName: store.paywallFeatureName)
                 .environmentObject(entitlement)
@@ -155,19 +94,18 @@ struct RootView: View {
                 store.flushPendingDataEditAutoSave()
             }
         }
+        .onChange(of: hasSeenWelcome) { _, newValue in
+            RadixRootPreferences.hasSeenWelcome = newValue
+        }
+        .onChange(of: hasUsedSidebarNavigation) { _, newValue in
+            RadixRootPreferences.hasUsedSidebarNavigation = newValue
+        }
         .onAppear {
+            hasSeenWelcome = RadixRootPreferences.hasSeenWelcome
+            hasUsedSidebarNavigation = RadixRootPreferences.hasUsedSidebarNavigation
             store.prepareFirstInteractionWarmup()
             refreshQuickLocalSnapshots()
         }
     }
 
-    private func readImportedFileData(from url: URL) throws -> Data {
-        let accessed = url.startAccessingSecurityScopedResource()
-        defer {
-            if accessed {
-                url.stopAccessingSecurityScopedResource()
-            }
-        }
-        return try Data(contentsOf: url)
-    }
 }

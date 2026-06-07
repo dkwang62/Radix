@@ -82,7 +82,7 @@ struct AILinkView: View {
             .padding(20)
         }
         .navigationTitle("AI Link")
-        .background(Color(.systemGroupedBackground))
+        .background(RadixTheme.groupedBackground)
         .onAppear {
             store.refreshPhrases()
             if store.shouldAutoOpenAILinkTask4 {
@@ -159,7 +159,7 @@ struct AILinkView: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -192,7 +192,7 @@ struct AILinkView: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 

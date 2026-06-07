@@ -58,7 +58,7 @@ extension CharacterInfoCard {
             }
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemBackground).opacity(0.45))
+            .background(RadixTheme.secondaryBackground.opacity(0.45))
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
             if !etymologyText.isEmpty {
@@ -78,7 +78,7 @@ extension CharacterInfoCard {
                 }
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.secondarySystemBackground).opacity(0.35))
+                .background(RadixTheme.secondaryBackground.opacity(0.35))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -97,7 +97,7 @@ extension CharacterInfoCard {
                 }
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.secondarySystemBackground).opacity(0.35))
+                .background(RadixTheme.secondaryBackground.opacity(0.35))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }

@@ -1,7 +1,4 @@
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 extension AILinkView {
     var promptBox: some View {
@@ -20,7 +17,7 @@ extension AILinkView {
                         .lineLimit(1)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(RadixTheme.tertiaryBackground)
                         .clipShape(Capsule())
                 }
             }
@@ -33,11 +30,11 @@ extension AILinkView {
                     .padding(12)
             }
             .frame(minHeight: 350)
-            .background(Color(.secondarySystemBackground))
+            .background(RadixTheme.secondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color(.separator), lineWidth: 1)
+                    .stroke(RadixTheme.separator, lineWidth: 1)
             )
         }
     }
@@ -238,9 +235,7 @@ extension AILinkView {
     func copyPromptToClipboard(showStatus: Bool) {
         guard canGeneratePrompt else { return }
         let text = generatedPromptText
-        #if canImport(UIKit)
-        UIPasteboard.general.string = text
-        #endif
+        RadixPlatform.copyToPasteboard(text)
         guard showStatus else { return }
         copied = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {

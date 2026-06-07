@@ -17,22 +17,11 @@ struct PhraseTableSheet: View {
     }
 
     private var isPhone: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone
-        #endif
+        RadixPlatform.isPhone
     }
 
     private var isRunningOnMac: Bool {
-        #if targetEnvironment(macCatalyst)
-        return true
-        #else
-        if #available(iOS 14.0, *) {
-            return ProcessInfo.processInfo.isiOSAppOnMac
-        }
-        return false
-        #endif
+        RadixPlatform.isRunningOnMac
     }
 
     @ViewBuilder
@@ -86,7 +75,7 @@ struct PhraseTableSheet: View {
                     .accessibilityLabel("Add Phrase")
                 }
                 .padding(12)
-                .background(Color(.secondarySystemBackground).opacity(0.55))
+                .background(RadixTheme.secondaryBackground.opacity(0.55))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 HStack {
@@ -119,7 +108,7 @@ struct PhraseTableSheet: View {
                         }
                     }
                     .frame(height: phraseViewportHeight)
-                    .background(Color(.secondarySystemBackground).opacity(0.7))
+                    .background(RadixTheme.secondaryBackground.opacity(0.7))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
 
                     Spacer(minLength: 0)
@@ -243,7 +232,7 @@ private struct PhraseTableRow: View {
         }
         .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, minHeight: rowHeight, alignment: .leading)
-        .background(Color(.systemBackground).opacity(0.001))
+        .background(RadixTheme.background.opacity(0.001))
         .phraseContextMenu(phrase)
     }
 

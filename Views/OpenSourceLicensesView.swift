@@ -20,7 +20,7 @@ struct OpenSourceLicensesView: View {
                             .foregroundStyle(.secondary)
                     }
                     .padding(14)
-                    .background(Color(.secondarySystemBackground))
+                    .background(RadixTheme.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
 
                     VStack(alignment: .leading, spacing: 8) {
@@ -44,13 +44,13 @@ struct OpenSourceLicensesView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .padding(14)
-                        .background(Color(.systemBackground))
+                        .background(RadixTheme.background)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
                 .padding()
             }
-            .background(Color(.secondarySystemBackground).opacity(0.35))
+            .background(RadixTheme.secondaryBackground.opacity(0.35))
             .navigationTitle("Open Source Licenses")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

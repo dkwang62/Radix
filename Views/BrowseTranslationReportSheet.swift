@@ -22,7 +22,7 @@ struct BrowseTranslationReportSheet: View {
                     .font(.system(.body, design: .serif))
                     .scrollContentBackground(.hidden)
                     .padding(10)
-                    .background(Color(.secondarySystemBackground))
+                    .background(RadixTheme.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay(alignment: .topLeading) {
                         if report.isEmpty {

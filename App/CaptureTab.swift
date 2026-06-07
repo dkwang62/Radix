@@ -1,15 +1,11 @@
 import SwiftUI
-import PhotosUI
-import UIKit
-import UniformTypeIdentifiers
 
 struct CaptureTab: View {
     @EnvironmentObject private var store: RadixStore
     @EnvironmentObject private var entitlement: EntitlementManager
     @Environment(\.openURL) private var openURL
-    @State private var selectedPhoto: PhotosPickerItem?
     @State private var showImageFileImporter = false
-    @State private var selectedImage: UIImage?
+    @State private var selectedImage: CapturedImage?
     @State private var isProcessing = false
     @State private var statusMessage: String?
     @State private var errorMessage: String?
@@ -18,7 +14,7 @@ struct CaptureTab: View {
     @State private var capturePreviewCharacter: String?
     @State private var captureDetailPreviewCharacter: String?
     @State private var lastSavedCollectionID: UUID?
-    @AppStorage("radixFreeCameraScanCount") private var freePageUseCount = 0
+    @State private var freePageUseCount = RadixCaptureUsage.freeScanCount
 
     private let freePageLimit = 100
 
@@ -74,33 +70,45 @@ struct CaptureTab: View {
                 }
             }
         }
-        .onChange(of: selectedPhoto) { _, item in
-            Task { await loadAndRecognize(item) }
-        }
-        .fileImporter(
+        .modifier(CaptureFileImportModifier(
             isPresented: $showImageFileImporter,
-            allowedContentTypes: [.image],
-            allowsMultipleSelection: false
-        ) { result in
-            Task { await loadAndRecognizeFile(result) }
-        }
+            onImage: { image in
+                Task { await recognize(image, source: .importTool) }
+            },
+            onError: { error in
+                errorMessage = error.localizedDescription
+            }
+        ))
         .sheet(isPresented: $showCamera) {
             CameraCaptureView { image in
                 showCamera = false
-                Task { await recognize(image, source: .camera) }
+                Task {
+                    await recognize(image, source: .camera)
+                }
+            } onError: { error in
+                showCamera = false
+                errorMessage = error.localizedDescription
             }
+        }
+        .onAppear {
+            freePageUseCount = RadixCaptureUsage.freeScanCount
         }
     }
 
     private var header: some View {
         CaptureHeaderView(
-            selectedPhoto: $selectedPhoto,
             isProcessing: isProcessing,
             filePickerTitle: filePickerTitle,
             isImportLocked: entitlement.requiresPro(.datedCopies),
             freeScanStatusText: freeScanStatusText,
             onCamera: startCameraScan,
             onLockedImport: { store.showPaywall(for: .datedCopies) },
+            onAlbumImage: { image in
+                Task { await recognize(image, source: .importTool) }
+            },
+            onAlbumError: { error in
+                errorMessage = error.localizedDescription
+            },
             onFiles: {
                 guard !entitlement.requiresPro(.datedCopies) else {
                     store.showPaywall(for: .datedCopies)
@@ -140,14 +148,10 @@ struct CaptureTab: View {
     }
 
     private var isPhoneCapturePreviewActive: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        guard UIDevice.current.userInterfaceIdiom == .phone else { return false }
+        guard RadixPlatform.isPhone else { return false }
         if store.activeSidebarPhrasePreview != nil { return true }
         let current = captureDetailPreviewCharacter ?? capturePreviewCharacter ?? store.previewCharacter
         return current.flatMap { store.item(for: $0) } != nil
-        #endif
     }
 
     private var phoneCapturePreview: some View {
@@ -227,36 +231,7 @@ struct CaptureTab: View {
     }
 
     @MainActor
-    private func loadAndRecognize(_ item: PhotosPickerItem?) async {
-        guard let item else { return }
-        guard !entitlement.requiresPro(.datedCopies) else {
-            selectedPhoto = nil
-            store.showPaywall(for: .datedCopies)
-            return
-        }
-        do {
-            await recognize(try await CaptureImageLoader.image(from: item), source: .importTool)
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-
-    @MainActor
-    private func loadAndRecognizeFile(_ result: Result<[URL], Error>) async {
-        guard !entitlement.requiresPro(.datedCopies) else {
-            store.showPaywall(for: .datedCopies)
-            return
-        }
-        do {
-            guard let image = try CaptureImageLoader.image(from: result.get()) else { return }
-            await recognize(image, source: .importTool)
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-
-    @MainActor
-    private func recognize(_ image: UIImage, source: CaptureSource) async {
+    private func recognize(_ image: CapturedImage, source: CaptureSource) async {
         isProcessing = true
         errorMessage = nil
         statusMessage = nil
@@ -284,7 +259,7 @@ struct CaptureTab: View {
         }
     }
 
-    private func autoSaveAndBrowseRecognizedImage(image: UIImage, source: CaptureSource) {
+    private func autoSaveAndBrowseRecognizedImage(image: CapturedImage, source: CaptureSource) {
         guard let collection = store.createCollection(
             name: defaultOCRCollectionName,
             sourceText: store.activeCaptureDraft.charactersText,
@@ -296,7 +271,7 @@ struct CaptureTab: View {
         }
 
         if source == .camera && !hasUnlimitedFreePages {
-            freePageUseCount = min(freePageLimit, freePageUseCount + 1)
+            freePageUseCount = RadixCaptureUsage.incrementFreeScanCount(limit: freePageLimit)
         }
 
         lastSavedCollectionID = collection.id
@@ -307,12 +282,10 @@ struct CaptureTab: View {
     }
 
     private func clearPhoneBrowsePreviewAfterImageSave() {
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone {
+        if RadixPlatform.isPhone {
             store.clearBrowsePreview()
             store.showiPhoneDetail = false
         }
-        #endif
     }
 
     private func clearCaptureDraft() {

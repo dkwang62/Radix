@@ -23,11 +23,11 @@ struct CharacterInfoTile: View {
             }
         }
         .frame(width: size, height: size)
-        .background(isHighlighted ? Color.orange.opacity(0.18) : Color(.secondarySystemBackground))
+        .background(isHighlighted ? Color.orange.opacity(0.18) : RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(isHighlighted ? Color.orange.opacity(0.75) : Color(.separator), lineWidth: isHighlighted ? 1.5 : 0.5)
+                .stroke(isHighlighted ? Color.orange.opacity(0.75) : RadixTheme.separator, lineWidth: isHighlighted ? 1.5 : 0.5)
         )
     }
 }

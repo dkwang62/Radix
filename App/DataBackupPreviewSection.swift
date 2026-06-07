@@ -34,13 +34,13 @@ struct DataBackupPreviewSection: View {
 
             previewDisclosureList
                 .padding(12)
-                .background(Color(.systemBackground))
+                .background(RadixTheme.background)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .padding(12)
         .background(
             LinearGradient(
-                colors: [Color.accentColor.opacity(0.10), Color(.secondarySystemBackground).opacity(0.55)],
+                colors: [Color.accentColor.opacity(0.10), RadixTheme.secondaryBackground.opacity(0.55)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -184,7 +184,7 @@ struct DataBackupPreviewSection: View {
             }
         }
         .padding(10)
-        .background(Color(.secondarySystemBackground).opacity(0.55))
+        .background(RadixTheme.secondaryBackground.opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 

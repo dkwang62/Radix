@@ -57,7 +57,7 @@ struct AddExtractsToPhrasesPanel: View {
                     .foregroundStyle(addedPhrases.isEmpty ? Color.secondary : Color.green)
                     .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background((addedPhrases.isEmpty ? Color(.secondarySystemBackground) : Color.green.opacity(0.1)))
+                    .background((addedPhrases.isEmpty ? RadixTheme.secondaryBackground : Color.green.opacity(0.1)))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -66,14 +66,14 @@ struct AddExtractsToPhrasesPanel: View {
             }
         }
         .padding(10)
-        .background(Color(.secondarySystemBackground).opacity(0.65))
+        .background(RadixTheme.secondaryBackground.opacity(0.65))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private var phraseAnswerEditor: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color(.systemBackground))
+                .fill(RadixTheme.background)
 
             if outputIsEmpty {
                 Text(Self.placeholderText)
@@ -95,7 +95,7 @@ struct AddExtractsToPhrasesPanel: View {
         .frame(height: 150)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color(.separator), lineWidth: 0.5)
+                .stroke(RadixTheme.separator, lineWidth: 0.5)
         )
     }
 
@@ -129,11 +129,11 @@ struct PhraseDiscoveryInputArea: View {
                 .font(ResponsiveFont.body)
                 .frame(minHeight: 150)
                 .padding(6)
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color(.separator), lineWidth: 0.5)
+                        .stroke(RadixTheme.separator, lineWidth: 0.5)
                 )
 
             LazyVGrid(

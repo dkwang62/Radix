@@ -1,9 +1,5 @@
 import SwiftUI
 
-#if canImport(UIKit)
-import UIKit
-#endif
-
 struct BreadcrumbStrip: View {
     @EnvironmentObject private var store: RadixStore
 
@@ -45,7 +41,7 @@ struct BreadcrumbStrip: View {
                                     .frame(maxWidth: isPhrase ? 132 : 28, alignment: .center)
                                     .padding(.horizontal, isPhrase ? 10 : 8)
                                     .frame(height: 32)
-                                    .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground).opacity(0.72))
+                                    .background(isActive ? Color.accentColor.opacity(0.18) : RadixTheme.secondaryBackground.opacity(0.72))
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                     .contentShape(RoundedRectangle(cornerRadius: 8))
                             }
@@ -58,7 +54,7 @@ struct BreadcrumbStrip: View {
                 }
             }
             .padding(.leading, 8)
-            .background(Color(.systemBackground))
+            .background(RadixTheme.background)
         }
     }
 }

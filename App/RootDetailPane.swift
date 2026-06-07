@@ -17,7 +17,7 @@ extension RootView {
                 HStack(spacing: 0) {
                     sidebar
                         .frame(width: iPadSidebarWidth(for: proxy.size.width))
-                        .background(Color(.systemBackground))
+                        .background(RadixTheme.background)
                         .overlay(alignment: .trailing) {
                             Divider()
                         }

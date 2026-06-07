@@ -1,11 +1,293 @@
 # Radix maintainability refactor — completed status
 
-**Build status: CLEAN (Added phrase review + Gemini client split)**
+**Build status: CLEAN (desktop layout platform boundary split)**
 Last verified build: `xcodebuild -project Radix.xcodeproj -scheme Radix -destination generic/platform=iOS CODE_SIGNING_ALLOWED=NO build`
 
 ---
 
 ## Post-checkpoint update
+
+Desktop layout sizing now uses the platform facade in another app/view cluster:
+
+- Browse saved-page picker heights now use `RadixPlatform.isDesktop` instead of local Catalyst compile branches
+- Favorites/study grid columns, phrase row sizing, summary columns, and recent character tile sizing now use `RadixPlatform.isDesktop`
+- This reduces app-level `targetEnvironment(macCatalyst)` spread while preserving the same desktop/iOS sizing choices
+
+The iOS build was verified clean with signing disabled after this desktop layout platform boundary pass.
+
+Mac runtime detection now goes through the platform facade:
+
+- `RadixPlatform.isRunningOnMac` owns the `targetEnvironment(macCatalyst)` / `ProcessInfo.processInfo.isiOSAppOnMac` check
+- Browse, Smart Search, Components Explorer, phrase lookup, and phrase table views now use the shared platform facade instead of repeating Apple runtime detection
+- `ProcessInfo.processInfo.isiOSAppOnMac` now appears only inside `RadixPlatform.swift`
+
+The iOS build was verified clean with signing disabled after this Mac runtime platform boundary pass.
+
+Interaction hint preferences now go through the shared preferences boundary:
+
+- `RadixInteractionPreferences.swift` owns the one-time interaction hint animation preference key
+- `InteractionHintRow.swift` keeps local SwiftUI state for immediate animation flow while persistence is handled by the preference boundary
+- The app/view/model/service Swift scan no longer reports any remaining `@AppStorage` usage
+
+The iOS build was verified clean with signing disabled after this interaction preferences boundary pass.
+
+Phrase detail preferences now go through the shared preferences boundary:
+
+- `RadixPhrasePreferences.swift` owns the phrase animation script preference key
+- `PhraseInfoCard.swift` keeps local SwiftUI state for immediate script-toggle updates, initialized from service-backed preferences
+- Phrase animation and control extensions continue to read the card-local script state while persistence is handled by the preference boundary
+- The phrase animation preference key no longer appears in view-level `@AppStorage`
+
+The iOS build was verified clean with signing disabled after this phrase preferences boundary pass.
+
+Root UI preferences now go through the shared preferences boundary:
+
+- `RadixRootPreferences.swift` owns the welcome-sheet and sidebar-navigation hint preference keys
+- `RootView.swift` keeps local SwiftUI state for immediate presentation updates, initialized from service-backed preferences
+- `RootSidebar.swift` continues to toggle local navigation-hint state while persistence is handled by the root preference boundary
+- The root preference keys no longer appear in app-level `@AppStorage`
+
+The iOS build was verified clean with signing disabled after this root preferences boundary pass.
+
+Study UI preferences now go through the shared preferences boundary:
+
+- `RadixStudyPreferences.swift` owns the study script, grid scope, saved-page sort-order, and intro-dismissal preference keys
+- `FavouritesTab.swift` keeps local SwiftUI state for immediate UI updates, initialized from service-backed preferences
+- Study section controls still bind to the same local state while persistence is handled through the preference boundary
+- The study preference keys no longer appear in app-level `@AppStorage`
+
+The iOS build was verified clean with signing disabled after this study preferences boundary pass.
+
+Browse UI preferences now go through the shared preferences boundary:
+
+- `RadixBrowsePreferences.swift` owns the browse interaction hint, image script mode, and saved-page sort-order preference keys
+- `FilterGridTab.swift` keeps local SwiftUI state for immediate UI updates, initialized from the service-backed preferences
+- `BrowseSourcePicker.swift` writes sort-order changes through the browse preferences boundary
+- `BrowseScrollRestoration.swift` records the interaction hint as shown through the same service
+
+The iOS build was verified clean with signing disabled after this browse preferences boundary pass.
+
+Local memory snapshots now have a retention guard:
+
+- `LocalDataSnapshotStore.maximumSnapshotCount` caps dated local memory copies at 20
+- `LocalDataSnapshotStore.save(_:)` prunes older snapshots immediately after saving a new one
+- The cap applies to both My Data “Save Dated Copy” and quick-save memory because both paths use the same snapshot store
+
+The iOS build was verified clean with signing disabled after this local snapshot retention pass.
+
+Other-device backup metadata persistence now goes through the shared preferences boundary:
+
+- `RadixBackupMetadata.swift` owns the `dataEditLastOtherDeviceBackupPath` and `dataEditLastOtherDeviceBackupDate` preference keys
+- `RadixPreferences.swift` now exposes double reads for service-owned timestamp preferences
+- `RootView.swift` no longer carries duplicated backup metadata `@AppStorage` state
+- `DataEditTab.swift` and `DataEditOtherDevicesSection.swift` use local metadata state backed by `RadixBackupMetadataStore`
+
+The iOS build was verified clean with signing disabled after this backup metadata preferences boundary pass.
+
+Capture/manual page quota persistence now goes through the shared preferences boundary:
+
+- `RadixCaptureUsage.swift` owns the `radixFreeCameraScanCount` preference key and clamped increment behavior
+- `RadixPreferences.swift` now exposes integer reads for service-owned preference counters
+- `CaptureTab.swift`, `FilterGridTab.swift`, and `BrowseCollectionEditing.swift` use `RadixCaptureUsage` instead of direct `@AppStorage` for the free-page counter
+- The capture and browse UI still keep local SwiftUI state for immediate screen refresh while persistence is service-owned
+
+The iOS build was verified clean with signing disabled after this capture usage preferences boundary pass.
+
+Capture image file import is now behind a service adapter:
+
+- `CaptureFileImportModifier.swift` owns the image `fileImporter` modifier and selected-file-to-`CapturedImage` loading
+- `CaptureTab.swift` now delegates file import presentation to the modifier and reacts through neutral image/error callbacks
+- App-layer `fileImporter` / `fileExporter` modifiers are no longer present; remaining transfer modifiers live in `Services`
+- Capture recognition continues to receive `CapturedImage` from camera, photo library, and file import paths
+
+The iOS build was verified clean with signing disabled after this capture file import boundary pass.
+
+My Data import/export UI plumbing has been moved behind a service adapter:
+
+- `DataEditTransferModifier.swift` owns the reusable `fileExporter` / `fileImporter` modifiers for My Data exports and backup restores
+- `DataEditTab.swift` now delegates transfer presentation to the modifier while keeping export success, restore mode, and alert decisions in the data-edit workflow
+- `RadixFileType` aliases the platform file type in `RadixFileTypes.swift`, keeping app state from naming `UTType` directly
+- App-level file transfer surface is smaller; the remaining direct app file importer is the capture image file picker
+
+The iOS build was verified clean with signing disabled after this data edit transfer boundary pass.
+
+Photo-library import is now behind a service-owned adapter:
+
+- `CapturePhotoImportButton.swift` owns `PhotosPicker`, `PhotosPickerItem` state, and photo-to-`CapturedImage` loading
+- `CaptureHeaderView` now receives neutral album image/error callbacks instead of binding to `PhotosPickerItem`
+- `CaptureTab.swift` no longer imports `PhotosUI` or owns selected-photo state; camera, photo, and file paths all enter recognition as `CapturedImage`
+- Remaining `PhotosUI` usage is contained in `Services/CapturePhotoImportButton.swift` and the existing image loader overload in `CaptureImageIO.swift`
+
+The iOS build was verified clean with signing disabled after this photo import boundary pass.
+
+File type constants have been centralized behind a service boundary:
+
+- `RadixFileTypes.swift` now owns shared `UTType` values for JSON, data, image import, backup import, and GIF export identifiers
+- `CaptureTab.swift` no longer imports `UniformTypeIdentifiers` for image file import
+- `DataEditTab.swift` and related export sections now use `RadixFileTypes` instead of direct `.json` / `.data` file type constants
+- `FileTransferModifier.swift` and `HanziWriterGIFExporter.swift` now route shared file type choices through the same adapter
+- App-layer `UniformTypeIdentifiers` imports are now gone; remaining `UTType` usage is contained in service/document boundaries
+
+The iOS build was verified clean with signing disabled after this file type boundary pass.
+
+File transfer UI plumbing has been moved behind a reusable service adapter:
+
+- `FileTransferModifier.swift` moved from `App` to `Services`
+- `RootView.swift` now delegates profile/add-phrases import/export modifiers and transfer alerts to `FileTransferModifier`
+- `RootView.swift` no longer imports `UniformTypeIdentifiers` or owns its own security-scoped file read helper
+- Xcode project wiring now places the transfer modifier in the service group
+
+The iOS build was verified clean with signing disabled after this file transfer modifier pass.
+
+File document adapters have been tightened into the service layer:
+
+- `AddPhrasesFileDocument.swift` moved from `App` to `Services`, alongside `BinaryFileDocument` and `JSONFileDocument`
+- `RadixStore.swift` no longer imports `UniformTypeIdentifiers` unnecessarily
+- Remaining UTType references are now limited to real file importer/exporter UI and document service boundaries
+
+The iOS build was verified clean with signing disabled after this file document adapter pass.
+
+StoreKit product types no longer leak into paywall views:
+
+- `RadixStoreProduct` wraps StoreKit `Product` display fields and keeps the purchase handle service-private
+- `EntitlementManager.products` now exposes `[RadixStoreProduct]`, and `purchase(_:)` accepts the wrapper
+- `PaywallView.swift` and `PaywallPlans.swift` no longer import StoreKit or reference `Product` directly
+- StoreKit remains contained inside `EntitlementManager` with non-StoreKit fallback behavior
+
+The iOS build was verified clean with signing disabled after this StoreKit product boundary pass.
+
+Optional Apple framework services now compile behind availability gates:
+
+- `CaptureImageIO.swift` keeps generic image byte/file loading independent from PhotosUI; the `PhotosPickerItem` overload is compiled only when PhotosUI is available
+- `CharacterSpeechService.swift` keeps the AVFoundation speech implementation under `canImport(AVFoundation)` and provides a no-op fallback with the same public API otherwise
+- This reduces hard Apple framework dependencies in service files while preserving current iOS behavior
+
+The iOS build was verified clean with signing disabled after this optional-framework service boundary pass.
+
+GIF export now fails cleanly when platform rendering is unavailable:
+
+- `HanziWriterGIFExporter.swift` no longer uses `fatalError` for non-UIKit rendering paths
+- Frame rendering now throws a normal Radix export error when GIF frame creation is unavailable or image extraction fails
+- The exporter keeps its iOS rendering implementation unchanged while exposing safer behavior for future non-Apple targets
+
+The iOS build was verified clean with signing disabled after this GIF export error-boundary pass.
+
+Platform UI adapters now compile behind explicit availability gates:
+
+- `CameraCaptureView.swift` keeps the iOS `UIImagePickerController` implementation under `canImport(UIKit)` and provides a fallback SwiftUI view when camera capture is unavailable
+- `StrokeOrderWebView.swift` keeps the WebKit/`UIViewRepresentable` implementation under `canImport(UIKit) && canImport(WebKit)` and provides a fallback stroke character view otherwise
+- These adapters remain service-owned while exposing stable SwiftUI view names to the app workflow layer
+
+The iOS build was verified clean with signing disabled after this conditional adapter pass.
+
+Apple dynamic SwiftUI colors have been moved behind a theme boundary:
+
+- `RadixTheme.swift` now owns platform dynamic colors such as background, secondary/tertiary background, grouped background, separator, and system gray
+- `App`, `Views`, and existing service UI adapters now use `RadixTheme` instead of direct `Color(.systemBackground)` / `Color(.separator)` style calls
+- The native color surface is now centralized for later Android theme mapping
+
+The iOS build was verified clean with signing disabled after this theme boundary pass.
+
+Camera capture presentation has been moved out of the app workflow layer:
+
+- `CameraCaptureView.swift` now lives under `Services` as the iOS `UIImagePickerController` adapter
+- `CaptureTab.swift` still owns the capture workflow and receives neutral `CapturedImage` values
+- Xcode project wiring now places the camera picker bridge in the service group
+
+The iOS build was verified clean with signing disabled after this camera picker adapter boundary pass.
+
+Stroke-order WebKit rendering has been separated from its SwiftUI section:
+
+- `StrokeOrderWebView.swift` now lives under `Services` as the platform WebKit adapter
+- `StrokeOrderSection.swift` remains under `Views` with the visible section, stable reload token helper, and animation header label
+- Xcode project wiring now places the WebKit bridge in the service group and compiles the new view companion file
+
+The iOS build was verified clean with signing disabled after this stroke-order adapter boundary pass.
+
+Animation GIF export/parsing has been moved out of the view layer:
+
+- `HanziWriterGIFExporter.swift` and `HanziSVGPathParser.swift` now live under `Services`
+- `CharacterAnimationSharing.swift` still coordinates the user action, while export/render/parse work is service-owned
+- Xcode project wiring now places both animation export helpers in the service group
+
+The iOS build was verified clean with signing disabled after this GIF export boundary pass.
+
+Active capture preview rendering now goes through the captured-image boundary:
+
+- `CapturedImage.swift` — exposes a SwiftUI `preview` image while keeping platform image construction inside the wrapper
+- `CaptureWorkbenchViews.swift` — no longer imports UIKit or calls `Image(uiImage:)` directly for the active capture preview
+
+The iOS build was verified clean with signing disabled after this capture-preview boundary pass.
+
+Share-sheet presentation has been moved out of the view layer:
+
+- `RadixSharePresenter.swift` — new service-layer platform presenter for iOS `UIActivityViewController` and macOS sharing
+- `CharacterAnimationSharePresenter.swift` — removed from `Views`; animation sharing still calls `presentShareSheet(items:)` through the new service boundary
+- Xcode project wiring now places the presenter in `Services`
+
+The iOS build was verified clean with signing disabled after this share-presenter boundary pass.
+
+Camera capture now feeds the neutral capture-image boundary directly:
+
+- `CameraCaptureView.swift` — still owns the iOS `UIImagePickerController`, but now converts the picked image to `CapturedImage` before calling back into app state
+- `CaptureTab.swift` — camera, photo picker, and file import recognition paths now all receive `CapturedImage`
+- `CaptureImageIO.swift` — removed the raw `UIImage` conversion helper from the shared loader API
+- Stale UIKit/AppKit imports were removed from several SwiftUI-only files, including breadcrumb, My Data, changed-dictionary, root phone, and character context-menu views
+
+The iOS build was verified clean with signing disabled after this camera boundary pass.
+
+Saved-page thumbnail rendering has been moved behind a small cross-platform image boundary:
+
+- `RadixThumbnail.swift` — wraps saved thumbnail JPEG data and owns platform-specific SwiftUI image construction
+- `RadixThumbnailView` — reusable thumbnail/placeholder renderer for saved page rows
+- Browse source rows, Favorites page rows, backup preview rows, and Capture saved-page rows now pass `RadixThumbnail` instead of decoding `UIImage` directly
+- UIKit imports were removed from the thumbnail-only row/list files
+
+The iOS build was verified clean with signing disabled after this thumbnail boundary pass.
+
+`RadixStore` preference persistence has been moved behind `RadixPreferences` for Android migration:
+
+- `RadixPreferences.swift` — now supports array and dictionary reads in addition to data/string/bool/object access
+- `RadixStore.swift` — sidebar style, speech settings, search history, preview restoration, profile restore, and AI prompt settings now use the shared preferences wrapper
+- `RadixStoreSearch.swift`, `RadixStoreCollections.swift`, `RadixStoreFavorites.swift`, `RadixStoreDataEdit.swift`, and `RadixStoreRootsBreadcrumb.swift` — split store extensions now persist through `RadixStore.preferences`
+
+The iOS build was verified clean with signing disabled after this store-preferences migration.
+
+Remaining direct device-class layout checks in the main App/View layer have been moved to `RadixPlatform`:
+
+- Phone/tablet UI branches in Browse, Smart Search, Favorites, My Data, phrase tables, character preview/header cards, component popovers, and popover sizing now use `RadixPlatform.isPhone` or `RadixPlatform.interfaceIdiom`
+- The only remaining direct `UIDevice`, `UIPasteboard`, and `UIApplication.open` references in the scanned app surface are inside `RadixPlatform.swift`
+
+The iOS build was verified clean with signing disabled after this platform-layout pass.
+
+Preferences and platform actions have been further isolated for Android migration:
+
+- `RadixPreferences.swift` — shared key-value preference wrapper around `UserDefaults`, intended to map to Android shared preferences or DataStore later
+- `PhraseAddDatabaseLocationManager.swift` — custom added-phrases DB path/bookmark persistence now uses `RadixPreferences`
+- `EntitlementManager.swift` — persisted entitlement/debug flags now use `RadixPreferences`; StoreKit remains the iOS purchase bridge
+- `RadixPlatform.swift` — now centralizes pasteboard reads/writes and external URL opening
+- `AILinkPromptOutput.swift`, `CharacterAnimationSharing.swift`, `BrowseCollectionEditing.swift`, and `BrowseImageActions.swift` — now route clipboard/open behavior through `RadixPlatform`
+
+The iOS build was verified clean with signing disabled after this preferences/platform-actions pass.
+
+Capture image/OCR handling has been split for Android migration:
+
+- `CapturedImage.swift` — neutral captured-image wrapper carrying image bytes and orientation, with an iOS preview image only behind `canImport(UIKit)`
+- `CaptureImageIO.swift` — image loading from Photos/files/camera and thumbnail generation
+- `CaptureOCRService.swift` — OCR now recognizes text from `CapturedImage` data/orientation instead of raw `UIImage`
+- `CaptureTab.swift` — capture flow now stores `CapturedImage`, uses `RadixPlatform` for phone behavior, and no longer imports UIKit directly
+
+The iOS build was verified clean with signing disabled after this capture boundary split.
+
+`RadixPlatform.swift` has been added as the platform facade for Android migration work:
+
+- `RadixPlatform.swift` — device class, clipboard writes, and external URL opening
+- `RadixStoreNavigation.swift` — now uses platform intent (`isPhone`, `open`, `copyToPasteboard`) instead of direct `UIDevice`/`UIApplication`/`UIPasteboard` calls
+- `RadixStoreRootsBreadcrumb.swift` — browse-memory highlight mode now depends on `RadixPlatform.isPhone`
+- `RadixStore.swift` — lineage batch sizing now depends on `RadixPlatform.isDesktop`
+- `BrowseGridLayout.swift` and `ResponsiveFont.swift` — model/layout helpers now consume the shared platform facade instead of asking UIKit directly
+
+The iOS build was verified clean with signing disabled after this Android-readiness pass.
 
 `AddedPhraseReviewSheet.swift` has now been split into focused added-phrase review files:
 
@@ -305,8 +587,11 @@ Many `private` and `private(set)` declarations were changed to `internal` (the d
 
 The portable SQLite logic in `PhraseRepository`, `ComponentRepository`, and their helper files is cleanly separated from iOS/SwiftUI. Platform-specific code is now concentrated in:
 - `RadixStoreAI.swift` — `performMacPasteShortcut()` (macCatalyst only, clearly marked `#if targetEnvironment(macCatalyst)`)
-- `RadixStoreNavigation.swift` — `UIDevice`, `UIApplication`, `UIPasteboard` calls
-- `RadixStore.swift` Core Lifecycle — `#if targetEnvironment(macCatalyst)` guards
+- `RadixPlatform.swift` — current interface idiom, clipboard writes, and external URL opening
+- `RadixPreferences.swift` — persisted app flags and service settings backed by `UserDefaults` on iOS
+- `CapturedImage.swift` / `CaptureImageIO.swift` / `CaptureOCRService.swift` — platform image loading, thumbnail generation, and OCR bridge
+- `RadixStoreAI.swift` — `performMacPasteShortcut()` (macCatalyst only, clearly marked `#if targetEnvironment(macCatalyst)`)
+- `RadixStore.swift` Core Lifecycle — remaining lifecycle `#if targetEnvironment(macCatalyst)` guard
 
 For an Android port, the repositories and data models can be reused as Kotlin/portable logic. The ViewModel layer would be reimplemented in Kotlin with the same extension-file domain structure.
 

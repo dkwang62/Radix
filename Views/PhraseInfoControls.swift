@@ -22,7 +22,7 @@ extension PhraseInfoCard {
             scriptButton("繁", value: "traditional")
         }
         .padding(4)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -44,11 +44,11 @@ extension PhraseInfoCard {
                 .minimumScaleFactor(0.8)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 8)
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color(.separator), lineWidth: 0.5)
+                        .stroke(RadixTheme.separator, lineWidth: 0.5)
                 )
             }
             .buttonStyle(.plain)

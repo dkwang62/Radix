@@ -20,7 +20,7 @@ extension DataEditTab {
                     .foregroundStyle(.secondary)
                     .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemBackground))
+                    .background(RadixTheme.background)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -67,7 +67,7 @@ extension DataEditTab {
                     let data = try dataExportService.exportFullDataset(store.fullDatasetExportPackage())
                     reuseExportDocument = BinaryFileDocument(data: data)
                     reuseExportFilename = name.isEmpty ? "radix_full_dataset" : name
-                    reuseExportContentType = .json
+                    reuseExportContentType = RadixFileTypes.json
                     activeAdvancedExportKind = .fullDataset
                 }
             )
@@ -86,7 +86,7 @@ extension DataEditTab {
                     let data = try dataExportService.exportMergedDictionaryDatabase(records: store.mergedDictionaryExportRecords())
                     reuseExportDocument = BinaryFileDocument(data: data)
                     reuseExportFilename = name.isEmpty ? "radix_merged_dictionary" : name
-                    reuseExportContentType = .data
+                    reuseExportContentType = RadixFileTypes.data
                     activeAdvancedExportKind = .dictionaryDatabase
                 }
             )
@@ -105,7 +105,7 @@ extension DataEditTab {
                     let data = try dataExportService.exportMergedPhrasesDatabase(phrases: store.mergedPhrasesForExport())
                     reuseExportDocument = BinaryFileDocument(data: data)
                     reuseExportFilename = name.isEmpty ? "radix_merged_phrases" : name
-                    reuseExportContentType = .data
+                    reuseExportContentType = RadixFileTypes.data
                     activeAdvancedExportKind = .phraseDatabase
                 }
             )

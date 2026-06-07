@@ -21,7 +21,7 @@ extension PhraseInfoCard {
                 phraseAnimationTileGrid(characters)
             }
             .padding(10)
-            .background(Color(.secondarySystemBackground).opacity(0.45))
+            .background(RadixTheme.secondaryBackground.opacity(0.45))
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
@@ -54,7 +54,7 @@ extension PhraseInfoCard {
                 .padding(.horizontal, 10)
                 .padding(.vertical, 7)
                 .foregroundStyle(isSelected ? Color.white : Color.primary)
-                .background(isSelected ? Color.accentColor : Color(.secondarySystemBackground))
+                .background(isSelected ? Color.accentColor : RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
@@ -103,11 +103,11 @@ extension PhraseInfoCard {
             }
             .padding(8)
             .frame(maxWidth: .infinity, minHeight: 154)
-            .background(Color(.systemBackground))
+            .background(RadixTheme.background)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color(.separator).opacity(0.6), lineWidth: 1)
+                    .stroke(RadixTheme.separator.opacity(0.6), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)

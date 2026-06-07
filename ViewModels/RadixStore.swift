@@ -1,11 +1,6 @@
 import Foundation
 import SwiftUI
 import Combine
-import UniformTypeIdentifiers
-import UIKit
-#if targetEnvironment(macCatalyst)
-import ApplicationServices
-#endif
 
 /*
  CHARACTER STUDIO ARCHITECTURE (RadixStore)
@@ -150,6 +145,8 @@ enum RestoreMode {
 
 @MainActor
 final class RadixStore: ObservableObject {
+    let preferences: RadixPreferences = .standard
+
     // MARK: - Navigation State
     @Published var route: AppRoute = .search {
         didSet {
@@ -157,7 +154,7 @@ final class RadixStore: ObservableObject {
     }
     @Published var homeTab: HomeTab = .filter
     @Published var sidebarNavigationStyle: SidebarNavigationStyle = .descriptive {
-        didSet { UserDefaults.standard.set(sidebarNavigationStyle.rawValue, forKey: sidebarNavigationStyleKey) }
+        didSet { preferences.set(sidebarNavigationStyle.rawValue, forKey: sidebarNavigationStyleKey) }
     }
     @Published var rootsReturnContext: RootsReturnContext?
     @Published var previewCharacter: String? {
@@ -366,7 +363,7 @@ final class RadixStore: ObservableObject {
     @Published var favoritePhraseDates: [String: Date] = [:]
     @Published var overlayAddedDates: [String: Date] = [:]
     @Published var speechEnabled: Bool = true {
-        didSet { UserDefaults.standard.set(speechEnabled, forKey: speechEnabledKey) }
+        didSet { preferences.set(speechEnabled, forKey: speechEnabledKey) }
     }
     @Published var activeFavouriteCharacter: String? = nil
     @Published var dictionaryVariances: [DictionaryVariance] = []
@@ -568,7 +565,7 @@ final class RadixStore: ObservableObject {
     }
 
     func loadSidebarNavigationStyle() {
-        if let saved = UserDefaults.standard.string(forKey: sidebarNavigationStyleKey),
+        if let saved = preferences.string(forKey: sidebarNavigationStyleKey),
            let style = SidebarNavigationStyle.fromStoredValue(saved) {
             sidebarNavigationStyle = style
         } else {
@@ -753,11 +750,7 @@ final class RadixStore: ObservableObject {
 
     // MARK: - Lineage Logic
     var lineageBatchSize: Int {
-        #if targetEnvironment(macCatalyst)
-        return 225
-        #else
-        return 12
-        #endif
+        RadixPlatform.isDesktop ? 225 : 12
     }
     var pagedLineageDerivatives: [ComponentItem] {
         let baseItems = sortedLineageDerivatives
@@ -827,7 +820,7 @@ final class RadixStore: ObservableObject {
 
 
     func loadSearchHistory() {
-        guard let saved = UserDefaults.standard.array(forKey: searchHistoryKey) as? [String] else { return }
+        guard let saved = preferences.array(forKey: searchHistoryKey) as? [String] else { return }
         searchHistory = saved
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
@@ -837,7 +830,7 @@ final class RadixStore: ObservableObject {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         searchHistory.append(trimmed)
-        UserDefaults.standard.set(searchHistory, forKey: searchHistoryKey)
+        preferences.set(searchHistory, forKey: searchHistoryKey)
     }
 
 
@@ -858,12 +851,12 @@ final class RadixStore: ObservableObject {
         guard let character else { return }
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
         guard key.count == 1, componentRepo.hasCharacter(key) else { return }
-        UserDefaults.standard.set(key, forKey: lastPreviewCharacterKey)
+        preferences.set(key, forKey: lastPreviewCharacterKey)
     }
 
     func restoreLastPreviewedCharacterIfNeeded() {
         guard previewCharacter == nil else { return }
-        guard let saved = UserDefaults.standard.string(forKey: lastPreviewCharacterKey) else { return }
+        guard let saved = preferences.string(forKey: lastPreviewCharacterKey) else { return }
         let key = saved.trimmingCharacters(in: .whitespacesAndNewlines)
         guard key.count == 1, componentRepo.hasCharacter(key) else { return }
 
@@ -955,14 +948,14 @@ final class RadixStore: ObservableObject {
 
         if let candidate = profile.previewCharacter, componentRepo.hasCharacter(candidate) {
             previewCharacter = candidate
-            UserDefaults.standard.set(candidate, forKey: lastPreviewCharacterKey)
+            preferences.set(candidate, forKey: lastPreviewCharacterKey)
             refreshPhrases(for: candidate)
             loadSharedComponentPeers(for: candidate)
             loadSharedPeersByComponent(for: candidate)
             loadRootDerivatives(for: candidate)
         } else if isCompleteRestore {
             previewCharacter = nil
-            UserDefaults.standard.removeObject(forKey: lastPreviewCharacterKey)
+            preferences.removeObject(forKey: lastPreviewCharacterKey)
             phrases = []
             sharedComponentPeers = []
             sharedPeersByComponent = [:]
@@ -981,39 +974,39 @@ final class RadixStore: ObservableObject {
     }
 
     func loadPromptSettings() {
-        if UserDefaults.standard.object(forKey: speechEnabledKey) != nil {
-            speechEnabled = UserDefaults.standard.bool(forKey: speechEnabledKey)
-        } else if UserDefaults.standard.object(forKey: speakOnSelectionKey) != nil ||
-                    UserDefaults.standard.object(forKey: speakOnPreviewKey) != nil {
-            let legacySelection = UserDefaults.standard.bool(forKey: speakOnSelectionKey)
-            let legacyPreview = UserDefaults.standard.bool(forKey: speakOnPreviewKey)
+        if preferences.object(forKey: speechEnabledKey) != nil {
+            speechEnabled = preferences.bool(forKey: speechEnabledKey)
+        } else if preferences.object(forKey: speakOnSelectionKey) != nil ||
+                    preferences.object(forKey: speakOnPreviewKey) != nil {
+            let legacySelection = preferences.bool(forKey: speakOnSelectionKey)
+            let legacyPreview = preferences.bool(forKey: speakOnPreviewKey)
             speechEnabled = legacySelection || legacyPreview
         }
-        if let data = UserDefaults.standard.data(forKey: promptConfigKey), let saved = try? JSONDecoder().decode(PromptConfig.self, from: data) { promptConfig = saved.normalized() }
-        if let savedSelection = UserDefaults.standard.array(forKey: promptTaskSelectionKey) as? [String] { promptSelectedTaskIDs = savedSelection }
-        if let rawPreset = UserDefaults.standard.string(forKey: defaultAIPresetKey),
+        if let data = preferences.data(forKey: promptConfigKey), let saved = try? JSONDecoder().decode(PromptConfig.self, from: data) { promptConfig = saved.normalized() }
+        if let savedSelection = preferences.array(forKey: promptTaskSelectionKey) as? [String] { promptSelectedTaskIDs = savedSelection }
+        if let rawPreset = preferences.string(forKey: defaultAIPresetKey),
            let preset = DefaultAIPreset(rawValue: rawPreset) {
             defaultAIPreset = preset
         }
-        if let savedCustomURL = UserDefaults.standard.string(forKey: customAIURLKey) {
+        if let savedCustomURL = preferences.string(forKey: customAIURLKey) {
             customAIURLString = savedCustomURL
         }
-        if let savedOpenAIAPIKey = UserDefaults.standard.string(forKey: openAIAPIKeyKey) {
+        if let savedOpenAIAPIKey = preferences.string(forKey: openAIAPIKeyKey) {
             openAIAPIKey = savedOpenAIAPIKey
         }
-        if let savedGeminiAPIKey = UserDefaults.standard.string(forKey: geminiAPIKeyKey) {
+        if let savedGeminiAPIKey = preferences.string(forKey: geminiAPIKeyKey) {
             geminiAPIKey = savedGeminiAPIKey
         }
-        if let savedClaudeAPIKey = UserDefaults.standard.string(forKey: claudeAPIKeyKey) {
+        if let savedClaudeAPIKey = preferences.string(forKey: claudeAPIKeyKey) {
             claudeAPIKey = savedClaudeAPIKey
         }
-        if let savedDeepSeekAPIKey = UserDefaults.standard.string(forKey: deepSeekAPIKeyKey) {
+        if let savedDeepSeekAPIKey = preferences.string(forKey: deepSeekAPIKeyKey) {
             deepSeekAPIKey = savedDeepSeekAPIKey
         }
-        if let savedCustomAIAPIKey = UserDefaults.standard.string(forKey: customAIAPIKeyKey) {
+        if let savedCustomAIAPIKey = preferences.string(forKey: customAIAPIKeyKey) {
             customAIAPIKey = savedCustomAIAPIKey
         }
-        if let savedGeminiModelID = UserDefaults.standard.string(forKey: geminiModelIDKey),
+        if let savedGeminiModelID = preferences.string(forKey: geminiModelIDKey),
            !savedGeminiModelID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             geminiModelID = savedGeminiModelID
         }
@@ -1039,16 +1032,16 @@ final class RadixStore: ObservableObject {
     }
 
     func persistPromptSettings() {
-        if let data = try? JSONEncoder().encode(promptConfig) { UserDefaults.standard.set(data, forKey: promptConfigKey) }
-        UserDefaults.standard.set(promptSelectedTaskIDs, forKey: promptTaskSelectionKey)
-        UserDefaults.standard.set(defaultAIPreset.rawValue, forKey: defaultAIPresetKey)
-        UserDefaults.standard.set(customAIURLString, forKey: customAIURLKey)
-        UserDefaults.standard.set(openAIAPIKey, forKey: openAIAPIKeyKey)
-        UserDefaults.standard.set(geminiAPIKey, forKey: geminiAPIKeyKey)
-        UserDefaults.standard.set(claudeAPIKey, forKey: claudeAPIKeyKey)
-        UserDefaults.standard.set(deepSeekAPIKey, forKey: deepSeekAPIKeyKey)
-        UserDefaults.standard.set(customAIAPIKey, forKey: customAIAPIKeyKey)
-        UserDefaults.standard.set(geminiModelID, forKey: geminiModelIDKey)
+        if let data = try? JSONEncoder().encode(promptConfig) { preferences.set(data, forKey: promptConfigKey) }
+        preferences.set(promptSelectedTaskIDs, forKey: promptTaskSelectionKey)
+        preferences.set(defaultAIPreset.rawValue, forKey: defaultAIPresetKey)
+        preferences.set(customAIURLString, forKey: customAIURLKey)
+        preferences.set(openAIAPIKey, forKey: openAIAPIKeyKey)
+        preferences.set(geminiAPIKey, forKey: geminiAPIKeyKey)
+        preferences.set(claudeAPIKey, forKey: claudeAPIKeyKey)
+        preferences.set(deepSeekAPIKey, forKey: deepSeekAPIKeyKey)
+        preferences.set(customAIAPIKey, forKey: customAIAPIKeyKey)
+        preferences.set(geminiModelID, forKey: geminiModelIDKey)
         updatePromptAutosaveStatus()
     }
 

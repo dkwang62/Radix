@@ -22,7 +22,7 @@ extension FilterGridTab {
                         pinyin: item.pinyinText,
                         fontSize: fontSize,
                         isFavorite: store.isFavorite(item.character),
-                        background: isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground),
+                        background: isActive ? Color.accentColor.opacity(0.18) : RadixTheme.secondaryBackground,
                         stroke: isActive ? Color.accentColor : Color.clear
                     )
                 }
@@ -85,7 +85,7 @@ extension FilterGridTab {
                         .padding(.vertical, 6)
                 }
             }
-                .background(isComponents ? Color.accentColor : Color(.secondarySystemBackground))
+                .background(isComponents ? Color.accentColor : RadixTheme.secondaryBackground)
                 .foregroundStyle(isComponents ? Color.white : Color.primary)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
@@ -99,7 +99,7 @@ extension FilterGridTab {
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)

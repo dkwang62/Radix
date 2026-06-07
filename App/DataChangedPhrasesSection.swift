@@ -77,7 +77,7 @@ struct DataChangedPhrasesSection: View {
             }
         }
         .padding(10)
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }

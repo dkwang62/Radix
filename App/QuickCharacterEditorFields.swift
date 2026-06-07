@@ -18,7 +18,7 @@ extension QuickCharacterEditorView {
                     }
                     .padding(.vertical, 8)
                     .padding(.horizontal, 10)
-                    .background(Color(.secondarySystemBackground))
+                    .background(RadixTheme.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .contentShape(Rectangle())
                 }

@@ -1,7 +1,4 @@
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 struct FavouritesTab: View {
     static let addedDateFormatter: DateFormatter = {
@@ -24,17 +21,13 @@ struct FavouritesTab: View {
     let onImportProfile: () -> Void
     let onRequirePro: (EntitlementManager.FeatureGate) -> Void
     @State var selectedPhrase: PhraseItem?
-    @AppStorage("studyGridUsesTraditionalScript") var studyGridUsesTraditionalScript = false
-    @AppStorage("studyGridScope") var studyGridScopeRawValue = StudyGridScope.all.rawValue
-    @AppStorage("studyPageSortOrder") var studyPageSortRawValue = PageCollectionSortOrder.lastViewed.rawValue
-    @AppStorage("hasDismissedStudyIntroV1") var hasDismissedStudyIntro = false
+    @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
+    @State var studyGridScope = RadixStudyPreferences.gridScope
+    @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
+    @State var hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
 
     var isPhone: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone
-        #endif
+        RadixPlatform.isPhone
     }
 
     var isNarrowStudyLayout: Bool {
@@ -51,16 +44,6 @@ struct FavouritesTab: View {
             || !store.favoriteItems.isEmpty
             || !store.favoritePhrasesItems.isEmpty
             || !store.allCollections.isEmpty
-    }
-
-    var studyPageSortOrder: PageCollectionSortOrder {
-        get { PageCollectionSortOrder(rawValue: studyPageSortRawValue) ?? .lastViewed }
-        nonmutating set { studyPageSortRawValue = newValue.rawValue }
-    }
-
-    var studyGridScope: StudyGridScope {
-        get { StudyGridScope(rawValue: studyGridScopeRawValue) ?? .all }
-        nonmutating set { studyGridScopeRawValue = newValue.rawValue }
     }
 
     var body: some View {
@@ -89,6 +72,24 @@ struct FavouritesTab: View {
                     .navigationBarTitleDisplayMode(.inline)
             }
             .presentationDetents([.medium, .large])
+        }
+        .onAppear {
+            studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
+            studyGridScope = RadixStudyPreferences.gridScope
+            studyPageSortOrder = RadixStudyPreferences.pageSortOrder
+            hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
+        }
+        .onChange(of: studyGridUsesTraditionalScript) { _, newValue in
+            RadixStudyPreferences.usesTraditionalScript = newValue
+        }
+        .onChange(of: studyGridScope) { _, newValue in
+            RadixStudyPreferences.gridScope = newValue
+        }
+        .onChange(of: studyPageSortOrder) { _, newValue in
+            RadixStudyPreferences.pageSortOrder = newValue
+        }
+        .onChange(of: hasDismissedStudyIntro) { _, newValue in
+            RadixStudyPreferences.hasDismissedIntro = newValue
         }
     }
 

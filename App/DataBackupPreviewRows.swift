@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 struct BackupCharacterTile: View {
     let character: String
@@ -24,11 +23,11 @@ struct BackupCharacterTile: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, minHeight: 58)
-        .background(Color(.secondarySystemBackground).opacity(0.65))
+        .background(RadixTheme.secondaryBackground.opacity(0.65))
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(Color(.separator).opacity(0.45), lineWidth: 1)
+                .stroke(RadixTheme.separator.opacity(0.45), lineWidth: 1)
         )
         .copyCharacterContextMenu(character, pinyin: pinyin)
     }
@@ -50,17 +49,11 @@ struct BackupPhraseRow: View {
 
 struct BackupSavedPageRow: View {
     let collection: CharacterCollection
-    let thumbnail: UIImage?
+    let thumbnail: RadixThumbnail?
 
     var body: some View {
         HStack(spacing: 8) {
-            if let thumbnail {
-                Image(uiImage: thumbnail)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 36, height: 36)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-            }
+            RadixThumbnailView(thumbnail: thumbnail, size: 36, cornerRadius: 6)
 
             Text(collection.name)
                 .font(ResponsiveFont.caption)

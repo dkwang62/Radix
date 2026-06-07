@@ -1,13 +1,5 @@
 import SwiftUI
 
-#if canImport(UIKit)
-import UIKit
-#endif
-
-#if canImport(AppKit)
-import AppKit
-#endif
-
 extension Notification.Name {
     static let radixShowPhraseTable = Notification.Name("radixShowPhraseTable")
 }
@@ -24,19 +16,11 @@ struct CharacterPreviewHeader: View {
     @State private var variantIndex: Int = 0
 
     private var usesShortActionLabels: Bool {
-        #if targetEnvironment(macCatalyst)
-        return isVertical
-        #else
-        return isVertical || UIDevice.current.userInterfaceIdiom == .phone
-        #endif
+        isVertical || RadixPlatform.isPhone
     }
 
     private var isPhone: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone
-        #endif
+        RadixPlatform.isPhone
     }
 
     var body: some View {
@@ -73,11 +57,7 @@ struct CharacterPreviewHeader: View {
                         },
                         onClear: onClear,
                         onSelectVariant: { ch in
-                            #if targetEnvironment(macCatalyst)
-                            store.select(character: ch)
-                            store.preview(character: ch)
-                            #else
-                            if UIDevice.current.userInterfaceIdiom == .phone &&
+                            if RadixPlatform.isPhone &&
                                 store.route == .search &&
                                 store.homeTab == .filter {
                                 store.browsePreview(character: ch, preservePhraseContext: true)
@@ -85,7 +65,6 @@ struct CharacterPreviewHeader: View {
                                 store.select(character: ch)
                                 store.preview(character: ch)
                             }
-                            #endif
                         }
                     )
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -108,11 +87,7 @@ struct CharacterPreviewHeader: View {
     }
 
     private func selectPreviewCharacter(_ ch: String) {
-        #if targetEnvironment(macCatalyst)
-        store.select(character: ch)
-        store.preview(character: ch)
-        #else
-        if UIDevice.current.userInterfaceIdiom == .phone &&
+        if RadixPlatform.isPhone &&
             store.route == .search &&
             store.homeTab == .filter {
             store.browsePreview(character: ch, preservePhraseContext: true)
@@ -120,6 +95,5 @@ struct CharacterPreviewHeader: View {
             store.select(character: ch)
             store.preview(character: ch)
         }
-        #endif
     }
 }

@@ -47,7 +47,7 @@ extension AILinkView {
             }
         }
         .padding()
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 

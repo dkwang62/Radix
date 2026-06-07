@@ -6,11 +6,7 @@ struct ComponentCharacterTile: View {
     let onTap: () -> Void
 
     private var isIPad: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .pad
-        #endif
+        RadixPlatform.interfaceIdiom == .tablet
     }
 
     var body: some View {
@@ -33,10 +29,10 @@ struct ComponentCharacterTile: View {
         }
         .padding(isCompact ? 4 : 8)
         .frame(minWidth: isCompact ? 48 : nil, minHeight: isCompact ? 56 : nil)
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
-            RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 8).stroke(RadixTheme.separator, lineWidth: 0.5)
         )
         .contentShape(RoundedRectangle(cornerRadius: 8))
         .onTapGesture(perform: onTap)

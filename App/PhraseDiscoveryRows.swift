@@ -23,11 +23,11 @@ struct CaptureWorkflowStepChip: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 7)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(step.isComplete ? Color.green.opacity(0.12) : Color(.systemBackground))
+        .background(step.isComplete ? Color.green.opacity(0.12) : RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(step.isComplete ? Color.green.opacity(0.35) : Color(.separator), lineWidth: 0.5)
+                .stroke(step.isComplete ? Color.green.opacity(0.35) : RadixTheme.separator, lineWidth: 0.5)
         )
     }
 }
@@ -115,7 +115,7 @@ struct DiscoveryStatChip: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

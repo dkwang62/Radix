@@ -14,14 +14,7 @@ struct SmartSearchTab: View {
     @State var searchCardVariantIndex: Int = 0
 
     var isRunningOnMac: Bool {
-        #if targetEnvironment(macCatalyst)
-        return true
-        #else
-        if #available(iOS 14.0, *) {
-            return ProcessInfo.processInfo.isiOSAppOnMac
-        }
-        return false
-        #endif
+        RadixPlatform.isRunningOnMac
     }
 
     var body: some View {

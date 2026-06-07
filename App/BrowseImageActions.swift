@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 extension FilterGridTab {
     func beginTranslationReport(_ collection: CharacterCollection) {
@@ -92,9 +91,7 @@ extension FilterGridTab {
 
     func copyImageActionPrompt(collection: CharacterCollection, taskID: String) {
         let prompt = store.promptText(for: .collection(collection), selectedTaskIDs: [taskID])
-        #if canImport(UIKit)
-        UIPasteboard.general.string = prompt
-        #endif
+        RadixPlatform.copyToPasteboard(prompt)
         imageActionMessage = "Instruction copied."
     }
 

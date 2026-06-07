@@ -90,6 +90,6 @@ struct QuickCharacterEditorView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
     }
 }

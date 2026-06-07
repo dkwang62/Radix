@@ -1,6 +1,28 @@
 import SwiftUI
 import Combine
+
+#if canImport(StoreKit)
 import StoreKit
+#endif
+
+struct RadixStoreProduct: Identifiable, Equatable {
+    let id: String
+    let displayName: String
+    let description: String
+    let displayPrice: String
+
+    #if canImport(StoreKit)
+    fileprivate let storeKitProduct: Product
+
+    init(product: Product) {
+        self.id = product.id
+        self.displayName = product.displayName
+        self.description = product.description
+        self.displayPrice = product.displayPrice
+        self.storeKitProduct = product
+    }
+    #endif
+}
 
 /// Manages paid access. Current policy: 100 free Camera/Text pages; Radix Plus unlocks unlimited pages, import tools, snapshots, and backup; Advanced Pro unlocks exports.
 @MainActor
@@ -25,23 +47,24 @@ class EntitlementManager: ObservableObject {
         case profileTransfer = "Profile Transfer"
     }
 
-    @Published private(set) var products: [Product] = []
+    @Published private(set) var products: [RadixStoreProduct] = []
     @Published private(set) var isLoadingProducts: Bool = false
     @Published private(set) var lastError: String? = nil
     @Published private(set) var hasDatedCopiesAccess: Bool = false
     @Published private(set) var hasActiveAnnualSubscription: Bool = false
     @Published private(set) var hasLifetimeAccess: Bool = false
+    private let preferences: RadixPreferences
     
     @Published var isPro: Bool = false {
         didSet {
-            UserDefaults.standard.set(isPro, forKey: "com.radix.isPro")
+            preferences.set(isPro, forKey: Self.isProKey)
         }
     }
 
     #if DEBUG
-    @Published var debugProOverrideEnabled: Bool = UserDefaults.standard.bool(forKey: "com.radix.debugProOverride") {
+    @Published var debugProOverrideEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(debugProOverrideEnabled, forKey: Self.debugOverrideKey)
+            preferences.set(debugProOverrideEnabled, forKey: Self.debugOverrideKey)
         }
     }
     #endif
@@ -55,16 +78,22 @@ class EntitlementManager: ObservableObject {
     }
 
     private var updatesTask: Task<Void, Never>?
+    private static let isProKey = "com.radix.isPro"
 
-    init() {
-        self.isPro = UserDefaults.standard.bool(forKey: "com.radix.isPro")
+    init(preferences: RadixPreferences = .standard) {
+        self.preferences = preferences
+        self.isPro = preferences.bool(forKey: Self.isProKey)
+        #if DEBUG
+        self.debugProOverrideEnabled = preferences.bool(forKey: Self.debugOverrideKey)
+        #endif
         
-        // Listen for transaction updates
+        #if canImport(StoreKit)
         updatesTask = Task { [weak self] in
             for await result in StoreKit.Transaction.updates {
                 await self?.handle(transaction: result)
             }
         }
+        #endif
         
         Task { [weak self] in
             await self?.refreshEntitlements()
@@ -85,19 +114,27 @@ class EntitlementManager: ObservableObject {
     func loadProducts() async {
         isLoadingProducts = true
         defer { isLoadingProducts = false }
+        #if canImport(StoreKit)
         do {
             let identifiers: Set<String> = [Self.myBackupProductID, Self.advancedProductID]
             let loadedProducts = try await Product.products(for: identifiers)
-            self.products = loadedProducts.sorted(by: productSortPredicate)
+            self.products = loadedProducts
+                .sorted(by: productSortPredicate)
+                .map(RadixStoreProduct.init(product:))
             self.lastError = nil
         } catch {
             lastError = "Could not load products: \(error.localizedDescription)"
         }
+        #else
+        products = []
+        lastError = "Purchases are unavailable on this platform."
+        #endif
     }
 
-    func purchase(_ product: Product) async -> Bool {
+    func purchase(_ product: RadixStoreProduct) async -> Bool {
+        #if canImport(StoreKit)
         do {
-            let result = try await product.purchase()
+            let result = try await product.storeKitProduct.purchase()
             switch result {
             case .success(let verification):
                 await handle(transaction: verification)
@@ -111,9 +148,14 @@ class EntitlementManager: ObservableObject {
             lastError = "Purchase failed: \(error.localizedDescription)"
             return false
         }
+        #else
+        lastError = "Purchases are unavailable on this platform."
+        return false
+        #endif
     }
 
     func restorePurchases() async {
+        #if canImport(StoreKit)
         do {
             try await AppStore.sync()
             await refreshEntitlements()
@@ -121,8 +163,12 @@ class EntitlementManager: ObservableObject {
         } catch {
             lastError = "Restore failed: \(error.localizedDescription)"
         }
+        #else
+        lastError = "Purchases are unavailable on this platform."
+        #endif
     }
 
+    #if canImport(StoreKit)
     private func handle(transaction verification: VerificationResult<StoreKit.Transaction>) async {
         switch verification {
         case .verified(let transaction):
@@ -132,6 +178,7 @@ class EntitlementManager: ObservableObject {
             break
         }
     }
+    #endif
 
     // MARK: - Feature Gates
 
@@ -167,6 +214,7 @@ class EntitlementManager: ObservableObject {
         var annual = false
         var lifetime = false
 
+        #if canImport(StoreKit)
         for await result in StoreKit.Transaction.currentEntitlements {
             guard case .verified(let transaction) = result else { continue }
             switch transaction.productID {
@@ -180,6 +228,7 @@ class EntitlementManager: ObservableObject {
                 break
             }
         }
+        #endif
 
         hasDatedCopiesAccess = datedCopies
         hasActiveAnnualSubscription = annual
@@ -198,9 +247,11 @@ class EntitlementManager: ObservableObject {
         }
     }
 
+    #if canImport(StoreKit)
     private func productSortPredicate(_ lhs: Product, _ rhs: Product) -> Bool {
         rank(for: lhs.id) < rank(for: rhs.id)
     }
+    #endif
 
     private func rank(for productID: String) -> Int {
         switch productID {

@@ -114,7 +114,7 @@ struct AddedPhraseReviewTile: View {
         case .completed:
             return Color.purple.opacity(0.10)
         case nil:
-            return Color(.secondarySystemBackground)
+            return RadixTheme.secondaryBackground
         }
     }
 
@@ -130,7 +130,7 @@ struct AddedPhraseReviewTile: View {
         case .completed:
             return Color.purple.opacity(0.38)
         case nil:
-            return Color(.separator).opacity(0.35)
+            return RadixTheme.separator.opacity(0.35)
         }
     }
 

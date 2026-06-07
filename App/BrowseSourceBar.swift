@@ -28,10 +28,10 @@ extension FilterGridTab {
             }
         }
         .padding(selectedCollection == nil ? 10 : 8)
-        .background(Color(.secondarySystemBackground).opacity(0.55))
+        .background(RadixTheme.secondaryBackground.opacity(0.55))
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(selectedCollection == nil ? Color(.separator) : Color.clear, lineWidth: 0.5)
+                .stroke(selectedCollection == nil ? RadixTheme.separator : Color.clear, lineWidth: 0.5)
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
@@ -93,7 +93,7 @@ extension FilterGridTab {
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 9)
-                .background(isActive ? Color.accentColor : Color(.systemBackground))
+                .background(isActive ? Color.accentColor : RadixTheme.background)
                 .foregroundStyle(isActive ? Color.white : Color.primary)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
@@ -149,7 +149,7 @@ extension FilterGridTab {
             }
         }
         .padding(10)
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 

@@ -149,7 +149,7 @@ enum BrowseImageTileStyle {
             if isMemoryHighlighted {
                 return Color.accentColor.opacity(0.18)
             }
-            return isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground)
+            return isActive ? Color.accentColor.opacity(0.18) : RadixTheme.secondaryBackground
         }
     }
 

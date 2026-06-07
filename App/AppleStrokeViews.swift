@@ -31,7 +31,7 @@ struct AppleStrokeKeyCapsule: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(
                     LinearGradient(
-                        colors: [Color(.systemBackground), Color(.secondarySystemBackground)],
+                        colors: [RadixTheme.background, RadixTheme.secondaryBackground],
                         startPoint: .top,
                         endPoint: .bottom
                     )
@@ -104,7 +104,7 @@ struct AppleStrokeExamplesView: View {
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 5)
-                        .background(Color(.systemBackground))
+                        .background(RadixTheme.background)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }
@@ -123,7 +123,7 @@ struct AppleStrokeExamplesView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 6)
-                    .background(Color(.systemBackground))
+                    .background(RadixTheme.background)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
@@ -157,11 +157,7 @@ struct SearchExampleButton: View {
     let action: (String) -> Void
 
     private var isPhone: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone
-        #endif
+        RadixPlatform.isPhone
     }
 
     init(label: String, query: String, desc: String? = nil, action: @escaping (String) -> Void) {
@@ -211,4 +207,3 @@ struct SearchExampleButton: View {
         .buttonStyle(.plain)
     }
 }
-

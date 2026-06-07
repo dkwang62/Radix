@@ -28,7 +28,7 @@ extension CharacterDetailView {
                 .font(.system(size: 112))
                 .lineLimit(1)
                 .frame(width: 132, height: 132)
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
 
@@ -89,11 +89,11 @@ extension CharacterDetailView {
             Spacer(minLength: 0)
         }
         .padding(18)
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color(.separator), lineWidth: 0.5)
+                .stroke(RadixTheme.separator, lineWidth: 0.5)
         )
     }
 
@@ -118,7 +118,7 @@ extension CharacterDetailView {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 7)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

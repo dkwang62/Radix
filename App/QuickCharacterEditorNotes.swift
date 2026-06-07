@@ -35,11 +35,11 @@ extension QuickCharacterEditorView {
             }
         }
         .frame(minHeight: notesMinimumHeight, maxHeight: .infinity)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color(.separator), lineWidth: 1)
+                .stroke(RadixTheme.separator, lineWidth: 1)
         )
     }
 

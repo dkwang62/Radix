@@ -38,7 +38,7 @@ extension SmartSearchTab {
                     }
                 }
                 .padding(12)
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
@@ -67,7 +67,7 @@ extension SmartSearchTab {
         }
         .padding(isRunningOnMac ? 24 : 16)
         .frame(maxWidth: isRunningOnMac ? 900 : .infinity, alignment: .leading)
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
     }
 
     var quickSearchTypeRow: some View {
@@ -133,7 +133,7 @@ private struct SearchTypePill: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
-        .background(Color(.secondarySystemBackground).opacity(0.7))
+        .background(RadixTheme.secondaryBackground.opacity(0.7))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

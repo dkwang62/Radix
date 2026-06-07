@@ -75,7 +75,7 @@ extension RadixStore {
 
     func clearSearchHistory() {
         searchHistory = []
-        UserDefaults.standard.removeObject(forKey: searchHistoryKey)
+        preferences.removeObject(forKey: searchHistoryKey)
     }
 
     func setSearchMode(_ mode: SearchMode) {
@@ -220,7 +220,7 @@ extension RadixStore {
                 pushPhraseBreadcrumb(phrase)
             }
         }
-        UserDefaults.standard.set(Array(favoritePhrases), forKey: favoritePhrasesKey)
+        preferences.set(Array(favoritePhrases), forKey: favoritePhrasesKey)
         persistFavoritePhraseDates()
     }
 

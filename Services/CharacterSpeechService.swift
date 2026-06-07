@@ -1,5 +1,7 @@
-import AVFoundation
 import Foundation
+
+#if canImport(AVFoundation)
+import AVFoundation
 
 @MainActor
 final class CharacterSpeechService {
@@ -63,3 +65,19 @@ final class CharacterSpeechService {
         return fallback
     }
 }
+#else
+@MainActor
+final class CharacterSpeechService {
+    func prepareForFirstUtterance() { }
+
+    func speak(_ text: String) { }
+
+    func speakPhrase(_ phrase: PhraseItem) { }
+
+    @discardableResult
+    func speakCharacters(in text: String) -> Int {
+        let characters = CaptureTextExtractor.allCharactersInOrder(in: text)
+        return characters.count
+    }
+}
+#endif

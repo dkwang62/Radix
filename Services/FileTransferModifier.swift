@@ -1,31 +1,6 @@
 import SwiftUI
-import UniformTypeIdentifiers
-
-// MARK: - FileTransferModifier
-//
-// Usage: replace the four .fileExporter / .fileImporter / .alert blocks
-// in RootView.body with a single:
-//
-//   .modifier(FileTransferModifier(
-//       profileExportDocument:    $profileExportDocument,
-//       addPhrasesExportDocument: $addPhrasesExportDocument,
-//       showProfileExporter:      $showProfileExporter,
-//       showProfileImporter:      $showProfileImporter,
-//       showAddPhrasesExporter:   $showAddPhrasesExporter,
-//       showAddPhrasesImporter:   $showAddPhrasesImporter,
-//       importExportError:        $importExportError,
-//       importExportMessage:      $importExportMessage,
-//       showImportExportAlert:    $showImportExportAlert,
-//       onProfileImport:          { data in try store.importProfileData(data) },
-//       onAddPhrasesImport:       { url in try store.setAddPhrasesFile(url: url) }
-//   ))
-//
-// All @State properties stay in RootView exactly as they are today.
-// The modifier just moves the modifier chain out of body.
 
 struct FileTransferModifier: ViewModifier {
-
-    // Bindings to RootView's existing @State
     @Binding var profileExportDocument: JSONFileDocument
     @Binding var addPhrasesExportDocument: AddPhrasesFileDocument
     @Binding var showProfileExporter: Bool
@@ -36,17 +11,15 @@ struct FileTransferModifier: ViewModifier {
     @Binding var importExportMessage: String?
     @Binding var showImportExportAlert: Bool
 
-    // Callbacks that need store access (caller provides these closures)
     let onProfileImport: (Data) throws -> Void
     let onAddPhrasesImport: (URL) throws -> Void
 
     func body(content: Content) -> some View {
         content
-            // ── Profile export ────────────────────────────────────────────
             .fileExporter(
                 isPresented: $showProfileExporter,
                 document: profileExportDocument,
-                contentType: .json,
+                contentType: RadixFileTypes.json,
                 defaultFilename: "radix_user_data"
             ) { result in
                 switch result {
@@ -57,10 +30,9 @@ struct FileTransferModifier: ViewModifier {
                     importExportError = error.localizedDescription
                 }
             }
-            // ── Profile import ────────────────────────────────────────────
             .fileImporter(
                 isPresented: $showProfileImporter,
-                allowedContentTypes: [.json, .data],
+                allowedContentTypes: RadixFileTypes.backupImports,
                 allowsMultipleSelection: false
             ) { result in
                 do {
@@ -75,7 +47,6 @@ struct FileTransferModifier: ViewModifier {
                     importExportError = error.localizedDescription
                 }
             }
-            // ── Add-phrases export ────────────────────────────────────────
             .fileExporter(
                 isPresented: $showAddPhrasesExporter,
                 document: addPhrasesExportDocument,
@@ -90,7 +61,6 @@ struct FileTransferModifier: ViewModifier {
                     importExportError = error.localizedDescription
                 }
             }
-            // ── Add-phrases import ────────────────────────────────────────
             .fileImporter(
                 isPresented: $showAddPhrasesImporter,
                 allowedContentTypes: AddPhrasesFileDocument.readableContentTypes,
@@ -105,13 +75,11 @@ struct FileTransferModifier: ViewModifier {
                     importExportError = error.localizedDescription
                 }
             }
-            // ── Success alert ─────────────────────────────────────────────
             .alert("Data Transfer", isPresented: $showImportExportAlert) {
                 Button("OK", role: .cancel) { }
             } message: {
                 if let msg = importExportMessage { Text(msg) }
             }
-            // ── Error alert ───────────────────────────────────────────────
             .alert("Transfer Error", isPresented: Binding(
                 get: { importExportError != nil },
                 set: { if !$0 { importExportError = nil } }

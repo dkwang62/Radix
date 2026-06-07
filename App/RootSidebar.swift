@@ -30,7 +30,7 @@ extension RootView {
                     }
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.secondarySystemBackground).opacity(0.7))
+                    .background(RadixTheme.secondaryBackground.opacity(0.7))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .buttonStyle(.plain)
@@ -149,7 +149,7 @@ extension RootView {
         .padding(.vertical, 6)
         .frame(maxWidth: .infinity)
         .frame(minHeight: 32)
-        .background(Color(.secondarySystemBackground).opacity(0.7))
+        .background(RadixTheme.secondaryBackground.opacity(0.7))
         .clipShape(RoundedRectangle(cornerRadius: 7))
     }
 
@@ -237,11 +237,11 @@ extension RootView {
                 }
             }
             .padding(8)
-            .background(Color(.secondarySystemBackground).opacity(0.7))
+            .background(RadixTheme.secondaryBackground.opacity(0.7))
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color(.separator), lineWidth: 0.5)
+                    .stroke(RadixTheme.separator, lineWidth: 0.5)
             )
         }
     }
@@ -257,7 +257,7 @@ extension RootView {
                     .font(ResponsiveFont.headline)
                     .foregroundStyle(isActive ? Color.accentColor : Color.secondary)
                     .frame(width: 30, height: 30)
-                    .background(isActive ? Color.accentColor.opacity(0.12) : Color(.systemBackground))
+                    .background(isActive ? Color.accentColor.opacity(0.12) : RadixTheme.background)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -274,7 +274,7 @@ extension RootView {
             }
             .frame(maxWidth: .infinity)
             .padding(10)
-            .background(isActive ? Color.accentColor.opacity(0.1) : Color(.secondarySystemBackground).opacity(0.55))
+            .background(isActive ? Color.accentColor.opacity(0.1) : RadixTheme.secondaryBackground.opacity(0.55))
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
@@ -294,7 +294,7 @@ extension RootView {
                 .font(ResponsiveFont.headline)
                 .frame(maxWidth: .infinity, minHeight: 42)
             .foregroundStyle(isActive ? Color.accentColor : Color.primary)
-            .background(isActive ? Color.accentColor.opacity(0.12) : Color(.secondarySystemBackground).opacity(0.65))
+            .background(isActive ? Color.accentColor.opacity(0.12) : RadixTheme.secondaryBackground.opacity(0.65))
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)

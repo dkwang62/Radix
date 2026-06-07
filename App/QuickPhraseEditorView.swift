@@ -36,7 +36,7 @@ struct QuickPhraseEditorView: View {
                 Spacer()
             }
             .padding()
-            .background(Color(.systemBackground))
+            .background(RadixTheme.background)
 
             Divider()
 
@@ -60,7 +60,7 @@ struct QuickPhraseEditorView: View {
 
             phraseActionRow
                 .padding()
-                .background(Color(.systemBackground))
+                .background(RadixTheme.background)
         }
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
@@ -137,11 +137,11 @@ struct QuickPhraseEditorView: View {
             }
         }
         .frame(height: phraseNotesHeight)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color(.separator), lineWidth: 1)
+                .stroke(RadixTheme.separator, lineWidth: 1)
         )
     }
 
@@ -194,11 +194,11 @@ struct QuickPhraseEditorView: View {
                     .font(ResponsiveFont.body)
                     .frame(height: phraseMeaningHeight)
                     .padding(8)
-                    .background(Color(.secondarySystemBackground).opacity(0.6))
+                    .background(RadixTheme.secondaryBackground.opacity(0.6))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color(.separator), lineWidth: 0.5)
+                            .stroke(RadixTheme.separator, lineWidth: 0.5)
                     )
                     .focused($focusedPhraseField, equals: .meanings)
             }

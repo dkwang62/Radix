@@ -1,5 +1,4 @@
 import SwiftUI
-import StoreKit
 
 struct PaywallView: View {
     @EnvironmentObject var entitlement: EntitlementManager
@@ -37,6 +36,6 @@ struct PaywallView: View {
     }
 
     var paywallBackground: some View {
-        Color(.systemGroupedBackground)
+        RadixTheme.groupedBackground
     }
 }

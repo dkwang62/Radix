@@ -67,7 +67,7 @@ extension DataEditTab {
             }
         }
         .padding(12)
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -193,11 +193,9 @@ extension DataEditTab {
 
     func previewBackupCharacter(_ character: String) {
         store.preview(character: character)
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone {
+        if RadixPlatform.isPhone {
             withAnimation { dataEditScrollProxy?.scrollTo("myDataTop", anchor: .top) }
         }
-        #endif
     }
 
     func createAddedPhrasesPage() {
@@ -302,7 +300,7 @@ struct DataLibraryMomentRow: View {
             }
             .padding(10)
             .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
-            .background(Color(.secondarySystemBackground))
+            .background(RadixTheme.secondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)

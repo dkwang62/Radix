@@ -1,7 +1,6 @@
 import Foundation
 import ImageIO
 import SwiftUI
-import UniformTypeIdentifiers
 
 #if canImport(UIKit)
 import UIKit
@@ -15,7 +14,7 @@ enum HanziWriterGIFExporter {
 
     static func export(character: String) async throws -> URL {
         let data = try await fetchStrokeData(for: character)
-        let frames = renderFrames(from: data)
+        let frames = try renderFrames(from: data)
         let safeName = character.unicodeScalars.map { String(format: "%04X", $0.value) }.joined(separator: "-")
         let outputURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("Radix-\(safeName)-stroke-order.gif")
@@ -39,24 +38,24 @@ enum HanziWriterGIFExporter {
         return try JSONDecoder().decode(HanziWriterStrokeData.self, from: data)
     }
 
-    private static func renderFrames(from data: HanziWriterStrokeData) -> [GIFFrame] {
+    private static func renderFrames(from data: HanziWriterStrokeData) throws -> [GIFFrame] {
         let paths = data.strokes.compactMap { HanziSVGPathParser.parse($0) }
         guard !paths.isEmpty else { return [] }
 
         var frames: [GIFFrame] = [
-            GIFFrame(image: render(paths: paths, completedCount: 0), delay: strokeFrameDelay)
+            GIFFrame(image: try render(paths: paths, completedCount: 0), delay: strokeFrameDelay)
         ]
 
         for index in paths.indices {
-            frames.append(GIFFrame(image: render(paths: paths, completedCount: index, activeIndex: index, activeAlpha: 0.5), delay: strokeFrameDelay))
-            frames.append(GIFFrame(image: render(paths: paths, completedCount: index + 1), delay: strokeFrameDelay))
+            frames.append(GIFFrame(image: try render(paths: paths, completedCount: index, activeIndex: index, activeAlpha: 0.5), delay: strokeFrameDelay))
+            frames.append(GIFFrame(image: try render(paths: paths, completedCount: index + 1), delay: strokeFrameDelay))
         }
 
-        frames.append(GIFFrame(image: render(paths: paths, completedCount: paths.count), delay: holdFrameDelay))
+        frames.append(GIFFrame(image: try render(paths: paths, completedCount: paths.count), delay: holdFrameDelay))
         return frames
     }
 
-    private static func render(paths: [CGPath], completedCount: Int, activeIndex: Int? = nil, activeAlpha: CGFloat = 1) -> CGImage {
+    private static func render(paths: [CGPath], completedCount: Int, activeIndex: Int? = nil, activeAlpha: CGFloat = 1) throws -> CGImage {
         #if canImport(UIKit)
         let format = UIGraphicsImageRendererFormat.default()
         format.scale = 2
@@ -88,9 +87,12 @@ enum HanziWriterGIFExporter {
             }
         }
 
-        return image.cgImage!
+        guard let cgImage = image.cgImage else {
+            throw exportError("The stroke animation frame could not be rendered.")
+        }
+        return cgImage
         #else
-        fatalError("GIF export rendering requires UIKit")
+        throw exportError("GIF export rendering is unavailable on this platform.")
         #endif
     }
 
@@ -117,7 +119,7 @@ enum HanziWriterGIFExporter {
 
         guard let destination = CGImageDestinationCreateWithURL(
             url as CFURL,
-            UTType.gif.identifier as CFString,
+            RadixFileTypes.gifIdentifier,
             frames.count,
             nil
         ) else {
@@ -143,6 +145,10 @@ enum HanziWriterGIFExporter {
         guard CGImageDestinationFinalize(destination) else {
             throw CocoaError(.fileWriteUnknown)
         }
+    }
+
+    private static func exportError(_ message: String) -> NSError {
+        NSError(domain: "Radix", code: 4001, userInfo: [NSLocalizedDescriptionKey: message])
     }
 }
 

@@ -55,7 +55,7 @@ extension FavouritesTab {
             .accessibilityLabel("Hide Study help")
         }
         .padding(10)
-        .background(Color(.secondarySystemBackground).opacity(0.72))
+        .background(RadixTheme.secondaryBackground.opacity(0.72))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -90,11 +90,8 @@ extension FavouritesTab {
     }
 
     var studySummaryColumns: [GridItem] {
-        #if targetEnvironment(macCatalyst)
-        return [GridItem(.adaptive(minimum: 136), spacing: 6)]
-        #else
-        return [GridItem(.adaptive(minimum: isNarrowStudyLayout ? 132 : 136), spacing: 6)]
-        #endif
+        let minimum: CGFloat = RadixPlatform.isDesktop ? 136 : (isNarrowStudyLayout ? 132 : 136)
+        return [GridItem(.adaptive(minimum: minimum), spacing: 6)]
     }
 
     func studySummaryTile(title: String, value: String, systemImage: String, tint: Color) -> some View {
@@ -116,7 +113,7 @@ extension FavouritesTab {
         }
         .padding(.horizontal, 8)
         .frame(maxWidth: .infinity, minHeight: 34, alignment: .leading)
-        .background(Color(.secondarySystemBackground).opacity(0.48))
+        .background(RadixTheme.secondaryBackground.opacity(0.48))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 

@@ -1,5 +1,4 @@
 import SwiftUI
-import StoreKit
 
 extension PaywallView {
     var plansSection: some View {
@@ -11,14 +10,14 @@ extension PaywallView {
                 ProgressView("Loading plans...")
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 24)
-                    .background(Color(.secondarySystemBackground))
+                    .background(RadixTheme.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             } else if entitlement.products.isEmpty {
                 Label("Plans are not available right now. Please try again later.", systemImage: "wifi.exclamationmark")
                     .foregroundStyle(.secondary)
                     .padding(18)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.secondarySystemBackground))
+                    .background(RadixTheme.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
                 VStack(spacing: 12) {
@@ -30,7 +29,7 @@ extension PaywallView {
         }
     }
 
-    func planCard(_ product: Product) -> some View {
+    func planCard(_ product: RadixStoreProduct) -> some View {
         let isRadixPlus = product.id == EntitlementManager.myBackupProductID || product.id == EntitlementManager.datedCopiesProductID
 
         return Button {
@@ -102,17 +101,17 @@ extension PaywallView {
             }
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(isRadixPlus ? Color.accentColor.opacity(0.07) : Color(.secondarySystemBackground))
+            .background(isRadixPlus ? Color.accentColor.opacity(0.07) : RadixTheme.secondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isRadixPlus ? Color.accentColor.opacity(0.35) : Color(.separator), lineWidth: isRadixPlus ? 2 : 1)
+                    .stroke(isRadixPlus ? Color.accentColor.opacity(0.35) : RadixTheme.separator, lineWidth: isRadixPlus ? 2 : 1)
             )
         }
         .buttonStyle(.plain)
     }
 
-    func productTitle(_ product: Product) -> String {
+    func productTitle(_ product: RadixStoreProduct) -> String {
         switch product.id {
         case EntitlementManager.datedCopiesProductID:
             return "Radix Plus"
@@ -125,7 +124,7 @@ extension PaywallView {
         }
     }
 
-    func productSubtitle(_ product: Product) -> String {
+    func productSubtitle(_ product: RadixStoreProduct) -> String {
         switch product.id {
         case EntitlementManager.datedCopiesProductID:
             return "Create pages from Album, Files, or pasted text, plus save and restore local snapshots on this device."
@@ -138,7 +137,7 @@ extension PaywallView {
         }
     }
 
-    func productPriceLabel(_ product: Product) -> String {
+    func productPriceLabel(_ product: RadixStoreProduct) -> String {
         switch product.id {
         case EntitlementManager.myBackupProductID:
             return product.displayPrice
@@ -147,7 +146,7 @@ extension PaywallView {
         }
     }
 
-    func productCallToAction(_ product: Product) -> String {
+    func productCallToAction(_ product: RadixStoreProduct) -> String {
         switch product.id {
         case EntitlementManager.datedCopiesProductID:
             return "Unlock Radix Plus"
@@ -160,7 +159,7 @@ extension PaywallView {
         }
     }
 
-    func featureGate(for product: Product) -> EntitlementManager.FeatureGate {
+    func featureGate(for product: RadixStoreProduct) -> EntitlementManager.FeatureGate {
         switch product.id {
         case EntitlementManager.datedCopiesProductID:
             return .datedCopies
@@ -171,7 +170,7 @@ extension PaywallView {
         }
     }
 
-    func planBadgeText(_ product: Product) -> String {
+    func planBadgeText(_ product: RadixStoreProduct) -> String {
         switch product.id {
         case EntitlementManager.datedCopiesProductID:
             return "Page tools"
@@ -182,7 +181,7 @@ extension PaywallView {
         }
     }
 
-    func productActionIcon(_ product: Product) -> String {
+    func productActionIcon(_ product: RadixStoreProduct) -> String {
         switch product.id {
         case EntitlementManager.datedCopiesProductID:
             return "clock.badge.checkmark"

@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 extension FilterGridTab {
     func beginEditing(_ collection: CharacterCollection) {
@@ -43,7 +42,7 @@ extension FilterGridTab {
             sourceType: .manual
         ) else { return }
         if !hasUnlimitedFreePages {
-            freePageUseCount = min(freePageLimit, freePageUseCount + 1)
+            freePageUseCount = RadixCaptureUsage.incrementFreeScanCount(limit: freePageLimit)
         }
         store.selectBrowseCollection(id: collection.id)
         manualCollectionName = ""
@@ -52,10 +51,6 @@ extension FilterGridTab {
     }
 
     func clipboardText() -> String {
-        #if canImport(UIKit)
-        return UIPasteboard.general.string ?? ""
-        #else
-        return ""
-        #endif
+        RadixPlatform.pasteboardString
     }
 }

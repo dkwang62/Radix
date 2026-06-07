@@ -1,8 +1,4 @@
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
-import UniformTypeIdentifiers
 
 enum DataEditSection: String, CaseIterable, Identifiable {
     case myBackup = "iCloud Backup"
@@ -37,12 +33,11 @@ struct DataEditTab: View {
     @State var projectArchiveFileName: String = ProjectArchiveName.baseName()
     @State var reuseExportDocument = BinaryFileDocument(data: Data())
     @State var reuseExportFilename: String = ""
-    @State var reuseExportContentType: UTType = .json
+    @State var reuseExportContentType = RadixFileTypes.json
     @State var showReuseExporter = false
     @State var reuseExportInProgress = false
     @State var reuseExportMessage: String?
-    @AppStorage("dataEditLastOtherDeviceBackupPath") var lastOtherDeviceBackupPath = ""
-    @AppStorage("dataEditLastOtherDeviceBackupDate") var lastOtherDeviceBackupDate = 0.0
+    @State var lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.latest
     @State var activeZipExportKind: AdvancedZipExportKind = .xcodeDataFiles
     @State var activeAdvancedExportKind: AdvancedExportKind = .fullDataset
     @State var advancedToolsTip: AdvancedExportToolsTip?
@@ -79,14 +74,12 @@ struct DataEditTab: View {
 
                         myDataHeader
                             .padding(12)
-                            .background(Color(.systemBackground))
+                            .background(RadixTheme.background)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                        #if !targetEnvironment(macCatalyst)
-                        if UIDevice.current.userInterfaceIdiom == .phone {
+                        if RadixPlatform.isPhone {
                             activeCharacterContext
                         }
-                        #endif
 
                         switch activeDataEditSection {
                         case .myBackup:
@@ -111,28 +104,18 @@ struct DataEditTab: View {
                     .padding(.bottom, 32)
                 }
             }
-            .fileExporter(
-                isPresented: $showReuseExporter,
-                document: reuseExportDocument,
-                contentType: reuseExportContentType,
-                defaultFilename: reuseExportFilename
-            ) { result in
-                reuseExportInProgress = false
-                switch result {
-                case .success(let url):
-                    handleReuseExportSuccess(url)
-                case .failure(let error):
-                    backupError = error.localizedDescription
-                    showBackupAlert = true
-                }
-            }
-            .fileImporter(
-                isPresented: $showRestorePicker,
-                allowedContentTypes: [.json, .data],
-                allowsMultipleSelection: false
-            ) { result in
-                restoreBackup(from: result)
-            }
+            .modifier(DataEditTransferModifier(
+                reuseExportDocument: $reuseExportDocument,
+                reuseExportContentType: $reuseExportContentType,
+                reuseExportFilename: $reuseExportFilename,
+                showReuseExporter: $showReuseExporter,
+                showRestorePicker: $showRestorePicker,
+                reuseExportInProgress: $reuseExportInProgress,
+                backupError: $backupError,
+                showBackupAlert: $showBackupAlert,
+                onExportSuccess: handleReuseExportSuccess,
+                onRestore: restoreBackup
+            ))
             .alert("My Data", isPresented: $showBackupAlert) {
                 Button("OK", role: .cancel) {
                     backupMessage = nil
@@ -161,15 +144,15 @@ struct DataEditTab: View {
             }
             .onAppear {
                 dataEditScrollProxy = proxy
+                lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.latest
             }
         }
     }
 
     func handleReuseExportSuccess(_ url: URL) {
         let base = url.deletingPathExtension().lastPathComponent
-        if reuseExportContentType == .json && reuseExportFilename == "radix_icloud_backup" {
-            lastOtherDeviceBackupPath = url.path
-            lastOtherDeviceBackupDate = Date().timeIntervalSince1970
+        if RadixFileTypes.isJSON(reuseExportContentType) && reuseExportFilename == "radix_icloud_backup" {
+            lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.recordBackup(at: url)
             backupMessage = "Created iCloud backup: \(url.lastPathComponent)"
             showBackupAlert = true
         } else {

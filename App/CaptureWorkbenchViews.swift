@@ -1,16 +1,15 @@
 import SwiftUI
-import PhotosUI
-import UIKit
 
 struct CaptureHeaderView: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
-    @Binding var selectedPhoto: PhotosPickerItem?
     let isProcessing: Bool
     let filePickerTitle: String
     let isImportLocked: Bool
     let freeScanStatusText: String
     let onCamera: () -> Void
     let onLockedImport: () -> Void
+    let onAlbumImage: @MainActor @Sendable (CapturedImage) -> Void
+    let onAlbumError: @MainActor @Sendable (Error) -> Void
     let onFiles: () -> Void
 
     var body: some View {
@@ -45,9 +44,13 @@ struct CaptureHeaderView: View {
                     .buttonStyle(.plain)
                     .disabled(isProcessing)
                 } else {
-                    PhotosPicker(selection: $selectedPhoto, matching: .images) {
-                        CaptureSourceButton(title: "Album", subtitle: "Photos", systemName: "photo.on.rectangle")
-                    }
+                    CapturePhotoImportButton(
+                        title: "Album",
+                        subtitle: "Photos",
+                        systemName: "photo.on.rectangle",
+                        onImage: onAlbumImage,
+                        onError: onAlbumError
+                    )
                     .buttonStyle(.plain)
                     .disabled(isProcessing)
                 }
@@ -116,11 +119,11 @@ private struct CaptureSourceButton: View {
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
         .foregroundStyle(isPrimary ? Color.white : Color.primary)
-        .background(isPrimary ? Color.accentColor : Color(.secondarySystemBackground))
+        .background(isPrimary ? Color.accentColor : RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(isPrimary ? Color.accentColor : Color(.separator).opacity(0.35), lineWidth: 1)
+                .stroke(isPrimary ? Color.accentColor : RadixTheme.separator.opacity(0.35), lineWidth: 1)
         )
     }
 }
@@ -139,7 +142,7 @@ private struct CaptureWorkflowHint: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemBackground).opacity(0.55))
+        .background(RadixTheme.secondaryBackground.opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -162,17 +165,17 @@ private struct CaptureWorkflowHint: View {
 }
 
 struct CaptureImagePreview: View {
-    let image: UIImage?
+    let image: CapturedImage?
 
     var body: some View {
-        if let image {
-            Image(uiImage: image)
+        if let preview = image?.preview {
+            preview
                 .resizable()
                 .scaledToFit()
                 .frame(maxHeight: 260)
                 .frame(maxWidth: .infinity)
                 .padding(8)
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
@@ -309,31 +312,17 @@ private struct SavedImageRow: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
-        .background(Color(.secondarySystemBackground).opacity(0.55))
+        .background(RadixTheme.secondaryBackground.opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     @ViewBuilder
     private var thumbnail: some View {
-        if let image = thumbnailImage {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 34, height: 34)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-        } else {
-            Image(systemName: "photo")
-                .font(ResponsiveFont.body)
-                .foregroundStyle(.secondary)
-                .frame(width: 34, height: 34)
-                .background(Color(.systemBackground).opacity(0.8))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-        }
-    }
-
-    private var thumbnailImage: UIImage? {
-        guard let data = collection.thumbnailJPEGData else { return nil }
-        return UIImage(data: data)
+        RadixThumbnailView(
+            thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData),
+            size: 34,
+            cornerRadius: 6
+        )
     }
 
     private var displayName: String {
@@ -377,7 +366,7 @@ struct CaptureCharactersSection: View {
                 .font(ResponsiveFont.body)
                 .frame(minHeight: 70)
                 .padding(6)
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }

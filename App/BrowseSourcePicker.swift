@@ -1,12 +1,6 @@
 import SwiftUI
-import UIKit
 
 extension FilterGridTab {
-    var browsePageSortOrder: PageCollectionSortOrder {
-        get { PageCollectionSortOrder(rawValue: browsePageSortRawValue) ?? .lastViewed }
-        nonmutating set { browsePageSortRawValue = newValue.rawValue }
-    }
-
     var browseSourceOptions: some View {
         VStack(alignment: .leading, spacing: 6) {
             sourceOptionButton(
@@ -65,7 +59,7 @@ extension FilterGridTab {
             } else {
                 pageSortControl(selection: Binding(
                     get: { browsePageSortOrder },
-                    set: { browsePageSortOrder = $0 }
+                    set: { updateBrowsePageSortOrder($0) }
                 ))
 
                 ScrollView {
@@ -83,16 +77,17 @@ extension FilterGridTab {
         }
     }
 
+    func updateBrowsePageSortOrder(_ order: PageCollectionSortOrder) {
+        browsePageSortOrder = order
+        RadixBrowsePreferences.pageSortOrder = order
+    }
+
     var browseSourceCollectionListMinHeight: CGFloat {
         if isPhoneBrowseLayout {
             return 220
         }
 
-        #if targetEnvironment(macCatalyst)
-        return 320
-        #else
-        return 360
-        #endif
+        return RadixPlatform.isDesktop ? 320 : 360
     }
 
     var browseSourceCollectionListMaxHeight: CGFloat {
@@ -100,11 +95,7 @@ extension FilterGridTab {
             return 320
         }
 
-        #if targetEnvironment(macCatalyst)
-        return 460
-        #else
-        return 520
-        #endif
+        return RadixPlatform.isDesktop ? 460 : 520
     }
 
     func pastePageActionSubtitle(_ unlockedText: String) -> String {
@@ -143,7 +134,7 @@ extension FilterGridTab {
         return SourceCollectionRow(
             collection: collection,
             isSelected: isSelected,
-            thumbnail: sourceThumbnailImage(for: collection),
+            thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData),
             dateMode: browsePageSortOrder
         ) {
             store.selectBrowseCollection(id: collection.id)
@@ -153,11 +144,6 @@ extension FilterGridTab {
         } onDelete: {
             pendingDeleteCollection = collection
         }
-    }
-
-    func sourceThumbnailImage(for collection: CharacterCollection) -> UIImage? {
-        guard let data = collection.thumbnailJPEGData else { return nil }
-        return UIImage(data: data)
     }
 
     func sourceOptionButton(

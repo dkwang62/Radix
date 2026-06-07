@@ -174,7 +174,7 @@ extension RadixStore {
     // MARK: - Persistence
 
     func loadCollections() {
-        guard let data = UserDefaults.standard.data(forKey: collectionsKey),
+        guard let data = preferences.data(forKey: collectionsKey),
               let decoded = try? JSONDecoder().decode([CharacterCollection].self, from: data) else {
             allCollections = []
             return
@@ -185,7 +185,7 @@ extension RadixStore {
             return copy
         }.filter { !$0.characters.isEmpty }
         sortCollections()
-        if let saved = UserDefaults.standard.string(forKey: selectedAICollectionKey),
+        if let saved = preferences.string(forKey: selectedAICollectionKey),
            let id = UUID(uuidString: saved),
            collection(id: id) != nil {
             selectedAICollectionID = id
@@ -196,15 +196,15 @@ extension RadixStore {
 
     func persistCollections() {
         if let data = try? JSONEncoder().encode(allCollections) {
-            UserDefaults.standard.set(data, forKey: collectionsKey)
+            preferences.set(data, forKey: collectionsKey)
         }
     }
 
     func persistSelectedAICollection() {
         if let selectedAICollectionID {
-            UserDefaults.standard.set(selectedAICollectionID.uuidString, forKey: selectedAICollectionKey)
+            preferences.set(selectedAICollectionID.uuidString, forKey: selectedAICollectionKey)
         } else {
-            UserDefaults.standard.removeObject(forKey: selectedAICollectionKey)
+            preferences.removeObject(forKey: selectedAICollectionKey)
         }
     }
 

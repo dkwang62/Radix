@@ -35,7 +35,7 @@ struct PhoneContextPreview: View {
                             .foregroundStyle(Color.accentColor)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(Color(.secondarySystemBackground))
+                            .background(RadixTheme.secondaryBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .buttonStyle(.plain)
@@ -81,7 +81,7 @@ struct PhoneContextPreview: View {
                 .foregroundStyle(Color.accentColor)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
@@ -96,7 +96,7 @@ struct PhoneContextPreview: View {
                     .foregroundStyle(Color.accentColor)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(Color(.secondarySystemBackground))
+                    .background(RadixTheme.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             .buttonStyle(.plain)

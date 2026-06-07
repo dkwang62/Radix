@@ -1,7 +1,4 @@
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 extension RootView {
     var phoneDetailNavigationBinding: Binding<Bool> {
@@ -232,14 +229,12 @@ extension RootView {
         }()
 
         return Button {
-            #if !targetEnvironment(macCatalyst)
-            if UIDevice.current.userInterfaceIdiom == .phone {
+            if RadixPlatform.isPhone {
                 if id != 2 {
                     store.previewCharacter = nil
                     store.showiPhoneDetail = false
                 }
             }
-            #endif
             switch id {
             case 0:
                 store.route = .capture

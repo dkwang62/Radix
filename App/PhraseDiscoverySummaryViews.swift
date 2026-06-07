@@ -44,7 +44,7 @@ struct CaptureWorkflowProgressView: View {
             }
         }
         .padding(10)
-        .background(Color(.secondarySystemBackground).opacity(0.65))
+        .background(RadixTheme.secondaryBackground.opacity(0.65))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
@@ -60,7 +60,7 @@ struct PhraseDiscoveryCandidateList: View {
                 Divider()
             }
         }
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
@@ -81,11 +81,11 @@ struct AddedPhraseResultList: View {
                     Divider()
                 }
             }
-            .background(Color(.systemBackground))
+            .background(RadixTheme.background)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color(.separator), lineWidth: 0.5)
+                    .stroke(RadixTheme.separator, lineWidth: 0.5)
             )
         }
     }

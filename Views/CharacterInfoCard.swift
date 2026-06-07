@@ -1,7 +1,4 @@
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 struct CharacterInfoCard: View {
     @EnvironmentObject var store: RadixStore
@@ -46,21 +43,17 @@ struct CharacterInfoCard: View {
     }
 
     var isPhone: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone
-        #endif
+        RadixPlatform.isPhone
     }
 
     var body: some View {
         standardContent
             .padding(16)
-            .background(Color(.systemBackground))
+            .background(RadixTheme.background)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color(.separator), lineWidth: 1)
+                    .stroke(RadixTheme.separator, lineWidth: 1)
             )
             .onChange(of: item.character) { _, _ in
                 variantIndex = 0

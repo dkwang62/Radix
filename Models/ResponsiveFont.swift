@@ -1,7 +1,4 @@
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 public struct ResponsiveFont {
     #if targetEnvironment(macCatalyst)
@@ -20,11 +17,7 @@ public struct ResponsiveFont {
     }
     #else
     @MainActor private static var isIPad: Bool {
-        #if canImport(UIKit)
-        UIDevice.current.userInterfaceIdiom == .pad
-        #else
-        false
-        #endif
+        RadixPlatform.interfaceIdiom == .tablet
     }
 
     public static let title = Font.title

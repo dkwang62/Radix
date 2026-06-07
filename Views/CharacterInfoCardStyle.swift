@@ -40,7 +40,7 @@ extension CharacterInfoCard {
             .minimumScaleFactor(0.75)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .background(Color(.secondarySystemBackground))
+            .background(RadixTheme.secondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 

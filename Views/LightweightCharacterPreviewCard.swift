@@ -46,7 +46,7 @@ struct LightweightCharacterPreviewCard: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color(.separator), lineWidth: 0.5)
+                        .stroke(RadixTheme.separator, lineWidth: 0.5)
                 )
 
             Text(displayDefinition)
@@ -62,11 +62,7 @@ struct LightweightCharacterPreviewCard: View {
     }
 
     private var isPhone: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone
-        #endif
+        RadixPlatform.isPhone
     }
 
     private var animationCanvasSize: Int {

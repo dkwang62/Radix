@@ -34,7 +34,7 @@ extension PaywallView {
             }
         }
         .padding(20)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
@@ -60,7 +60,7 @@ extension PaywallView {
             }
         }
         .padding(18)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -80,7 +80,7 @@ extension PaywallView {
             .font(ResponsiveFont.caption.weight(.semibold))
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .background(Color(.systemBackground).opacity(0.8))
+            .background(RadixTheme.background.opacity(0.8))
             .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

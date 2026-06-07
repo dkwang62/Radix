@@ -86,7 +86,7 @@ extension DataEditTab {
             }
         }
         .padding()
-        .background(Color(.secondarySystemBackground).opacity(0.4))
+        .background(RadixTheme.secondaryBackground.opacity(0.4))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -98,17 +98,17 @@ extension DataEditTab {
                 .foregroundStyle(.secondary)
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.systemBackground))
+                .background(RadixTheme.background)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
 
     var otherDeviceSavedStatusRow: some View {
-        let hasSavedFile = !lastOtherDeviceBackupPath.isEmpty && lastOtherDeviceBackupDate > 0
-        let fileURL = URL(fileURLWithPath: lastOtherDeviceBackupPath)
+        let hasSavedFile = lastOtherDeviceBackupMetadata.hasBackup
+        let fileURL = URL(fileURLWithPath: lastOtherDeviceBackupMetadata.path)
         let filename = fileURL.lastPathComponent
         let relativeText = hasSavedFile
-            ? LocalDataSnapshot.relativeText(for: Date(timeIntervalSince1970: lastOtherDeviceBackupDate))
+            ? LocalDataSnapshot.relativeText(for: Date(timeIntervalSince1970: lastOtherDeviceBackupMetadata.timestamp))
             : nil
 
         return HStack(spacing: 10) {
@@ -125,7 +125,7 @@ extension DataEditTab {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(hasSavedFile ? Color.green.opacity(0.1) : Color(.systemBackground))
+        .background(hasSavedFile ? Color.green.opacity(0.1) : RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -141,7 +141,7 @@ extension DataEditTab {
                 let data = try dataExportService.exportPortableBackup(store.portableBackupPackage())
                 reuseExportDocument = BinaryFileDocument(data: data)
                 reuseExportFilename = "radix_icloud_backup"
-                reuseExportContentType = .json
+                reuseExportContentType = RadixFileTypes.json
                 reuseExportInProgress = false
                 showReuseExporter = true
             } catch {

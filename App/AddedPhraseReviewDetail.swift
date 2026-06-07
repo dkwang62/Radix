@@ -28,10 +28,10 @@ extension AddedPhraseReviewSheet {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemBackground).opacity(0.55))
+        .background(RadixTheme.secondaryBackground.opacity(0.55))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color(.separator).opacity(0.35), lineWidth: 1)
+                .stroke(RadixTheme.separator.opacity(0.35), lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }

@@ -37,7 +37,7 @@ struct DataAITemplatesSection: View {
                             .font(ResponsiveFont.body)
                             .frame(height: 150)
                             .padding(6)
-                            .background(Color(.systemBackground))
+                            .background(RadixTheme.background)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                         .padding(.vertical, 4)
@@ -49,7 +49,7 @@ struct DataAITemplatesSection: View {
             }
         }
         .padding()
-        .background(Color(.secondarySystemBackground).opacity(0.4))
+        .background(RadixTheme.secondaryBackground.opacity(0.4))
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
@@ -86,7 +86,7 @@ struct DataAITemplatesSection: View {
                 .font(ResponsiveFont.body)
                 .frame(height: height)
                 .padding(6)
-                .background(Color(.systemBackground))
+                .background(RadixTheme.background)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }

@@ -22,11 +22,7 @@ struct ComponentsRootsPopover: View {
     }
 
     private var isPhone: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone
-        #endif
+        RadixPlatform.isPhone
     }
 
     var body: some View {

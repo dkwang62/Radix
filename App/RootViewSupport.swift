@@ -49,7 +49,7 @@ func emptyStateCard(systemImage: String, title: String, message: String) -> some
     }
     .padding()
     .frame(maxWidth: .infinity, alignment: .center)
-    .background(Color(.secondarySystemBackground))
+    .background(RadixTheme.secondaryBackground)
     .clipShape(RoundedRectangle(cornerRadius: 8))
     .padding()
 }
@@ -116,7 +116,7 @@ struct CompactScriptFilterControl: View {
             Text(title)
                 .font(ResponsiveFont.subheadline.weight(.semibold))
                 .frame(width: 34, height: 34)
-                .background(isActive ? Color.accentColor : Color(.secondarySystemBackground))
+                .background(isActive ? Color.accentColor : RadixTheme.secondaryBackground)
                 .foregroundStyle(isActive ? .white : .primary)
                 .clipShape(RoundedRectangle(cornerRadius: 9))
         }
@@ -213,7 +213,7 @@ struct RadixWelcomeView: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemBackground).opacity(0.7))
+        .background(RadixTheme.secondaryBackground.opacity(0.7))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

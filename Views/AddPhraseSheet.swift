@@ -59,7 +59,7 @@ struct AddPhraseSheet: View {
             Spacer()
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
     }
 
     private var modePicker: some View {
@@ -71,7 +71,7 @@ struct AddPhraseSheet: View {
         .pickerStyle(.segmented)
         .padding(.horizontal)
         .padding(.bottom, 12)
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
     }
 
     @ViewBuilder

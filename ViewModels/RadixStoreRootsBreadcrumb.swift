@@ -1,5 +1,4 @@
 import Foundation
-import UIKit
 
 /*
  RADIX STORE — ROOTS BREADCRUMB (REMEMBERED BAR)
@@ -177,27 +176,23 @@ extension RadixStore {
     // MARK: - Platform highlight mode
 
     var shouldHighlightBrowseImageMemoryOnly: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone
+        RadixPlatform.isPhone
             && route == .search
             && homeTab == .filter
             && selectedBrowseCollection != nil
-        #endif
     }
 
     // MARK: - Persistence
 
     func loadRootBreadcrumb() {
-        guard let saved = UserDefaults.standard.array(forKey: rootBreadcrumbKey) as? [String] else { return }
+        guard let saved = preferences.array(forKey: rootBreadcrumbKey) as? [String] else { return }
         let loaded = sanitizedRootBreadcrumb(saved)
         rootBreadcrumb = loaded
         rootBreadcrumbIndex = loaded.isEmpty ? 0 : min(rootBreadcrumbIndex, loaded.count - 1)
     }
 
     func persistRootBreadcrumb() {
-        UserDefaults.standard.set(rootBreadcrumb, forKey: rootBreadcrumbKey)
+        preferences.set(rootBreadcrumb, forKey: rootBreadcrumbKey)
     }
 
     func applyRootBreadcrumb(_ characters: [String]) {
@@ -249,7 +244,7 @@ extension RadixStore {
         searchHistory = queries
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
-        UserDefaults.standard.set(searchHistory, forKey: searchHistoryKey)
+        preferences.set(searchHistory, forKey: searchHistoryKey)
     }
 
     func seedBreadcrumbFromFavorites() {

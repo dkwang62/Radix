@@ -51,14 +51,14 @@ struct AddPhraseInputForm: View {
                         .font(ResponsiveFont.body)
                         .frame(height: 80)
                         .padding(8)
-                        .background(Color(.secondarySystemBackground).opacity(0.6))
+                        .background(RadixTheme.secondaryBackground.opacity(0.6))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 0.5))
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(RadixTheme.separator, lineWidth: 0.5))
                         .focused($focused, equals: .meanings)
                 }
                 }
                 .padding(12)
-                .background(Color(.secondarySystemBackground).opacity(0.45))
+                .background(RadixTheme.secondaryBackground.opacity(0.45))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 VStack(alignment: .leading, spacing: 12) {
@@ -70,7 +70,7 @@ struct AddPhraseInputForm: View {
                 }
                 }
                 .padding(12)
-                .background(Color(.secondarySystemBackground).opacity(0.35))
+                .background(RadixTheme.secondaryBackground.opacity(0.35))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .padding()
@@ -106,9 +106,9 @@ struct AddPhraseInputForm: View {
             }
         }
         .frame(height: 140)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(RadixTheme.separator, lineWidth: 1))
     }
 
     private var actionRow: some View {
@@ -125,7 +125,7 @@ struct AddPhraseInputForm: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
     }
 
     private var cancelButton: some View {

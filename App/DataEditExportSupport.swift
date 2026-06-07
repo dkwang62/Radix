@@ -55,6 +55,8 @@ struct LocalDataSnapshot: Identifiable, Hashable {
 }
 
 struct LocalDataSnapshotStore {
+    static let maximumSnapshotCount = 20
+
     func snapshots() throws -> [LocalDataSnapshot] {
         let directory = try snapshotsDirectory()
         let urls = try FileManager.default.contentsOfDirectory(
@@ -73,6 +75,7 @@ struct LocalDataSnapshotStore {
         let filename = "radix-local-\(Self.filenameFormatter.string(from: createdAt)).json"
         let url = directory.appendingPathComponent(filename)
         try data.write(to: url, options: .atomic)
+        try pruneSnapshots()
         return try snapshots()
     }
 
@@ -105,6 +108,15 @@ struct LocalDataSnapshotStore {
             url: url,
             byteCount: values?.fileSize ?? 0
         )
+    }
+
+    private func pruneSnapshots() throws {
+        let snapshots = try snapshots()
+        guard snapshots.count > Self.maximumSnapshotCount else { return }
+
+        for snapshot in snapshots.dropFirst(Self.maximumSnapshotCount) {
+            try FileManager.default.removeItem(at: snapshot.url)
+        }
     }
 
     private static let filenameFormatter: DateFormatter = {
@@ -146,7 +158,7 @@ struct DataBackupActionButton: View {
     let background: Color
     let border: Color
     var isLocked: Bool = false
-    var lockBadge: String = "$19"
+    var lockBadge: String = "Plus"
 
     var body: some View {
         HStack(spacing: 10) {
@@ -174,7 +186,7 @@ struct DataBackupActionButton: View {
                     .font(ResponsiveFont.caption.bold())
                     .padding(.horizontal, 8)
                     .padding(.vertical, 5)
-                    .background(Color(.systemBackground).opacity(0.75))
+                    .background(RadixTheme.background.opacity(0.75))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
@@ -236,7 +248,7 @@ struct DataEditPathCard: View {
             }
             .padding(12)
             .frame(maxWidth: .infinity, minHeight: 78, alignment: .leading)
-            .background(Color(.systemBackground))
+            .background(RadixTheme.background)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
@@ -295,7 +307,7 @@ struct AdvancedExportOptionRow: View {
                     subtitle: isLocked ? "\(subtitle) Unlock Advanced Pro to export." : subtitle,
                     systemName: isLocked ? "lock.fill" : systemName,
                     color: color,
-                    badge: isLocked ? "$99" : nil
+                    badge: isLocked ? "Pro" : nil
                 )
             }
             .buttonStyle(.plain)

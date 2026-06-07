@@ -3,12 +3,12 @@ import SwiftUI
 struct InteractionHintRow: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
-    @AppStorage("hasAnimatedInteractionHintRowV2") private var hasAnimatedInteractionHintRow = false
 
     let previewText: String
     let memoryText: String
     let copyText: String
 
+    @State private var hasAnimatedInteractionHintRow = RadixInteractionPreferences.hasAnimatedHintRow
     @State private var isPulsing = false
     @State private var pulseTask: Task<Void, Never>?
 
@@ -24,7 +24,7 @@ struct InteractionHintRow: View {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color(.secondarySystemBackground))
+                .fill(RadixTheme.secondaryBackground)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
@@ -36,6 +36,7 @@ struct InteractionHintRow: View {
         .scaleEffect(isPulsing ? 1.025 : 1.0)
         .shadow(color: Color.accentColor.opacity(isPulsing ? 0.16 : 0), radius: 8)
         .onAppear {
+            hasAnimatedInteractionHintRow = RadixInteractionPreferences.hasAnimatedHintRow
             schedulePulseIfNeeded()
         }
         .onChange(of: scenePhase) { _, newPhase in
@@ -84,6 +85,7 @@ struct InteractionHintRow: View {
             guard !Task.isCancelled else { return }
 
             hasAnimatedInteractionHintRow = true
+            RadixInteractionPreferences.hasAnimatedHintRow = true
 
             guard !reduceMotion else {
                 pulseTask = nil

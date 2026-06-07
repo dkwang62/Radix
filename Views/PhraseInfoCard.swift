@@ -5,7 +5,7 @@ struct PhraseInfoCard: View {
     let phrase: PhraseItem
     var onSelectCharacter: ((String) -> Void)?
     var onDone: (() -> Void)?
-    @AppStorage("phraseInfoAnimationScript") var animationScript = "simplified"
+    @State var animationScript = RadixPhrasePreferences.animationScript
     @State var isEditingNotes = false
     @State var editableNotes = ""
     @State var hasLocalNotes = false
@@ -27,11 +27,11 @@ struct PhraseInfoCard: View {
     var body: some View {
         phraseContent
             .padding(16)
-            .background(Color(.systemBackground))
+            .background(RadixTheme.background)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color(.separator), lineWidth: 1)
+                    .stroke(RadixTheme.separator, lineWidth: 1)
             )
             .sheet(isPresented: $showPhraseTableSheet) {
                 PhraseTableSheet(
@@ -50,9 +50,13 @@ struct PhraseInfoCard: View {
                 selectedAnimationPage = 0
             }
             .onAppear {
+                animationScript = RadixPhrasePreferences.animationScript
                 if !hasLocalNotes {
                     editableNotes = phrase.notes
                 }
+            }
+            .onChange(of: animationScript) { _, newValue in
+                RadixPhrasePreferences.animationScript = newValue
             }
     }
 

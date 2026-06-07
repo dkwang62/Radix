@@ -15,6 +15,7 @@ extension FilterGridTab {
         guard !hasShownBrowseInteractionHintRow else { return }
         showBrowseInteractionHint = true
         hasShownBrowseInteractionHintRow = true
+        RadixBrowsePreferences.hasShownInteractionHint = true
         store.showBrowseHelp = true
     }
 

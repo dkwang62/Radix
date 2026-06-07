@@ -144,7 +144,7 @@ struct SmartResultsGrid: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 6)
-                            .background(isActive ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
+                            .background(isActive ? Color.accentColor.opacity(0.18) : RadixTheme.secondaryBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 6))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 6)

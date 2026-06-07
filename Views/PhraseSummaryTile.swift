@@ -253,7 +253,7 @@ struct PhraseSummaryTile: View {
         if showsReviewStatus, reviewStatus == .checked { return Color.accentColor.opacity(0.10) }
         if showsReviewStatus, reviewStatus == .hidden { return Color.orange.opacity(0.10) }
         if showsReviewStatus, reviewStatus == .completed { return Color.purple.opacity(0.10) }
-        return Color(.secondarySystemBackground).opacity(0.62)
+        return RadixTheme.secondaryBackground.opacity(0.62)
     }
 
     private var tileStroke: Color {

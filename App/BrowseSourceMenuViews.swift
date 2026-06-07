@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 struct BrowseImageScriptToggle: View {
     @Binding var mode: String
@@ -21,7 +20,7 @@ struct BrowseImageScriptToggle: View {
             Text(title)
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .frame(width: 28, height: 28)
-                .background(mode == targetMode ? Color.accentColor : Color(.secondarySystemBackground))
+                .background(mode == targetMode ? Color.accentColor : RadixTheme.secondaryBackground)
                 .foregroundStyle(mode == targetMode ? .white : .primary)
                 .clipShape(RoundedRectangle(cornerRadius: 7))
         }
@@ -94,7 +93,7 @@ struct SourceCollectionRow: View {
 
     let collection: CharacterCollection
     let isSelected: Bool
-    let thumbnail: UIImage?
+    let thumbnail: RadixThumbnail?
     var dateMode: PageCollectionSortOrder = .lastViewed
     let onSelect: () -> Void
     var onDelete: (() -> Void)? = nil
@@ -144,7 +143,7 @@ struct SourceCollectionRow: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
-        .background(isSelected ? Color.accentColor.opacity(0.10) : Color(.secondarySystemBackground).opacity(0.55))
+        .background(isSelected ? Color.accentColor.opacity(0.10) : RadixTheme.secondaryBackground.opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -160,20 +159,13 @@ struct SourceCollectionRow: View {
 
     @ViewBuilder
     private var sourceThumbnail: some View {
-        if let thumbnail {
-            Image(uiImage: thumbnail)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 34, height: 34)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-        } else {
-            Image(systemName: collection.isFavorite ? "star.fill" : "photo")
-                .font(ResponsiveFont.body)
-                .foregroundStyle(collection.isFavorite ? Color.yellow : Color.secondary)
-                .frame(width: 34, height: 34)
-                .background(Color(.systemBackground).opacity(0.8))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-        }
+        RadixThumbnailView(
+            thumbnail: thumbnail,
+            size: 34,
+            cornerRadius: 6,
+            placeholderSystemImage: collection.isFavorite ? "star.fill" : "photo",
+            placeholderColor: collection.isFavorite ? Color.yellow : Color.secondary
+        )
     }
 }
 
@@ -191,7 +183,7 @@ struct SourceMenuRow: View {
                 .font(ResponsiveFont.body)
                 .foregroundStyle(iconColor)
                 .frame(width: 34, height: 34)
-                .background(Color(.systemBackground).opacity(0.8))
+                .background(RadixTheme.background.opacity(0.8))
                 .clipShape(RoundedRectangle(cornerRadius: 6))
 
             VStack(alignment: .leading, spacing: 2) {
@@ -218,7 +210,7 @@ struct SourceMenuRow: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(isSelected ? Color.accentColor.opacity(0.10) : Color(.secondarySystemBackground).opacity(0.55))
+        .background(isSelected ? Color.accentColor.opacity(0.10) : RadixTheme.secondaryBackground.opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

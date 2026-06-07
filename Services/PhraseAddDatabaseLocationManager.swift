@@ -3,8 +3,13 @@ import Foundation
 final class PhraseAddDatabaseLocationManager {
     private let overrideKey = "radix.phrasesAddOverridePath"
     private let overrideBookmarkKey = "radix.phrasesAddOverrideBookmark"
+    private let preferences: RadixPreferences
     private var overrideURL: URL?
     private var activeSecurityScopedURL: URL?
+
+    init(preferences: RadixPreferences = .standard) {
+        self.preferences = preferences
+    }
 
     deinit {
         stopAccessingActiveSecurityScope()
@@ -28,7 +33,7 @@ final class PhraseAddDatabaseLocationManager {
             try syncWorkingAddDBFromCustomSource(overrideURL, to: localURL)
             return localURL
         }
-        if let bookmarkData = UserDefaults.standard.data(forKey: overrideBookmarkKey) {
+        if let bookmarkData = preferences.data(forKey: overrideBookmarkKey) {
             var isStale = false
             if let resolvedURL = try? URL(
                 resolvingBookmarkData: bookmarkData,
@@ -42,24 +47,24 @@ final class PhraseAddDatabaseLocationManager {
                         if isStale {
                             persistSecurityScopedBookmark(for: resolvedURL)
                         }
-                        UserDefaults.standard.set(resolvedURL.path, forKey: overrideKey)
+                        preferences.set(resolvedURL.path, forKey: overrideKey)
                         try syncWorkingAddDBFromCustomSource(resolvedURL, to: localURL)
                         return localURL
                     }
                 } else {
-                    UserDefaults.standard.removeObject(forKey: overrideBookmarkKey)
+                    preferences.removeObject(forKey: overrideBookmarkKey)
                 }
             }
         }
-        if let saved = UserDefaults.standard.string(forKey: overrideKey) {
+        if let saved = preferences.string(forKey: overrideKey) {
             let url = URL(fileURLWithPath: saved)
             if fileManager.fileExists(atPath: url.path) {
                 overrideURL = url
                 try syncWorkingAddDBFromCustomSource(url, to: localURL)
                 return localURL
             }
-            UserDefaults.standard.removeObject(forKey: overrideKey)
-            UserDefaults.standard.removeObject(forKey: overrideBookmarkKey)
+            preferences.removeObject(forKey: overrideKey)
+            preferences.removeObject(forKey: overrideBookmarkKey)
         }
         return localURL
     }
@@ -67,15 +72,15 @@ final class PhraseAddDatabaseLocationManager {
     func resetToDefault() {
         stopAccessingActiveSecurityScope()
         overrideURL = nil
-        UserDefaults.standard.removeObject(forKey: overrideKey)
-        UserDefaults.standard.removeObject(forKey: overrideBookmarkKey)
+        preferences.removeObject(forKey: overrideKey)
+        preferences.removeObject(forKey: overrideBookmarkKey)
     }
 
     func applyOverride(_ url: URL) throws -> URL {
         stopAccessingActiveSecurityScope()
         _ = beginAccessingSecurityScopeIfNeeded(for: url)
         overrideURL = url
-        UserDefaults.standard.set(url.path, forKey: overrideKey)
+        preferences.set(url.path, forKey: overrideKey)
         persistSecurityScopedBookmark(for: url)
 
         let localURL = resolvedAddDBURL(fileManager: .default)
@@ -135,10 +140,10 @@ final class PhraseAddDatabaseLocationManager {
 
     private func persistSecurityScopedBookmark(for url: URL) {
         guard let bookmarkData = try? url.bookmarkData(options: bookmarkCreationOptions, includingResourceValuesForKeys: nil, relativeTo: nil) else {
-            UserDefaults.standard.removeObject(forKey: overrideBookmarkKey)
+            preferences.removeObject(forKey: overrideBookmarkKey)
             return
         }
-        UserDefaults.standard.set(bookmarkData, forKey: overrideBookmarkKey)
+        preferences.set(bookmarkData, forKey: overrideBookmarkKey)
     }
 
     private var bookmarkCreationOptions: URL.BookmarkCreationOptions {

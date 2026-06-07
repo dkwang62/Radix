@@ -45,7 +45,7 @@ extension CharacterDetailView {
             .font(ResponsiveFont.subheadline.weight(.semibold))
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .background(Color(.secondarySystemBackground))
+            .background(RadixTheme.secondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .frame(minHeight: 42)
         }
@@ -60,7 +60,7 @@ extension CharacterDetailView {
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .frame(minHeight: 42)
         }
@@ -75,7 +75,7 @@ extension CharacterDetailView {
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .frame(minHeight: 42)
         }

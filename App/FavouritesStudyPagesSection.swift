@@ -1,7 +1,4 @@
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 extension FavouritesTab {
     var scannedPagesStudySection: some View {
@@ -27,17 +24,12 @@ extension FavouritesTab {
         SourceCollectionRow(
             collection: collection,
             isSelected: store.selectedBrowseCollectionID == collection.id,
-            thumbnail: studyThumbnailImage(for: collection),
+            thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData),
             dateMode: studyPageSortOrder
         ) {
             store.goToBrowse()
             store.selectBrowseCollection(id: collection.id)
         }
-    }
-
-    func studyThumbnailImage(for collection: CharacterCollection) -> UIImage? {
-        guard let data = collection.thumbnailJPEGData else { return nil }
-        return UIImage(data: data)
     }
 
     func pageSortControl(selection: Binding<PageCollectionSortOrder>) -> some View {

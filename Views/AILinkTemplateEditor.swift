@@ -67,7 +67,7 @@ extension AILinkView {
             }
         }
         .padding()
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
@@ -79,7 +79,7 @@ extension AILinkView {
                 .font(.system(size: 14, design: .monospaced))
                 .frame(minHeight: minHeight)
                 .padding(8)
-                .background(Color(.tertiarySystemBackground))
+                .background(RadixTheme.tertiaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
@@ -111,7 +111,7 @@ extension AILinkView {
             .font(.system(size: 13, design: .monospaced))
             .frame(minHeight: 120)
             .padding(6)
-            .background(Color(.tertiarySystemBackground))
+            .background(RadixTheme.tertiaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .padding(10)

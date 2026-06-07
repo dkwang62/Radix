@@ -19,7 +19,7 @@ extension QuickCharacterEditorView {
             }
         }
         .padding(.vertical, 4)
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
     }
 
     var cancelButton: some View {

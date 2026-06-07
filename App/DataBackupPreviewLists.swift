@@ -1,7 +1,4 @@
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 extension DataBackupPreviewSection {
     @ViewBuilder
@@ -86,16 +83,11 @@ extension DataBackupPreviewSection {
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(store.allCollections) { collection in
-                    BackupSavedPageRow(collection: collection, thumbnail: backupThumbnailImage(for: collection))
+                    BackupSavedPageRow(collection: collection, thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData))
                 }
             }
         }
         .padding(.top, 8)
-    }
-
-    func backupThumbnailImage(for collection: CharacterCollection) -> UIImage? {
-        guard let data = collection.thumbnailJPEGData else { return nil }
-        return UIImage(data: data)
     }
 
     var backupPhraseColumns: [GridItem] {

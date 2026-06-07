@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 enum BrowseGridDeviceClass {
     case mac
@@ -7,11 +6,11 @@ enum BrowseGridDeviceClass {
     case iPhone
 
     @MainActor static var current: BrowseGridDeviceClass {
-        #if targetEnvironment(macCatalyst)
-        return .mac
-        #else
-        return UIDevice.current.userInterfaceIdiom == .pad ? .iPad : .iPhone
-        #endif
+        switch RadixPlatform.interfaceIdiom {
+        case .desktop: return .mac
+        case .tablet:  return .iPad
+        case .phone:   return .iPhone
+        }
     }
 }
 

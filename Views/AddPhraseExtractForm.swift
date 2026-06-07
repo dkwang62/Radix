@@ -56,7 +56,7 @@ struct AddPhraseExtractForm: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
     }
 
     @ViewBuilder

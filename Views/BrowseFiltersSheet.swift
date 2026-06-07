@@ -63,7 +63,7 @@ struct BrowseFiltersSheet: View {
             .frame(minWidth: 80)
         }
         .padding(.horizontal, 8)
-        .background(Color(.secondarySystemBackground).opacity(0.5))
+        .background(RadixTheme.secondaryBackground.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -82,7 +82,7 @@ struct BrowseFiltersSheet: View {
             .frame(minWidth: 80)
         }
         .padding(.horizontal, 8)
-        .background(Color(.secondarySystemBackground).opacity(0.5))
+        .background(RadixTheme.secondaryBackground.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

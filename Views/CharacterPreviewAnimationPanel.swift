@@ -41,7 +41,7 @@ struct CharacterPreviewAnimationPanel: View {
                     .frame(height: isVertical ? 120 : 100)
                 }
                 .background(Color.secondary.opacity(0.05))
-                .border(Color(.separator).opacity(0.2), width: 0.5)
+                .border(RadixTheme.separator.opacity(0.2), width: 0.5)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     onSelectCharacter(char)
@@ -66,7 +66,7 @@ struct CharacterPreviewAnimationPanel: View {
             .frame(maxWidth: .infinity)
         }
         .background(Color.secondary.opacity(0.05))
-        .border(Color(.separator).opacity(0.2), width: 0.5)
+        .border(RadixTheme.separator.opacity(0.2), width: 0.5)
         .frame(width: isVertical ? nil : 130)
         .frame(maxWidth: isVertical ? .infinity : 130)
     }

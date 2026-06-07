@@ -57,7 +57,7 @@ extension DataEditTab {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(latestSnapshot == nil ? Color(.secondarySystemBackground) : Color.green.opacity(0.1))
+        .background(latestSnapshot == nil ? RadixTheme.secondaryBackground : Color.green.opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -113,7 +113,7 @@ extension DataEditTab {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(10)
-                    .background(Color(.secondarySystemBackground))
+                    .background(RadixTheme.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
                 VStack(spacing: 8) {
@@ -142,7 +142,7 @@ extension DataEditTab {
             }
         }
         .padding(12)
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -154,7 +154,7 @@ extension DataEditTab {
                 .foregroundStyle(.secondary)
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
@@ -231,7 +231,7 @@ struct LocalDataSnapshotRow: View {
             snapshotActions
         }
         .padding(10)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 

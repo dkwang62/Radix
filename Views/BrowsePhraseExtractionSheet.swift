@@ -70,7 +70,7 @@ struct BrowsePhraseExtractionSheet: View {
                     .padding(10)
             }
             .frame(minHeight: 150, maxHeight: 210)
-            .background(Color(.secondarySystemBackground))
+            .background(RadixTheme.secondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
@@ -84,7 +84,7 @@ struct BrowsePhraseExtractionSheet: View {
                 .font(.system(size: 15, design: .monospaced))
                 .scrollContentBackground(.hidden)
                 .padding(10)
-                .background(Color(.secondarySystemBackground))
+                .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .overlay(alignment: .topLeading) {
                     if output.isEmpty {

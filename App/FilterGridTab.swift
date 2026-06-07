@@ -1,15 +1,14 @@
 import SwiftUI
-import UIKit
 
 struct FilterGridTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
     @Environment(\.horizontalSizeClass) var sizeClass
     @Environment(\.openURL) var openURL
-    @AppStorage("hasShownBrowseInteractionHintRowV1") var hasShownBrowseInteractionHintRow = false
-    @AppStorage("browseImageScriptMode") var browseImageScriptMode = "simplified"
-    @AppStorage("browsePageSortOrder") var browsePageSortRawValue = PageCollectionSortOrder.lastViewed.rawValue
-    @AppStorage("radixFreeCameraScanCount") var freePageUseCount = 0
+    @State var hasShownBrowseInteractionHintRow = RadixBrowsePreferences.hasShownInteractionHint
+    @State var browseImageScriptMode = RadixBrowsePreferences.imageScriptMode
+    @State var browsePageSortOrder = RadixBrowsePreferences.pageSortOrder
+    @State var freePageUseCount = RadixCaptureUsage.freeScanCount
     @State var showBrowseFilters = false
     @State var showManualCollectionSheet = false
     @State var showBrowseSource = false
@@ -31,22 +30,11 @@ struct FilterGridTab: View {
     @State var lastTappedImageOffset: Int?
 
     var isRunningOnMac: Bool {
-        #if targetEnvironment(macCatalyst)
-        return true
-        #else
-        if #available(iOS 14.0, *) {
-            return ProcessInfo.processInfo.isiOSAppOnMac
-        }
-        return false
-        #endif
+        RadixPlatform.isRunningOnMac
     }
 
     var isPhoneBrowseLayout: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone
-        #endif
+        RadixPlatform.isPhone
     }
 
     var isPhoneBrowsePreviewActive: Bool {
@@ -95,11 +83,9 @@ struct FilterGridTab: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 10) {
                             Color.clear.frame(height: 0).id("browseTop")
-                            #if !targetEnvironment(macCatalyst)
-                            if UIDevice.current.userInterfaceIdiom == .phone {
+                            if RadixPlatform.isPhone {
                                 phoneBrowsePreview(proxy: proxy)
                             }
-                            #endif
                         }
                         .padding(.horizontal)
                     }
@@ -144,7 +130,14 @@ struct FilterGridTab: View {
             .onChange(of: store.browseMemoryHighlightOffsets) { _, _ in
                 scrollToPendingBrowseTarget(proxy: proxy)
             }
+            .onChange(of: browseImageScriptMode) { _, newValue in
+                RadixBrowsePreferences.imageScriptMode = newValue
+            }
             .onAppear {
+                hasShownBrowseInteractionHintRow = RadixBrowsePreferences.hasShownInteractionHint
+                browseImageScriptMode = RadixBrowsePreferences.imageScriptMode
+                browsePageSortOrder = RadixBrowsePreferences.pageSortOrder
+                freePageUseCount = RadixCaptureUsage.freeScanCount
                 prepareBrowseHintIfNeeded()
                 scrollToPendingBrowseTarget(proxy: proxy)
             }

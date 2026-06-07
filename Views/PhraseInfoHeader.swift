@@ -25,7 +25,7 @@ extension PhraseInfoCard {
                         .font(ResponsiveFont.subheadline.weight(.semibold))
                         .foregroundStyle(store.isPhraseFavorite(phrase.word) ? .yellow : .secondary)
                         .frame(width: 32, height: 32)
-                        .background(Color(.secondarySystemBackground))
+                        .background(RadixTheme.secondaryBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .buttonStyle(.plain)
@@ -43,7 +43,7 @@ extension PhraseInfoCard {
                             .font(ResponsiveFont.subheadline.weight(.semibold))
                             .foregroundStyle(.secondary)
                             .frame(width: 32, height: 32)
-                            .background(Color(.secondarySystemBackground))
+                            .background(RadixTheme.secondaryBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)

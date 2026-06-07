@@ -114,7 +114,7 @@ extension AddedPhraseReviewSheet {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
-                    .tint(selectedTool == option ? option.color : Color(.systemGray5))
+                    .tint(selectedTool == option ? option.color : RadixTheme.systemGray5)
                     .foregroundStyle(selectedTool == option ? Color.white : Color.primary)
                     .accessibilityLabel("Mark as \(option.title)")
                     .help("Mark as \(option.title)")
@@ -162,7 +162,7 @@ extension AddedPhraseReviewSheet {
         }
         .padding(.horizontal, 10)
         .frame(height: 38)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 

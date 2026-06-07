@@ -76,7 +76,7 @@ struct AddPhraseReview: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
     }
 
     private var addMoreButton: some View {

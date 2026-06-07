@@ -2,17 +2,12 @@ import SwiftUI
 
 extension SmartSearchTab {
     var isPhone: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return UIDevice.current.userInterfaceIdiom == .phone
-        #endif
+        RadixPlatform.isPhone
     }
 
     @ViewBuilder
     var phoneSearchPreviewIfNeeded: some View {
-        #if !targetEnvironment(macCatalyst)
-        if UIDevice.current.userInterfaceIdiom == .phone,
+        if RadixPlatform.isPhone,
            let current = searchDetailPreviewCharacter ?? searchPreviewCharacter,
            store.item(for: current) != nil {
             standardPhoneCharacterPreview(
@@ -24,16 +19,11 @@ extension SmartSearchTab {
                 }
             )
         }
-        #endif
     }
 
     var isPhoneSearchPreviewActive: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        guard UIDevice.current.userInterfaceIdiom == .phone else { return false }
+        guard RadixPlatform.isPhone else { return false }
         return store.activeSidebarPhrasePreview != nil || searchDetailPreviewCharacter != nil || searchPreviewCharacter != nil
-        #endif
     }
 
     @ViewBuilder

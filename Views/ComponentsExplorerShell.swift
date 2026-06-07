@@ -1,7 +1,4 @@
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 struct ComponentsExplorerShell: View {
     @EnvironmentObject var store: RadixStore
@@ -13,14 +10,7 @@ struct ComponentsExplorerShell: View {
     var seedOverride: String?
 
     var isRunningOnMac: Bool {
-        #if targetEnvironment(macCatalyst)
-        return true
-        #else
-        if #available(iOS 14.0, *) {
-            return ProcessInfo.processInfo.isiOSAppOnMac
-        }
-        return false
-        #endif
+        RadixPlatform.isRunningOnMac
     }
 
     var hasRootContext: Bool {
@@ -28,11 +18,7 @@ struct ComponentsExplorerShell: View {
     }
 
     var body: some View {
-        #if targetEnvironment(macCatalyst)
-        let isPhone = false
-        #else
-        let isPhone = UIDevice.current.userInterfaceIdiom == .phone
-        #endif
+        let isPhone = RadixPlatform.isPhone
 
         ScrollViewReader { proxy in
             ScrollView {
@@ -96,17 +82,11 @@ struct ComponentsExplorerShell: View {
         .onChange(of: store.rootMaxStroke) { _, _ in reloadRootContextIfNeeded() }
         .onChange(of: store.rootRadicalFilter) { _, _ in reloadRootContextIfNeeded() }
         .onChange(of: store.rootStructureFilter) { _, _ in reloadRootContextIfNeeded() }
-        #if targetEnvironment(macCatalyst)
         .onChange(of: store.previewCharacter) { _, newValue in
-            syncSeed(with: newValue, resetHistory: false)
-        }
-        #else
-        .onChange(of: store.previewCharacter) { _, newValue in
-            if UIDevice.current.userInterfaceIdiom != .phone {
+            if !RadixPlatform.isPhone {
                 syncSeed(with: newValue, resetHistory: false)
             }
         }
-        #endif
         .sheet(isPresented: $showRootFilters) {
             rootFiltersSheet
         }
@@ -123,7 +103,7 @@ struct ComponentsExplorerShell: View {
                     .font(ResponsiveFont.subheadline.weight(.semibold))
                     .padding(.horizontal, 12)
                     .padding(.vertical, 10)
-                    .background(Color(.secondarySystemBackground))
+                    .background(RadixTheme.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .buttonStyle(.plain)

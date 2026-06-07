@@ -45,7 +45,7 @@ extension ComponentsExplorerShell {
             }
         }
         .padding(10)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -106,7 +106,7 @@ extension ComponentsExplorerShell {
             }
         }
         .padding(10)
-        .background(Color(.secondarySystemBackground))
+        .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -167,10 +167,10 @@ extension ComponentsExplorerShell {
                 .foregroundStyle(.tertiary)
         }
         .padding(8)
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
-            RoundedRectangle(cornerRadius: 8).stroke(Color(.separator), lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 8).stroke(RadixTheme.separator, lineWidth: 0.5)
         )
         .contentShape(RoundedRectangle(cornerRadius: 8))
         .onTapGesture {

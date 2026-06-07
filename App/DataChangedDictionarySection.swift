@@ -1,7 +1,4 @@
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 struct DataChangedDictionarySection: View {
     @EnvironmentObject private var store: RadixStore
@@ -54,7 +51,7 @@ struct DataChangedDictionarySection: View {
             }
         }
         .padding()
-        .background(Color(.secondarySystemBackground).opacity(0.4))
+        .background(RadixTheme.secondaryBackground.opacity(0.4))
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
@@ -157,7 +154,7 @@ struct DataChangedDictionarySection: View {
             }
         }
         .padding(10)
-        .background(Color(.systemBackground))
+        .background(RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .contentShape(Rectangle())
         .simultaneousGesture(TapGesture().onEnded {
