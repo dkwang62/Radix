@@ -7481,6 +7481,37 @@
         "瞭"
       ]
     },
+    "萬" : {
+      "meta" : {
+        "IDC" : "⿱艹禺",
+        "compounds" : [
+
+        ],
+        "decomposition" : "⿱艹禺",
+        "definition" : "ten thousand; innumerable",
+        "etymology" : {
+          "details" : "",
+          "hint" : ""
+        },
+        "notes" : [
+
+        ],
+        "pinyin" : "wàn",
+        "radical" : "艹",
+        "strokes" : 13,
+        "variant" : "万"
+      },
+      "related_characters" : [
+        "勵",
+        "厲",
+        "癘",
+        "糲",
+        "萬",
+        "蠣",
+        "躉",
+        "邁"
+      ]
+    },
     "衍" : {
       "meta" : {
         "IDC" : "⿻行氵",
