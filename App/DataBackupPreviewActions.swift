@@ -36,6 +36,15 @@ extension DataBackupPreviewSection {
         }
     }
 
+    func openBackupSavedPage(_ collection: CharacterCollection) {
+        store.goToBrowse()
+        store.selectBrowseCollection(id: collection.id)
+    }
+
+    func deleteBackupSavedPage(_ collection: CharacterCollection) {
+        store.deleteCollection(id: collection.id)
+    }
+
     var isPhone: Bool {
         RadixPlatform.isPhone
     }

@@ -76,17 +76,12 @@ extension DataBackupPreviewSection {
     }
 
     var backupSavedPagesRows: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            if store.allCollections.isEmpty {
-                Text("No saved images.")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-            } else {
-                ForEach(store.allCollections) { collection in
-                    BackupSavedPageRow(collection: collection, thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData))
-                }
-            }
-        }
+        SavedImageRows(
+            collections: store.allCollections,
+            emptyDescription: "Scan or import an image.",
+            onOpen: openBackupSavedPage,
+            onDelete: deleteBackupSavedPage
+        )
         .padding(.top, 8)
     }
 

@@ -242,29 +242,45 @@ struct SavedImageList: View {
 
     var body: some View {
         CaptureSection("Scanned Pages") {
-            if collections.isEmpty {
-                ContentUnavailableView(
-                    "No Pages",
-                    systemImage: "photo.on.rectangle.angled",
-                    description: Text("Scan or import an image.")
-                )
-                .frame(maxWidth: .infinity)
-            } else {
-                LazyVStack(spacing: 6) {
-                    ForEach(collections) { collection in
-                        SavedImageRow(
-                            collection: collection,
-                            onOpen: { onOpen(collection) },
-                            onDelete: { onDelete(collection) }
-                        )
-                    }
+            SavedImageRows(
+                collections: collections,
+                emptyDescription: "Scan or import an image.",
+                onOpen: onOpen,
+                onDelete: onDelete
+            )
+        }
+    }
+}
+
+struct SavedImageRows: View {
+    let collections: [CharacterCollection]
+    var emptyDescription: String
+    let onOpen: (CharacterCollection) -> Void
+    let onDelete: (CharacterCollection) -> Void
+
+    var body: some View {
+        if collections.isEmpty {
+            ContentUnavailableView(
+                "No Pages",
+                systemImage: "photo.on.rectangle.angled",
+                description: Text(emptyDescription)
+            )
+            .frame(maxWidth: .infinity)
+        } else {
+            LazyVStack(spacing: 6) {
+                ForEach(collections) { collection in
+                    SavedImageRow(
+                        collection: collection,
+                        onOpen: { onOpen(collection) },
+                        onDelete: { onDelete(collection) }
+                    )
                 }
             }
         }
     }
 }
 
-private struct SavedImageRow: View {
+struct SavedImageRow: View {
     static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium

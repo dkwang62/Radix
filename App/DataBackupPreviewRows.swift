@@ -47,25 +47,6 @@ struct BackupPhraseRow: View {
     }
 }
 
-struct BackupSavedPageRow: View {
-    let collection: CharacterCollection
-    let thumbnail: RadixThumbnail?
-
-    var body: some View {
-        HStack(spacing: 8) {
-            RadixThumbnailView(thumbnail: thumbnail, size: 36, cornerRadius: 6)
-
-            Text(collection.name)
-                .font(ResponsiveFont.caption)
-            Spacer()
-            Text("\(collection.characters.count) chars")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-        }
-        .padding(.vertical, 2)
-    }
-}
-
 struct BackupSummaryLine: View {
     let title: String
     let value: String
