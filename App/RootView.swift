@@ -94,6 +94,11 @@ struct RootView: View {
                 store.flushPendingDataEditAutoSave()
             }
         }
+        .onOpenURL { url in
+            if let query = searchQuery(from: url) {
+                openSearch(query: query)
+            }
+        }
         .onChange(of: hasSeenWelcome) { _, newValue in
             RadixRootPreferences.hasSeenWelcome = newValue
         }
@@ -106,6 +111,21 @@ struct RootView: View {
             store.prepareFirstInteractionWarmup()
             refreshQuickLocalSnapshots()
         }
+    }
+
+    @MainActor
+    private func openSearch(query: String) {
+        store.goToSearchRoot()
+        store.query = query
+        store.performSearch(customQuery: query)
+    }
+
+    private func searchQuery(from url: URL) -> String? {
+        guard url.scheme == "radix", url.host == "search" else { return nil }
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        let query = components?.queryItems?.first { $0.name == "q" }?.value ?? ""
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
     }
 
 }

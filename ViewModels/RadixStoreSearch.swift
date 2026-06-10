@@ -43,13 +43,19 @@ extension RadixStore {
                 definitionPhraseResults = []
             } else {
                 results = componentRepo.search(query: parsedQuery.effectiveText, scriptFilter: .any)
+                let characterPhrases = containsChineseCharacters(parsedQuery.effectiveText)
+                    ? phraseRepo.searchByCharacters(term: phraseStorageWord(parsedQuery.effectiveText))
+                    : []
                 let meaningPhrases = parsedQuery.effectiveText.count >= 2
                     ? phraseRepo.searchByDefinition(term: parsedQuery.effectiveText)
                     : []
                 let pinyinPhrases = normalizedCompactQuery(parsedQuery.effectiveText).count > 2
                     ? phraseRepo.searchByPinyin(term: parsedQuery.effectiveText)
                     : []
-                smartPhraseResults = mergePhraseResults(primary: meaningPhrases, secondary: pinyinPhrases)
+                smartPhraseResults = mergePhraseResults(
+                    primary: characterPhrases,
+                    secondary: mergePhraseResults(primary: meaningPhrases, secondary: pinyinPhrases)
+                )
                 definitionCharacterResults = []
                 definitionPhraseResults = []
             }
