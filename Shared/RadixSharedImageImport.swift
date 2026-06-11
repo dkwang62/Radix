@@ -3,13 +3,22 @@ import Foundation
 enum RadixSharedImageImport {
     static let appGroupIdentifier = "group.com.desmond.radix"
     static let incomingDirectoryName = "IncomingSharedImages"
+    static let incomingTextDirectoryName = "IncomingSharedText"
 
     static var importURL: URL {
         URL(string: "radix://import-shared-image")!
     }
 
+    static var textImportURL: URL {
+        URL(string: "radix://import-shared-text")!
+    }
+
     static func isImportURL(_ url: URL) -> Bool {
         url.scheme == "radix" && url.host == "import-shared-image"
+    }
+
+    static func isTextImportURL(_ url: URL) -> Bool {
+        url.scheme == "radix" && url.host == "import-shared-text"
     }
 
     static func incomingDirectory(create: Bool = false) -> URL? {
@@ -36,8 +45,37 @@ enum RadixSharedImageImport {
             .appendingPathExtension(ext)
     }
 
+    static func incomingTextDirectory(create: Bool = false) -> URL? {
+        guard let container = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: appGroupIdentifier
+        ) else {
+            return nil
+        }
+
+        let directory = container.appendingPathComponent(incomingTextDirectoryName, isDirectory: true)
+        if create {
+            try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        }
+        return directory
+    }
+
+    static func makeIncomingTextURL() -> URL? {
+        incomingTextDirectory(create: true)?
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("txt")
+    }
+
     static func pendingImageURLs() -> [URL] {
         guard let directory = incomingDirectory() else { return [] }
+        return sortedPendingURLs(in: directory)
+    }
+
+    static func pendingTextURLs() -> [URL] {
+        guard let directory = incomingTextDirectory() else { return [] }
+        return sortedPendingURLs(in: directory)
+    }
+
+    private static func sortedPendingURLs(in directory: URL) -> [URL] {
         let urls = (try? FileManager.default.contentsOfDirectory(
             at: directory,
             includingPropertiesForKeys: [.creationDateKey],

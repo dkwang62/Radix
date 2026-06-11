@@ -50,4 +50,40 @@ extension RadixStore {
             route = .capture
         }
     }
+
+    @MainActor
+    func importPendingSharedTextFromShareExtension() {
+        let pendingURLs = RadixSharedImageImport.pendingTextURLs()
+        guard !pendingURLs.isEmpty else { return }
+
+        var lastImportedCollectionID: UUID?
+        for url in pendingURLs {
+            defer { try? FileManager.default.removeItem(at: url) }
+            guard let text = try? String(contentsOf: url, encoding: .utf8) else { continue }
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { continue }
+
+            let simplified = ScriptTextConverter.simplified(trimmed)
+            let sourceCandidates = simplified == trimmed ? [trimmed] : [trimmed, simplified]
+            for sourceText in sourceCandidates {
+                if let collection = createCollection(
+                    name: "",
+                    sourceText: sourceText,
+                    sourceType: .imported
+                ) {
+                    lastImportedCollectionID = collection.id
+                    break
+                }
+            }
+        }
+
+        if let lastImportedCollectionID {
+            goToBrowse()
+            selectBrowseCollection(id: lastImportedCollectionID)
+            if RadixPlatform.isPhone {
+                clearBrowsePreview()
+                showiPhoneDetail = false
+            }
+        }
+    }
 }

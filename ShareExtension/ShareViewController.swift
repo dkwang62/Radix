@@ -7,12 +7,12 @@ final class ShareViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
-        importSharedImage()
+        importSharedItem()
     }
 
     private func configureView() {
         view.backgroundColor = .systemBackground
-        statusLabel.text = "Sending image to Radix..."
+        statusLabel.text = "Sending to Radix..."
         statusLabel.textAlignment = .center
         statusLabel.font = .preferredFont(forTextStyle: .headline)
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -24,13 +24,18 @@ final class ShareViewController: UIViewController {
         ])
     }
 
-    private func importSharedImage() {
-        guard let provider = firstImageProvider() else {
-            finish(message: "No image found.", openRadix: false)
+    private func importSharedItem() {
+        if let provider = firstImageProvider() {
+            loadImageData(from: provider)
             return
         }
 
-        loadImageData(from: provider)
+        if let textProvider = firstTextProvider() {
+            loadText(from: textProvider)
+            return
+        }
+
+        finish(message: "Share an image or selected text.", openURL: nil)
     }
 
     private func firstImageProvider() -> NSItemProvider? {
@@ -40,22 +45,58 @@ final class ShareViewController: UIViewController {
             .first { $0.hasItemConformingToTypeIdentifier(UTType.image.identifier) }
     }
 
+    private func firstTextProvider() -> NSItemProvider? {
+        extensionContext?.inputItems
+            .compactMap { $0 as? NSExtensionItem }
+            .flatMap { $0.attachments ?? [] }
+            .first { provider in
+                provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier)
+                    || provider.hasItemConformingToTypeIdentifier(UTType.text.identifier)
+            }
+    }
+
     @MainActor
     private func handleLoadedImageData(_ result: Result<Data, Error>) {
         switch result {
         case .failure:
-            finish(message: "Unable to read image.", openRadix: false)
+            finish(message: "Unable to read image.", openURL: nil)
         case .success(let data):
             guard let destinationURL = RadixSharedImageImport.makeIncomingImageURL(fileExtension: "jpg") else {
-                finish(message: "Unable to access Radix storage.", openRadix: false)
+                finish(message: "Unable to access Radix storage.", openURL: nil)
                 return
             }
 
             do {
                 try data.write(to: destinationURL, options: [.atomic])
-                finish(message: "Opening Radix...", openRadix: true)
+                finish(message: "Image sent. Open Radix to create the page.", openURL: RadixSharedImageImport.importURL)
             } catch {
-                finish(message: "Unable to send image.", openRadix: false)
+                finish(message: "Unable to send image.", openURL: nil)
+            }
+        }
+    }
+
+    @MainActor
+    private func handleLoadedText(_ result: Result<String, Error>) {
+        switch result {
+        case .failure:
+            finish(message: "Unable to read selected text.", openURL: nil)
+        case .success(let text):
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else {
+                finish(message: "Selected text was empty.", openURL: nil)
+                return
+            }
+
+            guard let destinationURL = RadixSharedImageImport.makeIncomingTextURL() else {
+                finish(message: "Unable to access Radix storage.", openURL: nil)
+                return
+            }
+
+            do {
+                try trimmed.write(to: destinationURL, atomically: true, encoding: .utf8)
+                finish(message: "Text sent. Open Radix to create the page.", openURL: RadixSharedImageImport.textImportURL)
+            } catch {
+                finish(message: "Unable to send text.", openURL: nil)
             }
         }
     }
@@ -63,7 +104,7 @@ final class ShareViewController: UIViewController {
     private func loadImageData(from provider: NSItemProvider) {
         let typeIdentifier = UTType.image.identifier
         guard provider.hasItemConformingToTypeIdentifier(typeIdentifier) else {
-            finish(message: "No image found.", openRadix: false)
+            finish(message: "No image found.", openURL: nil)
             return
         }
 
@@ -90,6 +131,24 @@ final class ShareViewController: UIViewController {
                         self?.handleLoadedImageData(result)
                     }
                 }
+            }
+        }
+    }
+
+    private func loadText(from provider: NSItemProvider) {
+        let typeIdentifier = provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier)
+            ? UTType.plainText.identifier
+            : UTType.text.identifier
+        guard provider.hasItemConformingToTypeIdentifier(typeIdentifier) else {
+            finish(message: "No selected text found.", openURL: nil)
+            return
+        }
+
+        let sendableProvider = SendableItemProvider(provider)
+        sendableProvider.provider.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { [weak self] item, error in
+            let result = Self.makeText(from: item, error: error)
+            Task { @MainActor in
+                self?.handleLoadedText(result)
             }
         }
     }
@@ -140,17 +199,41 @@ final class ShareViewController: UIViewController {
         throw NSError(domain: "RadixShareExtension", code: 1)
     }
 
-    private func finish(message: String, openRadix: Bool) {
+    nonisolated private static func makeText(from item: NSSecureCoding?, error: Error?) -> Result<String, Error> {
+        if let error {
+            return .failure(error)
+        }
+
+        if let text = item as? String {
+            return .success(text)
+        }
+
+        if let data = item as? Data,
+           let text = String(data: data, encoding: .utf8) {
+            return .success(text)
+        }
+
+        if let url = item as? URL,
+           let text = try? String(contentsOf: url, encoding: .utf8) {
+            return .success(text)
+        }
+
+        return .failure(NSError(domain: "RadixShareExtension", code: 2))
+    }
+
+    private func finish(message: String, openURL: URL?) {
         DispatchQueue.main.async {
             self.statusLabel.text = message
-            guard openRadix else {
+            guard let openURL else {
                 self.extensionContext?.completeRequest(returningItems: nil)
                 return
             }
 
-            self.extensionContext?.open(RadixSharedImageImport.importURL) { didOpen in
+            self.extensionContext?.open(openURL) { didOpen in
                 DispatchQueue.main.async {
-                    self.statusLabel.text = didOpen ? "Opening Radix..." : "Open Radix to finish import."
+                    if didOpen {
+                        self.statusLabel.text = "Opening Radix..."
+                    }
                     self.extensionContext?.completeRequest(returningItems: nil)
                 }
             }

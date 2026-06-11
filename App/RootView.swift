@@ -93,7 +93,7 @@ struct RootView: View {
             if newPhase == .inactive || newPhase == .background {
                 store.flushPendingDataEditAutoSave()
             } else if newPhase == .active {
-                importPendingSharedImagesIfNeeded()
+                importPendingSharedInputsIfNeeded()
             }
         }
         .onOpenURL { url in
@@ -101,6 +101,8 @@ struct RootView: View {
                 openSearch(query: query)
             } else if RadixSharedImageImport.isImportURL(url) {
                 importPendingSharedImagesIfNeeded()
+            } else if RadixSharedImageImport.isTextImportURL(url) {
+                importPendingSharedTextIfNeeded()
             }
         }
         .onChange(of: hasSeenWelcome) { _, newValue in
@@ -114,7 +116,7 @@ struct RootView: View {
             hasUsedSidebarNavigation = RadixRootPreferences.hasUsedSidebarNavigation
             store.prepareFirstInteractionWarmup()
             refreshQuickLocalSnapshots()
-            importPendingSharedImagesIfNeeded()
+            importPendingSharedInputsIfNeeded()
         }
     }
 
@@ -138,6 +140,19 @@ struct RootView: View {
         Task {
             await store.importPendingSharedImagesFromShareExtension()
         }
+    }
+
+    private func importPendingSharedInputsIfNeeded() {
+        if !importPendingSharedTextIfNeeded() {
+            importPendingSharedImagesIfNeeded()
+        }
+    }
+
+    @discardableResult
+    private func importPendingSharedTextIfNeeded() -> Bool {
+        guard !RadixSharedImageImport.pendingTextURLs().isEmpty else { return false }
+        store.importPendingSharedTextFromShareExtension()
+        return true
     }
 
 }
