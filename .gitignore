@@ -10,6 +10,7 @@ DerivedData/
 *.xcscheme
 *.plist
 !App/Info.plist
+!ShareExtension/Info.plist
 
 # macOS
 # ---------

@@ -15,6 +15,7 @@ targets:
       base:
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: App/Info.plist
+        CODE_SIGN_ENTITLEMENTS: App/Radix.entitlements
         PRODUCT_BUNDLE_IDENTIFIER: com.desmond.radix
         CODE_SIGN_STYLE: Automatic
         MARKETING_VERSION: 1.0.0
@@ -23,10 +24,16 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         SUPPORTS_MACCATALYST: YES
         TARGETED_DEVICE_FAMILY: 1,2
+    dependencies:
+      - target: RadixShareExtension
+        embed: true
+        destinationFilters:
+          - iOS
     sources:
       - path: App
       - path: Models
       - path: Services
+      - path: Shared
       - path: ViewModels
       - path: Views
       - path: Resources
@@ -43,3 +50,23 @@ targets:
         buildPhase: resources
       - path: ./SUBTLEX-CH-CHR.txt
         buildPhase: resources
+  RadixShareExtension:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    settings:
+      base:
+        PRODUCT_NAME: RadixShareExtension
+        PRODUCT_MODULE_NAME: RadixShareExtension
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: ShareExtension/Info.plist
+        CODE_SIGN_ENTITLEMENTS: ShareExtension/RadixShareExtension.entitlements
+        PRODUCT_BUNDLE_IDENTIFIER: com.desmond.radix.shareextension
+        CODE_SIGN_STYLE: Automatic
+        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 2
+        SKIP_INSTALL: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
+    sources:
+      - path: ShareExtension
+      - path: Shared

@@ -92,11 +92,15 @@ struct RootView: View {
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .inactive || newPhase == .background {
                 store.flushPendingDataEditAutoSave()
+            } else if newPhase == .active {
+                importPendingSharedImagesIfNeeded()
             }
         }
         .onOpenURL { url in
             if let query = searchQuery(from: url) {
                 openSearch(query: query)
+            } else if RadixSharedImageImport.isImportURL(url) {
+                importPendingSharedImagesIfNeeded()
             }
         }
         .onChange(of: hasSeenWelcome) { _, newValue in
@@ -110,6 +114,7 @@ struct RootView: View {
             hasUsedSidebarNavigation = RadixRootPreferences.hasUsedSidebarNavigation
             store.prepareFirstInteractionWarmup()
             refreshQuickLocalSnapshots()
+            importPendingSharedImagesIfNeeded()
         }
     }
 
@@ -126,6 +131,13 @@ struct RootView: View {
         let query = components?.queryItems?.first { $0.name == "q" }?.value ?? ""
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
+    }
+
+    private func importPendingSharedImagesIfNeeded() {
+        guard !RadixSharedImageImport.pendingImageURLs().isEmpty else { return }
+        Task {
+            await store.importPendingSharedImagesFromShareExtension()
+        }
     }
 
 }
