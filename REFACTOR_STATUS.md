@@ -5,6 +5,31 @@ Last verified build: `xcodebuild -project Radix.xcodeproj -scheme Radix -destina
 
 ---
 
+## Deferred post-review UX direction
+
+Do not include the following changes in the current Apple Review build `1.0.0 (2)`.
+That submission should complete with the current implementation.
+
+When starting the next beta, UX refactor, or navigation cleanup, prioritize this direction:
+
+- Treat **Take Photo** as a primary action, not as a full tab destination.
+- Add a large, obvious **Take Photo** button to the main Radix iPhone UI.
+- Keep this iPhone-first; do not force the same behavior onto iPad or Mac without a separate design pass.
+- Tapping **Take Photo** should open the existing camera capture flow.
+- After OCR/page creation, route the user to **Browse** with the newly created page selected.
+- Move existing image/file import affordances into **Browse** rather than making them global primary actions.
+- Eventually remove or hide the Scan tab from primary navigation once the new Take Photo entry point is proven.
+- Keep the existing Photos/Files/Safari/Chrome share extension behavior as a secondary import path.
+
+Guardrails for future Codex work:
+
+- Do not redesign features while Apple Review for `1.0.0 (2)` is pending.
+- Do not change bundle IDs, signing, App Groups, or TestFlight/App Store settings for this UX refactor.
+- Implement the next beta behind a normal build increment, such as `1.0.0 (3)` or `1.0.1`.
+- Preserve the current review baseline unless the user explicitly asks to replace the submitted build.
+
+---
+
 ## Post-checkpoint update
 
 Desktop layout sizing now uses the platform facade in another app/view cluster:
