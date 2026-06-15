@@ -194,7 +194,7 @@ extension PaywallView {
 
     func badge(_ text: String, emphasized: Bool = false) -> some View {
         Text(text)
-            .font(.caption2.weight(.bold))
+            .font(ResponsiveFont.caption2.weight(.bold))
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(emphasized ? Color.accentColor.opacity(0.14) : Color.orange.opacity(0.14))

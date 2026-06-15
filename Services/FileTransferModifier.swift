@@ -14,6 +14,26 @@ struct FileTransferModifier: ViewModifier {
     let onProfileImport: (Data) throws -> Void
     let onAddPhrasesImport: (URL) throws -> Void
 
+    private var alertTitle: String {
+        guard let message = importExportMessage?.lowercased() else {
+            return "Radix"
+        }
+
+        if message.contains("snapshot") || message.contains("saved locally") || message.contains("restored local") {
+            return "Snapshot"
+        }
+
+        if message.contains("backup") {
+            return "Backup"
+        }
+
+        if message.contains("phrase") {
+            return "Phrases"
+        }
+
+        return "Radix"
+    }
+
     func body(content: Content) -> some View {
         content
             .fileExporter(
@@ -75,7 +95,7 @@ struct FileTransferModifier: ViewModifier {
                     importExportError = error.localizedDescription
                 }
             }
-            .alert("Data Transfer", isPresented: $showImportExportAlert) {
+            .alert(alertTitle, isPresented: $showImportExportAlert) {
                 Button("OK", role: .cancel) { }
             } message: {
                 if let msg = importExportMessage { Text(msg) }

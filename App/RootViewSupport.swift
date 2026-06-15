@@ -74,53 +74,38 @@ struct CompactScriptFilterControl: View {
     let selection: ScriptFilter
     let onChange: (ScriptFilter) -> Void
 
-    private var simplifiedActive: Bool {
-        selection == .any || selection == .simplified
+    private var label: String {
+        switch selection {
+        case .any: return "简繁"
+        case .simplified: return "简"
+        case .traditional: return "繁"
+        }
     }
 
-    private var traditionalActive: Bool {
-        selection == .any || selection == .traditional
+    private var nextSelection: ScriptFilter {
+        switch selection {
+        case .any: return .simplified
+        case .simplified: return .traditional
+        case .traditional: return .any
+        }
     }
 
     var body: some View {
-        HStack(spacing: 4) {
-            scriptButton("简", isActive: simplifiedActive) {
-                switch selection {
-                case .any:
-                    onChange(.simplified)
-                case .simplified:
-                    onChange(.any)
-                case .traditional:
-                    onChange(.any)
-                }
-            }
-
-            scriptButton("繁", isActive: traditionalActive) {
-                switch selection {
-                case .any:
-                    onChange(.traditional)
-                case .simplified:
-                    onChange(.any)
-                case .traditional:
-                    onChange(.any)
-                }
-            }
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Character set")
-        .accessibilityValue(selection.rawValue)
-    }
-
-    private func scriptButton(_ title: String, isActive: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
+        Button {
+            onChange(nextSelection)
+        } label: {
+            Text(label)
                 .font(ResponsiveFont.subheadline.weight(.semibold))
-                .frame(width: 34, height: 34)
-                .background(isActive ? Color.accentColor : RadixTheme.secondaryBackground)
-                .foregroundStyle(isActive ? .white : .primary)
+                .frame(minWidth: selection == .any ? 44 : 34, minHeight: 34)
+                .padding(.horizontal, selection == .any ? 2 : 0)
+                .background(Color.accentColor)
+                .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 9))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("Character set")
+        .accessibilityValue(selection.rawValue)
+        .accessibilityHint("Cycles between all, simplified, and traditional")
     }
 }
 

@@ -108,7 +108,7 @@ extension RootView {
         if let current = store.previewCharacter,
            let item = store.item(for: current) {
             AILinkView(item: item)
-        } else if store.selectedAICollection != nil {
+        } else if store.activeSidebarPhrasePreview != nil || store.selectedAICollection != nil {
             AILinkView(item: nil)
         } else {
             emptyStateCard(

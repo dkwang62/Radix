@@ -2,11 +2,12 @@ import SwiftUI
 
 enum RadixTileMetrics {
     static let cornerRadius: CGFloat = 8
-    static let compactHeight: CGFloat = 52
+    static let compactHeight: CGFloat = 56
     static let compactSpacing: CGFloat = 4
     static let defaultPhraseWidth: CGFloat = 180
     static let browsePhraseWidth: CGFloat = 260
-    static let characterPinyinSize: CGFloat = 11
+    static let defaultCharacterSize: CGFloat = 24
+    static let characterPinyinSize: CGFloat = 13
     static let borderWidth: CGFloat = 2
     static let activeBorderWidth: CGFloat = 2.5
 }
@@ -114,6 +115,7 @@ struct PhraseSummaryTile: View {
     let isActive: Bool
     let minimumHeight: CGFloat
     let maximumWidth: CGFloat
+    let characterFontSize: CGFloat
     let textAlignment: HorizontalAlignment
     let onSelect: (() -> Void)?
     let onToggleFavorite: (() -> Void)?
@@ -124,8 +126,9 @@ struct PhraseSummaryTile: View {
         phrase: PhraseItem,
         isFavorite: Bool? = nil,
         isActive: Bool = false,
-        minimumHeight: CGFloat = 46,
+        minimumHeight: CGFloat = RadixTileMetrics.compactHeight,
         maximumWidth: CGFloat = RadixTileMetrics.defaultPhraseWidth,
+        characterFontSize: CGFloat = RadixTileMetrics.defaultCharacterSize,
         textAlignment: HorizontalAlignment = .leading,
         onSelect: (() -> Void)? = nil,
         onToggleFavorite: (() -> Void)? = nil,
@@ -137,6 +140,7 @@ struct PhraseSummaryTile: View {
         self.isActive = isActive
         self.minimumHeight = minimumHeight
         self.maximumWidth = maximumWidth
+        self.characterFontSize = characterFontSize
         self.textAlignment = textAlignment
         self.onSelect = onSelect
         self.onToggleFavorite = onToggleFavorite
@@ -149,8 +153,9 @@ struct PhraseSummaryTile: View {
         pinyin: String,
         isFavorite: Bool? = nil,
         isActive: Bool = false,
-        minimumHeight: CGFloat = 46,
+        minimumHeight: CGFloat = RadixTileMetrics.compactHeight,
         maximumWidth: CGFloat = RadixTileMetrics.defaultPhraseWidth,
+        characterFontSize: CGFloat = RadixTileMetrics.defaultCharacterSize,
         textAlignment: HorizontalAlignment = .leading,
         onSelect: (() -> Void)? = nil,
         onToggleFavorite: (() -> Void)? = nil,
@@ -163,6 +168,7 @@ struct PhraseSummaryTile: View {
         self.isActive = isActive
         self.minimumHeight = minimumHeight
         self.maximumWidth = maximumWidth
+        self.characterFontSize = characterFontSize
         self.textAlignment = textAlignment
         self.onSelect = onSelect
         self.onToggleFavorite = onToggleFavorite
@@ -222,12 +228,12 @@ struct PhraseSummaryTile: View {
     private var phraseTextStack: some View {
         VStack(alignment: textAlignment, spacing: 2) {
             Text(phraseText)
-                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .font(characterFont)
                 .lineLimit(1)
                 .minimumScaleFactor(0.72)
 
             Text(displayPinyin)
-                .font(ResponsiveFont.caption2)
+                .font(pinyinFont)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.72)
@@ -235,6 +241,14 @@ struct PhraseSummaryTile: View {
         .padding(.horizontal, 10)
         .frame(minWidth: 96, maxWidth: maximumWidth, minHeight: minimumHeight, alignment: frameAlignment)
         .contentShape(Rectangle())
+    }
+
+    private var characterFont: Font {
+        .system(size: characterFontSize)
+    }
+
+    private var pinyinFont: Font {
+        ResponsiveFont.tinySystem(size: RadixTileMetrics.characterPinyinSize, weight: .semibold)
     }
 
     private var frameAlignment: Alignment {

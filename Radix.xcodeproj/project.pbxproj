@@ -141,6 +141,7 @@
 		9835573B050B27F688EF7721 /* AddedPhraseReviewControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E3CCA62DD2C2D02F0812B7 /* AddedPhraseReviewControls.swift */; };
 		99CE26C3A32937F576253087 /* HanziWriterGIFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72CE139E65C805667F40DB6A /* HanziWriterGIFExporter.swift */; };
 		9A7F90CF4DBEADBA08514BF7 /* InteractionHintRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C1BCCCBE43BB69392F3847D /* InteractionHintRow.swift */; };
+		9A8E3A66B18B4BBE9D9F5511 /* RadixInlineHelpDisclosure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A8E3A65B18B4BBE9D9F5511 /* RadixInlineHelpDisclosure.swift */; };
 		9AB19CF1D3B5451A1C3FAD12 /* BrowseDictionaryGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F40667AA9A6D82A82B47458 /* BrowseDictionaryGrid.swift */; };
 		9BEB64DA11DF3BDD49265EAE /* AILinkTemplateEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 387E564DDE0B2DB3B54D016A /* AILinkTemplateEditor.swift */; };
 		9C71CCAC551A21F0D10FD146 /* QuickCharacterEditorFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180EDB4A29B87585A2CE1D28 /* QuickCharacterEditorFields.swift */; };
@@ -420,6 +421,7 @@
 		9B7F5C8C9FCF78E23E125C52 /* ComponentCharacterTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentCharacterTile.swift; sourceTree = "<group>"; };
 		9BF651D793C06A737C7984F2 /* CameraCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureView.swift; sourceTree = "<group>"; };
 		9C1BCCCBE43BB69392F3847D /* InteractionHintRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionHintRow.swift; sourceTree = "<group>"; };
+		9A8E3A65B18B4BBE9D9F5511 /* RadixInlineHelpDisclosure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixInlineHelpDisclosure.swift; sourceTree = "<group>"; };
 		9D95C34D49227EFDDF0E45C0 /* ProLockedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProLockedView.swift; sourceTree = "<group>"; };
 		9E3504AC852FD2C08B8AB0E0 /* DataExportArchiveBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExportArchiveBuilder.swift; sourceTree = "<group>"; };
 		A1DAE07C4C7F1F05CE7BCB89 /* character_strokes.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = character_strokes.db; sourceTree = "<group>"; };
@@ -802,6 +804,7 @@
 				DF4E3A4BE74848C907B51CB7 /* CreditsView.swift */,
 				15A9DBE67334568FD280FFEE /* GlossaryView.swift */,
 				9C1BCCCBE43BB69392F3847D /* InteractionHintRow.swift */,
+				9A8E3A65B18B4BBE9D9F5511 /* RadixInlineHelpDisclosure.swift */,
 				4B351B9317249CCDF2B1953A /* LightweightCharacterPreviewCard.swift */,
 				D832AA3ABE8A17FBF412187E /* OpenSourceLicensesView.swift */,
 				7E5D97C4FFF89450F8368529 /* PaywallContent.swift */,
@@ -1068,6 +1071,7 @@
 				99CE26C3A32937F576253087 /* HanziWriterGIFExporter.swift in Sources */,
 				90F654E5170A1EBD26C9B25C /* ImagePhraseMatcher.swift in Sources */,
 				9A7F90CF4DBEADBA08514BF7 /* InteractionHintRow.swift in Sources */,
+				9A8E3A66B18B4BBE9D9F5511 /* RadixInlineHelpDisclosure.swift in Sources */,
 				2CD095BC1FB95FF4971726EC /* JSONFileDocument.swift in Sources */,
 				6D0761BB15C070CD7DCF3971 /* LicenseTextLoader.swift in Sources */,
 				1A48FE90D002A1E3200324DE /* LightweightCharacterPreviewCard.swift in Sources */,
@@ -1202,7 +1206,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/RadixShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
@@ -1230,10 +1234,11 @@
 				CODE_SIGN_ENTITLEMENTS = App/Radix.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Radix;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1255,10 +1260,11 @@
 				CODE_SIGN_ENTITLEMENTS = App/Radix.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Radix;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1278,7 +1284,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/RadixShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtension/Info.plist;

@@ -28,7 +28,7 @@ extension RootView {
     var phoneTitle: String {
         switch phoneSelection {
         case -1: return "Character Breakdown"
-        case 0: return "Scan"
+        case 0: return "Take Photo"
         case 1: return "Search"
         case 2: return "Browse"
         case 3: return "Study"
@@ -43,9 +43,9 @@ extension RootView {
         NavigationStack {
             VStack(spacing: 0) {
                 BreadcrumbStrip()
+                phoneGlobalActionRow
                 phoneContent
                     .frame(maxHeight: .infinity, alignment: .top)
-                phoneSnapshotSaveBar
                 phoneTabBar
             }
             .navigationTitle(phoneTitle)
@@ -88,7 +88,10 @@ extension RootView {
         case -1:
             ComponentsExplorerShell()
         case 0:
-            CaptureTab()
+            CaptureTab(
+                shouldOpenCamera: $shouldOpenPhoneCamera,
+                presentation: .directCamera
+            )
         case 1:
             SmartSearchTab()
         case 2:
@@ -97,7 +100,13 @@ extension RootView {
             FavouritesTab(
                 onExportProfile: exportProfile,
                 onImportProfile: importProfile,
-                onRequirePro: { gate in store.showPaywall(for: gate) }
+                onRequirePro: { gate in store.showPaywall(for: gate) },
+                onSaveSnapshot: quickSaveMemory,
+                onRestoreSnapshot: quickRestoreMemory(from:),
+                onRefreshSnapshots: refreshQuickLocalSnapshots,
+                localSnapshots: quickLocalSnapshots,
+                isSavingSnapshot: isQuickSavingMemory,
+                isRestoringSnapshot: isQuickRestoringMemory
             )
         case 4:
             aiLinkContent
@@ -167,6 +176,78 @@ extension RootView {
         .background(.bar)
     }
 
+    var phoneGlobalActionRow: some View {
+        HStack(spacing: 8) {
+            Button {
+                store.goToSearchRoot()
+                store.showiPhoneDetail = false
+            } label: {
+                phoneGlobalActionLabel(
+                    title: "Search",
+                    subtitle: "Anything",
+                    systemImage: RadixIcon.search,
+                    isPrimary: false
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Search in Radix")
+
+            Button {
+                store.showiPhoneDetail = false
+                store.previewCharacter = nil
+                store.startBrowseCameraPage()
+            } label: {
+                phoneGlobalActionLabel(
+                    title: "Take Photo",
+                    subtitle: "Capture text",
+                    systemImage: "camera.fill",
+                    isPrimary: true
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Take Photo")
+        }
+        .padding(.horizontal, 10)
+        .padding(.top, 8)
+        .padding(.bottom, 6)
+    }
+
+    func phoneGlobalActionLabel(
+        title: String,
+        subtitle: String,
+        systemImage: String,
+        isPrimary: Bool
+    ) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: systemImage)
+                .font(.system(size: 17, weight: .semibold))
+                .frame(width: 34, height: 34)
+                .foregroundStyle(isPrimary ? Color.white : Color.accentColor)
+                .background(isPrimary ? Color.white.opacity(0.18) : Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title)
+                    .font(ResponsiveFont.subheadline.weight(.bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.78)
+                Text(subtitle)
+                    .font(ResponsiveFont.caption)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.78)
+                    .opacity(isPrimary ? 0.86 : 0.72)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
+        .foregroundStyle(isPrimary ? Color.white : Color.primary)
+        .background(isPrimary ? Color.accentColor : RadixTheme.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
     func phoneSnapshotBarLabel(title: String, systemImage: String, lockBadge: String?) -> some View {
         HStack(spacing: 8) {
             Image(systemName: systemImage)
@@ -197,9 +278,7 @@ extension RootView {
         VStack(spacing: 0) {
             Divider()
             HStack(spacing: 4) {
-                tabButton(.scan)
                 tabButton(.browse)
-                tabButton(.search)
                 tabButton(.study)
                 tabButton(.aiLink)
                 tabButton(.myData)
@@ -237,7 +316,7 @@ extension RootView {
             }
             switch id {
             case 0:
-                store.route = .capture
+                store.startBrowseCameraPage()
             case 4:
                 store.route = .aiLink
             case 1:

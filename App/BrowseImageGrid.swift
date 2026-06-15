@@ -4,6 +4,7 @@ extension FilterGridTab {
     @ViewBuilder
     func imageGridContent(collection: CharacterCollection, proxy: ScrollViewProxy) -> some View {
         let allItems = browseImageGridItems(for: collection)
+        let pageFontSize = max(13, fontSize - 1)
 
         if !isPhoneBrowseLayout {
             browseHintIfNeeded
@@ -30,12 +31,11 @@ extension FilterGridTab {
                         BrowseGridTileLabel(
                             displayCharacter: displayCharacter,
                             pinyin: pinyin,
-                            fontSize: fontSize,
+                            fontSize: pageFontSize,
                             isFavorite: store.isFavorite(character),
                             background: BrowseImageTileStyle.background(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted),
                             stroke: BrowseImageTileStyle.stroke(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted),
-                            strokeWidth: highlightRole == nil ? 2 : 2.5,
-                            matchPhraseTileTextSize: true
+                            strokeWidth: highlightRole == nil ? 2 : 2.5
                         ) {
                             store.previewImageCharacter(character, offset: offset, announce: false)
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
@@ -53,6 +53,7 @@ extension FilterGridTab {
                         phraseText: browseImageDisplayText(phrase.word),
                         pinyin: phrase.pinyin,
                         isActive: isActive,
+                        fontSize: pageFontSize,
                         contextMenuPhrase: phrase
                     ) {
                         if let offset = offsets.first, collection.characters.indices.contains(offset) {

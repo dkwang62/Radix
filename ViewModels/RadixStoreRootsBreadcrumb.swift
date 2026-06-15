@@ -233,7 +233,6 @@ extension RadixStore {
         rootBreadcrumb
             .filter { $0.count == 1 && !favorites.contains($0) }
             .compactMap { componentRepo.byCharacter[$0] }
-            .sorted(by: frequencySortPredicate)
     }
 
     var recentCharacterCount: Int {

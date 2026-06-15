@@ -12,11 +12,9 @@ struct DataBackupPreviewSection: View {
     var title: String = "What Will Be Saved"
     var subtitle: String = "This is your current Memory."
     var badges: [String] = []
-    var addedPhraseReviewCount: Int = 0
-    var addedPhrasePageCharacterCount: Int = 0
-    var onReviewAddedPhrases: (() -> Void)?
-    var onCreateAddedPhrasesPage: (() -> Void)?
-    var onDeleteAddedPhrases: (() -> Void)?
+    var isCompactListOnly = false
+    var onOpenSavedPages: (() -> Void)?
+    var onOpenAddedPhrases: (() -> Void)?
     let onPreviewCharacter: (String) -> Void
 
     @Binding var showSavedPagesPreview: Bool
@@ -24,11 +22,31 @@ struct DataBackupPreviewSection: View {
     @Binding var showAITemplatesPreview: Bool
     @Binding var showAppStatePreview: Bool
     @Binding var showAddedCharactersPreview: Bool
-    @Binding var showAddedPhrasesPreview: Bool
     @Binding var showEditedCharactersPreview: Bool
     @Binding var showEditedPhrasesPreview: Bool
 
     var body: some View {
+        Group {
+            if isCompactListOnly {
+                compactBody
+            } else {
+                fullBody
+            }
+        }
+        .sheet(item: phonePhraseSheetBinding) { phrase in
+            NavigationStack {
+                PhraseInfoCard(phrase: phrase, onDone: {
+                    selectedPhrase = nil
+                })
+                    .environmentObject(store)
+                    .padding()
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .presentationDetents([.medium, .large])
+        }
+    }
+
+    var fullBody: some View {
         VStack(alignment: .leading, spacing: 16) {
             saveSummaryHeader
 
@@ -46,17 +64,10 @@ struct DataBackupPreviewSection: View {
             )
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .sheet(item: phonePhraseSheetBinding) { phrase in
-            NavigationStack {
-                PhraseInfoCard(phrase: phrase, onDone: {
-                    selectedPhrase = nil
-                })
-                    .environmentObject(store)
-                    .padding()
-                    .navigationBarTitleDisplayMode(.inline)
-            }
-            .presentationDetents([.medium, .large])
-        }
+    }
+
+    var compactBody: some View {
+        previewDisclosureList
     }
 
     var saveSummaryHeader: some View {
@@ -72,10 +83,18 @@ struct DataBackupPreviewSection: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
                         .font(ResponsiveFont.title3.weight(.semibold))
-                    Text(subtitle)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                    if RadixPlatform.isPhone {
+                        RadixInlineHelpDisclosure(
+                            title: "Backup contents",
+                            message: subtitle,
+                            systemImage: "externaldrive.badge.checkmark"
+                        )
+                    } else {
+                        Text(subtitle)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
 
                 if !badges.isEmpty {
@@ -108,9 +127,7 @@ struct DataBackupPreviewSection: View {
 
     var previewDisclosureList: some View {
         VStack(alignment: .leading, spacing: 12) {
-            DisclosureGroup("Saved Pages (\(store.allCollections.count))", isExpanded: $showSavedPagesPreview) {
-                backupSavedPagesRows
-            }
+            savedPagesNavigationRow
 
             DisclosureGroup("Favorites (\(store.favoriteItems.count) characters, \(store.favoritePhrasesItems.count) phrases)", isExpanded: $showFavoritesPreview) {
                 backupFavoritesSummary
@@ -128,10 +145,14 @@ struct DataBackupPreviewSection: View {
                 backupCharacterRows(store.addedDictionaryCharacters)
             }
 
-            DisclosureGroup("Phrases You Added (\(addedPhraseEntries.count))", isExpanded: $showAddedPhrasesPreview) {
-                addedPhraseManagementRow
-                addedPhraseReviewRows(addedPhraseEntries)
-            }
+            backupStatisticRow(
+                title: "Phrases You Added",
+                value: "\(addedPhraseEntries.count)",
+                subtitle: "Stored in Memory. Review and prune these in Study.",
+                systemName: "text.quote",
+                tint: .green,
+                action: onOpenAddedPhrases
+            )
 
             DisclosureGroup("Characters You Changed (\(store.baseDictionaryCoreEditedCharacters.count))", isExpanded: $showEditedCharactersPreview) {
                 backupCharacterRows(store.baseDictionaryCoreEditedCharacters)
@@ -152,10 +173,88 @@ struct DataBackupPreviewSection: View {
         }
     }
 
-    var addedPhraseManagementRow: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: "checklist")
+    @ViewBuilder
+    func backupStatisticRow(
+        title: String,
+        value: String,
+        subtitle: String,
+        systemName: String,
+        tint: Color,
+        action: (() -> Void)? = nil
+    ) -> some View {
+        if let action {
+            Button(action: action) {
+                backupStatisticRowContent(
+                    title: title,
+                    value: value,
+                    subtitle: subtitle,
+                    systemName: systemName,
+                    tint: tint,
+                    showsChevron: true
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint("Opens Study added phrases")
+        } else {
+            backupStatisticRowContent(
+                title: title,
+                value: value,
+                subtitle: subtitle,
+                systemName: systemName,
+                tint: tint,
+                showsChevron: false
+            )
+        }
+    }
+
+    func backupStatisticRowContent(
+        title: String,
+        value: String,
+        subtitle: String,
+        systemName: String,
+        tint: Color,
+        showsChevron: Bool
+    ) -> some View {
+        HStack(alignment: .center, spacing: 10) {
+            Image(systemName: systemName)
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(tint)
+                .frame(width: 26, height: 26)
+                .background(tint.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 7))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(.primary)
+                if !RadixPlatform.isPhone {
+                    Text(subtitle)
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Spacer(minLength: 0)
+
+            Text(value)
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(tint)
+
+            if showsChevron {
+                Image(systemName: "chevron.right")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    var savedPagesNavigationRow: some View {
+        Button {
+            onOpenSavedPages?()
+        } label: {
+            HStack(alignment: .center, spacing: 10) {
+                Image(systemName: "photo.on.rectangle")
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .foregroundStyle(Color.accentColor)
                     .frame(width: 26, height: 26)
@@ -163,68 +262,25 @@ struct DataBackupPreviewSection: View {
                     .clipShape(RoundedRectangle(cornerRadius: 7))
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Review Added Phrases")
+                    Text("Saved Pages (\(store.allCollections.count))")
                         .font(ResponsiveFont.caption.weight(.semibold))
-                    Text(addedPhraseManagementText)
-                        .font(ResponsiveFont.caption2)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                    PhraseReviewStatusCycleHint()
-                        .padding(.top, 2)
+                        .foregroundStyle(.primary)
+                    if !RadixPlatform.isPhone {
+                        Text("Open and manage pages in Browse.")
+                            .font(ResponsiveFont.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
+
+                Spacer(minLength: 0)
+
+                Image(systemName: "chevron.right")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
             }
-
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) {
-                    addedPhraseManagementButtons
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    addedPhraseManagementButtons
-                }
-            }
+            .contentShape(Rectangle())
         }
-        .padding(10)
-        .background(RadixTheme.secondaryBackground.opacity(0.55))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    @ViewBuilder
-    var addedPhraseManagementButtons: some View {
-        Button {
-            onReviewAddedPhrases?()
-        } label: {
-            Label("Classify & Prune", systemImage: "checklist")
-                .font(ResponsiveFont.caption.weight(.semibold))
-        }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-        .disabled(addedPhraseReviewCount == 0)
-
-        Button {
-            onCreateAddedPhrasesPage?()
-        } label: {
-            Label("Make AI Text Page", systemImage: "doc.text.magnifyingglass")
-                .font(ResponsiveFont.caption.weight(.semibold))
-        }
-        .buttonStyle(.borderedProminent)
-        .controlSize(.small)
-        .disabled(addedPhrasePageCharacterCount == 0)
-
-        Button(role: .destructive) {
-            onDeleteAddedPhrases?()
-        } label: {
-            Label("Delete Added", systemImage: RadixIcon.delete)
-                .font(ResponsiveFont.caption.weight(.semibold))
-        }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-        .disabled(addedPhraseEntries.isEmpty)
-    }
-
-    var addedPhraseManagementText: String {
-        if addedPhraseEntries.isEmpty {
-            return "Add phrases first, then review which ones belong in Memory."
-        }
-        return "\(addedPhraseEntries.count) phrases in Memory. Check good phrases while reviewing, then complete checked phrases when you are done with them."
+        .buttonStyle(.plain)
+        .disabled(onOpenSavedPages == nil)
     }
 }

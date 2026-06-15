@@ -17,7 +17,7 @@ struct BreadcrumbStrip: View {
     }
 
     var body: some View {
-        if !store.rootBreadcrumb.isEmpty {
+        if shouldShowStrip {
             HStack(spacing: 6) {
                 Image(systemName: "clock")
                     .font(.system(size: 13, weight: .semibold))
@@ -56,6 +56,22 @@ struct BreadcrumbStrip: View {
             .padding(.leading, 8)
             .background(RadixTheme.background)
         }
+    }
+
+    private var shouldShowStrip: Bool {
+        guard !store.rootBreadcrumb.isEmpty else { return false }
+        if store.route == .search && store.homeTab == .dataEdit {
+            return false
+        }
+        if RadixPlatform.isPhone {
+            if store.route == .favourites {
+                return false
+            }
+            if store.route == .search && store.homeTab == .favourites {
+                return false
+            }
+        }
+        return true
     }
 }
 

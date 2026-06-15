@@ -62,11 +62,8 @@ struct AILinkView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                if sizeClass == .compact, let item {
-                    standardPhoneCharacterPreview(
-                        character: item.character,
-                        onClear: { store.previewCharacter = nil }
-                    )
+                if sizeClass == .compact {
+                    aiPhoneSubjectPreview
                 }
 
                 aiPracticeContextSection
@@ -96,6 +93,27 @@ struct AILinkView: View {
             if selectedAIPreset == nil {
                 selectedAIPreset = store.defaultAIPreset
             }
+        }
+    }
+
+    @ViewBuilder
+    var aiPhoneSubjectPreview: some View {
+        if let phrase = store.activeSidebarPhrasePreview {
+            PhraseInfoCard(
+                phrase: phrase,
+                onSelectCharacter: { character in
+                    store.previewPhraseCardCharacter(character, in: phrase, announce: false)
+                },
+                onDone: {
+                    store.dismissSidebarPhrasePreview()
+                }
+            )
+            .environmentObject(store)
+        } else if let character = item?.character ?? store.previewCharacter {
+            standardPhoneCharacterPreview(
+                character: character,
+                onClear: { store.previewCharacter = nil }
+            )
         }
     }
 

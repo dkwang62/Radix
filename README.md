@@ -79,6 +79,9 @@ Native multi-platform SwiftUI version of the existing Streamlit Radix app.
 
 ## Notes
 
+- Before making navigation or UI-structure changes, read `UI_INTENT.md`. It
+  records the intended Radix product model for global Search, Take Photo, Browse,
+  Study, AI, My Data, and Save/Restore workflows.
 - `project.yml` bundles data directly from:
   - `../enhanced_component_map_with_etymology.json`
   - `../phrases.db`

@@ -8,7 +8,6 @@ struct BrowseGridTileLabel: View {
     let background: Color
     let stroke: Color
     var strokeWidth: CGFloat = 2
-    var matchPhraseTileTextSize: Bool = false
     var onShowPhrases: (() -> Void)?
 
     var body: some View {
@@ -25,7 +24,6 @@ struct BrowseGridTileLabel: View {
                 .minimumScaleFactor(0.72)
         }
         .frame(maxWidth: .infinity, minHeight: tileHeight, maxHeight: tileHeight, alignment: .center)
-        .padding(.horizontal, matchPhraseTileTextSize ? 10 : 0)
         .background(background)
         .clipShape(RoundedRectangle(cornerRadius: RadixTileMetrics.cornerRadius))
         .overlay(RoundedRectangle(cornerRadius: RadixTileMetrics.cornerRadius).stroke(stroke, lineWidth: strokeWidth))
@@ -40,15 +38,15 @@ struct BrowseGridTileLabel: View {
     }
 
     private var characterFont: Font {
-        matchPhraseTileTextSize ? ResponsiveFont.subheadline.weight(.semibold) : .system(size: fontSize)
+        .system(size: fontSize)
     }
 
     private var pinyinFont: Font {
-        matchPhraseTileTextSize ? ResponsiveFont.caption2 : ResponsiveFont.tinySystem(size: RadixTileMetrics.characterPinyinSize, weight: .semibold)
+        ResponsiveFont.tinySystem(size: RadixTileMetrics.characterPinyinSize, weight: .semibold)
     }
 
     private var tileHeight: CGFloat {
-        matchPhraseTileTextSize ? RadixTileMetrics.compactHeight : 56
+        56
     }
 
 }
@@ -57,6 +55,7 @@ struct BrowseImagePhraseTile: View {
     let phraseText: String
     let pinyin: String
     let isActive: Bool
+    let fontSize: CGFloat
     var contextMenuPhrase: PhraseItem?
     let onSelect: () -> Void
 
@@ -86,6 +85,7 @@ struct BrowseImagePhraseTile: View {
             isActive: isActive,
             minimumHeight: RadixTileMetrics.compactHeight,
             maximumWidth: RadixTileMetrics.browsePhraseWidth,
+            characterFontSize: fontSize,
             textAlignment: .center
         )
         .frame(height: RadixTileMetrics.compactHeight)

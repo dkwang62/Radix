@@ -7,6 +7,9 @@ Last verified build: `xcodebuild -project Radix.xcodeproj -scheme Radix -destina
 
 ## Deferred post-review UX direction
 
+For the broader product/UI north star, read `UI_INTENT.md` before changing
+navigation, Search, Take Photo, Study, AI, My Data, or Save/Restore behavior.
+
 Do not include the following changes in the current Apple Review build `1.0.0 (2)`.
 That submission should complete with the current implementation.
 

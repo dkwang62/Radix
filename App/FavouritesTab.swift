@@ -20,11 +20,18 @@ struct FavouritesTab: View {
     let onExportProfile: () -> Void
     let onImportProfile: () -> Void
     let onRequirePro: (EntitlementManager.FeatureGate) -> Void
+    var onSaveSnapshot: (() -> Void)?
+    var onRestoreSnapshot: ((LocalDataSnapshot?) -> Void)?
+    var onRefreshSnapshots: (() -> Void)?
+    var localSnapshots: [LocalDataSnapshot] = []
+    var isSavingSnapshot = false
+    var isRestoringSnapshot = false
     @State var selectedPhrase: PhraseItem?
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
     @State var studyGridScope = RadixStudyPreferences.gridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
     @State var hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
+    @State var addedPhraseReviewPresentation: AddedPhraseReviewPresentation?
 
     var isPhone: Bool {
         RadixPlatform.isPhone
@@ -44,6 +51,7 @@ struct FavouritesTab: View {
             || !store.favoriteItems.isEmpty
             || !store.favoritePhrasesItems.isEmpty
             || !store.allCollections.isEmpty
+            || !addedStudyPhraseEntries.isEmpty
     }
 
     var body: some View {
@@ -73,11 +81,21 @@ struct FavouritesTab: View {
             }
             .presentationDetents([.medium, .large])
         }
+        .sheet(item: $addedPhraseReviewPresentation, onDismiss: {
+            addedPhraseReviewPresentation = nil
+        }) { _ in
+            AddedPhraseReviewSheet()
+                .environmentObject(store)
+        }
         .onAppear {
             studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
             studyGridScope = RadixStudyPreferences.gridScope
             studyPageSortOrder = RadixStudyPreferences.pageSortOrder
             hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
+            if isPhone {
+                onRefreshSnapshots?()
+            }
+            openAddedPhraseReviewIfRequested()
         }
         .onChange(of: studyGridUsesTraditionalScript) { _, newValue in
             RadixStudyPreferences.usesTraditionalScript = newValue
@@ -91,6 +109,17 @@ struct FavouritesTab: View {
         .onChange(of: hasDismissedStudyIntro) { _, newValue in
             RadixStudyPreferences.hasDismissedIntro = newValue
         }
+        .onChange(of: store.shouldOpenAddedPhraseReview) { _, newValue in
+            guard newValue else { return }
+            openAddedPhraseReviewIfRequested()
+        }
+    }
+
+    func openAddedPhraseReviewIfRequested() {
+        guard store.shouldOpenAddedPhraseReview else { return }
+        store.shouldOpenAddedPhraseReview = false
+        guard !addedStudyPhraseEntries.isEmpty else { return }
+        presentAddedPhraseReview()
     }
 
     var isPhoneStudyPreviewActive: Bool {
@@ -121,8 +150,22 @@ enum StudyGridScope: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .all: return "All"
-        case .favorites: return "Favorites"
+        case .all: return "Recent"
+        case .favorites: return "Favorite"
+        }
+    }
+
+    var emptyMessage: String {
+        switch self {
+        case .all: return "No recent study items yet."
+        case .favorites: return "No favorite study items yet."
+        }
+    }
+
+    var legendText: String {
+        switch self {
+        case .all: return "Tap an item to preview it. Favorite the useful ones, then clear Recent."
+        case .favorites: return "Tap a favorite character or phrase to preview it. Use the star to remove it from Favorites."
         }
     }
 }

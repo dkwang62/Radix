@@ -5,7 +5,7 @@ extension RadixStore {
     func importPendingSharedImagesFromShareExtension() async {
         let pendingURLs = RadixSharedImageImport.pendingImageURLs()
         guard !pendingURLs.isEmpty else {
-            route = .capture
+            goToBrowsePages(selectLatest: false)
             return
         }
 
@@ -47,7 +47,7 @@ extension RadixStore {
                 showiPhoneDetail = false
             }
         } else {
-            route = .capture
+            goToBrowsePages(selectLatest: false)
         }
     }
 

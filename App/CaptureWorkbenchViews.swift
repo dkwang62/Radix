@@ -14,10 +14,18 @@ struct CaptureHeaderView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Scan real-world Chinese text. Saved pages open in Browse.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+            if RadixPlatform.isPhone {
+                RadixInlineHelpDisclosure(
+                    title: "Scan help",
+                    message: "Scan real-world Chinese text. Saved pages open in Browse.",
+                    systemImage: "camera.viewfinder"
+                )
+            } else {
+                Text("Scan real-world Chinese text. Saved pages open in Browse.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
             LazyVGrid(columns: sourceColumns, spacing: 10) {
                 Button(action: onCamera) {
@@ -136,6 +144,18 @@ private struct CaptureWorkflowHint: View {
     ]
 
     var body: some View {
+        if RadixPlatform.isPhone {
+            RadixInlineHelpDisclosure(
+                title: "Workflow",
+                message: "Choose an image, let Radix read the Chinese text, then browse the saved page.",
+                systemImage: "list.number"
+            )
+        } else {
+            compactBody
+        }
+    }
+
+    private var compactBody: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 8) { stepContent }
             VStack(alignment: .leading, spacing: 8) { stepContent }

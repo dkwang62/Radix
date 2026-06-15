@@ -10,13 +10,16 @@ extension FavouritesTab {
 
                 studyDashboardSummary
 
+                studyAddedPhrasesSection
+
+                if isPhone {
+                    studySnapshotActions
+                }
+
                 if hasStudyGridItems {
                     recentStudySection
                 }
 
-                if !store.allCollections.isEmpty {
-                    scannedPagesStudySection
-                }
             }
             .padding(.horizontal)
             .padding(.bottom, 20)
@@ -65,28 +68,214 @@ extension FavouritesTab {
                 title: "Recent",
                 value: "\(store.recentCharacterCount)",
                 systemImage: "clock",
-                tint: .blue
+                tint: .blue,
+                action: {
+                    withAnimation {
+                        studyGridScope = .all
+                    }
+                }
             )
             studySummaryTile(
-                title: "Characters",
-                value: "\(store.favoriteItems.count)",
+                title: "Favorites",
+                value: "\(store.favoriteItems.count + store.favoritePhrasesItems.count)",
                 systemImage: RadixIcon.saved,
-                tint: .yellow
+                tint: .yellow,
+                action: {
+                    withAnimation {
+                        studyGridScope = .favorites
+                    }
+                }
             )
             studySummaryTile(
                 title: "Phrases",
-                value: "\(store.favoritePhrasesItems.count)",
+                value: "\(addedStudyPhraseEntries.count)",
                 systemImage: "text.quote",
-                tint: .green
+                tint: .green,
+                action: {
+                    presentAddedPhraseReview()
+                }
             )
             studySummaryTile(
                 title: "Pages",
                 value: "\(store.allCollections.count)",
                 systemImage: "photo.on.rectangle",
-                tint: .purple
+                tint: .purple,
+                action: {
+                    store.goToBrowsePages(selectLatest: false)
+                }
             )
         }
         .padding(.top, 2)
+    }
+
+    @ViewBuilder
+    var studyAddedPhrasesSection: some View {
+        if !addedStudyPhraseEntries.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                sectionTitle("Added Phrases")
+
+                Button {
+                    presentAddedPhraseReview()
+                } label: {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "text.quote")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(Color.green)
+                                .frame(width: 30, height: 30)
+                                .background(Color.green.opacity(0.12))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Review Added Phrases")
+                                    .font(ResponsiveFont.body.weight(.semibold))
+                                    .foregroundStyle(.primary)
+                                Text("\(addedStudyPhraseEntries.count) phrases to classify or prune")
+                                    .font(ResponsiveFont.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                            }
+
+                            Spacer(minLength: 0)
+
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(.secondary)
+                        }
+
+                        HStack(spacing: 6) {
+                            addedPhraseStatusPill("New", count: addedStudyPhraseCount(status: nil), tint: Color.secondary)
+                            addedPhraseStatusPill("Checked", count: addedStudyPhraseCount(status: .checked), tint: .accentColor)
+                            addedPhraseStatusPill("Hidden", count: addedStudyPhraseCount(status: .hidden), tint: .orange)
+                            addedPhraseStatusPill("Rejected", count: addedStudyPhraseCount(status: .removed), tint: .red)
+                        }
+                    }
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(RadixTheme.secondaryBackground.opacity(0.48))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Review \(addedStudyPhraseEntries.count) added phrases")
+            }
+        }
+    }
+
+    func addedPhraseStatusPill(_ title: String, count: Int, tint: Color) -> some View {
+        Text("\(count) \(title)")
+            .font(ResponsiveFont.caption2.weight(.semibold))
+            .foregroundStyle(tint)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 4)
+            .background(tint.opacity(0.12))
+            .clipShape(Capsule())
+    }
+
+    @ViewBuilder
+    var studySnapshotActions: some View {
+        if onSaveSnapshot != nil || onRestoreSnapshot != nil {
+            let snapshotsLocked = entitlement.requiresPro(.datedCopies)
+
+            HStack(spacing: 8) {
+                Button {
+                    if snapshotsLocked {
+                        onRequirePro(.datedCopies)
+                    } else {
+                        onSaveSnapshot?()
+                    }
+                } label: {
+                    studySnapshotActionLabel(
+                        title: isSavingSnapshot ? "Saving..." : "Save Snapshot",
+                        systemImage: snapshotsLocked ? "lock.fill" : (isSavingSnapshot ? "hourglass" : "tray.and.arrow.down"),
+                        isPrimary: true,
+                        lockBadge: snapshotsLocked ? "Plus" : nil
+                    )
+                }
+                .buttonStyle(.plain)
+                .disabled(isSavingSnapshot || isRestoringSnapshot)
+
+                if snapshotsLocked {
+                    Button {
+                        onRequirePro(.datedCopies)
+                    } label: {
+                        studySnapshotActionLabel(
+                            title: "Restore Snapshot",
+                            systemImage: "lock.fill",
+                            isPrimary: false,
+                            lockBadge: "Plus"
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isSavingSnapshot || isRestoringSnapshot)
+                } else {
+                    Menu {
+                        if localSnapshots.isEmpty {
+                            Text("No snapshots saved")
+                        } else {
+                            ForEach(localSnapshots) { snapshot in
+                                Button {
+                                    onRestoreSnapshot?(snapshot)
+                                } label: {
+                                    Label(snapshot.title, systemImage: "clock.arrow.circlepath")
+                                }
+                            }
+                        }
+
+                        Divider()
+
+                        Button {
+                            onRefreshSnapshots?()
+                        } label: {
+                            Label("Refresh List", systemImage: "arrow.clockwise")
+                        }
+                    } label: {
+                        studySnapshotActionLabel(
+                            title: isRestoringSnapshot ? "Restoring..." : "Restore Snapshot",
+                            systemImage: isRestoringSnapshot ? "hourglass" : "arrow.counterclockwise",
+                            isPrimary: false,
+                            lockBadge: nil
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isSavingSnapshot || isRestoringSnapshot)
+                }
+            }
+            .onAppear {
+                onRefreshSnapshots?()
+            }
+        }
+    }
+
+    func studySnapshotActionLabel(
+        title: String,
+        systemImage: String,
+        isPrimary: Bool,
+        lockBadge: String?
+    ) -> some View {
+        HStack(spacing: 7) {
+            Image(systemName: systemImage)
+                .font(.system(size: 14, weight: .semibold))
+            Text(title)
+                .font(ResponsiveFont.caption.weight(.bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+            if let lockBadge {
+                Text(lockBadge)
+                    .font(ResponsiveFont.caption2.weight(.bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 2)
+                    .background(Color.accentColor)
+                    .clipShape(Capsule())
+                    .accessibilityHidden(true)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 40)
+        .foregroundStyle(isPrimary ? Color.white : Color.accentColor)
+        .background(isPrimary ? Color.accentColor : Color.accentColor.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     var studySummaryColumns: [GridItem] {
@@ -94,8 +283,15 @@ extension FavouritesTab {
         return [GridItem(.adaptive(minimum: minimum), spacing: 6)]
     }
 
-    func studySummaryTile(title: String, value: String, systemImage: String, tint: Color) -> some View {
-        HStack(spacing: 6) {
+    @ViewBuilder
+    func studySummaryTile(
+        title: String,
+        value: String,
+        systemImage: String,
+        tint: Color,
+        action: (() -> Void)? = nil
+    ) -> some View {
+        let content = HStack(spacing: 6) {
             Image(systemName: systemImage)
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(tint)
@@ -115,6 +311,16 @@ extension FavouritesTab {
         .frame(maxWidth: .infinity, minHeight: 34, alignment: .leading)
         .background(RadixTheme.secondaryBackground.opacity(0.48))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+
+        if let action {
+            Button(action: action) {
+                content
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Show \(title)")
+        } else {
+            content
+        }
     }
 
     func sectionTitle(_ title: String) -> some View {

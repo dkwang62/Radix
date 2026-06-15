@@ -1,7 +1,16 @@
 import SwiftUI
+#if canImport(PhotosUI)
+import PhotosUI
+#endif
 
 extension FilterGridTab {
     var browseSourceOptions: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            browseSavedPageOptions
+        }
+    }
+
+    var browseSavedPageOptions: some View {
         VStack(alignment: .leading, spacing: 6) {
             sourceOptionButton(
                 title: "Dictionary",
@@ -14,33 +23,6 @@ extension FilterGridTab {
 
             sourceActionButton(
                 title: "Create from Paste",
-                subtitle: pastePageActionSubtitle("Paste Chinese text"),
-                systemImage: "doc.on.clipboard",
-                isLocked: !hasUnlimitedFreePages && freePagesRemaining == 0
-            ) {
-                beginManualCollection()
-            }
-
-            if !store.allCollections.isEmpty {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 6) {
-                        ForEach(store.sortedCollections(order: browsePageSortOrder)) { collection in
-                            sourceCollectionRow(collection)
-                        }
-                    }
-                }
-                .frame(
-                    minHeight: browseSourceCollectionListMinHeight,
-                    maxHeight: browseSourceCollectionListMaxHeight
-                )
-            }
-        }
-    }
-
-    var browseSavedPageOptions: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            sourceActionButton(
-                title: "Create from Paste",
                 subtitle: pastePageActionSubtitle("Paste Chinese text and save it as a page"),
                 systemImage: "doc.on.clipboard",
                 isLocked: !hasUnlimitedFreePages && freePagesRemaining == 0
@@ -48,24 +30,39 @@ extension FilterGridTab {
                 beginManualCollection()
             }
 
+            if isProcessingBrowseImageImport {
+                SourceMenuRow(
+                    title: "Reading image...",
+                    subtitle: "Creating a saved page",
+                    systemImage: "hourglass",
+                    iconColor: .accentColor
+                )
+            } else {
+                browseAlbumImportButton
+
+                sourceActionButton(
+                    title: fileImportTitle,
+                    subtitle: imageImportActionSubtitle,
+                    systemImage: "folder",
+                    isLocked: entitlement.requiresPro(.datedCopies)
+                ) {
+                    beginBrowseImageFileImport()
+                }
+            }
+
             if store.allCollections.isEmpty {
                 ContentUnavailableView(
                     "No Pages",
                     systemImage: "photo.on.rectangle.angled",
-                    description: Text("Scan or paste Chinese text.")
+                    description: Text("Paste Chinese text, import an image, or use Take Photo.")
                 )
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
             } else {
-                pageSortControl(selection: Binding(
-                    get: { browsePageSortOrder },
-                    set: { updateBrowsePageSortOrder($0) }
-                ))
-
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 6) {
-                        ForEach(store.sortedCollections(order: browsePageSortOrder)) { collection in
-                            sourceCollectionRow(collection)
+                        ForEach(browsePageRows, id: \.collection.id) { row in
+                            sourceCollectionRow(row.collection, dateMode: row.dateMode)
                         }
                     }
                 }
@@ -75,11 +72,6 @@ extension FilterGridTab {
                 )
             }
         }
-    }
-
-    func updateBrowsePageSortOrder(_ order: PageCollectionSortOrder) {
-        browsePageSortOrder = order
-        RadixBrowsePreferences.pageSortOrder = order
     }
 
     var browseSourceCollectionListMinHeight: CGFloat {
@@ -98,6 +90,27 @@ extension FilterGridTab {
         return RadixPlatform.isDesktop ? 460 : 520
     }
 
+    var browsePageRows: [(collection: CharacterCollection, dateMode: PageCollectionSortOrder)] {
+        let recentlyViewed = store.allCollections
+            .sorted {
+                let lhsDate = $0.lastViewedAt ?? $0.createdAt
+                let rhsDate = $1.lastViewedAt ?? $1.createdAt
+                if lhsDate != rhsDate { return lhsDate > rhsDate }
+                return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
+            .prefix(3)
+
+        let recentIDs = Set(recentlyViewed.map(\.id))
+        let scanned = store.allCollections
+            .filter { !recentIDs.contains($0.id) }
+            .sorted {
+                if $0.createdAt != $1.createdAt { return $0.createdAt > $1.createdAt }
+                return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
+
+        return recentlyViewed.map { ($0, .lastViewed) } + scanned.map { ($0, .scanned) }
+    }
+
     func pastePageActionSubtitle(_ unlockedText: String) -> String {
         if hasUnlimitedFreePages {
             return unlockedText
@@ -106,6 +119,42 @@ extension FilterGridTab {
             return "\(freePagesRemaining) free pages left"
         }
         return "Radix Plus"
+    }
+
+    var imageImportActionSubtitle: String {
+        entitlement.requiresPro(.datedCopies) ? "Radix Plus" : "Create saved page"
+    }
+
+    var fileImportTitle: String {
+        #if targetEnvironment(macCatalyst)
+        return "Import from Finder"
+        #else
+        return "Import from Files"
+        #endif
+    }
+
+    @ViewBuilder
+    var browseAlbumImportButton: some View {
+        if entitlement.requiresPro(.datedCopies) {
+            sourceActionButton(
+                title: "Import from Album",
+                subtitle: "Radix Plus",
+                systemImage: "photo.on.rectangle",
+                isLocked: true
+            ) {
+                store.showPaywall(for: .datedCopies)
+            }
+        } else {
+            BrowsePhotoImportSourceRow(
+                subtitle: imageImportActionSubtitle,
+                onImage: { image in
+                    Task { await recognizeBrowseImage(image) }
+                },
+                onError: { error in
+                    imageActionMessage = error.localizedDescription
+                }
+            )
+        }
     }
 
     func sourceActionButton(
@@ -129,13 +178,16 @@ extension FilterGridTab {
         .buttonStyle(.plain)
     }
 
-    func sourceCollectionRow(_ collection: CharacterCollection) -> some View {
+    func sourceCollectionRow(
+        _ collection: CharacterCollection,
+        dateMode: PageCollectionSortOrder? = nil
+    ) -> some View {
         let isSelected = store.selectedBrowseCollectionID == collection.id
         return SourceCollectionRow(
             collection: collection,
             isSelected: isSelected,
             thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData),
-            dateMode: browsePageSortOrder
+            dateMode: dateMode ?? .lastViewed
         ) {
             store.selectBrowseCollection(id: collection.id)
             withAnimation {
@@ -170,15 +222,64 @@ extension FilterGridTab {
         }
         .buttonStyle(.plain)
     }
+}
 
-    func pageSortControl(selection: Binding<PageCollectionSortOrder>) -> some View {
-        Picker("Page order", selection: selection) {
-            ForEach(PageCollectionSortOrder.allCases) { order in
-                Text(order.rawValue).tag(order)
+#if canImport(PhotosUI)
+private struct BrowsePhotoImportSourceRow: View {
+    @State private var selectedPhoto: PhotosPickerItem?
+    let subtitle: String
+    let onImage: @MainActor (CapturedImage) -> Void
+    let onError: @MainActor (Error) -> Void
+
+    var body: some View {
+        PhotosPicker(selection: $selectedPhoto, matching: .images) {
+            SourceMenuRow(
+                title: "Import from Album",
+                subtitle: subtitle,
+                systemImage: "photo.on.rectangle",
+                iconColor: .accentColor,
+                trailingSystemImage: "plus.circle.fill"
+            )
+        }
+        .buttonStyle(.plain)
+        .onChange(of: selectedPhoto) { _, item in
+            guard let item else { return }
+            Task {
+                do {
+                    let image = try await CaptureImageLoader.capturedImage(from: item)
+                    await MainActor.run {
+                        selectedPhoto = nil
+                        onImage(image)
+                    }
+                } catch {
+                    await MainActor.run {
+                        selectedPhoto = nil
+                        onError(error)
+                    }
+                }
             }
         }
-        .pickerStyle(.segmented)
-        .controlSize(.small)
-        .accessibilityLabel("Page order")
     }
 }
+#else
+private struct BrowsePhotoImportSourceRow: View {
+    let subtitle: String
+    let onImage: @MainActor (CapturedImage) -> Void
+    let onError: @MainActor (Error) -> Void
+
+    var body: some View {
+        Button {
+            onError(CocoaError(.featureUnsupported))
+        } label: {
+            SourceMenuRow(
+                title: "Import from Album",
+                subtitle: subtitle,
+                systemImage: "photo.on.rectangle",
+                iconColor: .accentColor,
+                trailingSystemImage: "plus.circle.fill"
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+#endif

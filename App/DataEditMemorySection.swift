@@ -9,12 +9,11 @@ extension DataEditTab {
             title: "Backup Contents",
             subtitle: "This is the Radix data included when you create an iCloud backup or restore one from another device.",
             badges: ["iCloud Backup", "Cross-Device", "Recoverable"],
-            addedPhraseReviewCount: store.addedPhrases.filter { !store.isPhraseInBase($0.word) }.count,
-            addedPhrasePageCharacterCount: addedPhrasePageText.count,
-            onReviewAddedPhrases: presentAddedPhraseReview,
-            onCreateAddedPhrasesPage: createAddedPhrasesPage,
-            onDeleteAddedPhrases: {
-                showDeleteAddedPhrasesConfirmation = true
+            onOpenSavedPages: {
+                store.goToBrowsePages(selectLatest: false)
+            },
+            onOpenAddedPhrases: {
+                store.goToStudyAddedPhrases()
             },
             onPreviewCharacter: previewBackupCharacter,
             showSavedPagesPreview: $showSavedPagesPreview,
@@ -22,10 +21,54 @@ extension DataEditTab {
             showAITemplatesPreview: $showAITemplatesPreview,
             showAppStatePreview: $showAppStatePreview,
             showAddedCharactersPreview: $showAddedCharactersPreview,
-            showAddedPhrasesPreview: $showAddedPhrasesPreview,
             showEditedCharactersPreview: $showEditedCharactersPreview,
             showEditedPhrasesPreview: $showEditedPhrasesPreview
         )
+    }
+
+    var compactBackupContentsSection: some View {
+        DataBackupPreviewSection(
+            addedPhraseEntries: addedPhraseEntries,
+            basePhraseCoreEditEntries: basePhraseCoreEditEntries,
+            phraseEntriesWithNotes: phraseEntriesWithNotes,
+            title: "Backup Contents",
+            subtitle: "This is the Radix data included when you create an iCloud backup or restore one from another device.",
+            badges: ["iCloud Backup", "Cross-Device", "Recoverable"],
+            isCompactListOnly: true,
+            onOpenSavedPages: {
+                store.goToBrowsePages(selectLatest: false)
+            },
+            onOpenAddedPhrases: {
+                store.goToStudyAddedPhrases()
+            },
+            onPreviewCharacter: previewBackupCharacter,
+            showSavedPagesPreview: $showSavedPagesPreview,
+            showFavoritesPreview: $showFavoritesPreview,
+            showAITemplatesPreview: $showAITemplatesPreview,
+            showAppStatePreview: $showAppStatePreview,
+            showAddedCharactersPreview: $showAddedCharactersPreview,
+            showEditedCharactersPreview: $showEditedCharactersPreview,
+            showEditedPhrasesPreview: $showEditedPhrasesPreview
+        )
+    }
+
+    var compactBackupContentsDisclosure: some View {
+        DisclosureGroup(isExpanded: $showBackupContentsDetails) {
+            compactBackupContentsSection
+                .padding(.top, 8)
+        } label: {
+            HStack(spacing: 8) {
+                Label("What is included?", systemImage: "list.bullet.rectangle")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                Spacer(minLength: 0)
+                Text("\(store.allCollections.count) pages, \(addedPhraseEntries.count) phrases")
+                    .font(ResponsiveFont.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(10)
+        .background(RadixTheme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     var personalLibraryTimelineSection: some View {
@@ -49,7 +92,7 @@ extension DataEditTab {
                         systemName: "plus.circle",
                         tint: .accentColor
                     ) {
-                        store.route = .capture
+                        store.goToBrowse()
                     }
                 } else {
                     ForEach(moments) { moment in
@@ -69,23 +112,6 @@ extension DataEditTab {
         .padding(12)
         .background(RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    var addedPhraseWordsForPage: [String] {
-        addedPhraseEntries
-            .filter(\.isVisibleInPhraseLibrary)
-            .map { store.normalizedPhraseWord($0.word) }
-            .filter { $0.count >= 2 }
-    }
-
-    var activeAddedPhraseWords: [String] {
-        addedPhraseEntries
-            .map { store.normalizedPhraseWord($0.word) }
-            .filter { $0.count >= 2 }
-    }
-
-    var addedPhrasePageText: String {
-        addedPhraseWordsForPage.joined(separator: " ")
     }
 
     var personalLibraryMoments: [DataLibraryMoment] {
@@ -179,58 +205,10 @@ extension DataEditTab {
         date.formatted(date: .abbreviated, time: .omitted)
     }
 
-    func presentAddedPhraseReview() {
-        showBackupAlert = false
-        showDeleteAddedPhrasesConfirmation = false
-        showRestorePicker = false
-        showReuseExporter = false
-        addedPhraseReviewPresentation = nil
-
-        DispatchQueue.main.async {
-            addedPhraseReviewPresentation = AddedPhraseReviewPresentation()
-        }
-    }
-
     func previewBackupCharacter(_ character: String) {
         store.preview(character: character)
         if RadixPlatform.isPhone {
             withAnimation { dataEditScrollProxy?.scrollTo("myDataTop", anchor: .top) }
-        }
-    }
-
-    func createAddedPhrasesPage() {
-        let pageText = addedPhrasePageText
-        let characterCount = CaptureTextExtractor.allCharactersInOrder(in: pageText).count
-        guard characterCount > 0 else {
-            editorMessage = nil
-            editorError = "Add phrases first, then create a page from them."
-            return
-        }
-
-        guard let collection = store.createCollection(
-            name: "AI Review",
-            sourceText: pageText,
-            sourceType: .manual
-        ) else {
-            editorMessage = nil
-            editorError = "Radix could not create a page from those phrases."
-            return
-        }
-
-        editorError = nil
-        editorMessage = "Created AI Review page from \(characterCount) characters in added phrases."
-        store.goToBrowse()
-        store.selectBrowseCollection(id: collection.id)
-    }
-
-    func deleteAllAddedPhrases() {
-        do {
-            let deletedCount = try store.removeAddedPhrases(words: activeAddedPhraseWords)
-            editorError = nil
-            editorMessage = deletedCount == 0 ? "No added phrases to delete." : "Deleted \(deletedCount) added phrase\(deletedCount == 1 ? "" : "s")."
-        } catch {
-            editorMessage = nil
-            editorError = "Delete failed: \(error.localizedDescription)"
         }
     }
 }

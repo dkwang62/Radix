@@ -36,7 +36,7 @@ extension CharacterDetailView {
                     .font(.system(size: fontSize))
                     .copyCharacterContextMenu(linkedItem.character, pinyin: linkedItem.pinyinText)
                 Text(linkedItem.pinyinText.isEmpty ? " " : linkedItem.pinyinText)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity)

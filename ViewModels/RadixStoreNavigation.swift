@@ -186,6 +186,30 @@ extension RadixStore {
         clearBrowsePreview()
     }
 
+    func goToBrowsePages(selectLatest: Bool = true) {
+        goToBrowse()
+        if selectLatest,
+           let collection = sortedCollections(order: .scanned).first {
+            selectBrowseCollection(id: collection.id)
+        } else {
+            selectedBrowseCollectionID = nil
+            shouldOpenBrowsePages = true
+        }
+    }
+
+    func goToStudyAddedPhrases() {
+        route = .search
+        homeTab = .favourites
+        activeFavouriteCharacter = nil
+        showiPhoneDetail = false
+        shouldOpenAddedPhraseReview = true
+    }
+
+    func startBrowseCameraPage() {
+        goToBrowsePages(selectLatest: false)
+        shouldStartBrowseCamera = true
+    }
+
     func goToDataEdit() {
         route = .search
         homeTab = .dataEdit

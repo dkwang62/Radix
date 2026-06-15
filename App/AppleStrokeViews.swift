@@ -187,7 +187,7 @@ struct SearchExampleButton: View {
 
                 if let desc = desc {
                     Text(desc)
-                        .font(isPhone ? .system(size: 12) : .system(size: 9))
+                        .font(.system(size: 13))
                         .foregroundStyle(.tertiary)
                         .italic()
                         .lineLimit(1)

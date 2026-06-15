@@ -11,8 +11,17 @@ struct InteractionHintRow: View {
     @State private var hasAnimatedInteractionHintRow = RadixInteractionPreferences.hasAnimatedHintRow
     @State private var isPulsing = false
     @State private var pulseTask: Task<Void, Never>?
+    @State private var showPhoneTips = false
 
     var body: some View {
+        if RadixPlatform.isPhone {
+            phoneTipsBody
+        } else {
+            compactHintBody
+        }
+    }
+
+    private var compactHintBody: some View {
         HStack(spacing: 0) {
             hintSegment(icon: "cursorarrow", text: previewText)
             segmentDivider
@@ -48,6 +57,55 @@ struct InteractionHintRow: View {
         }
         .onDisappear {
             cancelPulse()
+        }
+    }
+
+    private var phoneTipsBody: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.18)) {
+                    showPhoneTips.toggle()
+                }
+            } label: {
+                Label("Tips", systemImage: "info.circle")
+                    .font(ResponsiveFont.body.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .buttonStyle(.plain)
+            .onLongPressGesture {
+                withAnimation(.easeInOut(duration: 0.18)) {
+                    showPhoneTips.toggle()
+                }
+            }
+            .accessibilityHint(showPhoneTips ? "Hides browsing tips" : "Shows browsing tips")
+
+            if showPhoneTips {
+                VStack(alignment: .leading, spacing: 8) {
+                    phoneTip(icon: "cursorarrow", text: previewText)
+                    phoneTip(icon: "bookmark", text: memoryText)
+                    phoneTip(icon: "doc.on.doc", text: copyText)
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RadixTheme.secondaryBackground.opacity(0.70))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func phoneTip(icon: String, text: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Image(systemName: icon)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 20, alignment: .center)
+
+            Text(text)
+                .font(ResponsiveFont.body)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

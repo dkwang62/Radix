@@ -11,7 +11,10 @@ struct FilterGridTab: View {
     @State var freePageUseCount = RadixCaptureUsage.freeScanCount
     @State var showBrowseFilters = false
     @State var showManualCollectionSheet = false
+    @State var showBrowseCamera = false
+    @State var showBrowseImageFileImporter = false
     @State var showBrowseSource = false
+    @State var showDictionaryHelp = false
     @State var showBrowseInteractionHint = false
     @State var manualCollectionName = ""
     @State var manualCollectionText = ""
@@ -27,6 +30,7 @@ struct FilterGridTab: View {
     @State var phraseExtractionOutput = ""
     @State var imageActionMessage: String?
     @State var isRunningImageAction = false
+    @State var isProcessingBrowseImageImport = false
     @State var lastTappedImageOffset: Int?
 
     var isRunningOnMac: Bool {
@@ -139,7 +143,14 @@ struct FilterGridTab: View {
                 browsePageSortOrder = RadixBrowsePreferences.pageSortOrder
                 freePageUseCount = RadixCaptureUsage.freeScanCount
                 prepareBrowseHintIfNeeded()
+                consumeBrowsePageRequests()
                 scrollToPendingBrowseTarget(proxy: proxy)
+            }
+            .onChange(of: store.shouldOpenBrowsePages) { _, _ in
+                consumeBrowsePageRequests()
+            }
+            .onChange(of: store.shouldStartBrowseCamera) { _, _ in
+                consumeBrowsePageRequests()
             }
             .sheet(isPresented: $showBrowseFilters) {
                 BrowseFiltersSheet(sizeClass: sizeClass) {
@@ -199,6 +210,24 @@ struct FilterGridTab: View {
                 BrowsePagePhraseListSheet(collectionID: collection.id)
                     .environmentObject(store)
             }
+            .sheet(isPresented: $showBrowseCamera) {
+                CameraCaptureView { image in
+                    showBrowseCamera = false
+                    Task { await recognizeBrowseImage(image) }
+                } onError: { error in
+                    showBrowseCamera = false
+                    imageActionMessage = error.localizedDescription
+                }
+            }
+            .modifier(CaptureFileImportModifier(
+                isPresented: $showBrowseImageFileImporter,
+                onImage: { image in
+                    Task { await recognizeBrowseImage(image) }
+                },
+                onError: { error in
+                    imageActionMessage = error.localizedDescription
+                }
+            ))
             .alert("Delete Saved Image?", isPresented: Binding(
                 get: { pendingDeleteCollection != nil },
                 set: { if !$0 { pendingDeleteCollection = nil } }

@@ -1,7 +1,16 @@
 import SwiftUI
 
 extension DataEditTab {
+    @ViewBuilder
     var backupAndRestoreSection: some View {
+        if RadixPlatform.isPhone {
+            compactPhoneBackupAndRestoreSection
+        } else {
+            fullBackupAndRestoreSection
+        }
+    }
+
+    var fullBackupAndRestoreSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text("iCloud Backup")
@@ -88,6 +97,108 @@ extension DataEditTab {
         .padding()
         .background(RadixTheme.secondaryBackground.opacity(0.4))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    var compactPhoneBackupAndRestoreSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center, spacing: 8) {
+                Text("iCloud Backup")
+                    .font(ResponsiveFont.headline)
+                Text("Plus")
+                    .font(ResponsiveFont.caption.bold())
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.accentColor.opacity(0.14))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                Spacer(minLength: 0)
+                RadixInlineHelpDisclosure(
+                    title: "iCloud Backup",
+                    message: "Save a Radix backup to iCloud Drive, add missing items from a backup, or replace this device from a backup.",
+                    systemImage: "externaldrive.badge.icloud"
+                )
+            }
+
+            LazyVGrid(columns: backupActionColumns, spacing: 10) {
+                backupToiCloudButton
+                addFromBackupButton
+                restoreBackupButton
+            }
+
+            otherDeviceSavedStatusRow
+
+            myBackupVisibilityNote
+
+            compactBackupContentsDisclosure
+        }
+        .padding(12)
+        .background(RadixTheme.secondaryBackground.opacity(0.4))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    var backupToiCloudButton: some View {
+        Button {
+            guard !entitlement.requiresPro(.myBackup) else {
+                onRequirePro(.myBackup)
+                return
+            }
+            createPortableBackup()
+        } label: {
+            DataBackupActionButton(
+                title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : "Back Up to iCloud",
+                subtitle: "Choose iCloud Drive",
+                systemName: "square.and.arrow.up.fill",
+                foreground: .white,
+                background: Color.accentColor,
+                border: Color.accentColor,
+                isLocked: entitlement.requiresPro(.myBackup)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(reuseExportInProgress)
+    }
+
+    var addFromBackupButton: some View {
+        Button {
+            guard !entitlement.requiresPro(.myBackup) else {
+                onRequirePro(.myBackup)
+                return
+            }
+            pendingRestoreMode = .additive
+            showRestorePicker = true
+        } label: {
+            DataBackupActionButton(
+                title: "Add From Backup",
+                subtitle: "Keep what is here",
+                systemName: "square.and.arrow.down",
+                foreground: Color.accentColor,
+                background: Color.accentColor.opacity(0.1),
+                border: Color.accentColor.opacity(0.35),
+                isLocked: entitlement.requiresPro(.myBackup)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    var restoreBackupButton: some View {
+        Button {
+            guard !entitlement.requiresPro(.myBackup) else {
+                onRequirePro(.myBackup)
+                return
+            }
+            pendingRestoreMode = .complete
+            showRestorePicker = true
+        } label: {
+            DataBackupActionButton(
+                title: "Restore Backup",
+                subtitle: "Replace this device",
+                systemName: "square.and.arrow.down.fill",
+                foreground: Color.orange,
+                background: Color.orange.opacity(0.1),
+                border: Color.orange.opacity(0.35),
+                isLocked: entitlement.requiresPro(.myBackup)
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder

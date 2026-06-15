@@ -63,7 +63,7 @@ extension AILinkView {
                     store.resetPromptConfigToDefaults()
                 }
                 .buttonStyle(.bordered)
-                .font(.caption)
+                .font(ResponsiveFont.caption)
             }
         }
         .padding()
@@ -100,7 +100,7 @@ extension AILinkView {
                     store.removePromptTask(taskID: task.id)
                 } label: {
                     Image(systemName: "trash")
-                        .font(.caption)
+                        .font(ResponsiveFont.caption)
                 }
             }
 

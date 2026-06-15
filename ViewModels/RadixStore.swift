@@ -324,6 +324,9 @@ final class RadixStore: ObservableObject {
             scheduleGridRecompute()
         }
     }
+    @Published var shouldOpenBrowsePages = false
+    @Published var shouldOpenAddedPhraseReview = false
+    @Published var shouldStartBrowseCamera = false
     @Published var selectedAICollectionID: UUID? = nil {
         didSet {
             guard oldValue != selectedAICollectionID else { return }
@@ -538,9 +541,6 @@ final class RadixStore: ObservableObject {
         loadFavorites()
         loadSearchHistory()
         loadRootBreadcrumb()
-        if rootBreadcrumb.isEmpty {
-            seedBreadcrumbFromFavorites()
-        }
         clearSearch()
         refreshAllCharactersCache()
         recomputeGridItems()
@@ -892,11 +892,6 @@ final class RadixStore: ObservableObject {
             applyRootBreadcrumb(rememberedList)
         } else if isCompleteRestore {
             applyRootBreadcrumb([])
-            if rootBreadcrumb.isEmpty {
-                seedBreadcrumbFromFavorites()
-            }
-        } else if rootBreadcrumb.isEmpty {
-            seedBreadcrumbFromFavorites()
         }
 
         if let searchHistory = profile.searchHistory {

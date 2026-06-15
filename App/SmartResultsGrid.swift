@@ -138,7 +138,7 @@ struct SmartResultsGrid: View {
                                     .font(.system(size: fontSize))
                                     .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
                                 Text(item.pinyinText.isEmpty ? " " : item.pinyinText)
-                                    .font(.system(size: 12, weight: .semibold))
+                                    .font(.system(size: 13, weight: .semibold))
                                     .foregroundStyle(.secondary)
                                     .lineLimit(1)
                             }

@@ -6,98 +6,21 @@ extension FilterGridTab {
         let selectedCollection = store.selectedBrowseCollection
 
         VStack(alignment: .leading, spacing: 10) {
-            browseSourceSwitcher
-
             if showBrowseSource {
                 browseSavedPageOptions
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-            }
-
-            if let selectedCollection {
+            } else if let selectedCollection {
                 selectedImageSourceLabel(selectedCollection)
             } else {
-                HStack(spacing: 8) {
-                    smartGridControls
-                    Spacer(minLength: 0)
-                    Text(description)
-                        .font(ResponsiveFont.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.trailing)
-                }
+                dictionarySourceLabel(description: description)
             }
         }
-        .padding(selectedCollection == nil ? 10 : 8)
+        .padding(showBrowseSource || selectedCollection == nil ? 10 : 8)
         .background(RadixTheme.secondaryBackground.opacity(0.55))
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(selectedCollection == nil ? RadixTheme.separator : Color.clear, lineWidth: 0.5)
+                .stroke(showBrowseSource || selectedCollection == nil ? RadixTheme.separator : Color.clear, lineWidth: 0.5)
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    var browseSourceSwitcher: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 6) {
-                browseSourceSwitchButtons
-            }
-            VStack(spacing: 6) {
-                browseSourceSwitchButtons
-            }
-        }
-    }
-
-    private var browseSourceSwitchButtons: some View {
-        Group {
-            browseSourceSwitchButton(
-                title: "Dictionary",
-                icon: "book",
-                isActive: store.selectedBrowseCollection == nil
-            ) {
-                store.selectBrowseCollection(id: nil)
-                withAnimation(.easeInOut(duration: 0.16)) {
-                    showBrowseSource = false
-                }
-            }
-
-            browseSourceSwitchButton(
-                title: browsePagesSwitchTitle,
-                icon: "photo.on.rectangle",
-                isActive: store.selectedBrowseCollection != nil || showBrowseSource
-            ) {
-                withAnimation(.easeInOut(duration: 0.16)) {
-                    showBrowseSource.toggle()
-                }
-            }
-        }
-    }
-
-    private var browsePagesSwitchTitle: String {
-        if isPhoneBrowseLayout {
-            return store.allCollections.isEmpty ? "Pages" : "Pages \(store.allCollections.count)"
-        }
-        return store.allCollections.isEmpty ? "Saved Pages" : "Saved Pages (\(store.allCollections.count))"
-    }
-
-    func browseSourceSwitchButton(
-        title: String,
-        icon: String,
-        isActive: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            Label(title, systemImage: icon)
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 9)
-                .background(isActive ? Color.accentColor : RadixTheme.background)
-                .foregroundStyle(isActive ? Color.white : Color.primary)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-        .buttonStyle(.plain)
     }
 
     func selectedImageSourceLabel(_ collection: CharacterCollection) -> some View {
@@ -122,19 +45,7 @@ extension FilterGridTab {
 
                 Spacer(minLength: 0)
 
-                Button {
-                    store.selectBrowseCollection(id: nil)
-                    withAnimation(.easeInOut(duration: 0.16)) {
-                        showBrowseSource = false
-                    }
-                } label: {
-                    Image(systemName: "xmark.circle")
-                        .font(.system(size: 16, weight: .semibold))
-                        .frame(width: 32, height: 32)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .accessibilityLabel("Return to Dictionary")
+                browseSourceBackButton(accessibilityLabel: "Show Pages")
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -151,6 +62,70 @@ extension FilterGridTab {
         .padding(10)
         .background(RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    func dictionarySourceLabel(description: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    Image(systemName: "book")
+                        .font(.system(size: 16, weight: .semibold))
+                        .frame(width: 32, height: 32)
+                        .background(RadixTheme.secondaryBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                    Text("Dictionary")
+                        .font(ResponsiveFont.body.weight(.semibold))
+                        .lineLimit(1)
+                }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        toggleDictionaryHelp()
+                    }
+                    .onLongPressGesture {
+                        toggleDictionaryHelp()
+                    }
+                    .accessibilityLabel("Dictionary help")
+                    .accessibilityHint("Shows or hides dictionary help")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityAction {
+                        toggleDictionaryHelp()
+                    }
+
+                smartGridControls
+                Spacer(minLength: 0)
+                browseSourceBackButton(accessibilityLabel: "Show Browse Sources")
+            }
+
+            if showDictionaryHelp {
+                Text(description)
+                    .font(ResponsiveFont.body)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+    }
+
+    func toggleDictionaryHelp() {
+        withAnimation(.easeInOut(duration: 0.16)) {
+            showDictionaryHelp.toggle()
+        }
+    }
+
+    func browseSourceBackButton(accessibilityLabel: String) -> some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.16)) {
+                showBrowseSource = true
+            }
+        } label: {
+            Image(systemName: "chevron.left")
+                .font(.system(size: 16, weight: .semibold))
+                .frame(width: 32, height: 32)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .accessibilityLabel(accessibilityLabel)
     }
 
     func browseSourceLabel(collection: CharacterCollection?) -> some View {

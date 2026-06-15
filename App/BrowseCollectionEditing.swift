@@ -35,6 +35,87 @@ extension FilterGridTab {
         showManualCollectionSheet = true
     }
 
+    func beginBrowseImageFileImport() {
+        guard !entitlement.requiresPro(.datedCopies) else {
+            store.showPaywall(for: .datedCopies)
+            return
+        }
+        imageActionMessage = nil
+        showBrowseImageFileImporter = true
+    }
+
+    func beginBrowseCameraScan() {
+        guard hasUnlimitedFreePages || freePagesRemaining > 0 else {
+            store.showPaywall(for: .datedCopies)
+            return
+        }
+        imageActionMessage = nil
+        showBrowseSource = true
+        showBrowseCamera = true
+    }
+
+    func consumeBrowsePageRequests() {
+        if store.shouldOpenBrowsePages {
+            store.shouldOpenBrowsePages = false
+            withAnimation(.easeInOut(duration: 0.16)) {
+                showBrowseSource = true
+            }
+        }
+
+        if store.shouldStartBrowseCamera {
+            store.shouldStartBrowseCamera = false
+            withAnimation(.easeInOut(duration: 0.16)) {
+                showBrowseSource = true
+            }
+            beginBrowseCameraScan()
+        }
+    }
+
+    @MainActor
+    func recognizeBrowseImage(_ image: CapturedImage) async {
+        guard !entitlement.requiresPro(.datedCopies) else {
+            store.showPaywall(for: .datedCopies)
+            return
+        }
+
+        isProcessingBrowseImageImport = true
+        imageActionMessage = nil
+        defer { isProcessingBrowseImageImport = false }
+
+        do {
+            let text = try await CaptureOCRService().recognizeText(in: image)
+            let foundCharacters = CaptureTextExtractor.allCharactersInOrder(in: text)
+            guard !foundCharacters.isEmpty else {
+                imageActionMessage = CaptureStatusText.noChineseCharactersFound
+                return
+            }
+
+            guard let collection = store.createCollection(
+                name: "",
+                sourceText: foundCharacters.joined(separator: " "),
+                sourceType: .ocr,
+                thumbnailJPEGData: CaptureImageThumbnailer.makeJPEGData(from: image)
+            ) else {
+                imageActionMessage = CaptureStatusText.noChineseCharactersFound
+                return
+            }
+
+            if !hasUnlimitedFreePages {
+                freePageUseCount = RadixCaptureUsage.incrementFreeScanCount(limit: freePageLimit)
+            }
+
+            store.selectBrowseCollection(id: collection.id)
+            store.clearBrowsePreview()
+            showBrowseSource = false
+            imageActionMessage = CaptureStatusText.savedCollection(
+                name: collection.name.isEmpty ? "page" : collection.name,
+                characterCount: collection.characters.count
+            )
+        } catch {
+            imageActionMessage = error.localizedDescription
+        }
+    }
+
     func saveManualCollection() {
         guard let collection = store.createCollection(
             name: manualCollectionName,

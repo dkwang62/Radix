@@ -31,6 +31,7 @@ struct RootView: View {
     @State var isQuickSavingMemory = false
     @State var isQuickRestoringMemory = false
     @State var quickLocalSnapshots: [LocalDataSnapshot] = []
+    @State var shouldOpenPhoneCamera = false
 
     var body: some View {
         Group {

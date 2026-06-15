@@ -6,7 +6,7 @@ extension FavouritesTab {
             recentStudyHeader
 
             if studyReviewTiles.isEmpty {
-                Text(studyGridScope == .favorites ? "No favorite study items yet." : "No study items yet.")
+                Text(studyGridScope.emptyMessage)
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
                     .padding(.vertical, 10)
@@ -94,7 +94,7 @@ extension FavouritesTab {
             Image(systemName: RadixIcon.saved)
                 .font(ResponsiveFont.tinySystem(size: 10, weight: .semibold))
                 .foregroundStyle(.yellow)
-            Text("Tap a phrase to preview it. Tap its star to favorite the whole phrase.")
+            Text(studyGridScope.legendText)
                 .font(ResponsiveFont.caption2)
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
@@ -114,7 +114,7 @@ extension FavouritesTab {
         }
         .pickerStyle(.segmented)
         .controlSize(.small)
-        .frame(maxWidth: isNarrowStudyLayout ? 144 : 160)
+        .frame(maxWidth: isNarrowStudyLayout ? 220 : 240)
         .accessibilityLabel("Study items")
     }
 
@@ -185,7 +185,6 @@ extension FavouritesTab {
                 background: BrowseImageTileStyle.background(isActive: isActive, highlightRole: nil, isMemoryHighlighted: false),
                 stroke: BrowseImageTileStyle.stroke(isActive: isActive, highlightRole: nil, isMemoryHighlighted: false),
                 strokeWidth: RadixTileMetrics.borderWidth,
-                matchPhraseTileTextSize: true,
                 onShowPhrases: {
                     store.refreshPhrases(for: entry.character)
                     NotificationCenter.default.post(name: .radixShowPhraseTable, object: entry.character)

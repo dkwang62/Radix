@@ -1,9 +1,15 @@
 import SwiftUI
 
 struct CaptureTab: View {
+    enum Presentation {
+        case standard
+        case directCamera
+    }
+
     @EnvironmentObject private var store: RadixStore
     @EnvironmentObject private var entitlement: EntitlementManager
     @Environment(\.openURL) private var openURL
+    @Binding private var shouldOpenCamera: Bool
     @State private var showImageFileImporter = false
     @State private var selectedImage: CapturedImage?
     @State private var isProcessing = false
@@ -16,7 +22,16 @@ struct CaptureTab: View {
     @State private var lastSavedCollectionID: UUID?
     @State private var freePageUseCount = RadixCaptureUsage.freeScanCount
 
+    private let presentation: Presentation
     private let freePageLimit = 100
+
+    init(
+        shouldOpenCamera: Binding<Bool> = .constant(false),
+        presentation: Presentation = .standard
+    ) {
+        _shouldOpenCamera = shouldOpenCamera
+        self.presentation = presentation
+    }
 
     private enum CaptureSource {
         case camera
@@ -39,7 +54,9 @@ struct CaptureTab: View {
                     if isPhoneCapturePreviewActive {
                         phoneCapturePreview
                     } else if store.activeCaptureDraft.rawText.isEmpty {
-                        header
+                        if showsSourceHeader {
+                            header
+                        }
                         CaptureStatusMessages(errorMessage: errorMessage, statusMessage: statusMessage)
                         CaptureImagePreview(image: selectedImage)
                         if isProcessing {
@@ -50,7 +67,9 @@ struct CaptureTab: View {
                             emptyState
                         }
                     } else {
-                        header
+                        if showsSourceHeader {
+                            header
+                        }
                         CaptureStatusMessages(errorMessage: errorMessage, statusMessage: statusMessage)
                         CaptureImagePreview(image: selectedImage)
                         captureResults(scrollToTop: {
@@ -92,7 +111,19 @@ struct CaptureTab: View {
         }
         .onAppear {
             freePageUseCount = RadixCaptureUsage.freeScanCount
+            openRequestedCameraIfNeeded()
         }
+        .onChange(of: shouldOpenCamera) { _, _ in
+            openRequestedCameraIfNeeded()
+        }
+    }
+
+    private var showsSourceHeader: Bool {
+        presentation == .standard
+    }
+
+    private var showsSavedPagesList: Bool {
+        presentation == .standard
     }
 
     private var header: some View {
@@ -143,8 +174,28 @@ struct CaptureTab: View {
         ""
     }
 
+    @ViewBuilder
     private var emptyState: some View {
-        savedImagesList
+        if showsSavedPagesList {
+            savedImagesList
+        } else {
+            directCameraEmptyState
+        }
+    }
+
+    private var directCameraEmptyState: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label("Ready to capture Chinese text", systemImage: "camera.viewfinder")
+                .font(ResponsiveFont.body.weight(.semibold))
+            Text("Use Take Photo above. New pages open in Browse after Radix reads the image.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RadixTheme.secondaryBackground.opacity(0.55))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private var isPhoneCapturePreviewActive: Bool {
@@ -207,7 +258,9 @@ struct CaptureTab: View {
     private func captureResults(scrollToTop: @escaping () -> Void) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             captureCharactersSection(scrollToTop: scrollToTop)
-            savedImagesList
+            if showsSavedPagesList {
+                savedImagesList
+            }
         }
     }
 
@@ -306,5 +359,11 @@ struct CaptureTab: View {
             return
         }
         showCamera = true
+    }
+
+    private func openRequestedCameraIfNeeded() {
+        guard shouldOpenCamera else { return }
+        shouldOpenCamera = false
+        startCameraScan()
     }
 }
