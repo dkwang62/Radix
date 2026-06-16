@@ -31,4 +31,5 @@ phrases.db
 enhanced_component_map_with_etymology.json
 SUBTLEX-CH-CHR.txt
 *.zip
+!Resources/RadixProjectSource.zip
 *.latest
