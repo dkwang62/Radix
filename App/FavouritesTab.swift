@@ -70,6 +70,18 @@ struct FavouritesTab: View {
                 ContentUnavailableView("No Study Items", systemImage: "clock.badge.questionmark", description: Text("Search, scan, or star a character."))
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            if isPhone && !isPhoneStudyPreviewActive && hasStudyContent {
+                VStack(spacing: 0) {
+                    Divider()
+                    studySnapshotActions
+                        .padding(.horizontal)
+                        .padding(.top, 10)
+                        .padding(.bottom, 8)
+                }
+                .background(.ultraThinMaterial)
+            }
+        }
         .sheet(item: phonePhraseSheetBinding) { phrase in
             NavigationStack {
                 PhraseInfoCard(phrase: phrase, onDone: {

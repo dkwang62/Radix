@@ -62,8 +62,8 @@ extension DataEditTab {
                     showRestorePicker = true
                 } label: {
                     DataBackupActionButton(
-                        title: "Add From Backup",
-                        subtitle: "Keep what is here",
+                        title: "Amalgamate",
+                        subtitle: "Merge with this device",
                         systemName: "square.and.arrow.down",
                         foreground: Color.accentColor,
                         background: Color.accentColor.opacity(0.1),
@@ -101,29 +101,6 @@ extension DataEditTab {
 
     var compactPhoneBackupAndRestoreSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .center, spacing: 8) {
-                Text("iCloud Backup")
-                    .font(ResponsiveFont.headline)
-                Text("Plus")
-                    .font(ResponsiveFont.caption.bold())
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.accentColor.opacity(0.14))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                Spacer(minLength: 0)
-                RadixInlineHelpDisclosure(
-                    title: "iCloud Backup",
-                    message: "Save a Radix backup to iCloud Drive, add missing items from a backup, or replace this device from a backup.",
-                    systemImage: "externaldrive.badge.icloud"
-                )
-            }
-
-            LazyVGrid(columns: backupActionColumns, spacing: 10) {
-                backupToiCloudButton
-                addFromBackupButton
-                restoreBackupButton
-            }
-
             otherDeviceSavedStatusRow
 
             myBackupVisibilityNote
@@ -135,6 +112,23 @@ extension DataEditTab {
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
+    var compactPhoneBackupActionBar: some View {
+        VStack(spacing: 8) {
+            LazyVGrid(columns: backupActionColumns, spacing: 8) {
+                backupToiCloudButton
+                addFromBackupButton
+                restoreBackupButton
+            }
+        }
+        .padding(.horizontal)
+        .padding(.top, 10)
+        .padding(.bottom, 8)
+        .background(.ultraThinMaterial)
+        .overlay(alignment: .top) {
+            Divider()
+        }
+    }
+
     var backupToiCloudButton: some View {
         Button {
             guard !entitlement.requiresPro(.myBackup) else {
@@ -144,7 +138,7 @@ extension DataEditTab {
             createPortableBackup()
         } label: {
             DataBackupActionButton(
-                title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : "Back Up to iCloud",
+                title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : "Save Backup",
                 subtitle: "Choose iCloud Drive",
                 systemName: "square.and.arrow.up.fill",
                 foreground: .white,
@@ -167,8 +161,8 @@ extension DataEditTab {
             showRestorePicker = true
         } label: {
             DataBackupActionButton(
-                title: "Add From Backup",
-                subtitle: "Keep what is here",
+                title: "Amalgamate",
+                subtitle: "Merge with this device",
                 systemName: "square.and.arrow.down",
                 foreground: Color.accentColor,
                 background: Color.accentColor.opacity(0.1),
@@ -204,7 +198,7 @@ extension DataEditTab {
     @ViewBuilder
     var myBackupVisibilityNote: some View {
         if entitlement.requiresPro(.myBackup) {
-            Label("You can preview backup contents for free. Creating and restoring iCloud backups unlocks with Radix Plus.", systemImage: "lock.open")
+            Label("You can preview contents for free. Saving and restoring backups unlocks with Radix Plus.", systemImage: "lock.open")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .padding(10)
@@ -226,7 +220,7 @@ extension DataEditTab {
             Image(systemName: hasSavedFile ? "checkmark.circle.fill" : "externaldrive")
                 .foregroundStyle(hasSavedFile ? Color.green : Color.secondary)
 
-            Text(hasSavedFile ? "Last iCloud backup: \(filename) \(relativeText ?? "")." : "No iCloud backup created yet.")
+            Text(hasSavedFile ? "Last backup: \(filename) \(relativeText ?? "")." : "No backup created yet.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(hasSavedFile ? Color.green : Color.secondary)
                 .lineLimit(3)

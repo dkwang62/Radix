@@ -10,19 +10,13 @@ extension FavouritesTab {
 
                 studyDashboardSummary
 
-                studyAddedPhrasesSection
-
-                if isPhone {
-                    studySnapshotActions
-                }
-
                 if hasStudyGridItems {
                     recentStudySection
                 }
 
             }
             .padding(.horizontal)
-            .padding(.bottom, 20)
+            .padding(.bottom, isPhone ? 92 : 20)
         }
     }
 
@@ -106,71 +100,6 @@ extension FavouritesTab {
             )
         }
         .padding(.top, 2)
-    }
-
-    @ViewBuilder
-    var studyAddedPhrasesSection: some View {
-        if !addedStudyPhraseEntries.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                sectionTitle("Added Phrases")
-
-                Button {
-                    presentAddedPhraseReview()
-                } label: {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "text.quote")
-                                .font(.system(size: 15, weight: .semibold))
-                                .foregroundStyle(Color.green)
-                                .frame(width: 30, height: 30)
-                                .background(Color.green.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Review Added Phrases")
-                                    .font(ResponsiveFont.body.weight(.semibold))
-                                    .foregroundStyle(.primary)
-                                Text("\(addedStudyPhraseEntries.count) phrases to classify or prune")
-                                    .font(ResponsiveFont.caption)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(1)
-                            }
-
-                            Spacer(minLength: 0)
-
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(.secondary)
-                        }
-
-                        HStack(spacing: 6) {
-                            addedPhraseStatusPill("New", count: addedStudyPhraseCount(status: nil), tint: Color.secondary)
-                            addedPhraseStatusPill("Checked", count: addedStudyPhraseCount(status: .checked), tint: .accentColor)
-                            addedPhraseStatusPill("Hidden", count: addedStudyPhraseCount(status: .hidden), tint: .orange)
-                            addedPhraseStatusPill("Rejected", count: addedStudyPhraseCount(status: .removed), tint: .red)
-                        }
-                    }
-                    .padding(10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(RadixTheme.secondaryBackground.opacity(0.48))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Review \(addedStudyPhraseEntries.count) added phrases")
-            }
-        }
-    }
-
-    func addedPhraseStatusPill(_ title: String, count: Int, tint: Color) -> some View {
-        Text("\(count) \(title)")
-            .font(ResponsiveFont.caption2.weight(.semibold))
-            .foregroundStyle(tint)
-            .lineLimit(1)
-            .minimumScaleFactor(0.8)
-            .padding(.horizontal, 7)
-            .padding(.vertical, 4)
-            .background(tint.opacity(0.12))
-            .clipShape(Capsule())
     }
 
     @ViewBuilder

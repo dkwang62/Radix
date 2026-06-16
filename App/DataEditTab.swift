@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum DataEditSection: String, CaseIterable, Identifiable {
-    case myBackup = "iCloud Backup"
+    case myBackup = "Backup"
     case advanced = "Advanced Pro"
 
     var id: String { rawValue }
@@ -64,18 +64,25 @@ struct DataEditTab: View {
     var body: some View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
+                if RadixPlatform.isPhone {
+                    myDataHeader
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+                        .padding(.bottom, 8)
+                        .background(RadixTheme.background)
+                }
+
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         Color.clear.frame(height: 0).id("myDataTop")
 
                         if !RadixPlatform.isPhone {
                             sharedMemorySaveSection
+                            myDataHeader
+                                .padding(12)
+                                .background(RadixTheme.background)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
-
-                        myDataHeader
-                            .padding(12)
-                            .background(RadixTheme.background)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
 
                         switch activeDataEditSection {
                         case .myBackup:
@@ -97,7 +104,12 @@ struct DataEditTab: View {
                     }
                     .padding(.horizontal)
                     .padding(.top, 16)
-                    .padding(.bottom, 32)
+                    .padding(.bottom, RadixPlatform.isPhone && activeDataEditSection == .myBackup ? 190 : 32)
+                }
+                .safeAreaInset(edge: .bottom) {
+                    if RadixPlatform.isPhone && activeDataEditSection == .myBackup {
+                        compactPhoneBackupActionBar
+                    }
                 }
             }
             .modifier(DataEditTransferModifier(
@@ -135,7 +147,7 @@ struct DataEditTab: View {
         let base = url.deletingPathExtension().lastPathComponent
         if RadixFileTypes.isJSON(reuseExportContentType) && reuseExportFilename == "radix_icloud_backup" {
             lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.recordBackup(at: url)
-            backupMessage = "Created iCloud backup: \(url.lastPathComponent)"
+            backupMessage = "Created backup: \(url.lastPathComponent)"
             showBackupAlert = true
         } else {
             reuseExportMessage = "Saved to: \(url.lastPathComponent)"
@@ -164,7 +176,7 @@ struct DataEditTab: View {
             defer { if accessed { url.stopAccessingSecurityScopedResource() } }
             let data = try Data(contentsOf: url)
             try store.importDataEditData(data, mode: pendingRestoreMode)
-            let modeLabel = pendingRestoreMode == .complete ? "Restored this device" : "Added backup data"
+            let modeLabel = pendingRestoreMode == .complete ? "Restored this device" : "Amalgamated backup data"
             backupMessage = "\(modeLabel) from: \(url.lastPathComponent)"
             showBackupAlert = true
         } catch {
