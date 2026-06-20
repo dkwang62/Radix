@@ -10,6 +10,10 @@ extension FavouritesTab {
 
                 studyDashboardSummary
 
+                if !isPhone {
+                    studySnapshotActions
+                }
+
                 if hasStudyGridItems {
                     recentStudySection
                 }

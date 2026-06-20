@@ -52,7 +52,13 @@ extension RootView {
                         onLoadAddPhrases: loadAddPhrases,
                         onExportAddPhrases: exportAddPhrases,
                         onUseDefaultAddPhrases: useDefaultAddPhrases,
-                        onRequirePro: presentPaywall(for:)
+                        onRequirePro: presentPaywall(for:),
+                        onSaveSnapshot: quickSaveMemory,
+                        onRestoreSnapshot: quickRestoreMemory(from:),
+                        onRefreshSnapshots: refreshQuickLocalSnapshots,
+                        localSnapshots: quickLocalSnapshots,
+                        isSavingSnapshot: isQuickSavingMemory,
+                        isRestoringSnapshot: isQuickRestoringMemory
                     )
                 case .lineage:
                     if store.previewCharacter == nil {
@@ -68,7 +74,13 @@ extension RootView {
                     FavouritesTab(
                         onExportProfile: exportProfile,
                         onImportProfile: importProfile,
-                        onRequirePro: presentPaywall(for:)
+                        onRequirePro: presentPaywall(for:),
+                        onSaveSnapshot: quickSaveMemory,
+                        onRestoreSnapshot: quickRestoreMemory(from:),
+                        onRefreshSnapshots: refreshQuickLocalSnapshots,
+                        localSnapshots: quickLocalSnapshots,
+                        isSavingSnapshot: isQuickSavingMemory,
+                        isRestoringSnapshot: isQuickRestoringMemory
                     )
                 case .aiLink:
                     aiLinkContent

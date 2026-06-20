@@ -9,10 +9,15 @@ extension DataEditTab {
     }
 
     var backupActionColumns: [GridItem] {
-        if sizeClass == .compact {
+        if RadixPlatform.isPhone {
             return [GridItem(.flexible(minimum: 220), spacing: 10)]
         }
         return Array(repeating: GridItem(.flexible(minimum: 150), spacing: 10), count: 3)
+    }
+
+    var pairedBackupActionColumns: [GridItem] {
+        let minimum: CGFloat = RadixPlatform.isPhone ? 132 : 220
+        return Array(repeating: GridItem(.flexible(minimum: minimum), spacing: 10), count: 2)
     }
 
     func librarySummaryTile(title: String, value: String, systemImage: String, tint: Color) -> some View {

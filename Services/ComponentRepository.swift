@@ -33,6 +33,7 @@ final class ComponentRepository {
     private var frequencyProvider = ComponentFrequencyProvider()
     private var scriptClassifier = ComponentScriptClassifier()
     private var decompositionParser = ComponentDecompositionParser()
+    private var searchIndex = ComponentSearchIndex()
 
     var hasOverlayChanges: Bool {
         !overlayUpserts.isEmpty || !overlayDeletions.isEmpty
@@ -235,13 +236,13 @@ final class ComponentRepository {
         knownCharacters = snapshot.knownCharacters
         usedComponents = snapshot.usedComponents
         subtlexLoadedCount = snapshot.subtlexLoadedCount
+        searchIndex = ComponentSearchIndex(allCharacters: snapshot.allCharacters, byCharacter: snapshot.byCharacter)
     }
 
     func search(query: String, scriptFilter: ScriptFilter, limit: Int = 300) -> [ComponentItem] {
         ComponentSearchEngine.search(
             query: query,
-            allCharacters: allCharacters,
-            byCharacter: byCharacter,
+            index: searchIndex,
             limit: limit
         ) { matchesScriptFilter(item: $0, filter: scriptFilter) }
     }
@@ -376,8 +377,7 @@ final class ComponentRepository {
     func searchDefinitions(query: String, scriptFilter: ScriptFilter, limit: Int = 120, isStrict: Bool = false) -> [ComponentItem] {
         ComponentSearchEngine.searchDefinitions(
             query: query,
-            allCharacters: allCharacters,
-            byCharacter: byCharacter,
+            index: searchIndex,
             limit: limit,
             isStrict: isStrict
         ) { matchesScriptFilter(item: $0, filter: scriptFilter) }

@@ -6,12 +6,6 @@ extension DataEditTab {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text("Advanced Pro Files")
                     .font(ResponsiveFont.headline)
-                Text("$99")
-                    .font(ResponsiveFont.caption.bold())
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.orange.opacity(0.16))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
             if entitlement.requiresPro(.advanced) {

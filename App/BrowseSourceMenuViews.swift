@@ -4,28 +4,12 @@ struct BrowseImageScriptToggle: View {
     @Binding var mode: String
 
     var body: some View {
-        HStack(spacing: 4) {
-            scriptButton("简", mode: "simplified", accessibilityLabel: "Read image as simplified Chinese")
-            scriptButton("繁", mode: "traditional", accessibilityLabel: "Read image as traditional Chinese")
+        CompactScriptToggle(
+            isTraditional: mode == "traditional",
+            accessibilityLabel: "Image script"
+        ) {
+            mode = mode == "traditional" ? "simplified" : "traditional"
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Image script")
-        .accessibilityValue(mode == "traditional" ? "Traditional" : "Simplified")
-    }
-
-    private func scriptButton(_ title: String, mode targetMode: String, accessibilityLabel: String) -> some View {
-        Button {
-            mode = targetMode
-        } label: {
-            Text(title)
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .frame(width: 28, height: 28)
-                .background(mode == targetMode ? Color.accentColor : RadixTheme.secondaryBackground)
-                .foregroundStyle(mode == targetMode ? .white : .primary)
-                .clipShape(RoundedRectangle(cornerRadius: 7))
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(accessibilityLabel)
     }
 }
 
@@ -35,6 +19,7 @@ struct CollectionAITaskMenu: View {
     let onAIExtract: () -> Void
     let onTranslate: () -> Void
     let onTranslateAndSave: () -> Void
+    var isCompact = false
 
     var body: some View {
         Menu {
@@ -66,20 +51,31 @@ struct CollectionAITaskMenu: View {
                 }
             }
         } label: {
-            HStack(spacing: 5) {
-                Image(systemName: RadixIcon.aiLink)
-                Text("AI Link")
-                Image(systemName: "chevron.down")
-                    .font(ResponsiveFont.tinySystem(size: 9, weight: .bold))
+            if isCompact {
+                HStack(spacing: 4) {
+                    Image(systemName: RadixIcon.aiLink)
+                    Image(systemName: "chevron.down")
+                        .font(ResponsiveFont.tinySystem(size: 9, weight: .bold))
+                }
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .frame(width: 46)
+            } else {
+                HStack(spacing: 5) {
+                    Image(systemName: RadixIcon.aiLink)
+                    Text("AI Link")
+                    Image(systemName: "chevron.down")
+                        .font(ResponsiveFont.tinySystem(size: 9, weight: .bold))
+                }
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .frame(minWidth: 78)
             }
-            .font(ResponsiveFont.caption2.weight(.semibold))
-            .lineLimit(1)
-            .minimumScaleFactor(0.75)
-            .frame(minWidth: 78)
         }
         .buttonStyle(.borderedProminent)
         .controlSize(.small)
         .accessibilityLabel("AI Link actions for \(collection.name)")
+        .help("AI Link")
     }
 }
 

@@ -179,8 +179,7 @@ extension RootView {
     var phoneGlobalActionRow: some View {
         HStack(spacing: 8) {
             Button {
-                store.goToSearchRoot()
-                store.showiPhoneDetail = false
+                beginNewSearch()
             } label: {
                 phoneGlobalActionLabel(
                     title: "Search",

@@ -17,13 +17,14 @@ extension PhraseInfoCard {
     }
 
     var scriptSegment: some View {
-        HStack(spacing: 4) {
-            scriptButton("简", value: "simplified")
-            scriptButton("繁", value: "traditional")
+        CompactScriptToggle(
+            isTraditional: animationScript == "traditional",
+            accessibilityLabel: "Phrase animation script",
+            minWidth: 42,
+            height: 30
+        ) {
+            animationScript = animationScript == "traditional" ? "simplified" : "traditional"
         }
-        .padding(4)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     @ViewBuilder
@@ -56,17 +57,4 @@ extension PhraseInfoCard {
         }
     }
 
-    func scriptButton(_ label: String, value: String) -> some View {
-        Button {
-            animationScript = value
-        } label: {
-            Text(label)
-                .font(ResponsiveFont.subheadline.weight(.bold))
-                .foregroundStyle(animationScript == value ? Color.white : Color.accentColor)
-                .frame(minWidth: 42, minHeight: 30)
-                .background(animationScript == value ? Color.accentColor : Color.clear)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-        .buttonStyle(.plain)
-    }
 }

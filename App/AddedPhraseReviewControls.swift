@@ -2,25 +2,35 @@ import SwiftUI
 
 extension AddedPhraseReviewSheet {
     var topControlRow: some View {
-        HStack(spacing: 6) {
-            Spacer(minLength: 0)
-
+        HStack(spacing: 8) {
             filterRow
 
-            Button("Done") { dismiss() }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.small)
+            if hasBatchActions {
+                batchMenu
+            }
 
             Spacer(minLength: 0)
+
+            Button { dismiss() } label: {
+                Label("Done", systemImage: "xmark")
+                    .font(reviewControlFont)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+            }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .keyboardShortcut(.cancelAction)
+                .accessibilityLabel("Close phrase classification")
         }
+        .frame(maxWidth: .infinity)
+    }
+
+    var hasBatchActions: Bool {
+        !newPhrases.isEmpty || !rejectedPhrases.isEmpty
     }
 
     var filterRow: some View {
         HStack(spacing: 8) {
-            Text("Filter")
-                .font(ResponsiveFont.caption2.weight(.semibold))
-                .foregroundStyle(.secondary)
-
             Button {
                 showsFilterPicker.toggle()
             } label: {
@@ -32,9 +42,9 @@ extension AddedPhraseReviewSheet {
                         .font(.system(size: 8, weight: .bold))
                         .opacity(0.75)
                 }
-                .font(ResponsiveFont.caption2.weight(.semibold))
+                .font(reviewControlFont)
                 .lineLimit(1)
-                .frame(minWidth: 112)
+                .frame(minWidth: 108)
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.small)
@@ -51,8 +61,6 @@ extension AddedPhraseReviewSheet {
             ForEach(AddedPhraseReviewFilter.menuCases) { option in
                 Button {
                     filter = option
-                    selectedTool = option.tool
-                    reviewCycle.setActiveTool(selectedTool)
                     resetPageAndSelection()
                     showsFilterPicker = false
                 } label: {
@@ -74,7 +82,7 @@ extension AddedPhraseReviewSheet {
                         }
                         .frame(width: 18)
                     }
-                    .font(ResponsiveFont.subheadline)
+                    .font(reviewControlFont)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                     .contentShape(Rectangle())
@@ -100,46 +108,102 @@ extension AddedPhraseReviewSheet {
         .accessibilityHidden(true)
     }
 
-    @ViewBuilder
     var toolRow: some View {
-        if filter != .completed {
-            HStack(spacing: 4) {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack {
+                Text(RadixPlatform.isDesktop ? "Choose a status, then click phrases" : "Choose a status, then tap phrases")
+                    .font(reviewCaptionFont.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+
+                Spacer(minLength: 8)
+
+                if selectedTool != nil {
+                    Button("Stop Marking") {
+                        selectedTool = nil
+                        reviewCycle.setActiveTool(nil)
+                        resetPageAndSelection()
+                    }
+                    .buttonStyle(.borderless)
+                    .font(reviewCaptionFont)
+                }
+            }
+
+            LazyVGrid(columns: reviewToolColumns, spacing: 7) {
                 ForEach(PhraseReviewStatusTool.allCases) { option in
                     Button {
                         toggleTool(option)
                     } label: {
-                        Image(systemName: option.icon)
-                            .font(.system(size: 13, weight: .semibold))
-                            .frame(width: 34, height: 24)
+                        Label(option.title, systemImage: option.icon)
+                            .font(reviewControlFont)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                            .frame(maxWidth: .infinity, minHeight: usesRegularReviewLayout ? 34 : 28)
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
                     .tint(selectedTool == option ? option.color : RadixTheme.systemGray5)
                     .foregroundStyle(selectedTool == option ? Color.white : Color.primary)
                     .accessibilityLabel("Mark as \(option.title)")
-                    .help("Mark as \(option.title)")
+                    .help("Select this tool, then choose phrases to mark them as \(option.title).")
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .center)
+
+            if let selectedTool {
+                Text("\(selectedTool.title) is active. The filter stays unchanged while you classify.")
+                    .font(reviewCaptionFont)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(RadixTheme.secondaryBackground.opacity(0.55))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
-    var promoteCheckedRow: some View {
-        HStack(spacing: 8) {
-            if filter != .completed, !checkedPhrases.isEmpty {
+    var reviewToolColumns: [GridItem] {
+        Array(
+            repeating: GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 7),
+            count: usesRegularReviewLayout ? 4 : 2
+        )
+    }
+
+    var batchMenu: some View {
+        Menu {
+            if !newPhrases.isEmpty {
                 Button {
-                    completeCheckedPhrases()
+                    checkNewPhrases()
                 } label: {
-                    Label("Complete Checked (\(checkedPhrases.count))", systemImage: "checkmark.seal.fill")
-                        .font(ResponsiveFont.caption2.weight(.semibold))
+                    Label("Check New (\(newPhrases.count))", systemImage: "checkmark.circle.fill")
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.small)
-                .tint(Color.accentColor)
-                .help("Move checked phrases out of the review pool. Completed phrases can only be deleted from their detail card.")
             }
+
+            if !rejectedPhrases.isEmpty {
+                Button(role: .destructive) {
+                    showsDeleteRejectedConfirmation = true
+                } label: {
+                    Label("Remove Rejected (\(rejectedPhrases.count))", systemImage: "trash.fill")
+                }
+            }
+
+            if !newPhrases.isEmpty {
+                Button(role: .destructive) {
+                    showsDeleteNewConfirmation = true
+                } label: {
+                    Label("Remove New (\(newPhrases.count))", systemImage: "trash")
+                }
+            }
+        } label: {
+            Label("Batch", systemImage: "ellipsis.circle")
+                .font(reviewControlFont)
         }
-        .frame(maxWidth: .infinity, alignment: .center)
+        .buttonStyle(.borderedProminent)
+        .controlSize(.small)
+        .tint(RadixTheme.systemGray5)
+        .foregroundStyle(Color.primary)
+        .help("Bulk actions for new and rejected phrases.")
     }
 
     var searchField: some View {
@@ -147,6 +211,7 @@ extension AddedPhraseReviewSheet {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
             TextField("Search added phrases", text: $searchText)
+                .font(.system(size: usesRegularReviewLayout ? 16 : 15))
                 .multilineTextAlignment(.center)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
@@ -171,7 +236,7 @@ extension AddedPhraseReviewSheet {
             pageButton(systemImage: "chevron.left", action: previousPage, isEnabled: currentPageIndex > 0)
 
             Text("Page \(currentPageIndex + 1) of \(pageCount) · \(filteredPhrases.count) phrases")
-                .font(ResponsiveFont.caption2)
+                .font(reviewCaptionFont)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .frame(minWidth: 150)

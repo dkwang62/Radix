@@ -1,67 +1,108 @@
 import Foundation
 
+/// Immutable, platform-neutral search data built alongside the component repository.
+///
+/// Normalizing pinyin and assembling searchable text is proportional to the whole
+/// dictionary, so doing it here avoids repeating that work for every keystroke.
+struct ComponentSearchIndex {
+    fileprivate struct Row {
+        let item: ComponentItem
+        let exactPinyinTokens: [String]
+        let exactPinyinCompact: String
+        let fuzzyPinyinTokens: [String]
+        let fuzzyPinyinCompact: String
+        let searchableText: String
+        let normalizedDefinition: String
+    }
+
+    fileprivate let rows: [Row]
+    private let byCharacter: [String: ComponentItem]
+
+    init(allCharacters: [String] = [], byCharacter: [String: ComponentItem] = [:]) {
+        self.byCharacter = byCharacter
+        rows = allCharacters.compactMap { character in
+            guard let item = byCharacter[character] else { return nil }
+            let exactTokens = item.pinyin
+                .map { PinyinSearchNormalizer.normalize($0, fuzzyInitials: false) }
+                .filter { !$0.isEmpty }
+            let fuzzyTokens = item.pinyin
+                .map { PinyinSearchNormalizer.normalize($0) }
+                .filter { !$0.isEmpty }
+            return Row(
+                item: item,
+                exactPinyinTokens: exactTokens,
+                exactPinyinCompact: exactTokens.joined(),
+                fuzzyPinyinTokens: fuzzyTokens,
+                fuzzyPinyinCompact: fuzzyTokens.joined(),
+                searchableText: item.searchableText,
+                normalizedDefinition: item.definition.lowercased()
+            )
+        }
+    }
+
+    fileprivate func item(for character: String) -> ComponentItem? {
+        byCharacter[character]
+    }
+}
+
 enum ComponentSearchEngine {
     static func search(
         query: String,
-        allCharacters: [String],
-        byCharacter: [String: ComponentItem],
+        index: ComponentSearchIndex,
         limit: Int,
         matchesScriptFilter: (ComponentItem) -> Bool
     ) -> [ComponentItem] {
         if query.isEmpty {
-            return allCharacters
-                .compactMap { byCharacter[$0] }
-                .filter(matchesScriptFilter)
-                .prefix(limit)
-                .map { $0 }
+            var matches: [ComponentItem] = []
+            matches.reserveCapacity(min(limit, index.rows.count))
+            for row in index.rows where matchesScriptFilter(row.item) {
+                matches.append(row.item)
+                if matches.count == limit { break }
+            }
+            return matches
         }
 
         let normalized = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         let exactPinyinQuery = normalizePinyin(query, fuzzyInitials: false)
         let normalizedPinyinQuery = normalizePinyin(query)
 
-        if normalized.count == 1, let exact = byCharacter[normalized], matchesScriptFilter(exact) {
+        if normalized.count == 1, let exact = index.item(for: normalized), matchesScriptFilter(exact) {
             return [exact]
         }
 
-        let directCharMatch = byCharacter[query].map { item in
+        let directCharMatch = index.item(for: query).map { item in
             matchesScriptFilter(item) ? [item] : []
         } ?? []
 
-        let ranked = allCharacters.compactMap { key -> (item: ComponentItem, rank: Int, tokenLen: Int, token: String)? in
-            guard let item = byCharacter[key] else { return nil }
+        let ranked = index.rows.compactMap { row -> (item: ComponentItem, rank: Int, tokenLen: Int, token: String)? in
+            let item = row.item
             guard matchesScriptFilter(item) else { return nil }
 
-            let exactTokens = item.pinyin.map { normalizePinyin($0, fuzzyInitials: false) }.filter { !$0.isEmpty }
-            let exactCompact = exactTokens.joined()
-            let normalizedTokens = item.pinyin.map { normalizePinyin($0) }.filter { !$0.isEmpty }
-            let normalizedCompact = normalizedTokens.joined()
-
-            if !exactPinyinQuery.isEmpty, let exactToken = exactTokens.first(where: { $0 == exactPinyinQuery }) {
+            if !exactPinyinQuery.isEmpty, let exactToken = row.exactPinyinTokens.first(where: { $0 == exactPinyinQuery }) {
                 return (item, 0, exactToken.count, exactToken)
             }
-            if !exactPinyinQuery.isEmpty, let prefixToken = exactTokens.first(where: { $0.hasPrefix(exactPinyinQuery) }) {
+            if !exactPinyinQuery.isEmpty, let prefixToken = row.exactPinyinTokens.first(where: { $0.hasPrefix(exactPinyinQuery) }) {
                 return (item, 1, prefixToken.count, prefixToken)
             }
-            if !exactPinyinQuery.isEmpty, let containsToken = exactTokens.first(where: { $0.contains(exactPinyinQuery) }) {
+            if !exactPinyinQuery.isEmpty, let containsToken = row.exactPinyinTokens.first(where: { $0.contains(exactPinyinQuery) }) {
                 return (item, 2, containsToken.count, containsToken)
             }
-            if !exactPinyinQuery.isEmpty, exactCompact.contains(exactPinyinQuery) {
-                return (item, 3, exactCompact.count, exactCompact)
+            if !exactPinyinQuery.isEmpty, row.exactPinyinCompact.contains(exactPinyinQuery) {
+                return (item, 3, row.exactPinyinCompact.count, row.exactPinyinCompact)
             }
-            if !normalizedPinyinQuery.isEmpty, let exactToken = normalizedTokens.first(where: { $0 == normalizedPinyinQuery }) {
+            if !normalizedPinyinQuery.isEmpty, let exactToken = row.fuzzyPinyinTokens.first(where: { $0 == normalizedPinyinQuery }) {
                 return (item, 4, exactToken.count, exactToken)
             }
-            if !normalizedPinyinQuery.isEmpty, let prefixToken = normalizedTokens.first(where: { $0.hasPrefix(normalizedPinyinQuery) }) {
+            if !normalizedPinyinQuery.isEmpty, let prefixToken = row.fuzzyPinyinTokens.first(where: { $0.hasPrefix(normalizedPinyinQuery) }) {
                 return (item, 5, prefixToken.count, prefixToken)
             }
-            if !normalizedPinyinQuery.isEmpty, let containsToken = normalizedTokens.first(where: { $0.contains(normalizedPinyinQuery) }) {
+            if !normalizedPinyinQuery.isEmpty, let containsToken = row.fuzzyPinyinTokens.first(where: { $0.contains(normalizedPinyinQuery) }) {
                 return (item, 6, containsToken.count, containsToken)
             }
-            if !normalizedPinyinQuery.isEmpty, normalizedCompact.contains(normalizedPinyinQuery) {
-                return (item, 7, normalizedCompact.count, normalizedCompact)
+            if !normalizedPinyinQuery.isEmpty, row.fuzzyPinyinCompact.contains(normalizedPinyinQuery) {
+                return (item, 7, row.fuzzyPinyinCompact.count, row.fuzzyPinyinCompact)
             }
-            if item.searchableText.contains(normalized) {
+            if row.searchableText.contains(normalized) {
                 return (item, 8, 999, "")
             }
             return nil
@@ -84,8 +125,7 @@ enum ComponentSearchEngine {
 
     static func searchDefinitions(
         query: String,
-        allCharacters: [String],
-        byCharacter: [String: ComponentItem],
+        index: ComponentSearchIndex,
         limit: Int,
         isStrict: Bool,
         matchesScriptFilter: (ComponentItem) -> Bool
@@ -93,19 +133,28 @@ enum ComponentSearchEngine {
         let normalized = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         guard normalized.count >= 2 else { return [] }
 
-        return allCharacters.compactMap { key in
-            guard let item = byCharacter[key] else { return nil }
-            guard matchesScriptFilter(item) else { return nil }
+        let strictPattern = isStrict
+            ? "\\b\(NSRegularExpression.escapedPattern(for: normalized))\\b"
+            : nil
 
-            let definition = item.definition.lowercased()
-            if isStrict {
-                let pattern = "\\b\(NSRegularExpression.escapedPattern(for: normalized))\\b"
-                return definition.range(of: pattern, options: .regularExpression) != nil ? item : nil
+        var matches: [ComponentItem] = []
+        matches.reserveCapacity(min(limit, index.rows.count))
+        for row in index.rows {
+            let item = row.item
+            guard matchesScriptFilter(item) else { continue }
+
+            if let strictPattern {
+                guard row.normalizedDefinition.range(of: strictPattern, options: .regularExpression) != nil else {
+                    continue
+                }
+            } else if !row.normalizedDefinition.contains(normalized) {
+                continue
             }
-            return definition.contains(normalized) ? item : nil
+
+            matches.append(item)
+            if matches.count == limit { break }
         }
-        .prefix(limit)
-        .map { $0 }
+        return matches
     }
 
     private static func normalizePinyin(_ value: String, fuzzyInitials: Bool = true) -> String {

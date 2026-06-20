@@ -8,6 +8,12 @@ struct SearchHomeView: View {
     let onExportAddPhrases: () -> Void
     let onUseDefaultAddPhrases: () -> Void
     let onRequirePro: (EntitlementManager.FeatureGate) -> Void
+    let onSaveSnapshot: () -> Void
+    let onRestoreSnapshot: (LocalDataSnapshot?) -> Void
+    let onRefreshSnapshots: () -> Void
+    let localSnapshots: [LocalDataSnapshot]
+    let isSavingSnapshot: Bool
+    let isRestoringSnapshot: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -20,7 +26,13 @@ struct SearchHomeView: View {
                 FavouritesTab(
                     onExportProfile: onExportProfile,
                     onImportProfile: onImportProfile,
-                    onRequirePro: onRequirePro
+                    onRequirePro: onRequirePro,
+                    onSaveSnapshot: onSaveSnapshot,
+                    onRestoreSnapshot: onRestoreSnapshot,
+                    onRefreshSnapshots: onRefreshSnapshots,
+                    localSnapshots: localSnapshots,
+                    isSavingSnapshot: isSavingSnapshot,
+                    isRestoringSnapshot: isRestoringSnapshot
                 )
             case .dataEdit:
                 DataEditTab(
@@ -32,6 +44,18 @@ struct SearchHomeView: View {
             }
         }
         .padding(.vertical, 8)
+    }
+}
+
+extension RootView {
+    /// Starts the same clean Search flow from every platform's primary navigation.
+    func beginNewSearch() {
+        store.showiPhoneDetail = false
+        store.goToSearchRoot()
+        DispatchQueue.main.async {
+            store.query = ""
+            store.clearSearch()
+        }
     }
 }
 
@@ -68,6 +92,32 @@ func standardPhoneCharacterPreview(
         onClear: onClear
     )
     .padding(.bottom, 10)
+}
+
+struct CompactScriptToggle: View {
+    let isTraditional: Bool
+    var accessibilityLabel = "Chinese script"
+    var minWidth: CGFloat = 34
+    var height: CGFloat = 28
+    let onToggle: () -> Void
+
+    var body: some View {
+        Button {
+            onToggle()
+        } label: {
+            Text(isTraditional ? "繁" : "简")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .frame(minWidth: minWidth, minHeight: height)
+                .background(Color.accentColor)
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityValue(isTraditional ? "Traditional" : "Simplified")
+        .accessibilityHint("Toggles between simplified and traditional Chinese")
+        .help(isTraditional ? "Traditional Chinese" : "Simplified Chinese")
+    }
 }
 
 struct CompactScriptFilterControl: View {

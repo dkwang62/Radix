@@ -173,11 +173,15 @@ struct DataBackupActionButton: View {
                     .font(ResponsiveFont.caption.bold())
                     .lineLimit(2)
                     .minimumScaleFactor(0.85)
+                    .multilineTextAlignment(.leading)
                 Text(subtitle)
                     .font(ResponsiveFont.caption2)
                     .opacity(0.85)
                     .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+                    .multilineTextAlignment(.leading)
             }
+            .layoutPriority(1)
 
             Spacer(minLength: 0)
 
@@ -188,6 +192,7 @@ struct DataBackupActionButton: View {
                     .padding(.vertical, 5)
                     .background(RadixTheme.background.opacity(0.75))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .fixedSize(horizontal: true, vertical: false)
             }
         }
         .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)

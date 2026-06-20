@@ -44,11 +44,11 @@ extension SmartSearchTab {
                 ViewThatFits(in: .horizontal) {
                     HStack(spacing: 8) {
                         CompactScriptFilterControl(selection: store.scriptFilter) { store.setScriptFilter($0) }
-                        clearResultsButton
+                        editSearchButton
                     }
                     VStack(alignment: .trailing, spacing: 8) {
                         CompactScriptFilterControl(selection: store.scriptFilter) { store.setScriptFilter($0) }
-                        clearResultsButton
+                        editSearchButton
                     }
                 }
             }
@@ -67,17 +67,16 @@ extension SmartSearchTab {
         return "\(characterCount) characters"
     }
 
-    var clearResultsButton: some View {
+    var editSearchButton: some View {
         Button {
-            clearSearchResults()
+            editCurrentSearch()
         } label: {
-            Image(systemName: "xmark.circle")
-                .font(.system(size: 16, weight: .semibold))
-                .frame(width: 32, height: 32)
+            Label("Edit Search", systemImage: "square.and.pencil")
+                .font(ResponsiveFont.caption.weight(.semibold))
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
-        .accessibilityLabel("Clear Results")
+        .accessibilityLabel("Edit Search")
     }
 
     @ViewBuilder

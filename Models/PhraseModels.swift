@@ -11,7 +11,7 @@ enum PhraseReviewStatus: String, Codable, CaseIterable {
         case .checked: return "Checked"
         case .hidden: return "Hidden"
         case .removed: return "Rejected"
-        case .completed: return "Completed"
+        case .completed: return "Checked"
         }
     }
 }
@@ -56,8 +56,8 @@ enum PhraseReviewStatusTool: String, CaseIterable, Identifiable {
         switch status {
         case nil: return .removed
         case .removed: return .checked
-        case .checked: return .hidden
-        case .hidden, .completed: return nil
+        case .checked, .completed: return .hidden
+        case .hidden: return nil
         }
     }
 }
@@ -72,12 +72,11 @@ enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
     case checked
     case hidden
     case removed
-    case completed
     case all
 
     var id: String { rawValue }
 
-    static let menuCases: [AddedPhraseReviewFilter] = [.removed, .checked, .hidden, .new, .completed, .all]
+    static let menuCases: [AddedPhraseReviewFilter] = [.removed, .checked, .hidden, .new, .all]
 
     var title: String {
         switch self {
@@ -85,7 +84,6 @@ enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
         case .checked: return "Checked"
         case .hidden: return "Hidden"
         case .removed: return "Rejected"
-        case .completed: return "Completed"
         case .all: return "All"
         }
     }
@@ -93,11 +91,10 @@ enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
     func includes(_ phrase: PhraseItem) -> Bool {
         switch self {
         case .new: return phrase.reviewStatus == nil
-        case .checked: return phrase.reviewStatus == .checked
+        case .checked: return phrase.reviewStatus == .checked || phrase.reviewStatus == .completed
         case .hidden: return phrase.reviewStatus == .hidden
         case .removed: return phrase.reviewStatus == .removed
-        case .completed: return phrase.reviewStatus == .completed
-        case .all: return phrase.reviewStatus != .completed
+        case .all: return true
         }
     }
 
@@ -106,7 +103,7 @@ enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
         case .checked: return .checked
         case .hidden: return .hidden
         case .removed: return .removed
-        case .completed: return .completed
+        case .completed: return .checked
         case nil: return .new
         }
     }
@@ -117,7 +114,6 @@ enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
         case .checked: return .checked
         case .hidden: return .hidden
         case .new: return .new
-        case .completed: return nil
         case .all: return nil
         }
     }
@@ -129,14 +125,9 @@ enum AddedPhraseReviewRules {
         case .checked: return "\(word) checked."
         case .hidden: return "\(word) hidden from phrase lists, still available on pages."
         case .removed: return "\(word) rejected as not a phrase."
-        case .completed: return "\(word) completed."
+        case .completed: return "\(word) checked."
         case nil: return "\(word) restored to New."
         }
-    }
-
-    static func completionMessage(count: Int) -> String? {
-        guard count > 0 else { return nil }
-        return "Completed \(count) checked phrase\(count == 1 ? "" : "s")."
     }
 
     static func reviewSortPredicate(_ lhs: PhraseItem, _ rhs: PhraseItem) -> Bool {

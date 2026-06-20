@@ -6,14 +6,24 @@ extension AddedPhraseReviewSheet {
             phrasePageGrid
             pageFooter
         }
-        .frame(maxWidth: .infinity, alignment: .center)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 
+    @ViewBuilder
     var phrasePageGrid: some View {
+        ScrollView {
+            phrasePageGridContent
+                .padding(.vertical, 4)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .scrollIndicators(usesRegularReviewLayout ? .automatic : .visible)
+    }
+
+    var phrasePageGridContent: some View {
         LazyVGrid(
-            columns: Array(repeating: GridItem(.fixed(112), spacing: 4, alignment: .center), count: 4),
+            columns: phraseReviewColumns,
             alignment: .center,
-            spacing: 4
+            spacing: 6
         ) {
             ForEach(pagedPhrases) { phrase in
                 AddedPhraseReviewTile(
@@ -24,12 +34,28 @@ extension AddedPhraseReviewSheet {
                     onCheck: { setStatus(.checked, for: phrase) },
                     onHide: { setStatus(.hidden, for: phrase) },
                     onReject: { setStatus(.removed, for: phrase) },
-                    showsStatusActions: phrase.reviewStatus != .completed
+                    showsStatusActions: true
                 )
             }
         }
         .padding(.vertical, 2)
-        .frame(width: 460, alignment: .center)
+        .padding(.horizontal, usesRegularReviewLayout ? 10 : 0)
+        .frame(maxWidth: usesRegularReviewLayout ? 920 : 520, alignment: .center)
+        .frame(maxWidth: .infinity)
+    }
+
+    var phraseReviewColumns: [GridItem] {
+        if !usesRegularReviewLayout {
+            return Array(
+                repeating: GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 6, alignment: .center),
+                count: 3
+            )
+        }
+
+        return Array(
+            repeating: GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 8, alignment: .center),
+            count: 4
+        )
     }
 }
 
@@ -47,11 +73,11 @@ struct AddedPhraseReviewTile: View {
         Button(action: onSelect) {
             ZStack(alignment: .topTrailing) {
                 Text(phrase.word)
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.62)
-                    .frame(maxWidth: .infinity, minHeight: 32)
+                    .frame(maxWidth: .infinity, minHeight: 38)
                     .padding(.horizontal, 5)
 
                 Image(systemName: statusIcon)
@@ -85,34 +111,30 @@ struct AddedPhraseReviewTile: View {
 
     private var statusIcon: String {
         switch phrase.reviewStatus {
-        case .checked: return "checkmark.circle.fill"
+        case .checked, .completed: return "checkmark.circle.fill"
         case .hidden: return "eye.slash.fill"
         case .removed: return "xmark.circle.fill"
-        case .completed: return "checkmark.seal.fill"
         case nil: return "circle.fill"
         }
     }
 
     private var statusColor: Color {
         switch phrase.reviewStatus {
-        case .checked: return Color.accentColor
+        case .checked, .completed: return Color.accentColor
         case .hidden: return Color.orange
         case .removed: return Color.red
-        case .completed: return Color.purple
         case nil: return Color.secondary.opacity(0.45)
         }
     }
 
     private var tileFill: Color {
         switch phrase.reviewStatus {
-        case .checked:
+        case .checked, .completed:
             return Color.accentColor.opacity(0.14)
         case .hidden:
             return Color.orange.opacity(0.13)
         case .removed:
             return Color.red.opacity(0.10)
-        case .completed:
-            return Color.purple.opacity(0.10)
         case nil:
             return RadixTheme.secondaryBackground
         }
@@ -121,14 +143,12 @@ struct AddedPhraseReviewTile: View {
     private var tileStroke: Color {
         if isSelected { return Color.accentColor }
         switch phrase.reviewStatus {
-        case .checked:
+        case .checked, .completed:
             return Color.accentColor.opacity(0.45)
         case .hidden:
             return Color.orange.opacity(0.38)
         case .removed:
             return Color.red.opacity(0.34)
-        case .completed:
-            return Color.purple.opacity(0.38)
         case nil:
             return RadixTheme.separator.opacity(0.35)
         }

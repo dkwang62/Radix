@@ -162,7 +162,7 @@ extension RootView {
 
             sidebarTaskButton(.search, isActive: store.route == .search && store.homeTab == .smart) {
                 hasUsedSidebarNavigation = true
-                store.goToSearchRoot()
+                beginNewSearch()
             }
 
             sidebarTaskButton(.browse, isActive: store.route == .search && store.homeTab == .filter) {
@@ -195,7 +195,7 @@ extension RootView {
             }
             compactSidebarButton(.search, isActive: store.route == .search && store.homeTab == .smart) {
                 hasUsedSidebarNavigation = true
-                store.goToSearchRoot()
+                beginNewSearch()
             }
             compactSidebarButton(.browse, isActive: store.route == .search && store.homeTab == .filter) {
                 hasUsedSidebarNavigation = true

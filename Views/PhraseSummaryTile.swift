@@ -33,14 +33,18 @@ extension PhraseReviewStatusTool {
 }
 
 struct PhraseReviewStatusCycleHint: View {
+    var usesPointer = false
+
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
-            Image(systemName: "hand.tap")
-                .font(ResponsiveFont.caption.weight(.semibold))
+            Image(systemName: usesPointer ? "cursorarrow.click" : "hand.tap")
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(Color.accentColor)
 
-            Text("Tap once to preview. Tap again to cycle status. Once a status is chosen, tap other phrase tiles to apply it.")
-                .font(ResponsiveFont.caption2)
+            Text(usesPointer
+                ? "Click once to preview. Choose a status above to classify phrases directly."
+                : "Tap once to preview. Choose a status above to classify phrases directly.")
+                .font(.system(size: 14))
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .multilineTextAlignment(.center)
@@ -264,9 +268,8 @@ struct PhraseSummaryTile: View {
         if isActive { return Color.accentColor.opacity(0.16) }
         if isFavorite == true { return Color.yellow.opacity(0.12) }
         if showsReviewStatus, reviewStatus == .removed { return Color.red.opacity(0.08) }
-        if showsReviewStatus, reviewStatus == .checked { return Color.accentColor.opacity(0.10) }
+        if showsReviewStatus, reviewStatus == .checked || reviewStatus == .completed { return Color.accentColor.opacity(0.10) }
         if showsReviewStatus, reviewStatus == .hidden { return Color.orange.opacity(0.10) }
-        if showsReviewStatus, reviewStatus == .completed { return Color.purple.opacity(0.10) }
         return RadixTheme.secondaryBackground.opacity(0.62)
     }
 
@@ -274,9 +277,8 @@ struct PhraseSummaryTile: View {
         if isActive { return Color.accentColor.opacity(0.8) }
         if isFavorite == true { return Color.yellow.opacity(0.65) }
         if showsReviewStatus, reviewStatus == .removed { return Color.red.opacity(0.38) }
-        if showsReviewStatus, reviewStatus == .checked { return Color.accentColor.opacity(0.45) }
+        if showsReviewStatus, reviewStatus == .checked || reviewStatus == .completed { return Color.accentColor.opacity(0.45) }
         if showsReviewStatus, reviewStatus == .hidden { return Color.orange.opacity(0.38) }
-        if showsReviewStatus, reviewStatus == .completed { return Color.purple.opacity(0.38) }
         return Color.secondary.opacity(0.22)
     }
 
@@ -287,20 +289,18 @@ struct PhraseSummaryTile: View {
 
     private var reviewStatusIcon: String {
         switch reviewStatus {
-        case .checked: return "checkmark.circle.fill"
+        case .checked, .completed: return "checkmark.circle.fill"
         case .hidden: return "eye.slash.fill"
         case .removed: return "xmark.circle.fill"
-        case .completed: return "checkmark.seal.fill"
         case nil: return "circle.fill"
         }
     }
 
     private var reviewStatusColor: Color {
         switch reviewStatus {
-        case .checked: return Color.accentColor
+        case .checked, .completed: return Color.accentColor
         case .hidden: return Color.orange
         case .removed: return Color.red
-        case .completed: return Color.purple
         case nil: return Color.secondary.opacity(0.45)
         }
     }

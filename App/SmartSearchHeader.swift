@@ -46,18 +46,20 @@ extension SmartSearchTab {
                 )
                 .shadow(color: isSearchFocused ? Color.accentColor.opacity(0.2) : Color.clear, radius: 4)
 
-                Button {
-                    runSearch(localQuery)
-                    isSearchFocused = false
-                } label: {
-                    Image(systemName: "magnifyingglass")
-                        .font(ResponsiveFont.headline)
-                        .frame(width: 48, height: 48)
-                        .background(Color.accentColor)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                if !store.hasPerformedSearch || hasEditedQuerySinceResults {
+                    Button {
+                        runSearch(localQuery)
+                        isSearchFocused = false
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                            .font(ResponsiveFont.headline)
+                            .frame(width: 48, height: 48)
+                            .background(Color.accentColor)
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                    .accessibilityLabel("Search")
                 }
-                .accessibilityLabel("Search")
             }
             .padding(.top, store.hasPerformedSearch ? 0 : 10)
 

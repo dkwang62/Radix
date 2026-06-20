@@ -3,6 +3,7 @@ import SwiftUI
 struct AddedPhraseReviewSheet: View {
     @EnvironmentObject var store: RadixStore
     @Environment(\.dismiss) var dismiss
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @State var filter: AddedPhraseReviewFilter = .all
     @State var selectedTool: PhraseReviewStatusTool?
     @State var reviewCycle = PhraseReviewStatusCycleState()
@@ -12,9 +13,26 @@ struct AddedPhraseReviewSheet: View {
     @State var message: String?
     @State var showsFilterPicker = false
     @State var phrasePendingDeletion: PhraseItem?
+    @State var showsDeleteRejectedConfirmation = false
+    @State var showsDeleteNewConfirmation = false
 
-    let pageSize = 40
     let detailTextMaxWidth: CGFloat = 640
+
+    var pageSize: Int {
+        RadixPlatform.isPhone ? 18 : 40
+    }
+
+    var usesRegularReviewLayout: Bool {
+        !RadixPlatform.isPhone
+    }
+
+    var reviewControlFont: Font {
+        .system(size: usesRegularReviewLayout ? 15 : 13, weight: .semibold)
+    }
+
+    var reviewCaptionFont: Font {
+        .system(size: usesRegularReviewLayout ? 14 : 12)
+    }
 
     var addedPhrases: [PhraseItem] {
         store.addedPhrases.filter { $0.word.count >= 2 && !store.isPhraseInBase($0.word) }
@@ -35,7 +53,15 @@ struct AddedPhraseReviewSheet: View {
     }
 
     var checkedPhrases: [PhraseItem] {
-        addedPhrases.filter { $0.reviewStatus == .checked }
+        addedPhrases.filter { $0.reviewStatus == .checked || $0.reviewStatus == .completed }
+    }
+
+    var newPhrases: [PhraseItem] {
+        addedPhrases.filter { $0.reviewStatus == nil }
+    }
+
+    var rejectedPhrases: [PhraseItem] {
+        addedPhrases.filter { $0.reviewStatus == .removed }
     }
 
     // Layout guardrails for this sheet:
@@ -45,39 +71,60 @@ struct AddedPhraseReviewSheet: View {
     // - Default to All so review can begin from the complete set before switching to a status filter.
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 6) {
-                topControlRow
-                searchField
-                toolRow
-                promoteCheckedRow
-                selectedPhraseDetailCard
+            GeometryReader { proxy in
+                VStack(alignment: .leading, spacing: 6) {
+                    topControlRow
+                    searchField
+                    toolRow
+                    selectedPhraseDetailCard
 
-                if filteredPhrases.isEmpty {
-                    emptyStateView
-                } else {
-                    phraseGrid
+                    if filteredPhrases.isEmpty {
+                        emptyStateView
+                    } else {
+                        phraseGrid
+                    }
                 }
-            }
-            .padding(.horizontal, 12)
-            .padding(.bottom, 8)
-            .padding(.top, 18)
-            .frame(idealWidth: 820, maxWidth: 980, minHeight: 680)
-            .toolbar(.hidden, for: .navigationBar)
-            .onAppear {
-                store.refreshAddedPhrases()
-            }
-            .onChange(of: searchText) { _, _ in
-                resetPageAndSelection()
-            }
-            .alert("Delete Completed Phrase?", isPresented: deleteConfirmationBinding) {
-                Button("Delete", role: .destructive) {
-                    deletePendingCompletedPhrase()
+                .padding(.horizontal, usesRegularReviewLayout ? 20 : 12)
+                .padding(.bottom, 8)
+                .padding(.top, 18)
+                .frame(
+                    width: proxy.size.width,
+                    height: proxy.size.height,
+                    alignment: .top
+                )
+                .toolbar(.hidden, for: .navigationBar)
+                .onAppear {
+                    store.refreshAddedPhrases()
                 }
-                Button("Cancel", role: .cancel) {
-                    phrasePendingDeletion = nil
+                .onChange(of: searchText) { _, _ in
+                    resetPageAndSelection()
                 }
-            } message: {
-                Text(deleteConfirmationMessage)
+                .alert("Delete Phrase?", isPresented: deleteConfirmationBinding) {
+                    Button("Delete", role: .destructive) {
+                        deletePendingPhrase()
+                    }
+                    Button("Cancel", role: .cancel) {
+                        phrasePendingDeletion = nil
+                    }
+                } message: {
+                    Text(deleteConfirmationMessage)
+                }
+                .alert("Remove Rejected Phrases?", isPresented: $showsDeleteRejectedConfirmation) {
+                    Button("Remove", role: .destructive) {
+                        deleteRejectedPhrases()
+                    }
+                    Button("Cancel", role: .cancel) { }
+                } message: {
+                    Text(deleteRejectedConfirmationMessage)
+                }
+                .alert("Remove New Phrases?", isPresented: $showsDeleteNewConfirmation) {
+                    Button("Remove", role: .destructive) {
+                        deleteNewPhrases()
+                    }
+                    Button("Cancel", role: .cancel) { }
+                } message: {
+                    Text(deleteNewConfirmationMessage)
+                }
             }
         }
         .presentationDetents([.large])
@@ -115,7 +162,7 @@ extension AddedPhraseReviewSheet {
             selectedPhrase = closeSelection || !filter.includes(updatedPhrase) ? nil : updatedPhrase
             selectedTool = PhraseReviewStatusTool.tool(for: status)
             reviewCycle.setActiveTool(selectedTool)
-            if filter != .all && filter != .completed {
+            if filter != .all {
                 filter = AddedPhraseReviewFilter.filter(for: status)
             }
             clampPage()
@@ -127,11 +174,6 @@ extension AddedPhraseReviewSheet {
 
     func applySelectedTool(to phrase: PhraseItem) {
         store.speakPhrase(phrase)
-        if phrase.reviewStatus == .completed {
-            selectedPhrase = phrase
-            message = nil
-            return
-        }
 
         let action = reviewCycle.action(
             for: store.normalizedPhraseWord(phrase.word),
@@ -151,11 +193,9 @@ extension AddedPhraseReviewSheet {
         if selectedTool == tool {
             selectedTool = nil
             reviewCycle.setActiveTool(nil)
-            filter = .all
         } else {
             selectedTool = tool
             reviewCycle.setActiveTool(tool)
-            filter = AddedPhraseReviewFilter.filter(for: tool.status)
         }
         resetPageAndSelection()
     }
@@ -179,17 +219,17 @@ extension AddedPhraseReviewSheet {
         pageIndex = min(pageCount - 1, currentPageIndex + 1)
     }
 
-    func completeCheckedPhrases() {
-        let phrasesToComplete = checkedPhrases
-        guard !phrasesToComplete.isEmpty else { return }
+    func checkNewPhrases() {
+        let phrasesToCheck = newPhrases
+        guard !phrasesToCheck.isEmpty else { return }
 
-        var completedCount = 0
-        for phrase in phrasesToComplete {
+        var checkedCount = 0
+        for phrase in phrasesToCheck {
             do {
-                try store.updateAddedPhraseReviewStatus(word: phrase.word, status: .completed)
-                completedCount += 1
+                try store.updateAddedPhraseReviewStatus(word: phrase.word, status: .checked)
+                checkedCount += 1
             } catch {
-                message = "Could not complete \(phrase.word): \(error.localizedDescription)"
+                message = "Could not check \(phrase.word): \(error.localizedDescription)"
                 break
             }
         }
@@ -197,7 +237,45 @@ extension AddedPhraseReviewSheet {
         selectedPhrase = nil
         reviewCycle.resetPreview()
         clampPage()
-        message = AddedPhraseReviewRules.completionMessage(count: completedCount)
+        message = "Checked \(checkedCount) new phrase\(checkedCount == 1 ? "" : "s")."
+    }
+
+    var deleteNewConfirmationMessage: String {
+        let count = newPhrases.count
+        return "Delete \(count) new phrase\(count == 1 ? "" : "s") from your added phrases?"
+    }
+
+    func deleteNewPhrases() {
+        let phrasesToDelete = newPhrases
+        guard !phrasesToDelete.isEmpty else { return }
+
+        do {
+            let count = try store.removeAddedPhrases(words: phrasesToDelete.map(\.word))
+            selectedPhrase = nil
+            resetPageAndSelection()
+            message = "Deleted \(count) new phrase\(count == 1 ? "" : "s")."
+        } catch {
+            message = "Could not delete new phrases: \(error.localizedDescription)"
+        }
+    }
+
+    var deleteRejectedConfirmationMessage: String {
+        let count = rejectedPhrases.count
+        return "Delete \(count) rejected phrase\(count == 1 ? "" : "s") from your added phrases?"
+    }
+
+    func deleteRejectedPhrases() {
+        let phrasesToDelete = rejectedPhrases
+        guard !phrasesToDelete.isEmpty else { return }
+
+        do {
+            let count = try store.removeAddedPhrases(words: phrasesToDelete.map(\.word))
+            selectedPhrase = nil
+            resetPageAndSelection()
+            message = "Deleted \(count) rejected phrase\(count == 1 ? "" : "s")."
+        } catch {
+            message = "Could not delete rejected phrases: \(error.localizedDescription)"
+        }
     }
 
     var deleteConfirmationBinding: Binding<Bool> {
@@ -214,7 +292,7 @@ extension AddedPhraseReviewSheet {
         return "Delete \(phrasePendingDeletion.word)? This removes it from your added phrases."
     }
 
-    func deletePendingCompletedPhrase() {
+    func deletePendingPhrase() {
         guard let phrase = phrasePendingDeletion else { return }
         phrasePendingDeletion = nil
         do {

@@ -6,13 +6,13 @@ extension AddedPhraseReviewSheet {
             if let phrase = selectedPhrase {
                 phraseDetails(phrase)
             } else {
-                PhraseReviewStatusCycleHint()
+                PhraseReviewStatusCycleHint(usesPointer: RadixPlatform.isDesktop)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
 
             if selectedPhrase == nil, selectedTool == nil {
                 Text("No status selected. Showing all phrases.")
-                    .font(ResponsiveFont.caption)
+                    .font(reviewCaptionFont)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -20,7 +20,7 @@ extension AddedPhraseReviewSheet {
 
             if let visibleMessage {
                 Text(visibleMessage)
-                    .font(ResponsiveFont.caption2)
+                    .font(reviewCaptionFont)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -40,44 +40,33 @@ extension AddedPhraseReviewSheet {
         VStack(alignment: .center, spacing: 2) {
             HStack(spacing: 8) {
                 Text(phrase.word)
-                    .font(ResponsiveFont.title3.weight(.semibold))
+                    .font(.system(size: usesRegularReviewLayout ? 22 : 19, weight: .semibold))
                     .lineLimit(2)
                     .minimumScaleFactor(0.75)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Label(reviewDetail(for: phrase), systemImage: statusIcon(for: phrase.reviewStatus))
-                    .font(ResponsiveFont.caption2.weight(.semibold))
+                    .font(reviewCaptionFont.weight(.semibold))
                     .foregroundStyle(statusColor(for: phrase.reviewStatus))
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity, alignment: .center)
 
             Text(phrase.pinyin.isEmpty ? "No pinyin yet" : phrase.pinyin)
-                .font(ResponsiveFont.caption2)
+                .font(reviewCaptionFont)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: detailTextMaxWidth, alignment: .center)
 
             Text(phrase.meanings.isEmpty ? "No meaning yet" : phrase.meanings)
-                .font(ResponsiveFont.caption)
+                .font(reviewCaptionFont)
                 .foregroundStyle(phrase.meanings.isEmpty ? Color.secondary : Color.primary)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
                 .truncationMode(.tail)
                 .frame(maxWidth: detailTextMaxWidth, alignment: .center)
 
-            if phrase.reviewStatus == .completed {
-                Button(role: .destructive) {
-                    phrasePendingDeletion = phrase
-                } label: {
-                    Label("Delete Phrase", systemImage: RadixIcon.delete)
-                        .font(ResponsiveFont.caption2.weight(.semibold))
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .padding(.top, 4)
-            }
         }
         .frame(maxWidth: .infinity, alignment: .center)
     }
@@ -88,20 +77,18 @@ extension AddedPhraseReviewSheet {
 
     func statusIcon(for status: PhraseReviewStatus?) -> String {
         switch status {
-        case .checked: return "checkmark.circle.fill"
+        case .checked, .completed: return "checkmark.circle.fill"
         case .hidden: return "eye.slash.fill"
         case .removed: return "xmark.circle.fill"
-        case .completed: return "checkmark.seal.fill"
         case nil: return "sparkle"
         }
     }
 
     func statusColor(for status: PhraseReviewStatus?) -> Color {
         switch status {
-        case .checked: return Color.accentColor
+        case .checked, .completed: return Color.accentColor
         case .hidden: return Color.orange
         case .removed: return Color.red
-        case .completed: return Color.purple
         case nil: return Color.secondary
         }
     }
@@ -113,12 +100,12 @@ extension AddedPhraseReviewSheet {
                 .foregroundStyle(.secondary.opacity(0.55))
 
             Text(emptyTitle)
-                .font(ResponsiveFont.title3.weight(.semibold))
+                .font(.system(size: usesRegularReviewLayout ? 22 : 19, weight: .semibold))
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
 
             Text(emptyDescription)
-                .font(ResponsiveFont.subheadline)
+                .font(reviewCaptionFont)
                 .foregroundStyle(.secondary)
                 .lineLimit(nil)
                 .multilineTextAlignment(.center)
@@ -135,7 +122,6 @@ extension AddedPhraseReviewSheet {
         case .checked: return "No checked phrases"
         case .hidden: return "No hidden phrases"
         case .removed: return "No rejected phrases"
-        case .completed: return "No completed phrases"
         case .all: return "No active added phrases"
         }
     }
@@ -143,11 +129,10 @@ extension AddedPhraseReviewSheet {
     var emptyDescription: String {
         switch filter {
         case .new: return "New means not checked, hidden, or rejected."
-        case .checked: return "Checked phrases stay in review until you complete them."
+        case .checked: return "Checked phrases are accepted as useful phrases. You can still hide, reject, or restore them to New if needed."
         case .hidden: return "Hidden phrases stay useful on pages but stay out of the phrase library."
         case .removed: return "Rejected phrases are remembered as not-a-phrase groupings. Mark one New if you want to restore it."
-        case .completed: return "Completed phrases are finished. Open one here if you need to delete it."
-        case .all: return "Active added phrases with two or more characters appear here. Completed phrases have their own filter."
+        case .all: return "Added phrases with two or more characters appear here."
         }
     }
 }

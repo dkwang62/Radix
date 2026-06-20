@@ -43,6 +43,11 @@ portable domain behavior rather than screens.
   - Selects non-overlapping phrase tiles by longest match, start offset, pinyin, then word.
   - Sorts browse-page phrase candidates independently of SwiftUI/store state.
 
+- `ComponentSearchIndex` and `ComponentSearchEngine` in `Services/ComponentSearchEngine.swift`
+  - Precompute normalized pinyin, searchable text, and definitions when the dictionary changes.
+  - Keep component ranking and strict/fuzzy definition matching independent of SwiftUI.
+  - Provide a direct Kotlin migration shape: immutable index rows plus pure query functions.
+
 These rules should be mirrored exactly in Kotlin before porting UI behavior.
 
 ## Recommended Migration Order

@@ -119,9 +119,11 @@ extension FilterGridTab {
                 showBrowseSource = true
             }
         } label: {
-            Image(systemName: "chevron.left")
+            Label("Pages", systemImage: "chevron.left")
                 .font(.system(size: 16, weight: .semibold))
-                .frame(width: 32, height: 32)
+                .labelStyle(.titleAndIcon)
+                .lineLimit(1)
+                .frame(minWidth: 72, minHeight: 32)
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
@@ -144,7 +146,11 @@ extension FilterGridTab {
     }
 
     func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
-        HStack(spacing: 6) {
+        let useCompactActions = !RadixPlatform.isDesktop
+        let translationTitle = collection.translationReport == nil ? "Save Translation" : "View Translation"
+        let translationIcon = collection.translationReport == nil ? "doc.badge.plus" : "doc.text"
+
+        return HStack(spacing: 6) {
             Button {
                 beginEditing(collection)
             } label: {
@@ -163,21 +169,24 @@ extension FilterGridTab {
                 beginBrowseTranslation(collection)
             }, onTranslateAndSave: {
                 runBrowseGeminiTranslationAndSave(collection)
-            })
+            }, isCompact: useCompactActions)
 
             Button {
                 beginTranslationReport(collection)
             } label: {
-                Label(
-                    collection.translationReport == nil ? "Save Translation" : "View Translation",
-                    systemImage: collection.translationReport == nil ? "doc.badge.plus" : "doc.text"
-                )
-                .labelStyle(.titleAndIcon)
-                .frame(minWidth: 130)
+                if useCompactActions {
+                    Image(systemName: translationIcon)
+                        .frame(width: 34)
+                } else {
+                    Label(translationTitle, systemImage: translationIcon)
+                        .labelStyle(.titleAndIcon)
+                        .frame(minWidth: 130)
+                }
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
-            .accessibilityLabel(collection.translationReport == nil ? "Save Translation" : "View Translation")
+            .accessibilityLabel(translationTitle)
+            .help(translationTitle)
 
             Button {
                 pagePhraseListCollection = collection
@@ -188,6 +197,7 @@ extension FilterGridTab {
             .buttonStyle(.bordered)
             .controlSize(.small)
             .accessibilityLabel("Choose Page Phrases")
+            .help("Choose Page Phrases")
 
             BrowseImageScriptToggle(mode: $browseImageScriptMode)
 
@@ -206,6 +216,7 @@ extension FilterGridTab {
         .controlSize(.small)
         .disabled(collection.characters.isEmpty)
         .accessibilityLabel("Read Aloud")
+        .help("Read Aloud")
     }
 
     var browseGridDescription: String {

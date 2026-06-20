@@ -104,7 +104,7 @@ struct FavouritesTab: View {
             studyGridScope = RadixStudyPreferences.gridScope
             studyPageSortOrder = RadixStudyPreferences.pageSortOrder
             hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
-            if isPhone {
+            if onSaveSnapshot != nil || onRestoreSnapshot != nil {
                 onRefreshSnapshots?()
             }
             openAddedPhraseReviewIfRequested()

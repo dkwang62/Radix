@@ -3,11 +3,7 @@ import SwiftUI
 extension DataEditTab {
     @ViewBuilder
     var backupAndRestoreSection: some View {
-        if RadixPlatform.isPhone {
-            compactPhoneBackupAndRestoreSection
-        } else {
-            fullBackupAndRestoreSection
-        }
+        compactPhoneBackupAndRestoreSection
     }
 
     var fullBackupAndRestoreSection: some View {
@@ -33,65 +29,9 @@ extension DataEditTab {
             otherDeviceSavedStatusRow
 
             LazyVGrid(columns: backupActionColumns, spacing: 10) {
-                Button {
-                    guard !entitlement.requiresPro(.myBackup) else {
-                        onRequirePro(.myBackup)
-                        return
-                    }
-                    createPortableBackup()
-                } label: {
-                    DataBackupActionButton(
-                        title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : "Back Up to iCloud",
-                        subtitle: "Choose iCloud Drive",
-                        systemName: "square.and.arrow.up.fill",
-                        foreground: .white,
-                        background: Color.accentColor,
-                        border: Color.accentColor,
-                        isLocked: entitlement.requiresPro(.myBackup)
-                    )
-                }
-                .buttonStyle(.plain)
-                .disabled(reuseExportInProgress)
-
-                Button {
-                    guard !entitlement.requiresPro(.myBackup) else {
-                        onRequirePro(.myBackup)
-                        return
-                    }
-                    pendingRestoreMode = .additive
-                    showRestorePicker = true
-                } label: {
-                    DataBackupActionButton(
-                        title: "Amalgamate",
-                        subtitle: "Merge with this device",
-                        systemName: "square.and.arrow.down",
-                        foreground: Color.accentColor,
-                        background: Color.accentColor.opacity(0.1),
-                        border: Color.accentColor.opacity(0.35),
-                        isLocked: entitlement.requiresPro(.myBackup)
-                    )
-                }
-                .buttonStyle(.plain)
-
-                Button {
-                    guard !entitlement.requiresPro(.myBackup) else {
-                        onRequirePro(.myBackup)
-                        return
-                    }
-                    pendingRestoreMode = .complete
-                    showRestorePicker = true
-                } label: {
-                    DataBackupActionButton(
-                        title: "Restore Backup",
-                        subtitle: "Replace this device",
-                        systemName: "square.and.arrow.down.fill",
-                        foreground: Color.orange,
-                        background: Color.orange.opacity(0.1),
-                        border: Color.orange.opacity(0.35),
-                        isLocked: entitlement.requiresPro(.myBackup)
-                    )
-                }
-                .buttonStyle(.plain)
+                backupToiCloudButton
+                addFromBackupButton
+                restoreBackupButton
             }
         }
         .padding()
@@ -114,8 +54,9 @@ extension DataEditTab {
 
     var compactPhoneBackupActionBar: some View {
         VStack(spacing: 8) {
-            LazyVGrid(columns: backupActionColumns, spacing: 8) {
-                backupToiCloudButton
+            backupToiCloudButton
+
+            LazyVGrid(columns: pairedBackupActionColumns, spacing: 8) {
                 addFromBackupButton
                 restoreBackupButton
             }

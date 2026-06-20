@@ -145,30 +145,15 @@ extension FavouritesTab {
     }
 
     var studyScriptToggle: some View {
-        HStack(spacing: 4) {
-            studyScriptButton("简", isActive: !studyGridUsesTraditionalScript) {
-                studyGridUsesTraditionalScript = false
-            }
-            studyScriptButton("繁", isActive: studyGridUsesTraditionalScript) {
-                studyGridUsesTraditionalScript = true
-            }
+        CompactScriptToggle(
+            isTraditional: studyGridUsesTraditionalScript,
+            accessibilityLabel: "Study grid character style",
+            minWidth: 32,
+            height: 28
+        ) {
+            studyGridUsesTraditionalScript.toggle()
         }
         .fixedSize(horizontal: true, vertical: false)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Study grid character style")
-        .accessibilityValue(studyGridUsesTraditionalScript ? "Traditional" : "Simplified")
-    }
-
-    func studyScriptButton(_ title: String, isActive: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(ResponsiveFont.subheadline.weight(.semibold))
-                .frame(width: 32, height: 28)
-                .background(isActive ? Color.accentColor : RadixTheme.secondaryBackground)
-                .foregroundStyle(isActive ? .white : .primary)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-        .buttonStyle(.plain)
     }
 
     func recentStudyButton(_ entry: StudyGridEntry) -> some View {

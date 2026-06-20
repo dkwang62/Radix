@@ -64,25 +64,15 @@ struct DataEditTab: View {
     var body: some View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
-                if RadixPlatform.isPhone {
-                    myDataHeader
-                        .padding(.horizontal)
-                        .padding(.top, 12)
-                        .padding(.bottom, 8)
-                        .background(RadixTheme.background)
-                }
+                myDataHeader
+                    .padding(.horizontal)
+                    .padding(.top, 12)
+                    .padding(.bottom, 8)
+                    .background(RadixTheme.background)
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         Color.clear.frame(height: 0).id("myDataTop")
-
-                        if !RadixPlatform.isPhone {
-                            sharedMemorySaveSection
-                            myDataHeader
-                                .padding(12)
-                                .background(RadixTheme.background)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        }
 
                         switch activeDataEditSection {
                         case .myBackup:
@@ -104,10 +94,10 @@ struct DataEditTab: View {
                     }
                     .padding(.horizontal)
                     .padding(.top, 16)
-                    .padding(.bottom, RadixPlatform.isPhone && activeDataEditSection == .myBackup ? 190 : 32)
+                    .padding(.bottom, 32)
                 }
                 .safeAreaInset(edge: .bottom) {
-                    if RadixPlatform.isPhone && activeDataEditSection == .myBackup {
+                    if activeDataEditSection == .myBackup {
                         compactPhoneBackupActionBar
                     }
                 }
@@ -139,6 +129,7 @@ struct DataEditTab: View {
             .onAppear {
                 dataEditScrollProxy = proxy
                 lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.latest
+                refreshLocalSnapshots()
             }
         }
     }

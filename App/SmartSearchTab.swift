@@ -17,6 +17,18 @@ struct SmartSearchTab: View {
         RadixPlatform.isRunningOnMac
     }
 
+    var trimmedLocalQuery: String {
+        localQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var trimmedLastSearchQuery: String {
+        store.lastSearchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var hasEditedQuerySinceResults: Bool {
+        store.hasPerformedSearch && !trimmedLocalQuery.isEmpty && trimmedLocalQuery != trimmedLastSearchQuery
+    }
+
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
@@ -87,6 +99,17 @@ struct SmartSearchTab: View {
         searchGridPage = 0
         resetSearchPreviewState()
         store.clearSearch()
+    }
+
+    func startBlankSearch() {
+        clearSearchResults()
+        localQuery = ""
+        isSearchFocused = true
+    }
+
+    func editCurrentSearch() {
+        localQuery = trimmedLastSearchQuery
+        isSearchFocused = true
     }
 
     func resetSearchPreviewState() {

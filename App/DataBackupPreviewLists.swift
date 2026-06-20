@@ -55,11 +55,11 @@ extension DataBackupPreviewSection {
 
     @ViewBuilder
     func addedPhraseReviewRows(_ phrases: [PhraseItem]) -> some View {
-        let reviewPhrases = phrases.filter { $0.reviewStatus != .completed }
+        let reviewPhrases = phrases
         let sortedPhrases = sortedBackupPhrases(reviewPhrases)
 
         if reviewPhrases.isEmpty {
-            Text("No phrases waiting for review. Completed phrases are available in Classify & Prune.")
+            Text("No phrases waiting for review.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .padding(.top, 8)
