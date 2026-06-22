@@ -11,7 +11,6 @@ struct SmartSearchTab: View {
     @State var selectedPhrase: PhraseItem?
     @State var showAppleSetupGuide = false
     @State var showAppleStrokeHelp = false
-    @State var searchCardVariantIndex: Int = 0
 
     var isRunningOnMac: Bool {
         RadixPlatform.isRunningOnMac
@@ -99,12 +98,6 @@ struct SmartSearchTab: View {
         searchGridPage = 0
         resetSearchPreviewState()
         store.clearSearch()
-    }
-
-    func startBlankSearch() {
-        clearSearchResults()
-        localQuery = ""
-        isSearchFocused = true
     }
 
     func editCurrentSearch() {

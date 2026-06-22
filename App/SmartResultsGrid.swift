@@ -1,32 +1,5 @@
 import SwiftUI
 
-struct CharacterRow: View {
-    let item: ComponentItem
-    let isFavorite: Bool
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Text(item.character)
-                .font(.system(size: 26))
-                .frame(width: 34)
-                .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.pinyinText.isEmpty ? "-" : item.pinyinText)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text(item.definition.isEmpty ? "No definition" : item.definition)
-                    .font(.callout)
-                    .lineLimit(1)
-            }
-            Spacer()
-            if isFavorite {
-                Image(systemName: "star.fill")
-                    .foregroundStyle(.yellow)
-            }
-        }
-    }
-}
-
 struct SmartResultsGrid: View {
     @EnvironmentObject private var store: RadixStore
     let items: [ComponentItem]

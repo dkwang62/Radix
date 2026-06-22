@@ -1,36 +1,5 @@
 import SwiftUI
 
-struct StrokeOrderSection: View {
-    let character: String
-    @State private var reloadToken = UUID()
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("Stroke Order")
-                    .font(.headline)
-                Spacer()
-                Button("Replay") {
-                    reloadToken = UUID()
-                }
-                .buttonStyle(.bordered)
-            }
-
-            StrokeOrderWebView(character: character, reloadToken: reloadToken)
-                .frame(height: 320)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(RadixTheme.separator, lineWidth: 1)
-                )
-
-            Text("Animation data is bundled for offline use; missing characters can be generated from known components.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-        }
-    }
-}
-
 enum StrokeAnimationToken {
     static func stable(for key: String) -> UUID {
         var hash: UInt64 = 1_469_598_103_934_665_603

@@ -132,21 +132,6 @@ extension FilterGridTab {
         .help("Choose Browse Source")
     }
 
-    func browseSourceLabel(collection: CharacterCollection?) -> some View {
-        HStack(spacing: 8) {
-            if collection == nil {
-                smartGridControls
-            } else {
-                Spacer()
-            }
-            Spacer(minLength: 0)
-            Text(collection == nil ? "Dictionary" : "Source")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(collection == nil ? Color.secondary : Color.primary)
-                .lineLimit(1)
-        }
-    }
-
     func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
         let translationTitle = collection.translationReport == nil ? "Save Translation" : "View Translation"
         let translationIcon = collection.translationReport == nil ? "doc.badge.plus" : "doc.text"

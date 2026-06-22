@@ -55,18 +55,6 @@ struct PhraseDiscoveryImportSummary {
     }
 }
 
-struct PhraseDiscoveryStats {
-    var totalParsed = 0
-    var duplicatesRemoved = 0
-    var alreadyExisting = 0
-    var invalidLines = 0
-}
-
-struct PhraseDiscoveryReadResult {
-    var candidates: [PhraseDiscoveryCandidate]
-    var stats: PhraseDiscoveryStats
-}
-
 struct PhraseDiscoveryParseResult {
     var candidates: [PhraseDiscoveryCandidate]
     var totalParsed: Int

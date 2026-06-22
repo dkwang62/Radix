@@ -1,5 +1,67 @@
 import SwiftUI
 
+struct AddedPhraseResultList: View {
+    let candidates: [PhraseDiscoveryCandidate]
+    let onDelete: (PhraseDiscoveryCandidate) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label("Added to My Phrases", systemImage: "text.badge.checkmark")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            VStack(spacing: 0) {
+                ForEach(candidates) { candidate in
+                    AddedPhraseResultRow(candidate: candidate, onDelete: onDelete)
+                    Divider()
+                }
+            }
+            .background(RadixTheme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(RadixTheme.separator, lineWidth: 0.5)
+            )
+        }
+    }
+}
+
+private struct AddedPhraseResultRow: View {
+    let candidate: PhraseDiscoveryCandidate
+    let onDelete: (PhraseDiscoveryCandidate) -> Void
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(candidate.phrase)
+                    .font(ResponsiveFont.body.bold())
+                if !candidate.pinyin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(candidate.pinyin)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+                if !candidate.meaning.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(candidate.meaning)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Button(role: .destructive) {
+                onDelete(candidate)
+            } label: {
+                Image(systemName: "trash")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.mini)
+            .accessibilityLabel("Delete \(candidate.phrase)")
+        }
+        .padding(10)
+    }
+}
+
 struct AddExtractsToPhrasesPanel: View {
     let defaultAIName: String
     @Binding var output: String
@@ -104,59 +166,4 @@ struct AddExtractsToPhrasesPanel: View {
     性情 | xìng qíng | temperament; disposition
     情意 | qíng yì | affection; goodwill
     """
-}
-
-struct PhraseDiscoveryInputArea: View {
-    let defaultAIName: String
-    @Binding var output: String
-    let hasCandidates: Bool
-    let onAddFromBox: () -> Void
-    let onPreviewAnswer: () -> Void
-    let onSelectAll: () -> Void
-    let onDeselectAll: () -> Void
-
-    private var outputIsEmpty: Bool {
-        output.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Paste \(defaultAIName)'s answer here. Radix will add the phrases to My Phrases.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-
-            TextEditor(text: $output)
-                .font(ResponsiveFont.body)
-                .frame(minHeight: 150)
-                .padding(6)
-                .background(RadixTheme.secondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(RadixTheme.separator, lineWidth: 0.5)
-                )
-
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 120), spacing: 8)],
-                alignment: .leading,
-                spacing: 8
-            ) {
-                Button("Add from Box", action: onAddFromBox)
-                    .buttonStyle(.bordered)
-                    .disabled(outputIsEmpty)
-
-                Button("Preview Answer", action: onPreviewAnswer)
-                    .buttonStyle(.bordered)
-                    .disabled(outputIsEmpty)
-
-                Button("Select All", action: onSelectAll)
-                    .buttonStyle(.bordered)
-                    .disabled(!hasCandidates)
-
-                Button("Deselect All", action: onDeselectAll)
-                    .buttonStyle(.bordered)
-                    .disabled(!hasCandidates)
-            }
-        }
-    }
 }

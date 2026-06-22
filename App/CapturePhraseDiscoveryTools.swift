@@ -9,16 +9,6 @@ enum PhraseDiscoveryCandidateTools {
         }
     }
 
-    static func deselecting(_ candidates: [PhraseDiscoveryCandidate], ids: Set<UUID>) -> [PhraseDiscoveryCandidate] {
-        candidates.map { candidate in
-            var candidate = candidate
-            if ids.contains(candidate.id) {
-                candidate.isSelected = false
-            }
-            return candidate
-        }
-    }
-
     static func mergingAddedResults(
         _ current: [PhraseDiscoveryCandidate],
         _ newItems: [PhraseDiscoveryCandidate]
@@ -48,23 +38,5 @@ enum PhraseDiscoveryCandidateTools {
         }
 
         return PhraseDiscoveryImportPreparation(candidates: prepared, skippedCount: skipped)
-    }
-}
-
-enum PhraseDiscoveryReader {
-    static func read(_ text: String, existingWords: Set<String>) -> PhraseDiscoveryReadResult {
-        read(PhraseDiscoveryParser.parse(text), existingWords: existingWords)
-    }
-
-    static func read(_ parsed: PhraseDiscoveryParseResult, existingWords: Set<String>) -> PhraseDiscoveryReadResult {
-        let candidates = PhraseDiscoveryCandidateTools.selectingAll(parsed.candidates, isSelected: true)
-        let stats = PhraseDiscoveryStats(
-            totalParsed: parsed.totalParsed,
-            duplicatesRemoved: parsed.duplicatesRemoved,
-            alreadyExisting: existingWords.count,
-            invalidLines: parsed.invalidLines
-        )
-
-        return PhraseDiscoveryReadResult(candidates: candidates, stats: stats)
     }
 }

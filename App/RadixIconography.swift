@@ -11,11 +11,8 @@ enum RadixIcon {
     static let help = "lightbulb"
     static let info = "info.circle"
     static let saved = "star.fill"
-    static let unsaved = "star"
     static let delete = "trash"
     static let copy = "doc.on.doc"
-    static let importFile = "square.and.arrow.down"
-    static let exportFile = "square.and.arrow.up"
 }
 
 enum RadixNavigationItem: Int, CaseIterable, Identifiable {

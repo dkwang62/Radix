@@ -52,10 +52,6 @@ struct AddedPhraseReviewSheet: View {
             .sorted(by: reviewSort)
     }
 
-    var checkedPhrases: [PhraseItem] {
-        addedPhrases.filter { $0.reviewStatus == .checked || $0.reviewStatus == .completed }
-    }
-
     var newPhrases: [PhraseItem] {
         addedPhrases.filter { $0.reviewStatus == nil }
     }

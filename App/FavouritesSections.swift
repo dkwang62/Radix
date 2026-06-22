@@ -262,36 +262,6 @@ extension FavouritesTab {
             .foregroundStyle(.secondary)
     }
 
-    var favoriteCharactersSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            sectionTitle("Characters")
-
-            LazyVGrid(columns: favoriteCharacterColumns, spacing: 8) {
-                ForEach(store.favoriteItems, id: \.character) { item in
-                    favoriteCharacterCell(item)
-                }
-            }
-        }
-    }
-
-    var favoritePhrasesSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            sectionTitle("Phrases")
-
-            LazyVGrid(columns: favoritePhraseColumns, spacing: 8) {
-                ForEach(store.favoritePhrasesItems, id: \.word) { phrase in
-                    Button {
-                        presentPhrase(phrase)
-                    } label: {
-                        PhraseSummaryTile(phrase: phrase)
-                    }
-                    .buttonStyle(.plain)
-                    .phraseContextMenu(phrase)
-                }
-            }
-        }
-    }
-
     func collectionDisplayName(_ collection: CharacterCollection) -> String {
         let name = collection.name.trimmingCharacters(in: .whitespacesAndNewlines)
         return name.isEmpty ? "Saved Page" : name

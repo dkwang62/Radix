@@ -9,7 +9,6 @@ import SwiftUI
 */
 
 struct RootView: View {
-    static let stableStrokeToken = UUID(uuidString: "00000000-0000-0000-0000-000000000001") ?? UUID()
     let dataExportService = DataExportService()
     let localSnapshotStore = LocalDataSnapshotStore()
     @EnvironmentObject var store: RadixStore

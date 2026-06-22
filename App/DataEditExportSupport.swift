@@ -208,62 +208,6 @@ struct DataBackupActionButton: View {
     }
 }
 
-struct DataEditPathCard: View {
-    let title: String
-    let subtitle: String
-    let systemName: String
-    let tint: Color
-    let badge: String
-    let isLocked: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                Image(systemName: isLocked ? "lock.fill" : systemName)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(tint)
-                    .frame(width: 36, height: 36)
-                    .background(tint.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 6) {
-                        Text(title)
-                            .font(ResponsiveFont.subheadline.bold())
-                            .lineLimit(1)
-                        Text(badge)
-                            .font(ResponsiveFont.caption2.bold())
-                            .foregroundStyle(tint)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 3)
-                            .background(tint.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                    Text(subtitle)
-                        .font(ResponsiveFont.caption2)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Spacer(minLength: 0)
-                Image(systemName: "chevron.right")
-                    .font(ResponsiveFont.caption.bold())
-                    .foregroundStyle(.secondary)
-            }
-            .padding(12)
-            .frame(maxWidth: .infinity, minHeight: 78, alignment: .leading)
-            .background(RadixTheme.background)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(tint.opacity(0.22), lineWidth: 1)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-}
-
 struct AdvancedExportProgressRow: View {
     var body: some View {
         HStack(spacing: 10) {

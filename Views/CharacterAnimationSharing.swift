@@ -14,52 +14,6 @@ func showPhraseTable(for character: String, using store: RadixStore) {
     }
 }
 
-func shareAnimation(for character: String) {
-    let trimmed = character.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard trimmed.isSingleChineseCharacter else {
-        return
-    }
-
-    Task {
-        do {
-            let gifURL = try await HanziWriterGIFExporter.export(character: trimmed)
-            await presentShareSheet(items: [gifURL])
-        } catch {
-            debugPrint("Could not create animation for \(trimmed): \(error)")
-        }
-    }
-}
-
-@MainActor
-func openAnimationInBrowser(for character: String) {
-    guard let url = hostedHanziWriterAnimationURL(for: character) else {
-        return
-    }
-
-    RadixPlatform.open(url)
-}
-
-@MainActor
-func copyAnimationPlayerLink(for character: String) {
-    guard let url = hostedHanziWriterAnimationURL(for: character) else {
-        return
-    }
-    copyToClipboard(url.absoluteString)
-}
-
-func hostedHanziWriterAnimationURL(for character: String) -> URL? {
-    let trimmed = character.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard trimmed.isSingleChineseCharacter else {
-        return nil
-    }
-
-    var components = URLComponents(string: "https://dkwang62.github.io/Radix/animate.html")
-    components?.queryItems = [
-        URLQueryItem(name: "char", value: trimmed)
-    ]
-    return components?.url
-}
-
 extension String {
     var isSingleChineseCharacter: Bool {
         let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)

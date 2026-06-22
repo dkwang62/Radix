@@ -86,7 +86,6 @@ struct DataEditTab: View {
     @State var showBackupContentsDetails = false
 
     @State var activeDataEditSection: DataEditSection = .myBackup
-    @State var showHelp = false
     @State var dataEditScrollProxy: ScrollViewProxy?
 
     var body: some View {

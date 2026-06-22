@@ -112,10 +112,6 @@ extension FavouritesTab {
             .sorted(by: AddedPhraseReviewRules.reviewSortPredicate)
     }
 
-    func addedStudyPhraseCount(status: PhraseReviewStatus?) -> Int {
-        addedStudyPhraseEntries.filter { $0.reviewStatus == status }.count
-    }
-
     func presentAddedPhraseReview() {
         addedPhraseReviewPresentation = nil
         DispatchQueue.main.async {

@@ -34,14 +34,6 @@ enum LineageSortMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
-/// Toggles between grid and list views in the search results.
-enum SmartResultsViewMode: String, CaseIterable, Identifiable {
-    case grid = "Grid"
-    case list = "List"
-
-    var id: String { rawValue }
-}
-
 /// Primary navigation routes for the app sidebar.
 enum AppRoute: String, CaseIterable, Identifiable {
     case search = "Search"
@@ -164,7 +156,6 @@ final class RadixStore: ObservableObject {
         }
     }
     @Published var history: [String] = []
-    @Published var showLineageExplorer: Bool = false // retained for legacy, no sheet currently
     @Published var showPaywall: Bool = false
     @Published var paywallFeatureName: String = "Pro Feature"
     
@@ -202,7 +193,6 @@ final class RadixStore: ObservableObject {
     @Published var dataEditAdditionalVariants: String = ""  // comma-separated
     
     // MARK: - Browsing & Filter State
-    @Published var smartResultsViewMode: SmartResultsViewMode = .grid
     @Published var favoritesOnlyFilter: Bool = false
     @Published var strokeMinFilter: Int = 0 {
         didSet {
@@ -557,7 +547,6 @@ final class RadixStore: ObservableObject {
         // Ensure app boots into Browse (filter tab) on all devices
         route = .search
         homeTab = .filter
-        showLineageExplorer = false
         showBrowseHelp = true
         showComponentHelp = true
         

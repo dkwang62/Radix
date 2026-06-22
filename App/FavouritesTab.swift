@@ -1,19 +1,6 @@
 import SwiftUI
 
 struct FavouritesTab: View {
-    static let addedDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter
-    }()
-
-    static let relativeFormatter: RelativeDateTimeFormatter = {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        return formatter
-    }()
-
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
