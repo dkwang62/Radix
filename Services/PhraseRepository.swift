@@ -294,9 +294,22 @@ final class PhraseRepository {
     /// Additive import — inserts missing phrases and safely merges restored notes into existing overlay rows.
     func addPhrasesAdditively(_ phrases: [PhraseItem]) throws {
         guard let addDb else { return }
+        guard !phrases.isEmpty else { return }
+        if sqlite3_exec(addDb, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) != SQLITE_OK {
+            throw queryRunner.phraseWriteError(code: 19, prefix: "Begin amalgamation failed", db: addDb, currentAddDBPath: currentAddDBPath)
+        }
+        var shouldRollback = true
+        defer {
+            if shouldRollback {
+                sqlite3_exec(addDb, "ROLLBACK", nil, nil, nil)
+            }
+        }
+
         let sql = "INSERT OR IGNORE INTO phrases (word, pinyin, meanings, notes, added_at, review_status, last_reviewed_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
         var stmt: OpaquePointer?
-        guard sqlite3_prepare_v2(addDb, sql, -1, &stmt, nil) == SQLITE_OK else { return }
+        guard sqlite3_prepare_v2(addDb, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw queryRunner.phraseWriteError(code: 20, prefix: "Prepare amalgamation failed", db: addDb, currentAddDBPath: currentAddDBPath)
+        }
         defer { sqlite3_finalize(stmt) }
         let mergeSQL = """
             UPDATE phrases
@@ -310,7 +323,9 @@ final class PhraseRepository {
             WHERE word = ?
         """
         var mergeStmt: OpaquePointer?
-        guard sqlite3_prepare_v2(addDb, mergeSQL, -1, &mergeStmt, nil) == SQLITE_OK else { return }
+        guard sqlite3_prepare_v2(addDb, mergeSQL, -1, &mergeStmt, nil) == SQLITE_OK else {
+            throw queryRunner.phraseWriteError(code: 21, prefix: "Prepare notes merge failed", db: addDb, currentAddDBPath: currentAddDBPath)
+        }
         defer { sqlite3_finalize(mergeStmt) }
         let now = Date().timeIntervalSince1970
         for p in phrases {
@@ -332,7 +347,9 @@ final class PhraseRepository {
             } else {
                 sqlite3_bind_null(stmt, 7)
             }
-            sqlite3_step(stmt)
+            if sqlite3_step(stmt) != SQLITE_DONE {
+                throw queryRunner.phraseWriteError(code: 22, prefix: "Amalgamation insert failed for \(p.word)", db: addDb, currentAddDBPath: currentAddDBPath)
+            }
 
             sqlite3_reset(mergeStmt)
             sqlite3_clear_bindings(mergeStmt)
@@ -342,8 +359,14 @@ final class PhraseRepository {
             sqlite3_bind_text(mergeStmt, 4, ("%\(restoredNotes)%" as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_text(mergeStmt, 5, (restoredNotes as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_text(mergeStmt, 6, (p.word as NSString).utf8String, -1, SQLITE_TRANSIENT)
-            sqlite3_step(mergeStmt)
+            if sqlite3_step(mergeStmt) != SQLITE_DONE {
+                throw queryRunner.phraseWriteError(code: 23, prefix: "Notes merge failed for \(p.word)", db: addDb, currentAddDBPath: currentAddDBPath)
+            }
         }
+        if sqlite3_exec(addDb, "COMMIT", nil, nil, nil) != SQLITE_OK {
+            throw queryRunner.phraseWriteError(code: 24, prefix: "Commit amalgamation failed", db: addDb, currentAddDBPath: currentAddDBPath)
+        }
+        shouldRollback = false
         try addDBLocationManager.syncWorkingAddDBToCustomSourceIfNeeded()
         invalidateReadCaches()
     }

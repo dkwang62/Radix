@@ -168,3 +168,75 @@ struct UnifiedPackage: Codable {
         self.apiKeys = apiKeys
     }
 }
+
+/// Platform-neutral JSON contract shared by every Radix client.
+///
+/// Schema 5 writes ISO-8601 dates so an Android implementation does not need
+/// to understand Apple's 2001 reference-date epoch. The decoder deliberately
+/// retains support for schema 1–4 backups that used numeric Apple timestamps.
+struct PortableBackupCodec {
+    static let currentSchemaVersion = 5
+    static let maximumBackupBytes = 250 * 1_024 * 1_024
+
+    func encode(_ package: UnifiedPackage) throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        encoder.dateEncodingStrategy = .iso8601
+        return try encoder.encode(package)
+    }
+
+    func decode(_ data: Data) throws -> PortableBackupPayload {
+        guard !data.isEmpty else { throw PortableBackupCodecError.empty }
+        guard data.count <= Self.maximumBackupBytes else { throw PortableBackupCodecError.tooLarge }
+
+        if let package = decodeUnifiedPackage(data) {
+            guard (1...Self.currentSchemaVersion).contains(package.schemaVersion) else {
+                throw PortableBackupCodecError.unsupportedVersion(package.schemaVersion)
+            }
+            return .unified(package)
+        }
+
+        if let legacyDictionary = try? JSONDecoder().decode([String: RawComponentEntry].self, from: data) {
+            return .legacyDictionary(legacyDictionary)
+        }
+
+        throw PortableBackupCodecError.invalidDocument
+    }
+
+    private func decodeUnifiedPackage(_ data: Data) -> UnifiedPackage? {
+        let portableDecoder = JSONDecoder()
+        portableDecoder.dateDecodingStrategy = .iso8601
+        if let package = try? portableDecoder.decode(UnifiedPackage.self, from: data) {
+            return package
+        }
+
+        // Backward compatibility for schema 1–4, whose dates were encoded as
+        // seconds from Apple's 2001-01-01 reference date.
+        return try? JSONDecoder().decode(UnifiedPackage.self, from: data)
+    }
+}
+
+enum PortableBackupPayload {
+    case unified(UnifiedPackage)
+    case legacyDictionary([String: RawComponentEntry])
+}
+
+enum PortableBackupCodecError: LocalizedError {
+    case empty
+    case tooLarge
+    case unsupportedVersion(Int)
+    case invalidDocument
+
+    var errorDescription: String? {
+        switch self {
+        case .empty:
+            return "The selected backup is empty."
+        case .tooLarge:
+            return "This backup is too large to restore safely."
+        case .unsupportedVersion(let version):
+            return "This backup uses format version \(version). Update Radix on this device before restoring it."
+        case .invalidDocument:
+            return "This file is not a compatible Radix backup. Choose a JSON backup created by Radix on iPhone, iPad, or Mac."
+        }
+    }
+}

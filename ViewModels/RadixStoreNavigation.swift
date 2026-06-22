@@ -176,6 +176,12 @@ extension RadixStore {
         activeFavouriteCharacter = nil
     }
 
+    func goToSettings() {
+        route = .settings
+        activeFavouriteCharacter = nil
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
+    }
+
     func goToBrowse() {
         route = .search
         homeTab = .filter
@@ -277,6 +283,7 @@ extension RadixStore {
         case .lineage:    return "Back to Components"
         case .aiLink:     return "Back to AI Link"
         case .favourites: return "Back to Favorites"
+        case .settings:   return "Back to Settings"
         }
     }
 

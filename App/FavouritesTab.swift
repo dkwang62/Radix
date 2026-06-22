@@ -67,7 +67,7 @@ struct FavouritesTab: View {
             } else if hasStudyContent {
                 favouritesScrollContent
             } else {
-                ContentUnavailableView("No Study Items", systemImage: "clock.badge.questionmark", description: Text("Search, scan, or star a character."))
+                ContentUnavailableView("No Study Items", systemImage: "clock.badge.questionmark", description: Text("Search, take a photo, or star a character."))
             }
         }
         .safeAreaInset(edge: .bottom) {

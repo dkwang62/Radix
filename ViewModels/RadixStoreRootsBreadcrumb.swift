@@ -117,6 +117,9 @@ extension RadixStore {
         case .favourites:
             previewCharacter = key
             refreshPhrases(for: key)
+        case .settings:
+            previewCharacter = key
+            refreshPhrases(for: key)
         }
 
         if speechEnabled { speechService.speak(key) }
@@ -167,6 +170,8 @@ extension RadixStore {
         case .aiLink:
             break
         case .favourites:
+            break
+        case .settings:
             break
         }
 

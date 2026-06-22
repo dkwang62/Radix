@@ -5,9 +5,11 @@ struct SettingsView: View {
     @EnvironmentObject private var store: RadixStore
     @State private var showResetMemoryConfirmation = false
     @State private var resetMemoryStatus: String?
+    let showsCloseButton: Bool
     let onShowWelcome: (() -> Void)?
 
-    init(onShowWelcome: (() -> Void)? = nil) {
+    init(showsCloseButton: Bool = true, onShowWelcome: (() -> Void)? = nil) {
+        self.showsCloseButton = showsCloseButton
         self.onShowWelcome = onShowWelcome
     }
 
@@ -109,7 +111,9 @@ struct SettingsView: View {
 
                 if let onShowWelcome {
                     Button {
-                        dismiss()
+                        if showsCloseButton {
+                            dismiss()
+                        }
                         onShowWelcome()
                     } label: {
                         Label("Show Welcome", systemImage: RadixIcon.help)
@@ -145,13 +149,15 @@ struct SettingsView: View {
         }
         .navigationTitle("Settings")
         .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark")
+            if showsCloseButton {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel("Close")
                 }
-                .accessibilityLabel("Close")
             }
         }
         .alert("Reset Radix Memory?", isPresented: $showResetMemoryConfirmation) {

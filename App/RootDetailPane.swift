@@ -84,6 +84,11 @@ extension RootView {
                     )
                 case .aiLink:
                     aiLinkContent
+                case .settings:
+                    SettingsView(showsCloseButton: false) {
+                        hasSeenWelcome = false
+                    }
+                    .environmentObject(store)
                 }
             }
         }
@@ -94,13 +99,13 @@ extension RootView {
     var detailPaneTitle: String {
         switch store.route {
         case .capture:
-            return "Scan"
+            return "Take Photo"
         case .search:
             switch store.homeTab {
             case .smart:
                 return "Search"
             case .filter:
-                return store.selectedBrowseCollection.map { "Browse - \($0.name)" } ?? "Browse Dictionary"
+                return browseNavigationTitle
             case .favourites:
                 return "Study"
             case .dataEdit:
@@ -112,6 +117,8 @@ extension RootView {
             return "Study"
         case .aiLink:
             return "AI Link"
+        case .settings:
+            return "Settings"
         }
     }
 

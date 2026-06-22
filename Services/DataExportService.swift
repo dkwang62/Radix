@@ -43,9 +43,34 @@ private struct BundledProjectArchiveManifest: Decodable {
 
 struct DataExportService {
     func exportPortableBackup(_ package: UnifiedPackage) throws -> Data {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
-        return try encoder.encode(package)
+        try PortableBackupCodec().encode(package)
+    }
+
+    /// Reads a document-provider file through `NSFileCoordinator`. A direct
+    /// `Data(contentsOf:)` can wait indefinitely when an iCloud file is only a
+    /// placeholder, especially in the iPhone simulator.
+    func readPortableBackup(at url: URL) throws -> Data {
+        let coordinator = NSFileCoordinator()
+        var coordinationError: NSError?
+        var readResult: Result<Data, Error>?
+
+        coordinator.coordinate(readingItemAt: url, options: [], error: &coordinationError) { coordinatedURL in
+            readResult = Result {
+                let values = try coordinatedURL.resourceValues(forKeys: [.fileSizeKey])
+                if let fileSize = values.fileSize, fileSize > PortableBackupCodec.maximumBackupBytes {
+                    throw PortableBackupCodecError.tooLarge
+                }
+                return try Data(contentsOf: coordinatedURL, options: .mappedIfSafe)
+            }
+        }
+
+        if let readResult {
+            return try readResult.get()
+        }
+        if let coordinationError {
+            throw coordinationError
+        }
+        throw NSError(domain: "RadixBackup", code: 2054, userInfo: [NSLocalizedDescriptionKey: "The selected iCloud file could not be opened."])
     }
 
     func exportFullDataset(_ package: FullDatasetExportPackage) throws -> Data {

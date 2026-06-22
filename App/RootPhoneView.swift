@@ -16,6 +16,7 @@ extension RootView {
         if store.route == .capture { return 0 }
         if store.route == .favourites { return 3 }
         if store.route == .aiLink { return 4 }
+        if store.route == .settings { return 6 }
         if store.route == .lineage { return -1 }
         switch store.homeTab {
         case .smart: return 1
@@ -30,10 +31,11 @@ extension RootView {
         case -1: return "Character Breakdown"
         case 0: return "Take Photo"
         case 1: return "Search"
-        case 2: return "Browse"
+        case 2: return browseNavigationTitle
         case 3: return "Study"
         case 4: return "AI Link"
         case 5: return "My Data"
+        case 6: return "Settings"
         default: return "Radix"
         }
     }
@@ -50,16 +52,6 @@ extension RootView {
             }
             .navigationTitle(phoneTitle)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {
-                        showSettings = true
-                    } label: {
-                        Image(systemName: RadixIcon.settings)
-                    }
-                    .accessibilityLabel("Settings")
-                }
-            }
             .navigationDestination(isPresented: phoneDetailNavigationBinding) {
                 if let current = store.previewCharacter,
                    let item = store.item(for: current) {
@@ -117,63 +109,14 @@ extension RootView {
                 onUseDefaultAddPhrases: useDefaultAddPhrases,
                 onRequirePro: { gate in store.showPaywall(for: gate) }
             )
+        case 6:
+            SettingsView(showsCloseButton: false) {
+                hasSeenWelcome = false
+            }
+            .environmentObject(store)
         default:
             SmartSearchTab()
         }
-    }
-
-    var phoneSnapshotSaveBar: some View {
-        let datedCopiesLocked = entitlement.requiresPro(.datedCopies)
-
-        return VStack(spacing: 0) {
-            Divider()
-            HStack(spacing: 8) {
-                Button(action: quickSaveMemory) {
-                    phoneSnapshotBarLabel(
-                        title: isQuickSavingMemory ? "Saving..." : "Save",
-                        systemImage: isQuickSavingMemory ? "hourglass" : (datedCopiesLocked ? "lock.fill" : "tray.and.arrow.down"),
-                        lockBadge: datedCopiesLocked ? "Plus" : nil
-                    )
-                }
-                .buttonStyle(.plain)
-                .disabled(isQuickSavingMemory || isQuickRestoringMemory)
-                .accessibilityLabel(isQuickSavingMemory ? "Saving" : "Save")
-
-                if datedCopiesLocked {
-                    Button {
-                        presentPaywall(for: .datedCopies)
-                    } label: {
-                        phoneSnapshotBarLabel(
-                            title: "Restore",
-                            systemImage: "lock.fill",
-                            lockBadge: "Plus"
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(isQuickSavingMemory || isQuickRestoringMemory)
-                    .accessibilityLabel("Restore")
-                } else {
-                    Menu {
-                        restoreSnapshotMenuContent
-                    } label: {
-                        phoneSnapshotBarLabel(
-                            title: isQuickRestoringMemory ? "Restoring..." : "Restore",
-                            systemImage: isQuickRestoringMemory ? "hourglass" : "arrow.counterclockwise",
-                            lockBadge: nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(isQuickSavingMemory || isQuickRestoringMemory)
-                    .accessibilityLabel("Restore")
-                    .onAppear {
-                        refreshQuickLocalSnapshots()
-                    }
-                }
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-        }
-        .background(.bar)
     }
 
     var phoneGlobalActionRow: some View {
@@ -181,7 +124,7 @@ extension RootView {
             Button {
                 beginNewSearch()
             } label: {
-                phoneGlobalActionLabel(
+                PrimaryActionTile(
                     title: "Search",
                     subtitle: "Anything",
                     systemImage: RadixIcon.search,
@@ -196,7 +139,7 @@ extension RootView {
                 store.previewCharacter = nil
                 store.startBrowseCameraPage()
             } label: {
-                phoneGlobalActionLabel(
+                PrimaryActionTile(
                     title: "Take Photo",
                     subtitle: "Capture text",
                     systemImage: "camera.fill",
@@ -211,68 +154,6 @@ extension RootView {
         .padding(.bottom, 6)
     }
 
-    func phoneGlobalActionLabel(
-        title: String,
-        subtitle: String,
-        systemImage: String,
-        isPrimary: Bool
-    ) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: systemImage)
-                .font(.system(size: 17, weight: .semibold))
-                .frame(width: 34, height: 34)
-                .foregroundStyle(isPrimary ? Color.white : Color.accentColor)
-                .background(isPrimary ? Color.white.opacity(0.18) : Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-            VStack(alignment: .leading, spacing: 1) {
-                Text(title)
-                    .font(ResponsiveFont.subheadline.weight(.bold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.78)
-                Text(subtitle)
-                    .font(ResponsiveFont.caption)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.78)
-                    .opacity(isPrimary ? 0.86 : 0.72)
-            }
-
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
-        .foregroundStyle(isPrimary ? Color.white : Color.primary)
-        .background(isPrimary ? Color.accentColor : RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    func phoneSnapshotBarLabel(title: String, systemImage: String, lockBadge: String?) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: systemImage)
-                .font(ResponsiveFont.caption.weight(.semibold))
-            Text(title)
-                .font(ResponsiveFont.subheadline.weight(.semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-            if let lockBadge {
-                Text(lockBadge)
-                    .font(ResponsiveFont.caption2.weight(.bold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.accentColor)
-                    .clipShape(Capsule())
-                    .accessibilityHidden(true)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 9)
-        .foregroundStyle(Color.accentColor)
-        .background(Color.accentColor.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
     var phoneTabBar: some View {
         VStack(spacing: 0) {
             Divider()
@@ -281,6 +162,7 @@ extension RootView {
                 tabButton(.study)
                 tabButton(.aiLink)
                 tabButton(.myData)
+                phoneSettingsTabButton
             }
             .padding(.top, 8)
             .padding(.bottom, 7)
@@ -298,6 +180,7 @@ extension RootView {
             if store.route == .favourites { return id == 3 }
             if store.route == .aiLink { return id == 4 }
             if store.route == .lineage { return false }
+            if store.route == .settings { return false }
             switch store.homeTab {
             case .smart: return id == 1
             case .filter: return id == 2
@@ -358,5 +241,34 @@ extension RootView {
         .buttonStyle(.plain)
         .accessibilityLabel(item.title)
         .accessibilityValue(isActive ? "Selected" : "")
+    }
+
+    var phoneSettingsTabButton: some View {
+        let showsTitle = store.sidebarNavigationStyle == .descriptive
+
+        return Button {
+            store.goToSettings()
+        } label: {
+            VStack(spacing: showsTitle ? 2 : 0) {
+                Image(systemName: RadixIcon.settings)
+                    .font(.system(size: 16, weight: .semibold))
+                if showsTitle {
+                    Text("Settings")
+                        .font(ResponsiveFont.tinySystem(size: 10, weight: .semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.52)
+                }
+            }
+            .foregroundStyle(store.route == .settings ? Color.white : Color.secondary)
+            .frame(maxWidth: .infinity)
+            .frame(height: showsTitle ? 48 : 42)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(store.route == .settings ? Color.accentColor : Color.clear)
+            )
+            .contentShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Settings")
     }
 }

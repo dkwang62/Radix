@@ -11,6 +11,24 @@ struct AddedPhraseReviewPresentation: Identifiable {
     let id = UUID()
 }
 
+enum BackupRestorePhase: Equatable {
+    case idle
+    case acquiringFile
+    case validating
+    case restoring
+
+    var message: String {
+        switch self {
+        case .idle: return ""
+        case .acquiringFile: return "Downloading and opening backup…"
+        case .validating: return "Checking compatibility…"
+        case .restoring: return "Restoring data…"
+        }
+    }
+
+    var isActive: Bool { self != .idle }
+}
+
 struct DataEditTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
@@ -25,6 +43,8 @@ struct DataEditTab: View {
     @State var backupMessage: String?
     @State var backupError: String?
     @State var showBackupAlert = false
+    @State var restorePhase: BackupRestorePhase = .idle
+    @State var restoreOperationID: UUID?
 
     @State var fullDatasetFileName: String = "radix_full_dataset"
     @State var mergedDictionaryFileName: String = "radix_merged_dictionary"
@@ -126,6 +146,7 @@ struct DataEditTab: View {
                     Text(msg)
                 }
             }
+            .overlay { backupRestoreOverlay }
             .onAppear {
                 dataEditScrollProxy = proxy
                 lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.latest
@@ -153,26 +174,6 @@ struct DataEditTab: View {
             } else if activeAdvancedExportKind == .phraseDatabase {
                 mergedPhrasesFileName = base
             }
-        }
-    }
-
-    func restoreBackup(from result: Result<[URL], Error>) {
-        guard !entitlement.requiresPro(.myBackup) else {
-            onRequirePro(.myBackup)
-            return
-        }
-        do {
-            guard let url = try result.get().first else { return }
-            let accessed = url.startAccessingSecurityScopedResource()
-            defer { if accessed { url.stopAccessingSecurityScopedResource() } }
-            let data = try Data(contentsOf: url)
-            try store.importDataEditData(data, mode: pendingRestoreMode)
-            let modeLabel = pendingRestoreMode == .complete ? "Restored this device" : "Amalgamated backup data"
-            backupMessage = "\(modeLabel) from: \(url.lastPathComponent)"
-            showBackupAlert = true
-        } catch {
-            backupError = error.localizedDescription
-            showBackupAlert = true
         }
     }
 

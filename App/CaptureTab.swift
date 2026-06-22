@@ -207,7 +207,7 @@ struct CaptureTab: View {
 
     private var phoneCapturePreview: some View {
         PhoneContextPreview(
-            returnTitle: "Scan",
+            returnTitle: "Take Photo",
             returnSystemImage: "camera.viewfinder",
             phrase: store.activeSidebarPhrasePreview,
             character: captureDetailPreviewCharacter ?? capturePreviewCharacter ?? store.previewCharacter,

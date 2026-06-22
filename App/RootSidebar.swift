@@ -6,34 +6,12 @@ extension RootView {
             VStack(alignment: .leading, spacing: 12) {
                 sidebarBrandHeader
 
-                if store.sidebarNavigationStyle == .compact {
-                    compactSidebarNavigation
-                } else {
-                    descriptiveSidebarNavigation
-                }
-
-                sidebarMemoryButtons
+                sidebarGlobalActionRow
+                sidebarMainNavigation
 
                 if store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil {
                     sidebarPreview
                 }
-
-                Button {
-                    showSettings = true
-                } label: {
-                    HStack(spacing: 10) {
-                        Image(systemName: RadixIcon.settings)
-                            .font(ResponsiveFont.body)
-                        Text("Settings")
-                            .font(ResponsiveFont.subheadline.weight(.semibold))
-                        Spacer()
-                    }
-                    .padding(12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(RadixTheme.secondaryBackground.opacity(0.7))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .buttonStyle(.plain)
             }
             .padding(8)
         }
@@ -49,171 +27,163 @@ extension RootView {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
-
-            Picker("Sidebar navigation style", selection: $store.sidebarNavigationStyle) {
-                Text(SidebarNavigationStyle.descriptive.displayName).tag(SidebarNavigationStyle.descriptive)
-                Text(SidebarNavigationStyle.compact.displayName).tag(SidebarNavigationStyle.compact)
-            }
-            .pickerStyle(.segmented)
-            .padding(.top, 4)
-            .accessibilityLabel("Sidebar navigation style")
         }
         .padding(.horizontal, 4)
         .padding(.top, 4)
     }
 
-    var sidebarMemoryButtons: some View {
-        let datedCopiesLocked = entitlement.requiresPro(.datedCopies)
-
-        return HStack(spacing: 8) {
-            sidebarMemoryButton(
-                title: isQuickSavingMemory ? "Saving..." : "Save",
-                systemImage: isQuickSavingMemory ? "hourglass" : (datedCopiesLocked ? "lock.fill" : "tray.and.arrow.down"),
-                isBusy: isQuickSavingMemory,
-                lockBadge: datedCopiesLocked ? "Plus" : nil,
-                action: quickSaveMemory
-            )
-
-            sidebarRestoreSnapshotMenu(datedCopiesLocked: datedCopiesLocked)
-        }
-    }
-
-    @ViewBuilder
-    func sidebarRestoreSnapshotMenu(datedCopiesLocked: Bool) -> some View {
-        if datedCopiesLocked {
-            sidebarMemoryButton(
-                title: "Restore",
-                systemImage: "lock.fill",
-                isBusy: isQuickRestoringMemory,
-                lockBadge: "Plus",
-                action: { presentPaywall(for: .datedCopies) }
-            )
-        } else {
-            Menu {
-                restoreSnapshotMenuContent
+    var sidebarGlobalActionRow: some View {
+        HStack(spacing: 8) {
+            Button {
+                hasUsedSidebarNavigation = true
+                beginNewSearch()
             } label: {
-                sidebarMemoryButtonLabel(
-                    title: isQuickRestoringMemory ? "Restoring..." : "Restore",
-                    systemImage: isQuickRestoringMemory ? "hourglass" : "arrow.counterclockwise",
-                    lockBadge: nil
+                PrimaryActionTile(
+                    title: "Search",
+                    subtitle: "Anything",
+                    systemImage: RadixIcon.search,
+                    isPrimary: false
                 )
             }
             .buttonStyle(.plain)
-            .disabled(isQuickSavingMemory || isQuickRestoringMemory)
-            .accessibilityLabel("Restore")
-            .onAppear {
-                refreshQuickLocalSnapshots()
+            .accessibilityLabel("Search in Radix")
+
+            Button {
+                hasUsedSidebarNavigation = true
+                store.showiPhoneDetail = false
+                store.previewCharacter = nil
+                store.startBrowseCameraPage()
+            } label: {
+                PrimaryActionTile(
+                    title: "Take Photo",
+                    subtitle: "Capture text",
+                    systemImage: "camera.fill",
+                    isPrimary: true
+                )
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Take Photo")
         }
     }
 
-    func sidebarMemoryButton(
-        title: String,
-        systemImage: String,
-        isBusy: Bool,
-        lockBadge: String? = nil,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            sidebarMemoryButtonLabel(title: title, systemImage: systemImage, lockBadge: lockBadge)
+    var sidebarMainNavigation: some View {
+        HStack(spacing: 6) {
+            sidebarTabButton(.browse)
+            sidebarTabButton(.study)
+            sidebarTabButton(.aiLink)
+            sidebarTabButton(.myData)
+            sidebarSettingsTabButton
+        }
+    }
+
+    func sidebarTabButton(_ item: RadixNavigationItem) -> some View {
+        let id = item.rawValue
+        let showsTitle = store.sidebarNavigationStyle == .descriptive
+        let isActive = {
+            if store.route == .favourites { return id == 3 }
+            if store.route == .aiLink { return id == 4 }
+            if store.route == .lineage { return false }
+            if store.route == .capture { return false }
+            if store.route == .settings { return false }
+            switch store.homeTab {
+            case .smart: return false
+            case .filter: return id == 2
+            case .favourites: return id == 3
+            case .dataEdit: return id == 5
+            }
+        }()
+
+        return Button {
+            switch id {
+            case 2:
+                hasUsedSidebarNavigation = true
+                store.goToBrowse()
+            case 3:
+                hasUsedSidebarNavigation = true
+                store.goToFavourites()
+            case 4:
+                hasUsedSidebarNavigation = true
+                store.enterAILink()
+            case 5:
+                hasUsedSidebarNavigation = true
+                store.goToDataEdit()
+            default:
+                break
+            }
+        } label: {
+            VStack(spacing: showsTitle ? 2 : 0) {
+                Image(systemName: item.icon)
+                    .font(.system(size: isActive ? 17 : 16, weight: .semibold))
+                if showsTitle {
+                    Text(item.compactTitle)
+                        .font(ResponsiveFont.tinySystem(size: 10, weight: isActive ? .bold : .semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.58)
+                }
+            }
+            .foregroundStyle(isActive ? Color.white : Color.secondary)
+            .frame(maxWidth: .infinity)
+            .frame(height: showsTitle ? 48 : 42)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(isActive ? Color.accentColor : RadixTheme.secondaryBackground.opacity(0.65))
+            )
+            .contentShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
-        .disabled(isBusy || isQuickSavingMemory || isQuickRestoringMemory)
-        .accessibilityLabel(title)
+        .accessibilityLabel(item.title)
+        .accessibilityValue(isActive ? "Selected" : "")
+        .overlay(
+            Group {
+                if isActive {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+                } else {
+                    EmptyView()
+                }
+            }
+        )
     }
 
-    func sidebarMemoryButtonLabel(title: String, systemImage: String, lockBadge: String?) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: systemImage)
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(Color.accentColor)
-                .frame(width: 18, height: 18)
+    var sidebarSettingsTabButton: some View {
+        let showsTitle = store.sidebarNavigationStyle == .descriptive
 
-            Text(title)
-                .font(ResponsiveFont.caption2.weight(.semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
-
-            if let lockBadge {
-                Text(lockBadge)
-                    .font(ResponsiveFont.caption2.weight(.bold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 2)
-                    .background(Color.accentColor)
-                    .clipShape(Capsule())
-                    .accessibilityHidden(true)
+        return Button {
+            hasUsedSidebarNavigation = true
+            store.goToSettings()
+        } label: {
+            VStack(spacing: showsTitle ? 2 : 0) {
+                Image(systemName: RadixIcon.settings)
+                    .font(.system(size: 16, weight: .semibold))
+                if showsTitle {
+                    Text("Settings")
+                        .font(ResponsiveFont.tinySystem(size: 10, weight: .semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.52)
+                }
             }
+            .foregroundStyle(store.route == .settings ? Color.white : Color.secondary)
+            .frame(maxWidth: .infinity)
+            .frame(height: showsTitle ? 48 : 42)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(store.route == .settings ? Color.accentColor : RadixTheme.secondaryBackground.opacity(0.65))
+            )
+            .contentShape(RoundedRectangle(cornerRadius: 8))
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .frame(maxWidth: .infinity)
-        .frame(minHeight: 32)
-        .background(RadixTheme.secondaryBackground.opacity(0.7))
-        .clipShape(RoundedRectangle(cornerRadius: 7))
-    }
-
-    var descriptiveSidebarNavigation: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            sidebarTaskButton(.scan, isActive: store.route == .capture) {
-                hasUsedSidebarNavigation = true
-                store.route = .capture
+        .buttonStyle(.plain)
+        .accessibilityLabel("Settings")
+        .accessibilityValue(store.route == .settings ? "Selected" : "")
+        .overlay(
+            Group {
+                if store.route == .settings {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+                } else {
+                    EmptyView()
+                }
             }
-
-            sidebarTaskButton(.search, isActive: store.route == .search && store.homeTab == .smart) {
-                hasUsedSidebarNavigation = true
-                beginNewSearch()
-            }
-
-            sidebarTaskButton(.browse, isActive: store.route == .search && store.homeTab == .filter) {
-                hasUsedSidebarNavigation = true
-                store.goToBrowse()
-            }
-
-            sidebarTaskButton(.study, isActive: store.route == .favourites || (store.route == .search && store.homeTab == .favourites)) {
-                hasUsedSidebarNavigation = true
-                store.goToFavourites()
-            }
-
-            sidebarTaskButton(.aiLink, isActive: store.route == .aiLink) {
-                hasUsedSidebarNavigation = true
-                store.enterAILink()
-            }
-
-            sidebarTaskButton(.myData, isActive: store.route == .search && store.homeTab == .dataEdit) {
-                hasUsedSidebarNavigation = true
-                store.goToDataEdit()
-            }
-        }
-    }
-
-    var compactSidebarNavigation: some View {
-        HStack(spacing: 6) {
-            compactSidebarButton(.scan, isActive: store.route == .capture) {
-                hasUsedSidebarNavigation = true
-                store.route = .capture
-            }
-            compactSidebarButton(.search, isActive: store.route == .search && store.homeTab == .smart) {
-                hasUsedSidebarNavigation = true
-                beginNewSearch()
-            }
-            compactSidebarButton(.browse, isActive: store.route == .search && store.homeTab == .filter) {
-                hasUsedSidebarNavigation = true
-                store.goToBrowse()
-            }
-            compactSidebarButton(.study, isActive: store.route == .favourites || (store.route == .search && store.homeTab == .favourites)) {
-                hasUsedSidebarNavigation = true
-                store.goToFavourites()
-            }
-            compactSidebarButton(.aiLink, isActive: store.route == .aiLink) {
-                hasUsedSidebarNavigation = true
-                store.enterAILink()
-            }
-            compactSidebarButton(.myData, isActive: store.route == .search && store.homeTab == .dataEdit) {
-                hasUsedSidebarNavigation = true
-                store.goToDataEdit()
-            }
-        }
+        )
     }
 
     @ViewBuilder
@@ -246,62 +216,4 @@ extension RootView {
         }
     }
 
-    func sidebarTaskButton(
-        _ item: RadixNavigationItem,
-        isActive: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                Image(systemName: item.icon)
-                    .font(ResponsiveFont.headline)
-                    .foregroundStyle(isActive ? Color.accentColor : Color.secondary)
-                    .frame(width: 30, height: 30)
-                    .background(isActive ? Color.accentColor.opacity(0.12) : RadixTheme.background)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(item.title)
-                        .font(ResponsiveFont.subheadline.weight(.semibold))
-                    Text(item.subtitle)
-                        .font(ResponsiveFont.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(3)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Spacer(minLength: 0)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(10)
-            .background(isActive ? Color.accentColor.opacity(0.1) : RadixTheme.secondaryBackground.opacity(0.55))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(isActive ? Color.accentColor.opacity(0.35) : Color.clear, lineWidth: 1)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-
-    func compactSidebarButton(
-        _ item: RadixNavigationItem,
-        isActive: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            Image(systemName: item.icon)
-                .font(ResponsiveFont.headline)
-                .frame(maxWidth: .infinity, minHeight: 42)
-            .foregroundStyle(isActive ? Color.accentColor : Color.primary)
-            .background(isActive ? Color.accentColor.opacity(0.12) : RadixTheme.secondaryBackground.opacity(0.65))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(isActive ? Color.accentColor.opacity(0.35) : Color.clear, lineWidth: 1)
-            )
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(item.title)
-    }
 }

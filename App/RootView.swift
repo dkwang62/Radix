@@ -27,7 +27,6 @@ struct RootView: View {
     @State var importExportError: String?
     @State var importExportMessage: String?
     @State var showImportExportAlert = false
-    @State var showSettings = false
     @State var isQuickSavingMemory = false
     @State var isQuickRestoringMemory = false
     @State var quickLocalSnapshots: [LocalDataSnapshot] = []
@@ -68,17 +67,6 @@ struct RootView: View {
         .sheet(item: $store.quickEditDestination) { destination in
             QuickEditSheet(destination: destination)
                 .environmentObject(store)
-        }
-        .sheet(isPresented: $showSettings) {
-            NavigationStack {
-                SettingsView {
-                    showSettings = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                        hasSeenWelcome = false
-                    }
-                }
-                    .environmentObject(store)
-            }
         }
         .sheet(isPresented: Binding(
             get: { !hasSeenWelcome },

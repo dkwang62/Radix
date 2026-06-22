@@ -30,7 +30,7 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .scan: return "Scan"
+        case .scan: return "Take Photo"
         case .browse: return "Browse"
         case .search: return "Search"
         case .study: return "Study"
@@ -41,6 +41,7 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
 
     var compactTitle: String {
         switch self {
+        case .scan: return "Photo"
         case .aiLink: return "AI"
         default: return title
         }
@@ -49,7 +50,7 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
     var subtitle: String {
         switch self {
         case .scan:
-            return "Use a camera, photo, or file to turn real text into a browsable page."
+            return "Capture text from camera, photos, files, or paste."
         case .search:
             return "Find characters and phrases by Chinese, pinyin, English meaning, or strokes."
         case .browse:

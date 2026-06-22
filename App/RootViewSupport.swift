@@ -48,6 +48,10 @@ struct SearchHomeView: View {
 }
 
 extension RootView {
+    var browseNavigationTitle: String {
+        store.selectedBrowseCollection.map { "Browse \($0.name)" } ?? "Browse Dictionary"
+    }
+
     /// Starts the same clean Search flow from every platform's primary navigation.
     func beginNewSearch() {
         store.showiPhoneDetail = false
@@ -76,6 +80,44 @@ func emptyStateCard(systemImage: String, title: String, message: String) -> some
     .background(RadixTheme.secondaryBackground)
     .clipShape(RoundedRectangle(cornerRadius: 8))
     .padding()
+}
+
+struct PrimaryActionTile: View {
+    let title: String
+    let subtitle: String
+    let systemImage: String
+    let isPrimary: Bool
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: systemImage)
+                .font(.system(size: 17, weight: .semibold))
+                .frame(width: 34, height: 34)
+                .foregroundStyle(isPrimary ? Color.white : Color.accentColor)
+                .background(isPrimary ? Color.white.opacity(0.18) : Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title)
+                    .font(ResponsiveFont.subheadline.weight(.bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.78)
+                Text(subtitle)
+                    .font(ResponsiveFont.caption)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+                    .opacity(isPrimary ? 0.86 : 0.72)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
+        .foregroundStyle(isPrimary ? Color.white : Color.primary)
+        .background(isPrimary ? Color.accentColor : RadixTheme.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
 }
 
 @MainActor

@@ -49,6 +49,7 @@ enum AppRoute: String, CaseIterable, Identifiable {
     case lineage = "Lineage"
     case aiLink = "AI Link"
     case favourites = "Favourites"
+    case settings = "Settings"
 
     var id: String { rawValue }
 }

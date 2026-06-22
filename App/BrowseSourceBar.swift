@@ -45,7 +45,7 @@ extension FilterGridTab {
 
                 Spacer(minLength: 0)
 
-                browseSourceBackButton(accessibilityLabel: "Show Pages")
+                browseSourceBackButton
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -94,7 +94,7 @@ extension FilterGridTab {
 
                 smartGridControls
                 Spacer(minLength: 0)
-                browseSourceBackButton(accessibilityLabel: "Show Browse Sources")
+                browseSourceBackButton
             }
 
             if showDictionaryHelp {
@@ -113,21 +113,23 @@ extension FilterGridTab {
         }
     }
 
-    func browseSourceBackButton(accessibilityLabel: String) -> some View {
+    var browseSourceBackButton: some View {
         Button {
             withAnimation(.easeInOut(duration: 0.16)) {
                 showBrowseSource = true
             }
         } label: {
-            Label("Pages", systemImage: "chevron.left")
-                .font(.system(size: 16, weight: .semibold))
-                .labelStyle(.titleAndIcon)
-                .lineLimit(1)
-                .frame(minWidth: 72, minHeight: 32)
+            HStack(spacing: 7) {
+                Image(systemName: "chevron.left")
+                Image(systemName: "photo.on.rectangle")
+            }
+            .font(.system(size: 16, weight: .semibold))
+            .frame(width: 52, height: 32)
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
-        .accessibilityLabel(accessibilityLabel)
+        .accessibilityLabel("Choose Browse Source")
+        .help("Choose Browse Source")
     }
 
     func browseSourceLabel(collection: CharacterCollection?) -> some View {
@@ -146,7 +148,6 @@ extension FilterGridTab {
     }
 
     func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
-        let useCompactActions = !RadixPlatform.isDesktop
         let translationTitle = collection.translationReport == nil ? "Save Translation" : "View Translation"
         let translationIcon = collection.translationReport == nil ? "doc.badge.plus" : "doc.text"
 
@@ -169,19 +170,13 @@ extension FilterGridTab {
                 beginBrowseTranslation(collection)
             }, onTranslateAndSave: {
                 runBrowseGeminiTranslationAndSave(collection)
-            }, isCompact: useCompactActions)
+            }, isCompact: true)
 
             Button {
                 beginTranslationReport(collection)
             } label: {
-                if useCompactActions {
-                    Image(systemName: translationIcon)
-                        .frame(width: 34)
-                } else {
-                    Label(translationTitle, systemImage: translationIcon)
-                        .labelStyle(.titleAndIcon)
-                        .frame(minWidth: 130)
-                }
+                Image(systemName: translationIcon)
+                    .frame(width: 34)
             }
             .buttonStyle(.bordered)
             .controlSize(.small)

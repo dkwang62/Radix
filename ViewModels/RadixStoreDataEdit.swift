@@ -413,7 +413,7 @@ extension RadixStore {
 
     func portableBackupPackage() -> UnifiedPackage {
         UnifiedPackage(
-            schemaVersion: 4,
+            schemaVersion: PortableBackupCodec.currentSchemaVersion,
             exportedAt: Date(),
             backupID: UUID(),
             baseDictionaryFingerprint: componentRepo.baseDictionaryFingerprint,
@@ -460,10 +460,16 @@ extension RadixStore {
     // MARK: - Import
 
     func importDataEditData(_ data: Data, mode: RestoreMode = .additive) throws {
+        let payload = try PortableBackupCodec().decode(data)
+        try importDataEditPayload(payload, mode: mode)
+    }
+
+    func importDataEditPayload(_ payload: PortableBackupPayload, mode: RestoreMode = .additive) throws {
         pendingDatasetAutosaveWorkItem?.cancel()
         pendingDatasetAutosaveWorkItem = nil
 
-        if let package = try? JSONDecoder().decode(UnifiedPackage.self, from: data) {
+        switch payload {
+        case .unified(let package):
             let backupOverlay: DictionaryOverlayPackage
             if let patchOverlay = package.dictionaryPatchOverlay {
                 backupOverlay = componentRepo.overlayPackage(from: patchOverlay)
@@ -475,6 +481,9 @@ extension RadixStore {
             switch mode {
             case .additive:
                 let now = Date()
+                let localOverlay = componentRepo.overlayPackage()
+                var mergedUpserts = localOverlay.upserts
+                var mergedDeletions = Set(localOverlay.deletions)
                 for (char, entry) in backupOverlay.upserts where char.count == 1 {
                     if let localOverlay = componentRepo.overlayUpserts[char] {
                         guard let baseEntry = componentRepo.baseEntry(for: char) else { continue }
@@ -482,13 +491,26 @@ extension RadixStore {
                             local: localOverlay, backup: entry, base: baseEntry,
                             restoredAt: package.exportedAt ?? now
                         )
-                        componentRepo.replaceEntry(character: char, entry: merged)
+                        if merged == baseEntry {
+                            mergedUpserts.removeValue(forKey: char)
+                        } else {
+                            mergedUpserts[char] = merged
+                        }
                         if overlayAddedDates[char] == nil { overlayAddedDates[char] = now }
                     } else {
-                        componentRepo.addEntry(character: char, entry: entry)
+                        mergedUpserts[char] = entry
                         if overlayAddedDates[char] == nil { overlayAddedDates[char] = now }
                     }
+                    mergedDeletions.remove(char)
                 }
+                // Rebuild the dictionary indexes once after the entire merge. Rebuilding
+                // for every restored character made larger iPad backups appear to hang
+                // indefinitely when restored on an iPhone.
+                componentRepo.applyOverlay(DictionaryOverlayPackage(
+                    schemaVersion: max(backupOverlay.schemaVersion, 2),
+                    upserts: mergedUpserts,
+                    deletions: mergedDeletions.sorted()
+                ))
                 persistOverlayAddedDates()
                 try phraseRepo.addPhrasesAdditively(uniquePhrases(package.phrases))
                 mergeImportedCollections(package.collections, selectedAICollectionID: package.selectedAICollectionID)
@@ -511,8 +533,7 @@ extension RadixStore {
 
             try persistDictionaryOverlay()
             try persistDataEditAndRefresh()
-        } else {
-            let map = try JSONDecoder().decode([String: RawComponentEntry].self, from: data)
+        case .legacyDictionary(let map):
             try componentRepo.loadFromBundle()
             let overlay = ComponentRepository.makeOverlay(base: componentRepo.baseRawMap, effective: map)
             componentRepo.applyOverlay(overlay)
