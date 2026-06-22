@@ -8,10 +8,10 @@ enum PhraseReviewStatus: String, Codable, CaseIterable {
 
     var title: String {
         switch self {
-        case .checked: return "Checked"
+        case .checked: return "Accepted"
         case .hidden: return "Hidden"
         case .removed: return "Rejected"
-        case .completed: return "Checked"
+        case .completed: return "Accepted"
         }
     }
 }
@@ -27,9 +27,9 @@ enum PhraseReviewStatusTool: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .removed: return "Rejected"
-        case .checked: return "Checked"
+        case .checked: return "Accepted"
         case .hidden: return "Hidden"
-        case .new: return "New"
+        case .new: return "Unreviewed"
         }
     }
 
@@ -80,8 +80,8 @@ enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .new: return "New"
-        case .checked: return "Checked"
+        case .new: return "Unreviewed"
+        case .checked: return "Accepted"
         case .hidden: return "Hidden"
         case .removed: return "Rejected"
         case .all: return "All"
@@ -122,11 +122,11 @@ enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
 enum AddedPhraseReviewRules {
     static func statusMessage(_ status: PhraseReviewStatus?, word: String) -> String {
         switch status {
-        case .checked: return "\(word) checked."
+        case .checked: return "\(word) accepted."
         case .hidden: return "\(word) hidden from phrase lists, still available on pages."
         case .removed: return "\(word) rejected as not a phrase."
-        case .completed: return "\(word) checked."
-        case nil: return "\(word) restored to New."
+        case .completed: return "\(word) accepted."
+        case nil: return "\(word) marked Unreviewed."
         }
     }
 

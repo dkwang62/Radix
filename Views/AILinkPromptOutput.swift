@@ -198,7 +198,7 @@ extension AILinkView {
         if hasCollectionTasks {
             if let selectedCollection {
                 let name = selectedCollection.name.trimmingCharacters(in: .whitespacesAndNewlines)
-                parts.append("Page: \(name.isEmpty ? "Scanned Page" : name)")
+                parts.append("Page: \(name.isEmpty ? "Saved Page" : name)")
             } else {
                 parts.append("Choose page")
             }

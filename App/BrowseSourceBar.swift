@@ -34,7 +34,7 @@ extension FilterGridTab {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(collection.name.isEmpty ? "Scanned Page" : collection.name)
+                    Text(collection.name.isEmpty ? "Saved Page" : collection.name)
                         .font(ResponsiveFont.body.weight(.semibold))
                         .lineLimit(1)
                     Text("\(collection.characters.count) characters")

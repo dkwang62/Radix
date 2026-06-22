@@ -150,6 +150,11 @@ extension AddedPhraseReviewSheet {
                 }
             }
 
+            Text("Accepted: useful • Hidden: page context only • Rejected: not a phrase • Unreviewed: decide later")
+                .font(ResponsiveFont.caption2)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
             if let selectedTool {
                 Text("\(selectedTool.title) is active. The filter stays unchanged while you classify.")
                     .font(reviewCaptionFont)
@@ -176,7 +181,7 @@ extension AddedPhraseReviewSheet {
                 Button {
                     checkNewPhrases()
                 } label: {
-                    Label("Check New (\(newPhrases.count))", systemImage: "checkmark.circle.fill")
+                    Label("Accept Unreviewed (\(newPhrases.count))", systemImage: "checkmark.circle.fill")
                 }
             }
 
@@ -192,7 +197,7 @@ extension AddedPhraseReviewSheet {
                 Button(role: .destructive) {
                     showsDeleteNewConfirmation = true
                 } label: {
-                    Label("Remove New (\(newPhrases.count))", systemImage: "trash")
+                    Label("Remove Unreviewed (\(newPhrases.count))", systemImage: "trash")
                 }
             }
         } label: {
@@ -203,7 +208,7 @@ extension AddedPhraseReviewSheet {
         .controlSize(.small)
         .tint(RadixTheme.systemGray5)
         .foregroundStyle(Color.primary)
-        .help("Bulk actions for new and rejected phrases.")
+        .help("Bulk actions for unreviewed and rejected phrases.")
     }
 
     var searchField: some View {

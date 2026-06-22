@@ -8,7 +8,7 @@ extension DataEditTab {
             phraseEntriesWithNotes: phraseEntriesWithNotes,
             title: "Backup Contents",
             subtitle: "This is the Radix data included when you create an iCloud backup or restore one from another device.",
-            badges: ["iCloud Backup", "Cross-Device", "Recoverable"],
+            badges: ["Portable Backup", "Cross-Device", "Recoverable"],
             onOpenSavedPages: {
                 store.goToBrowsePages(selectLatest: false)
             },
@@ -31,7 +31,7 @@ extension DataEditTab {
             addedPhraseEntries: addedPhraseEntries,
             basePhraseCoreEditEntries: basePhraseCoreEditEntries,
             phraseEntriesWithNotes: phraseEntriesWithNotes,
-            title: "Snapshot Contents",
+            title: "Backup Contents",
             subtitle: "Radix data included when you save or restore.",
             badges: ["Cross-Device", "Recoverable"],
             isCompactListOnly: true,

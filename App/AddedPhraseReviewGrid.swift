@@ -96,9 +96,9 @@ struct AddedPhraseReviewTile: View {
         .contextMenu {
             if showsStatusActions {
                 if phrase.reviewStatus != nil {
-                    Button("New", action: onMarkNew)
+                    Button("Unreviewed", action: onMarkNew)
                 }
-                Button("Checked", action: onCheck)
+                Button("Accepted", action: onCheck)
                     .disabled(phrase.reviewStatus == .checked)
                 Button("Hide", action: onHide)
                     .disabled(phrase.reviewStatus == .hidden)
@@ -155,7 +155,7 @@ struct AddedPhraseReviewTile: View {
     }
 
     private var accessibilityText: String {
-        let status = phrase.reviewStatus?.title ?? "New"
+        let status = phrase.reviewStatus?.title ?? "Unreviewed"
         let meaning = phrase.meanings.isEmpty ? "No meaning" : phrase.meanings
         return "\(phrase.word), \(status), \(meaning)"
     }

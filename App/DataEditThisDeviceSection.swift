@@ -48,7 +48,7 @@ extension DataEditTab {
             Image(systemName: latestSnapshot == nil ? "clock.badge.exclamationmark" : "clock.badge.checkmark")
                 .foregroundStyle(latestSnapshot == nil ? Color.secondary : Color.green)
 
-            Text(latestSnapshot.map { "Last saved \($0.relativeSavedText)." } ?? "No dated copy saved on this device yet.")
+            Text(latestSnapshot.map { "Last snapshot saved \($0.relativeSavedText)." } ?? "No device snapshot saved yet.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(latestSnapshot == nil ? Color.secondary : Color.green)
                 .fixedSize(horizontal: false, vertical: true)
@@ -64,21 +64,15 @@ extension DataEditTab {
     var localSnapshotsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
-                Label("Save a Copy Here", systemImage: "clock.badge.checkmark")
+                Label("Device Snapshots", systemImage: "clock.badge.checkmark")
                     .font(ResponsiveFont.headline)
-                Text("$9")
-                    .font(ResponsiveFont.caption.bold())
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.accentColor.opacity(0.14))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 Spacer()
-                Text("\(localSnapshots.count) copies")
+                Text("\(localSnapshots.count) snapshots")
                     .font(ResponsiveFont.caption.bold())
                     .foregroundStyle(.secondary)
             }
 
-            Text("Dated copies are kept on this device. Radix Plus unlocks saving and restoring these local snapshots.")
+            Text("Device snapshots are kept inside Radix on this device for quick recovery. Radix Plus unlocks saving and restoring them.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -95,8 +89,8 @@ extension DataEditTab {
                 createLocalSnapshot()
             } label: {
                 DataBackupActionButton(
-                    title: "Save Dated Copy",
-                    subtitle: "No file to choose",
+                    title: "Save Device Snapshot",
+                    subtitle: "Keep a recovery point here",
                     systemName: "clock.badge.plus",
                     foreground: .white,
                     background: Color.accentColor,
@@ -108,7 +102,7 @@ extension DataEditTab {
             .buttonStyle(.plain)
 
             if localSnapshots.isEmpty {
-                Text("No dated copies yet.")
+                Text("No device snapshots yet.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -149,7 +143,7 @@ extension DataEditTab {
     @ViewBuilder
     var datedCopiesVisibilityNote: some View {
         if entitlement.requiresPro(.datedCopies) {
-            Label("You can see existing dated copies for free. Saving and restoring dated copies unlocks with Radix Plus.", systemImage: "lock.open")
+            Label("You can see existing device snapshots for free. Saving and restoring them unlocks with Radix Plus.", systemImage: "lock.open")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .padding(10)
@@ -163,7 +157,7 @@ extension DataEditTab {
         do {
             let data = try dataExportService.exportPortableBackup(store.portableBackupPackage())
             localSnapshots = try localSnapshotStore.save(data)
-            backupMessage = "Saved dated copy: \(localSnapshots.first?.title ?? "Now")"
+            backupMessage = "Saved device snapshot: \(localSnapshots.first?.title ?? "Now")"
             showBackupAlert = true
         } catch {
             backupError = error.localizedDescription
@@ -188,7 +182,7 @@ extension DataEditTab {
     func deleteLocalSnapshot(_ snapshot: LocalDataSnapshot) {
         do {
             localSnapshots = try localSnapshotStore.delete(snapshot)
-            backupMessage = "Deleted dated copy: \(snapshot.title)"
+            backupMessage = "Deleted device snapshot: \(snapshot.title)"
             showBackupAlert = true
         } catch {
             backupError = error.localizedDescription
@@ -204,6 +198,7 @@ struct LocalDataSnapshotRow: View {
     let onAdd: () -> Void
     let onReplace: () -> Void
     let onDelete: () -> Void
+    @State private var showReplaceConfirmation = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -233,6 +228,12 @@ struct LocalDataSnapshotRow: View {
         .padding(10)
         .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .alert("Replace My Data?", isPresented: $showReplaceConfirmation) {
+            Button("Replace My Data", role: .destructive, action: onReplace)
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Current data on this device will be replaced with the device snapshot “\(snapshot.title)”.")
+        }
     }
 
     @ViewBuilder
@@ -256,15 +257,21 @@ struct LocalDataSnapshotRow: View {
 
     var addButton: some View {
         Button(action: onAdd) {
-            Label("Add to Memory", systemImage: isLocked ? "lock.fill" : "plus")
+            Label("Merge Snapshot", systemImage: isLocked ? "lock.fill" : "plus")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)
     }
 
     var replaceButton: some View {
-        Button(role: .destructive, action: onReplace) {
-            Label("Replace Memory", systemImage: isLocked ? "lock.fill" : "arrow.triangle.2.circlepath")
+        Button(role: .destructive) {
+            if isLocked {
+                onReplace()
+            } else {
+                showReplaceConfirmation = true
+            }
+        } label: {
+            Label("Replace My Data", systemImage: isLocked ? "lock.fill" : "arrow.triangle.2.circlepath")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)

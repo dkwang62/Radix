@@ -228,7 +228,7 @@ struct FilterGridTab: View {
                     imageActionMessage = error.localizedDescription
                 }
             ))
-            .alert("Delete Saved Image?", isPresented: Binding(
+            .alert("Delete Saved Page?", isPresented: Binding(
                 get: { pendingDeleteCollection != nil },
                 set: { if !$0 { pendingDeleteCollection = nil } }
             )) {
@@ -243,7 +243,7 @@ struct FilterGridTab: View {
                 }
             } message: {
                 if let collection = pendingDeleteCollection {
-                    Text("Delete “\(collection.name)” from saved images?")
+                    Text("Delete “\(collection.name)” from saved pages?")
                 }
             }
         }

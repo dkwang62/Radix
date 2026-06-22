@@ -62,6 +62,11 @@ struct AILinkView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
+                Text("Create reusable instructions for translating, explaining, or processing a character, phrase, or saved page with an AI service.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
                 if sizeClass == .compact {
                     aiPhoneSubjectPreview
                 }
@@ -168,12 +173,13 @@ struct AILinkView: View {
             Button {
                 store.goToSearchRoot()
             } label: {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 15, weight: .semibold))
+                Label("Choose in Search", systemImage: "magnifyingglass")
+                    .font(ResponsiveFont.caption.weight(.semibold))
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
             .accessibilityLabel("Choose AI Link Subject")
+            .help("Open Search, choose a character or phrase, then return to AI Link.")
         }
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)

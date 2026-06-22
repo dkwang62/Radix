@@ -39,10 +39,10 @@ extension CharacterInfoCard {
         if !cardComponents.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Label("Parts", systemImage: "puzzlepiece.extension")
+                    Label("Components", systemImage: "puzzlepiece.extension")
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
-                    GlossaryTermButton(term: "Parts")
+                    GlossaryTermButton(term: "Components")
                     Spacer(minLength: 0)
                 }
 

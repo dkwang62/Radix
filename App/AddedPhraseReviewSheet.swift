@@ -117,7 +117,7 @@ struct AddedPhraseReviewSheet: View {
                 } message: {
                     Text(deleteRejectedConfirmationMessage)
                 }
-                .alert("Remove New Phrases?", isPresented: $showsDeleteNewConfirmation) {
+                .alert("Remove Unreviewed Phrases?", isPresented: $showsDeleteNewConfirmation) {
                     Button("Remove", role: .destructive) {
                         deleteNewPhrases()
                     }
@@ -229,7 +229,7 @@ extension AddedPhraseReviewSheet {
                 try store.updateAddedPhraseReviewStatus(word: phrase.word, status: .checked)
                 checkedCount += 1
             } catch {
-                message = "Could not check \(phrase.word): \(error.localizedDescription)"
+                message = "Could not accept \(phrase.word): \(error.localizedDescription)"
                 break
             }
         }
@@ -237,12 +237,12 @@ extension AddedPhraseReviewSheet {
         selectedPhrase = nil
         reviewCycle.resetPreview()
         clampPage()
-        message = "Checked \(checkedCount) new phrase\(checkedCount == 1 ? "" : "s")."
+        message = "Accepted \(checkedCount) unreviewed phrase\(checkedCount == 1 ? "" : "s")."
     }
 
     var deleteNewConfirmationMessage: String {
         let count = newPhrases.count
-        return "Delete \(count) new phrase\(count == 1 ? "" : "s") from your added phrases?"
+        return "Delete \(count) unreviewed phrase\(count == 1 ? "" : "s") from your added phrases?"
     }
 
     func deleteNewPhrases() {
@@ -253,9 +253,9 @@ extension AddedPhraseReviewSheet {
             let count = try store.removeAddedPhrases(words: phrasesToDelete.map(\.word))
             selectedPhrase = nil
             resetPageAndSelection()
-            message = "Deleted \(count) new phrase\(count == 1 ? "" : "s")."
+            message = "Deleted \(count) unreviewed phrase\(count == 1 ? "" : "s")."
         } catch {
-            message = "Could not delete new phrases: \(error.localizedDescription)"
+            message = "Could not delete unreviewed phrases: \(error.localizedDescription)"
         }
     }
 

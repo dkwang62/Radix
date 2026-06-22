@@ -79,7 +79,7 @@ extension FilterGridTab {
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .frame(width: 34, height: 34)
                 } else {
-                    Label("Parts", systemImage: "puzzlepiece.extension")
+                    Label("Components", systemImage: "puzzlepiece.extension")
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)

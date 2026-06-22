@@ -13,7 +13,8 @@ extension SmartSearchTab {
                 onPreview: { character in
                     setSearchDrilldownAnchor(character)
                 },
-                onSelect: { withAnimation { proxy.scrollTo("searchTop", anchor: .top) } }
+                onSelect: { withAnimation { proxy.scrollTo("searchTop", anchor: .top) } },
+                emptyMessage: nil
             )
 
             phraseDrilldown(proxy: proxy)

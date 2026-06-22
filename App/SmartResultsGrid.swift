@@ -34,6 +34,7 @@ struct SmartResultsGrid: View {
     var onPreview: ((String) -> Void)? = nil
     var onSelect: (() -> Void)? = nil
     var readOnTap = false
+    var emptyMessage: String? = "No matching characters."
     
     // Dynamic column calculation for Mac vs iPad
     private var columns: [GridItem] {
@@ -83,9 +84,11 @@ struct SmartResultsGrid: View {
 
     var body: some View {
         if items.isEmpty {
-            Text("No results for current filters.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+            if let emptyMessage {
+                Text(emptyMessage)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
         } else {
             VStack(alignment: .leading, spacing: 10) {
                 if pageCount > 1 {

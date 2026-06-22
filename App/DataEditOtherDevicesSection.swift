@@ -9,7 +9,7 @@ extension DataEditTab {
     var fullBackupAndRestoreSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("iCloud Backup")
+                Text("Portable Backup")
                     .font(ResponsiveFont.headline)
                 Text("Plus")
                     .font(ResponsiveFont.caption.bold())
@@ -19,7 +19,7 @@ extension DataEditTab {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
-            Text("Create a backup in iCloud Drive, then restore it on another iPhone, iPad, or Mac. Included with Radix Plus.")
+            Text("Save a portable backup, then merge or restore it on another iPhone, iPad, or Mac. Included with Radix Plus.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -80,7 +80,7 @@ extension DataEditTab {
         } label: {
             DataBackupActionButton(
                 title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : "Save Backup",
-                subtitle: "Choose iCloud Drive",
+                subtitle: "Choose where to save",
                 systemName: "square.and.arrow.up.fill",
                 foreground: .white,
                 background: Color.accentColor,
@@ -102,8 +102,8 @@ extension DataEditTab {
             showRestorePicker = true
         } label: {
             DataBackupActionButton(
-                title: "Amalgamate",
-                subtitle: "Merge with this device",
+                title: "Merge Backup",
+                subtitle: "Keep existing data",
                 systemName: "square.and.arrow.down",
                 foreground: Color.accentColor,
                 background: Color.accentColor.opacity(0.1),
@@ -124,8 +124,8 @@ extension DataEditTab {
             showRestorePicker = true
         } label: {
             DataBackupActionButton(
-                title: "Restore Backup",
-                subtitle: "Replace this device",
+                title: "Replace My Data",
+                subtitle: "Restore this backup",
                 systemName: "square.and.arrow.down.fill",
                 foreground: Color.orange,
                 background: Color.orange.opacity(0.1),
@@ -161,7 +161,7 @@ extension DataEditTab {
             Image(systemName: hasSavedFile ? "checkmark.circle.fill" : "externaldrive")
                 .foregroundStyle(hasSavedFile ? Color.green : Color.secondary)
 
-            Text(hasSavedFile ? "Last backup: \(filename) \(relativeText ?? "")." : "No backup created yet.")
+            Text(hasSavedFile ? "Last backup created: \(filename) \(relativeText ?? "")." : "No backup created yet.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(hasSavedFile ? Color.green : Color.secondary)
                 .lineLimit(3)

@@ -32,6 +32,7 @@ struct FavouritesTab: View {
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
     @State var hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
     @State var addedPhraseReviewPresentation: AddedPhraseReviewPresentation?
+    @State var pendingSnapshotRestore: LocalDataSnapshot?
 
     var isPhone: Bool {
         RadixPlatform.isPhone
@@ -92,6 +93,21 @@ struct FavouritesTab: View {
                     .navigationBarTitleDisplayMode(.inline)
             }
             .presentationDetents([.medium, .large])
+        }
+        .alert("Replace My Data?", isPresented: Binding(
+            get: { pendingSnapshotRestore != nil },
+            set: { if !$0 { pendingSnapshotRestore = nil } }
+        )) {
+            Button("Replace My Data", role: .destructive) {
+                let snapshot = pendingSnapshotRestore
+                pendingSnapshotRestore = nil
+                onRestoreSnapshot?(snapshot)
+            }
+            Button("Cancel", role: .cancel) {
+                pendingSnapshotRestore = nil
+            }
+        } message: {
+            Text("Current data on this device will be replaced with the selected device snapshot.")
         }
         .sheet(item: $addedPhraseReviewPresentation, onDismiss: {
             addedPhraseReviewPresentation = nil

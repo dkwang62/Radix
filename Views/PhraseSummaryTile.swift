@@ -306,6 +306,6 @@ struct PhraseSummaryTile: View {
     }
 
     private var reviewStatusTitle: String {
-        reviewStatus?.title ?? "New"
+        reviewStatus?.title ?? "Unreviewed"
     }
 }

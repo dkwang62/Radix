@@ -174,17 +174,11 @@ struct CompactScriptFilterControl: View {
         }
     }
 
-    private var nextSelection: ScriptFilter {
-        switch selection {
-        case .any: return .simplified
-        case .simplified: return .traditional
-        case .traditional: return .any
-        }
-    }
-
     var body: some View {
-        Button {
-            onChange(nextSelection)
+        Menu {
+            scriptOption("Simplified and Traditional", value: .any)
+            scriptOption("Simplified", value: .simplified)
+            scriptOption("Traditional", value: .traditional)
         } label: {
             Text(label)
                 .font(ResponsiveFont.subheadline.weight(.semibold))
@@ -197,7 +191,20 @@ struct CompactScriptFilterControl: View {
         .buttonStyle(.plain)
         .accessibilityLabel("Character set")
         .accessibilityValue(selection.rawValue)
-        .accessibilityHint("Cycles between all, simplified, and traditional")
+        .accessibilityHint("Choose simplified, traditional, or both")
+    }
+
+    @ViewBuilder
+    private func scriptOption(_ title: String, value: ScriptFilter) -> some View {
+        Button {
+            onChange(value)
+        } label: {
+            if selection == value {
+                Label(title, systemImage: "checkmark")
+            } else {
+                Text(title)
+            }
+        }
     }
 }
 

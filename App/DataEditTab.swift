@@ -2,13 +2,20 @@ import SwiftUI
 
 enum DataEditSection: String, CaseIterable, Identifiable {
     case myBackup = "Backup"
-    case advanced = "Advanced Pro"
+    case advanced = "Advanced Exports"
 
     var id: String { rawValue }
 }
 
 struct AddedPhraseReviewPresentation: Identifiable {
     let id = UUID()
+}
+
+struct PendingBackupRestore: Identifiable {
+    let id = UUID()
+    let payload: PortableBackupPayload
+    let filename: String
+    let mode: RestoreMode
 }
 
 enum BackupRestorePhase: Equatable {
@@ -45,6 +52,7 @@ struct DataEditTab: View {
     @State var showBackupAlert = false
     @State var restorePhase: BackupRestorePhase = .idle
     @State var restoreOperationID: UUID?
+    @State var pendingBackupRestore: PendingBackupRestore?
 
     @State var fullDatasetFileName: String = "radix_full_dataset"
     @State var mergedDictionaryFileName: String = "radix_merged_dictionary"
@@ -145,6 +153,25 @@ struct DataEditTab: View {
                 } else if let msg = backupMessage {
                     Text(msg)
                 }
+            }
+            .alert(
+                restoreConfirmationTitle,
+                isPresented: Binding(
+                    get: { pendingBackupRestore != nil },
+                    set: { if !$0 { pendingBackupRestore = nil } }
+                )
+            ) {
+                Button("Cancel", role: .cancel) {
+                    pendingBackupRestore = nil
+                }
+                Button(
+                    restoreConfirmationButtonTitle,
+                    role: pendingBackupRestore?.mode == .complete ? .destructive : nil
+                ) {
+                    confirmPendingBackupRestore()
+                }
+            } message: {
+                Text(restoreConfirmationMessage)
             }
             .overlay { backupRestoreOverlay }
             .onAppear {

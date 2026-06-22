@@ -21,7 +21,7 @@ struct SettingsView: View {
 
             Section("Playback") {
                 Toggle(isOn: $store.speechEnabled) {
-                    Label("Sound", systemImage: store.speechMenuSymbolName)
+                    Label("Read Aloud", systemImage: store.speechMenuSymbolName)
                 }
             }
 
@@ -125,7 +125,7 @@ struct SettingsView: View {
                 Button(role: .destructive) {
                     showResetMemoryConfirmation = true
                 } label: {
-                    Label("Reset Radix Memory", systemImage: "trash")
+                    Label("Erase My Data on This Device", systemImage: "trash")
                 }
 
                 Text("Clears current added characters, phrases, saved pages, favorites, recent items, and AI Link templates. Dated copies and API keys are kept.")
@@ -160,13 +160,13 @@ struct SettingsView: View {
                 }
             }
         }
-        .alert("Reset Radix Memory?", isPresented: $showResetMemoryConfirmation) {
-            Button("Reset Memory", role: .destructive) {
+        .alert("Erase My Data on This Device?", isPresented: $showResetMemoryConfirmation) {
+            Button("Erase My Data", role: .destructive) {
                 resetRadixMemory()
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This clears the current Radix memory on this device. Dated copies are not deleted, so you can restore from My Data if you have a copy.")
+            Text("This erases added characters, phrases, saved pages, favorites, recent items, and AI Link templates on this device. Device snapshots are kept so you can restore one from My Data.")
         }
     }
 
@@ -179,9 +179,9 @@ struct SettingsView: View {
     private func resetRadixMemory() {
         do {
             try store.resetRadixMemory()
-            resetMemoryStatus = "Radix Memory reset. Dated copies and API keys were kept."
+            resetMemoryStatus = "My data was erased. Device snapshots and API keys were kept."
         } catch {
-            resetMemoryStatus = "Could not reset memory: \(error.localizedDescription)"
+            resetMemoryStatus = "Could not erase my data: \(error.localizedDescription)"
         }
     }
 

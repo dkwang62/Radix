@@ -85,7 +85,7 @@ extension FavouritesTab {
                 }
             )
             studySummaryTile(
-                title: "Phrases",
+                title: "Added Phrases",
                 value: "\(addedStudyPhraseEntries.count)",
                 systemImage: "text.quote",
                 tint: .green,
@@ -94,7 +94,7 @@ extension FavouritesTab {
                 }
             )
             studySummaryTile(
-                title: "Pages",
+                title: "Saved Pages",
                 value: "\(store.allCollections.count)",
                 systemImage: "photo.on.rectangle",
                 tint: .purple,
@@ -120,7 +120,7 @@ extension FavouritesTab {
                     }
                 } label: {
                     studySnapshotActionLabel(
-                        title: isSavingSnapshot ? "Saving..." : "Save Snapshot",
+                        title: isSavingSnapshot ? "Saving..." : "Save Device Snapshot",
                         systemImage: snapshotsLocked ? "lock.fill" : (isSavingSnapshot ? "hourglass" : "tray.and.arrow.down"),
                         isPrimary: true,
                         lockBadge: snapshotsLocked ? "Plus" : nil
@@ -134,7 +134,7 @@ extension FavouritesTab {
                         onRequirePro(.datedCopies)
                     } label: {
                         studySnapshotActionLabel(
-                            title: "Restore Snapshot",
+                            title: "Restore Device Snapshot",
                             systemImage: "lock.fill",
                             isPrimary: false,
                             lockBadge: "Plus"
@@ -149,7 +149,7 @@ extension FavouritesTab {
                         } else {
                             ForEach(localSnapshots) { snapshot in
                                 Button {
-                                    onRestoreSnapshot?(snapshot)
+                                    pendingSnapshotRestore = snapshot
                                 } label: {
                                     Label(snapshot.title, systemImage: "clock.arrow.circlepath")
                                 }
@@ -165,7 +165,7 @@ extension FavouritesTab {
                         }
                     } label: {
                         studySnapshotActionLabel(
-                            title: isRestoringSnapshot ? "Restoring..." : "Restore Snapshot",
+                            title: isRestoringSnapshot ? "Restoring..." : "Restore Device Snapshot",
                             systemImage: isRestoringSnapshot ? "hourglass" : "arrow.counterclockwise",
                             isPrimary: false,
                             lockBadge: nil
@@ -294,6 +294,6 @@ extension FavouritesTab {
 
     func collectionDisplayName(_ collection: CharacterCollection) -> String {
         let name = collection.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        return name.isEmpty ? "Scanned Page" : name
+        return name.isEmpty ? "Saved Page" : name
     }
 }

@@ -9,7 +9,7 @@ struct ManualBrowseCollectionSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Image") {
+                Section("Saved Page") {
                     TextField("Name", text: $name)
                     TextEditor(text: $text)
                         .frame(minHeight: 180)
@@ -21,7 +21,7 @@ struct ManualBrowseCollectionSheet: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            .navigationTitle("New Image")
+            .navigationTitle("New Saved Page")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -67,7 +67,7 @@ struct EditBrowseCollectionSheet: View {
                     TextEditor(text: $text)
                         .frame(minHeight: 140)
                         .focused($charactersFocused)
-                    Text("Paste or type Chinese text here. Radix will keep the recognized characters for this saved image.")
+                    Text("Paste or type Chinese text here. Radix will keep the recognized characters for this saved page.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -80,7 +80,7 @@ struct EditBrowseCollectionSheet: View {
                     }
                 }
             }
-            .navigationTitle("Edit Saved Image")
+            .navigationTitle("Edit Saved Page")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

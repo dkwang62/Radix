@@ -23,9 +23,9 @@ extension SmartSearchTab {
         if let current = searchPreviewCharacter,
            store.item(for: current) != nil {
             VStack(alignment: .leading, spacing: 10) {
-                Text("Phrase Drilldown")
+                Text("Matching Phrases")
                     .font(ResponsiveFont.headline)
-                Text("Preview a character from the grid to update this phrase layer. Characters inside phrases only update the preview card.")
+                Text("Select a character above to see matching phrases. Selecting a character inside a phrase only changes the preview.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
 

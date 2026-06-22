@@ -19,9 +19,9 @@ enum RadixGlossary {
         GlossaryEntry(
             term: "Character",
             shortDefinition: "One Chinese written unit, such as 中, 國, or 學.",
-            significance: "Characters are the basic dictionary items in Radix. They can have stroke order, parts, definition, notes, favorites, and related phrases.",
+            significance: "Characters are the basic dictionary items in Radix. They can have stroke order, components, definition, notes, favorites, and related phrases.",
             contexts: ["Browse Dictionary", "Character info card", "Study", "Backup Contents"],
-            relatedTerms: ["Phrase", "Parts", "Radical", "Stroke Order"]
+            relatedTerms: ["Phrase", "Components", "Radical", "Stroke Order"]
         ),
         GlossaryEntry(
             term: "Phrase",
@@ -31,9 +31,9 @@ enum RadixGlossary {
             relatedTerms: ["Added Phrase", "Hidden", "Rejected", "Favorite"]
         ),
         GlossaryEntry(
-            term: "Parts",
+            term: "Components",
             shortDefinition: "The smaller written pieces Radix shows inside a character.",
-            significance: "Parts help you see how a character is built and let you jump to related characters that share the same piece.",
+            significance: "Components help you see how a character is built and let you jump to related characters that share the same piece.",
             contexts: ["Character info card", "Character Breakdown"],
             relatedTerms: ["Structure", "Radical", "Character Breakdown"]
         ),
@@ -42,14 +42,14 @@ enum RadixGlossary {
             shortDefinition: "The layout pattern of a character, such as left-right, top-bottom, or enclosing.",
             significance: "Structure is useful for filtering and understanding why parts appear in a certain arrangement.",
             contexts: ["Browse Filters", "Character info card"],
-            relatedTerms: ["Parts", "Radical", "Browse Filters"]
+            relatedTerms: ["Components", "Radical", "Browse Filters"]
         ),
         GlossaryEntry(
             term: "Radical",
             shortDefinition: "A key component traditionally used to organize Chinese characters in dictionaries.",
             significance: "Radix highlights radicals where known because they often hint at meaning or dictionary grouping.",
             contexts: ["Browse Filters", "Character info card", "Character Breakdown"],
-            relatedTerms: ["Parts", "Structure"]
+            relatedTerms: ["Components", "Structure"]
         ),
         GlossaryEntry(
             term: "Simplified",
@@ -84,7 +84,7 @@ enum RadixGlossary {
             shortDefinition: "A short note about where a character form or idea may come from.",
             significance: "Origin is there to aid memory. It is not required for using the character, and some characters may not have it.",
             contexts: ["Character info card"],
-            relatedTerms: ["Parts", "Structure"]
+            relatedTerms: ["Components", "Structure"]
         ),
         GlossaryEntry(
             term: "Notes",
@@ -105,28 +105,28 @@ enum RadixGlossary {
             shortDefinition: "The order in which strokes are written for a character.",
             significance: "Stroke order helps handwriting, recognition, and memory. Radix shows stroke animation when data is available.",
             contexts: ["Character animation", "Character info card", "Apple stroke keyboard help"],
-            relatedTerms: ["Character", "Parts"]
+            relatedTerms: ["Character", "Components"]
         ),
         GlossaryEntry(
             term: "Memory",
             shortDefinition: "Everything you have added, saved, favorited, changed, or set up in Radix.",
             significance: "Memory is what you preserve with local snapshots and protect with iCloud backups. It includes your work, not just dictionary data.",
-            contexts: ["Backup Contents", "Save Snapshot", "Restore Snapshot", "Reset Radix Memory", "My Data > iCloud Backup"],
-            relatedTerms: ["Snapshot", "Radix Plus", "Dated Copies", "iCloud Backup", "Added", "Favorite"]
+            contexts: ["Backup Contents", "Save Device Snapshot", "Restore Device Snapshot", "Erase My Data", "My Data > Backup"],
+            relatedTerms: ["Device Snapshot", "Radix Plus", "Backup", "Added", "Favorite"]
         ),
         GlossaryEntry(
             term: "Added",
             shortDefinition: "A character or phrase you put into Radix yourself.",
             significance: "Added items belong to your Memory. They can be reviewed, edited, hidden, rejected, deleted, backed up, and restored.",
             contexts: ["Characters You Added", "Phrases You Added", "Import From AI", "Add Phrase", "Add Character"],
-            relatedTerms: ["Memory", "Added Phrase", "Checked", "Hidden", "Rejected"]
+            relatedTerms: ["Memory", "Added Phrase", "Accepted", "Hidden", "Rejected"]
         ),
         GlossaryEntry(
             term: "Added Phrase",
             shortDefinition: "A phrase you added yourself, often from AI extraction or manual entry.",
             significance: "Added phrases may need review because AI or OCR can produce weak groupings. Review lets you keep, hide, or reject them.",
             contexts: ["Phrases You Added", "Review Added Phrases", "Classify & Prune", "Make AI Text Page"],
-            relatedTerms: ["Checked", "Hidden", "Rejected", "Make AI Text Page"]
+            relatedTerms: ["Accepted", "Hidden", "Rejected", "Make AI Text Page"]
         ),
         GlossaryEntry(
             term: "Favorite",
@@ -150,9 +150,9 @@ enum RadixGlossary {
             relatedTerms: ["Favorite", "Recent", "Clear Recent"]
         ),
         GlossaryEntry(
-            term: "Checked",
+            term: "Accepted",
             shortDefinition: "An added phrase you reviewed and accept as a useful phrase.",
-            significance: "Checked phrases stay accepted in the review cycle. You can still hide, reject, or restore them to New if your judgment changes.",
+            significance: "Accepted phrases stay in the review cycle as useful phrases. You can still hide, reject, or mark them Unreviewed if your judgment changes.",
             contexts: ["Review Added Phrases", "Phrases You Added"],
             relatedTerms: ["Added Phrase", "Hidden", "Rejected"]
         ),
@@ -161,21 +161,21 @@ enum RadixGlossary {
             shortDefinition: "An added phrase you do not want in normal phrase lists, but may still want for page understanding.",
             significance: "Hidden phrases can still help page review and highlighting, but they stay out of the regular Phrase button/list.",
             contexts: ["Review Added Phrases", "Page Phrases", "Browse Pages"],
-            relatedTerms: ["Added Phrase", "Checked", "Rejected"]
+            relatedTerms: ["Added Phrase", "Accepted", "Rejected"]
         ),
         GlossaryEntry(
             term: "Rejected",
             shortDefinition: "A character grouping you decided is not a real phrase for Radix.",
-            significance: "Rejected is remembered so the same grouping does not quietly return as an added phrase. You can restore it to New if needed.",
+            significance: "Rejected is remembered so the same grouping does not quietly return as an added phrase. You can mark it Unreviewed if needed.",
             contexts: ["Review Added Phrases", "Classify & Prune"],
-            relatedTerms: ["Added Phrase", "New", "Hidden"]
+            relatedTerms: ["Added Phrase", "Unreviewed", "Hidden"]
         ),
         GlossaryEntry(
-            term: "New",
-            shortDefinition: "An added phrase that has not yet been checked, hidden, or rejected.",
-            significance: "New phrases are waiting for review. They are not necessarily good or bad yet.",
+            term: "Unreviewed",
+            shortDefinition: "An added phrase that has not yet been accepted, hidden, or rejected.",
+            significance: "Unreviewed phrases are waiting for a decision. They are not necessarily good or bad yet.",
             contexts: ["Review Added Phrases"],
-            relatedTerms: ["Checked", "Hidden", "Rejected"]
+            relatedTerms: ["Accepted", "Hidden", "Rejected"]
         ),
         GlossaryEntry(
             term: "Saved Page",
@@ -188,15 +188,15 @@ enum RadixGlossary {
             term: "Radix Plus",
             shortDefinition: "The annual Radix tier for unlimited page creation, import tools, local snapshots, and iCloud backup.",
             significance: "Radix Plus keeps the first 100 Camera or Text pages free, then unlocks unlimited pages, page creation from Album or Files, same-device snapshot save/restore, and iCloud backup.",
-            contexts: ["Upgrade", "Camera", "Album", "Files", "Create from Paste", "Save Snapshot", "Restore Snapshot", "iCloud Backup"],
-            relatedTerms: ["Saved Page", "Dated Copies", "Snapshot", "iCloud Backup"]
+            contexts: ["Upgrade", "Camera", "Album", "Files", "Create from Paste", "Save Device Snapshot", "Restore Device Snapshot", "Backup"],
+            relatedTerms: ["Saved Page", "Device Snapshot", "Backup"]
         ),
         GlossaryEntry(
-            term: "Dated Copies",
-            shortDefinition: "The local save-and-restore feature for keeping dated snapshots on this device.",
-            significance: "Dated Copies are unlocked by Radix Plus and are for quick same-device recovery. They do not create a user-managed file and are separate from iCloud Backup.",
-            contexts: ["Save Snapshot", "Restore Snapshot", "Local snapshots", "Upgrade"],
-            relatedTerms: ["Radix Plus", "Snapshot", "Memory", "iCloud Backup"]
+            term: "Device Snapshot",
+            shortDefinition: "A time-stamped recovery point kept inside Radix on this device.",
+            significance: "Device snapshots provide quick same-device recovery. They do not create a file for moving data to another device.",
+            contexts: ["Save Device Snapshot", "Restore Device Snapshot", "My Data", "Upgrade"],
+            relatedTerms: ["Radix Plus", "Memory", "Backup"]
         ),
         GlossaryEntry(
             term: "Page Phrases",
@@ -206,25 +206,18 @@ enum RadixGlossary {
             relatedTerms: ["Saved Page", "Hidden", "Phrase"]
         ),
         GlossaryEntry(
-            term: "Snapshot",
-            shortDefinition: "A time-stamped local version of your Radix Memory kept inside the app on this device.",
-            significance: "Snapshots let you quickly save or restore your work on the same device. They are managed by Radix and are not files for moving to another device.",
-            contexts: ["Save Snapshot", "Restore Snapshot"],
-            relatedTerms: ["Memory", "Radix Plus", "Dated Copies", "iCloud Backup"]
-        ),
-        GlossaryEntry(
-            term: "iCloud Backup",
-            shortDefinition: "A backup meant to make your Radix Memory available to another iPhone, iPad, or Mac.",
-            significance: "iCloud Backup is included with Radix Plus and is for cross-device use and recovery. It is separate from local snapshots kept inside the app on this device.",
-            contexts: ["My Data > iCloud Backup", "Back Up to iCloud", "Restore Backup"],
-            relatedTerms: ["Memory", "Snapshot", "Radix Plus", "Data Portability"]
+            term: "Backup",
+            shortDefinition: "A portable file that can move your Radix data between devices.",
+            significance: "Backups are for cross-device transfer and recovery. They are separate from device snapshots kept inside Radix on one device.",
+            contexts: ["My Data > Backup", "Save Backup", "Merge Backup", "Replace My Data"],
+            relatedTerms: ["Memory", "Device Snapshot", "Radix Plus", "Data Portability"]
         ),
         GlossaryEntry(
             term: "Data Portability",
             shortDefinition: "The ability to carry your Radix work between devices.",
-            significance: "This is why Radix separates Memory from the app itself: your work can move with you. Today this is focused on iPhone, iPad, and Mac; Android migration should preserve the same backup package meaning.",
-            contexts: ["My Data > iCloud Backup", "iCloud Backup", "Upgrade", "Android migration"],
-            relatedTerms: ["Memory", "iCloud Backup", "Radix Plus"]
+            significance: "Radix keeps your work separate from the app itself so a compatible backup can move safely between supported devices and future platforms.",
+            contexts: ["My Data > Backup", "Backup", "Upgrade"],
+            relatedTerms: ["Memory", "Backup", "Radix Plus"]
         ),
         GlossaryEntry(
             term: "AI Link",
@@ -263,10 +256,10 @@ enum RadixGlossary {
         ),
         GlossaryEntry(
             term: "Classify & Prune",
-            shortDefinition: "Review added phrases and mark them as New, Checked, Hidden, or Rejected.",
-            significance: "Use the tile cycle for fast classification. Check New marks all new candidates as accepted when a batch looks good; Remove Rejected and Remove New clean up unwanted batches.",
+            shortDefinition: "Review added phrases and mark them as Unreviewed, Accepted, Hidden, or Rejected.",
+            significance: "Use the status tools for fast classification. Accept Unreviewed marks all waiting candidates as useful; Remove Rejected and Remove Unreviewed clean up unwanted batches.",
             contexts: ["Backup Contents", "Phrases You Added", "Review Added Phrases"],
-            relatedTerms: ["Added Phrase", "Checked", "Hidden", "Rejected"]
+            relatedTerms: ["Added Phrase", "Accepted", "Hidden", "Rejected"]
         ),
         GlossaryEntry(
             term: "Make AI Text Page",

@@ -71,17 +71,55 @@ extension DataEditTab {
                 restorePhase = .validating
                 let payload = try PortableBackupCodec().decode(data)
                 guard isCurrentRestore(operationID) else { return }
+                finishBackupRestore(operationID: operationID)
+                pendingBackupRestore = PendingBackupRestore(
+                    payload: payload,
+                    filename: url.lastPathComponent,
+                    mode: pendingRestoreMode
+                )
+            } catch {
+                guard isCurrentRestore(operationID) else { return }
+                finishBackupRestore(operationID: operationID)
+                presentBackupError(error.localizedDescription)
+            }
+        }
+    }
 
-                try createRecoverySnapshotIfNeeded()
+    var restoreConfirmationTitle: String {
+        pendingBackupRestore?.mode == .complete ? "Replace My Data?" : "Merge Backup?"
+    }
 
-                restorePhase = .restoring
-                try store.importDataEditPayload(payload, mode: pendingRestoreMode)
+    var restoreConfirmationButtonTitle: String {
+        pendingBackupRestore?.mode == .complete ? "Replace My Data" : "Merge Backup"
+    }
+
+    var restoreConfirmationMessage: String {
+        guard let pending = pendingBackupRestore else { return "" }
+        let action = pending.mode == .complete
+            ? "Current data on this device will be replaced. Radix will save a recovery snapshot first."
+            : "Existing data will be kept and missing or newer backup data will be added."
+        return "Selected: \(pending.filename)\n\n\(pending.payload.contentsSummary)\n\n\(action)"
+    }
+
+    func confirmPendingBackupRestore() {
+        guard let pending = pendingBackupRestore else { return }
+        pendingBackupRestore = nil
+
+        let operationID = UUID()
+        restoreOperationID = operationID
+        restorePhase = .restoring
+
+        Task { @MainActor in
+            do {
+                if pending.mode == .complete {
+                    try createRecoverySnapshotIfNeeded(for: pending.mode)
+                }
+                try store.importDataEditPayload(pending.payload, mode: pending.mode)
                 guard isCurrentRestore(operationID) else { return }
 
-                let modeLabel = pendingRestoreMode == .complete
-                    ? "Restored this device"
-                    : "Amalgamated backup data"
-                backupMessage = "\(modeLabel) from: \(url.lastPathComponent)"
+                backupMessage = pending.mode == .complete
+                    ? "Replaced my data from: \(pending.filename)"
+                    : "Merged backup data from: \(pending.filename)"
                 finishBackupRestore(operationID: operationID)
                 showBackupAlert = true
             } catch {
@@ -92,8 +130,8 @@ extension DataEditTab {
         }
     }
 
-    private func createRecoverySnapshotIfNeeded() throws {
-        guard pendingRestoreMode == .complete else { return }
+    private func createRecoverySnapshotIfNeeded(for mode: RestoreMode) throws {
+        guard mode == .complete else { return }
         let recoveryData = try dataExportService.exportPortableBackup(store.portableBackupPackage())
         _ = try localSnapshotStore.save(recoveryData)
     }
@@ -128,5 +166,21 @@ extension DataEditTab {
     private func presentBackupError(_ message: String) {
         backupError = message
         showBackupAlert = true
+    }
+}
+
+private extension PortableBackupPayload {
+    var contentsSummary: String {
+        switch self {
+        case .unified(let package):
+            let pageCount = package.collections?.count ?? 0
+            let characterCount = package.dictionaryPatchOverlay.map { $0.customEntries.count + $0.patches.count + $0.deletions.count }
+                ?? package.dictionaryOverlay?.upserts.count
+                ?? package.dictionary?.count
+                ?? 0
+            return "Contains \(characterCount) character changes, \(package.phrases.count) phrases, and \(pageCount) saved pages."
+        case .legacyDictionary(let dictionary):
+            return "Contains \(dictionary.count) dictionary characters from an older Radix backup."
+        }
     }
 }

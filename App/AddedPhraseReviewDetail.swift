@@ -72,7 +72,7 @@ extension AddedPhraseReviewSheet {
     }
 
     func reviewDetail(for phrase: PhraseItem) -> String {
-        phrase.reviewStatus?.title ?? "New"
+        phrase.reviewStatus?.title ?? "Unreviewed"
     }
 
     func statusIcon(for status: PhraseReviewStatus?) -> String {
@@ -118,8 +118,8 @@ extension AddedPhraseReviewSheet {
 
     var emptyTitle: String {
         switch filter {
-        case .new: return "No new phrases"
-        case .checked: return "No checked phrases"
+        case .new: return "No unreviewed phrases"
+        case .checked: return "No accepted phrases"
         case .hidden: return "No hidden phrases"
         case .removed: return "No rejected phrases"
         case .all: return "No active added phrases"
@@ -128,10 +128,10 @@ extension AddedPhraseReviewSheet {
 
     var emptyDescription: String {
         switch filter {
-        case .new: return "New means not checked, hidden, or rejected."
-        case .checked: return "Checked phrases are accepted as useful phrases. You can still hide, reject, or restore them to New if needed."
+        case .new: return "Unreviewed phrases are waiting for you to decide whether to accept, hide, or reject them."
+        case .checked: return "Accepted phrases are useful phrases. You can still hide, reject, or mark them Unreviewed later."
         case .hidden: return "Hidden phrases stay useful on pages but stay out of the phrase library."
-        case .removed: return "Rejected phrases are remembered as not-a-phrase groupings. Mark one New if you want to restore it."
+        case .removed: return "Rejected phrases are remembered as not-a-phrase groupings. Mark one Unreviewed if you want to reconsider it."
         case .all: return "Added phrases with two or more characters appear here."
         }
     }

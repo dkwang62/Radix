@@ -4,7 +4,7 @@ extension DataEditTab {
     var premiumExportsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("Advanced Pro Files")
+                Text("Advanced Exports")
                     .font(ResponsiveFont.headline)
             }
 
@@ -27,7 +27,7 @@ extension DataEditTab {
             }
 
             premiumExportOption(
-                title: "App Project Files",
+                title: "Xcode Project ZIP",
                 subtitle: "A ZIP of the Radix Xcode project: Swift source, resources, databases, and manifest for rebuilding on another Mac.",
                 toolsTip: AdvancedExportToolsTip(
                     title: "Requires Xcode",
@@ -47,7 +47,7 @@ extension DataEditTab {
             )
 
             premiumExportOption(
-                title: "All Data Text File",
+                title: "Full Dataset (JSON)",
                 subtitle: "One JSON file with Radix learning data that can be read by text editors, scripts, and data tools.",
                 toolsTip: AdvancedExportToolsTip(
                     title: "JSON File",
