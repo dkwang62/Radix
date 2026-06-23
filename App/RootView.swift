@@ -59,11 +59,11 @@ struct RootView: View {
                 try store.setAddPhrasesFile(url: url)
             }
         ))
-        .sheet(isPresented: $store.showPaywall) {
+        .sheet(isPresented: store.presentationBinding(\.showPaywall)) {
             PaywallView(featureName: store.paywallFeatureName)
                 .environmentObject(entitlement)
         }
-        .sheet(item: $store.quickEditDestination) { destination in
+        .sheet(item: store.presentationBinding(\.quickEditDestination)) { destination in
             QuickEditSheet(destination: destination)
                 .environmentObject(store)
         }

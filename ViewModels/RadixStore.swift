@@ -178,8 +178,10 @@ final class RadixStore: ObservableObject {
         get { navigationState.history }
         set { navigationState.history = newValue }
     }
-    @Published var showPaywall: Bool = false
-    @Published var paywallFeatureName: String = "Pro Feature"
+    @Published private(set) var presentationState = RadixPresentationState()
+
+    var showPaywall: Bool { get { presentationState.showsPaywall } set { presentationState.showsPaywall = newValue } }
+    var paywallFeatureName: String { get { presentationState.paywallFeatureName } set { presentationState.paywallFeatureName = newValue } }
     
     // MARK: - Search State
     @Published private(set) var searchState = RadixSearchState()
@@ -428,9 +430,9 @@ final class RadixStore: ObservableObject {
             scheduleGridRecompute()
         }
     }
-    @Published var shouldOpenBrowsePages = false
-    @Published var shouldOpenAddedPhraseReview = false
-    @Published var shouldStartBrowseCamera = false
+    var shouldOpenBrowsePages: Bool { get { presentationState.shouldOpenBrowsePages } set { presentationState.shouldOpenBrowsePages = newValue } }
+    var shouldOpenAddedPhraseReview: Bool { get { presentationState.shouldOpenAddedPhraseReview } set { presentationState.shouldOpenAddedPhraseReview = newValue } }
+    var shouldStartBrowseCamera: Bool { get { presentationState.shouldStartBrowseCamera } set { presentationState.shouldStartBrowseCamera = newValue } }
     var selectedAICollectionID: UUID? {
         get { collectionState.selectedAICollectionID }
         set {
@@ -598,7 +600,7 @@ final class RadixStore: ObservableObject {
     @Published var speechEnabled: Bool = true {
         didSet { preferences.set(speechEnabled, forKey: speechEnabledKey) }
     }
-    @Published var activeFavouriteCharacter: String? = nil
+    var activeFavouriteCharacter: String? { get { presentationState.activeFavouriteCharacter } set { presentationState.activeFavouriteCharacter = newValue } }
     @Published private(set) var dataAuditState = RadixDataAuditState()
 
     var dictionaryVariances: [DictionaryVariance] {
@@ -642,7 +644,7 @@ final class RadixStore: ObservableObject {
         set { dataAuditState.changedDictionaryCharacters = newValue }
     }
 
-    @Published var quickEditDestination: QuickEditDestination? = nil
+    var quickEditDestination: QuickEditDestination? { get { presentationState.quickEditDestination } set { presentationState.quickEditDestination = newValue } }
     @Published var activeSubject: ActiveSubject? = nil
 
     @Published private(set) var aiLinkState = RadixAILinkState()
@@ -653,7 +655,7 @@ final class RadixStore: ObservableObject {
     }
     
     // MARK: - iPhone UI State
-    @Published var showiPhoneDetail: Bool = false
+    var showiPhoneDetail: Bool { get { presentationState.showsPhoneDetail } set { presentationState.showsPhoneDetail = newValue } }
     
     // MARK: - AI Context State
     var promptConfig: PromptConfig {
@@ -878,9 +880,16 @@ final class RadixStore: ObservableObject {
     @Published private(set) var loadingError: String?
     @Published private(set) var dataEditSavePath: String = ""
     @Published var addPhrasesPath: String = ""
-    @Published var showBrowseHelp: Bool = true
-    @Published var showComponentHelp: Bool = true
-    @Published var activeCaptureDraft = CaptureDraft()
+    var showBrowseHelp: Bool { get { presentationState.showsBrowseHelp } set { presentationState.showsBrowseHelp = newValue } }
+    var showComponentHelp: Bool { get { presentationState.showsComponentHelp } set { presentationState.showsComponentHelp = newValue } }
+    var activeCaptureDraft: CaptureDraft { get { presentationState.activeCaptureDraft } set { presentationState.activeCaptureDraft = newValue } }
+
+    func presentationBinding<Value>(_ keyPath: ReferenceWritableKeyPath<RadixStore, Value>) -> Binding<Value> {
+        Binding(
+            get: { self[keyPath: keyPath] },
+            set: { self[keyPath: keyPath] = $0 }
+        )
+    }
 
     // MARK: - Core Lifecycle
     

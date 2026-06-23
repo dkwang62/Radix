@@ -269,7 +269,7 @@ struct CaptureTab: View {
             characters: characters,
             characterItems: characterItems,
             currentPage: $gridPage,
-            charactersText: $store.activeCaptureDraft.charactersText,
+            charactersText: store.presentationBinding(\.activeCaptureDraft.charactersText),
             onReadAloud: readCaptureCharactersAloud,
             onClear: clearCaptureResults,
             onPreview: previewCaptureCharacter,
