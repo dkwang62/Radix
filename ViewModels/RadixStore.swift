@@ -182,12 +182,37 @@ final class RadixStore: ObservableObject {
     @Published var paywallFeatureName: String = "Pro Feature"
     
     // MARK: - Search State
-    @Published var query: String = ""
-    @Published var searchMode: SearchMode = .smart
-    @Published var scriptFilter: ScriptFilter = .any
-    @Published var hasPerformedSearch: Bool = false
-    @Published var lastSearchQuery: String = ""
-    @Published var searchHistory: [String] = []
+    @Published private(set) var searchState = RadixSearchState()
+
+    var query: String {
+        get { searchState.query }
+        set { searchState.query = newValue }
+    }
+
+    var searchMode: SearchMode {
+        get { searchState.mode }
+        set { searchState.mode = newValue }
+    }
+
+    var scriptFilter: ScriptFilter {
+        get { searchState.scriptFilter }
+        set { searchState.scriptFilter = newValue }
+    }
+
+    var hasPerformedSearch: Bool {
+        get { searchState.hasPerformedSearch }
+        set { searchState.hasPerformedSearch = newValue }
+    }
+
+    var lastSearchQuery: String {
+        get { searchState.lastQuery }
+        set { searchState.lastQuery = newValue }
+    }
+
+    var searchHistory: [String] {
+        get { searchState.history }
+        set { searchState.history = newValue }
+    }
     
     // MARK: - DataEdit (Character Studio) State
     @Published var dataEditCharacter: String = ""

@@ -4,7 +4,8 @@ import Foundation
  RADIX STORE — SEARCH
  =====================
  Search execution, phrase lookup, favorites toggle, and search-adjacent
- thin accessors. All @Published state remains in RadixStore.swift.
+ thin accessors. Search-session values are owned by RadixSearchState and
+ exposed through compatibility properties on RadixStore.
 */
 
 extension RadixStore {
