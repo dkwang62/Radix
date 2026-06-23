@@ -141,21 +141,43 @@ final class RadixStore: ObservableObject {
     let preferences: RadixPreferences = .standard
 
     // MARK: - Navigation State
-    @Published var route: AppRoute = .search {
-        didSet {
+    @Published private(set) var navigationState = RadixNavigationState()
+
+    var route: AppRoute {
+        get { navigationState.route }
+        set { navigationState.route = newValue }
+    }
+
+    var homeTab: HomeTab {
+        get { navigationState.homeTab }
+        set { navigationState.homeTab = newValue }
+    }
+
+    var sidebarNavigationStyle: SidebarNavigationStyle {
+        get { navigationState.sidebarNavigationStyle }
+        set {
+            navigationState.sidebarNavigationStyle = newValue
+            preferences.set(newValue.rawValue, forKey: sidebarNavigationStyleKey)
         }
     }
-    @Published var homeTab: HomeTab = .filter
-    @Published var sidebarNavigationStyle: SidebarNavigationStyle = .descriptive {
-        didSet { preferences.set(sidebarNavigationStyle.rawValue, forKey: sidebarNavigationStyleKey) }
+
+    var rootsReturnContext: RootsReturnContext? {
+        get { navigationState.rootsReturnContext }
+        set { navigationState.rootsReturnContext = newValue }
     }
-    @Published var rootsReturnContext: RootsReturnContext?
-    @Published var previewCharacter: String? {
-        didSet {
-            rememberLastPreviewedCharacter(previewCharacter)
+
+    var previewCharacter: String? {
+        get { navigationState.previewCharacter }
+        set {
+            navigationState.previewCharacter = newValue
+            rememberLastPreviewedCharacter(newValue)
         }
     }
-    @Published var history: [String] = []
+
+    var history: [String] {
+        get { navigationState.history }
+        set { navigationState.history = newValue }
+    }
     @Published var showPaywall: Bool = false
     @Published var paywallFeatureName: String = "Pro Feature"
     

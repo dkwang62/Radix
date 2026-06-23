@@ -5,7 +5,8 @@ import Foundation
  =========================
  Character selection, preview, route transitions, breadcrumb management,
  quick-editor entry points, and AI Link dispatch.
- All @Published state remains in RadixStore.swift.
+ Navigation values are owned by RadixNavigationState and exposed through the
+ compatibility properties on RadixStore.
 */
 
 extension RadixStore {

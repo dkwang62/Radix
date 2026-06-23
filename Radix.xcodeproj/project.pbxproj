@@ -202,6 +202,7 @@
 		DB13A9406626201537E2ECD4 /* StrokePathTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE03E201F79FCFAB850CDE6F /* StrokePathTransformer.swift */; };
 		DC1C183DB4C0A81C326CC255 /* HanziSVGPathParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71530386F0F64282F5D0D731 /* HanziSVGPathParser.swift */; };
 		DCC759676B6048A433B23A9D /* RadixStoreNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2985A1DA9963F761DC9D7589 /* RadixStoreNavigation.swift */; };
+		A11B00000000000000000002 /* RadixNavigationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000001 /* RadixNavigationState.swift */; };
 		E0B9DCC48818910D85D64BB4 /* AddPhraseExtractForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 748FFF3F2D143261D761C3E5 /* AddPhraseExtractForm.swift */; };
 		E226F8082AFCF3050DAE80B8 /* ComponentScriptClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5AF1D96BD7173BE85A77C48 /* ComponentScriptClassifier.swift */; };
 		E26C22B6C95E2488BC05573E /* StrokeRepositories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1692697F59E1BCD65DB5D27B /* StrokeRepositories.swift */; };
@@ -291,6 +292,7 @@
 		276962E491CFFC78F147A1F7 /* RadixStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStore.swift; sourceTree = "<group>"; };
 		27DBF3C2A0303896F94B3DE0 /* StrokeAnimationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeAnimationProvider.swift; sourceTree = "<group>"; };
 		2985A1DA9963F761DC9D7589 /* RadixStoreNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreNavigation.swift; sourceTree = "<group>"; };
+		A11B00000000000000000001 /* RadixNavigationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixNavigationState.swift; sourceTree = "<group>"; };
 		29C2F079E763FAB927F08ECC /* QuickCharacterEditorPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCharacterEditorPrompt.swift; sourceTree = "<group>"; };
 		2C69B8B81573C63284D8BB16 /* RadixStoreRootsCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreRootsCache.swift; sourceTree = "<group>"; };
 		2D219A6AEF25AA2392F9B8EE /* PhraseInfoAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseInfoAnimation.swift; sourceTree = "<group>"; };
@@ -790,6 +792,7 @@
 		E8D79C478F82A7AAB7CC0952 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				A11B00000000000000000001 /* RadixNavigationState.swift */,
 				276962E491CFFC78F147A1F7 /* RadixStore.swift */,
 				7CF749EDD1C761250ACE36D9 /* RadixStoreAI.swift */,
 				1D0EDE4C11171B97872D6DEF /* RadixStoreCollections.swift */,
@@ -1086,6 +1089,7 @@
 				A5DF2028C4D1ED7039CE7021 /* RadixStoreGrid.swift in Sources */,
 				5A659A8C6FC9466190B59EAD /* RadixStoreImagePhrase.swift in Sources */,
 				DCC759676B6048A433B23A9D /* RadixStoreNavigation.swift in Sources */,
+				A11B00000000000000000002 /* RadixNavigationState.swift in Sources */,
 				696D9CFB50433C3C0873D34A /* RadixStorePhraseFile.swift in Sources */,
 				054DA9AAF1A85D54FC5C528F /* RadixStorePrompts.swift in Sources */,
 				D1A5000EFFE20EEE04F4307C /* RadixStoreRootsBreadcrumb.swift in Sources */,
