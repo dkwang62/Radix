@@ -4,8 +4,8 @@ import Foundation
  RADIX STORE — ROOTS BREADCRUMB (REMEMBERED BAR)
  =================================================
  Manages the remembered-bar strip: push/pop/step, persistence,
- activation routing, and seeding from favorites on first launch.
- All @Published state remains in RadixStore.swift.
+ activation routing, and seeding from favorites on first launch. Values and
+ their current position are owned by RadixUserLibraryState.
 */
 
 extension RadixStore {

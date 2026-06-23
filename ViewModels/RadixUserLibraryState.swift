@@ -8,4 +8,6 @@ struct RadixUserLibraryState {
     var favoritePhrases: Set<String> = []
     var favoritePhraseDates: [String: Date] = [:]
     var overlayAddedDates: [String: Date] = [:]
+    var rememberedItems: [String] = []
+    var rememberedItemIndex = 0
 }

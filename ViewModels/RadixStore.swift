@@ -325,8 +325,16 @@ final class RadixStore: ObservableObject {
     }
     // Remembered bar state. The older rootBreadcrumb name is retained because
     // routing and saved behavior were built around that identifier.
-    @Published var rootBreadcrumb: [String] = []
-    @Published var rootBreadcrumbIndex: Int = 0
+    var rootBreadcrumb: [String] {
+        get { userLibraryState.rememberedItems }
+        set { userLibraryState.rememberedItems = newValue }
+    }
+
+    var rootBreadcrumbIndex: Int {
+        get { userLibraryState.rememberedItemIndex }
+        set { userLibraryState.rememberedItemIndex = newValue }
+    }
+
     @Published var rootDerivatives: [ComponentItem] = []
     @Published var rootDerivativesTotal: Int = 0
     @Published var availableRadicalFilters: [String] = ["none"]
