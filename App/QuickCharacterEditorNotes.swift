@@ -20,7 +20,7 @@ extension QuickCharacterEditorView {
 
     func notesEditor() -> some View {
         ZStack(alignment: .topLeading) {
-            TextEditor(text: $store.dataEditNotes)
+            TextEditor(text: store.dataEditBinding(\.notes))
                 .font(ResponsiveFont.body)
                 .scrollContentBackground(.hidden)
                 .padding(8)

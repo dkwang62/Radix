@@ -215,20 +215,32 @@ final class RadixStore: ObservableObject {
     }
     
     // MARK: - DataEdit (Character Studio) State
-    @Published var dataEditCharacter: String = ""
-    @Published var dataEditDefinition: String = ""
-    @Published var dataEditPinyin: String = ""
-    @Published var dataEditDecomposition: String = ""
-    @Published var dataEditRadical: String = ""
-    @Published var dataEditStrokes: String = ""
-    @Published var dataEditCompounds: String = ""
-    @Published var dataEditEtymHint: String = ""
-    @Published var dataEditEtymDetails: String = ""
-    @Published var dataEditNotes: String = ""
-    @Published var dataEditRelatedCharacters: String = ""
-    @Published var dataEditIsFavourite: Bool = false
-    @Published var dataEditPhrases: [PhraseItem] = []
-    @Published var dataEditAutoSaveStatus: String = ""
+    @Published private(set) var dataEditFormState = RadixDataEditFormState()
+
+    var dataEditCharacter: String { get { dataEditFormState.character } set { dataEditFormState.character = newValue } }
+    var dataEditDefinition: String { get { dataEditFormState.definition } set { dataEditFormState.definition = newValue } }
+    var dataEditPinyin: String { get { dataEditFormState.pinyin } set { dataEditFormState.pinyin = newValue } }
+    var dataEditDecomposition: String { get { dataEditFormState.decomposition } set { dataEditFormState.decomposition = newValue } }
+    var dataEditRadical: String { get { dataEditFormState.radical } set { dataEditFormState.radical = newValue } }
+    var dataEditStrokes: String { get { dataEditFormState.strokes } set { dataEditFormState.strokes = newValue } }
+    var dataEditCompounds: String { get { dataEditFormState.compounds } set { dataEditFormState.compounds = newValue } }
+    var dataEditEtymHint: String { get { dataEditFormState.etymologyHint } set { dataEditFormState.etymologyHint = newValue } }
+    var dataEditEtymDetails: String { get { dataEditFormState.etymologyDetails } set { dataEditFormState.etymologyDetails = newValue } }
+    var dataEditNotes: String { get { dataEditFormState.notes } set { dataEditFormState.notes = newValue } }
+    var dataEditRelatedCharacters: String { get { dataEditFormState.relatedCharacters } set { dataEditFormState.relatedCharacters = newValue } }
+    var dataEditIsFavourite: Bool { get { dataEditFormState.isFavourite } set { dataEditFormState.isFavourite = newValue } }
+    var dataEditPhrases: [PhraseItem] { get { dataEditFormState.phrases } set { dataEditFormState.phrases = newValue } }
+    var dataEditAutoSaveStatus: String { get { dataEditFormState.autosaveStatus } set { dataEditFormState.autosaveStatus = newValue } }
+    var dataEditVariant: String { get { dataEditFormState.variant } set { dataEditFormState.variant = newValue } }
+    var dataEditAdditionalVariants: String { get { dataEditFormState.additionalVariants } set { dataEditFormState.additionalVariants = newValue } }
+
+    func dataEditBinding<Value>(_ keyPath: WritableKeyPath<RadixDataEditFormState, Value>) -> Binding<Value> {
+        Binding(
+            get: { self.dataEditFormState[keyPath: keyPath] },
+            set: { self.dataEditFormState[keyPath: keyPath] = $0 }
+        )
+    }
+
     @Published private(set) var dataEditFocusRequestID: Int = 0
     @Published private(set) var phraseEditFocusRequestID: Int = 0
     @Published private(set) var phraseEditRequestedWord: String = ""
@@ -236,9 +248,7 @@ final class RadixStore: ObservableObject {
     /// Cache to avoid reloading heavy entries when toggling between AI/Data.
     var dataEditCache: [String: (entry: RawComponentEntry, phrases: [PhraseItem], isFav: Bool)] = [:]
     var dataEditEtymologyType: String?
-    @Published var dataEditVariant: String = ""
-    @Published var dataEditAdditionalVariants: String = ""  // comma-separated
-    
+
     // MARK: - Browsing & Filter State
     @Published var favoritesOnlyFilter: Bool = false
     @Published var strokeMinFilter: Int = 0 {

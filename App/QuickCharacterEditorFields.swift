@@ -36,7 +36,7 @@ extension QuickCharacterEditorView {
     var dictionaryDetailsFields: some View {
         VStack(alignment: .leading, spacing: 6) {
             formField("Definition / Meanings") {
-                TextField("Definition / Meanings", text: $store.dataEditDefinition)
+                TextField("Definition / Meanings", text: store.dataEditBinding(\.definition))
                     .textFieldStyle(.roundedBorder)
             }
 
@@ -53,40 +53,40 @@ extension QuickCharacterEditorView {
         VStack(alignment: .leading, spacing: 6) {
             compactFieldRow {
                 formField("Pinyin") {
-                    TextField("e.g. fā, fà", text: $store.dataEditPinyin).textFieldStyle(.roundedBorder)
+                    TextField("e.g. fā, fà", text: store.dataEditBinding(\.pinyin)).textFieldStyle(.roundedBorder)
                 }
                 compactFormField("Radical", width: 82) {
-                    TextField("Radical", text: $store.dataEditRadical).textFieldStyle(.roundedBorder)
+                    TextField("Radical", text: store.dataEditBinding(\.radical)).textFieldStyle(.roundedBorder)
                 }
                 compactFormField("Strokes", width: 76) {
-                    TextField("Strokes", text: $store.dataEditStrokes).textFieldStyle(.roundedBorder)
+                    TextField("Strokes", text: store.dataEditBinding(\.strokes)).textFieldStyle(.roundedBorder)
                 }
                 formField("Decomposition") {
-                    TextField("Decomposition", text: $store.dataEditDecomposition).textFieldStyle(.roundedBorder)
+                    TextField("Decomposition", text: store.dataEditBinding(\.decomposition)).textFieldStyle(.roundedBorder)
                 }
             }
 
             compactFieldRow {
                 compactFormField("Variant", width: 82) {
-                    TextField("Variant", text: $store.dataEditVariant).textFieldStyle(.roundedBorder)
+                    TextField("Variant", text: store.dataEditBinding(\.variant)).textFieldStyle(.roundedBorder)
                 }
                 formField("Additional Variants") {
-                    TextField("e.g. 髮, 臺", text: $store.dataEditAdditionalVariants).textFieldStyle(.roundedBorder)
+                    TextField("e.g. 髮, 臺", text: store.dataEditBinding(\.additionalVariants)).textFieldStyle(.roundedBorder)
                 }
             }
 
             formField("Related Characters") {
-                TextField("Comma-separated", text: $store.dataEditRelatedCharacters).textFieldStyle(.roundedBorder)
+                TextField("Comma-separated", text: store.dataEditBinding(\.relatedCharacters)).textFieldStyle(.roundedBorder)
             }
 
             compactFieldRow {
                 formField("Etymology") {
-                    TextField("Details", text: $store.dataEditEtymDetails).textFieldStyle(.roundedBorder)
+                    TextField("Details", text: store.dataEditBinding(\.etymologyDetails)).textFieldStyle(.roundedBorder)
                         .focused($focusedField, equals: .etymology)
                 }
                 .id(FocusedCharacterField.etymology)
                 formField("Hints") {
-                    TextField("Hint", text: $store.dataEditEtymHint).textFieldStyle(.roundedBorder)
+                    TextField("Hint", text: store.dataEditBinding(\.etymologyHint)).textFieldStyle(.roundedBorder)
                         .focused($focusedField, equals: .hints)
                 }
                 .id(FocusedCharacterField.hints)
@@ -98,38 +98,38 @@ extension QuickCharacterEditorView {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
                 formField("Pinyin") {
-                    TextField("e.g. fā, fà", text: $store.dataEditPinyin).textFieldStyle(.roundedBorder)
+                    TextField("e.g. fā, fà", text: store.dataEditBinding(\.pinyin)).textFieldStyle(.roundedBorder)
                 }
                 compactFormField("Radical", width: 90) {
-                    TextField("Radical", text: $store.dataEditRadical).textFieldStyle(.roundedBorder)
+                    TextField("Radical", text: store.dataEditBinding(\.radical)).textFieldStyle(.roundedBorder)
                 }
                 compactFormField("Strokes", width: 82) {
-                    TextField("Strokes", text: $store.dataEditStrokes).textFieldStyle(.roundedBorder)
+                    TextField("Strokes", text: store.dataEditBinding(\.strokes)).textFieldStyle(.roundedBorder)
                 }
                 formField("Decomposition") {
-                    TextField("Decomposition", text: $store.dataEditDecomposition).textFieldStyle(.roundedBorder)
+                    TextField("Decomposition", text: store.dataEditBinding(\.decomposition)).textFieldStyle(.roundedBorder)
                 }
             }
 
             compactFieldRow {
                 compactFormField("Variant", width: 100) {
-                    TextField("Variant", text: $store.dataEditVariant).textFieldStyle(.roundedBorder)
+                    TextField("Variant", text: store.dataEditBinding(\.variant)).textFieldStyle(.roundedBorder)
                 }
                 formField("Additional Variants") {
-                    TextField("e.g. 髮, 臺", text: $store.dataEditAdditionalVariants).textFieldStyle(.roundedBorder)
+                    TextField("e.g. 髮, 臺", text: store.dataEditBinding(\.additionalVariants)).textFieldStyle(.roundedBorder)
                 }
                 formField("Related Characters") {
-                    TextField("Comma-separated", text: $store.dataEditRelatedCharacters).textFieldStyle(.roundedBorder)
+                    TextField("Comma-separated", text: store.dataEditBinding(\.relatedCharacters)).textFieldStyle(.roundedBorder)
                 }
             }
 
             HStack(spacing: 8) {
                 formField("Etymology") {
-                    TextField("Details", text: $store.dataEditEtymDetails).textFieldStyle(.roundedBorder)
+                    TextField("Details", text: store.dataEditBinding(\.etymologyDetails)).textFieldStyle(.roundedBorder)
                         .focused($focusedField, equals: .etymology)
                 }
                 formField("Hints") {
-                    TextField("Hint", text: $store.dataEditEtymHint).textFieldStyle(.roundedBorder)
+                    TextField("Hint", text: store.dataEditBinding(\.etymologyHint)).textFieldStyle(.roundedBorder)
                         .focused($focusedField, equals: .hints)
                 }
             }
