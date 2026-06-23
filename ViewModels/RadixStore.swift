@@ -378,10 +378,28 @@ final class RadixStore: ObservableObject {
     @Published var allReadingOrderCharacters: [String] = []
     
     // MARK: - Computed Result Sets
-    @Published var results: [ComponentItem] = []
-    @Published var definitionCharacterResults: [ComponentItem] = []
-    @Published var definitionPhraseResults: [PhraseItem] = []
-    @Published var smartPhraseResults: [PhraseItem] = []
+    @Published private(set) var searchResults = RadixSearchResults()
+
+    var results: [ComponentItem] {
+        get { searchResults.characters }
+        set { searchResults.characters = newValue }
+    }
+
+    var smartPhraseResults: [PhraseItem] {
+        get { searchResults.phrases }
+        set { searchResults.phrases = newValue }
+    }
+
+    var definitionCharacterResults: [ComponentItem] {
+        get { searchResults.definitionCharacters }
+        set { searchResults.definitionCharacters = newValue }
+    }
+
+    var definitionPhraseResults: [PhraseItem] {
+        get { searchResults.definitionPhrases }
+        set { searchResults.definitionPhrases = newValue }
+    }
+
     @Published var lineageParents: [ComponentItem] = []
     @Published var lineageDerivatives: [ComponentItem] = []
     @Published var sortedLineageDerivatives: [ComponentItem] = []

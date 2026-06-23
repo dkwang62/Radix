@@ -4,8 +4,8 @@ import Foundation
  RADIX STORE — SEARCH
  =====================
  Search execution, phrase lookup, favorites toggle, and search-adjacent
- thin accessors. Search-session values are owned by RadixSearchState and
- exposed through compatibility properties on RadixStore.
+ thin accessors. Session values and produced results are owned by the focused
+ search models and exposed through compatibility properties on RadixStore.
 */
 
 extension RadixStore {
