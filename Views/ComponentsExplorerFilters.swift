@@ -21,7 +21,10 @@ extension ComponentsExplorerShell {
                         Text("Minimum Strokes")
                             .font(ResponsiveFont.caption.bold())
                             .foregroundStyle(.secondary)
-                        StrokeRangeSlider(minValue: $store.rootMinStroke, maxValue: $store.rootMaxStroke)
+                        StrokeRangeSlider(
+                            minValue: store.browseFilterBinding(\.rootMinStroke),
+                            maxValue: store.browseFilterBinding(\.rootMaxStroke)
+                        )
                     }
 
                     VStack(alignment: .leading, spacing: 10) {
@@ -62,7 +65,7 @@ extension ComponentsExplorerShell {
             Text("Radical")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
-            Picker("Radical", selection: $store.rootRadicalFilter) {
+            Picker("Radical", selection: store.browseFilterBinding(\.rootRadicalFilter)) {
                 ForEach(store.availableRadicalFilters, id: \.self) { radical in
                     Text(store.radicalFilterLabel(radical)).tag(radical)
                 }
@@ -81,7 +84,7 @@ extension ComponentsExplorerShell {
             Text("Structure")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
-            Picker("Structure", selection: $store.rootStructureFilter) {
+            Picker("Structure", selection: store.browseFilterBinding(\.rootStructureFilter)) {
                 ForEach(store.availableStructureFilters, id: \.self) { structKey in
                     Text(structKey).tag(structKey)
                 }

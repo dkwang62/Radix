@@ -250,88 +250,104 @@ final class RadixStore: ObservableObject {
     var dataEditEtymologyType: String?
 
     // MARK: - Browsing & Filter State
-    @Published var favoritesOnlyFilter: Bool = false
-    @Published var strokeMinFilter: Int = 0 {
-        didSet {
-            guard oldValue != strokeMinFilter else { return }
+    @Published private(set) var browseFilterState = RadixBrowseFilterState()
+
+    var favoritesOnlyFilter: Bool {
+        get { browseFilterState.favoritesOnly }
+        set { browseFilterState.favoritesOnly = newValue }
+    }
+
+    var strokeMinFilter: Int {
+        get { browseFilterState.minimumStroke }
+        set {
+            guard browseFilterState.minimumStroke != newValue else { return }
+            browseFilterState.minimumStroke = newValue
             gridPage = 0
             scheduleGridRecompute()
         }
     }
-    @Published var strokeMaxFilter: Int = 30 {
-        didSet {
-            // Always pin to full range; hidden in UI but kept for compatibility
-            if strokeMaxFilter != 30 {
-                strokeMaxFilter = 30
-                return
-            }
-            guard oldValue != strokeMaxFilter else { return }
+
+    var strokeMaxFilter: Int {
+        get { browseFilterState.maximumStroke }
+        set {
+            let pinnedValue = 30
+            guard browseFilterState.maximumStroke != pinnedValue || newValue != pinnedValue else { return }
+            browseFilterState.maximumStroke = pinnedValue
             gridPage = 0
             scheduleGridRecompute()
         }
     }
-    @Published var selectedRadicalFilter: String = "none" {
-        didSet {
-            guard oldValue != selectedRadicalFilter else { return }
+
+    var selectedRadicalFilter: String {
+        get { browseFilterState.radical }
+        set {
+            guard browseFilterState.radical != newValue else { return }
+            browseFilterState.radical = newValue
             gridPage = 0
             scheduleGridRecompute()
         }
     }
-    @Published var selectedStructureFilter: String = "none" {
-        didSet {
-            guard oldValue != selectedStructureFilter else { return }
+
+    var selectedStructureFilter: String {
+        get { browseFilterState.structure }
+        set {
+            guard browseFilterState.structure != newValue else { return }
+            browseFilterState.structure = newValue
             gridPage = 0
             scheduleGridRecompute()
         }
     }
+
     // Roots-specific filters
-    @Published var rootMinStroke: Int = 0 {
-        didSet {
-            guard oldValue != rootMinStroke else { return }
-            if let current = previewCharacter {
-                loadSharedComponentPeers(for: current)
-                loadSharedPeersByComponent(for: current)
-                loadRootDerivatives(for: current)
-            }
+    var rootMinStroke: Int {
+        get { browseFilterState.rootMinimumStroke }
+        set {
+            guard browseFilterState.rootMinimumStroke != newValue else { return }
+            browseFilterState.rootMinimumStroke = newValue
+            reloadRootContextForFilterChange()
         }
     }
-    @Published var rootMaxStroke: Int = 30 {
-        didSet {
-            if rootMaxStroke < 0 {
-                rootMaxStroke = 0
-                return
-            }
-            if rootMaxStroke > 30 {
-                rootMaxStroke = 30
-                return
-            }
-            guard oldValue != rootMaxStroke else { return }
-            if let current = previewCharacter {
-                loadSharedComponentPeers(for: current)
-                loadSharedPeersByComponent(for: current)
-                loadRootDerivatives(for: current)
-            }
+
+    var rootMaxStroke: Int {
+        get { browseFilterState.rootMaximumStroke }
+        set {
+            let clampedValue = min(max(newValue, 0), 30)
+            guard browseFilterState.rootMaximumStroke != clampedValue || newValue != clampedValue else { return }
+            browseFilterState.rootMaximumStroke = clampedValue
+            reloadRootContextForFilterChange()
         }
     }
-    @Published var rootRadicalFilter: String = "none" {
-        didSet {
-            guard oldValue != rootRadicalFilter else { return }
-            if let current = previewCharacter {
-                loadSharedComponentPeers(for: current)
-                loadSharedPeersByComponent(for: current)
-                loadRootDerivatives(for: current)
-            }
+
+    var rootRadicalFilter: String {
+        get { browseFilterState.rootRadical }
+        set {
+            guard browseFilterState.rootRadical != newValue else { return }
+            browseFilterState.rootRadical = newValue
+            reloadRootContextForFilterChange()
         }
     }
-    @Published var rootStructureFilter: String = "none" {
-        didSet {
-            guard oldValue != rootStructureFilter else { return }
-            if let current = previewCharacter {
-                loadSharedComponentPeers(for: current)
-                loadSharedPeersByComponent(for: current)
-                loadRootDerivatives(for: current)
-            }
+
+    var rootStructureFilter: String {
+        get { browseFilterState.rootStructure }
+        set {
+            guard browseFilterState.rootStructure != newValue else { return }
+            browseFilterState.rootStructure = newValue
+            reloadRootContextForFilterChange()
         }
+    }
+
+    func browseFilterBinding<Value>(_ keyPath: ReferenceWritableKeyPath<RadixStore, Value>) -> Binding<Value> {
+        Binding(
+            get: { self[keyPath: keyPath] },
+            set: { self[keyPath: keyPath] = $0 }
+        )
+    }
+
+    private func reloadRootContextForFilterChange() {
+        guard let current = previewCharacter else { return }
+        loadSharedComponentPeers(for: current)
+        loadSharedPeersByComponent(for: current)
+        loadRootDerivatives(for: current)
     }
     // Remembered bar state. The older rootBreadcrumb name is retained because
     // routing and saved behavior were built around that identifier.
@@ -367,16 +383,21 @@ final class RadixStore: ObservableObject {
         set { rootExplorerState.availableStructures = newValue }
     }
 
-    @Published var gridSortMode: GridSortMode = .characterFrequency {
-        didSet {
-            guard oldValue != gridSortMode else { return }
+    var gridSortMode: GridSortMode {
+        get { browseFilterState.gridSortMode }
+        set {
+            guard browseFilterState.gridSortMode != newValue else { return }
+            browseFilterState.gridSortMode = newValue
             gridPage = 0
             scheduleGridRecompute()
         }
     }
-    @Published var gridScriptFilter: ScriptFilter = .any {
-        didSet {
-            guard oldValue != gridScriptFilter else { return }
+
+    var gridScriptFilter: ScriptFilter {
+        get { browseFilterState.gridScriptFilter }
+        set {
+            guard browseFilterState.gridScriptFilter != newValue else { return }
+            browseFilterState.gridScriptFilter = newValue
             gridPage = 0
             scheduleGridRecompute()
         }

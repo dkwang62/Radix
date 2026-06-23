@@ -13,7 +13,10 @@ struct BrowseFiltersSheet: View {
                         Text("Minimum Strokes")
                             .font(ResponsiveFont.caption.bold())
                             .foregroundStyle(.secondary)
-                        StrokeRangeSlider(minValue: $store.strokeMinFilter, maxValue: $store.strokeMaxFilter)
+                        StrokeRangeSlider(
+                            minValue: store.browseFilterBinding(\.strokeMinFilter),
+                            maxValue: store.browseFilterBinding(\.strokeMaxFilter)
+                        )
                     }
 
                     VStack(alignment: .leading, spacing: 10) {
@@ -53,7 +56,7 @@ struct BrowseFiltersSheet: View {
             Text("Radical")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
-            Picker("Radical", selection: $store.selectedRadicalFilter) {
+            Picker("Radical", selection: store.browseFilterBinding(\.selectedRadicalFilter)) {
                 ForEach(store.availableRadicalFilters, id: \.self) { radical in
                     Text(store.radicalFilterLabel(radical)).tag(radical)
                 }
@@ -72,7 +75,7 @@ struct BrowseFiltersSheet: View {
             Text("Structure")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
-            Picker("Structure", selection: $store.selectedStructureFilter) {
+            Picker("Structure", selection: store.browseFilterBinding(\.selectedStructureFilter)) {
                 ForEach(store.availableStructureFilters, id: \.self) { structKey in
                     Text(structKey).tag(structKey)
                 }
