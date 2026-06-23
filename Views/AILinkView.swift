@@ -167,14 +167,21 @@ struct AILinkView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
+            .layoutPriority(1)
 
             Spacer(minLength: 0)
 
             Button {
                 store.goToSearchRoot()
             } label: {
-                Label("Choose in Search", systemImage: "magnifyingglass")
-                    .font(ResponsiveFont.caption.weight(.semibold))
+                ViewThatFits(in: .horizontal) {
+                    Label("Choose in Search", systemImage: "magnifyingglass")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .fixedSize(horizontal: true, vertical: false)
+
+                    Image(systemName: "magnifyingglass")
+                        .radixMinimumTapTarget()
+                }
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
