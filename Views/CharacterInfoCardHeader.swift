@@ -27,13 +27,14 @@ extension CharacterInfoCard {
         } label: {
             Image(systemName: store.isFavorite(item.character) ? "star.fill" : "star")
                 .foregroundStyle(store.isFavorite(item.character) ? .yellow : .secondary)
-                .frame(width: 32, height: 32)
+                .radixMinimumTapTarget()
                 .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
         .controlSize(cardActionControlSize)
         .font(cardActionFont)
+        .accessibilityLabel(store.isFavorite(item.character) ? "Remove from favorites" : "Add to favorites")
         .help(store.isFavorite(item.character) ? "Remove from favorites" : "Add to favorites")
     }
 

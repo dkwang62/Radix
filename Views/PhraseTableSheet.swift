@@ -268,6 +268,7 @@ struct DismissButton: View {
         } label: {
             Image(systemName: "xmark")
                 .font(ResponsiveFont.subheadline.weight(.semibold))
+                .radixMinimumTapTarget()
         }
         .buttonStyle(.borderedProminent)
         .accessibilityLabel("Close")

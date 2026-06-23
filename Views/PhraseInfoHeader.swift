@@ -24,11 +24,12 @@ extension PhraseInfoCard {
                     Image(systemName: store.isPhraseFavorite(phrase.word) ? "star.fill" : "star")
                         .font(ResponsiveFont.subheadline.weight(.semibold))
                         .foregroundStyle(store.isPhraseFavorite(phrase.word) ? .yellow : .secondary)
-                        .frame(width: 32, height: 32)
+                        .radixMinimumTapTarget()
                         .background(RadixTheme.secondaryBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(store.isPhraseFavorite(phrase.word) ? "Remove from favorites" : "Add to favorites")
                 .help(store.isPhraseFavorite(phrase.word) ? "Remove from favorites" : "Add to favorites")
 
                 if !isEditingNotes {

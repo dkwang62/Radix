@@ -101,7 +101,9 @@ extension AILinkView {
                 } label: {
                     Image(systemName: "trash")
                         .font(ResponsiveFont.caption)
+                        .radixMinimumTapTarget()
                 }
+                .accessibilityLabel("Delete instruction \(taskTitle(task.id))")
             }
 
             TextEditor(text: Binding(

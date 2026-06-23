@@ -142,7 +142,7 @@ extension FilterGridTab {
                 beginEditing(collection)
             } label: {
                 Image(systemName: "pencil")
-                    .frame(width: 34)
+                    .radixMinimumTapTarget()
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
@@ -162,7 +162,7 @@ extension FilterGridTab {
                 beginTranslationReport(collection)
             } label: {
                 Image(systemName: translationIcon)
-                    .frame(width: 34)
+                    .radixMinimumTapTarget()
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
@@ -173,7 +173,7 @@ extension FilterGridTab {
                 pagePhraseListCollection = collection
             } label: {
                 Image(systemName: "text.quote")
-                    .frame(width: 34)
+                    .radixMinimumTapTarget()
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
@@ -191,7 +191,7 @@ extension FilterGridTab {
             _ = store.speakCharacters(in: browseImageDisplayText(collection.characters.joined()))
         } label: {
             Image(systemName: "speaker.wave.2")
-                .frame(width: 34)
+                .radixMinimumTapTarget()
         }
         .buttonStyle(.bordered)
         .controlSize(.small)

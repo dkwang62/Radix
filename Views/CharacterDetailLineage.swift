@@ -119,11 +119,12 @@ extension CharacterDetailView {
                 store.previousLineagePage()
             } label: {
                 Image(systemName: "chevron.left")
-                    .frame(width: 32, height: 30)
+                    .radixMinimumTapTarget()
             }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
                 .disabled(store.lineagePage == 0)
+                .accessibilityLabel("Previous page")
 
             Text("\(store.lineagePage + 1) / \(store.lineagePageCount)")
                 .font(ResponsiveFont.caption)
@@ -135,11 +136,12 @@ extension CharacterDetailView {
                 store.nextLineagePage()
             } label: {
                 Image(systemName: "chevron.right")
-                    .frame(width: 32, height: 30)
+                    .radixMinimumTapTarget()
             }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
                 .disabled(store.lineagePage + 1 >= store.lineagePageCount)
+                .accessibilityLabel("Next page")
         }
         .padding(10)
         .background(RadixTheme.secondaryBackground.opacity(0.55))

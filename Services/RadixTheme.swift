@@ -134,4 +134,64 @@ extension View {
             radius: radius
         ))
     }
+
+    /// Keeps compact icon controls visually small while preserving Apple's
+    /// recommended minimum interactive area for touch and pointer users.
+    func radixMinimumTapTarget() -> some View {
+        frame(
+            minWidth: RadixControlMetrics.standardHeight,
+            minHeight: RadixControlMetrics.standardHeight
+        )
+        .contentShape(Rectangle())
+    }
 }
+
+#if DEBUG
+private struct RadixDesignSystemPreview: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: RadixSpacing.large) {
+            Text("Visual System")
+                .font(.title.bold())
+
+            VStack(alignment: .leading, spacing: RadixSpacing.small) {
+                Label("Saved Page", systemImage: "photo.on.rectangle")
+                    .font(.headline)
+                Text("Cards, controls, and explanatory text should retain the same hierarchy at every text size.")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+            }
+            .radixCard()
+
+            HStack(spacing: RadixSpacing.small) {
+                Button("Primary") { }
+                    .buttonStyle(.borderedProminent)
+                    .radixMinimumTapTarget()
+                Button("Secondary") { }
+                    .buttonStyle(.bordered)
+                    .radixMinimumTapTarget()
+                Button("Delete", role: .destructive) { }
+                    .buttonStyle(.bordered)
+                    .radixMinimumTapTarget()
+            }
+        }
+        .padding(RadixSpacing.large)
+        .frame(maxWidth: 560, alignment: .leading)
+        .background(RadixTheme.groupedBackground)
+    }
+}
+
+private struct RadixDesignSystemPreviewProvider: PreviewProvider {
+    static var previews: some View {
+        Group {
+            RadixDesignSystemPreview()
+                .previewDisplayName("Default")
+            RadixDesignSystemPreview()
+                .environment(\.dynamicTypeSize, .accessibility3)
+                .previewDisplayName("Accessibility Text")
+            RadixDesignSystemPreview()
+                .preferredColorScheme(.dark)
+                .previewDisplayName("Dark")
+        }
+    }
+}
+#endif
