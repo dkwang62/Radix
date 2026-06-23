@@ -144,6 +144,7 @@
 		A05EBFC59DC951C9EFDB9FF9 /* PromptModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFF92F2BA13EBA1A3A64D44 /* PromptModels.swift */; };
 		A0C0D0E10123456789ABCDEF /* RadixProjectSource.zip in Resources */ = {isa = PBXBuildFile; fileRef = A0C0D0E30123456789ABCDEF /* RadixProjectSource.zip */; };
 		A0C0D0E20123456789ABCDEF /* RadixProjectSourceManifest.json in Resources */ = {isa = PBXBuildFile; fileRef = A0C0D0E40123456789ABCDEF /* RadixProjectSourceManifest.json */; };
+		A11D00000000000000000002 /* DataEditRestoreFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11D00000000000000000001 /* DataEditRestoreFlow.swift */; };
 		A15BA759BECE6523607ED145 /* BrowseCollectionEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F50BA811752E1399832FE15 /* BrowseCollectionEditing.swift */; };
 		A25A6B76FA82ED15A21B35B6 /* CharacterContextMenus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017A2AA3385BA68AF39D6502 /* CharacterContextMenus.swift */; };
 		A32E2D319703CBD70DD1FE9C /* CapturePhotoImportButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D1381DD7D9E6CB3DD939B2 /* CapturePhotoImportButton.swift */; };
@@ -153,7 +154,6 @@
 		A8110400E12269294AF36EAB /* CapturePhraseDiscoveryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D6435DA5A80F2F511C63E0 /* CapturePhraseDiscoveryModels.swift */; };
 		A9982E1B8C5AC2E2F25A0F77 /* CharacterInfoCardGuides.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C273EBF97CD77BF140DA188 /* CharacterInfoCardGuides.swift */; };
 		AB674F9317A0D00B5EFE5ED2 /* CharacterInfoCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C7DBD97423A0CB1563CC5D /* CharacterInfoCard.swift */; };
-		A11D00000000000000000002 /* DataEditRestoreFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11D00000000000000000001 /* DataEditRestoreFlow.swift */; };
 		AC2A474AC86A4EF7D190B4A1 /* RadixSharedImageImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86FCEABCE0BF3710ED511D5A /* RadixSharedImageImport.swift */; };
 		AD8FBF95226EAEEECA288A25 /* RadixStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 276962E491CFFC78F147A1F7 /* RadixStore.swift */; };
 		AF903CDB6B7296DBA23F6ED5 /* BrowseImageActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 227C315F9FE2308BD4AAD1A0 /* BrowseImageActions.swift */; };
@@ -367,7 +367,6 @@
 		748FFF3F2D143261D761C3E5 /* AddPhraseExtractForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPhraseExtractForm.swift; sourceTree = "<group>"; };
 		75012AAF561B0A2A87E72605 /* RadixBackupMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixBackupMetadata.swift; sourceTree = "<group>"; };
 		767D3CFB764DE7629773F001 /* DataEditTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditTab.swift; sourceTree = "<group>"; };
-		A11D00000000000000000001 /* DataEditRestoreFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditRestoreFlow.swift; sourceTree = "<group>"; };
 		7858C7214C7B55FB9E03E5D0 /* PhraseInfoHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseInfoHeader.swift; sourceTree = "<group>"; };
 		7A4158625718C9BB66EB5E39 /* RadixShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RadixShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		7ACD043ABD7FD17169B73D6C /* ComponentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentRepository.swift; sourceTree = "<group>"; };
@@ -402,6 +401,7 @@
 		9E3504AC852FD2C08B8AB0E0 /* DataExportArchiveBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExportArchiveBuilder.swift; sourceTree = "<group>"; };
 		A0C0D0E30123456789ABCDEF /* RadixProjectSource.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = RadixProjectSource.zip; sourceTree = "<group>"; };
 		A0C0D0E40123456789ABCDEF /* RadixProjectSourceManifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = RadixProjectSourceManifest.json; sourceTree = "<group>"; };
+		A11D00000000000000000001 /* DataEditRestoreFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditRestoreFlow.swift; sourceTree = "<group>"; };
 		A1DAE07C4C7F1F05CE7BCB89 /* character_strokes.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = character_strokes.db; sourceTree = "<group>"; };
 		A25785DAB8BCDFA938DF3B94 /* BrowseSourceBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseSourceBar.swift; sourceTree = "<group>"; };
 		A27CC15099EADADD7CF493D1 /* PaywallPlans.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallPlans.swift; sourceTree = "<group>"; };
@@ -1150,7 +1150,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/RadixShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
@@ -1178,7 +1178,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/Radix.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
@@ -1204,7 +1204,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/Radix.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
@@ -1228,7 +1228,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/RadixShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
