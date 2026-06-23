@@ -5,7 +5,8 @@ import Foundation
  ==========================
  Loads and caches shared component peers, peers-by-component, and
  root derivatives for the Lineage (Components) tab.
- All @Published state and cache storage remain in RadixStore.swift.
+ Shared peer results are owned by RadixCharacterContextState; derivative cache
+ storage remains in RadixStore.
 */
 
 extension RadixStore {

@@ -83,7 +83,7 @@ struct PhraseTableSheet: View {
                     Spacer(minLength: 0)
                 }
 
-                PhraseLengthFilterChips(selection: $store.phraseLength)
+                PhraseLengthFilterChips(selection: store.phraseLengthBinding)
 
                 if displayedPhrases.isEmpty {
                     ContentUnavailableView(

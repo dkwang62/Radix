@@ -15,7 +15,7 @@ struct CharacterPhraseLookupSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                PhraseLengthFilterChips(selection: $store.phraseLength)
+                PhraseLengthFilterChips(selection: store.phraseLengthBinding)
                 Spacer()
                 Button {
                     finishLookup()

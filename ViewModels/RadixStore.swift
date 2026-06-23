@@ -442,11 +442,40 @@ final class RadixStore: ObservableObject {
         set { lineageState.page = newValue }
     }
 
-    @Published var related: [ComponentItem] = []
-    @Published var phrases: [PhraseItem] = []
-    @Published var phraseLength: Int? = nil
-    @Published var sharedComponentPeers: [ComponentItem] = []
-    @Published var sharedPeersByComponent: [String: [ComponentItem]] = [:]
+    @Published private(set) var characterContextState = RadixCharacterContextState()
+
+    var related: [ComponentItem] {
+        get { characterContextState.relatedCharacters }
+        set { characterContextState.relatedCharacters = newValue }
+    }
+
+    var phrases: [PhraseItem] {
+        get { characterContextState.phrases }
+        set { characterContextState.phrases = newValue }
+    }
+
+    var phraseLength: Int? {
+        get { characterContextState.phraseLength }
+        set { characterContextState.phraseLength = newValue }
+    }
+
+    var phraseLengthBinding: Binding<Int?> {
+        Binding(
+            get: { self.phraseLength },
+            set: { self.phraseLength = $0 }
+        )
+    }
+
+    var sharedComponentPeers: [ComponentItem] {
+        get { characterContextState.sharedComponentPeers }
+        set { characterContextState.sharedComponentPeers = newValue }
+    }
+
+    var sharedPeersByComponent: [String: [ComponentItem]] {
+        get { characterContextState.sharedPeersByComponent }
+        set { characterContextState.sharedPeersByComponent = newValue }
+    }
+
     @Published var addedPhrases: [PhraseItem] = []
     
     // MARK: - User Settings & Variances

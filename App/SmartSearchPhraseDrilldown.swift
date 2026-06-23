@@ -13,7 +13,7 @@ extension SmartSearchTab {
 
     var phraseLengthPicker: some View {
         HStack {
-            PhraseLengthFilterChips(selection: $store.phraseLength)
+            PhraseLengthFilterChips(selection: store.phraseLengthBinding)
             Spacer()
         }
     }
