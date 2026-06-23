@@ -3,10 +3,11 @@ import Foundation
 /*
  RADIX STORE — NAVIGATION
  =========================
- Character selection, preview, route transitions, breadcrumb management,
- quick-editor entry points, and AI Link dispatch.
+ Character selection, lineage loading, preview, route transitions, breadcrumb
+ management, quick-editor entry points, and AI Link dispatch.
  Navigation values are owned by RadixNavigationState and exposed through the
- compatibility properties on RadixStore.
+ compatibility properties on RadixStore. Lineage results are owned separately
+ by RadixLineageState.
 */
 
 extension RadixStore {

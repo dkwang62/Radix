@@ -400,14 +400,48 @@ final class RadixStore: ObservableObject {
         set { searchResults.definitionPhrases = newValue }
     }
 
-    @Published var lineageParents: [ComponentItem] = []
-    @Published var lineageDerivatives: [ComponentItem] = []
-    @Published var sortedLineageDerivatives: [ComponentItem] = []
-    @Published var phoneticFamily: [ComponentItem] = []
-    @Published var semanticFamily: [ComponentItem] = []
-    @Published var structureAnalysis: ComponentStructureAnalysis?
-    @Published var lineageSortMode: LineageSortMode = .usage
-    @Published var lineagePage: Int = 0
+    @Published private(set) var lineageState = RadixLineageState()
+
+    var lineageParents: [ComponentItem] {
+        get { lineageState.parents }
+        set { lineageState.parents = newValue }
+    }
+
+    var lineageDerivatives: [ComponentItem] {
+        get { lineageState.derivatives }
+        set { lineageState.derivatives = newValue }
+    }
+
+    var sortedLineageDerivatives: [ComponentItem] {
+        get { lineageState.sortedDerivatives }
+        set { lineageState.sortedDerivatives = newValue }
+    }
+
+    var phoneticFamily: [ComponentItem] {
+        get { lineageState.phoneticFamily }
+        set { lineageState.phoneticFamily = newValue }
+    }
+
+    var semanticFamily: [ComponentItem] {
+        get { lineageState.semanticFamily }
+        set { lineageState.semanticFamily = newValue }
+    }
+
+    var structureAnalysis: ComponentStructureAnalysis? {
+        get { lineageState.structureAnalysis }
+        set { lineageState.structureAnalysis = newValue }
+    }
+
+    var lineageSortMode: LineageSortMode {
+        get { lineageState.sortMode }
+        set { lineageState.sortMode = newValue }
+    }
+
+    var lineagePage: Int {
+        get { lineageState.page }
+        set { lineageState.page = newValue }
+    }
+
     @Published var related: [ComponentItem] = []
     @Published var phrases: [PhraseItem] = []
     @Published var phraseLength: Int? = nil
