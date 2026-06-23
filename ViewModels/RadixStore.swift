@@ -645,9 +645,13 @@ final class RadixStore: ObservableObject {
     }
 
     var quickEditDestination: QuickEditDestination? { get { presentationState.quickEditDestination } set { presentationState.quickEditDestination = newValue } }
-    @Published var activeSubject: ActiveSubject? = nil
 
     @Published private(set) var aiLinkState = RadixAILinkState()
+
+    var activeSubject: ActiveSubject? {
+        get { aiLinkState.activeSubject }
+        set { aiLinkState.activeSubject = newValue }
+    }
 
     var promptAutosaveStatus: String {
         get { aiLinkState.autosaveStatus }

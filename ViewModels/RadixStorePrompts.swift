@@ -5,7 +5,7 @@ import Foundation
  =====================================
  Manages PromptConfig mutations, task management, prompt rendering, and
  UserDefaults persistence for AI template settings. Portable prompt and launch
- workflow values are owned by RadixAILinkState.
+ workflow values and the active prompt subject are owned by RadixAILinkState.
 */
 
 extension RadixStore {
