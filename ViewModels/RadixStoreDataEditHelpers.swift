@@ -1,5 +1,8 @@
 import Foundation
 
+// Data-difference summaries produced here are owned by RadixDataAuditState and
+// exposed through compatibility properties on RadixStore.
+
 /*
  RADIX STORE — DATA EDIT HELPERS
  =================================

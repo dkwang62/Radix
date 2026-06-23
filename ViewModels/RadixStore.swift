@@ -557,15 +557,49 @@ final class RadixStore: ObservableObject {
         didSet { preferences.set(speechEnabled, forKey: speechEnabledKey) }
     }
     @Published var activeFavouriteCharacter: String? = nil
-    @Published var dictionaryVariances: [DictionaryVariance] = []
-    @Published var phraseVariances: [DictionaryVariance] = []
-    @Published var addedDictionaryCharacters: [String] = []
-    @Published var editedDictionaryCharacters: [String] = []
-    @Published var baseDictionaryCoreEditedCharacters: [String] = []
-    @Published var dictionaryCharactersWithNotes: [String] = []
+    @Published private(set) var dataAuditState = RadixDataAuditState()
+
+    var dictionaryVariances: [DictionaryVariance] {
+        get { dataAuditState.dictionaryVariances }
+        set { dataAuditState.dictionaryVariances = newValue }
+    }
+
+    var phraseVariances: [DictionaryVariance] {
+        get { dataAuditState.phraseVariances }
+        set { dataAuditState.phraseVariances = newValue }
+    }
+
+    var addedDictionaryCharacters: [String] {
+        get { dataAuditState.addedDictionaryCharacters }
+        set { dataAuditState.addedDictionaryCharacters = newValue }
+    }
+
+    var editedDictionaryCharacters: [String] {
+        get { dataAuditState.editedDictionaryCharacters }
+        set { dataAuditState.editedDictionaryCharacters = newValue }
+    }
+
+    var baseDictionaryCoreEditedCharacters: [String] {
+        get { dataAuditState.baseDictionaryCoreEditedCharacters }
+        set { dataAuditState.baseDictionaryCoreEditedCharacters = newValue }
+    }
+
+    var dictionaryCharactersWithNotes: [String] {
+        get { dataAuditState.dictionaryCharactersWithNotes }
+        set { dataAuditState.dictionaryCharactersWithNotes = newValue }
+    }
+
     /// O(1) lookup companion for `editedDictionaryCharacters`. Always kept in sync.
-    @Published var editedDictionaryCharactersSet: Set<String> = []
-    @Published var changedDictionaryCharacters: [String] = []
+    var editedDictionaryCharactersSet: Set<String> {
+        get { dataAuditState.editedDictionaryCharacterSet }
+        set { dataAuditState.editedDictionaryCharacterSet = newValue }
+    }
+
+    var changedDictionaryCharacters: [String] {
+        get { dataAuditState.changedDictionaryCharacters }
+        set { dataAuditState.changedDictionaryCharacters = newValue }
+    }
+
     @Published var quickEditDestination: QuickEditDestination? = nil
     @Published var allCollections: [CharacterCollection] = []
     @Published var activeSubject: ActiveSubject? = nil
