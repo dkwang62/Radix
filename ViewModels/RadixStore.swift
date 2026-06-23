@@ -613,16 +613,38 @@ final class RadixStore: ObservableObject {
 
     @Published var quickEditDestination: QuickEditDestination? = nil
     @Published var activeSubject: ActiveSubject? = nil
-    @Published var promptAutosaveStatus: String = "Changes save automatically."
+
+    @Published private(set) var aiLinkState = RadixAILinkState()
+
+    var promptAutosaveStatus: String {
+        get { aiLinkState.autosaveStatus }
+        set { aiLinkState.autosaveStatus = newValue }
+    }
     
     // MARK: - iPhone UI State
     @Published var showiPhoneDetail: Bool = false
     
     // MARK: - AI Context State
-    @Published var promptConfig: PromptConfig = .streamlitDefault
-    @Published var promptSelectedTaskIDs: [String] = PromptConfig.defaultSelectedTaskIDs
-    @Published var shouldAutoOpenAILinkTask4 = false
-    @Published var shouldAutoRunGeminiPhraseAPI = false
+    var promptConfig: PromptConfig {
+        get { aiLinkState.promptConfig }
+        set { aiLinkState.promptConfig = newValue }
+    }
+
+    var promptSelectedTaskIDs: [String] {
+        get { aiLinkState.selectedTaskIDs }
+        set { aiLinkState.selectedTaskIDs = newValue }
+    }
+
+    var shouldAutoOpenAILinkTask4: Bool {
+        get { aiLinkState.shouldAutoOpenTask4 }
+        set { aiLinkState.shouldAutoOpenTask4 = newValue }
+    }
+
+    var shouldAutoRunGeminiPhraseAPI: Bool {
+        get { aiLinkState.shouldAutoRunGeminiPhraseAPI }
+        set { aiLinkState.shouldAutoRunGeminiPhraseAPI = newValue }
+    }
+
     @Published var defaultAIPreset: DefaultAIPreset = .chatGPT {
         didSet { persistPromptSettings() }
     }

@@ -4,9 +4,8 @@ import Foundation
  RADIX STORE — AI PROMPT PERSISTENCE
  =====================================
  Manages PromptConfig mutations, task management, prompt rendering, and
- UserDefaults persistence for AI template settings.
- Extracted from RadixStore for maintainability; all @Published properties
- remain declared in RadixStore.swift so SwiftUI observation is unaffected.
+ UserDefaults persistence for AI template settings. Portable prompt and launch
+ workflow values are owned by RadixAILinkState.
 */
 
 extension RadixStore {
