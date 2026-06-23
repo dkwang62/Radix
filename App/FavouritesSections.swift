@@ -31,7 +31,7 @@ extension FavouritesTab {
                 .foregroundStyle(Color.accentColor)
                 .frame(width: 26, height: 26)
                 .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
 
             VStack(alignment: .leading, spacing: 3) {
                 Text("Choose what deserves more study.")
@@ -55,9 +55,10 @@ extension FavouritesTab {
             .foregroundStyle(.secondary)
             .accessibilityLabel("Hide Study help")
         }
-        .padding(10)
-        .background(RadixTheme.secondaryBackground.opacity(0.72))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixCard(
+            padding: RadixLayoutMetrics.compactCardPadding,
+            background: RadixTheme.secondaryBackground.opacity(0.72)
+        )
     }
 
     var studyDashboardSummary: some View {
@@ -208,7 +209,7 @@ extension FavouritesTab {
         .frame(maxWidth: .infinity, minHeight: 40)
         .foregroundStyle(isPrimary ? Color.white : Color.accentColor)
         .background(isPrimary ? Color.accentColor : Color.accentColor.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
     }
 
     var studySummaryColumns: [GridItem] {
@@ -230,7 +231,7 @@ extension FavouritesTab {
                 .foregroundStyle(tint)
                 .frame(width: 20, height: 20)
                 .background(tint.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.small))
 
             Text("\(value) \(title)")
                 .font(.system(size: 16, weight: .bold, design: .rounded))
@@ -241,9 +242,9 @@ extension FavouritesTab {
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 8)
-        .frame(maxWidth: .infinity, minHeight: 34, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: RadixControlMetrics.compactHeight, alignment: .leading)
         .background(RadixTheme.secondaryBackground.opacity(0.48))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
 
         if let action {
             Button(action: action) {

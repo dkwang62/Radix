@@ -20,7 +20,7 @@ extension FilterGridTab {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(showBrowseSource || selectedCollection == nil ? RadixTheme.separator : Color.clear, lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
     }
 
     func selectedImageSourceLabel(_ collection: CharacterCollection) -> some View {
@@ -31,7 +31,7 @@ extension FilterGridTab {
                     .foregroundStyle(Color.accentColor)
                     .frame(width: 34, height: 34)
                     .background(Color.accentColor.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(collection.name.isEmpty ? "Saved Page" : collection.name)
@@ -59,9 +59,10 @@ extension FilterGridTab {
                     .lineLimit(2)
             }
         }
-        .padding(10)
-        .background(RadixTheme.background)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixCard(
+            padding: RadixLayoutMetrics.compactCardPadding,
+            background: RadixTheme.background
+        )
     }
 
     func dictionarySourceLabel(description: String) -> some View {
@@ -72,7 +73,7 @@ extension FilterGridTab {
                         .font(.system(size: 16, weight: .semibold))
                         .frame(width: 32, height: 32)
                         .background(RadixTheme.secondaryBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
 
                     Text("Dictionary")
                         .font(ResponsiveFont.body.weight(.semibold))

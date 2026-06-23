@@ -51,9 +51,7 @@ struct DataBackupPreviewSection: View {
             saveSummaryHeader
 
             previewDisclosureList
-                .padding(12)
-                .background(RadixTheme.background)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixCard(background: RadixTheme.background)
         }
         .padding(12)
         .background(
@@ -63,7 +61,7 @@ struct DataBackupPreviewSection: View {
                 endPoint: .bottomTrailing
             )
         )
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
     }
 
     var compactBody: some View {
@@ -77,7 +75,7 @@ struct DataBackupPreviewSection: View {
                 .foregroundStyle(Color.accentColor)
                 .frame(width: 42, height: 42)
                 .background(Color.accentColor.opacity(0.14))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
 
             VStack(alignment: .leading, spacing: 8) {
                 VStack(alignment: .leading, spacing: 3) {
@@ -121,7 +119,7 @@ struct DataBackupPreviewSection: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
         }
     }
 

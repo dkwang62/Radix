@@ -69,3 +69,69 @@ enum RadixTheme {
         #endif
     }
 }
+
+/// Shared visual measurements. Feature views should use these instead of
+/// introducing one-off spacing, radius, and control-height values.
+enum RadixSpacing {
+    static let xSmall: CGFloat = 4
+    static let small: CGFloat = 8
+    static let medium: CGFloat = 12
+    static let large: CGFloat = 16
+    static let xLarge: CGFloat = 24
+}
+
+enum RadixRadius {
+    static let small: CGFloat = 6
+    static let medium: CGFloat = 8
+    static let large: CGFloat = 12
+    static let modal: CGFloat = 16
+}
+
+enum RadixControlMetrics {
+    static let compactHeight: CGFloat = 34
+    static let standardHeight: CGFloat = 44
+    static let prominentHeight: CGFloat = 58
+    static let actionCardHeight: CGFloat = 72
+}
+
+enum RadixLayoutMetrics {
+    static let readableContentWidth: CGFloat = 900
+    static let compactCardPadding: CGFloat = 10
+    static let cardPadding: CGFloat = 12
+}
+
+private struct RadixCardModifier: ViewModifier {
+    let padding: CGFloat
+    let background: Color
+    let border: Color?
+    let radius: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .padding(padding)
+            .background(background)
+            .clipShape(RoundedRectangle(cornerRadius: radius))
+            .overlay {
+                if let border {
+                    RoundedRectangle(cornerRadius: radius)
+                        .stroke(border, lineWidth: 1)
+                }
+            }
+    }
+}
+
+extension View {
+    func radixCard(
+        padding: CGFloat = RadixLayoutMetrics.cardPadding,
+        background: Color = RadixTheme.secondaryBackground,
+        border: Color? = nil,
+        radius: CGFloat = RadixRadius.medium
+    ) -> some View {
+        modifier(RadixCardModifier(
+            padding: padding,
+            background: background,
+            border: border,
+            radius: radius
+        ))
+    }
+}

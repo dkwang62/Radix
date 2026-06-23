@@ -166,7 +166,7 @@ struct DataBackupActionButton: View {
                 .font(.system(size: 18, weight: .bold))
                 .frame(width: 34, height: 34)
                 .background(foreground.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -191,18 +191,18 @@ struct DataBackupActionButton: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 5)
                     .background(RadixTheme.background.opacity(0.75))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
                     .fixedSize(horizontal: true, vertical: false)
             }
         }
-        .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: RadixControlMetrics.actionCardHeight, alignment: .leading)
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .background(background)
         .foregroundStyle(foreground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
         .overlay(
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: RadixRadius.medium)
                 .stroke(border, lineWidth: 1)
         )
     }
@@ -310,16 +310,16 @@ private struct AdvancedExportOptionCard: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 5)
                     .background(color.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 14)
         .padding(.horizontal, 14)
         .background(color.opacity(0.12))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
         .overlay(
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: RadixRadius.medium)
                 .stroke(color.opacity(0.35), lineWidth: 1)
         )
     }

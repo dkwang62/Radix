@@ -78,7 +78,7 @@ func emptyStateCard(systemImage: String, title: String, message: String) -> some
     .padding()
     .frame(maxWidth: .infinity, alignment: .center)
     .background(RadixTheme.secondaryBackground)
-    .clipShape(RoundedRectangle(cornerRadius: 8))
+    .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
     .padding()
 }
 
@@ -95,7 +95,7 @@ struct PrimaryActionTile: View {
                 .frame(width: 34, height: 34)
                 .foregroundStyle(isPrimary ? Color.white : Color.accentColor)
                 .background(isPrimary ? Color.white.opacity(0.18) : Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
@@ -113,10 +113,10 @@ struct PrimaryActionTile: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: RadixControlMetrics.prominentHeight, alignment: .leading)
         .foregroundStyle(isPrimary ? Color.white : Color.primary)
         .background(isPrimary ? Color.accentColor : RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
     }
 }
 
@@ -152,7 +152,7 @@ struct CompactScriptToggle: View {
                 .frame(minWidth: minWidth, minHeight: height)
                 .background(Color.accentColor)
                 .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(accessibilityLabel)
@@ -182,7 +182,7 @@ struct CompactScriptFilterControl: View {
         } label: {
             Text(label)
                 .font(ResponsiveFont.subheadline.weight(.semibold))
-                .frame(minWidth: selection == .any ? 44 : 34, minHeight: 34)
+                .frame(minWidth: selection == .any ? 44 : 34, minHeight: RadixControlMetrics.compactHeight)
                 .padding(.horizontal, selection == .any ? 2 : 0)
                 .background(Color.accentColor)
                 .foregroundStyle(.white)
@@ -284,7 +284,7 @@ struct RadixWelcomeView: View {
                 .foregroundStyle(Color.accentColor)
                 .frame(width: 40, height: 40)
                 .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
@@ -298,6 +298,6 @@ struct RadixWelcomeView: View {
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(RadixTheme.secondaryBackground.opacity(0.7))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
     }
 }
