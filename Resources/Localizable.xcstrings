@@ -1,0 +1,28 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "AI Link" : {},
+    "Accepted" : {},
+    "Backup Contents" : {},
+    "Browse" : {},
+    "Browse Dictionary" : {},
+    "Device Snapshot" : {},
+    "Device Snapshots" : {},
+    "Hidden" : {},
+    "Merge Backup" : {},
+    "My Data" : {},
+    "Rejected" : {},
+    "Replace My Data" : {},
+    "Restore Device Snapshot" : {},
+    "Save Backup" : {},
+    "Save Device Snapshot" : {},
+    "Saved Page" : {},
+    "Saved Pages" : {},
+    "Search" : {},
+    "Settings" : {},
+    "Study" : {},
+    "Take Photo" : {},
+    "Unreviewed" : {}
+  },
+  "version" : "1.0"
+}

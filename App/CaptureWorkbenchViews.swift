@@ -261,7 +261,7 @@ struct SavedImageList: View {
     let onDelete: (CharacterCollection) -> Void
 
     var body: some View {
-        CaptureSection("Saved Pages") {
+        CaptureSection(RadixCopy.savedPages) {
             SavedImageRows(
                 collections: collections,
                 emptyDescription: "Scan or import an image.",
@@ -363,7 +363,7 @@ struct SavedImageRow: View {
 
     private var displayName: String {
         let name = collection.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        return name.isEmpty ? "Saved Page" : name
+        return name.isEmpty ? RadixCopy.savedPage : name
     }
 }
 

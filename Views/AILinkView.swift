@@ -83,7 +83,7 @@ struct AILinkView: View {
             }
             .padding(20)
         }
-        .navigationTitle("AI Link")
+        .navigationTitle(RadixCopy.aiLink)
         .background(RadixTheme.groupedBackground)
         .onAppear {
             store.refreshPhrases()
@@ -197,7 +197,7 @@ struct AILinkView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("Saved Page")
+                Text(RadixCopy.savedPage)
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
                 Text(selectedCollection?.name ?? "No page selected")

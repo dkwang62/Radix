@@ -1,5 +1,35 @@
 import Foundation
 
+/// Canonical customer-facing vocabulary. Keeping these terms in one place
+/// prevents iPhone, iPad, and Mac labels from drifting apart.
+enum RadixCopy {
+    static let takePhoto = String(localized: "Take Photo")
+    static let browse = String(localized: "Browse")
+    static let browseDictionary = String(localized: "Browse Dictionary")
+    static let search = String(localized: "Search")
+    static let study = String(localized: "Study")
+    static let aiLink = String(localized: "AI Link")
+    static let myData = String(localized: "My Data")
+    static let settings = String(localized: "Settings")
+
+    static let savedPage = String(localized: "Saved Page")
+    static let savedPages = String(localized: "Saved Pages")
+    static let deviceSnapshot = String(localized: "Device Snapshot")
+    static let deviceSnapshots = String(localized: "Device Snapshots")
+    static let saveDeviceSnapshot = String(localized: "Save Device Snapshot")
+    static let restoreDeviceSnapshot = String(localized: "Restore Device Snapshot")
+
+    static let saveBackup = String(localized: "Save Backup")
+    static let mergeBackup = String(localized: "Merge Backup")
+    static let replaceMyData = String(localized: "Replace My Data")
+    static let backupContents = String(localized: "Backup Contents")
+
+    static let accepted = String(localized: "Accepted")
+    static let unreviewed = String(localized: "Unreviewed")
+    static let hidden = String(localized: "Hidden")
+    static let rejected = String(localized: "Rejected")
+}
+
 enum RadixIcon {
     static let scan = "camera.viewfinder"
     static let search = "magnifyingglass"
@@ -27,12 +57,12 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .scan: return "Take Photo"
-        case .browse: return "Browse"
-        case .search: return "Search"
-        case .study: return "Study"
-        case .aiLink: return "AI Link"
-        case .myData: return "My Data"
+        case .scan: return RadixCopy.takePhoto
+        case .browse: return RadixCopy.browse
+        case .search: return RadixCopy.search
+        case .study: return RadixCopy.study
+        case .aiLink: return RadixCopy.aiLink
+        case .myData: return RadixCopy.myData
         }
     }
 

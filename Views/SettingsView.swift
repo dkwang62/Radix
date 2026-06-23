@@ -147,7 +147,7 @@ struct SettingsView: View {
                 }
             }
         }
-        .navigationTitle("Settings")
+        .navigationTitle(RadixCopy.settings)
         .toolbar {
             if showsCloseButton {
                 ToolbarItem(placement: .confirmationAction) {

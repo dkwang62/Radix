@@ -95,7 +95,7 @@ extension FavouritesTab {
                 }
             )
             studySummaryTile(
-                title: "Saved Pages",
+                title: RadixCopy.savedPages,
                 value: "\(store.allCollections.count)",
                 systemImage: "photo.on.rectangle",
                 tint: .purple,
@@ -121,7 +121,7 @@ extension FavouritesTab {
                     }
                 } label: {
                     studySnapshotActionLabel(
-                        title: isSavingSnapshot ? "Saving..." : "Save Device Snapshot",
+                        title: isSavingSnapshot ? "Saving..." : RadixCopy.saveDeviceSnapshot,
                         systemImage: snapshotsLocked ? "lock.fill" : (isSavingSnapshot ? "hourglass" : "tray.and.arrow.down"),
                         isPrimary: true,
                         lockBadge: snapshotsLocked ? "Plus" : nil
@@ -135,7 +135,7 @@ extension FavouritesTab {
                         onRequirePro(.datedCopies)
                     } label: {
                         studySnapshotActionLabel(
-                            title: "Restore Device Snapshot",
+                            title: RadixCopy.restoreDeviceSnapshot,
                             systemImage: "lock.fill",
                             isPrimary: false,
                             lockBadge: "Plus"
@@ -166,7 +166,7 @@ extension FavouritesTab {
                         }
                     } label: {
                         studySnapshotActionLabel(
-                            title: isRestoringSnapshot ? "Restoring..." : "Restore Device Snapshot",
+                            title: isRestoringSnapshot ? "Restoring..." : RadixCopy.restoreDeviceSnapshot,
                             systemImage: isRestoringSnapshot ? "hourglass" : "arrow.counterclockwise",
                             isPrimary: false,
                             lockBadge: nil
@@ -265,6 +265,6 @@ extension FavouritesTab {
 
     func collectionDisplayName(_ collection: CharacterCollection) -> String {
         let name = collection.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        return name.isEmpty ? "Saved Page" : name
+        return name.isEmpty ? RadixCopy.savedPage : name
     }
 }

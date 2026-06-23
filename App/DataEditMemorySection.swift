@@ -6,7 +6,7 @@ extension DataEditTab {
             addedPhraseEntries: addedPhraseEntries,
             basePhraseCoreEditEntries: basePhraseCoreEditEntries,
             phraseEntriesWithNotes: phraseEntriesWithNotes,
-            title: "Backup Contents",
+            title: RadixCopy.backupContents,
             subtitle: "This is the Radix data included when you create an iCloud backup or restore one from another device.",
             badges: ["Portable Backup", "Cross-Device", "Recoverable"],
             onOpenSavedPages: {
@@ -31,7 +31,7 @@ extension DataEditTab {
             addedPhraseEntries: addedPhraseEntries,
             basePhraseCoreEditEntries: basePhraseCoreEditEntries,
             phraseEntriesWithNotes: phraseEntriesWithNotes,
-            title: "Backup Contents",
+            title: RadixCopy.backupContents,
             subtitle: "Radix data included when you save or restore.",
             badges: ["Cross-Device", "Recoverable"],
             isCompactListOnly: true,

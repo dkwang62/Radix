@@ -79,7 +79,7 @@ extension DataEditTab {
             createPortableBackup()
         } label: {
             DataBackupActionButton(
-                title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : "Save Backup",
+                title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : RadixCopy.saveBackup,
                 subtitle: "Choose where to save",
                 systemName: "square.and.arrow.up.fill",
                 foreground: .white,
@@ -102,7 +102,7 @@ extension DataEditTab {
             showRestorePicker = true
         } label: {
             DataBackupActionButton(
-                title: "Merge Backup",
+                title: RadixCopy.mergeBackup,
                 subtitle: "Keep existing data",
                 systemName: "square.and.arrow.down",
                 foreground: Color.accentColor,
@@ -124,7 +124,7 @@ extension DataEditTab {
             showRestorePicker = true
         } label: {
             DataBackupActionButton(
-                title: "Replace My Data",
+                title: RadixCopy.replaceMyData,
                 subtitle: "Restore this backup",
                 systemName: "square.and.arrow.down.fill",
                 foreground: Color.orange,
