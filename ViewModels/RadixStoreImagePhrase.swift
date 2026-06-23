@@ -5,7 +5,7 @@ import Foundation
  =======================================
  All logic for phrase highlighting within Browse collection image grids:
  tap handling, anchor/restore, memory highlights, and scroll targeting.
- All @Published state remains in RadixStore.swift.
+ Canonical values are owned by RadixBrowseHighlightState.
 */
 
 extension RadixStore {

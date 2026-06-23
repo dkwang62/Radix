@@ -793,28 +793,87 @@ final class RadixStore: ObservableObject {
         let items: [ComponentItem]
         let total: Int
     }
-    var imagePhraseContext: ImagePhraseContext?
-    var imagePhraseHighlightOffsets: Set<Int> = []
+    @Published private(set) var browseHighlightState = RadixBrowseHighlightState()
+
+    var imagePhraseContext: ImagePhraseContext? {
+        get { browseHighlightState.phraseContext }
+        set { browseHighlightState.phraseContext = newValue }
+    }
+
+    var imagePhraseHighlightOffsets: Set<Int> {
+        get { browseHighlightState.phraseOffsets }
+        set { browseHighlightState.phraseOffsets = newValue }
+    }
+
     // Keep phrase-origin highlight state in the store, not in Browse UI views.
     // iPhone phrase previews can drill into component characters; when returning
     // to Browse, this anchor restores the original full phrase highlight instead
     // of leaving the last previewed character highlighted. Future refactors should
     // preserve this store-level ownership so layout/navigation changes do not
     // break phrase highlighting.
-    var anchoredImagePhraseContext: ImagePhraseContext?
-    var anchoredImagePhraseHighlightOffsets: Set<Int> = []
-    var anchoredImagePhraseWord: String?
-    var anchoredImagePhraseCollectionID: UUID?
+    var anchoredImagePhraseContext: ImagePhraseContext? {
+        get { browseHighlightState.anchoredPhraseContext }
+        set { browseHighlightState.anchoredPhraseContext = newValue }
+    }
+
+    var anchoredImagePhraseHighlightOffsets: Set<Int> {
+        get { browseHighlightState.anchoredPhraseOffsets }
+        set { browseHighlightState.anchoredPhraseOffsets = newValue }
+    }
+
+    var anchoredImagePhraseWord: String? {
+        get { browseHighlightState.anchoredPhraseWord }
+        set { browseHighlightState.anchoredPhraseWord = newValue }
+    }
+
+    var anchoredImagePhraseCollectionID: UUID? {
+        get { browseHighlightState.anchoredCollectionID }
+        set { browseHighlightState.anchoredCollectionID = newValue }
+    }
+
     var browsePagePhraseTileCache: [UUID: [Int: BrowseImagePhraseTileData]] = [:]
     var browsePagePhraseCandidateCache: [UUID: [BrowsePagePhraseCandidate]] = [:]
-    @Published var imagePhraseHighlightRevision: Int = 0
-    @Published var imageBrowsePhrasePreview: PhraseItem?
-    @Published var sidebarPhrasePreview: PhraseItem?
-    @Published var pendingBrowseScrollTarget: BrowseScrollTarget?
-    @Published var browseHighlightedCharacter: String?
-    @Published var browseMemoryHighlightCollectionID: UUID?
-    @Published var browseMemoryHighlightOffsets: Set<Int> = []
-    var browseMemoryHighlightedItem: String?
+
+    var imagePhraseHighlightRevision: Int {
+        get { browseHighlightState.revision }
+        set { browseHighlightState.revision = newValue }
+    }
+
+    var imageBrowsePhrasePreview: PhraseItem? {
+        get { browseHighlightState.imagePhrasePreview }
+        set { browseHighlightState.imagePhrasePreview = newValue }
+    }
+
+    var sidebarPhrasePreview: PhraseItem? {
+        get { browseHighlightState.sidebarPhrasePreview }
+        set { browseHighlightState.sidebarPhrasePreview = newValue }
+    }
+
+    var pendingBrowseScrollTarget: BrowseScrollTarget? {
+        get { browseHighlightState.pendingScrollTarget }
+        set { browseHighlightState.pendingScrollTarget = newValue }
+    }
+
+    var browseHighlightedCharacter: String? {
+        get { browseHighlightState.highlightedCharacter }
+        set { browseHighlightState.highlightedCharacter = newValue }
+    }
+
+    var browseMemoryHighlightCollectionID: UUID? {
+        get { browseHighlightState.memoryCollectionID }
+        set { browseHighlightState.memoryCollectionID = newValue }
+    }
+
+    var browseMemoryHighlightOffsets: Set<Int> {
+        get { browseHighlightState.memoryOffsets }
+        set { browseHighlightState.memoryOffsets = newValue }
+    }
+
+    var browseMemoryHighlightedItem: String? {
+        get { browseHighlightState.memoryHighlightedItem }
+        set { browseHighlightState.memoryHighlightedItem = newValue }
+    }
+
     var suppressHelpReset = false
     @Published private(set) var loadingError: String?
     @Published private(set) var dataEditSavePath: String = ""
