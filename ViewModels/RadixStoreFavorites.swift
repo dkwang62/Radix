@@ -1,13 +1,61 @@
 import Foundation
 
 /*
- RADIX STORE — FAVORITES PERSISTENCE
- =====================================
- Handles loading, persisting, and applying favorite characters and phrases
- from UserDefaults. All @Published properties remain declared in RadixStore.swift.
+ RADIX STORE — FAVORITES
+ ========================
+ Handles favorite interactions plus loading, persisting, and applying favorite
+ characters and phrases. Persisted values are owned by RadixUserLibraryState.
 */
 
 extension RadixStore {
+
+    // MARK: - Interactions
+
+    func toggleFavorite(character: String) {
+        if favorites.contains(character) {
+            favorites.remove(character)
+            favoriteAddedDates.removeValue(forKey: character)
+        } else {
+            favorites.insert(character)
+            favoriteAddedDates[character] = Date()
+            pushRootBreadcrumb(character)
+        }
+        Task { persistFavorites() }
+    }
+
+    func togglePhraseFavorite(_ word: String) {
+        if favoritePhrases.contains(word) {
+            favoritePhrases.remove(word)
+            favoritePhraseDates.removeValue(forKey: word)
+        } else {
+            favoritePhrases.insert(word)
+            favoritePhraseDates[word] = Date()
+            if let phrase = phraseRepo.fetchPhrase(for: word) {
+                pushPhraseBreadcrumb(phrase)
+            }
+        }
+        persistFavoritePhrases()
+    }
+
+    func isFavorite(_ character: String) -> Bool { favorites.contains(character) }
+    func isPhraseFavorite(_ word: String) -> Bool { favoritePhrases.contains(word) }
+    func favoriteAddedDate(for character: String) -> Date? { favoriteAddedDates[character] }
+
+    var favoriteItems: [ComponentItem] {
+        FavoriteOrdering.sortedByAddedDate(
+            favorites.compactMap { componentRepo.byCharacter[$0] },
+            dateForValue: { favoriteAddedDates[$0.character] },
+            fallbackSort: { $0.character < $1.character }
+        )
+    }
+
+    var favoritePhrasesItems: [PhraseItem] {
+        FavoriteOrdering.sortedByAddedDate(
+            phraseRepo.fetchPhrases(matching: favoritePhrases),
+            dateForValue: { favoritePhraseDates[$0.word] },
+            fallbackSort: { $0.word < $1.word }
+        )
+    }
 
     // MARK: - Load
 

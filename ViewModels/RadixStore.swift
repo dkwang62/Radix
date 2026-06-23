@@ -450,11 +450,33 @@ final class RadixStore: ObservableObject {
     @Published var addedPhrases: [PhraseItem] = []
     
     // MARK: - User Settings & Variances
-    @Published var favorites: Set<String> = []
-    @Published var favoriteAddedDates: [String: Date] = [:]
-    @Published var favoritePhrases: Set<String> = []
-    @Published var favoritePhraseDates: [String: Date] = [:]
-    @Published var overlayAddedDates: [String: Date] = [:]
+    @Published private(set) var userLibraryState = RadixUserLibraryState()
+
+    var favorites: Set<String> {
+        get { userLibraryState.favoriteCharacters }
+        set { userLibraryState.favoriteCharacters = newValue }
+    }
+
+    var favoriteAddedDates: [String: Date] {
+        get { userLibraryState.favoriteCharacterDates }
+        set { userLibraryState.favoriteCharacterDates = newValue }
+    }
+
+    var favoritePhrases: Set<String> {
+        get { userLibraryState.favoritePhrases }
+        set { userLibraryState.favoritePhrases = newValue }
+    }
+
+    var favoritePhraseDates: [String: Date] {
+        get { userLibraryState.favoritePhraseDates }
+        set { userLibraryState.favoritePhraseDates = newValue }
+    }
+
+    var overlayAddedDates: [String: Date] {
+        get { userLibraryState.overlayAddedDates }
+        set { userLibraryState.overlayAddedDates = newValue }
+    }
+
     @Published var speechEnabled: Bool = true {
         didSet { preferences.set(speechEnabled, forKey: speechEnabledKey) }
     }
