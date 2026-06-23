@@ -45,34 +45,25 @@ extension CharacterInfoCard {
     }
 
     var cardActionFont: Font {
-        #if targetEnvironment(macCatalyst)
-        return ResponsiveFont.caption2.weight(.semibold)
-        #else
-        return ResponsiveFont.caption.weight(.semibold)
-        #endif
+        RadixPlatform.isDesktop
+            ? ResponsiveFont.caption2.weight(.semibold)
+            : ResponsiveFont.caption.weight(.semibold)
     }
 
     var cardActionControlSize: ControlSize {
-        #if targetEnvironment(macCatalyst)
-        return .small
-        #else
-        return .regular
-        #endif
+        RadixPlatform.isDesktop ? .small : .regular
     }
 
     var chipGuideFont: Font {
-        #if targetEnvironment(macCatalyst)
-        return ResponsiveFont.footnote
-        #else
-        return isPhone ? ResponsiveFont.subheadline : ResponsiveFont.subheadline
-        #endif
+        RadixPlatform.isDesktop ? ResponsiveFont.footnote : ResponsiveFont.subheadline
     }
 
     var chipFont: Font {
-        #if targetEnvironment(macCatalyst)
-        return ResponsiveFont.footnote.weight(.semibold)
-        #else
-        return isPhone ? ResponsiveFont.subheadline.weight(.semibold) : ResponsiveFont.footnote.weight(.semibold)
-        #endif
+        if RadixPlatform.isDesktop {
+            return ResponsiveFont.footnote.weight(.semibold)
+        }
+        return isPhone
+            ? ResponsiveFont.subheadline.weight(.semibold)
+            : ResponsiveFont.footnote.weight(.semibold)
     }
 }

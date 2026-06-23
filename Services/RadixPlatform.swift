@@ -10,6 +10,32 @@ enum RadixInterfaceIdiom {
 
     var isPhone: Bool { self == .phone }
     var isDesktop: Bool { self == .desktop }
+
+    var searchResultColumnCount: Int { isDesktop ? 15 : 8 }
+    var searchResultFontSize: CGFloat { isDesktop ? 28 : 24 }
+    var searchResultRowHeight: CGFloat { isDesktop ? 56 : 52 }
+
+    var phraseRowHeight: CGFloat {
+        switch self {
+        case .desktop: return 84
+        case .tablet: return 82
+        case .phone: return 72
+        }
+    }
+
+    var phraseLeadingColumnWidth: CGFloat {
+        switch self {
+        case .desktop: return 150
+        case .tablet: return 120
+        case .phone: return 96
+        }
+    }
+
+    var phraseTileHeight: CGFloat { self == .phone ? 54 : 58 }
+
+    func usesNarrowLayout(horizontalIsCompact: Bool) -> Bool {
+        !isDesktop && (isPhone || horizontalIsCompact)
+    }
 }
 
 struct RadixPlatform {

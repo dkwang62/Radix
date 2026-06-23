@@ -98,7 +98,6 @@ struct PhraseTableSheet: View {
                             ForEach(displayedPhrases, id: \.id) { phrase in
                                 PhraseTableRow(
                                     phrase: phrase,
-                                    isPhone: isPhone,
                                     rowHeight: phraseRowHeight
                                 ) {
                                     presentPhrase(phrase)
@@ -180,11 +179,7 @@ struct PhraseTableSheet: View {
     }
 
     private var phraseRowHeight: CGFloat {
-        #if targetEnvironment(macCatalyst)
-        return 84
-        #else
-        return isPhone ? 72 : 82
-        #endif
+        RadixPlatform.interfaceIdiom.phraseRowHeight
     }
 
     private var phraseViewportHeight: CGFloat {
@@ -194,16 +189,11 @@ struct PhraseTableSheet: View {
 
 private struct PhraseTableRow: View {
     let phrase: PhraseItem
-    let isPhone: Bool
     let rowHeight: CGFloat
     let onSelect: () -> Void
 
     private var leadingColumnWidth: CGFloat {
-        #if targetEnvironment(macCatalyst)
-        return 150
-        #else
-        return isPhone ? 96 : 120
-        #endif
+        RadixPlatform.interfaceIdiom.phraseLeadingColumnWidth
     }
 
     var body: some View {
@@ -237,11 +227,7 @@ private struct PhraseTableRow: View {
     }
 
     private var pagePhraseTileHeight: CGFloat {
-        #if targetEnvironment(macCatalyst)
-        return 58
-        #else
-        return isPhone ? 54 : 58
-        #endif
+        RadixPlatform.interfaceIdiom.phraseTileHeight
     }
 }
 

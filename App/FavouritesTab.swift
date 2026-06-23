@@ -26,11 +26,7 @@ struct FavouritesTab: View {
     }
 
     var isNarrowStudyLayout: Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
-        return isPhone || horizontalSizeClass == .compact
-        #endif
+        RadixPlatform.interfaceIdiom.usesNarrowLayout(horizontalIsCompact: horizontalSizeClass == .compact)
     }
 
     var hasStudyContent: Bool {

@@ -11,28 +11,21 @@ struct SmartResultsGrid: View {
     
     // Dynamic column calculation for Mac vs iPad
     private var columns: [GridItem] {
-        #if targetEnvironment(macCatalyst)
-        return Array(repeating: GridItem(.flexible(minimum: 40, maximum: 80), spacing: 0), count: 15)
-        #else
-        // iPhone: reduce to 8 columns to avoid pinyin wrapping
-        return Array(repeating: GridItem(.flexible(minimum: 32, maximum: 64), spacing: 0), count: 8)
-        #endif
+        let idiom = RadixPlatform.interfaceIdiom
+        let minimum: CGFloat = idiom.isDesktop ? 40 : 32
+        let maximum: CGFloat = idiom.isDesktop ? 80 : 64
+        return Array(
+            repeating: GridItem(.flexible(minimum: minimum, maximum: maximum), spacing: 0),
+            count: idiom.searchResultColumnCount
+        )
     }
 
     private var fontSize: CGFloat {
-        #if targetEnvironment(macCatalyst)
-        return 28
-        #else
-        return 24
-        #endif
+        RadixPlatform.interfaceIdiom.searchResultFontSize
     }
 
     private var columnsPerPage: Int {
-        #if targetEnvironment(macCatalyst)
-        return 15
-        #else
-        return 8
-        #endif
+        RadixPlatform.interfaceIdiom.searchResultColumnCount
     }
 
     private let rowsPerPage = 5
@@ -138,13 +131,7 @@ struct SmartResultsGrid: View {
                         .buttonStyle(.plain)
                     }
                 }
-                .frame(maxHeight: {
-                    #if targetEnvironment(macCatalyst)
-                    return 5 * 56
-                    #else
-                    return 5 * 52
-                    #endif
-                }())
+                .frame(maxHeight: CGFloat(rowsPerPage) * RadixPlatform.interfaceIdiom.searchResultRowHeight)
             }
             .padding(.vertical, 10)
             .onChange(of: items.count) { _, _ in
