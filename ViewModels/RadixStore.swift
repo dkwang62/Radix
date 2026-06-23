@@ -371,11 +371,32 @@ final class RadixStore: ObservableObject {
             persistSelectedAICollection()
         }
     }
-    @Published var gridFilteredAllCount: Int = 0
-    @Published var gridFilteredComponentCount: Int = 0
-    @Published var gridPage: Int = 0
-    @Published var allGridItems: [ComponentItem] = []
-    @Published var allReadingOrderCharacters: [String] = []
+    @Published private(set) var browseGridState = RadixBrowseGridState()
+
+    var gridFilteredAllCount: Int {
+        get { browseGridState.filteredAllCount }
+        set { browseGridState.filteredAllCount = newValue }
+    }
+
+    var gridFilteredComponentCount: Int {
+        get { browseGridState.filteredComponentCount }
+        set { browseGridState.filteredComponentCount = newValue }
+    }
+
+    var gridPage: Int {
+        get { browseGridState.page }
+        set { browseGridState.page = newValue }
+    }
+
+    var allGridItems: [ComponentItem] {
+        get { browseGridState.items }
+        set { browseGridState.items = newValue }
+    }
+
+    var allReadingOrderCharacters: [String] {
+        get { browseGridState.readingOrderCharacters }
+        set { browseGridState.readingOrderCharacters = newValue }
+    }
     
     // MARK: - Computed Result Sets
     @Published private(set) var searchResults = RadixSearchResults()

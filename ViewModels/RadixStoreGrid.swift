@@ -3,8 +3,9 @@ import Foundation
 /*
  RADIX STORE — GRID & PHRASE HELPERS
  =====================================
- Grid recompute, filter predicates, sort comparators, phrase candidate
- lookup, image phrase highlight plumbing, and text normalization utilities.
+ Grid recompute, filter predicates, sort comparators, phrase candidate lookup,
+ image phrase highlight plumbing, and text normalization utilities. Derived grid
+ output is owned by RadixBrowseGridState.
  Extracted from RadixStore Private Utilities.
 */
 
