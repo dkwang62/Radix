@@ -645,29 +645,70 @@ final class RadixStore: ObservableObject {
         set { aiLinkState.shouldAutoRunGeminiPhraseAPI = newValue }
     }
 
-    @Published var defaultAIPreset: DefaultAIPreset = .chatGPT {
-        didSet { persistPromptSettings() }
+    @Published private(set) var aiProviderState = RadixAIProviderState()
+
+    var defaultAIPreset: DefaultAIPreset {
+        get { aiProviderState.defaultPreset }
+        set {
+            aiProviderState.defaultPreset = newValue
+            persistPromptSettings()
+        }
     }
-    @Published var customAIURLString: String = "" {
-        didSet { persistPromptSettings() }
+
+    var customAIURLString: String {
+        get { aiProviderState.customURLString }
+        set {
+            aiProviderState.customURLString = newValue
+            persistPromptSettings()
+        }
     }
-    @Published var openAIAPIKey: String = "" {
-        didSet { persistPromptSettings() }
+
+    var openAIAPIKey: String {
+        get { aiProviderState.openAIAPIKey }
+        set {
+            aiProviderState.openAIAPIKey = newValue
+            persistPromptSettings()
+        }
     }
-    @Published var geminiAPIKey: String = "" {
-        didSet { persistPromptSettings() }
+
+    var geminiAPIKey: String {
+        get { aiProviderState.geminiAPIKey }
+        set {
+            aiProviderState.geminiAPIKey = newValue
+            persistPromptSettings()
+        }
     }
-    @Published var claudeAPIKey: String = "" {
-        didSet { persistPromptSettings() }
+
+    var claudeAPIKey: String {
+        get { aiProviderState.claudeAPIKey }
+        set {
+            aiProviderState.claudeAPIKey = newValue
+            persistPromptSettings()
+        }
     }
-    @Published var deepSeekAPIKey: String = "" {
-        didSet { persistPromptSettings() }
+
+    var deepSeekAPIKey: String {
+        get { aiProviderState.deepSeekAPIKey }
+        set {
+            aiProviderState.deepSeekAPIKey = newValue
+            persistPromptSettings()
+        }
     }
-    @Published var customAIAPIKey: String = "" {
-        didSet { persistPromptSettings() }
+
+    var customAIAPIKey: String {
+        get { aiProviderState.customAIAPIKey }
+        set {
+            aiProviderState.customAIAPIKey = newValue
+            persistPromptSettings()
+        }
     }
-    @Published var geminiModelID: String = "gemini-2.5-flash-lite" {
-        didSet { persistPromptSettings() }
+
+    var geminiModelID: String {
+        get { aiProviderState.geminiModelID }
+        set {
+            aiProviderState.geminiModelID = newValue
+            persistPromptSettings()
+        }
     }
 
     // MARK: - Repositories & Helpers

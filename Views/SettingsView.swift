@@ -30,7 +30,7 @@ struct SettingsView: View {
                     Label("Open AI links in", systemImage: RadixIcon.aiLink)
                         .font(ResponsiveFont.subheadline.weight(.semibold))
 
-                    Picker("Open AI links in", selection: $store.defaultAIPreset) {
+                    Picker("Open AI links in", selection: storeBinding(\.defaultAIPreset)) {
                         ForEach(DefaultAIPreset.allCases, id: \.self) { preset in
                             Text(preset.displayName).tag(preset)
                         }
@@ -41,7 +41,7 @@ struct SettingsView: View {
                 if store.defaultAIPreset == .custom {
                     TextField(
                         "Custom AI URL",
-                        text: $store.customAIURLString
+                        text: storeBinding(\.customAIURLString)
                     )
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
@@ -56,12 +56,12 @@ struct SettingsView: View {
                 }
 
                 DisclosureGroup {
-                    apiKeyField("OpenAI API key", text: $store.openAIAPIKey)
-                    apiKeyField("Gemini API key", text: $store.geminiAPIKey)
+                    apiKeyField("OpenAI API key", text: storeBinding(\.openAIAPIKey))
+                    apiKeyField("Gemini API key", text: storeBinding(\.geminiAPIKey))
                     geminiKeyHealthRow
-                    apiKeyField("Claude API key", text: $store.claudeAPIKey)
-                    apiKeyField("DeepSeek API key", text: $store.deepSeekAPIKey)
-                    apiKeyField("Custom AI API key", text: $store.customAIAPIKey)
+                    apiKeyField("Claude API key", text: storeBinding(\.claudeAPIKey))
+                    apiKeyField("DeepSeek API key", text: storeBinding(\.deepSeekAPIKey))
+                    apiKeyField("Custom AI API key", text: storeBinding(\.customAIAPIKey))
                 } label: {
                     HStack(spacing: 8) {
                         Label("Private API Keys", systemImage: "key.fill")
@@ -73,7 +73,7 @@ struct SettingsView: View {
                     .font(ResponsiveFont.subheadline.weight(.semibold))
                 }
 
-                TextField("Gemini model", text: $store.geminiModelID)
+                TextField("Gemini model", text: storeBinding(\.geminiModelID))
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
 
@@ -174,6 +174,13 @@ struct SettingsView: View {
         SecureField(title, text: text)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
+    }
+
+    private func storeBinding<Value>(_ keyPath: ReferenceWritableKeyPath<RadixStore, Value>) -> Binding<Value> {
+        Binding(
+            get: { store[keyPath: keyPath] },
+            set: { store[keyPath: keyPath] = $0 }
+        )
     }
 
     private func resetRadixMemory() {
