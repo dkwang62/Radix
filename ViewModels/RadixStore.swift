@@ -371,12 +371,21 @@ final class RadixStore: ObservableObject {
             scheduleGridRecompute()
         }
     }
-    @Published var selectedBrowseCollectionID: UUID? = nil {
-        didSet {
-            guard oldValue != selectedBrowseCollectionID else { return }
-            selectedBrowseCollectionCharacters = selectedBrowseCollectionID.flatMap { collection(id: $0).map { Set($0.characters) } }
+    @Published private(set) var collectionState = RadixCollectionState()
+
+    var allCollections: [CharacterCollection] {
+        get { collectionState.collections }
+        set { collectionState.collections = newValue }
+    }
+
+    var selectedBrowseCollectionID: UUID? {
+        get { collectionState.selectedBrowseCollectionID }
+        set {
+            guard collectionState.selectedBrowseCollectionID != newValue else { return }
+            collectionState.selectedBrowseCollectionID = newValue
+            selectedBrowseCollectionCharacters = newValue.flatMap { collection(id: $0).map { Set($0.characters) } }
             clearBrowseMemoryHighlight()
-            if selectedBrowseCollectionID != nil {
+            if newValue != nil {
                 browseHighlightedCharacter = nil
             }
             if let selectedBrowseCollection {
@@ -391,9 +400,11 @@ final class RadixStore: ObservableObject {
     @Published var shouldOpenBrowsePages = false
     @Published var shouldOpenAddedPhraseReview = false
     @Published var shouldStartBrowseCamera = false
-    @Published var selectedAICollectionID: UUID? = nil {
-        didSet {
-            guard oldValue != selectedAICollectionID else { return }
+    var selectedAICollectionID: UUID? {
+        get { collectionState.selectedAICollectionID }
+        set {
+            guard collectionState.selectedAICollectionID != newValue else { return }
+            collectionState.selectedAICollectionID = newValue
             persistSelectedAICollection()
         }
     }
@@ -601,7 +612,6 @@ final class RadixStore: ObservableObject {
     }
 
     @Published var quickEditDestination: QuickEditDestination? = nil
-    @Published var allCollections: [CharacterCollection] = []
     @Published var activeSubject: ActiveSubject? = nil
     @Published var promptAutosaveStatus: String = "Changes save automatically."
     

@@ -5,8 +5,8 @@ import SwiftUI
  RADIX STORE — COLLECTIONS
  ==========================
  Manages CharacterCollection CRUD, persistence, and selection state.
- Extracted from RadixStore for maintainability; all @Published properties
- remain declared in RadixStore.swift so SwiftUI observation is unaffected.
+ Saved pages and their selection IDs are owned by RadixCollectionState and
+ exposed through compatibility properties on RadixStore.
 */
 
 extension RadixStore {
