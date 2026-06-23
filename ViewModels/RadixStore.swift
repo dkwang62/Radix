@@ -335,10 +335,28 @@ final class RadixStore: ObservableObject {
         set { userLibraryState.rememberedItemIndex = newValue }
     }
 
-    @Published var rootDerivatives: [ComponentItem] = []
-    @Published var rootDerivativesTotal: Int = 0
-    @Published var availableRadicalFilters: [String] = ["none"]
-    @Published var availableStructureFilters: [String] = ["none"]
+    @Published private(set) var rootExplorerState = RadixRootExplorerState()
+
+    var rootDerivatives: [ComponentItem] {
+        get { rootExplorerState.derivatives }
+        set { rootExplorerState.derivatives = newValue }
+    }
+
+    var rootDerivativesTotal: Int {
+        get { rootExplorerState.derivativeTotal }
+        set { rootExplorerState.derivativeTotal = newValue }
+    }
+
+    var availableRadicalFilters: [String] {
+        get { rootExplorerState.availableRadicals }
+        set { rootExplorerState.availableRadicals = newValue }
+    }
+
+    var availableStructureFilters: [String] {
+        get { rootExplorerState.availableStructures }
+        set { rootExplorerState.availableStructures = newValue }
+    }
+
     @Published var gridSortMode: GridSortMode = .characterFrequency {
         didSet {
             guard oldValue != gridSortMode else { return }

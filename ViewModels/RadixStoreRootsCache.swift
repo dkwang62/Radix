@@ -5,8 +5,8 @@ import Foundation
  ==========================
  Loads and caches shared component peers, peers-by-component, and
  root derivatives for the Lineage (Components) tab.
- Shared peer results are owned by RadixCharacterContextState; derivative cache
- storage remains in RadixStore.
+ Shared peer results are owned by RadixCharacterContextState; current derivative
+ results are owned by RadixRootExplorerState; cache storage remains in RadixStore.
 */
 
 extension RadixStore {
