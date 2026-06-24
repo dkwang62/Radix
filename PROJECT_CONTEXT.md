@@ -103,6 +103,8 @@ Each destination guide should name concrete user actions and examples, not merel
 summarize the section.
 `Icons & Labels` is the explicit default navigation style; `Icons Only` remains
 an experienced-user option and must not become the fallback accidentally.
+Advanced Exports are a code and structured-data foundation for authoring software
+with AI coding agents; describe them as distinct from backup and ordinary transfer.
 
 ## Next Three Tasks
 

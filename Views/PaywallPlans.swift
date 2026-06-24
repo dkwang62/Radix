@@ -131,7 +131,7 @@ extension PaywallView {
         case EntitlementManager.myBackupProductID:
             return "Unlimited Camera/Text pages, Album/File import, local snapshots, and iCloud backup across iPhone, iPad, and Mac."
         case EntitlementManager.advancedProductID:
-            return "Everything in Radix Plus, plus developer exports: datasets, databases, project source, and manifests."
+            return "Everything in Radix Plus, plus source, datasets, databases, and manifests you can use to author software with AI coding agents."
         default:
             return product.description
         }

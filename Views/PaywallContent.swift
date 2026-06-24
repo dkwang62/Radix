@@ -55,7 +55,7 @@ extension PaywallView {
                 benefit("Free includes 100 Camera or Text pages and unlimited review of saved items")
                 benefit("Radix Plus unlocks unlimited pages, Album/File import, and local snapshots")
                 benefit("Radix Plus includes iCloud backup across iPhone, iPad, and Mac")
-                benefit("Advanced Pro exports reusable datasets and databases")
+                benefit("Advanced Pro exports source and reusable data foundations for authoring software with AI coding agents")
                 benefit("Browse, Search, Study, AI Link, and editing stay free")
             }
         }

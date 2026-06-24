@@ -192,6 +192,12 @@ badges, and explanatory text before the user can act.
 On iPad and Mac, My Data may keep the fuller backup contents panel visible
 because there is enough space for review and action areas to coexist.
 
+Advanced Exports are not ordinary backups. Their purpose is to provide a code
+and structured-data foundation—project source, manifests, JSON, and SQLite
+databases—that users can give to AI coding agents when authoring, adapting, or
+building their own software. Explain this purpose directly wherever Advanced
+Exports are introduced.
+
 ## Text and help intent
 
 Small help text should not be relied on for understanding the app. On iPhone,

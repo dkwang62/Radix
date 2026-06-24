@@ -8,6 +8,14 @@ extension DataEditTab {
                     .font(ResponsiveFont.headline)
             }
 
+            Label(
+                "Export the code and structured data foundation that you can give to AI coding agents to study, modify, or use when authoring your own software.",
+                systemImage: "hammer"
+            )
+            .font(ResponsiveFont.subheadline)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+
             if entitlement.requiresPro(.advanced) {
                 Label("You can see every file type here. Creating the files unlocks with Advanced Pro.", systemImage: "lock.open")
                     .font(ResponsiveFont.caption)
@@ -28,10 +36,10 @@ extension DataEditTab {
 
             premiumExportOption(
                 title: "Xcode Project ZIP",
-                subtitle: "A ZIP of the Radix Xcode project: Swift source, resources, databases, and manifest for rebuilding on another Mac.",
+                subtitle: "Swift source, resources, databases, and a manifest that an AI coding agent can examine when helping you author or adapt an app.",
                 toolsTip: AdvancedExportToolsTip(
-                    title: "Requires Xcode",
-                    message: "Use this on a Mac with Xcode. It is intended to recreate or inspect the Radix project source, not to open inside a normal text editor."
+                    title: "Code foundation",
+                    message: "Use this on a Mac with Xcode or in an AI coding workspace. It provides the complete Radix project foundation rather than a normal backup."
                 ),
                 systemName: "doc.zipper",
                 color: .purple,
@@ -48,10 +56,10 @@ extension DataEditTab {
 
             premiumExportOption(
                 title: "Full Dataset (JSON)",
-                subtitle: "One JSON file with Radix learning data that can be read by text editors, scripts, and data tools.",
+                subtitle: "One structured JSON file an AI agent, script, or new app can read when building features around your Radix data.",
                 toolsTip: AdvancedExportToolsTip(
-                    title: "JSON File",
-                    message: "This is the easiest export to inspect manually. Open it with a text editor, code editor, or any tool that understands JSON."
+                    title: "AI-friendly data",
+                    message: "This is the easiest foundation to give an AI coding agent. It is readable by text editors, code tools, scripts, and any app that understands JSON."
                 ),
                 systemName: "shippingbox.fill",
                 color: .green,
@@ -67,10 +75,10 @@ extension DataEditTab {
 
             premiumExportOption(
                 title: "Character Database",
-                subtitle: "A SQLite database for the character dictionary. Open with DB Browser for SQLite, sqlite3, or database tools.",
+                subtitle: "A reusable SQLite character dictionary for an AI agent or your own code to query and build upon.",
                 toolsTip: AdvancedExportToolsTip(
-                    title: "SQLite Database",
-                    message: "This is not a plain text file. Use DB Browser for SQLite, TablePlus, sqlite3, or a custom app that can read SQLite databases."
+                    title: "Reusable SQLite foundation",
+                    message: "Ask an AI coding agent to inspect the schema or connect it to your code. You can also use DB Browser for SQLite, TablePlus, or sqlite3."
                 ),
                 systemName: "books.vertical.fill",
                 color: .blue,
@@ -86,10 +94,10 @@ extension DataEditTab {
 
             premiumExportOption(
                 title: "Phrase Database",
-                subtitle: "A SQLite database for saved and edited phrases. Open with DB Browser for SQLite, sqlite3, or database tools.",
+                subtitle: "A reusable SQLite phrase collection for an AI agent or your own code to search, transform, and extend.",
                 toolsTip: AdvancedExportToolsTip(
-                    title: "SQLite Database",
-                    message: "This is not a plain text file. Use DB Browser for SQLite, TablePlus, sqlite3, or a custom app that can read SQLite databases."
+                    title: "Reusable SQLite foundation",
+                    message: "Ask an AI coding agent to inspect the schema or connect it to your code. You can also use DB Browser for SQLite, TablePlus, or sqlite3."
                 ),
                 systemName: "text.book.closed.fill",
                 color: .teal,

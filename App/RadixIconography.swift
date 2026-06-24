@@ -245,7 +245,7 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
                 RadixNavigationGuideAction(
                     icon: "shippingbox",
                     title: "Use advanced exports",
-                    detail: "Advanced Pro can work with separate app and data files for inspection, transfer, or development."
+                    detail: "Export source, JSON, and databases as a foundation for AI coding agents to help you author, adapt, or build your own software."
                 )
             ]
         case .settings:
