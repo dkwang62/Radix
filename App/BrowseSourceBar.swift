@@ -148,7 +148,7 @@ extension FilterGridTab {
             .controlSize(.small)
             .accessibilityLabel("Edit")
 
-            if collection.sourceType == .ocr {
+            if collection.sourceType == .ocr && collection.correctedFromCollectionID == nil {
                 Button {
                     beginOCRReview(collection)
                 } label: {

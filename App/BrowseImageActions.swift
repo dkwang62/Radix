@@ -32,13 +32,13 @@ extension FilterGridTab {
     }
 
     func applyOCRReview(_ correctedText: String, to collection: CharacterCollection) {
-        guard let updated = store.applyOCRCorrection(id: collection.id, correctedText: correctedText) else {
+        guard let corrected = store.createCorrectedOCRCollection(from: collection.id, correctedText: correctedText) else {
             imageActionMessage = "The proposed text does not contain a Chinese character recognized by Radix."
             return
         }
-        ocrReviewCollection = updated
-        store.selectBrowseCollection(id: updated.id)
-        imageActionMessage = "Corrected text applied. The original OCR remains preserved."
+        ocrReviewCollection = nil
+        store.selectBrowseCollection(id: corrected.id)
+        imageActionMessage = "Created a corrected page. The original page remains unchanged."
     }
 
     func beginTranslationReport(_ collection: CharacterCollection) {

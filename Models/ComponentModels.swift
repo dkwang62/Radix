@@ -59,6 +59,8 @@ struct CharacterCollection: Identifiable, Codable, Equatable, Hashable {
     /// Most recently approved OCR text.
     var reviewedOCRText: String? = nil
     var ocrReviewedAt: Date? = nil
+    /// The original page from which this corrected page was created.
+    var correctedFromCollectionID: UUID? = nil
     var translationReport: String? = nil
     var translationReportUpdatedAt: Date? = nil
     /// Phrase words the user has hidden for this saved page because they do not fit the page context.

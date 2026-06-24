@@ -251,9 +251,10 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
 - ChatGPT must mark proposed changes and uncertainty in a structured response.
 - Corrected source text remains Chinese; every explanation, confidence reason,
   and uncertainty note is written in clear English.
-- Radix shows the original and proposal before applying anything.
-- The original OCR is preserved; corrections are applied only after explicit approval.
-- Phrase extraction and translation operate on the approved character stream.
+- Radix shows the original and proposal before creating anything.
+- Approval creates a second corrected saved page; the original page remains unchanged.
+- Phrase extraction and translation can then operate on the separately selected
+  corrected page without obscuring the source record.
 
 ## Refactor guardrails
 

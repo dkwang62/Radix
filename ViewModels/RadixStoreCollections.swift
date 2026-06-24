@@ -147,22 +147,34 @@ extension RadixStore {
     }
 
     @discardableResult
-    func applyOCRCorrection(id: UUID, correctedText: String) -> CharacterCollection? {
-        guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return nil }
+    func createCorrectedOCRCollection(from id: UUID, correctedText: String) -> CharacterCollection? {
+        guard let original = allCollections.first(where: { $0.id == id }) else { return nil }
         let cleanText = correctedText.trimmingCharacters(in: .whitespacesAndNewlines)
         let characters = CaptureTextExtractor.allCharactersInOrder(in: cleanText)
             .filter { componentRepo.hasCharacter($0) }
         guard !characters.isEmpty else { return nil }
 
-        var updated = allCollections[index]
-        if updated.originalOCRText?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty != false {
-            updated.originalOCRText = updated.characters.joined()
-        }
-        updated.reviewedOCRText = cleanText
-        updated.ocrReviewedAt = Date()
-        updated.characters = characters
-        saveCollection(updated)
-        return updated
+        let baseName = original.name
+            .replacingOccurrences(of: " Corrected", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let correctedName = collectionDisplayName("\(baseName.prefix(1)) Corrected")
+        let corrected = CharacterCollection(
+            id: UUID(),
+            name: correctedName.isEmpty ? "Corrected" : correctedName,
+            characters: characters,
+            createdAt: Date(),
+            lastViewedAt: Date(),
+            sourceType: .ocr,
+            isFavorite: false,
+            thumbnailJPEGData: original.thumbnailJPEGData,
+            sourceImageJPEGData: original.sourceImageJPEGData,
+            originalOCRText: original.originalOCRText ?? original.characters.joined(),
+            reviewedOCRText: cleanText,
+            ocrReviewedAt: Date(),
+            correctedFromCollectionID: original.id
+        )
+        saveCollection(corrected)
+        return corrected
     }
 
     @discardableResult

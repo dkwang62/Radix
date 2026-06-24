@@ -114,7 +114,7 @@ struct BrowseOCRReviewSheet: View {
         NavigationStack {
             Form {
                 Section("Why check it?") {
-                    Text("OCR mistakes can weaken phrase extraction and translation. ChatGPT proposes corrections, but Radix keeps the original and changes nothing until you approve.")
+                    Text("OCR mistakes can weaken phrase extraction and translation. ChatGPT proposes corrections, but Radix changes nothing until you approve. Approval creates a second corrected page and leaves the original page untouched.")
                 }
 
                 Section("1. Send to ChatGPT") {
@@ -151,7 +151,7 @@ struct BrowseOCRReviewSheet: View {
                         if !proposal.uncertainties.isEmpty {
                             comparison(title: "Still uncertain", text: proposal.uncertainties)
                         }
-                        Button("Apply Corrected Text") {
+                        Button("Create Corrected Page") {
                             onApply(proposal.correctedText)
                         }
                         .buttonStyle(.borderedProminent)
