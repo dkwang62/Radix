@@ -10,7 +10,7 @@ extension DataEditTab {
             subtitle: "This is the Radix data included when you create an iCloud backup or restore one from another device.",
             badges: ["Portable Backup", "Cross-Device", "Recoverable"],
             onOpenSavedPages: {
-                store.goToBrowsePages(selectLatest: false)
+                store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
             },
             onOpenAddedPhrases: {
                 store.goToStudyAddedPhrases()
@@ -36,7 +36,7 @@ extension DataEditTab {
             badges: ["Cross-Device", "Recoverable"],
             isCompactListOnly: true,
             onOpenSavedPages: {
-                store.goToBrowsePages(selectLatest: false)
+                store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
             },
             onOpenAddedPhrases: {
                 store.goToStudyAddedPhrases()

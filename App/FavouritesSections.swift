@@ -100,7 +100,7 @@ extension FavouritesTab {
                 systemImage: "photo.on.rectangle",
                 tint: .purple,
                 action: {
-                    store.goToBrowsePages(selectLatest: false)
+                    store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
                 }
             )
         }

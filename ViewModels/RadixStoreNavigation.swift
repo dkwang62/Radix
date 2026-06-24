@@ -205,6 +205,17 @@ extension RadixStore {
 
     // MARK: - Route transitions
 
+    func rememberCrossTabOrigin() {
+        rootsReturnContext = RootsReturnContext(
+            route: route,
+            homeTab: route == .search ? homeTab : nil
+        )
+    }
+
+    func clearCrossTabOrigin() {
+        rootsReturnContext = nil
+    }
+
     func enterLineage() {
         rootsReturnContext = nil
         if let target = previewCharacter { select(character: target) } else { previewCharacter = nil }
@@ -214,11 +225,13 @@ extension RadixStore {
     }
 
     func enterAILink() {
+        clearCrossTabOrigin()
         if let target = previewCharacter { select(character: target) } else { previewCharacter = nil }
         route = .aiLink
     }
 
     func goToSearchRoot() {
+        clearCrossTabOrigin()
         route = .search
         homeTab = .smart
         activeFavouriteCharacter = nil
@@ -226,17 +239,20 @@ extension RadixStore {
     }
 
     func goToFavourites() {
+        clearCrossTabOrigin()
         route = .favourites
         activeFavouriteCharacter = nil
     }
 
     func goToSettings() {
+        clearCrossTabOrigin()
         route = .settings
         activeFavouriteCharacter = nil
         if RadixPlatform.isPhone { showiPhoneDetail = false }
     }
 
     func goToBrowse() {
+        clearCrossTabOrigin()
         route = .search
         homeTab = .filter
         gridSortMode = .characterFrequency
@@ -246,8 +262,13 @@ extension RadixStore {
         clearBrowsePreview()
     }
 
-    func goToBrowsePages(selectLatest: Bool = true) {
+    func goToBrowsePages(selectLatest: Bool = true, preservingOrigin: Bool = false) {
+        let origin = preservingOrigin ? RootsReturnContext(
+            route: route,
+            homeTab: route == .search ? homeTab : nil
+        ) : nil
         goToBrowse()
+        rootsReturnContext = origin
         if selectLatest,
            let collection = sortedCollections(order: .scanned).first {
             selectBrowseCollection(id: collection.id)
@@ -258,6 +279,7 @@ extension RadixStore {
     }
 
     func goToStudyAddedPhrases() {
+        rememberCrossTabOrigin()
         route = .search
         homeTab = .favourites
         activeFavouriteCharacter = nil
@@ -271,6 +293,7 @@ extension RadixStore {
     }
 
     func goToDataEdit() {
+        clearCrossTabOrigin()
         route = .search
         homeTab = .dataEdit
         startBlankDataEdit()
@@ -290,6 +313,9 @@ extension RadixStore {
     }
 
     func goToAILink(character: String) {
+        if route != .aiLink {
+            rememberCrossTabOrigin()
+        }
         select(character: character, announce: false)
         route = .aiLink
         if RadixPlatform.isPhone { showiPhoneDetail = false }
@@ -315,6 +341,11 @@ extension RadixStore {
         if RadixPlatform.isPhone { showiPhoneDetail = false }
     }
 
+    var showsCrossTabReturn: Bool {
+        guard rootsReturnContext != nil else { return false }
+        return route != .lineage
+    }
+
     func returnToBrowseGrid() {
         restoreAnchoredImagePhraseHighlightIfNeeded()
         prepareBrowseReturnScrollTarget()
@@ -330,12 +361,12 @@ extension RadixStore {
             switch rootsReturnContext.homeTab ?? .smart {
             case .smart:      return "Back to Search"
             case .filter:     return "Back to Browse"
-            case .favourites: return "Back to Favorites"
+            case .favourites: return "Back to Study"
             case .dataEdit:   return "Back to My Data"
             }
         case .lineage:    return "Back to Components"
         case .aiLink:     return "Back to AI Link"
-        case .favourites: return "Back to Favorites"
+        case .favourites: return "Back to Study"
         case .settings:   return "Back to Settings"
         }
     }
@@ -399,6 +430,9 @@ extension RadixStore {
     }
 
     func goToAILinkCollectionTask(collection: CharacterCollection, taskID: String) {
+        if route != .aiLink {
+            rememberCrossTabOrigin()
+        }
         selectedAICollectionID = collection.id
         selectedBrowseCollectionID = collection.id
         selectedBrowseCollectionCharacters = Set(collection.characters)

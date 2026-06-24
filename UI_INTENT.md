@@ -44,6 +44,12 @@ Search and Take Photo are global actions, not ordinary tab destinations.
 
 Do not move tabs one at a time without preserving this overall structure.
 
+When an in-content action moves the user to another primary destination, show
+one temporary, named return action such as `Back to Study` or `Back to My Data`.
+It returns to the calling destination and its retained section state. Ordinary
+tab-button navigation does not create a return path and clears any existing one.
+Keep this single-level and contextual rather than building browser-style history.
+
 This is an iPhone-first structure. Do not force the same simplification onto
 iPad or Mac. Larger screens have enough room for a more generous workspace,
 including sidebar actions and persistent panels, as long as the mental model

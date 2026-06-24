@@ -44,6 +44,7 @@ extension RootView {
     var iPhoneView: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                crossTabReturnBar
                 BreadcrumbStrip()
                 phoneGlobalActionRow
                 phoneContent
@@ -191,6 +192,7 @@ extension RootView {
         }()
 
         return Button {
+            store.clearCrossTabOrigin()
             if RadixPlatform.isPhone {
                 if id != 2 {
                     store.previewCharacter = nil
@@ -259,6 +261,7 @@ extension RootView {
         let showsTitle = store.sidebarNavigationStyle == .descriptive
 
         return Button {
+            store.clearCrossTabOrigin()
             store.goToSettings()
             DispatchQueue.main.async {
                 offerNavigationGuide(.settings)

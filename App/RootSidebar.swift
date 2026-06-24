@@ -95,6 +95,7 @@ extension RootView {
         }()
 
         return Button {
+            store.clearCrossTabOrigin()
             switch id {
             case 2:
                 hasUsedSidebarNavigation = true
@@ -157,6 +158,7 @@ extension RootView {
         let showsTitle = store.sidebarNavigationStyle == .descriptive
 
         return Button {
+            store.clearCrossTabOrigin()
             hasUsedSidebarNavigation = true
             store.goToSettings()
         } label: {

@@ -38,6 +38,7 @@ extension RootView {
     @ViewBuilder
     var detailPane: some View {
         VStack(spacing: 12) {
+            crossTabReturnBar
             BreadcrumbStrip()
             if let error = store.loadingError {
                 ContentUnavailableView("Failed to Load", systemImage: "exclamationmark.triangle", description: Text(error))
@@ -94,6 +95,25 @@ extension RootView {
         }
         .navigationTitle(detailPaneTitle)
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder
+    var crossTabReturnBar: some View {
+        if store.showsCrossTabReturn {
+            HStack {
+                Button {
+                    store.returnFromRoots()
+                } label: {
+                    Label(store.rootsReturnButtonTitle, systemImage: "arrow.uturn.backward")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+
+                Spacer()
+            }
+            .padding(.horizontal)
+            .padding(.top, 6)
+        }
     }
 
     var detailPaneTitle: String {

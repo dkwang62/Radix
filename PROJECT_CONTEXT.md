@@ -132,6 +132,9 @@ Study uses its four summary tiles as the section selectors. Recent and Favorites
 must not be repeated as a segmented picker above the review grid.
 On iPad those four tiles use an explicit two-column layout so all labels remain
 readable; phone and Mac retain their adaptive layouts.
+Content-driven cross-tab navigation uses the existing single-level return
+context. Destinations show a named return button (`Back to Study`, `Back to My
+Data`, and so on); manually choosing a primary tab clears that context.
 
 ## Next Three Tasks
 
