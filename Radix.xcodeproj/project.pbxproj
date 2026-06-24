@@ -11,6 +11,7 @@
 		01A502C5B7B728CEC2A5F0F6 /* DataEditBackupEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8813B524FCB01CFE14856D11 /* DataEditBackupEntries.swift */; };
 		04B29765D7C0910A77111A8A /* AddPhrasesFileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366A2962FBE43BCD1F9F4B6B /* AddPhrasesFileDocument.swift */; };
 		054DA9AAF1A85D54FC5C528F /* RadixStorePrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60FC8EB82FA97AA524D218A2 /* RadixStorePrompts.swift */; };
+		A11B00000000000000000022 /* RadixStoreProfileImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000021 /* RadixStoreProfileImport.swift */; };
 		06DCD5B08E229E05145F3367 /* UNICODE_LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = B26304C47B4D253026FCFD35 /* UNICODE_LICENSE.txt */; };
 		07FFD91F91F340F1C21FF276 /* CaptureWorkbenchViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D374F4138850CF5FF935A3 /* CaptureWorkbenchViews.swift */; };
 		080DF2B49859E9A37FB5FE38 /* PhraseInfoAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D219A6AEF25AA2392F9B8EE /* PhraseInfoAnimation.swift */; };
@@ -323,6 +324,7 @@
 		A11B0000000000000000001B /* RadixBrowseHighlightState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixBrowseHighlightState.swift; sourceTree = "<group>"; };
 		A11B0000000000000000001D /* RadixPresentationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixPresentationState.swift; sourceTree = "<group>"; };
 		A11B0000000000000000001F /* RadixDataWorkspaceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixDataWorkspaceState.swift; sourceTree = "<group>"; };
+		A11B00000000000000000021 /* RadixStoreProfileImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreProfileImport.swift; sourceTree = "<group>"; };
 		29C2F079E763FAB927F08ECC /* QuickCharacterEditorPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCharacterEditorPrompt.swift; sourceTree = "<group>"; };
 		2C69B8B81573C63284D8BB16 /* RadixStoreRootsCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreRootsCache.swift; sourceTree = "<group>"; };
 		2D219A6AEF25AA2392F9B8EE /* PhraseInfoAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseInfoAnimation.swift; sourceTree = "<group>"; };
@@ -849,6 +851,7 @@
 				2985A1DA9963F761DC9D7589 /* RadixStoreNavigation.swift */,
 				3540B3D377590501F24DA833 /* RadixStorePhraseFile.swift */,
 				60FC8EB82FA97AA524D218A2 /* RadixStorePrompts.swift */,
+				A11B00000000000000000021 /* RadixStoreProfileImport.swift */,
 				E11BCC1F5CB54E936AB7029F /* RadixStoreRootsBreadcrumb.swift */,
 				2C69B8B81573C63284D8BB16 /* RadixStoreRootsCache.swift */,
 				1080A3779F939B170A297250 /* RadixStoreSearch.swift */,
@@ -1152,6 +1155,7 @@
 				A11B00000000000000000020 /* RadixDataWorkspaceState.swift in Sources */,
 				696D9CFB50433C3C0873D34A /* RadixStorePhraseFile.swift in Sources */,
 				054DA9AAF1A85D54FC5C528F /* RadixStorePrompts.swift in Sources */,
+				A11B00000000000000000022 /* RadixStoreProfileImport.swift in Sources */,
 				D1A5000EFFE20EEE04F4307C /* RadixStoreRootsBreadcrumb.swift in Sources */,
 				2554A9EA460AA871FFAE8DBC /* RadixStoreRootsCache.swift in Sources */,
 				38A2021F42978B2D6C9FB0AD /* RadixStoreSearch.swift in Sources */,
