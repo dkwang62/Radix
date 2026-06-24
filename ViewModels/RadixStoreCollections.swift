@@ -11,6 +11,42 @@ import SwiftUI
 
 extension RadixStore {
 
+    func mergeImportedCollections(_ importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
+        guard let importedCollections else { return }
+        var mergedByID = Dictionary(uniqueKeysWithValues: allCollections.map { ($0.id, $0) })
+        for collection in sanitizeCollections(importedCollections) {
+            mergedByID[collection.id] = collection
+        }
+        allCollections = Array(mergedByID.values)
+        sortCollections()
+        persistCollections()
+
+        if let importedSelectedID, collection(id: importedSelectedID) != nil {
+            selectedAICollectionID = importedSelectedID
+        }
+        if let selectedBrowseCollectionID, collection(id: selectedBrowseCollectionID) == nil {
+            self.selectedBrowseCollectionID = nil
+        }
+    }
+
+    func replaceCollections(with importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
+        allCollections = sanitizeCollections(importedCollections ?? [])
+        sortCollections()
+        persistCollections()
+        selectedAICollectionID = importedSelectedID.flatMap { collection(id: $0) == nil ? nil : $0 }
+        if let selectedBrowseCollectionID, collection(id: selectedBrowseCollectionID) == nil {
+            self.selectedBrowseCollectionID = nil
+        }
+    }
+
+    func sanitizeCollections(_ collections: [CharacterCollection]) -> [CharacterCollection] {
+        collections.compactMap { collection in
+            var copy = collection
+            copy.characters = collection.characters.filter { componentRepo.hasCharacter($0) }
+            return copy.characters.isEmpty ? nil : copy
+        }
+    }
+
     // MARK: - Computed accessors
 
     var favoriteCollections: [CharacterCollection] {

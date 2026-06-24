@@ -10,6 +10,60 @@ import Foundation
 
 extension RadixStore {
 
+    func loadDictionaryRepository() throws {
+        try componentRepo.loadFromBundle()
+        if FileManager.default.fileExists(atPath: dictionaryOverlayFileURL.path) {
+            let data = try Data(contentsOf: dictionaryOverlayFileURL)
+            componentRepo.applyOverlay(try JSONDecoder().decode(DictionaryOverlayPackage.self, from: data))
+        } else if FileManager.default.fileExists(atPath: legacyEditableDictionaryFileURL.path) {
+            let data = try Data(contentsOf: legacyEditableDictionaryFileURL)
+            let legacyMap = try JSONDecoder().decode([String: RawComponentEntry].self, from: data)
+            componentRepo.applyOverlay(ComponentRepository.makeOverlay(base: componentRepo.baseRawMap, effective: legacyMap))
+            try persistDictionaryOverlay()
+            try? FileManager.default.removeItem(at: legacyEditableDictionaryFileURL)
+        }
+    }
+
+    func persistDictionaryOverlay() throws {
+        dataEditSavePath = dictionaryOverlayFileURL.path
+        if componentRepo.hasOverlayChanges {
+            try componentRepo.saveOverlay(to: dictionaryOverlayFileURL)
+        } else if FileManager.default.fileExists(atPath: dictionaryOverlayFileURL.path) {
+            try FileManager.default.removeItem(at: dictionaryOverlayFileURL)
+        }
+    }
+
+    func removeDictionaryOverlayFiles() throws {
+        for url in [dictionaryOverlayFileURL, legacyEditableDictionaryFileURL]
+        where FileManager.default.fileExists(atPath: url.path) {
+            try FileManager.default.removeItem(at: url)
+        }
+    }
+
+    var dictionaryOverlayFileURL: URL {
+        if let projectURL = ProjectLiveDataLocator.file(named: "component_map_changes.json") {
+            return projectURL
+        }
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("component_map_changes.json")
+    }
+
+    var legacyEditableDictionaryFileURL: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("component_map_editable.json")
+    }
+
+    func emptyEntryTemplate() -> RawComponentEntry {
+        RawComponentEntry(
+            relatedCharacters: [],
+            meta: RawMeta(
+                variant: nil, additionalVariants: nil, pinyin: .single(""), definition: "",
+                decomposition: "", idc: "", radical: "", strokes: .string(""), compounds: .many([]),
+                etymology: RawEtymology(type: "", hint: .single(""), details: .single("")), notes: .many([])
+            )
+        )
+    }
+
     func persistOverlayAddedDates() {
         let encoded = overlayAddedDates.mapValues { $0.timeIntervalSince1970 }
         preferences.set(encoded, forKey: overlayAddedDatesKey)

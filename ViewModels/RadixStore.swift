@@ -243,12 +243,12 @@ final class RadixStore: ObservableObject {
         )
     }
 
-    private(set) var dataEditFocusRequestID: Int {
+    var dataEditFocusRequestID: Int {
         get { dataEditFormState.dictionaryFocusRequestID }
         set { dataEditFormState.dictionaryFocusRequestID = newValue }
     }
 
-    private(set) var phraseEditFocusRequestID: Int {
+    var phraseEditFocusRequestID: Int {
         get { dataEditFormState.phraseFocusRequestID }
         set { dataEditFormState.phraseFocusRequestID = newValue }
     }
@@ -763,16 +763,16 @@ final class RadixStore: ObservableObject {
     // MARK: - Repositories & Helpers
     let componentRepo = ComponentRepository()
     let phraseRepo = PhraseRepository()
-    private let entitlement = EntitlementManager()
+    let entitlement = EntitlementManager()
     let speechService = CharacterSpeechService()
     let favoritesKey = "radix.favorites"
     let favoriteEntriesKey = "radix.favoriteEntries"
     let favoritePhrasesKey = "radix.favoritePhrases"
     let favoritePhraseDatesKey = "radix.favoritePhraseDates"
     let overlayAddedDatesKey = "radix.overlayAddedDates"
-    private let speechEnabledKey = "radix.speechEnabled"
-    private let speakOnSelectionKey = "radix.speakOnSelection"
-    private let speakOnPreviewKey = "radix.speakOnPreview"
+    let speechEnabledKey = "radix.speechEnabled"
+    let speakOnSelectionKey = "radix.speakOnSelection"
+    let speakOnPreviewKey = "radix.speakOnPreview"
     let promptConfigKey = "radix.promptConfig"
     let promptTaskSelectionKey = "radix.promptSelectedTaskIDs"
     let defaultAIPresetKey = "radix.defaultAIPreset"
@@ -785,7 +785,7 @@ final class RadixStore: ObservableObject {
     let geminiModelIDKey = "radix.geminiModelID"
     let collectionsKey = "radix.characterCollections"
     let selectedAICollectionKey = "radix.selectedAICollectionID"
-    private let lastPreviewCharacterKey = "radix.lastPreviewCharacter"
+    let lastPreviewCharacterKey = "radix.lastPreviewCharacter"
     let searchHistoryKey = "radix.searchHistory"
     let rootBreadcrumbKey = "radix.rootBreadcrumb"
     let sidebarNavigationStyleKey = "radix.sidebarNavigationStyle"
@@ -898,7 +898,7 @@ final class RadixStore: ObservableObject {
         set { dataWorkspaceState.loadingError = newValue }
     }
 
-    private(set) var dataEditSavePath: String {
+    var dataEditSavePath: String {
         get { dataWorkspaceState.dictionaryOverlayPath }
         set { dataWorkspaceState.dictionaryOverlayPath = newValue }
     }
@@ -994,207 +994,6 @@ final class RadixStore: ObservableObject {
     }
 
 
-    // MARK: - Filter Logic & Caching
-    
-    var filteredResults: [ComponentItem] {
-        applyScriptFilter(to: results)
-    }
-
-    var filteredDefinitionCharacterResults: [ComponentItem] {
-        applyScriptFilter(to: definitionCharacterResults)
-    }
-
-    var filteredSmartPhraseResults: [PhraseItem] {
-        sortPhrasesByPinyin(applyPhraseScriptFilter(to: smartPhraseResults))
-    }
-
-    var filteredDefinitionPhraseResults: [PhraseItem] {
-        sortPhrasesByPinyin(applyPhraseScriptFilter(to: definitionPhraseResults))
-    }
-
-    private func applyScriptFilter(to items: [ComponentItem]) -> [ComponentItem] {
-        items.filter { item in
-            switch scriptFilter {
-            case .any: return true
-            case .simplified: return componentRepo.isSimplifiedForGrid(item.character)
-            case .traditional: return componentRepo.isTraditionalForGrid(item.character)
-            }
-        }
-    }
-
-    private func applyPhraseScriptFilter(to items: [PhraseItem]) -> [PhraseItem] {
-        items.filter { item in
-            switch scriptFilter {
-            case .any: return true
-            case .simplified:
-                let first = String(item.word.prefix(1))
-                return componentRepo.isSimplifiedForGrid(first)
-            case .traditional:
-                let first = String(item.word.prefix(1))
-                return componentRepo.isTraditionalForGrid(first)
-            }
-        }
-    }
-
-    var smartFilteredResults: [ComponentItem] {
-        let lower = min(strokeMinFilter, strokeMaxFilter)
-        let upper = max(strokeMinFilter, strokeMaxFilter)
-        return results.filter { item in
-            let strokeValue = item.strokes ?? 999
-            let strokeMatch = strokeValue >= lower && strokeValue <= upper
-            let favoritesMatch = !favoritesOnlyFilter || favorites.contains(item.character)
-            let radicalMatch = isNoFilter(selectedRadicalFilter) || item.radical == selectedRadicalFilter
-            let structure = componentRepo.structureKey(for: item)
-            let structureMatch = isNoFilter(selectedStructureFilter) || structure == selectedStructureFilter
-            return strokeMatch && favoritesMatch && radicalMatch && structureMatch
-        }
-    }
-
-    func buildGridItemsWithCounts() -> (items: [ComponentItem], allCount: Int, componentCount: Int, readingOrder: [String]) {
-        let lower = min(strokeMinFilter, strokeMaxFilter)
-        let upper = max(strokeMinFilter, strokeMaxFilter)
-
-        // Reading-order mode: preserve full sequence including duplicates
-        if gridSortMode == .readingOrder, let collection = selectedBrowseCollection {
-            // Filter the full character sequence (with duplicates) through active filters
-            let filteredOrdered: [String] = collection.characters.filter { char in
-                guard let item = componentRepo.byCharacter[char] else { return false }
-                let strokeValue = item.strokes ?? 999
-                let strokeMatch = strokeValue >= lower && strokeValue <= upper
-                let radicalMatch = isNoFilter(selectedRadicalFilter) || item.radical == selectedRadicalFilter
-                let structure = componentRepo.structureKey(for: item)
-                let structureMatch = isNoFilter(selectedStructureFilter) || structure == selectedStructureFilter
-                let scriptMatch: Bool = {
-                    switch gridScriptFilter {
-                    case .any: return true
-                    case .simplified: return componentRepo.isSimplifiedForGrid(char)
-                    case .traditional: return componentRepo.isTraditionalForGrid(char)
-                    }
-                }()
-                return strokeMatch && radicalMatch && structureMatch && scriptMatch
-            }
-            // Unique items for counts
-            var seen = Set<String>()
-            let uniqueItems: [ComponentItem] = filteredOrdered.compactMap { char in
-                guard seen.insert(char).inserted else { return nil }
-                return componentRepo.byCharacter[char]
-            }
-            let componentPool = uniqueItems.filter { componentRepo.isUsedComponent($0.character) }
-            return (items: uniqueItems, allCount: filteredOrdered.count, componentCount: componentPool.count, readingOrder: filteredOrdered)
-        }
-
-        var items = allCharactersCache
-        if let collectionCharacters = selectedBrowseCollectionCharacters {
-            items = items.filter { collectionCharacters.contains($0.character) }
-        }
-        items = items.filter { item in
-            let strokeValue = item.strokes ?? 999
-            let strokeMatch = strokeValue >= lower && strokeValue <= upper
-            let radicalMatch = isNoFilter(selectedRadicalFilter) || item.radical == selectedRadicalFilter
-            let structure = componentRepo.structureKey(for: item)
-            let structureMatch = isNoFilter(selectedStructureFilter) || structure == selectedStructureFilter
-            return strokeMatch && radicalMatch && structureMatch
-        }
-
-        items = items.filter { item in
-            switch gridScriptFilter {
-            case .any:
-                return true
-            case .simplified:
-                return componentRepo.isSimplifiedForGrid(item.character)
-            case .traditional:
-                return componentRepo.isTraditionalForGrid(item.character)
-            }
-        }
-
-        let componentPool = items.filter { componentRepo.isUsedComponent($0.character) }
-        let sorted: [ComponentItem] = {
-            switch gridSortMode {
-            case .readingOrder:
-                return items.sorted(by: frequencySortPredicate)
-            case .componentFrequency:
-                return componentPool.sorted(by: usageSortPredicate)
-            case .characterFrequency:
-                return items.sorted(by: frequencySortPredicate)
-            }
-        }()
-
-        return (items: sorted, allCount: items.count, componentCount: componentPool.count, readingOrder: [])
-    }
-
-    var gridBatchSize: Int {
-        BrowseGridLayout.current.dictionaryPageSize
-    }
-    var gridPageCount: Int {
-        let count = gridSortMode == .readingOrder ? allReadingOrderCharacters.count : allGridItems.count
-        return GridPaging.pageCount(totalCount: count, pageSize: gridBatchSize)
-    }
-    var pagedGridItems: [ComponentItem] {
-        GridPaging.pageSlice(allGridItems, page: gridPage, pageSize: gridBatchSize).items
-    }
-    /// Paged slice of the full reading-order sequence (with duplicates), as (offset, character) pairs.
-    var pagedReadingOrderItems: [(offset: Int, character: String)] {
-        let slice = GridPaging.pageSlice(allReadingOrderCharacters, page: gridPage, pageSize: gridBatchSize)
-        return slice.items.enumerated().map { (slice.start + $0.offset, $0.element) }
-    }
-    func nextGridPage() {
-        gridPage = GridPaging.nextPage(current: gridPage, pageCount: gridPageCount)
-    }
-    func previousGridPage() {
-        gridPage = GridPaging.previousPage(current: gridPage)
-    }
-
-    func setGridSortMode(_ mode: GridSortMode) { gridSortMode = mode }
-    func setGridScriptFilter(_ filter: ScriptFilter) { gridScriptFilter = filter }
-    @discardableResult
-    func focusGridCharacter(_ character: String) -> Bool {
-        guard let index = allGridItems.firstIndex(where: { $0.character == character }) else {
-            previewCharacter = character
-            return false
-        }
-        gridPage = GridPaging.pageForIndex(index, pageSize: gridBatchSize)
-        previewCharacter = character
-        return true
-    }
-
-    func radicalFilterLabel(_ radical: String) -> String {
-        if isNoFilter(radical) {
-            return "none"
-        }
-        guard let strokes = componentRepo.byCharacter[radical]?.strokes, strokes > 0 else {
-            return radical
-        }
-        let unit = strokes == 1 ? "stroke" : "strokes"
-        return "\(radical) (\(strokes) \(unit))"
-    }
-
-    // MARK: - Lineage Logic
-    var lineageBatchSize: Int {
-        RadixPlatform.isDesktop ? 225 : 12
-    }
-    var pagedLineageDerivatives: [ComponentItem] {
-        let baseItems = sortedLineageDerivatives
-        let limitedItems = entitlement.limitLineage(baseItems)
-        
-        let start = min(max(0, lineagePage), max(0, lineagePageCount - 1)) * lineageBatchSize
-        let end = min(start + lineageBatchSize, limitedItems.count)
-        guard start < end else { return [] }
-        return Array(limitedItems[start..<end])
-    }
-    
-    var lineagePageCount: Int {
-        let count = entitlement.limitLineage(sortedLineageDerivatives).count
-        return count == 0 ? 1 : Int(ceil(Double(count) / Double(lineageBatchSize)))
-    }
-    func nextLineagePage() {
-        guard lineagePage + 1 < lineagePageCount else { return }
-        lineagePage += 1
-    }
-    func previousLineagePage() {
-        guard lineagePage > 0 else { return }
-        lineagePage -= 1
-    }
-
     // MARK: - Private Utilities
 
 
@@ -1238,54 +1037,6 @@ final class RadixStore: ObservableObject {
 
 
 
-
-    func loadSearchHistory() {
-        guard let saved = preferences.array(forKey: searchHistoryKey) as? [String] else { return }
-        searchHistory = saved
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-    }
-
-    func appendSearchHistory(_ query: String) {
-        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        searchHistory.append(trimmed)
-        preferences.set(searchHistory, forKey: searchHistoryKey)
-    }
-
-
-
-    func pushPhraseBreadcrumb(_ phrase: PhraseItem) {
-        pushRootBreadcrumbItem(phrase.word)
-    }
-
-    func requestDataEditDictionaryFocus() {
-        dataEditFocusRequestID += 1
-    }
-
-    func requestPhraseEditFocus() {
-        phraseEditFocusRequestID += 1
-    }
-
-    func rememberLastPreviewedCharacter(_ character: String?) {
-        guard let character else { return }
-        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard key.count == 1, componentRepo.hasCharacter(key) else { return }
-        preferences.set(key, forKey: lastPreviewCharacterKey)
-    }
-
-    func restoreLastPreviewedCharacterIfNeeded() {
-        guard previewCharacter == nil else { return }
-        guard let saved = preferences.string(forKey: lastPreviewCharacterKey) else { return }
-        let key = saved.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard key.count == 1, componentRepo.hasCharacter(key) else { return }
-
-        previewCharacter = key
-        refreshPhrases(for: key)
-        loadSharedComponentPeers(for: key)
-        loadSharedPeersByComponent(for: key)
-        loadRootDerivatives(for: key)
-    }
 
     func applyImportedProfile(_ profile: UserProfile, mode: RestoreMode) {
         let isCompleteRestore = mode == .complete
@@ -1388,77 +1139,6 @@ final class RadixStore: ObservableObject {
         }
     }
 
-    func loadPromptSettings() {
-        if preferences.object(forKey: speechEnabledKey) != nil {
-            speechEnabled = preferences.bool(forKey: speechEnabledKey)
-        } else if preferences.object(forKey: speakOnSelectionKey) != nil ||
-                    preferences.object(forKey: speakOnPreviewKey) != nil {
-            let legacySelection = preferences.bool(forKey: speakOnSelectionKey)
-            let legacyPreview = preferences.bool(forKey: speakOnPreviewKey)
-            speechEnabled = legacySelection || legacyPreview
-        }
-        if let data = preferences.data(forKey: promptConfigKey), let saved = try? JSONDecoder().decode(PromptConfig.self, from: data) { promptConfig = saved.normalized() }
-        if let savedSelection = preferences.array(forKey: promptTaskSelectionKey) as? [String] { promptSelectedTaskIDs = savedSelection }
-        if let rawPreset = preferences.string(forKey: defaultAIPresetKey),
-           let preset = DefaultAIPreset(rawValue: rawPreset) {
-            defaultAIPreset = preset
-        }
-        if let savedCustomURL = preferences.string(forKey: customAIURLKey) {
-            customAIURLString = savedCustomURL
-        }
-        if let savedOpenAIAPIKey = preferences.string(forKey: openAIAPIKeyKey) {
-            openAIAPIKey = savedOpenAIAPIKey
-        }
-        if let savedGeminiAPIKey = preferences.string(forKey: geminiAPIKeyKey) {
-            geminiAPIKey = savedGeminiAPIKey
-        }
-        if let savedClaudeAPIKey = preferences.string(forKey: claudeAPIKeyKey) {
-            claudeAPIKey = savedClaudeAPIKey
-        }
-        if let savedDeepSeekAPIKey = preferences.string(forKey: deepSeekAPIKeyKey) {
-            deepSeekAPIKey = savedDeepSeekAPIKey
-        }
-        if let savedCustomAIAPIKey = preferences.string(forKey: customAIAPIKeyKey) {
-            customAIAPIKey = savedCustomAIAPIKey
-        }
-        if let savedGeminiModelID = preferences.string(forKey: geminiModelIDKey),
-           !savedGeminiModelID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            geminiModelID = savedGeminiModelID
-        }
-    }
-
-    func speakCharacter(_ character: String) {
-        guard speechEnabled else { return }
-        let target = character
-        Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 70_000_000)
-            speechService.speak(target)
-        }
-    }
-
-    func speakPhrase(_ phrase: PhraseItem) {
-        guard speechEnabled else { return }
-        speechService.speakPhrase(phrase)
-    }
-
-    @discardableResult
-    func speakCharacters(in text: String) -> Int {
-        speechService.speakCharacters(in: text)
-    }
-
-    func persistPromptSettings() {
-        if let data = try? JSONEncoder().encode(promptConfig) { preferences.set(data, forKey: promptConfigKey) }
-        preferences.set(promptSelectedTaskIDs, forKey: promptTaskSelectionKey)
-        preferences.set(defaultAIPreset.rawValue, forKey: defaultAIPresetKey)
-        preferences.set(customAIURLString, forKey: customAIURLKey)
-        preferences.set(openAIAPIKey, forKey: openAIAPIKeyKey)
-        preferences.set(geminiAPIKey, forKey: geminiAPIKeyKey)
-        preferences.set(claudeAPIKey, forKey: claudeAPIKeyKey)
-        preferences.set(deepSeekAPIKey, forKey: deepSeekAPIKeyKey)
-        preferences.set(customAIAPIKey, forKey: customAIAPIKeyKey)
-        preferences.set(geminiModelID, forKey: geminiModelIDKey)
-        updatePromptAutosaveStatus()
-    }
 
 
 
@@ -1470,105 +1150,4 @@ final class RadixStore: ObservableObject {
 
 
 
-
-    func mergeImportedCollections(_ importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
-        guard let importedCollections else { return }
-        var mergedByID = Dictionary(uniqueKeysWithValues: allCollections.map { ($0.id, $0) })
-        for collection in sanitizeCollections(importedCollections) {
-            mergedByID[collection.id] = collection
-        }
-        allCollections = Array(mergedByID.values)
-        sortCollections()
-        persistCollections()
-
-        if let importedSelectedID, collection(id: importedSelectedID) != nil {
-            selectedAICollectionID = importedSelectedID
-        }
-        if let selectedBrowseCollectionID, collection(id: selectedBrowseCollectionID) == nil {
-            self.selectedBrowseCollectionID = nil
-        }
-    }
-
-    func replaceCollections(with importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
-        allCollections = sanitizeCollections(importedCollections ?? [])
-        sortCollections()
-        persistCollections()
-
-        if let importedSelectedID, collection(id: importedSelectedID) != nil {
-            selectedAICollectionID = importedSelectedID
-        } else {
-            selectedAICollectionID = nil
-        }
-
-        if let selectedBrowseCollectionID, collection(id: selectedBrowseCollectionID) == nil {
-            self.selectedBrowseCollectionID = nil
-        }
-    }
-
-    func loadDictionaryRepository() throws {
-        try componentRepo.loadFromBundle()
-
-        if FileManager.default.fileExists(atPath: dictionaryOverlayFileURL.path) {
-            let data = try Data(contentsOf: dictionaryOverlayFileURL)
-            let overlay = try JSONDecoder().decode(DictionaryOverlayPackage.self, from: data)
-            componentRepo.applyOverlay(overlay)
-        } else if FileManager.default.fileExists(atPath: legacyEditableDictionaryFileURL.path) {
-            let data = try Data(contentsOf: legacyEditableDictionaryFileURL)
-            let legacyMap = try JSONDecoder().decode([String: RawComponentEntry].self, from: data)
-            let overlay = ComponentRepository.makeOverlay(base: componentRepo.baseRawMap, effective: legacyMap)
-            componentRepo.applyOverlay(overlay)
-            try persistDictionaryOverlay()
-            try? FileManager.default.removeItem(at: legacyEditableDictionaryFileURL)
-        }
-    }
-
-    func persistDictionaryOverlay() throws {
-        dataEditSavePath = dictionaryOverlayFileURL.path
-        if componentRepo.hasOverlayChanges {
-            try componentRepo.saveOverlay(to: dictionaryOverlayFileURL)
-        } else if FileManager.default.fileExists(atPath: dictionaryOverlayFileURL.path) {
-            try FileManager.default.removeItem(at: dictionaryOverlayFileURL)
-        }
-    }
-
-    func removeDictionaryOverlayFiles() throws {
-        if FileManager.default.fileExists(atPath: dictionaryOverlayFileURL.path) {
-            try FileManager.default.removeItem(at: dictionaryOverlayFileURL)
-        }
-        if FileManager.default.fileExists(atPath: legacyEditableDictionaryFileURL.path) {
-            try FileManager.default.removeItem(at: legacyEditableDictionaryFileURL)
-        }
-    }
-
-    var dictionaryOverlayFileURL: URL {
-        if let projectURL = ProjectLiveDataLocator.file(named: "component_map_changes.json") {
-            return projectURL
-        }
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        return docs.appendingPathComponent("component_map_changes.json")
-    }
-
-    var legacyEditableDictionaryFileURL: URL {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        return docs.appendingPathComponent("component_map_editable.json")
-    }
-
-    func emptyEntryTemplate() -> RawComponentEntry {
-        RawComponentEntry(relatedCharacters: [], meta: RawMeta(variant: nil, additionalVariants: nil, pinyin: .single(""), definition: "", decomposition: "", idc: "", radical: "", strokes: .string(""), compounds: .many([]), etymology: RawEtymology(type: "", hint: .single(""), details: .single("")), notes: .many([])))
-    }
-
-    func updatePromptAutosaveStatus(now: Date = Date()) {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        let savedText = formatter.localizedString(for: now, relativeTo: now)
-        promptAutosaveStatus = "Changes save automatically. Last saved \(savedText)."
-    }
-
-    func sanitizeCollections(_ collections: [CharacterCollection]) -> [CharacterCollection] {
-        collections.map { collection in
-            var copy = collection
-            copy.characters = collection.characters.filter { componentRepo.hasCharacter($0) }
-            return copy
-        }.filter { !$0.characters.isEmpty }
-    }
 }

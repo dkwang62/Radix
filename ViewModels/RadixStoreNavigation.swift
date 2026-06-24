@@ -12,6 +12,58 @@ import Foundation
 
 extension RadixStore {
 
+    func pushPhraseBreadcrumb(_ phrase: PhraseItem) {
+        pushRootBreadcrumbItem(phrase.word)
+    }
+
+    func rememberLastPreviewedCharacter(_ character: String?) {
+        guard let character else { return }
+        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard key.count == 1, componentRepo.hasCharacter(key) else { return }
+        preferences.set(key, forKey: lastPreviewCharacterKey)
+    }
+
+    func restoreLastPreviewedCharacterIfNeeded() {
+        guard previewCharacter == nil,
+              let saved = preferences.string(forKey: lastPreviewCharacterKey)
+        else { return }
+        let key = saved.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard key.count == 1, componentRepo.hasCharacter(key) else { return }
+
+        previewCharacter = key
+        refreshPhrases(for: key)
+        loadSharedComponentPeers(for: key)
+        loadSharedPeersByComponent(for: key)
+        loadRootDerivatives(for: key)
+    }
+
+    // MARK: - Lineage paging
+
+    var lineageBatchSize: Int { RadixPlatform.isDesktop ? 225 : 12 }
+
+    var pagedLineageDerivatives: [ComponentItem] {
+        let limitedItems = entitlement.limitLineage(sortedLineageDerivatives)
+        let start = min(max(0, lineagePage), max(0, lineagePageCount - 1)) * lineageBatchSize
+        let end = min(start + lineageBatchSize, limitedItems.count)
+        guard start < end else { return [] }
+        return Array(limitedItems[start..<end])
+    }
+
+    var lineagePageCount: Int {
+        let count = entitlement.limitLineage(sortedLineageDerivatives).count
+        return count == 0 ? 1 : Int(ceil(Double(count) / Double(lineageBatchSize)))
+    }
+
+    func nextLineagePage() {
+        guard lineagePage + 1 < lineagePageCount else { return }
+        lineagePage += 1
+    }
+
+    func previousLineagePage() {
+        guard lineagePage > 0 else { return }
+        lineagePage -= 1
+    }
+
     // MARK: - Selection
 
     func select(character: String, announce: Bool = true) {

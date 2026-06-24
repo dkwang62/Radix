@@ -11,6 +11,112 @@ import Foundation
 
 extension RadixStore {
 
+    func buildGridItemsWithCounts() -> (items: [ComponentItem], allCount: Int, componentCount: Int, readingOrder: [String]) {
+        let lower = min(strokeMinFilter, strokeMaxFilter)
+        let upper = max(strokeMinFilter, strokeMaxFilter)
+
+        if gridSortMode == .readingOrder, let collection = selectedBrowseCollection {
+            let filteredOrdered: [String] = collection.characters.filter { character in
+                guard let item = componentRepo.byCharacter[character] else { return false }
+                let strokeValue = item.strokes ?? 999
+                let strokeMatch = strokeValue >= lower && strokeValue <= upper
+                let radicalMatch = isNoFilter(selectedRadicalFilter) || item.radical == selectedRadicalFilter
+                let structureMatch = isNoFilter(selectedStructureFilter)
+                    || componentRepo.structureKey(for: item) == selectedStructureFilter
+                let scriptMatch: Bool = {
+                    switch gridScriptFilter {
+                    case .any: return true
+                    case .simplified: return componentRepo.isSimplifiedForGrid(character)
+                    case .traditional: return componentRepo.isTraditionalForGrid(character)
+                    }
+                }()
+                return strokeMatch && radicalMatch && structureMatch && scriptMatch
+            }
+            var seen = Set<String>()
+            let uniqueItems = filteredOrdered.compactMap { character -> ComponentItem? in
+                guard seen.insert(character).inserted else { return nil }
+                return componentRepo.byCharacter[character]
+            }
+            let componentPool = uniqueItems.filter { componentRepo.isUsedComponent($0.character) }
+            return (uniqueItems, filteredOrdered.count, componentPool.count, filteredOrdered)
+        }
+
+        var items = allCharactersCache
+        if let collectionCharacters = selectedBrowseCollectionCharacters {
+            items = items.filter { collectionCharacters.contains($0.character) }
+        }
+        items = items.filter { item in
+            let strokeValue = item.strokes ?? 999
+            let strokeMatch = strokeValue >= lower && strokeValue <= upper
+            let radicalMatch = isNoFilter(selectedRadicalFilter) || item.radical == selectedRadicalFilter
+            let structureMatch = isNoFilter(selectedStructureFilter)
+                || componentRepo.structureKey(for: item) == selectedStructureFilter
+            return strokeMatch && radicalMatch && structureMatch
+        }
+        items = items.filter { item in
+            switch gridScriptFilter {
+            case .any: return true
+            case .simplified: return componentRepo.isSimplifiedForGrid(item.character)
+            case .traditional: return componentRepo.isTraditionalForGrid(item.character)
+            }
+        }
+
+        let componentPool = items.filter { componentRepo.isUsedComponent($0.character) }
+        let sorted: [ComponentItem]
+        switch gridSortMode {
+        case .readingOrder, .characterFrequency:
+            sorted = items.sorted(by: frequencySortPredicate)
+        case .componentFrequency:
+            sorted = componentPool.sorted(by: usageSortPredicate)
+        }
+        return (sorted, items.count, componentPool.count, [])
+    }
+
+    var gridBatchSize: Int { BrowseGridLayout.current.dictionaryPageSize }
+
+    var gridPageCount: Int {
+        let count = gridSortMode == .readingOrder ? allReadingOrderCharacters.count : allGridItems.count
+        return GridPaging.pageCount(totalCount: count, pageSize: gridBatchSize)
+    }
+
+    var pagedGridItems: [ComponentItem] {
+        GridPaging.pageSlice(allGridItems, page: gridPage, pageSize: gridBatchSize).items
+    }
+
+    var pagedReadingOrderItems: [(offset: Int, character: String)] {
+        let slice = GridPaging.pageSlice(allReadingOrderCharacters, page: gridPage, pageSize: gridBatchSize)
+        return slice.items.enumerated().map { (slice.start + $0.offset, $0.element) }
+    }
+
+    func nextGridPage() {
+        gridPage = GridPaging.nextPage(current: gridPage, pageCount: gridPageCount)
+    }
+
+    func previousGridPage() {
+        gridPage = GridPaging.previousPage(current: gridPage)
+    }
+
+    func setGridSortMode(_ mode: GridSortMode) { gridSortMode = mode }
+    func setGridScriptFilter(_ filter: ScriptFilter) { gridScriptFilter = filter }
+
+    @discardableResult
+    func focusGridCharacter(_ character: String) -> Bool {
+        guard let index = allGridItems.firstIndex(where: { $0.character == character }) else {
+            previewCharacter = character
+            return false
+        }
+        gridPage = GridPaging.pageForIndex(index, pageSize: gridBatchSize)
+        previewCharacter = character
+        return true
+    }
+
+    func radicalFilterLabel(_ radical: String) -> String {
+        guard !isNoFilter(radical) else { return "none" }
+        guard let strokes = componentRepo.byCharacter[radical]?.strokes, strokes > 0 else { return radical }
+        let unit = strokes == 1 ? "stroke" : "strokes"
+        return "\(radical) (\(strokes) \(unit))"
+    }
+
     // MARK: - Grid recompute
 
     func scheduleGridRecompute() {

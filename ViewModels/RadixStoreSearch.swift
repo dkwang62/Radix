@@ -10,6 +10,20 @@ import Foundation
 
 extension RadixStore {
 
+    func loadSearchHistory() {
+        guard let saved = preferences.array(forKey: searchHistoryKey) as? [String] else { return }
+        searchHistory = saved
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+    }
+
+    func appendSearchHistory(_ query: String) {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        searchHistory.append(trimmed)
+        preferences.set(searchHistory, forKey: searchHistoryKey)
+    }
+
     // MARK: - Search execution
 
     func prepareFirstInteractionWarmup() {
@@ -288,5 +302,60 @@ extension RadixStore {
         }
         flushRun()
         return results
+    }
+
+    // MARK: - Filtered search results
+
+    var filteredResults: [ComponentItem] {
+        applyScriptFilter(to: results)
+    }
+
+    var filteredDefinitionCharacterResults: [ComponentItem] {
+        applyScriptFilter(to: definitionCharacterResults)
+    }
+
+    var filteredSmartPhraseResults: [PhraseItem] {
+        sortPhrasesByPinyin(applyPhraseScriptFilter(to: smartPhraseResults))
+    }
+
+    var filteredDefinitionPhraseResults: [PhraseItem] {
+        sortPhrasesByPinyin(applyPhraseScriptFilter(to: definitionPhraseResults))
+    }
+
+    private func applyScriptFilter(to items: [ComponentItem]) -> [ComponentItem] {
+        items.filter { item in
+            switch scriptFilter {
+            case .any: return true
+            case .simplified: return componentRepo.isSimplifiedForGrid(item.character)
+            case .traditional: return componentRepo.isTraditionalForGrid(item.character)
+            }
+        }
+    }
+
+    private func applyPhraseScriptFilter(to items: [PhraseItem]) -> [PhraseItem] {
+        items.filter { item in
+            switch scriptFilter {
+            case .any:
+                return true
+            case .simplified:
+                return componentRepo.isSimplifiedForGrid(String(item.word.prefix(1)))
+            case .traditional:
+                return componentRepo.isTraditionalForGrid(String(item.word.prefix(1)))
+            }
+        }
+    }
+
+    var smartFilteredResults: [ComponentItem] {
+        let lower = min(strokeMinFilter, strokeMaxFilter)
+        let upper = max(strokeMinFilter, strokeMaxFilter)
+        return results.filter { item in
+            let strokeValue = item.strokes ?? 999
+            let strokeMatch = strokeValue >= lower && strokeValue <= upper
+            let favoritesMatch = !favoritesOnlyFilter || favorites.contains(item.character)
+            let radicalMatch = isNoFilter(selectedRadicalFilter) || item.radical == selectedRadicalFilter
+            let structure = componentRepo.structureKey(for: item)
+            let structureMatch = isNoFilter(selectedStructureFilter) || structure == selectedStructureFilter
+            return strokeMatch && favoritesMatch && radicalMatch && structureMatch
+        }
     }
 }

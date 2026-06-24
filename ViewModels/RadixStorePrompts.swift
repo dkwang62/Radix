@@ -10,6 +10,78 @@ import Foundation
 
 extension RadixStore {
 
+    func loadPromptSettings() {
+        if preferences.object(forKey: speechEnabledKey) != nil {
+            speechEnabled = preferences.bool(forKey: speechEnabledKey)
+        } else if preferences.object(forKey: speakOnSelectionKey) != nil
+                    || preferences.object(forKey: speakOnPreviewKey) != nil {
+            speechEnabled = preferences.bool(forKey: speakOnSelectionKey)
+                || preferences.bool(forKey: speakOnPreviewKey)
+        }
+        if let data = preferences.data(forKey: promptConfigKey),
+           let saved = try? JSONDecoder().decode(PromptConfig.self, from: data) {
+            promptConfig = saved.normalized()
+        }
+        if let selection = preferences.array(forKey: promptTaskSelectionKey) as? [String] {
+            promptSelectedTaskIDs = selection
+        }
+        if let rawPreset = preferences.string(forKey: defaultAIPresetKey),
+           let preset = DefaultAIPreset(rawValue: rawPreset) {
+            defaultAIPreset = preset
+        }
+        if let value = preferences.string(forKey: customAIURLKey) { customAIURLString = value }
+        if let value = preferences.string(forKey: openAIAPIKeyKey) { openAIAPIKey = value }
+        if let value = preferences.string(forKey: geminiAPIKeyKey) { geminiAPIKey = value }
+        if let value = preferences.string(forKey: claudeAPIKeyKey) { claudeAPIKey = value }
+        if let value = preferences.string(forKey: deepSeekAPIKeyKey) { deepSeekAPIKey = value }
+        if let value = preferences.string(forKey: customAIAPIKeyKey) { customAIAPIKey = value }
+        if let value = preferences.string(forKey: geminiModelIDKey),
+           !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            geminiModelID = value
+        }
+    }
+
+    func persistPromptSettings() {
+        if let data = try? JSONEncoder().encode(promptConfig) {
+            preferences.set(data, forKey: promptConfigKey)
+        }
+        preferences.set(promptSelectedTaskIDs, forKey: promptTaskSelectionKey)
+        preferences.set(defaultAIPreset.rawValue, forKey: defaultAIPresetKey)
+        preferences.set(customAIURLString, forKey: customAIURLKey)
+        preferences.set(openAIAPIKey, forKey: openAIAPIKeyKey)
+        preferences.set(geminiAPIKey, forKey: geminiAPIKeyKey)
+        preferences.set(claudeAPIKey, forKey: claudeAPIKeyKey)
+        preferences.set(deepSeekAPIKey, forKey: deepSeekAPIKeyKey)
+        preferences.set(customAIAPIKey, forKey: customAIAPIKeyKey)
+        preferences.set(geminiModelID, forKey: geminiModelIDKey)
+        updatePromptAutosaveStatus()
+    }
+
+    func updatePromptAutosaveStatus(now: Date = Date()) {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        let savedText = formatter.localizedString(for: now, relativeTo: now)
+        promptAutosaveStatus = "Changes save automatically. Last saved \(savedText)."
+    }
+
+    func speakCharacter(_ character: String) {
+        guard speechEnabled else { return }
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 70_000_000)
+            speechService.speak(character)
+        }
+    }
+
+    func speakPhrase(_ phrase: PhraseItem) {
+        guard speechEnabled else { return }
+        speechService.speakPhrase(phrase)
+    }
+
+    @discardableResult
+    func speakCharacters(in text: String) -> Int {
+        speechService.speakCharacters(in: text)
+    }
+
     // MARK: - Task selection
 
     func selectAllPromptTasks() {
