@@ -93,20 +93,22 @@ The portable test suite currently contains 13 tests across five suites.
 
 ## Active Workstream
 
-Continue reducing central-store plumbing by co-locating compatibility adapters
-with their focused state types. Preserve the existing view API during this pass;
-this is an architectural reorganization, not a UI redesign.
+The central-store maintainability refactor is complete. Do not continue splitting
+files merely to reduce line counts. Resume user-directed product, UI, reliability,
+or Android work from this stable checkpoint.
 
 ## Next Three Tasks
 
-1. Reassess the remaining central store for a clean dependency container or
-   repository interfaces; implement only boundaries with a concrete near-term use.
-2. Run the final dead-code audit and complete iOS/Catalyst build matrix.
-3. Stop this refactoring stream unless the audit identifies a material issue;
-   return to product work rather than pursuing a smaller file for its own sake.
+1. Perform a short manual regression on real devices or working simulators for
+   backup restore, Browse saved pages, phrase classification, and My Data flows.
+2. Choose the next user-facing feature or defect from actual usage rather than
+   continuing structural refactoring.
+3. When Android implementation begins, introduce repository interfaces only as
+   required by a real Android adapter and reuse the existing portable contracts.
 
-After those tasks, run a fresh dead-code audit and the complete platform build
-matrix before starting broader UI or Android implementation work.
+Stop decision: the remaining `RadixStore` content is legitimate state ownership,
+caches, dependencies, and compatibility plumbing. Repository protocols are not
+being added until a concrete alternate repository implementation needs them.
 
 ## Established Engineering Rules
 
@@ -138,6 +140,14 @@ generic iOS target, which covers the universal iPhone/iPad application. Simulato
 launch failures caused by CoreSimulatorService are environmental and should be
 reported separately from compilation failures.
 
+Final refactor verification on 2026-06-24:
+
+- 13/13 portable tests passed across five suites.
+- Universal generic iOS build passed, covering iPhone and iPad.
+- Mac Catalyst build passed.
+- All 230 Swift source files are represented in the Xcode project.
+- Conservative unused-private-declaration audit found no remaining candidate.
+
 ## Recent Milestones
 
 - Extracted focused state objects from the former monolithic `RadixStore`.
@@ -151,6 +161,7 @@ reported separately from compilation failures.
 - Co-located Browse filter adapters and their recompute side effects.
 - Co-located Browse grid and saved page collection adapters.
 - Co-located presentation and Browse highlight adapters.
+- Completed the final dead-code/source-membership audit and platform build matrix.
 
 ## Updating This File
 
