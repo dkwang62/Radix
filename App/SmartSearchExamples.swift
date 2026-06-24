@@ -20,14 +20,6 @@ extension SmartSearchTab {
                         localQuery = query
                         runSearch(query)
                     }
-                    SearchExampleButton(label: "Strokes", query: "ノ丶丶フ丨", desc: "含") { query in
-                        localQuery = query
-                        runSearch(query)
-                    }
-                    SearchExampleButton(label: "Strokes", query: "丨フノ丶", desc: "水") { query in
-                        localQuery = query
-                        runSearch(query)
-                    }
                 }
             }
             .padding(isRunningOnMac ? 20 : 14)
@@ -42,22 +34,6 @@ extension SmartSearchTab {
             }())
 
             VStack(alignment: .leading, spacing: 12) {
-                DisclosureGroup(isExpanded: $showAppleStrokeHelp) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        if isRunningOnMac {
-                            AppleStrokeKeyMap()
-                            AppleStrokeExamplesView()
-                        } else {
-                            AppleStrokeExamplesView(compact: true)
-                        }
-                    }
-                } label: {
-                    Label("Stroke input examples", systemImage: "keyboard")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                }
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-
                 DisclosureGroup(isExpanded: $showAppleSetupGuide) {
                     if isRunningOnMac {
                         VStack(alignment: .leading, spacing: 8) {
@@ -67,7 +43,7 @@ extension SmartSearchTab {
                             Text("1. Apple menu > System Settings > Keyboard > Text Input > Edit.")
                             Text("2. Add Chinese, Simplified - Stroke or Chinese, Traditional - Stroke.")
                             Text("3. Switch to that input source from the menu bar.")
-                            Text("4. Enter the component or character in the search field above.")
+                            Text("4. Type strokes, choose the completed character from Apple’s candidate list, then search that character in Radix.")
                         }
                     } else {
                         VStack(alignment: .leading, spacing: 8) {
@@ -82,7 +58,7 @@ extension SmartSearchTab {
                         }
                     }
                 } label: {
-                    Label("Keyboard setup", systemImage: "gearshape")
+                    Label("Chinese keyboard setup", systemImage: "keyboard")
                         .font(ResponsiveFont.caption.weight(.semibold))
                 }
                 .font(ResponsiveFont.caption)

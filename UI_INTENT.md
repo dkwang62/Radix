@@ -240,6 +240,9 @@ API keys, copying, pasting, or other mechanics.
 Search guidance must expose exact English matching with a visible example:
 `=water` finds the meaning `water` without broadening it to terms such as
 `waterproof`. Do not hide the equals sign behind an example button's action.
+Do not advertise raw Apple stroke symbols as a Radix query type. Apple’s Stroke
+keyboard may be explained only as a way to compose and select a completed Chinese
+character before submitting that character to Search.
 
 ## Refactor guardrails
 

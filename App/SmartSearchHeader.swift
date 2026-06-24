@@ -4,7 +4,7 @@ extension SmartSearchTab {
     var searchHeader: some View {
         VStack(alignment: .leading, spacing: store.hasPerformedSearch ? 10 : 12) {
             if !store.hasPerformedSearch {
-                Text("Characters, pinyin, meanings, phrases, or strokes.")
+                Text("Characters, pinyin, English meanings, or phrases.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             }
@@ -16,7 +16,7 @@ extension SmartSearchTab {
 
                     searchHistoryMenu
 
-                    TextField("水, shui, water, 含水, or strokes", text: $localQuery)
+                    TextField("水, shui, water, =water, or 含水", text: $localQuery)
                         .font(ResponsiveFont.body)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -87,7 +87,6 @@ extension SmartSearchTab {
             SearchTypePill(title: "Meaning", example: "water")
             SearchTypePill(title: "Exact", example: "=water")
             SearchTypePill(title: "Phrase", example: "含水")
-            SearchTypePill(title: "Strokes", example: "丨フノ丶")
         }
     }
 

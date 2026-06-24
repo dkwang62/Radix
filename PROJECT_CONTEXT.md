@@ -116,6 +116,9 @@ Advanced Exports are a code and structured-data foundation for authoring softwar
 with AI coding agents; describe them as distinct from backup and ordinary transfer.
 Search examples visibly teach exact English matching: `=water` matches `water`
 without broadening to meanings such as `waterproof`.
+Raw Apple stroke-symbol sequences are not presented as searchable examples;
+Apple Stroke input is documented only as a keyboard method for composing a
+completed Chinese character before searching.
 
 ## Next Three Tasks
 

@@ -10,7 +10,6 @@ struct SmartSearchTab: View {
     @State var searchDrilldownPhrases: [PhraseItem] = []
     @State var selectedPhrase: PhraseItem?
     @State var showAppleSetupGuide = false
-    @State var showAppleStrokeHelp = false
 
     var isRunningOnMac: Bool {
         RadixPlatform.isRunningOnMac

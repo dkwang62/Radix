@@ -76,7 +76,7 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
         case .scan:
             return "Capture text from camera, photos, files, or paste."
         case .search:
-            return "Find characters and phrases by Chinese, pinyin, English meaning, or strokes."
+            return "Find characters and phrases by Chinese, pinyin, or English meaning."
         case .browse:
             return "Explore the dictionary or open saved pages from scans and pasted text."
         case .study:
