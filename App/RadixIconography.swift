@@ -82,7 +82,7 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
         case .study:
             return "Return to favorites, recent characters, and pages you want to revisit."
         case .aiLink:
-            return "Use repeatable AI actions for phrases, interpretation, translation, and saved pages."
+            return "Go beyond dictionary definitions with contextual translation, deeper explanation, and newer phrases or concepts."
         case .myData:
             return "Your additions can travel between iPhone, iPad, and Mac."
         }

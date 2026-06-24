@@ -13,7 +13,7 @@ extension AILinkView {
             DisclosureGroup(isExpanded: $isTasksExpanded) {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
-                        Text("Choose what the AI should do.")
+                        Text("Choose how AI should expand on the selected character, phrase, or saved page.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
                         Spacer(minLength: 8)
@@ -66,6 +66,11 @@ extension AILinkView {
                     .font(ResponsiveFont.subheadline.bold())
                     .foregroundStyle(isEnabled ? .primary : .secondary)
 
+                Text(taskExplanation(task))
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
                 if isEnabled {
                     HStack(spacing: 6) {
                         Image(systemName: subject.icon)
@@ -90,6 +95,25 @@ extension AILinkView {
             }
         }
         .padding(.vertical, 6)
+    }
+
+    func taskExplanation(_ task: PromptTask) -> String {
+        switch task.id {
+        case "task1":
+            return "Explain meaning, structure, modern usage, and why the character appears in compounds."
+        case "task2":
+            return "Show natural examples that reveal how the character is actually used."
+        case "task3":
+            return "Compare related ideas so subtle differences are easier to understand."
+        case "task4":
+            return "Find useful expressions in page text that you can review and keep in Radix."
+        case "task5":
+            return "Translate the complete page in context, including shorthand, tone, subtext, and newer usage."
+        case "task6":
+            return "Extract structured phrase records directly with Gemini for faster review and import."
+        default:
+            return "Use this reusable instruction to investigate the selected material with AI."
+        }
     }
 
     var aiCollectionMenu: some View {

@@ -329,8 +329,8 @@ struct RadixWelcomeView: View {
                         )
                         welcomeStep(
                             icon: RadixIcon.aiLink,
-                            title: "Use AI Link",
-                            text: "Send repeatable AI actions for phrase extraction, translation, and interpretation."
+                            title: "Go beyond the dictionary",
+                            text: "Use AI Link for contextual translation, deeper explanation, current phrases and concepts, and expressions worth saving."
                         )
                     }
 

@@ -231,6 +231,9 @@ AI Link should be explained as the way Radix goes beyond fixed traditional
 dictionary coverage. Its purpose includes contextual translation, deeper
 explanation, emerging phrases and concepts, current usage, and extracting useful
 expressions from real material so they can return to Radix for study.
+Use this same purpose-first explanation wherever AI Link, phrase extraction, or
+translation is introduced: state the learner benefit before describing buttons,
+API keys, copying, pasting, or other mechanics.
 
 ## Refactor guardrails
 

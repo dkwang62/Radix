@@ -221,8 +221,8 @@ enum RadixGlossary {
         ),
         GlossaryEntry(
             term: "AI Link",
-            shortDefinition: "Repeatable AI actions that help Radix do work it cannot do alone.",
-            significance: "AI Link can create instructions for AI, extract phrases, translate pages, or save translation results when an API key is available.",
+            shortDefinition: "A bridge from Radix to AI for understanding Chinese beyond fixed dictionary definitions.",
+            significance: "Use AI Link to investigate nuance and current usage, understand language in context, translate complete pages naturally, and explore phrases or concepts that traditional dictionaries may not yet cover.",
             contexts: ["AI Link tab", "Browse page actions", "Settings"],
             relatedTerms: ["Instruction", "API Key", "Extract Phrases", "Translation"]
         ),
@@ -242,15 +242,15 @@ enum RadixGlossary {
         ),
         GlossaryEntry(
             term: "Extract Phrases",
-            shortDefinition: "Ask AI or Radix to find useful dictionary phrases from page text or characters.",
-            significance: "Extraction can add many candidate phrases quickly, but they may need review before they become trusted Memory.",
+            shortDefinition: "Ask AI to identify useful expressions inside real page text.",
+            significance: "Phrase extraction can surface meaningful, current, or specialized expressions that are easy to miss or absent from a traditional dictionary. Review candidates before keeping them in Radix.",
             contexts: ["AI Link menu", "Import From AI", "Review Added Phrases"],
             relatedTerms: ["Added Phrase", "Classify & Prune", "Make AI Text Page"]
         ),
         GlossaryEntry(
             term: "Translation",
-            shortDefinition: "An AI-generated translation or explanation of a saved page.",
-            significance: "Translations can be saved with the page so you can read the original and the explanation together later.",
+            shortDefinition: "An AI-generated reading of a saved page based on its complete context.",
+            significance: "Contextual translation aims to preserve meaning, tone, shorthand, subtext, and newer usage rather than translating each character separately. Save it with the original page for later comparison.",
             contexts: ["Browse page actions", "View Translation", "Save Translation", "Translate and Save"],
             relatedTerms: ["Saved Page", "AI Link"]
         ),

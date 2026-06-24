@@ -57,6 +57,10 @@ struct BrowseTranslationReportSheet: View {
             Text(collectionName)
                 .font(ResponsiveFont.headline.weight(.semibold))
                 .lineLimit(1)
+            Text("Keep a contextual translation with this page so you can revisit its meaning, tone, shorthand, and newer expressions alongside the original Chinese.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
             if let updatedAt {
                 Text("Saved \(updatedAt.formatted(date: .abbreviated, time: .shortened))")
                     .font(ResponsiveFont.caption)

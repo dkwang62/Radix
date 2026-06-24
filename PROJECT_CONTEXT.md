@@ -104,6 +104,9 @@ summarize the section.
 Every guide uses `Why it matters` followed by `What you can do`; AI Link is
 specifically framed as extending beyond traditional dictionary coverage through
 contextual translation, deeper explanation, emerging concepts, and phrase extraction.
+That purpose-first framing is shared by the AI Link screen, welcome guidance,
+task descriptions, Browse extraction/translation sheets, and glossary; describe
+the learner outcome before copy/paste, API, or other implementation mechanics.
 `Icons & Labels` is the explicit default navigation style; `Icons Only` remains
 an experienced-user option and must not become the fallback accidentally.
 Advanced Exports are a code and structured-data foundation for authoring software

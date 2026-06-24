@@ -46,7 +46,11 @@ struct BrowsePhraseExtractionSheet: View {
             Text(collectionName)
                 .font(ResponsiveFont.headline.weight(.semibold))
                 .lineLimit(1)
-            Text("Copy or open the instruction, paste the AI answer, then add the parsed phrases.")
+            Text("Find useful expressions that may be hard to notice—or too new or specialized for a traditional dictionary—then bring the phrases you want to keep back into Radix.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Copy or open the instruction, paste the AI answer, review it, then tap Add.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
             if let message {

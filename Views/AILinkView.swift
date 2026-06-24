@@ -62,10 +62,14 @@ struct AILinkView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                Text("Create reusable instructions for translating, explaining, or processing a character, phrase, or saved page with an AI service.")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Go beyond the dictionary")
+                        .font(ResponsiveFont.headline)
+                    Text("Use AI to explore nuance and current usage, understand Chinese in context, translate complete pages naturally, and find useful phrases or concepts that traditional dictionaries may not yet cover.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
 
                 if sizeClass == .compact {
                     aiPhoneSubjectPreview
