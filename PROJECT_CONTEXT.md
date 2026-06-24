@@ -130,6 +130,8 @@ The corrected source remains Chinese, while change reasons, confidence, and
 uncertainty explanations are explicitly requested in English.
 Study uses its four summary tiles as the section selectors. Recent and Favorites
 must not be repeated as a segmented picker above the review grid.
+On iPad those four tiles use an explicit two-column layout so all labels remain
+readable; phone and Mac retain their adaptive layouts.
 
 ## Next Three Tasks
 
