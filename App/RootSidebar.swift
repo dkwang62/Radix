@@ -74,6 +74,9 @@ extension RootView {
             sidebarTabButton(.myData)
             sidebarSettingsTabButton
         }
+        .navigationGuidePresenter(topic: $navigationGuideTopic) { topic in
+            dismissNavigationGuide(topic)
+        }
     }
 
     func sidebarTabButton(_ item: RadixNavigationItem) -> some View {
@@ -150,10 +153,8 @@ extension RootView {
                 }
             }
         )
-        .navigationGuidePopover(
+        .navigationGuideContextMenu(
             topic: guideTopic,
-            isPresented: navigationGuideBinding(for: guideTopic),
-            onDismiss: { dismissNavigationGuide(guideTopic) },
             onShowHelp: { offerNavigationGuide(guideTopic, force: true) }
         )
     }
@@ -201,10 +202,8 @@ extension RootView {
                 }
             }
         )
-        .navigationGuidePopover(
+        .navigationGuideContextMenu(
             topic: .settings,
-            isPresented: navigationGuideBinding(for: .settings),
-            onDismiss: { dismissNavigationGuide(.settings) },
             onShowHelp: { offerNavigationGuide(.settings, force: true) }
         )
     }

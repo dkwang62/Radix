@@ -74,16 +74,6 @@ extension RootView {
         }
     }
 
-    func navigationGuideBinding(for topic: RadixNavigationGuideTopic) -> Binding<Bool> {
-        Binding(
-            get: { navigationGuideTopic == topic },
-            set: { isPresented in
-                if !isPresented {
-                    dismissNavigationGuide(topic)
-                }
-            }
-        )
-    }
 }
 
 struct NavigationGuidePopover: View {
@@ -121,16 +111,22 @@ struct NavigationGuidePopover: View {
 }
 
 extension View {
-    func navigationGuidePopover(
+    func navigationGuidePresenter(
+        topic: Binding<RadixNavigationGuideTopic?>,
+        onDismiss: @escaping (RadixNavigationGuideTopic) -> Void
+    ) -> some View {
+        popover(item: topic, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) { activeTopic in
+            NavigationGuidePopover(topic: activeTopic) {
+                onDismiss(activeTopic)
+            }
+        }
+    }
+
+    func navigationGuideContextMenu(
         topic: RadixNavigationGuideTopic,
-        isPresented: Binding<Bool>,
-        onDismiss: @escaping () -> Void,
         onShowHelp: @escaping () -> Void
     ) -> some View {
-        popover(isPresented: isPresented, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
-            NavigationGuidePopover(topic: topic, onDismiss: onDismiss)
-        }
-        .contextMenu {
+        contextMenu {
             Button {
                 onShowHelp()
             } label: {

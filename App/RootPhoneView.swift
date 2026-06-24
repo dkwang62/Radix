@@ -168,6 +168,9 @@ extension RootView {
             .padding(.bottom, 7)
             .padding(.horizontal, 6)
         }
+        .navigationGuidePresenter(topic: $navigationGuideTopic) { topic in
+            dismissNavigationGuide(topic)
+        }
         .background(.bar)
         .shadow(color: Color.black.opacity(0.06), radius: 8, y: -2)
     }
@@ -248,10 +251,8 @@ extension RootView {
         .accessibilityLabel(item.title)
         .accessibilityValue(isActive ? "Selected" : "")
         .accessibilityHint(item.subtitle)
-        .navigationGuidePopover(
+        .navigationGuideContextMenu(
             topic: guideTopic,
-            isPresented: navigationGuideBinding(for: guideTopic),
-            onDismiss: { dismissNavigationGuide(guideTopic) },
             onShowHelp: { offerNavigationGuide(guideTopic, force: true) }
         )
     }
@@ -287,10 +288,8 @@ extension RootView {
         .buttonStyle(.plain)
         .accessibilityLabel("Settings")
         .accessibilityHint(RadixNavigationGuideTopic.settings.summary)
-        .navigationGuidePopover(
+        .navigationGuideContextMenu(
             topic: .settings,
-            isPresented: navigationGuideBinding(for: .settings),
-            onDismiss: { dismissNavigationGuide(.settings) },
             onShowHelp: { offerNavigationGuide(.settings, force: true) }
         )
     }
