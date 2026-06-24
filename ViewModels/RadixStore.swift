@@ -110,69 +110,11 @@ final class RadixStore: ObservableObject {
         set { rootExplorerState.availableStructures = newValue }
     }
 
-    @Published private(set) var collectionState = RadixCollectionState()
-
-    var allCollections: [CharacterCollection] {
-        get { collectionState.collections }
-        set { collectionState.collections = newValue }
-    }
-
-    var selectedBrowseCollectionID: UUID? {
-        get { collectionState.selectedBrowseCollectionID }
-        set {
-            guard collectionState.selectedBrowseCollectionID != newValue else { return }
-            collectionState.selectedBrowseCollectionID = newValue
-            selectedBrowseCollectionCharacters = newValue.flatMap { collection(id: $0).map { Set($0.characters) } }
-            clearBrowseMemoryHighlight()
-            if newValue != nil {
-                browseHighlightedCharacter = nil
-            }
-            if let selectedBrowseCollection {
-                activeSubject = .collection(selectedBrowseCollection)
-            } else if case .collection = activeSubject {
-                activeSubject = nil
-            }
-            gridPage = 0
-            scheduleGridRecompute()
-        }
-    }
+    @Published var collectionState = RadixCollectionState()
     var shouldOpenBrowsePages: Bool { get { presentationState.shouldOpenBrowsePages } set { presentationState.shouldOpenBrowsePages = newValue } }
     var shouldOpenAddedPhraseReview: Bool { get { presentationState.shouldOpenAddedPhraseReview } set { presentationState.shouldOpenAddedPhraseReview = newValue } }
     var shouldStartBrowseCamera: Bool { get { presentationState.shouldStartBrowseCamera } set { presentationState.shouldStartBrowseCamera = newValue } }
-    var selectedAICollectionID: UUID? {
-        get { collectionState.selectedAICollectionID }
-        set {
-            guard collectionState.selectedAICollectionID != newValue else { return }
-            collectionState.selectedAICollectionID = newValue
-            persistSelectedAICollection()
-        }
-    }
-    @Published private(set) var browseGridState = RadixBrowseGridState()
-
-    var gridFilteredAllCount: Int {
-        get { browseGridState.filteredAllCount }
-        set { browseGridState.filteredAllCount = newValue }
-    }
-
-    var gridFilteredComponentCount: Int {
-        get { browseGridState.filteredComponentCount }
-        set { browseGridState.filteredComponentCount = newValue }
-    }
-
-    var gridPage: Int {
-        get { browseGridState.page }
-        set { browseGridState.page = newValue }
-    }
-
-    var allGridItems: [ComponentItem] {
-        get { browseGridState.items }
-        set { browseGridState.items = newValue }
-    }
-
-    var allReadingOrderCharacters: [String] {
-        get { browseGridState.readingOrderCharacters }
-        set { browseGridState.readingOrderCharacters = newValue }
-    }
+    @Published var browseGridState = RadixBrowseGridState()
     
     // MARK: - Computed Result Sets
     @Published private(set) var searchResults = RadixSearchResults()
