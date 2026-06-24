@@ -11,14 +11,6 @@ import Foundation
  3. Script Detection: Intelligently identifies Simplified vs Traditional characters for UI filtering.
 */
 
-enum ScriptFilter: String, CaseIterable, Identifiable {
-    case any = "Any"
-    case simplified = "Simplified"
-    case traditional = "Traditional"
-
-    var id: String { rawValue }
-}
-
 final class ComponentRepository {
     private(set) var byCharacter: [String: ComponentItem] = [:]
     private(set) var allCharacters: [String] = []

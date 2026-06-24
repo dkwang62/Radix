@@ -49,15 +49,6 @@ enum QuickEditDestination: Identifiable, Equatable {
 }
 
 @MainActor
-/// Controls how an imported backup interacts with existing data on the device.
-enum RestoreMode {
-    /// Merges backup into existing data — existing entries are kept, only new ones are added.
-    case additive
-    /// Replaces all existing data with the backup — existing entries are overwritten or removed.
-    case complete
-}
-
-@MainActor
 final class RadixStore: ObservableObject {
     let preferences: RadixPreferences = .standard
 

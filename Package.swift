@@ -24,6 +24,7 @@ let package = Package(
                 "PhraseModels.swift",
                 "PinyinSearchNormalizer.swift",
                 "PromptModels.swift",
+                "RadixDataCompatibilityModels.swift",
                 "RadixNavigationModels.swift",
                 "RadixPreferenceKey.swift",
                 "UnifiedPackage.swift",
