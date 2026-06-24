@@ -93,18 +93,18 @@ The portable test suite currently contains 13 tests across five suites.
 
 ## Active Workstream
 
-The central-store maintainability refactor is complete. Do not continue splitting
-files merely to reduce line counts. Resume user-directed product, UI, reliability,
-or Android work from this stable checkpoint.
+The central-store maintainability refactor is complete. Current product work is
+restoring unobtrusive navigation guidance: optional labels plus first-use,
+dismissible destination explanations that experienced users can hide or replay.
 
 ## Next Three Tasks
 
-1. Perform a short manual regression on real devices or working simulators for
-   backup restore, Browse saved pages, phrase classification, and My Data flows.
-2. Choose the next user-facing feature or defect from actual usage rather than
-   continuing structural refactoring.
-3. When Android implementation begins, introduce repository interfaces only as
-   required by a real Android adapter and reuse the existing portable contracts.
+1. Manually verify the navigation tips and `Icons & Labels`/`Icons Only` setting
+   on iPhone, iPad, and Mac Catalyst.
+2. Perform a short regression for backup restore, Browse saved pages, phrase
+   classification, and My Data flows.
+3. Choose the next user-facing feature or defect from actual usage rather than
+   restarting structural refactoring.
 
 Stop decision: the remaining `RadixStore` content is legitimate state ownership,
 caches, dependencies, and compatibility plumbing. Repository protocols are not
@@ -162,6 +162,7 @@ Final refactor verification on 2026-06-24:
 - Co-located Browse grid and saved page collection adapters.
 - Co-located presentation and Browse highlight adapters.
 - Completed the final dead-code/source-membership audit and platform build matrix.
+- Restored optional navigation labels and progressive first-use destination help.
 
 ## Updating This File
 

@@ -206,6 +206,18 @@ Prefer:
 Keep roman text, pinyin, and helper labels legible. Avoid shrinking important
 learning text below the app's current minimum readability floor.
 
+The five primary navigation destinations use progressive guidance:
+
+- `Icons & Labels` is the default and keeps destination names visible.
+- Experienced users may choose `Icons Only` in Settings.
+- The first visit to Browse, Study, AI Link, My Data, or Settings shows one
+  short, dismissible explanation anchored to that navigation button.
+- Once dismissed, the explanation stays out of the way.
+- Long-press/right-click on a destination can reopen its explanation.
+- Settings includes `Show Navigation Tips Again` to reset first-visit guidance.
+
+Do not replace this with permanent paragraphs on every destination screen.
+
 ## Refactor guardrails
 
 - Do not mix Apple Review fixes with large UI refactors unless explicitly asked.

@@ -51,7 +51,12 @@ enum SidebarNavigationStyle: String, CaseIterable, Identifiable, Codable {
     case compact = "Compact"
 
     var id: String { rawValue }
-    var displayName: String { rawValue }
+    var displayName: String {
+        switch self {
+        case .descriptive: return "Icons & Labels"
+        case .compact: return "Icons Only"
+        }
+    }
 
     static func fromStoredValue(_ value: String) -> SidebarNavigationStyle? {
         if value == "Full" { return .descriptive }

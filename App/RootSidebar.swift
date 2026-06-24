@@ -78,6 +78,7 @@ extension RootView {
 
     func sidebarTabButton(_ item: RadixNavigationItem) -> some View {
         let id = item.rawValue
+        let guideTopic = item.guideTopic ?? .browse
         let showsTitle = store.sidebarNavigationStyle == .descriptive
         let isActive = {
             if store.route == .favourites { return id == 3 }
@@ -110,6 +111,11 @@ extension RootView {
             default:
                 break
             }
+            if let topic = item.guideTopic {
+                DispatchQueue.main.async {
+                    offerNavigationGuide(topic)
+                }
+            }
         } label: {
             VStack(spacing: showsTitle ? 2 : 0) {
                 Image(systemName: item.icon)
@@ -133,6 +139,7 @@ extension RootView {
         .buttonStyle(.plain)
         .accessibilityLabel(item.title)
         .accessibilityValue(isActive ? "Selected" : "")
+        .accessibilityHint(item.subtitle)
         .overlay(
             Group {
                 if isActive {
@@ -143,6 +150,12 @@ extension RootView {
                 }
             }
         )
+        .navigationGuidePopover(
+            topic: guideTopic,
+            isPresented: navigationGuideBinding(for: guideTopic),
+            onDismiss: { dismissNavigationGuide(guideTopic) },
+            onShowHelp: { offerNavigationGuide(guideTopic, force: true) }
+        )
     }
 
     var sidebarSettingsTabButton: some View {
@@ -151,6 +164,9 @@ extension RootView {
         return Button {
             hasUsedSidebarNavigation = true
             store.goToSettings()
+            DispatchQueue.main.async {
+                offerNavigationGuide(.settings)
+            }
         } label: {
             VStack(spacing: showsTitle ? 2 : 0) {
                 Image(systemName: RadixIcon.settings)
@@ -174,6 +190,7 @@ extension RootView {
         .buttonStyle(.plain)
         .accessibilityLabel("Settings")
         .accessibilityValue(store.route == .settings ? "Selected" : "")
+        .accessibilityHint(RadixNavigationGuideTopic.settings.summary)
         .overlay(
             Group {
                 if store.route == .settings {
@@ -183,6 +200,12 @@ extension RootView {
                     EmptyView()
                 }
             }
+        )
+        .navigationGuidePopover(
+            topic: .settings,
+            isPresented: navigationGuideBinding(for: .settings),
+            onDismiss: { dismissNavigationGuide(.settings) },
+            onShowHelp: { offerNavigationGuide(.settings, force: true) }
         )
     }
 

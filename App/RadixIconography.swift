@@ -98,4 +98,89 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
         case .myData: return RadixIcon.myData
         }
     }
+
+    var guideTopic: RadixNavigationGuideTopic? {
+        switch self {
+        case .browse: return .browse
+        case .study: return .study
+        case .aiLink: return .aiLink
+        case .myData: return .myData
+        case .scan, .search: return nil
+        }
+    }
+}
+
+enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
+    case browse
+    case study
+    case aiLink
+    case myData
+    case settings
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .browse: return RadixCopy.browse
+        case .study: return RadixCopy.study
+        case .aiLink: return RadixCopy.aiLink
+        case .myData: return RadixCopy.myData
+        case .settings: return RadixCopy.settings
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .browse: return RadixIcon.browse
+        case .study: return RadixIcon.study
+        case .aiLink: return RadixIcon.aiLink
+        case .myData: return RadixIcon.myData
+        case .settings: return RadixIcon.settings
+        }
+    }
+
+    var summary: String {
+        switch self {
+        case .browse:
+            return "Look through the Chinese in Radix."
+        case .study:
+            return "Return to the things you want to remember."
+        case .aiLink:
+            return "Ask an AI service to help with Chinese material."
+        case .myData:
+            return "Keep your Radix work safe and move it between devices."
+        case .settings:
+            return "Choose how Radix behaves and connects to AI services."
+        }
+    }
+
+    var details: [String] {
+        switch self {
+        case .browse:
+            return [
+                "Dictionary — explore characters by strokes, components, frequency, or writing style.",
+                "Saved Pages — reopen text captured from photos, files, or pasted text."
+            ]
+        case .study:
+            return [
+                "Review favorites, recent items, added phrases, notes, and saved pages.",
+                "Use snapshots when you want to preserve or return to a learning state."
+            ]
+        case .aiLink:
+            return [
+                "Translate, explain, compare, or extract phrases using reusable instructions.",
+                "Work with the current character, phrase, or saved page."
+            ]
+        case .myData:
+            return [
+                "Save or restore a backup without mixing backup tools into Study.",
+                "Advanced Pro provides additional import and export files."
+            ]
+        case .settings:
+            return [
+                "Choose read-aloud, AI provider, API keys, and navigation labels.",
+                "Open the glossary or show navigation tips again at any time."
+            ]
+        }
+    }
 }

@@ -20,6 +20,8 @@ struct NavigationCompatibilityTests {
         #expect(SidebarNavigationStyle.fromStoredValue("Full") == .descriptive)
         #expect(SidebarNavigationStyle.fromStoredValue("Compact") == .compact)
         #expect(SidebarNavigationStyle.fromStoredValue("Unknown") == nil)
+        #expect(SidebarNavigationStyle.descriptive.displayName == "Icons & Labels")
+        #expect(SidebarNavigationStyle.compact.displayName == "Icons Only")
     }
 
     @Test("Tab indices keep their established layout mapping")

@@ -5,6 +5,7 @@ struct SettingsView: View {
     @EnvironmentObject private var store: RadixStore
     @State private var showResetMemoryConfirmation = false
     @State private var resetMemoryStatus: String?
+    @State private var navigationTipsReset = false
     let showsCloseButton: Bool
     let onShowWelcome: (() -> Void)?
 
@@ -22,6 +23,31 @@ struct SettingsView: View {
             Section("Playback") {
                 Toggle(isOn: $store.speechEnabled) {
                     Label("Read Aloud", systemImage: store.speechMenuSymbolName)
+                }
+            }
+
+            Section("Navigation") {
+                Picker("Navigation buttons", selection: storeBinding(\.sidebarNavigationStyle)) {
+                    ForEach(SidebarNavigationStyle.allCases) { style in
+                        Text(style.displayName).tag(style)
+                    }
+                }
+
+                Text("Icons & Labels keeps the five destinations named. Icons Only gives experienced users more space.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+
+                Button {
+                    RadixRootPreferences.resetNavigationGuides()
+                    navigationTipsReset = true
+                } label: {
+                    Label("Show Navigation Tips Again", systemImage: RadixIcon.help)
+                }
+
+                if navigationTipsReset {
+                    Text("Tips will appear once as you next open Browse, Study, AI Link, My Data, and Settings.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
 

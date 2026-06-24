@@ -61,6 +61,84 @@ extension RootView {
             store.clearSearch()
         }
     }
+
+    func offerNavigationGuide(_ topic: RadixNavigationGuideTopic, force: Bool = false) {
+        guard force || !RadixRootPreferences.hasSeenNavigationGuide(topic.id) else { return }
+        navigationGuideTopic = topic
+    }
+
+    func dismissNavigationGuide(_ topic: RadixNavigationGuideTopic) {
+        RadixRootPreferences.setNavigationGuideSeen(topic.id)
+        if navigationGuideTopic == topic {
+            navigationGuideTopic = nil
+        }
+    }
+
+    func navigationGuideBinding(for topic: RadixNavigationGuideTopic) -> Binding<Bool> {
+        Binding(
+            get: { navigationGuideTopic == topic },
+            set: { isPresented in
+                if !isPresented {
+                    dismissNavigationGuide(topic)
+                }
+            }
+        )
+    }
+}
+
+struct NavigationGuidePopover: View {
+    let topic: RadixNavigationGuideTopic
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label(topic.title, systemImage: topic.icon)
+                .font(ResponsiveFont.title3.weight(.bold))
+
+            Text(topic.summary)
+                .font(ResponsiveFont.body)
+
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(topic.details, id: \.self) { detail in
+                    Label(detail, systemImage: "checkmark.circle")
+                        .font(ResponsiveFont.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            Button("Got it") {
+                onDismiss()
+            }
+            .buttonStyle(.borderedProminent)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+        .padding(16)
+        .frame(idealWidth: 360, maxWidth: 420)
+        .presentationCompactAdaptation(.popover)
+        .accessibilityElement(children: .contain)
+    }
+}
+
+extension View {
+    func navigationGuidePopover(
+        topic: RadixNavigationGuideTopic,
+        isPresented: Binding<Bool>,
+        onDismiss: @escaping () -> Void,
+        onShowHelp: @escaping () -> Void
+    ) -> some View {
+        popover(isPresented: isPresented, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
+            NavigationGuidePopover(topic: topic, onDismiss: onDismiss)
+        }
+        .contextMenu {
+            Button {
+                onShowHelp()
+            } label: {
+                Label("What can I do here?", systemImage: RadixIcon.help)
+            }
+        }
+        .help(topic.summary)
+    }
 }
 
 func emptyStateCard(systemImage: String, title: String, message: String) -> some View {

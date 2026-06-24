@@ -174,6 +174,7 @@ extension RootView {
 
     func tabButton(_ item: RadixNavigationItem) -> some View {
         let id = item.rawValue
+        let guideTopic = item.guideTopic ?? .browse
         let showsTitle = store.sidebarNavigationStyle == .descriptive
         let isActive = {
             if store.route == .capture { return id == 0 }
@@ -217,6 +218,11 @@ extension RootView {
                 store.route = .search
                 store.homeTab = .smart
             }
+            if let topic = item.guideTopic {
+                DispatchQueue.main.async {
+                    offerNavigationGuide(topic)
+                }
+            }
         } label: {
             VStack(spacing: showsTitle ? 2 : 0) {
                 Image(systemName: item.icon)
@@ -241,6 +247,13 @@ extension RootView {
         .buttonStyle(.plain)
         .accessibilityLabel(item.title)
         .accessibilityValue(isActive ? "Selected" : "")
+        .accessibilityHint(item.subtitle)
+        .navigationGuidePopover(
+            topic: guideTopic,
+            isPresented: navigationGuideBinding(for: guideTopic),
+            onDismiss: { dismissNavigationGuide(guideTopic) },
+            onShowHelp: { offerNavigationGuide(guideTopic, force: true) }
+        )
     }
 
     var phoneSettingsTabButton: some View {
@@ -248,6 +261,9 @@ extension RootView {
 
         return Button {
             store.goToSettings()
+            DispatchQueue.main.async {
+                offerNavigationGuide(.settings)
+            }
         } label: {
             VStack(spacing: showsTitle ? 2 : 0) {
                 Image(systemName: RadixIcon.settings)
@@ -270,5 +286,12 @@ extension RootView {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Settings")
+        .accessibilityHint(RadixNavigationGuideTopic.settings.summary)
+        .navigationGuidePopover(
+            topic: .settings,
+            isPresented: navigationGuideBinding(for: .settings),
+            onDismiss: { dismissNavigationGuide(.settings) },
+            onShowHelp: { offerNavigationGuide(.settings, force: true) }
+        )
     }
 }
