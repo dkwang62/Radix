@@ -190,14 +190,14 @@ extension RadixStore {
     // MARK: - Persistence
 
     func loadRootBreadcrumb() {
-        guard let saved = preferences.array(forKey: rootBreadcrumbKey) as? [String] else { return }
+        guard let saved = preferences.array(forKey: RadixPreferenceKey.rootBreadcrumb) as? [String] else { return }
         let loaded = sanitizedRootBreadcrumb(saved)
         rootBreadcrumb = loaded
         rootBreadcrumbIndex = loaded.isEmpty ? 0 : min(rootBreadcrumbIndex, loaded.count - 1)
     }
 
     func persistRootBreadcrumb() {
-        preferences.set(rootBreadcrumb, forKey: rootBreadcrumbKey)
+        preferences.set(rootBreadcrumb, forKey: RadixPreferenceKey.rootBreadcrumb)
     }
 
     func applyRootBreadcrumb(_ characters: [String]) {
@@ -248,7 +248,7 @@ extension RadixStore {
         searchHistory = queries
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
-        preferences.set(searchHistory, forKey: searchHistoryKey)
+        preferences.set(searchHistory, forKey: RadixPreferenceKey.searchHistory)
     }
 
     func seedBreadcrumbFromFavorites() {

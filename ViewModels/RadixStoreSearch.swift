@@ -11,7 +11,7 @@ import Foundation
 extension RadixStore {
 
     func loadSearchHistory() {
-        guard let saved = preferences.array(forKey: searchHistoryKey) as? [String] else { return }
+        guard let saved = preferences.array(forKey: RadixPreferenceKey.searchHistory) as? [String] else { return }
         searchHistory = saved
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
@@ -21,7 +21,7 @@ extension RadixStore {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         searchHistory.append(trimmed)
-        preferences.set(searchHistory, forKey: searchHistoryKey)
+        preferences.set(searchHistory, forKey: RadixPreferenceKey.searchHistory)
     }
 
     // MARK: - Search execution
@@ -96,7 +96,7 @@ extension RadixStore {
 
     func clearSearchHistory() {
         searchHistory = []
-        preferences.removeObject(forKey: searchHistoryKey)
+        preferences.removeObject(forKey: RadixPreferenceKey.searchHistory)
     }
 
     func setSearchMode(_ mode: SearchMode) {

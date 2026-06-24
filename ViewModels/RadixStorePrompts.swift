@@ -11,31 +11,31 @@ import Foundation
 extension RadixStore {
 
     func loadPromptSettings() {
-        if preferences.object(forKey: speechEnabledKey) != nil {
-            speechEnabled = preferences.bool(forKey: speechEnabledKey)
-        } else if preferences.object(forKey: speakOnSelectionKey) != nil
-                    || preferences.object(forKey: speakOnPreviewKey) != nil {
-            speechEnabled = preferences.bool(forKey: speakOnSelectionKey)
-                || preferences.bool(forKey: speakOnPreviewKey)
+        if preferences.object(forKey: RadixPreferenceKey.speechEnabled) != nil {
+            speechEnabled = preferences.bool(forKey: RadixPreferenceKey.speechEnabled)
+        } else if preferences.object(forKey: RadixPreferenceKey.legacySpeakOnSelection) != nil
+                    || preferences.object(forKey: RadixPreferenceKey.legacySpeakOnPreview) != nil {
+            speechEnabled = preferences.bool(forKey: RadixPreferenceKey.legacySpeakOnSelection)
+                || preferences.bool(forKey: RadixPreferenceKey.legacySpeakOnPreview)
         }
-        if let data = preferences.data(forKey: promptConfigKey),
+        if let data = preferences.data(forKey: RadixPreferenceKey.promptConfig),
            let saved = try? JSONDecoder().decode(PromptConfig.self, from: data) {
             promptConfig = saved.normalized()
         }
-        if let selection = preferences.array(forKey: promptTaskSelectionKey) as? [String] {
+        if let selection = preferences.array(forKey: RadixPreferenceKey.promptTaskSelection) as? [String] {
             promptSelectedTaskIDs = selection
         }
-        if let rawPreset = preferences.string(forKey: defaultAIPresetKey),
+        if let rawPreset = preferences.string(forKey: RadixPreferenceKey.defaultAIPreset),
            let preset = DefaultAIPreset(rawValue: rawPreset) {
             defaultAIPreset = preset
         }
-        if let value = preferences.string(forKey: customAIURLKey) { customAIURLString = value }
-        if let value = preferences.string(forKey: openAIAPIKeyKey) { openAIAPIKey = value }
-        if let value = preferences.string(forKey: geminiAPIKeyKey) { geminiAPIKey = value }
-        if let value = preferences.string(forKey: claudeAPIKeyKey) { claudeAPIKey = value }
-        if let value = preferences.string(forKey: deepSeekAPIKeyKey) { deepSeekAPIKey = value }
-        if let value = preferences.string(forKey: customAIAPIKeyKey) { customAIAPIKey = value }
-        if let value = preferences.string(forKey: geminiModelIDKey),
+        if let value = preferences.string(forKey: RadixPreferenceKey.customAIURL) { customAIURLString = value }
+        if let value = preferences.string(forKey: RadixPreferenceKey.openAIAPIKey) { openAIAPIKey = value }
+        if let value = preferences.string(forKey: RadixPreferenceKey.geminiAPIKey) { geminiAPIKey = value }
+        if let value = preferences.string(forKey: RadixPreferenceKey.claudeAPIKey) { claudeAPIKey = value }
+        if let value = preferences.string(forKey: RadixPreferenceKey.deepSeekAPIKey) { deepSeekAPIKey = value }
+        if let value = preferences.string(forKey: RadixPreferenceKey.customAIAPIKey) { customAIAPIKey = value }
+        if let value = preferences.string(forKey: RadixPreferenceKey.geminiModelID),
            !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             geminiModelID = value
         }
@@ -43,17 +43,17 @@ extension RadixStore {
 
     func persistPromptSettings() {
         if let data = try? JSONEncoder().encode(promptConfig) {
-            preferences.set(data, forKey: promptConfigKey)
+            preferences.set(data, forKey: RadixPreferenceKey.promptConfig)
         }
-        preferences.set(promptSelectedTaskIDs, forKey: promptTaskSelectionKey)
-        preferences.set(defaultAIPreset.rawValue, forKey: defaultAIPresetKey)
-        preferences.set(customAIURLString, forKey: customAIURLKey)
-        preferences.set(openAIAPIKey, forKey: openAIAPIKeyKey)
-        preferences.set(geminiAPIKey, forKey: geminiAPIKeyKey)
-        preferences.set(claudeAPIKey, forKey: claudeAPIKeyKey)
-        preferences.set(deepSeekAPIKey, forKey: deepSeekAPIKeyKey)
-        preferences.set(customAIAPIKey, forKey: customAIAPIKeyKey)
-        preferences.set(geminiModelID, forKey: geminiModelIDKey)
+        preferences.set(promptSelectedTaskIDs, forKey: RadixPreferenceKey.promptTaskSelection)
+        preferences.set(defaultAIPreset.rawValue, forKey: RadixPreferenceKey.defaultAIPreset)
+        preferences.set(customAIURLString, forKey: RadixPreferenceKey.customAIURL)
+        preferences.set(openAIAPIKey, forKey: RadixPreferenceKey.openAIAPIKey)
+        preferences.set(geminiAPIKey, forKey: RadixPreferenceKey.geminiAPIKey)
+        preferences.set(claudeAPIKey, forKey: RadixPreferenceKey.claudeAPIKey)
+        preferences.set(deepSeekAPIKey, forKey: RadixPreferenceKey.deepSeekAPIKey)
+        preferences.set(customAIAPIKey, forKey: RadixPreferenceKey.customAIAPIKey)
+        preferences.set(geminiModelID, forKey: RadixPreferenceKey.geminiModelID)
         updatePromptAutosaveStatus()
     }
 

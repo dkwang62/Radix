@@ -75,7 +75,7 @@ extension RadixStore {
     }
 
     func loadSidebarNavigationStyle() {
-        if let saved = preferences.string(forKey: sidebarNavigationStyleKey),
+        if let saved = preferences.string(forKey: RadixPreferenceKey.sidebarNavigationStyle),
            let style = SidebarNavigationStyle.fromStoredValue(saved) {
             sidebarNavigationStyle = style
         } else {

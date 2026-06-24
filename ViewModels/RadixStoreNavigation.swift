@@ -20,12 +20,12 @@ extension RadixStore {
         guard let character else { return }
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
         guard key.count == 1, componentRepo.hasCharacter(key) else { return }
-        preferences.set(key, forKey: lastPreviewCharacterKey)
+        preferences.set(key, forKey: RadixPreferenceKey.lastPreviewCharacter)
     }
 
     func restoreLastPreviewedCharacterIfNeeded() {
         guard previewCharacter == nil,
-              let saved = preferences.string(forKey: lastPreviewCharacterKey)
+              let saved = preferences.string(forKey: RadixPreferenceKey.lastPreviewCharacter)
         else { return }
         let key = saved.trimmingCharacters(in: .whitespacesAndNewlines)
         guard key.count == 1, componentRepo.hasCharacter(key) else { return }

@@ -157,7 +157,7 @@ final class RadixStore: ObservableObject {
         get { navigationState.sidebarNavigationStyle }
         set {
             navigationState.sidebarNavigationStyle = newValue
-            preferences.set(newValue.rawValue, forKey: sidebarNavigationStyleKey)
+            preferences.set(newValue.rawValue, forKey: RadixPreferenceKey.sidebarNavigationStyle)
         }
     }
 
@@ -600,7 +600,7 @@ final class RadixStore: ObservableObject {
     }
 
     @Published var speechEnabled: Bool = true {
-        didSet { preferences.set(speechEnabled, forKey: speechEnabledKey) }
+        didSet { preferences.set(speechEnabled, forKey: RadixPreferenceKey.speechEnabled) }
     }
     var activeFavouriteCharacter: String? { get { presentationState.activeFavouriteCharacter } set { presentationState.activeFavouriteCharacter = newValue } }
     @Published private(set) var dataAuditState = RadixDataAuditState()
@@ -755,30 +755,6 @@ final class RadixStore: ObservableObject {
     let phraseRepo = PhraseRepository()
     let entitlement = EntitlementManager()
     let speechService = CharacterSpeechService()
-    let favoritesKey = "radix.favorites"
-    let favoriteEntriesKey = "radix.favoriteEntries"
-    let favoritePhrasesKey = "radix.favoritePhrases"
-    let favoritePhraseDatesKey = "radix.favoritePhraseDates"
-    let overlayAddedDatesKey = "radix.overlayAddedDates"
-    let speechEnabledKey = "radix.speechEnabled"
-    let speakOnSelectionKey = "radix.speakOnSelection"
-    let speakOnPreviewKey = "radix.speakOnPreview"
-    let promptConfigKey = "radix.promptConfig"
-    let promptTaskSelectionKey = "radix.promptSelectedTaskIDs"
-    let defaultAIPresetKey = "radix.defaultAIPreset"
-    let customAIURLKey = "radix.customAIURL"
-    let openAIAPIKeyKey = "radix.openAIAPIKey"
-    let geminiAPIKeyKey = "radix.geminiAPIKey"
-    let claudeAPIKeyKey = "radix.claudeAPIKey"
-    let deepSeekAPIKeyKey = "radix.deepSeekAPIKey"
-    let customAIAPIKeyKey = "radix.customAIAPIKey"
-    let geminiModelIDKey = "radix.geminiModelID"
-    let collectionsKey = "radix.characterCollections"
-    let selectedAICollectionKey = "radix.selectedAICollectionID"
-    let lastPreviewCharacterKey = "radix.lastPreviewCharacter"
-    let searchHistoryKey = "radix.searchHistory"
-    let rootBreadcrumbKey = "radix.rootBreadcrumb"
-    let sidebarNavigationStyleKey = "radix.sidebarNavigationStyle"
     var pendingDatasetAutosaveWorkItem: DispatchWorkItem?
     var pendingGridRecomputeWorkItem: DispatchWorkItem?
     var isApplyingDatasetEntry = false

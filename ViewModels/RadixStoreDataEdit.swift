@@ -66,7 +66,7 @@ extension RadixStore {
 
     func persistOverlayAddedDates() {
         let encoded = overlayAddedDates.mapValues { $0.timeIntervalSince1970 }
-        preferences.set(encoded, forKey: overlayAddedDatesKey)
+        preferences.set(encoded, forKey: RadixPreferenceKey.overlayAddedDates)
     }
 
     // MARK: - Load

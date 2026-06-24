@@ -97,14 +97,14 @@ extension RadixStore {
     private func restoreImportedPreview(_ candidate: String?, complete: Bool) {
         if let candidate, componentRepo.hasCharacter(candidate) {
             previewCharacter = candidate
-            preferences.set(candidate, forKey: lastPreviewCharacterKey)
+            preferences.set(candidate, forKey: RadixPreferenceKey.lastPreviewCharacter)
             refreshPhrases(for: candidate)
             loadSharedComponentPeers(for: candidate)
             loadSharedPeersByComponent(for: candidate)
             loadRootDerivatives(for: candidate)
         } else if complete {
             previewCharacter = nil
-            preferences.removeObject(forKey: lastPreviewCharacterKey)
+            preferences.removeObject(forKey: RadixPreferenceKey.lastPreviewCharacter)
             phrases = []
             sharedComponentPeers = []
             sharedPeersByComponent = [:]
