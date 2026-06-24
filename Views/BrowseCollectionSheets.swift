@@ -132,6 +132,9 @@ struct BrowseOCRReviewSheet: View {
                 }
 
                 Section("2. Paste ChatGPT’s answer") {
+                    Text("The corrected source stays in Chinese. Explanations, confidence reasons, and uncertainty notes should be in English.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
                     TextEditor(text: $response)
                         .font(.system(size: 14, design: .monospaced))
                         .frame(minHeight: 140)

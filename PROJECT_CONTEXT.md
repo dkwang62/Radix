@@ -125,6 +125,8 @@ characters, nearby dictionary phrases, and the saved reference image. The user
 pastes ChatGPT's structured response, compares it with the original, and must
 explicitly apply it; Radix never replaces OCR automatically. New OCR pages retain
 an optional review-sized source image in addition to the normal UI thumbnail.
+The corrected source remains Chinese, while change reasons, confidence, and
+uncertainty explanations are explicitly requested in English.
 
 ## Next Three Tasks
 

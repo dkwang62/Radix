@@ -233,19 +233,24 @@ extension RadixStore {
         DICTIONARY PHRASES DETECTED NEARBY:
         \(nearbyPhrases.isEmpty ? "None detected" : nearbyPhrases.joined(separator: ", "))
 
-        Compare the OCR with the attached image. Return exactly these sections:
+        Compare the OCR with the attached image. The corrected source text must
+        remain in its original Chinese. All explanations, confidence reasons,
+        uncertainty notes, and other commentary must be written in clear English.
+        Return exactly these sections:
 
         [[CORRECTED TEXT]]
         The complete corrected source text, preserving reading order and punctuation.
 
         [[CHANGES]]
         One proposed change per line:
-        original → correction | high/medium/low | brief visual or contextual reason
+        original Chinese → corrected Chinese | high/medium/low | brief reason in English
 
         [[UNCERTAIN]]
-        List passages that remain uncertain. Write "None" if there are none.
+        Explain uncertain passages in English while quoting the relevant Chinese.
+        Write "None" if there are none.
 
-        Never claim certainty when the image is unclear. Do not include any text outside these three sections.
+        Never claim certainty when the image is unclear. Do not explain the
+        corrections in Chinese. Do not include any text outside these three sections.
         """
     }
 
