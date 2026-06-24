@@ -101,6 +101,9 @@ context-menu presentation containers to the five equal-width tab buttons because
 those wrappers can collapse the SwiftUI HStack to one visible destination.
 Each destination guide should name concrete user actions and examples, not merely
 summarize the section.
+Every guide uses `Why it matters` followed by `What you can do`; AI Link is
+specifically framed as extending beyond traditional dictionary coverage through
+contextual translation, deeper explanation, emerging concepts, and phrase extraction.
 `Icons & Labels` is the explicit default navigation style; `Icons Only` remains
 an experienced-user option and must not become the fallback accidentally.
 Advanced Exports are a code and structured-data foundation for authoring software

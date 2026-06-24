@@ -219,11 +219,18 @@ The five primary navigation destinations use progressive guidance:
 - Experienced users may choose `Icons Only` in Settings.
 - The first visit to Browse, Study, AI Link, My Data, or Settings shows one
   dismissible explanation with concrete actions available in that destination.
+- Each explanation begins with why the destination matters, then describes what
+  the user can do. Do not present a bare inventory of controls.
 - Once dismissed, the explanation stays out of the way.
 - Long-press/right-click on a destination can reopen its explanation.
 - Settings includes `Show Navigation Tips Again` to reset first-visit guidance.
 
 Do not replace this with permanent paragraphs on every destination screen.
+
+AI Link should be explained as the way Radix goes beyond fixed traditional
+dictionary coverage. Its purpose includes contextual translation, deeper
+explanation, emerging phrases and concepts, current usage, and extracting useful
+expressions from real material so they can return to Radix for study.
 
 ## Refactor guardrails
 

@@ -86,10 +86,15 @@ struct NavigationGuidePopover: View {
                 Label(topic.title, systemImage: topic.icon)
                     .font(ResponsiveFont.title3.weight(.bold))
 
+                Text("Why it matters")
+                    .font(ResponsiveFont.subheadline.weight(.bold))
+
                 Text(topic.summary)
                     .font(ResponsiveFont.body)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
 
-                Text("You can…")
+                Text("What you can do")
                     .font(ResponsiveFont.subheadline.weight(.bold))
 
                 VStack(alignment: .leading, spacing: 12) {

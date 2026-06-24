@@ -142,15 +142,15 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
     var summary: String {
         switch self {
         case .browse:
-            return "Look through the Chinese in Radix."
+            return "Browse turns captured or unfamiliar Chinese into something you can inspect. It connects the dictionary with the original page, so you can move from a character to its structure, phrases, and real context."
         case .study:
-            return "Return to the things you want to remember."
+            return "Study keeps useful discoveries from disappearing after you close a page. It brings your favorites, recent work, additions, notes, and saved learning states together for deliberate review."
         case .aiLink:
-            return "Ask an AI service to help with Chinese material."
+            return "AI Link goes beyond the fixed definitions of a traditional dictionary. It helps you understand Chinese in context, explore emerging phrases and concepts, extract useful expressions, and keep up with language that dictionaries may not yet cover."
         case .myData:
-            return "Keep your Radix work safe and move it between devices."
+            return "My Data gives you ownership of the Chinese knowledge you build in Radix. It protects your work, moves it between devices, and provides code and data foundations when you want to build further with AI agents."
         case .settings:
-            return "Choose how Radix behaves and connects to AI services."
+            return "Settings adapts Radix to the way you learn and work. It controls speech, navigation guidance, AI connections, privacy-sensitive keys, and access to help."
         }
     }
 
@@ -206,23 +206,23 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
             return [
                 RadixNavigationGuideAction(
                     icon: "textformat.characters",
-                    title: "Choose the subject",
-                    detail: "Work with a character, phrase, search result, or complete saved page."
+                    title: "Go beyond a short definition",
+                    detail: "Ask for nuance, background, usage, comparisons, examples, and concepts that a compact dictionary entry cannot fully explain."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "quote.bubble",
+                    title: "Understand meaning in context",
+                    detail: "Translate a phrase or complete saved page according to how the words are being used, rather than translating each character in isolation."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "text.badge.plus",
+                    title: "Discover newer language",
+                    detail: "Explore current phrases, names, slang, technical ideas, and changing concepts that may not yet appear in traditional dictionaries."
                 ),
                 RadixNavigationGuideAction(
                     icon: "list.bullet.clipboard",
-                    title: "Choose what AI should do",
-                    detail: "Translate, explain, create examples, compare ideas, or extract useful phrases."
-                ),
-                RadixNavigationGuideAction(
-                    icon: "slider.horizontal.3",
-                    title: "Reuse or customize instructions",
-                    detail: "Turn tasks on and off, then edit the prompt when you need a different result."
-                ),
-                RadixNavigationGuideAction(
-                    icon: "arrow.up.forward.app",
-                    title: "Send it to your AI service",
-                    detail: "Copy the prepared instruction or open ChatGPT, Gemini, Claude, DeepSeek, or your custom service."
+                    title: "Extract phrases worth keeping",
+                    detail: "Find meaningful expressions in a saved page, review the results, and add useful phrases back into Radix for later study."
                 )
             ]
         case .myData:
