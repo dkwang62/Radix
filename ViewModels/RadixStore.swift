@@ -50,7 +50,11 @@ enum QuickEditDestination: Identifiable, Equatable {
 
 @MainActor
 final class RadixStore: ObservableObject {
-    let preferences: RadixPreferences = .standard
+    let preferences: any RadixPreferenceStore
+
+    init(preferences: any RadixPreferenceStore = RadixPreferences.standard) {
+        self.preferences = preferences
+    }
 
     // MARK: - Navigation State
     @Published private(set) var navigationState = RadixNavigationState()

@@ -1,6 +1,6 @@
 import Foundation
 
-struct RadixPreferences: @unchecked Sendable {
+struct RadixPreferences: RadixPreferenceStore, @unchecked Sendable {
     static let standard = RadixPreferences()
 
     private let defaults: UserDefaults

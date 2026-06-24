@@ -3,11 +3,11 @@ import Foundation
 final class PhraseAddDatabaseLocationManager {
     private let overrideKey = "radix.phrasesAddOverridePath"
     private let overrideBookmarkKey = "radix.phrasesAddOverrideBookmark"
-    private let preferences: RadixPreferences
+    private let preferences: any RadixPreferenceStore
     private var overrideURL: URL?
     private var activeSecurityScopedURL: URL?
 
-    init(preferences: RadixPreferences = .standard) {
+    init(preferences: any RadixPreferenceStore = RadixPreferences.standard) {
         self.preferences = preferences
     }
 

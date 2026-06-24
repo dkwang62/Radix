@@ -53,7 +53,7 @@ class EntitlementManager: ObservableObject {
     @Published private(set) var hasDatedCopiesAccess: Bool = false
     @Published private(set) var hasActiveAnnualSubscription: Bool = false
     @Published private(set) var hasLifetimeAccess: Bool = false
-    private let preferences: RadixPreferences
+    private let preferences: any RadixPreferenceStore
     
     @Published var isPro: Bool = false {
         didSet {
@@ -80,7 +80,7 @@ class EntitlementManager: ObservableObject {
     private var updatesTask: Task<Void, Never>?
     private static let isProKey = "com.radix.isPro"
 
-    init(preferences: RadixPreferences = .standard) {
+    init(preferences: any RadixPreferenceStore = RadixPreferences.standard) {
         self.preferences = preferences
         self.isPro = preferences.bool(forKey: Self.isProKey)
         #if DEBUG

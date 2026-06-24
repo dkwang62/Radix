@@ -27,6 +27,7 @@ let package = Package(
                 "RadixDataCompatibilityModels.swift",
                 "RadixNavigationModels.swift",
                 "RadixPreferenceKey.swift",
+                "RadixPreferenceStore.swift",
                 "UnifiedPackage.swift",
                 "UserProfile.swift"
             ]
