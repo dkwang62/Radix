@@ -237,6 +237,10 @@ Use this same purpose-first explanation wherever AI Link, phrase extraction, or
 translation is introduced: state the learner benefit before describing buttons,
 API keys, copying, pasting, or other mechanics.
 
+Search guidance must expose exact English matching with a visible example:
+`=water` finds the meaning `water` without broadening it to terms such as
+`waterproof`. Do not hide the equals sign behind an example button's action.
+
 ## Refactor guardrails
 
 - Do not mix Apple Review fixes with large UI refactors unless explicitly asked.

@@ -114,6 +114,8 @@ the learner outcome before copy/paste, API, or other implementation mechanics.
 an experienced-user option and must not become the fallback accidentally.
 Advanced Exports are a code and structured-data foundation for authoring software
 with AI coding agents; describe them as distinct from backup and ordinary transfer.
+Search examples visibly teach exact English matching: `=water` matches `water`
+without broadening to meanings such as `waterproof`.
 
 ## Next Three Tasks
 

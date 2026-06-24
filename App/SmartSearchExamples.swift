@@ -12,9 +12,9 @@ extension SmartSearchTab {
                         localQuery = query
                         runSearch(query)
                     }
-                    SearchExampleButton(label: "Meaning", query: "water", desc: "水") { _ in
-                        localQuery = "=water"
-                        runSearch("=water")
+                    SearchExampleButton(label: "Exact meaning", query: "=water", desc: "water, not waterproof") { query in
+                        localQuery = query
+                        runSearch(query)
                     }
                     SearchExampleButton(label: "Phrase", query: "hanshui", desc: "含水") { query in
                         localQuery = query

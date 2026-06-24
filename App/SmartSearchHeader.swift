@@ -85,6 +85,7 @@ extension SmartSearchTab {
             SearchTypePill(title: "Character", example: "水")
             SearchTypePill(title: "Pinyin", example: "shui")
             SearchTypePill(title: "Meaning", example: "water")
+            SearchTypePill(title: "Exact", example: "=water")
             SearchTypePill(title: "Phrase", example: "含水")
             SearchTypePill(title: "Strokes", example: "丨フノ丶")
         }
