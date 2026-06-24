@@ -17,6 +17,7 @@ struct NavigationCompatibilityTests {
 
     @Test("Legacy sidebar style still migrates")
     func legacySidebarStyle() {
+        #expect(SidebarNavigationStyle.defaultStyle == .descriptive)
         #expect(SidebarNavigationStyle.fromStoredValue("Full") == .descriptive)
         #expect(SidebarNavigationStyle.fromStoredValue("Compact") == .compact)
         #expect(SidebarNavigationStyle.fromStoredValue("Unknown") == nil)

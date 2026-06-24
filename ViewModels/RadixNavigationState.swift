@@ -6,7 +6,7 @@ import Foundation
 struct RadixNavigationState: Equatable {
     var route: AppRoute = .search
     var homeTab: HomeTab = .filter
-    var sidebarNavigationStyle: SidebarNavigationStyle = .descriptive
+    var sidebarNavigationStyle: SidebarNavigationStyle = .defaultStyle
     var rootsReturnContext: RootsReturnContext?
     var previewCharacter: String?
     var history: [String] = []

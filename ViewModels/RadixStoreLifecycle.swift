@@ -79,7 +79,7 @@ extension RadixStore {
            let style = SidebarNavigationStyle.fromStoredValue(saved) {
             sidebarNavigationStyle = style
         } else {
-            sidebarNavigationStyle = .descriptive
+            sidebarNavigationStyle = .defaultStyle
         }
     }
 }

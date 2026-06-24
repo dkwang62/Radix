@@ -50,6 +50,8 @@ enum SidebarNavigationStyle: String, CaseIterable, Identifiable, Codable {
     case descriptive = "Descriptive"
     case compact = "Compact"
 
+    static let defaultStyle: SidebarNavigationStyle = .descriptive
+
     var id: String { rawValue }
     var displayName: String {
         switch self {

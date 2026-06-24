@@ -101,6 +101,8 @@ context-menu presentation containers to the five equal-width tab buttons because
 those wrappers can collapse the SwiftUI HStack to one visible destination.
 Each destination guide should name concrete user actions and examples, not merely
 summarize the section.
+`Icons & Labels` is the explicit default navigation style; `Icons Only` remains
+an experienced-user option and must not become the fallback accidentally.
 
 ## Next Three Tasks
 

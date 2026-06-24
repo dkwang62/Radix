@@ -208,7 +208,8 @@ learning text below the app's current minimum readability floor.
 
 The five primary navigation destinations use progressive guidance:
 
-- `Icons & Labels` is the default and keeps destination names visible.
+- `Icons & Labels` is the explicit product default and keeps the short
+  destination names visible.
 - Experienced users may choose `Icons Only` in Settings.
 - The first visit to Browse, Study, AI Link, My Data, or Settings shows one
   dismissible explanation with concrete actions available in that destination.
