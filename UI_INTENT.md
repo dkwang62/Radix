@@ -108,6 +108,10 @@ Study should not become a hodgepodge. Group it by intent:
 - Review: favorites, recent items, added items, notes, and saved pages.
 - Snapshots: save and restore learning states.
 
+The four Study summary buttons are the section selectors. Do not repeat
+Recent/Favorites as a segmented picker above the review grid; the grid heading
+should reflect the summary button most recently selected.
+
 ## AI intent
 
 AI remains a major app area.

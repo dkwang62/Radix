@@ -58,14 +58,14 @@ extension FavouritesTab {
         if isNarrowStudyLayout {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .center, spacing: 8) {
-                    sectionTitle("Recent & Favorites")
+                    sectionTitle(studyGridScope.title)
                     Spacer(minLength: 8)
                     if studyGridScope == .all {
                         clearRecentButton
                     }
                 }
-                HStack(spacing: 8) {
-                    studyScopePicker
+                HStack {
+                    Spacer(minLength: 0)
                     studyScriptToggle
                 }
                 studyFavoriteLegend
@@ -73,9 +73,8 @@ extension FavouritesTab {
         } else {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .center, spacing: 8) {
-                    sectionTitle("Recent & Favorites")
+                    sectionTitle(studyGridScope.title)
                     Spacer(minLength: 8)
-                    studyScopePicker
                     studyScriptToggle
                 }
                 if studyGridScope == .all {
@@ -101,21 +100,6 @@ extension FavouritesTab {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .accessibilityElement(children: .combine)
-    }
-
-    var studyScopePicker: some View {
-        Picker("Study items", selection: Binding(
-            get: { studyGridScope },
-            set: { studyGridScope = $0 }
-        )) {
-            ForEach(StudyGridScope.allCases) { scope in
-                Text(scope.title).tag(scope)
-            }
-        }
-        .pickerStyle(.segmented)
-        .controlSize(.small)
-        .frame(maxWidth: isNarrowStudyLayout ? 220 : 240)
-        .accessibilityLabel("Study items")
     }
 
     var clearRecentButton: some View {

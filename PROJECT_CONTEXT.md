@@ -128,6 +128,8 @@ the original page is never modified. New OCR pages retain an optional review-siz
 source image in addition to the normal UI thumbnail.
 The corrected source remains Chinese, while change reasons, confidence, and
 uncertainty explanations are explicitly requested in English.
+Study uses its four summary tiles as the section selectors. Recent and Favorites
+must not be repeated as a segmented picker above the review grid.
 
 ## Next Three Tasks
 
