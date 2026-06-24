@@ -168,9 +168,6 @@ extension RootView {
             .padding(.bottom, 7)
             .padding(.horizontal, 6)
         }
-        .navigationGuidePresenter(topic: $navigationGuideTopic) { topic in
-            dismissNavigationGuide(topic)
-        }
         .background(.bar)
         .shadow(color: Color.black.opacity(0.06), radius: 8, y: -2)
     }
@@ -251,9 +248,10 @@ extension RootView {
         .accessibilityLabel(item.title)
         .accessibilityValue(isActive ? "Selected" : "")
         .accessibilityHint(item.subtitle)
-        .navigationGuideContextMenu(
-            topic: guideTopic,
-            onShowHelp: { offerNavigationGuide(guideTopic, force: true) }
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.55).onEnded { _ in
+                offerNavigationGuide(guideTopic, force: true)
+            }
         )
     }
 
@@ -288,9 +286,10 @@ extension RootView {
         .buttonStyle(.plain)
         .accessibilityLabel("Settings")
         .accessibilityHint(RadixNavigationGuideTopic.settings.summary)
-        .navigationGuideContextMenu(
-            topic: .settings,
-            onShowHelp: { offerNavigationGuide(.settings, force: true) }
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.55).onEnded { _ in
+                offerNavigationGuide(.settings, force: true)
+            }
         )
     }
 }

@@ -68,6 +68,11 @@ struct RootView: View {
             QuickEditSheet(destination: destination)
                 .environmentObject(store)
         }
+        .popover(item: $navigationGuideTopic, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) { topic in
+            NavigationGuidePopover(topic: topic) {
+                dismissNavigationGuide(topic)
+            }
+        }
         .sheet(isPresented: Binding(
             get: { !hasSeenWelcome },
             set: { isPresented in

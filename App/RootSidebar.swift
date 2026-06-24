@@ -74,9 +74,6 @@ extension RootView {
             sidebarTabButton(.myData)
             sidebarSettingsTabButton
         }
-        .navigationGuidePresenter(topic: $navigationGuideTopic) { topic in
-            dismissNavigationGuide(topic)
-        }
     }
 
     func sidebarTabButton(_ item: RadixNavigationItem) -> some View {
@@ -153,10 +150,12 @@ extension RootView {
                 }
             }
         )
-        .navigationGuideContextMenu(
-            topic: guideTopic,
-            onShowHelp: { offerNavigationGuide(guideTopic, force: true) }
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.55).onEnded { _ in
+                offerNavigationGuide(guideTopic, force: true)
+            }
         )
+        .help(guideTopic.summary)
     }
 
     var sidebarSettingsTabButton: some View {
@@ -202,10 +201,12 @@ extension RootView {
                 }
             }
         )
-        .navigationGuideContextMenu(
-            topic: .settings,
-            onShowHelp: { offerNavigationGuide(.settings, force: true) }
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.55).onEnded { _ in
+                offerNavigationGuide(.settings, force: true)
+            }
         )
+        .help(RadixNavigationGuideTopic.settings.summary)
     }
 
     @ViewBuilder

@@ -110,32 +110,6 @@ struct NavigationGuidePopover: View {
     }
 }
 
-extension View {
-    func navigationGuidePresenter(
-        topic: Binding<RadixNavigationGuideTopic?>,
-        onDismiss: @escaping (RadixNavigationGuideTopic) -> Void
-    ) -> some View {
-        popover(item: topic, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) { activeTopic in
-            NavigationGuidePopover(topic: activeTopic) {
-                onDismiss(activeTopic)
-            }
-        }
-    }
-
-    func navigationGuideContextMenu(
-        topic: RadixNavigationGuideTopic,
-        onShowHelp: @escaping () -> Void
-    ) -> some View {
-        contextMenu {
-            Button {
-                onShowHelp()
-            } label: {
-                Label("What can I do here?", systemImage: RadixIcon.help)
-            }
-        }
-        .help(topic.summary)
-    }
-}
 
 func emptyStateCard(systemImage: String, title: String, message: String) -> some View {
     VStack(spacing: 8) {

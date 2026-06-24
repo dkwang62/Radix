@@ -96,6 +96,9 @@ The portable test suite currently contains 13 tests across five suites.
 The central-store maintainability refactor is complete. Current product work is
 restoring unobtrusive navigation guidance: optional labels plus first-use,
 dismissible destination explanations that experienced users can hide or replay.
+Navigation help presentation belongs at `RootView`; do not attach popover or
+context-menu presentation containers to the five equal-width tab buttons because
+those wrappers can collapse the SwiftUI HStack to one visible destination.
 
 ## Next Three Tasks
 
