@@ -32,7 +32,7 @@ AVFoundation, and Apple file-picker behavior remain adapter-layer concerns.
 
 `ViewModels/RadixStore.swift` owns repositories, aggregate state objects, caches,
 and compatibility properties needed by existing views. It has been reduced from
-roughly 1,550 lines to about 712 lines.
+roughly 1,550 lines to about 595 lines.
 
 State is divided into focused value types:
 
@@ -44,10 +44,11 @@ State is divided into focused value types:
 - `RadixAILinkState` and `RadixAIProviderState`
 - `RadixDataAuditState` and `RadixPresentationState`
 
-Navigation, search, and Character Studio form adapters are now co-located with
-their state definitions. Continue this pattern for the remaining state types:
-the central store should own state, while each state file exposes its related
-compatibility adapters.
+Navigation, search, Character Studio form, and Browse filter adapters are now
+co-located with their state definitions. Browse filter reset/recompute side
+effects live with the filter adapters. Continue this pattern for the remaining
+state types: the central store should own state, while each state file exposes
+its related compatibility adapters.
 
 ### Domain behavior
 
@@ -97,12 +98,11 @@ this is an architectural reorganization, not a UI redesign.
 
 ## Next Three Tasks
 
-1. Move Browse filter compatibility properties and their recompute side effects
-   from `RadixStore.swift` into `RadixBrowseFilterState.swift`.
-2. Co-locate Browse grid and collection adapters with their state definitions,
+1. Co-locate Browse grid and collection adapters with their state definitions,
    keeping paging and selection behavior unchanged.
-3. Co-locate presentation and highlight adapters, then reassess the remaining
-   central store for a clean dependency container or repository interfaces.
+2. Co-locate presentation and highlight adapters with their state definitions.
+3. Reassess the remaining central store for a clean dependency container or
+   repository interfaces before the final dead-code and platform-build audit.
 
 After those tasks, run a fresh dead-code audit and the complete platform build
 matrix before starting broader UI or Android implementation work.
@@ -147,6 +147,7 @@ reported separately from compilation failures.
 - Moved navigation, script, and restore contracts into `RadixCore`.
 - Added a platform-neutral preference-storage boundary.
 - Co-located navigation, search, and Character Studio form adapters.
+- Co-located Browse filter adapters and their recompute side effects.
 
 ## Updating This File
 
@@ -157,4 +158,3 @@ At the end of each completed work unit:
 3. Add only significant milestones; do not append a verbose session diary.
 4. Update test counts and verification expectations when they change.
 5. Commit this file with the code it describes.
-
