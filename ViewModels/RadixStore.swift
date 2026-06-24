@@ -574,7 +574,12 @@ final class RadixStore: ObservableObject {
         set { characterContextState.sharedPeersByComponent = newValue }
     }
 
-    @Published var addedPhrases: [PhraseItem] = []
+    @Published private(set) var dataWorkspaceState = RadixDataWorkspaceState()
+
+    var addedPhrases: [PhraseItem] {
+        get { dataWorkspaceState.addedPhrases }
+        set { dataWorkspaceState.addedPhrases = newValue }
+    }
     
     // MARK: - User Settings & Variances
     @Published private(set) var userLibraryState = RadixUserLibraryState()
@@ -888,9 +893,20 @@ final class RadixStore: ObservableObject {
     }
 
     var suppressHelpReset = false
-    @Published private(set) var loadingError: String?
-    @Published private(set) var dataEditSavePath: String = ""
-    @Published var addPhrasesPath: String = ""
+    private(set) var loadingError: String? {
+        get { dataWorkspaceState.loadingError }
+        set { dataWorkspaceState.loadingError = newValue }
+    }
+
+    private(set) var dataEditSavePath: String {
+        get { dataWorkspaceState.dictionaryOverlayPath }
+        set { dataWorkspaceState.dictionaryOverlayPath = newValue }
+    }
+
+    var addPhrasesPath: String {
+        get { dataWorkspaceState.addedPhrasesDatabasePath }
+        set { dataWorkspaceState.addedPhrasesDatabasePath = newValue }
+    }
     var showBrowseHelp: Bool { get { presentationState.showsBrowseHelp } set { presentationState.showsBrowseHelp = newValue } }
     var showComponentHelp: Bool { get { presentationState.showsComponentHelp } set { presentationState.showsComponentHelp = newValue } }
     var activeCaptureDraft: CaptureDraft { get { presentationState.activeCaptureDraft } set { presentationState.activeCaptureDraft = newValue } }
