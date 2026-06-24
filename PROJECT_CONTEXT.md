@@ -99,6 +99,8 @@ dismissible destination explanations that experienced users can hide or replay.
 Navigation help presentation belongs at `RootView`; do not attach popover or
 context-menu presentation containers to the five equal-width tab buttons because
 those wrappers can collapse the SwiftUI HStack to one visible destination.
+Each destination guide should name concrete user actions and examples, not merely
+summarize the section.
 
 ## Next Three Tasks
 

@@ -81,30 +81,54 @@ struct NavigationGuidePopover: View {
     let onDismiss: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label(topic.title, systemImage: topic.icon)
-                .font(ResponsiveFont.title3.weight(.bold))
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                Label(topic.title, systemImage: topic.icon)
+                    .font(ResponsiveFont.title3.weight(.bold))
 
-            Text(topic.summary)
-                .font(ResponsiveFont.body)
+                Text(topic.summary)
+                    .font(ResponsiveFont.body)
 
-            VStack(alignment: .leading, spacing: 8) {
-                ForEach(topic.details, id: \.self) { detail in
-                    Label(detail, systemImage: "checkmark.circle")
-                        .font(ResponsiveFont.subheadline)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                Text("You can…")
+                    .font(ResponsiveFont.subheadline.weight(.bold))
+
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(Array(topic.actions.enumerated()), id: \.offset) { _, action in
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: action.icon)
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(Color.accentColor)
+                                .frame(width: 24, height: 24)
+                                .background(Color.accentColor.opacity(0.1))
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(action.title)
+                                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                                Text(action.detail)
+                                    .font(ResponsiveFont.caption)
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                    }
                 }
-            }
 
-            Button("Got it") {
-                onDismiss()
+                Label(topic.reminder, systemImage: "hand.tap")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Button("Got it") {
+                    onDismiss()
+                }
+                .buttonStyle(.borderedProminent)
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            .buttonStyle(.borderedProminent)
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            .padding(16)
         }
-        .padding(16)
         .frame(idealWidth: 360, maxWidth: 420)
+        .frame(maxHeight: 560)
         .presentationCompactAdaptation(.popover)
         .accessibilityElement(children: .contain)
     }

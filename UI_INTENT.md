@@ -211,7 +211,7 @@ The five primary navigation destinations use progressive guidance:
 - `Icons & Labels` is the default and keeps destination names visible.
 - Experienced users may choose `Icons Only` in Settings.
 - The first visit to Browse, Study, AI Link, My Data, or Settings shows one
-  short, dismissible explanation anchored to that navigation button.
+  dismissible explanation with concrete actions available in that destination.
 - Once dismissed, the explanation stays out of the way.
 - Long-press/right-click on a destination can reopen its explanation.
 - Settings includes `Show Navigation Tips Again` to reset first-visit guidance.

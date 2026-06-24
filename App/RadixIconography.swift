@@ -154,33 +154,133 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
         }
     }
 
-    var details: [String] {
+    var actions: [RadixNavigationGuideAction] {
         switch self {
         case .browse:
             return [
-                "Dictionary — explore characters by strokes, components, frequency, or writing style.",
-                "Saved Pages — reopen text captured from photos, files, or pasted text."
+                RadixNavigationGuideAction(
+                    icon: "book.closed",
+                    title: "Explore the dictionary",
+                    detail: "Browse all characters or narrow them by strokes, component, frequency, and simplified or traditional form."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "square.grid.2x2",
+                    title: "Open saved pages",
+                    detail: "Return to Chinese captured from a photo, imported file, or pasted text."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "character.book.closed",
+                    title: "Inspect what you find",
+                    detail: "Tap a character for pronunciation, meaning, stroke animation, components, related characters, and phrases."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "highlighter",
+                    title: "Follow phrases on a page",
+                    detail: "Choose a phrase to highlight every matching character in its original page context."
+                )
             ]
         case .study:
             return [
-                "Review favorites, recent items, added phrases, notes, and saved pages.",
-                "Use snapshots when you want to preserve or return to a learning state."
+                RadixNavigationGuideAction(
+                    icon: "star",
+                    title: "Review what you saved",
+                    detail: "Revisit favorite and recent characters, phrases, and pages without searching again."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "checkmark.circle",
+                    title: "Classify added phrases",
+                    detail: "Mark new phrases as accepted, checked, hidden, or rejected so your phrase collection stays useful."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "note.text",
+                    title: "Find your own changes",
+                    detail: "See added characters, edited meanings, notes, and other personal learning material."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "clock.arrow.circlepath",
+                    title: "Use study snapshots",
+                    detail: "Save a learning state before major changes, then add missing items back or replace the current state later."
+                )
             ]
         case .aiLink:
             return [
-                "Translate, explain, compare, or extract phrases using reusable instructions.",
-                "Work with the current character, phrase, or saved page."
+                RadixNavigationGuideAction(
+                    icon: "textformat.characters",
+                    title: "Choose the subject",
+                    detail: "Work with a character, phrase, search result, or complete saved page."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "list.bullet.clipboard",
+                    title: "Choose what AI should do",
+                    detail: "Translate, explain, create examples, compare ideas, or extract useful phrases."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "slider.horizontal.3",
+                    title: "Reuse or customize instructions",
+                    detail: "Turn tasks on and off, then edit the prompt when you need a different result."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "arrow.up.forward.app",
+                    title: "Send it to your AI service",
+                    detail: "Copy the prepared instruction or open ChatGPT, Gemini, Claude, DeepSeek, or your custom service."
+                )
             ]
         case .myData:
             return [
-                "Save or restore a backup without mixing backup tools into Study.",
-                "Advanced Pro provides additional import and export files."
+                RadixNavigationGuideAction(
+                    icon: "square.and.arrow.up",
+                    title: "Save a full backup",
+                    detail: "Choose a location for a portable copy of your additions, favorites, pages, notes, settings, and classifications."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "arrow.down.doc",
+                    title: "Merge a backup",
+                    detail: "Bring missing material onto this device while keeping newer work already here."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "arrow.clockwise",
+                    title: "Replace this device",
+                    detail: "Restore a backup as the device’s current Radix data when you want an exact replacement."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "shippingbox",
+                    title: "Use advanced exports",
+                    detail: "Advanced Pro can work with separate app and data files for inspection, transfer, or development."
+                )
             ]
         case .settings:
             return [
-                "Choose read-aloud, AI provider, API keys, and navigation labels.",
-                "Open the glossary or show navigation tips again at any time."
+                RadixNavigationGuideAction(
+                    icon: "speaker.wave.2",
+                    title: "Control read-aloud",
+                    detail: "Turn Chinese speech on or off for character and phrase interactions."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "wand.and.stars",
+                    title: "Choose your AI service",
+                    detail: "Select where AI Link opens and optionally save private API keys for direct features."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "rectangle.3.group",
+                    title: "Choose navigation appearance",
+                    detail: "Keep Icons & Labels visible, or switch to Icons Only when the destinations are familiar."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "questionmark.circle",
+                    title: "Get help again",
+                    detail: "Open the glossary, replay the welcome screen, or reset these navigation tips."
+                )
             ]
         }
     }
+
+    var reminder: String {
+        "Long-press a navigation button whenever you want to see this guide again."
+    }
+}
+
+struct RadixNavigationGuideAction {
+    let icon: String
+    let title: String
+    let detail: String
 }
