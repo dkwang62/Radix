@@ -243,16 +243,6 @@ final class RadixStore: ObservableObject {
         )
     }
 
-    var dataEditFocusRequestID: Int {
-        get { dataEditFormState.dictionaryFocusRequestID }
-        set { dataEditFormState.dictionaryFocusRequestID = newValue }
-    }
-
-    var phraseEditFocusRequestID: Int {
-        get { dataEditFormState.phraseFocusRequestID }
-        set { dataEditFormState.phraseFocusRequestID = newValue }
-    }
-
     var dataEditLoadTask: Task<Void, Never>?
     /// Cache to avoid reloading heavy entries when toggling between AI/Data.
     var dataEditCache: [String: (entry: RawComponentEntry, phrases: [PhraseItem], isFav: Bool)] = [:]
@@ -789,7 +779,6 @@ final class RadixStore: ObservableObject {
     let searchHistoryKey = "radix.searchHistory"
     let rootBreadcrumbKey = "radix.rootBreadcrumb"
     let sidebarNavigationStyleKey = "radix.sidebarNavigationStyle"
-    private var pendingSearchWorkItem: DispatchWorkItem?
     var pendingDatasetAutosaveWorkItem: DispatchWorkItem?
     var pendingGridRecomputeWorkItem: DispatchWorkItem?
     var isApplyingDatasetEntry = false

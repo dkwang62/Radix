@@ -13,14 +13,6 @@ import Foundation
 
 extension RadixStore {
 
-    func requestDataEditDictionaryFocus() {
-        dataEditFocusRequestID += 1
-    }
-
-    func requestPhraseEditFocus() {
-        phraseEditFocusRequestID += 1
-    }
-
     // MARK: - Refresh / persist
 
     func persistDataEditAndRefresh() throws {

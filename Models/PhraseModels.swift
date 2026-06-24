@@ -237,17 +237,6 @@ struct PhraseItem: Identifiable, Hashable, Equatable, Codable {
         id = word
     }
 
-    var isNewAddedPhrase: Bool {
-        reviewStatus == nil
-    }
-
-    var isActivePhrase: Bool {
-        reviewStatus != .removed
-    }
-
-    var isVisibleInPhraseLibrary: Bool {
-        reviewStatus != .hidden && reviewStatus != .removed
-    }
 }
 
 enum PhraseLengthRule {

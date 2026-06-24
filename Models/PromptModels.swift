@@ -285,10 +285,6 @@ OCR Text/Context:
         collectionEpilogue = try container.decodeIfPresent(String.self, forKey: .collectionEpilogue) ?? PromptConfig.defaultCollectionEpilogue
     }
 
-    private static var defaultCollectionPreamble: String {
-        streamlitDefault.collectionPreamble
-    }
-
     private static var defaultCollectionEpilogue: String {
         streamlitDefault.collectionEpilogue
     }

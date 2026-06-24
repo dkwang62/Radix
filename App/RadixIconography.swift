@@ -5,7 +5,6 @@ import Foundation
 enum RadixCopy {
     static let takePhoto = String(localized: "Take Photo")
     static let browse = String(localized: "Browse")
-    static let browseDictionary = String(localized: "Browse Dictionary")
     static let search = String(localized: "Search")
     static let study = String(localized: "Study")
     static let aiLink = String(localized: "AI Link")
@@ -14,8 +13,6 @@ enum RadixCopy {
 
     static let savedPage = String(localized: "Saved Page")
     static let savedPages = String(localized: "Saved Pages")
-    static let deviceSnapshot = String(localized: "Device Snapshot")
-    static let deviceSnapshots = String(localized: "Device Snapshots")
     static let saveDeviceSnapshot = String(localized: "Save Device Snapshot")
     static let restoreDeviceSnapshot = String(localized: "Restore Device Snapshot")
 

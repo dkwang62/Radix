@@ -274,7 +274,6 @@ extension RadixStore {
         route = .search
         homeTab = .dataEdit
         startBlankDataEdit()
-        requestDataEditDictionaryFocus()
     }
 
     func goToRoots(character: String) {

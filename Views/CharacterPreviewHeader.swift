@@ -15,10 +15,6 @@ struct CharacterPreviewHeader: View {
     @State private var showPhraseTableSheet = false
     @State private var variantIndex: Int = 0
 
-    private var usesShortActionLabels: Bool {
-        isVertical || RadixPlatform.isPhone
-    }
-
     private var isPhone: Bool {
         RadixPlatform.isPhone
     }

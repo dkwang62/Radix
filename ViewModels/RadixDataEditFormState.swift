@@ -18,6 +18,4 @@ struct RadixDataEditFormState {
     var autosaveStatus = ""
     var variant = ""
     var additionalVariants = ""
-    var dictionaryFocusRequestID = 0
-    var phraseFocusRequestID = 0
 }
