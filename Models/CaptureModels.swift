@@ -18,6 +18,33 @@ struct CaptureDraft: Hashable {
     }
 }
 
+struct OCRReviewProposal: Equatable {
+    let correctedText: String
+    let changes: String
+    let uncertainties: String
+}
+
+enum OCRReviewParser {
+    static func parse(_ response: String) -> OCRReviewProposal? {
+        let corrected = section("CORRECTED TEXT", in: response)
+        guard !corrected.isEmpty else { return nil }
+        return OCRReviewProposal(
+            correctedText: corrected,
+            changes: section("CHANGES", in: response),
+            uncertainties: section("UNCERTAIN", in: response)
+        )
+    }
+
+    private static func section(_ name: String, in response: String) -> String {
+        let marker = "[[\(name)]]"
+        guard let start = response.range(of: marker) else { return "" }
+        let remaining = response[start.upperBound...]
+        let end = remaining.range(of: "[[")?.lowerBound ?? response.endIndex
+        return response[start.upperBound..<end]
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
 enum CaptureTextExtractor {
     static func uniqueCharacters(in text: String) -> [String] {
         var seen = Set<String>()

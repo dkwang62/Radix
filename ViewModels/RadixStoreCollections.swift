@@ -68,7 +68,9 @@ extension RadixStore {
         name: String,
         sourceText: String,
         sourceType: CollectionSourceType,
-        thumbnailJPEGData: Data? = nil
+        thumbnailJPEGData: Data? = nil,
+        sourceImageJPEGData: Data? = nil,
+        originalOCRText: String? = nil
     ) -> CharacterCollection? {
         let characters = CaptureTextExtractor.allCharactersInOrder(in: sourceText).filter { componentRepo.hasCharacter($0) }
         guard !characters.isEmpty else { return nil }
@@ -90,7 +92,9 @@ extension RadixStore {
             lastViewedAt: Date(),
             sourceType: sourceType,
             isFavorite: false,
-            thumbnailJPEGData: thumbnailJPEGData
+            thumbnailJPEGData: thumbnailJPEGData,
+            sourceImageJPEGData: sourceImageJPEGData,
+            originalOCRText: originalOCRText?.trimmingCharacters(in: .whitespacesAndNewlines)
         )
         saveCollection(collection)
         return collection
@@ -140,6 +144,25 @@ extension RadixStore {
         allCollections[index].translationReport = cleanReport?.isEmpty == true ? nil : cleanReport
         allCollections[index].translationReportUpdatedAt = allCollections[index].translationReport == nil ? nil : Date()
         saveCollection(allCollections[index])
+    }
+
+    @discardableResult
+    func applyOCRCorrection(id: UUID, correctedText: String) -> CharacterCollection? {
+        guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return nil }
+        let cleanText = correctedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let characters = CaptureTextExtractor.allCharactersInOrder(in: cleanText)
+            .filter { componentRepo.hasCharacter($0) }
+        guard !characters.isEmpty else { return nil }
+
+        var updated = allCollections[index]
+        if updated.originalOCRText?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty != false {
+            updated.originalOCRText = updated.characters.joined()
+        }
+        updated.reviewedOCRText = cleanText
+        updated.ocrReviewedAt = Date()
+        updated.characters = characters
+        saveCollection(updated)
+        return updated
     }
 
     @discardableResult

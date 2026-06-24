@@ -148,6 +148,19 @@ extension FilterGridTab {
             .controlSize(.small)
             .accessibilityLabel("Edit")
 
+            if collection.sourceType == .ocr {
+                Button {
+                    beginOCRReview(collection)
+                } label: {
+                    Image(systemName: "text.viewfinder")
+                        .radixMinimumTapTarget()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .accessibilityLabel("Check OCR")
+                .help("Check OCR with ChatGPT")
+            }
+
             CollectionAITaskMenu(collection: collection, onManualExtract: {
                 beginManualPhraseExtraction(collection)
             }, onAIExtract: {

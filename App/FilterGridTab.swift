@@ -26,6 +26,8 @@ struct FilterGridTab: View {
     @State var translationReportCollection: CharacterCollection?
     @State var translationReportDraft = ""
     @State var phraseExtractionCollection: CharacterCollection?
+    @State var ocrReviewCollection: CharacterCollection?
+    @State var ocrReviewResponse = ""
     @State var pagePhraseListCollection: CharacterCollection?
     @State var phraseExtractionOutput = ""
     @State var imageActionMessage: String?
@@ -205,6 +207,20 @@ struct FilterGridTab: View {
                     onDone: { phraseExtractionCollection = nil }
                 )
                 .environmentObject(store)
+            }
+            .sheet(item: $ocrReviewCollection) { collection in
+                BrowseOCRReviewSheet(
+                    collection: collection,
+                    instruction: store.ocrReviewPrompt(for: collection),
+                    response: $ocrReviewResponse,
+                    message: imageActionMessage,
+                    onCopyInstruction: { copyOCRReviewInstruction(collection) },
+                    onCopyImage: { copyOCRReviewImage(collection) },
+                    onOpenAI: { openOCRReviewInChatGPT(collection) },
+                    onPaste: { ocrReviewResponse = clipboardText() },
+                    onApply: { applyOCRReview($0, to: collection) },
+                    onDone: { ocrReviewCollection = nil }
+                )
             }
             .sheet(item: $pagePhraseListCollection) { collection in
                 BrowsePagePhraseListSheet(collectionID: collection.id)

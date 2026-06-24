@@ -1,6 +1,46 @@
 import SwiftUI
 
 extension FilterGridTab {
+    func beginOCRReview(_ collection: CharacterCollection) {
+        ocrReviewResponse = ""
+        imageActionMessage = nil
+        ocrReviewCollection = collection
+    }
+
+    func copyOCRReviewInstruction(_ collection: CharacterCollection) {
+        RadixPlatform.copyToPasteboard(store.ocrReviewPrompt(for: collection))
+        imageActionMessage = "OCR-check instruction copied."
+    }
+
+    func copyOCRReviewImage(_ collection: CharacterCollection) {
+        guard let imageData = collection.sourceImageJPEGData ?? collection.thumbnailJPEGData else {
+            imageActionMessage = "No source image is available for this page."
+            return
+        }
+        RadixPlatform.copyImageToPasteboard(imageData)
+        imageActionMessage = "Image copied. Paste it into the ChatGPT conversation."
+    }
+
+    func openOCRReviewInChatGPT(_ collection: CharacterCollection) {
+        let prompt = store.ocrReviewPrompt(for: collection)
+        RadixPlatform.copyToPasteboard(prompt)
+        let preset: DefaultAIPreset = .chatGPT
+        if let url = store.aiURL(for: preset, prompt: prompt) {
+            openURL(url)
+        }
+        imageActionMessage = "Opening ChatGPT. The instruction is also copied."
+    }
+
+    func applyOCRReview(_ correctedText: String, to collection: CharacterCollection) {
+        guard let updated = store.applyOCRCorrection(id: collection.id, correctedText: correctedText) else {
+            imageActionMessage = "The proposed text does not contain a Chinese character recognized by Radix."
+            return
+        }
+        ocrReviewCollection = updated
+        store.selectBrowseCollection(id: updated.id)
+        imageActionMessage = "Corrected text applied. The original OCR remains preserved."
+    }
+
     func beginTranslationReport(_ collection: CharacterCollection) {
         translationReportDraft = collection.translationReport ?? ""
         translationReportCollection = collection

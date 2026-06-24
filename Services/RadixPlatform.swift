@@ -76,6 +76,13 @@ struct RadixPlatform {
         #endif
     }
 
+    @MainActor static func copyImageToPasteboard(_ jpegData: Data) {
+        #if canImport(UIKit)
+        guard let image = UIImage(data: jpegData) else { return }
+        UIPasteboard.general.image = image
+        #endif
+    }
+
     @MainActor static var pasteboardString: String {
         #if canImport(UIKit)
         return UIPasteboard.general.string ?? ""

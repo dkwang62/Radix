@@ -244,6 +244,15 @@ Do not advertise raw Apple stroke symbols as a Radix query type. Apple’s Strok
 keyboard may be explained only as a way to compose and select a completed Chinese
 character before submitting that character to Search.
 
+OCR review is an explicit, reversible workflow on saved OCR pages:
+
+- Radix prepares original OCR plus recognized characters and nearby dictionary phrases.
+- The user sends the instruction and available reference image to ChatGPT.
+- ChatGPT must mark proposed changes and uncertainty in a structured response.
+- Radix shows the original and proposal before applying anything.
+- The original OCR is preserved; corrections are applied only after explicit approval.
+- Phrase extraction and translation operate on the approved character stream.
+
 ## Refactor guardrails
 
 - Do not mix Apple Review fixes with large UI refactors unless explicitly asked.

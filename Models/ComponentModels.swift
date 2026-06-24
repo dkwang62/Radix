@@ -52,6 +52,13 @@ struct CharacterCollection: Identifiable, Codable, Equatable, Hashable {
     var sourceType: CollectionSourceType
     var isFavorite: Bool
     var thumbnailJPEGData: Data?
+    /// Review-sized source image used for OCR verification; optional for legacy pages.
+    var sourceImageJPEGData: Data? = nil
+    /// Original Vision OCR output, preserved after any user-approved correction.
+    var originalOCRText: String? = nil
+    /// Most recently approved OCR text.
+    var reviewedOCRText: String? = nil
+    var ocrReviewedAt: Date? = nil
     var translationReport: String? = nil
     var translationReportUpdatedAt: Date? = nil
     /// Phrase words the user has hidden for this saved page because they do not fit the page context.

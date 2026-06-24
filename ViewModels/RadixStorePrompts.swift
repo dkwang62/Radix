@@ -206,6 +206,49 @@ extension RadixStore {
         promptText(for: .character(character))
     }
 
+    func ocrReviewPrompt(for collection: CharacterCollection) -> String {
+        let original = collection.originalOCRText?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let sourceText = original.isEmpty ? collection.characters.joined() : original
+        let recognizedCharacters = CaptureTextExtractor.allCharactersInOrder(in: sourceText)
+        let knownCharacters = recognizedCharacters.filter { componentRepo.hasCharacter($0) }
+        let unknownCharacters = recognizedCharacters.filter { !componentRepo.hasCharacter($0) }
+        let nearbyPhrases = browsePagePhraseCandidates(in: collection)
+            .prefix(30)
+            .map(\.phrase.word)
+
+        return """
+        You are checking Chinese OCR against the attached source image and dictionary evidence from Radix.
+
+        Reconstruct the source faithfully. Correct OCR mistakes, but do not modernize, paraphrase, translate, or silently replace unfamiliar names, slang, technical terms, traditional forms, or regional usage merely because they are absent from a dictionary.
+
+        ORIGINAL OCR:
+        \(sourceText)
+
+        RADIX-RECOGNIZED CHARACTERS:
+        \(knownCharacters.joined(separator: " "))
+
+        CHARACTERS NOT RECOGNIZED BY RADIX:
+        \(unknownCharacters.isEmpty ? "None detected" : unknownCharacters.joined(separator: " "))
+
+        DICTIONARY PHRASES DETECTED NEARBY:
+        \(nearbyPhrases.isEmpty ? "None detected" : nearbyPhrases.joined(separator: ", "))
+
+        Compare the OCR with the attached image. Return exactly these sections:
+
+        [[CORRECTED TEXT]]
+        The complete corrected source text, preserving reading order and punctuation.
+
+        [[CHANGES]]
+        One proposed change per line:
+        original → correction | high/medium/low | brief visual or contextual reason
+
+        [[UNCERTAIN]]
+        List passages that remain uncertain. Write "None" if there are none.
+
+        Never claim certainty when the image is unclear. Do not include any text outside these three sections.
+        """
+    }
+
     // MARK: - Render context
 
     func promptRenderContext(for subject: ActiveSubject) -> PromptRenderContext {

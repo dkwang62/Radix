@@ -119,15 +119,21 @@ without broadening to meanings such as `waterproof`.
 Raw Apple stroke-symbol sequences are not presented as searchable examples;
 Apple Stroke input is documented only as a keyboard method for composing a
 completed Chinese character before searching.
+Saved OCR pages now retain optional original/reviewed OCR provenance. `Check OCR`
+prepares a structured ChatGPT handoff using the original OCR, Radix-recognized
+characters, nearby dictionary phrases, and the saved reference image. The user
+pastes ChatGPT's structured response, compares it with the original, and must
+explicitly apply it; Radix never replaces OCR automatically. New OCR pages retain
+an optional review-sized source image in addition to the normal UI thumbnail.
 
 ## Next Three Tasks
 
 1. Manually verify the navigation tips and `Icons & Labels`/`Icons Only` setting
    on iPhone, iPad, and Mac Catalyst.
-2. Perform a short regression for backup restore, Browse saved pages, phrase
+2. Usability-test `Check OCR` with clear, ambiguous, and incorrect captures,
+   including the copy-image and structured-response workflow.
+3. Perform a short regression for backup restore, Browse saved pages, phrase
    classification, and My Data flows.
-3. Choose the next user-facing feature or defect from actual usage rather than
-   restarting structural refactoring.
 
 Stop decision: the remaining `RadixStore` content is legitimate state ownership,
 caches, dependencies, and compatibility plumbing. Repository protocols are not

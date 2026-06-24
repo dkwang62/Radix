@@ -317,7 +317,9 @@ struct CaptureTab: View {
             name: defaultOCRCollectionName,
             sourceText: store.activeCaptureDraft.charactersText,
             sourceType: .ocr,
-            thumbnailJPEGData: CaptureImageThumbnailer.makeJPEGData(from: image)
+            thumbnailJPEGData: CaptureImageThumbnailer.makeJPEGData(from: image),
+            sourceImageJPEGData: CaptureImageThumbnailer.makeJPEGData(from: image, maxDimension: 1600),
+            originalOCRText: store.activeCaptureDraft.rawText
         ) else {
             statusMessage = CaptureStatusText.noChineseCharactersFound
             return
