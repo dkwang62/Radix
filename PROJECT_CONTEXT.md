@@ -32,7 +32,7 @@ AVFoundation, and Apple file-picker behavior remain adapter-layer concerns.
 
 `ViewModels/RadixStore.swift` owns repositories, aggregate state objects, caches,
 and compatibility properties needed by existing views. It has been reduced from
-roughly 1,550 lines to about 537 lines.
+roughly 1,550 lines to about 441 lines.
 
 State is divided into focused value types:
 
@@ -44,11 +44,12 @@ State is divided into focused value types:
 - `RadixAILinkState` and `RadixAIProviderState`
 - `RadixDataAuditState` and `RadixPresentationState`
 
-Navigation, search, Character Studio form, Browse filter, Browse grid, and saved
-page collection adapters are now co-located with their state definitions. Browse
-filter reset/recompute and collection-selection side effects live with their
-adapters. Continue this pattern for the remaining state types: the central store
-should own state, while each state file exposes its related compatibility adapters.
+Navigation, search, Character Studio form, Browse filter/grid/highlight, saved
+page collection, and presentation adapters are now co-located with their state
+definitions. Browse filter reset/recompute and collection-selection side effects
+live with their adapters. Continue this pattern only where it materially clarifies
+the remaining state: the central store should own state, while each state file
+exposes its related compatibility adapters.
 
 ### Domain behavior
 
@@ -98,11 +99,11 @@ this is an architectural reorganization, not a UI redesign.
 
 ## Next Three Tasks
 
-1. Co-locate presentation and highlight adapters with their state definitions.
-2. Reassess the remaining central store for a clean dependency container or
+1. Reassess the remaining central store for a clean dependency container or
    repository interfaces; implement only boundaries with a concrete near-term use.
-3. Run the final dead-code audit and complete iOS/Catalyst build matrix, then stop
-   this refactoring stream unless the audit identifies a material issue.
+2. Run the final dead-code audit and complete iOS/Catalyst build matrix.
+3. Stop this refactoring stream unless the audit identifies a material issue;
+   return to product work rather than pursuing a smaller file for its own sake.
 
 After those tasks, run a fresh dead-code audit and the complete platform build
 matrix before starting broader UI or Android implementation work.
@@ -149,6 +150,7 @@ reported separately from compilation failures.
 - Co-located navigation, search, and Character Studio form adapters.
 - Co-located Browse filter adapters and their recompute side effects.
 - Co-located Browse grid and saved page collection adapters.
+- Co-located presentation and Browse highlight adapters.
 
 ## Updating This File
 

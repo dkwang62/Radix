@@ -58,10 +58,7 @@ final class RadixStore: ObservableObject {
 
     // MARK: - Navigation State
     @Published var navigationState = RadixNavigationState()
-    @Published private(set) var presentationState = RadixPresentationState()
-
-    var showPaywall: Bool { get { presentationState.showsPaywall } set { presentationState.showsPaywall = newValue } }
-    var paywallFeatureName: String { get { presentationState.paywallFeatureName } set { presentationState.paywallFeatureName = newValue } }
+    @Published var presentationState = RadixPresentationState()
     
     // MARK: - Search State
     @Published var searchState = RadixSearchState()
@@ -111,9 +108,6 @@ final class RadixStore: ObservableObject {
     }
 
     @Published var collectionState = RadixCollectionState()
-    var shouldOpenBrowsePages: Bool { get { presentationState.shouldOpenBrowsePages } set { presentationState.shouldOpenBrowsePages = newValue } }
-    var shouldOpenAddedPhraseReview: Bool { get { presentationState.shouldOpenAddedPhraseReview } set { presentationState.shouldOpenAddedPhraseReview = newValue } }
-    var shouldStartBrowseCamera: Bool { get { presentationState.shouldStartBrowseCamera } set { presentationState.shouldStartBrowseCamera = newValue } }
     @Published var browseGridState = RadixBrowseGridState()
     
     // MARK: - Computed Result Sets
@@ -253,7 +247,6 @@ final class RadixStore: ObservableObject {
     @Published var speechEnabled: Bool = true {
         didSet { preferences.set(speechEnabled, forKey: RadixPreferenceKey.speechEnabled) }
     }
-    var activeFavouriteCharacter: String? { get { presentationState.activeFavouriteCharacter } set { presentationState.activeFavouriteCharacter = newValue } }
     @Published private(set) var dataAuditState = RadixDataAuditState()
 
     var dictionaryVariances: [DictionaryVariance] {
@@ -297,7 +290,6 @@ final class RadixStore: ObservableObject {
         set { dataAuditState.changedDictionaryCharacters = newValue }
     }
 
-    var quickEditDestination: QuickEditDestination? { get { presentationState.quickEditDestination } set { presentationState.quickEditDestination = newValue } }
 
     @Published private(set) var aiLinkState = RadixAILinkState()
 
@@ -312,7 +304,6 @@ final class RadixStore: ObservableObject {
     }
     
     // MARK: - iPhone UI State
-    var showiPhoneDetail: Bool { get { presentationState.showsPhoneDetail } set { presentationState.showsPhoneDetail = newValue } }
     
     // MARK: - AI Context State
     var promptConfig: PromptConfig {
@@ -427,86 +418,10 @@ final class RadixStore: ObservableObject {
         let items: [ComponentItem]
         let total: Int
     }
-    @Published private(set) var browseHighlightState = RadixBrowseHighlightState()
-
-    var imagePhraseContext: ImagePhraseContext? {
-        get { browseHighlightState.phraseContext }
-        set { browseHighlightState.phraseContext = newValue }
-    }
-
-    var imagePhraseHighlightOffsets: Set<Int> {
-        get { browseHighlightState.phraseOffsets }
-        set { browseHighlightState.phraseOffsets = newValue }
-    }
-
-    // Keep phrase-origin highlight state in the store, not in Browse UI views.
-    // iPhone phrase previews can drill into component characters; when returning
-    // to Browse, this anchor restores the original full phrase highlight instead
-    // of leaving the last previewed character highlighted. Future refactors should
-    // preserve this store-level ownership so layout/navigation changes do not
-    // break phrase highlighting.
-    var anchoredImagePhraseContext: ImagePhraseContext? {
-        get { browseHighlightState.anchoredPhraseContext }
-        set { browseHighlightState.anchoredPhraseContext = newValue }
-    }
-
-    var anchoredImagePhraseHighlightOffsets: Set<Int> {
-        get { browseHighlightState.anchoredPhraseOffsets }
-        set { browseHighlightState.anchoredPhraseOffsets = newValue }
-    }
-
-    var anchoredImagePhraseWord: String? {
-        get { browseHighlightState.anchoredPhraseWord }
-        set { browseHighlightState.anchoredPhraseWord = newValue }
-    }
-
-    var anchoredImagePhraseCollectionID: UUID? {
-        get { browseHighlightState.anchoredCollectionID }
-        set { browseHighlightState.anchoredCollectionID = newValue }
-    }
+    @Published var browseHighlightState = RadixBrowseHighlightState()
 
     var browsePagePhraseTileCache: [UUID: [Int: BrowseImagePhraseTileData]] = [:]
     var browsePagePhraseCandidateCache: [UUID: [BrowsePagePhraseCandidate]] = [:]
-
-    var imagePhraseHighlightRevision: Int {
-        get { browseHighlightState.revision }
-        set { browseHighlightState.revision = newValue }
-    }
-
-    var imageBrowsePhrasePreview: PhraseItem? {
-        get { browseHighlightState.imagePhrasePreview }
-        set { browseHighlightState.imagePhrasePreview = newValue }
-    }
-
-    var sidebarPhrasePreview: PhraseItem? {
-        get { browseHighlightState.sidebarPhrasePreview }
-        set { browseHighlightState.sidebarPhrasePreview = newValue }
-    }
-
-    var pendingBrowseScrollTarget: BrowseScrollTarget? {
-        get { browseHighlightState.pendingScrollTarget }
-        set { browseHighlightState.pendingScrollTarget = newValue }
-    }
-
-    var browseHighlightedCharacter: String? {
-        get { browseHighlightState.highlightedCharacter }
-        set { browseHighlightState.highlightedCharacter = newValue }
-    }
-
-    var browseMemoryHighlightCollectionID: UUID? {
-        get { browseHighlightState.memoryCollectionID }
-        set { browseHighlightState.memoryCollectionID = newValue }
-    }
-
-    var browseMemoryHighlightOffsets: Set<Int> {
-        get { browseHighlightState.memoryOffsets }
-        set { browseHighlightState.memoryOffsets = newValue }
-    }
-
-    var browseMemoryHighlightedItem: String? {
-        get { browseHighlightState.memoryHighlightedItem }
-        set { browseHighlightState.memoryHighlightedItem = newValue }
-    }
 
     var suppressHelpReset = false
     var loadingError: String? {
@@ -523,15 +438,4 @@ final class RadixStore: ObservableObject {
         get { dataWorkspaceState.addedPhrasesDatabasePath }
         set { dataWorkspaceState.addedPhrasesDatabasePath = newValue }
     }
-    var showBrowseHelp: Bool { get { presentationState.showsBrowseHelp } set { presentationState.showsBrowseHelp = newValue } }
-    var showComponentHelp: Bool { get { presentationState.showsComponentHelp } set { presentationState.showsComponentHelp = newValue } }
-    var activeCaptureDraft: CaptureDraft { get { presentationState.activeCaptureDraft } set { presentationState.activeCaptureDraft = newValue } }
-
-    func presentationBinding<Value>(_ keyPath: ReferenceWritableKeyPath<RadixStore, Value>) -> Binding<Value> {
-        Binding(
-            get: { self[keyPath: keyPath] },
-            set: { self[keyPath: keyPath] = $0 }
-        )
-    }
-
 }
