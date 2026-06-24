@@ -11,3 +11,41 @@ struct RadixNavigationState: Equatable {
     var previewCharacter: String?
     var history: [String] = []
 }
+
+extension RadixStore {
+    var route: AppRoute {
+        get { navigationState.route }
+        set { navigationState.route = newValue }
+    }
+
+    var homeTab: HomeTab {
+        get { navigationState.homeTab }
+        set { navigationState.homeTab = newValue }
+    }
+
+    var sidebarNavigationStyle: SidebarNavigationStyle {
+        get { navigationState.sidebarNavigationStyle }
+        set {
+            navigationState.sidebarNavigationStyle = newValue
+            preferences.set(newValue.rawValue, forKey: RadixPreferenceKey.sidebarNavigationStyle)
+        }
+    }
+
+    var rootsReturnContext: RootsReturnContext? {
+        get { navigationState.rootsReturnContext }
+        set { navigationState.rootsReturnContext = newValue }
+    }
+
+    var previewCharacter: String? {
+        get { navigationState.previewCharacter }
+        set {
+            navigationState.previewCharacter = newValue
+            rememberLastPreviewedCharacter(newValue)
+        }
+    }
+
+    var history: [String] {
+        get { navigationState.history }
+        set { navigationState.history = newValue }
+    }
+}

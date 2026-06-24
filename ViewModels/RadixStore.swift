@@ -57,80 +57,14 @@ final class RadixStore: ObservableObject {
     }
 
     // MARK: - Navigation State
-    @Published private(set) var navigationState = RadixNavigationState()
-
-    var route: AppRoute {
-        get { navigationState.route }
-        set { navigationState.route = newValue }
-    }
-
-    var homeTab: HomeTab {
-        get { navigationState.homeTab }
-        set { navigationState.homeTab = newValue }
-    }
-
-    var sidebarNavigationStyle: SidebarNavigationStyle {
-        get { navigationState.sidebarNavigationStyle }
-        set {
-            navigationState.sidebarNavigationStyle = newValue
-            preferences.set(newValue.rawValue, forKey: RadixPreferenceKey.sidebarNavigationStyle)
-        }
-    }
-
-    var rootsReturnContext: RootsReturnContext? {
-        get { navigationState.rootsReturnContext }
-        set { navigationState.rootsReturnContext = newValue }
-    }
-
-    var previewCharacter: String? {
-        get { navigationState.previewCharacter }
-        set {
-            navigationState.previewCharacter = newValue
-            rememberLastPreviewedCharacter(newValue)
-        }
-    }
-
-    var history: [String] {
-        get { navigationState.history }
-        set { navigationState.history = newValue }
-    }
+    @Published var navigationState = RadixNavigationState()
     @Published private(set) var presentationState = RadixPresentationState()
 
     var showPaywall: Bool { get { presentationState.showsPaywall } set { presentationState.showsPaywall = newValue } }
     var paywallFeatureName: String { get { presentationState.paywallFeatureName } set { presentationState.paywallFeatureName = newValue } }
     
     // MARK: - Search State
-    @Published private(set) var searchState = RadixSearchState()
-
-    var query: String {
-        get { searchState.query }
-        set { searchState.query = newValue }
-    }
-
-    var searchMode: SearchMode {
-        get { searchState.mode }
-        set { searchState.mode = newValue }
-    }
-
-    var scriptFilter: ScriptFilter {
-        get { searchState.scriptFilter }
-        set { searchState.scriptFilter = newValue }
-    }
-
-    var hasPerformedSearch: Bool {
-        get { searchState.hasPerformedSearch }
-        set { searchState.hasPerformedSearch = newValue }
-    }
-
-    var lastSearchQuery: String {
-        get { searchState.lastQuery }
-        set { searchState.lastQuery = newValue }
-    }
-
-    var searchHistory: [String] {
-        get { searchState.history }
-        set { searchState.history = newValue }
-    }
+    @Published var searchState = RadixSearchState()
     
     // MARK: - DataEdit (Character Studio) State
     @Published private(set) var dataEditFormState = RadixDataEditFormState()

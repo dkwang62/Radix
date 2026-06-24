@@ -20,3 +20,35 @@ struct RadixSearchResults {
     var definitionCharacters: [ComponentItem] = []
     var definitionPhrases: [PhraseItem] = []
 }
+
+extension RadixStore {
+    var query: String {
+        get { searchState.query }
+        set { searchState.query = newValue }
+    }
+
+    var searchMode: SearchMode {
+        get { searchState.mode }
+        set { searchState.mode = newValue }
+    }
+
+    var scriptFilter: ScriptFilter {
+        get { searchState.scriptFilter }
+        set { searchState.scriptFilter = newValue }
+    }
+
+    var hasPerformedSearch: Bool {
+        get { searchState.hasPerformedSearch }
+        set { searchState.hasPerformedSearch = newValue }
+    }
+
+    var lastSearchQuery: String {
+        get { searchState.lastQuery }
+        set { searchState.lastQuery = newValue }
+    }
+
+    var searchHistory: [String] {
+        get { searchState.history }
+        set { searchState.history = newValue }
+    }
+}
