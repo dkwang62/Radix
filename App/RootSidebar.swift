@@ -111,11 +111,6 @@ extension RootView {
             default:
                 break
             }
-            if let topic = item.guideTopic {
-                DispatchQueue.main.async {
-                    offerNavigationGuide(topic)
-                }
-            }
         } label: {
             VStack(spacing: showsTitle ? 2 : 0) {
                 Image(systemName: item.icon)
@@ -164,9 +159,6 @@ extension RootView {
         return Button {
             hasUsedSidebarNavigation = true
             store.goToSettings()
-            DispatchQueue.main.async {
-                offerNavigationGuide(.settings)
-            }
         } label: {
             VStack(spacing: showsTitle ? 2 : 0) {
                 Image(systemName: RadixIcon.settings)

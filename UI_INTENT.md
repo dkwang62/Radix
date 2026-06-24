@@ -217,12 +217,14 @@ The five primary navigation destinations use progressive guidance:
 - `Icons & Labels` is the explicit product default and keeps the short
   destination names visible.
 - Experienced users may choose `Icons Only` in Settings.
-- The first visit to Browse, Study, AI Link, My Data, or Settings shows one
-  dismissible explanation with concrete actions available in that destination.
+- On iPhone, the first visit to Browse, Study, AI Link, My Data, or Settings
+  shows one dismissible explanation with concrete actions available there.
+- On iPad and Mac Catalyst, a normal navigation press must never open a guide;
+  guides are available only by long-pressing a destination.
 - Each explanation begins with why the destination matters, then describes what
   the user can do. Do not present a bare inventory of controls.
 - Once dismissed, the explanation stays out of the way.
-- Long-press/right-click on a destination can reopen its explanation.
+- Long-pressing a destination opens or reopens its explanation.
 - Settings includes `Show Navigation Tips Again` to reset first-visit guidance.
 
 Do not replace this with permanent paragraphs on every destination screen.

@@ -99,6 +99,9 @@ dismissible destination explanations that experienced users can hide or replay.
 Navigation help presentation belongs at `RootView`; do not attach popover or
 context-menu presentation containers to the five equal-width tab buttons because
 those wrappers can collapse the SwiftUI HStack to one visible destination.
+On iPad and Mac Catalyst, ordinary sidebar navigation only changes destination;
+help opens exclusively through a long press so it never obscures routine navigation.
+The iPhone may still offer each guide on first visit as progressive onboarding.
 Each destination guide should name concrete user actions and examples, not merely
 summarize the section.
 Every guide uses `Why it matters` followed by `What you can do`; AI Link is
