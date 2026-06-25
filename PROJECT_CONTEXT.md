@@ -134,6 +134,10 @@ Translate Page. Each task consistently offers copy/paste with ChatGPT or an
 automatic Gemini route. A missing-key automatic choice becomes `Set Up Gemini
 API Key…`, navigates to Settings with Private API Keys expanded, and preserves
 `Back to Browse`. Setup is described as enabling all three automatic tasks.
+All three also exist as editable saved-page templates in AI Link. Browse OCR
+review renders the `Check OCR` template with original text,
+recognized/unrecognized characters, and nearby phrase evidence rather than a
+separate hard-coded instruction.
 The corrected source remains Chinese, while change reasons, confidence, and
 uncertainty explanations are explicitly requested in English.
 Study uses its four summary tiles as the section selectors. Recent and Favorites

@@ -275,6 +275,9 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   ChatGPT or automatic processing with Gemini. When no key is saved, the
   automatic choice becomes `Set Up Gemini API Key…`; it opens Settings with
   Private API Keys expanded and a contextual `Back to Browse` action.
+- Check OCR, Extract Phrases, and Translate Page also exist as saved-page tasks
+  in AI Link. Their templates are editable in Customize, and Browse must render
+  those same templates rather than maintaining separate hidden instructions.
 - The AI must mark proposed changes and uncertainty in a structured response.
 - Corrected source text remains Chinese; every explanation, confidence reason,
   and uncertainty note is written in clear English.

@@ -111,6 +111,8 @@ extension AILinkView {
             return "Translate the complete page in context, including shorthand, tone, subtext, and newer usage."
         case "task6":
             return "Extract structured phrase records directly with Gemini for faster review and import."
+        case "task7":
+            return "Compare page OCR with its source image and Radix evidence, then propose clearly marked corrections for review."
         default:
             return "Use this reusable instruction to investigate the selected material with AI."
         }

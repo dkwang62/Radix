@@ -207,51 +207,7 @@ extension RadixStore {
     }
 
     func ocrReviewPrompt(for collection: CharacterCollection) -> String {
-        let original = collection.originalOCRText?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let sourceText = original.isEmpty ? collection.characters.joined() : original
-        let recognizedCharacters = CaptureTextExtractor.allCharactersInOrder(in: sourceText)
-        let knownCharacters = recognizedCharacters.filter { componentRepo.hasCharacter($0) }
-        let unknownCharacters = recognizedCharacters.filter { !componentRepo.hasCharacter($0) }
-        let nearbyPhrases = browsePagePhraseCandidates(in: collection)
-            .prefix(30)
-            .map(\.phrase.word)
-
-        return """
-        You are checking Chinese OCR against the attached source image and dictionary evidence from Radix.
-
-        Reconstruct the source faithfully. Correct OCR mistakes, but do not modernize, paraphrase, translate, or silently replace unfamiliar names, slang, technical terms, traditional forms, or regional usage merely because they are absent from a dictionary.
-
-        ORIGINAL OCR:
-        \(sourceText)
-
-        RADIX-RECOGNIZED CHARACTERS:
-        \(knownCharacters.joined(separator: " "))
-
-        CHARACTERS NOT RECOGNIZED BY RADIX:
-        \(unknownCharacters.isEmpty ? "None detected" : unknownCharacters.joined(separator: " "))
-
-        DICTIONARY PHRASES DETECTED NEARBY:
-        \(nearbyPhrases.isEmpty ? "None detected" : nearbyPhrases.joined(separator: ", "))
-
-        Compare the OCR with the attached image. The corrected source text must
-        remain in its original Chinese. All explanations, confidence reasons,
-        uncertainty notes, and other commentary must be written in clear English.
-        Return exactly these sections:
-
-        [[CORRECTED TEXT]]
-        The complete corrected source text, preserving reading order and punctuation.
-
-        [[CHANGES]]
-        One proposed change per line:
-        original Chinese → corrected Chinese | high/medium/low | brief reason in English
-
-        [[UNCERTAIN]]
-        Explain uncertain passages in English while quoting the relevant Chinese.
-        Write "None" if there are none.
-
-        Never claim certainty when the image is unclear. Do not explain the
-        corrections in Chinese. Do not include any text outside these three sections.
-        """
+        promptText(for: .collection(collection), selectedTaskIDs: ["task7"])
     }
 
     // MARK: - Render context
@@ -261,17 +217,34 @@ extension RadixStore {
         let collectionName: String
         let collectionCharacters: String
         let collectionCharacterSet: Set<String>?
+        let originalOCRText: String
+        let recognizedOCRCharacters: String
+        let unrecognizedOCRCharacters: String
+        let nearbyOCRPhrases: String
         switch subject {
         case .character(let character):
             char = character.trimmingCharacters(in: .whitespacesAndNewlines)
             collectionName = ""
             collectionCharacters = ""
             collectionCharacterSet = nil
+            originalOCRText = ""
+            recognizedOCRCharacters = ""
+            unrecognizedOCRCharacters = ""
+            nearbyOCRPhrases = ""
         case .collection(let collection):
             char = collection.characters.first ?? ""
             collectionName = collection.name
             collectionCharacters = collection.characters.joined(separator: " ")
             collectionCharacterSet = collection.uniqueCharacters
+            let original = collection.originalOCRText?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            originalOCRText = original.isEmpty ? collection.characters.joined() : original
+            let captured = CaptureTextExtractor.allCharactersInOrder(in: originalOCRText)
+            let recognized = captured.filter { componentRepo.hasCharacter($0) }
+            let unrecognized = captured.filter { !componentRepo.hasCharacter($0) }
+            recognizedOCRCharacters = recognized.joined(separator: " ")
+            unrecognizedOCRCharacters = unrecognized.isEmpty ? "None detected" : unrecognized.joined(separator: " ")
+            let nearby = browsePagePhraseCandidates(in: collection).prefix(30).map(\.phrase.word)
+            nearbyOCRPhrases = nearby.isEmpty ? "None detected" : nearby.joined(separator: ", ")
         }
         let item = componentRepo.byCharacter[char]
         let analysis = componentRepo.analyzeStructure(for: char)
@@ -298,7 +271,11 @@ extension RadixStore {
             semanticFamily: sFamily.isEmpty ? "None" : sFamily.joined(separator: ", "),
             collectionName: collectionName,
             captureCharacters: collectionCharacters.isEmpty ? CaptureTextExtractor.uniqueCharacters(in: activeCaptureDraft.charactersText).joined(separator: " ") : collectionCharacters,
-            captureText: captureText
+            captureText: captureText,
+            originalOCRText: originalOCRText,
+            recognizedOCRCharacters: recognizedOCRCharacters,
+            unrecognizedOCRCharacters: unrecognizedOCRCharacters,
+            nearbyOCRPhrases: nearbyOCRPhrases
         )
     }
 }

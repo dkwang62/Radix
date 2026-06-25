@@ -80,6 +80,47 @@ Compare this character with 2–3 other characters of similar meaning or usage, 
 """
             ),
             PromptTask(
+                id: "task7",
+                title: "Check OCR",
+                template: """
+Check OCR
+
+You are checking Chinese OCR against the attached source image and dictionary evidence from Radix.
+
+Reconstruct the source faithfully. Correct OCR mistakes, but do not modernize, paraphrase, translate, or silently replace unfamiliar names, slang, technical terms, traditional forms, or regional usage merely because they are absent from a dictionary.
+
+ORIGINAL OCR:
+{ocr_original}
+
+RADIX-RECOGNIZED CHARACTERS:
+{ocr_recognized}
+
+CHARACTERS NOT RECOGNIZED BY RADIX:
+{ocr_unrecognized}
+
+DICTIONARY PHRASES DETECTED NEARBY:
+{ocr_nearby_phrases}
+
+Compare the OCR with the attached image. The corrected source text must remain in its original Chinese. All explanations, confidence reasons, uncertainty notes, and other commentary must be written in clear English.
+
+Return exactly these sections:
+
+[[CORRECTED TEXT]]
+The complete corrected source text, preserving reading order and punctuation.
+
+[[CHANGES]]
+One proposed change per line:
+original Chinese → corrected Chinese | high/medium/low | brief reason in English
+
+[[UNCERTAIN]]
+Explain uncertain passages in English while quoting the relevant Chinese.
+Write "None" if there are none.
+
+Never claim certainty when the image is unclear. Do not explain the corrections in Chinese. Do not include any text outside these three sections.
+
+"""
+            ),
+            PromptTask(
                 id: "task4",
                 title: "Extract Phrases",
                 template: """
@@ -247,7 +288,7 @@ OCR Text/Context:
         """
     )
 
-    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task6"]
+    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task6", "task7"]
 
     static var defaultSelectedTaskIDs: [String] {
         streamlitDefault.tasks
@@ -303,6 +344,10 @@ struct PromptRenderContext {
     let collectionName: String
     let captureCharacters: String
     let captureText: String
+    let originalOCRText: String
+    let recognizedOCRCharacters: String
+    let unrecognizedOCRCharacters: String
+    let nearbyOCRPhrases: String
 }
 
 extension PromptConfig {
@@ -390,7 +435,7 @@ extension PromptConfig {
         case .character:
             full = cfg.preamble + body + cfg.epilogue
         case .collection:
-            if selected == ["task5"] {
+            if selected == ["task5"] || selected == ["task7"] {
                 full = cfg.collectionPreamble + body
             } else {
                 full = cfg.collectionPreamble + body + cfg.collectionEpilogue
@@ -409,5 +454,9 @@ extension PromptConfig {
             .replacingOccurrences(of: "{collection_name}", with: context.collectionName)
             .replacingOccurrences(of: "{capture_chars}", with: context.captureCharacters)
             .replacingOccurrences(of: "{capture_text}", with: context.captureText)
+            .replacingOccurrences(of: "{ocr_original}", with: context.originalOCRText)
+            .replacingOccurrences(of: "{ocr_recognized}", with: context.recognizedOCRCharacters)
+            .replacingOccurrences(of: "{ocr_unrecognized}", with: context.unrecognizedOCRCharacters)
+            .replacingOccurrences(of: "{ocr_nearby_phrases}", with: context.nearbyOCRPhrases)
     }
 }
