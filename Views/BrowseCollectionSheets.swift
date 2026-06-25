@@ -97,34 +97,18 @@ struct EditBrowseCollectionSheet: View {
 struct BrowseOCRReviewSheet: View {
     let collection: CharacterCollection
     let instruction: String
-    @Binding var response: String
     let message: String?
-    let isRunningAutomatically: Bool
     let onCopyInstruction: () -> Void
     let onCopyImage: () -> Void
     let onOpenAI: () -> Void
-    let onPaste: () -> Void
-    let onApply: (String) -> Void
+    let onPasteAndCreate: () -> Void
     let onDone: () -> Void
-
-    private var proposal: OCRReviewProposal? {
-        OCRReviewParser.parse(response)
-    }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section("Why check it?") {
-                    Text("OCR mistakes can weaken phrase extraction and translation. ChatGPT or Gemini can propose corrections, but Radix changes nothing until you approve. Approval creates a second corrected page and leaves the original page untouched.")
-                }
-
-                if isRunningAutomatically {
-                    Section {
-                        HStack {
-                            ProgressView()
-                            Text("Gemini is comparing the OCR with the saved image and Radix dictionary evidence…")
-                        }
-                    }
+                    Text("OCR mistakes can weaken phrase extraction and translation. Radix creates a corrected Browse page from the AI answer while keeping the original OCR page unchanged.")
                 }
 
                 Section("1. Ask AI to check the OCR") {
@@ -141,36 +125,12 @@ struct BrowseOCRReviewSheet: View {
                     ocrReviewActionButtons
                 }
 
-                Section("2. Review the AI answer") {
-                    Text("The corrected source stays in Chinese. Explanations, confidence reasons, and uncertainty notes should be in English.")
+                Section("2. Create the corrected page") {
+                    Text("When ChatGPT finishes, copy its complete answer. Radix will create and open the corrected page immediately.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
-                    TextEditor(text: $response)
-                        .font(.system(size: 14, design: .monospaced))
-                        .frame(minHeight: 140)
-                    Button("Paste ChatGPT Answer", action: onPaste)
-                }
-
-                if let proposal {
-                    Section("3. Review proposed text") {
-                        comparison(title: "Original OCR", text: collection.originalOCRText ?? collection.characters.joined())
-                        comparison(title: "Proposed correction", text: proposal.correctedText)
-                        if !proposal.changes.isEmpty {
-                            comparison(title: "Changes and confidence", text: proposal.changes)
-                        }
-                        if !proposal.uncertainties.isEmpty {
-                            comparison(title: "Still uncertain", text: proposal.uncertainties)
-                        }
-                        Button("Create Corrected Page") {
-                            onApply(proposal.correctedText)
-                        }
+                    Button("Paste Answer and Create Corrected Page", action: onPasteAndCreate)
                         .buttonStyle(.borderedProminent)
-                    }
-                } else if !response.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Section {
-                        Text("Radix could not read the answer. Ask ChatGPT to keep the required [[CORRECTED TEXT]], [[CHANGES]], and [[UNCERTAIN]] headings.")
-                            .foregroundStyle(.orange)
-                    }
                 }
 
                 if let message {
@@ -211,14 +171,4 @@ struct BrowseOCRReviewSheet: View {
         Button("Open ChatGPT", action: onOpenAI)
     }
 
-    private func comparison(title: String, text: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-            Text(text)
-                .textSelection(.enabled)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
 }

@@ -2,21 +2,18 @@ import SwiftUI
 
 extension FilterGridTab {
     func beginOCRReview(_ collection: CharacterCollection) {
-        ocrReviewResponse = ""
         imageActionMessage = nil
         ocrReviewCollection = collection
     }
 
     func runAutomaticOCRReview(_ collection: CharacterCollection) {
-        beginOCRReview(collection)
         isRunningImageAction = true
         imageActionMessage = "Checking OCR automatically with Gemini..."
         Task {
             do {
                 let response = try await store.runGeminiOCRReview(for: collection)
                 await MainActor.run {
-                    ocrReviewResponse = response
-                    imageActionMessage = "Automatic check complete. Compare the proposal with the original before creating a corrected page."
+                    createCorrectedOCRPage(from: response, original: collection)
                     isRunningImageAction = false
                 }
             } catch {
@@ -52,14 +49,25 @@ extension FilterGridTab {
         imageActionMessage = "Opening ChatGPT. The instruction is also copied."
     }
 
-    func applyOCRReview(_ correctedText: String, to collection: CharacterCollection) {
-        guard let corrected = store.createCorrectedOCRCollection(from: collection.id, correctedText: correctedText) else {
+    func pasteAndCreateCorrectedOCRPage(from collection: CharacterCollection) {
+        createCorrectedOCRPage(from: clipboardText(), original: collection)
+    }
+
+    private func createCorrectedOCRPage(from response: String, original collection: CharacterCollection) {
+        guard let proposal = OCRReviewParser.parse(response) else {
+            imageActionMessage = "Radix could not read the AI answer. Ask it to keep the required [[CORRECTED TEXT]], [[CHANGES]], and [[UNCERTAIN]] headings."
+            return
+        }
+        guard let corrected = store.createCorrectedOCRCollection(
+            from: collection.id,
+            correctedText: proposal.correctedText
+        ) else {
             imageActionMessage = "The proposed text does not contain a Chinese character recognized by Radix."
             return
         }
         ocrReviewCollection = nil
         store.selectBrowseCollection(id: corrected.id)
-        imageActionMessage = "Created a corrected page. The original page remains unchanged."
+        imageActionMessage = "Corrected page created and opened. The original OCR page remains available in Browse."
     }
 
     func beginTranslationReport(_ collection: CharacterCollection) {

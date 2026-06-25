@@ -27,7 +27,6 @@ struct FilterGridTab: View {
     @State var translationReportDraft = ""
     @State var phraseExtractionCollection: CharacterCollection?
     @State var ocrReviewCollection: CharacterCollection?
-    @State var ocrReviewResponse = ""
     @State var pagePhraseListCollection: CharacterCollection?
     @State var phraseExtractionOutput = ""
     @State var imageActionMessage: String?
@@ -212,14 +211,11 @@ struct FilterGridTab: View {
                 BrowseOCRReviewSheet(
                     collection: collection,
                     instruction: store.ocrReviewPrompt(for: collection),
-                    response: $ocrReviewResponse,
                     message: imageActionMessage,
-                    isRunningAutomatically: isRunningImageAction,
                     onCopyInstruction: { copyOCRReviewInstruction(collection) },
                     onCopyImage: { copyOCRReviewImage(collection) },
                     onOpenAI: { openOCRReviewInChatGPT(collection) },
-                    onPaste: { ocrReviewResponse = clipboardText() },
-                    onApply: { applyOCRReview($0, to: collection) },
+                    onPasteAndCreate: { pasteAndCreateCorrectedOCRPage(from: collection) },
                     onDone: { ocrReviewCollection = nil }
                 )
             }

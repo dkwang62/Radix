@@ -281,8 +281,9 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
 - The AI must mark proposed changes and uncertainty in a structured response.
 - Corrected source text remains Chinese; every explanation, confidence reason,
   and uncertainty note is written in clear English.
-- Radix shows the original and proposal before creating anything.
-- Approval creates a second corrected saved page; the original page remains unchanged.
+- Radix assumes the user accepts the AI correction and immediately creates and
+  opens a second corrected saved page. The original page remains unchanged and
+  available in Browse as the reversible safety record.
 - Phrase extraction and translation can then operate on the separately selected
   corrected page without obscuring the source record.
 
