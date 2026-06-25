@@ -99,6 +99,7 @@ struct BrowseOCRReviewSheet: View {
     let instruction: String
     @Binding var response: String
     let message: String?
+    let isRunningAutomatically: Bool
     let onCopyInstruction: () -> Void
     let onCopyImage: () -> Void
     let onOpenAI: () -> Void
@@ -114,10 +115,19 @@ struct BrowseOCRReviewSheet: View {
         NavigationStack {
             Form {
                 Section("Why check it?") {
-                    Text("OCR mistakes can weaken phrase extraction and translation. ChatGPT proposes corrections, but Radix changes nothing until you approve. Approval creates a second corrected page and leaves the original page untouched.")
+                    Text("OCR mistakes can weaken phrase extraction and translation. ChatGPT or Gemini can propose corrections, but Radix changes nothing until you approve. Approval creates a second corrected page and leaves the original page untouched.")
                 }
 
-                Section("1. Send to ChatGPT") {
+                if isRunningAutomatically {
+                    Section {
+                        HStack {
+                            ProgressView()
+                            Text("Gemini is comparing the OCR with the saved image and Radix dictionary evidence…")
+                        }
+                    }
+                }
+
+                Section("1. Ask AI to check the OCR") {
                     Text("Copy the instruction. If the page has an image, copy it separately and paste it into the same ChatGPT conversation.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
@@ -131,14 +141,14 @@ struct BrowseOCRReviewSheet: View {
                     ocrReviewActionButtons
                 }
 
-                Section("2. Paste ChatGPT’s answer") {
+                Section("2. Review the AI answer") {
                     Text("The corrected source stays in Chinese. Explanations, confidence reasons, and uncertainty notes should be in English.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                     TextEditor(text: $response)
                         .font(.system(size: 14, design: .monospaced))
                         .frame(minHeight: 140)
-                    Button("Paste Answer", action: onPaste)
+                    Button("Paste ChatGPT Answer", action: onPaste)
                 }
 
                 if let proposal {

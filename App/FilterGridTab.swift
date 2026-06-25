@@ -214,6 +214,7 @@ struct FilterGridTab: View {
                     instruction: store.ocrReviewPrompt(for: collection),
                     response: $ocrReviewResponse,
                     message: imageActionMessage,
+                    isRunningAutomatically: isRunningImageAction,
                     onCopyInstruction: { copyOCRReviewInstruction(collection) },
                     onCopyImage: { copyOCRReviewImage(collection) },
                     onOpenAI: { openOCRReviewInChatGPT(collection) },

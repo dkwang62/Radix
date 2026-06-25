@@ -126,6 +126,9 @@ pastes ChatGPT's structured response and compares it with the original. Approval
 creates a separately identified corrected saved page linked to the original;
 the original page is never modified. New OCR pages retain an optional review-sized
 source image in addition to the normal UI thumbnail.
+When a Gemini API key is configured, `Check OCR` additionally offers an
+automatic multimodal review using the same prompt and saved image. Its response
+opens in the same comparison sheet and still requires explicit approval.
 The corrected source remains Chinese, while change reasons, confidence, and
 uncertainty explanations are explicitly requested in English.
 Study uses its four summary tiles as the section selectors. Recent and Favorites

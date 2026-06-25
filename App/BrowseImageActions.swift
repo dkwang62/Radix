@@ -7,6 +7,27 @@ extension FilterGridTab {
         ocrReviewCollection = collection
     }
 
+    func runAutomaticOCRReview(_ collection: CharacterCollection) {
+        beginOCRReview(collection)
+        isRunningImageAction = true
+        imageActionMessage = "Checking OCR automatically with Gemini..."
+        Task {
+            do {
+                let response = try await store.runGeminiOCRReview(for: collection)
+                await MainActor.run {
+                    ocrReviewResponse = response
+                    imageActionMessage = "Automatic check complete. Compare the proposal with the original before creating a corrected page."
+                    isRunningImageAction = false
+                }
+            } catch {
+                await MainActor.run {
+                    imageActionMessage = error.localizedDescription
+                    isRunningImageAction = false
+                }
+            }
+        }
+    }
+
     func copyOCRReviewInstruction(_ collection: CharacterCollection) {
         RadixPlatform.copyToPasteboard(store.ocrReviewPrompt(for: collection))
         imageActionMessage = "OCR-check instruction copied."

@@ -138,7 +138,11 @@ extension FilterGridTab {
             CollectionPageActionsMenu(collection: collection, onEdit: {
                 beginEditing(collection)
             }, onCheckOCR: collection.sourceType == .ocr && collection.correctedFromCollectionID == nil ? {
-                    beginOCRReview(collection)
+                beginOCRReview(collection)
+            } : nil, onCheckOCRAutomatically: collection.sourceType == .ocr
+                && collection.correctedFromCollectionID == nil
+                && !store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? {
+                runAutomaticOCRReview(collection)
             } : nil, onChoosePhrases: {
                 pagePhraseListCollection = collection
             }, onViewTranslation: {

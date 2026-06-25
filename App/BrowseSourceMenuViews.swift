@@ -17,6 +17,7 @@ struct CollectionPageActionsMenu: View {
     let collection: CharacterCollection
     let onEdit: () -> Void
     let onCheckOCR: (() -> Void)?
+    let onCheckOCRAutomatically: (() -> Void)?
     let onChoosePhrases: () -> Void
     let onViewTranslation: () -> Void
     let onManualExtract: () -> Void
@@ -34,8 +35,20 @@ struct CollectionPageActionsMenu: View {
                 }
 
                 if let onCheckOCR {
-                    Button {
-                        onCheckOCR()
+                    Menu {
+                        Button {
+                            onCheckOCR()
+                        } label: {
+                            Label("Copy and Paste with ChatGPT", systemImage: "doc.on.clipboard")
+                        }
+
+                        if let onCheckOCRAutomatically {
+                            Button {
+                                onCheckOCRAutomatically()
+                            } label: {
+                                Label("Check Automatically with Gemini", systemImage: "sparkles")
+                            }
+                        }
                     } label: {
                         Label("Check OCR", systemImage: "text.viewfinder")
                     }

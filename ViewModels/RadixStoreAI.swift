@@ -85,6 +85,18 @@ extension RadixStore {
         return report
     }
 
+    func runGeminiOCRReview(for collection: CharacterCollection) async throws -> String {
+        try await GeminiTextGenerationService().generateText(
+            apiKey: geminiAPIKey,
+            modelID: geminiModelID,
+            prompt: ocrReviewPrompt(for: collection),
+            systemInstruction: """
+            You are a meticulous Chinese OCR editor. Follow the requested output headings exactly. Preserve Chinese source text, write all explanations in English, and clearly mark uncertainty.
+            """,
+            imageJPEGData: collection.sourceImageJPEGData ?? collection.thumbnailJPEGData
+        )
+    }
+
     // MARK: - Mac clipboard paste
 
     func scheduleMacClipboardPasteIfPossible() {

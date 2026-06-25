@@ -265,8 +265,11 @@ character before submitting that character to Search.
 OCR review is an explicit, reversible workflow on saved OCR pages:
 
 - Radix prepares original OCR plus recognized characters and nearby dictionary phrases.
-- The user sends the instruction and available reference image to ChatGPT.
-- ChatGPT must mark proposed changes and uncertainty in a structured response.
+- Without an API key, the user sends the instruction and available reference
+  image to ChatGPT and pastes the structured answer back into Radix.
+- When a Gemini API key is present, `Check OCR` also offers an automatic check
+  using the same evidence and saved image.
+- The AI must mark proposed changes and uncertainty in a structured response.
 - Corrected source text remains Chinese; every explanation, confidence reason,
   and uncertainty note is written in clear English.
 - Radix shows the original and proposal before creating anything.

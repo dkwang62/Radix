@@ -180,10 +180,17 @@ struct GeminiTextGenerationService {
         apiKey: String,
         modelID: String,
         prompt: String,
-        systemInstruction: String
+        systemInstruction: String,
+        imageJPEGData: Data? = nil
     ) async throws -> String {
         let data = try await GeminiClient(apiKey: apiKey, modelID: modelID)
-            .generateContent(requestBody: requestBody(prompt: prompt, systemInstruction: systemInstruction))
+            .generateContent(
+                requestBody: requestBody(
+                    prompt: prompt,
+                    systemInstruction: systemInstruction,
+                    imageJPEGData: imageJPEGData
+                )
+            )
         let text = Self.responseText(from: data).trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else {
             throw NSError(domain: "Radix", code: 4005, userInfo: [NSLocalizedDescriptionKey: "Gemini returned an empty translation."])
@@ -191,8 +198,21 @@ struct GeminiTextGenerationService {
         return text
     }
 
-    private func requestBody(prompt: String, systemInstruction: String) -> [String: Any] {
-        [
+    private func requestBody(
+        prompt: String,
+        systemInstruction: String,
+        imageJPEGData: Data?
+    ) -> [String: Any] {
+        var parts: [[String: Any]] = [["text": prompt]]
+        if let imageJPEGData {
+            parts.append([
+                "inlineData": [
+                    "mimeType": "image/jpeg",
+                    "data": imageJPEGData.base64EncodedString()
+                ]
+            ])
+        }
+        return [
             "systemInstruction": [
                 "parts": [
                     ["text": systemInstruction]
@@ -201,9 +221,7 @@ struct GeminiTextGenerationService {
             "contents": [
                 [
                     "role": "user",
-                    "parts": [
-                        ["text": prompt]
-                    ]
+                    "parts": parts
                 ]
             ],
             "generationConfig": [
