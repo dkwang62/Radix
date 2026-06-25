@@ -138,6 +138,9 @@ All three also exist as editable saved-page templates in AI Link. Browse OCR
 review renders the `Check OCR` template with original text,
 recognized/unrecognized characters, and nearby phrase evidence rather than a
 separate hard-coded instruction.
+AI Link exposes one task per user goal. The former API-only phrase task is
+removed; `Extract Phrases` supports both copy/paste and automatic Gemini
+execution without appearing twice.
 OCR correction no longer has a proposal-approval screen. Automatic Gemini
 review creates and opens the corrected Browse page immediately; copy/paste uses
 one `Paste Answer and Create Corrected Page` action. The original OCR page is

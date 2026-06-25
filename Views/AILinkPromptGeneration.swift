@@ -109,8 +109,6 @@ extension AILinkView {
             return "Find useful expressions in page text that you can review and keep in Radix."
         case "task5":
             return "Translate the complete page in context, including shorthand, tone, subtext, and newer usage."
-        case "task6":
-            return "Extract structured phrase records directly with Gemini for faster review and import."
         case "task7":
             return "Compare page OCR with its source image and Radix evidence, then propose clearly marked corrections for review."
         default:

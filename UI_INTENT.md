@@ -282,6 +282,9 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
 - Check OCR, Extract Phrases, and Translate Page also exist as saved-page tasks
   in AI Link. Their templates are editable in Customize, and Browse must render
   those same templates rather than maintaining separate hidden instructions.
+- Do not expose API-specific variants as additional AI Link tasks. `Extract
+  Phrases` is one task; copy/paste and automatic Gemini execution are methods
+  for running it, just as with Check OCR and Translate Page.
 - The AI must mark proposed changes and uncertainty in a structured response.
 - Corrected source text remains Chinese; every explanation, confidence reason,
   and uncertainty note is written in clear English.

@@ -56,7 +56,7 @@ struct AILinkView: View {
     }
 
     var canRunGeminiPhraseAPI: Bool {
-        store.promptSelectedTaskIDs.contains("task6") && selectedCollection != nil
+        store.promptSelectedTaskIDs.contains("task4") && selectedCollection != nil
     }
 
     var body: some View {

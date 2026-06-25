@@ -146,78 +146,6 @@ Chinese phrase | pinyin | meaning
 """
             ),
             PromptTask(
-                id: "task6",
-                title: "Gemini JSON Extract Phrases",
-                template: """
-Gemini JSON Extract Phrases
-
-Use this task with the Gemini API using responseMimeType application/json and the JSON schema below. If you are using Gemini in a chat window instead of the API, return the same JSON object only.
-
-System instruction:
-You are a bilingual Chinese dictionary editor producing structured data for Radix. Extract only useful, dictionary-attested 2-, 3-, and 4-character Chinese phrase headwords from the supplied OCR text/context. Return valid JSON only.
-
-Response JSON schema:
-{
-  "type": "object",
-  "properties": {
-    "phrases": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "phrase": {
-            "type": "string",
-            "description": "A 2-, 3-, or 4-character Chinese dictionary headword found in or strongly supported by the OCR text."
-          },
-          "pinyin": {
-            "type": "string",
-            "description": "Pinyin with tone marks."
-          },
-          "meaning": {
-            "type": "string",
-            "description": "A concise English meaning with no pipe characters."
-          }
-        },
-        "required": ["phrase", "pinyin", "meaning"],
-        "additionalProperties": false
-      }
-    }
-  },
-  "required": ["phrases"],
-  "additionalProperties": false
-}
-
-Extraction rules:
-- Scan and extract candidates in natural reading order sequence from the character pool.
-- Only include a phrase if it is an established entry in a reputable dictionary (e.g., CC-CEDICT, Pleco, MDBG, Wiktionary, or standard contemporary Chinese dictionaries).
-- Do not combine adjacent characters into a phrase unless they genuinely form a standalone dictionary word.
-- Avoid partial grammar patterns, sentence fragments, or accidental OCR groupings.
-- Do not include proper nouns, individual person names, specific dates, or titles unless they double as standard cultural vocabulary items.
-- Do not invent words or use characters not explicitly present in the provided text.
-- If unsure whether a phrase is dictionary-attested, omit it.
-- Use an empty phrases array if no useful new candidates are found.
-
-Valid output example:
-{
-  "phrases": [
-    {
-      "phrase": "人工智能",
-      "pinyin": "rén gōng zhì néng",
-      "meaning": "artificial intelligence"
-    },
-    {
-      "phrase": "国际关系",
-      "pinyin": "guó jì guān xì",
-      "meaning": "international relations"
-    }
-  ]
-}
-
-Do not output Markdown, comments, code fences, explanations, or any text outside the JSON object.
-
-"""
-            ),
-            PromptTask(
                 id: "task5",
                 title: "Translate",
                 template: """
@@ -288,7 +216,7 @@ OCR Text/Context:
         """
     )
 
-    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task6", "task7"]
+    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7"]
 
     static var defaultSelectedTaskIDs: [String] {
         streamlitDefault.tasks
@@ -354,6 +282,7 @@ extension PromptConfig {
     func normalized() -> PromptConfig {
         var seen = Set<String>()
         let cleaned = tasks.filter {
+            guard $0.id != "task6" else { return false }
             guard !$0.id.isEmpty, !seen.contains($0.id) else { return false }
             seen.insert($0.id)
             return true
@@ -382,8 +311,7 @@ extension PromptConfig {
                 task.template.contains("Task 4 – Extract Phrases from Page (image)") ||
                 (task.id == "task4" && !task.template.contains("[CRITICAL RULES]")) ||
                 task.template.contains("Task 5 – Universal Content Architect") ||
-                (task.id == "task5" && !task.template.contains("Bilingual Chinese Dictionary Editor")) ||
-                (task.id == "task6" && !task.template.contains("CC-CEDICT")) {
+                (task.id == "task5" && !task.template.contains("Bilingual Chinese Dictionary Editor")) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {
                 normalizedTemplate = task.template.replacingOccurrences(

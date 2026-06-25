@@ -451,8 +451,8 @@ extension RadixStore {
         selectedBrowseCollectionID = collection.id
         selectedBrowseCollectionCharacters = Set(collection.characters)
         promptSelectedTaskIDs = [taskID]
-        shouldAutoOpenAILinkTask4 = taskID != "task6"
-        shouldAutoRunGeminiPhraseAPI = taskID == "task6"
+        shouldAutoOpenAILinkTask4 = true
+        shouldAutoRunGeminiPhraseAPI = false
         route = .aiLink
         if RadixPlatform.isPhone { showiPhoneDetail = false }
         persistPromptSettings()
