@@ -301,36 +301,36 @@ struct RadixWelcomeView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
-                    VStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 12) {
                         welcomeStep(
                             icon: RadixIcon.scan,
-                            title: "Scan real text",
-                            text: "Turn a photo, file, or pasted text into a saved page you can browse."
+                            title: "Capture and find Chinese",
+                            text: "Take a photo or use Search whenever you need to bring material into Radix or find something directly."
                         )
+
+                        Text("Four main areas")
+                            .font(ResponsiveFont.subheadline.weight(.bold))
+                            .padding(.top, 4)
+
                         welcomeStep(
                             icon: RadixIcon.browse,
-                            title: "Browse the dictionary",
-                            text: "Explore characters, saved pages, parts, variants, stroke order, and phrases."
-                        )
-                        welcomeStep(
-                            icon: RadixIcon.search,
-                            title: "Search naturally",
-                            text: "Find Chinese by character, pinyin, English meaning, stroke input, or phrase."
+                            title: RadixCopy.browse,
+                            text: RadixCopy.browsePurpose
                         )
                         welcomeStep(
                             icon: RadixIcon.study,
-                            title: "Keep what matters",
-                            text: "Save useful characters, phrases, notes, and pages in Study."
-                        )
-                        welcomeStep(
-                            icon: RadixIcon.myData,
-                            title: "Move My Data",
-                            text: "What you add on iPhone can travel to iPad and Mac with Radix Plus."
+                            title: RadixCopy.study,
+                            text: RadixCopy.studyPurpose
                         )
                         welcomeStep(
                             icon: RadixIcon.aiLink,
-                            title: "Go beyond the dictionary",
-                            text: "Use AI Link for contextual translation, deeper explanation, current phrases and concepts, and expressions worth saving."
+                            title: "AI",
+                            text: RadixCopy.aiPurpose
+                        )
+                        welcomeStep(
+                            icon: RadixIcon.myData,
+                            title: RadixCopy.myData,
+                            text: RadixCopy.myDataPurpose
                         )
                     }
 

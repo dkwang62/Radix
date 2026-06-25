@@ -20,6 +20,16 @@ user is trying to do.
 
 ## Main navigation intent
 
+The four primary destinations use this plain-language division of responsibility
+everywhere they are introduced or explained:
+
+- `Browse` — inspect the dictionary or captured pages.
+- `Study` — review what you decided to keep.
+- `AI` — understand or transform material.
+- `My Data` — protect, transfer, or export your work.
+
+Search and Take Photo remain global actions outside this four-part vocabulary.
+
 The compact-screen iPhone navigation should feel like:
 
 ```text

@@ -172,6 +172,10 @@ The three saved-page AI task menus now share the same method vocabulary:
 `Use Another AI App` or `Run Automatically in Radix`. The first method choice
 shows one concise orientation, then continues the chosen action; `How Radix Uses
 AI` reopens it without adding permanent screen text.
+Navigation guidance and the welcome screen use one canonical division of work:
+Browse inspects the dictionary or captured pages; Study reviews what the user
+kept; AI understands or transforms material; My Data protects, transfers, or
+exports the user's work.
 
 ## Next Three Tasks
 

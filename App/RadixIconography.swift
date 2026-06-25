@@ -11,6 +11,11 @@ enum RadixCopy {
     static let myData = String(localized: "My Data")
     static let settings = String(localized: "Settings")
 
+    static let browsePurpose = String(localized: "Inspect the dictionary or captured pages.")
+    static let studyPurpose = String(localized: "Review what you decided to keep.")
+    static let aiPurpose = String(localized: "Understand or transform material.")
+    static let myDataPurpose = String(localized: "Protect, transfer, or export your work.")
+
     static let savedPage = String(localized: "Saved Page")
     static let savedPages = String(localized: "Saved Pages")
     static let saveDeviceSnapshot = String(localized: "Save Device Snapshot")
@@ -78,13 +83,13 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
         case .search:
             return "Find characters and phrases by Chinese, pinyin, or English meaning."
         case .browse:
-            return "Explore the dictionary or open saved pages from scans and pasted text."
+            return RadixCopy.browsePurpose
         case .study:
-            return "Return to favorites, recent characters, and pages you want to revisit."
+            return RadixCopy.studyPurpose
         case .aiLink:
-            return "Go beyond dictionary definitions with contextual translation, deeper explanation, and newer phrases or concepts."
+            return RadixCopy.aiPurpose
         case .myData:
-            return "Your additions can travel between iPhone, iPad, and Mac."
+            return RadixCopy.myDataPurpose
         }
     }
 
@@ -142,13 +147,13 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
     var summary: String {
         switch self {
         case .browse:
-            return "Browse turns captured or unfamiliar Chinese into something you can inspect. It connects the dictionary with the original page, so you can move from a character to its structure, phrases, and real context."
+            return "\(RadixCopy.browsePurpose) Browse connects dictionary detail with the original page, so you can move from a character to its structure, phrases, and real context."
         case .study:
-            return "Study keeps useful discoveries from disappearing after you close a page. It brings your favorites, recent work, additions, notes, and saved learning states together for deliberate review."
+            return "\(RadixCopy.studyPurpose) Study brings your favorites, recent work, additions, notes, and saved learning states together for deliberate review."
         case .aiLink:
-            return "AI Link goes beyond the fixed definitions of a traditional dictionary. It helps you understand Chinese in context, explore emerging phrases and concepts, extract useful expressions, and keep up with language that dictionaries may not yet cover."
+            return "\(RadixCopy.aiPurpose) AI Link goes beyond fixed dictionary definitions with contextual translation, deeper explanation, phrase extraction, and newer language."
         case .myData:
-            return "My Data gives you ownership of the Chinese knowledge you build in Radix. It protects your work, moves it between devices, and provides code and data foundations when you want to build further with AI agents."
+            return "\(RadixCopy.myDataPurpose) My Data provides backups, restore options, portable exports, and code or data foundations for building further with AI agents."
         case .settings:
             return "Settings adapts Radix to the way you learn and work. It controls speech, navigation guidance, AI connections, privacy-sensitive keys, and access to help."
         }
