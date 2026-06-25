@@ -67,6 +67,10 @@ extension RadixStore {
         }
     }
 
+    func selectMostRecentBrowsePage() {
+        selectBrowseCollection(id: mostRecentlyViewedCollection?.id)
+    }
+
     // MARK: - CRUD
 
     @discardableResult

@@ -161,7 +161,9 @@ phrase selection, translation, and AI workflows. The source chooser remains
 separate navigation; only the script toggle and Read Aloud remain permanently
 visible page controls.
 Entering Browse selects the saved page with the newest viewed-or-created date;
-Dictionary is the fallback only when no saved pages exist.
+the same selection is established during startup because the app launches on
+Browse without invoking a tab transition. Dictionary is the fallback only when
+no saved pages exist.
 
 ## Next Three Tasks
 

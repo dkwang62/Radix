@@ -61,6 +61,7 @@ extension RadixStore {
 
         route = .search
         homeTab = .filter
+        selectMostRecentBrowsePage()
         showBrowseHelp = true
         showComponentHelp = true
         previewCharacter = nil

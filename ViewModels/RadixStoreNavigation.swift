@@ -269,11 +269,7 @@ extension RadixStore {
         showBrowseHelp = true
         showComponentHelp = false
         clearBrowsePreview()
-        if let mostRecentPage = mostRecentlyViewedCollection {
-            selectBrowseCollection(id: mostRecentPage.id)
-        } else {
-            selectBrowseCollection(id: nil)
-        }
+        selectMostRecentBrowsePage()
     }
 
     func goToBrowsePages(selectLatest: Bool = true, preservingOrigin: Bool = false) {
