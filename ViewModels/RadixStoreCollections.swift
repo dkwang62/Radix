@@ -62,9 +62,7 @@ extension RadixStore {
     }
 
     var mostRecentlyViewedCollection: CharacterCollection? {
-        allCollections.max {
-            ($0.lastViewedAt ?? $0.createdAt) < ($1.lastViewedAt ?? $1.createdAt)
-        }
+        SavedPageRules.mostRecentID(in: allCollections).flatMap { collection(id: $0) }
     }
 
     func selectMostRecentBrowsePage() {
@@ -164,7 +162,10 @@ extension RadixStore {
             .filter { componentRepo.hasCharacter($0) }
         guard !characters.isEmpty else { return nil }
 
-        let correctedName = correctedCollectionName(from: original.name)
+        let correctedName = SavedPageRules.correctedName(
+            originalName: original.name,
+            existingNames: Set(allCollections.map(\.name))
+        )
         let corrected = CharacterCollection(
             id: UUID(),
             name: correctedName.isEmpty ? "Corrected" : correctedName,
@@ -312,27 +313,11 @@ extension RadixStore {
     }
 
     func collectionDisplayName(_ name: String) -> String {
-        String(name.trimmingCharacters(in: .whitespacesAndNewlines).prefix(11))
+        SavedPageRules.displayName(name)
     }
 
     func collectionNameFromSourceCharacters(_ characters: [String]) -> String {
         String(characters.prefix(11).joined())
     }
 
-    private func correctedCollectionName(from originalName: String) -> String {
-        let cleanOriginal = collectionDisplayName(originalName)
-        let stem = cleanOriginal.isEmpty ? "Corrected" : cleanOriginal
-        let existingNames = Set(allCollections.map(\.name))
-
-        for suffix in 1...99 {
-            let suffixText = String(suffix)
-            let prefixLength = max(0, 11 - suffixText.count)
-            let candidate = String(stem.prefix(prefixLength)) + suffixText
-            if !existingNames.contains(candidate) {
-                return candidate
-            }
-        }
-
-        return String(UUID().uuidString.prefix(11))
-    }
 }

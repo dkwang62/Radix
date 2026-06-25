@@ -5,7 +5,7 @@ Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
 
-Last reviewed: 2026-06-24
+Last reviewed: 2026-06-25
 
 ## Product and Platform Scope
 
@@ -89,7 +89,7 @@ compatibility contracts. Current portable contracts include:
 - navigation, tab, script-filter, and restore-mode identifiers
 - preference keys and the preference-storage interface
 
-The portable test suite currently contains 13 tests across five suites.
+The portable test suite currently contains 15 tests across six suites.
 
 ## Active Workstream
 
@@ -164,6 +164,10 @@ Entering Browse selects the saved page with the newest viewed-or-created date;
 the same selection is established during startup because the app launches on
 Browse without invoking a tab transition. Dictionary is the fallback only when
 no saved pages exist.
+Saved-page name normalization, corrected-name suffixing, and most-recent
+selection live in portable `SavedPageRules` with compatibility tests. SwiftUI
+only supplies actions; one shared Browse gateway handles missing Gemini keys
+for OCR, phrase extraction, and translation.
 
 ## Next Three Tasks
 
@@ -208,9 +212,9 @@ generic iOS target, which covers the universal iPhone/iPad application. Simulato
 launch failures caused by CoreSimulatorService are environmental and should be
 reported separately from compilation failures.
 
-Final refactor verification on 2026-06-24:
+Final refactor verification on 2026-06-25:
 
-- 13/13 portable tests passed across five suites.
+- 15/15 portable tests passed across six suites.
 - Universal generic iOS build passed, covering iPhone and iPad.
 - Mac Catalyst build passed.
 - All 230 Swift source files are represented in the Xcode project.

@@ -142,11 +142,7 @@ extension FilterGridTab {
             } : nil, hasGeminiAPIKey: !store.geminiAPIKey
                 .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
             onCheckOCRAutomatically: {
-                if store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    store.goToSettingsForAPIKeySetup()
-                } else {
-                    runAutomaticOCRReview(collection)
-                }
+                runAutomaticPageAIAction { runAutomaticOCRReview(collection) }
             }, onChoosePhrases: {
                 pagePhraseListCollection = collection
             }, onViewTranslation: {
@@ -154,25 +150,25 @@ extension FilterGridTab {
             }, onManualExtract: {
                 beginManualPhraseExtraction(collection)
             }, onAIExtract: {
-                if store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    store.goToSettingsForAPIKeySetup()
-                } else {
-                    runBrowseGeminiPhraseExtraction(collection)
-                }
+                runAutomaticPageAIAction { runBrowseGeminiPhraseExtraction(collection) }
             }, onTranslate: {
                 beginBrowseTranslation(collection)
             }, onTranslateAndSave: {
-                if store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    store.goToSettingsForAPIKeySetup()
-                } else {
-                    runBrowseGeminiTranslationAndSave(collection)
-                }
+                runAutomaticPageAIAction { runBrowseGeminiTranslationAndSave(collection) }
             })
 
             BrowseImageScriptToggle(mode: $browseImageScriptMode)
 
             readBrowseSourceButton(collection)
         }
+    }
+
+    private func runAutomaticPageAIAction(_ action: () -> Void) {
+        guard !store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            store.goToSettingsForAPIKeySetup()
+            return
+        }
+        action()
     }
 
     func readBrowseSourceButton(_ collection: CharacterCollection) -> some View {

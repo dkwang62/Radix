@@ -28,6 +28,7 @@ let package = Package(
                 "RadixNavigationModels.swift",
                 "RadixPreferenceKey.swift",
                 "RadixPreferenceStore.swift",
+                "SavedPageRules.swift",
                 "UnifiedPackage.swift",
                 "UserProfile.swift"
             ]
