@@ -13,35 +13,69 @@ struct BrowseImageScriptToggle: View {
     }
 }
 
-struct CollectionAITaskMenu: View {
+struct CollectionPageActionsMenu: View {
     let collection: CharacterCollection
+    let onEdit: () -> Void
+    let onCheckOCR: (() -> Void)?
+    let onChoosePhrases: () -> Void
+    let onViewTranslation: () -> Void
     let onManualExtract: () -> Void
     let onAIExtract: () -> Void
     let onTranslate: () -> Void
     let onTranslateAndSave: () -> Void
-    var isCompact = false
 
     var body: some View {
         Menu {
-            Section("Manual / Without API Key") {
+            Section("Page") {
+                Button {
+                    onEdit()
+                } label: {
+                    Label("Edit Page", systemImage: "pencil")
+                }
+
+                if let onCheckOCR {
+                    Button {
+                        onCheckOCR()
+                    } label: {
+                        Label("Check OCR", systemImage: "text.viewfinder")
+                    }
+                }
+
+                Button {
+                    onChoosePhrases()
+                } label: {
+                    Label("Choose Page Phrases", systemImage: "text.quote")
+                }
+
+                Button {
+                    onViewTranslation()
+                } label: {
+                    Label(
+                        collection.translationReport == nil ? "Save Translation" : "View Translation",
+                        systemImage: collection.translationReport == nil ? "doc.badge.plus" : "doc.text"
+                    )
+                }
+            }
+
+            Section("Use AI by Copy and Paste") {
                 Button {
                     onManualExtract()
                 } label: {
-                    Label("Extract Phrases by Paste", systemImage: "text.badge.plus")
+                    Label("Extract Phrases", systemImage: "text.badge.plus")
                 }
 
                 Button {
                     onTranslate()
                 } label: {
-                    Label("Translate", systemImage: "translate")
+                    Label("Translate Page", systemImage: "translate")
                 }
             }
 
-            Section("With API Key") {
+            Section("Use AI Automatically") {
                 Button {
                     onAIExtract()
                 } label: {
-                    Label("Extract Phrases Automatically", systemImage: "curlybraces")
+                    Label("Extract and Add Phrases", systemImage: "curlybraces")
                 }
 
                 Button {
@@ -51,31 +85,21 @@ struct CollectionAITaskMenu: View {
                 }
             }
         } label: {
-            if isCompact {
-                HStack(spacing: 4) {
-                    Image(systemName: RadixIcon.aiLink)
-                    Image(systemName: "chevron.down")
-                        .font(ResponsiveFont.tinySystem(size: 9, weight: .bold))
-                }
-                .font(ResponsiveFont.caption2.weight(.semibold))
-                .frame(width: 46)
-            } else {
-                HStack(spacing: 5) {
-                    Image(systemName: RadixIcon.aiLink)
-                    Text("AI Link")
-                    Image(systemName: "chevron.down")
-                        .font(ResponsiveFont.tinySystem(size: 9, weight: .bold))
-                }
-                .font(ResponsiveFont.caption2.weight(.semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
-                .frame(minWidth: 78)
+            HStack(spacing: 5) {
+                Image(systemName: "ellipsis.circle")
+                Text("Actions")
+                Image(systemName: "chevron.down")
+                    .font(ResponsiveFont.tinySystem(size: 9, weight: .bold))
             }
+            .font(ResponsiveFont.caption2.weight(.semibold))
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+            .frame(minWidth: 82)
         }
-        .buttonStyle(.borderedProminent)
+        .buttonStyle(.bordered)
         .controlSize(.small)
-        .accessibilityLabel("AI Link actions for \(collection.name)")
-        .help("AI Link")
+        .accessibilityLabel("Page actions for \(collection.name)")
+        .help("Page Actions")
     }
 }
 

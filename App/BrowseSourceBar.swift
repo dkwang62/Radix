@@ -134,34 +134,16 @@ extension FilterGridTab {
     }
 
     func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
-        let translationTitle = collection.translationReport == nil ? "Save Translation" : "View Translation"
-        let translationIcon = collection.translationReport == nil ? "doc.badge.plus" : "doc.text"
-
         return HStack(spacing: 6) {
-            Button {
+            CollectionPageActionsMenu(collection: collection, onEdit: {
                 beginEditing(collection)
-            } label: {
-                Image(systemName: "pencil")
-                    .radixMinimumTapTarget()
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .accessibilityLabel("Edit")
-
-            if collection.sourceType == .ocr && collection.correctedFromCollectionID == nil {
-                Button {
+            }, onCheckOCR: collection.sourceType == .ocr && collection.correctedFromCollectionID == nil ? {
                     beginOCRReview(collection)
-                } label: {
-                    Image(systemName: "text.viewfinder")
-                        .radixMinimumTapTarget()
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .accessibilityLabel("Check OCR")
-                .help("Check OCR with ChatGPT")
-            }
-
-            CollectionAITaskMenu(collection: collection, onManualExtract: {
+            } : nil, onChoosePhrases: {
+                pagePhraseListCollection = collection
+            }, onViewTranslation: {
+                beginTranslationReport(collection)
+            }, onManualExtract: {
                 beginManualPhraseExtraction(collection)
             }, onAIExtract: {
                 runBrowseGeminiPhraseExtraction(collection)
@@ -169,29 +151,7 @@ extension FilterGridTab {
                 beginBrowseTranslation(collection)
             }, onTranslateAndSave: {
                 runBrowseGeminiTranslationAndSave(collection)
-            }, isCompact: true)
-
-            Button {
-                beginTranslationReport(collection)
-            } label: {
-                Image(systemName: translationIcon)
-                    .radixMinimumTapTarget()
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .accessibilityLabel(translationTitle)
-            .help(translationTitle)
-
-            Button {
-                pagePhraseListCollection = collection
-            } label: {
-                Image(systemName: "text.quote")
-                    .radixMinimumTapTarget()
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .accessibilityLabel("Choose Page Phrases")
-            .help("Choose Page Phrases")
+            })
 
             BrowseImageScriptToggle(mode: $browseImageScriptMode)
 

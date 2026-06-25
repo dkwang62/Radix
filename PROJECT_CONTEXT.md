@@ -135,11 +135,15 @@ readable; phone and Mac retain their adaptive layouts.
 Content-driven cross-tab navigation uses the existing single-level return
 context. Destinations show a named return button (`Back to Study`, `Back to My
 Data`, and so on); manually choosing a primary tab clears that context.
+Saved Browse pages use one labelled `Actions` menu for editing, OCR review,
+phrase selection, translation, and AI workflows. The source chooser remains
+separate navigation; only the script toggle and Read Aloud remain permanently
+visible page controls.
 
 ## Next Three Tasks
 
-1. Manually verify the navigation tips and `Icons & Labels`/`Icons Only` setting
-   on iPhone, iPad, and Mac Catalyst.
+1. Manually verify the saved-page `Actions` menu on iPhone, iPad, and Mac
+   Catalyst, including conditional `Check OCR`.
 2. Usability-test `Check OCR` with clear, ambiguous, and incorrect captures,
    including the copy-image and structured-response workflow.
 3. Perform a short regression for backup restore, Browse saved pages, phrase

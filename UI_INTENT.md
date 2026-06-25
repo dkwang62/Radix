@@ -86,6 +86,12 @@ When the user opens a saved page, returning to the page list should be obvious.
 Dictionary should behave like another browse item and should not break the
 navigation routine.
 
+For an open saved page, keep navigation separate from page actions. The source
+chooser remains a distinct back/photo control. Consolidate secondary commands
+such as Edit Page, Check OCR, phrase selection, translation, and AI workflows
+under one clearly labelled `Actions` menu. Keep only frequently adjusted
+controls—Simplified/Traditional and Read Aloud—visible beside it.
+
 ## Study intent
 
 Study is the user's learning memory center.
