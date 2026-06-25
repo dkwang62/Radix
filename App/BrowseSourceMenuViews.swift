@@ -14,6 +14,15 @@ struct BrowseImageScriptToggle: View {
 }
 
 struct CollectionPageActionsMenu: View {
+    private enum PendingAIMethod {
+        case checkOCRManually
+        case checkOCRAutomatically
+        case extractManually
+        case extractAutomatically
+        case translateManually
+        case translateAutomatically
+    }
+
     let collection: CharacterCollection
     let onEdit: () -> Void
     let onCheckOCR: (() -> Void)?
@@ -25,6 +34,8 @@ struct CollectionPageActionsMenu: View {
     let onAIExtract: () -> Void
     let onTranslate: () -> Void
     let onTranslateAndSave: () -> Void
+    @State private var showsAIOrientation = false
+    @State private var pendingAIMethod: PendingAIMethod?
 
     var body: some View {
         Menu {
@@ -52,13 +63,11 @@ struct CollectionPageActionsMenu: View {
             }
 
             Section("AI Tasks") {
-                if let onCheckOCR {
+                if onCheckOCR != nil {
                     Menu {
                         aiMethodButton(
-                            manualTitle: "Copy and Paste with ChatGPT",
-                            automaticTitle: "Check Automatically with Gemini",
-                            manualAction: onCheckOCR,
-                            automaticAction: onCheckOCRAutomatically
+                            manualMethod: .checkOCRManually,
+                            automaticMethod: .checkOCRAutomatically
                         )
                     } label: {
                         Label("Check OCR", systemImage: "text.viewfinder")
@@ -67,10 +76,8 @@ struct CollectionPageActionsMenu: View {
 
                 Menu {
                     aiMethodButton(
-                        manualTitle: "Copy and Paste with ChatGPT",
-                        automaticTitle: "Extract and Add with Gemini",
-                        manualAction: onManualExtract,
-                        automaticAction: onAIExtract
+                        manualMethod: .extractManually,
+                        automaticMethod: .extractAutomatically
                     )
                 } label: {
                     Label("Extract Phrases", systemImage: "text.badge.plus")
@@ -78,13 +85,18 @@ struct CollectionPageActionsMenu: View {
 
                 Menu {
                     aiMethodButton(
-                        manualTitle: "Copy and Paste with ChatGPT",
-                        automaticTitle: "Translate and Save with Gemini",
-                        manualAction: onTranslate,
-                        automaticAction: onTranslateAndSave
+                        manualMethod: .translateManually,
+                        automaticMethod: .translateAutomatically
                     )
                 } label: {
                     Label("Translate Page", systemImage: "translate")
+                }
+
+                Button {
+                    pendingAIMethod = nil
+                    showsAIOrientation = true
+                } label: {
+                    Label("How Radix Uses AI", systemImage: "info.circle")
                 }
             }
         } label: {
@@ -103,24 +115,138 @@ struct CollectionPageActionsMenu: View {
         .controlSize(.small)
         .accessibilityLabel("Page actions for \(collection.name)")
         .help("Page Actions")
+        .popover(isPresented: $showsAIOrientation, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
+            PageAIOrientationView(
+                continuesSelectedAction: pendingAIMethod != nil,
+                onContinue: completeAIOrientation,
+                onCancel: cancelAIOrientation
+            )
+        }
     }
 
     @ViewBuilder
     private func aiMethodButton(
-        manualTitle: String,
-        automaticTitle: String,
-        manualAction: @escaping () -> Void,
-        automaticAction: @escaping () -> Void
+        manualMethod: PendingAIMethod,
+        automaticMethod: PendingAIMethod
     ) -> some View {
-        Button(action: manualAction) {
-            Label(manualTitle, systemImage: "doc.on.clipboard")
+        Button {
+            chooseAIMethod(manualMethod)
+        } label: {
+            Label("Use Another AI App", systemImage: "doc.on.clipboard")
         }
 
-        Button(action: automaticAction) {
+        Button {
+            chooseAIMethod(automaticMethod)
+        } label: {
             Label(
-                hasGeminiAPIKey ? automaticTitle : "Set Up Gemini API Key…",
+                hasGeminiAPIKey ? "Run Automatically in Radix" : "Set Up Gemini API Key…",
                 systemImage: hasGeminiAPIKey ? "sparkles" : "key"
             )
+        }
+    }
+
+    private func chooseAIMethod(_ method: PendingAIMethod) {
+        guard RadixRootPreferences.hasSeenPageAIOrientation else {
+            pendingAIMethod = method
+            showsAIOrientation = true
+            return
+        }
+        run(method)
+    }
+
+    private func completeAIOrientation() {
+        let method = pendingAIMethod
+        RadixRootPreferences.hasSeenPageAIOrientation = true
+        pendingAIMethod = nil
+        showsAIOrientation = false
+        if let method {
+            DispatchQueue.main.async {
+                run(method)
+            }
+        }
+    }
+
+    private func cancelAIOrientation() {
+        pendingAIMethod = nil
+        showsAIOrientation = false
+    }
+
+    private func run(_ method: PendingAIMethod) {
+        switch method {
+        case .checkOCRManually: onCheckOCR?()
+        case .checkOCRAutomatically: onCheckOCRAutomatically()
+        case .extractManually: onManualExtract()
+        case .extractAutomatically: onAIExtract()
+        case .translateManually: onTranslate()
+        case .translateAutomatically: onTranslateAndSave()
+        }
+    }
+}
+
+private struct PageAIOrientationView: View {
+    let continuesSelectedAction: Bool
+    let onContinue: () -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Label("Choose How Radix Uses AI", systemImage: "wand.and.stars")
+                .font(ResponsiveFont.title3.weight(.bold))
+
+            Text("Radix can check OCR, extract useful phrases, or translate a complete page in context.")
+                .font(ResponsiveFont.body)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            method(
+                icon: "doc.on.clipboard",
+                title: "Use Another AI App",
+                detail: "Radix prepares the instruction and page evidence for you to copy into ChatGPT, Gemini, or another AI app. No API key is needed."
+            )
+
+            method(
+                icon: "sparkles",
+                title: "Run Automatically in Radix",
+                detail: "Radix sends the task directly to Gemini and returns the result to the page workflow. This requires a private Gemini API key in Settings."
+            )
+
+            Text("You can edit the underlying OCR, phrase-extraction, and translation instructions in AI Link.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            HStack {
+                Button("Not Now", action: onCancel)
+                    .buttonStyle(.bordered)
+
+                Spacer()
+
+                Button(continuesSelectedAction ? "Continue" : "Got It", action: onContinue)
+                    .buttonStyle(.borderedProminent)
+            }
+        }
+        .padding(18)
+        .frame(idealWidth: 380, maxWidth: 430)
+        .presentationCompactAdaptation(.sheet)
+    }
+
+    private func method(icon: String, title: String, detail: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: icon)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 30, height: 30)
+                .background(Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 7))
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                Text(detail)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 }

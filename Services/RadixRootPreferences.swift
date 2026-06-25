@@ -5,6 +5,7 @@ enum RadixRootPreferences {
     private static let hasUsedSidebarNavigationKey = "hasUsedSidebarNavigationV1"
     private static let preferences = RadixPreferences.standard
     private static let navigationGuidePrefix = "hasSeenNavigationGuideV1."
+    private static let hasSeenPageAIOrientationKey = "hasSeenPageAIOrientationV1"
 
     static var hasSeenWelcome: Bool {
         get { preferences.bool(forKey: hasSeenWelcomeKey) }
@@ -28,5 +29,10 @@ enum RadixRootPreferences {
         ["browse", "study", "aiLink", "myData", "settings"].forEach {
             preferences.removeObject(forKey: navigationGuidePrefix + $0)
         }
+    }
+
+    static var hasSeenPageAIOrientation: Bool {
+        get { preferences.bool(forKey: hasSeenPageAIOrientationKey) }
+        set { preferences.set(newValue, forKey: hasSeenPageAIOrientationKey) }
     }
 }

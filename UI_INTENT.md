@@ -282,6 +282,11 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
 - Check OCR, Extract Phrases, and Translate Page also exist as saved-page tasks
   in AI Link. Their templates are editable in Customize, and Browse must render
   those same templates rather than maintaining separate hidden instructions.
+- Their Browse submenus use the same two method labels: `Use Another AI App`
+  copies a prepared instruction for ChatGPT, Gemini, or another service, while
+  `Run Automatically in Radix` uses the saved Gemini API key. A one-time,
+  dismissible explanation appears on the first method choice, continues that
+  choice after dismissal, and remains available from `How Radix Uses AI`.
 - Do not expose API-specific variants as additional AI Link tasks. `Extract
   Phrases` is one task; copy/paste and automatic Gemini execution are methods
   for running it, just as with Check OCR and Translate Page.

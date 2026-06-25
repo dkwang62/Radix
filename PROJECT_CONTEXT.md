@@ -168,6 +168,10 @@ Saved-page name normalization, corrected-name suffixing, and most-recent
 selection live in portable `SavedPageRules` with compatibility tests. SwiftUI
 only supplies actions; one shared Browse gateway handles missing Gemini keys
 for OCR, phrase extraction, and translation.
+The three saved-page AI task menus now share the same method vocabulary:
+`Use Another AI App` or `Run Automatically in Radix`. The first method choice
+shows one concise orientation, then continues the chosen action; `How Radix Uses
+AI` reopens it without adding permanent screen text.
 
 ## Next Three Tasks
 
