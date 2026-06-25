@@ -129,8 +129,10 @@ source image in addition to the normal UI thumbnail.
 When a Gemini API key is configured, `Check OCR` additionally offers an
 automatic multimodal review using the same prompt and saved image. Its response
 opens in the same comparison sheet and still requires explicit approval.
-Without a key, the same menu location shows `Set Up Automatic OCR…`, navigates
-to Settings with Private API Keys expanded, and preserves `Back to Browse`.
+Without a key, the shared `Use AI Automatically` menu section shows `Set Up
+Gemini API Key…`, navigates to Settings with Private API Keys expanded, and
+preserves `Back to Browse`. Setup is described as enabling automatic OCR review,
+phrase extraction, and translation rather than belonging to OCR alone.
 The corrected source remains Chinese, while change reasons, confidence, and
 uncertainty explanations are explicitly requested in English.
 Study uses its four summary tiles as the section selectors. Recent and Favorites

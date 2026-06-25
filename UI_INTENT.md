@@ -269,9 +269,11 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   image to ChatGPT and pastes the structured answer back into Radix.
 - When a Gemini API key is present, `Check OCR` also offers an automatic check
   using the same evidence and saved image.
-- Automatic OCR remains discoverable when no key is saved. Its menu item becomes
-  `Set Up Automatic OCR…` and opens Settings with Private API Keys expanded and
-  a contextual `Back to Browse` action.
+- API-key setup belongs with all automatic AI actions, not under one task.
+  When no Gemini key is saved, the `Use AI Automatically` section shows
+  `Set Up Gemini API Key…`; it opens Settings with Private API Keys expanded and
+  a contextual `Back to Browse` action. OCR, phrase extraction, and translation
+  should all be named as uses of the shared key.
 - The AI must mark proposed changes and uncertainty in a structured response.
 - Corrected source text remains Chinese; every explanation, confidence reason,
   and uncertainty note is written in clear English.

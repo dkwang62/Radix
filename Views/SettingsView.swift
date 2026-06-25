@@ -100,6 +100,12 @@ struct SettingsView: View {
                     .font(ResponsiveFont.subheadline.weight(.semibold))
                 }
 
+                if areAPIKeysExpanded {
+                    Text("A Gemini API key lets Radix check OCR, extract phrases, and translate pages automatically. Copy-and-paste AI workflows do not require a key.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+
                 TextField("Gemini model", text: storeBinding(\.geminiModelID))
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
@@ -111,7 +117,7 @@ struct SettingsView: View {
                         Text("Google AI Studio")
                             .font(ResponsiveFont.caption.weight(.semibold))
 
-                        Text("Use this only if you want Radix to extract phrases directly with the Gemini API.")
+                        Text("Use this only if you want Radix to check OCR, extract phrases, and translate pages automatically.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
 

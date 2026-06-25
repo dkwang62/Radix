@@ -43,13 +43,12 @@ struct CollectionPageActionsMenu: View {
                             Label("Copy and Paste with ChatGPT", systemImage: "doc.on.clipboard")
                         }
 
-                        Button {
-                            onCheckOCRAutomatically()
-                        } label: {
-                            Label(
-                                hasGeminiAPIKey ? "Check Automatically with Gemini" : "Set Up Automatic OCR…",
-                                systemImage: hasGeminiAPIKey ? "sparkles" : "key"
-                            )
+                        if hasGeminiAPIKey {
+                            Button {
+                                onCheckOCRAutomatically()
+                            } label: {
+                                Label("Check Automatically with Gemini", systemImage: "sparkles")
+                            }
                         }
                     } label: {
                         Label("Check OCR", systemImage: "text.viewfinder")
@@ -87,16 +86,24 @@ struct CollectionPageActionsMenu: View {
             }
 
             Section("Use AI Automatically") {
-                Button {
-                    onAIExtract()
-                } label: {
-                    Label("Extract and Add Phrases", systemImage: "curlybraces")
-                }
+                if hasGeminiAPIKey {
+                    Button {
+                        onAIExtract()
+                    } label: {
+                        Label("Extract and Add Phrases", systemImage: "curlybraces")
+                    }
 
-                Button {
-                    onTranslateAndSave()
-                } label: {
-                    Label("Translate and Save", systemImage: "tray.and.arrow.down")
+                    Button {
+                        onTranslateAndSave()
+                    } label: {
+                        Label("Translate and Save", systemImage: "tray.and.arrow.down")
+                    }
+                } else {
+                    Button {
+                        onCheckOCRAutomatically()
+                    } label: {
+                        Label("Set Up Gemini API Key…", systemImage: "key")
+                    }
                 }
             }
         } label: {
