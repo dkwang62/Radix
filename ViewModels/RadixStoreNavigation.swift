@@ -246,6 +246,15 @@ extension RadixStore {
 
     func goToSettings() {
         clearCrossTabOrigin()
+        shouldRevealAPIKeys = false
+        route = .settings
+        activeFavouriteCharacter = nil
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
+    }
+
+    func goToSettingsForAPIKeySetup() {
+        rememberCrossTabOrigin()
+        shouldRevealAPIKeys = true
         route = .settings
         activeFavouriteCharacter = nil
         if RadixPlatform.isPhone { showiPhoneDetail = false }

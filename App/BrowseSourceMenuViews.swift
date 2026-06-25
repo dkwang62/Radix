@@ -17,7 +17,8 @@ struct CollectionPageActionsMenu: View {
     let collection: CharacterCollection
     let onEdit: () -> Void
     let onCheckOCR: (() -> Void)?
-    let onCheckOCRAutomatically: (() -> Void)?
+    let hasGeminiAPIKey: Bool
+    let onCheckOCRAutomatically: () -> Void
     let onChoosePhrases: () -> Void
     let onViewTranslation: () -> Void
     let onManualExtract: () -> Void
@@ -42,12 +43,13 @@ struct CollectionPageActionsMenu: View {
                             Label("Copy and Paste with ChatGPT", systemImage: "doc.on.clipboard")
                         }
 
-                        if let onCheckOCRAutomatically {
-                            Button {
-                                onCheckOCRAutomatically()
-                            } label: {
-                                Label("Check Automatically with Gemini", systemImage: "sparkles")
-                            }
+                        Button {
+                            onCheckOCRAutomatically()
+                        } label: {
+                            Label(
+                                hasGeminiAPIKey ? "Check Automatically with Gemini" : "Set Up Automatic OCR…",
+                                systemImage: hasGeminiAPIKey ? "sparkles" : "key"
+                            )
                         }
                     } label: {
                         Label("Check OCR", systemImage: "text.viewfinder")

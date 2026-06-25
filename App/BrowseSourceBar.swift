@@ -139,11 +139,15 @@ extension FilterGridTab {
                 beginEditing(collection)
             }, onCheckOCR: collection.sourceType == .ocr && collection.correctedFromCollectionID == nil ? {
                 beginOCRReview(collection)
-            } : nil, onCheckOCRAutomatically: collection.sourceType == .ocr
-                && collection.correctedFromCollectionID == nil
-                && !store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? {
-                runAutomaticOCRReview(collection)
-            } : nil, onChoosePhrases: {
+            } : nil, hasGeminiAPIKey: !store.geminiAPIKey
+                .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            onCheckOCRAutomatically: {
+                if store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    store.goToSettingsForAPIKeySetup()
+                } else {
+                    runAutomaticOCRReview(collection)
+                }
+            }, onChoosePhrases: {
                 pagePhraseListCollection = collection
             }, onViewTranslation: {
                 beginTranslationReport(collection)

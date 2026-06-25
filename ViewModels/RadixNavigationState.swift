@@ -8,6 +8,7 @@ struct RadixNavigationState: Equatable {
     var homeTab: HomeTab = .filter
     var sidebarNavigationStyle: SidebarNavigationStyle = .defaultStyle
     var rootsReturnContext: RootsReturnContext?
+    var shouldRevealAPIKeys = false
     var previewCharacter: String?
     var history: [String] = []
 }
@@ -34,6 +35,11 @@ extension RadixStore {
     var rootsReturnContext: RootsReturnContext? {
         get { navigationState.rootsReturnContext }
         set { navigationState.rootsReturnContext = newValue }
+    }
+
+    var shouldRevealAPIKeys: Bool {
+        get { navigationState.shouldRevealAPIKeys }
+        set { navigationState.shouldRevealAPIKeys = newValue }
     }
 
     var previewCharacter: String? {

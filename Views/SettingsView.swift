@@ -6,6 +6,7 @@ struct SettingsView: View {
     @State private var showResetMemoryConfirmation = false
     @State private var resetMemoryStatus: String?
     @State private var navigationTipsReset = false
+    @State private var areAPIKeysExpanded = false
     let showsCloseButton: Bool
     let onShowWelcome: (() -> Void)?
 
@@ -81,7 +82,7 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                DisclosureGroup {
+                DisclosureGroup(isExpanded: $areAPIKeysExpanded) {
                     apiKeyField("OpenAI API key", text: storeBinding(\.openAIAPIKey))
                     apiKeyField("Gemini API key", text: storeBinding(\.geminiAPIKey))
                     geminiKeyHealthRow
@@ -174,6 +175,12 @@ struct SettingsView: View {
             }
         }
         .navigationTitle(RadixCopy.settings)
+        .onAppear {
+            revealRequestedAPIKeySettings()
+        }
+        .onChange(of: store.shouldRevealAPIKeys) { _, _ in
+            revealRequestedAPIKeySettings()
+        }
         .toolbar {
             if showsCloseButton {
                 ToolbarItem(placement: .confirmationAction) {
@@ -200,6 +207,12 @@ struct SettingsView: View {
         SecureField(title, text: text)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
+    }
+
+    private func revealRequestedAPIKeySettings() {
+        guard store.shouldRevealAPIKeys else { return }
+        areAPIKeysExpanded = true
+        store.shouldRevealAPIKeys = false
     }
 
     private func storeBinding<Value>(_ keyPath: ReferenceWritableKeyPath<RadixStore, Value>) -> Binding<Value> {
@@ -291,7 +304,7 @@ struct SettingsView: View {
         if trimmed.isEmpty {
             return SettingsHealth(
                 title: "Gemini key not saved",
-                detail: "Only needed for direct phrase extraction.",
+                detail: "Add one for automatic OCR checking, phrase extraction, and translation.",
                 systemImage: "key.slash",
                 color: .orange
             )
@@ -306,7 +319,7 @@ struct SettingsView: View {
         }
         return SettingsHealth(
             title: "Gemini key saved",
-            detail: "Ready for direct phrase extraction.",
+            detail: "Ready for automatic OCR checking, phrase extraction, and translation.",
             systemImage: "checkmark.circle",
             color: .green
         )
