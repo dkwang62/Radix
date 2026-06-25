@@ -10,9 +10,7 @@ extension FavouritesTab {
 
                 studyDashboardSummary
 
-                if !isPhone {
-                    studySnapshotActions
-                }
+                studyProtectionLink
 
                 if hasStudyGridItems {
                     recentStudySection
@@ -20,7 +18,7 @@ extension FavouritesTab {
 
             }
             .padding(.horizontal)
-            .padding(.bottom, isPhone ? 92 : 20)
+            .padding(.bottom, 20)
         }
     }
 
@@ -107,109 +105,33 @@ extension FavouritesTab {
         .padding(.top, 2)
     }
 
-    @ViewBuilder
-    var studySnapshotActions: some View {
-        if onSaveSnapshot != nil || onRestoreSnapshot != nil {
-            let snapshotsLocked = entitlement.requiresPro(.datedCopies)
+    var studyProtectionLink: some View {
+        Button(action: onOpenProtectRecover) {
+            HStack(spacing: 10) {
+                Image(systemName: "shield.lefthalf.filled")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 34, height: 34)
+                    .background(Color.accentColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            HStack(spacing: 8) {
-                Button {
-                    if snapshotsLocked {
-                        onRequirePro(.datedCopies)
-                    } else {
-                        onSaveSnapshot?()
-                    }
-                } label: {
-                    studySnapshotActionLabel(
-                        title: isSavingSnapshot ? "Saving..." : RadixCopy.saveDeviceSnapshot,
-                        systemImage: snapshotsLocked ? "lock.fill" : (isSavingSnapshot ? "hourglass" : "tray.and.arrow.down"),
-                        isPrimary: true,
-                        lockBadge: snapshotsLocked ? "Plus" : nil
-                    )
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Protect or Recover Study")
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                    Text("Compare checkpoints and portable backups in one place.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
                 }
-                .buttonStyle(.plain)
-                .disabled(isSavingSnapshot || isRestoringSnapshot)
 
-                if snapshotsLocked {
-                    Button {
-                        onRequirePro(.datedCopies)
-                    } label: {
-                        studySnapshotActionLabel(
-                            title: RadixCopy.restoreDeviceSnapshot,
-                            systemImage: "lock.fill",
-                            isPrimary: false,
-                            lockBadge: "Plus"
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(isSavingSnapshot || isRestoringSnapshot)
-                } else {
-                    Menu {
-                        if localSnapshots.isEmpty {
-                            Text("No snapshots saved")
-                        } else {
-                            ForEach(localSnapshots) { snapshot in
-                                Button {
-                                    pendingSnapshotRestore = snapshot
-                                } label: {
-                                    Label(snapshot.title, systemImage: "clock.arrow.circlepath")
-                                }
-                            }
-                        }
-
-                        Divider()
-
-                        Button {
-                            onRefreshSnapshots?()
-                        } label: {
-                            Label("Refresh List", systemImage: "arrow.clockwise")
-                        }
-                    } label: {
-                        studySnapshotActionLabel(
-                            title: isRestoringSnapshot ? "Restoring..." : RadixCopy.restoreDeviceSnapshot,
-                            systemImage: isRestoringSnapshot ? "hourglass" : "arrow.counterclockwise",
-                            isPrimary: false,
-                            lockBadge: nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(isSavingSnapshot || isRestoringSnapshot)
-                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(.secondary)
             }
-            .onAppear {
-                onRefreshSnapshots?()
-            }
+            .padding(10)
+            .background(RadixTheme.secondaryBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
-    }
-
-    func studySnapshotActionLabel(
-        title: String,
-        systemImage: String,
-        isPrimary: Bool,
-        lockBadge: String?
-    ) -> some View {
-        HStack(spacing: 7) {
-            Image(systemName: systemImage)
-                .font(.system(size: 14, weight: .semibold))
-            Text(title)
-                .font(ResponsiveFont.caption.weight(.bold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.72)
-            if let lockBadge {
-                Text(lockBadge)
-                    .font(ResponsiveFont.caption2.weight(.bold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 2)
-                    .background(Color.accentColor)
-                    .clipShape(Capsule())
-                    .accessibilityHidden(true)
-            }
-        }
-        .frame(maxWidth: .infinity, minHeight: 40)
-        .foregroundStyle(isPrimary ? Color.white : Color.accentColor)
-        .background(isPrimary ? Color.accentColor : Color.accentColor.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
+        .buttonStyle(.plain)
     }
 
     var studySummaryColumns: [GridItem] {

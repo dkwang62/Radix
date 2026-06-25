@@ -18,12 +18,12 @@ enum RadixCopy {
 
     static let savedPage = String(localized: "Saved Page")
     static let savedPages = String(localized: "Saved Pages")
-    static let saveDeviceSnapshot = String(localized: "Save Device Snapshot")
-    static let restoreDeviceSnapshot = String(localized: "Restore Device Snapshot")
+    static let createCheckpoint = String(localized: "Create Checkpoint")
+    static let returnToCheckpoint = String(localized: "Return to Checkpoint")
 
-    static let saveBackup = String(localized: "Save Backup")
+    static let createBackup = String(localized: "Create Backup")
     static let mergeBackup = String(localized: "Merge Backup")
-    static let replaceMyData = String(localized: "Replace My Data")
+    static let replaceFromBackup = String(localized: "Replace from Backup")
     static let backupContents = String(localized: "Backup Contents")
 
     static let accepted = String(localized: "Accepted")

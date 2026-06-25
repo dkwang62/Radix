@@ -302,8 +302,12 @@ extension RadixStore {
         shouldStartBrowseCamera = true
     }
 
-    func goToDataEdit() {
-        clearCrossTabOrigin()
+    func goToDataEdit(preservingOrigin: Bool = false) {
+        if preservingOrigin {
+            rememberCrossTabOrigin()
+        } else {
+            clearCrossTabOrigin()
+        }
         route = .search
         homeTab = .dataEdit
         startBlankDataEdit()

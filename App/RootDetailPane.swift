@@ -76,12 +76,9 @@ extension RootView {
                         onExportProfile: exportProfile,
                         onImportProfile: importProfile,
                         onRequirePro: presentPaywall(for:),
-                        onSaveSnapshot: quickSaveMemory,
-                        onRestoreSnapshot: quickRestoreMemory(from:),
-                        onRefreshSnapshots: refreshQuickLocalSnapshots,
-                        localSnapshots: quickLocalSnapshots,
-                        isSavingSnapshot: isQuickSavingMemory,
-                        isRestoringSnapshot: isQuickRestoringMemory
+                        onOpenProtectRecover: {
+                            store.goToDataEdit(preservingOrigin: true)
+                        }
                     )
                 case .aiLink:
                     aiLinkContent

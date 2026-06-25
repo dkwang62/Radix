@@ -155,19 +155,19 @@ AI should focus on understanding and transforming material:
 AI can be connected from Browse and Study, but it should not be hidden so deeply
 that users miss it as a major Radix feature.
 
-## Save and restore grammar
+## Protect and recover grammar
 
 Radix should use a consistent Save/Restore pattern, but the object must always
 be explicit.
 
-Use the same visual grammar for:
+Offer recovery choices together on one `Protect & Recover` screen:
 
-- Save Snapshot / Restore Snapshot in Study.
-- Save Backup / Restore Backup in My Data.
+- Create Checkpoint / Return to Checkpoint for local recovery.
+- Create Backup / Merge Backup / Replace from Backup for portable files.
 - Save Export / Restore Export for Advanced Pro files.
 
-Avoid generic buttons that only say Save or Restore without saying what is being
-saved or restored.
+Study links to this shared screen rather than duplicating checkpoint controls.
+My Data hosts it because it owns backup files and operational recovery.
 
 The shared meaning is:
 
@@ -176,7 +176,7 @@ The shared meaning is:
 
 The noun tells the user what kind of saved state is involved.
 
-## Study snapshots
+## Study checkpoints
 
 Study snapshots are not just disaster recovery. They support active learning and
 mind-changing during a day.
@@ -188,7 +188,7 @@ Example use cases:
 - During study, the user deletes pages, changes favorites, edits phrases, and
   later wants some deleted material back.
 
-Snapshots should make this safe.
+Checkpoints should make this safe.
 
 The preferred restore behavior for snapshots is:
 

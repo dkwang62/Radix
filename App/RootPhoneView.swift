@@ -94,12 +94,9 @@ extension RootView {
                 onExportProfile: exportProfile,
                 onImportProfile: importProfile,
                 onRequirePro: { gate in store.showPaywall(for: gate) },
-                onSaveSnapshot: quickSaveMemory,
-                onRestoreSnapshot: quickRestoreMemory(from:),
-                onRefreshSnapshots: refreshQuickLocalSnapshots,
-                localSnapshots: quickLocalSnapshots,
-                isSavingSnapshot: isQuickSavingMemory,
-                isRestoringSnapshot: isQuickRestoringMemory
+                onOpenProtectRecover: {
+                    store.goToDataEdit(preservingOrigin: true)
+                }
             )
         case 4:
             aiLinkContent
@@ -108,7 +105,13 @@ extension RootView {
                 onLoadAddPhrases: loadAddPhrases,
                 onExportAddPhrases: exportAddPhrases,
                 onUseDefaultAddPhrases: useDefaultAddPhrases,
-                onRequirePro: { gate in store.showPaywall(for: gate) }
+                onRequirePro: { gate in store.showPaywall(for: gate) },
+                onCreateCheckpoint: quickSaveMemory,
+                onReturnToCheckpoint: quickRestoreMemory(from:),
+                onRefreshCheckpoints: refreshQuickLocalSnapshots,
+                checkpoints: quickLocalSnapshots,
+                isCreatingCheckpoint: isQuickSavingMemory,
+                isReturningToCheckpoint: isQuickRestoringMemory
             )
         case 6:
             SettingsView(showsCloseButton: false) {

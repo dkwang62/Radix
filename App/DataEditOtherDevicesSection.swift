@@ -3,13 +3,52 @@ import SwiftUI
 extension DataEditTab {
     @ViewBuilder
     var backupAndRestoreSection: some View {
-        compactPhoneBackupAndRestoreSection
+        protectAndRecoverSection
     }
 
-    var fullBackupAndRestoreSection: some View {
+    var protectAndRecoverSection: some View {
         VStack(alignment: .leading, spacing: 16) {
+            Label("Protect & Recover", systemImage: "shield.lefthalf.filled")
+                .font(ResponsiveFont.title3.weight(.bold))
+
+            Text("Checkpoints let you undo changes on this device. Backup files protect or transfer your data between devices.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            checkpointActionsSection
+
+            Divider()
+
+            portableBackupActionsSection
+
+            compactBackupContentsDisclosure
+        }
+        .padding(12)
+        .background(RadixTheme.secondaryBackground.opacity(0.4))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    var checkpointActionsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("On This Device")
+                .font(ResponsiveFont.headline)
+
+            Text("Create a checkpoint before major edits, then return to it if you change your mind.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+
+            LazyVGrid(columns: pairedBackupActionColumns, spacing: 8) {
+                createCheckpointButton
+                returnToCheckpointButton
+            }
+        }
+    }
+
+    var portableBackupActionsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("Portable Backup")
+                Text("Backup File")
                     .font(ResponsiveFont.headline)
                 Text("Plus")
                     .font(ResponsiveFont.caption.bold())
@@ -19,55 +58,85 @@ extension DataEditTab {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
-            Text("Save a portable backup, then merge or restore it on another iPhone, iPad, or Mac. Included with Radix Plus.")
+            Text("Create a portable file, merge it without removing current work, or replace this device from it.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
 
             myBackupVisibilityNote
-
             otherDeviceSavedStatusRow
 
-            LazyVGrid(columns: backupActionColumns, spacing: 10) {
+            LazyVGrid(columns: backupActionColumns, spacing: 8) {
                 backupToiCloudButton
                 addFromBackupButton
                 restoreBackupButton
             }
         }
-        .padding()
-        .background(RadixTheme.secondaryBackground.opacity(0.4))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
-    var compactPhoneBackupAndRestoreSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            otherDeviceSavedStatusRow
-
-            myBackupVisibilityNote
-
-            compactBackupContentsDisclosure
-        }
-        .padding(12)
-        .background(RadixTheme.secondaryBackground.opacity(0.4))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    var compactPhoneBackupActionBar: some View {
-        VStack(spacing: 8) {
-            backupToiCloudButton
-
-            LazyVGrid(columns: pairedBackupActionColumns, spacing: 8) {
-                addFromBackupButton
-                restoreBackupButton
+    var createCheckpointButton: some View {
+        let locked = entitlement.requiresPro(.datedCopies)
+        return Button {
+            if locked {
+                onRequirePro(.datedCopies)
+            } else {
+                onCreateCheckpoint()
             }
+        } label: {
+            DataBackupActionButton(
+                title: isCreatingCheckpoint ? "Creating..." : RadixCopy.createCheckpoint,
+                subtitle: "Keep a local recovery point",
+                systemName: "clock.badge.checkmark",
+                foreground: Color.accentColor,
+                background: Color.accentColor.opacity(0.1),
+                border: Color.accentColor.opacity(0.35),
+                isLocked: locked
+            )
         }
-        .padding(.horizontal)
-        .padding(.top, 10)
-        .padding(.bottom, 8)
-        .background(.ultraThinMaterial)
-        .overlay(alignment: .top) {
+        .buttonStyle(.plain)
+        .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
+    }
+
+    var returnToCheckpointButton: some View {
+        let locked = entitlement.requiresPro(.datedCopies)
+        return Menu {
+            if locked {
+                Button {
+                    onRequirePro(.datedCopies)
+                } label: {
+                    Label("Unlock Checkpoints", systemImage: "lock.fill")
+                }
+            } else if checkpoints.isEmpty {
+                Text("No checkpoints created")
+            } else {
+                ForEach(checkpoints) { checkpoint in
+                    Button {
+                        pendingCheckpointReturn = checkpoint
+                    } label: {
+                        Label(checkpoint.title, systemImage: "clock.arrow.circlepath")
+                    }
+                }
+            }
+
             Divider()
+
+            Button {
+                onRefreshCheckpoints()
+            } label: {
+                Label("Refresh List", systemImage: "arrow.clockwise")
+            }
+        } label: {
+            DataBackupActionButton(
+                title: isReturningToCheckpoint ? "Returning..." : RadixCopy.returnToCheckpoint,
+                subtitle: checkpoints.isEmpty ? "No checkpoints yet" : "\(checkpoints.count) available",
+                systemName: "arrow.counterclockwise",
+                foreground: Color.orange,
+                background: Color.orange.opacity(0.1),
+                border: Color.orange.opacity(0.35),
+                isLocked: locked
+            )
         }
+        .buttonStyle(.plain)
+        .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
     }
 
     var backupToiCloudButton: some View {
@@ -79,7 +148,7 @@ extension DataEditTab {
             createPortableBackup()
         } label: {
             DataBackupActionButton(
-                title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : RadixCopy.saveBackup,
+                title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : RadixCopy.createBackup,
                 subtitle: "Choose where to save",
                 systemName: "square.and.arrow.up.fill",
                 foreground: .white,
@@ -124,8 +193,8 @@ extension DataEditTab {
             showRestorePicker = true
         } label: {
             DataBackupActionButton(
-                title: RadixCopy.replaceMyData,
-                subtitle: "Restore this backup",
+                title: RadixCopy.replaceFromBackup,
+                subtitle: "Replace this device",
                 systemName: "square.and.arrow.down.fill",
                 foreground: Color.orange,
                 background: Color.orange.opacity(0.1),

@@ -86,11 +86,11 @@ extension DataEditTab {
     }
 
     var restoreConfirmationTitle: String {
-        pendingBackupRestore?.mode == .complete ? "Replace My Data?" : "Merge Backup?"
+        pendingBackupRestore?.mode == .complete ? "Replace from Backup?" : "Merge Backup?"
     }
 
     var restoreConfirmationButtonTitle: String {
-        pendingBackupRestore?.mode == .complete ? "Replace My Data" : "Merge Backup"
+        pendingBackupRestore?.mode == .complete ? "Replace from Backup" : "Merge Backup"
     }
 
     var restoreConfirmationMessage: String {

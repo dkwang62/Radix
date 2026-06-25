@@ -5,7 +5,7 @@ Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
 
-Last reviewed: 2026-06-25
+Last reviewed: 2026-06-26
 
 ## Product and Platform Scope
 
@@ -181,6 +181,10 @@ Navigation guidance and the welcome screen use one canonical division of work:
 Browse inspects the dictionary or captured pages; Study reviews what the user
 kept; AI understands or transforms material; My Data protects, transfers, or
 exports the user's work.
+Local snapshots are presented as `Checkpoints` to avoid colliding with backup
+language. Study links to My Data’s shared `Protect & Recover` screen, where
+Create/Return Checkpoint and Create/Merge/Replace Backup are shown as two
+distinct groups with their scope explained.
 
 ## Next Three Tasks
 

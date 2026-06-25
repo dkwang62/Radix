@@ -79,7 +79,7 @@ extension RootView {
                 let snapshots = try localSnapshotStore.save(data)
                 quickLocalSnapshots = snapshots
                 let latestSnapshotTitle = snapshots.first?.title ?? "now"
-                importExportMessage = "Saved device snapshot: \(latestSnapshotTitle)."
+                importExportMessage = "Created checkpoint: \(latestSnapshotTitle)."
                 showImportExportAlert = true
                 isQuickSavingMemory = false
             } catch {
@@ -102,7 +102,7 @@ extension RootView {
                 let source = try quickRestoreMemorySource(snapshot: snapshot)
                 try store.importDataEditData(source.data, mode: .complete)
                 refreshQuickLocalSnapshots()
-                importExportMessage = "Restored device snapshot: \(source.name)"
+                importExportMessage = "Returned to checkpoint: \(source.name)"
                 showImportExportAlert = true
                 isQuickRestoringMemory = false
             } catch {
@@ -123,7 +123,7 @@ extension RootView {
     @ViewBuilder
     var restoreSnapshotMenuContent: some View {
         if quickLocalSnapshots.isEmpty {
-            Text("No device snapshots saved")
+            Text("No checkpoints created")
         } else {
             ForEach(quickLocalSnapshots) { snapshot in
                 Button {
@@ -150,7 +150,7 @@ extension RootView {
 
     private func latestLocalSnapshot() throws -> LocalDataSnapshot {
         guard let snapshot = try localSnapshotStore.snapshots().first else {
-            throw NSError(domain: "Radix", code: 2, userInfo: [NSLocalizedDescriptionKey: "No device snapshot is available yet. Save one first."])
+            throw NSError(domain: "Radix", code: 2, userInfo: [NSLocalizedDescriptionKey: "No checkpoint is available yet. Create one first."])
         }
 
         return snapshot

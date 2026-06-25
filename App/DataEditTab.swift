@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum DataEditSection: String, CaseIterable, Identifiable {
-    case myBackup = "Backup"
+    case myBackup = "Protect & Recover"
     case advanced = "Advanced Exports"
 
     var id: String { rawValue }
@@ -44,6 +44,12 @@ struct DataEditTab: View {
     let onExportAddPhrases: () -> Void
     let onUseDefaultAddPhrases: () -> Void
     let onRequirePro: (EntitlementManager.FeatureGate) -> Void
+    let onCreateCheckpoint: () -> Void
+    let onReturnToCheckpoint: (LocalDataSnapshot?) -> Void
+    let onRefreshCheckpoints: () -> Void
+    let checkpoints: [LocalDataSnapshot]
+    let isCreatingCheckpoint: Bool
+    let isReturningToCheckpoint: Bool
 
     @State var showRestorePicker = false
     @State var pendingRestoreMode: RestoreMode = .additive
@@ -71,7 +77,7 @@ struct DataEditTab: View {
     @State var advancedToolsTip: AdvancedExportToolsTip?
     let dataExportService = DataExportService()
     let localSnapshotStore = LocalDataSnapshotStore()
-    @State var localSnapshots: [LocalDataSnapshot] = []
+    @State var pendingCheckpointReturn: LocalDataSnapshot?
 
     @State var editorMessage: String?
     @State var editorError: String?
@@ -123,11 +129,6 @@ struct DataEditTab: View {
                     .padding(.top, 16)
                     .padding(.bottom, 32)
                 }
-                .safeAreaInset(edge: .bottom) {
-                    if activeDataEditSection == .myBackup {
-                        compactPhoneBackupActionBar
-                    }
-                }
             }
             .modifier(DataEditTransferModifier(
                 reuseExportDocument: $reuseExportDocument,
@@ -172,11 +173,26 @@ struct DataEditTab: View {
             } message: {
                 Text(restoreConfirmationMessage)
             }
+            .alert("Return to Checkpoint?", isPresented: Binding(
+                get: { pendingCheckpointReturn != nil },
+                set: { if !$0 { pendingCheckpointReturn = nil } }
+            )) {
+                Button("Cancel", role: .cancel) {
+                    pendingCheckpointReturn = nil
+                }
+                Button("Return to Checkpoint", role: .destructive) {
+                    let checkpoint = pendingCheckpointReturn
+                    pendingCheckpointReturn = nil
+                    onReturnToCheckpoint(checkpoint)
+                }
+            } message: {
+                Text("Current data on this device will be replaced by the selected checkpoint. Portable backup files are not affected.")
+            }
             .overlay { backupRestoreOverlay }
             .onAppear {
                 dataEditScrollProxy = proxy
                 lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.latest
-                refreshLocalSnapshots()
+                onRefreshCheckpoints()
             }
         }
     }
@@ -203,12 +219,4 @@ struct DataEditTab: View {
         }
     }
 
-    func refreshLocalSnapshots() {
-        do {
-            localSnapshots = try localSnapshotStore.snapshots()
-        } catch {
-            backupError = error.localizedDescription
-            showBackupAlert = true
-        }
-    }
 }

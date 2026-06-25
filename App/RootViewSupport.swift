@@ -27,19 +27,22 @@ struct SearchHomeView: View {
                     onExportProfile: onExportProfile,
                     onImportProfile: onImportProfile,
                     onRequirePro: onRequirePro,
-                    onSaveSnapshot: onSaveSnapshot,
-                    onRestoreSnapshot: onRestoreSnapshot,
-                    onRefreshSnapshots: onRefreshSnapshots,
-                    localSnapshots: localSnapshots,
-                    isSavingSnapshot: isSavingSnapshot,
-                    isRestoringSnapshot: isRestoringSnapshot
+                    onOpenProtectRecover: {
+                        store.goToDataEdit(preservingOrigin: true)
+                    }
                 )
             case .dataEdit:
                 DataEditTab(
                     onLoadAddPhrases: onLoadAddPhrases,
                     onExportAddPhrases: onExportAddPhrases,
                     onUseDefaultAddPhrases: onUseDefaultAddPhrases,
-                    onRequirePro: onRequirePro
+                    onRequirePro: onRequirePro,
+                    onCreateCheckpoint: onSaveSnapshot,
+                    onReturnToCheckpoint: onRestoreSnapshot,
+                    onRefreshCheckpoints: onRefreshSnapshots,
+                    checkpoints: localSnapshots,
+                    isCreatingCheckpoint: isSavingSnapshot,
+                    isReturningToCheckpoint: isRestoringSnapshot
                 )
             }
         }
