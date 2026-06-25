@@ -297,6 +297,10 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   choice after dismissal, and remains available from `How Radix Uses AI`. It
   uses a full sheet rather than a menu-attached popover so iPad always shows the
   complete explanation and its action buttons.
+- `Use Another AI App` is always shown, even when an API key is configured.
+  API authorization does not guarantee service availability. If an automatic
+  request fails, offer the matching copy-and-paste workflow immediately rather
+  than leaving the user at an error message.
 - Do not expose API-specific variants as additional AI Link tasks. `Extract
   Phrases` is one task; copy/paste and automatic Gemini execution are methods
   for running it, just as with Check OCR and Translate Page.

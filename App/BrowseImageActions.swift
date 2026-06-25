@@ -18,7 +18,7 @@ extension FilterGridTab {
                 }
             } catch {
                 await MainActor.run {
-                    imageActionMessage = error.localizedDescription
+                    offerManualAIFallback(.checkOCR(collection), error: error)
                     isRunningImageAction = false
                 }
             }
@@ -99,7 +99,7 @@ extension FilterGridTab {
                 }
             } catch {
                 await MainActor.run {
-                    imageActionMessage = error.localizedDescription
+                    offerManualAIFallback(.translate(collection), error: error)
                     isRunningImageAction = false
                 }
             }
@@ -151,7 +151,7 @@ extension FilterGridTab {
                 }
             } catch {
                 await MainActor.run {
-                    imageActionMessage = error.localizedDescription
+                    offerManualAIFallback(.extractPhrases(collection), error: error)
                     isRunningImageAction = false
                 }
             }
@@ -162,6 +162,23 @@ extension FilterGridTab {
         let prompt = store.promptText(for: .collection(collection), selectedTaskIDs: [taskID])
         RadixPlatform.copyToPasteboard(prompt)
         imageActionMessage = "Instruction copied."
+    }
+
+    func offerManualAIFallback(_ task: BrowseAIFallbackTask, error: Error) {
+        automaticAIError = error.localizedDescription
+        imageActionMessage = "Automatic AI is unavailable. You can still use another AI app."
+        aiFallbackTask = task
+    }
+
+    func useManualFallback(_ task: BrowseAIFallbackTask) {
+        switch task {
+        case .checkOCR(let collection):
+            beginOCRReview(collection)
+        case .extractPhrases(let collection):
+            beginManualPhraseExtraction(collection)
+        case .translate(let collection):
+            beginBrowseTranslation(collection)
+        }
     }
 
     func openImageActionPrompt(collection: CharacterCollection, taskID: String) {

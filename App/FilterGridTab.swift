@@ -1,5 +1,19 @@
 import SwiftUI
 
+enum BrowseAIFallbackTask: Identifiable {
+    case checkOCR(CharacterCollection)
+    case extractPhrases(CharacterCollection)
+    case translate(CharacterCollection)
+
+    var id: String {
+        switch self {
+        case .checkOCR(let collection): return "ocr-\(collection.id)"
+        case .extractPhrases(let collection): return "extract-\(collection.id)"
+        case .translate(let collection): return "translate-\(collection.id)"
+        }
+    }
+}
+
 struct FilterGridTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
@@ -30,6 +44,8 @@ struct FilterGridTab: View {
     @State var pagePhraseListCollection: CharacterCollection?
     @State var phraseExtractionOutput = ""
     @State var imageActionMessage: String?
+    @State var aiFallbackTask: BrowseAIFallbackTask?
+    @State var automaticAIError = ""
     @State var isRunningImageAction = false
     @State var isProcessingBrowseImageImport = false
     @State var lastTappedImageOffset: Int?
@@ -231,6 +247,16 @@ struct FilterGridTab: View {
                     showBrowseCamera = false
                     imageActionMessage = error.localizedDescription
                 }
+            }
+            .alert(item: $aiFallbackTask) { task in
+                Alert(
+                    title: Text("Automatic AI Is Unavailable"),
+                    message: Text("\(automaticAIError)\n\nYour API key may still be valid. Gemini can occasionally be unavailable, so the copy-and-paste method remains available."),
+                    primaryButton: .default(Text("Use Another AI App")) {
+                        useManualFallback(task)
+                    },
+                    secondaryButton: .cancel(Text("Not Now"))
+                )
             }
             .modifier(CaptureFileImportModifier(
                 isPresented: $showBrowseImageFileImporter,

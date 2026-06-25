@@ -173,6 +173,10 @@ shows one concise orientation, then continues the chosen action; `How Radix Uses
 AI` reopens it without adding permanent screen text. The orientation uses a
 sheet with pinned actions on every platform so iPad cannot truncate the
 description or lose the continuation control.
+Copy-and-paste is the durable fallback and remains visible even when a Gemini
+key is saved. Automatic OCR, extraction, or translation failures offer the
+matching manual workflow immediately because a valid key does not guarantee
+Gemini service availability.
 Navigation guidance and the welcome screen use one canonical division of work:
 Browse inspects the dictionary or captured pages; Study reviews what the user
 kept; AI understands or transforms material; My Data protects, transfers, or
