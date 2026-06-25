@@ -154,11 +154,19 @@ extension FilterGridTab {
             }, onManualExtract: {
                 beginManualPhraseExtraction(collection)
             }, onAIExtract: {
-                runBrowseGeminiPhraseExtraction(collection)
+                if store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    store.goToSettingsForAPIKeySetup()
+                } else {
+                    runBrowseGeminiPhraseExtraction(collection)
+                }
             }, onTranslate: {
                 beginBrowseTranslation(collection)
             }, onTranslateAndSave: {
-                runBrowseGeminiTranslationAndSave(collection)
+                if store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    store.goToSettingsForAPIKeySetup()
+                } else {
+                    runBrowseGeminiTranslationAndSave(collection)
+                }
             })
 
             BrowseImageScriptToggle(mode: $browseImageScriptMode)

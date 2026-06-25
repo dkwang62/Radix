@@ -35,26 +35,6 @@ struct CollectionPageActionsMenu: View {
                     Label("Edit Page", systemImage: "pencil")
                 }
 
-                if let onCheckOCR {
-                    Menu {
-                        Button {
-                            onCheckOCR()
-                        } label: {
-                            Label("Copy and Paste with ChatGPT", systemImage: "doc.on.clipboard")
-                        }
-
-                        if hasGeminiAPIKey {
-                            Button {
-                                onCheckOCRAutomatically()
-                            } label: {
-                                Label("Check Automatically with Gemini", systemImage: "sparkles")
-                            }
-                        }
-                    } label: {
-                        Label("Check OCR", systemImage: "text.viewfinder")
-                    }
-                }
-
                 Button {
                     onChoosePhrases()
                 } label: {
@@ -71,39 +51,40 @@ struct CollectionPageActionsMenu: View {
                 }
             }
 
-            Section("Use AI by Copy and Paste") {
-                Button {
-                    onManualExtract()
+            Section("AI Tasks") {
+                if let onCheckOCR {
+                    Menu {
+                        aiMethodButton(
+                            manualTitle: "Copy and Paste with ChatGPT",
+                            automaticTitle: "Check Automatically with Gemini",
+                            manualAction: onCheckOCR,
+                            automaticAction: onCheckOCRAutomatically
+                        )
+                    } label: {
+                        Label("Check OCR", systemImage: "text.viewfinder")
+                    }
+                }
+
+                Menu {
+                    aiMethodButton(
+                        manualTitle: "Copy and Paste with ChatGPT",
+                        automaticTitle: "Extract and Add with Gemini",
+                        manualAction: onManualExtract,
+                        automaticAction: onAIExtract
+                    )
                 } label: {
                     Label("Extract Phrases", systemImage: "text.badge.plus")
                 }
 
-                Button {
-                    onTranslate()
+                Menu {
+                    aiMethodButton(
+                        manualTitle: "Copy and Paste with ChatGPT",
+                        automaticTitle: "Translate and Save with Gemini",
+                        manualAction: onTranslate,
+                        automaticAction: onTranslateAndSave
+                    )
                 } label: {
                     Label("Translate Page", systemImage: "translate")
-                }
-            }
-
-            Section("Use AI Automatically") {
-                if hasGeminiAPIKey {
-                    Button {
-                        onAIExtract()
-                    } label: {
-                        Label("Extract and Add Phrases", systemImage: "curlybraces")
-                    }
-
-                    Button {
-                        onTranslateAndSave()
-                    } label: {
-                        Label("Translate and Save", systemImage: "tray.and.arrow.down")
-                    }
-                } else {
-                    Button {
-                        onCheckOCRAutomatically()
-                    } label: {
-                        Label("Set Up Gemini API Key…", systemImage: "key")
-                    }
                 }
             }
         } label: {
@@ -122,6 +103,25 @@ struct CollectionPageActionsMenu: View {
         .controlSize(.small)
         .accessibilityLabel("Page actions for \(collection.name)")
         .help("Page Actions")
+    }
+
+    @ViewBuilder
+    private func aiMethodButton(
+        manualTitle: String,
+        automaticTitle: String,
+        manualAction: @escaping () -> Void,
+        automaticAction: @escaping () -> Void
+    ) -> some View {
+        Button(action: manualAction) {
+            Label(manualTitle, systemImage: "doc.on.clipboard")
+        }
+
+        Button(action: automaticAction) {
+            Label(
+                hasGeminiAPIKey ? automaticTitle : "Set Up Gemini API Key…",
+                systemImage: hasGeminiAPIKey ? "sparkles" : "key"
+            )
+        }
     }
 }
 
