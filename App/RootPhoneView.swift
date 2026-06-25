@@ -220,11 +220,6 @@ extension RootView {
                 store.route = .search
                 store.homeTab = .smart
             }
-            if let topic = item.guideTopic {
-                DispatchQueue.main.async {
-                    offerNavigationGuide(topic)
-                }
-            }
         } label: {
             VStack(spacing: showsTitle ? 2 : 0) {
                 Image(systemName: item.icon)
@@ -263,9 +258,6 @@ extension RootView {
         return Button {
             store.clearCrossTabOrigin()
             store.goToSettings()
-            DispatchQueue.main.async {
-                offerNavigationGuide(.settings)
-            }
         } label: {
             VStack(spacing: showsTitle ? 2 : 0) {
                 Image(systemName: RadixIcon.settings)

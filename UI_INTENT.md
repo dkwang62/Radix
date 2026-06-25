@@ -249,10 +249,8 @@ The five primary navigation destinations use progressive guidance:
 - `Icons & Labels` is the explicit product default and keeps the short
   destination names visible.
 - Experienced users may choose `Icons Only` in Settings.
-- On iPhone, the first visit to Browse, Study, AI Link, My Data, or Settings
-  shows one dismissible explanation with concrete actions available there.
-- On iPad and Mac Catalyst, a normal navigation press must never open a guide;
-  guides are available only by long-pressing a destination.
+- On iPhone, iPad, and Mac Catalyst, a normal navigation press must never open
+  a guide; guides are available only by long-pressing a destination.
 - Each explanation begins with why the destination matters, then describes what
   the user can do. Do not present a bare inventory of controls.
 - Once dismissed, the explanation stays out of the way.
@@ -296,7 +294,9 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   copies a prepared instruction for ChatGPT, Gemini, or another service, while
   `Run Automatically in Radix` uses the saved Gemini API key. A one-time,
   dismissible explanation appears on the first method choice, continues that
-  choice after dismissal, and remains available from `How Radix Uses AI`.
+  choice after dismissal, and remains available from `How Radix Uses AI`. It
+  uses a full sheet rather than a menu-attached popover so iPad always shows the
+  complete explanation and its action buttons.
 - Do not expose API-specific variants as additional AI Link tasks. `Extract
   Phrases` is one task; copy/paste and automatic Gemini execution are methods
   for running it, just as with Check OCR and Translate Page.

@@ -115,7 +115,7 @@ struct CollectionPageActionsMenu: View {
         .controlSize(.small)
         .accessibilityLabel("Page actions for \(collection.name)")
         .help("Page Actions")
-        .popover(isPresented: $showsAIOrientation, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
+        .sheet(isPresented: $showsAIOrientation) {
             PageAIOrientationView(
                 continuesSelectedAction: pendingAIMethod != nil,
                 onContinue: completeAIOrientation,
@@ -189,45 +189,53 @@ private struct PageAIOrientationView: View {
     let onCancel: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Label("Choose How Radix Uses AI", systemImage: "wand.and.stars")
-                .font(ResponsiveFont.title3.weight(.bold))
+        NavigationStack {
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Radix can check OCR, extract useful phrases, or translate a complete page in context.")
+                            .font(ResponsiveFont.body)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
 
-            Text("Radix can check OCR, extract useful phrases, or translate a complete page in context.")
-                .font(ResponsiveFont.body)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                        method(
+                            icon: "doc.on.clipboard",
+                            title: "Use Another AI App",
+                            detail: "Radix prepares the instruction and page evidence for you to copy into ChatGPT, Gemini, or another AI app. No API key is needed."
+                        )
 
-            method(
-                icon: "doc.on.clipboard",
-                title: "Use Another AI App",
-                detail: "Radix prepares the instruction and page evidence for you to copy into ChatGPT, Gemini, or another AI app. No API key is needed."
-            )
+                        method(
+                            icon: "sparkles",
+                            title: "Run Automatically in Radix",
+                            detail: "Radix sends the task directly to Gemini and returns the result to the page workflow. This requires a private Gemini API key in Settings."
+                        )
 
-            method(
-                icon: "sparkles",
-                title: "Run Automatically in Radix",
-                detail: "Radix sends the task directly to Gemini and returns the result to the page workflow. This requires a private Gemini API key in Settings."
-            )
+                        Text("You can edit the underlying OCR, phrase-extraction, and translation instructions in AI Link.")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(20)
+                }
 
-            Text("You can edit the underlying OCR, phrase-extraction, and translation instructions in AI Link.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                Divider()
 
-            HStack {
-                Button("Not Now", action: onCancel)
-                    .buttonStyle(.bordered)
+                HStack {
+                    Button("Not Now", action: onCancel)
+                        .buttonStyle(.bordered)
 
-                Spacer()
+                    Spacer()
 
-                Button(continuesSelectedAction ? "Continue" : "Got It", action: onContinue)
-                    .buttonStyle(.borderedProminent)
+                    Button(continuesSelectedAction ? "Continue" : "Got It", action: onContinue)
+                        .buttonStyle(.borderedProminent)
+                }
+                .padding(20)
             }
+            .navigationTitle("Choose How Radix Uses AI")
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .padding(18)
-        .frame(idealWidth: 380, maxWidth: 430)
-        .presentationCompactAdaptation(.sheet)
+        .frame(idealWidth: 440, maxWidth: 520, minHeight: 430, idealHeight: 520)
     }
 
     private func method(icon: String, title: String, detail: String) -> some View {

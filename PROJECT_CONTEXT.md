@@ -99,9 +99,8 @@ dismissible destination explanations that experienced users can hide or replay.
 Navigation help presentation belongs at `RootView`; do not attach popover or
 context-menu presentation containers to the five equal-width tab buttons because
 those wrappers can collapse the SwiftUI HStack to one visible destination.
-On iPad and Mac Catalyst, ordinary sidebar navigation only changes destination;
+On iPhone, iPad, and Mac Catalyst, ordinary navigation only changes destination;
 help opens exclusively through a long press so it never obscures routine navigation.
-The iPhone may still offer each guide on first visit as progressive onboarding.
 Each destination guide should name concrete user actions and examples, not merely
 summarize the section.
 Every guide uses `Why it matters` followed by `What you can do`; AI Link is
@@ -171,7 +170,9 @@ for OCR, phrase extraction, and translation.
 The three saved-page AI task menus now share the same method vocabulary:
 `Use Another AI App` or `Run Automatically in Radix`. The first method choice
 shows one concise orientation, then continues the chosen action; `How Radix Uses
-AI` reopens it without adding permanent screen text.
+AI` reopens it without adding permanent screen text. The orientation uses a
+sheet with pinned actions on every platform so iPad cannot truncate the
+description or lose the continuation control.
 Navigation guidance and the welcome screen use one canonical division of work:
 Browse inspects the dictionary or captured pages; Study reviews what the user
 kept; AI understands or transforms material; My Data protects, transfers, or
