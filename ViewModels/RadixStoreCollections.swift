@@ -61,6 +61,12 @@ extension RadixStore {
         selectedAICollectionID.flatMap { collection(id: $0) }
     }
 
+    var mostRecentlyViewedCollection: CharacterCollection? {
+        allCollections.max {
+            ($0.lastViewedAt ?? $0.createdAt) < ($1.lastViewedAt ?? $1.createdAt)
+        }
+    }
+
     // MARK: - CRUD
 
     @discardableResult
@@ -154,10 +160,7 @@ extension RadixStore {
             .filter { componentRepo.hasCharacter($0) }
         guard !characters.isEmpty else { return nil }
 
-        let baseName = original.name
-            .replacingOccurrences(of: " Corrected", with: "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        let correctedName = collectionDisplayName("\(baseName.prefix(1)) Corrected")
+        let correctedName = correctedCollectionName(from: original.name)
         let corrected = CharacterCollection(
             id: UUID(),
             name: correctedName.isEmpty ? "Corrected" : correctedName,
@@ -310,5 +313,22 @@ extension RadixStore {
 
     func collectionNameFromSourceCharacters(_ characters: [String]) -> String {
         String(characters.prefix(11).joined())
+    }
+
+    private func correctedCollectionName(from originalName: String) -> String {
+        let cleanOriginal = collectionDisplayName(originalName)
+        let stem = cleanOriginal.isEmpty ? "Corrected" : cleanOriginal
+        let existingNames = Set(allCollections.map(\.name))
+
+        for suffix in 1...99 {
+            let suffixText = String(suffix)
+            let prefixLength = max(0, 11 - suffixText.count)
+            let candidate = String(stem.prefix(prefixLength)) + suffixText
+            if !existingNames.contains(candidate) {
+                return candidate
+            }
+        }
+
+        return String(UUID().uuidString.prefix(11))
     }
 }

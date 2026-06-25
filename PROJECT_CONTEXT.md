@@ -128,7 +128,7 @@ the original page is never modified. New OCR pages retain an optional review-siz
 source image in addition to the normal UI thumbnail.
 When a Gemini API key is configured, `Check OCR` additionally offers an
 automatic multimodal review using the same prompt and saved image. Its response
-opens in the same comparison sheet and still requires explicit approval.
+creates and opens a corrected saved page immediately.
 Saved-page AI actions are grouped by task—Check OCR, Extract Phrases, and
 Translate Page. Each task consistently offers copy/paste with ChatGPT or an
 automatic Gemini route. A missing-key automatic choice becomes `Set Up Gemini
@@ -142,6 +142,8 @@ OCR correction no longer has a proposal-approval screen. Automatic Gemini
 review creates and opens the corrected Browse page immediately; copy/paste uses
 one `Paste Answer and Create Corrected Page` action. The original OCR page is
 always retained as the reversible source record.
+Corrected pages retain the longest possible prefix of the original 11-character
+name and add a unique numeric suffix such as `1` or `2`.
 The corrected source remains Chinese, while change reasons, confidence, and
 uncertainty explanations are explicitly requested in English.
 Study uses its four summary tiles as the section selectors. Recent and Favorites
@@ -155,6 +157,8 @@ Saved Browse pages use one labelled `Actions` menu for editing, OCR review,
 phrase selection, translation, and AI workflows. The source chooser remains
 separate navigation; only the script toggle and Read Aloud remain permanently
 visible page controls.
+Entering Browse selects the saved page with the newest viewed-or-created date;
+Dictionary is the fallback only when no saved pages exist.
 
 ## Next Three Tasks
 

@@ -78,6 +78,10 @@ Browse should be simple and not force unnecessary mode choices:
 - Import from Files appears as an action.
 - Saved Pages appear as a list.
 
+Entering Browse opens the most recently viewed saved page, using its scan date
+when it has no separate viewing date. Dictionary remains available from the
+source chooser but is not the default when saved pages exist.
+
 Avoid a permanent Dictionary/Pages selector if a simple list can do the job.
 Avoid repeating Take Photo inside Browse when the global Take Photo action is
 already available.
@@ -284,6 +288,9 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
 - Radix assumes the user accepts the AI correction and immediately creates and
   opens a second corrected saved page. The original page remains unchanged and
   available in Browse as the reversible safety record.
+- Corrected-page names preserve as much of the original 11-character name as
+  possible and use a trailing numeric suffix (`1`, `2`, and so on) to distinguish
+  the derived page.
 - Phrase extraction and translation can then operate on the separately selected
   corrected page without obscuring the source record.
 
