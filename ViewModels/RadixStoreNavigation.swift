@@ -238,8 +238,12 @@ extension RadixStore {
         restoreLastPreviewedCharacterIfNeeded()
     }
 
-    func goToFavourites() {
-        clearCrossTabOrigin()
+    func goToFavourites(preservingOrigin: Bool = false) {
+        if preservingOrigin {
+            rememberCrossTabOrigin()
+        } else {
+            clearCrossTabOrigin()
+        }
         route = .favourites
         activeFavouriteCharacter = nil
     }

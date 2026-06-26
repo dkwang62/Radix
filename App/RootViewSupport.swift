@@ -29,20 +29,20 @@ struct SearchHomeView: View {
                     onRequirePro: onRequirePro,
                     onOpenProtectRecover: {
                         store.goToDataEdit(preservingOrigin: true)
-                    }
-                )
-            case .dataEdit:
-                DataEditTab(
-                    onLoadAddPhrases: onLoadAddPhrases,
-                    onExportAddPhrases: onExportAddPhrases,
-                    onUseDefaultAddPhrases: onUseDefaultAddPhrases,
-                    onRequirePro: onRequirePro,
+                    },
                     onCreateCheckpoint: onSaveSnapshot,
                     onReturnToCheckpoint: onRestoreSnapshot,
                     onRefreshCheckpoints: onRefreshSnapshots,
                     checkpoints: localSnapshots,
                     isCreatingCheckpoint: isSavingSnapshot,
                     isReturningToCheckpoint: isRestoringSnapshot
+                )
+            case .dataEdit:
+                DataEditTab(
+                    onLoadAddPhrases: onLoadAddPhrases,
+                    onExportAddPhrases: onExportAddPhrases,
+                    onUseDefaultAddPhrases: onUseDefaultAddPhrases,
+                    onRequirePro: onRequirePro
                 )
             }
         }

@@ -78,7 +78,13 @@ extension RootView {
                         onRequirePro: presentPaywall(for:),
                         onOpenProtectRecover: {
                             store.goToDataEdit(preservingOrigin: true)
-                        }
+                        },
+                        onCreateCheckpoint: quickSaveMemory,
+                        onReturnToCheckpoint: quickRestoreMemory(from:),
+                        onRefreshCheckpoints: refreshQuickLocalSnapshots,
+                        checkpoints: quickLocalSnapshots,
+                        isCreatingCheckpoint: isQuickSavingMemory,
+                        isReturningToCheckpoint: isQuickRestoringMemory
                     )
                 case .aiLink:
                     aiLinkContent

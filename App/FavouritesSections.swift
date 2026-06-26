@@ -10,7 +10,7 @@ extension FavouritesTab {
 
                 studyDashboardSummary
 
-                studyProtectionLink
+                studyCheckpointsSection
 
                 if hasStudyGridItems {
                     recentStudySection
@@ -105,33 +105,224 @@ extension FavouritesTab {
         .padding(.top, 2)
     }
 
-    var studyProtectionLink: some View {
-        Button(action: onOpenProtectRecover) {
-            HStack(spacing: 10) {
-                Image(systemName: "shield.lefthalf.filled")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 34, height: 34)
-                    .background(Color.accentColor.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Protect or Recover Study")
-                        .font(ResponsiveFont.subheadline.weight(.semibold))
-                    Text("Compare checkpoints and portable backups in one place.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                }
-
+    var studyCheckpointsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                Label("Checkpoints", systemImage: "clock.arrow.circlepath")
+                    .font(ResponsiveFont.headline)
                 Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.secondary)
+                backupFilesLink
             }
-            .padding(10)
-            .background(RadixTheme.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+
+            Text("Quickly save this device’s study state, then return to it if edits or cleanup go wrong.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            checkpointActionRow
+
+            latestCheckpointRows
+        }
+        .padding(10)
+        .background(RadixTheme.secondaryBackground.opacity(0.52))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    var backupFilesLink: some View {
+        Button(action: onOpenProtectRecover) {
+            Label("Backup files", systemImage: "externaldrive")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .labelStyle(.titleAndIcon)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
+        .foregroundStyle(Color.accentColor)
+    }
+
+    var checkpointActionRow: some View {
+        LazyVGrid(columns: checkpointActionColumns, spacing: 8) {
+            checkpointActionButton(
+                title: isCreatingCheckpoint ? "Creating…" : RadixCopy.createCheckpoint,
+                subtitle: "Save this moment",
+                systemImage: "clock.badge.checkmark",
+                tint: Color.accentColor,
+                isLocked: entitlement.requiresPro(.datedCopies),
+                action: {
+                    if entitlement.requiresPro(.datedCopies) {
+                        onRequirePro(.datedCopies)
+                    } else {
+                        onCreateCheckpoint()
+                    }
+                }
+            )
+            checkpointReturnMenu
+        }
+    }
+
+    var checkpointReturnMenu: some View {
+        let locked = entitlement.requiresPro(.datedCopies)
+        return Menu {
+            if locked {
+                Button {
+                    onRequirePro(.datedCopies)
+                } label: {
+                    Label("Unlock Checkpoints", systemImage: "lock.fill")
+                }
+            } else if checkpoints.isEmpty {
+                Text("No checkpoints created")
+            } else {
+                ForEach(checkpoints) { checkpoint in
+                    Button {
+                        pendingCheckpointReturn = checkpoint
+                    } label: {
+                        Label(checkpoint.title, systemImage: "clock.arrow.circlepath")
+                    }
+                }
+            }
+
+            Divider()
+
+            Button {
+                onRefreshCheckpoints()
+            } label: {
+                Label("Refresh List", systemImage: "arrow.clockwise")
+            }
+        } label: {
+            checkpointActionButtonContent(
+                title: isReturningToCheckpoint ? "Returning…" : RadixCopy.returnToCheckpoint,
+                subtitle: checkpoints.isEmpty ? "No checkpoints yet" : "\(checkpoints.count) available",
+                systemImage: "arrow.counterclockwise",
+                tint: Color.orange,
+                isLocked: locked
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
+    }
+
+    @ViewBuilder
+    var latestCheckpointRows: some View {
+        if checkpoints.isEmpty {
+            Text("No checkpoints created yet.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(RadixTheme.background)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        } else {
+            VStack(spacing: 6) {
+                ForEach(Array(checkpoints.prefix(3))) { checkpoint in
+                    Button {
+                        pendingCheckpointReturn = checkpoint
+                    } label: {
+                        checkpointListRow(checkpoint)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
+                }
+            }
+        }
+    }
+
+    func checkpointListRow(_ checkpoint: LocalDataSnapshot) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "clock.arrow.circlepath")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 24, height: 24)
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 7))
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(checkpoint.title)
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .lineLimit(1)
+                Text("\(checkpoint.relativeSavedText) · \(checkpoint.subtitle)")
+                    .font(ResponsiveFont.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+
+            Spacer(minLength: 0)
+
+            Image(systemName: "arrow.counterclockwise")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RadixTheme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    func checkpointActionButton(
+        title: String,
+        subtitle: String,
+        systemImage: String,
+        tint: Color,
+        isLocked: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            checkpointActionButtonContent(
+                title: title,
+                subtitle: subtitle,
+                systemImage: systemImage,
+                tint: tint,
+                isLocked: isLocked
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
+    }
+
+    func checkpointActionButtonContent(
+        title: String,
+        subtitle: String,
+        systemImage: String,
+        tint: Color,
+        isLocked: Bool
+    ) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: isLocked ? "lock.fill" : systemImage)
+                .font(.system(size: 15, weight: .bold))
+                .foregroundStyle(tint)
+                .frame(width: 28, height: 28)
+                .background(tint.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title)
+                    .font(ResponsiveFont.caption.bold())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Text(subtitle)
+                    .font(ResponsiveFont.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .layoutPriority(1)
+
+            Spacer(minLength: 0)
+        }
+        .padding(8)
+        .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+        .background(tint.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 9))
+        .overlay(
+            RoundedRectangle(cornerRadius: 9)
+                .stroke(tint.opacity(0.25), lineWidth: 1)
+        )
+    }
+
+    var checkpointActionColumns: [GridItem] {
+        Array(repeating: GridItem(.flexible(minimum: 0), spacing: 8), count: 2)
     }
 
     var studySummaryColumns: [GridItem] {

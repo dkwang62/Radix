@@ -8,12 +8,19 @@ struct FavouritesTab: View {
     let onImportProfile: () -> Void
     let onRequirePro: (EntitlementManager.FeatureGate) -> Void
     let onOpenProtectRecover: () -> Void
+    let onCreateCheckpoint: () -> Void
+    let onReturnToCheckpoint: (LocalDataSnapshot?) -> Void
+    let onRefreshCheckpoints: () -> Void
+    let checkpoints: [LocalDataSnapshot]
+    let isCreatingCheckpoint: Bool
+    let isReturningToCheckpoint: Bool
     @State var selectedPhrase: PhraseItem?
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
     @State var studyGridScope = RadixStudyPreferences.gridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
     @State var hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
     @State var addedPhraseReviewPresentation: AddedPhraseReviewPresentation?
+    @State var pendingCheckpointReturn: LocalDataSnapshot?
 
     var isPhone: Bool {
         RadixPlatform.isPhone
@@ -65,12 +72,28 @@ struct FavouritesTab: View {
             AddedPhraseReviewSheet()
                 .environmentObject(store)
         }
+        .alert("Return to Checkpoint?", isPresented: Binding(
+            get: { pendingCheckpointReturn != nil },
+            set: { if !$0 { pendingCheckpointReturn = nil } }
+        )) {
+            Button("Cancel", role: .cancel) {
+                pendingCheckpointReturn = nil
+            }
+            Button("Return to Checkpoint", role: .destructive) {
+                let checkpoint = pendingCheckpointReturn
+                pendingCheckpointReturn = nil
+                onReturnToCheckpoint(checkpoint)
+            }
+        } message: {
+            Text("Current study data on this device will be replaced by the selected checkpoint. Backup files are not affected.")
+        }
         .onAppear {
             studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
             studyGridScope = RadixStudyPreferences.gridScope
             studyPageSortOrder = RadixStudyPreferences.pageSortOrder
             hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
             openAddedPhraseReviewIfRequested()
+            onRefreshCheckpoints()
         }
         .onChange(of: studyGridUsesTraditionalScript) { _, newValue in
             RadixStudyPreferences.usesTraditionalScript = newValue

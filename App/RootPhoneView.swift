@@ -96,7 +96,13 @@ extension RootView {
                 onRequirePro: { gate in store.showPaywall(for: gate) },
                 onOpenProtectRecover: {
                     store.goToDataEdit(preservingOrigin: true)
-                }
+                },
+                onCreateCheckpoint: quickSaveMemory,
+                onReturnToCheckpoint: quickRestoreMemory(from:),
+                onRefreshCheckpoints: refreshQuickLocalSnapshots,
+                checkpoints: quickLocalSnapshots,
+                isCreatingCheckpoint: isQuickSavingMemory,
+                isReturningToCheckpoint: isQuickRestoringMemory
             )
         case 4:
             aiLinkContent
@@ -105,13 +111,7 @@ extension RootView {
                 onLoadAddPhrases: loadAddPhrases,
                 onExportAddPhrases: exportAddPhrases,
                 onUseDefaultAddPhrases: useDefaultAddPhrases,
-                onRequirePro: { gate in store.showPaywall(for: gate) },
-                onCreateCheckpoint: quickSaveMemory,
-                onReturnToCheckpoint: quickRestoreMemory(from:),
-                onRefreshCheckpoints: refreshQuickLocalSnapshots,
-                checkpoints: quickLocalSnapshots,
-                isCreatingCheckpoint: isQuickSavingMemory,
-                isReturningToCheckpoint: isQuickRestoringMemory
+                onRequirePro: { gate in store.showPaywall(for: gate) }
             )
         case 6:
             SettingsView(showsCloseButton: false) {

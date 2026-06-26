@@ -160,20 +160,21 @@ that users miss it as a major Radix feature.
 Radix should use a consistent Save/Restore pattern, but the object must always
 be explicit.
 
-Offer recovery choices together on one `Protect & Recover` screen:
+Keep recovery choices close to the job they serve:
 
-- Create Checkpoint / Return to Checkpoint for local recovery.
-- Create Backup / Merge Backup / Replace from Backup for portable files.
+- Study owns Create Checkpoint / Return to Checkpoint for local learning recovery.
+- My Data owns Create Backup / Merge Backup / Replace from Backup for portable files.
 - Save Export / Restore Export for Advanced Pro files.
 
-Study links to this shared screen rather than duplicating checkpoint controls.
-My Data hosts it because it owns backup files and operational recovery.
-Each group shows a compact list of its three latest items: dated local
-checkpoints for the device, and named portable backup files. This visual
-contrast should teach the distinction before the user opens an action. The rows
-should also be actionable: checkpoint rows return to that checkpoint after
-confirmation, while backup file rows offer Merge or Replace and use the picker
-only when the exported file is no longer directly readable.
+Study should show Checkpoints directly because they are one-step undo points for
+learning changes on the current device. My Data should not duplicate those
+controls; it should show a small link back to Study when users look for
+Checkpoints there.
+Study includes a compact `Backup files` link to My Data so users can learn the
+difference without losing the quick Checkpoint workflow. Checkpoint rows return
+to that checkpoint after confirmation. Backup file rows in My Data offer Merge
+or Replace and use the picker only when the exported file is no longer directly
+readable.
 
 The shared meaning is:
 

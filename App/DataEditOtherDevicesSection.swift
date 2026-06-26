@@ -16,9 +16,7 @@ extension DataEditTab {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            checkpointActionsSection
-
-            Divider()
+            studyCheckpointsNote
 
             portableBackupActionsSection
 
@@ -29,22 +27,34 @@ extension DataEditTab {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
-    var checkpointActionsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("On This Device")
-                .font(ResponsiveFont.headline)
+    var studyCheckpointsNote: some View {
+        Button {
+            store.goToFavourites(preservingOrigin: true)
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
 
-            Text("Create a checkpoint before major edits, then return to it if you change your mind.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Looking for Checkpoints?")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                    Text("They live in Study for quick one-step learning recovery.")
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .layoutPriority(1)
 
-            LazyVGrid(columns: pairedBackupActionColumns, spacing: 8) {
-                createCheckpointButton
-                returnToCheckpointButton
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.secondary)
             }
-
-            recentCheckpointStrip
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RadixTheme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
+        .buttonStyle(.plain)
     }
 
     var portableBackupActionsSection: some View {
@@ -87,35 +97,6 @@ extension DataEditTab {
                 backupToiCloudButton
                 addFromBackupButton
                 restoreBackupButton
-            }
-        }
-    }
-
-    var recentCheckpointStrip: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            Text("Latest Checkpoints")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            if checkpoints.isEmpty {
-                emptyRecoveryRow("No checkpoints created yet.")
-            } else {
-                VStack(spacing: 6) {
-                    ForEach(Array(checkpoints.prefix(3))) { checkpoint in
-                        Button {
-                            pendingCheckpointReturn = checkpoint
-                        } label: {
-                            recoveryListRow(
-                                title: checkpoint.title,
-                                subtitle: "\(checkpoint.relativeSavedText) · \(checkpoint.subtitle)",
-                                systemImage: "clock.arrow.circlepath",
-                                trailingSystemImage: "arrow.counterclockwise"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
-                    }
-                }
             }
         }
     }
@@ -210,72 +191,6 @@ extension DataEditTab {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    var createCheckpointButton: some View {
-        let locked = entitlement.requiresPro(.datedCopies)
-        return Button {
-            if locked {
-                onRequirePro(.datedCopies)
-            } else {
-                onCreateCheckpoint()
-            }
-        } label: {
-            DataBackupActionButton(
-                title: isCreatingCheckpoint ? "Creating..." : RadixCopy.createCheckpoint,
-                subtitle: "Keep a local recovery point",
-                systemName: "clock.badge.checkmark",
-                foreground: Color.accentColor,
-                background: Color.accentColor.opacity(0.1),
-                border: Color.accentColor.opacity(0.35),
-                isLocked: locked
-            )
-        }
-        .buttonStyle(.plain)
-        .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
-    }
-
-    var returnToCheckpointButton: some View {
-        let locked = entitlement.requiresPro(.datedCopies)
-        return Menu {
-            if locked {
-                Button {
-                    onRequirePro(.datedCopies)
-                } label: {
-                    Label("Unlock Checkpoints", systemImage: "lock.fill")
-                }
-            } else if checkpoints.isEmpty {
-                Text("No checkpoints created")
-            } else {
-                ForEach(checkpoints) { checkpoint in
-                    Button {
-                        pendingCheckpointReturn = checkpoint
-                    } label: {
-                        Label(checkpoint.title, systemImage: "clock.arrow.circlepath")
-                    }
-                }
-            }
-
-            Divider()
-
-            Button {
-                onRefreshCheckpoints()
-            } label: {
-                Label("Refresh List", systemImage: "arrow.clockwise")
-            }
-        } label: {
-            DataBackupActionButton(
-                title: isReturningToCheckpoint ? "Returning..." : RadixCopy.returnToCheckpoint,
-                subtitle: checkpoints.isEmpty ? "No checkpoints yet" : "\(checkpoints.count) available",
-                systemName: "arrow.counterclockwise",
-                foreground: Color.orange,
-                background: Color.orange.opacity(0.1),
-                border: Color.orange.opacity(0.35),
-                isLocked: locked
-            )
-        }
-        .buttonStyle(.plain)
-        .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
     }
 
     var backupToiCloudButton: some View {

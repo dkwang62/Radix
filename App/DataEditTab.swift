@@ -44,12 +44,6 @@ struct DataEditTab: View {
     let onExportAddPhrases: () -> Void
     let onUseDefaultAddPhrases: () -> Void
     let onRequirePro: (EntitlementManager.FeatureGate) -> Void
-    let onCreateCheckpoint: () -> Void
-    let onReturnToCheckpoint: (LocalDataSnapshot?) -> Void
-    let onRefreshCheckpoints: () -> Void
-    let checkpoints: [LocalDataSnapshot]
-    let isCreatingCheckpoint: Bool
-    let isReturningToCheckpoint: Bool
 
     @State var showRestorePicker = false
     @State var pendingRestoreMode: RestoreMode = .additive
@@ -78,7 +72,6 @@ struct DataEditTab: View {
     @State var advancedToolsTip: AdvancedExportToolsTip?
     let dataExportService = DataExportService()
     let localSnapshotStore = LocalDataSnapshotStore()
-    @State var pendingCheckpointReturn: LocalDataSnapshot?
 
     @State var editorMessage: String?
     @State var editorError: String?
@@ -174,27 +167,11 @@ struct DataEditTab: View {
             } message: {
                 Text(restoreConfirmationMessage)
             }
-            .alert("Return to Checkpoint?", isPresented: Binding(
-                get: { pendingCheckpointReturn != nil },
-                set: { if !$0 { pendingCheckpointReturn = nil } }
-            )) {
-                Button("Cancel", role: .cancel) {
-                    pendingCheckpointReturn = nil
-                }
-                Button("Return to Checkpoint", role: .destructive) {
-                    let checkpoint = pendingCheckpointReturn
-                    pendingCheckpointReturn = nil
-                    onReturnToCheckpoint(checkpoint)
-                }
-            } message: {
-                Text("Current data on this device will be replaced by the selected checkpoint. Portable backup files are not affected.")
-            }
             .overlay { backupRestoreOverlay }
             .onAppear {
                 dataEditScrollProxy = proxy
                 lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.latest
                 recentBackupMetadata = RadixBackupMetadataStore.history
-                onRefreshCheckpoints()
             }
         }
     }
