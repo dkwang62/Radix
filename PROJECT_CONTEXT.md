@@ -188,7 +188,10 @@ user taps an option, and immediately marks the answer correct or wrong with an
 English explanation. The quiz sheet must be scrollable and padded below the
 toolbar so page titles, instructions, options, and feedback are never obscured.
 If Gemini is unavailable or no key is configured, Radix explains the issue and
-offers a local dictionary-backed fallback quiz.
+offers both `Set Up Gemini API Key` and a local dictionary-backed fallback quiz.
+The setup action uses the shared Browse-to-Settings API-key path, reveals Private
+API Keys, and preserves `Back to Browse` instead of leaving the user to find
+Settings manually.
 Navigation guidance and the welcome screen use one canonical division of work:
 Browse inspects the dictionary or captured pages; Study reviews what the user
 kept; AI understands or transforms material; My Data protects, transfers, or

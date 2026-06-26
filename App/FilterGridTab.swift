@@ -245,7 +245,15 @@ struct FilterGridTab: View {
                     questions: pageQuizQuestions,
                     message: pageQuizMessage,
                     isGenerating: isGeneratingPageQuiz,
+                    canSetUpGeminiKey: store.geminiAPIKey
+                        .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                     onUseLocalFallback: { useLocalPageQuizFallback(collection) },
+                    onSetUpGeminiKey: {
+                        pageQuizCollection = nil
+                        DispatchQueue.main.async {
+                            store.goToSettingsForAPIKeySetup()
+                        }
+                    },
                     onDone: { pageQuizCollection = nil }
                 )
             }

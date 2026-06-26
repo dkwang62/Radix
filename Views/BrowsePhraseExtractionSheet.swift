@@ -108,7 +108,9 @@ struct BrowsePageQuizSheet: View {
     let questions: [PageQuizQuestion]
     let message: String?
     let isGenerating: Bool
+    let canSetUpGeminiKey: Bool
     let onUseLocalFallback: () -> Void
+    let onSetUpGeminiKey: () -> Void
     let onDone: () -> Void
     @State private var currentIndex = 0
     @State private var selectedOption: String?
@@ -331,8 +333,17 @@ struct BrowsePageQuizSheet: View {
                 .font(ResponsiveFont.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-            Button("Use Local Quiz", action: onUseLocalFallback)
-                .buttonStyle(.borderedProminent)
+            if canSetUpGeminiKey {
+                Button("Set Up Gemini API Key", action: onSetUpGeminiKey)
+                    .buttonStyle(.borderedProminent)
+            }
+            if canSetUpGeminiKey {
+                Button("Use Local Quiz", action: onUseLocalFallback)
+                    .buttonStyle(.bordered)
+            } else {
+                Button("Use Local Quiz", action: onUseLocalFallback)
+                    .buttonStyle(.borderedProminent)
+            }
             Button("Done", action: onDone)
                 .buttonStyle(.bordered)
         }
