@@ -188,6 +188,11 @@ distinct groups with their scope explained.
 Each group displays a horizontally scrollable preview of its three latest
 items. Checkpoints show local dates and sizes; backup history stores lightweight
 file metadata and shows filenames, making the device/file distinction visible.
+Backup File actions keep the same three choices across iPhone, iPad, and Mac:
+Create Backup, Merge Backup, and Replace from Backup. iPad and Mac show the
+three cards in one row; iPhone uses a compact two-row arrangement with Create
+Backup above Merge/Replace so the section remains readable without excessive
+vertical bulk.
 
 ## Next Three Tasks
 

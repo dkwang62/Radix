@@ -67,6 +67,22 @@ extension DataEditTab {
             myBackupVisibilityNote
             recentBackupStrip
 
+            portableBackupActionButtons
+        }
+    }
+
+    @ViewBuilder
+    var portableBackupActionButtons: some View {
+        if RadixPlatform.isPhone {
+            VStack(spacing: 8) {
+                backupToiCloudButton
+
+                LazyVGrid(columns: pairedBackupActionColumns, spacing: 8) {
+                    addFromBackupButton
+                    restoreBackupButton
+                }
+            }
+        } else {
             LazyVGrid(columns: backupActionColumns, spacing: 8) {
                 backupToiCloudButton
                 addFromBackupButton
