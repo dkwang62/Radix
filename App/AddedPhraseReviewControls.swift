@@ -179,6 +179,12 @@ extension AddedPhraseReviewSheet {
         Menu {
             if !newPhrases.isEmpty {
                 Button {
+                    createAIReviewPage()
+                } label: {
+                    Label("Create AI Review Page (\(newPhrases.count))", systemImage: "photo.on.rectangle")
+                }
+
+                Button {
                     checkNewPhrases()
                 } label: {
                     Label("Accept Unreviewed (\(newPhrases.count))", systemImage: "checkmark.circle.fill")

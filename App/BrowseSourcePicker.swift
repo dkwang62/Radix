@@ -38,6 +38,15 @@ extension FilterGridTab {
                     iconColor: .accentColor
                 )
             } else {
+                sourceActionButton(
+                    title: "Paste Image",
+                    subtitle: imageImportActionSubtitle,
+                    systemImage: "doc.on.clipboard",
+                    isLocked: entitlement.requiresPro(.datedCopies)
+                ) {
+                    beginClipboardImageImport()
+                }
+
                 browseAlbumImportButton
 
                 sourceActionButton(
@@ -48,6 +57,18 @@ extension FilterGridTab {
                 ) {
                     beginBrowseImageFileImport()
                 }
+            }
+
+            if let imageActionMessage {
+                Text(imageActionMessage)
+                    .font(ResponsiveFont.caption2)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(RadixTheme.secondaryBackground.opacity(0.45))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
             if store.allCollections.isEmpty {

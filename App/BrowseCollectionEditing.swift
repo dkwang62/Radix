@@ -44,6 +44,23 @@ extension FilterGridTab {
         showBrowseImageFileImporter = true
     }
 
+    func beginClipboardImageImport() {
+        guard !entitlement.requiresPro(.datedCopies) else {
+            store.showPaywall(for: .datedCopies)
+            return
+        }
+
+        do {
+            guard let image = try RadixPlatform.pasteboardImage() else {
+                imageActionMessage = "Copy an image with Chinese text first, then choose Paste Image."
+                return
+            }
+            Task { await recognizeBrowseImage(image) }
+        } catch {
+            imageActionMessage = error.localizedDescription
+        }
+    }
+
     func beginBrowseCameraScan() {
         guard hasUnlimitedFreePages || freePagesRemaining > 0 else {
             store.showPaywall(for: .datedCopies)

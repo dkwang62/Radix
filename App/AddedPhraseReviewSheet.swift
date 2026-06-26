@@ -236,6 +236,19 @@ extension AddedPhraseReviewSheet {
         message = "Accepted \(checkedCount) unreviewed phrase\(checkedCount == 1 ? "" : "s")."
     }
 
+    func createAIReviewPage() {
+        guard let collection = store.createUnreviewedPhraseReviewCollection() else {
+            message = "No unreviewed phrases are available for an AI review page."
+            return
+        }
+
+        dismiss()
+        DispatchQueue.main.async {
+            store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
+            store.selectBrowseCollection(id: collection.id)
+        }
+    }
+
     var deleteNewConfirmationMessage: String {
         let count = newPhrases.count
         return "Delete \(count) unreviewed phrase\(count == 1 ? "" : "s") from your added phrases?"

@@ -156,6 +156,10 @@ Study uses its four summary tiles as the section selectors. Recent and Favorites
 must not be repeated as a segmented picker above the review grid.
 On iPad those four tiles use an explicit two-column layout so all labels remain
 readable; phone and Mac retain their adaptive layouts.
+Added Phrases review includes a batch action that creates an `AI Review` saved
+page from all current unreviewed, non-base added phrases, then opens that page
+in Browse with a `Back to Study` return path. This action does not mark,
+accept, reject, or delete the source phrases.
 Content-driven cross-tab navigation uses the existing single-level return
 context. Destinations show a named return button (`Back to Study`, `Back to My
 Data`, and so on); manually choosing a primary tab clears that context.
@@ -163,6 +167,9 @@ Saved Browse pages use one labelled `Actions` menu for editing, OCR review,
 phrase selection, translation, and AI workflows. The source chooser remains
 separate navigation; only the script toggle and Read Aloud remain permanently
 visible page controls.
+Browse source actions include pasted Chinese text, a clipboard image, album
+import, file import, and saved-page selection. Clipboard images use the same OCR
+page creation path as camera, album, and file images.
 Entering Browse selects the saved page with the newest viewed-or-created date;
 the same selection is established during startup because the app launches on
 Browse without invoking a tab transition. Dictionary is the fallback only when

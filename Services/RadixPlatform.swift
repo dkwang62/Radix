@@ -83,6 +83,15 @@ struct RadixPlatform {
         #endif
     }
 
+    @MainActor static func pasteboardImage() throws -> CapturedImage? {
+        #if canImport(UIKit)
+        guard let image = UIPasteboard.general.image else { return nil }
+        return try CapturedImage(image: image)
+        #else
+        return nil
+        #endif
+    }
+
     @MainActor static var pasteboardString: String {
         #if canImport(UIKit)
         return UIPasteboard.general.string ?? ""

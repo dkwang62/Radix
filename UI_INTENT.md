@@ -84,6 +84,7 @@ Browse should be simple and not force unnecessary mode choices:
 
 - Dictionary appears as the first browse item.
 - Create from Paste appears as an action.
+- Paste Image appears as an action when an image is already on the clipboard.
 - Import from Album appears as an action.
 - Import from Files appears as an action.
 - Saved Pages appear as a list.
@@ -122,6 +123,10 @@ Study should contain learning review material, not admin backup tools:
 - Study snapshots.
 
 Items such as "Review Added Phrases" belong in Study, not My Data.
+From Added Phrases review, the user can create an `AI Review` saved page from
+all currently unreviewed added phrases. That page opens in Browse so the normal
+saved-page AI workflows can be used, while the original phrase statuses remain
+unchanged.
 
 On iPhone, Study may need to contain explicit Snapshot sections because the
 screen cannot permanently show a rich sidebar. On iPad and Mac, Save/Restore

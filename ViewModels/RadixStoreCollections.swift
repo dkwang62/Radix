@@ -186,6 +186,22 @@ extension RadixStore {
     }
 
     @discardableResult
+    func createUnreviewedPhraseReviewCollection() -> CharacterCollection? {
+        let unreviewedWords = phraseRepo.fetchAddedPhrases()
+            .filter { $0.word.count >= 2 && $0.reviewStatus == nil && !isPhraseInBase($0.word) }
+            .sorted(by: AddedPhraseReviewRules.reviewSortPredicate)
+            .map(\.word)
+
+        guard !unreviewedWords.isEmpty else { return nil }
+
+        return createCollection(
+            name: "AI Review",
+            sourceText: unreviewedWords.joined(separator: "\n"),
+            sourceType: .manual
+        )
+    }
+
+    @discardableResult
     func updateCollection(id: UUID, newName: String, sourceText: String) -> CharacterCollection? {
         guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return nil }
         let cleanName = collectionDisplayName(newName)
