@@ -101,6 +101,7 @@ extension RootView {
             do {
                 let source = try quickRestoreMemorySource(snapshot: snapshot)
                 try store.importDataEditData(source.data, mode: .complete)
+                store.goToFavourites()
                 refreshQuickLocalSnapshots()
                 importExportMessage = "Returned to checkpoint: \(source.name)"
                 showImportExportAlert = true

@@ -184,9 +184,10 @@ exports the user's work.
 Local snapshots are presented as `Checkpoints` to avoid colliding with backup
 language. Checkpoints live in Study as a one-step learning recovery action:
 Create Checkpoint, Return to Checkpoint, and the three latest checkpoint rows
-are immediately visible there. Study includes a compact `Backup files` bridge
-to My Data so users can still distinguish local learning recovery from portable
-file protection.
+are immediately visible there. Returning to a checkpoint always leaves the user
+in Study, even if the checkpoint was created while another tab was active.
+Study includes a compact `Backup files` bridge to My Data so users can still
+distinguish local learning recovery from portable file protection.
 My Data’s `Protect & Recover` screen owns Backup File actions only. Backup
 history stores lightweight file metadata and shows filenames; a selected backup
 file restores immediately when the saved path is still readable, otherwise
