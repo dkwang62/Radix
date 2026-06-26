@@ -21,8 +21,6 @@ struct CollectionPageActionsMenu: View {
         case extractAutomatically
         case translateManually
         case translateAutomatically
-        case quizManually
-        case quizAutomatically
     }
 
     let collection: CharacterCollection
@@ -37,7 +35,6 @@ struct CollectionPageActionsMenu: View {
     let onTranslate: () -> Void
     let onTranslateAndSave: () -> Void
     let onCreateQuiz: () -> Void
-    let onCreateQuizAutomatically: () -> Void
     @State private var showsAIOrientation = false
     @State private var pendingAIMethod: PendingAIMethod?
 
@@ -96,11 +93,8 @@ struct CollectionPageActionsMenu: View {
                     Label("Translate Page", systemImage: "translate")
                 }
 
-                Menu {
-                    aiMethodButton(
-                        manualMethod: .quizManually,
-                        automaticMethod: .quizAutomatically
-                    )
+                Button {
+                    onCreateQuiz()
                 } label: {
                     Label("Create Quiz", systemImage: "questionmark.circle")
                 }
@@ -192,8 +186,6 @@ struct CollectionPageActionsMenu: View {
         case .extractAutomatically: onAIExtract()
         case .translateManually: onTranslate()
         case .translateAutomatically: onTranslateAndSave()
-        case .quizManually: onCreateQuiz()
-        case .quizAutomatically: onCreateQuizAutomatically()
         }
     }
 }
@@ -208,7 +200,7 @@ private struct PageAIOrientationView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Radix can check OCR, extract useful phrases, translate a complete page in context, or create a practice quiz from a saved page.")
+                        Text("Radix can use AI to check OCR, extract useful phrases, or translate a complete page in context. Create Quiz opens an in-app practice screen from Radix dictionary data.")
                             .font(ResponsiveFont.body)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -225,7 +217,7 @@ private struct PageAIOrientationView: View {
                 detail: "Radix sends the task directly to Gemini and returns the result to the page workflow. This requires a private Gemini API key and depends on Gemini being available."
             )
 
-                        Text("You can edit the underlying OCR, phrase-extraction, translation, and quiz instructions in AI Link.")
+                        Text("You can edit the underlying OCR, phrase-extraction, translation, and optional external quiz instructions in AI Link.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)

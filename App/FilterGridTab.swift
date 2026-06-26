@@ -4,14 +4,12 @@ enum BrowseAIFallbackTask: Identifiable {
     case checkOCR(CharacterCollection)
     case extractPhrases(CharacterCollection)
     case translate(CharacterCollection)
-    case quiz(CharacterCollection)
 
     var id: String {
         switch self {
         case .checkOCR(let collection): return "ocr-\(collection.id)"
         case .extractPhrases(let collection): return "extract-\(collection.id)"
         case .translate(let collection): return "translate-\(collection.id)"
-        case .quiz(let collection): return "quiz-\(collection.id)"
         }
     }
 }
@@ -46,7 +44,6 @@ struct FilterGridTab: View {
     @State var pageQuizCollection: CharacterCollection?
     @State var pagePhraseListCollection: CharacterCollection?
     @State var phraseExtractionOutput = ""
-    @State var pageQuizOutput = ""
     @State var imageActionMessage: String?
     @State var aiFallbackTask: BrowseAIFallbackTask?
     @State var automaticAIError = ""
@@ -242,12 +239,7 @@ struct FilterGridTab: View {
             .sheet(item: $pageQuizCollection) { collection in
                 BrowsePageQuizSheet(
                     collectionName: collection.name,
-                    prompt: store.promptText(for: .collection(collection), selectedTaskIDs: ["task8"]),
-                    output: $pageQuizOutput,
-                    message: imageActionMessage,
-                    onCopyPrompt: { copyImageActionPrompt(collection: collection, taskID: "task8") },
-                    onOpenAI: { openImageActionPrompt(collection: collection, taskID: "task8") },
-                    onPaste: { pageQuizOutput = clipboardText() },
+                    questions: store.pageQuizQuestions(for: collection),
                     onDone: { pageQuizCollection = nil }
                 )
             }

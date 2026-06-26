@@ -97,16 +97,118 @@ extension RadixStore {
         )
     }
 
-    func runGeminiPageQuiz(for collection: CharacterCollection) async throws -> String {
-        let prompt = promptText(for: .collection(collection), selectedTaskIDs: ["task8"])
-        return try await GeminiTextGenerationService().generateText(
-            apiKey: geminiAPIKey,
-            modelID: geminiModelID,
-            prompt: prompt,
-            systemInstruction: """
-            You are a patient Chinese language teacher. Create a page-based practice quiz from the supplied Radix material. Keep explanations in English. Follow the requested difficulty and hidden-answer practice format.
-            """
+    func pageQuizQuestions(for collection: CharacterCollection, limit: Int = 10) -> [PageQuizQuestion] {
+        let pageItems = items(for: collection.characters).filter {
+            !$0.definition.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                || !$0.pinyinText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        guard !pageItems.isEmpty else { return [] }
+
+        let dictionaryItems = componentRepo.allCharacters
+            .compactMap { componentRepo.byCharacter[$0] }
+            .filter {
+                !$0.definition.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    && !$0.pinyinText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            }
+
+        var questions: [PageQuizQuestion] = []
+        for item in pageItems {
+            if questions.count >= limit { break }
+            if let meaningQuestion = pageMeaningQuizQuestion(for: item, pageItems: pageItems, dictionaryItems: dictionaryItems) {
+                questions.append(meaningQuestion)
+            }
+            if questions.count >= limit { break }
+            if let pinyinQuestion = pagePinyinQuizQuestion(for: item, pageItems: pageItems, dictionaryItems: dictionaryItems) {
+                questions.append(pinyinQuestion)
+            }
+        }
+
+        return Array(questions.prefix(limit))
+    }
+
+    private func pageMeaningQuizQuestion(
+        for item: ComponentItem,
+        pageItems: [ComponentItem],
+        dictionaryItems: [ComponentItem]
+    ) -> PageQuizQuestion? {
+        let answer = quizDefinitionSnippet(item.definition)
+        guard !answer.isEmpty else { return nil }
+
+        let distractors = quizDistractors(
+            correct: answer,
+            preferred: pageItems.map { quizDefinitionSnippet($0.definition) },
+            fallback: dictionaryItems.map { quizDefinitionSnippet($0.definition) }
         )
+        guard distractors.count >= 3 else { return nil }
+
+        let options = quizStableShuffle([answer] + distractors, seed: item.character + "meaning")
+        return PageQuizQuestion(
+            id: UUID(),
+            kind: .meaning,
+            character: item.character,
+            prompt: "What does \(item.character) usually mean?",
+            options: options,
+            correctOption: answer,
+            explanation: "\(item.character) is read \(item.pinyinText.isEmpty ? "with no pinyin listed" : item.pinyinText) and means \(answer)."
+        )
+    }
+
+    private func pagePinyinQuizQuestion(
+        for item: ComponentItem,
+        pageItems: [ComponentItem],
+        dictionaryItems: [ComponentItem]
+    ) -> PageQuizQuestion? {
+        let answer = item.pinyinText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !answer.isEmpty else { return nil }
+
+        let distractors = quizDistractors(
+            correct: answer,
+            preferred: pageItems.map { $0.pinyinText.trimmingCharacters(in: .whitespacesAndNewlines) },
+            fallback: dictionaryItems.map { $0.pinyinText.trimmingCharacters(in: .whitespacesAndNewlines) }
+        )
+        guard distractors.count >= 3 else { return nil }
+
+        let options = quizStableShuffle([answer] + distractors, seed: item.character + "pinyin")
+        return PageQuizQuestion(
+            id: UUID(),
+            kind: .pinyin,
+            character: item.character,
+            prompt: "Which pinyin belongs to \(item.character)?",
+            options: options,
+            correctOption: answer,
+            explanation: "\(item.character) is read \(answer). \(quizDefinitionSnippet(item.definition))"
+        )
+    }
+
+    private func quizDefinitionSnippet(_ definition: String) -> String {
+        let trimmed = definition
+            .replacingOccurrences(of: "\n", with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return "" }
+        let separators = CharacterSet(charactersIn: ";,(")
+        let prefix = trimmed.components(separatedBy: separators).first ?? trimmed
+        return prefix.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func quizDistractors(correct: String, preferred: [String], fallback: [String]) -> [String] {
+        var seen = Set([correct.lowercased()])
+        var result: [String] = []
+
+        for candidate in preferred + fallback {
+            let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { continue }
+            guard seen.insert(trimmed.lowercased()).inserted else { continue }
+            result.append(trimmed)
+            if result.count == 3 { break }
+        }
+
+        return result
+    }
+
+    private func quizStableShuffle(_ values: [String], seed: String) -> [String] {
+        guard !values.isEmpty else { return [] }
+        let offset = abs(seed.unicodeScalars.reduce(0) { ($0 &* 31) &+ Int($1.value) }) % values.count
+        return Array(values[offset...]) + Array(values[..<offset])
     }
 
     // MARK: - Mac clipboard paste

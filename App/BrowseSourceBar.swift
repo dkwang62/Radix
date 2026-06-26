@@ -157,8 +157,6 @@ extension FilterGridTab {
                 runAutomaticPageAIAction { runBrowseGeminiTranslationAndSave(collection) }
             }, onCreateQuiz: {
                 beginPageQuiz(collection)
-            }, onCreateQuizAutomatically: {
-                runAutomaticPageAIAction { runBrowseGeminiQuiz(collection) }
             })
 
             BrowseImageScriptToggle(mode: $browseImageScriptMode)

@@ -314,13 +314,14 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   than leaving the user at an error message.
 - Do not expose API-specific variants as additional AI Link tasks. `Extract
   Phrases` is one task; copy/paste and automatic Gemini execution are methods
-  for running it, just as with Check OCR, Translate Page, and Create Quiz.
-- Create Quiz starts page-only. It should use a familiar practice-quiz style:
-  default difficulty 5/10, ten questions, one question at a time, answers hidden
-  until the learner responds, and English explanations after each answer. Use
-  another AI app as the best default for true interactive quiz practice; Radix's
-  automatic path may create a quiz draft but should not pretend to be a full
-  chat tutor.
+  for running it, just as with Check OCR and Translate Page.
+- Create Quiz starts page-only and should open a real in-app practice screen:
+  one question at a time, answers hidden until the user chooses, immediate
+  correct/wrong feedback, and English explanations after each answer. The first
+  implementation can be dictionary-backed multiple choice from saved-page
+  characters. AI Link may retain an optional external quiz prompt for richer
+  handoff use, but Browse's primary quiz action should not look like a prompt
+  editor.
 - The AI must mark proposed changes and uncertainty in a structured response.
 - Corrected source text remains Chinese; every explanation, confidence reason,
   and uncertainty note is written in clear English.

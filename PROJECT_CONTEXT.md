@@ -170,23 +170,24 @@ no saved pages exist.
 Saved-page name normalization, corrected-name suffixing, and most-recent
 selection live in portable `SavedPageRules` with compatibility tests. SwiftUI
 only supplies actions; one shared Browse gateway handles missing Gemini keys
-for OCR, phrase extraction, translation, and quiz creation.
-The saved-page AI task menus now share the same method vocabulary:
+for OCR, phrase extraction, and translation.
+The OCR, extraction, and translation task menus share the same method vocabulary:
 `Use Another AI App` or `Run Automatically in Radix`. The first method choice
 shows one concise orientation, then continues the chosen action; `How Radix Uses
 AI` reopens it without adding permanent screen text. The orientation uses a
 sheet with pinned actions on every platform so iPad cannot truncate the
 description or lose the continuation control.
 Copy-and-paste is the durable fallback and remains visible even when a Gemini
-key is saved. Automatic OCR, extraction, translation, or quiz failures offer the
+key is saved. Automatic OCR, extraction, or translation failures offer the
 matching manual workflow immediately because a valid key does not guarantee
 Gemini service availability.
-Create Quiz is initially page-only. It uses the same AI Link template style as
-the other saved-page AI tasks and defaults to a familiar practice-quiz format:
-difficulty 5/10, ten questions, answers hidden until the learner replies, and
-English explanations. Manual use in another AI app is the preferred path for
-true interactive hidden-answer practice; automatic Gemini creates a quiz draft
-inside Radix.
+Create Quiz is page-only and opens a real in-app practice screen rather than an
+AI clipboard handoff. The first implementation generates dictionary-backed
+multiple-choice questions from the saved page, asks one question at a time,
+keeps answers hidden until the user taps an option, and immediately marks the
+answer correct or wrong with an English explanation. AI Link still keeps an
+optional external quiz prompt for richer handoff use, but Browse's primary quiz
+workflow must remain answer-on-screen.
 Navigation guidance and the welcome screen use one canonical division of work:
 Browse inspects the dictionary or captured pages; Study reviews what the user
 kept; AI understands or transforms material; My Data protects, transfers, or
