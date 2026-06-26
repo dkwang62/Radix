@@ -182,10 +182,12 @@ Browse inspects the dictionary or captured pages; Study reviews what the user
 kept; AI understands or transforms material; My Data protects, transfers, or
 exports the user's work.
 Local snapshots are presented as `Checkpoints` to avoid colliding with backup
-language. Checkpoints live in Study as a one-step learning recovery action:
-Create Checkpoint, Return to Checkpoint, and the three latest checkpoint rows
-are immediately visible there. Returning to a checkpoint always leaves the user
-in Study, even if the checkpoint was created while another tab was active.
+language. Checkpoints live at the bottom of Study as a safety-net section after
+the main review content. The section has one Create Checkpoint action and a
+scrollable checkpoint list with roughly three rows visible; tapping a row is the
+return action after confirmation, so there is no separate restore menu competing
+with the learning content. Returning to a checkpoint always leaves the user in
+Study, even if the checkpoint was created while another tab was active.
 Study includes a compact `Backup files` bridge to My Data so users can still
 distinguish local learning recovery from portable file protection.
 My Data’s `Protect & Recover` screen owns Backup File actions only. Backup

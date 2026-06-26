@@ -162,7 +162,7 @@ be explicit.
 
 Keep recovery choices close to the job they serve:
 
-- Study owns Create Checkpoint / Return to Checkpoint for local learning recovery.
+- Study owns Create Checkpoint and checkpoint-row returns for local learning recovery.
 - My Data owns Create Backup / Merge Backup / Replace from Backup for portable files.
 - Save Export / Restore Export for Advanced Pro files.
 
@@ -171,10 +171,12 @@ learning changes on the current device. My Data should not duplicate those
 controls; it should show a small link back to Study when users look for
 Checkpoints there.
 Study includes a compact `Backup files` link to My Data so users can learn the
-difference without losing the quick Checkpoint workflow. Checkpoint rows return
-to that checkpoint after confirmation. Backup file rows in My Data offer Merge
-or Replace and use the picker only when the exported file is no longer directly
-readable.
+difference without losing the quick Checkpoint workflow. Put Checkpoints at the
+bottom of Study so the safety net is available without competing with the main
+review choices. Show one Create Checkpoint action plus a scrollable list of
+checkpoint rows; the rows themselves return to that checkpoint after
+confirmation. Backup file rows in My Data offer Merge or Replace and use the
+picker only when the exported file is no longer directly readable.
 
 The shared meaning is:
 

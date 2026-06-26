@@ -10,12 +10,11 @@ extension FavouritesTab {
 
                 studyDashboardSummary
 
-                studyCheckpointsSection
-
                 if hasStudyGridItems {
                     recentStudySection
                 }
 
+                studyCheckpointsSection
             }
             .padding(.horizontal)
             .padding(.bottom, 20)
@@ -114,7 +113,7 @@ extension FavouritesTab {
                 backupFilesLink
             }
 
-            Text("Quickly save this device’s study state, then return to it if edits or cleanup go wrong.")
+            Text("Use this safety net after study sessions or before cleanup. Tap a checkpoint row below to return to that moment.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -143,64 +142,20 @@ extension FavouritesTab {
     }
 
     var checkpointActionRow: some View {
-        LazyVGrid(columns: checkpointActionColumns, spacing: 8) {
-            checkpointActionButton(
-                title: isCreatingCheckpoint ? "Creating…" : RadixCopy.createCheckpoint,
-                subtitle: "Save this moment",
-                systemImage: "clock.badge.checkmark",
-                tint: Color.accentColor,
-                isLocked: entitlement.requiresPro(.datedCopies),
-                action: {
-                    if entitlement.requiresPro(.datedCopies) {
-                        onRequirePro(.datedCopies)
-                    } else {
-                        onCreateCheckpoint()
-                    }
-                }
-            )
-            checkpointReturnMenu
-        }
-    }
-
-    var checkpointReturnMenu: some View {
-        let locked = entitlement.requiresPro(.datedCopies)
-        return Menu {
-            if locked {
-                Button {
+        checkpointActionButton(
+            title: isCreatingCheckpoint ? "Creating…" : RadixCopy.createCheckpoint,
+            subtitle: "Save this moment",
+            systemImage: "clock.badge.checkmark",
+            tint: Color.accentColor,
+            isLocked: entitlement.requiresPro(.datedCopies),
+            action: {
+                if entitlement.requiresPro(.datedCopies) {
                     onRequirePro(.datedCopies)
-                } label: {
-                    Label("Unlock Checkpoints", systemImage: "lock.fill")
-                }
-            } else if checkpoints.isEmpty {
-                Text("No checkpoints created")
-            } else {
-                ForEach(checkpoints) { checkpoint in
-                    Button {
-                        pendingCheckpointReturn = checkpoint
-                    } label: {
-                        Label(checkpoint.title, systemImage: "clock.arrow.circlepath")
-                    }
+                } else {
+                    onCreateCheckpoint()
                 }
             }
-
-            Divider()
-
-            Button {
-                onRefreshCheckpoints()
-            } label: {
-                Label("Refresh List", systemImage: "arrow.clockwise")
-            }
-        } label: {
-            checkpointActionButtonContent(
-                title: isReturningToCheckpoint ? "Returning…" : RadixCopy.returnToCheckpoint,
-                subtitle: checkpoints.isEmpty ? "No checkpoints yet" : "\(checkpoints.count) available",
-                systemImage: "arrow.counterclockwise",
-                tint: Color.orange,
-                isLocked: locked
-            )
-        }
-        .buttonStyle(.plain)
-        .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
+        )
     }
 
     @ViewBuilder
@@ -214,17 +169,20 @@ extension FavouritesTab {
                 .background(RadixTheme.background)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         } else {
-            VStack(spacing: 6) {
-                ForEach(Array(checkpoints.prefix(3))) { checkpoint in
-                    Button {
-                        pendingCheckpointReturn = checkpoint
-                    } label: {
-                        checkpointListRow(checkpoint)
+            ScrollView(.vertical, showsIndicators: checkpoints.count > 3) {
+                VStack(spacing: 6) {
+                    ForEach(checkpoints) { checkpoint in
+                        Button {
+                            pendingCheckpointReturn = checkpoint
+                        } label: {
+                            checkpointListRow(checkpoint)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
                     }
-                    .buttonStyle(.plain)
-                    .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
                 }
             }
+            .frame(maxHeight: checkpointListMaxHeight)
         }
     }
 
@@ -321,8 +279,8 @@ extension FavouritesTab {
         )
     }
 
-    var checkpointActionColumns: [GridItem] {
-        Array(repeating: GridItem(.flexible(minimum: 0), spacing: 8), count: 2)
+    var checkpointListMaxHeight: CGFloat {
+        162
     }
 
     var studySummaryColumns: [GridItem] {
