@@ -99,7 +99,6 @@ struct BrowseOCRReviewSheet: View {
     let instruction: String
     let aiName: String
     let message: String?
-    let onCopyInstruction: () -> Void
     let onCopyImage: () -> Void
     let onOpenAI: () -> Void
     let onPasteAndCreate: () -> Void
@@ -113,7 +112,7 @@ struct BrowseOCRReviewSheet: View {
                 }
 
                 Section("1. Ask AI to check the OCR") {
-                    Text("Copy the instruction into \(aiName) or another AI app. If the page has an image, copy it separately and paste it into the same conversation.")
+                    Text("Open \(aiName) copies the instruction and opens the AI app. If the page has an image, copy it separately only if the AI needs visual evidence.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                     ScrollView {
@@ -165,11 +164,11 @@ struct BrowseOCRReviewSheet: View {
 
     @ViewBuilder
     private var actionButtonContent: some View {
-        Button("Copy Instruction", action: onCopyInstruction)
+        Button("Open \(aiName)", action: onOpenAI)
+            .buttonStyle(.borderedProminent)
         if collection.sourceImageJPEGData != nil || collection.thumbnailJPEGData != nil {
             Button("Copy Image", action: onCopyImage)
         }
-        Button("Open \(aiName)", action: onOpenAI)
     }
 
 }

@@ -25,11 +25,6 @@ extension FilterGridTab {
         }
     }
 
-    func copyOCRReviewInstruction(_ collection: CharacterCollection) {
-        RadixPlatform.copyToPasteboard(store.ocrReviewPrompt(for: collection))
-        imageActionMessage = "OCR-check instruction copied."
-    }
-
     func copyOCRReviewImage(_ collection: CharacterCollection) {
         guard let imageData = collection.sourceImageJPEGData ?? collection.thumbnailJPEGData else {
             imageActionMessage = "No source image is available for this page."

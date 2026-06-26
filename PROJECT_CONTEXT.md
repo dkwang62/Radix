@@ -199,6 +199,10 @@ parameters; that path has corrupted CJK text into placeholder glyphs on iPad.
 Check OCR's manual handoff must not be hardcoded to ChatGPT: the sheet labels
 and opens the configured default AI app, while keeping copy/paste available for
 ChatGPT, Gemini, or another service.
+The OCR review sheet shows one primary manual action, `Open <default AI>`, which
+copies the instruction and opens the AI app. `Copy Image` appears only as an
+optional supporting action when page image data exists; do not reintroduce a
+separate visible `Copy Instruction` button beside the primary action.
 Create Quiz is page-only and uses the same two-method menu as the other saved
 page AI tasks. `Use Another AI App` copies and opens the editable quiz template
 so the user can practice in ChatGPT, Gemini, or another service without an API

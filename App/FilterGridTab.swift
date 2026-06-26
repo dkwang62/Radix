@@ -233,7 +233,6 @@ struct FilterGridTab: View {
                     instruction: store.ocrReviewPrompt(for: collection),
                     aiName: store.defaultAIName,
                     message: imageActionMessage,
-                    onCopyInstruction: { copyOCRReviewInstruction(collection) },
                     onCopyImage: { copyOCRReviewImage(collection) },
                     onOpenAI: { openOCRReviewInDefaultAI(collection) },
                     onPasteAndCreate: { pasteAndCreateCorrectedOCRPage(from: collection) },
