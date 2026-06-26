@@ -42,6 +42,9 @@ struct FilterGridTab: View {
     @State var phraseExtractionCollection: CharacterCollection?
     @State var ocrReviewCollection: CharacterCollection?
     @State var pageQuizCollection: CharacterCollection?
+    @State var pageQuizQuestions: [PageQuizQuestion] = []
+    @State var pageQuizMessage: String?
+    @State var isGeneratingPageQuiz = false
     @State var pagePhraseListCollection: CharacterCollection?
     @State var phraseExtractionOutput = ""
     @State var imageActionMessage: String?
@@ -239,7 +242,10 @@ struct FilterGridTab: View {
             .sheet(item: $pageQuizCollection) { collection in
                 BrowsePageQuizSheet(
                     collectionName: collection.name,
-                    questions: store.pageQuizQuestions(for: collection),
+                    questions: pageQuizQuestions,
+                    message: pageQuizMessage,
+                    isGenerating: isGeneratingPageQuiz,
+                    onUseLocalFallback: { useLocalPageQuizFallback(collection) },
                     onDone: { pageQuizCollection = nil }
                 )
             }

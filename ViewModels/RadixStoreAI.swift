@@ -9,6 +9,15 @@ import CoreGraphics
  Extracted from RadixStore Private Utilities.
 */
 
+private struct GeminiPageQuizQuestionDTO: Decodable {
+    let kind: String?
+    let display: String?
+    let prompt: String
+    let options: [String]
+    let correctIndex: Int
+    let explanation: String
+}
+
 extension RadixStore {
 
     // MARK: - Task selection
@@ -124,6 +133,97 @@ extension RadixStore {
         }
 
         return Array(questions.prefix(limit))
+    }
+
+    func runGeminiPageQuizQuestions(for collection: CharacterCollection, limit: Int = 10) async throws -> [PageQuizQuestion] {
+        let characters = collection.characters.joined()
+        let pageText = browseQuizSourceText(for: collection)
+        let prompt = """
+        Create an in-app Chinese learning quiz from this Radix saved page.
+
+        Return JSON only. Do not wrap it in Markdown. Return an array of \(limit) objects.
+
+        Each object must have exactly these keys:
+        - "kind": one of "meaning", "pinyin", or "character"
+        - "display": short Chinese text, pinyin, or phrase shown above the question
+        - "prompt": the question shown to the learner
+        - "options": exactly 4 answer strings
+        - "correctIndex": zero-based index of the correct option
+        - "explanation": brief English explanation shown after the learner answers
+
+        Rules:
+        1. Use the page text as the source. Do not invent facts beyond it.
+        2. Prefer useful phrases, context, pinyin, translation, and meaning-in-context.
+        3. Avoid ambiguous one-character English meaning questions unless the page context makes one answer clearly correct.
+        4. Exactly one option must be correct.
+        5. Explanations must be in English.
+        6. Difficulty is 5/10: practical learner questions, not trivia.
+
+        Page name: \(collection.name)
+        Referenced Chinese characters:
+        \(characters)
+
+        Page text:
+        \(pageText)
+        """
+
+        let response = try await GeminiTextGenerationService().generateText(
+            apiKey: geminiAPIKey,
+            modelID: geminiModelID,
+            prompt: prompt,
+            systemInstruction: """
+            You are a careful Chinese teacher creating structured quiz data for an app. Return valid JSON only.
+            """
+        )
+        return try parseGeminiPageQuizQuestions(response)
+    }
+
+    private func browseQuizSourceText(for collection: CharacterCollection) -> String {
+        let reviewed = collection.reviewedOCRText?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let original = collection.originalOCRText?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let reviewed, !reviewed.isEmpty { return reviewed }
+        if let original, !original.isEmpty { return original }
+        return collection.characters.joined()
+    }
+
+    private func parseGeminiPageQuizQuestions(_ response: String) throws -> [PageQuizQuestion] {
+        guard let start = response.firstIndex(of: "["),
+              let end = response.lastIndex(of: "]"),
+              start <= end else {
+            throw NSError(domain: "Radix", code: 41, userInfo: [NSLocalizedDescriptionKey: "Gemini did not return quiz JSON."])
+        }
+
+        let json = String(response[start...end])
+        let data = Data(json.utf8)
+        let decoded = try JSONDecoder().decode([GeminiPageQuizQuestionDTO].self, from: data)
+        let questions = decoded.compactMap { dto -> PageQuizQuestion? in
+            let options = dto.options
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+            guard options.count == 4, options.indices.contains(dto.correctIndex) else { return nil }
+            let prompt = dto.prompt.trimmingCharacters(in: .whitespacesAndNewlines)
+            let explanation = dto.explanation.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !prompt.isEmpty, !explanation.isEmpty else { return nil }
+
+            let rawKind = dto.kind?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+            let kind = PageQuizQuestion.Kind(rawValue: rawKind) ?? .meaning
+            let display = dto.display?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+            return PageQuizQuestion(
+                id: UUID(),
+                kind: kind,
+                character: display.isEmpty ? "Quiz" : display,
+                prompt: prompt,
+                options: options,
+                correctOption: options[dto.correctIndex],
+                explanation: explanation
+            )
+        }
+
+        guard !questions.isEmpty else {
+            throw NSError(domain: "Radix", code: 42, userInfo: [NSLocalizedDescriptionKey: "Gemini returned quiz data Radix could not use."])
+        }
+        return questions
     }
 
     private func pagePinyinQuizQuestion(

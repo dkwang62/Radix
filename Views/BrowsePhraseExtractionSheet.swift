@@ -106,6 +106,9 @@ struct BrowsePhraseExtractionSheet: View {
 struct BrowsePageQuizSheet: View {
     let collectionName: String
     let questions: [PageQuizQuestion]
+    let message: String?
+    let isGenerating: Bool
+    let onUseLocalFallback: () -> Void
     let onDone: () -> Void
     @State private var currentIndex = 0
     @State private var selectedOption: String?
@@ -127,26 +130,26 @@ struct BrowsePageQuizSheet: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if questions.isEmpty {
-                    emptyState
-                } else {
-                    quizContent
+            ScrollView {
+                Group {
+                    if isGenerating {
+                        loadingState
+                    } else if questions.isEmpty {
+                        emptyState
+                    } else {
+                        quizContent
+                    }
                 }
+                .padding(.horizontal)
+                .padding(.top, 52)
+                .padding(.bottom, 18)
             }
-            .padding()
             .navigationTitle("Create Quiz")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Done", action: onDone)
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    if !questions.isEmpty {
-                        Text("\(correctCount)/\(answeredQuestionIDs.count)")
-                            .font(ResponsiveFont.caption.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                    }
                 }
             }
         }
@@ -183,12 +186,22 @@ struct BrowsePageQuizSheet: View {
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+            if let message {
+                Text(message)
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             ProgressView(value: Double(currentIndex + 1), total: Double(max(questions.count, 1)))
                 .tint(Color.accentColor)
                 .padding(.top, 8)
-            Text("Question \(currentIndex + 1) of \(questions.count)")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
+            HStack {
+                Text("Question \(currentIndex + 1) of \(questions.count)")
+                Spacer()
+                Text("Score \(correctCount)/\(answeredQuestionIDs.count)")
+            }
+            .font(ResponsiveFont.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
         }
     }
 
@@ -293,6 +306,20 @@ struct BrowsePageQuizSheet: View {
         }
     }
 
+    private var loadingState: some View {
+        VStack(spacing: 14) {
+            ProgressView()
+                .controlSize(.large)
+            Text("Creating quiz with AI")
+                .font(ResponsiveFont.title3.weight(.semibold))
+            Text(message ?? "Radix is asking Gemini to build questions from this saved page.")
+                .font(ResponsiveFont.body)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, minHeight: 360)
+    }
+
     private var emptyState: some View {
         VStack(spacing: 14) {
             Image(systemName: "questionmark.circle")
@@ -300,14 +327,16 @@ struct BrowsePageQuizSheet: View {
                 .foregroundStyle(.secondary)
             Text("No quiz questions yet")
                 .font(ResponsiveFont.title3.weight(.semibold))
-            Text("Radix could not find enough dictionary-backed characters on this page to build answer choices.")
+            Text(message ?? "Radix could not create quiz questions from this page.")
                 .font(ResponsiveFont.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-            Button("Done", action: onDone)
+            Button("Use Local Quiz", action: onUseLocalFallback)
                 .buttonStyle(.borderedProminent)
+            Button("Done", action: onDone)
+                .buttonStyle(.bordered)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, minHeight: 360)
     }
 
     private func choose(_ option: String, for question: PageQuizQuestion) {

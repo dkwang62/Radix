@@ -71,7 +71,7 @@ struct CharacterCollection: Identifiable, Codable, Equatable, Hashable {
 }
 
 struct PageQuizQuestion: Identifiable, Equatable, Hashable {
-    enum Kind: String, Equatable, Hashable {
+    enum Kind: String, Codable, Equatable, Hashable {
         case meaning
         case pinyin
         case character

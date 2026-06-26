@@ -170,7 +170,7 @@ no saved pages exist.
 Saved-page name normalization, corrected-name suffixing, and most-recent
 selection live in portable `SavedPageRules` with compatibility tests. SwiftUI
 only supplies actions; one shared Browse gateway handles missing Gemini keys
-for OCR, phrase extraction, and translation.
+for OCR, phrase extraction, translation, and AI quiz generation.
 The OCR, extraction, and translation task menus share the same method vocabulary:
 `Use Another AI App` or `Run Automatically in Radix`. The first method choice
 shows one concise orientation, then continues the chosen action; `How Radix Uses
@@ -178,18 +178,17 @@ AI` reopens it without adding permanent screen text. The orientation uses a
 sheet with pinned actions on every platform so iPad cannot truncate the
 description or lose the continuation control.
 Copy-and-paste is the durable fallback and remains visible even when a Gemini
-key is saved. Automatic OCR, extraction, or translation failures offer the
-matching manual workflow immediately because a valid key does not guarantee
-Gemini service availability.
+key is saved. Automatic OCR, extraction, translation, or quiz generation
+failures offer a clear fallback because a valid key does not guarantee Gemini
+service availability.
 Create Quiz is page-only and opens a real in-app practice screen rather than an
-AI clipboard handoff. The first implementation generates dictionary-backed
-pinyin and character-recognition multiple-choice questions from the saved page,
-asks one question at a time, keeps answers hidden until the user taps an option,
-and immediately marks the answer correct or wrong with an English explanation.
-Avoid English meaning multiple-choice until questions can account for
-multi-sense characters such as `调`, where several meanings may be legitimate.
-AI Link still keeps an optional external quiz prompt for richer handoff use, but
-Browse's primary quiz workflow must remain answer-on-screen.
+AI clipboard handoff. The primary workflow asks Gemini for structured quiz JSON,
+then Radix presents the questions one at a time, keeps answers hidden until the
+user taps an option, and immediately marks the answer correct or wrong with an
+English explanation. The quiz sheet must be scrollable and padded below the
+toolbar so page titles, instructions, options, and feedback are never obscured.
+If Gemini is unavailable or no key is configured, Radix explains the issue and
+offers a local dictionary-backed fallback quiz.
 Navigation guidance and the welcome screen use one canonical division of work:
 Browse inspects the dictionary or captured pages; Study reviews what the user
 kept; AI understands or transforms material; My Data protects, transfers, or
