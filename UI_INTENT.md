@@ -168,6 +168,9 @@ Offer recovery choices together on one `Protect & Recover` screen:
 
 Study links to this shared screen rather than duplicating checkpoint controls.
 My Data hosts it because it owns backup files and operational recovery.
+Each group shows a horizontal preview of its three latest items: dated local
+checkpoints for the device, and named portable backup files. This visual
+contrast should teach the distinction before the user opens an action.
 
 The shared meaning is:
 

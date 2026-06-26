@@ -72,6 +72,7 @@ struct DataEditTab: View {
     @State var reuseExportInProgress = false
     @State var reuseExportMessage: String?
     @State var lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.latest
+    @State var recentBackupMetadata = RadixBackupMetadataStore.history
     @State var activeZipExportKind: AdvancedZipExportKind = .xcodeDataFiles
     @State var activeAdvancedExportKind: AdvancedExportKind = .fullDataset
     @State var advancedToolsTip: AdvancedExportToolsTip?
@@ -192,6 +193,7 @@ struct DataEditTab: View {
             .onAppear {
                 dataEditScrollProxy = proxy
                 lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.latest
+                recentBackupMetadata = RadixBackupMetadataStore.history
                 onRefreshCheckpoints()
             }
         }
@@ -201,6 +203,7 @@ struct DataEditTab: View {
         let base = url.deletingPathExtension().lastPathComponent
         if RadixFileTypes.isJSON(reuseExportContentType) && reuseExportFilename == "radix_icloud_backup" {
             lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.recordBackup(at: url)
+            recentBackupMetadata = RadixBackupMetadataStore.history
             backupMessage = "Created backup: \(url.lastPathComponent)"
             showBackupAlert = true
         } else {

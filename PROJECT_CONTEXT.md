@@ -185,6 +185,9 @@ Local snapshots are presented as `Checkpoints` to avoid colliding with backup
 language. Study links to My Data’s shared `Protect & Recover` screen, where
 Create/Return Checkpoint and Create/Merge/Replace Backup are shown as two
 distinct groups with their scope explained.
+Each group displays a horizontally scrollable preview of its three latest
+items. Checkpoints show local dates and sizes; backup history stores lightweight
+file metadata and shows filenames, making the device/file distinction visible.
 
 ## Next Three Tasks
 

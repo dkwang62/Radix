@@ -42,6 +42,8 @@ extension DataEditTab {
                 createCheckpointButton
                 returnToCheckpointButton
             }
+
+            recentCheckpointStrip
         }
     }
 
@@ -63,12 +65,89 @@ extension DataEditTab {
                 .foregroundStyle(.secondary)
 
             myBackupVisibilityNote
-            otherDeviceSavedStatusRow
+            recentBackupStrip
 
             LazyVGrid(columns: backupActionColumns, spacing: 8) {
                 backupToiCloudButton
                 addFromBackupButton
                 restoreBackupButton
+            }
+        }
+    }
+
+    var recentCheckpointStrip: some View {
+        recentItemsStrip(
+            title: "Latest Checkpoints",
+            emptyText: "No checkpoints created yet.",
+            items: Array(checkpoints.prefix(3)).map {
+                RecoveryPreviewItem(
+                    id: $0.id,
+                    title: $0.title,
+                    subtitle: "\($0.relativeSavedText) · \($0.subtitle)",
+                    systemImage: "clock.arrow.circlepath"
+                )
+            }
+        )
+    }
+
+    var recentBackupStrip: some View {
+        recentItemsStrip(
+            title: "Latest Backup Files",
+            emptyText: "No backup files created yet.",
+            items: Array(recentBackupMetadata.prefix(3)).map {
+                RecoveryPreviewItem(
+                    id: $0.id,
+                    title: URL(fileURLWithPath: $0.path).lastPathComponent,
+                    subtitle: LocalDataSnapshot.relativeText(for: Date(timeIntervalSince1970: $0.timestamp)),
+                    systemImage: "doc.zipper"
+                )
+            }
+        )
+    }
+
+    func recentItemsStrip(
+        title: String,
+        emptyText: String,
+        items: [RecoveryPreviewItem]
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text(title)
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            if items.isEmpty {
+                Text(emptyText)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(RadixTheme.background)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(items) { item in
+                            HStack(spacing: 8) {
+                                Image(systemName: item.systemImage)
+                                    .foregroundStyle(Color.accentColor)
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(item.title)
+                                        .font(ResponsiveFont.caption.weight(.semibold))
+                                        .lineLimit(1)
+                                    Text(item.subtitle)
+                                        .font(ResponsiveFont.caption2)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1)
+                                }
+                            }
+                            .padding(10)
+                            .frame(width: 220, alignment: .leading)
+                            .background(RadixTheme.background)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
+                }
             }
         }
     }
@@ -266,4 +345,11 @@ extension DataEditTab {
             }
         }
     }
+}
+
+struct RecoveryPreviewItem: Identifiable {
+    let id: String
+    let title: String
+    let subtitle: String
+    let systemImage: String
 }
