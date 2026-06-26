@@ -196,6 +196,9 @@ service availability.
 Manual ChatGPT handoff copies the full prompt to the pasteboard and opens the
 base ChatGPT URL only. Do not pass Chinese page text through ChatGPT URL query
 parameters; that path has corrupted CJK text into placeholder glyphs on iPad.
+Check OCR's manual handoff must not be hardcoded to ChatGPT: the sheet labels
+and opens the configured default AI app, while keeping copy/paste available for
+ChatGPT, Gemini, or another service.
 Create Quiz is page-only and uses the same two-method menu as the other saved
 page AI tasks. `Use Another AI App` copies and opens the editable quiz template
 so the user can practice in ChatGPT, Gemini, or another service without an API

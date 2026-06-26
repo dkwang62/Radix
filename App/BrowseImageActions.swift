@@ -39,14 +39,18 @@ extension FilterGridTab {
         imageActionMessage = "Image copied. Paste it into the ChatGPT conversation."
     }
 
-    func openOCRReviewInChatGPT(_ collection: CharacterCollection) {
+    func openOCRReviewInDefaultAI(_ collection: CharacterCollection) {
         let prompt = store.ocrReviewPrompt(for: collection)
         RadixPlatform.copyToPasteboard(prompt)
-        let preset: DefaultAIPreset = .chatGPT
+        let preset = store.defaultAIPreset
         if let url = store.aiURL(for: preset, prompt: prompt) {
             openURL(url)
         }
-        imageActionMessage = "Opening ChatGPT. The instruction is also copied."
+        if preset == .chatGPT {
+            imageActionMessage = "Opening ChatGPT. The instruction is copied; paste it into the message box manually so Chinese text is preserved."
+        } else {
+            imageActionMessage = "Opening \(store.aiName(for: preset)). The instruction is also copied."
+        }
     }
 
     func pasteAndCreateCorrectedOCRPage(from collection: CharacterCollection) {

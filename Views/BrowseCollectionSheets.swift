@@ -97,6 +97,7 @@ struct EditBrowseCollectionSheet: View {
 struct BrowseOCRReviewSheet: View {
     let collection: CharacterCollection
     let instruction: String
+    let aiName: String
     let message: String?
     let onCopyInstruction: () -> Void
     let onCopyImage: () -> Void
@@ -112,7 +113,7 @@ struct BrowseOCRReviewSheet: View {
                 }
 
                 Section("1. Ask AI to check the OCR") {
-                    Text("Copy the instruction. If the page has an image, copy it separately and paste it into the same ChatGPT conversation.")
+                    Text("Copy the instruction into \(aiName) or another AI app. If the page has an image, copy it separately and paste it into the same conversation.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                     ScrollView {
@@ -126,7 +127,7 @@ struct BrowseOCRReviewSheet: View {
                 }
 
                 Section("2. Create the corrected page") {
-                    Text("When ChatGPT finishes, copy its complete answer. Radix will create and open the corrected page immediately.")
+                    Text("When the AI finishes, copy its complete answer. Radix will create and open the corrected page immediately.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                     Button("Paste Answer and Create Corrected Page", action: onPasteAndCreate)
@@ -168,7 +169,7 @@ struct BrowseOCRReviewSheet: View {
         if collection.sourceImageJPEGData != nil || collection.thumbnailJPEGData != nil {
             Button("Copy Image", action: onCopyImage)
         }
-        Button("Open ChatGPT", action: onOpenAI)
+        Button("Open \(aiName)", action: onOpenAI)
     }
 
 }
