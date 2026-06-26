@@ -181,13 +181,15 @@ Copy-and-paste is the durable fallback and remains visible even when a Gemini
 key is saved. Automatic OCR, extraction, translation, or quiz generation
 failures offer a clear fallback because a valid key does not guarantee Gemini
 service availability.
-Create Quiz is page-only and opens a real in-app practice screen rather than an
-AI clipboard handoff. The primary workflow asks Gemini for structured quiz JSON,
-then Radix presents the questions one at a time, keeps answers hidden until the
-user taps an option, and immediately marks the answer correct or wrong with an
+Create Quiz is page-only and uses the same two-method menu as the other saved
+page AI tasks. `Use Another AI App` copies and opens the editable quiz template
+so the user can practice in ChatGPT, Gemini, or another service without an API
+key. `Run Automatically in Radix` asks Gemini for structured quiz JSON, then
+Radix presents the questions one at a time, keeps answers hidden until the user
+taps an option, and immediately marks the answer correct or wrong with an
 English explanation. The quiz sheet must be scrollable and padded below the
 toolbar so page titles, instructions, options, and feedback are never obscured.
-If Gemini is unavailable or no key is configured, Radix explains the issue and
+If the automatic route is entered without a key, Radix explains the issue and
 offers both `Set Up Gemini API Key` and a local dictionary-backed fallback quiz.
 The setup action uses the shared Browse-to-Settings API-key path, reveals Private
 API Keys, and preserves `Back to Browse` instead of leaving the user to find

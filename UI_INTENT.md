@@ -318,11 +318,14 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
 - Create Quiz starts page-only and should open a real in-app practice screen:
   one question at a time, answers hidden until the user chooses, immediate
   correct/wrong feedback, and English explanations after each answer. The
-  primary workflow uses Gemini to generate structured quiz questions, then Radix
-  presents them inside the app. The sheet must be scrollable and must not allow
-  the toolbar to obscure the page title, question, answers, or feedback. If
-  Gemini is unavailable or no key is configured, explain that clearly and offer
-  a local dictionary-backed fallback rather than showing a prompt editor.
+  automatic method uses Gemini to generate structured quiz questions, then Radix
+  presents them inside the app. The no-key method uses the same `Use Another AI
+  App` pattern as the other page AI tasks: copy/open the editable quiz template
+  so ChatGPT, Gemini, or another service can quiz the user directly. The sheet
+  must be scrollable and must not allow the toolbar to obscure the page title,
+  question, answers, or feedback. If Gemini is unavailable or no key is
+  configured on the automatic path, explain that clearly and offer a local
+  dictionary-backed fallback rather than showing a prompt editor.
 - The AI must mark proposed changes and uncertainty in a structured response.
 - Corrected source text remains Chinese; every explanation, confidence reason,
   and uncertainty note is written in clear English.

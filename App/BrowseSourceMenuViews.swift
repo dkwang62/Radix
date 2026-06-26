@@ -21,6 +21,8 @@ struct CollectionPageActionsMenu: View {
         case extractAutomatically
         case translateManually
         case translateAutomatically
+        case quizManually
+        case quizAutomatically
     }
 
     let collection: CharacterCollection
@@ -34,7 +36,8 @@ struct CollectionPageActionsMenu: View {
     let onAIExtract: () -> Void
     let onTranslate: () -> Void
     let onTranslateAndSave: () -> Void
-    let onCreateQuiz: () -> Void
+    let onCreateQuizManually: () -> Void
+    let onCreateQuizAutomatically: () -> Void
     @State private var showsAIOrientation = false
     @State private var pendingAIMethod: PendingAIMethod?
 
@@ -93,8 +96,11 @@ struct CollectionPageActionsMenu: View {
                     Label("Translate Page", systemImage: "translate")
                 }
 
-                Button {
-                    onCreateQuiz()
+                Menu {
+                    aiMethodButton(
+                        manualMethod: .quizManually,
+                        automaticMethod: .quizAutomatically
+                    )
                 } label: {
                     Label("Create Quiz", systemImage: "questionmark.circle")
                 }
@@ -186,6 +192,8 @@ struct CollectionPageActionsMenu: View {
         case .extractAutomatically: onAIExtract()
         case .translateManually: onTranslate()
         case .translateAutomatically: onTranslateAndSave()
+        case .quizManually: onCreateQuizManually()
+        case .quizAutomatically: onCreateQuizAutomatically()
         }
     }
 }
