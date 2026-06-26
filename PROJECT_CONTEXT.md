@@ -193,6 +193,9 @@ Copy-and-paste is the durable fallback and remains visible even when a Gemini
 key is saved. Automatic OCR, extraction, translation, or quiz generation
 failures offer a clear fallback because a valid key does not guarantee Gemini
 service availability.
+Manual ChatGPT handoff copies the full prompt to the pasteboard and opens the
+base ChatGPT URL only. Do not pass Chinese page text through ChatGPT URL query
+parameters; that path has corrupted CJK text into placeholder glyphs on iPad.
 Create Quiz is page-only and uses the same two-method menu as the other saved
 page AI tasks. `Use Another AI App` copies and opens the editable quiz template
 so the user can practice in ChatGPT, Gemini, or another service without an API

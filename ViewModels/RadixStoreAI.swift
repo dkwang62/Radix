@@ -364,7 +364,7 @@ extension RadixStore {
 
     func aiPrefillsPrompt(for preset: DefaultAIPreset) -> Bool {
         switch preset {
-        case .chatGPT: return true
+        case .chatGPT: return false
         case .custom:  return normalizedCustomAIURL?.absoluteString.contains("{prompt}") == true
         default:       return false
         }
@@ -375,9 +375,7 @@ extension RadixStore {
     func aiURL(for preset: DefaultAIPreset, prompt: String) -> URL? {
         switch preset {
         case .chatGPT:
-            var components = URLComponents(string: preset.baseURLString)
-            components?.queryItems = [URLQueryItem(name: "q", value: prompt)]
-            return components?.url
+            return URL(string: preset.baseURLString)
         case .custom:
             guard let custom = normalizedCustomAIURL else { return nil }
             let urlString = custom.absoluteString
