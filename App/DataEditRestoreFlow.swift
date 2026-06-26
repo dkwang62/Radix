@@ -58,6 +58,30 @@ extension DataEditTab {
         scheduleBackupAcquisitionTimeout(operationID: operationID)
     }
 
+    func restoreBackup(_ metadata: RadixBackupMetadata, mode: RestoreMode) {
+        guard !entitlement.requiresPro(.myBackup) else {
+            onRequirePro(.myBackup)
+            return
+        }
+
+        pendingRestoreMode = mode
+        let url = URL(fileURLWithPath: metadata.path)
+        guard RadixBackupMetadataStore.isReadable(metadata) else {
+            editorMessage = "Choose \(url.lastPathComponent) again to \(mode == .complete ? "replace this device" : "merge backup data")."
+            showRestorePicker = true
+            return
+        }
+
+        let operationID = UUID()
+        restoreOperationID = operationID
+        restorePhase = .acquiringFile
+        backupError = nil
+
+        let accessed = url.startAccessingSecurityScopedResource()
+        runBackupRestore(url: url, accessed: accessed, operationID: operationID)
+        scheduleBackupAcquisitionTimeout(operationID: operationID)
+    }
+
     private func runBackupRestore(url: URL, accessed: Bool, operationID: UUID) {
         Task { @MainActor in
             defer { if accessed { url.stopAccessingSecurityScopedResource() } }

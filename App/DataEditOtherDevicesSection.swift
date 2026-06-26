@@ -92,80 +92,124 @@ extension DataEditTab {
     }
 
     var recentCheckpointStrip: some View {
-        recentItemsStrip(
-            title: "Latest Checkpoints",
-            emptyText: "No checkpoints created yet.",
-            items: Array(checkpoints.prefix(3)).map {
-                RecoveryPreviewItem(
-                    id: $0.id,
-                    title: $0.title,
-                    subtitle: "\($0.relativeSavedText) · \($0.subtitle)",
-                    systemImage: "clock.arrow.circlepath"
-                )
-            }
-        )
-    }
-
-    var recentBackupStrip: some View {
-        recentItemsStrip(
-            title: "Latest Backup Files",
-            emptyText: "No backup files created yet.",
-            items: Array(recentBackupMetadata.prefix(3)).map {
-                RecoveryPreviewItem(
-                    id: $0.id,
-                    title: URL(fileURLWithPath: $0.path).lastPathComponent,
-                    subtitle: LocalDataSnapshot.relativeText(for: Date(timeIntervalSince1970: $0.timestamp)),
-                    systemImage: "doc.zipper"
-                )
-            }
-        )
-    }
-
-    func recentItemsStrip(
-        title: String,
-        emptyText: String,
-        items: [RecoveryPreviewItem]
-    ) -> some View {
         VStack(alignment: .leading, spacing: 7) {
-            Text(title)
+            Text("Latest Checkpoints")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
 
-            if items.isEmpty {
-                Text(emptyText)
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(RadixTheme.background)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            if checkpoints.isEmpty {
+                emptyRecoveryRow("No checkpoints created yet.")
             } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(items) { item in
-                            HStack(spacing: 8) {
-                                Image(systemName: item.systemImage)
-                                    .foregroundStyle(Color.accentColor)
-
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(item.title)
-                                        .font(ResponsiveFont.caption.weight(.semibold))
-                                        .lineLimit(1)
-                                    Text(item.subtitle)
-                                        .font(ResponsiveFont.caption2)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(1)
-                                }
-                            }
-                            .padding(10)
-                            .frame(width: 220, alignment: .leading)
-                            .background(RadixTheme.background)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                VStack(spacing: 6) {
+                    ForEach(Array(checkpoints.prefix(3))) { checkpoint in
+                        Button {
+                            pendingCheckpointReturn = checkpoint
+                        } label: {
+                            recoveryListRow(
+                                title: checkpoint.title,
+                                subtitle: "\(checkpoint.relativeSavedText) · \(checkpoint.subtitle)",
+                                systemImage: "clock.arrow.circlepath",
+                                trailingSystemImage: "arrow.counterclockwise"
+                            )
                         }
+                        .buttonStyle(.plain)
+                        .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
                     }
                 }
             }
         }
+    }
+
+    var recentBackupStrip: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text("Latest Backup Files")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            if recentBackupMetadata.isEmpty {
+                emptyRecoveryRow("No backup files created yet.")
+            } else {
+                VStack(spacing: 6) {
+                    ForEach(Array(recentBackupMetadata.prefix(3))) { metadata in
+                        recentBackupFileRow(metadata)
+                    }
+                }
+            }
+        }
+    }
+
+    func recentBackupFileRow(_ metadata: RadixBackupMetadata) -> some View {
+        let url = URL(fileURLWithPath: metadata.path)
+        let subtitle = LocalDataSnapshot.relativeText(for: Date(timeIntervalSince1970: metadata.timestamp))
+        let readable = RadixBackupMetadataStore.isReadable(metadata)
+
+        return Menu {
+            Button {
+                restoreBackup(metadata, mode: .additive)
+            } label: {
+                Label("Merge Backup", systemImage: "square.and.arrow.down")
+            }
+
+            Button(role: .destructive) {
+                restoreBackup(metadata, mode: .complete)
+            } label: {
+                Label("Replace from Backup", systemImage: "square.and.arrow.down.fill")
+            }
+        } label: {
+            recoveryListRow(
+                title: url.lastPathComponent,
+                subtitle: readable ? subtitle : "\(subtitle) · choose file again",
+                systemImage: "doc.zipper",
+                trailingSystemImage: readable ? "arrow.triangle.2.circlepath" : "folder"
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    func emptyRecoveryRow(_ text: String) -> some View {
+        Text(text)
+            .font(ResponsiveFont.caption)
+            .foregroundStyle(.secondary)
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RadixTheme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    func recoveryListRow(
+        title: String,
+        subtitle: String,
+        systemImage: String,
+        trailingSystemImage: String
+    ) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 24, height: 24)
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 7))
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title)
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .lineLimit(1)
+                Text(subtitle)
+                    .font(ResponsiveFont.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            .layoutPriority(1)
+
+            Image(systemName: trailingSystemImage)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RadixTheme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     var createCheckpointButton: some View {
@@ -361,11 +405,4 @@ extension DataEditTab {
             }
         }
     }
-}
-
-struct RecoveryPreviewItem: Identifiable {
-    let id: String
-    let title: String
-    let subtitle: String
-    let systemImage: String
 }

@@ -168,9 +168,12 @@ Offer recovery choices together on one `Protect & Recover` screen:
 
 Study links to this shared screen rather than duplicating checkpoint controls.
 My Data hosts it because it owns backup files and operational recovery.
-Each group shows a horizontal preview of its three latest items: dated local
+Each group shows a compact list of its three latest items: dated local
 checkpoints for the device, and named portable backup files. This visual
-contrast should teach the distinction before the user opens an action.
+contrast should teach the distinction before the user opens an action. The rows
+should also be actionable: checkpoint rows return to that checkpoint after
+confirmation, while backup file rows offer Merge or Replace and use the picker
+only when the exported file is no longer directly readable.
 
 The shared meaning is:
 

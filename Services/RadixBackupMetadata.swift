@@ -49,4 +49,8 @@ enum RadixBackupMetadataStore {
         }
         return metadata
     }
+
+    static func isReadable(_ metadata: RadixBackupMetadata) -> Bool {
+        FileManager.default.isReadableFile(atPath: metadata.path)
+    }
 }
