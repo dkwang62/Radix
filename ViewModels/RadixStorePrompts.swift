@@ -236,12 +236,12 @@ extension RadixStore {
             collectionName = collection.name
             collectionCharacters = collection.characters.joined(separator: " ")
             collectionCharacterSet = collection.uniqueCharacters
-            originalOCRText = ocrReviewSourceText(for: collection)
-            let captured = CaptureTextExtractor.allCharactersInOrder(in: originalOCRText)
+            originalOCRText = collection.characters.joined()
+            let captured = collection.characters
             let recognized = captured.filter { componentRepo.hasCharacter($0) }
             let unrecognized = captured.filter { !componentRepo.hasCharacter($0) }
             recognizedOCRCharacters = recognized.joined(separator: " ")
-            unrecognizedOCRCharacters = unrecognized.isEmpty ? "None detected" : unrecognized.joined(separator: " ")
+            unrecognizedOCRCharacters = unrecognized.isEmpty ? "None detected in saved page characters" : unrecognized.joined(separator: " ")
             let nearby = browsePagePhraseCandidates(in: collection).prefix(30).map(\.phrase.word)
             nearbyOCRPhrases = nearby.isEmpty ? "None detected" : nearby.joined(separator: ", ")
         }
@@ -276,48 +276,5 @@ extension RadixStore {
             unrecognizedOCRCharacters: unrecognizedOCRCharacters,
             nearbyOCRPhrases: nearbyOCRPhrases
         )
-    }
-
-    private func ocrReviewSourceText(for collection: CharacterCollection) -> String {
-        let savedCharacters = collection.characters.joined()
-        let original = collection.originalOCRText?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let reviewed = collection.reviewedOCRText?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-
-        if isUsableOCRText(original) {
-            return original
-        }
-
-        if isUsableOCRText(reviewed) {
-            return reviewed
-        }
-
-        if !savedCharacters.isEmpty {
-            if original.isEmpty {
-                return savedCharacters
-            }
-            return """
-            Stored raw OCR text is unreadable placeholder glyphs. Radix is providing the saved Chinese page characters instead:
-            \(savedCharacters)
-            """
-        }
-
-        return "No readable OCR text was saved for this older page."
-    }
-
-    private func isUsableOCRText(_ text: String) -> Bool {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return false }
-        let chineseCount = CaptureTextExtractor.allCharactersInOrder(in: trimmed).count
-        guard chineseCount > 0 else { return false }
-
-        let placeholderCount = trimmed.unicodeScalars.reduce(into: 0) { count, scalar in
-            switch scalar.value {
-            case 0x003F, 0xFFFD, 0x25A1, 0x25A0, 0x25AF, 0x2610:
-                count += 1
-            default:
-                break
-            }
-        }
-        return placeholderCount <= max(2, chineseCount)
     }
 }

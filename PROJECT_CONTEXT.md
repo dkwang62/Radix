@@ -122,12 +122,15 @@ Raw Apple stroke-symbol sequences are not presented as searchable examples;
 Apple Stroke input is documented only as a keyboard method for composing a
 completed Chinese character before searching.
 Saved OCR pages now retain optional original/reviewed OCR provenance. `Check OCR`
-prepares a structured ChatGPT handoff using the original OCR, Radix-recognized
-characters, nearby dictionary phrases, and the saved reference image. The user
-pastes ChatGPT's structured response and compares it with the original. Approval
-creates a separately identified corrected saved page linked to the original;
-the original page is never modified. New OCR pages retain an optional review-sized
-source image in addition to the normal UI thumbnail.
+prepares a structured ChatGPT handoff using the saved page characters as the
+main input, with Radix-recognized characters, nearby dictionary phrases, and the
+saved reference image as supporting evidence. The goal is to spot anomalies that
+suggest capture/OCR mistakes in the page characters, not to replace the page
+input with raw image OCR. The user pastes ChatGPT's structured response and
+compares it with the original. Approval creates a separately identified corrected
+saved page linked to the original; the original page is never modified. New OCR
+pages retain an optional review-sized source image in addition to the normal UI
+thumbnail.
 When a Gemini API key is configured, `Check OCR` additionally offers an
 automatic multimodal review using the same prompt and saved image. Its response
 creates and opens a corrected saved page immediately.
@@ -138,12 +141,11 @@ ChatGPT or an automatic Gemini route. A missing-key automatic choice becomes
 and preserves `Back to Browse`. Setup is described as enabling all page AI
 automation, not just one task.
 All four also exist as editable saved-page templates in AI Link. Browse OCR
-review renders the `Check OCR` template with original text,
+review renders the `Check OCR` template with saved page characters,
 recognized/unrecognized characters, and nearby phrase evidence rather than a
-separate hard-coded instruction.
-If an older or failed OCR record contains mostly unreadable placeholder glyphs,
-the Check OCR handoff falls back to the saved Chinese page characters and says
-so explicitly instead of sending placeholder boxes to the AI as source text.
+separate hard-coded instruction. Legacy `Check OCR` templates that described
+`ORIGINAL OCR` normalize to the saved-page-character wording so placeholder raw
+OCR cannot become the primary AI input.
 AI Link exposes one task per user goal. The former API-only phrase task is
 removed; `Extract Phrases` supports both copy/paste and automatic Gemini
 execution without appearing twice.

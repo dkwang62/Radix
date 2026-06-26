@@ -106,6 +106,9 @@ chooser remains a distinct back/photo control. Consolidate secondary commands
 such as Edit Page, Check OCR, phrase selection, translation, and AI workflows
 under one clearly labelled `Actions` menu. Keep only frequently adjusted
 controls—Simplified/Traditional and Read Aloud—visible beside it.
+Check OCR should use the saved page characters as the primary text to review.
+The AI is asked to find likely capture/OCR anomalies in those page characters;
+any source image or raw OCR provenance is supporting evidence only.
 
 ## Study intent
 

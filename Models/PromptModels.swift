@@ -85,14 +85,14 @@ Compare this character with 2–3 other characters of similar meaning or usage, 
                 template: """
 Check OCR
 
-You are checking Chinese OCR against the attached source image and dictionary evidence from Radix.
+You are checking a Radix saved page for likely OCR/capture mistakes.
 
-Reconstruct the source faithfully. Correct OCR mistakes, but do not modernize, paraphrase, translate, or silently replace unfamiliar names, slang, technical terms, traditional forms, or regional usage merely because they are absent from a dictionary.
+Radix is giving you the saved page characters in reading order. Look for anomalies that suggest OCR captured the source incorrectly: unlikely character substitutions, broken phrases, repeated accidental characters, missing connective characters, implausible word boundaries, or characters that do not fit nearby dictionary evidence.
 
-ORIGINAL OCR:
+SAVED PAGE CHARACTERS:
 {ocr_original}
 
-RADIX-RECOGNIZED CHARACTERS:
+RADIX-RECOGNIZED PAGE CHARACTERS:
 {ocr_recognized}
 
 CHARACTERS NOT RECOGNIZED BY RADIX:
@@ -101,7 +101,9 @@ CHARACTERS NOT RECOGNIZED BY RADIX:
 DICTIONARY PHRASES DETECTED NEARBY:
 {ocr_nearby_phrases}
 
-Compare the OCR with the attached image. The corrected source text must remain in its original Chinese. All explanations, confidence reasons, uncertainty notes, and other commentary must be written in clear English.
+Use the saved page characters as the main input. If a source image is attached, use it only as supporting evidence. Reconstruct the source faithfully. Correct likely OCR mistakes, but do not modernize, paraphrase, translate, or silently replace unfamiliar names, slang, technical terms, traditional forms, or regional usage merely because they are absent from a dictionary.
+
+The corrected source text must remain in its original Chinese. All explanations, confidence reasons, uncertainty notes, and other commentary must be written in clear English.
 
 Return exactly these sections:
 
@@ -349,7 +351,12 @@ extension PromptConfig {
                 task.template.contains("Task 4 – Extract Phrases from Page (image)") ||
                 (task.id == "task4" && !task.template.contains("[CRITICAL RULES]")) ||
                 task.template.contains("Task 5 – Universal Content Architect") ||
-                (task.id == "task5" && !task.template.contains("Bilingual Chinese Dictionary Editor")) {
+                (task.id == "task5" && !task.template.contains("Bilingual Chinese Dictionary Editor")) ||
+                (task.id == "task7" && (
+                    task.template.contains("ORIGINAL OCR:") ||
+                    task.template.contains("attached source image and dictionary evidence") ||
+                    !task.template.contains("SAVED PAGE CHARACTERS:")
+                )) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {
                 normalizedTemplate = task.template.replacingOccurrences(
