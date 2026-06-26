@@ -111,6 +111,8 @@ extension AILinkView {
             return "Translate the complete page in context, including shorthand, tone, subtext, and newer usage."
         case "task7":
             return "Compare page OCR with its source image and Radix evidence, then propose clearly marked corrections for review."
+        case "task8":
+            return "Create a practice quiz from a saved page, with difficulty guidance and answers hidden until the learner responds."
         default:
             return "Use this reusable instruction to investigate the selected material with AI."
         }

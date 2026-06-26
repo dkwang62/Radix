@@ -101,7 +101,7 @@ struct SettingsView: View {
                 }
 
                 if areAPIKeysExpanded {
-                    Text("A Gemini API key lets Radix check OCR, extract phrases, and translate pages automatically. Copy-and-paste AI workflows do not require a key.")
+                    Text("A Gemini API key lets Radix check OCR, extract phrases, translate pages, and create quizzes automatically. Copy-and-paste AI workflows do not require a key.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -117,7 +117,7 @@ struct SettingsView: View {
                         Text("Google AI Studio")
                             .font(ResponsiveFont.caption.weight(.semibold))
 
-                        Text("Use this only if you want Radix to check OCR, extract phrases, and translate pages automatically.")
+                        Text("Use this only if you want Radix to check OCR, extract phrases, translate pages, and create quizzes automatically.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
 
@@ -249,7 +249,7 @@ struct SettingsView: View {
     private var geminiModelHealthRow: some View {
         settingsHealthRow(
             title: geminiModelHealth.title,
-            detail: "Used only for direct Gemini phrase extraction.",
+            detail: "Used only for direct Gemini page AI tasks.",
             systemImage: geminiModelHealth.systemImage,
             color: geminiModelHealth.color
         )
@@ -310,7 +310,7 @@ struct SettingsView: View {
         if trimmed.isEmpty {
             return SettingsHealth(
                 title: "Gemini key not saved",
-                detail: "Add one for automatic OCR checking, phrase extraction, and translation.",
+                detail: "Add one for automatic OCR checking, phrase extraction, translation, and quiz creation.",
                 systemImage: "key.slash",
                 color: .orange
             )
@@ -325,7 +325,7 @@ struct SettingsView: View {
         }
         return SettingsHealth(
             title: "Gemini key saved",
-            detail: "Ready for automatic OCR checking, phrase extraction, and translation.",
+            detail: "Ready for automatic OCR checking, phrase extraction, translation, and quiz creation.",
             systemImage: "checkmark.circle",
             color: .green
         )

@@ -97,6 +97,18 @@ extension RadixStore {
         )
     }
 
+    func runGeminiPageQuiz(for collection: CharacterCollection) async throws -> String {
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: ["task8"])
+        return try await GeminiTextGenerationService().generateText(
+            apiKey: geminiAPIKey,
+            modelID: geminiModelID,
+            prompt: prompt,
+            systemInstruction: """
+            You are a patient Chinese language teacher. Create a page-based practice quiz from the supplied Radix material. Keep explanations in English. Follow the requested difficulty and hidden-answer practice format.
+            """
+        )
+    }
+
     // MARK: - Mac clipboard paste
 
     func scheduleMacClipboardPasteIfPossible() {

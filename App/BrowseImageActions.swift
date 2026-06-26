@@ -106,6 +106,40 @@ extension FilterGridTab {
         }
     }
 
+    func beginPageQuiz(_ collection: CharacterCollection) {
+        pageQuizOutput = ""
+        pageQuizCollection = collection
+        openImageActionPrompt(collection: collection, taskID: "task8")
+        imageActionMessage = "Quiz instruction copied. The AI will ask one question at a time and keep answers hidden until you reply."
+    }
+
+    func runBrowseGeminiQuiz(_ collection: CharacterCollection) {
+        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else {
+            imageActionMessage = "Add a Gemini API key in Settings first."
+            return
+        }
+        isRunningImageAction = true
+        pageQuizOutput = ""
+        pageQuizCollection = collection
+        imageActionMessage = "Creating quiz automatically..."
+        Task {
+            do {
+                let quiz = try await store.runGeminiPageQuiz(for: collection)
+                await MainActor.run {
+                    pageQuizOutput = quiz
+                    imageActionMessage = "Quiz created. For hidden-answer practice, use another AI app so it can wait for your replies."
+                    isRunningImageAction = false
+                }
+            } catch {
+                await MainActor.run {
+                    offerManualAIFallback(.quiz(collection), error: error)
+                    isRunningImageAction = false
+                }
+            }
+        }
+    }
+
     func beginManualPhraseExtraction(_ collection: CharacterCollection) {
         phraseExtractionOutput = ""
         imageActionMessage = nil
@@ -178,6 +212,8 @@ extension FilterGridTab {
             beginManualPhraseExtraction(collection)
         case .translate(let collection):
             beginBrowseTranslation(collection)
+        case .quiz(let collection):
+            beginPageQuiz(collection)
         }
     }
 

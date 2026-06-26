@@ -201,6 +201,44 @@ OCR Text/Context:
 {capture_text}
 
 """
+            ),
+            PromptTask(
+                id: "task8",
+                title: "Create Quiz",
+                template: """
+Create Quiz
+
+You are a patient Chinese language teacher creating a standard language-learning practice quiz from one captured Radix page.
+
+Use the supplied page as the only source material. Do not invent facts beyond the page text and the listed characters. Explanations must be in English.
+
+Default quiz settings:
+- Difficulty: 5/10 unless the learner asks for a different level.
+- Number of questions: 10 unless the learner asks for a different length.
+- Mode: Practice mode.
+
+Practice mode rules:
+1. Do not show the answer key at the start.
+2. Ask one question at a time.
+3. Wait for the learner's answer before revealing whether it is correct.
+4. After each answer, explain briefly in English why the answer is correct or incorrect.
+5. Mix familiar quiz formats: multiple choice, meaning recognition, pinyin/reading, phrase-in-context, best translation, and short explanation.
+6. At difficulty 1–3, focus on recognition, basic meaning, and pinyin.
+7. At difficulty 4–6, test usage, sentence meaning, and common confusions.
+8. At difficulty 7–8, use plausible distractors, context, nuance, and phrase comparison.
+9. At difficulty 9–10, test native-like usage, ambiguity, tone/register, shorthand, and subtle differences.
+
+Start by saying:
+"I’ll quiz you on this Radix page at difficulty 5/10. I’ll ask one question at a time and keep the answers hidden until you reply. If you want a different difficulty from 1 to 10, tell me now."
+
+Then ask Question 1 only.
+
+Page: {collection_name}
+Referenced Chinese characters: {capture_chars}
+OCR text/context:
+{capture_text}
+
+"""
             )
         ],
         epilogue: """
@@ -216,7 +254,7 @@ OCR Text/Context:
         """
     )
 
-    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7"]
+    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7", "task8"]
 
     static var defaultSelectedTaskIDs: [String] {
         streamlitDefault.tasks
@@ -363,7 +401,7 @@ extension PromptConfig {
         case .character:
             full = cfg.preamble + body + cfg.epilogue
         case .collection:
-            if selected == ["task5"] || selected == ["task7"] {
+            if selected == ["task5"] || selected == ["task7"] || selected == ["task8"] {
                 full = cfg.collectionPreamble + body
             } else {
                 full = cfg.collectionPreamble + body + cfg.collectionEpilogue

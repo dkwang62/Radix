@@ -292,13 +292,15 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   using the same evidence and saved image.
 - API-key setup belongs with all automatic AI actions, not under one task.
   Organize page AI actions by the user's task: `Check OCR`, `Extract Phrases`,
-  and `Translate Page`. Each task offers the same two methods: copy/paste with
-  ChatGPT or automatic processing with Gemini. When no key is saved, the
-  automatic choice becomes `Set Up Gemini API Key…`; it opens Settings with
-  Private API Keys expanded and a contextual `Back to Browse` action.
-- Check OCR, Extract Phrases, and Translate Page also exist as saved-page tasks
-  in AI Link. Their templates are editable in Customize, and Browse must render
-  those same templates rather than maintaining separate hidden instructions.
+  `Translate Page`, and `Create Quiz`. Each task offers the same two methods:
+  copy/paste with ChatGPT or automatic processing with Gemini. When no key is
+  saved, the automatic choice becomes `Set Up Gemini API Key…`; it opens
+  Settings with Private API Keys expanded and a contextual `Back to Browse`
+  action.
+- Check OCR, Extract Phrases, Translate Page, and Create Quiz also exist as
+  saved-page tasks in AI Link. Their templates are editable in Customize, and
+  Browse must render those same templates rather than maintaining separate
+  hidden instructions.
 - Their Browse submenus use the same two method labels: `Use Another AI App`
   copies a prepared instruction for ChatGPT, Gemini, or another service, while
   `Run Automatically in Radix` uses the saved Gemini API key. A one-time,
@@ -312,7 +314,13 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   than leaving the user at an error message.
 - Do not expose API-specific variants as additional AI Link tasks. `Extract
   Phrases` is one task; copy/paste and automatic Gemini execution are methods
-  for running it, just as with Check OCR and Translate Page.
+  for running it, just as with Check OCR, Translate Page, and Create Quiz.
+- Create Quiz starts page-only. It should use a familiar practice-quiz style:
+  default difficulty 5/10, ten questions, one question at a time, answers hidden
+  until the learner responds, and English explanations after each answer. Use
+  another AI app as the best default for true interactive quiz practice; Radix's
+  automatic path may create a quiz draft but should not pretend to be a full
+  chat tutor.
 - The AI must mark proposed changes and uncertainty in a structured response.
 - Corrected source text remains Chinese; every explanation, confidence reason,
   and uncertainty note is written in clear English.
