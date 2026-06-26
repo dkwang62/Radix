@@ -74,6 +74,7 @@ struct PageQuizQuestion: Identifiable, Equatable, Hashable {
     enum Kind: String, Equatable, Hashable {
         case meaning
         case pinyin
+        case character
     }
 
     let id: UUID

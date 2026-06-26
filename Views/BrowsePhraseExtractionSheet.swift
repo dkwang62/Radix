@@ -194,11 +194,11 @@ struct BrowsePageQuizSheet: View {
 
     private func questionCard(_ question: PageQuizQuestion) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(question.kind == .meaning ? "Meaning" : "Pinyin")
+            Text(questionKindLabel(question.kind))
                 .font(ResponsiveFont.caption.weight(.bold))
                 .foregroundStyle(.secondary)
             Text(question.character)
-                .font(.system(size: 72, weight: .semibold))
+                .font(question.kind == .character ? .system(size: 42, weight: .semibold) : .system(size: 72, weight: .semibold))
                 .frame(maxWidth: .infinity, alignment: .center)
             Text(question.prompt)
                 .font(ResponsiveFont.title3.weight(.semibold))
@@ -316,6 +316,14 @@ struct BrowsePageQuizSheet: View {
         guard answeredQuestionIDs.insert(question.id).inserted else { return }
         if option == question.correctOption {
             correctCount += 1
+        }
+    }
+
+    private func questionKindLabel(_ kind: PageQuizQuestion.Kind) -> String {
+        switch kind {
+        case .meaning: return "Meaning"
+        case .pinyin: return "Pinyin"
+        case .character: return "Character"
         }
     }
 

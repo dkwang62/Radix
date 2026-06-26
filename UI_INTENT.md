@@ -318,10 +318,12 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
 - Create Quiz starts page-only and should open a real in-app practice screen:
   one question at a time, answers hidden until the user chooses, immediate
   correct/wrong feedback, and English explanations after each answer. The first
-  implementation can be dictionary-backed multiple choice from saved-page
-  characters. AI Link may retain an optional external quiz prompt for richer
-  handoff use, but Browse's primary quiz action should not look like a prompt
-  editor.
+  implementation should use dictionary-backed pinyin and character-recognition
+  questions from saved-page characters. Avoid English meaning multiple-choice
+  until questions can account for multi-sense characters, because otherwise
+  more than one option may be reasonably correct. AI Link may retain an optional
+  external quiz prompt for richer handoff use, but Browse's primary quiz action
+  should not look like a prompt editor.
 - The AI must mark proposed changes and uncertainty in a structured response.
 - Corrected source text remains Chinese; every explanation, confidence reason,
   and uncertainty note is written in clear English.

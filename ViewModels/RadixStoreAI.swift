@@ -114,43 +114,16 @@ extension RadixStore {
         var questions: [PageQuizQuestion] = []
         for item in pageItems {
             if questions.count >= limit { break }
-            if let meaningQuestion = pageMeaningQuizQuestion(for: item, pageItems: pageItems, dictionaryItems: dictionaryItems) {
-                questions.append(meaningQuestion)
-            }
-            if questions.count >= limit { break }
             if let pinyinQuestion = pagePinyinQuizQuestion(for: item, pageItems: pageItems, dictionaryItems: dictionaryItems) {
                 questions.append(pinyinQuestion)
+            }
+            if questions.count >= limit { break }
+            if let characterQuestion = pageCharacterQuizQuestion(for: item, pageItems: pageItems, dictionaryItems: dictionaryItems) {
+                questions.append(characterQuestion)
             }
         }
 
         return Array(questions.prefix(limit))
-    }
-
-    private func pageMeaningQuizQuestion(
-        for item: ComponentItem,
-        pageItems: [ComponentItem],
-        dictionaryItems: [ComponentItem]
-    ) -> PageQuizQuestion? {
-        let answer = quizDefinitionSnippet(item.definition)
-        guard !answer.isEmpty else { return nil }
-
-        let distractors = quizDistractors(
-            correct: answer,
-            preferred: pageItems.map { quizDefinitionSnippet($0.definition) },
-            fallback: dictionaryItems.map { quizDefinitionSnippet($0.definition) }
-        )
-        guard distractors.count >= 3 else { return nil }
-
-        let options = quizStableShuffle([answer] + distractors, seed: item.character + "meaning")
-        return PageQuizQuestion(
-            id: UUID(),
-            kind: .meaning,
-            character: item.character,
-            prompt: "What does \(item.character) usually mean?",
-            options: options,
-            correctOption: answer,
-            explanation: "\(item.character) is read \(item.pinyinText.isEmpty ? "with no pinyin listed" : item.pinyinText) and means \(answer)."
-        )
     }
 
     private func pagePinyinQuizQuestion(
@@ -177,6 +150,33 @@ extension RadixStore {
             options: options,
             correctOption: answer,
             explanation: "\(item.character) is read \(answer). \(quizDefinitionSnippet(item.definition))"
+        )
+    }
+
+    private func pageCharacterQuizQuestion(
+        for item: ComponentItem,
+        pageItems: [ComponentItem],
+        dictionaryItems: [ComponentItem]
+    ) -> PageQuizQuestion? {
+        let pinyin = item.pinyinText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !pinyin.isEmpty else { return nil }
+
+        let distractors = quizDistractors(
+            correct: item.character,
+            preferred: pageItems.map(\.character),
+            fallback: dictionaryItems.map(\.character)
+        )
+        guard distractors.count >= 3 else { return nil }
+
+        let options = quizStableShuffle([item.character] + distractors, seed: item.character + "character")
+        return PageQuizQuestion(
+            id: UUID(),
+            kind: .character,
+            character: pinyin,
+            prompt: "Which character is read \(pinyin)?",
+            options: options,
+            correctOption: item.character,
+            explanation: "\(item.character) is read \(pinyin). \(quizDefinitionSnippet(item.definition))"
         )
     }
 

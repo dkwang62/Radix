@@ -183,11 +183,13 @@ matching manual workflow immediately because a valid key does not guarantee
 Gemini service availability.
 Create Quiz is page-only and opens a real in-app practice screen rather than an
 AI clipboard handoff. The first implementation generates dictionary-backed
-multiple-choice questions from the saved page, asks one question at a time,
-keeps answers hidden until the user taps an option, and immediately marks the
-answer correct or wrong with an English explanation. AI Link still keeps an
-optional external quiz prompt for richer handoff use, but Browse's primary quiz
-workflow must remain answer-on-screen.
+pinyin and character-recognition multiple-choice questions from the saved page,
+asks one question at a time, keeps answers hidden until the user taps an option,
+and immediately marks the answer correct or wrong with an English explanation.
+Avoid English meaning multiple-choice until questions can account for
+multi-sense characters such as `调`, where several meanings may be legitimate.
+AI Link still keeps an optional external quiz prompt for richer handoff use, but
+Browse's primary quiz workflow must remain answer-on-screen.
 Navigation guidance and the welcome screen use one canonical division of work:
 Browse inspects the dictionary or captured pages; Study reviews what the user
 kept; AI understands or transforms material; My Data protects, transfers, or
