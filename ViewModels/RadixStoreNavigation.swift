@@ -431,7 +431,12 @@ extension RadixStore {
 
     func goToAILinkTask4FromCapture(characters: [String]) {
         let validText = characters.joined()
-        if let collection = createCollection(name: "Apple Vision Image", sourceText: validText, sourceType: .ocr) {
+        if let collection = createCollection(
+            name: "Apple Vision Image",
+            sourceText: validText,
+            sourceType: .ocr,
+            originalOCRText: validText
+        ) {
             goToAILinkTask4(collection: collection)
             return
         }

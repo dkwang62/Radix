@@ -141,6 +141,9 @@ All four also exist as editable saved-page templates in AI Link. Browse OCR
 review renders the `Check OCR` template with original text,
 recognized/unrecognized characters, and nearby phrase evidence rather than a
 separate hard-coded instruction.
+If an older or failed OCR record contains mostly unreadable placeholder glyphs,
+the Check OCR handoff falls back to the saved Chinese page characters and says
+so explicitly instead of sending placeholder boxes to the AI as source text.
 AI Link exposes one task per user goal. The former API-only phrase task is
 removed; `Extract Phrases` supports both copy/paste and automatic Gemini
 execution without appearing twice.
