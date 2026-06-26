@@ -109,8 +109,11 @@ contextual translation, deeper explanation, emerging concepts, and phrase extrac
 That purpose-first framing is shared by the AI Link screen, welcome guidance,
 task descriptions, Browse extraction/translation sheets, and glossary; describe
 the learner outcome before copy/paste, API, or other implementation mechanics.
-`Icons & Labels` is the explicit default navigation style; `Icons Only` remains
-an experienced-user option and must not become the fallback accidentally.
+`Icons & Labels` is the explicit startup default navigation style; launch
+normalizes the saved preference back to that style so an old `Icons Only`
+choice cannot silently persist across app restarts. `Icons Only` remains an
+experienced-user option within the current session and must not become the
+fallback accidentally.
 Advanced Exports are a code and structured-data foundation for authoring software
 with AI coding agents; describe them as distinct from backup and ordinary transfer.
 Search examples visibly teach exact English matching: `=water` matches `water`

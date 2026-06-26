@@ -76,11 +76,10 @@ extension RadixStore {
     }
 
     func loadSidebarNavigationStyle() {
-        if let saved = preferences.string(forKey: RadixPreferenceKey.sidebarNavigationStyle),
-           let style = SidebarNavigationStyle.fromStoredValue(saved) {
-            sidebarNavigationStyle = style
-        } else {
-            sidebarNavigationStyle = .defaultStyle
-        }
+        sidebarNavigationStyle = .defaultStyle
+        preferences.set(
+            SidebarNavigationStyle.defaultStyle.rawValue,
+            forKey: RadixPreferenceKey.sidebarNavigationStyle
+        )
     }
 }

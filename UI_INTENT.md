@@ -255,9 +255,9 @@ learning text below the app's current minimum readability floor.
 
 The five primary navigation destinations use progressive guidance:
 
-- `Icons & Labels` is the explicit product default and keeps the short
-  destination names visible.
-- Experienced users may choose `Icons Only` in Settings.
+- `Icons & Labels` is the explicit startup default and keeps the short
+  destination names visible after every launch.
+- Experienced users may choose `Icons Only` in Settings for the current session.
 - On iPhone, iPad, and Mac Catalyst, a normal navigation press must never open
   a guide; guides are available only by long-pressing a destination.
 - Each explanation begins with why the destination matters, then describes what
