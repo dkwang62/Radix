@@ -157,11 +157,13 @@ old `Instructions`/`Customize` split is collapsed into a single editable
 `AI Prompt` template for the selected task. Prompt edits are draft-only until
 the user taps `Save Prompt`; `Reset` restores the built-in default for shipped
 tasks or the starter prompt for custom tasks. The task menu includes `New AI
-Task...`. AI Link does not show a full generated prompt preview; it shows a
-compact source row plus a one-line ready-to-send summary before Copy/Open
-actions. Character and phrase tasks use the last memory-strip subject; page
-tasks default to the last viewed saved page while still showing the chosen
-source so the user can change it before sending.
+Task...`. AI Link does not show a full generated prompt preview; it shows the
+source as an obvious selector followed by a one-line ready-to-send summary.
+Opening the selected AI copies the prompt first, then opens the AI provider;
+copy-only remains available from the provider menu. Character and phrase tasks
+use the last memory-strip subject; page tasks default to the last viewed saved
+page while still showing the chosen source so the user can change it before
+sending.
 OCR correction no longer has a proposal-approval screen. Automatic Gemini
 review creates and opens the corrected Browse page immediately; copy/paste uses
 one `Paste Answer and Create Corrected Page` action. The original OCR page is

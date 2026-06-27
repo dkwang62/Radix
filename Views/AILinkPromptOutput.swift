@@ -45,51 +45,59 @@ extension AILinkView {
     func promptActionButtons(currentPreset: DefaultAIPreset, currentAIName: String) -> some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 10) {
-                promptCopyButton
-                promptOpenMenu(currentPreset: currentPreset, currentAIName: currentAIName)
+                promptOpenControl(currentPreset: currentPreset, currentAIName: currentAIName)
                 geminiPhraseButton
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                promptCopyButton
-                promptOpenMenu(currentPreset: currentPreset, currentAIName: currentAIName)
+                promptOpenControl(currentPreset: currentPreset, currentAIName: currentAIName)
                 geminiPhraseButton
             }
         }
     }
 
-    var promptCopyButton: some View {
-        Button {
-            copyPromptToClipboard()
-        } label: {
-            Label("Copy", systemImage: "doc.on.doc")
-        }
-        .buttonStyle(.bordered)
-        .font(ResponsiveFont.headline)
-        .disabled(!canGeneratePrompt)
-    }
-
-    func promptOpenMenu(currentPreset: DefaultAIPreset, currentAIName: String) -> some View {
-        Menu {
-            ForEach(DefaultAIPreset.allCases, id: \.self) { preset in
-                Button {
-                    selectedAIPreset = preset
-                    openPromptInAI(preset)
-                } label: {
-                    Label(
-                        "Open \(store.aiName(for: preset))",
-                        systemImage: preset == currentPreset ? "checkmark" : "arrow.up.forward.app"
-                    )
-                }
-                .disabled(preset == .custom && store.aiBaseURLString(for: .custom).isEmpty)
+    func promptOpenControl(currentPreset: DefaultAIPreset, currentAIName: String) -> some View {
+        HStack(spacing: 0) {
+            Button {
+                openPromptInAI(currentPreset)
+            } label: {
+                Label("Open \(currentAIName)", systemImage: "arrow.up.forward.app")
+                    .padding(.trailing, 2)
             }
-        } label: {
-            Label("Open \(currentAIName)", systemImage: "arrow.up.forward.app")
+            .buttonStyle(.borderedProminent)
+            .font(ResponsiveFont.headline)
+            .disabled(!canGeneratePrompt)
+
+            Menu {
+                ForEach(DefaultAIPreset.allCases, id: \.self) { preset in
+                    Button {
+                        openPromptInAI(preset)
+                    } label: {
+                        Label(
+                            "Open \(store.aiName(for: preset))",
+                            systemImage: preset == currentPreset ? "checkmark" : "arrow.up.forward.app"
+                        )
+                    }
+                    .disabled(preset == .custom && store.aiBaseURLString(for: .custom).isEmpty)
+                }
+
+                Divider()
+
+                Button {
+                    copyPromptToClipboard()
+                } label: {
+                    Label("Copy Prompt Only", systemImage: "doc.on.doc")
+                }
+            } label: {
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 14, weight: .bold))
+                    .frame(width: 42, height: 38)
+            }
+            .menuStyle(.button)
+            .buttonStyle(.borderedProminent)
+            .disabled(!canGeneratePrompt)
+            .accessibilityLabel("Choose AI app")
         }
-        .menuStyle(.button)
-        .buttonStyle(.borderedProminent)
-        .font(ResponsiveFont.headline)
-        .disabled(!canGeneratePrompt)
     }
 
     @ViewBuilder
@@ -114,8 +122,8 @@ extension AILinkView {
     func promptStatusText(currentPreset: DefaultAIPreset, currentAIName: String) -> some View {
         if openedDefaultAI {
             Text(store.aiPrefillsPrompt(for: currentPreset)
-                 ? "Opening \(currentAIName). AI prompt copied as backup."
-                 : "Opening \(currentAIName). AI prompt copied. Paste it into \(currentAIName).")
+                 ? "Prompt copied. Opening \(currentAIName)."
+                 : "Prompt copied. Opening \(currentAIName). Paste it into \(currentAIName).")
                 .font(ResponsiveFont.footnote)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -183,11 +191,10 @@ extension AILinkView {
         let taskTitle = draftPromptTask?.title.trimmingCharacters(in: .whitespacesAndNewlines)
         let taskName = (taskTitle?.isEmpty == false ? taskTitle : selectedPromptTask?.title) ?? "AI Task"
         if hasCharacterTasks {
-            return "Ready to send: \(taskName) · Subject: \(activeCharacter ?? "Choose subject")"
+            return activeCharacter == nil ? "Choose a subject" : "Ready to send: \(taskName)"
         }
         if hasCollectionTasks {
-            let pageName = selectedCollection?.name.trimmingCharacters(in: .whitespacesAndNewlines)
-            return "Ready to send: \(taskName) · Page: \((pageName?.isEmpty == false ? pageName : nil) ?? "Choose page")"
+            return selectedCollection == nil ? "Choose a page" : "Ready to send: \(taskName)"
         }
         return "Choose an AI task"
     }
@@ -222,6 +229,7 @@ extension AILinkView {
     func openPromptInAI(_ preset: DefaultAIPreset) {
         guard canGeneratePrompt else { return }
         let text = generatedPromptText
+        selectedAIPreset = preset
         copyPromptToClipboard(showStatus: false)
         openedDefaultAI = true
 

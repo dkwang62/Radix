@@ -269,6 +269,12 @@ struct AILinkView: View {
         return "\(selectedCollection.characters.count) characters"
     }
 
+    var selectedCollectionName: String {
+        guard let selectedCollection else { return "Choose page" }
+        let name = selectedCollection.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        return name.isEmpty ? RadixCopy.savedPage : name
+    }
+
     func ensureSelectedPromptTask() {
         let normalizedTasks = store.promptConfig.normalized().tasks
         guard !normalizedTasks.isEmpty else {

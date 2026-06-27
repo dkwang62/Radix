@@ -174,11 +174,16 @@ AI task menu with an obvious dropdown affordance and a `New AI Task...` option,
 then the editable AI prompt template for that task only, then a compact source
 confirmation row. Prompt editing should use an explicit draft with `Save Prompt`
 and `Reset`, not invisible autosave. Do not show a full generated prompt preview
-on the AI Link screen; the AI chat will show the prompt after copy/open. Keep
-only a one-line ready-to-send summary. Character and phrase tasks default to the
-last subject in the memory strip. Saved-page tasks default to the last viewed
-page. Always show the chosen source before sending so the smart default remains
-reversible and understandable.
+on the AI Link screen; the AI chat will show the prompt after copy/open. The
+source selector should be obvious and come before action status; for saved-page
+tasks, the page row itself is the dropdown and uses the same page icon grammar
+as Browse. Keep only a one-line ready-to-send summary, without repeating the
+selected page or subject name. Opening the current AI should copy the prompt
+first and then open the provider; alternate providers and copy-only are menu
+choices, not competing primary buttons. Character and phrase tasks default to
+the last subject in the memory strip. Saved-page tasks default to the last
+viewed page. Always show the chosen source before sending so the smart default
+remains reversible and understandable.
 
 ## Backup and checkpoint grammar
 

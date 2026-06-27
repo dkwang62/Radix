@@ -138,11 +138,7 @@ extension AILinkView {
     }
 
     var selectedTaskSourceSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(isSelectedTaskPageTask ? "Page" : "Subject")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-
+        VStack(alignment: .leading, spacing: 10) {
             if isSelectedTaskPageTask {
                 aiSelectedPageRow
             } else {
@@ -187,29 +183,46 @@ extension AILinkView {
     }
 
     var aiSelectedPageRow: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "photo.on.rectangle")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(selectedCollection == nil ? Color.orange : Color.accentColor)
-                .frame(width: 28, height: 28)
-                .background((selectedCollection == nil ? Color.orange : Color.accentColor).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 7))
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(selectedCollection?.name ?? "No page selected")
-                    .font(ResponsiveFont.body.bold())
-                    .lineLimit(1)
-                Text(aiCollectionSubtitle)
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+        Menu {
+            Button("Use latest viewed page") { store.selectAICollection(id: nil) }
+            if !store.favoriteCollections.isEmpty {
+                Section("Favorites") {
+                    ForEach(store.favoriteCollections) { collection in
+                        Button {
+                            store.selectAICollection(id: collection.id)
+                        } label: {
+                            Label(
+                                collection.name.isEmpty ? RadixCopy.savedPage : collection.name,
+                                systemImage: collection.id == selectedCollection?.id ? "checkmark" : "photo.on.rectangle"
+                            )
+                        }
+                    }
+                }
             }
-            .layoutPriority(1)
-
-            Spacer(minLength: 0)
-
-            aiCollectionMenu
+            if !store.allCollections.isEmpty {
+                Section("All Pages") {
+                    ForEach(store.allCollections) { collection in
+                        Button {
+                            store.selectAICollection(id: collection.id)
+                        } label: {
+                            Label(
+                                collection.name.isEmpty ? RadixCopy.savedPage : collection.name,
+                                systemImage: collection.id == selectedCollection?.id ? "checkmark" : "photo.on.rectangle"
+                            )
+                        }
+                    }
+                }
+            }
+        } label: {
+            sourceSelectorLabel(
+                icon: "photo.on.rectangle",
+                title: selectedCollectionName,
+                subtitle: aiCollectionSubtitle,
+                isMissing: selectedCollection == nil
+            )
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Choose Saved Page")
     }
 
     @ViewBuilder
@@ -303,6 +316,42 @@ extension AILinkView {
         .buttonStyle(.bordered)
         .controlSize(.small)
         .accessibilityLabel("Choose Saved Page")
+    }
+
+    func sourceSelectorLabel(icon: String, title: String, subtitle: String, isMissing: Bool) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(isMissing ? Color.orange : Color.accentColor)
+                .frame(width: 34, height: 34)
+                .background((isMissing ? Color.orange : Color.accentColor).opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(ResponsiveFont.body.weight(.semibold))
+                    .lineLimit(1)
+                Text(subtitle)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            .layoutPriority(1)
+
+            Spacer(minLength: 0)
+
+            Image(systemName: "chevron.down")
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(.secondary)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
+        .background(RadixTheme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+        )
     }
 
     func taskSubjectInfo(task: PromptTask, isCollectionTask: Bool) -> (label: String, icon: String, isMissing: Bool) {
