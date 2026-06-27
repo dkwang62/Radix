@@ -15,7 +15,7 @@ extension AILinkView {
             Divider()
 
             epilogueEditor(
-                title: "Character Instruction Closing",
+                title: "Character AI Prompt Closing",
                 minHeight: 100,
                 text: Binding(
                     get: { store.promptConfig.epilogue },
@@ -26,7 +26,7 @@ extension AILinkView {
             Divider()
 
             epilogueEditor(
-                title: "Saved Page Instruction Closing",
+                title: "Saved Page AI Prompt Closing",
                 minHeight: 140,
                 text: Binding(
                     get: { store.promptConfig.collectionEpilogue },
@@ -45,11 +45,11 @@ extension AILinkView {
                 Button {
                     store.addPromptTask()
                 } label: {
-                    Label("Instruction", systemImage: "plus.circle")
+                    Label("AI Prompt", systemImage: "plus.circle")
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
-                .accessibilityLabel("Add Instruction")
+                .accessibilityLabel("Add AI Prompt")
             }
 
             ForEach(store.promptConfig.tasks) { task in
@@ -87,7 +87,7 @@ extension AILinkView {
     func taskEditorRow(task: PromptTask) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                TextField("Instruction Title", text: Binding(
+                TextField("AI Prompt Title", text: Binding(
                     get: { taskTitle(task.id) },
                     set: { store.setPromptTaskTitle(taskID: task.id, title: $0) }
                 ))
@@ -103,7 +103,7 @@ extension AILinkView {
                         .font(ResponsiveFont.caption)
                         .radixMinimumTapTarget()
                 }
-                .accessibilityLabel("Delete instruction \(taskTitle(task.id))")
+                .accessibilityLabel("Delete AI prompt \(taskTitle(task.id))")
             }
 
             TextEditor(text: Binding(

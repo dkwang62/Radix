@@ -169,6 +169,12 @@ AI should focus on understanding and transforming material:
 
 AI can be connected from Browse and Study, but it should not be hidden so deeply
 that users miss it as a major Radix feature.
+AI Link should start from the user's goal, not configuration. Show one compact
+AI task picker, then the editable AI prompt template for that task only, then a
+compact source confirmation row. Character and phrase tasks default to the last
+subject in the memory strip. Saved-page tasks default to the last viewed page.
+Always show the chosen source before sending so the smart default remains
+reversible and understandable.
 
 ## Backup and checkpoint grammar
 

@@ -33,9 +33,9 @@ extension FilterGridTab {
             openURL(url)
         }
         if preset == .chatGPT {
-            imageActionMessage = "Opening ChatGPT. The instruction is copied; paste it into the message box manually so Chinese text is preserved."
+            imageActionMessage = "Opening ChatGPT. The AI prompt is copied; paste it into the message box manually so Chinese text is preserved."
         } else {
-            imageActionMessage = "Opening \(store.aiName(for: preset)). The instruction is also copied."
+            imageActionMessage = "Opening \(store.aiName(for: preset)). The AI prompt is also copied."
         }
     }
 
@@ -69,12 +69,12 @@ extension FilterGridTab {
         copyImageActionPrompt(collection: collection, taskID: "task5")
         openImageActionPrompt(collection: collection, taskID: "task5")
         beginTranslationReport(collection)
-        imageActionMessage = "Translation instruction copied. Paste the AI result into the report sheet and save it."
+        imageActionMessage = "Translation AI prompt copied. Paste the AI result into the report sheet and save it."
     }
 
     func beginManualPageQuiz(_ collection: CharacterCollection) {
         openImageActionPrompt(collection: collection, taskID: "task8")
-        imageActionMessage = "Quiz instruction copied. Use it in ChatGPT, Gemini, or another AI app to quiz yourself without an API key."
+        imageActionMessage = "Quiz AI prompt copied. Use it in ChatGPT, Gemini, or another AI app to quiz yourself without an API key."
     }
 
     func runBrowseGeminiTranslationAndSave(_ collection: CharacterCollection) {
@@ -194,7 +194,7 @@ extension FilterGridTab {
     func copyImageActionPrompt(collection: CharacterCollection, taskID: String) {
         let prompt = store.promptText(for: .collection(collection), selectedTaskIDs: [taskID])
         RadixPlatform.copyToPasteboard(prompt)
-        imageActionMessage = "Instruction copied."
+        imageActionMessage = "AI prompt copied."
     }
 
     func offerManualAIFallback(_ task: BrowseAIFallbackTask, error: Error) {

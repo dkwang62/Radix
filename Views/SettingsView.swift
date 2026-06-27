@@ -73,7 +73,7 @@ struct SettingsView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
 
-                    Text("Use `{prompt}` where Radix should place the instruction in a custom URL.")
+                    Text("Use `{prompt}` where Radix should place the AI prompt in a custom URL.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 } else {

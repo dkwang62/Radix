@@ -152,6 +152,12 @@ OCR cannot become the primary AI input.
 AI Link exposes one task per user goal. The former API-only phrase task is
 removed; `Extract Phrases` supports both copy/paste and automatic Gemini
 execution without appearing twice.
+The AI Link tab presents one task at a time through an `AI Task` dropdown. The
+old `Instructions`/`Customize` split is collapsed into a single editable
+`AI Prompt` template for the selected task, followed by a compact source row and
+the rendered prompt preview/actions. Character and phrase tasks use the last
+memory-strip subject; page tasks default to the last viewed saved page while
+still showing the chosen source so the user can change it before sending.
 OCR correction no longer has a proposal-approval screen. Automatic Gemini
 review creates and opens the corrected Browse page immediately; copy/paste uses
 one `Paste Answer and Create Corrected Page` action. The original OCR page is

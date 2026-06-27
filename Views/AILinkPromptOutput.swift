@@ -6,7 +6,7 @@ extension AILinkView {
             promptActions
 
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("Instruction")
+                Text("AI Prompt Preview")
                     .font(ResponsiveFont.subheadline)
                     .foregroundStyle(.secondary)
 
@@ -29,7 +29,7 @@ extension AILinkView {
                     .textSelection(.enabled)
                     .padding(12)
             }
-            .frame(minHeight: 350)
+            .frame(minHeight: 260)
             .background(RadixTheme.secondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
@@ -129,8 +129,8 @@ extension AILinkView {
     func promptStatusText(currentPreset: DefaultAIPreset, currentAIName: String) -> some View {
         if openedDefaultAI {
             Text(store.aiPrefillsPrompt(for: currentPreset)
-                 ? "Opening \(currentAIName). Instruction copied as backup."
-                 : "Opening \(currentAIName). Instruction copied. Paste it into \(currentAIName).")
+                 ? "Opening \(currentAIName). AI prompt copied as backup."
+                 : "Opening \(currentAIName). AI prompt copied. Paste it into \(currentAIName).")
                 .font(ResponsiveFont.footnote)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -174,14 +174,24 @@ extension AILinkView {
     }
 
     var generatedPromptText: String {
+        guard let task = selectedPromptTask else {
+            return "Choose an AI task."
+        }
         if hasCollectionTasks && selectedCollection == nil {
-            return "Choose a saved page for page instructions."
+            return "Choose a saved page for this AI prompt."
         }
         if hasCharacterTasks && activeCharacter == nil {
             return "Choose a character or phrase first."
         }
-        let text = store.promptText(character: activeCharacter, collection: selectedCollection)
-        return text.isEmpty ? "Choose at least one instruction." : text
+        let text: String
+        if PromptConfig.collectionTaskIDs.contains(task.id), let selectedCollection {
+            text = store.promptText(for: .collection(selectedCollection), selectedTaskIDs: [task.id])
+        } else if let activeCharacter {
+            text = store.promptText(for: .character(activeCharacter), selectedTaskIDs: [task.id])
+        } else {
+            text = ""
+        }
+        return text.isEmpty ? "Choose an AI task." : text
     }
 
     var promptContextLine: String? {

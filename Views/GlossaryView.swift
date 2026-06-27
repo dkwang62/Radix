@@ -224,19 +224,19 @@ enum RadixGlossary {
             shortDefinition: "A bridge from Radix to AI for understanding Chinese beyond fixed dictionary definitions.",
             significance: "Use AI Link to investigate nuance and current usage, understand language in context, translate complete pages naturally, and explore phrases or concepts that traditional dictionaries may not yet cover.",
             contexts: ["AI Link tab", "Browse page actions", "Settings"],
-            relatedTerms: ["Instruction", "API Key", "Extract Phrases", "Translation"]
+            relatedTerms: ["AI Prompt", "API Key", "Extract Phrases", "Translation"]
         ),
         GlossaryEntry(
-            term: "Instruction",
+            term: "AI Prompt",
             shortDefinition: "Text Radix prepares for an AI service to follow.",
-            significance: "Good instructions help AI return cleaner phrases, translations, or explanations in the format Radix expects.",
-            contexts: ["AI Link", "Instruction output"],
+            significance: "Good AI prompts help AI return cleaner phrases, translations, or explanations in the format Radix expects.",
+            contexts: ["AI Link", "AI Prompt output"],
             relatedTerms: ["AI Link", "Extract Phrases", "Translation"]
         ),
         GlossaryEntry(
             term: "API Key",
             shortDefinition: "A private key that lets Radix call an AI service directly.",
-            significance: "Without an API key, you can still copy instructions and paste results manually. With a key, Radix can combine steps automatically.",
+            significance: "Without an API key, you can still copy AI prompts and paste results manually. With a key, Radix can combine steps automatically.",
             contexts: ["Settings > Private API Keys", "Extract Phrases Automatically", "Translate and Save"],
             relatedTerms: ["AI Link", "Gemini API Key"]
         ),

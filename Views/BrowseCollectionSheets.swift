@@ -113,7 +113,7 @@ struct BrowseOCRReviewSheet: View {
 
                 if !didOpenAI {
                     Section("1. Ask AI to check the OCR") {
-                        Text("Open \(aiName). Radix copies the instruction for you.")
+                        Text("Open \(aiName). Radix copies the AI prompt for you.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
                         ScrollView {

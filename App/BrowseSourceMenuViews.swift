@@ -216,7 +216,7 @@ private struct PageAIOrientationView: View {
                         method(
                             icon: "doc.on.clipboard",
                             title: "Use Another AI App",
-                            detail: "Radix prepares the instruction and page evidence for you to copy into ChatGPT, Gemini, or another AI app. No API key is needed, and this option remains available even when automatic AI is configured."
+                            detail: "Radix prepares the AI prompt and page evidence for you to copy into ChatGPT, Gemini, or another AI app. No API key is needed, and this option remains available even when automatic AI is configured."
                         )
 
                         method(
@@ -225,7 +225,7 @@ private struct PageAIOrientationView: View {
                             detail: "Radix sends the task directly to Gemini and returns the result to the page workflow. This requires a private Gemini API key and depends on Gemini being available."
                         )
 
-                        Text("You can edit the underlying OCR, phrase-extraction, translation, and quiz instructions in AI Link.")
+                        Text("You can edit the underlying OCR, phrase-extraction, translation, and quiz AI prompts in AI Link.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)

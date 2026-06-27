@@ -4,51 +4,145 @@ extension AILinkView {
     var promptGenerationSection: some View {
         VStack(alignment: .leading, spacing: 18) {
             taskSelectionSection
+            selectedTaskTemplateSection
+            selectedTaskSourceSection
             promptBox
         }
     }
 
     var taskSelectionSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            DisclosureGroup(isExpanded: $isTasksExpanded) {
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text("Choose how AI should expand on the selected character, phrase, or saved page.")
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                        Spacer(minLength: 8)
-                        Button {
-                            store.selectAllPromptTasks()
-                        } label: {
-                            Label("All", systemImage: "checkmark.circle")
-                        }
-                        .buttonStyle(.bordered)
-                        .font(ResponsiveFont.caption.bold())
-                        .controlSize(.small)
-                    }
-                    .padding(.vertical, 4)
+        VStack(alignment: .leading, spacing: 8) {
+            Text("AI Task")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
 
-                    Divider()
-
-                    ForEach(store.promptConfig.tasks) { task in
-                        taskToggleRow(task)
-                        if task.id != store.promptConfig.tasks.last?.id {
-                            Divider().padding(.leading, 48)
-                        }
-                    }
+            Picker("AI task", selection: Binding(
+                get: { selectedPromptTask?.id ?? store.promptConfig.normalized().tasks.first?.id ?? "" },
+                set: { selectPromptTask($0) }
+            )) {
+                ForEach(store.promptConfig.normalized().tasks) { task in
+                    Text(task.title).tag(task.id)
                 }
-                .padding(.top, 10)
-            } label: {
-                HStack {
-                    Image(systemName: "checklist")
-                    Text("Instructions \(store.promptSelectedTaskIDs.count)/\(store.promptConfig.tasks.count)")
+            }
+            .pickerStyle(.menu)
+            .font(ResponsiveFont.headline)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding()
+        .background(RadixTheme.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    @ViewBuilder
+    var selectedTaskTemplateSection: some View {
+        if let task = selectedPromptTask {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text("AI Prompt")
                         .font(ResponsiveFont.headline)
+                    Spacer()
+                    Text(store.promptAutosaveStatus)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
+
+                TextField("AI prompt title", text: Binding(
+                    get: { taskTitle(task.id) },
+                    set: { store.setPromptTaskTitle(taskID: task.id, title: $0) }
+                ))
+                .font(ResponsiveFont.body.bold())
+                .textFieldStyle(.roundedBorder)
+
+                TextEditor(text: Binding(
+                    get: { taskTemplate(task.id) },
+                    set: { store.setPromptTaskTemplate(taskID: task.id, template: $0) }
+                ))
+                .font(.system(size: 14, design: .monospaced))
+                .frame(minHeight: sizeClass == .compact ? 180 : 220)
+                .padding(8)
+                .background(RadixTheme.tertiaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .padding()
+            .background(RadixTheme.secondaryBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+
+    var selectedTaskSourceSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(isSelectedTaskPageTask ? "Page" : "Subject")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            if isSelectedTaskPageTask {
+                aiSelectedPageRow
+            } else {
+                aiSelectedSubjectRow
             }
         }
         .padding()
         .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    var aiSelectedSubjectRow: some View {
+        HStack(spacing: 10) {
+            Image(systemName: store.activeSidebarPhrasePreview == nil ? "character" : "text.quote")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(activeCharacter == nil ? Color.orange : Color.accentColor)
+                .frame(width: 28, height: 28)
+                .background((activeCharacter == nil ? Color.orange : Color.accentColor).opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 7))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(aiSubjectTitle)
+                    .font(ResponsiveFont.body.bold())
+                    .lineLimit(1)
+                Text(aiSubjectSubtitle)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            .layoutPriority(1)
+
+            Spacer(minLength: 0)
+
+            Button {
+                store.goToSearchRoot()
+            } label: {
+                Label("Change", systemImage: "magnifyingglass")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+        }
+    }
+
+    var aiSelectedPageRow: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "photo.on.rectangle")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(selectedCollection == nil ? Color.orange : Color.accentColor)
+                .frame(width: 28, height: 28)
+                .background((selectedCollection == nil ? Color.orange : Color.accentColor).opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 7))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(selectedCollection?.name ?? "No page selected")
+                    .font(ResponsiveFont.body.bold())
+                    .lineLimit(1)
+                Text(aiCollectionSubtitle)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            .layoutPriority(1)
+
+            Spacer(minLength: 0)
+
+            aiCollectionMenu
+        }
     }
 
     @ViewBuilder
@@ -114,7 +208,7 @@ extension AILinkView {
         case "task8":
             return "Create a practice quiz from a saved page, with difficulty guidance and answers hidden until the learner responds."
         default:
-            return "Use this reusable instruction to investigate the selected material with AI."
+            return "Use this reusable AI prompt to investigate the selected material with AI."
         }
     }
 

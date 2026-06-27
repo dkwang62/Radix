@@ -3,27 +3,20 @@ import SwiftUI
 /*
  AI LINK VIEW
  ============
- Manages character, phrase, and image instruction generation for the user's default AI.
- The root view owns state and high-level mode switching; focused extensions own
- task selection, template editing, instruction display, and launch/copy actions.
+ Manages character, phrase, and image AI prompt generation for the user's default AI.
+ The root view owns state and high-level task/source switching; focused
+ extensions own task selection, template editing, prompt display, and
+ launch/copy actions.
 */
 
 struct AILinkView: View {
-    enum Mode: String, CaseIterable, Identifiable {
-        case promptGeneration = "Instructions"
-        case templateEditor = "Customize"
-
-        var id: String { rawValue }
-    }
-
     @EnvironmentObject var store: RadixStore
     @Environment(\.horizontalSizeClass) var sizeClass
     @Environment(\.openURL) var openURL
     let item: ComponentItem?
     @State var copied = false
     @State var openedDefaultAI = false
-    @State var isTasksExpanded = true
-    @State var mode: Mode = .promptGeneration
+    @State var selectedPromptTaskID: String?
     @State var selectedAIPreset: DefaultAIPreset?
     @State var isRunningGeminiPhraseAPI = false
     @State var geminiPhraseAPIMessage: String?
@@ -38,15 +31,41 @@ struct AILinkView: View {
     }
 
     var selectedCollection: CharacterCollection? {
-        store.selectedAICollection
+        store.selectedAICollection ?? latestViewedCollection
+    }
+
+    var latestViewedCollection: CharacterCollection? {
+        store.allCollections.max { lhs, rhs in
+            let lhsDate = lhs.lastViewedAt ?? lhs.createdAt
+            let rhsDate = rhs.lastViewedAt ?? rhs.createdAt
+            return lhsDate < rhsDate
+        }
+    }
+
+    var selectedPromptTask: PromptTask? {
+        let normalizedTasks = store.promptConfig.normalized().tasks
+        if let selectedPromptTaskID,
+           let task = normalizedTasks.first(where: { $0.id == selectedPromptTaskID }) {
+            return task
+        }
+        if let savedID = store.promptSelectedTaskIDs.first,
+           let task = normalizedTasks.first(where: { $0.id == savedID }) {
+            return task
+        }
+        return normalizedTasks.first
+    }
+
+    var isSelectedTaskPageTask: Bool {
+        guard let task = selectedPromptTask else { return false }
+        return PromptConfig.collectionTaskIDs.contains(task.id)
     }
 
     var hasCharacterTasks: Bool {
-        store.promptSelectedTaskIDs.contains { !PromptConfig.collectionTaskIDs.contains($0) }
+        selectedPromptTask != nil && !isSelectedTaskPageTask
     }
 
     var hasCollectionTasks: Bool {
-        store.promptSelectedTaskIDs.contains { PromptConfig.collectionTaskIDs.contains($0) }
+        selectedPromptTask != nil && isSelectedTaskPageTask
     }
 
     var canGeneratePrompt: Bool {
@@ -56,7 +75,7 @@ struct AILinkView: View {
     }
 
     var canRunGeminiPhraseAPI: Bool {
-        store.promptSelectedTaskIDs.contains("task4") && selectedCollection != nil
+        selectedPromptTask?.id == "task4" && selectedCollection != nil
     }
 
     var body: some View {
@@ -71,19 +90,7 @@ struct AILinkView: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                if sizeClass == .compact {
-                    aiPhoneSubjectPreview
-                }
-
-                aiPracticeContextSection
-                modePicker
-
-                switch mode {
-                case .promptGeneration:
-                    promptGenerationSection
-                case .templateEditor:
-                    templateEditorSection
-                }
+                promptGenerationSection
             }
             .padding(20)
         }
@@ -102,6 +109,7 @@ struct AILinkView: View {
             if selectedAIPreset == nil {
                 selectedAIPreset = store.defaultAIPreset
             }
+            ensureSelectedPromptTask()
         }
     }
 
@@ -124,15 +132,6 @@ struct AILinkView: View {
                 onClear: { store.previewCharacter = nil }
             )
         }
-    }
-
-    var modePicker: some View {
-        Picker("AI Link Mode", selection: $mode) {
-            ForEach(Mode.allCases) { mode in
-                Text(mode.rawValue).tag(mode)
-            }
-        }
-        .pickerStyle(.segmented)
     }
 
     var aiPracticeContextSection: some View {
@@ -257,5 +256,30 @@ struct AILinkView: View {
             return store.allCollections.isEmpty ? "No saved pages" : "\(store.allCollections.count) available"
         }
         return "\(selectedCollection.characters.count) characters"
+    }
+
+    func ensureSelectedPromptTask() {
+        let normalizedTasks = store.promptConfig.normalized().tasks
+        guard !normalizedTasks.isEmpty else {
+            selectedPromptTaskID = nil
+            return
+        }
+        if let selectedPromptTaskID,
+           normalizedTasks.contains(where: { $0.id == selectedPromptTaskID }) {
+            return
+        }
+        if let savedID = store.promptSelectedTaskIDs.first,
+           normalizedTasks.contains(where: { $0.id == savedID }) {
+            selectedPromptTaskID = savedID
+            return
+        }
+        let fallbackID = normalizedTasks[0].id
+        selectedPromptTaskID = fallbackID
+    }
+
+    func selectPromptTask(_ taskID: String) {
+        selectedPromptTaskID = taskID
+        store.promptSelectedTaskIDs = [taskID]
+        store.persistPromptSettings()
     }
 }
