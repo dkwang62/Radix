@@ -7,7 +7,8 @@ extension AddedPhraseReviewSheet {
             VStack(alignment: .leading, spacing: 8) {
                 phraseDetails(phrase)
             }
-            .padding(10)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(RadixTheme.secondaryBackground.opacity(0.55))
             .overlay(
@@ -30,39 +31,61 @@ extension AddedPhraseReviewSheet {
         }
     }
 
+    @ViewBuilder
     func phraseDetails(_ phrase: PhraseItem) -> some View {
-        VStack(alignment: .center, spacing: 2) {
-            HStack(spacing: 8) {
+        if usesRegularReviewLayout {
+            HStack(spacing: 10) {
                 Text(phrase.word)
-                    .font(.system(size: usesRegularReviewLayout ? 22 : 19, weight: .semibold))
-                    .lineLimit(2)
+                    .font(.system(size: 22, weight: .semibold))
+                    .lineLimit(1)
                     .minimumScaleFactor(0.75)
-                    .fixedSize(horizontal: false, vertical: true)
 
                 Label(reviewDetail(for: phrase), systemImage: statusIcon(for: phrase.reviewStatus))
                     .font(reviewCaptionFont.weight(.semibold))
                     .foregroundStyle(statusColor(for: phrase.reviewStatus))
                     .lineLimit(1)
+
+                Text(phrase.pinyin.isEmpty ? "No pinyin yet" : phrase.pinyin)
+                    .font(reviewCaptionFont)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+
+                Text(phrase.meanings.isEmpty ? "No meaning yet" : phrase.meanings)
+                    .font(reviewCaptionFont)
+                    .foregroundStyle(phrase.meanings.isEmpty ? Color.secondary : Color.primary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
             }
             .frame(maxWidth: .infinity, alignment: .center)
+        } else {
+            VStack(alignment: .center, spacing: 1) {
+                HStack(spacing: 8) {
+                    Text(phrase.word)
+                        .font(.system(size: 20, weight: .semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
 
-            Text(phrase.pinyin.isEmpty ? "No pinyin yet" : phrase.pinyin)
+                    Label(reviewDetail(for: phrase), systemImage: statusIcon(for: phrase.reviewStatus))
+                        .font(reviewCaptionFont.weight(.semibold))
+                        .foregroundStyle(statusColor(for: phrase.reviewStatus))
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+
+                HStack(spacing: 8) {
+                    Text(phrase.pinyin.isEmpty ? "No pinyin yet" : phrase.pinyin)
+                        .foregroundStyle(.secondary)
+
+                    Text(phrase.meanings.isEmpty ? "No meaning yet" : phrase.meanings)
+                        .foregroundStyle(phrase.meanings.isEmpty ? Color.secondary : Color.primary)
+                }
                 .font(reviewCaptionFont)
-                .foregroundStyle(.secondary)
                 .lineLimit(1)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: detailTextMaxWidth, alignment: .center)
-
-            Text(phrase.meanings.isEmpty ? "No meaning yet" : phrase.meanings)
-                .font(reviewCaptionFont)
-                .foregroundStyle(phrase.meanings.isEmpty ? Color.secondary : Color.primary)
-                .lineLimit(2)
-                .multilineTextAlignment(.center)
                 .truncationMode(.tail)
                 .frame(maxWidth: detailTextMaxWidth, alignment: .center)
-
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
         }
-        .frame(maxWidth: .infinity, alignment: .center)
     }
 
     func reviewDetail(for phrase: PhraseItem) -> String {

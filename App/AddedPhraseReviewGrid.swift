@@ -11,19 +11,16 @@ extension AddedPhraseReviewSheet {
 
     @ViewBuilder
     var phrasePageGrid: some View {
-        ScrollView {
-            phrasePageGridContent
-                .padding(.vertical, 4)
-        }
+        phrasePageGridContent
+            .padding(.vertical, 2)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .scrollIndicators(usesRegularReviewLayout ? .automatic : .visible)
     }
 
     var phrasePageGridContent: some View {
         LazyVGrid(
             columns: phraseReviewColumns,
             alignment: .center,
-            spacing: 6
+            spacing: 5
         ) {
             ForEach(pagedPhrases) { phrase in
                 AddedPhraseReviewTile(
@@ -38,9 +35,8 @@ extension AddedPhraseReviewSheet {
                 )
             }
         }
-        .padding(.vertical, 2)
-        .padding(.horizontal, usesRegularReviewLayout ? 10 : 0)
-        .frame(maxWidth: usesRegularReviewLayout ? 920 : 520, alignment: .center)
+        .padding(.horizontal, usesRegularReviewLayout ? 6 : 0)
+        .frame(maxWidth: usesRegularReviewLayout ? 920 : 520, maxHeight: .infinity, alignment: .top)
         .frame(maxWidth: .infinity)
     }
 
@@ -52,9 +48,10 @@ extension AddedPhraseReviewSheet {
             )
         }
 
+        let columnCount = RadixPlatform.isDesktop ? 5 : 4
         return Array(
-            repeating: GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 8, alignment: .center),
-            count: 4
+            repeating: GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 7, alignment: .center),
+            count: columnCount
         )
     }
 }
@@ -73,11 +70,11 @@ struct AddedPhraseReviewTile: View {
         Button(action: onSelect) {
             ZStack(alignment: .topTrailing) {
                 Text(phrase.word)
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.62)
-                    .frame(maxWidth: .infinity, minHeight: 38)
+                    .frame(maxWidth: .infinity, minHeight: 34)
                     .padding(.horizontal, 5)
 
                 Image(systemName: statusIcon)

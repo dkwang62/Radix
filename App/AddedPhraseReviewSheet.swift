@@ -19,9 +19,9 @@ struct AddedPhraseReviewSheet: View {
     let detailTextMaxWidth: CGFloat = 640
 
     var pageSize: Int {
-        if RadixPlatform.isPhone { return 18 }
-        if RadixPlatform.isDesktop { return 28 }
-        return 40
+        if RadixPlatform.isPhone { return 30 }
+        if RadixPlatform.isDesktop { return 50 }
+        return 36
     }
 
     var usesRegularReviewLayout: Bool {
