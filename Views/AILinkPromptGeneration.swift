@@ -151,35 +151,33 @@ extension AILinkView {
     }
 
     var aiSelectedSubjectRow: some View {
-        HStack(spacing: 10) {
-            Image(systemName: store.activeSidebarPhrasePreview == nil ? "character" : "text.quote")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(activeCharacter == nil ? Color.orange : Color.accentColor)
-                .frame(width: 28, height: 28)
-                .background((activeCharacter == nil ? Color.orange : Color.accentColor).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 7))
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(aiSubjectTitle)
-                    .font(ResponsiveFont.body.bold())
-                    .lineLimit(1)
-                Text(aiSubjectSubtitle)
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+        Menu {
+            if store.rootBreadcrumb.isEmpty {
+                Text("No recent subjects")
+            } else {
+                Section("Recent Subjects") {
+                    ForEach(store.rootBreadcrumb, id: \.self) { subject in
+                        Button {
+                            store.activateBreadcrumbCharacter(subject)
+                        } label: {
+                            Label(
+                                subjectMenuTitle(subject),
+                                systemImage: subject == activeCharacter ? "checkmark" : subjectIcon(subject)
+                            )
+                        }
+                    }
+                }
             }
-            .layoutPriority(1)
-
-            Spacer(minLength: 0)
-
-            Button {
-                store.goToSearchRoot()
-            } label: {
-                Label("Change", systemImage: "magnifyingglass")
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
+        } label: {
+            sourceSelectorLabel(
+                icon: activeSubjectIcon,
+                title: aiSubjectTitle,
+                subtitle: aiSubjectSubtitle,
+                isMissing: activeCharacter == nil
+            )
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Choose AI Subject")
     }
 
     var aiSelectedPageRow: some View {
@@ -352,6 +350,20 @@ extension AILinkView {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
         )
+    }
+
+    func subjectIcon(_ subject: String) -> String {
+        subject.count > 1 ? "text.quote" : "character"
+    }
+
+    func subjectMenuTitle(_ subject: String) -> String {
+        if subject.count > 1,
+           let phrase = store.mergedPhrase(for: subject) {
+            let pinyin = phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines)
+            return pinyin.isEmpty ? phrase.word : "\(phrase.word)  \(pinyin)"
+        }
+        let pinyin = store.item(for: subject)?.pinyinText.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return pinyin.isEmpty ? subject : "\(subject)  \(pinyin)"
     }
 
     func taskSubjectInfo(task: PromptTask, isCollectionTask: Bool) -> (label: String, icon: String, isMissing: Bool) {

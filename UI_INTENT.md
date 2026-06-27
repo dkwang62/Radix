@@ -181,9 +181,11 @@ as Browse. Keep only a one-line ready-to-send summary, without repeating the
 selected page or subject name. Opening the current AI should copy the prompt
 first and then open the provider; alternate providers and copy-only are menu
 choices, not competing primary buttons. Character and phrase tasks default to
-the last subject in the memory strip. Saved-page tasks default to the last
-viewed page. Always show the chosen source before sending so the smart default
-remains reversible and understandable.
+the most recent subject in the memory strip. The subject row should be the
+selector, with recent memory-strip items in its dropdown; do not add a separate
+Search button there. Saved-page tasks default to the last viewed page. Always
+show the chosen source before sending so the smart default remains reversible
+and understandable.
 
 ## Backup and checkpoint grammar
 

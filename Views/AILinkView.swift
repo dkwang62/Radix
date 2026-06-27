@@ -30,7 +30,19 @@ struct AILinkView: View {
         if let phrase = store.activeSidebarPhrasePreview {
             return phrase.word
         }
+        if let remembered = store.rootBreadcrumb.first {
+            return remembered
+        }
         return item?.character ?? store.previewCharacter
+    }
+
+    var activeSubjectIsPhrase: Bool {
+        guard let activeCharacter else { return false }
+        return activeCharacter.count > 1 && store.mergedPhrase(for: activeCharacter) != nil
+    }
+
+    var activeSubjectIcon: String {
+        activeSubjectIsPhrase ? "text.quote" : "character"
     }
 
     var selectedCollection: CharacterCollection? {
@@ -242,9 +254,6 @@ struct AILinkView: View {
     }
 
     var aiSubjectTitle: String {
-        if let phrase = store.activeSidebarPhrasePreview {
-            return phrase.word
-        }
         if let activeCharacter {
             return activeCharacter
         }
@@ -252,7 +261,9 @@ struct AILinkView: View {
     }
 
     var aiSubjectSubtitle: String {
-        if let phrase = store.activeSidebarPhrasePreview {
+        if let activeCharacter,
+           activeCharacter.count > 1,
+           let phrase = store.mergedPhrase(for: activeCharacter) {
             return phrase.pinyin.isEmpty ? "Phrase" : phrase.pinyin
         }
         if let activeCharacter {
