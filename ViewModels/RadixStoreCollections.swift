@@ -187,16 +187,14 @@ extension RadixStore {
 
     @discardableResult
     func createUnreviewedPhraseReviewCollection() -> CharacterCollection? {
-        let unreviewedWords = phraseRepo.fetchAddedPhrases()
-            .filter { $0.word.count >= 2 && $0.reviewStatus == nil && !isPhraseInBase($0.word) }
-            .sorted(by: AddedPhraseReviewRules.reviewSortPredicate)
-            .map(\.word)
-
-        guard !unreviewedWords.isEmpty else { return nil }
+        guard let sourceText = AddedPhraseReviewRules.aiReviewPageText(
+            from: phraseRepo.fetchAddedPhrases(),
+            isBasePhrase: isPhraseInBase
+        ) else { return nil }
 
         return createCollection(
-            name: "AI Review",
-            sourceText: unreviewedWords.joined(separator: "\n"),
+            name: AddedPhraseReviewRules.aiReviewPageName,
+            sourceText: sourceText,
             sourceType: .manual
         )
     }

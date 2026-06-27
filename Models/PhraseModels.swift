@@ -120,6 +120,8 @@ enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
 }
 
 enum AddedPhraseReviewRules {
+    static let aiReviewPageName = "AI Review"
+
     static func statusMessage(_ status: PhraseReviewStatus?, word: String) -> String {
         switch status {
         case .checked: return "\(word) accepted."
@@ -141,6 +143,27 @@ enum AddedPhraseReviewRules {
         let lhsDate = lhs.lastReviewedAt ?? lhs.addedAt ?? .distantPast
         let rhsDate = rhs.lastReviewedAt ?? rhs.addedAt ?? .distantPast
         return lhsDate > rhsDate
+    }
+
+    static func aiReviewWords(
+        from phrases: [PhraseItem],
+        isBasePhrase: (String) -> Bool
+    ) -> [String] {
+        phrases
+            .filter { $0.word.count >= 2 }
+            .filter { $0.reviewStatus == nil }
+            .filter { !isBasePhrase($0.word) }
+            .sorted(by: reviewSortPredicate)
+            .map(\.word)
+    }
+
+    static func aiReviewPageText(
+        from phrases: [PhraseItem],
+        isBasePhrase: (String) -> Bool
+    ) -> String? {
+        let words = aiReviewWords(from: phrases, isBasePhrase: isBasePhrase)
+        guard !words.isEmpty else { return nil }
+        return words.joined(separator: "\n")
     }
 
     private static func sortKey(primary: String, fallback: String) -> String {

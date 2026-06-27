@@ -5,7 +5,7 @@ Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
 
-Last reviewed: 2026-06-26
+Last reviewed: 2026-06-27
 
 ## Product and Platform Scope
 
@@ -165,7 +165,10 @@ Added Phrases review includes a visible shortcut that creates an `AI Review`
 saved page from all current unreviewed, non-base added phrases, then opens that
 page in Browse with a `Back to Study` return path. This action does not mark,
 accept, reject, or delete the source phrases. The Batch menu is reserved for
-bulk status/deletion actions rather than hiding this workflow.
+bulk status/deletion actions rather than hiding this workflow. The eligibility,
+ordering, page name, and newline-delimited source text are portable
+`AddedPhraseReviewRules` behavior with compatibility tests so Android can share
+the same rule.
 On Mac Catalyst the Added Phrases classification sheet shows 28 tiles per page
 (4 columns × 7 rows) to avoid internal grid scrolling, which can momentarily
 hang while users scroll the sheet.

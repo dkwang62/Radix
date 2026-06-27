@@ -29,4 +29,36 @@ struct PhraseReviewCompatibilityTests {
         #expect(PhraseReviewStatusTool.nextStatus(after: .checked) == .hidden)
         #expect(PhraseReviewStatusTool.nextStatus(after: .hidden) == nil)
     }
+
+    @Test("AI review page includes only unreviewed non-base multi-character phrases")
+    func aiReviewPageWords() {
+        let phrases = [
+            PhraseItem(word: "水", pinyin: "shuǐ", meanings: "water"),
+            PhraseItem(word: "爆仓", pinyin: "bào cāng", meanings: "forced liquidation"),
+            PhraseItem(word: "关键时刻", pinyin: "guān jiàn shí kè", meanings: "critical moment", reviewStatus: .checked),
+            PhraseItem(word: "美股", pinyin: "měi gǔ", meanings: "US stocks"),
+            PhraseItem(word: "自动清洁", pinyin: "zì dòng qīng jié", meanings: "automatic cleaning"),
+            PhraseItem(word: "人民", pinyin: "rén mín", meanings: "people")
+        ]
+
+        let words = AddedPhraseReviewRules.aiReviewWords(
+            from: phrases,
+            isBasePhrase: { $0 == "人民" }
+        )
+
+        #expect(words == ["爆仓", "美股", "自动清洁"])
+        #expect(AddedPhraseReviewRules.aiReviewPageName == "AI Review")
+        #expect(AddedPhraseReviewRules.aiReviewPageText(from: phrases, isBasePhrase: { $0 == "人民" }) == "爆仓\n美股\n自动清洁")
+    }
+
+    @Test("AI review page text is absent when no eligible phrases remain")
+    func emptyAIReviewPageText() {
+        let phrases = [
+            PhraseItem(word: "水", pinyin: "shuǐ", meanings: "water"),
+            PhraseItem(word: "关键时刻", pinyin: "guān jiàn shí kè", meanings: "critical moment", reviewStatus: .checked),
+            PhraseItem(word: "人民", pinyin: "rén mín", meanings: "people")
+        ]
+
+        #expect(AddedPhraseReviewRules.aiReviewPageText(from: phrases, isBasePhrase: { $0 == "人民" }) == nil)
+    }
 }
