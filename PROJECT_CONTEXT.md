@@ -154,11 +154,14 @@ removed; `Extract Phrases` supports both copy/paste and automatic Gemini
 execution without appearing twice.
 The AI Link tab presents one task at a time through an `AI Task` dropdown. The
 old `Instructions`/`Customize` split is collapsed into a single editable
-`AI Prompt` template for the selected task. Prompt edits are draft-only until
-the user taps `Save Prompt`; `Reset` restores the built-in default for shipped
-tasks or the starter prompt for custom tasks. The task menu includes `New AI
-Task...`. AI Link does not show a full generated prompt preview; it shows the
-source as an obvious selector followed by a one-line ready-to-send summary.
+`AI Prompt` template for the selected task. Built-in tasks edit the prompt
+template without repeating the task title in a second title field; custom tasks
+also show a task-name field. Prompt edits are draft-only until the user taps
+`Save Prompt`; `Reset` restores the built-in default for shipped tasks or the
+starter prompt for custom tasks. The task menu includes `New AI
+Task...`. AI Link does not show a full generated prompt preview or a separate
+ready-to-send summary; the selected task appears on the primary open button
+(`Open Gemini: Task 2`) instead. The source appears as an obvious selector.
 Opening the selected AI copies the prompt first, then opens the AI provider;
 copy-only remains available from the provider menu. Character and phrase tasks
 default to the most recent memory-strip subject, and the subject row itself is

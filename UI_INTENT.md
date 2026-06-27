@@ -173,19 +173,21 @@ AI Link should start from the user's goal, not configuration. Show one compact
 AI task menu with an obvious dropdown affordance and a `New AI Task...` option,
 then the editable AI prompt template for that task only, then a compact source
 confirmation row. Prompt editing should use an explicit draft with `Save Prompt`
-and `Reset`, not invisible autosave. Do not show a full generated prompt preview
-on the AI Link screen; the AI chat will show the prompt after copy/open. The
+and `Reset`, not invisible autosave. Built-in tasks should not repeat the task
+title in a second title field; custom tasks may show a task-name field. Do not
+show a full generated prompt preview on the AI Link screen; the AI chat will
+show the prompt after copy/open. The
 source selector should be obvious and come before action status; for saved-page
 tasks, the page row itself is the dropdown and uses the same page icon grammar
-as Browse. Keep only a one-line ready-to-send summary, without repeating the
-selected page or subject name. Opening the current AI should copy the prompt
-first and then open the provider; alternate providers and copy-only are menu
-choices, not competing primary buttons. Character and phrase tasks default to
-the most recent subject in the memory strip. The subject row should be the
-selector, with recent memory-strip items in its dropdown; do not add a separate
-Search button there. Saved-page tasks default to the last viewed page. Always
-show the chosen source before sending so the smart default remains reversible
-and understandable.
+as Browse. Do not repeat the selected page, subject, or task in a separate
+ready-to-send label. Opening the current AI should copy the prompt first and
+then open the provider, with the button naming the selected task, such as
+`Open Gemini: Task 2`; alternate providers and copy-only are menu choices, not
+competing primary buttons. Character and phrase tasks default to the most recent
+subject in the memory strip. The subject row should be the selector, with recent
+memory-strip items in its dropdown; do not add a separate Search button there.
+Saved-page tasks default to the last viewed page. Always show the chosen source
+before sending so the smart default remains reversible and understandable.
 
 ## Backup and checkpoint grammar
 

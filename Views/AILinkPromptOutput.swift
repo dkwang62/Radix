@@ -17,29 +17,15 @@ extension AILinkView {
 
         if sizeClass == .compact {
             VStack(alignment: .leading, spacing: 10) {
-                readyToSendLine
                 promptActionButtons(currentPreset: currentPreset, currentAIName: currentAIName)
                 promptStatusText(currentPreset: currentPreset, currentAIName: currentAIName)
             }
         } else {
             HStack(spacing: 12) {
-                readyToSendLine
                 promptActionButtons(currentPreset: currentPreset, currentAIName: currentAIName)
                 promptStatusText(currentPreset: currentPreset, currentAIName: currentAIName)
             }
         }
-    }
-
-    var readyToSendLine: some View {
-        Label(readyToSendText, systemImage: canGeneratePrompt ? "checkmark.circle" : "exclamationmark.triangle")
-            .font(ResponsiveFont.caption.weight(.semibold))
-            .foregroundStyle(canGeneratePrompt ? Color.accentColor : Color.orange)
-            .lineLimit(1)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background((canGeneratePrompt ? Color.accentColor : Color.orange).opacity(0.10))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .layoutPriority(1)
     }
 
     func promptActionButtons(currentPreset: DefaultAIPreset, currentAIName: String) -> some View {
@@ -61,7 +47,7 @@ extension AILinkView {
             Button {
                 openPromptInAI(currentPreset)
             } label: {
-                Label("Open \(currentAIName)", systemImage: "arrow.up.forward.app")
+                Label(openPromptButtonTitle(currentAIName: currentAIName), systemImage: "arrow.up.forward.app")
                     .padding(.trailing, 2)
             }
             .buttonStyle(.borderedProminent)
@@ -74,7 +60,7 @@ extension AILinkView {
                         openPromptInAI(preset)
                     } label: {
                         Label(
-                            "Open \(store.aiName(for: preset))",
+                            openPromptButtonTitle(currentAIName: store.aiName(for: preset)),
                             systemImage: preset == currentPreset ? "checkmark" : "arrow.up.forward.app"
                         )
                     }
@@ -98,6 +84,16 @@ extension AILinkView {
             .disabled(!canGeneratePrompt)
             .accessibilityLabel("Choose AI app")
         }
+    }
+
+    func openPromptButtonTitle(currentAIName: String) -> String {
+        if hasCharacterTasks && activeCharacter == nil {
+            return "Choose Subject"
+        }
+        if hasCollectionTasks && selectedCollection == nil {
+            return "Choose Page"
+        }
+        return "Open \(currentAIName): \(sendTaskName)"
     }
 
     @ViewBuilder
@@ -187,16 +183,17 @@ extension AILinkView {
         return text.isEmpty ? "Choose an AI task." : text
     }
 
-    var readyToSendText: String {
+    var sendTaskName: String {
         let taskTitle = draftPromptTask?.title.trimmingCharacters(in: .whitespacesAndNewlines)
         let taskName = (taskTitle?.isEmpty == false ? taskTitle : selectedPromptTask?.title) ?? "AI Task"
-        if hasCharacterTasks {
-            return activeCharacter == nil ? "Choose a subject" : "Ready to send: \(taskName)"
+        for separator in [" – ", " - "] {
+            if let prefix = taskName.components(separatedBy: separator).first,
+               prefix != taskName,
+               !prefix.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                return prefix
+            }
         }
-        if hasCollectionTasks {
-            return selectedCollection == nil ? "Choose a page" : "Ready to send: \(taskName)"
-        }
-        return "Choose an AI task"
+        return taskName
     }
 
     var promptContextLine: String? {

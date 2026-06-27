@@ -108,15 +108,17 @@ extension AILinkView {
                     .controlSize(.small)
                 }
 
-                TextField("AI prompt title", text: Binding(
-                    get: { draftPromptTitle },
-                    set: {
-                        draftPromptTitle = $0
-                        promptSaveStatus = nil
-                    }
-                ))
-                .font(ResponsiveFont.body.bold())
-                .textFieldStyle(.roundedBorder)
+                if isCustomPromptTask {
+                    TextField("AI task name", text: Binding(
+                        get: { draftPromptTitle },
+                        set: {
+                            draftPromptTitle = $0
+                            promptSaveStatus = nil
+                        }
+                    ))
+                    .font(ResponsiveFont.body.bold())
+                    .textFieldStyle(.roundedBorder)
+                }
 
                 TextEditor(text: Binding(
                     get: { draftPromptTemplate },

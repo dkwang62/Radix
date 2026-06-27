@@ -110,6 +110,11 @@ struct AILinkView: View {
             draftPromptTemplate != selectedPromptTask.template
     }
 
+    var isCustomPromptTask: Bool {
+        guard let selectedPromptTask else { return false }
+        return !PromptConfig.streamlitDefault.tasks.contains { $0.id == selectedPromptTask.id }
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
