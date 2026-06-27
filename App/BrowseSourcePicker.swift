@@ -23,7 +23,7 @@ extension FilterGridTab {
 
             sourceActionButton(
                 title: "Text from Clipboard",
-                subtitle: clipboardTextPageActionSubtitle("Copy Chinese text first, then create a page"),
+                subtitle: clipboardTextPageActionSubtitle("Copy Chinese text first"),
                 systemImage: "doc.on.clipboard",
                 isLocked: !hasUnlimitedFreePages && freePagesRemaining == 0
             ) {
@@ -51,7 +51,7 @@ extension FilterGridTab {
 
                 sourceActionButton(
                     title: fileImportTitle,
-                    subtitle: imageImportActionSubtitle,
+                    subtitle: fileImagePageActionSubtitle,
                     systemImage: "folder",
                     isLocked: entitlement.requiresPro(.datedCopies)
                 ) {
@@ -143,26 +143,26 @@ extension FilterGridTab {
     }
 
     var clipboardImagePageActionSubtitle: String {
-        entitlement.requiresPro(.datedCopies) ? "Radix Plus" : "Copy an image first, then create a page"
+        entitlement.requiresPro(.datedCopies) ? "Radix Plus" : "Copy an image first"
     }
 
-    var imageImportActionSubtitle: String {
-        entitlement.requiresPro(.datedCopies) ? "Radix Plus" : "Create saved page"
+    var albumImagePageActionSubtitle: String {
+        entitlement.requiresPro(.datedCopies) ? "Radix Plus" : "Choose a photo"
+    }
+
+    var fileImagePageActionSubtitle: String {
+        entitlement.requiresPro(.datedCopies) ? "Radix Plus" : "Choose an image file"
     }
 
     var fileImportTitle: String {
-        #if targetEnvironment(macCatalyst)
-        return "Import from Finder"
-        #else
-        return "Import from Files"
-        #endif
+        "Image from Files"
     }
 
     @ViewBuilder
     var browseAlbumImportButton: some View {
         if entitlement.requiresPro(.datedCopies) {
             sourceActionButton(
-                title: "Import from Album",
+                title: "Image from Album",
                 subtitle: "Radix Plus",
                 systemImage: "photo.on.rectangle",
                 isLocked: true
@@ -171,7 +171,7 @@ extension FilterGridTab {
             }
         } else {
             BrowsePhotoImportSourceRow(
-                subtitle: imageImportActionSubtitle,
+                subtitle: albumImagePageActionSubtitle,
                 onImage: { image in
                     Task { await recognizeBrowseImage(image) }
                 },
@@ -259,7 +259,7 @@ private struct BrowsePhotoImportSourceRow: View {
     var body: some View {
         PhotosPicker(selection: $selectedPhoto, matching: .images) {
             SourceMenuRow(
-                title: "Import from Album",
+                title: "Image from Album",
                 subtitle: subtitle,
                 systemImage: "photo.on.rectangle",
                 iconColor: .accentColor,
@@ -297,7 +297,7 @@ private struct BrowsePhotoImportSourceRow: View {
             onError(CocoaError(.featureUnsupported))
         } label: {
             SourceMenuRow(
-                title: "Import from Album",
+                title: "Image from Album",
                 subtitle: subtitle,
                 systemImage: "photo.on.rectangle",
                 iconColor: .accentColor,

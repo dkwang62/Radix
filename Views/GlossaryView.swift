@@ -188,7 +188,7 @@ enum RadixGlossary {
             term: "Radix Plus",
             shortDefinition: "The annual Radix tier for unlimited page creation, import tools, local snapshots, and iCloud backup.",
             significance: "Radix Plus keeps the first 100 Camera or Text pages free, then unlocks unlimited pages, page creation from Album or Files, same-device checkpoints, and portable backup.",
-            contexts: ["Upgrade", "Camera", "Album", "Files", "Text from Clipboard", "Create Checkpoint", "Return to Checkpoint", "Backup"],
+            contexts: ["Upgrade", "Camera", "Text from Clipboard", "Image from Album", "Image from Files", "Create Checkpoint", "Return to Checkpoint", "Backup"],
             relatedTerms: ["Saved Page", "Checkpoint", "Backup"]
         ),
         GlossaryEntry(

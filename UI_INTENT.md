@@ -87,8 +87,9 @@ Browse should be simple and not force unnecessary mode choices:
   text first.
 - Image from Clipboard appears as an action when an image is already on the
   clipboard and tells the user to copy an image first.
-- Import from Album appears as an action.
-- Import from Files appears as an action.
+- Image from Album appears as an action and tells the user to choose a photo.
+- Image from Files appears as an action and tells the user to choose an image
+  file.
 - Saved Pages appear as a list.
 
 Entering Browse opens the most recently viewed saved page, using its scan date
