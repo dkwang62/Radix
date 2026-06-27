@@ -83,8 +83,10 @@ Browse is for inspecting material.
 Browse should be simple and not force unnecessary mode choices:
 
 - Dictionary appears as the first browse item.
-- Create from Paste appears as an action.
-- Paste Image appears as an action when an image is already on the clipboard.
+- Text from Clipboard appears as an action and tells the user to copy Chinese
+  text first.
+- Image from Clipboard appears as an action when an image is already on the
+  clipboard and tells the user to copy an image first.
 - Import from Album appears as an action.
 - Import from Files appears as an action.
 - Saved Pages appear as a list.

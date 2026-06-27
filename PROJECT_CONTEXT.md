@@ -179,9 +179,10 @@ Saved Browse pages use one labelled `Actions` menu for editing, OCR review,
 phrase selection, translation, and AI workflows. The source chooser remains
 separate navigation; only the script toggle and Read Aloud remain permanently
 visible page controls.
-Browse source actions include pasted Chinese text, a clipboard image, album
-import, file import, and saved-page selection. Clipboard images use the same OCR
-page creation path as camera, album, and file images.
+Browse source actions include text from the clipboard, image from the clipboard,
+album import, file import, and saved-page selection. Clipboard text and image
+actions explicitly tell the user to copy the source content first. Clipboard
+images use the same OCR page creation path as camera, album, and file images.
 Entering Browse selects the saved page with the newest viewed-or-created date;
 the same selection is established during startup because the app launches on
 Browse without invoking a tab transition. Dictionary is the fallback only when

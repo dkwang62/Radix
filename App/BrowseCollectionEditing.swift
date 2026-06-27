@@ -52,7 +52,7 @@ extension FilterGridTab {
 
         do {
             guard let image = try RadixPlatform.pasteboardImage() else {
-                imageActionMessage = "Copy an image with Chinese text first, then choose Paste Image."
+                imageActionMessage = "Copy an image with Chinese text first, then choose Image from Clipboard."
                 return
             }
             Task { await recognizeBrowseImage(image) }

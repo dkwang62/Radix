@@ -22,8 +22,8 @@ extension FilterGridTab {
             }
 
             sourceActionButton(
-                title: "Create from Paste",
-                subtitle: pastePageActionSubtitle("Paste Chinese text and save it as a page"),
+                title: "Text from Clipboard",
+                subtitle: clipboardTextPageActionSubtitle("Copy Chinese text first, then create a page"),
                 systemImage: "doc.on.clipboard",
                 isLocked: !hasUnlimitedFreePages && freePagesRemaining == 0
             ) {
@@ -39,8 +39,8 @@ extension FilterGridTab {
                 )
             } else {
                 sourceActionButton(
-                    title: "Paste Image",
-                    subtitle: imageImportActionSubtitle,
+                    title: "Image from Clipboard",
+                    subtitle: clipboardImagePageActionSubtitle,
                     systemImage: "doc.on.clipboard",
                     isLocked: entitlement.requiresPro(.datedCopies)
                 ) {
@@ -75,7 +75,7 @@ extension FilterGridTab {
                 ContentUnavailableView(
                     "No Pages",
                     systemImage: "photo.on.rectangle.angled",
-                    description: Text("Paste Chinese text, import an image, or use Take Photo.")
+                    description: Text("Use clipboard text, import an image, or use Take Photo.")
                 )
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
@@ -132,14 +132,18 @@ extension FilterGridTab {
         return recentlyViewed.map { ($0, .lastViewed) } + scanned.map { ($0, .scanned) }
     }
 
-    func pastePageActionSubtitle(_ unlockedText: String) -> String {
+    func clipboardTextPageActionSubtitle(_ unlockedText: String) -> String {
         if hasUnlimitedFreePages {
             return unlockedText
         }
         if freePagesRemaining > 0 {
-            return "\(freePagesRemaining) free pages left"
+            return "Copy Chinese text first. \(freePagesRemaining) free pages left"
         }
         return "Radix Plus"
+    }
+
+    var clipboardImagePageActionSubtitle: String {
+        entitlement.requiresPro(.datedCopies) ? "Radix Plus" : "Copy an image first, then create a page"
     }
 
     var imageImportActionSubtitle: String {
