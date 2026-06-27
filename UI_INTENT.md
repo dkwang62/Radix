@@ -28,24 +28,24 @@ everywhere they are introduced or explained:
 - `AI` — understand or transform material.
 - `My Data` — protect, transfer, or export your work.
 
-Search and Take Photo remain global actions outside this four-part vocabulary.
+Search and Camera remain global actions outside this four-part vocabulary.
 
 The compact-screen iPhone navigation should feel like:
 
 ```text
 Top global action row:
-[ Search anything... ] [ Take Photo ]
+[ Search anything... ] [ Camera ]
 
 Bottom tabs:
 Browse | Study | AI | My Data
 ```
 
-Search and Take Photo are global actions, not ordinary tab destinations.
+Search and Camera are global actions, not ordinary tab destinations.
 
 - Search is a core utility for characters, phrases, pinyin, meanings, saved
   pages, recent items, and added material. It should be reachable from almost
   anywhere and should not be buried inside Study.
-- Take Photo is the fastest capture action. It should be globally visible on
+- Camera is the fastest capture action. It should be globally visible on
   primary screens and route into the existing OCR/page creation flow.
 - AI should remain first-class. It is a major product feature, not just a small
   Study subtool.
@@ -69,7 +69,7 @@ On iPad and Mac:
 
 - Preserve a more spacious sidebar/workspace layout.
 - Search can be persistent or prominent in the sidebar/header.
-- Take Photo can remain a visible toolbar/sidebar action rather than replacing
+- Camera can remain a visible toolbar/sidebar action rather than replacing
   the layout around a single compact action row.
 - Save/Restore Snapshot can remain in the sidebar because there is enough space
   to keep learning-state controls visible without crowding the primary content.
@@ -100,7 +100,7 @@ when it has no separate viewing date. Dictionary remains available from the
 source chooser but is not the default when saved pages exist.
 
 Avoid a permanent Dictionary/Pages selector if a simple list can do the job.
-Avoid repeating Take Photo inside Browse when the global Take Photo action is
+Avoid repeating Camera inside Browse when the global Camera action is
 already available.
 
 When the user opens a saved page, returning to the page list should be obvious.

@@ -29,7 +29,7 @@ extension RootView {
     var phoneTitle: String {
         switch phoneSelection {
         case -1: return "Character Breakdown"
-        case 0: return "Take Photo"
+        case 0: return "Camera"
         case 1: return "Search"
         case 2: return browseNavigationTitle
         case 3: return "Study"
@@ -144,14 +144,14 @@ extension RootView {
                 store.startBrowseCameraPage()
             } label: {
                 PrimaryActionTile(
-                    title: "Take Photo",
+                    title: "Camera",
                     subtitle: "Capture text",
                     systemImage: "camera.fill",
                     isPrimary: true
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Take Photo")
+            .accessibilityLabel("Camera")
         }
         .padding(.horizontal, 10)
         .padding(.top, 8)

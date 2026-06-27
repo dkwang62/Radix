@@ -70,6 +70,8 @@ Do not move domain behavior back into `RadixStore.swift`.
 - Character dictionary: JSON base data plus `component_map_changes.json` overlay.
 - Phrases: bundled SQLite plus the user-added phrase database.
 - Portable backup: `UnifiedPackage` schema 5, with legacy backup decoding retained.
+- Bundled standard data imports additively once on startup from
+  `radix_unified_backup.json`, guarded by `RadixPreferenceKey.standardDataImportID`.
 - `RadixPreferenceKey` is the canonical list of stable persisted identifiers.
 - `RadixPreferenceStore` is the platform-neutral storage boundary.
 - Apple persistence uses `RadixPreferences`, backed by `UserDefaults`.
@@ -233,6 +235,8 @@ Navigation guidance and the welcome screen use one canonical division of work:
 Browse inspects the dictionary or captured pages; Study reviews what the user
 kept; AI understands or transforms material; My Data protects, transfers, or
 exports the user's work.
+The global capture action is labelled `Camera` across iPhone, iPad, and Mac;
+avoid reverting to `Take Photo` in visible navigation.
 Local snapshots are presented as `Checkpoints` to avoid colliding with backup
 language. Checkpoints live at the bottom of Study as a safety-net section after
 the main review content. The section has one Create Checkpoint action and a

@@ -122,7 +122,7 @@ extension RootView {
     var detailPaneTitle: String {
         switch store.route {
         case .capture:
-            return "Take Photo"
+            return "Camera"
         case .search:
             switch store.homeTab {
             case .smart:

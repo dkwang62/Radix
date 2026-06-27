@@ -187,7 +187,7 @@ struct CaptureTab: View {
         VStack(alignment: .leading, spacing: 8) {
             Label("Ready to capture Chinese text", systemImage: "camera.viewfinder")
                 .font(ResponsiveFont.body.weight(.semibold))
-            Text("Use Take Photo above. New pages open in Browse after Radix reads the image.")
+            Text("Use Camera above. New pages open in Browse after Radix reads the image.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -207,7 +207,7 @@ struct CaptureTab: View {
 
     private var phoneCapturePreview: some View {
         PhoneContextPreview(
-            returnTitle: "Take Photo",
+            returnTitle: "Camera",
             returnSystemImage: "camera.viewfinder",
             phrase: store.activeSidebarPhrasePreview,
             character: captureDetailPreviewCharacter ?? capturePreviewCharacter ?? store.previewCharacter,

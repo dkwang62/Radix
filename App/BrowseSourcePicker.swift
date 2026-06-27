@@ -75,7 +75,7 @@ extension FilterGridTab {
                 ContentUnavailableView(
                     "No Pages",
                     systemImage: "photo.on.rectangle.angled",
-                    description: Text("Use clipboard text, import an image, or use Take Photo.")
+                    description: Text("Use clipboard text, import an image, or use Camera.")
                 )
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)

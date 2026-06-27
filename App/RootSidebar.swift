@@ -55,14 +55,14 @@ extension RootView {
                 store.startBrowseCameraPage()
             } label: {
                 PrimaryActionTile(
-                    title: "Take Photo",
+                    title: "Camera",
                     subtitle: "Capture text",
                     systemImage: "camera.fill",
                     isPrimary: true
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Take Photo")
+            .accessibilityLabel("Camera")
         }
     }
 

@@ -3,7 +3,7 @@ import Foundation
 /// Canonical customer-facing vocabulary. Keeping these terms in one place
 /// prevents iPhone, iPad, and Mac labels from drifting apart.
 enum RadixCopy {
-    static let takePhoto = String(localized: "Take Photo")
+    static let camera = String(localized: "Camera")
     static let browse = String(localized: "Browse")
     static let search = String(localized: "Search")
     static let study = String(localized: "Study")
@@ -59,7 +59,7 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .scan: return RadixCopy.takePhoto
+        case .scan: return RadixCopy.camera
         case .browse: return RadixCopy.browse
         case .search: return RadixCopy.search
         case .study: return RadixCopy.study
@@ -70,7 +70,7 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
 
     var compactTitle: String {
         switch self {
-        case .scan: return "Photo"
+        case .scan: return "Camera"
         case .aiLink: return "AI"
         default: return title
         }

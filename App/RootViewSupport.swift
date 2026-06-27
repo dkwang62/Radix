@@ -193,7 +193,7 @@ struct PrimaryActionTile: View {
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
-                    .font(ResponsiveFont.subheadline.weight(.bold))
+                    .font(ResponsiveFont.callout.weight(.bold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.78)
                 Text(subtitle)

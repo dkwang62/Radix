@@ -31,4 +31,5 @@ enum RadixPreferenceKey {
     static let searchHistory = "radix.searchHistory"
     static let rootBreadcrumb = "radix.rootBreadcrumb"
     static let sidebarNavigationStyle = "radix.sidebarNavigationStyle"
+    static let standardDataImportID = "radix.standardDataImportID"
 }

@@ -53,6 +53,7 @@ extension RadixStore {
         refreshAddedPhrases()
         refreshAddedDictionaryCharacters()
         calculateDictionaryVariances()
+        importBundledStandardDataIfNeeded()
 
         dataEditPhrases = addedPhrases
         addPhrasesPath = phraseRepo.currentAddDBPath
@@ -81,5 +82,46 @@ extension RadixStore {
             SidebarNavigationStyle.defaultStyle.rawValue,
             forKey: RadixPreferenceKey.sidebarNavigationStyle
         )
+    }
+
+    private func importBundledStandardDataIfNeeded() {
+        let importID = "radix_unified_backup.2026-06-27"
+        guard preferences.string(forKey: RadixPreferenceKey.standardDataImportID) != importID else {
+            return
+        }
+        guard let url = Bundle.main.url(forResource: "radix_unified_backup", withExtension: "json") else {
+            return
+        }
+
+        do {
+            let data = try Data(contentsOf: url)
+            let payload = try PortableBackupCodec().decode(data)
+            try importDataEditPayload(sanitizedStandardDataPayload(payload), mode: .additive)
+            preferences.set(importID, forKey: RadixPreferenceKey.standardDataImportID)
+        } catch {
+            loadingError = error.localizedDescription
+        }
+    }
+
+    private func sanitizedStandardDataPayload(_ payload: PortableBackupPayload) -> PortableBackupPayload {
+        switch payload {
+        case .legacyDictionary:
+            return payload
+        case .unified(let package):
+            return .unified(UnifiedPackage(
+                schemaVersion: package.schemaVersion,
+                exportedAt: package.exportedAt,
+                backupID: package.backupID,
+                baseDictionaryFingerprint: package.baseDictionaryFingerprint,
+                dictionary: package.dictionary,
+                dictionaryOverlay: package.dictionaryOverlay,
+                dictionaryPatchOverlay: package.dictionaryPatchOverlay,
+                phrases: package.phrases,
+                profile: package.profile,
+                collections: package.collections,
+                selectedAICollectionID: package.selectedAICollectionID,
+                apiKeys: nil
+            ))
+        }
     }
 }
