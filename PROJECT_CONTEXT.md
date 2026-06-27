@@ -254,7 +254,7 @@ so long explanations and action cards do not visually spill to the screen edge.
 1. Manually verify the saved-page `Actions` menu on iPhone, iPad, and Mac
    Catalyst, including conditional `Check OCR`.
 2. Usability-test `Check OCR` with clear, ambiguous, and incorrect captures,
-   including the copy-image and structured-response workflow.
+   including the collapsed manual handoff and structured-response workflow.
 3. Perform a short regression for backup restore, Browse saved pages, phrase
    classification, and My Data flows.
 
