@@ -236,10 +236,10 @@ Radix falls back to the file picker with the chosen Merge/Replace intent
 preserved. My Data links back to Study for Checkpoints instead of duplicating
 the checkpoint controls.
 Backup File actions keep the same three choices across iPhone, iPad, and Mac:
-Create Backup, Merge Backup, and Replace from Backup. iPad and Mac show the
-three cards in one row; iPhone uses a compact two-row arrangement with Create
-Backup above Merge/Replace so the section remains readable without excessive
-vertical bulk.
+Create Backup, Merge Backup, and Replace from Backup. iPhone and iPad use a
+readable two-row arrangement with Create Backup above Merge/Replace; Mac can
+use the wider three-card row. My Data content is width-capped inside its column
+so long explanations and action cards do not visually spill to the screen edge.
 
 ## Next Three Tasks
 

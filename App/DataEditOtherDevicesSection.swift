@@ -83,7 +83,13 @@ extension DataEditTab {
 
     @ViewBuilder
     var portableBackupActionButtons: some View {
-        if RadixPlatform.isPhone {
+        if RadixPlatform.isDesktop {
+            LazyVGrid(columns: backupActionColumns, spacing: 8) {
+                backupToiCloudButton
+                addFromBackupButton
+                restoreBackupButton
+            }
+        } else {
             VStack(spacing: 8) {
                 backupToiCloudButton
 
@@ -91,12 +97,6 @@ extension DataEditTab {
                     addFromBackupButton
                     restoreBackupButton
                 }
-            }
-        } else {
-            LazyVGrid(columns: backupActionColumns, spacing: 8) {
-                backupToiCloudButton
-                addFromBackupButton
-                restoreBackupButton
             }
         }
     }

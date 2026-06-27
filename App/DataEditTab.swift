@@ -7,6 +7,12 @@ enum DataEditSection: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+private extension DataEditTab {
+    var dataEditContentMaxWidth: CGFloat {
+        RadixPlatform.isDesktop ? 920 : 680
+    }
+}
+
 struct AddedPhraseReviewPresentation: Identifiable {
     let id = UUID()
 }
@@ -122,6 +128,8 @@ struct DataEditTab: View {
                     .padding(.horizontal)
                     .padding(.top, 16)
                     .padding(.bottom, 32)
+                    .frame(maxWidth: dataEditContentMaxWidth, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .modifier(DataEditTransferModifier(
