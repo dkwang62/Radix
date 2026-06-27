@@ -89,7 +89,7 @@ compatibility contracts. Current portable contracts include:
 - navigation, tab, script-filter, and restore-mode identifiers
 - preference keys and the preference-storage interface
 
-The portable test suite currently contains 15 tests across six suites.
+The portable test suite currently contains 18 tests across seven suites.
 
 ## Active Workstream
 
