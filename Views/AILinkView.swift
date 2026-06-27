@@ -17,6 +17,9 @@ struct AILinkView: View {
     @State var copied = false
     @State var openedDefaultAI = false
     @State var selectedPromptTaskID: String?
+    @State var draftPromptTitle = ""
+    @State var draftPromptTemplate = ""
+    @State var promptSaveStatus: String?
     @State var selectedAIPreset: DefaultAIPreset?
     @State var isRunningGeminiPhraseAPI = false
     @State var geminiPhraseAPIMessage: String?
@@ -78,18 +81,26 @@ struct AILinkView: View {
         selectedPromptTask?.id == "task4" && selectedCollection != nil
     }
 
+    var draftPromptTask: PromptTask? {
+        guard let selectedPromptTask else { return nil }
+        return PromptTask(
+            id: selectedPromptTask.id,
+            title: draftPromptTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                ? selectedPromptTask.title
+                : draftPromptTitle,
+            template: draftPromptTemplate
+        )
+    }
+
+    var hasUnsavedPromptChanges: Bool {
+        guard let selectedPromptTask else { return false }
+        return draftPromptTitle != selectedPromptTask.title ||
+            draftPromptTemplate != selectedPromptTask.template
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Go beyond the dictionary")
-                        .font(ResponsiveFont.headline)
-                    Text("Use AI to explore nuance and current usage, understand Chinese in context, translate complete pages naturally, and find useful phrases or concepts that traditional dictionaries may not yet cover.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
                 promptGenerationSection
             }
             .padding(20)
@@ -266,20 +277,57 @@ struct AILinkView: View {
         }
         if let selectedPromptTaskID,
            normalizedTasks.contains(where: { $0.id == selectedPromptTaskID }) {
+            loadPromptDraft(taskID: selectedPromptTaskID)
             return
         }
         if let savedID = store.promptSelectedTaskIDs.first,
            normalizedTasks.contains(where: { $0.id == savedID }) {
             selectedPromptTaskID = savedID
+            loadPromptDraft(taskID: savedID)
             return
         }
         let fallbackID = normalizedTasks[0].id
         selectedPromptTaskID = fallbackID
+        loadPromptDraft(taskID: fallbackID)
     }
 
     func selectPromptTask(_ taskID: String) {
         selectedPromptTaskID = taskID
         store.promptSelectedTaskIDs = [taskID]
         store.persistPromptSettings()
+        loadPromptDraft(taskID: taskID)
+    }
+
+    func loadPromptDraft(taskID: String) {
+        let task = store.promptConfig.normalized().tasks.first(where: { $0.id == taskID })
+        draftPromptTitle = task?.title ?? ""
+        draftPromptTemplate = task?.template ?? ""
+        promptSaveStatus = nil
+    }
+
+    func savePromptDraft() {
+        guard let selectedPromptTask else { return }
+        store.setPromptTask(
+            taskID: selectedPromptTask.id,
+            title: draftPromptTitle,
+            template: draftPromptTemplate
+        )
+        store.promptSelectedTaskIDs = [selectedPromptTask.id]
+        store.persistPromptSettings()
+        promptSaveStatus = "Saved."
+    }
+
+    func resetPromptDraftToDefault() {
+        guard let selectedPromptTask else { return }
+        let defaultTask = store.defaultPromptTask(for: selectedPromptTask.id)
+        draftPromptTitle = defaultTask.title
+        draftPromptTemplate = defaultTask.template
+        promptSaveStatus = "Reset. Save to keep it."
+    }
+
+    func createCustomPromptTask() {
+        let id = store.addPromptTask()
+        selectedPromptTaskID = id
+        loadPromptDraft(taskID: id)
     }
 }

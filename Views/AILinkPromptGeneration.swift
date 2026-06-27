@@ -16,17 +16,57 @@ extension AILinkView {
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
 
-            Picker("AI task", selection: Binding(
-                get: { selectedPromptTask?.id ?? store.promptConfig.normalized().tasks.first?.id ?? "" },
-                set: { selectPromptTask($0) }
-            )) {
+            Menu {
                 ForEach(store.promptConfig.normalized().tasks) { task in
-                    Text(task.title).tag(task.id)
+                    Button {
+                        selectPromptTask(task.id)
+                    } label: {
+                        Label(
+                            task.title,
+                            systemImage: task.id == selectedPromptTask?.id ? "checkmark" : "sparkles"
+                        )
+                    }
                 }
+
+                Divider()
+
+                Button {
+                    createCustomPromptTask()
+                } label: {
+                    Label("New AI Task...", systemImage: "plus.circle")
+                }
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(Color.accentColor)
+                        .frame(width: 30, height: 30)
+                        .background(Color.accentColor.opacity(0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 7))
+
+                    Text(selectedPromptTask?.title ?? "Choose AI Task")
+                        .font(ResponsiveFont.body.bold())
+                        .lineLimit(1)
+                        .layoutPriority(1)
+
+                    Spacer(minLength: 0)
+
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 12)
+                .frame(minHeight: 48)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(RadixTheme.background)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.accentColor.opacity(0.45), lineWidth: 1)
+                )
             }
-            .pickerStyle(.menu)
-            .font(ResponsiveFont.headline)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .buttonStyle(.plain)
+            .accessibilityLabel("Choose AI task")
         }
         .padding()
         .background(RadixTheme.secondaryBackground)
@@ -35,28 +75,55 @@ extension AILinkView {
 
     @ViewBuilder
     var selectedTaskTemplateSection: some View {
-        if let task = selectedPromptTask {
+        if selectedPromptTask != nil {
             VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .firstTextBaseline) {
+                HStack(alignment: .center, spacing: 8) {
                     Text("AI Prompt")
                         .font(ResponsiveFont.headline)
+
                     Spacer()
-                    Text(store.promptAutosaveStatus)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
+
+                    if let promptSaveStatus {
+                        Text(promptSaveStatus)
+                            .font(ResponsiveFont.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+
+                    Button {
+                        savePromptDraft()
+                    } label: {
+                        Label("Save Prompt", systemImage: "checkmark.circle")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+                    .disabled(!hasUnsavedPromptChanges)
+
+                    Button {
+                        resetPromptDraftToDefault()
+                    } label: {
+                        Label("Reset", systemImage: "arrow.counterclockwise")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
                 }
 
                 TextField("AI prompt title", text: Binding(
-                    get: { taskTitle(task.id) },
-                    set: { store.setPromptTaskTitle(taskID: task.id, title: $0) }
+                    get: { draftPromptTitle },
+                    set: {
+                        draftPromptTitle = $0
+                        promptSaveStatus = nil
+                    }
                 ))
                 .font(ResponsiveFont.body.bold())
                 .textFieldStyle(.roundedBorder)
 
                 TextEditor(text: Binding(
-                    get: { taskTemplate(task.id) },
-                    set: { store.setPromptTaskTemplate(taskID: task.id, template: $0) }
+                    get: { draftPromptTemplate },
+                    set: {
+                        draftPromptTemplate = $0
+                        promptSaveStatus = nil
+                    }
                 ))
                 .font(.system(size: 14, design: .monospaced))
                 .frame(minHeight: sizeClass == .compact ? 180 : 220)

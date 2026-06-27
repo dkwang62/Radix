@@ -123,7 +123,8 @@ extension RadixStore {
         persistPromptSettings()
     }
 
-    func addPromptTask() {
+    @discardableResult
+    func addPromptTask() -> String {
         let next = (promptConfig.tasks.count + 1)
         var id = "task\(next)"
         var suffix = 1
@@ -131,10 +132,23 @@ extension RadixStore {
             suffix += 1
             id = "task\(next)_\(suffix)"
         }
-        let task = PromptTask(id: id, title: "Task \(next)", template: "Task \(next)\n\n")
+        let task = PromptTask(id: id, title: "Custom Task", template: "Custom Task\n\n")
         promptConfig.tasks.append(task)
-        promptSelectedTaskIDs.append(id)
+        promptSelectedTaskIDs = [id]
         persistPromptSettings()
+        return id
+    }
+
+    func setPromptTask(taskID: String, title: String, template: String) {
+        guard let idx = promptConfig.tasks.firstIndex(where: { $0.id == taskID }) else { return }
+        promptConfig.tasks[idx].title = title
+        promptConfig.tasks[idx].template = template
+        persistPromptSettings()
+    }
+
+    func defaultPromptTask(for taskID: String) -> PromptTask {
+        PromptConfig.streamlitDefault.tasks.first(where: { $0.id == taskID }) ??
+        PromptTask(id: taskID, title: "Custom Task", template: "Custom Task\n\n")
     }
 
     func removePromptTask(taskID: String) {

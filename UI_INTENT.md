@@ -170,10 +170,14 @@ AI should focus on understanding and transforming material:
 AI can be connected from Browse and Study, but it should not be hidden so deeply
 that users miss it as a major Radix feature.
 AI Link should start from the user's goal, not configuration. Show one compact
-AI task picker, then the editable AI prompt template for that task only, then a
-compact source confirmation row. Character and phrase tasks default to the last
-subject in the memory strip. Saved-page tasks default to the last viewed page.
-Always show the chosen source before sending so the smart default remains
+AI task menu with an obvious dropdown affordance and a `New AI Task...` option,
+then the editable AI prompt template for that task only, then a compact source
+confirmation row. Prompt editing should use an explicit draft with `Save Prompt`
+and `Reset`, not invisible autosave. Do not show a full generated prompt preview
+on the AI Link screen; the AI chat will show the prompt after copy/open. Keep
+only a one-line ready-to-send summary. Character and phrase tasks default to the
+last subject in the memory strip. Saved-page tasks default to the last viewed
+page. Always show the chosen source before sending so the smart default remains
 reversible and understandable.
 
 ## Backup and checkpoint grammar
@@ -319,9 +323,9 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   Settings with Private API Keys expanded and a contextual `Back to Browse`
   action.
 - Check OCR, Extract Phrases, Translate Page, and Create Quiz also exist as
-  saved-page tasks in AI Link. Their templates are editable in Customize, and
-  Browse must render those same templates rather than maintaining separate
-  hidden instructions.
+  saved-page tasks in AI Link. Their templates are editable as AI prompts in
+  the selected task view, and Browse must render those same templates rather
+  than maintaining separate hidden instructions.
 - Their Browse submenus use the same two method labels: `Use Another AI App`
   copies a prepared instruction for ChatGPT, Gemini, or another service, while
   `Run Automatically in Radix` uses the saved Gemini API key. A one-time,

@@ -4,39 +4,10 @@ extension AILinkView {
     var promptBox: some View {
         VStack(alignment: .leading, spacing: 8) {
             promptActions
-
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("AI Prompt Preview")
-                    .font(ResponsiveFont.subheadline)
-                    .foregroundStyle(.secondary)
-
-                if let promptContextLine {
-                    Text(promptContextLine)
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(RadixTheme.tertiaryBackground)
-                        .clipShape(Capsule())
-                }
-            }
-
-            ScrollView {
-                Text(generatedPromptText)
-                    .font(.system(size: 15, design: .monospaced))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .textSelection(.enabled)
-                    .padding(12)
-            }
-            .frame(minHeight: 260)
-            .background(RadixTheme.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(RadixTheme.separator, lineWidth: 1)
-            )
         }
+        .padding()
+        .background(RadixTheme.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     @ViewBuilder
@@ -46,15 +17,29 @@ extension AILinkView {
 
         if sizeClass == .compact {
             VStack(alignment: .leading, spacing: 10) {
+                readyToSendLine
                 promptActionButtons(currentPreset: currentPreset, currentAIName: currentAIName)
                 promptStatusText(currentPreset: currentPreset, currentAIName: currentAIName)
             }
         } else {
             HStack(spacing: 12) {
+                readyToSendLine
                 promptActionButtons(currentPreset: currentPreset, currentAIName: currentAIName)
                 promptStatusText(currentPreset: currentPreset, currentAIName: currentAIName)
             }
         }
+    }
+
+    var readyToSendLine: some View {
+        Label(readyToSendText, systemImage: canGeneratePrompt ? "checkmark.circle" : "exclamationmark.triangle")
+            .font(ResponsiveFont.caption.weight(.semibold))
+            .foregroundStyle(canGeneratePrompt ? Color.accentColor : Color.orange)
+            .lineLimit(1)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background((canGeneratePrompt ? Color.accentColor : Color.orange).opacity(0.10))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .layoutPriority(1)
     }
 
     func promptActionButtons(currentPreset: DefaultAIPreset, currentAIName: String) -> some View {
@@ -174,7 +159,7 @@ extension AILinkView {
     }
 
     var generatedPromptText: String {
-        guard let task = selectedPromptTask else {
+        guard let task = draftPromptTask else {
             return "Choose an AI task."
         }
         if hasCollectionTasks && selectedCollection == nil {
@@ -185,13 +170,26 @@ extension AILinkView {
         }
         let text: String
         if PromptConfig.collectionTaskIDs.contains(task.id), let selectedCollection {
-            text = store.promptText(for: .collection(selectedCollection), selectedTaskIDs: [task.id])
+            text = store.promptForTask(task, subject: .collection(selectedCollection))
         } else if let activeCharacter {
-            text = store.promptText(for: .character(activeCharacter), selectedTaskIDs: [task.id])
+            text = store.promptForTask(task, subject: .character(activeCharacter))
         } else {
             text = ""
         }
         return text.isEmpty ? "Choose an AI task." : text
+    }
+
+    var readyToSendText: String {
+        let taskTitle = draftPromptTask?.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let taskName = (taskTitle?.isEmpty == false ? taskTitle : selectedPromptTask?.title) ?? "AI Task"
+        if hasCharacterTasks {
+            return "Ready to send: \(taskName) · Subject: \(activeCharacter ?? "Choose subject")"
+        }
+        if hasCollectionTasks {
+            let pageName = selectedCollection?.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            return "Ready to send: \(taskName) · Page: \((pageName?.isEmpty == false ? pageName : nil) ?? "Choose page")"
+        }
+        return "Choose an AI task"
     }
 
     var promptContextLine: String? {
