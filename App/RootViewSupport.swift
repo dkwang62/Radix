@@ -70,6 +70,20 @@ extension RootView {
         navigationGuideTopic = topic
     }
 
+    func handleNavigationGuideTap(
+        _ topic: RadixNavigationGuideTopic,
+        isActive: Bool,
+        navigate: () -> Void
+    ) {
+        if isActive && lastNavigationGuideTap == topic {
+            lastNavigationGuideTap = nil
+            offerNavigationGuide(topic, force: true)
+        } else {
+            lastNavigationGuideTap = topic
+            navigate()
+        }
+    }
+
     func dismissNavigationGuide(_ topic: RadixNavigationGuideTopic) {
         RadixRootPreferences.setNavigationGuideSeen(topic.id)
         if navigationGuideTopic == topic {

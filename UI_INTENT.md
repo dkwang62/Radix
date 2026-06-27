@@ -262,7 +262,7 @@ tiny explanatory text is often unreadable.
 Prefer:
 
 - Clear labels.
-- Larger text in long-press help disclosures.
+- Larger text in explicit help disclosures.
 - Contextual help on icons when the tap action already does something else.
 
 Keep roman text, pinyin, and helper labels legible. Avoid shrinking important
@@ -273,12 +273,12 @@ The five primary navigation destinations use progressive guidance:
 - `Icons & Labels` is the explicit startup default and keeps the short
   destination names visible after every launch.
 - Experienced users may choose `Icons Only` in Settings for the current session.
-- On iPhone, iPad, and Mac Catalyst, a normal navigation press must never open
-  a guide; guides are available only by long-pressing a destination.
+- On iPhone, iPad, and Mac Catalyst, the first navigation press must only change
+  destination. Selecting the same active destination twice in a row opens or
+  reopens its guide.
 - Each explanation begins with why the destination matters, then describes what
   the user can do. Do not present a bare inventory of controls.
 - Once dismissed, the explanation stays out of the way.
-- Long-pressing a destination opens or reopens its explanation.
 - Settings includes `Show Navigation Tips Again` to reset first-visit guidance.
 
 Do not replace this with permanent paragraphs on every destination screen.

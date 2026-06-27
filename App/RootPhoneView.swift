@@ -195,33 +195,35 @@ extension RootView {
         }()
 
         return Button {
-            store.clearCrossTabOrigin()
-            if RadixPlatform.isPhone {
-                if id != 2 {
-                    store.previewCharacter = nil
-                    store.showiPhoneDetail = false
+            handleNavigationGuideTap(guideTopic, isActive: isActive) {
+                store.clearCrossTabOrigin()
+                if RadixPlatform.isPhone {
+                    if id != 2 {
+                        store.previewCharacter = nil
+                        store.showiPhoneDetail = false
+                    }
                 }
-            }
-            switch id {
-            case 0:
-                store.startBrowseCameraPage()
-            case 4:
-                store.route = .aiLink
-            case 1:
-                store.route = .search
-                store.homeTab = .smart
-            case 2:
-                store.route = .search
-                store.homeTab = .filter
-                store.returnToBrowseGrid()
-            case 3:
-                store.route = .search
-                store.homeTab = .favourites
-            case 5:
-                store.goToDataEdit()
-            default:
-                store.route = .search
-                store.homeTab = .smart
+                switch id {
+                case 0:
+                    store.startBrowseCameraPage()
+                case 4:
+                    store.route = .aiLink
+                case 1:
+                    store.route = .search
+                    store.homeTab = .smart
+                case 2:
+                    store.route = .search
+                    store.homeTab = .filter
+                    store.returnToBrowseGrid()
+                case 3:
+                    store.route = .search
+                    store.homeTab = .favourites
+                case 5:
+                    store.goToDataEdit()
+                default:
+                    store.route = .search
+                    store.homeTab = .smart
+                }
             }
         } label: {
             VStack(spacing: showsTitle ? 2 : 0) {
@@ -247,20 +249,18 @@ extension RootView {
         .buttonStyle(.plain)
         .accessibilityLabel(item.title)
         .accessibilityValue(isActive ? "Selected" : "")
-        .accessibilityHint(item.subtitle)
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.55).onEnded { _ in
-                offerNavigationGuide(guideTopic, force: true)
-            }
-        )
+        .accessibilityHint("\(item.subtitle) Tap this selected destination again to show its guide.")
     }
 
     var phoneSettingsTabButton: some View {
         let showsTitle = store.sidebarNavigationStyle == .descriptive
+        let isActive = store.route == .settings
 
         return Button {
-            store.clearCrossTabOrigin()
-            store.goToSettings()
+            handleNavigationGuideTap(.settings, isActive: isActive) {
+                store.clearCrossTabOrigin()
+                store.goToSettings()
+            }
         } label: {
             VStack(spacing: showsTitle ? 2 : 0) {
                 Image(systemName: RadixIcon.settings)
@@ -272,22 +272,18 @@ extension RootView {
                         .minimumScaleFactor(0.52)
                 }
             }
-            .foregroundStyle(store.route == .settings ? Color.white : Color.secondary)
+            .foregroundStyle(isActive ? Color.white : Color.secondary)
             .frame(maxWidth: .infinity)
             .frame(height: showsTitle ? 48 : 42)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(store.route == .settings ? Color.accentColor : Color.clear)
+                    .fill(isActive ? Color.accentColor : Color.clear)
             )
             .contentShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Settings")
-        .accessibilityHint(RadixNavigationGuideTopic.settings.summary)
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.55).onEnded { _ in
-                offerNavigationGuide(.settings, force: true)
-            }
-        )
+        .accessibilityValue(isActive ? "Selected" : "")
+        .accessibilityHint("\(RadixNavigationGuideTopic.settings.summary) Tap Settings again to show its guide.")
     }
 }

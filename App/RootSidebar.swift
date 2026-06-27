@@ -95,22 +95,24 @@ extension RootView {
         }()
 
         return Button {
-            store.clearCrossTabOrigin()
-            switch id {
-            case 2:
-                hasUsedSidebarNavigation = true
-                store.goToBrowse()
-            case 3:
-                hasUsedSidebarNavigation = true
-                store.goToFavourites()
-            case 4:
-                hasUsedSidebarNavigation = true
-                store.enterAILink()
-            case 5:
-                hasUsedSidebarNavigation = true
-                store.goToDataEdit()
-            default:
-                break
+            handleNavigationGuideTap(guideTopic, isActive: isActive) {
+                store.clearCrossTabOrigin()
+                switch id {
+                case 2:
+                    hasUsedSidebarNavigation = true
+                    store.goToBrowse()
+                case 3:
+                    hasUsedSidebarNavigation = true
+                    store.goToFavourites()
+                case 4:
+                    hasUsedSidebarNavigation = true
+                    store.enterAILink()
+                case 5:
+                    hasUsedSidebarNavigation = true
+                    store.goToDataEdit()
+                default:
+                    break
+                }
             }
         } label: {
             VStack(spacing: showsTitle ? 2 : 0) {
@@ -135,7 +137,7 @@ extension RootView {
         .buttonStyle(.plain)
         .accessibilityLabel(item.title)
         .accessibilityValue(isActive ? "Selected" : "")
-        .accessibilityHint(item.subtitle)
+        .accessibilityHint("\(item.subtitle) Select this destination again to show its guide.")
         .overlay(
             Group {
                 if isActive {
@@ -146,21 +148,19 @@ extension RootView {
                 }
             }
         )
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.55).onEnded { _ in
-                offerNavigationGuide(guideTopic, force: true)
-            }
-        )
         .help(guideTopic.summary)
     }
 
     var sidebarSettingsTabButton: some View {
         let showsTitle = store.sidebarNavigationStyle == .descriptive
+        let isActive = store.route == .settings
 
         return Button {
-            store.clearCrossTabOrigin()
-            hasUsedSidebarNavigation = true
-            store.goToSettings()
+            handleNavigationGuideTap(.settings, isActive: isActive) {
+                store.clearCrossTabOrigin()
+                hasUsedSidebarNavigation = true
+                store.goToSettings()
+            }
         } label: {
             VStack(spacing: showsTitle ? 2 : 0) {
                 Image(systemName: RadixIcon.settings)
@@ -172,32 +172,27 @@ extension RootView {
                         .minimumScaleFactor(0.52)
                 }
             }
-            .foregroundStyle(store.route == .settings ? Color.white : Color.secondary)
+            .foregroundStyle(isActive ? Color.white : Color.secondary)
             .frame(maxWidth: .infinity)
             .frame(height: showsTitle ? 48 : 42)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(store.route == .settings ? Color.accentColor : RadixTheme.secondaryBackground.opacity(0.65))
+                    .fill(isActive ? Color.accentColor : RadixTheme.secondaryBackground.opacity(0.65))
             )
             .contentShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Settings")
-        .accessibilityValue(store.route == .settings ? "Selected" : "")
-        .accessibilityHint(RadixNavigationGuideTopic.settings.summary)
+        .accessibilityValue(isActive ? "Selected" : "")
+        .accessibilityHint("\(RadixNavigationGuideTopic.settings.summary) Select Settings again to show its guide.")
         .overlay(
             Group {
-                if store.route == .settings {
+                if isActive {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
                 } else {
                     EmptyView()
                 }
-            }
-        )
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.55).onEnded { _ in
-                offerNavigationGuide(.settings, force: true)
             }
         )
         .help(RadixNavigationGuideTopic.settings.summary)
