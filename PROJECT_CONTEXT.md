@@ -161,10 +161,11 @@ Study uses its four summary tiles as the section selectors. Recent and Favorites
 must not be repeated as a segmented picker above the review grid.
 On iPad those four tiles use an explicit two-column layout so all labels remain
 readable; phone and Mac retain their adaptive layouts.
-Added Phrases review includes a batch action that creates an `AI Review` saved
-page from all current unreviewed, non-base added phrases, then opens that page
-in Browse with a `Back to Study` return path. This action does not mark,
-accept, reject, or delete the source phrases.
+Added Phrases review includes a visible shortcut that creates an `AI Review`
+saved page from all current unreviewed, non-base added phrases, then opens that
+page in Browse with a `Back to Study` return path. This action does not mark,
+accept, reject, or delete the source phrases. The Batch menu is reserved for
+bulk status/deletion actions rather than hiding this workflow.
 On Mac Catalyst the Added Phrases classification sheet shows 28 tiles per page
 (4 columns × 7 rows) to avoid internal grid scrolling, which can momentarily
 hang while users scroll the sheet.

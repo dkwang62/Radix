@@ -73,6 +73,9 @@ struct AddedPhraseReviewSheet: View {
                 VStack(alignment: .leading, spacing: 6) {
                     topControlRow
                     searchField
+                    if !newPhrases.isEmpty {
+                        aiReviewPageShortcut
+                    }
                     toolRow
                     selectedPhraseDetailCard
 

@@ -29,6 +29,53 @@ extension AddedPhraseReviewSheet {
         !newPhrases.isEmpty || !rejectedPhrases.isEmpty
     }
 
+    var aiReviewPageShortcut: some View {
+        Button {
+            createAIReviewPage()
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: usesRegularReviewLayout ? 20 : 17, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: usesRegularReviewLayout ? 34 : 28, height: usesRegularReviewLayout ? 34 : 28)
+                    .background(Color.accentColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Create AI Review Page")
+                        .font(reviewControlFont)
+                        .foregroundStyle(Color.accentColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+
+                    Text("\(newPhrases.count) unreviewed phrase\(newPhrases.count == 1 ? "" : "s") → Browse")
+                        .font(reviewCaptionFont)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+
+                Spacer(minLength: 8)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(Color.accentColor)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, usesRegularReviewLayout ? 9 : 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.accentColor.opacity(0.08))
+            .overlay {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.accentColor.opacity(0.18), lineWidth: 1)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Create AI Review Page from \(newPhrases.count) unreviewed phrases")
+        .help("Create a saved Browse page from all unreviewed added phrases without changing their review status.")
+    }
+
     var filterRow: some View {
         HStack(spacing: 8) {
             Button {
@@ -178,12 +225,6 @@ extension AddedPhraseReviewSheet {
     var batchMenu: some View {
         Menu {
             if !newPhrases.isEmpty {
-                Button {
-                    createAIReviewPage()
-                } label: {
-                    Label("Create AI Review Page (\(newPhrases.count))", systemImage: "photo.on.rectangle")
-                }
-
                 Button {
                     checkNewPhrases()
                 } label: {
