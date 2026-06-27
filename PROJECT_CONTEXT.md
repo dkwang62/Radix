@@ -184,7 +184,8 @@ image from the clipboard, image from Album, image from Files, and saved-page
 selection. Clipboard actions tell the user to copy the source content first;
 Album and Files actions tell the user to choose the source image first.
 Clipboard images use the same OCR page creation path as camera, album, and file
-images.
+images. While the Browse source list is open, it is the active content; do not
+show the dictionary or saved-page character grid behind or below it.
 Entering Browse selects the saved page with the newest viewed-or-created date;
 the same selection is established during startup because the app launches on
 Browse without invoking a tab transition. Dictionary is the fallback only when

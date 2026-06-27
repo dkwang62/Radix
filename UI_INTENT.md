@@ -92,6 +92,9 @@ Browse should be simple and not force unnecessary mode choices:
   file.
 - Saved Pages appear as a list.
 
+When the Browse source list is open, it is the active Browse content. Do not
+show the dictionary or saved-page character grid behind or below it.
+
 Entering Browse opens the most recently viewed saved page, using its scan date
 when it has no separate viewing date. Dictionary remains available from the
 source chooser but is not the default when saved pages exist.

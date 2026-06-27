@@ -122,7 +122,9 @@ struct FilterGridTab: View {
                         ScrollView {
                             VStack(alignment: .leading, spacing: 0) {
                                 Color.clear.frame(height: 0).id("browseTop")
-                                browseContent(proxy: proxy)
+                                if !showBrowseSource {
+                                    browseContent(proxy: proxy)
+                                }
                             }
                             .padding(.horizontal)
                         }
