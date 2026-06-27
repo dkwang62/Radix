@@ -25,15 +25,6 @@ extension FilterGridTab {
         }
     }
 
-    func copyOCRReviewImage(_ collection: CharacterCollection) {
-        guard let imageData = collection.sourceImageJPEGData ?? collection.thumbnailJPEGData else {
-            imageActionMessage = "No source image is available for this page."
-            return
-        }
-        RadixPlatform.copyImageToPasteboard(imageData)
-        imageActionMessage = "Image copied. Paste it into the ChatGPT conversation."
-    }
-
     func openOCRReviewInDefaultAI(_ collection: CharacterCollection) {
         let prompt = store.ocrReviewPrompt(for: collection)
         RadixPlatform.copyToPasteboard(prompt)

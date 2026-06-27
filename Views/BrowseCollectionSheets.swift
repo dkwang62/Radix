@@ -95,38 +95,44 @@ struct EditBrowseCollectionSheet: View {
 }
 
 struct BrowseOCRReviewSheet: View {
-    let collection: CharacterCollection
     let instruction: String
     let aiName: String
     let message: String?
-    let onCopyImage: () -> Void
     let onOpenAI: () -> Void
     let onPasteAndCreate: () -> Void
     let onDone: () -> Void
+
+    @State private var didOpenAI = false
 
     var body: some View {
         NavigationStack {
             Form {
                 Section("Why check it?") {
-                    Text("OCR mistakes can weaken phrase extraction and translation. Radix creates a corrected Browse page from the AI answer while keeping the original OCR page unchanged.")
+                    Text("Ask AI to spot likely capture mistakes. Radix will create a separate corrected page and keep this original unchanged.")
                 }
 
-                Section("1. Ask AI to check the OCR") {
-                    Text("Open \(aiName) copies the instruction and opens the AI app. If the page has an image, copy it separately only if the AI needs visual evidence.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                    ScrollView {
-                        Text(instruction)
-                            .font(.system(size: 13, design: .monospaced))
-                            .textSelection(.enabled)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                if !didOpenAI {
+                    Section("1. Ask AI to check the OCR") {
+                        Text("Open \(aiName). Radix copies the instruction for you.")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                        ScrollView {
+                            Text(instruction)
+                                .font(.system(size: 13, design: .monospaced))
+                                .textSelection(.enabled)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .frame(minHeight: 80, maxHeight: 140)
+                        Button("Open \(aiName)") {
+                            didOpenAI = true
+                            onOpenAI()
+                        }
+                        .buttonStyle(.borderedProminent)
                     }
-                    .frame(minHeight: 110, maxHeight: 180)
-                    ocrReviewActionButtons
                 }
 
-                Section("2. Create the corrected page") {
-                    Text("When the AI finishes, copy its complete answer. Radix will create and open the corrected page immediately.")
+                Section(didOpenAI ? "Create the corrected page" : "2. Create the corrected page") {
+                    Text(didOpenAI ? "Copy the AI answer, then paste it here." : "After the AI answers, copy its complete reply and paste it here.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                     Button("Paste Answer and Create Corrected Page", action: onPasteAndCreate)
@@ -150,25 +156,4 @@ struct BrowseOCRReviewSheet: View {
         }
         .frame(minWidth: 420, minHeight: 620)
     }
-
-    private var ocrReviewActionButtons: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack {
-                actionButtonContent
-            }
-            VStack(alignment: .leading) {
-                actionButtonContent
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var actionButtonContent: some View {
-        Button("Open \(aiName)", action: onOpenAI)
-            .buttonStyle(.borderedProminent)
-        if collection.sourceImageJPEGData != nil || collection.thumbnailJPEGData != nil {
-            Button("Copy Image", action: onCopyImage)
-        }
-    }
-
 }

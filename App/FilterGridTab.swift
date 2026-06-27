@@ -229,11 +229,9 @@ struct FilterGridTab: View {
             }
             .sheet(item: $ocrReviewCollection) { collection in
                 BrowseOCRReviewSheet(
-                    collection: collection,
                     instruction: store.ocrReviewPrompt(for: collection),
                     aiName: store.defaultAIName,
                     message: imageActionMessage,
-                    onCopyImage: { copyOCRReviewImage(collection) },
                     onOpenAI: { openOCRReviewInDefaultAI(collection) },
                     onPasteAndCreate: { pasteAndCreateCorrectedOCRPage(from: collection) },
                     onDone: { ocrReviewCollection = nil }
