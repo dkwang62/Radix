@@ -165,6 +165,9 @@ Added Phrases review includes a batch action that creates an `AI Review` saved
 page from all current unreviewed, non-base added phrases, then opens that page
 in Browse with a `Back to Study` return path. This action does not mark,
 accept, reject, or delete the source phrases.
+On Mac Catalyst the Added Phrases classification sheet shows 28 tiles per page
+(4 columns × 7 rows) to avoid internal grid scrolling, which can momentarily
+hang while users scroll the sheet.
 Content-driven cross-tab navigation uses the existing single-level return
 context. Destinations show a named return button (`Back to Study`, `Back to My
 Data`, and so on); manually choosing a primary tab clears that context.
