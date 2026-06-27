@@ -133,16 +133,26 @@ enum AddedPhraseReviewRules {
     }
 
     static func reviewSortPredicate(_ lhs: PhraseItem, _ rhs: PhraseItem) -> Bool {
-        if lhs.word.count != rhs.word.count { return lhs.word.count < rhs.word.count }
-
         let leftKey = sortKey(primary: lhs.pinyin, fallback: lhs.word)
         let rightKey = sortKey(primary: rhs.pinyin, fallback: rhs.word)
         let pinyinOrder = leftKey.localizedStandardCompare(rightKey)
         if pinyinOrder != .orderedSame { return pinyinOrder == .orderedAscending }
 
+        if lhs.word.count != rhs.word.count { return lhs.word.count < rhs.word.count }
+
         let lhsDate = lhs.lastReviewedAt ?? lhs.addedAt ?? .distantPast
         let rhsDate = rhs.lastReviewedAt ?? rhs.addedAt ?? .distantPast
         return lhsDate > rhsDate
+    }
+
+    static func sortedByPinyin(_ phrases: [PhraseItem]) -> [PhraseItem] {
+        phrases.sorted(by: reviewSortPredicate)
+    }
+
+    static func pinyinRangeLabel(for phrases: [PhraseItem]) -> String {
+        let labels = phrases.map(pinyinBucketLabel)
+        guard let first = labels.first, let last = labels.last else { return "" }
+        return first == last ? first : "\(first)-\(last)"
     }
 
     static func aiReviewWords(
@@ -169,6 +179,16 @@ enum AddedPhraseReviewRules {
     private static func sortKey(primary: String, fallback: String) -> String {
         let value = primary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? fallback : primary
         return value.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+    }
+
+    private static func pinyinBucketLabel(for phrase: PhraseItem) -> String {
+        let key = sortKey(primary: phrase.pinyin, fallback: phrase.word)
+        guard let firstLetter = key.unicodeScalars.first(where: CharacterSet.letters.contains) else {
+            return "#"
+        }
+
+        let label = String(firstLetter).lowercased()
+        return label.range(of: #"^[a-z]$"#, options: .regularExpression) == nil ? "#" : label
     }
 }
 

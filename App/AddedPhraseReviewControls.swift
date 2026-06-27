@@ -5,9 +5,7 @@ extension AddedPhraseReviewSheet {
         HStack(spacing: 8) {
             filterRow
 
-            if hasBatchActions {
-                batchMenu
-            }
+            actionsMenu
 
             Spacer(minLength: 0)
 
@@ -23,57 +21,6 @@ extension AddedPhraseReviewSheet {
                 .accessibilityLabel("Close phrase classification")
         }
         .frame(maxWidth: .infinity)
-    }
-
-    var hasBatchActions: Bool {
-        !newPhrases.isEmpty || !rejectedPhrases.isEmpty
-    }
-
-    var aiReviewPageShortcut: some View {
-        Button {
-            createAIReviewPage()
-        } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: usesRegularReviewLayout ? 20 : 17, weight: .semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: usesRegularReviewLayout ? 34 : 28, height: usesRegularReviewLayout ? 34 : 28)
-                    .background(Color.accentColor.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Create AI Review Page")
-                        .font(reviewControlFont)
-                        .foregroundStyle(Color.accentColor)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.85)
-
-                    Text("\(newPhrases.count) unreviewed phrase\(newPhrases.count == 1 ? "" : "s") → Browse")
-                        .font(reviewCaptionFont)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                }
-
-                Spacer(minLength: 8)
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(Color.accentColor)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, usesRegularReviewLayout ? 9 : 8)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.accentColor.opacity(0.08))
-            .overlay {
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.accentColor.opacity(0.18), lineWidth: 1)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Create AI Review Page from \(newPhrases.count) unreviewed phrases")
-        .help("Create a saved Browse page from all unreviewed added phrases without changing their review status.")
     }
 
     var filterRow: some View {
@@ -156,27 +103,7 @@ extension AddedPhraseReviewSheet {
     }
 
     var toolRow: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            HStack {
-                Text(RadixPlatform.isDesktop ? "Choose a status, then click phrases" : "Choose a status, then tap phrases")
-                    .font(reviewCaptionFont.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-
-                Spacer(minLength: 8)
-
-                if selectedTool != nil {
-                    Button("Stop Marking") {
-                        selectedTool = nil
-                        reviewCycle.setActiveTool(nil)
-                        resetPageAndSelection()
-                    }
-                    .buttonStyle(.borderless)
-                    .font(reviewCaptionFont)
-                }
-            }
-
+        HStack(alignment: .top, spacing: 8) {
             LazyVGrid(columns: reviewToolColumns, spacing: 7) {
                 ForEach(PhraseReviewStatusTool.allCases) { option in
                     Button {
@@ -196,23 +123,24 @@ extension AddedPhraseReviewSheet {
                     .help("Select this tool, then choose phrases to mark them as \(option.title).")
                 }
             }
+            .frame(maxWidth: .infinity)
 
-            Text("Accepted: useful • Hidden: page context only • Rejected: not a phrase • Unreviewed: decide later")
-                .font(ResponsiveFont.caption2)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            if let selectedTool {
-                Text("\(selectedTool.title) is active. The filter stays unchanged while you classify.")
-                    .font(reviewCaptionFont)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            if selectedTool != nil {
+                Button {
+                    selectedTool = nil
+                    reviewCycle.setActiveTool(nil)
+                    resetPageAndSelection()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 12, weight: .bold))
+                        .frame(width: 30, height: 30)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .accessibilityLabel("Stop marking phrases")
+                .help("Stop applying the selected status tool.")
             }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .background(RadixTheme.secondaryBackground.opacity(0.55))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     var reviewToolColumns: [GridItem] {
@@ -222,8 +150,18 @@ extension AddedPhraseReviewSheet {
         )
     }
 
-    var batchMenu: some View {
+    var actionsMenu: some View {
         Menu {
+            if !newPhrases.isEmpty {
+                Button {
+                    createAIReviewPage()
+                } label: {
+                    Label("Create AI Review Page (\(newPhrases.count))", systemImage: "sparkles")
+                }
+
+                Divider()
+            }
+
             if !newPhrases.isEmpty {
                 Button {
                     checkNewPhrases()
@@ -247,47 +185,36 @@ extension AddedPhraseReviewSheet {
                     Label("Remove Unreviewed (\(newPhrases.count))", systemImage: "trash")
                 }
             }
+
+            if !newPhrases.isEmpty || !rejectedPhrases.isEmpty {
+                Divider()
+            }
+
+            Button {
+                showsReviewHelp = true
+            } label: {
+                Label("Help", systemImage: "questionmark.circle")
+            }
         } label: {
-            Label("Batch", systemImage: "ellipsis.circle")
+            Label(actionsMenuTitle, systemImage: "ellipsis.circle")
                 .font(reviewControlFont)
         }
         .buttonStyle(.borderedProminent)
         .controlSize(.small)
         .tint(RadixTheme.systemGray5)
         .foregroundStyle(Color.primary)
-        .help("Bulk actions for unreviewed and rejected phrases.")
+        .help("Actions and help for added phrase review.")
     }
 
-    var searchField: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.secondary)
-            TextField("Search added phrases", text: $searchText)
-                .font(.system(size: usesRegularReviewLayout ? 16 : 15))
-                .multilineTextAlignment(.center)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-            if !searchText.isEmpty {
-                Button {
-                    searchText = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
-            }
-        }
-        .padding(.horizontal, 10)
-        .frame(height: 38)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+    var actionsMenuTitle: String {
+        newPhrases.isEmpty ? "Actions" : "Actions (\(newPhrases.count))"
     }
 
     var pageFooter: some View {
         HStack(spacing: 10) {
             pageButton(systemImage: "chevron.left", action: previousPage, isEnabled: currentPageIndex > 0)
 
-            Text("Page \(currentPageIndex + 1) of \(pageCount) · \(filteredPhrases.count) phrases")
+            Text(pageRangeLabel)
                 .font(reviewCaptionFont)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
@@ -309,5 +236,43 @@ extension AddedPhraseReviewSheet {
         .disabled(!isEnabled)
         .opacity(isEnabled ? 1 : 0.25)
         .accessibilityLabel(systemImage.contains("left") ? "Previous page" : "Next page")
+    }
+}
+
+struct AddedPhraseReviewHelpSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section("Review") {
+                    Label("Choose a status tool, then tap phrases to mark them quickly.", systemImage: "hand.tap")
+                    Label("Tap a phrase once without a status tool to preview details.", systemImage: "text.magnifyingglass")
+                    Label("Tap the same phrase again to cycle through statuses.", systemImage: "arrow.triangle.2.circlepath")
+                }
+
+                Section("Statuses") {
+                    Label("Accepted: useful phrase.", systemImage: "checkmark.circle.fill")
+                    Label("Hidden: page context only.", systemImage: "eye.slash.fill")
+                    Label("Rejected: not a phrase.", systemImage: "xmark.circle.fill")
+                    Label("Unreviewed: decide later.", systemImage: "circle")
+                }
+
+                Section("AI Review") {
+                    Label("Actions can create one Browse page from all unreviewed phrases without changing their statuses.", systemImage: "sparkles")
+                }
+            }
+            .navigationTitle("Added Phrases Help")
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Done")
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
     }
 }

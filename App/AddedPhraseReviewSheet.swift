@@ -7,11 +7,11 @@ struct AddedPhraseReviewSheet: View {
     @State var filter: AddedPhraseReviewFilter = .all
     @State var selectedTool: PhraseReviewStatusTool?
     @State var reviewCycle = PhraseReviewStatusCycleState()
-    @State var searchText = ""
     @State var selectedPhrase: PhraseItem?
     @State var pageIndex = 0
     @State var message: String?
     @State var showsFilterPicker = false
+    @State var showsReviewHelp = false
     @State var phrasePendingDeletion: PhraseItem?
     @State var showsDeleteRejectedConfirmation = false
     @State var showsDeleteNewConfirmation = false
@@ -41,17 +41,9 @@ struct AddedPhraseReviewSheet: View {
     }
 
     var filteredPhrases: [PhraseItem] {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        return addedPhrases
-            .filter { filter.includes($0) }
-            .filter { phrase in
-                guard !query.isEmpty else { return true }
-                return phrase.word.localizedCaseInsensitiveContains(query) ||
-                    phrase.pinyin.localizedCaseInsensitiveContains(query) ||
-                    phrase.meanings.localizedCaseInsensitiveContains(query) ||
-                    phrase.notes.localizedCaseInsensitiveContains(query)
-            }
-            .sorted(by: reviewSort)
+        AddedPhraseReviewRules.sortedByPinyin(
+            addedPhrases.filter { filter.includes($0) }
+        )
     }
 
     var newPhrases: [PhraseItem] {
@@ -72,10 +64,6 @@ struct AddedPhraseReviewSheet: View {
             GeometryReader { proxy in
                 VStack(alignment: .leading, spacing: 6) {
                     topControlRow
-                    searchField
-                    if !newPhrases.isEmpty {
-                        aiReviewPageShortcut
-                    }
                     toolRow
                     selectedPhraseDetailCard
 
@@ -97,8 +85,8 @@ struct AddedPhraseReviewSheet: View {
                 .onAppear {
                     store.refreshAddedPhrases()
                 }
-                .onChange(of: searchText) { _, _ in
-                    resetPageAndSelection()
+                .sheet(isPresented: $showsReviewHelp) {
+                    AddedPhraseReviewHelpSheet()
                 }
                 .alert("Delete Phrase?", isPresented: deleteConfirmationBinding) {
                     Button("Delete", role: .destructive) {
@@ -150,6 +138,13 @@ extension AddedPhraseReviewSheet {
         let start = currentPageIndex * pageSize
         guard filteredPhrases.indices.contains(start) else { return [] }
         return Array(filteredPhrases.dropFirst(start).prefix(pageSize))
+    }
+
+    var pageRangeLabel: String {
+        let count = filteredPhrases.count
+        let phraseCount = "\(count) phrase\(count == 1 ? "" : "s")"
+        let range = AddedPhraseReviewRules.pinyinRangeLabel(for: pagedPhrases)
+        return range.isEmpty ? phraseCount : "\(range) · \(phraseCount)"
     }
 
     func setStatus(
@@ -319,7 +314,4 @@ extension AddedPhraseReviewSheet {
         }
     }
 
-    func reviewSort(_ lhs: PhraseItem, _ rhs: PhraseItem) -> Bool {
-        AddedPhraseReviewRules.reviewSortPredicate(lhs, rhs)
-    }
 }

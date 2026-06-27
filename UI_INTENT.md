@@ -135,8 +135,11 @@ Items such as "Review Added Phrases" belong in Study, not My Data.
 From Added Phrases review, the user can create an `AI Review` saved page from
 all currently unreviewed added phrases. That page opens in Browse so the normal
 saved-page AI workflows can be used, while the original phrase statuses remain
-unchanged. Keep this as a visible shortcut when unreviewed phrases exist; do
-not hide it only inside a generic batch menu.
+unchanged. Keep the review surface phrase-first: no search field, no persistent
+instruction blocks, and no separate AI shortcut above the grid. Put `Create AI
+Review Page` under an obvious `Actions` menu with its unreviewed count, alongside
+bulk actions and help. Sort phrases by pinyin and label pages by the visible
+pinyin-letter range, such as `b-c`, rather than generic page numbers.
 
 On iPhone, Study may need to contain explicit Snapshot sections because the
 screen cannot permanently show a rich sidebar. On iPad and Mac, Save/Restore

@@ -51,6 +51,22 @@ struct PhraseReviewCompatibilityTests {
         #expect(AddedPhraseReviewRules.aiReviewPageText(from: phrases, isBasePhrase: { $0 == "人民" }) == "爆仓\n美股\n自动清洁")
     }
 
+    @Test("Added phrase review ordering and page labels follow pinyin")
+    func pinyinReviewOrderAndRangeLabels() {
+        let phrases = [
+            PhraseItem(word: "美股", pinyin: "měi gǔ", meanings: "US stocks"),
+            PhraseItem(word: "爆仓", pinyin: "bào cāng", meanings: "forced liquidation"),
+            PhraseItem(word: "采访车", pinyin: "cǎi fǎng chē", meanings: "interview vehicle"),
+            PhraseItem(word: "自动清洁", pinyin: "zì dòng qīng jié", meanings: "automatic cleaning")
+        ]
+
+        let sorted = AddedPhraseReviewRules.sortedByPinyin(phrases)
+
+        #expect(sorted.map(\.word) == ["爆仓", "采访车", "美股", "自动清洁"])
+        #expect(AddedPhraseReviewRules.pinyinRangeLabel(for: Array(sorted.prefix(2))) == "b-c")
+        #expect(AddedPhraseReviewRules.pinyinRangeLabel(for: [sorted[2]]) == "m")
+    }
+
     @Test("AI review page text is absent when no eligible phrases remain")
     func emptyAIReviewPageText() {
         let phrases = [

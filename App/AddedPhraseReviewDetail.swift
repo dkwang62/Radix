@@ -1,39 +1,33 @@
 import SwiftUI
 
 extension AddedPhraseReviewSheet {
+    @ViewBuilder
     var selectedPhraseDetailCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            if let phrase = selectedPhrase {
+        if let phrase = selectedPhrase {
+            VStack(alignment: .leading, spacing: 8) {
                 phraseDetails(phrase)
-            } else {
-                PhraseReviewStatusCycleHint(usesPointer: RadixPlatform.isDesktop)
-                    .frame(maxWidth: .infinity, alignment: .center)
             }
-
-            if selectedPhrase == nil, selectedTool == nil {
-                Text("No status selected. Showing all phrases.")
-                    .font(reviewCaptionFont)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, alignment: .center)
-            }
-
-            if let visibleMessage {
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RadixTheme.secondaryBackground.opacity(0.55))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(RadixTheme.separator.opacity(0.35), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        } else if let visibleMessage {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(visibleMessage)
                     .font(reviewCaptionFont)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
+            .padding(8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RadixTheme.secondaryBackground.opacity(0.55))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RadixTheme.secondaryBackground.opacity(0.55))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(RadixTheme.separator.opacity(0.35), lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     func phraseDetails(_ phrase: PhraseItem) -> some View {
