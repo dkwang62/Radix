@@ -3,21 +3,11 @@ import SwiftUI
 extension DataEditTab {
     @ViewBuilder
     var backupAndRestoreSection: some View {
-        protectAndRecoverSection
+        backupFileSection
     }
 
-    var protectAndRecoverSection: some View {
+    var backupFileSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label("Protect & Recover", systemImage: "shield.lefthalf.filled")
-                .font(ResponsiveFont.title3.weight(.bold))
-
-            Text("Checkpoints let you undo changes on this device. Backup files protect or transfer your data between devices.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            studyCheckpointsNote
-
             portableBackupActionsSection
 
             compactBackupContentsDisclosure
@@ -31,30 +21,16 @@ extension DataEditTab {
         Button {
             store.goToFavourites(preservingOrigin: true)
         } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "clock.arrow.circlepath")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(Color.accentColor)
-
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("Looking for Checkpoints?")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                    Text("They live in Study for quick one-step learning recovery.")
-                        .font(ResponsiveFont.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                .layoutPriority(1)
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.secondary)
-            }
-            .padding(10)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RadixTheme.background)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            Label("Checkpoints", systemImage: "clock.arrow.circlepath")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .labelStyle(.titleAndIcon)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
+        .foregroundStyle(Color.accentColor)
     }
 
     var portableBackupActionsSection: some View {
@@ -68,6 +44,8 @@ extension DataEditTab {
                     .padding(.vertical, 4)
                     .background(Color.accentColor.opacity(0.14))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                Spacer()
+                studyCheckpointsNote
             }
 
             Text("Create a portable file, merge it without removing current work, or replace this device from it.")

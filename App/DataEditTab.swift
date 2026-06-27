@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum DataEditSection: String, CaseIterable, Identifiable {
-    case myBackup = "Protect & Recover"
+    case myBackup = "Backup File"
     case advanced = "Advanced Exports"
 
     var id: String { rawValue }

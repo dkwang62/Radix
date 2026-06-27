@@ -111,7 +111,7 @@ enum RadixGlossary {
             term: "Memory",
             shortDefinition: "Everything you have added, saved, favorited, changed, or set up in Radix.",
             significance: "Memory is what you preserve with local snapshots and protect with iCloud backups. It includes your work, not just dictionary data.",
-            contexts: ["Backup Contents", "Create Checkpoint", "Return to Checkpoint", "Erase My Data", "My Data > Protect & Recover"],
+            contexts: ["Backup Contents", "Create Checkpoint", "Return to Checkpoint", "Erase My Data", "My Data > Backup File"],
             relatedTerms: ["Checkpoint", "Radix Plus", "Backup", "Added", "Favorite"]
         ),
         GlossaryEntry(
@@ -195,7 +195,7 @@ enum RadixGlossary {
             term: "Checkpoint",
             shortDefinition: "A time-stamped recovery point kept inside Radix on this device.",
             significance: "Device snapshots provide quick same-device recovery. They do not create a file for moving data to another device.",
-            contexts: ["Create Checkpoint", "Return to Checkpoint", "My Data > Protect & Recover", "Upgrade"],
+            contexts: ["Create Checkpoint", "Return to Checkpoint", "My Data > Backup File", "Upgrade"],
             relatedTerms: ["Radix Plus", "Memory", "Backup"]
         ),
         GlossaryEntry(
@@ -209,7 +209,7 @@ enum RadixGlossary {
             term: "Backup",
             shortDefinition: "A portable file that can move your Radix data between devices.",
             significance: "Backups are portable files for cross-device transfer and recovery. They are separate from checkpoints kept inside Radix on one device.",
-            contexts: ["My Data > Protect & Recover", "Create Backup", "Merge Backup", "Replace from Backup"],
+            contexts: ["My Data > Backup File", "Create Backup", "Merge Backup", "Replace from Backup"],
             relatedTerms: ["Memory", "Checkpoint", "Radix Plus", "Data Portability"]
         ),
         GlossaryEntry(

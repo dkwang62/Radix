@@ -246,12 +246,13 @@ with the learning content. Returning to a checkpoint always leaves the user in
 Study, even if the checkpoint was created while another tab was active.
 Study includes a compact `Backup files` bridge to My Data so users can still
 distinguish local learning recovery from portable file protection.
-My Data’s `Protect & Recover` screen owns Backup File actions only. Backup
+My Data’s `Backup File` screen owns Backup File actions only. Backup
 history stores lightweight file metadata and shows filenames; a selected backup
 file restores immediately when the saved path is still readable, otherwise
 Radix falls back to the file picker with the chosen Merge/Replace intent
 preserved. My Data links back to Study for Checkpoints instead of duplicating
-the checkpoint controls.
+the checkpoint controls; this is a compact `Checkpoints` button, not explanatory
+checkpoint copy.
 Backup File actions keep the same three choices across iPhone, iPad, and Mac:
 Create Backup, Merge Backup, and Replace from Backup. All platforms use a
 readable two-row arrangement with Create Backup above Merge/Replace. My Data

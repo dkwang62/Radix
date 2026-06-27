@@ -170,7 +170,7 @@ AI should focus on understanding and transforming material:
 AI can be connected from Browse and Study, but it should not be hidden so deeply
 that users miss it as a major Radix feature.
 
-## Protect and recover grammar
+## Backup and checkpoint grammar
 
 Radix should use a consistent Save/Restore pattern, but the object must always
 be explicit.
