@@ -189,9 +189,10 @@ then the compact source confirmation row and open controls, then the editable
 AI prompt template for that task only. Prompt editing should use an explicit
 draft with `Save` and `Undo`, not invisible autosave. Built-in tasks should not
 repeat the task title in a second title field; custom tasks may show a task-name
-field. `Undo` restores the current task's default or starter prompt without a
-persistent reset notice. Do not show a full generated prompt preview on the AI
-Link screen; the AI chat will show the prompt after copy/open. The source
+field. `Undo` restores the current task's default or starter prompt and shows a
+compact next-row confirmation that editing can continue. Do not show a full
+generated prompt preview on the AI Link screen; the AI chat will show the
+prompt after copy/open. The source
 selector should be obvious and come before action status; for saved-page tasks,
 the page row itself is the dropdown and uses the same page icon grammar as
 Browse. Do not repeat the selected page, subject, or task in a separate

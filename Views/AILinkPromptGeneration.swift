@@ -76,7 +76,7 @@ extension AILinkView {
     @ViewBuilder
     var selectedTaskTemplateSection: some View {
         if selectedPromptTask != nil {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 ViewThatFits(in: .horizontal) {
                     HStack(alignment: .center, spacing: 8) {
                         Text("AI Prompt")
@@ -96,11 +96,19 @@ extension AILinkView {
                     }
                 }
 
+                if let promptSaveStatus {
+                    Text(promptSaveStatus)
+                        .font(ResponsiveFont.footnote)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
                 if isCustomPromptTask {
                     TextField("AI task name", text: Binding(
                         get: { draftPromptTitle },
                         set: {
                             draftPromptTitle = $0
+                            promptSaveStatus = nil
                         }
                     ))
                     .font(ResponsiveFont.body.bold())
@@ -111,6 +119,7 @@ extension AILinkView {
                     get: { draftPromptTemplate },
                     set: {
                         draftPromptTemplate = $0
+                        promptSaveStatus = nil
                     }
                 ))
                 .font(.system(size: 14, design: .monospaced))
@@ -126,7 +135,7 @@ extension AILinkView {
     }
 
     var promptEditorActions: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             Button {
                 savePromptDraft()
             } label: {
@@ -134,6 +143,7 @@ extension AILinkView {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.small)
+            .font(ResponsiveFont.footnote.weight(.semibold))
             .disabled(!hasUnsavedPromptChanges)
 
             Button {
@@ -143,6 +153,7 @@ extension AILinkView {
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
+            .font(ResponsiveFont.footnote.weight(.semibold))
         }
     }
 
