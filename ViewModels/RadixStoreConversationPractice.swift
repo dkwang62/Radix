@@ -6,6 +6,35 @@ extension RadixStore {
         registerConversationPracticeLibrary(library)
     }
 
+    func applyImportedConversationPracticePacks(
+        _ packs: [ConversationPracticePack]?,
+        mode: RestoreMode
+    ) {
+        switch mode {
+        case .additive:
+            guard let packs, !packs.isEmpty else { return }
+            var merged = RadixStudyPreferences.importedConversationPracticePacks
+            for pack in packs {
+                merged.removeAll { $0.packID == pack.packID }
+                merged.append(pack)
+                registerConversationPracticeLibrary(pack.practiceLibrary)
+            }
+            RadixStudyPreferences.importedConversationPracticePacks = merged
+
+        case .complete:
+            let restored = packs ?? []
+            RadixStudyPreferences.importedConversationPracticePacks = restored
+            for pack in restored {
+                registerConversationPracticeLibrary(pack.practiceLibrary)
+            }
+            if !restored.contains(where: { $0.packID == selectedConversationPracticeTopicID }) &&
+                !ConversationPracticeTopic.defaults.contains(where: { $0.id == selectedConversationPracticeTopicID }) {
+                selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
+                persistPromptSettings()
+            }
+        }
+    }
+
     func registerConversationPracticeLibrary(_ library: ConversationPracticeLibrary) {
         for seed in library.phraseSeeds {
             let key = phraseStorageWord(seed.phraseKey)

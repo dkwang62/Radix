@@ -17,12 +17,29 @@ struct PortableBackupCodecTests {
             reviewStatus: .checked,
             lastReviewedAt: exportedAt
         )
+        let practiceData = """
+        {
+          "theme": "Test Topic",
+          "entries": [
+            {
+              "id": "test_topic_001",
+              "zh": "你好。",
+              "pinyin": "Nǐ hǎo.",
+              "en": "Hello."
+            }
+          ]
+        }
+        """.data(using: .utf8)!
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let practicePack = try decoder.decode(ConversationPracticePack.self, from: practiceData)
         let package = UnifiedPackage(
             schemaVersion: PortableBackupCodec.currentSchemaVersion,
             exportedAt: exportedAt,
             backupID: UUID(uuidString: "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"),
             phrases: [phrase],
-            profile: UserProfile(schemaVersion: 1, favouritesList: ["学"])
+            profile: UserProfile(schemaVersion: 1, favouritesList: ["学"]),
+            conversationPracticePacks: [practicePack]
         )
 
         let data = try codec.encode(package)
@@ -35,6 +52,7 @@ struct PortableBackupCodecTests {
         #expect(decoded.exportedAt == exportedAt)
         #expect(decoded.phrases == [phrase])
         #expect(decoded.profile.favouritesList == ["学"])
+        #expect(decoded.conversationPracticePacks == [practicePack])
     }
 
     @Test("Legacy Apple reference dates still decode")
@@ -54,6 +72,7 @@ struct PortableBackupCodecTests {
         }
         #expect(decoded.schemaVersion == 4)
         #expect(decoded.exportedAt == package.exportedAt)
+        #expect(decoded.conversationPracticePacks == nil)
     }
 
     @Test("Empty and future backups fail safely")

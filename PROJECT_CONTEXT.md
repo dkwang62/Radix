@@ -234,7 +234,9 @@ to the topic dropdown, selected immediately, and registered with the same
 Practice phrase cache as bundled topics. User/imported files may also use the
 lightweight AI-friendly shape `{ "theme": "...", "entries": [{ "id", "zh",
 "pinyin", "en" }] }`; Radix derives the pack ID, title, category, analysis, and
-metadata before validation.
+metadata before validation. Imported Practice packs are also part of
+`UnifiedPackage`, so normal backup files and local checkpoints save and restore
+them across devices.
 The first useful practice modes should be simple offline drills such as Review
 Cards and Quick Quiz, with answer feedback linking back into Phrase and
 Character cards rather than dead-ending in a quiz-only screen. The detailed

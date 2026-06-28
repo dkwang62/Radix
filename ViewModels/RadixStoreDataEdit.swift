@@ -478,6 +478,7 @@ extension RadixStore {
             profile: currentUserProfile(),
             collections: allCollections,
             selectedAICollectionID: selectedAICollectionID,
+            conversationPracticePacks: RadixStudyPreferences.importedConversationPracticePacks,
             apiKeys: currentAPIKeyBackup()
         )
     }
@@ -568,6 +569,7 @@ extension RadixStore {
                 persistOverlayAddedDates()
                 try phraseRepo.addPhrasesAdditively(uniquePhrases(package.phrases))
                 mergeImportedCollections(package.collections, selectedAICollectionID: package.selectedAICollectionID)
+                applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .additive)
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .additive)
 
@@ -581,6 +583,7 @@ extension RadixStore {
                 persistOverlayAddedDates()
                 try phraseRepo.replaceAllPhrases(uniquePhrases(package.phrases))
                 replaceCollections(with: package.collections, selectedAICollectionID: package.selectedAICollectionID)
+                applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .complete)
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .complete)
             }

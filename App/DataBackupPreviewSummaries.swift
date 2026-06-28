@@ -60,6 +60,10 @@ extension DataBackupPreviewSection {
             BackupSummaryLine(title: "Recent searches", value: "\(store.searchHistory.count)")
             BackupSummaryLine(title: "Remembered characters", value: "\(store.rootBreadcrumb.count)")
             BackupSummaryLine(title: "Phrase length choice", value: store.activePhraseLengthFilterLabel)
+            BackupSummaryLine(
+                title: "Imported practice packs",
+                value: "\(RadixStudyPreferences.importedConversationPracticePacks.count)"
+            )
         }
         .padding(.top, 8)
     }

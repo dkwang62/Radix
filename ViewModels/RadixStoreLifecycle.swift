@@ -122,6 +122,7 @@ extension RadixStore {
                 profile: package.profile,
                 collections: package.collections,
                 selectedAICollectionID: package.selectedAICollectionID,
+                conversationPracticePacks: nil,
                 apiKeys: nil
             ))
         }
