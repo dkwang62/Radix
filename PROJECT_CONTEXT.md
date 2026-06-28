@@ -218,6 +218,11 @@ stable practice-set memberships. Sentence punctuation is preserved for display
 but trimmed from the phrase key so `你好。` resolves to the Radix phrase `你好`.
 `ConversationPracticeService` loads and validates the bundled starter pack for
 the future Study UI.
+Step 3 has a first Study entry point: `Conversation Practice` appears in Study
+when the starter pack loads, showing the `General Greetings` set count and a
+small set of sample sentences. Those samples resolve through the existing Phrase
+card presentation path, preserving the Radix dictionary connection while the
+full Review Cards and Quick Quiz flows are still to be built.
 Added Phrases review is phrase-first: no search field, no persistent help text,
 and no visible AI shortcut above the grid. The top row shows the status filter,
 an `Actions` menu, and `Done`; `Actions` includes `Create AI Review Page` for

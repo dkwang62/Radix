@@ -166,6 +166,9 @@ Practice feedback:
 3. Study entry point
    - Add `Conversation Practice` as a Study section.
    - Show set cards with count, difficulty, and progress.
+   - Status: Study now loads the starter library and shows a first
+     `Conversation Practice` section for `General Greetings`, including count
+     and sample sentences that open through the normal Phrase card path.
 
 4. Review Cards
    - Show Chinese first.

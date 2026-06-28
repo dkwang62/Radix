@@ -14,6 +14,8 @@ extension FavouritesTab {
                     recentStudySection
                 }
 
+                conversationPracticeSection
+
                 studyCheckpointsSection
             }
             .padding(.horizontal)

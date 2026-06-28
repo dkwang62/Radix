@@ -21,6 +21,7 @@ struct FavouritesTab: View {
     @State var hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
     @State var addedPhraseReviewPresentation: AddedPhraseReviewPresentation?
     @State var pendingCheckpointReturn: LocalDataSnapshot?
+    @State var conversationPracticeLibrary: ConversationPracticeLibrary? = try? ConversationPracticeService().loadStarterLibrary()
 
     var isPhone: Bool {
         RadixPlatform.isPhone
@@ -37,6 +38,7 @@ struct FavouritesTab: View {
             || !store.favoritePhrasesItems.isEmpty
             || !store.allCollections.isEmpty
             || !addedStudyPhraseEntries.isEmpty
+            || conversationPracticeLibrary != nil
     }
 
     var body: some View {
@@ -93,6 +95,7 @@ struct FavouritesTab: View {
             studyPageSortOrder = RadixStudyPreferences.pageSortOrder
             hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
             openAddedPhraseReviewIfRequested()
+            loadConversationPracticeLibrary()
             onRefreshCheckpoints()
         }
         .onChange(of: studyGridUsesTraditionalScript) { _, newValue in
@@ -118,6 +121,10 @@ struct FavouritesTab: View {
         store.shouldOpenAddedPhraseReview = false
         guard !addedStudyPhraseEntries.isEmpty else { return }
         presentAddedPhraseReview()
+    }
+
+    func loadConversationPracticeLibrary() {
+        conversationPracticeLibrary = try? ConversationPracticeService().loadStarterLibrary()
     }
 
     var isPhoneStudyPreviewActive: Bool {
