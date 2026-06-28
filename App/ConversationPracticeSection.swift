@@ -58,6 +58,28 @@ extension FavouritesTab {
                     conversationPracticeSentenceButton(item)
                 }
             }
+
+            HStack(spacing: 8) {
+                Button {
+                    presentConversationPracticeReview(library)
+                } label: {
+                    Label("Review Cards", systemImage: "rectangle.stack")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .frame(maxWidth: .infinity, minHeight: 38)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color.accentColor)
+
+                Button {
+                } label: {
+                    Label("Quick Quiz", systemImage: "checkmark.circle")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .frame(maxWidth: .infinity, minHeight: 38)
+                }
+                .buttonStyle(.bordered)
+                .disabled(true)
+                .accessibilityHint("Quick Quiz is coming after Review Cards.")
+            }
         }
         .padding(10)
         .background(RadixTheme.secondaryBackground.opacity(0.52))

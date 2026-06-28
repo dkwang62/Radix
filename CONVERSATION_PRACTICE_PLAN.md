@@ -175,6 +175,10 @@ Practice feedback:
    - Reveal pinyin and English.
    - Add simple progress responses.
    - Link sentence and components back to Phrase and Character cards.
+   - Status: `Review Cards` opens from the Study set card, reveals pinyin and
+     English on demand, records local Again/Good/Easy responses for the current
+     session, and dismisses back to existing Phrase/Character card presentation
+     when users tap the sentence, phrase hints, or character hints.
 
 5. Quick Quiz
    - Start with Chinese-to-English multiple choice.

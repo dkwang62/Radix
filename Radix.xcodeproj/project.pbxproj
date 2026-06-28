@@ -115,6 +115,7 @@
 		8660A43D2FF0EFD6006153F6 /* conversation100.json in Resources */ = {isa = PBXBuildFile; fileRef = 8660A43C2FF0EFD6006153F6 /* conversation100.json */; };
 		86C0FFEE2000000000000001 /* ConversationPracticeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE2000000000000002 /* ConversationPracticeService.swift */; };
 		86C0FFEE3000000000000001 /* ConversationPracticeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE3000000000000002 /* ConversationPracticeSection.swift */; };
+		86C0FFEE4000000000000001 /* ConversationPracticeReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */; };
 		86D4638F44188A238A8ECB14 /* SmartSearchTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF9DDFA3D17CF300D881367 /* SmartSearchTab.swift */; };
 		8925A237D932F85F3087F717 /* CharacterInfoCardHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCE5059E558EFFBE555258B /* CharacterInfoCardHeader.swift */; };
 		897066C41DA5C8AB5756FD5C /* DataBackupPreviewLists.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CAC174D6D8AEFB30F37FCA /* DataBackupPreviewLists.swift */; };
@@ -409,6 +410,7 @@
 		8660A43C2FF0EFD6006153F6 /* conversation100.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = conversation100.json; sourceTree = "<group>"; };
 		86C0FFEE2000000000000002 /* ConversationPracticeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeService.swift; sourceTree = "<group>"; };
 		86C0FFEE3000000000000002 /* ConversationPracticeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeSection.swift; sourceTree = "<group>"; };
+		86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeReviewSheet.swift; sourceTree = "<group>"; };
 		86FCEABCE0BF3710ED511D5A /* RadixSharedImageImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixSharedImageImport.swift; sourceTree = "<group>"; };
 		877424A72314561B83933A31 /* ComponentsExplorerShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentsExplorerShell.swift; sourceTree = "<group>"; };
 		87E3CE2928A87E53A7A63469 /* ImagePhraseMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePhraseMatcher.swift; sourceTree = "<group>"; };
@@ -572,6 +574,7 @@
 				3549E7DC987331EE0218ACB8 /* CapturePhraseMessages.swift */,
 				EBA5D8A4235FE8BABAD68AA7 /* CaptureTab.swift */,
 				B9D374F4138850CF5FF935A3 /* CaptureWorkbenchViews.swift */,
+				86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */,
 				86C0FFEE3000000000000002 /* ConversationPracticeSection.swift */,
 				FBE7B98237AD3F0926A20783 /* DataBackupPreviewActions.swift */,
 				D5CAC174D6D8AEFB30F37FCA /* DataBackupPreviewLists.swift */,
@@ -1075,6 +1078,7 @@
 				E226F8082AFCF3050DAE80B8 /* ComponentScriptClassifier.swift in Sources */,
 				D2DB6B1F7905BD68CCC5630B /* ComponentSearchEngine.swift in Sources */,
 				86C0FFEE2000000000000001 /* ConversationPracticeService.swift in Sources */,
+				86C0FFEE4000000000000001 /* ConversationPracticeReviewSheet.swift in Sources */,
 				86C0FFEE3000000000000001 /* ConversationPracticeSection.swift in Sources */,
 				8DF266A5667C4089D6D7ECF1 /* ComponentsExplorerFilters.swift in Sources */,
 				E7596797333E80E868F2B087 /* ComponentsExplorerNavigation.swift in Sources */,
