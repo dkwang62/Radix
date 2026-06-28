@@ -220,9 +220,10 @@ travel situations. `Stay in Shanghai` is the fourth configured topic, backed by
 `Stay in Shanghai.json` for longer-stay study, housing, utilities, transport,
 local services, and administrative tasks. Topic configuration must remain
 data-driven so future topics can be added without rebuilding the Study UI.
-The AI Link generator task must emit the same structured JSON shape as
-`conversation100.json`, so generated content can flow through
-`ConversationPracticeRules` before becoming a Phrase-backed practice set.
+The AI Link generator task emits the lightweight importable Practice JSON shape
+`{ "theme": "...", "entries": [{ "id", "zh", "pinyin", "en" }] }`, so AI
+content can be saved as a file, imported from the Study dropdown, validated by
+`ConversationPracticeRules`, and turned into a Phrase-backed practice set.
 `ConversationPracticePack` also accepts simplified uploaded packs that contain
 pack identity plus `entries[].id`, `category`, and `sentence`; the decoder fills
 safe defaults for source metadata, sequence, level, analysis, metadata, and

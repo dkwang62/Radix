@@ -45,11 +45,24 @@ Content may come from Codex, the user, or other AI tools. Treat all submitted
 content as draft material until normalized and reviewed.
 
 Radix also has an AI Link task for generating new Conversation Practice packs
-from a selected topic. That task must output JSON using the same reusable pack
-shape as `conversation100.json` so the result can be validated and imported
-without hand conversion.
+from a selected topic. That task outputs the lightweight Practice JSON shape so
+the result can be saved as a file, loaded through the Study dropdown, validated,
+and imported without hand conversion.
 
-Accepted incoming JSON format, used by `conversation100.json`:
+Preferred AI/user import JSON shape:
+
+```text
+theme
+entries[].id
+entries[].zh
+entries[].pinyin
+entries[].en
+```
+
+Radix derives the stable pack ID, title, default category, character hints,
+full-sentence phrase hint, metadata, and notes before validation.
+
+Full incoming JSON format, used by `conversation100.json`, is also accepted:
 
 ```text
 pack_id, version, title, description, language, source_type, created_for, entries
@@ -91,19 +104,6 @@ Simplified uploaded packs may omit `source_type`, `created_for`, `sequence`,
 `level`, `analysis`, `metadata`, and `notes`. The decoder supplies defaults
 before validation so user- or AI-supplied content can still flow into the same
 Practice model.
-
-The Study loader also accepts a lightweight AI-friendly JSON shape:
-
-```text
-theme
-entries[].id
-entries[].zh
-entries[].pinyin
-entries[].en
-```
-
-Radix derives the stable pack ID, title, default category, character hints,
-full-sentence phrase hint, metadata, and notes before validation.
 
 Optional future fields:
 
@@ -245,14 +245,15 @@ Practice feedback:
    - Status: Topic selection is in place as a reusable configuration layer.
      `Food / Eating Conversation` is the first expansion topic, backed by
      `Food Dining.json`; `Trip to 4 Cities` is the second expansion topic,
-     backed by `Trip to 4 cities.json`. AI Link still provides a generator
-     prompt that emits the existing JSON pack format for future topics or draft
-     replacement packs.
+     backed by `Trip to 4 cities.json`. AI Link provides a generator prompt
+     that emits the lightweight importable JSON shape for future topics or
+     draft replacement packs.
 
 8. AI-generated practice packs
    - Add an AI Link task named `Generate Practice Pack`.
    - Render it from the selected Conversation Practice topic.
-   - Require exact JSON matching the accepted conversation-pack schema.
+   - Require exact lightweight importable JSON with `theme` and flat
+     `entries[].id`, `zh`, `pinyin`, and `en` fields.
    - Keep generated packs draft-only until validated by the existing
      `ConversationPracticeRules`.
 

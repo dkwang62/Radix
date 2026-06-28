@@ -259,56 +259,34 @@ Required situations:
 
 Return JSON only. Do not wrap it in Markdown. Do not include explanations outside the JSON.
 
-The JSON must match this exact top-level shape so Radix can import it directly:
+The JSON must match this exact lightweight top-level shape so Radix can import it directly:
 {
-  "pack_id": "{practice_topic_id}",
-  "version": "1.0",
-  "title": "{practice_topic_title}",
-  "description": "{practice_topic_summary}",
-  "language": "zh-Hans",
-  "source_type": "ai_generated_practice",
-  "created_for": "Radix Conversation Practice",
-  "entries": []
+  "theme": "{practice_topic_title}",
+  "entries": [
+    {
+      "id": "{practice_topic_id}_001",
+      "zh": "Simplified Chinese sentence.",
+      "pinyin": "Tone-mark pinyin.",
+      "en": "Natural English translation."
+    }
+  ]
 }
 
 Create exactly {practice_topic_sentence_count} entries in the "entries" array.
 
-Each entry must have exactly these keys:
-{
-  "id": "food_eating_001",
-  "sequence": 1,
-  "category": "restaurant_ordering",
-  "level": "easy",
-  "sentence": {
-    "zh": "Simplified Chinese sentence.",
-    "pinyin": "Tone-mark pinyin.",
-    "en": "Natural English translation."
-  },
-  "analysis": {
-    "characters": ["每", "个", "single", "Chinese", "character"],
-    "phrases": ["valid phrase", "valid phrase"]
-  },
-  "metadata": {
-    "difficulty": 1,
-    "frequency": 1,
-    "tags": ["food", "restaurant"]
-  },
-  "notes": "Short learner note in English."
-}
+Each entry must have exactly these keys: "id", "zh", "pinyin", and "en".
 
 Rules:
-1. Use Simplified Chinese in sentence.zh.
-2. Use tone marks in sentence.pinyin.
+1. Use Simplified Chinese in zh.
+2. Use tone marks in pinyin.
 3. Keep English translations natural, short, and learner-friendly.
-4. Difficulty must be 1 to 5, with the pack starting easy and gradually becoming slightly more complex.
-5. Frequency must be 1 to 5, where 1 means very common.
-6. The analysis.characters array must include the Chinese characters from the sentence, in reading order, without punctuation.
-7. The analysis.phrases array must include only real dictionary phrases that appear exactly in sentence.zh. Do not invent phrase groupings.
-8. IDs must be stable and lowercase, using the topic ID plus a zero-padded sequence number, for example "{practice_topic_id}_001".
-9. Categories should group the required situations clearly.
-10. Include practical beginner conversation patterns: questions, answers, polite requests, offers, preferences, prices, portions, and short responses when relevant to the theme.
+4. Start easy and gradually become slightly more complex.
+5. IDs must be stable and lowercase, using the topic ID plus a zero-padded sequence number, for example "{practice_topic_id}_001".
+6. Cover the required situations across the full pack.
+7. Include practical beginner conversation patterns: questions, answers, polite requests, offers, preferences, prices, portions, and short responses when relevant to the theme.
+8. Do not include analysis, metadata, notes, markdown, comments, or explanation text. Radix derives those during import.
 
-Before returning, silently validate that the JSON is valid and every entry contains all required keys.
+Before returning, silently validate that the JSON is valid, imports cleanly, and every entry contains only the required keys.
 
 """
             )

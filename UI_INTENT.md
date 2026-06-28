@@ -217,9 +217,10 @@ enhancement rather than a requirement. Use `CONVERSATION_PRACTICE_PLAN.md` as
 the project plan for content intake, validation, Phrase DB integration, and
 build phases.
 
-AI-generated Conversation Practice content must use the same structured JSON
-contract as imported practice packs. Do not ask AI for loose prose, markdown
-tables, or unvalidated phrase lists when the app needs reusable lesson content.
+AI-generated Conversation Practice content should use the lightweight importable
+Practice JSON shape with `theme` plus `entries[].id`, `zh`, `pinyin`, and `en`.
+Do not ask AI for loose prose, markdown tables, or unvalidated phrase lists when
+the app needs reusable lesson content.
 
 ## AI intent
 

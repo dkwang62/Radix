@@ -41,6 +41,9 @@ struct PromptConfigTests {
 
         #expect(generator?.title == "Generate Practice Pack")
         #expect(generator?.template.contains("{practice_topic_title}") == true)
+        #expect(generator?.template.contains("\"theme\": \"{practice_topic_title}\"") == true)
+        #expect(generator?.template.contains("Each entry must have exactly these keys: \"id\", \"zh\", \"pinyin\", and \"en\".") == true)
+        #expect(generator?.template.contains("\"pack_id\"") == false)
         #expect(PromptConfig.practiceTopicTaskIDs == ["task9"])
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task9"))
     }
@@ -82,7 +85,11 @@ struct PromptConfigTests {
 
         #expect(prompt.contains("Topic: Food / Eating Conversation"))
         #expect(prompt.contains("ordering food in a restaurant"))
-        #expect(prompt.contains("\"pack_id\": \"food_eating\""))
+        #expect(prompt.contains("\"theme\": \"Food / Eating Conversation\""))
+        #expect(prompt.contains("\"id\": \"food_eating_001\""))
+        #expect(prompt.contains("\"zh\": \"Simplified Chinese sentence.\""))
+        #expect(!prompt.contains("\"pack_id\""))
+        #expect(!prompt.contains("\"metadata\""))
         #expect(prompt.contains("Create exactly 100 entries"))
         #expect(!prompt.contains("{practice_topic_title}"))
     }
