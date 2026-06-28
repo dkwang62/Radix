@@ -21,11 +21,6 @@ struct CharacterDetailView: View {
                         regularActionRow(proxy: proxy)
                     }
 
-                    if store.showComponentHelp {
-                        componentsExplorerHelp
-                    }
-
-                    lineageSection
                     if sizeClass != .compact && showPhraseTable {
                         CharacterPhraseLookupSection {
                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -53,16 +48,5 @@ struct CharacterDetailView: View {
             store.refreshPhrases()
         }
         .onAppear { store.refreshPhrases() }
-    }
-
-    var componentsExplorerHelp: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Breakdown")
-                .font(ResponsiveFont.subheadline.bold())
-            Text("Tap a component to pivot. Counts show matching characters.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-        }
-        .padding(.vertical, 4)
     }
 }

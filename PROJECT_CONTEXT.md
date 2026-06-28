@@ -244,6 +244,9 @@ Review Cards, Quick Quiz, and Sentence List now open those Phrase and Character
 cards inside their own navigation stacks, so Back returns to the practice mode
 instead of ejecting the user from the lesson flow. Character links use the normal
 full `CharacterDetailView`, not the lightweight preview card.
+`CharacterDetailView` no longer embeds the old Breakdown/Derivatives lineage
+grid; structure exploration remains available through the dedicated Character
+Breakdown explorer instead of crowding the info card.
 Added Phrases review is phrase-first: no search field, no persistent help text,
 and no visible AI shortcut above the grid. The top row shows the status filter,
 an `Actions` menu, and `Done`; `Actions` includes `Create AI Review Page` for
