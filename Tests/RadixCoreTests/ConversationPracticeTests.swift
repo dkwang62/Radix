@@ -44,6 +44,21 @@ struct ConversationPracticeTests {
         #expect(library.phraseKeys.last == "祝你一切顺利")
     }
 
+    @Test("Conversation practice quiz choices are stable and include the answer")
+    func quizChoicesAreStableAndIncludeAnswer() throws {
+        let pack = try loadConversationPackFixture()
+        let library = pack.practiceLibrary
+        let item = try #require(library.items.first)
+
+        let choices = ConversationPracticeQuizRules.choices(for: item, in: library.items)
+        let repeatedChoices = ConversationPracticeQuizRules.choices(for: item, in: library.items)
+
+        #expect(choices.count == 4)
+        #expect(choices.map(\.id) == repeatedChoices.map(\.id))
+        #expect(choices.contains { $0.id == item.id })
+        #expect(Set(choices.map(\.id)).count == choices.count)
+    }
+
     @Test("Conversation practice validation rejects duplicate and incomplete rows")
     func validationRejectsBadRows() throws {
         let data = Data("""

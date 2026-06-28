@@ -23,6 +23,7 @@ struct FavouritesTab: View {
     @State var pendingCheckpointReturn: LocalDataSnapshot?
     @State var conversationPracticeLibrary: ConversationPracticeLibrary? = try? ConversationPracticeService().loadStarterLibrary()
     @State var conversationPracticeReviewPresentation: ConversationPracticeReviewPresentation?
+    @State var conversationPracticeQuizPresentation: ConversationPracticeQuizPresentation?
 
     var isPhone: Bool {
         RadixPlatform.isPhone
@@ -89,6 +90,20 @@ struct FavouritesTab: View {
             )
             .environmentObject(store)
         }
+        .sheet(item: $conversationPracticeQuizPresentation, onDismiss: {
+            conversationPracticeQuizPresentation = nil
+        }) { presentation in
+            ConversationPracticeQuizSheet(
+                library: presentation.library,
+                onOpenPhrase: { phrase in
+                    presentPhrase(phrase)
+                },
+                onOpenCharacter: { character in
+                    store.preview(character: character)
+                }
+            )
+            .environmentObject(store)
+        }
         .alert("Return to Checkpoint?", isPresented: Binding(
             get: { pendingCheckpointReturn != nil },
             set: { if !$0 { pendingCheckpointReturn = nil } }
@@ -144,6 +159,10 @@ struct FavouritesTab: View {
 
     func presentConversationPracticeReview(_ library: ConversationPracticeLibrary) {
         conversationPracticeReviewPresentation = ConversationPracticeReviewPresentation(library: library)
+    }
+
+    func presentConversationPracticeQuiz(_ library: ConversationPracticeLibrary) {
+        conversationPracticeQuizPresentation = ConversationPracticeQuizPresentation(library: library)
     }
 
     var isPhoneStudyPreviewActive: Bool {

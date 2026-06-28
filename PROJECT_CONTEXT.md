@@ -95,7 +95,7 @@ compatibility contracts. Current portable contracts include:
 - navigation, tab, script-filter, and restore-mode identifiers
 - preference keys and the preference-storage interface
 
-The portable test suite currently contains 22 tests across eight suites.
+The portable test suite currently contains 23 tests across eight suites.
 
 ## Active Workstream
 
@@ -229,6 +229,11 @@ responses for the session, and links the full sentence, detected phrase hints,
 and character hints back into existing Phrase and Character card presentation.
 Progress is intentionally local for now; persistent lesson progress remains a
 future storage decision.
+Step 5 has the first `Quick Quiz` flow: the starter set opens an offline
+Chinese-to-English multiple-choice sheet using deterministic portable answer
+choice rules. Feedback shows pinyin/English, score for the session, and links
+back to the existing Phrase and Character card presentation. Quiz results remain
+local until the persistent lesson-progress store is designed.
 Added Phrases review is phrase-first: no search field, no persistent help text,
 and no visible AI shortcut above the grid. The top row shows the status filter,
 an `Actions` menu, and `Done`; `Actions` includes `Create AI Review Page` for

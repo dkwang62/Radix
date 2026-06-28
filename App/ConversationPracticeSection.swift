@@ -71,14 +71,13 @@ extension FavouritesTab {
                 .tint(Color.accentColor)
 
                 Button {
+                    presentConversationPracticeQuiz(library)
                 } label: {
                     Label("Quick Quiz", systemImage: "checkmark.circle")
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .frame(maxWidth: .infinity, minHeight: 38)
                 }
                 .buttonStyle(.bordered)
-                .disabled(true)
-                .accessibilityHint("Quick Quiz is coming after Review Cards.")
             }
         }
         .padding(10)

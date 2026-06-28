@@ -374,6 +374,35 @@ public enum ConversationPracticeRules {
     }
 }
 
+public enum ConversationPracticeQuizRules {
+    public static func choices(
+        for item: ConversationPracticeItem,
+        in items: [ConversationPracticeItem],
+        count: Int = 4
+    ) -> [ConversationPracticeItem] {
+        guard let itemIndex = items.firstIndex(where: { $0.id == item.id }) else {
+            return [item]
+        }
+
+        let distractors = (1..<items.count)
+            .map { items[(itemIndex + ($0 * 7)) % items.count] }
+            .filter { $0.id != item.id }
+            .prefix(max(0, count - 1))
+
+        let ordered = [item] + Array(distractors)
+        return ordered.sorted {
+            stableOrderKey($0.id, itemID: item.id) < stableOrderKey($1.id, itemID: item.id)
+        }
+    }
+
+    private static func stableOrderKey(_ id: String, itemID: String) -> Int {
+        let combined = "\(itemID)#\(id)"
+        return combined.unicodeScalars.reduce(0) { partial, scalar in
+            ((partial * 31) + Int(scalar.value)) % 997
+        }
+    }
+}
+
 private extension CharacterSet {
     static let whitespacesAndNewlinesAndPunctuation = CharacterSet.whitespacesAndNewlines
         .union(.punctuationCharacters)

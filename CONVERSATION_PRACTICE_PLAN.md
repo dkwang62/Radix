@@ -184,6 +184,9 @@ Practice feedback:
    - Start with Chinese-to-English multiple choice.
    - Use lesson-set items as answer pools.
    - Show Radix-backed answer feedback after each question.
+   - Status: `Quick Quiz` opens from the Study set card with deterministic
+     portable answer choices, shows immediate feedback with pinyin/English and
+     session score, and links feedback back to existing Phrase/Character cards.
 
 6. Expansion
    - Add more situational sets.
