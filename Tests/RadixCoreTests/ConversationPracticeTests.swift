@@ -53,11 +53,27 @@ struct ConversationPracticeTests {
         #expect(topics.first?.hasBundledContent == true)
 
         let food = ConversationPracticeTopic.topic(for: "food_eating")
-        #expect(food.hasBundledContent == false)
+        #expect(food.hasBundledContent == true)
+        #expect(food.bundledResourceName == "Food Dining")
         #expect(food.targetSentenceCount == 100)
         #expect(food.generationBrief.contains("Restaurant"))
         #expect(food.situations.contains("ordering food in a restaurant"))
         #expect(food.situations.contains("offering food and responding politely"))
+    }
+
+    @Test("Food dining conversation pack decodes and validates")
+    func foodDiningPackValidates() throws {
+        let pack = try loadConversationPackFixture(named: "Food Dining")
+        let result = ConversationPracticeRules.validate(pack)
+
+        #expect(result.isValid)
+        #expect(result.errors.isEmpty)
+        #expect(pack.entries.count == 100)
+        #expect(pack.packID == "food_restaurant")
+        #expect(pack.practiceItems.first?.id == "food_restaurant_001")
+        #expect(pack.practiceItems.first?.phraseKey == "你好，两位")
+        #expect(pack.practiceItems.last?.id == "food_restaurant_100")
+        #expect(pack.practiceItems.last?.rank == 100)
     }
 
     @Test("Unknown conversation practice topic falls back to default starter topic")
@@ -131,12 +147,16 @@ struct ConversationPracticeTests {
     }
 
     private func loadConversationPackFixture() throws -> ConversationPracticePack {
+        try loadConversationPackFixture(named: "conversation100")
+    }
+
+    private func loadConversationPackFixture(named resourceName: String) throws -> ConversationPracticePack {
         let testFileURL = URL(fileURLWithPath: #filePath)
         let repoRoot = testFileURL
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
-        let fixtureURL = repoRoot.appendingPathComponent("conversation100.json")
+        let fixtureURL = repoRoot.appendingPathComponent("\(resourceName).json")
         let data = try Data(contentsOf: fixtureURL)
         return try JSONDecoder().decode(ConversationPracticePack.self, from: data)
     }

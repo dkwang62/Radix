@@ -144,7 +144,7 @@ public struct ConversationPracticeTopic: Codable, Equatable, Identifiable, Senda
         title: "Food / Eating Conversation",
         summary: "Ordering, sharing dishes, taste, price, portions, and polite mealtime talk.",
         difficultyLabel: "Easy situational set",
-        bundledResourceName: nil,
+        bundledResourceName: "Food Dining",
         generationBrief: "Restaurant, hawker centre or casual eatery, and home dinner-table Mandarin conversation about eating, ordering food, sharing dishes, preferences, prices, portions, taste, and polite offers or responses.",
         situations: [
             "ordering food in a restaurant",

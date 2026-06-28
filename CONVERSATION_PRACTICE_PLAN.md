@@ -216,9 +216,10 @@ Practice feedback:
 7. Expansion
    - Add more situational sets.
    - Add more practice modes only after the core card links feel solid.
-   - Status: Topic selection is being introduced as a reusable configuration
-     layer. The first non-bundled topic is `Food / Eating Conversation`, wired
-     to an AI Link generator prompt that emits the existing JSON pack format.
+   - Status: Topic selection is in place as a reusable configuration layer.
+     `Food / Eating Conversation` is the first expansion topic, backed by
+     `Food Dining.json`. AI Link still provides a generator prompt that emits
+     the existing JSON pack format for future topics or draft replacement packs.
 
 8. AI-generated practice packs
    - Add an AI Link task named `Generate Practice Pack`.

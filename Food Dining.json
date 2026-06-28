@@ -1,0 +1,2111 @@
+{
+"pack_id": "food_restaurant",
+"version": "1.0",
+"title": "Dining and Restaurant Interactions",
+"description": "Practical Mandarin for navigating restaurant interactions, ordering meals, and expressing preferences.",
+"language": "zh-Hans",
+"source_type": "ai_generated_practice",
+"created_for": "Radix Conversation Practice",
+"entries": [
+{
+"id": "food_restaurant_001",
+"sequence": 1,
+"category": "arrival",
+"level": "easy",
+"sentence": {
+"zh": "你好，两位。",
+"pinyin": "Nǐ hǎo, liǎng wèi.",
+"en": "Hello, two people."
+},
+"analysis": {
+"characters": ["你", "好", "两", "位"],
+"phrases": ["你好", "两位"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["restaurant", "arrival"]
+},
+"notes": "Standard way to indicate party size upon arrival."
+},
+{
+"id": "food_restaurant_002",
+"sequence": 2,
+"category": "ordering",
+"level": "easy",
+"sentence": {
+"zh": "我要点菜。",
+"pinyin": "Wǒ yào diǎn cài.",
+"en": "I would like to order."
+},
+"analysis": {
+"characters": ["我", "要", "点", "菜"],
+"phrases": ["我要", "点菜"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["food", "ordering"]
+},
+"notes": "Common phrase to notify service staff."
+},
+{
+"id": "food_restaurant_003",
+"sequence": 3,
+"category": "ordering",
+"level": "easy",
+"sentence": {
+"zh": "有菜单吗？",
+"pinyin": "Yǒu càidān ma?",
+"en": "Do you have a menu?"
+},
+"analysis": {
+"characters": ["有", "菜", "单", "吗"],
+"phrases": ["有", "菜单"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 2,
+"tags": ["restaurant", "menu"]
+},
+"notes": "Basic inquiry for a menu."
+},
+{
+"id": "food_restaurant_004",
+"sequence": 4,
+"category": "preferences",
+"level": "easy",
+"sentence": {
+"zh": "我不吃辣。",
+"pinyin": "Wǒ bù chī là.",
+"en": "I don't eat spicy food."
+},
+"analysis": {
+"characters": ["我", "不", "吃", "辣"],
+"phrases": ["我不吃", "辣"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["food", "preference"]
+},
+"notes": "Essential dietary preference."
+},
+{
+"id": "food_restaurant_005",
+"sequence": 5,
+"category": "drinks",
+"level": "easy",
+"sentence": {
+"zh": "请给我水。",
+"pinyin": "Qǐng gěi wǒ shuǐ.",
+"en": "Please give me water."
+},
+"analysis": {
+"characters": ["请", "给", "我", "水"],
+"phrases": ["请", "给我", "水"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["drinks", "request"]
+},
+"notes": "Simple request for water."
+},
+{
+"id": "food_restaurant_006",
+"sequence": 6,
+"category": "ordering",
+"level": "easy",
+"sentence": {
+"zh": "这个多少钱？",
+"pinyin": "Zhège duōshǎo qián?",
+"en": "How much is this?"
+},
+"analysis": {
+"characters": ["这", "个", "多", "少", "钱"],
+"phrases": ["这个", "多少钱"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["price", "ordering"]
+},
+"notes": "Useful for asking about item costs."
+},
+{
+"id": "food_restaurant_007",
+"sequence": 7,
+"category": "ordering",
+"level": "easy",
+"sentence": {
+"zh": "我要这个。",
+"pinyin": "Wǒ yào zhège.",
+"en": "I want this."
+},
+"analysis": {
+"characters": ["我", "要", "这", "个"],
+"phrases": ["我要", "这个"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["ordering", "menu"]
+},
+"notes": "Used when pointing at a menu item."
+},
+{
+"id": "food_restaurant_008",
+"sequence": 8,
+"category": "service",
+"level": "easy",
+"sentence": {
+"zh": "谢谢。",
+"pinyin": "Xièxie.",
+"en": "Thank you."
+},
+"analysis": {
+"characters": ["谢", "谢"],
+"phrases": ["谢谢"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["politeness", "service"]
+},
+"notes": "Universal polite expression."
+},
+{
+"id": "food_restaurant_009",
+"sequence": 9,
+"category": "service",
+"level": "easy",
+"sentence": {
+"zh": "服务员，你好。",
+"pinyin": "Fúwùyuán, nǐ hǎo.",
+"en": "Waiter, hello."
+},
+"analysis": {
+"characters": ["服", "务", "员", "你", "好"],
+"phrases": ["服务员", "你好"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["service", "attention"]
+},
+"notes": "Calling a staff member politely."
+},
+{
+"id": "food_restaurant_010",
+"sequence": 10,
+"category": "payment",
+"level": "easy",
+"sentence": {
+"zh": "买单。",
+"pinyin": "Mǎidān.",
+"en": "Check, please."
+},
+"analysis": {
+"characters": ["买", "单"],
+"phrases": ["买单"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["payment", "service"]
+},
+"notes": "Direct way to ask for the bill."
+},
+{
+"id": "food_restaurant_011",
+"sequence": 11,
+"category": "ordering",
+"level": "medium",
+"sentence": {
+"zh": "有什么推荐的菜？",
+"pinyin": "Yǒu shénme tuījiàn de cài?",
+"en": "What dishes do you recommend?"
+},
+"analysis": {
+"characters": ["有", "什", "么", "推", "荐", "的", "菜"],
+"phrases": ["有什么", "推荐", "推荐的"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["ordering", "advice"]
+},
+"notes": "Asking staff for suggestions."
+},
+{
+"id": "food_restaurant_012",
+"sequence": 12,
+"category": "preferences",
+"level": "medium",
+"sentence": {
+"zh": "少放盐。",
+"pinyin": "Shǎo fàng yán.",
+"en": "Use less salt."
+},
+"analysis": {
+"characters": ["少", "放", "盐"],
+"phrases": ["少放", "放盐"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["preference", "cooking"]
+},
+"notes": "Good for health-conscious diners."
+},
+{
+"id": "food_restaurant_013",
+"sequence": 13,
+"category": "food",
+"level": "medium",
+"sentence": {
+"zh": "这个菜很好吃。",
+"pinyin": "Zhège cài hěn hǎochī.",
+"en": "This dish is delicious."
+},
+"analysis": {
+"characters": ["这", "个", "菜", "很", "好", "吃"],
+"phrases": ["这个", "菜", "很好吃"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["food", "comment"]
+},
+"notes": " Complimenting the food."
+},
+{
+"id": "food_restaurant_014",
+"sequence": 14,
+"category": "service",
+"level": "medium",
+"sentence": {
+"zh": "请帮我换个碗。",
+"pinyin": "Qǐng bāng wǒ huàn gè wǎn.",
+"en": "Please help me change this bowl."
+},
+"analysis": {
+"characters": ["请", "帮", "我", "换", "个", "碗"],
+"phrases": ["请帮", "换个", "碗"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["service", "request"]
+},
+"notes": "Useful if you find something wrong with utensils."
+},
+{
+"id": "food_restaurant_015",
+"sequence": 15,
+"category": "ordering",
+"level": "medium",
+"sentence": {
+"zh": "我要一份米饭。",
+"pinyin": "Wǒ yào yī fèn mǐfàn.",
+"en": "I would like one serving of rice."
+},
+"analysis": {
+"characters": ["我", "要", "一", "份", "米", "饭"],
+"phrases": ["一份", "米饭"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["food", "portion"]
+},
+"notes": "Ordering a specific portion."
+},
+{
+"id": "food_restaurant_016",
+"sequence": 16,
+"category": "payment",
+"level": "medium",
+"sentence": {
+"zh": "可以刷卡吗？",
+"pinyin": "Kěyǐ shuākǎ ma?",
+"en": "Can I pay by card?"
+},
+"analysis": {
+"characters": ["可", "以", "刷", "卡", "吗"],
+"phrases": ["可以", "刷卡"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["payment", "method"]
+},
+"notes": "Checking accepted payment methods."
+},
+{
+"id": "food_restaurant_017",
+"sequence": 17,
+"category": "arrival",
+"level": "medium",
+"sentence": {
+"zh": "我们有预约。",
+"pinyin": "Wǒmen yǒu yùyuē.",
+"en": "We have a reservation."
+},
+"analysis": {
+"characters": ["我", "们", "有", "预", "约"],
+"phrases": ["我们", "预约"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["arrival", "booking"]
+},
+"notes": "Crucial for busy restaurants."
+},
+{
+"id": "food_restaurant_018",
+"sequence": 18,
+"category": "drinks",
+"level": "medium",
+"sentence": {
+"zh": "有冰水吗？",
+"pinyin": "Yǒu bīng shuǐ ma?",
+"en": "Do you have ice water?"
+},
+"analysis": {
+"characters": ["有", "冰", "水", "吗"],
+"phrases": ["有", "冰水"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["drinks", "preference"]
+},
+"notes": "Specific beverage request."
+},
+{
+"id": "food_restaurant_019",
+"sequence": 19,
+"category": "food",
+"level": "medium",
+"sentence": {
+"zh": "这个菜太咸了。",
+"pinyin": "Zhège cài tài xián le.",
+"en": "This dish is too salty."
+},
+"analysis": {
+"characters": ["这", "个", "菜", "太", "咸", "了"],
+"phrases": ["这个", "菜", "太咸"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["food", "feedback"]
+},
+"notes": "Polite way to give negative feedback."
+},
+{
+"id": "food_restaurant_020",
+"sequence": 20,
+"category": "departure",
+"level": "medium",
+"sentence": {
+"zh": "打包，谢谢。",
+"pinyin": "Dǎbāo, xièxie.",
+"en": "Pack it to go, thanks."
+},
+"analysis": {
+"characters": ["打", "包", "谢", "谢"],
+"phrases": ["打包", "谢谢"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["service", "takeaway"]
+},
+"notes": "Asking to box up leftovers."
+},
+{
+"id": "food_restaurant_021",
+"sequence": 21,
+"category": "food",
+"level": "hard",
+"sentence": {
+"zh": "有什么招牌菜吗？",
+"pinyin": "Yǒu shénme zhāopái cài ma?",
+"en": "Do you have any signature dishes?"
+},
+"analysis": {
+"characters": ["有", "什", "么", "招", "牌", "菜", "吗"],
+"phrases": ["有什么", "招牌菜"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["ordering", "recommendation"]
+},
+"notes": "Asking for house specialties."
+},
+{
+"id": "food_restaurant_022",
+"sequence": 22,
+"category": "preferences",
+"level": "hard",
+"sentence": {
+"zh": "我过敏，不吃花生。",
+"pinyin": "Wǒ guòmǐn, bù chī huāshēng.",
+"en": "I have an allergy, I don't eat peanuts."
+},
+"analysis": {
+"characters": ["我", "过", "敏", "不", "吃", "花", "生"],
+"phrases": ["我", "过敏", "不吃", "花生"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 4,
+"tags": ["food", "allergy"]
+},
+"notes": "Crucial safety phrasing."
+},
+{
+"id": "food_restaurant_023",
+"sequence": 23,
+"category": "payment",
+"level": "hard",
+"sentence": {
+"zh": "一共多少钱？",
+"pinyin": "Yīgòng duōshǎo qián?",
+"en": "How much is the total?"
+},
+"analysis": {
+"characters": ["一", "共", "多", "少", "钱"],
+"phrases": ["一共", "多少钱"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["payment", "total"]
+},
+"notes": "Confirming the total bill."
+},
+{
+"id": "food_restaurant_024",
+"sequence": 24,
+"category": "service",
+"level": "hard",
+"sentence": {
+"zh": "还没上菜呢。",
+"pinyin": "Hái méi shàng cài ne.",
+"en": "The food hasn't arrived yet."
+},
+"analysis": {
+"characters": ["还", "没", "上", "菜", "呢"],
+"phrases": ["还没", "上菜"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["service", "delay"]
+},
+"notes": "Reminding staff about orders."
+},
+{
+"id": "food_restaurant_025",
+"sequence": 25,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "我可以看看菜单吗？",
+"pinyin": "Wǒ kěyǐ kànkan càidān ma?",
+"en": "May I take a look at the menu?"
+},
+"analysis": {
+"characters": ["我", "可", "以", "看", "看", "菜", "单", "吗"],
+"phrases": ["我可以", "看看", "菜单"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["restaurant", "menu"]
+},
+"notes": "Polite request for the menu."
+},
+{
+"id": "food_restaurant_026",
+"sequence": 26,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "我要半份就好。",
+"pinyin": "Wǒ yào bàn fèn jiù hǎo.",
+"en": "I only need half a portion."
+},
+"analysis": {
+"characters": ["我", "要", "半", "份", "就", "好"],
+"phrases": ["我要", "半份", "就好"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["ordering", "portion"]
+},
+"notes": "Useful if you are not very hungry."
+},
+{
+"id": "food_restaurant_027",
+"sequence": 27,
+"category": "food",
+"level": "hard",
+"sentence": {
+"zh": "这顿饭多少钱？",
+"pinyin": "Zhè dùn fàn duōshǎo qián?",
+"en": "How much for this meal?"
+},
+"analysis": {
+"characters": ["这", "顿", "饭", "多", "少", "钱"],
+"phrases": ["这顿", "饭", "多少钱"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["payment", "price"]
+},
+"notes": "Asking for the meal cost."
+},
+{
+"id": "food_restaurant_028",
+"sequence": 28,
+"category": "arrival",
+"level": "hard",
+"sentence": {
+"zh": "我们没有预约。",
+"pinyin": "Wǒmen méiyǒu yùyuē.",
+"en": "We do not have a reservation."
+},
+"analysis": {
+"characters": ["我", "们", "没", "有", "预", "约"],
+"phrases": ["我们", "没有", "预约"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["arrival", "walk-in"]
+},
+"notes": "Informative arrival phrase."
+},
+{
+"id": "food_restaurant_029",
+"sequence": 29,
+"category": "service",
+"level": "hard",
+"sentence": {
+"zh": "请加点水。",
+"pinyin": "Qǐng jiā diǎn shuǐ.",
+"en": "Please add some more water."
+},
+"analysis": {
+"characters": ["请", "加", "点", "水"],
+"phrases": ["请", "加点", "水"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["service", "refill"]
+},
+"notes": "Polite request for a refill."
+},
+{
+"id": "food_restaurant_030",
+"sequence": 30,
+"category": "departure",
+"level": "hard",
+"sentence": {
+"zh": "菜很好，谢谢。",
+"pinyin": "Cài hěn hǎo, xièxie.",
+"en": "The food was great, thank you."
+},
+"analysis": {
+"characters": ["菜", "很", "好", "谢", "谢"],
+"phrases": ["菜", "很好", "谢谢"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["service", "feedback"]
+},
+"notes": "Friendly departure comment."
+},
+{
+"id": "food_restaurant_031",
+"sequence": 31,
+"category": "ordering",
+"level": "easy",
+"sentence": {
+"zh": "我要一杯咖啡。",
+"pinyin": "Wǒ yào yī bēi kāfēi.",
+"en": "I want a cup of coffee."
+},
+"analysis": {
+"characters": ["我", "要", "一", "杯", "咖", "啡"],
+"phrases": ["我要", "一杯", "咖啡"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["drinks", "ordering"]
+},
+"notes": "Basic beverage order."
+},
+{
+"id": "food_restaurant_032",
+"sequence": 32,
+"category": "food",
+"level": "easy",
+"sentence": {
+"zh": "面条好吗？",
+"pinyin": "Miàntiáo hǎo ma?",
+"en": "Is the noodle good?"
+},
+"analysis": {
+"characters": ["面", "条", "好", "吗"],
+"phrases": ["面条", "好吗"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["food", "inquiry"]
+},
+"notes": "Asking about noodle quality."
+},
+{
+"id": "food_restaurant_033",
+"sequence": 33,
+"category": "ordering",
+"level": "easy",
+"sentence": {
+"zh": "这儿有水吗？",
+"pinyin": "Zhèr yǒu shuǐ ma?",
+"en": "Is there water here?"
+},
+"analysis": {
+"characters": ["这", "儿", "有", "水", "吗"],
+"phrases": ["这儿", "有", "水"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["restaurant", "inquiry"]
+},
+"notes": "Checking for water."
+},
+{
+"id": "food_restaurant_034",
+"sequence": 34,
+"category": "payment",
+"level": "easy",
+"sentence": {
+"zh": "多少钱？",
+"pinyin": "Duōshǎo qián?",
+"en": "How much?"
+},
+"analysis": {
+"characters": ["多", "少", "钱"],
+"phrases": ["多少钱"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["payment", "price"]
+},
+"notes": "Short way to ask for price."
+},
+{
+"id": "food_restaurant_035",
+"sequence": 35,
+"category": "service",
+"level": "easy",
+"sentence": {
+"zh": "谢谢服务员。",
+"pinyin": "Xièxie fúwùyuán.",
+"en": "Thank you, waiter."
+},
+"analysis": {
+"characters": ["谢", "谢", "服", "务", "员"],
+"phrases": ["谢谢", "服务员"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["politeness", "service"]
+},
+"notes": "Polite appreciation."
+},
+{
+"id": "food_restaurant_036",
+"sequence": 36,
+"category": "ordering",
+"level": "medium",
+"sentence": {
+"zh": "我想要点心。",
+"pinyin": "Wǒ xiǎng yào diǎnxīn.",
+"en": "I would like some dim sum/snacks."
+},
+"analysis": {
+"characters": ["我", "想", "要", "点", "心"],
+"phrases": ["我想要", "点心"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["food", "snack"]
+},
+"notes": "Ordering light snacks."
+},
+{
+"id": "food_restaurant_037",
+"sequence": 37,
+"category": "preferences",
+"level": "medium",
+"sentence": {
+"zh": "请不要加糖。",
+"pinyin": "Qǐng bùyào jiā táng.",
+"en": "Please don't add sugar."
+},
+"analysis": {
+"characters": ["请", "不", "要", "加", "糖"],
+"phrases": ["请", "不要", "加糖"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["preference", "cooking"]
+},
+"notes": "Specify sweetness level."
+},
+{
+"id": "food_restaurant_038",
+"sequence": 38,
+"category": "service",
+"level": "medium",
+"sentence": {
+"zh": "这儿有纸巾吗？",
+"pinyin": "Zhèr yǒu zhǐjīn ma?",
+"en": "Are there tissues here?"
+},
+"analysis": {
+"characters": ["这", "儿", "有", "纸", "巾", "吗"],
+"phrases": ["这儿", "有", "纸巾"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["service", "supplies"]
+},
+"notes": "Requesting tissues."
+},
+{
+"id": "food_restaurant_039",
+"sequence": 39,
+"category": "payment",
+"level": "medium",
+"sentence": {
+"zh": "支票可以吗？",
+"pinyin": "Zhīpiào kěyǐ ma?",
+"en": "Is check okay?"
+},
+"analysis": {
+"characters": ["支", "票", "可", "以", "吗"],
+"phrases": ["支票", "可以"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["payment", "method"]
+},
+"notes": "Checking if checks are accepted."
+},
+{
+"id": "food_restaurant_040",
+"sequence": 40,
+"category": "food",
+"level": "medium",
+"sentence": {
+"zh": "这个很好吃。",
+"pinyin": "Zhège hěn hǎochī.",
+"en": "This is very delicious."
+},
+"analysis": {
+"characters": ["这", "个", "很", "好", "吃"],
+"phrases": ["这个", "很好吃"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["food", "feedback"]
+},
+"notes": "Simple compliment."
+},
+{
+"id": "food_restaurant_041",
+"sequence": 41,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "我们要一份炒饭。",
+"pinyin": "Wǒmen yào yī fèn chǎofàn.",
+"en": "We want a serving of fried rice."
+},
+"analysis": {
+"characters": ["我", "们", "要", "一", "份", "炒", "饭"],
+"phrases": ["我们", "一份", "炒饭"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["food", "ordering"]
+},
+"notes": "Common dish order."
+},
+{
+"id": "food_restaurant_042",
+"sequence": 42,
+"category": "food",
+"level": "hard",
+"sentence": {
+"zh": "炒饭太油了。",
+"pinyin": "Chǎofàn tài yóu le.",
+"en": "The fried rice is too oily."
+},
+"analysis": {
+"characters": ["炒", "饭", "太", "油", "了"],
+"phrases": ["炒饭", "太油"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["food", "feedback"]
+},
+"notes": "Critique on preparation."
+},
+{
+"id": "food_restaurant_043",
+"sequence": 43,
+"category": "drinks",
+"level": "hard",
+"sentence": {
+"zh": "我要热茶，谢谢。",
+"pinyin": "Wǒ yào rè chá, xièxie.",
+"en": "I want hot tea, thanks."
+},
+"analysis": {
+"characters": ["我", "要", "热", "茶", "谢", "谢"],
+"phrases": ["我要", "热茶", "谢谢"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["drinks", "ordering"]
+},
+"notes": "Common beverage choice."
+},
+{
+"id": "food_restaurant_044",
+"sequence": 44,
+"category": "service",
+"level": "hard",
+"sentence": {
+"zh": "请快点，谢谢。",
+"pinyin": "Qǐng kuài diǎn, xièxie.",
+"en": "Please hurry, thanks."
+},
+"analysis": {
+"characters": ["请", "快", "点", "谢", "谢"],
+"phrases": ["请", "快点", "谢谢"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["service", "speed"]
+},
+"notes": "Asking for prompt service."
+},
+{
+"id": "food_restaurant_045",
+"sequence": 45,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "菜单在哪儿？",
+"pinyin": "Càidān zài nǎr?",
+"en": "Where is the menu?"
+},
+"analysis": {
+"characters": ["菜", "单", "在", "哪", "儿"],
+"phrases": ["菜单", "在哪儿"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["restaurant", "menu"]
+},
+"notes": "Locating the menu."
+},
+{
+"id": "food_restaurant_046",
+"sequence": 46,
+"category": "food",
+"level": "hard",
+"sentence": {
+"zh": "味道真好。",
+"pinyin": "Wèidào zhēn hǎo.",
+"en": "The taste is really good."
+},
+"analysis": {
+"characters": ["味", "道", "真", "好"],
+"phrases": ["味道", "真好"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["food", "praise"]
+},
+"notes": "Complimenting the flavor."
+},
+{
+"id": "food_restaurant_047",
+"sequence": 47,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "还有别的菜吗？",
+"pinyin": "Hái yǒu bié de cài ma?",
+"en": "Are there any other dishes?"
+},
+"analysis": {
+"characters": ["还", "有", "别", "的", "菜", "吗"],
+"phrases": ["还有", "别的", "菜"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["ordering", "variety"]
+},
+"notes": "Inquiring about more options."
+},
+{
+"id": "food_restaurant_048",
+"sequence": 48,
+"category": "arrival",
+"level": "hard",
+"sentence": {
+"zh": "这儿有空位吗？",
+"pinyin": "Zhèr yǒu kòngwèi ma?",
+"en": "Are there any empty seats here?"
+},
+"analysis": {
+"characters": ["这", "儿", "有", "空", "位", "吗"],
+"phrases": ["这儿", "有", "空位"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["arrival", "seating"]
+},
+"notes": "Checking for availability."
+},
+{
+"id": "food_restaurant_049",
+"sequence": 49,
+"category": "payment",
+"level": "hard",
+"sentence": {
+"zh": "可以微信支付吗？",
+"pinyin": "Kěyǐ Wēixìn zhīfù ma?",
+"en": "Can I pay with WeChat Pay?"
+},
+"analysis": {
+"characters": ["可", "以", "微", "信", "支", "付", "吗"],
+"phrases": ["可以", "微信支付"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 2,
+"tags": ["payment", "digital"]
+},
+"notes": "Digital payment inquiry."
+},
+{
+"id": "food_restaurant_050",
+"sequence": 50,
+"category": "departure",
+"level": "hard",
+"sentence": {
+"zh": "我们走了，再见。",
+"pinyin": "Wǒmen zǒu le, zàijiàn.",
+"en": "We're leaving, goodbye."
+},
+"analysis": {
+"characters": ["我", "们", "走", "了", "再", "见"],
+"phrases": ["我们", "走了", "再见"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["departure", "goodbye"]
+},
+"notes": "Standard departure."
+},
+{
+"id": "food_restaurant_051",
+"sequence": 51,
+"category": "ordering",
+"level": "easy",
+"sentence": {
+"zh": "请给我菜单。",
+"pinyin": "Qǐng gěi wǒ càidān.",
+"en": "Please give me the menu."
+},
+"analysis": {
+"characters": ["请", "给", "我", "菜", "单"],
+"phrases": ["请", "给我", "菜单"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["restaurant", "request"]
+},
+"notes": "Simple request for menu."
+},
+{
+"id": "food_restaurant_052",
+"sequence": 52,
+"category": "food",
+"level": "easy",
+"sentence": {
+"zh": "这好吃吗？",
+"pinyin": "Zhè hǎochī ma?",
+"en": "Is this delicious?"
+},
+"analysis": {
+"characters": ["这", "好", "吃", "吗"],
+"phrases": ["这", "好吃"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["food", "inquiry"]
+},
+"notes": "Asking about quality."
+},
+{
+"id": "food_restaurant_053",
+"sequence": 53,
+"category": "drinks",
+"level": "easy",
+"sentence": {
+"zh": "还要别的饮料吗？",
+"pinyin": "Hái yào bié de yǐnliào ma?",
+"en": "Do you need any other drinks?"
+},
+"analysis": {
+"characters": ["还", "要", "别", "的", "饮", "料", "吗"],
+"phrases": ["还要", "别的", "饮料"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["drinks", "ordering"]
+},
+"notes": "Checking for additional drinks."
+},
+{
+"id": "food_restaurant_054",
+"sequence": 54,
+"category": "service",
+"level": "easy",
+"sentence": {
+"zh": "好的，谢谢。",
+"pinyin": "Hǎo de, xièxie.",
+"en": "Okay, thanks."
+},
+"analysis": {
+"characters": ["好", "的", "谢", "谢"],
+"phrases": ["好的", "谢谢"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["politeness", "response"]
+},
+"notes": "Affirming service."
+},
+{
+"id": "food_restaurant_055",
+"sequence": 55,
+"category": "ordering",
+"level": "easy",
+"sentence": {
+"zh": "我们要结账。",
+"pinyin": "Wǒmen yào jiézhàng.",
+"en": "We would like to pay the bill."
+},
+"analysis": {
+"characters": ["我", "们", "要", "结", "账"],
+"phrases": ["我们", "结账"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["payment", "service"]
+},
+"notes": "Polite way to ask for the bill."
+},
+{
+"id": "food_restaurant_056",
+"sequence": 56,
+"category": "food",
+"level": "medium",
+"sentence": {
+"zh": "这个很有名。",
+"pinyin": "Zhège hěn yǒumíng.",
+"en": "This is very famous."
+},
+"analysis": {
+"characters": ["这", "个", "很", "有", "名"],
+"phrases": ["这个", "有名"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["food", "recommendation"]
+},
+"notes": "Describing a popular dish."
+},
+{
+"id": "food_restaurant_057",
+"sequence": 57,
+"category": "ordering",
+"level": "medium",
+"sentence": {
+"zh": "能不能快点？",
+"pinyin": "Néng bù néng kuài diǎn?",
+"en": "Can you be a bit faster?"
+},
+"analysis": {
+"characters": ["能", "不", "能", "快", "点"],
+"phrases": ["能不能", "快点"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["service", "speed"]
+},
+"notes": "Polite prompt for speed."
+},
+{
+"id": "food_restaurant_058",
+"sequence": 58,
+"category": "food",
+"level": "medium",
+"sentence": {
+"zh": "这个太好吃了。",
+"pinyin": "Zhège tài hǎochī le.",
+"en": "This is so delicious."
+},
+"analysis": {
+"characters": ["这", "个", "太", "好", "吃", "了"],
+"phrases": ["这个", "太好吃"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["food", "feedback"]
+},
+"notes": "Strong compliment."
+},
+{
+"id": "food_restaurant_059",
+"sequence": 59,
+"category": "service",
+"level": "medium",
+"sentence": {
+"zh": "请再来一杯水。",
+"pinyin": "Qǐng zài lái yī bēi shuǐ.",
+"en": "Please bring another cup of water."
+},
+"analysis": {
+"characters": ["请", "再", "来", "一", "杯", "水"],
+"phrases": ["请", "再来", "一杯水"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["drinks", "refill"]
+},
+"notes": "Requesting another drink."
+},
+{
+"id": "food_restaurant_060",
+"sequence": 60,
+"category": "departure",
+"level": "medium",
+"sentence": {
+"zh": "打包费多少钱？",
+"pinyin": "Dǎbāo fèi duōshǎo qián?",
+"en": "How much is the packing fee?"
+},
+"analysis": {
+"characters": ["打", "包", "费", "多", "少", "钱"],
+"phrases": ["打包费", "多少钱"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["payment", "takeaway"]
+},
+"notes": "Inquiring about hidden charges."
+},
+{
+"id": "food_restaurant_061",
+"sequence": 61,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "这儿有素食吗？",
+"pinyin": "Zhèr yǒu sùshí ma?",
+"en": "Is there vegetarian food here?"
+},
+"analysis": {
+"characters": ["这", "儿", "有", "素", "食", "吗"],
+"phrases": ["这儿", "有", "素食"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["food", "preference"]
+},
+"notes": "Vegetarian check."
+},
+{
+"id": "food_restaurant_062",
+"sequence": 62,
+"category": "food",
+"level": "hard",
+"sentence": {
+"zh": "味道有点儿淡。",
+"pinyin": "Wèidào yǒudiǎnr dàn.",
+"en": "The taste is a bit bland."
+},
+"analysis": {
+"characters": ["味", "道", "有", "点", "儿", "淡"],
+"phrases": ["味道", "有点儿", "淡"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["food", "feedback"]
+},
+"notes": "Polite comment on flavor."
+},
+{
+"id": "food_restaurant_063",
+"sequence": 63,
+"category": "drinks",
+"level": "hard",
+"sentence": {
+"zh": "我想喝点啤酒。",
+"pinyin": "Wǒ xiǎng hē diǎn píjiǔ.",
+"en": "I would like to drink some beer."
+},
+"analysis": {
+"characters": ["我", "想", "喝", "点", "啤", "酒"],
+"phrases": ["我想", "喝点", "啤酒"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["drinks", "ordering"]
+},
+"notes": "Alcohol choice."
+},
+{
+"id": "food_restaurant_064",
+"sequence": 64,
+"category": "service",
+"level": "hard",
+"sentence": {
+"zh": "可以加个椅子吗？",
+"pinyin": "Kěyǐ jiā gè yǐzi ma?",
+"en": "Can you add a chair?"
+},
+"analysis": {
+"characters": ["可", "以", "加", "个", "椅", "子", "吗"],
+"phrases": ["可以", "加个", "椅子"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["service", "furniture"]
+},
+"notes": "Requesting extra seating."
+},
+{
+"id": "food_restaurant_065",
+"sequence": 65,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "菜单可以翻译吗？",
+"pinyin": "Càidān kěyǐ fānyì ma?",
+"en": "Can the menu be translated?"
+},
+"analysis": {
+"characters": ["菜", "单", "可", "以", "翻", "译", "吗"],
+"phrases": ["菜单", "可以", "翻译"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 4,
+"tags": ["restaurant", "help"]
+},
+"notes": "Asking for language assistance."
+},
+{
+"id": "food_restaurant_066",
+"sequence": 66,
+"category": "food",
+"level": "hard",
+"sentence": {
+"zh": "太辣了，没法吃。",
+"pinyin": "Tài là le, méifǎ chī.",
+"en": "Too spicy, I can't eat it."
+},
+"analysis": {
+"characters": ["太", "辣", "了", "没", "法", "吃"],
+"phrases": ["太辣", "没法", "吃"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["food", "allergy"]
+},
+"notes": "Strong feedback."
+},
+{
+"id": "food_restaurant_067",
+"sequence": 67,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "还有别的选择吗？",
+"pinyin": "Hái yǒu bié de xuǎnzé ma?",
+"en": "Are there other choices?"
+},
+"analysis": {
+"characters": ["还", "有", "别", "的", "选", "择", "吗"],
+"phrases": ["还有", "别的", "选择"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["ordering", "variety"]
+},
+"notes": "Asking for more options."
+},
+{
+"id": "food_restaurant_068",
+"sequence": 68,
+"category": "arrival",
+"level": "hard",
+"sentence": {
+"zh": "几点关门？",
+"pinyin": "Jǐ diǎn guānmén?",
+"en": "What time do you close?"
+},
+"analysis": {
+"characters": ["几", "点", "关", "门"],
+"phrases": ["几点", "关门"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["arrival", "time"]
+},
+"notes": "Asking for closing hours."
+},
+{
+"id": "food_restaurant_069",
+"sequence": 69,
+"category": "payment",
+"level": "hard",
+"sentence": {
+"zh": "能不能分着付款？",
+"pinyin": "Néng bù néng fēnzhe fùkuǎn?",
+"en": "Can we pay separately?"
+},
+"analysis": {
+"characters": ["能", "不", "能", "分", "着", "付", "款"],
+"phrases": ["能不能", "分着", "付款"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["payment", "sharing"]
+},
+"notes": "Splitting the bill."
+},
+{
+"id": "food_restaurant_070",
+"sequence": 70,
+"category": "departure",
+"level": "hard",
+"sentence": {
+"zh": "饭店很不错，再见。",
+"pinyin": "Fàndiàn hěn búcuò, zàijiàn.",
+"en": "The restaurant is quite good, goodbye."
+},
+"analysis": {
+"characters": ["饭", "店", "很", "不", "错", "再", "见"],
+"phrases": ["饭店", "不错", "再见"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["departure", "feedback"]
+},
+"notes": "Polite farewell."
+},
+{
+"id": "food_restaurant_071",
+"sequence": 71,
+"category": "ordering",
+"level": "easy",
+"sentence": {
+"zh": "请给我热茶。",
+"pinyin": "Qǐng gěi wǒ rè chá.",
+"en": "Please give me hot tea."
+},
+"analysis": {
+"characters": ["请", "给", "我", "热", "茶"],
+"phrases": ["请", "给我", "热茶"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["drinks", "ordering"]
+},
+"notes": "Basic hot drink request."
+},
+{
+"id": "food_restaurant_072",
+"sequence": 72,
+"category": "food",
+"level": "easy",
+"sentence": {
+"zh": "这碗面好吃吗？",
+"pinyin": "Zhè wǎn miàn hǎochī ma?",
+"en": "Is this bowl of noodles delicious?"
+},
+"analysis": {
+"characters": ["这", "碗", "面", "好", "吃", "吗"],
+"phrases": ["这碗", "面", "好吃"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["food", "inquiry"]
+},
+"notes": "Asking about noodle quality."
+},
+{
+"id": "food_restaurant_073",
+"sequence": 73,
+"category": "ordering",
+"level": "easy",
+"sentence": {
+"zh": "我们要这个。",
+"pinyin": "Wǒmen yào zhège.",
+"en": "We want this."
+},
+"analysis": {
+"characters": ["我", "们", "要", "这", "个"],
+"phrases": ["我们", "这个"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["ordering", "menu"]
+},
+"notes": "Simple order."
+},
+{
+"id": "food_restaurant_074",
+"sequence": 74,
+"category": "service",
+"level": "easy",
+"sentence": {
+"zh": "谢谢你，太好了。",
+"pinyin": "Xièxie nǐ, tài hǎo le.",
+"en": "Thank you, that's great."
+},
+"analysis": {
+"characters": ["谢", "谢", "你", "太", "好", "了"],
+"phrases": ["谢谢", "太好了"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["politeness", "response"]
+},
+"notes": "Appreciating service."
+},
+{
+"id": "food_restaurant_075",
+"sequence": 75,
+"category": "ordering",
+"level": "easy",
+"sentence": {
+"zh": "多少钱，谢谢？",
+"pinyin": "Duōshǎo qián, xièxie?",
+"en": "How much, thanks?"
+},
+"analysis": {
+"characters": ["多", "少", "钱", "谢", "谢"],
+"phrases": ["多少钱", "谢谢"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["payment", "price"]
+},
+"notes": "Asking for price."
+},
+{
+"id": "food_restaurant_076",
+"sequence": 76,
+"category": "food",
+"level": "medium",
+"sentence": {
+"zh": "这种菜很有趣。",
+"pinyin": "Zhè zhǒng cài hěn yǒuqù.",
+"en": "This kind of dish is interesting."
+},
+"analysis": {
+"characters": ["这", "种", "菜", "很", "有", "趣"],
+"phrases": ["这种", "菜", "有趣"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["food", "comment"]
+},
+"notes": "Describing unique food."
+},
+{
+"id": "food_restaurant_077",
+"sequence": 77,
+"category": "ordering",
+"level": "medium",
+"sentence": {
+"zh": "我不太会点菜。",
+"pinyin": "Wǒ bù tài huì diǎncài.",
+"en": "I don't know how to order well."
+},
+"analysis": {
+"characters": ["我", "不", "太", "会", "点", "菜"],
+"phrases": ["我", "点菜"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["ordering", "help"]
+},
+"notes": "Admitting difficulty ordering."
+},
+{
+"id": "food_restaurant_078",
+"sequence": 78,
+"category": "food",
+"level": "medium",
+"sentence": {
+"zh": "这个很香。",
+"pinyin": "Zhège hěn xiāng.",
+"en": "This smells very good."
+},
+"analysis": {
+"characters": ["这", "个", "很", "香"],
+"phrases": ["这个", "很香"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["food", "comment"]
+},
+"notes": "Commenting on aroma."
+},
+{
+"id": "food_restaurant_079",
+"sequence": 79,
+"category": "service",
+"level": "medium",
+"sentence": {
+"zh": "请帮我倒水。",
+"pinyin": "Qǐng bāng wǒ dào shuǐ.",
+"en": "Please help me pour water."
+},
+"analysis": {
+"characters": ["请", "帮", "我", "倒", "水"],
+"phrases": ["请", "帮我", "倒水"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["service", "water"]
+},
+"notes": "Asking to pour water."
+},
+{
+"id": "food_restaurant_080",
+"sequence": 80,
+"category": "departure",
+"level": "medium",
+"sentence": {
+"zh": "请问，结账在哪里？",
+"pinyin": "Qǐngwèn, jiézhàng zài nǎlǐ?",
+"en": "Excuse me, where is the cashier?"
+},
+"analysis": {
+"characters": ["请", "问", "结", "账", "在", "哪", "里"],
+"phrases": ["请问", "结账", "在哪里"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["payment", "service"]
+},
+"notes": "Finding the payment area."
+},
+{
+"id": "food_restaurant_081",
+"sequence": 81,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "你们这儿有饺子吗？",
+"pinyin": "Nǐmen zhèr yǒu jiǎozi ma?",
+"en": "Do you have dumplings here?"
+},
+"analysis": {
+"characters": ["你", "们", "这", "儿", "有", "饺", "子", "吗"],
+"phrases": ["你们", "这儿", "有", "饺子"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["food", "ordering"]
+},
+"notes": "Inquiring about specific item."
+},
+{
+"id": "food_restaurant_082",
+"sequence": 82,
+"category": "food",
+"level": "hard",
+"sentence": {
+"zh": "味道稍微有点重。",
+"pinyin": "Wèidào shāowēi yǒudiǎn zhòng.",
+"en": "The taste is a bit heavy."
+},
+"analysis": {
+"characters": ["味", "道", "稍", "微", "有", "点", "重"],
+"phrases": ["味道", "稍微", "有点", "重"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["food", "feedback"]
+},
+"notes": "Describing heavy flavor."
+},
+{
+"id": "food_restaurant_083",
+"sequence": 83,
+"category": "drinks",
+"level": "hard",
+"sentence": {
+"zh": "可以给我换个杯子吗？",
+"pinyin": "Kěyǐ gěi wǒ huàn gè bēizi ma?",
+"en": "Can you exchange my cup?"
+},
+"analysis": {
+"characters": ["可", "以", "给", "我", "换", "个", "杯", "子", "吗"],
+"phrases": ["可以", "给我", "换个", "杯子"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["service", "drinking"]
+},
+"notes": "Requesting a clean cup."
+},
+{
+"id": "food_restaurant_084",
+"sequence": 84,
+"category": "service",
+"level": "hard",
+"sentence": {
+"zh": "我们需要餐巾纸。",
+"pinyin": "Wǒmen xūyào cānjīnzhǐ.",
+"en": "We need napkins."
+},
+"analysis": {
+"characters": ["我", "们", "需", "要", "餐", "巾", "纸"],
+"phrases": ["我们", "需要", "餐巾纸"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["service", "supplies"]
+},
+"notes": "Formal request for napkins."
+},
+{
+"id": "food_restaurant_085",
+"sequence": 85,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "你们推荐哪个？",
+"pinyin": "Nǐmen tuījiàn nǎge?",
+"en": "Which one do you recommend?"
+},
+"analysis": {
+"characters": ["你", "们", "推", "荐", "哪", "个"],
+"phrases": ["你们", "推荐", "哪个"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["ordering", "recommendation"]
+},
+"notes": "Direct recommendation request."
+},
+{
+"id": "food_restaurant_086",
+"sequence": 86,
+"category": "food",
+"level": "hard",
+"sentence": {
+"zh": "我不怎么喜欢辣的。",
+"pinyin": "Wǒ bù zěnme xǐhuān là de.",
+"en": "I don't really like spicy food."
+},
+"analysis": {
+"characters": ["我", "不", "怎", "么", "喜", "欢", "辣", "的"],
+"phrases": ["不怎么", "喜欢", "辣的"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["food", "preference"]
+},
+"notes": "Explaining taste preferences."
+},
+{
+"id": "food_restaurant_087",
+"sequence": 87,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "还需要别的餐具吗？",
+"pinyin": "Hái xūyào bié de cānjù ma?",
+"en": "Do you need other utensils?"
+},
+"analysis": {
+"characters": ["还", "需", "要", "别", "的", "餐", "具", "吗"],
+"phrases": ["还需要", "别的", "餐具"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["ordering", "supplies"]
+},
+"notes": "Checking utensil needs."
+},
+{
+"id": "food_restaurant_088",
+"sequence": 88,
+"category": "arrival",
+"level": "hard",
+"sentence": {
+"zh": "这儿要排队吗？",
+"pinyin": "Zhèr yào páiduì ma?",
+"en": "Is there a line here?"
+},
+"analysis": {
+"characters": ["这", "儿", "要", "排", "队", "吗"],
+"phrases": ["这儿", "要", "排队"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 4,
+"tags": ["arrival", "queue"]
+},
+"notes": "Checking status of entry."
+},
+{
+"id": "food_restaurant_089",
+"sequence": 89,
+"category": "payment",
+"level": "hard",
+"sentence": {
+"zh": "可以用支付宝吗？",
+"pinyin": "Kěyǐ yòng Zhīfùbǎo ma?",
+"en": "Can I use Alipay?"
+},
+"analysis": {
+"characters": ["可", "以", "用", "支", "付", "宝", "吗"],
+"phrases": ["可以", "用", "支付宝"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 2,
+"tags": ["payment", "digital"]
+},
+"notes": "Specific digital wallet check."
+},
+{
+"id": "food_restaurant_090",
+"sequence": 90,
+"category": "departure",
+"level": "hard",
+"sentence": {
+"zh": "太棒了，非常好吃。",
+"pinyin": "Tài bàng le, fēicháng hǎochī.",
+"en": "Awesome, very delicious."
+},
+"analysis": {
+"characters": ["太", "棒", "了", "非", "常", "好", "吃"],
+"phrases": ["太棒了", "非常好吃"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["departure", "feedback"]
+},
+"notes": "Strongly positive parting comment."
+},
+{
+"id": "food_restaurant_091",
+"sequence": 91,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "我想换一份菜。",
+"pinyin": "Wǒ xiǎng huàn yī fèn cài.",
+"en": "I want to exchange a dish."
+},
+"analysis": {
+"characters": ["我", "想", "换", "一", "份", "菜"],
+"phrases": ["我想", "换", "一份菜"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["service", "order"]
+},
+"notes": "Changing an order."
+},
+{
+"id": "food_restaurant_092",
+"sequence": 92,
+"category": "food",
+"level": "hard",
+"sentence": {
+"zh": "稍微有点儿凉了。",
+"pinyin": "Shāowēi yǒudiǎnr liáng le.",
+"en": "It's a bit cold."
+},
+"analysis": {
+"characters": ["稍", "微", "有", "点", "儿", "凉", "了"],
+"phrases": ["稍微", "有点儿", "凉了"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["food", "temperature"]
+},
+"notes": "Pointing out temperature issue."
+},
+{
+"id": "food_restaurant_093",
+"sequence": 93,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "你们推荐哪个素菜？",
+"pinyin": "Nǐmen tuījiàn nǎge sùcài?",
+"en": "Which vegetarian dish do you recommend?"
+},
+"analysis": {
+"characters": ["你", "们", "推", "荐", "哪", "个", "素", "菜"],
+"phrases": ["你们", "推荐", "哪个", "素菜"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["food", "vegetarian"]
+},
+"notes": "Inquiring about vegetarian options."
+},
+{
+"id": "food_restaurant_094",
+"sequence": 94,
+"category": "payment",
+"level": "hard",
+"sentence": {
+"zh": "请给我发票。",
+"pinyin": "Qǐng gěi wǒ fāpiào.",
+"en": "Please give me the receipt."
+},
+"analysis": {
+"characters": ["请", "给", "我", "发", "票"],
+"phrases": ["请", "给我", "发票"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["payment", "receipt"]
+},
+"notes": "Requesting tax receipt."
+},
+{
+"id": "food_restaurant_095",
+"sequence": 95,
+"category": "service",
+"level": "hard",
+"sentence": {
+"zh": "麻烦你帮我们加满水。",
+"pinyin": "Máfan nǐ bāng wǒmen jiāmǎn shuǐ.",
+"en": "Could you please help us refill the water?"
+},
+"analysis": {
+"characters": ["麻", "烦", "你", "帮", "我", "们", "加", "满", "水"],
+"phrases": ["麻烦你", "帮我们", "加满水"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["service", "water"]
+},
+"notes": "Polite refill request."
+},
+{
+"id": "food_restaurant_096",
+"sequence": 96,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "还有什么特色菜？",
+"pinyin": "Hái yǒu shénme tèsè cài?",
+"en": "What other special dishes are there?"
+},
+"analysis": {
+"characters": ["还", "有", "什", "么", "特", "色", "菜"],
+"phrases": ["还有", "什么", "特色菜"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["ordering", "variety"]
+},
+"notes": "Checking for special menu items."
+},
+{
+"id": "food_restaurant_097",
+"sequence": 97,
+"category": "departure",
+"level": "hard",
+"sentence": {
+"zh": "我们打包带走。",
+"pinyin": "Wǒmen dǎbāo dàizǒu.",
+"en": "We are packing it to go."
+},
+"analysis": {
+"characters": ["我", "们", "打", "包", "带", "走"],
+"phrases": ["我们", "打包", "带走"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["service", "takeaway"]
+},
+"notes": "Takeout arrangement."
+},
+{
+"id": "food_restaurant_098",
+"sequence": 98,
+"category": "payment",
+"level": "hard",
+"sentence": {
+"zh": "结账，请快一点。",
+"pinyin": "Jiézhàng, qǐng kuài yīdiǎn.",
+"en": "Check, please, a bit faster."
+},
+"analysis": {
+"characters": ["结", "账", "请", "快", "一", "点"],
+"phrases": ["结账", "请", "快一点"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["payment", "service"]
+},
+"notes": "Requesting quick payment."
+},
+{
+"id": "food_restaurant_099",
+"sequence": 99,
+"category": "ordering",
+"level": "hard",
+"sentence": {
+"zh": "可以先上饮料吗？",
+"pinyin": "Kěyǐ xiān shàng yǐnliào ma?",
+"en": "Can you bring drinks first?"
+},
+"analysis": {
+"characters": ["可", "以", "先", "上", "饮", "料", "吗"],
+"phrases": ["可以", "先上", "饮料"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["ordering", "drinks"]
+},
+"notes": "Requesting early drink service."
+},
+{
+"id": "food_restaurant_100",
+"sequence": 100,
+"category": "departure",
+"level": "hard",
+"sentence": {
+"zh": "谢谢，你们的服务很好。",
+"pinyin": "Xièxie, nǐmen de fúwù hěn hǎo.",
+"en": "Thank you, your service is very good."
+},
+"analysis": {
+"characters": ["谢", "谢", "你", "们", "的", "服", "务", "很", "好"],
+"phrases": ["谢谢", "你们的", "服务", "很好"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["departure", "service"]
+},
+"notes": "Complimenting service quality."
+}
+]
+}

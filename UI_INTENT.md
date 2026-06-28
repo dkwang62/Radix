@@ -185,10 +185,10 @@ scenario grouping, and progress. The first starter set is `General Greetings`,
 an easy-ranked collection of roughly 100 common conversational sentences.
 Study should expose Conversation Practice topics through a compact dropdown so
 the section can grow beyond the starter set. `General Greetings` stays first and
-default. `Food / Eating Conversation` is the second topic and may start as an AI
-generation topic before a bundled pack exists. For generation-only topics, show
-the topic purpose and a clear action into AI Link rather than empty practice
-controls.
+default. `Food / Eating Conversation` is the second bundled topic, using the
+same practice controls as the starter set. For future generation-only topics,
+show the topic purpose and a clear action into AI Link rather than empty
+practice controls.
 
 Lesson screens should make the sentence card the main object. A user should be
 able to review or quiz the sentence, then tap the full sentence into its normal

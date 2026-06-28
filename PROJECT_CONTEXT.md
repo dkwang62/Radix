@@ -212,10 +212,10 @@ separate from Added Phrases classification so users are not asked to
 accept/reject shipped lesson content.
 Conversation Practice topics are selected through a Study dropdown. `General
 Greetings` remains the first/default topic backed by `conversation100.json`.
-`Food / Eating Conversation` is the second configured topic; until a bundled
-pack is added, it opens an AI Link generator task for restaurant, hawker/casual
-eatery, and home dinner-table practice content. Topic configuration must remain
-data-driven so future topics can be added without rebuilding the Study UI.
+`Food / Eating Conversation` is the second configured topic, backed by the
+bundled `Food Dining.json` pack for restaurant, hawker/casual eatery, and home
+dinner-table practice content. Topic configuration must remain data-driven so
+future topics can be added without rebuilding the Study UI.
 The AI Link generator task must emit the same structured JSON shape as
 `conversation100.json`, so generated content can flow through
 `ConversationPracticeRules` before becoming a Phrase-backed practice set.
