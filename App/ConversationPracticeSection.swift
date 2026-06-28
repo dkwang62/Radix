@@ -142,10 +142,6 @@ extension FavouritesTab {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(library.set.title)
-                        .font(ResponsiveFont.body.weight(.semibold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
                     Text(topic.difficultyLabel)
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
