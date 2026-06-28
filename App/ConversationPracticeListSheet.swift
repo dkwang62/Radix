@@ -9,11 +9,10 @@ struct ConversationPracticeListSheet: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var store: RadixStore
     let library: ConversationPracticeLibrary
-    let onOpenPhrase: (PhraseItem) -> Void
-    let onOpenCharacter: (String) -> Void
+    @State private var inspectionPath: [ConversationPracticeInspectionRoute] = []
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $inspectionPath) {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 10) {
                     ForEach(library.items) { item in
@@ -29,6 +28,14 @@ struct ConversationPracticeListSheet: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }
                 }
+            }
+            .navigationDestination(for: ConversationPracticeInspectionRoute.self) { route in
+                ConversationPracticeInspectionDestination(
+                    route: route,
+                    sourceTitle: library.set.title,
+                    onOpenCharacter: openCharacter
+                )
+                .environmentObject(store)
             }
         }
     }
@@ -108,18 +115,15 @@ struct ConversationPracticeListSheet: View {
     }
 
     func openPhrase(_ item: ConversationPracticeItem) {
-        dismiss()
-        onOpenPhrase(phraseItem(for: item))
+        inspectionPath.append(.phrase(phraseItem(for: item)))
     }
 
     func openPhraseHint(_ phrase: String) {
-        dismiss()
-        onOpenPhrase(store.mergedPhrase(for: phrase) ?? PhraseItem(word: phrase, pinyin: "", meanings: ""))
+        inspectionPath.append(.phrase(store.mergedPhrase(for: phrase) ?? PhraseItem(word: phrase, pinyin: "", meanings: "")))
     }
 
     func openCharacter(_ character: String) {
-        dismiss()
-        onOpenCharacter(character)
+        inspectionPath.append(.character(character))
     }
 
     func phraseItem(for item: ConversationPracticeItem) -> PhraseItem {

@@ -189,7 +189,11 @@ name and add a unique numeric suffix such as `1` or `2`.
 The corrected source remains Chinese, while change reasons, confidence, and
 uncertainty explanations are explicitly requested in English.
 Study uses its four summary tiles as the section selectors. Recent and Favorites
-must not be repeated as a segmented picker above the review grid.
+must not be repeated as a segmented picker above the review grid. The next
+Study structure direction is an internal `Review | Practice` split: keep the
+main app tab named `Study`, put existing recent/favorites/added/saved material
+under Review, and put Conversation Practice plus future guided lesson sets under
+Practice.
 On iPad and Mac Catalyst those four tiles use an explicit two-column layout so
 all labels remain readable; phone keeps its adaptive layout.
 Conversation Practice is the next Study learning section. It presents curated
@@ -236,6 +240,9 @@ local until the persistent lesson-progress store is designed.
 Step 6 adds a full `Sentence List` browse sheet for the starter set. It shows
 the curated order for all sentences and keeps each full sentence, phrase hint,
 and character hint linked back to existing Radix Phrase and Character cards.
+Review Cards, Quick Quiz, and Sentence List now open those Phrase and Character
+cards inside their own navigation stacks, so Back returns to the practice mode
+instead of ejecting the user from the lesson flow.
 Added Phrases review is phrase-first: no search field, no persistent help text,
 and no visible AI shortcut above the grid. The top row shows the status filter,
 an `Actions` menu, and `Done`; `Actions` includes `Create AI Review Page` for

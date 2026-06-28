@@ -161,7 +161,13 @@ Study should not become a hodgepodge. Group it by intent:
 
 - Today: what changed or was captured recently.
 - Review: favorites, recent items, added items, notes, and saved pages.
+- Practice: guided lesson sets and drills such as Conversation Practice.
 - Snapshots: save and restore learning states.
+
+The Study tab can split internally into `Review` and `Practice`, but do not
+create a separate main app tab for Practice unless the whole navigation model is
+reconsidered. Review holds the user's kept material; Practice holds guided
+lesson content.
 
 The four Study summary buttons are the section selectors. Do not repeat
 Recent/Favorites as a segmented picker above the review grid; the grid heading
@@ -184,7 +190,10 @@ Phrase card or Browse inspection, tap detected words or sub-phrases into Phrase
 cards, and tap individual characters into Character cards. Practice feedback
 should reinforce those links by showing the sentence, pinyin, English, and key
 Radix-backed parts after an answer. Avoid dead-end quiz screens where the
-dictionary/card system disappears.
+dictionary/card system disappears. When a lesson flow opens a Phrase or
+Character card, keep that inspection inside the current lesson sheet with a
+normal back path to the practice mode; do not eject the user from Review Cards,
+Quick Quiz, or Sentence List just because they inspected a Radix card.
 
 Keep curated lessons visually and behaviorally separate from Added Phrases
 cleanup. Added Phrases is for user/imported phrase classification; Conversation

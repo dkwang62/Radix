@@ -80,43 +80,19 @@ struct FavouritesTab: View {
         .sheet(item: $conversationPracticeReviewPresentation, onDismiss: {
             conversationPracticeReviewPresentation = nil
         }) { presentation in
-            ConversationPracticeReviewSheet(
-                library: presentation.library,
-                onOpenPhrase: { phrase in
-                    presentPhrase(phrase)
-                },
-                onOpenCharacter: { character in
-                    store.preview(character: character)
-                }
-            )
+            ConversationPracticeReviewSheet(library: presentation.library)
             .environmentObject(store)
         }
         .sheet(item: $conversationPracticeListPresentation, onDismiss: {
             conversationPracticeListPresentation = nil
         }) { presentation in
-            ConversationPracticeListSheet(
-                library: presentation.library,
-                onOpenPhrase: { phrase in
-                    presentPhrase(phrase)
-                },
-                onOpenCharacter: { character in
-                    store.preview(character: character)
-                }
-            )
+            ConversationPracticeListSheet(library: presentation.library)
             .environmentObject(store)
         }
         .sheet(item: $conversationPracticeQuizPresentation, onDismiss: {
             conversationPracticeQuizPresentation = nil
         }) { presentation in
-            ConversationPracticeQuizSheet(
-                library: presentation.library,
-                onOpenPhrase: { phrase in
-                    presentPhrase(phrase)
-                },
-                onOpenCharacter: { character in
-                    store.preview(character: character)
-                }
-            )
+            ConversationPracticeQuizSheet(library: presentation.library)
             .environmentObject(store)
         }
         .alert("Return to Checkpoint?", isPresented: Binding(

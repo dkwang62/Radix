@@ -9,11 +9,10 @@ struct ConversationPracticeQuizSheet: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var store: RadixStore
     let library: ConversationPracticeLibrary
-    let onOpenPhrase: (PhraseItem) -> Void
-    let onOpenCharacter: (String) -> Void
     @State private var currentIndex = 0
     @State private var selectedAnswerID: String?
     @State private var answered: [String: Bool] = [:]
+    @State private var inspectionPath: [ConversationPracticeInspectionRoute] = []
 
     var currentItem: ConversationPracticeItem {
         library.items[currentIndex]
@@ -32,7 +31,7 @@ struct ConversationPracticeQuizSheet: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $inspectionPath) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     progressHeader
@@ -51,6 +50,14 @@ struct ConversationPracticeQuizSheet: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }
                 }
+            }
+            .navigationDestination(for: ConversationPracticeInspectionRoute.self) { route in
+                ConversationPracticeInspectionDestination(
+                    route: route,
+                    sourceTitle: "Quick Quiz",
+                    onOpenCharacter: openCharacter
+                )
+                .environmentObject(store)
             }
         }
     }
@@ -228,13 +235,11 @@ struct ConversationPracticeQuizSheet: View {
     }
 
     func openPhrase(_ item: ConversationPracticeItem) {
-        dismiss()
-        onOpenPhrase(phraseItem(for: item))
+        inspectionPath.append(.phrase(phraseItem(for: item)))
     }
 
     func openCharacter(_ character: String) {
-        dismiss()
-        onOpenCharacter(character)
+        inspectionPath.append(.character(character))
     }
 
     func phraseItem(for item: ConversationPracticeItem) -> PhraseItem {

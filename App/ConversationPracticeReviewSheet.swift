@@ -9,18 +9,17 @@ struct ConversationPracticeReviewSheet: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var store: RadixStore
     let library: ConversationPracticeLibrary
-    let onOpenPhrase: (PhraseItem) -> Void
-    let onOpenCharacter: (String) -> Void
     @State private var currentIndex = 0
     @State private var isRevealed = false
     @State private var progress: [String: ConversationPracticeReviewResponse] = [:]
+    @State private var inspectionPath: [ConversationPracticeInspectionRoute] = []
 
     var currentItem: ConversationPracticeItem {
         library.items[currentIndex]
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $inspectionPath) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     progressHeader
@@ -37,6 +36,14 @@ struct ConversationPracticeReviewSheet: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }
                 }
+            }
+            .navigationDestination(for: ConversationPracticeInspectionRoute.self) { route in
+                ConversationPracticeInspectionDestination(
+                    route: route,
+                    sourceTitle: "Review Cards",
+                    onOpenCharacter: openCharacter
+                )
+                .environmentObject(store)
             }
         }
     }
@@ -204,18 +211,15 @@ struct ConversationPracticeReviewSheet: View {
     }
 
     func openPhrase(_ item: ConversationPracticeItem) {
-        dismiss()
-        onOpenPhrase(phraseItem(for: item))
+        inspectionPath.append(.phrase(phraseItem(for: item)))
     }
 
     func openPhraseHint(_ phrase: String) {
-        dismiss()
-        onOpenPhrase(store.mergedPhrase(for: phrase) ?? PhraseItem(word: phrase, pinyin: "", meanings: ""))
+        inspectionPath.append(.phrase(store.mergedPhrase(for: phrase) ?? PhraseItem(word: phrase, pinyin: "", meanings: "")))
     }
 
     func openCharacter(_ character: String) {
-        dismiss()
-        onOpenCharacter(character)
+        inspectionPath.append(.character(character))
     }
 
     func phraseItem(for item: ConversationPracticeItem) -> PhraseItem {

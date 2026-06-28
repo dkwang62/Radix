@@ -144,6 +144,8 @@ Practice feedback:
 - offers simple results such as Again, Good, Easy, or correct/incorrect
 - never dead-ends in a quiz-only screen where the dictionary/card system
   disappears
+- opens Phrase and Character cards inside the current practice sheet, with the
+  normal back button returning to Review Cards, Quick Quiz, or Sentence List
 
 ## Initial Build Phases
 
@@ -195,7 +197,9 @@ Practice feedback:
      Phrase and Character cards.
    - Status: `Sentence List` opens from the Study set card, shows all starter
      sentences in curated order, and keeps full sentence rows plus hints tied
-     to existing Phrase/Character card presentation.
+     to existing Phrase/Character card presentation. Lesson card inspection now
+     stays inside the active practice sheet so the user can go back to the
+     practice mode without restarting the flow.
 
 7. Expansion
    - Add more situational sets.
