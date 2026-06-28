@@ -5,7 +5,7 @@ Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
 
-Last reviewed: 2026-06-27
+Last reviewed: 2026-06-28
 
 ## Product and Platform Scope
 
@@ -69,6 +69,10 @@ Do not move domain behavior back into `RadixStore.swift`.
 
 - Character dictionary: JSON base data plus `component_map_changes.json` overlay.
 - Phrases: bundled SQLite plus the user-added phrase database.
+- Curated Study lesson sentences must be Phrase DB-backed, or referenced by a
+  practice-set layer that points to Phrase DB records. Do not build a separate
+  lesson-only Chinese sentence store that bypasses Radix Phrase cards,
+  Character cards, favorites, notes, Browse inspection, or review state.
 - Portable backup: `UnifiedPackage` schema 5, with legacy backup decoding retained.
 - Bundled standard data imports additively once on startup from
   `radix_unified_backup.json`, guarded by `RadixPreferenceKey.standardDataImportID`.
@@ -188,6 +192,20 @@ Study uses its four summary tiles as the section selectors. Recent and Favorites
 must not be repeated as a segmented picker above the review grid.
 On iPad and Mac Catalyst those four tiles use an explicit two-column layout so
 all labels remain readable; phone keeps its adaptive layout.
+Conversation Practice is the next Study learning section. It presents curated
+practice sets such as `General Greetings`, `Restaurants`, `Airport`, and
+`Shopping Mall`, starting with about 100 common beginner conversational
+sentences in Simplified Chinese with pinyin and English. These lessons must
+tightly reuse Radix's Character/Phrase dictionary infrastructure: each sentence
+is a Phrase DB-backed practice item, tapping a lesson sentence opens the normal
+Phrase card or Browse inspection, and detected characters/sub-phrases should
+lead to existing Character and Phrase cards. Practice sets add ordering,
+difficulty, scenario grouping, and progress; they are not a parallel phrasebook
+database. Keep curated lesson progress separate from Added Phrases
+classification so users are not asked to accept/reject shipped lesson content.
+The first useful practice modes should be simple offline drills such as Review
+Cards and Quick Quiz, with answer feedback linking back into Phrase and
+Character cards rather than dead-ending in a quiz-only screen.
 Added Phrases review is phrase-first: no search field, no persistent help text,
 and no visible AI shortcut above the grid. The top row shows the status filter,
 an `Actions` menu, and `Done`; `Actions` includes `Create AI Review Page` for

@@ -134,6 +134,7 @@ Study should contain learning review material, not admin backup tools:
 - Changed items.
 - Notes.
 - Saved pages to revisit.
+- Conversation practice sets.
 - Study snapshots.
 
 Items such as "Review Added Phrases" belong in Study, not My Data.
@@ -168,6 +169,28 @@ should reflect the summary button most recently selected.
 On iPad and Mac Catalyst, arrange the four Study summary buttons as two
 equal-width buttons per row so labels such as Added Phrases and Saved Pages
 remain fully readable.
+
+Conversation Practice should be a guided Study section built from Radix's
+existing Character and Phrase dictionary infrastructure, not a separate
+phrasebook app inside Radix. Present curated sets such as `General Greetings`,
+`Restaurants`, `Airport`, and `Shopping Mall`; each set contains Phrase
+DB-backed sentences with Simplified Chinese, pinyin, English, order, difficulty,
+scenario grouping, and progress. The first starter set is `General Greetings`,
+an easy-ranked collection of roughly 100 common conversational sentences.
+
+Lesson screens should make the sentence card the main object. A user should be
+able to review or quiz the sentence, then tap the full sentence into its normal
+Phrase card or Browse inspection, tap detected words or sub-phrases into Phrase
+cards, and tap individual characters into Character cards. Practice feedback
+should reinforce those links by showing the sentence, pinyin, English, and key
+Radix-backed parts after an answer. Avoid dead-end quiz screens where the
+dictionary/card system disappears.
+
+Keep curated lessons visually and behaviorally separate from Added Phrases
+cleanup. Added Phrases is for user/imported phrase classification; Conversation
+Practice is guided learning content. It should support simple offline practice
+first, such as Review Cards and Quick Quiz, with AI remaining optional future
+enhancement rather than a requirement.
 
 ## AI intent
 
