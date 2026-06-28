@@ -79,6 +79,15 @@ extension FavouritesTab {
                 }
                 .buttonStyle(.bordered)
             }
+
+            Button {
+                presentConversationPracticeList(library)
+            } label: {
+                Label("Sentence List", systemImage: "list.bullet.rectangle")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 38)
+            }
+            .buttonStyle(.bordered)
         }
         .padding(10)
         .background(RadixTheme.secondaryBackground.opacity(0.52))

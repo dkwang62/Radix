@@ -221,8 +221,7 @@ the future Study UI.
 Step 3 has a first Study entry point: `Conversation Practice` appears in Study
 when the starter pack loads, showing the `General Greetings` set count and a
 small set of sample sentences. Those samples resolve through the existing Phrase
-card presentation path, preserving the Radix dictionary connection while the
-full Review Cards and Quick Quiz flows are still to be built.
+card presentation path, preserving the Radix dictionary connection.
 Step 4 has the first `Review Cards` flow: the starter set opens a card sheet
 that shows Chinese first, reveals pinyin/English, records local Again/Good/Easy
 responses for the session, and links the full sentence, detected phrase hints,
@@ -234,6 +233,9 @@ Chinese-to-English multiple-choice sheet using deterministic portable answer
 choice rules. Feedback shows pinyin/English, score for the session, and links
 back to the existing Phrase and Character card presentation. Quiz results remain
 local until the persistent lesson-progress store is designed.
+Step 6 adds a full `Sentence List` browse sheet for the starter set. It shows
+the curated order for all sentences and keeps each full sentence, phrase hint,
+and character hint linked back to existing Radix Phrase and Character cards.
 Added Phrases review is phrase-first: no search field, no persistent help text,
 and no visible AI shortcut above the grid. The top row shows the status filter,
 an `Actions` menu, and `Done`; `Actions` includes `Create AI Review Page` for

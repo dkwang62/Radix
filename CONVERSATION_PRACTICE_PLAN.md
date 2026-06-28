@@ -188,7 +188,16 @@ Practice feedback:
      portable answer choices, shows immediate feedback with pinyin/English and
      session score, and links feedback back to existing Phrase/Character cards.
 
-6. Expansion
+6. Sentence List
+   - Let users browse every sentence in the starter set.
+   - Preserve curated rank order.
+   - Link every full sentence, phrase hint, and character hint back to existing
+     Phrase and Character cards.
+   - Status: `Sentence List` opens from the Study set card, shows all starter
+     sentences in curated order, and keeps full sentence rows plus hints tied
+     to existing Phrase/Character card presentation.
+
+7. Expansion
    - Add more situational sets.
    - Add more practice modes only after the core card links feel solid.
 

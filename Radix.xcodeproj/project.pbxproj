@@ -114,6 +114,7 @@
 		85EDDE7584102C60FB34196B /* ComponentCharacterTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7F5C8C9FCF78E23E125C52 /* ComponentCharacterTile.swift */; };
 		8660A43D2FF0EFD6006153F6 /* conversation100.json in Resources */ = {isa = PBXBuildFile; fileRef = 8660A43C2FF0EFD6006153F6 /* conversation100.json */; };
 		86C0FFEE2000000000000001 /* ConversationPracticeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE2000000000000002 /* ConversationPracticeService.swift */; };
+		86C0FFEE6000000000000001 /* ConversationPracticeListSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE6000000000000002 /* ConversationPracticeListSheet.swift */; };
 		86C0FFEE5000000000000001 /* ConversationPracticeQuizSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE5000000000000002 /* ConversationPracticeQuizSheet.swift */; };
 		86C0FFEE3000000000000001 /* ConversationPracticeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE3000000000000002 /* ConversationPracticeSection.swift */; };
 		86C0FFEE4000000000000001 /* ConversationPracticeReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */; };
@@ -410,6 +411,7 @@
 		82EB7BF38143D488D88E0632 /* AddPhraseInputForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPhraseInputForm.swift; sourceTree = "<group>"; };
 		8660A43C2FF0EFD6006153F6 /* conversation100.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = conversation100.json; sourceTree = "<group>"; };
 		86C0FFEE2000000000000002 /* ConversationPracticeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeService.swift; sourceTree = "<group>"; };
+		86C0FFEE6000000000000002 /* ConversationPracticeListSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeListSheet.swift; sourceTree = "<group>"; };
 		86C0FFEE5000000000000002 /* ConversationPracticeQuizSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeQuizSheet.swift; sourceTree = "<group>"; };
 		86C0FFEE3000000000000002 /* ConversationPracticeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeSection.swift; sourceTree = "<group>"; };
 		86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeReviewSheet.swift; sourceTree = "<group>"; };
@@ -576,6 +578,7 @@
 				3549E7DC987331EE0218ACB8 /* CapturePhraseMessages.swift */,
 				EBA5D8A4235FE8BABAD68AA7 /* CaptureTab.swift */,
 				B9D374F4138850CF5FF935A3 /* CaptureWorkbenchViews.swift */,
+				86C0FFEE6000000000000002 /* ConversationPracticeListSheet.swift */,
 				86C0FFEE5000000000000002 /* ConversationPracticeQuizSheet.swift */,
 				86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */,
 				86C0FFEE3000000000000002 /* ConversationPracticeSection.swift */,
@@ -1081,6 +1084,7 @@
 				E226F8082AFCF3050DAE80B8 /* ComponentScriptClassifier.swift in Sources */,
 				D2DB6B1F7905BD68CCC5630B /* ComponentSearchEngine.swift in Sources */,
 				86C0FFEE2000000000000001 /* ConversationPracticeService.swift in Sources */,
+				86C0FFEE6000000000000001 /* ConversationPracticeListSheet.swift in Sources */,
 				86C0FFEE5000000000000001 /* ConversationPracticeQuizSheet.swift in Sources */,
 				86C0FFEE4000000000000001 /* ConversationPracticeReviewSheet.swift in Sources */,
 				86C0FFEE3000000000000001 /* ConversationPracticeSection.swift in Sources */,

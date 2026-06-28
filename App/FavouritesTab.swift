@@ -22,6 +22,7 @@ struct FavouritesTab: View {
     @State var addedPhraseReviewPresentation: AddedPhraseReviewPresentation?
     @State var pendingCheckpointReturn: LocalDataSnapshot?
     @State var conversationPracticeLibrary: ConversationPracticeLibrary? = try? ConversationPracticeService().loadStarterLibrary()
+    @State var conversationPracticeListPresentation: ConversationPracticeListPresentation?
     @State var conversationPracticeReviewPresentation: ConversationPracticeReviewPresentation?
     @State var conversationPracticeQuizPresentation: ConversationPracticeQuizPresentation?
 
@@ -80,6 +81,20 @@ struct FavouritesTab: View {
             conversationPracticeReviewPresentation = nil
         }) { presentation in
             ConversationPracticeReviewSheet(
+                library: presentation.library,
+                onOpenPhrase: { phrase in
+                    presentPhrase(phrase)
+                },
+                onOpenCharacter: { character in
+                    store.preview(character: character)
+                }
+            )
+            .environmentObject(store)
+        }
+        .sheet(item: $conversationPracticeListPresentation, onDismiss: {
+            conversationPracticeListPresentation = nil
+        }) { presentation in
+            ConversationPracticeListSheet(
                 library: presentation.library,
                 onOpenPhrase: { phrase in
                     presentPhrase(phrase)
@@ -159,6 +174,10 @@ struct FavouritesTab: View {
 
     func presentConversationPracticeReview(_ library: ConversationPracticeLibrary) {
         conversationPracticeReviewPresentation = ConversationPracticeReviewPresentation(library: library)
+    }
+
+    func presentConversationPracticeList(_ library: ConversationPracticeLibrary) {
+        conversationPracticeListPresentation = ConversationPracticeListPresentation(library: library)
     }
 
     func presentConversationPracticeQuiz(_ library: ConversationPracticeLibrary) {
