@@ -15,11 +15,33 @@ struct ConversationPracticeTests {
         #expect(pack.practiceSet.id == "radix_conversation_pack_100_common_sentences_zh_hans")
         #expect(pack.practiceItems.first?.id == "conv-001")
         #expect(pack.practiceItems.first?.setID == pack.packID)
-        #expect(pack.practiceItems.first?.phraseKey == "你好。")
+        #expect(pack.practiceItems.first?.phraseKey == "你好")
+        #expect(pack.practiceItems.first?.simplified == "你好。")
         #expect(pack.practiceItems.first?.rank == 1)
         #expect(pack.practiceItems.first?.difficulty == .easy)
         #expect(pack.practiceItems.last?.id == "conv-100")
         #expect(pack.practiceItems.last?.rank == 100)
+    }
+
+    @Test("Conversation practice pack maps to phrase seeds and memberships")
+    func packMapsToPhraseBackedLibrary() throws {
+        let pack = try loadConversationPackFixture()
+        let library = pack.practiceLibrary
+
+        #expect(library.set.id == pack.packID)
+        #expect(library.items.count == 100)
+        #expect(library.phraseSeeds.count == 100)
+        #expect(library.memberships.count == 100)
+        #expect(library.phraseSeeds.first?.id == "你好")
+        #expect(library.phraseSeeds.first?.simplified == "你好。")
+        #expect(library.phraseSeeds.first?.pinyin == "Nǐ hǎo.")
+        #expect(library.phraseSeeds.first?.english == "Hello.")
+        #expect(library.phraseSeeds.first?.sourceItemID == "conv-001")
+        #expect(library.memberships.first?.id == "\(pack.packID)#conv-001")
+        #expect(library.memberships.first?.phraseKey == "你好")
+        #expect(library.memberships.first?.rank == 1)
+        #expect(library.phraseKeys.first == "你好")
+        #expect(library.phraseKeys.last == "祝你一切顺利")
     }
 
     @Test("Conversation practice validation rejects duplicate and incomplete rows")

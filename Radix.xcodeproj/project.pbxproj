@@ -113,6 +113,7 @@
 		859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */; };
 		85EDDE7584102C60FB34196B /* ComponentCharacterTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7F5C8C9FCF78E23E125C52 /* ComponentCharacterTile.swift */; };
 		8660A43D2FF0EFD6006153F6 /* conversation100.json in Resources */ = {isa = PBXBuildFile; fileRef = 8660A43C2FF0EFD6006153F6 /* conversation100.json */; };
+		86C0FFEE2000000000000001 /* ConversationPracticeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE2000000000000002 /* ConversationPracticeService.swift */; };
 		86D4638F44188A238A8ECB14 /* SmartSearchTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF9DDFA3D17CF300D881367 /* SmartSearchTab.swift */; };
 		8925A237D932F85F3087F717 /* CharacterInfoCardHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCE5059E558EFFBE555258B /* CharacterInfoCardHeader.swift */; };
 		897066C41DA5C8AB5756FD5C /* DataBackupPreviewLists.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CAC174D6D8AEFB30F37FCA /* DataBackupPreviewLists.swift */; };
@@ -405,6 +406,7 @@
 		80A6F6CF05AE3482BCCF78FA /* PhrasePinyinSearchIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhrasePinyinSearchIndex.swift; sourceTree = "<group>"; };
 		82EB7BF38143D488D88E0632 /* AddPhraseInputForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPhraseInputForm.swift; sourceTree = "<group>"; };
 		8660A43C2FF0EFD6006153F6 /* conversation100.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = conversation100.json; sourceTree = "<group>"; };
+		86C0FFEE2000000000000002 /* ConversationPracticeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeService.swift; sourceTree = "<group>"; };
 		86FCEABCE0BF3710ED511D5A /* RadixSharedImageImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixSharedImageImport.swift; sourceTree = "<group>"; };
 		877424A72314561B83933A31 /* ComponentsExplorerShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentsExplorerShell.swift; sourceTree = "<group>"; };
 		87E3CE2928A87E53A7A63469 /* ImagePhraseMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePhraseMatcher.swift; sourceTree = "<group>"; };
@@ -670,6 +672,7 @@
 				7ACD043ABD7FD17169B73D6C /* ComponentRepository.swift */,
 				F5AF1D96BD7173BE85A77C48 /* ComponentScriptClassifier.swift */,
 				4D637DCEBC54F45AE437F920 /* ComponentSearchEngine.swift */,
+				86C0FFEE2000000000000002 /* ConversationPracticeService.swift */,
 				2EAAD2F9DB3E69EBA2B6697A /* DataEditTransferModifier.swift */,
 				9E3504AC852FD2C08B8AB0E0 /* DataExportArchiveBuilder.swift */,
 				4C1B4213E48623512F38518D /* DataExportDatabaseBuilder.swift */,
@@ -1068,6 +1071,7 @@
 				94B715919ED884CBC83EDBF4 /* ComponentRepository.swift in Sources */,
 				E226F8082AFCF3050DAE80B8 /* ComponentScriptClassifier.swift in Sources */,
 				D2DB6B1F7905BD68CCC5630B /* ComponentSearchEngine.swift in Sources */,
+				86C0FFEE2000000000000001 /* ConversationPracticeService.swift in Sources */,
 				8DF266A5667C4089D6D7ECF1 /* ComponentsExplorerFilters.swift in Sources */,
 				E7596797333E80E868F2B087 /* ComponentsExplorerNavigation.swift in Sources */,
 				4F4693724B00942FD1AC5453 /* ComponentsExplorerSections.swift in Sources */,

@@ -95,7 +95,7 @@ compatibility contracts. Current portable contracts include:
 - navigation, tab, script-filter, and restore-mode identifiers
 - preference keys and the preference-storage interface
 
-The portable test suite currently contains 21 tests across eight suites.
+The portable test suite currently contains 22 tests across eight suites.
 
 ## Active Workstream
 
@@ -212,6 +212,12 @@ Step 1 of that plan is now in place: `conversation100.json` is the starter
 content, and `ConversationPracticePack` plus `ConversationPracticeRules` define
 the portable JSON contract, mapping, ordering, duplicate checks, and validation
 gate for uploaded or AI-generated lesson packs.
+Step 2 has the first Phrase-backed mapping layer: validated packs now produce a
+`ConversationPracticeLibrary` with display items, Phrase DB seed rows, and
+stable practice-set memberships. Sentence punctuation is preserved for display
+but trimmed from the phrase key so `你好。` resolves to the Radix phrase `你好`.
+`ConversationPracticeService` loads and validates the bundled starter pack for
+the future Study UI.
 Added Phrases review is phrase-first: no search field, no persistent help text,
 and no visible AI shortcut above the grid. The top row shows the status filter,
 an `Actions` menu, and `Done`; `Actions` includes `Create AI Review Page` for

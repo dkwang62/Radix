@@ -159,6 +159,9 @@ Practice feedback:
    - Resolve or create Phrase DB-backed sentence records.
    - Add practice set membership and stable identifiers.
    - Add portable tests for ordering, validation, and membership behavior.
+   - Status: validated packs now map into `ConversationPracticeLibrary`, with
+     Phrase DB seed rows, stable membership IDs, punctuation-trimmed phrase
+     keys, and a bundle-loading service for the starter pack.
 
 3. Study entry point
    - Add `Conversation Practice` as a Study section.

@@ -60,6 +60,16 @@ public struct ConversationPracticePack: Codable, Equatable {
             ConversationPracticeItem(entry: $0, setID: packID)
         }
     }
+
+    public var practiceLibrary: ConversationPracticeLibrary {
+        let items = practiceItems
+        return ConversationPracticeLibrary(
+            set: practiceSet,
+            items: items,
+            phraseSeeds: items.map(ConversationPracticePhraseSeed.init),
+            memberships: items.map(ConversationPracticeMembership.init)
+        )
+    }
 }
 
 public struct ConversationPracticeEntry: Codable, Equatable, Identifiable {
@@ -116,7 +126,7 @@ public struct ConversationPracticeItem: Equatable, Identifiable {
     init(entry: ConversationPracticeEntry, setID: String) {
         id = entry.id
         self.setID = setID
-        phraseKey = entry.sentence.zh
+        phraseKey = ConversationPracticeRules.phraseKey(for: entry.sentence.zh)
         rank = entry.sequence
         simplified = entry.sentence.zh
         pinyin = entry.sentence.pinyin
@@ -133,8 +143,61 @@ public struct ConversationPracticeItem: Equatable, Identifiable {
     }
 }
 
-public struct ConversationPracticeValidationIssue: Equatable, CustomStringConvertible {
-    public enum Severity: String, Equatable {
+public struct ConversationPracticePhraseSeed: Equatable, Identifiable {
+    public let id: String
+    public let phraseKey: String
+    public let simplified: String
+    public let pinyin: String
+    public let english: String
+    public let notes: String
+    public let sourceItemID: String
+
+    init(item: ConversationPracticeItem) {
+        id = item.phraseKey
+        phraseKey = item.phraseKey
+        simplified = item.simplified
+        pinyin = item.pinyin
+        english = item.english
+        notes = item.notes
+        sourceItemID = item.id
+    }
+}
+
+public struct ConversationPracticeMembership: Equatable, Identifiable {
+    public let id: String
+    public let setID: String
+    public let itemID: String
+    public let phraseKey: String
+    public let rank: Int
+    public let category: String
+    public let difficulty: ConversationPracticeDifficulty
+    public let tags: [String]
+
+    init(item: ConversationPracticeItem) {
+        id = "\(item.setID)#\(item.id)"
+        setID = item.setID
+        itemID = item.id
+        phraseKey = item.phraseKey
+        rank = item.rank
+        category = item.category
+        difficulty = item.difficulty
+        tags = item.tags
+    }
+}
+
+public struct ConversationPracticeLibrary: Equatable {
+    public let set: ConversationPracticeSet
+    public let items: [ConversationPracticeItem]
+    public let phraseSeeds: [ConversationPracticePhraseSeed]
+    public let memberships: [ConversationPracticeMembership]
+
+    public var phraseKeys: [String] {
+        memberships.map(\.phraseKey)
+    }
+}
+
+public struct ConversationPracticeValidationIssue: Equatable, Sendable, CustomStringConvertible {
+    public enum Severity: String, Equatable, Sendable {
         case error
         case warning
     }
@@ -170,6 +233,10 @@ public struct ConversationPracticeValidationResult: Equatable {
 public enum ConversationPracticeRules {
     public static let supportedLanguages: Set<String> = ["zh-Hans"]
 
+    public static func phraseKey(for sentence: String) -> String {
+        sentence.trimmingCharacters(in: .whitespacesAndNewlinesAndPunctuation)
+    }
+
     public static func validate(_ pack: ConversationPracticePack) -> ConversationPracticeValidationResult {
         var issues: [ConversationPracticeValidationIssue] = []
 
@@ -186,8 +253,9 @@ public enum ConversationPracticeRules {
 
         let sequences = pack.entries.map(\.sequence)
         appendDuplicateIssues(values: pack.entries.map(\.id), label: "entry id", to: &issues)
-        appendDuplicateIssues(values: pack.entries.map { normalizedText($0.sentence.zh) }, label: "Chinese sentence", to: &issues)
+        appendDuplicateIssues(values: pack.entries.map { phraseKey(for: $0.sentence.zh) }, label: "Chinese sentence", to: &issues)
         appendDuplicateIssues(values: sequences.map(String.init), label: "sequence", to: &issues)
+        appendDuplicateIssues(values: pack.practiceItems.map(\.phraseKey), label: "phrase key", to: &issues)
 
         let sortedSequences = sequences.sorted()
         if let first = sortedSequences.first, let last = sortedSequences.last {
