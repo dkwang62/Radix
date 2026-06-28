@@ -147,7 +147,9 @@ bulk actions and help. Sort phrases by pinyin and label pages by the visible
 pinyin-letter range, such as `b-c`, rather than generic page numbers. Use a
 paged grid, not an internal scroll view, and calculate the page size from the
 visible grid height so the tiles fill down to just above the footer on each
-platform.
+platform. On iPhone and iPad, keep the top controls clearly below the sheet
+drag indicator; prefer compact icon-and-word controls there, while status tools
+should keep readable words and icons rather than becoming icon-only.
 
 On iPhone, Study may need to contain explicit Snapshot sections because the
 screen cannot permanently show a rich sidebar. On iPad and Mac, Save/Restore

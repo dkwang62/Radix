@@ -198,6 +198,10 @@ phrases. Review phrases sort by pinyin, and pagination uses the visible pinyin
 letter range such as `b-c` rather than page numbers. The sheet uses a paged
 non-scrolling grid whose page size is calculated from the measured vertical
 space above the footer; fixed platform counts are only first-render fallbacks.
+On iPhone and iPad, the top controls sit below the drag indicator with extra
+breathing room and use compact icon-and-word labels so `Actions` is less likely
+to be confused with the dismiss handle. Status tools keep readable words and
+icons rather than becoming icon-only.
 The eligibility, ordering, page name, page-range label, and newline-delimited
 source text are portable `AddedPhraseReviewRules` behavior with compatibility
 tests so Android can share the same rule.

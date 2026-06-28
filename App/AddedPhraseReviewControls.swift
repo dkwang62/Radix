@@ -38,7 +38,7 @@ extension AddedPhraseReviewSheet {
                 }
                 .font(reviewControlFont)
                 .lineLimit(1)
-                .frame(minWidth: 108)
+                .frame(minWidth: usesTouchReviewControls ? 86 : 108)
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.small)
@@ -113,7 +113,7 @@ extension AddedPhraseReviewSheet {
                             .font(reviewControlFont)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
-                            .frame(maxWidth: .infinity, minHeight: usesRegularReviewLayout ? 34 : 28)
+                            .frame(maxWidth: .infinity, minHeight: RadixPlatform.isDesktop ? 34 : (usesRegularReviewLayout ? 30 : 26))
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)

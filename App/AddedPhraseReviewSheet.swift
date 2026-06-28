@@ -36,13 +36,21 @@ struct AddedPhraseReviewSheet: View {
         !RadixPlatform.isPhone
     }
 
+    var usesTouchReviewControls: Bool {
+        !RadixPlatform.isDesktop
+    }
+
+    var reviewSheetTopPadding: CGFloat {
+        usesTouchReviewControls ? 30 : 18
+    }
+
     var phraseReviewColumnCount: Int {
         if !usesRegularReviewLayout { return 3 }
         return RadixPlatform.isDesktop ? 5 : 4
     }
 
     var reviewControlFont: Font {
-        .system(size: usesRegularReviewLayout ? 15 : 13, weight: .semibold)
+        .system(size: RadixPlatform.isDesktop ? 15 : (usesRegularReviewLayout ? 14 : 13), weight: .semibold)
     }
 
     var reviewCaptionFont: Font {
@@ -88,7 +96,7 @@ struct AddedPhraseReviewSheet: View {
                 }
                 .padding(.horizontal, usesRegularReviewLayout ? 20 : 12)
                 .padding(.bottom, 8)
-                .padding(.top, 18)
+                .padding(.top, reviewSheetTopPadding)
                 .frame(
                     width: proxy.size.width,
                     height: proxy.size.height,
