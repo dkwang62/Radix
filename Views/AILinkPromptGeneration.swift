@@ -2,7 +2,7 @@ import SwiftUI
 
 extension AILinkView {
     var promptGenerationSection: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 12) {
             taskSelectionSection
             selectedTaskSourceSection
             promptBox
@@ -76,36 +76,24 @@ extension AILinkView {
     @ViewBuilder
     var selectedTaskTemplateSection: some View {
         if selectedPromptTask != nil {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .center, spacing: 8) {
-                    Text("AI Prompt")
-                        .font(ResponsiveFont.headline)
+            VStack(alignment: .leading, spacing: 8) {
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .center, spacing: 8) {
+                        Text("AI Prompt")
+                            .font(ResponsiveFont.headline)
+                            .layoutPriority(1)
 
-                    Spacer()
+                        Spacer(minLength: 8)
 
-                    if let promptSaveStatus {
-                        Text(promptSaveStatus)
-                            .font(ResponsiveFont.caption.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
+                        promptEditorActions
                     }
 
-                    Button {
-                        savePromptDraft()
-                    } label: {
-                        Label("Save Prompt", systemImage: "checkmark.circle")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
-                    .disabled(!hasUnsavedPromptChanges)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("AI Prompt")
+                            .font(ResponsiveFont.headline)
 
-                    Button {
-                        resetPromptDraftToDefault()
-                    } label: {
-                        Label("Reset", systemImage: "arrow.counterclockwise")
+                        promptEditorActions
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
                 }
 
                 if isCustomPromptTask {
@@ -113,7 +101,6 @@ extension AILinkView {
                         get: { draftPromptTitle },
                         set: {
                             draftPromptTitle = $0
-                            promptSaveStatus = nil
                         }
                     ))
                     .font(ResponsiveFont.body.bold())
@@ -124,7 +111,6 @@ extension AILinkView {
                     get: { draftPromptTemplate },
                     set: {
                         draftPromptTemplate = $0
-                        promptSaveStatus = nil
                     }
                 ))
                 .font(.system(size: 14, design: .monospaced))
@@ -133,9 +119,30 @@ extension AILinkView {
                 .background(RadixTheme.tertiaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
-            .padding()
+            .padding(12)
             .background(RadixTheme.secondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+
+    var promptEditorActions: some View {
+        HStack(spacing: 8) {
+            Button {
+                savePromptDraft()
+            } label: {
+                Label("Save", systemImage: "checkmark.circle")
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+            .disabled(!hasUnsavedPromptChanges)
+
+            Button {
+                resetPromptDraftToDefault()
+            } label: {
+                Label("Undo", systemImage: "arrow.uturn.backward")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
         }
     }
 
@@ -147,7 +154,7 @@ extension AILinkView {
                 aiSelectedSubjectRow
             }
         }
-        .padding()
+        .padding(12)
         .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }

@@ -161,9 +161,10 @@ old `Instructions`/`Customize` split is collapsed into a single editable
 `AI Prompt` template for the selected task. Built-in tasks edit the prompt
 template without repeating the task title in a second title field; custom tasks
 also show a task-name field. Prompt edits are draft-only until the user taps
-`Save Prompt`; `Reset` restores the built-in default for shipped tasks or the
-starter prompt for custom tasks. The task menu includes `New AI
-Task...`. AI Link does not show a full generated prompt preview or a separate
+`Save`; `Undo` restores the built-in default for shipped tasks or the starter
+prompt for custom tasks without adding a persistent reset notice. The task menu
+includes `New AI Task...`. AI Link does not show a full generated prompt
+preview or a separate
 ready-to-send summary; the selected task appears on the primary open button
 (`Open Gemini: Task 2`) instead. The source selector and open controls appear
 immediately after the AI task menu, before the editable prompt, so the user can

@@ -5,7 +5,7 @@ extension AILinkView {
         VStack(alignment: .leading, spacing: 8) {
             promptActions
         }
-        .padding()
+        .padding(12)
         .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
@@ -44,7 +44,7 @@ extension AILinkView {
                     .padding(.trailing, 2)
             }
             .buttonStyle(.borderedProminent)
-            .font(ResponsiveFont.headline)
+            .font(ResponsiveFont.body.bold())
             .disabled(!canGeneratePrompt)
 
             Menu {
@@ -70,7 +70,7 @@ extension AILinkView {
             } label: {
                 Image(systemName: "chevron.down")
                     .font(.system(size: 14, weight: .bold))
-                    .frame(width: 42, height: 38)
+                    .frame(width: 38, height: 34)
             }
             .menuStyle(.button)
             .buttonStyle(.borderedProminent)
@@ -102,7 +102,7 @@ extension AILinkView {
                 }
             }
             .buttonStyle(.borderedProminent)
-            .font(ResponsiveFont.headline)
+            .font(ResponsiveFont.body.bold())
             .disabled(isRunningGeminiPhraseAPI)
         }
     }

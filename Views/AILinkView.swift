@@ -19,7 +19,6 @@ struct AILinkView: View {
     @State var selectedPromptTaskID: String?
     @State var draftPromptTitle = ""
     @State var draftPromptTemplate = ""
-    @State var promptSaveStatus: String?
     @State var selectedAIPreset: DefaultAIPreset?
     @State var isRunningGeminiPhraseAPI = false
     @State var geminiPhraseAPIMessage: String?
@@ -324,7 +323,6 @@ struct AILinkView: View {
         let task = store.promptConfig.normalized().tasks.first(where: { $0.id == taskID })
         draftPromptTitle = task?.title ?? ""
         draftPromptTemplate = task?.template ?? ""
-        promptSaveStatus = nil
     }
 
     func savePromptDraft() {
@@ -336,7 +334,6 @@ struct AILinkView: View {
         )
         store.promptSelectedTaskIDs = [selectedPromptTask.id]
         store.persistPromptSettings()
-        promptSaveStatus = "Saved."
     }
 
     func resetPromptDraftToDefault() {
@@ -344,7 +341,6 @@ struct AILinkView: View {
         let defaultTask = store.defaultPromptTask(for: selectedPromptTask.id)
         draftPromptTitle = defaultTask.title
         draftPromptTemplate = defaultTask.template
-        promptSaveStatus = "Reset. Save to keep it."
     }
 
     func createCustomPromptTask() {

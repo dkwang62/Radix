@@ -187,15 +187,16 @@ AI Link should start from the user's goal, not configuration. Show one compact
 AI task menu with an obvious dropdown affordance and a `New AI Task...` option,
 then the compact source confirmation row and open controls, then the editable
 AI prompt template for that task only. Prompt editing should use an explicit
-draft with `Save Prompt` and `Reset`, not invisible autosave. Built-in tasks
-should not repeat the task title in a second title field; custom tasks may show
-a task-name field. Do not show a full generated prompt preview on the AI Link
-screen; the AI chat will show the prompt after copy/open. The source selector
-should be obvious and come before action status; for saved-page tasks, the page
-row itself is the dropdown and uses the same page icon grammar as Browse. Do
-not repeat the selected page, subject, or task in a separate ready-to-send
-label. Opening the current AI should copy the prompt first and then open the
-provider, with the button naming the selected task, such as
+draft with `Save` and `Undo`, not invisible autosave. Built-in tasks should not
+repeat the task title in a second title field; custom tasks may show a task-name
+field. `Undo` restores the current task's default or starter prompt without a
+persistent reset notice. Do not show a full generated prompt preview on the AI
+Link screen; the AI chat will show the prompt after copy/open. The source
+selector should be obvious and come before action status; for saved-page tasks,
+the page row itself is the dropdown and uses the same page icon grammar as
+Browse. Do not repeat the selected page, subject, or task in a separate
+ready-to-send label. Opening the current AI should copy the prompt first and
+then open the provider, with the button naming the selected task, such as
 `Open Gemini: Task 2`; alternate providers and copy-only are menu choices, not
 competing primary buttons. Put launch/copy notices on the row below those
 buttons so they never squeeze the open controls. Character and phrase tasks
