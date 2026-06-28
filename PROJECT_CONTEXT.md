@@ -205,7 +205,9 @@ database. Keep curated lesson progress separate from Added Phrases
 classification so users are not asked to accept/reject shipped lesson content.
 The first useful practice modes should be simple offline drills such as Review
 Cards and Quick Quiz, with answer feedback linking back into Phrase and
-Character cards rather than dead-ending in a quiz-only screen.
+Character cards rather than dead-ending in a quiz-only screen. The detailed
+implementation plan is `CONVERSATION_PRACTICE_PLAN.md`; use it before building
+content import, data models, or Study UI for this feature.
 Added Phrases review is phrase-first: no search field, no persistent help text,
 and no visible AI shortcut above the grid. The top row shows the status filter,
 an `Actions` menu, and `Done`; `Actions` includes `Create AI Review Page` for
