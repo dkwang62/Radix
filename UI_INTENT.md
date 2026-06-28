@@ -18,6 +18,11 @@ Avoid organizing the app around implementation names such as scan, file import,
 backup internals, or data tables. The UI should be organized around what the
 user is trying to do.
 
+Inline alerts, notices, and status messages should sit on the next row below
+the controls they respond to. Do not place feedback text in the same horizontal
+row as action buttons; the message should never squeeze the buttons or compete
+with the primary action.
+
 ## Main navigation intent
 
 The four primary destinations use this plain-language division of responsibility
