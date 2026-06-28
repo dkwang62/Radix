@@ -18,6 +18,9 @@ ordering, hawker centres or casual eateries, dinner-table conversation at home,
 taste, price, portions, preferences, offering food, and polite responses.
 The second expansion topic is `Trip to 4 Cities`, covering practical travel
 Mandarin for Beijing, Shanghai, Guangzhou, and Taipei.
+The third expansion topic is `Stay in Shanghai`, covering longer-stay Mandarin
+for language study, housing, utilities, transport, local services, and
+administrative tasks.
 
 ## Core Principle
 
@@ -84,6 +87,11 @@ Required fields:
 - `entries[].metadata.tags`: scenario or function tags
 - `notes`: optional usage notes or validation notes
 
+Simplified uploaded packs may omit `source_type`, `created_for`, `sequence`,
+`level`, `analysis`, `metadata`, and `notes`. The decoder supplies defaults
+before validation so user- or AI-supplied content can still flow into the same
+Practice model.
+
 Optional future fields:
 
 - key phrase hints
@@ -136,7 +144,8 @@ Set list:
 - shows curated sets such as `General Greetings`, `Restaurants`, `Airport`,
   and `Shopping Mall`
 - provides a topic dropdown, with `General Greetings` as the first/default
-  topic and `Food / Eating Conversation` as the second configured topic
+  topic, `Food / Eating Conversation` as the second configured topic, `Trip to
+  4 Cities` as the third, and `Stay in Shanghai` as the fourth
 - shows difficulty, sentence count, progress, and last practiced state
 - keeps upcoming sets visibly distinct from available sets
 - lets a topic without bundled content open the AI generation task for that

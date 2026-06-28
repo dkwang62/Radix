@@ -216,11 +216,17 @@ Greetings` remains the first/default topic backed by `conversation100.json`.
 bundled `Food Dining.json` pack for restaurant, hawker/casual eatery, and home
 dinner-table practice content. `Trip to 4 Cities` is the third configured topic,
 backed by `Trip to 4 cities.json` for Beijing, Shanghai, Guangzhou, and Taipei
-travel situations. Topic configuration must remain data-driven so future topics
-can be added without rebuilding the Study UI.
+travel situations. `Stay in Shanghai` is the fourth configured topic, backed by
+`Stay in Shanghai.json` for longer-stay study, housing, utilities, transport,
+local services, and administrative tasks. Topic configuration must remain
+data-driven so future topics can be added without rebuilding the Study UI.
 The AI Link generator task must emit the same structured JSON shape as
 `conversation100.json`, so generated content can flow through
 `ConversationPracticeRules` before becoming a Phrase-backed practice set.
+`ConversationPracticePack` also accepts simplified uploaded packs that contain
+pack identity plus `entries[].id`, `category`, and `sentence`; the decoder fills
+safe defaults for source metadata, sequence, level, analysis, metadata, and
+notes before validation.
 The first useful practice modes should be simple offline drills such as Review
 Cards and Quick Quiz, with answer feedback linking back into Phrase and
 Character cards rather than dead-ending in a quiz-only screen. The detailed

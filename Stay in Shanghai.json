@@ -1,0 +1,909 @@
+{
+"pack_id": "shanghai_relocation_study",
+"version": "1.0",
+"title": "Shanghai Relocation & Language Study",
+"description": "100 practical conversations for long-term stay in Shanghai, including student life, housing, and administrative tasks.",
+"language": "zh-Hans",
+"entries": [
+{
+"id": "edu_001",
+"category": "education",
+"sentence": {
+"zh": "我想咨询一下中文课程。",
+"pinyin": "Wǒ xiǎng zīxún yīxià Zhōngwén kèchéng.",
+"en": "I would like to inquire about Mandarin courses."
+}
+},
+{
+"id": "edu_002",
+"category": "education",
+"sentence": {
+"zh": "你们有针对外国学生的长期班吗？",
+"pinyin": "Nǐmen yǒu zhēnduì wàiguó xuéshēng de chángqī bān ma?",
+"en": "Do you have long-term classes for foreign students?"
+}
+},
+{
+"id": "edu_003",
+"category": "education",
+"sentence": {
+"zh": "课程可以协助办理留学签证吗？",
+"pinyin": "Kèchéng kěyǐ xiézhù bànlǐ liúxué qiānzhèng ma?",
+"en": "Can the course assist with student visa processing?"
+}
+},
+{
+"id": "housing_004",
+"category": "housing",
+"sentence": {
+"zh": "请问这套房子是精装修的吗？",
+"pinyin": "Qǐngwèn zhè tào fángzi shì jīngzhuāngxiū de ma?",
+"en": "Is this apartment fully furnished?"
+}
+},
+{
+"id": "housing_005",
+"category": "housing",
+"sentence": {
+"zh": "租金包括物业费吗？",
+"pinyin": "Zūjīn bāokuò wùyèfèi ma?",
+"en": "Does the rent include property management fees?"
+}
+},
+{
+"id": "housing_006",
+"category": "housing",
+"sentence": {
+"zh": "房东可以提供办理居住登记的文件吗？",
+"pinyin": "Fángdōng kěyǐ tígōng bànlǐ jūzhù dēngjì de wénjiàn ma?",
+"en": "Can the landlord provide the documents for residence registration?"
+}
+},
+{
+"id": "admin_007",
+"category": "administration",
+"sentence": {
+"zh": "我要去哪里办理临时住宿登记？",
+"pinyin": "Wǒ yào qù nǎlǐ bànlǐ línshí zhùsù dēngjì?",
+"en": "Where do I go to register my temporary residence?"
+}
+},
+{
+"id": "utilities_008",
+"category": "utilities",
+"sentence": {
+"zh": "水、电、煤气费怎么交？",
+"pinyin": "Shuǐ, diàn, méiqì fèi zěnme jiāo?",
+"en": "How do I pay for water, electricity, and gas?"
+}
+},
+{
+"id": "utilities_009",
+"category": "utilities",
+"sentence": {
+"zh": "可以通过支付宝或者微信支付吗？",
+"pinyin": "Kěyǐ tōngguò Zhīfùbǎo huòzhě Wēixìn zhīfù ma?",
+"en": "Can I pay via Alipay or WeChat Pay?"
+}
+},
+{
+"id": "shopping_010",
+"category": "shopping",
+"sentence": {
+"zh": "附近的超市在哪里？",
+"pinyin": "Fùjìn de chāoshì zài nǎlǐ?",
+"en": "Where is the nearest supermarket?"
+}
+},
+{
+"id": "transport_011",
+"category": "transport",
+"sentence": {
+"zh": "办一张公交地铁卡需要多少钱？",
+"pinyin": "Bàn yī zhāng gōngjiāo dìtiě kǎ xūyào duōshǎo qián?",
+"en": "How much does it cost to get a public transport card?"
+}
+},
+{
+"id": "social_012",
+"category": "social",
+"sentence": {
+"zh": "你好，我是刚搬来的邻居。",
+"pinyin": "Nǐ hǎo, wǒ shì gāng bān lái de línjū.",
+"en": "Hello, I am a new neighbor who just moved in."
+}
+},
+{
+"id": "food_013",
+"category": "food",
+"sentence": {
+"zh": "这附近有什么好吃的街头小吃？",
+"pinyin": "Zhè fùjìn yǒu shénme hǎochī de jiētóu xiǎochī?",
+"en": "What good street food is there nearby?"
+}
+},
+{
+"id": "edu_014",
+"category": "education",
+"sentence": {
+"zh": "我可以申请试听课吗？",
+"pinyin": "Wǒ kěyǐ shēnqǐng shìtīng kè ma?",
+"en": "Can I apply for a trial class?"
+}
+},
+{
+"id": "housing_015",
+"category": "housing",
+"sentence": {
+"zh": "房间里的空调坏了，能找人修吗？",
+"pinyin": "Fángjiān lǐ de kōngtiáo huài le, néng zhǎo rén xiū ma?",
+"en": "The AC in the room is broken, can I find someone to fix it?"
+}
+},
+{
+"id": "admin_016",
+"category": "administration",
+"sentence": {
+"zh": "我的签证快到期了，如何续签？",
+"pinyin": "Wǒ de qiānzhèng kuài dàoqī le, rúhé xùqiān?",
+"en": "My visa is about to expire, how do I renew it?"
+}
+},
+{
+"id": "transport_017",
+"category": "transport",
+"sentence": {
+"zh": "我可以使用共享单车吗？",
+"pinyin": "Wǒ kěyǐ shǐyòng gòngxiǎng dānchē ma?",
+"en": "Can I use shared bikes?"
+}
+},
+{
+"id": "shopping_018",
+"category": "shopping",
+"sentence": {
+"zh": "这个有货吗？",
+"pinyin": "Zhège yǒu huò ma?",
+"en": "Is this in stock?"
+}
+},
+{
+"id": "social_019",
+"category": "social",
+"sentence": {
+"zh": "这附近有没有安静的咖啡馆？",
+"pinyin": "Zhè fùjìn yǒu méiyǒu ānjìng de kāfēiguǎn?",
+"en": "Are there any quiet cafes nearby?"
+}
+},
+{
+"id": "utilities_020",
+"category": "utilities",
+"sentence": {
+"zh": "家里没电了，怎么查余额？",
+"pinyin": "Jiālǐ méi diàn le, zěnme chá yú'é?",
+"en": "The electricity is out, how do I check the balance?"
+}
+},
+{
+"id": "edu_021",
+"category": "education",
+"sentence": {
+"zh": "学校有中文角吗？",
+"pinyin": "Xuéxiào yǒu Zhōngwén jiǎo ma?",
+"en": "Does the school have a Mandarin corner?"
+}
+},
+{
+"id": "housing_022",
+"category": "housing",
+"sentence": {
+"zh": "我可以看下合同样本吗？",
+"pinyin": "Wǒ kěyǐ kàn xià hétóng yàngběn ma?",
+"en": "Can I see a sample of the contract?"
+}
+},
+{
+"id": "admin_023",
+"category": "administration",
+"sentence": {
+"zh": "这是我的护照和居留许可。",
+"pinyin": "Zhè shì wǒ de hùzhào hé jūliú xǔkě.",
+"en": "These are my passport and residence permit."
+}
+},
+{
+"id": "transport_024",
+"category": "transport",
+"sentence": {
+"zh": "我要去浦东机场，坐地铁怎么走？",
+"pinyin": "Wǒ yào qù Pǔdōng jīchǎng, zuò dìtiě zěnme zǒu?",
+"en": "I want to go to Pudong Airport, how do I get there by metro?"
+}
+},
+{
+"id": "shopping_025",
+"category": "shopping",
+"sentence": {
+"zh": "在哪里可以买到进口食品？",
+"pinyin": "Zài nǎlǐ kěyǐ mǎi dào jìnkǒu shípǐn?",
+"en": "Where can I buy imported food?"
+}
+},
+{
+"id": "social_026",
+"category": "social",
+"sentence": {
+"zh": "您在上海住多久了？",
+"pinyin": "Nín zài Shànghǎi zhù duōjiǔ le?",
+"en": "How long have you lived in Shanghai?"
+}
+},
+{
+"id": "food_027",
+"category": "food",
+"sentence": {
+"zh": "这个小吃辣吗？",
+"pinyin": "Zhège xiǎochī là ma?",
+"en": "Is this snack spicy?"
+}
+},
+{
+"id": "edu_028",
+"category": "education",
+"sentence": {
+"zh": "我的中文水平是初级。",
+"pinyin": "Wǒ de Zhōngwén shuǐpíng shì chūjí.",
+"en": "My Mandarin level is beginner."
+}
+},
+{
+"id": "housing_029",
+"category": "housing",
+"sentence": {
+"zh": "公寓有网络服务吗？",
+"pinyin": "Gōngyù yǒu wǎngluò fúwù ma?",
+"en": "Does the apartment have internet service?"
+}
+},
+{
+"id": "admin_030",
+"category": "administration",
+"sentence": {
+"zh": "请问办事处几点开门？",
+"pinyin": "Qǐngwèn bànshìchù jǐ diǎn kāimén?",
+"en": "What time does the office open?"
+}
+},
+{
+"id": "transport_031",
+"category": "transport",
+"sentence": {
+"zh": "打车软件怎么用？",
+"pinyin": "Dǎchē ruǎnjiàn zěnme yòng?",
+"en": "How do I use the taxi app?"
+}
+},
+{
+"id": "shopping_032",
+"category": "shopping",
+"sentence": {
+"zh": "可以给我一个袋子吗？",
+"pinyin": "Kěyǐ gěi wǒ yīgè dàizi ma?",
+"en": "Can I have a bag?"
+}
+},
+{
+"id": "social_033",
+"category": "social",
+"sentence": {
+"zh": "这儿附近有公园吗？",
+"pinyin": "Zhèr fùjìn yǒu gōngyuán ma?",
+"en": "Are there any parks nearby?"
+}
+},
+{
+"id": "utilities_034",
+"category": "utilities",
+"sentence": {
+"zh": "为什么没有热水？",
+"pinyin": "Wèishéme méiyǒu rèshuǐ?",
+"en": "Why is there no hot water?"
+}
+},
+{
+"id": "edu_035",
+"category": "education",
+"sentence": {
+"zh": "学费可以分期付吗？",
+"pinyin": "Xuéfèi kěyǐ fēnqī fù ma?",
+"en": "Can tuition be paid in installments?"
+}
+},
+{
+"id": "housing_036",
+"category": "housing",
+"sentence": {
+"zh": "押金什么时候退？",
+"pinyin": "Yājīn shénme shíhòu tuì?",
+"en": "When will the deposit be refunded?"
+}
+},
+{
+"id": "admin_037",
+"category": "administration",
+"sentence": {
+"zh": "我需要预约吗？",
+"pinyin": "Wǒ xūyào yùyuē ma?",
+"en": "Do I need an appointment?"
+}
+},
+{
+"id": "transport_038",
+"category": "transport",
+"sentence": {
+"zh": "地铁线几点停运？",
+"pinyin": "Dìtiě xiàn jǐ diǎn tíngyùn?",
+"en": "What time does the metro line stop running?"
+}
+},
+{
+"id": "shopping_039",
+"category": "shopping",
+"sentence": {
+"zh": "这个有折扣吗？",
+"pinyin": "Zhège yǒu zhékòu ma?",
+"en": "Is there a discount on this?"
+}
+},
+{
+"id": "social_040",
+"category": "social",
+"sentence": {
+"zh": "很高兴认识你。",
+"pinyin": "Hěn gāoxìng rènshí nǐ.",
+"en": "Nice to meet you."
+}
+},
+{
+"id": "food_041",
+"category": "food",
+"sentence": {
+"zh": "请给我一张菜单。",
+"pinyin": "Qǐng gěi wǒ yī zhāng càidān.",
+"en": "Please give me a menu."
+}
+},
+{
+"id": "edu_042",
+"category": "education",
+"sentence": {
+"zh": "我有教材吗？",
+"pinyin": "Wǒ yǒu jiàocái ma?",
+"en": "Do I have textbooks?"
+}
+},
+{
+"id": "housing_043",
+"category": "housing",
+"sentence": {
+"zh": "房子在几楼？",
+"pinyin": "Fángzi zài jǐ lóu?",
+"en": "What floor is the apartment on?"
+}
+},
+{
+"id": "admin_044",
+"category": "administration",
+"sentence": {
+"zh": "我要办理银行卡。",
+"pinyin": "Wǒ yào bànlǐ yínháng kǎ.",
+"en": "I want to open a bank account."
+}
+},
+{
+"id": "transport_045",
+"category": "transport",
+"sentence": {
+"zh": "这里可以停车吗？",
+"pinyin": "Zhèlǐ kěyǐ tíngchē ma?",
+"en": "Can I park here?"
+}
+},
+{
+"id": "shopping_046",
+"category": "shopping",
+"sentence": {
+"zh": "你们收信用卡吗？",
+"pinyin": "Nǐmen shōu xìnyòngkǎ ma?",
+"en": "Do you accept credit cards?"
+}
+},
+{
+"id": "social_047",
+"category": "social",
+"sentence": {
+"zh": "周末你有什么计划？",
+"pinyin": "Zhōumò nǐ yǒu shénme jìhuà?",
+"en": "What are your plans for the weekend?"
+}
+},
+{
+"id": "utilities_048",
+"category": "utilities",
+"sentence": {
+"zh": "维修人员什么时候来？",
+"pinyin": "Wéixiū rényuán shénme shíhòu lái?",
+"en": "When will the maintenance person come?"
+}
+},
+{
+"id": "edu_049",
+"category": "education",
+"sentence": {
+"zh": "课堂上有多少个学生？",
+"pinyin": "Kètáng shàng yǒu duōshǎo gè xuéshēng?",
+"en": "How many students are there in the class?"
+}
+},
+{
+"id": "housing_050",
+"category": "housing",
+"sentence": {
+"zh": "这个小区安全吗？",
+"pinyin": "Zhège xiǎoqū ānquán ma?",
+"en": "Is this residential area safe?"
+}
+},
+{
+"id": "admin_051",
+"category": "administration",
+"sentence": {
+"zh": "我要复印这些材料。",
+"pinyin": "Wǒ yào fùyìn zhèxiē cáiliào.",
+"en": "I need to photocopy these materials."
+}
+},
+{
+"id": "transport_052",
+"category": "transport",
+"sentence": {
+"zh": "到目的地还需要多久？",
+"pinyin": "Dào mùdìdì hái xūyào duōjiǔ?",
+"en": "How much longer until we reach the destination?"
+}
+},
+{
+"id": "shopping_053",
+"category": "shopping",
+"sentence": {
+"zh": "这种水果怎么卖？",
+"pinyin": "Zhè zhǒng shuǐguǒ zěnme mài?",
+"en": "How is this fruit sold?"
+}
+},
+{
+"id": "social_054",
+"category": "social",
+"sentence": {
+"zh": "上海的天气总是这样吗？",
+"pinyin": "Shànghǎi de tiānqì zǒng shì zhèyàng ma?",
+"en": "Is the weather in Shanghai always like this?"
+}
+},
+{
+"id": "food_055",
+"category": "food",
+"sentence": {
+"zh": "请帮我打包。",
+"pinyin": "Qǐng bāng wǒ dǎbāo.",
+"en": "Please help me pack this (to go)."
+}
+},
+{
+"id": "edu_056",
+"category": "education",
+"sentence": {
+"zh": "我想参加HSK考试。",
+"pinyin": "Wǒ xiǎng cānjiā HSK kǎoshì.",
+"en": "I want to take the HSK test."
+}
+},
+{
+"id": "housing_057",
+"category": "housing",
+"sentence": {
+"zh": "这房子的采光好吗？",
+"pinyin": "Zhè fángzi de cǎiguāng hǎo ma?",
+"en": "Is the lighting in this apartment good?"
+}
+},
+{
+"id": "admin_058",
+"category": "administration",
+"sentence": {
+"zh": "我可以申请延期吗？",
+"pinyin": "Wǒ kěyǐ shēnqǐng yánqī ma?",
+"en": "Can I apply for an extension?"
+}
+},
+{
+"id": "transport_059",
+"category": "transport",
+"sentence": {
+"zh": "请问去最近的车站怎么走？",
+"pinyin": "Qǐngwèn qù zuìjìn de chēzhàn zěnme zǒu?",
+"en": "May I ask how to get to the nearest station?"
+}
+},
+{
+"id": "shopping_060",
+"category": "shopping",
+"sentence": {
+"zh": "可以退换货吗？",
+"pinyin": "Kěyǐ tuìhuàn huò ma?",
+"en": "Can I return or exchange the goods?"
+}
+},
+{
+"id": "social_061",
+"category": "social",
+"sentence": {
+"zh": "有什么本地的习俗我需要注意吗？",
+"pinyin": "Yǒu shénme běndì de xísú wǒ xūyào zhùyì ma?",
+"en": "Are there any local customs I need to be aware of?"
+}
+},
+{
+"id": "utilities_062",
+"category": "utilities",
+"sentence": {
+"zh": "这儿的网速快吗？",
+"pinyin": "Zhèr de wǎngsù kuài ma?",
+"en": "Is the internet speed here fast?"
+}
+},
+{
+"id": "edu_063",
+"category": "education",
+"sentence": {
+"zh": "老师，我没听懂，能再讲一遍吗？",
+"pinyin": "Lǎoshī, wǒ méi tīngdǒng, néng zài jiǎng yībiàn ma?",
+"en": "Teacher, I didn't understand, could you explain again?"
+}
+},
+{
+"id": "housing_064",
+"category": "housing",
+"sentence": {
+"zh": "这里允许养宠物吗？",
+"pinyin": "Zhèlǐ yǔnxǔ yǎng chǒngwù ma?",
+"en": "Are pets allowed here?"
+}
+},
+{
+"id": "admin_065",
+"category": "administration",
+"sentence": {
+"zh": "我的材料都准备好了。",
+"pinyin": "Wǒ de cáiliào dōu zhǔnbèi hǎo le.",
+"en": "My materials are all prepared."
+}
+},
+{
+"id": "transport_066",
+"category": "transport",
+"sentence": {
+"zh": "这班车经过外滩吗？",
+"pinyin": "Zhè bān chē jīngguò Wàitān ma?",
+"en": "Does this bus pass by the Bund?"
+}
+},
+{
+"id": "shopping_067",
+"category": "shopping",
+"sentence": {
+"zh": "可以用现金付款吗？",
+"pinyin": "Kěyǐ yòng xiànjīn fùkuǎn ma?",
+"en": "Can I pay with cash?"
+}
+},
+{
+"id": "social_068",
+"category": "social",
+"sentence": {
+"zh": "你想喝点什么？",
+"pinyin": "Nǐ xiǎng hē diǎn shénme?",
+"en": "What would you like to drink?"
+}
+},
+{
+"id": "food_069",
+"category": "food",
+"sentence": {
+"zh": "我要一份炒饭。",
+"pinyin": "Wǒ yào yī fèn chǎofàn.",
+"en": "I want an order of fried rice."
+}
+},
+{
+"id": "edu_070",
+"category": "education",
+"sentence": {
+"zh": "课后有作业吗？",
+"pinyin": "Kèhòu yǒu zuòyè ma?",
+"en": "Is there homework after class?"
+}
+},
+{
+"id": "housing_071",
+"category": "housing",
+"sentence": {
+"zh": "我们可以合租吗？",
+"pinyin": "Wǒmen kěyǐ hézū ma?",
+"en": "Can we share the rent?"
+}
+},
+{
+"id": "admin_072",
+"category": "administration",
+"sentence": {
+"zh": "我在哪里取我的证件？",
+"pinyin": "Wǒ zài nǎlǐ qǔ wǒ de zhèngjiàn?",
+"en": "Where do I pick up my documents?"
+}
+},
+{
+"id": "transport_073",
+"category": "transport",
+"sentence": {
+"zh": "附近哪儿有出租车站？",
+"pinyin": "Fùjìn nǎ'er yǒu chūzūchē zhàn?",
+"en": "Where is the taxi stand nearby?"
+}
+},
+{
+"id": "shopping_074",
+"category": "shopping",
+"sentence": {
+"zh": "这多少钱一斤？",
+"pinyin": "Zhè duōshǎo qián yī jīn?",
+"en": "How much for half a kilo?"
+}
+},
+{
+"id": "social_075",
+"category": "social",
+"sentence": {
+"zh": "不好意思，打扰一下。",
+"pinyin": "Bù hǎoyìsi, dǎrǎo yīxià.",
+"en": "Excuse me, sorry to bother you."
+}
+},
+{
+"id": "utilities_076",
+"category": "utilities",
+"sentence": {
+"zh": "这儿的电压是220伏吗？",
+"pinyin": "Zhèr de diànyā shì 220 fú ma?",
+"en": "Is the voltage here 220V?"
+}
+},
+{
+"id": "edu_077",
+"category": "education",
+"sentence": {
+"zh": "学校有图书馆吗？",
+"pinyin": "Xuéxiào yǒu túshūguǎn ma?",
+"en": "Does the school have a library?"
+}
+},
+{
+"id": "housing_078",
+"category": "housing",
+"sentence": {
+"zh": "我们可以实地看一下房子吗？",
+"pinyin": "Wǒmen kěyǐ shídì kàn xià fángzi ma?",
+"en": "Can we see the apartment in person?"
+}
+},
+{
+"id": "admin_079",
+"category": "administration",
+"sentence": {
+"zh": "需要带照片吗？",
+"pinyin": "Xūyào dài zhàopiàn ma?",
+"en": "Do I need to bring photos?"
+}
+},
+{
+"id": "transport_080",
+"category": "transport",
+"sentence": {
+"zh": "这路车几分钟一班？",
+"pinyin": "Zhè lù chē jǐ fēnzhōng yī bān?",
+"en": "How often does this bus run?"
+}
+},
+{
+"id": "shopping_081",
+"category": "shopping",
+"sentence": {
+"zh": "我想找卖生活用品的店。",
+"pinyin": "Wǒ xiǎng zhǎo mài shēnghuó yòngpǐn de diàn.",
+"en": "I'm looking for a store that sells daily necessities."
+}
+},
+{
+"id": "social_082",
+"category": "social",
+"sentence": {
+"zh": "这儿附近有好的餐馆吗？",
+"pinyin": "Zhèr fùjìn yǒu hǎo de cānguǎn ma?",
+"en": "Are there any good restaurants nearby?"
+}
+},
+{
+"id": "food_083",
+"category": "food",
+"sentence": {
+"zh": "请不要放香菜。",
+"pinyin": "Qǐng bùyào fàng xiāngcài.",
+"en": "Please don't add cilantro."
+}
+},
+{
+"id": "edu_084",
+"category": "education",
+"sentence": {
+"zh": "课程有结业证书吗？",
+"pinyin": "Kèchéng yǒu jiéyè zhèngshū ma?",
+"en": "Does the course have a completion certificate?"
+}
+},
+{
+"id": "housing_085",
+"category": "housing",
+"sentence": {
+"zh": "物业管理费是多少？",
+"pinyin": "Wùyè guǎnlǐ fèi shì duōshǎo?",
+"en": "How much is the property management fee?"
+}
+},
+{
+"id": "admin_086",
+"category": "administration",
+"sentence": {
+"zh": "我不明白这份文件上的要求。",
+"pinyin": "Wǒ bù míngbái zhè fèn wénjiàn shàng de yāoqiú.",
+"en": "I don't understand the requirements on this document."
+}
+},
+{
+"id": "transport_087",
+"category": "transport",
+"sentence": {
+"zh": "我想买一张地铁月卡。",
+"pinyin": "Wǒ xiǎng mǎi yī zhāng dìtiě yuèkǎ.",
+"en": "I want to buy a monthly metro pass."
+}
+},
+{
+"id": "shopping_088",
+"category": "shopping",
+"sentence": {
+"zh": "这儿附近有便利店吗？",
+"pinyin": "Zhèr fùjìn yǒu biànlìdiàn ma?",
+"en": "Are there any convenience stores nearby?"
+}
+},
+{
+"id": "social_089",
+"category": "social",
+"sentence": {
+"zh": "你能帮我一个忙吗？",
+"pinyin": "Nǐ néng bāng wǒ yīgè máng ma?",
+"en": "Can you do me a favor?"
+}
+},
+{
+"id": "utilities_090",
+"category": "utilities",
+"sentence": {
+"zh": "我想申请安装宽带。",
+"pinyin": "Wǒ xiǎng shēnqǐng ānzhuāng kuāndài.",
+"en": "I want to apply for broadband installation."
+}
+},
+{
+"id": "edu_091",
+"category": "education",
+"sentence": {
+"zh": "课堂在周几？",
+"pinyin": "Kètáng zài zhōu jǐ?",
+"en": "What days are the classes on?"
+}
+},
+{
+"id": "housing_092",
+"category": "housing",
+"sentence": {
+"zh": "房子有阳台吗？",
+"pinyin": "Fángzi yǒu yángtái ma?",
+"en": "Does the apartment have a balcony?"
+}
+},
+{
+"id": "admin_093",
+"category": "administration",
+"sentence": {
+"zh": "我要报备我的住址。",
+"pinyin": "Wǒ yào bàobèi wǒ de zhùzhǐ.",
+"en": "I need to report my address."
+}
+},
+{
+"id": "transport_094",
+"category": "transport",
+"sentence": {
+"zh": "去火车站需要多久？",
+"pinyin": "Qù huǒchēzhàn xūyào duōjiǔ?",
+"en": "How long does it take to get to the train station?"
+}
+},
+{
+"id": "shopping_095",
+"category": "shopping",
+"sentence": {
+"zh": "这儿可以试穿吗？",
+"pinyin": "Zhèr kěyǐ shìchuān ma?",
+"en": "Can I try this on?"
+}
+},
+{
+"id": "social_096",
+"category": "social",
+"sentence": {
+"zh": "这儿的人很友好。",
+"pinyin": "Zhèr de rén hěn yǒuhǎo.",
+"en": "People here are very friendly."
+}
+},
+{
+"id": "food_097",
+"category": "food",
+"sentence": {
+"zh": "请帮我加一点水。",
+"pinyin": "Qǐng bāng wǒ jiā yīdiǎn shuǐ.",
+"en": "Please add some water for me."
+}
+},
+{
+"id": "edu_098",
+"category": "education",
+"sentence": {
+"zh": "学费包含保险费吗？",
+"pinyin": "Xuéfèi bāohán bǎoxiǎn fèi ma?",
+"en": "Does the tuition include insurance fees?"
+}
+},
+{
+"id": "housing_099",
+"category": "housing",
+"sentence": {
+"zh": "家具如果损坏了怎么办？",
+"pinyin": "Jiājù rúguǒ sǔnhuài le zěnme bàn?",
+"en": "What if the furniture is damaged?"
+}
+},
+{
+"id": "admin_100",
+"category": "administration",
+"sentence": {
+"zh": "谢谢你的帮助。",
+"pinyin": "Xièxie nǐ de bāngzhù.",
+"en": "Thank you for your help."
+}
+}
+]
+}

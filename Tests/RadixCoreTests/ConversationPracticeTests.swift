@@ -48,7 +48,12 @@ struct ConversationPracticeTests {
     func defaultTopicsIncludeFoodExpansionTopic() {
         let topics = ConversationPracticeTopic.defaults
 
-        #expect(topics.map(\.id).prefix(3) == ["general_greetings", "food_eating", "china_taiwan_travel"])
+        #expect(topics.map(\.id).prefix(4) == [
+            "general_greetings",
+            "food_eating",
+            "china_taiwan_travel",
+            "shanghai_relocation_study"
+        ])
         #expect(topics.first?.bundledResourceName == "conversation100")
         #expect(topics.first?.hasBundledContent == true)
 
@@ -65,6 +70,12 @@ struct ConversationPracticeTests {
         #expect(travel.bundledResourceName == "Trip to 4 cities")
         #expect(travel.targetSentenceCount == 100)
         #expect(travel.situations.contains("taking taxis, metro, trains, and airport transport"))
+
+        let shanghai = ConversationPracticeTopic.topic(for: "shanghai_relocation_study")
+        #expect(shanghai.hasBundledContent == true)
+        #expect(shanghai.bundledResourceName == "Stay in Shanghai")
+        #expect(shanghai.targetSentenceCount == 100)
+        #expect(shanghai.situations.contains("finding housing and handling rent or utilities"))
     }
 
     @Test("Food dining conversation pack decodes and validates")
@@ -94,6 +105,26 @@ struct ConversationPracticeTests {
         #expect(pack.practiceItems.first?.id == "travel_transport_001")
         #expect(pack.practiceItems.first?.phraseKey == "请带我去这个地址")
         #expect(pack.practiceItems.last?.id == "travel_transport_100")
+        #expect(pack.practiceItems.last?.rank == 100)
+    }
+
+    @Test("Stay in Shanghai simplified conversation pack decodes and validates")
+    func stayInShanghaiPackValidates() throws {
+        let pack = try loadConversationPackFixture(named: "Stay in Shanghai")
+        let result = ConversationPracticeRules.validate(pack)
+
+        #expect(result.isValid)
+        #expect(result.errors.isEmpty)
+        #expect(pack.entries.count == 100)
+        #expect(pack.packID == "shanghai_relocation_study")
+        #expect(pack.sourceType == "conversation_pack")
+        #expect(pack.createdFor == "Radix Conversation Practice")
+        #expect(pack.practiceItems.first?.id == "edu_001")
+        #expect(pack.practiceItems.first?.phraseKey == "我想咨询一下中文课程")
+        #expect(pack.practiceItems.first?.rank == 1)
+        #expect(pack.practiceItems.first?.difficulty == .easy)
+        #expect(pack.practiceItems.first?.tags == ["education"])
+        #expect(pack.practiceItems.last?.id == "admin_100")
         #expect(pack.practiceItems.last?.rank == 100)
     }
 

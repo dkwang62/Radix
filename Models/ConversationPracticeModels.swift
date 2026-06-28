@@ -25,6 +25,9 @@ public enum ConversationPracticeDifficulty: String, Codable, CaseIterable {
 }
 
 public struct ConversationPracticePack: Codable, Equatable {
+    private static let defaultSourceType = "conversation_pack"
+    private static let defaultCreatedFor = "Radix Conversation Practice"
+
     public let packID: String
     public let version: String
     public let title: String
@@ -43,6 +46,21 @@ public struct ConversationPracticePack: Codable, Equatable {
         case sourceType = "source_type"
         case createdFor = "created_for"
         case entries
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        packID = try container.decode(String.self, forKey: .packID)
+        version = try container.decode(String.self, forKey: .version)
+        title = try container.decode(String.self, forKey: .title)
+        description = try container.decode(String.self, forKey: .description)
+        language = try container.decode(String.self, forKey: .language)
+        sourceType = try container.decodeIfPresent(String.self, forKey: .sourceType) ?? Self.defaultSourceType
+        createdFor = try container.decodeIfPresent(String.self, forKey: .createdFor) ?? Self.defaultCreatedFor
+        let drafts = try container.decode([ConversationPracticeEntryDraft].self, forKey: .entries)
+        entries = drafts.enumerated().map { index, draft in
+            ConversationPracticeEntry(draft: draft, fallbackSequence: index + 1)
+        }
     }
 
     public var practiceSet: ConversationPracticeSet {
@@ -81,6 +99,17 @@ public struct ConversationPracticeEntry: Codable, Equatable, Identifiable {
     public let analysis: ConversationPracticeAnalysis
     public let metadata: ConversationPracticeMetadata
     public let notes: String
+
+    fileprivate init(draft: ConversationPracticeEntryDraft, fallbackSequence: Int) {
+        id = draft.id
+        sequence = draft.sequence ?? fallbackSequence
+        category = draft.category
+        level = draft.level ?? "easy"
+        sentence = draft.sentence
+        analysis = draft.analysis ?? ConversationPracticeAnalysis(sentence: draft.sentence.zh)
+        metadata = draft.metadata ?? ConversationPracticeMetadata(category: draft.category)
+        notes = draft.notes ?? ""
+    }
 }
 
 public struct ConversationPracticeSentence: Codable, Equatable {
@@ -92,12 +121,54 @@ public struct ConversationPracticeSentence: Codable, Equatable {
 public struct ConversationPracticeAnalysis: Codable, Equatable {
     public let characters: [String]
     public let phrases: [String]
+
+    init(characters: [String], phrases: [String]) {
+        self.characters = characters
+        self.phrases = phrases
+    }
+
+    init(sentence: String) {
+        var seen: Set<String> = []
+        var orderedCharacters: [String] = []
+        for character in sentence where ConversationPracticeRules.isChineseCharacter(character) {
+            let value = String(character)
+            if seen.insert(value).inserted {
+                orderedCharacters.append(value)
+            }
+        }
+        characters = orderedCharacters
+        phrases = [ConversationPracticeRules.phraseKey(for: sentence)]
+    }
 }
 
 public struct ConversationPracticeMetadata: Codable, Equatable {
     public let difficulty: Int
     public let frequency: Int
     public let tags: [String]
+
+    init(difficulty: Int, frequency: Int, tags: [String]) {
+        self.difficulty = difficulty
+        self.frequency = frequency
+        self.tags = tags
+    }
+
+    init(category: String) {
+        difficulty = 1
+        frequency = 1
+        let trimmedCategory = category.trimmingCharacters(in: .whitespacesAndNewlines)
+        tags = trimmedCategory.isEmpty ? [] : [trimmedCategory]
+    }
+}
+
+private struct ConversationPracticeEntryDraft: Decodable {
+    let id: String
+    let sequence: Int?
+    let category: String
+    let level: String?
+    let sentence: ConversationPracticeSentence
+    let analysis: ConversationPracticeAnalysis?
+    let metadata: ConversationPracticeMetadata?
+    let notes: String?
 }
 
 public struct ConversationPracticeSet: Equatable, Identifiable {
@@ -173,10 +244,28 @@ public struct ConversationPracticeTopic: Codable, Equatable, Identifiable, Senda
         targetSentenceCount: 100
     )
 
+    public static let stayInShanghai = ConversationPracticeTopic(
+        id: "shanghai_relocation_study",
+        title: "Stay in Shanghai",
+        summary: "Longer-stay Shanghai Mandarin for study, housing, transport, utilities, and local admin.",
+        difficultyLabel: "Practical city-living set",
+        bundledResourceName: "Stay in Shanghai",
+        generationBrief: "Longer-stay Shanghai Mandarin for Mandarin courses, student life, housing, utilities, transport, healthcare, shopping, local services, and administrative tasks.",
+        situations: [
+            "asking about Mandarin courses and study schedules",
+            "finding housing and handling rent or utilities",
+            "using transport and local city services",
+            "shopping, errands, healthcare, and daily needs",
+            "handling registration and administrative tasks"
+        ],
+        targetSentenceCount: 100
+    )
+
     public static let defaults: [ConversationPracticeTopic] = [
         .generalGreetings,
         .foodEating,
-        .tripToFourCities
+        .tripToFourCities,
+        .stayInShanghai
     ]
 
     public static func topic(for id: String) -> ConversationPracticeTopic {
@@ -313,6 +402,12 @@ public enum ConversationPracticeRules {
         sentence.trimmingCharacters(in: .whitespacesAndNewlinesAndPunctuation)
     }
 
+    public static func isChineseCharacter(_ character: Character) -> Bool {
+        character.unicodeScalars.contains { scalar in
+            (0x4E00...0x9FFF).contains(Int(scalar.value))
+        }
+    }
+
     public static func validate(_ pack: ConversationPracticePack) -> ConversationPracticeValidationResult {
         var issues: [ConversationPracticeValidationIssue] = []
 
@@ -443,11 +538,6 @@ public enum ConversationPracticeRules {
         value.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private static func isChineseCharacter(_ character: Character) -> Bool {
-        character.unicodeScalars.contains { scalar in
-            (0x4E00...0x9FFF).contains(Int(scalar.value))
-        }
-    }
 }
 
 public enum ConversationPracticeQuizRules {

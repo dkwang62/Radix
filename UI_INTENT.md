@@ -188,8 +188,10 @@ the section can grow beyond the starter set. `General Greetings` stays first and
 default. `Food / Eating Conversation` is the second bundled topic, using the
 same practice controls as the starter set. `Trip to 4 Cities` is the third
 bundled topic for travel situations across Beijing, Shanghai, Guangzhou, and
-Taipei. For future generation-only topics, show the topic purpose and a clear
-action into AI Link rather than empty practice controls.
+Taipei. `Stay in Shanghai` is the fourth bundled topic for longer-stay study,
+housing, utilities, transport, local services, and administrative tasks. For
+future generation-only topics, show the topic purpose and a clear action into
+AI Link rather than empty practice controls.
 
 Lesson screens should make the sentence card the main object. A user should be
 able to review or quiz the sentence, then tap the full sentence into its normal
