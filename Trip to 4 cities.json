@@ -1,0 +1,2111 @@
+{
+"pack_id": "china_taiwan_travel",
+"version": "1.0",
+"title": "Travel Essentials: China & Taiwan",
+"description": "Practical Mandarin for transport, sightseeing, and hotels in Beijing, Shanghai, Guangzhou, and Taipei.",
+"language": "zh-Hans",
+"source_type": "ai_generated_practice",
+"created_for": "Radix Conversation Practice",
+"entries": [
+{
+"id": "travel_transport_001",
+"sequence": 1,
+"category": "taxi",
+"level": "easy",
+"sentence": {
+"zh": "请带我去这个地址。",
+"pinyin": "Qǐng dài wǒ qù zhège dìzhǐ.",
+"en": "Please take me to this address."
+},
+"analysis": {
+"characters": ["请", "带", "我", "去", "这", "个", "地", "址"],
+"phrases": ["请", "带我", "去", "这个地址"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["transport", "taxi"]
+},
+"notes": "Essential for showing drivers your destination."
+},
+{
+"id": "travel_transport_002",
+"sequence": 2,
+"category": "taxi",
+"level": "easy",
+"sentence": {
+"zh": "请在这里停。",
+"pinyin": "Qǐng zài zhèlǐ tíng.",
+"en": "Please stop here."
+},
+"analysis": {
+"characters": ["请", "在", "这", "里", "停"],
+"phrases": ["请", "在这里", "停"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["transport", "taxi"]
+},
+"notes": "Use this when you arrive at your destination."
+},
+{
+"id": "travel_transport_003",
+"sequence": 3,
+"category": "metro",
+"level": "easy",
+"sentence": {
+"zh": "地铁站在哪里？",
+"pinyin": "Dìtiě zhàn zài nǎlǐ?",
+"en": "Where is the subway station?"
+},
+"analysis": {
+"characters": ["地", "铁", "站", "在", "哪", "里"],
+"phrases": ["地铁站", "在哪里"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["transport", "metro"]
+},
+"notes": "Use '捷运站' (Jiéyùn zhàn) specifically in Taipei."
+},
+{
+"id": "travel_transport_004",
+"sequence": 4,
+"category": "airport",
+"level": "easy",
+"sentence": {
+"zh": "去机场怎么走？",
+"pinyin": "Qù jīchǎng zěnme zǒu?",
+"en": "How do I get to the airport?"
+},
+"analysis": {
+"characters": ["去", "机", "场", "怎", "么", "走"],
+"phrases": ["去", "机场", "怎么走"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["transport", "airport"]
+},
+"notes": "Ask this at hotel concierge."
+},
+{
+"id": "travel_hotel_005",
+"sequence": 5,
+"category": "hotel",
+"level": "easy",
+"sentence": {
+"zh": "我有预订。",
+"pinyin": "Wǒ yǒu yùdìng.",
+"en": "I have a reservation."
+},
+"analysis": {
+"characters": ["我", "有", "预", "订"],
+"phrases": ["我有", "预订"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["hotel", "check-in"]
+},
+"notes": "The primary phrase for check-in."
+},
+{
+"id": "travel_sight_006",
+"sequence": 6,
+"category": "sightseeing",
+"level": "easy",
+"sentence": {
+"zh": "这里可以拍照吗？",
+"pinyin": "Zhèlǐ kěyǐ pāizhào ma?",
+"en": "Can I take photos here?"
+},
+"analysis": {
+"characters": ["这", "里", "可", "以", "拍", "照", "吗"],
+"phrases": ["这里", "可以", "拍照"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "Check rules at temples or museums."
+},
+{
+"id": "travel_transport_007",
+"sequence": 7,
+"category": "taxi",
+"level": "medium",
+"sentence": {
+"zh": "请慢一点说。",
+"pinyin": "Qǐng màn yīdiǎn shuō.",
+"en": "Please speak a little slower."
+},
+"analysis": {
+"characters": ["请", "慢", "一", "点", "说"],
+"phrases": ["请", "慢一点"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["communication"]
+},
+"notes": "Very useful when speaking to locals."
+},
+{
+"id": "travel_hotel_008",
+"sequence": 8,
+"category": "hotel",
+"level": "medium",
+"sentence": {
+"zh": "WiFi密码是多少？",
+"pinyin": "WiFi mìmǎ shì duōshǎo?",
+"en": "What is the WiFi password?"
+},
+"analysis": {
+"characters": ["密", "码", "是", "多", "少"],
+"phrases": ["密码", "是多少"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["hotel", "amenity"]
+},
+"notes": "Standard hotel inquiry."
+},
+{
+"id": "travel_sight_009",
+"sequence": 9,
+"category": "sightseeing",
+"level": "medium",
+"sentence": {
+"zh": "入口在哪里？",
+"pinyin": "Rùkǒu zài nǎlǐ?",
+"en": "Where is the entrance?"
+},
+"analysis": {
+"characters": ["入", "口", "在", "哪", "里"],
+"phrases": ["入口", "在哪里"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "Navigation at landmarks."
+},
+{
+"id": "travel_transport_010",
+"sequence": 10,
+"category": "metro",
+"level": "medium",
+"sentence": {
+"zh": "去上海外滩怎么走？",
+"pinyin": "Qù Shànghǎi Wàitān zěnme zǒu?",
+"en": "How do I go to the Shanghai Bund?"
+},
+"analysis": {
+"characters": ["去", "上", "海", "外", "滩", "怎", "么", "走"],
+"phrases": ["去", "上海", "外滩", "怎么走"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["transport", "landmark"]
+},
+"notes": "Specific landmark navigation."
+},
+{
+"id": "travel_transport_011",
+"sequence": 11,
+"category": "taxi",
+"level": "hard",
+"sentence": {
+"zh": "我可以打车去北京饭店吗？",
+"pinyin": "Wǒ kěyǐ dǎchē qù Běijīng Fàndiàn ma?",
+"en": "Can I take a taxi to the Beijing Hotel?"
+},
+"analysis": {
+"characters": ["我", "可", "以", "打", "车", "去", "北", "京", "饭", "店", "吗"],
+"phrases": ["我可以", "打车", "去", "北京饭店"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["transport", "taxi"]
+},
+"notes": "Checking taxi viability."
+},
+{
+"id": "travel_hotel_012",
+"sequence": 12,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "可以请人打扫房间吗？",
+"pinyin": "Kěyǐ qǐng rén dǎsǎo fángjiān ma?",
+"en": "Can you have someone clean the room?"
+},
+"analysis": {
+"characters": ["可", "以", "请", "人", "打", "扫", "房", "间", "吗"],
+"phrases": ["可以", "请人", "打扫", "房间"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["hotel", "service"]
+},
+"notes": "Requesting housekeeping."
+},
+{
+"id": "travel_sight_013",
+"sequence": 13,
+"category": "sightseeing",
+"level": "hard",
+"sentence": {
+"zh": "需要买门票吗？",
+"pinyin": "Xūyào mǎi ménpiào ma?",
+"en": "Do I need to buy an entrance ticket?"
+},
+"analysis": {
+"characters": ["需", "要", "买", "门", "票", "吗"],
+"phrases": ["需要", "买", "门票"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "Standard landmark question."
+},
+{
+"id": "travel_transport_014",
+"sequence": 14,
+"category": "airport",
+"level": "hard",
+"sentence": {
+"zh": "这是去台北车站的地铁吗？",
+"pinyin": "Zhè shì qù Táiběi Chēzhàn de dìtiě ma?",
+"en": "Is this the subway to Taipei Main Station?"
+},
+"analysis": {
+"characters": ["这", "是", "去", "台", "北", "车", "站", "的", "地", "铁", "吗"],
+"phrases": ["这是", "去", "台北车站", "的", "地铁"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "metro"]
+},
+"notes": "Confirming transport line."
+},
+{
+"id": "travel_sight_015",
+"sequence": 15,
+"category": "sightseeing",
+"level": "hard",
+"sentence": {
+"zh": "我想去广州塔。",
+"pinyin": "Wǒ xiǎng qù Guǎngzhōu Tǎ.",
+"en": "I want to go to the Guangzhou Tower."
+},
+"analysis": {
+"characters": ["我", "想", "去", "广", "州", "塔"],
+"phrases": ["我想去", "广州塔"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["sightseeing", "landmark"]
+},
+"notes": "Direct intention."
+},
+{
+"id": "travel_hotel_016",
+"sequence": 16,
+"category": "hotel",
+"level": "medium",
+"sentence": {
+"zh": "我要办理入住。",
+"pinyin": "Wǒ yào bànlǐ rùzhù.",
+"en": "I want to check in."
+},
+"analysis": {
+"characters": ["我", "要", "办", "理", "入", "住"],
+"phrases": ["我要", "办理入住"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["hotel", "check-in"]
+},
+"notes": "Arrival at reception."
+},
+{
+"id": "travel_transport_017",
+"sequence": 17,
+"category": "taxi",
+"level": "medium",
+"sentence": {
+"zh": "麻烦快一点。",
+"pinyin": "Máfan kuài yīdiǎn.",
+"en": "Please hurry a bit."
+},
+"analysis": {
+"characters": ["麻", "烦", "快", "一", "点"],
+"phrases": ["麻烦", "快一点"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["transport", "taxi"]
+},
+"notes": "Polite prompt for speed."
+},
+{
+"id": "travel_sight_018",
+"sequence": 18,
+"category": "sightseeing",
+"level": "medium",
+"sentence": {
+"zh": "这里有厕所吗？",
+"pinyin": "Zhèlǐ yǒu cèsuǒ ma?",
+"en": "Are there restrooms here?"
+},
+"analysis": {
+"characters": ["这", "里", "有", "厕", "所", "吗"],
+"phrases": ["这里", "有", "厕所"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 3,
+"tags": ["sightseeing"]
+},
+"notes": "Universal traveler need."
+},
+{
+"id": "travel_transport_019",
+"sequence": 19,
+"category": "metro",
+"level": "hard",
+"sentence": {
+"zh": "这一站是哪里？",
+"pinyin": "Zhè yī zhàn shì nǎlǐ?",
+"en": "Which station is this?"
+},
+"analysis": {
+"characters": ["这", "一", "站", "是", "哪", "里"],
+"phrases": ["这一站", "是", "哪里"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["transport", "metro"]
+},
+"notes": "Helpful when lost on the metro."
+},
+{
+"id": "travel_hotel_020",
+"sequence": 20,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "请帮我叫出租车。",
+"pinyin": "Qǐng bāng wǒ jiào chūzūchē.",
+"en": "Please call a taxi for me."
+},
+"analysis": {
+"characters": ["请", "帮", "我", "叫", "出", "租", "车"],
+"phrases": ["请帮我", "叫", "出租车"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["hotel", "transport"]
+},
+"notes": "Excellent for departures from hotels."
+},
+{
+"id": "travel_transport_021",
+"sequence": 21,
+"category": "taxi",
+"level": "easy",
+"sentence": {
+"zh": "去这里多少钱？",
+"pinyin": "Qù zhèlǐ duōshǎo qián?",
+"en": "How much to go here?"
+},
+"analysis": {
+"characters": ["去", "这", "里", "多", "少", "钱"],
+"phrases": ["去", "这里", "多少钱"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["transport", "taxi"]
+},
+"notes": "Ask before entering if unsure."
+},
+{
+"id": "travel_sight_022",
+"sequence": 22,
+"category": "sightseeing",
+"level": "medium",
+"sentence": {
+"zh": "附近有什么景点？",
+"pinyin": "Fùjìn yǒu shénme jǐngdiǎn?",
+"en": "What sightseeing spots are nearby?"
+},
+"analysis": {
+"characters": ["附", "近", "有", "什", "么", "景", "点"],
+"phrases": ["附近", "有什么", "景点"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "Get recommendations from locals."
+},
+{
+"id": "travel_transport_023",
+"sequence": 23,
+"category": "metro",
+"level": "hard",
+"sentence": {
+"zh": "请问怎么换乘地铁？",
+"pinyin": "Qǐngwèn zěnme huànchéng dìtiě?",
+"en": "May I ask how to transfer subways?"
+},
+"analysis": {
+"characters": ["请", "问", "怎", "么", "换", "乘", "地", "铁"],
+"phrases": ["请问", "怎么", "换乘", "地铁"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "metro"]
+},
+"notes": "Crucial for navigating complex networks."
+},
+{
+"id": "travel_hotel_024",
+"sequence": 24,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "可以帮我寄存行李吗？",
+"pinyin": "Kěyǐ bāng wǒ jìcún xínglǐ ma?",
+"en": "Can you help me store my luggage?"
+},
+"analysis": {
+"characters": ["可", "以", "帮", "我", "寄", "存", "行", "李", "吗"],
+"phrases": ["可以", "帮我", "寄存行李"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["hotel", "service"]
+},
+"notes": "Very common travel request."
+},
+{
+"id": "travel_sight_025",
+"sequence": 25,
+"category": "sightseeing",
+"level": "medium",
+"sentence": {
+"zh": "我想买两张票。",
+"pinyin": "Wǒ xiǎng mǎi liǎng zhāng piào.",
+"en": "I want to buy two tickets."
+},
+"analysis": {
+"characters": ["我", "想", "买", "两", "张", "票"],
+"phrases": ["我想", "买", "两张", "票"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "Standard purchase phrasing."
+},
+{
+"id": "travel_transport_026",
+"sequence": 26,
+"category": "taxi",
+"level": "medium",
+"sentence": {
+"zh": "请帮我打开后备箱。",
+"pinyin": "Qǐng bāng wǒ dǎkāi hòubèixiāng.",
+"en": "Please open the trunk for me."
+},
+"analysis": {
+"characters": ["请", "帮", "我", "打", "开", "后", "备", "箱"],
+"phrases": ["请帮我", "打开", "后备箱"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["transport", "taxi"]
+},
+"notes": "Useful with luggage."
+},
+{
+"id": "travel_hotel_027",
+"sequence": 27,
+"category": "hotel",
+"level": "easy",
+"sentence": {
+"zh": "退房，谢谢。",
+"pinyin": "Tuìfáng, xièxie.",
+"en": "Checking out, thanks."
+},
+"analysis": {
+"characters": ["退", "房", "谢", "谢"],
+"phrases": ["退房", "谢谢"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["hotel", "check-out"]
+},
+"notes": "Short and polite departure."
+},
+{
+"id": "travel_sight_028",
+"sequence": 28,
+"category": "sightseeing",
+"level": "hard",
+"sentence": {
+"zh": "有什么推荐的路线吗？",
+"pinyin": "Yǒu shénme tuījiàn de lùxiàn ma?",
+"en": "Are there any recommended routes?"
+},
+"analysis": {
+"characters": ["有", "什", "么", "推", "荐", "的", "路", "线", "吗"],
+"phrases": ["有什么", "推荐", "路线"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["sightseeing"]
+},
+"notes": "Expert sightseeing inquiry."
+},
+{
+"id": "travel_transport_029",
+"sequence": 29,
+"category": "airport",
+"level": "medium",
+"sentence": {
+"zh": "哪里可以办登机手续？",
+"pinyin": "Nǎlǐ kěyǐ bàn dēngjī shǒuxù?",
+"en": "Where can I check in for the flight?"
+},
+"analysis": {
+"characters": ["哪", "里", "可", "以", "办", "登", "机", "手", "续"],
+"phrases": ["哪里", "可以", "办", "登机手续"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 2,
+"tags": ["transport", "airport"]
+},
+"notes": "Crucial airport question."
+},
+{
+"id": "travel_hotel_030",
+"sequence": 30,
+"category": "hotel",
+"level": "medium",
+"sentence": {
+"zh": "房间在几楼？",
+"pinyin": "Fángjiān zài jǐ lóu?",
+"en": "Which floor is the room on?"
+},
+"analysis": {
+"characters": ["房", "间", "在", "几", "楼"],
+"phrases": ["房间", "在", "几楼"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["hotel"]
+},
+"notes": "Basic room location check."
+},
+{
+"id": "travel_transport_031",
+"sequence": 31,
+"category": "metro",
+"level": "easy",
+"sentence": {
+"zh": "我们要去哪里买票？",
+"pinyin": "Wǒmen yào qù nǎlǐ mǎipiào?",
+"en": "Where should we go to buy tickets?"
+},
+"analysis": {
+"characters": ["我", "们", "要", "去", "哪", "里", "买", "票"],
+"phrases": ["我们", "要去", "哪里", "买票"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["transport", "metro"]
+},
+"notes": "Simple navigation inquiry."
+},
+{
+"id": "travel_sight_032",
+"sequence": 32,
+"category": "sightseeing",
+"level": "easy",
+"sentence": {
+"zh": "这个很漂亮。",
+"pinyin": "Zhège hěn piàoliang.",
+"en": "This is very beautiful."
+},
+"analysis": {
+"characters": ["这", "个", "很", "漂", "亮"],
+"phrases": ["这个", "很漂亮"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "Expressing appreciation."
+},
+{
+"id": "travel_hotel_033",
+"sequence": 33,
+"category": "hotel",
+"level": "medium",
+"sentence": {
+"zh": "有中文服务员吗？",
+"pinyin": "Yǒu Zhōngwén fúwùyuán ma?",
+"en": "Is there a Chinese-speaking staff?"
+},
+"analysis": {
+"characters": ["有", "中", "文", "服", "务", "员", "吗"],
+"phrases": ["有", "中文", "服务员"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["hotel", "service"]
+},
+"notes": "Helpful in non-Chinese speaking countries, though you are in China."
+},
+{
+"id": "travel_transport_034",
+"sequence": 34,
+"category": "taxi",
+"level": "medium",
+"sentence": {
+"zh": "能不能开空调？",
+"pinyin": "Néng bù néng kāi kōngtiáo?",
+"en": "Can you turn on the AC?"
+},
+"analysis": {
+"characters": ["能", "不", "能", "开", "空", "调"],
+"phrases": ["能不能", "开", "空调"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["transport", "taxi"]
+},
+"notes": "Important in hot weather."
+},
+{
+"id": "travel_sight_035",
+"sequence": 35,
+"category": "sightseeing",
+"level": "hard",
+"sentence": {
+"zh": "这里几点关门？",
+"pinyin": "Zhèlǐ jǐ diǎn guānmén?",
+"en": "What time does this place close?"
+},
+"analysis": {
+"characters": ["这", "里", "几", "点", "关", "门"],
+"phrases": ["这里", "几点", "关门"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["sightseeing"]
+},
+"notes": "Vital to check before visiting."
+},
+{
+"id": "travel_transport_036",
+"sequence": 36,
+"category": "metro",
+"level": "hard",
+"sentence": {
+"zh": "离最近的地铁站有多远？",
+"pinyin": "Lí zuìjìn de dìtiě zhàn yǒu duō yuǎn?",
+"en": "How far is the nearest subway station?"
+},
+"analysis": {
+"characters": ["离", "最", "近", "的", "地", "铁", "站", "有", "多", "远"],
+"phrases": ["离", "最近", "地铁站", "有多远"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "metro"]
+},
+"notes": "Good for planning walking."
+},
+{
+"id": "travel_hotel_037",
+"sequence": 37,
+"category": "hotel",
+"level": "medium",
+"sentence": {
+"zh": "早餐几点开始？",
+"pinyin": "Zǎocān jǐ diǎn kāishǐ?",
+"en": "What time does breakfast start?"
+},
+"analysis": {
+"characters": ["早", "餐", "几", "点", "开", "始"],
+"phrases": ["早餐", "几点", "开始"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["hotel", "meal"]
+},
+"notes": "Standard hotel question."
+},
+{
+"id": "travel_sight_038",
+"sequence": 38,
+"category": "sightseeing",
+"level": "medium",
+"sentence": {
+"zh": "这个很有历史。",
+"pinyin": "Zhège hěn yǒu lìshǐ.",
+"en": "This has a lot of history."
+},
+"analysis": {
+"characters": ["这", "个", "很", "有", "历", "史"],
+"phrases": ["这个", "很有", "历史"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "Appreciating landmark history."
+},
+{
+"id": "travel_transport_039",
+"sequence": 39,
+"category": "taxi",
+"level": "hard",
+"sentence": {
+"zh": "请问这条路会塞车吗？",
+"pinyin": "Qǐngwèn zhè tiáo lù huì sāichē ma?",
+"en": "May I ask if this road is prone to traffic?"
+},
+"analysis": {
+"characters": ["请", "问", "这", "条", "路", "会", "塞", "车", "吗"],
+"phrases": ["请问", "这条路", "会", "塞车"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "taxi"]
+},
+"notes": "Good for timing your travel."
+},
+{
+"id": "travel_hotel_040",
+"sequence": 40,
+"category": "hotel",
+"level": "medium",
+"sentence": {
+"zh": "我可以延迟退房吗？",
+"pinyin": "Wǒ kěyǐ yánchí tuìfáng ma?",
+"en": "Can I check out late?"
+},
+"analysis": {
+"characters": ["我", "可", "以", "延", "迟", "退", "房", "吗"],
+"phrases": ["可以", "延迟退房"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["hotel", "check-out"]
+},
+"notes": "Useful travel flexibility."
+},
+{
+"id": "travel_transport_041",
+"sequence": 41,
+"category": "metro",
+"level": "easy",
+"sentence": {
+"zh": "我要买票。",
+"pinyin": "Wǒ yào mǎi piào.",
+"en": "I want to buy a ticket."
+},
+"analysis": {
+"characters": ["我", "要", "买", "票"],
+"phrases": ["我要", "买票"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["transport", "metro"]
+},
+"notes": "Essential purchase request."
+},
+{
+"id": "travel_sight_042",
+"sequence": 42,
+"category": "sightseeing",
+"level": "medium",
+"sentence": {
+"zh": "这儿有导游吗？",
+"pinyin": "Zhèr yǒu dǎoyóu ma?",
+"en": "Is there a tour guide here?"
+},
+"analysis": {
+"characters": ["这", "儿", "有", "导", "游", "吗"],
+"phrases": ["这儿", "有", "导游"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "Requesting a guide."
+},
+{
+"id": "travel_hotel_043",
+"sequence": 43,
+"category": "hotel",
+"level": "medium",
+"sentence": {
+"zh": "房间没有毛巾。",
+"pinyin": "Fángjiān méiyǒu máojīn.",
+"en": "There are no towels in the room."
+},
+"analysis": {
+"characters": ["房", "间", "没", "有", "毛", "巾"],
+"phrases": ["房间", "没有", "毛巾"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 3,
+"tags": ["hotel", "service"]
+},
+"notes": "Common hotel issue."
+},
+{
+"id": "travel_transport_044",
+"sequence": 44,
+"category": "taxi",
+"level": "hard",
+"sentence": {
+"zh": "请问可以直接付现吗？",
+"pinyin": "Qǐngwèn kěyǐ zhíjiē fù xiàn ma?",
+"en": "May I ask if I can pay cash directly?"
+},
+"analysis": {
+"characters": ["请", "问", "可", "以", "直", "接", "付", "现", "吗"],
+"phrases": ["请问", "可以直接", "付现"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "payment"]
+},
+"notes": "Useful when digital payment isn't an option."
+},
+{
+"id": "travel_sight_045",
+"sequence": 45,
+"category": "sightseeing",
+"level": "hard",
+"sentence": {
+"zh": "这是什么建筑？",
+"pinyin": "Zhè shì shénme jiànzhù?",
+"en": "What building is this?"
+},
+"analysis": {
+"characters": ["这", "是", "什", "么", "建", "筑"],
+"phrases": ["这是", "什么", "建筑"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "Inquiring about landmarks."
+},
+{
+"id": "travel_transport_046",
+"sequence": 46,
+"category": "metro",
+"level": "hard",
+"sentence": {
+"zh": "怎么去那个地铁口？",
+"pinyin": "Zěnme qù nègè dìtiě kǒu?",
+"en": "How to get to that subway entrance?"
+},
+"analysis": {
+"characters": ["怎", "么", "去", "那", "个", "地", "铁", "口"],
+"phrases": ["怎么", "去", "那个", "地铁口"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "metro"]
+},
+"notes": "Detailed navigation."
+},
+{
+"id": "travel_hotel_047",
+"sequence": 47,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "请帮我预订明天的车。",
+"pinyin": "Qǐng bāng wǒ yùdìng míngtiān de chē.",
+"en": "Please book a car for me tomorrow."
+},
+"analysis": {
+"characters": ["请", "帮", "我", "预", "订", "明", "天", "的", "车"],
+"phrases": ["请帮我", "预订", "明天", "的", "车"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 2,
+"tags": ["hotel", "service"]
+},
+"notes": "Planning your departure."
+},
+{
+"id": "travel_transport_048",
+"sequence": 48,
+"category": "airport",
+"level": "medium",
+"sentence": {
+"zh": "登机口在哪里？",
+"pinyin": "Dēngjī kǒu zài nǎlǐ?",
+"en": "Where is the boarding gate?"
+},
+"analysis": {
+"characters": ["登", "机", "口", "在", "哪", "里"],
+"phrases": ["登机口", "在哪里"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["transport", "airport"]
+},
+"notes": "Essential in airport terminals."
+},
+{
+"id": "travel_sight_049",
+"sequence": 49,
+"category": "sightseeing",
+"level": "hard",
+"sentence": {
+"zh": "这里有免费地图吗？",
+"pinyin": "Zhèlǐ yǒu miǎnfèi dìtú ma?",
+"en": "Is there a free map here?"
+},
+"analysis": {
+"characters": ["这", "里", "有", "免", "费", "地", "图", "吗"],
+"phrases": ["这里", "有", "免费地图"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["sightseeing"]
+},
+"notes": "Very useful at tourist offices."
+},
+{
+"id": "travel_hotel_050",
+"sequence": 50,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "有什么推荐的好酒店？",
+"pinyin": "Yǒu shénme tuījiàn de hǎo jiǔdiàn?",
+"en": "Are there any recommended good hotels?"
+},
+"analysis": {
+"characters": ["有", "什", "么", "推", "荐", "的", "好", "酒", "店"],
+"phrases": ["有什么", "推荐", "好酒店"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["hotel"]
+},
+"notes": "Inquiring about other options."
+},
+{
+"id": "travel_transport_051",
+"sequence": 51,
+"category": "taxi",
+"level": "easy",
+"sentence": {
+"zh": "去北京站多少钱？",
+"pinyin": "Qù Běijīng Zhàn duōshǎo qián?",
+"en": "How much to Beijing Station?"
+},
+"analysis": {
+"characters": ["去", "北", "京", "站", "多", "少", "钱"],
+"phrases": ["去", "北京站", "多少钱"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["transport", "taxi"]
+},
+"notes": "Simple price inquiry."
+},
+{
+"id": "travel_hotel_052",
+"sequence": 52,
+"category": "hotel",
+"level": "easy",
+"sentence": {
+"zh": "谢谢，房间很好。",
+"pinyin": "Xièxie, fángjiān hěn hǎo.",
+"en": "Thanks, the room is very good."
+},
+"analysis": {
+"characters": ["谢", "谢", "房", "间", "很", "好"],
+"phrases": ["谢谢", "房间", "很好"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["hotel", "feedback"]
+},
+"notes": "Polite comment."
+},
+{
+"id": "travel_transport_053",
+"sequence": 53,
+"category": "metro",
+"level": "easy",
+"sentence": {
+"zh": "这是几号线？",
+"pinyin": "Zhè shì jǐ hào xiàn?",
+"en": "What line number is this?"
+},
+"analysis": {
+"characters": ["这", "是", "几", "号", "线"],
+"phrases": ["这是", "几号线"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["transport", "metro"]
+},
+"notes": "Essential for line navigation."
+},
+{
+"id": "travel_sight_054",
+"sequence": 54,
+"category": "sightseeing",
+"level": "easy",
+"sentence": {
+"zh": "很美的地方。",
+"pinyin": "Hěn měi de dìfāng.",
+"en": "A very beautiful place."
+},
+"analysis": {
+"characters": ["很", "美", "的", "地", "方"],
+"phrases": ["很美", "的地方"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "General compliment."
+},
+{
+"id": "travel_transport_055",
+"sequence": 55,
+"category": "airport",
+"level": "medium",
+"sentence": {
+"zh": "我找不到出口。",
+"pinyin": "Wǒ zhǎobùdào chūkǒu.",
+"en": "I can't find the exit."
+},
+"analysis": {
+"characters": ["我", "找", "不", "到", "出", "口"],
+"phrases": ["找", "不到", "出口"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["transport", "airport"]
+},
+"notes": "Trouble finding the way."
+},
+{
+"id": "travel_hotel_056",
+"sequence": 56,
+"category": "hotel",
+"level": "medium",
+"sentence": {
+"zh": "我要叫出租车。",
+"pinyin": "Wǒ yào jiào chūzūchē.",
+"en": "I want to call a taxi."
+},
+"analysis": {
+"characters": ["我", "要", "叫", "出", "租", "车"],
+"phrases": ["我要", "叫", "出租车"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["hotel", "transport"]
+},
+"notes": "Requesting service."
+},
+{
+"id": "travel_sight_057",
+"sequence": 57,
+"category": "sightseeing",
+"level": "medium",
+"sentence": {
+"zh": "请问怎么去机场？",
+"pinyin": "Qǐngwèn zěnme qù jīchǎng?",
+"en": "May I ask how to go to the airport?"
+},
+"analysis": {
+"characters": ["请", "问", "怎", "么", "去", "机", "场"],
+"phrases": ["请问", "怎么", "去", "机场"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["sightseeing", "airport"]
+},
+"notes": "Asking for transport directions."
+},
+{
+"id": "travel_transport_058",
+"sequence": 58,
+"category": "taxi",
+"level": "medium",
+"sentence": {
+"zh": "请在那儿等我。",
+"pinyin": "Qǐng zài nà'er děng wǒ.",
+"en": "Please wait for me there."
+},
+"analysis": {
+"characters": ["请", "在", "那", "儿", "等", "我"],
+"phrases": ["请", "在那儿", "等我"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["transport", "taxi"]
+},
+"notes": "Wait instructions for a driver."
+},
+{
+"id": "travel_hotel_059",
+"sequence": 59,
+"category": "hotel",
+"level": "medium",
+"sentence": {
+"zh": "这儿有热水吗？",
+"pinyin": "Zhèr yǒu rèshuǐ ma?",
+"en": "Is there hot water here?"
+},
+"analysis": {
+"characters": ["这", "儿", "有", "热", "水", "吗"],
+"phrases": ["这儿", "有", "热水"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 3,
+"tags": ["hotel", "amenity"]
+},
+"notes": "Important in China."
+},
+{
+"id": "travel_sight_060",
+"sequence": 60,
+"category": "sightseeing",
+"level": "medium",
+"sentence": {
+"zh": "这里的风景真好。",
+"pinyin": "Zhèlǐ de fēngjǐng zhēn hǎo.",
+"en": "The scenery here is really good."
+},
+"analysis": {
+"characters": ["这", "里", "的", "风", "景", "真", "好"],
+"phrases": ["这里的", "风景", "真好"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "Complimenting the view."
+},
+{
+"id": "travel_transport_061",
+"sequence": 61,
+"category": "taxi",
+"level": "hard",
+"sentence": {
+"zh": "可以用打车软件吗？",
+"pinyin": "Kěyǐ yòng dǎchē ruǎnjiàn ma?",
+"en": "Can I use the taxi app?"
+},
+"analysis": {
+"characters": ["可", "以", "用", "打", "车", "软", "件", "吗"],
+"phrases": ["可以", "用", "打车软件"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "taxi"]
+},
+"notes": "Helpful in China (e.g., Didi)."
+},
+{
+"id": "travel_sight_062",
+"sequence": 62,
+"category": "sightseeing",
+"level": "hard",
+"sentence": {
+"zh": "哪里有卖纪念品的？",
+"pinyin": "Nǎlǐ yǒu mài jìniànpǐn de?",
+"en": "Where do they sell souvenirs?"
+},
+"analysis": {
+"characters": ["哪", "里", "有", "卖", "纪", "念", "品", "的"],
+"phrases": ["哪里", "有", "卖", "纪念品"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["sightseeing"]
+},
+"notes": "Common tourist question."
+},
+{
+"id": "travel_hotel_063",
+"sequence": 63,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "帮我换一间安静的房间。",
+"pinyin": "Bāng wǒ huàn yī jiàn ānjìng de fángjiān.",
+"en": "Help me change to a quiet room."
+},
+"analysis": {
+"characters": ["帮", "我", "换", "一", "间", "安", "静", "的", "房", "间"],
+"phrases": ["帮我", "换", "安静的", "房间"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["hotel", "service"]
+},
+"notes": "Room preference request."
+},
+{
+"id": "travel_transport_064",
+"sequence": 64,
+"category": "taxi",
+"level": "hard",
+"sentence": {
+"zh": "不用找钱了。",
+"pinyin": "Bùyòng zhǎo qián le.",
+"en": "Keep the change."
+},
+"analysis": {
+"characters": ["不", "用", "找", "钱", "了"],
+"phrases": ["不用", "找钱"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["transport", "taxi"]
+},
+"notes": "Useful phrase for taxi tipping."
+},
+{
+"id": "travel_sight_065",
+"sequence": 65,
+"category": "sightseeing",
+"level": "hard",
+"sentence": {
+"zh": "请帮我们拍张照片。",
+"pinyin": "Qǐng bāng wǒmen pāi zhāng zhàopiàn.",
+"en": "Please help us take a photo."
+},
+"analysis": {
+"characters": ["请", "帮", "我", "们", "拍", "张", "照", "片"],
+"phrases": ["请帮我们", "拍张", "照片"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "Requesting a photo."
+},
+{
+"id": "travel_transport_066",
+"sequence": 66,
+"category": "metro",
+"level": "hard",
+"sentence": {
+"zh": "这个出口有电梯吗？",
+"pinyin": "Zhège chūkǒu yǒu diàntī ma?",
+"en": "Is there an elevator at this exit?"
+},
+"analysis": {
+"characters": ["这", "个", "出", "口", "有", "电", "梯", "吗"],
+"phrases": ["这个出口", "有", "电梯"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "metro"]
+},
+"notes": "Important for luggage."
+},
+{
+"id": "travel_hotel_067",
+"sequence": 67,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "酒店附近有超市吗？",
+"pinyin": "Jiǔdiàn fùjìn yǒu chāoshì ma?",
+"en": "Are there any supermarkets near the hotel?"
+},
+"analysis": {
+"characters": ["酒", "店", "附", "近", "有", "超", "市", "吗"],
+"phrases": ["酒店", "附近", "有", "超市"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["hotel"]
+},
+"notes": "Inquiring about nearby shopping."
+},
+{
+"id": "travel_sight_068",
+"sequence": 68,
+"category": "sightseeing",
+"level": "hard",
+"sentence": {
+"zh": "这儿要票吗？",
+"pinyin": "Zhèr yào piào ma?",
+"en": "Is a ticket needed here?"
+},
+"analysis": {
+"characters": ["这", "儿", "要", "票", "吗"],
+"phrases": ["这儿", "要", "票"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["sightseeing"]
+},
+"notes": "Quick ticket status check."
+},
+{
+"id": "travel_transport_069",
+"sequence": 69,
+"category": "airport",
+"level": "hard",
+"sentence": {
+"zh": "我的行李丢了。",
+"pinyin": "Wǒ de xínglǐ diū le.",
+"en": "My luggage is lost."
+},
+"analysis": {
+"characters": ["我", "的", "行", "李", "丢", "了"],
+"phrases": ["我的", "行李", "丢了"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 4,
+"tags": ["transport", "airport"]
+},
+"notes": "Emergency phrase."
+},
+{
+"id": "travel_hotel_070",
+"sequence": 70,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "请问退房时间是几点？",
+"pinyin": "Qǐngwèn tuìfáng shíjiān shì jǐ diǎn?",
+"en": "May I ask what time check-out is?"
+},
+"analysis": {
+"characters": ["请", "问", "退", "房", "时", "间", "是", "几", "点"],
+"phrases": ["请问", "退房时间", "是", "几点"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["hotel", "check-out"]
+},
+"notes": "Important logistical check."
+},
+{
+"id": "travel_transport_071",
+"sequence": 71,
+"category": "taxi",
+"level": "easy",
+"sentence": {
+"zh": "我去火车站。",
+"pinyin": "Wǒ qù huǒchē zhàn.",
+"en": "I'm going to the train station."
+},
+"analysis": {
+"characters": ["我", "去", "火", "车", "站"],
+"phrases": ["我去", "火车站"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["transport", "taxi"]
+},
+"notes": "Simple destination."
+},
+{
+"id": "travel_sight_072",
+"sequence": 72,
+"category": "sightseeing",
+"level": "easy",
+"sentence": {
+"zh": "这是什么地方？",
+"pinyin": "Zhè shì shénme dìfāng?",
+"en": "What place is this?"
+},
+"analysis": {
+"characters": ["这", "是", "什", "么", "地", "方"],
+"phrases": ["这是", "什么", "地方"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "General landmark query."
+},
+{
+"id": "travel_hotel_073",
+"sequence": 73,
+"category": "hotel",
+"level": "easy",
+"sentence": {
+"zh": "这里有电梯吗？",
+"pinyin": "Zhèlǐ yǒu diàntī ma?",
+"en": "Is there an elevator here?"
+},
+"analysis": {
+"characters": ["这", "里", "有", "电", "梯", "吗"],
+"phrases": ["这里", "有", "电梯"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 2,
+"tags": ["hotel", "amenity"]
+},
+"notes": "Essential for luggage."
+},
+{
+"id": "travel_transport_074",
+"sequence": 74,
+"category": "metro",
+"level": "easy",
+"sentence": {
+"zh": "谢谢你的帮助。",
+"pinyin": "Xièxie nǐ de bāngzhù.",
+"en": "Thank you for your help."
+},
+"analysis": {
+"characters": ["谢", "谢", "你", "的", "帮", "助"],
+"phrases": ["谢谢", "你的帮助"]
+},
+"metadata": {
+"difficulty": 1,
+"frequency": 1,
+"tags": ["communication"]
+},
+"notes": "Polite appreciation."
+},
+{
+"id": "travel_sight_075",
+"sequence": 75,
+"category": "sightseeing",
+"level": "medium",
+"sentence": {
+"zh": "请问怎么走？",
+"pinyin": "Qǐngwèn zěnme zǒu?",
+"en": "May I ask how to get there?"
+},
+"analysis": {
+"characters": ["请", "问", "怎", "么", "走"],
+"phrases": ["请问", "怎么走"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["sightseeing"]
+},
+"notes": "Short, effective direction inquiry."
+},
+{
+"id": "travel_transport_076",
+"sequence": 76,
+"category": "taxi",
+"level": "medium",
+"sentence": {
+"zh": "不用担心，我就在这里。",
+"pinyin": "Bùyòng dānxīn, wǒ jiù zài zhèlǐ.",
+"en": "Don't worry, I'm right here."
+},
+"analysis": {
+"characters": ["不", "用", "担", "心", "我", "就", "在", "这", "里"],
+"phrases": ["不用", "担心", "我就在这里"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["transport", "taxi"]
+},
+"notes": "Reassuring a driver or friend."
+},
+{
+"id": "travel_hotel_077",
+"sequence": 77,
+"category": "hotel",
+"level": "medium",
+"sentence": {
+"zh": "可以给我一个水壶吗？",
+"pinyin": "Kěyǐ gěi wǒ yīgè shuǐhú ma?",
+"en": "Can you give me a kettle?"
+},
+"analysis": {
+"characters": ["可", "以", "给", "我", "一", "个", "水", "壶", "吗"],
+"phrases": ["可以", "给我", "一个", "水壶"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["hotel", "amenity"]
+},
+"notes": "Essential for hot water."
+},
+{
+"id": "travel_sight_078",
+"sequence": 78,
+"category": "sightseeing",
+"level": "hard",
+"sentence": {
+"zh": "这些建筑很有历史。",
+"pinyin": "Zhèxiē jiànzhù hěn yǒu lìshǐ.",
+"en": "These buildings have a lot of history."
+},
+"analysis": {
+"characters": ["这", "些", "建", "筑", "很", "有", "历", "史"],
+"phrases": ["这些", "建筑", "很有", "历史"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["sightseeing"]
+},
+"notes": "Observation about landmark."
+},
+{
+"id": "travel_hotel_079",
+"sequence": 79,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "我们想要双人床。",
+"pinyin": "Wǒmen xiǎng yào shuāngrénchuáng.",
+"en": "We want a double bed."
+},
+"analysis": {
+"characters": ["我", "们", "想", "要", "双", "人", "床"],
+"phrases": ["我们想要", "双人床"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["hotel", "check-in"]
+},
+"notes": "Specifying room type."
+},
+{
+"id": "travel_transport_080",
+"sequence": 80,
+"category": "taxi",
+"level": "hard",
+"sentence": {
+"zh": "请帮我记一下地址。",
+"pinyin": "Qǐng bāng wǒ jì yīxià dìzhǐ.",
+"en": "Please help me note down the address."
+},
+"analysis": {
+"characters": ["请", "帮", "我", "记", "一", "下", "地", "址"],
+"phrases": ["请帮我", "记一下", "地址"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "taxi"]
+},
+"notes": "Very helpful for travelers."
+},
+{
+"id": "travel_metro_081",
+"sequence": 81,
+"category": "metro",
+"level": "easy",
+"sentence": {
+"zh": "我要去中心站。",
+"pinyin": "Wǒ yào qù Zhōngxīn Zhàn.",
+"en": "I want to go to Central Station."
+},
+"analysis": {
+"characters": ["我", "要", "去", "中", "心", "站"],
+"phrases": ["我要", "中心站"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 1,
+"tags": ["transport", "metro"]
+},
+"notes": "Standard metro destination."
+},
+{
+"id": "travel_sight_082",
+"sequence": 82,
+"category": "sightseeing",
+"level": "medium",
+"sentence": {
+"zh": "这儿要排队吗？",
+"pinyin": "Zhèr yào páiduì ma?",
+"en": "Do I need to line up here?"
+},
+"analysis": {
+"characters": ["这", "儿", "要", "排", "队", "吗"],
+"phrases": ["这儿", "要", "排队"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["sightseeing"]
+},
+"notes": "Useful at popular spots."
+},
+{
+"id": "travel_transport_083",
+"sequence": 83,
+"category": "taxi",
+"level": "medium",
+"sentence": {
+"zh": "这条路是不是更近？",
+"pinyin": "Zhè tiáo lù shì búshì gèng jìn?",
+"en": "Is this road closer?"
+},
+"analysis": {
+"characters": ["这", "条", "路", "是", "不", "是", "更", "近"],
+"phrases": ["这条路", "是不是", "更近"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "taxi"]
+},
+"notes": "Polite questioning of route."
+},
+{
+"id": "travel_hotel_084",
+"sequence": 84,
+"category": "hotel",
+"level": "medium",
+"sentence": {
+"zh": "我的房间没空调。",
+"pinyin": "Wǒ de fángjiān méi kōngtiáo.",
+"en": "My room has no AC."
+},
+"analysis": {
+"characters": ["我", "的", "房", "间", "没", "空", "调"],
+"phrases": ["我的", "房间", "没", "空调"]
+},
+"metadata": {
+"difficulty": 2,
+"frequency": 3,
+"tags": ["hotel", "service"]
+},
+"notes": "Essential complaint."
+},
+{
+"id": "travel_sight_085",
+"sequence": 85,
+"category": "sightseeing",
+"level": "medium",
+"sentence": {
+"zh": "有什么推荐的地方吗？",
+"pinyin": "Yǒu shénme tuījiàn de dìfāng ma?",
+"en": "Are there any recommended places?"
+},
+"analysis": {
+"characters": ["有", "什", "么", "推", "荐", "的", "地", "方", "吗"],
+"phrases": ["有什么", "推荐", "地方"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "Local sightseeing tips."
+},
+{
+"id": "travel_hotel_086",
+"sequence": 86,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "可以给我一个枕头吗？",
+"pinyin": "Kěyǐ gěi wǒ yīgè zhěntou ma?",
+"en": "Can you give me a pillow?"
+},
+"analysis": {
+"characters": ["可", "以", "给", "我", "一", "个", "枕", "头", "吗"],
+"phrases": ["可以", "给我", "一个", "枕头"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["hotel", "service"]
+},
+"notes": "Hotel room comfort request."
+},
+{
+"id": "travel_transport_087",
+"sequence": 87,
+"category": "taxi",
+"level": "hard",
+"sentence": {
+"zh": "我们要赶时间。",
+"pinyin": "Wǒmen yào gǎn shíjiān.",
+"en": "We are in a rush."
+},
+"analysis": {
+"characters": ["我", "们", "要", "赶", "时", "间"],
+"phrases": ["我们", "赶时间"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["transport", "taxi"]
+},
+"notes": "Explaining urgency."
+},
+{
+"id": "travel_sight_088",
+"sequence": 88,
+"category": "sightseeing",
+"level": "hard",
+"sentence": {
+"zh": "这里几点钟关门？",
+"pinyin": "Zhèlǐ jǐ diǎnzhōng guānmén?",
+"en": "At what time does this close?"
+},
+"analysis": {
+"characters": ["这", "里", "几", "点", "钟", "关", "门"],
+"phrases": ["这里", "几点钟", "关门"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 3,
+"tags": ["sightseeing"]
+},
+"notes": "Formal time inquiry."
+},
+{
+"id": "travel_hotel_089",
+"sequence": 89,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "退房时需要做什么？",
+"pinyin": "Tuìfáng shí xūyào zuò shénme?",
+"en": "What do I need to do when checking out?"
+},
+"analysis": {
+"characters": ["退", "房", "时", "需", "要", "做", "什", "么"],
+"phrases": ["退房时", "需要", "做什么"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["hotel", "check-out"]
+},
+"notes": "Clear procedural inquiry."
+},
+{
+"id": "travel_transport_090",
+"sequence": 90,
+"category": "airport",
+"level": "hard",
+"sentence": {
+"zh": "这是直达机场的车吗？",
+"pinyin": "Zhè shì zhídá jīchǎng de chē ma?",
+"en": "Is this a direct bus to the airport?"
+},
+"analysis": {
+"characters": ["这", "是", "直", "达", "机", "场", "的", "车", "吗"],
+"phrases": ["这是", "直达", "机场", "的车"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "airport"]
+},
+"notes": "Verifying route."
+},
+{
+"id": "travel_taxi_091",
+"sequence": 91,
+"category": "taxi",
+"level": "medium",
+"sentence": {
+"zh": "可以发票吗？",
+"pinyin": "Kěyǐ fāpiào ma?",
+"en": "Can I have a receipt?"
+},
+"analysis": {
+"characters": ["可", "以", "发", "票", "吗"],
+"phrases": ["可以", "发票"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["transport", "taxi"]
+},
+"notes": "For work expenses."
+},
+{
+"id": "travel_sight_092",
+"sequence": 92,
+"category": "sightseeing",
+"level": "hard",
+"sentence": {
+"zh": "这里有什么特别的活动吗？",
+"pinyin": "Zhèlǐ yǒu shénme tèbié de huódòng ma?",
+"en": "Are there any special events here?"
+},
+"analysis": {
+"characters": ["这", "里", "有", "什", "么", "特", "别", "的", "活", "动", "吗"],
+"phrases": ["这里", "有什么", "特别的", "活动"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["sightseeing"]
+},
+"notes": "Discovering local events."
+},
+{
+"id": "travel_hotel_093",
+"sequence": 93,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "请问附近哪里有早餐店？",
+"pinyin": "Qǐngwèn fùjìn nǎlǐ yǒu zǎocān diàn?",
+"en": "May I ask where there is a breakfast shop nearby?"
+},
+"analysis": {
+"characters": ["请", "问", "附", "近", "哪", "里", "有", "早", "餐", "店"],
+"phrases": ["请问", "附近", "哪里", "有", "早餐店"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["hotel", "meal"]
+},
+"notes": "Useful travel inquiry."
+},
+{
+"id": "travel_transport_094",
+"sequence": 94,
+"category": "taxi",
+"level": "hard",
+"sentence": {
+"zh": "请帮我指一下路。",
+"pinyin": "Qǐng bāng wǒ zhǐ yīxià lù.",
+"en": "Please help me point the way."
+},
+"analysis": {
+"characters": ["请", "帮", "我", "指", "一", "下", "路"],
+"phrases": ["请帮我", "指一下路"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "taxi"]
+},
+"notes": "Visual aid for navigation."
+},
+{
+"id": "travel_metro_095",
+"sequence": 95,
+"category": "metro",
+"level": "hard",
+"sentence": {
+"zh": "这是去台北的方向吗？",
+"pinyin": "Zhè shì qù Táiběi de fāngxiàng ma?",
+"en": "Is this the direction to Taipei?"
+},
+"analysis": {
+"characters": ["这", "是", "去", "台", "北", "的", "方", "向", "吗"],
+"phrases": ["这是", "去", "台北", "的方向"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "metro"]
+},
+"notes": "Checking subway direction."
+},
+{
+"id": "travel_hotel_096",
+"sequence": 96,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "房间太冷了，可以调一下吗？",
+"pinyin": "Fángjiān tài lěng le, kěyǐ tiáo yīxià ma?",
+"en": "The room is too cold, can you adjust it?"
+},
+"analysis": {
+"characters": ["房", "间", "太", "冷", "了", "可", "以", "调", "一", "下", "吗"],
+"phrases": ["房间", "太冷了", "可以", "调一下"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["hotel", "service"]
+},
+"notes": "Adjusting room climate."
+},
+{
+"id": "travel_sight_097",
+"sequence": 97,
+"category": "sightseeing",
+"level": "hard",
+"sentence": {
+"zh": "这个地标很有名。",
+"pinyin": "Zhège dìbiāo hěn yǒumíng.",
+"en": "This landmark is very famous."
+},
+"analysis": {
+"characters": ["这", "个", "地", "标", "很", "有", "名"],
+"phrases": ["这个", "地标", "有名"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["sightseeing"]
+},
+"notes": "Landmark observation."
+},
+{
+"id": "travel_transport_098",
+"sequence": 98,
+"category": "taxi",
+"level": "hard",
+"sentence": {
+"zh": "我可以提前预订出租车吗？",
+"pinyin": "Wǒ kěyǐ tíqián yùdìng chūzūchē ma?",
+"en": "Can I pre-book a taxi?"
+},
+"analysis": {
+"characters": ["我", "可", "以", "提", "前", "预", "订", "出", "租", "车", "吗"],
+"phrases": ["我可以", "提前预订", "出租车"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["transport", "taxi"]
+},
+"notes": "Proactive planning."
+},
+{
+"id": "travel_hotel_099",
+"sequence": 99,
+"category": "hotel",
+"level": "hard",
+"sentence": {
+"zh": "请帮我订一张去上海的票。",
+"pinyin": "Qǐng bāng wǒ dìng yī zhāng qù Shànghǎi de piào.",
+"en": "Please help me book a ticket to Shanghai."
+},
+"analysis": {
+"characters": ["请", "帮", "我", "订", "一", "张", "去", "上", "海", "的", "票"],
+"phrases": ["请帮我", "订", "一张", "票", "去", "上海"]
+},
+"metadata": {
+"difficulty": 4,
+"frequency": 3,
+"tags": ["hotel", "service"]
+},
+"notes": "Help with onward travel."
+},
+{
+"id": "travel_transport_100",
+"sequence": 100,
+"category": "airport",
+"level": "hard",
+"sentence": {
+"zh": "谢谢，你们的服务很周到。",
+"pinyin": "Xièxie, nǐmen de fúwù hěn zhōudào.",
+"en": "Thank you, your service is very thoughtful."
+},
+"analysis": {
+"characters": ["谢", "谢", "你", "们", "的", "服", "务", "很", "周", "到"],
+"phrases": ["谢谢", "你们的服务", "很周到"]
+},
+"metadata": {
+"difficulty": 3,
+"frequency": 2,
+"tags": ["communication"]
+},
+"notes": "Polite, high-level appreciation."
+}
+]
+}

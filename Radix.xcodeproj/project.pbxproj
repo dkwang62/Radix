@@ -114,6 +114,7 @@
 		85EDDE7584102C60FB34196B /* ComponentCharacterTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7F5C8C9FCF78E23E125C52 /* ComponentCharacterTile.swift */; };
 		8660A43D2FF0EFD6006153F6 /* conversation100.json in Resources */ = {isa = PBXBuildFile; fileRef = 8660A43C2FF0EFD6006153F6 /* conversation100.json */; };
 		8660A43F2FF15838006153F6 /* Food Dining.json in Resources */ = {isa = PBXBuildFile; fileRef = 8660A43E2FF15838006153F6 /* Food Dining.json */; };
+		8660A4412FF15EB7006153F6 /* Trip to 4 cities.json in Resources */ = {isa = PBXBuildFile; fileRef = 8660A4402FF15EB7006153F6 /* Trip to 4 cities.json */; };
 		86C0FFEE2000000000000001 /* ConversationPracticeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE2000000000000002 /* ConversationPracticeService.swift */; };
 		86C0FFEE3000000000000001 /* ConversationPracticeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE3000000000000002 /* ConversationPracticeSection.swift */; };
 		86C0FFEE4000000000000001 /* ConversationPracticeReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */; };
@@ -413,6 +414,7 @@
 		82EB7BF38143D488D88E0632 /* AddPhraseInputForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPhraseInputForm.swift; sourceTree = "<group>"; };
 		8660A43C2FF0EFD6006153F6 /* conversation100.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = conversation100.json; sourceTree = "<group>"; };
 		8660A43E2FF15838006153F6 /* Food Dining.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Food Dining.json"; sourceTree = "<group>"; };
+		8660A4402FF15EB7006153F6 /* Trip to 4 cities.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Trip to 4 cities.json"; sourceTree = "<group>"; };
 		86C0FFEE2000000000000002 /* ConversationPracticeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeService.swift; sourceTree = "<group>"; };
 		86C0FFEE3000000000000002 /* ConversationPracticeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeSection.swift; sourceTree = "<group>"; };
 		86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeReviewSheet.swift; sourceTree = "<group>"; };
@@ -801,6 +803,7 @@
 				3A87FC368D89F1E137FE85B5 /* Products */,
 				8660A43C2FF0EFD6006153F6 /* conversation100.json */,
 				8660A43E2FF15838006153F6 /* Food Dining.json */,
+				8660A4402FF15EB7006153F6 /* Trip to 4 cities.json */,
 			);
 			sourceTree = "<group>";
 		};
@@ -992,6 +995,7 @@
 			files = (
 				EFA2F268E55B575F3369A05E /* ARPHICPL.TXT in Resources */,
 				8660A43F2FF15838006153F6 /* Food Dining.json in Resources */,
+				8660A4412FF15EB7006153F6 /* Trip to 4 cities.json in Resources */,
 				C0E52DFB3BB4B3CDE7E768D8 /* Assets.xcassets in Resources */,
 				C6F36D2045FD385F75A10A10 /* CEDICT_LICENSE.txt in Resources */,
 				DA68971EA8A0FD39BBFA4892 /* HANZI_WRITER_LICENSE.txt in Resources */,

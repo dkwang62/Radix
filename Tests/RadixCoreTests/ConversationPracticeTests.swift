@@ -48,7 +48,7 @@ struct ConversationPracticeTests {
     func defaultTopicsIncludeFoodExpansionTopic() {
         let topics = ConversationPracticeTopic.defaults
 
-        #expect(topics.map(\.id).prefix(2) == ["general_greetings", "food_eating"])
+        #expect(topics.map(\.id).prefix(3) == ["general_greetings", "food_eating", "china_taiwan_travel"])
         #expect(topics.first?.bundledResourceName == "conversation100")
         #expect(topics.first?.hasBundledContent == true)
 
@@ -59,6 +59,12 @@ struct ConversationPracticeTests {
         #expect(food.generationBrief.contains("Restaurant"))
         #expect(food.situations.contains("ordering food in a restaurant"))
         #expect(food.situations.contains("offering food and responding politely"))
+
+        let travel = ConversationPracticeTopic.topic(for: "china_taiwan_travel")
+        #expect(travel.hasBundledContent == true)
+        #expect(travel.bundledResourceName == "Trip to 4 cities")
+        #expect(travel.targetSentenceCount == 100)
+        #expect(travel.situations.contains("taking taxis, metro, trains, and airport transport"))
     }
 
     @Test("Food dining conversation pack decodes and validates")
@@ -73,6 +79,21 @@ struct ConversationPracticeTests {
         #expect(pack.practiceItems.first?.id == "food_restaurant_001")
         #expect(pack.practiceItems.first?.phraseKey == "你好，两位")
         #expect(pack.practiceItems.last?.id == "food_restaurant_100")
+        #expect(pack.practiceItems.last?.rank == 100)
+    }
+
+    @Test("Trip to four cities conversation pack decodes and validates")
+    func tripToFourCitiesPackValidates() throws {
+        let pack = try loadConversationPackFixture(named: "Trip to 4 cities")
+        let result = ConversationPracticeRules.validate(pack)
+
+        #expect(result.isValid)
+        #expect(result.errors.isEmpty)
+        #expect(pack.entries.count == 100)
+        #expect(pack.packID == "china_taiwan_travel")
+        #expect(pack.practiceItems.first?.id == "travel_transport_001")
+        #expect(pack.practiceItems.first?.phraseKey == "请带我去这个地址")
+        #expect(pack.practiceItems.last?.id == "travel_transport_100")
         #expect(pack.practiceItems.last?.rank == 100)
     }
 

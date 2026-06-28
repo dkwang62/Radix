@@ -16,6 +16,8 @@ small talk, work, appointments, and increasingly complex sentence patterns.
 The first expansion topic is `Food / Eating Conversation`, covering restaurant
 ordering, hawker centres or casual eateries, dinner-table conversation at home,
 taste, price, portions, preferences, offering food, and polite responses.
+The second expansion topic is `Trip to 4 Cities`, covering practical travel
+Mandarin for Beijing, Shanghai, Guangzhou, and Taipei.
 
 ## Core Principle
 
@@ -218,8 +220,10 @@ Practice feedback:
    - Add more practice modes only after the core card links feel solid.
    - Status: Topic selection is in place as a reusable configuration layer.
      `Food / Eating Conversation` is the first expansion topic, backed by
-     `Food Dining.json`. AI Link still provides a generator prompt that emits
-     the existing JSON pack format for future topics or draft replacement packs.
+     `Food Dining.json`; `Trip to 4 Cities` is the second expansion topic,
+     backed by `Trip to 4 cities.json`. AI Link still provides a generator
+     prompt that emits the existing JSON pack format for future topics or draft
+     replacement packs.
 
 8. AI-generated practice packs
    - Add an AI Link task named `Generate Practice Pack`.

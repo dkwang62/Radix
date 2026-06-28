@@ -156,9 +156,27 @@ public struct ConversationPracticeTopic: Codable, Equatable, Identifiable, Senda
         targetSentenceCount: 100
     )
 
+    public static let tripToFourCities = ConversationPracticeTopic(
+        id: "china_taiwan_travel",
+        title: "Trip to 4 Cities",
+        summary: "Transport, hotels, sightseeing, and polite travel help in Beijing, Shanghai, Guangzhou, and Taipei.",
+        difficultyLabel: "Easy travel set",
+        bundledResourceName: "Trip to 4 cities",
+        generationBrief: "Travel Mandarin for Beijing, Shanghai, Guangzhou, and Taipei, covering taxis, metro, airport, hotels, sightseeing, shopping, directions, prices, help, and polite local interactions.",
+        situations: [
+            "taking taxis, metro, trains, and airport transport",
+            "checking in and asking hotel questions",
+            "asking directions around the city",
+            "buying tickets, shopping, and asking prices",
+            "sightseeing and polite travel help"
+        ],
+        targetSentenceCount: 100
+    )
+
     public static let defaults: [ConversationPracticeTopic] = [
         .generalGreetings,
-        .foodEating
+        .foodEating,
+        .tripToFourCities
     ]
 
     public static func topic(for id: String) -> ConversationPracticeTopic {
