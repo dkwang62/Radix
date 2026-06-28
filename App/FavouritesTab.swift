@@ -27,6 +27,7 @@ struct FavouritesTab: View {
     @State var showConversationPracticeImporter = false
     @State var conversationPracticeImportMessage: String?
     @State var conversationPracticeImportError: String?
+    @State var pendingConversationPracticeDeletion: ConversationPracticeTopic?
     @State var conversationPracticeListPresentation: ConversationPracticeListPresentation?
     @State var conversationPracticeReviewPresentation: ConversationPracticeReviewPresentation?
     @State var conversationPracticeQuizPresentation: ConversationPracticeQuizPresentation?
@@ -124,6 +125,21 @@ struct FavouritesTab: View {
             }
         } message: {
             Text("Current study data on this device will be replaced by the selected checkpoint. Backup files are not affected.")
+        }
+        .alert("Delete Practice?", isPresented: Binding(
+            get: { pendingConversationPracticeDeletion != nil },
+            set: { if !$0 { pendingConversationPracticeDeletion = nil } }
+        )) {
+            Button("Cancel", role: .cancel) {
+                pendingConversationPracticeDeletion = nil
+            }
+            Button("Delete Practice", role: .destructive) {
+                guard let topic = pendingConversationPracticeDeletion else { return }
+                pendingConversationPracticeDeletion = nil
+                deleteConversationPracticeTopic(topic)
+            }
+        } message: {
+            Text("This removes the imported practice set from this device.")
         }
         .onAppear {
             studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
@@ -244,6 +260,28 @@ struct FavouritesTab: View {
             situations: [],
             targetSentenceCount: library.set.itemCount
         )
+    }
+
+    func isImportedConversationPracticeTopic(_ topic: ConversationPracticeTopic) -> Bool {
+        importedConversationPracticeLibraries[topic.id] != nil
+    }
+
+    func deleteConversationPracticeTopic(_ topic: ConversationPracticeTopic) {
+        guard isImportedConversationPracticeTopic(topic) else { return }
+
+        var packs = RadixStudyPreferences.importedConversationPracticePacks
+        packs.removeAll { $0.packID == topic.id }
+        RadixStudyPreferences.importedConversationPracticePacks = packs
+        loadImportedConversationPracticePacks()
+
+        if store.selectedConversationPracticeTopicID == topic.id {
+            selectConversationPracticeTopic(.generalGreetings)
+        } else {
+            loadConversationPracticeLibrary()
+        }
+
+        conversationPracticeImportMessage = "Deleted \(topic.title)"
+        conversationPracticeImportError = nil
     }
 
     func generateConversationPracticeTopic(_ topic: ConversationPracticeTopic) {

@@ -16,6 +16,9 @@ extension FavouritesTab {
                 }
 
                 conversationPracticeTopicPicker(selectedTopic: topic)
+                if isImportedConversationPracticeTopic(topic) {
+                    conversationPracticeDeleteButton(topic)
+                }
                 conversationPracticeImportStatus
 
                 if let library = conversationPracticeLibrary {
@@ -85,6 +88,20 @@ extension FavouritesTab {
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
+    }
+
+    func conversationPracticeDeleteButton(_ topic: ConversationPracticeTopic) -> some View {
+        Button(role: .destructive) {
+            conversationPracticeImportMessage = nil
+            conversationPracticeImportError = nil
+            pendingConversationPracticeDeletion = topic
+        } label: {
+            Label("Delete This Practice", systemImage: "trash")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .frame(maxWidth: .infinity, minHeight: 36)
+        }
+        .buttonStyle(.bordered)
+        .tint(.red)
     }
 
     @ViewBuilder

@@ -254,6 +254,8 @@ Step 3 has a first Study entry point: `Conversation Practice` appears in Study
 when the starter pack loads, showing the `General Greetings` set count and a
 small set of sample sentences. Those samples resolve through the existing Phrase
 card presentation path, preserving the Radix dictionary connection.
+Imported practice topics can be removed from the same Study section with a
+dedicated delete control; bundled starter topics remain fixed.
 Step 4 has the first `Review Cards` flow: the starter set opens a card sheet
 that shows Chinese first, reveals pinyin/English, records local Again/Good/Easy
 responses for the session, and links the full sentence, detected phrase hints,
