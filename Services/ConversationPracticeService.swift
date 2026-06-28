@@ -1,31 +1,47 @@
 import Foundation
 
 enum ConversationPracticeServiceError: LocalizedError {
-    case missingStarterPack
-    case invalidStarterPack([ConversationPracticeValidationIssue])
+    case missingPack(String)
+    case invalidPack(String, [ConversationPracticeValidationIssue])
 
     var errorDescription: String? {
         switch self {
-        case .missingStarterPack:
-            return "Missing conversation100.json in the app bundle."
-        case .invalidStarterPack(let issues):
+        case .missingPack(let resourceName):
+            return "Missing \(resourceName).json in the app bundle."
+        case .invalidPack(let resourceName, let issues):
             let summary = issues.map(\.description).joined(separator: "\n")
-            return "Conversation practice starter pack is invalid.\n\(summary)"
+            return "Conversation practice pack \(resourceName).json is invalid.\n\(summary)"
         }
     }
 }
 
 struct ConversationPracticeService {
     func loadStarterLibrary(bundle: Bundle = .main) throws -> ConversationPracticeLibrary {
-        guard let url = bundle.url(forResource: "conversation100", withExtension: "json") else {
-            throw ConversationPracticeServiceError.missingStarterPack
+        guard let library = try loadLibrary(for: .generalGreetings, bundle: bundle) else {
+            throw ConversationPracticeServiceError.missingPack(ConversationPracticeTopic.generalGreetings.bundledResourceName ?? "conversation100")
+        }
+        return library
+    }
+
+    func loadLibrary(
+        for topic: ConversationPracticeTopic,
+        bundle: Bundle = .main
+    ) throws -> ConversationPracticeLibrary? {
+        guard let resourceName = topic.bundledResourceName?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !resourceName.isEmpty
+        else {
+            return nil
+        }
+
+        guard let url = bundle.url(forResource: resourceName, withExtension: "json") else {
+            throw ConversationPracticeServiceError.missingPack(resourceName)
         }
 
         let data = try Data(contentsOf: url)
         let pack = try JSONDecoder().decode(ConversationPracticePack.self, from: data)
         let validation = ConversationPracticeRules.validate(pack)
         guard validation.isValid else {
-            throw ConversationPracticeServiceError.invalidStarterPack(validation.errors)
+            throw ConversationPracticeServiceError.invalidPack(resourceName, validation.errors)
         }
         return pack.practiceLibrary
     }

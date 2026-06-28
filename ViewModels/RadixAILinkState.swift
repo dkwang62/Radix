@@ -9,4 +9,5 @@ struct RadixAILinkState {
     var autosaveStatus = "Changes save automatically."
     var shouldAutoOpenTask4 = false
     var shouldAutoRunGeminiPhraseAPI = false
+    var selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
 }

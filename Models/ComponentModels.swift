@@ -103,6 +103,7 @@ enum PageCollectionSortOrder: String, CaseIterable, Identifiable {
 enum ActiveSubject: Equatable {
     case character(String)
     case collection(CharacterCollection)
+    case practiceTopic(ConversationPracticeTopic)
 }
 
 struct RawComponentEntry: Codable, Equatable {

@@ -316,6 +316,15 @@ final class RadixStore: ObservableObject {
         set { aiLinkState.selectedTaskIDs = newValue }
     }
 
+    var selectedConversationPracticeTopicID: String {
+        get { aiLinkState.selectedConversationPracticeTopicID }
+        set { aiLinkState.selectedConversationPracticeTopicID = ConversationPracticeTopic.topic(for: newValue).id }
+    }
+
+    var selectedConversationPracticeTopic: ConversationPracticeTopic {
+        ConversationPracticeTopic.topic(for: selectedConversationPracticeTopicID)
+    }
+
     var shouldAutoOpenAILinkTask4: Bool {
         get { aiLinkState.shouldAutoOpenTask4 }
         set { aiLinkState.shouldAutoOpenTask4 = newValue }

@@ -241,6 +241,76 @@ OCR text/context:
 {capture_text}
 
 """
+            ),
+            PromptTask(
+                id: "task9",
+                title: "Generate Practice Pack",
+                template: """
+Generate Conversation Practice Pack
+
+Create structured Mandarin conversation practice content for Radix.
+
+Topic ID: {practice_topic_id}
+Topic: {practice_topic_title}
+Summary: {practice_topic_summary}
+Theme brief: {practice_topic_brief}
+Required situations:
+{practice_topic_situations}
+
+Return JSON only. Do not wrap it in Markdown. Do not include explanations outside the JSON.
+
+The JSON must match this exact top-level shape so Radix can import it directly:
+{
+  "pack_id": "{practice_topic_id}",
+  "version": "1.0",
+  "title": "{practice_topic_title}",
+  "description": "{practice_topic_summary}",
+  "language": "zh-Hans",
+  "source_type": "ai_generated_practice",
+  "created_for": "Radix Conversation Practice",
+  "entries": []
+}
+
+Create exactly {practice_topic_sentence_count} entries in the "entries" array.
+
+Each entry must have exactly these keys:
+{
+  "id": "food_eating_001",
+  "sequence": 1,
+  "category": "restaurant_ordering",
+  "level": "easy",
+  "sentence": {
+    "zh": "Simplified Chinese sentence.",
+    "pinyin": "Tone-mark pinyin.",
+    "en": "Natural English translation."
+  },
+  "analysis": {
+    "characters": ["每", "个", "single", "Chinese", "character"],
+    "phrases": ["valid phrase", "valid phrase"]
+  },
+  "metadata": {
+    "difficulty": 1,
+    "frequency": 1,
+    "tags": ["food", "restaurant"]
+  },
+  "notes": "Short learner note in English."
+}
+
+Rules:
+1. Use Simplified Chinese in sentence.zh.
+2. Use tone marks in sentence.pinyin.
+3. Keep English translations natural, short, and learner-friendly.
+4. Difficulty must be 1 to 5, with the pack starting easy and gradually becoming slightly more complex.
+5. Frequency must be 1 to 5, where 1 means very common.
+6. The analysis.characters array must include the Chinese characters from the sentence, in reading order, without punctuation.
+7. The analysis.phrases array must include only real dictionary phrases that appear exactly in sentence.zh. Do not invent phrase groupings.
+8. IDs must be stable and lowercase, using the topic ID plus a zero-padded sequence number, for example "{practice_topic_id}_001".
+9. Categories should group the required situations clearly.
+10. Include practical beginner conversation patterns: questions, answers, polite requests, offers, preferences, prices, portions, and short responses when relevant to the theme.
+
+Before returning, silently validate that the JSON is valid and every entry contains all required keys.
+
+"""
             )
         ],
         epilogue: """
@@ -257,10 +327,11 @@ OCR text/context:
     )
 
     static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7", "task8"]
+    static let practiceTopicTaskIDs: Set<String> = ["task9"]
 
     static var defaultSelectedTaskIDs: [String] {
         streamlitDefault.tasks
-            .filter { !collectionTaskIDs.contains($0.id) }
+            .filter { !collectionTaskIDs.contains($0.id) && !practiceTopicTaskIDs.contains($0.id) }
             .map(\.id)
     }
 
@@ -316,6 +387,12 @@ struct PromptRenderContext {
     let recognizedOCRCharacters: String
     let unrecognizedOCRCharacters: String
     let nearbyOCRPhrases: String
+    let practiceTopicID: String
+    let practiceTopicTitle: String
+    let practiceTopicSummary: String
+    let practiceTopicBrief: String
+    let practiceTopicSituations: String
+    let practiceTopicSentenceCount: String
 }
 
 extension PromptConfig {
@@ -327,7 +404,7 @@ extension PromptConfig {
             seen.insert($0.id)
             return true
         }.map { task in
-            guard PromptConfig.collectionTaskIDs.contains(task.id),
+            guard (PromptConfig.collectionTaskIDs.contains(task.id) || PromptConfig.practiceTopicTaskIDs.contains(task.id)),
                   let defaultTask = PromptConfig.streamlitDefault.tasks.first(where: { $0.id == task.id }) else {
                 return task
             }
@@ -356,7 +433,8 @@ extension PromptConfig {
                     task.template.contains("ORIGINAL OCR:") ||
                     task.template.contains("attached source image and dictionary evidence") ||
                     !task.template.contains("SAVED PAGE CHARACTERS:")
-                )) {
+                )) ||
+                (task.id == "task9" && !task.template.contains("{practice_topic_title}")) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {
                 normalizedTemplate = task.template.replacingOccurrences(
@@ -375,7 +453,7 @@ extension PromptConfig {
         let defaultsByID = Dictionary(uniqueKeysWithValues: PromptConfig.streamlitDefault.tasks.map { ($0.id, $0) })
         let missingDefaults = PromptConfig.streamlitDefault.tasks.filter { defaultTask in
             !seen.contains(defaultTask.id) &&
-                PromptConfig.collectionTaskIDs.contains(defaultTask.id) &&
+                (PromptConfig.collectionTaskIDs.contains(defaultTask.id) || PromptConfig.practiceTopicTaskIDs.contains(defaultTask.id)) &&
                 defaultsByID[defaultTask.id] != nil
         }
         return PromptConfig(
@@ -413,6 +491,8 @@ extension PromptConfig {
             } else {
                 full = cfg.collectionPreamble + body + cfg.collectionEpilogue
             }
+        case .practiceTopic:
+            full = body
         }
         return full
             .replacingOccurrences(of: "{char}", with: context.char)
@@ -431,5 +511,11 @@ extension PromptConfig {
             .replacingOccurrences(of: "{ocr_recognized}", with: context.recognizedOCRCharacters)
             .replacingOccurrences(of: "{ocr_unrecognized}", with: context.unrecognizedOCRCharacters)
             .replacingOccurrences(of: "{ocr_nearby_phrases}", with: context.nearbyOCRPhrases)
+            .replacingOccurrences(of: "{practice_topic_id}", with: context.practiceTopicID)
+            .replacingOccurrences(of: "{practice_topic_title}", with: context.practiceTopicTitle)
+            .replacingOccurrences(of: "{practice_topic_summary}", with: context.practiceTopicSummary)
+            .replacingOccurrences(of: "{practice_topic_brief}", with: context.practiceTopicBrief)
+            .replacingOccurrences(of: "{practice_topic_situations}", with: context.practiceTopicSituations)
+            .replacingOccurrences(of: "{practice_topic_sentence_count}", with: context.practiceTopicSentenceCount)
     }
 }

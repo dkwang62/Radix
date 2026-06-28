@@ -183,6 +183,12 @@ phrasebook app inside Radix. Present curated sets such as `General Greetings`,
 DB-backed sentences with Simplified Chinese, pinyin, English, order, difficulty,
 scenario grouping, and progress. The first starter set is `General Greetings`,
 an easy-ranked collection of roughly 100 common conversational sentences.
+Study should expose Conversation Practice topics through a compact dropdown so
+the section can grow beyond the starter set. `General Greetings` stays first and
+default. `Food / Eating Conversation` is the second topic and may start as an AI
+generation topic before a bundled pack exists. For generation-only topics, show
+the topic purpose and a clear action into AI Link rather than empty practice
+controls.
 
 Lesson screens should make the sentence card the main object. A user should be
 able to review or quiz the sentence, then tap the full sentence into its normal
@@ -204,6 +210,10 @@ first, such as Review Cards and Quick Quiz, with AI remaining optional future
 enhancement rather than a requirement. Use `CONVERSATION_PRACTICE_PLAN.md` as
 the project plan for content intake, validation, Phrase DB integration, and
 build phases.
+
+AI-generated Conversation Practice content must use the same structured JSON
+contract as imported practice packs. Do not ask AI for loose prose, markdown
+tables, or unvalidated phrase lists when the app needs reusable lesson content.
 
 ## AI intent
 

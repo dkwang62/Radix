@@ -13,6 +13,9 @@ natural English.
 
 Later sets may include restaurants, airports, shopping, hotels, transport,
 small talk, work, appointments, and increasingly complex sentence patterns.
+The first expansion topic is `Food / Eating Conversation`, covering restaurant
+ordering, hawker centres or casual eateries, dinner-table conversation at home,
+taste, price, portions, preferences, offering food, and polite responses.
 
 ## Core Principle
 
@@ -35,6 +38,11 @@ cards, it is not integrated enough.
 
 Content may come from Codex, the user, or other AI tools. Treat all submitted
 content as draft material until normalized and reviewed.
+
+Radix also has an AI Link task for generating new Conversation Practice packs
+from a selected topic. That task must output JSON using the same reusable pack
+shape as `conversation100.json` so the result can be validated and imported
+without hand conversion.
 
 Accepted incoming JSON format, used by `conversation100.json`:
 
@@ -125,8 +133,12 @@ Set list:
 
 - shows curated sets such as `General Greetings`, `Restaurants`, `Airport`,
   and `Shopping Mall`
+- provides a topic dropdown, with `General Greetings` as the first/default
+  topic and `Food / Eating Conversation` as the second configured topic
 - shows difficulty, sentence count, progress, and last practiced state
 - keeps upcoming sets visibly distinct from available sets
+- lets a topic without bundled content open the AI generation task for that
+  topic instead of pretending there are practice sentences ready
 
 Set detail:
 
@@ -204,6 +216,16 @@ Practice feedback:
 7. Expansion
    - Add more situational sets.
    - Add more practice modes only after the core card links feel solid.
+   - Status: Topic selection is being introduced as a reusable configuration
+     layer. The first non-bundled topic is `Food / Eating Conversation`, wired
+     to an AI Link generator prompt that emits the existing JSON pack format.
+
+8. AI-generated practice packs
+   - Add an AI Link task named `Generate Practice Pack`.
+   - Render it from the selected Conversation Practice topic.
+   - Require exact JSON matching the accepted conversation-pack schema.
+   - Keep generated packs draft-only until validated by the existing
+     `ConversationPracticeRules`.
 
 ## Non-Goals For First Version
 

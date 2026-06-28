@@ -108,6 +108,64 @@ public struct ConversationPracticeSet: Equatable, Identifiable {
     public let itemCount: Int
 }
 
+public struct ConversationPracticeTopic: Codable, Equatable, Identifiable, Sendable {
+    public let id: String
+    public let title: String
+    public let summary: String
+    public let difficultyLabel: String
+    public let bundledResourceName: String?
+    public let generationBrief: String
+    public let situations: [String]
+    public let targetSentenceCount: Int
+
+    public var hasBundledContent: Bool {
+        bundledResourceName?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+    }
+
+    public static let generalGreetings = ConversationPracticeTopic(
+        id: "general_greetings",
+        title: "General Greetings",
+        summary: "Common beginner greetings and social basics.",
+        difficultyLabel: "Easy starter set",
+        bundledResourceName: "conversation100",
+        generationBrief: "General greetings and everyday social openings for beginner Mandarin learners.",
+        situations: [
+            "saying hello and goodbye",
+            "morning and evening greetings",
+            "asking how someone is",
+            "polite thanks and apologies",
+            "simple social responses"
+        ],
+        targetSentenceCount: 100
+    )
+
+    public static let foodEating = ConversationPracticeTopic(
+        id: "food_eating",
+        title: "Food / Eating Conversation",
+        summary: "Ordering, sharing dishes, taste, price, portions, and polite mealtime talk.",
+        difficultyLabel: "Easy situational set",
+        bundledResourceName: nil,
+        generationBrief: "Restaurant, hawker centre or casual eatery, and home dinner-table Mandarin conversation about eating, ordering food, sharing dishes, preferences, prices, portions, taste, and polite offers or responses.",
+        situations: [
+            "ordering food in a restaurant",
+            "eating at a hawker centre or casual eatery",
+            "dinner table conversation at home",
+            "asking about taste, price, portions, and preferences",
+            "offering food and responding politely"
+        ],
+        targetSentenceCount: 100
+    )
+
+    public static let defaults: [ConversationPracticeTopic] = [
+        .generalGreetings,
+        .foodEating
+    ]
+
+    public static func topic(for id: String) -> ConversationPracticeTopic {
+        defaults.first { $0.id == id } ?? .generalGreetings
+    }
+}
+
 public struct ConversationPracticeItem: Equatable, Identifiable {
     public let id: String
     public let setID: String

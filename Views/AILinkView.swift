@@ -75,18 +75,27 @@ struct AILinkView: View {
         return PromptConfig.collectionTaskIDs.contains(task.id)
     }
 
+    var isSelectedTaskPracticeTopicTask: Bool {
+        guard let task = selectedPromptTask else { return false }
+        return PromptConfig.practiceTopicTaskIDs.contains(task.id)
+    }
+
     var hasCharacterTasks: Bool {
-        selectedPromptTask != nil && !isSelectedTaskPageTask
+        selectedPromptTask != nil && !isSelectedTaskPageTask && !isSelectedTaskPracticeTopicTask
     }
 
     var hasCollectionTasks: Bool {
         selectedPromptTask != nil && isSelectedTaskPageTask
     }
 
+    var hasPracticeTopicTasks: Bool {
+        selectedPromptTask != nil && isSelectedTaskPracticeTopicTask
+    }
+
     var canGeneratePrompt: Bool {
         (!hasCharacterTasks || activeCharacter != nil) &&
         (!hasCollectionTasks || selectedCollection != nil) &&
-        (hasCharacterTasks || hasCollectionTasks)
+        (hasCharacterTasks || hasCollectionTasks || hasPracticeTopicTasks)
     }
 
     var canRunGeminiPhraseAPI: Bool {

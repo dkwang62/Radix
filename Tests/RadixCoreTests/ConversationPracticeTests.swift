@@ -44,6 +44,27 @@ struct ConversationPracticeTests {
         #expect(library.phraseKeys.last == "祝你一切顺利")
     }
 
+    @Test("Conversation practice topics keep starter ordering and food generation brief")
+    func defaultTopicsIncludeFoodExpansionTopic() {
+        let topics = ConversationPracticeTopic.defaults
+
+        #expect(topics.map(\.id).prefix(2) == ["general_greetings", "food_eating"])
+        #expect(topics.first?.bundledResourceName == "conversation100")
+        #expect(topics.first?.hasBundledContent == true)
+
+        let food = ConversationPracticeTopic.topic(for: "food_eating")
+        #expect(food.hasBundledContent == false)
+        #expect(food.targetSentenceCount == 100)
+        #expect(food.generationBrief.contains("Restaurant"))
+        #expect(food.situations.contains("ordering food in a restaurant"))
+        #expect(food.situations.contains("offering food and responding politely"))
+    }
+
+    @Test("Unknown conversation practice topic falls back to default starter topic")
+    func unknownTopicFallsBackToGeneralGreetings() {
+        #expect(ConversationPracticeTopic.topic(for: "missing").id == "general_greetings")
+    }
+
     @Test("Conversation practice quiz choices are stable and include the answer")
     func quizChoicesAreStableAndIncludeAnswer() throws {
         let pack = try loadConversationPackFixture()

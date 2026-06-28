@@ -166,7 +166,9 @@ extension AILinkView {
             return "Choose a character or phrase first."
         }
         let text: String
-        if PromptConfig.collectionTaskIDs.contains(task.id), let selectedCollection {
+        if PromptConfig.practiceTopicTaskIDs.contains(task.id) {
+            text = store.promptForTask(task, subject: .practiceTopic(store.selectedConversationPracticeTopic))
+        } else if PromptConfig.collectionTaskIDs.contains(task.id), let selectedCollection {
             text = store.promptForTask(task, subject: .collection(selectedCollection))
         } else if let activeCharacter {
             text = store.promptForTask(task, subject: .character(activeCharacter))
@@ -207,6 +209,10 @@ extension AILinkView {
             } else {
                 parts.append("Choose page")
             }
+        }
+
+        if hasPracticeTopicTasks {
+            parts.append("Topic: \(store.selectedConversationPracticeTopic.title)")
         }
 
         return parts.isEmpty ? nil : parts.joined(separator: " • ")

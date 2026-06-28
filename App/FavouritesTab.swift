@@ -21,7 +21,8 @@ struct FavouritesTab: View {
     @State var hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
     @State var addedPhraseReviewPresentation: AddedPhraseReviewPresentation?
     @State var pendingCheckpointReturn: LocalDataSnapshot?
-    @State var conversationPracticeLibrary: ConversationPracticeLibrary? = try? ConversationPracticeService().loadStarterLibrary()
+    @State var conversationPracticeTopics = ConversationPracticeTopic.defaults
+    @State var conversationPracticeLibrary: ConversationPracticeLibrary? = try? ConversationPracticeService().loadLibrary(for: .generalGreetings)
     @State var conversationPracticeListPresentation: ConversationPracticeListPresentation?
     @State var conversationPracticeReviewPresentation: ConversationPracticeReviewPresentation?
     @State var conversationPracticeQuizPresentation: ConversationPracticeQuizPresentation?
@@ -41,7 +42,7 @@ struct FavouritesTab: View {
             || !store.favoritePhrasesItems.isEmpty
             || !store.allCollections.isEmpty
             || !addedStudyPhraseEntries.isEmpty
-            || conversationPracticeLibrary != nil
+            || !conversationPracticeTopics.isEmpty
     }
 
     var body: some View {
@@ -138,6 +139,9 @@ struct FavouritesTab: View {
             guard newValue else { return }
             openAddedPhraseReviewIfRequested()
         }
+        .onChange(of: store.selectedConversationPracticeTopicID) { _, _ in
+            loadConversationPracticeLibrary()
+        }
     }
 
     func openAddedPhraseReviewIfRequested() {
@@ -148,10 +152,21 @@ struct FavouritesTab: View {
     }
 
     func loadConversationPracticeLibrary() {
-        conversationPracticeLibrary = try? ConversationPracticeService().loadStarterLibrary()
+        let topic = store.selectedConversationPracticeTopic
+        conversationPracticeLibrary = try? ConversationPracticeService().loadLibrary(for: topic)
         if let conversationPracticeLibrary {
             store.registerConversationPracticeLibrary(conversationPracticeLibrary)
         }
+    }
+
+    func selectConversationPracticeTopic(_ topic: ConversationPracticeTopic) {
+        store.selectedConversationPracticeTopicID = topic.id
+        store.persistPromptSettings()
+        loadConversationPracticeLibrary()
+    }
+
+    func generateConversationPracticeTopic(_ topic: ConversationPracticeTopic) {
+        store.goToAILinkPracticeGenerator(topic: topic)
     }
 
     func presentConversationPracticeReview(_ library: ConversationPracticeLibrary) {

@@ -161,6 +161,8 @@ extension AILinkView {
         VStack(alignment: .leading, spacing: 10) {
             if isSelectedTaskPageTask {
                 aiSelectedPageRow
+            } else if isSelectedTaskPracticeTopicTask {
+                aiSelectedPracticeTopicRow
             } else {
                 aiSelectedSubjectRow
             }
@@ -243,6 +245,31 @@ extension AILinkView {
         .accessibilityLabel("Choose Saved Page")
     }
 
+    var aiSelectedPracticeTopicRow: some View {
+        Menu {
+            ForEach(ConversationPracticeTopic.defaults) { topic in
+                Button {
+                    store.selectedConversationPracticeTopicID = topic.id
+                    store.persistPromptSettings()
+                } label: {
+                    Label(
+                        topic.title,
+                        systemImage: topic.id == store.selectedConversationPracticeTopic.id ? "checkmark" : "bubble.left.and.bubble.right"
+                    )
+                }
+            }
+        } label: {
+            sourceSelectorLabel(
+                icon: "bubble.left.and.bubble.right",
+                title: store.selectedConversationPracticeTopic.title,
+                subtitle: store.selectedConversationPracticeTopic.summary,
+                isMissing: false
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Choose Conversation Practice Topic")
+    }
+
     @ViewBuilder
     func taskToggleRow(_ task: PromptTask) -> some View {
         let isEnabled = store.promptSelectedTaskIDs.contains(task.id)
@@ -305,6 +332,8 @@ extension AILinkView {
             return "Compare page OCR with its source image and Radix evidence, then propose clearly marked corrections for review."
         case "task8":
             return "Create a practice quiz from a saved page, with difficulty guidance and answers hidden until the learner responds."
+        case "task9":
+            return "Generate a structured Conversation Practice JSON pack for the selected topic."
         default:
             return "Use this reusable AI prompt to investigate the selected material with AI."
         }
@@ -387,6 +416,9 @@ extension AILinkView {
     }
 
     func taskSubjectInfo(task: PromptTask, isCollectionTask: Bool) -> (label: String, icon: String, isMissing: Bool) {
+        if PromptConfig.practiceTopicTaskIDs.contains(task.id) {
+            return (store.selectedConversationPracticeTopic.title, "bubble.left.and.bubble.right", false)
+        }
         if isCollectionTask {
             if let collection = selectedCollection {
                 let name = collection.name.trimmingCharacters(in: .whitespacesAndNewlines)

@@ -3,23 +3,85 @@ import SwiftUI
 extension FavouritesTab {
     @ViewBuilder
     var conversationPracticeSection: some View {
-        if let library = conversationPracticeLibrary {
+        if !conversationPracticeTopics.isEmpty {
+            let topic = store.selectedConversationPracticeTopic
             VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Label("Conversation Practice", systemImage: "bubble.left.and.bubble.right")
                         .font(ResponsiveFont.headline)
                     Spacer(minLength: 8)
-                    Text("\(library.set.itemCount) sentences")
+                    Text(topic.hasBundledContent ? "\(conversationPracticeLibrary?.set.itemCount ?? topic.targetSentenceCount) sentences" : "Generate")
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
 
-                conversationPracticeSetCard(library)
+                conversationPracticeTopicPicker(selectedTopic: topic)
+
+                if let library = conversationPracticeLibrary {
+                    conversationPracticeSetCard(library, topic: topic)
+                } else {
+                    conversationPracticeGenerateCard(topic)
+                }
             }
         }
     }
 
-    func conversationPracticeSetCard(_ library: ConversationPracticeLibrary) -> some View {
+    func conversationPracticeTopicPicker(selectedTopic: ConversationPracticeTopic) -> some View {
+        Menu {
+            ForEach(conversationPracticeTopics) { topic in
+                Button {
+                    selectConversationPracticeTopic(topic)
+                } label: {
+                    if topic.id == selectedTopic.id {
+                        Label(topic.title, systemImage: "checkmark")
+                    } else {
+                        Text(topic.title)
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "list.bullet.rectangle.portrait")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 30, height: 30)
+                    .background(Color.accentColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(selectedTopic.title)
+                        .font(ResponsiveFont.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Text(selectedTopic.summary)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                .layoutPriority(1)
+
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RadixTheme.background)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+        .buttonStyle(.plain)
+    }
+
+    func conversationPracticeSetCard(
+        _ library: ConversationPracticeLibrary,
+        topic: ConversationPracticeTopic
+    ) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .top, spacing: 10) {
                 Image(systemName: "text.bubble")
@@ -34,7 +96,7 @@ extension FavouritesTab {
                         .font(ResponsiveFont.body.weight(.semibold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
-                    Text("Easy starter set")
+                    Text(topic.difficultyLabel)
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
@@ -88,6 +150,72 @@ extension FavouritesTab {
                     .frame(maxWidth: .infinity, minHeight: 38)
             }
             .buttonStyle(.bordered)
+        }
+        .padding(10)
+        .background(RadixTheme.secondaryBackground.opacity(0.52))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    func conversationPracticeGenerateCard(_ topic: ConversationPracticeTopic) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 32, height: 32)
+                    .background(Color.accentColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(topic.title)
+                        .font(ResponsiveFont.body.weight(.semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Text(topic.difficultyLabel)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                .layoutPriority(1)
+
+                Spacer(minLength: 8)
+
+                Label("\(topic.targetSentenceCount)", systemImage: "list.number")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .labelStyle(.titleAndIcon)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(Color.accentColor.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            Text(topic.summary)
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+
+            RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
+                ForEach(topic.situations.prefix(5), id: \.self) { situation in
+                    Text(situation)
+                        .font(ResponsiveFont.caption2.weight(.semibold))
+                        .foregroundStyle(Color.accentColor)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .background(Color.accentColor.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+            }
+
+            Button {
+                generateConversationPracticeTopic(topic)
+            } label: {
+                Label("Generate Practice Pack", systemImage: "sparkles")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 38)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color.accentColor)
         }
         .padding(10)
         .background(RadixTheme.secondaryBackground.opacity(0.52))

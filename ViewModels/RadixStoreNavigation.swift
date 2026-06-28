@@ -467,6 +467,19 @@ extension RadixStore {
         persistPromptSettings()
     }
 
+    func goToAILinkPracticeGenerator(topic: ConversationPracticeTopic) {
+        if route != .aiLink {
+            rememberCrossTabOrigin()
+        }
+        selectedConversationPracticeTopicID = topic.id
+        promptSelectedTaskIDs = ["task9"]
+        shouldAutoOpenAILinkTask4 = false
+        shouldAutoRunGeminiPhraseAPI = false
+        route = .aiLink
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
+        persistPromptSettings()
+    }
+
     // MARK: - Phrase sidebar/preview
 
     var activeSidebarPhrasePreview: PhraseItem? { sidebarPhrasePreview ?? imageBrowsePhrasePreview }

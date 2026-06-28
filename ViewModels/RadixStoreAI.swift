@@ -25,13 +25,15 @@ extension RadixStore {
     func selectedPromptTaskIDsForCharacterLaunch() -> [String] {
         let availableTaskIDs = Set(promptConfig.normalized().tasks.map(\.id))
         let characterTaskIDs = promptSelectedTaskIDs.filter {
-            !PromptConfig.collectionTaskIDs.contains($0) && availableTaskIDs.contains($0)
+            !PromptConfig.collectionTaskIDs.contains($0) &&
+                !PromptConfig.practiceTopicTaskIDs.contains($0) &&
+                availableTaskIDs.contains($0)
         }
         if !characterTaskIDs.isEmpty { return characterTaskIDs }
         if availableTaskIDs.contains("task1") { return ["task1"] }
         return promptConfig.normalized().tasks
             .map(\.id)
-            .filter { !PromptConfig.collectionTaskIDs.contains($0) }
+            .filter { !PromptConfig.collectionTaskIDs.contains($0) && !PromptConfig.practiceTopicTaskIDs.contains($0) }
             .prefix(1)
             .map { $0 }
     }
