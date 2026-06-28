@@ -82,18 +82,21 @@ struct FavouritesTab: View {
         }) { presentation in
             ConversationPracticeReviewSheet(library: presentation.library)
             .environmentObject(store)
+            .environmentObject(entitlement)
         }
         .sheet(item: $conversationPracticeListPresentation, onDismiss: {
             conversationPracticeListPresentation = nil
         }) { presentation in
             ConversationPracticeListSheet(library: presentation.library)
             .environmentObject(store)
+            .environmentObject(entitlement)
         }
         .sheet(item: $conversationPracticeQuizPresentation, onDismiss: {
             conversationPracticeQuizPresentation = nil
         }) { presentation in
             ConversationPracticeQuizSheet(library: presentation.library)
             .environmentObject(store)
+            .environmentObject(entitlement)
         }
         .alert("Return to Checkpoint?", isPresented: Binding(
             get: { pendingCheckpointReturn != nil },

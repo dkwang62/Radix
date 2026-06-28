@@ -37,9 +37,8 @@ struct ConversationPracticeInspectionDestination: View {
             case let .character(character):
                 ScrollView {
                     if let item = store.item(for: character) {
-                        LightweightCharacterPreviewCard(item: item)
-                            .frame(maxWidth: .infinity)
-                            .padding()
+                        CharacterDetailView(item: item)
+                            .environmentObject(store)
                     } else {
                         ContentUnavailableView(
                             character,
@@ -51,6 +50,10 @@ struct ConversationPracticeInspectionDestination: View {
                 }
                 .background(RadixTheme.background)
                 .navigationTitle(character)
+                .onAppear {
+                    store.previewCharacter = character
+                    store.refreshPhrases()
+                }
             }
         }
         .navigationBarTitleDisplayMode(.inline)
