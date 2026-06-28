@@ -185,8 +185,8 @@ The corrected source remains Chinese, while change reasons, confidence, and
 uncertainty explanations are explicitly requested in English.
 Study uses its four summary tiles as the section selectors. Recent and Favorites
 must not be repeated as a segmented picker above the review grid.
-On iPad those four tiles use an explicit two-column layout so all labels remain
-readable; phone and Mac retain their adaptive layouts.
+On iPad and Mac Catalyst those four tiles use an explicit two-column layout so
+all labels remain readable; phone keeps its adaptive layout.
 Added Phrases review is phrase-first: no search field, no persistent help text,
 and no visible AI shortcut above the grid. The top row shows the status filter,
 an `Actions` menu, and `Done`; `Actions` includes `Create AI Review Page` for

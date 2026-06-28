@@ -284,10 +284,10 @@ extension FavouritesTab {
     }
 
     var studySummaryColumns: [GridItem] {
-        if RadixPlatform.interfaceIdiom == .tablet {
+        if RadixPlatform.interfaceIdiom == .tablet || RadixPlatform.isDesktop {
             return Array(repeating: GridItem(.flexible(minimum: 0), spacing: 6), count: 2)
         }
-        let minimum: CGFloat = RadixPlatform.isDesktop ? 136 : (isNarrowStudyLayout ? 132 : 136)
+        let minimum: CGFloat = isNarrowStudyLayout ? 132 : 136
         return [GridItem(.adaptive(minimum: minimum), spacing: 6)]
     }
 
