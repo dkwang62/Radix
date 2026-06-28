@@ -95,7 +95,7 @@ compatibility contracts. Current portable contracts include:
 - navigation, tab, script-filter, and restore-mode identifiers
 - preference keys and the preference-storage interface
 
-The portable test suite currently contains 19 tests across seven suites.
+The portable test suite currently contains 21 tests across eight suites.
 
 ## Active Workstream
 
@@ -208,6 +208,10 @@ Cards and Quick Quiz, with answer feedback linking back into Phrase and
 Character cards rather than dead-ending in a quiz-only screen. The detailed
 implementation plan is `CONVERSATION_PRACTICE_PLAN.md`; use it before building
 content import, data models, or Study UI for this feature.
+Step 1 of that plan is now in place: `conversation100.json` is the starter
+content, and `ConversationPracticePack` plus `ConversationPracticeRules` define
+the portable JSON contract, mapping, ordering, duplicate checks, and validation
+gate for uploaded or AI-generated lesson packs.
 Added Phrases review is phrase-first: no search field, no persistent help text,
 and no visible AI shortcut above the grid. The top row shows the status filter,
 an `Actions` menu, and `Done`; `Actions` includes `Create AI Review Page` for

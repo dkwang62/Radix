@@ -1,0 +1,3520 @@
+{
+  "pack_id": "radix_conversation_pack_100_common_sentences_zh_hans",
+  "version": "1.0",
+  "title": "100 Common Conversational Sentences",
+  "description": "A beginner-friendly Simplified Chinese conversation pack with pinyin and English translations, designed for Radix study, character discovery, phrase extraction, and lesson grouping.",
+  "language": "zh-Hans",
+  "source_type": "conversation_pack",
+  "created_for": "Radix Chinese",
+  "entries": [
+    {
+      "id": "conv-001",
+      "sequence": 1,
+      "category": "Greetings",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "你好。",
+        "pinyin": "Nǐ hǎo.",
+        "en": "Hello."
+      },
+      "analysis": {
+        "characters": [
+          "你",
+          "好"
+        ],
+        "phrases": [
+          "你好"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "greetings"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-002",
+      "sequence": 2,
+      "category": "Greetings",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "早上好。",
+        "pinyin": "Zǎoshang hǎo.",
+        "en": "Good morning."
+      },
+      "analysis": {
+        "characters": [
+          "早",
+          "上",
+          "好"
+        ],
+        "phrases": [
+          "早上",
+          "上好",
+          "早上好"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "greetings"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-003",
+      "sequence": 3,
+      "category": "Greetings",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "下午好。",
+        "pinyin": "Xiàwǔ hǎo.",
+        "en": "Good afternoon."
+      },
+      "analysis": {
+        "characters": [
+          "下",
+          "午",
+          "好"
+        ],
+        "phrases": [
+          "下午",
+          "午好",
+          "下午好"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "greetings"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-004",
+      "sequence": 4,
+      "category": "Greetings",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "晚上好。",
+        "pinyin": "Wǎnshang hǎo.",
+        "en": "Good evening."
+      },
+      "analysis": {
+        "characters": [
+          "晚",
+          "上",
+          "好"
+        ],
+        "phrases": [
+          "晚上",
+          "上好",
+          "晚上好"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "greetings"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-005",
+      "sequence": 5,
+      "category": "Farewells",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "再见。",
+        "pinyin": "Zàijiàn.",
+        "en": "Goodbye."
+      },
+      "analysis": {
+        "characters": [
+          "再",
+          "见"
+        ],
+        "phrases": [
+          "再见"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "farewells"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-006",
+      "sequence": 6,
+      "category": "Farewells",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "明天见。",
+        "pinyin": "Míngtiān jiàn.",
+        "en": "See you tomorrow."
+      },
+      "analysis": {
+        "characters": [
+          "明",
+          "天",
+          "见"
+        ],
+        "phrases": [
+          "明天",
+          "天见",
+          "明天见"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "farewells"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-007",
+      "sequence": 7,
+      "category": "Politeness",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "谢谢。",
+        "pinyin": "Xièxie.",
+        "en": "Thank you."
+      },
+      "analysis": {
+        "characters": [
+          "谢"
+        ],
+        "phrases": [
+          "谢谢"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "politeness"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-008",
+      "sequence": 8,
+      "category": "Politeness",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "不用谢。",
+        "pinyin": "Bú yòng xiè.",
+        "en": "You're welcome."
+      },
+      "analysis": {
+        "characters": [
+          "不",
+          "用",
+          "谢"
+        ],
+        "phrases": [
+          "不用",
+          "用谢",
+          "不用谢"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "politeness"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-009",
+      "sequence": 9,
+      "category": "Politeness",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "对不起。",
+        "pinyin": "Duìbuqǐ.",
+        "en": "Sorry."
+      },
+      "analysis": {
+        "characters": [
+          "对",
+          "不",
+          "起"
+        ],
+        "phrases": [
+          "对不",
+          "不起",
+          "对不起"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "politeness"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-010",
+      "sequence": 10,
+      "category": "Politeness",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "没关系。",
+        "pinyin": "Méi guānxi.",
+        "en": "No problem."
+      },
+      "analysis": {
+        "characters": [
+          "没",
+          "关",
+          "系"
+        ],
+        "phrases": [
+          "没关",
+          "关系",
+          "没关系"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "politeness"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-011",
+      "sequence": 11,
+      "category": "Politeness",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "请问……",
+        "pinyin": "Qǐngwèn...",
+        "en": "Excuse me..."
+      },
+      "analysis": {
+        "characters": [
+          "请",
+          "问"
+        ],
+        "phrases": [
+          "请问"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "politeness"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-012",
+      "sequence": 12,
+      "category": "Politeness",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "没问题。",
+        "pinyin": "Méi wèntí.",
+        "en": "No problem."
+      },
+      "analysis": {
+        "characters": [
+          "没",
+          "问",
+          "题"
+        ],
+        "phrases": [
+          "没问",
+          "问题",
+          "没问题"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "politeness"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-013",
+      "sequence": 13,
+      "category": "Responses",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "好的。",
+        "pinyin": "Hǎo de.",
+        "en": "OK."
+      },
+      "analysis": {
+        "characters": [
+          "好",
+          "的"
+        ],
+        "phrases": [
+          "好的"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "responses"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-014",
+      "sequence": 14,
+      "category": "Responses",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "当然可以。",
+        "pinyin": "Dāngrán kěyǐ.",
+        "en": "Of course."
+      },
+      "analysis": {
+        "characters": [
+          "当",
+          "然",
+          "可",
+          "以"
+        ],
+        "phrases": [
+          "当然",
+          "然可",
+          "可以",
+          "当然可",
+          "然可以",
+          "当然可以"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "responses"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-015",
+      "sequence": 15,
+      "category": "Understanding",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我知道。",
+        "pinyin": "Wǒ zhīdào.",
+        "en": "I know."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "知",
+          "道"
+        ],
+        "phrases": [
+          "我知",
+          "知道",
+          "我知道"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "understanding"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-016",
+      "sequence": 16,
+      "category": "Understanding",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我不知道。",
+        "pinyin": "Wǒ bù zhīdào.",
+        "en": "I don't know."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "不",
+          "知",
+          "道"
+        ],
+        "phrases": [
+          "我不",
+          "不知",
+          "知道",
+          "我不知",
+          "不知道",
+          "我不知道"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "understanding"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-017",
+      "sequence": 17,
+      "category": "Understanding",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我明白了。",
+        "pinyin": "Wǒ míngbái le.",
+        "en": "I understand."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "明",
+          "白",
+          "了"
+        ],
+        "phrases": [
+          "我明",
+          "明白",
+          "白了",
+          "我明白",
+          "明白了",
+          "我明白了"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "understanding"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-018",
+      "sequence": 18,
+      "category": "Understanding",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我不明白。",
+        "pinyin": "Wǒ bù míngbái.",
+        "en": "I don't understand."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "不",
+          "明",
+          "白"
+        ],
+        "phrases": [
+          "我不",
+          "不明",
+          "明白",
+          "我不明",
+          "不明白",
+          "我不明白"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "understanding"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-019",
+      "sequence": 19,
+      "category": "Understanding",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "请再说一遍。",
+        "pinyin": "Qǐng zài shuō yí biàn.",
+        "en": "Please say that again."
+      },
+      "analysis": {
+        "characters": [
+          "请",
+          "再",
+          "说",
+          "一",
+          "遍"
+        ],
+        "phrases": [
+          "请再",
+          "再说",
+          "说一",
+          "一遍",
+          "请再说",
+          "再说一",
+          "说一遍",
+          "请再说一",
+          "再说一遍"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "understanding"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-020",
+      "sequence": 20,
+      "category": "Understanding",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "请说慢一点。",
+        "pinyin": "Qǐng shuō màn yìdiǎn.",
+        "en": "Please speak more slowly."
+      },
+      "analysis": {
+        "characters": [
+          "请",
+          "说",
+          "慢",
+          "一",
+          "点"
+        ],
+        "phrases": [
+          "请说",
+          "说慢",
+          "慢一",
+          "一点",
+          "请说慢",
+          "说慢一",
+          "慢一点",
+          "请说慢一",
+          "说慢一点"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "understanding"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-021",
+      "sequence": 21,
+      "category": "Language",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "你会说英语吗？",
+        "pinyin": "Nǐ huì shuō Yīngyǔ ma?",
+        "en": "Do you speak English?"
+      },
+      "analysis": {
+        "characters": [
+          "你",
+          "会",
+          "说",
+          "英",
+          "语",
+          "吗"
+        ],
+        "phrases": [
+          "你会",
+          "会说",
+          "说英",
+          "英语",
+          "语吗",
+          "你会说",
+          "会说英",
+          "说英语",
+          "英语吗",
+          "你会说英",
+          "会说英语",
+          "说英语吗"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "language"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-022",
+      "sequence": 22,
+      "category": "Language",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我会一点中文。",
+        "pinyin": "Wǒ huì yìdiǎn Zhōngwén.",
+        "en": "I speak a little Chinese."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "会",
+          "一",
+          "点",
+          "中",
+          "文"
+        ],
+        "phrases": [
+          "我会",
+          "会一",
+          "一点",
+          "点中",
+          "中文",
+          "我会一",
+          "会一点",
+          "一点中",
+          "点中文",
+          "我会一点",
+          "会一点中",
+          "一点中文"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "language"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-023",
+      "sequence": 23,
+      "category": "Introductions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "你叫什么名字？",
+        "pinyin": "Nǐ jiào shénme míngzi?",
+        "en": "What's your name?"
+      },
+      "analysis": {
+        "characters": [
+          "你",
+          "叫",
+          "什",
+          "么",
+          "名",
+          "字"
+        ],
+        "phrases": [
+          "你叫",
+          "叫什",
+          "什么",
+          "么名",
+          "名字",
+          "你叫什",
+          "叫什么",
+          "什么名",
+          "么名字",
+          "你叫什么",
+          "叫什么名",
+          "什么名字"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "introductions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-024",
+      "sequence": 24,
+      "category": "Introductions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我叫……",
+        "pinyin": "Wǒ jiào...",
+        "en": "My name is..."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "叫"
+        ],
+        "phrases": [
+          "我叫"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "introductions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-025",
+      "sequence": 25,
+      "category": "Introductions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "很高兴认识你。",
+        "pinyin": "Hěn gāoxìng rènshi nǐ.",
+        "en": "Nice to meet you."
+      },
+      "analysis": {
+        "characters": [
+          "很",
+          "高",
+          "兴",
+          "认",
+          "识",
+          "你"
+        ],
+        "phrases": [
+          "很高",
+          "高兴",
+          "兴认",
+          "认识",
+          "识你",
+          "很高兴",
+          "高兴认",
+          "兴认识",
+          "认识你",
+          "很高兴认",
+          "高兴认识",
+          "兴认识你"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "introductions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-026",
+      "sequence": 26,
+      "category": "Small Talk",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "你好吗？",
+        "pinyin": "Nǐ hǎo ma?",
+        "en": "How are you?"
+      },
+      "analysis": {
+        "characters": [
+          "你",
+          "好",
+          "吗"
+        ],
+        "phrases": [
+          "你好",
+          "好吗",
+          "你好吗"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "small-talk"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-027",
+      "sequence": 27,
+      "category": "Small Talk",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我很好。",
+        "pinyin": "Wǒ hěn hǎo.",
+        "en": "I'm fine."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "很",
+          "好"
+        ],
+        "phrases": [
+          "我很",
+          "很好",
+          "我很好"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "small-talk"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-028",
+      "sequence": 28,
+      "category": "Small Talk",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "还不错。",
+        "pinyin": "Hái búcuò.",
+        "en": "Not bad."
+      },
+      "analysis": {
+        "characters": [
+          "还",
+          "不",
+          "错"
+        ],
+        "phrases": [
+          "还不",
+          "不错",
+          "还不错"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "small-talk"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-029",
+      "sequence": 29,
+      "category": "Small Talk",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "最近怎么样？",
+        "pinyin": "Zuìjìn zěnmeyàng?",
+        "en": "How have you been?"
+      },
+      "analysis": {
+        "characters": [
+          "最",
+          "近",
+          "怎",
+          "么",
+          "样"
+        ],
+        "phrases": [
+          "最近",
+          "近怎",
+          "怎么",
+          "么样",
+          "最近怎",
+          "近怎么",
+          "怎么样",
+          "最近怎么",
+          "近怎么样"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "small-talk"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-030",
+      "sequence": 30,
+      "category": "Small Talk",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "挺好的。",
+        "pinyin": "Tǐng hǎo de.",
+        "en": "Pretty good."
+      },
+      "analysis": {
+        "characters": [
+          "挺",
+          "好",
+          "的"
+        ],
+        "phrases": [
+          "挺好",
+          "好的",
+          "挺好的"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "small-talk"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-031",
+      "sequence": 31,
+      "category": "Daily Life",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "你在做什么？",
+        "pinyin": "Nǐ zài zuò shénme?",
+        "en": "What are you doing?"
+      },
+      "analysis": {
+        "characters": [
+          "你",
+          "在",
+          "做",
+          "什",
+          "么"
+        ],
+        "phrases": [
+          "你在",
+          "在做",
+          "做什",
+          "什么",
+          "你在做",
+          "在做什",
+          "做什么",
+          "你在做什",
+          "在做什么"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "daily-life"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-032",
+      "sequence": 32,
+      "category": "Work & Study",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我在工作。",
+        "pinyin": "Wǒ zài gōngzuò.",
+        "en": "I'm working."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "在",
+          "工",
+          "作"
+        ],
+        "phrases": [
+          "我在",
+          "在工",
+          "工作",
+          "我在工",
+          "在工作",
+          "我在工作"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "work-study"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-033",
+      "sequence": 33,
+      "category": "Work & Study",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我在学习。",
+        "pinyin": "Wǒ zài xuéxí.",
+        "en": "I'm studying."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "在",
+          "学",
+          "习"
+        ],
+        "phrases": [
+          "我在",
+          "在学",
+          "学习",
+          "我在学",
+          "在学习",
+          "我在学习"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "work-study"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-034",
+      "sequence": 34,
+      "category": "Daily Life",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "你忙吗？",
+        "pinyin": "Nǐ máng ma?",
+        "en": "Are you busy?"
+      },
+      "analysis": {
+        "characters": [
+          "你",
+          "忙",
+          "吗"
+        ],
+        "phrases": [
+          "你忙",
+          "忙吗",
+          "你忙吗"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "daily-life"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-035",
+      "sequence": 35,
+      "category": "Responses",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "有一点。",
+        "pinyin": "Yǒu yìdiǎn.",
+        "en": "A little."
+      },
+      "analysis": {
+        "characters": [
+          "有",
+          "一",
+          "点"
+        ],
+        "phrases": [
+          "有一",
+          "一点",
+          "有一点"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "responses"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-036",
+      "sequence": 36,
+      "category": "Responses",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "不忙。",
+        "pinyin": "Bù máng.",
+        "en": "Not busy."
+      },
+      "analysis": {
+        "characters": [
+          "不",
+          "忙"
+        ],
+        "phrases": [
+          "不忙"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "responses"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-037",
+      "sequence": 37,
+      "category": "Food",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "你吃了吗？",
+        "pinyin": "Nǐ chī le ma?",
+        "en": "Have you eaten?"
+      },
+      "analysis": {
+        "characters": [
+          "你",
+          "吃",
+          "了",
+          "吗"
+        ],
+        "phrases": [
+          "你吃",
+          "吃了",
+          "了吗",
+          "你吃了",
+          "吃了吗",
+          "你吃了吗"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "food"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-038",
+      "sequence": 38,
+      "category": "Food",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我吃过了。",
+        "pinyin": "Wǒ chī guò le.",
+        "en": "I've eaten."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "吃",
+          "过",
+          "了"
+        ],
+        "phrases": [
+          "我吃",
+          "吃过",
+          "过了",
+          "我吃过",
+          "吃过了",
+          "我吃过了"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "food"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-039",
+      "sequence": 39,
+      "category": "Responses",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "还没有。",
+        "pinyin": "Hái méiyǒu.",
+        "en": "Not yet."
+      },
+      "analysis": {
+        "characters": [
+          "还",
+          "没",
+          "有"
+        ],
+        "phrases": [
+          "还没",
+          "没有",
+          "还没有"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "responses"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-040",
+      "sequence": 40,
+      "category": "Food",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我们去吃饭吧。",
+        "pinyin": "Wǒmen qù chīfàn ba.",
+        "en": "Let's go eat."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "们",
+          "去",
+          "吃",
+          "饭",
+          "吧"
+        ],
+        "phrases": [
+          "我们",
+          "们去",
+          "去吃",
+          "吃饭",
+          "饭吧",
+          "我们去",
+          "们去吃",
+          "去吃饭",
+          "吃饭吧",
+          "我们去吃",
+          "们去吃饭",
+          "去吃饭吧"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "food"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-041",
+      "sequence": 41,
+      "category": "Food",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "你想吃什么？",
+        "pinyin": "Nǐ xiǎng chī shénme?",
+        "en": "What do you want to eat?"
+      },
+      "analysis": {
+        "characters": [
+          "你",
+          "想",
+          "吃",
+          "什",
+          "么"
+        ],
+        "phrases": [
+          "你想",
+          "想吃",
+          "吃什",
+          "什么",
+          "你想吃",
+          "想吃什",
+          "吃什么",
+          "你想吃什",
+          "想吃什么"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "food"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-042",
+      "sequence": 42,
+      "category": "Responses",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我都可以。",
+        "pinyin": "Wǒ dōu kěyǐ.",
+        "en": "Anything is fine."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "都",
+          "可",
+          "以"
+        ],
+        "phrases": [
+          "我都",
+          "都可",
+          "可以",
+          "我都可",
+          "都可以",
+          "我都可以"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "responses"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-043",
+      "sequence": 43,
+      "category": "Food",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "很好吃。",
+        "pinyin": "Hěn hǎo chī.",
+        "en": "It's delicious."
+      },
+      "analysis": {
+        "characters": [
+          "很",
+          "好",
+          "吃"
+        ],
+        "phrases": [
+          "很好",
+          "好吃",
+          "很好吃"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "food"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-044",
+      "sequence": 44,
+      "category": "Food",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "太好吃了！",
+        "pinyin": "Tài hǎochī le!",
+        "en": "So delicious!"
+      },
+      "analysis": {
+        "characters": [
+          "太",
+          "好",
+          "吃",
+          "了"
+        ],
+        "phrases": [
+          "太好",
+          "好吃",
+          "吃了",
+          "太好吃",
+          "好吃了",
+          "太好吃了"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "food"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-045",
+      "sequence": 45,
+      "category": "Food",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我饿了。",
+        "pinyin": "Wǒ è le.",
+        "en": "I'm hungry."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "饿",
+          "了"
+        ],
+        "phrases": [
+          "我饿",
+          "饿了",
+          "我饿了"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "food"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-046",
+      "sequence": 46,
+      "category": "Food",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我渴了。",
+        "pinyin": "Wǒ kě le.",
+        "en": "I'm thirsty."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "渴",
+          "了"
+        ],
+        "phrases": [
+          "我渴",
+          "渴了",
+          "我渴了"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "food"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-047",
+      "sequence": 47,
+      "category": "Restaurant",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我要一杯水。",
+        "pinyin": "Wǒ yào yì bēi shuǐ.",
+        "en": "I'd like a glass of water."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "要",
+          "一",
+          "杯",
+          "水"
+        ],
+        "phrases": [
+          "我要",
+          "要一",
+          "一杯",
+          "杯水",
+          "我要一",
+          "要一杯",
+          "一杯水",
+          "我要一杯",
+          "要一杯水"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "restaurant"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-048",
+      "sequence": 48,
+      "category": "Shopping",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "多少钱？",
+        "pinyin": "Duōshǎo qián?",
+        "en": "How much is it?"
+      },
+      "analysis": {
+        "characters": [
+          "多",
+          "少",
+          "钱"
+        ],
+        "phrases": [
+          "多少",
+          "少钱",
+          "多少钱"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "shopping"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-049",
+      "sequence": 49,
+      "category": "Shopping",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "太贵了。",
+        "pinyin": "Tài guì le.",
+        "en": "It's too expensive."
+      },
+      "analysis": {
+        "characters": [
+          "太",
+          "贵",
+          "了"
+        ],
+        "phrases": [
+          "太贵",
+          "贵了",
+          "太贵了"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "shopping"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-050",
+      "sequence": 50,
+      "category": "Shopping",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "便宜一点吧。",
+        "pinyin": "Piányi yìdiǎn ba.",
+        "en": "Can you make it cheaper?"
+      },
+      "analysis": {
+        "characters": [
+          "便",
+          "宜",
+          "一",
+          "点",
+          "吧"
+        ],
+        "phrases": [
+          "便宜",
+          "宜一",
+          "一点",
+          "点吧",
+          "便宜一",
+          "宜一点",
+          "一点吧",
+          "便宜一点",
+          "宜一点吧"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "shopping"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-051",
+      "sequence": 51,
+      "category": "Shopping",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我要这个。",
+        "pinyin": "Wǒ yào zhège.",
+        "en": "I'll take this."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "要",
+          "这",
+          "个"
+        ],
+        "phrases": [
+          "我要",
+          "要这",
+          "这个",
+          "我要这",
+          "要这个",
+          "我要这个"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "shopping"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-052",
+      "sequence": 52,
+      "category": "Responses",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "不用了。",
+        "pinyin": "Bú yòng le.",
+        "en": "No thanks."
+      },
+      "analysis": {
+        "characters": [
+          "不",
+          "用",
+          "了"
+        ],
+        "phrases": [
+          "不用",
+          "用了",
+          "不用了"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "responses"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-053",
+      "sequence": 53,
+      "category": "Directions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "在哪里？",
+        "pinyin": "Zài nǎlǐ?",
+        "en": "Where is it?"
+      },
+      "analysis": {
+        "characters": [
+          "在",
+          "哪",
+          "里"
+        ],
+        "phrases": [
+          "在哪",
+          "哪里",
+          "在哪里"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "directions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-054",
+      "sequence": 54,
+      "category": "Directions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "洗手间在哪里？",
+        "pinyin": "Xǐshǒujiān zài nǎlǐ?",
+        "en": "Where is the restroom?"
+      },
+      "analysis": {
+        "characters": [
+          "洗",
+          "手",
+          "间",
+          "在",
+          "哪",
+          "里"
+        ],
+        "phrases": [
+          "洗手",
+          "手间",
+          "间在",
+          "在哪",
+          "哪里",
+          "洗手间",
+          "手间在",
+          "间在哪",
+          "在哪里",
+          "洗手间在",
+          "手间在哪",
+          "间在哪里"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "directions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-055",
+      "sequence": 55,
+      "category": "Directions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "离这里远吗？",
+        "pinyin": "Lí zhèlǐ yuǎn ma?",
+        "en": "Is it far from here?"
+      },
+      "analysis": {
+        "characters": [
+          "离",
+          "这",
+          "里",
+          "远",
+          "吗"
+        ],
+        "phrases": [
+          "离这",
+          "这里",
+          "里远",
+          "远吗",
+          "离这里",
+          "这里远",
+          "里远吗",
+          "离这里远",
+          "这里远吗"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "directions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-056",
+      "sequence": 56,
+      "category": "Directions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "很近。",
+        "pinyin": "Hěn jìn.",
+        "en": "It's very close."
+      },
+      "analysis": {
+        "characters": [
+          "很",
+          "近"
+        ],
+        "phrases": [
+          "很近"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "directions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-057",
+      "sequence": 57,
+      "category": "Directions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "很远。",
+        "pinyin": "Hěn yuǎn.",
+        "en": "It's far away."
+      },
+      "analysis": {
+        "characters": [
+          "很",
+          "远"
+        ],
+        "phrases": [
+          "很远"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "directions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-058",
+      "sequence": 58,
+      "category": "Directions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "往左走。",
+        "pinyin": "Wǎng zuǒ zǒu.",
+        "en": "Go left."
+      },
+      "analysis": {
+        "characters": [
+          "往",
+          "左",
+          "走"
+        ],
+        "phrases": [
+          "往左",
+          "左走",
+          "往左走"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "directions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-059",
+      "sequence": 59,
+      "category": "Directions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "往右走。",
+        "pinyin": "Wǎng yòu zǒu.",
+        "en": "Go right."
+      },
+      "analysis": {
+        "characters": [
+          "往",
+          "右",
+          "走"
+        ],
+        "phrases": [
+          "往右",
+          "右走",
+          "往右走"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "directions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-060",
+      "sequence": 60,
+      "category": "Directions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "一直走。",
+        "pinyin": "Yìzhí zǒu.",
+        "en": "Go straight."
+      },
+      "analysis": {
+        "characters": [
+          "一",
+          "直",
+          "走"
+        ],
+        "phrases": [
+          "一直",
+          "直走",
+          "一直走"
+        ]
+      },
+      "metadata": {
+        "difficulty": 1,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "directions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-061",
+      "sequence": 61,
+      "category": "Travel",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我迷路了。",
+        "pinyin": "Wǒ mílù le.",
+        "en": "I'm lost."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "迷",
+          "路",
+          "了"
+        ],
+        "phrases": [
+          "我迷",
+          "迷路",
+          "路了",
+          "我迷路",
+          "迷路了",
+          "我迷路了"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "travel"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-062",
+      "sequence": 62,
+      "category": "Help",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "可以帮我吗？",
+        "pinyin": "Kěyǐ bāng wǒ ma?",
+        "en": "Can you help me?"
+      },
+      "analysis": {
+        "characters": [
+          "可",
+          "以",
+          "帮",
+          "我",
+          "吗"
+        ],
+        "phrases": [
+          "可以",
+          "以帮",
+          "帮我",
+          "我吗",
+          "可以帮",
+          "以帮我",
+          "帮我吗",
+          "可以帮我",
+          "以帮我吗"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "help"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-063",
+      "sequence": 63,
+      "category": "Responses",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "当然。",
+        "pinyin": "Dāngrán.",
+        "en": "Of course."
+      },
+      "analysis": {
+        "characters": [
+          "当",
+          "然"
+        ],
+        "phrases": [
+          "当然"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "responses"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-064",
+      "sequence": 64,
+      "category": "Responses",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "没事。",
+        "pinyin": "Méi shì.",
+        "en": "It's okay."
+      },
+      "analysis": {
+        "characters": [
+          "没",
+          "事"
+        ],
+        "phrases": [
+          "没事"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "responses"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-065",
+      "sequence": 65,
+      "category": "Safety",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "小心！",
+        "pinyin": "Xiǎoxīn!",
+        "en": "Be careful!"
+      },
+      "analysis": {
+        "characters": [
+          "小",
+          "心"
+        ],
+        "phrases": [
+          "小心"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "safety"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-066",
+      "sequence": 66,
+      "category": "Requests",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "等等。",
+        "pinyin": "Děngděng.",
+        "en": "Wait a moment."
+      },
+      "analysis": {
+        "characters": [
+          "等"
+        ],
+        "phrases": [
+          "等等"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "requests"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-067",
+      "sequence": 67,
+      "category": "Requests",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "等一下。",
+        "pinyin": "Děng yíxià.",
+        "en": "Wait a second."
+      },
+      "analysis": {
+        "characters": [
+          "等",
+          "一",
+          "下"
+        ],
+        "phrases": [
+          "等一",
+          "一下",
+          "等一下"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "requests"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-068",
+      "sequence": 68,
+      "category": "Requests",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "快一点。",
+        "pinyin": "Kuài yìdiǎn.",
+        "en": "Hurry up."
+      },
+      "analysis": {
+        "characters": [
+          "快",
+          "一",
+          "点"
+        ],
+        "phrases": [
+          "快一",
+          "一点",
+          "快一点"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "requests"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-069",
+      "sequence": 69,
+      "category": "Requests",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "慢一点。",
+        "pinyin": "Màn yìdiǎn.",
+        "en": "Slow down."
+      },
+      "analysis": {
+        "characters": [
+          "慢",
+          "一",
+          "点"
+        ],
+        "phrases": [
+          "慢一",
+          "一点",
+          "慢一点"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "requests"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-070",
+      "sequence": 70,
+      "category": "Weather",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "今天很热。",
+        "pinyin": "Jīntiān hěn rè.",
+        "en": "It's hot today."
+      },
+      "analysis": {
+        "characters": [
+          "今",
+          "天",
+          "很",
+          "热"
+        ],
+        "phrases": [
+          "今天",
+          "天很",
+          "很热",
+          "今天很",
+          "天很热",
+          "今天很热"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "weather"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-071",
+      "sequence": 71,
+      "category": "Weather",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "今天很冷。",
+        "pinyin": "Jīntiān hěn lěng.",
+        "en": "It's cold today."
+      },
+      "analysis": {
+        "characters": [
+          "今",
+          "天",
+          "很",
+          "冷"
+        ],
+        "phrases": [
+          "今天",
+          "天很",
+          "很冷",
+          "今天很",
+          "天很冷",
+          "今天很冷"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "weather"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-072",
+      "sequence": 72,
+      "category": "Weather",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "天气很好。",
+        "pinyin": "Tiānqì hěn hǎo.",
+        "en": "The weather is nice."
+      },
+      "analysis": {
+        "characters": [
+          "天",
+          "气",
+          "很",
+          "好"
+        ],
+        "phrases": [
+          "天气",
+          "气很",
+          "很好",
+          "天气很",
+          "气很好",
+          "天气很好"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "weather"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-073",
+      "sequence": 73,
+      "category": "Weather",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "下雨了。",
+        "pinyin": "Xiàyǔ le.",
+        "en": "It's raining."
+      },
+      "analysis": {
+        "characters": [
+          "下",
+          "雨",
+          "了"
+        ],
+        "phrases": [
+          "下雨",
+          "雨了",
+          "下雨了"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "weather"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-074",
+      "sequence": 74,
+      "category": "Daily Life",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我要回家。",
+        "pinyin": "Wǒ yào huí jiā.",
+        "en": "I'm going home."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "要",
+          "回",
+          "家"
+        ],
+        "phrases": [
+          "我要",
+          "要回",
+          "回家",
+          "我要回",
+          "要回家",
+          "我要回家"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "daily-life"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-075",
+      "sequence": 75,
+      "category": "Personal Info",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "你住在哪里？",
+        "pinyin": "Nǐ zhù zài nǎlǐ?",
+        "en": "Where do you live?"
+      },
+      "analysis": {
+        "characters": [
+          "你",
+          "住",
+          "在",
+          "哪",
+          "里"
+        ],
+        "phrases": [
+          "你住",
+          "住在",
+          "在哪",
+          "哪里",
+          "你住在",
+          "住在哪",
+          "在哪里",
+          "你住在哪",
+          "住在哪里"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "personal-info"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-076",
+      "sequence": 76,
+      "category": "Personal Info",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我住在新加坡。",
+        "pinyin": "Wǒ zhù zài Xīnjiāpō.",
+        "en": "I live in Singapore."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "住",
+          "在",
+          "新",
+          "加",
+          "坡"
+        ],
+        "phrases": [
+          "我住",
+          "住在",
+          "在新",
+          "新加",
+          "加坡",
+          "我住在",
+          "住在新",
+          "在新加",
+          "新加坡",
+          "我住在新",
+          "住在新加",
+          "在新加坡"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "personal-info"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-077",
+      "sequence": 77,
+      "category": "Personal Info",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我是新加坡人。",
+        "pinyin": "Wǒ shì Xīnjiāpō rén.",
+        "en": "I'm Singaporean."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "是",
+          "新",
+          "加",
+          "坡",
+          "人"
+        ],
+        "phrases": [
+          "我是",
+          "是新",
+          "新加",
+          "加坡",
+          "坡人",
+          "我是新",
+          "是新加",
+          "新加坡",
+          "加坡人",
+          "我是新加",
+          "是新加坡",
+          "新加坡人"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "personal-info"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-078",
+      "sequence": 78,
+      "category": "Personal Info",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我来自马来西亚。",
+        "pinyin": "Wǒ láizì Mǎláixīyà.",
+        "en": "I'm from Malaysia."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "来",
+          "自",
+          "马",
+          "西",
+          "亚"
+        ],
+        "phrases": [
+          "我来",
+          "来自",
+          "自马",
+          "马来",
+          "来西",
+          "西亚",
+          "我来自",
+          "来自马",
+          "自马来",
+          "马来西",
+          "来西亚",
+          "我来自马",
+          "来自马来",
+          "自马来西",
+          "马来西亚"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "personal-info"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-079",
+      "sequence": 79,
+      "category": "Personal Info",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "你多大？",
+        "pinyin": "Nǐ duō dà?",
+        "en": "How old are you?"
+      },
+      "analysis": {
+        "characters": [
+          "你",
+          "多",
+          "大"
+        ],
+        "phrases": [
+          "你多",
+          "多大",
+          "你多大"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "personal-info"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-080",
+      "sequence": 80,
+      "category": "Personal Info",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我六十岁。",
+        "pinyin": "Wǒ liùshí suì.",
+        "en": "I'm sixty years old."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "六",
+          "十",
+          "岁"
+        ],
+        "phrases": [
+          "我六",
+          "六十",
+          "十岁",
+          "我六十",
+          "六十岁",
+          "我六十岁"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "personal-info"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-081",
+      "sequence": 81,
+      "category": "Wishes",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "祝你生日快乐！",
+        "pinyin": "Zhù nǐ shēngrì kuàilè!",
+        "en": "Happy birthday!"
+      },
+      "analysis": {
+        "characters": [
+          "祝",
+          "你",
+          "生",
+          "日",
+          "快",
+          "乐"
+        ],
+        "phrases": [
+          "祝你",
+          "你生",
+          "生日",
+          "日快",
+          "快乐",
+          "祝你生",
+          "你生日",
+          "生日快",
+          "日快乐",
+          "祝你生日",
+          "你生日快",
+          "生日快乐"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "wishes"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-082",
+      "sequence": 82,
+      "category": "Wishes",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "恭喜！",
+        "pinyin": "Gōngxǐ!",
+        "en": "Congratulations!"
+      },
+      "analysis": {
+        "characters": [
+          "恭",
+          "喜"
+        ],
+        "phrases": [
+          "恭喜"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "wishes"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-083",
+      "sequence": 83,
+      "category": "Wishes",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "祝你好运！",
+        "pinyin": "Zhù nǐ hǎo yùn!",
+        "en": "Good luck!"
+      },
+      "analysis": {
+        "characters": [
+          "祝",
+          "你",
+          "好",
+          "运"
+        ],
+        "phrases": [
+          "祝你",
+          "你好",
+          "好运",
+          "祝你好",
+          "你好运",
+          "祝你好运"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "wishes"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-084",
+      "sequence": 84,
+      "category": "Reactions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "太棒了！",
+        "pinyin": "Tài bàng le!",
+        "en": "That's great!"
+      },
+      "analysis": {
+        "characters": [
+          "太",
+          "棒",
+          "了"
+        ],
+        "phrases": [
+          "太棒",
+          "棒了",
+          "太棒了"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "reactions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-085",
+      "sequence": 85,
+      "category": "Reactions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "真的吗？",
+        "pinyin": "Zhēn de ma?",
+        "en": "Really?"
+      },
+      "analysis": {
+        "characters": [
+          "真",
+          "的",
+          "吗"
+        ],
+        "phrases": [
+          "真的",
+          "的吗",
+          "真的吗"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "reactions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-086",
+      "sequence": 86,
+      "category": "Responses",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "当然是真的。",
+        "pinyin": "Dāngrán shì zhēn de.",
+        "en": "Of course it is true."
+      },
+      "analysis": {
+        "characters": [
+          "当",
+          "然",
+          "是",
+          "真",
+          "的"
+        ],
+        "phrases": [
+          "当然",
+          "然是",
+          "是真",
+          "真的",
+          "当然是",
+          "然是真",
+          "是真的",
+          "当然是真",
+          "然是真的"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "responses"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-087",
+      "sequence": 87,
+      "category": "Opinions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我觉得……",
+        "pinyin": "Wǒ juéde...",
+        "en": "I think..."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "觉",
+          "得"
+        ],
+        "phrases": [
+          "我觉",
+          "觉得",
+          "我觉得"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "opinions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-088",
+      "sequence": 88,
+      "category": "Opinions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我同意。",
+        "pinyin": "Wǒ tóngyì.",
+        "en": "I agree."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "同",
+          "意"
+        ],
+        "phrases": [
+          "我同",
+          "同意",
+          "我同意"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "opinions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-089",
+      "sequence": 89,
+      "category": "Opinions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "我不同意。",
+        "pinyin": "Wǒ bù tóngyì.",
+        "en": "I disagree."
+      },
+      "analysis": {
+        "characters": [
+          "我",
+          "不",
+          "同",
+          "意"
+        ],
+        "phrases": [
+          "我不",
+          "不同",
+          "同意",
+          "我不同",
+          "不同意",
+          "我不同意"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "opinions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-090",
+      "sequence": 90,
+      "category": "Questions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "为什么？",
+        "pinyin": "Wèishénme?",
+        "en": "Why?"
+      },
+      "analysis": {
+        "characters": [
+          "为",
+          "什",
+          "么"
+        ],
+        "phrases": [
+          "为什",
+          "什么",
+          "为什么"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "questions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-091",
+      "sequence": 91,
+      "category": "Questions",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "因为……",
+        "pinyin": "Yīnwèi...",
+        "en": "Because..."
+      },
+      "analysis": {
+        "characters": [
+          "因",
+          "为"
+        ],
+        "phrases": [
+          "因为"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "questions"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-092",
+      "sequence": 92,
+      "category": "Responses",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "没办法。",
+        "pinyin": "Méi bànfǎ.",
+        "en": "There's no way / It can't be helped."
+      },
+      "analysis": {
+        "characters": [
+          "没",
+          "办",
+          "法"
+        ],
+        "phrases": [
+          "没办",
+          "办法",
+          "没办法"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "responses"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-093",
+      "sequence": 93,
+      "category": "Reassurance",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "别担心。",
+        "pinyin": "Bié dānxīn.",
+        "en": "Don't worry."
+      },
+      "analysis": {
+        "characters": [
+          "别",
+          "担",
+          "心"
+        ],
+        "phrases": [
+          "别担",
+          "担心",
+          "别担心"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "reassurance"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-094",
+      "sequence": 94,
+      "category": "Travel",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "祝你一路平安。",
+        "pinyin": "Zhù nǐ yílù píng’ān.",
+        "en": "Have a safe trip."
+      },
+      "analysis": {
+        "characters": [
+          "祝",
+          "你",
+          "一",
+          "路",
+          "平",
+          "安"
+        ],
+        "phrases": [
+          "祝你",
+          "你一",
+          "一路",
+          "路平",
+          "平安",
+          "祝你一",
+          "你一路",
+          "一路平",
+          "路平安",
+          "祝你一路",
+          "你一路平",
+          "一路平安"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "travel"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-095",
+      "sequence": 95,
+      "category": "Farewells",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "以后见。",
+        "pinyin": "Yǐhòu jiàn.",
+        "en": "See you later."
+      },
+      "analysis": {
+        "characters": [
+          "以",
+          "后",
+          "见"
+        ],
+        "phrases": [
+          "以后",
+          "后见",
+          "以后见"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "farewells"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-096",
+      "sequence": 96,
+      "category": "Farewells",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "保重。",
+        "pinyin": "Bǎozhòng.",
+        "en": "Take care."
+      },
+      "analysis": {
+        "characters": [
+          "保",
+          "重"
+        ],
+        "phrases": [
+          "保重"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "farewells"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-097",
+      "sequence": 97,
+      "category": "Wishes",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "祝你今天愉快。",
+        "pinyin": "Zhù nǐ jīntiān yúkuài.",
+        "en": "Have a nice day."
+      },
+      "analysis": {
+        "characters": [
+          "祝",
+          "你",
+          "今",
+          "天",
+          "愉",
+          "快"
+        ],
+        "phrases": [
+          "祝你",
+          "你今",
+          "今天",
+          "天愉",
+          "愉快",
+          "祝你今",
+          "你今天",
+          "今天愉",
+          "天愉快",
+          "祝你今天",
+          "你今天愉",
+          "今天愉快"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "wishes"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-098",
+      "sequence": 98,
+      "category": "Greetings",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "欢迎回来。",
+        "pinyin": "Huānyíng huílái.",
+        "en": "Welcome back."
+      },
+      "analysis": {
+        "characters": [
+          "欢",
+          "迎",
+          "回",
+          "来"
+        ],
+        "phrases": [
+          "欢迎",
+          "迎回",
+          "回来",
+          "欢迎回",
+          "迎回来",
+          "欢迎回来"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "greetings"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-099",
+      "sequence": 99,
+      "category": "Travel",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "一路顺风。",
+        "pinyin": "Yílù shùnfēng.",
+        "en": "Have a good trip."
+      },
+      "analysis": {
+        "characters": [
+          "一",
+          "路",
+          "顺",
+          "风"
+        ],
+        "phrases": [
+          "一路",
+          "路顺",
+          "顺风",
+          "一路顺",
+          "路顺风",
+          "一路顺风"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "travel"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "conv-100",
+      "sequence": 100,
+      "category": "Wishes",
+      "level": "Beginner",
+      "sentence": {
+        "zh": "祝你一切顺利。",
+        "pinyin": "Zhù nǐ yíqiè shùnlì.",
+        "en": "Wish you all the best."
+      },
+      "analysis": {
+        "characters": [
+          "祝",
+          "你",
+          "一",
+          "切",
+          "顺",
+          "利"
+        ],
+        "phrases": [
+          "祝你",
+          "你一",
+          "一切",
+          "切顺",
+          "顺利",
+          "祝你一",
+          "你一切",
+          "一切顺",
+          "切顺利",
+          "祝你一切",
+          "你一切顺",
+          "一切顺利"
+        ]
+      },
+      "metadata": {
+        "difficulty": 2,
+        "frequency": 10,
+        "tags": [
+          "conversation",
+          "wishes"
+        ]
+      },
+      "notes": ""
+    }
+  ],
+  "entry_count": 100,
+  "categories": [
+    "Greetings",
+    "Farewells",
+    "Politeness",
+    "Responses",
+    "Understanding",
+    "Language",
+    "Introductions",
+    "Small Talk",
+    "Daily Life",
+    "Work & Study",
+    "Food",
+    "Restaurant",
+    "Shopping",
+    "Directions",
+    "Travel",
+    "Help",
+    "Safety",
+    "Requests",
+    "Weather",
+    "Personal Info",
+    "Wishes",
+    "Reactions",
+    "Opinions",
+    "Questions",
+    "Reassurance"
+  ]
+}

@@ -21,6 +21,7 @@ let package = Package(
             ],
             sources: [
                 "ComponentModels.swift",
+                "ConversationPracticeModels.swift",
                 "PhraseModels.swift",
                 "PinyinSearchNormalizer.swift",
                 "PromptModels.swift",

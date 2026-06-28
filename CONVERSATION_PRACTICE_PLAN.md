@@ -36,7 +36,26 @@ cards, it is not integrated enough.
 Content may come from Codex, the user, or other AI tools. Treat all submitted
 content as draft material until normalized and reviewed.
 
-Preferred incoming format:
+Accepted incoming JSON format, used by `conversation100.json`:
+
+```text
+pack_id, version, title, description, language, source_type, created_for, entries
+entries[].id
+entries[].sequence
+entries[].category
+entries[].level
+entries[].sentence.zh
+entries[].sentence.pinyin
+entries[].sentence.en
+entries[].analysis.characters
+entries[].analysis.phrases
+entries[].metadata.difficulty
+entries[].metadata.frequency
+entries[].metadata.tags
+entries[].notes
+```
+
+Fallback CSV shape for future conversion scripts:
 
 ```text
 set_id,rank,simplified,pinyin,english,difficulty,tags,notes
@@ -45,13 +64,14 @@ general_greetings,1,...,...,...,easy,greeting;basic,...
 
 Required fields:
 
-- `set_id`: stable set identifier such as `general_greetings`
-- `rank`: intended order inside the set
-- `simplified`: Simplified Chinese sentence with punctuation
-- `pinyin`: pinyin with tone marks
-- `english`: natural English translation
-- `difficulty`: starter values such as `easy`, `medium`, `hard`
-- `tags`: semicolon-separated scenario or function tags
+- `pack_id`: stable pack identifier
+- `entries[].id`: stable item identifier such as `conv-001`
+- `entries[].sequence`: intended order inside the set
+- `entries[].sentence.zh`: Simplified Chinese sentence with punctuation
+- `entries[].sentence.pinyin`: pinyin with tone marks
+- `entries[].sentence.en`: natural English translation
+- `entries[].metadata.difficulty`: numeric source difficulty
+- `entries[].metadata.tags`: scenario or function tags
 - `notes`: optional usage notes or validation notes
 
 Optional future fields:
@@ -131,6 +151,9 @@ Practice feedback:
    - Define the accepted CSV or JSON shape.
    - Build validation and duplicate reporting.
    - Import the first `General Greetings` draft as staged data.
+   - Status: JSON schema and validation rules are implemented in
+     `ConversationPracticeModels.swift`; `conversation100.json` decodes and
+     validates through portable tests.
 
 2. Phrase DB integration
    - Resolve or create Phrase DB-backed sentence records.

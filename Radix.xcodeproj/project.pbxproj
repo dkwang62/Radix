@@ -11,12 +11,6 @@
 		01A502C5B7B728CEC2A5F0F6 /* DataEditBackupEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8813B524FCB01CFE14856D11 /* DataEditBackupEntries.swift */; };
 		04B29765D7C0910A77111A8A /* AddPhrasesFileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366A2962FBE43BCD1F9F4B6B /* AddPhrasesFileDocument.swift */; };
 		054DA9AAF1A85D54FC5C528F /* RadixStorePrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60FC8EB82FA97AA524D218A2 /* RadixStorePrompts.swift */; };
-		A11B00000000000000000022 /* RadixStoreProfileImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000021 /* RadixStoreProfileImport.swift */; };
-		A11B00000000000000000024 /* RadixStoreLifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000023 /* RadixStoreLifecycle.swift */; };
-		A11B00000000000000000026 /* RadixPreferenceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000025 /* RadixPreferenceKey.swift */; };
-		A11B00000000000000000028 /* RadixNavigationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000027 /* RadixNavigationModels.swift */; };
-		A11B0000000000000000002A /* RadixDataCompatibilityModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000029 /* RadixDataCompatibilityModels.swift */; };
-		A11B0000000000000000002C /* RadixPreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000002B /* RadixPreferenceStore.swift */; };
 		06DCD5B08E229E05145F3367 /* UNICODE_LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = B26304C47B4D253026FCFD35 /* UNICODE_LICENSE.txt */; };
 		07FFD91F91F340F1C21FF276 /* CaptureWorkbenchViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D374F4138850CF5FF935A3 /* CaptureWorkbenchViews.swift */; };
 		080DF2B49859E9A37FB5FE38 /* PhraseInfoAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D219A6AEF25AA2392F9B8EE /* PhraseInfoAnimation.swift */; };
@@ -118,6 +112,7 @@
 		84FF2A04337A3ED1C0936FDB /* SmartSearchPhraseDrilldown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7435A8DB831D287FF6F1D542 /* SmartSearchPhraseDrilldown.swift */; };
 		859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 0622B2A27B86C5D0640BDCF3 /* hanzi-writer.min.js */; };
 		85EDDE7584102C60FB34196B /* ComponentCharacterTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7F5C8C9FCF78E23E125C52 /* ComponentCharacterTile.swift */; };
+		8660A43D2FF0EFD6006153F6 /* conversation100.json in Resources */ = {isa = PBXBuildFile; fileRef = 8660A43C2FF0EFD6006153F6 /* conversation100.json */; };
 		86D4638F44188A238A8ECB14 /* SmartSearchTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF9DDFA3D17CF300D881367 /* SmartSearchTab.swift */; };
 		8925A237D932F85F3087F717 /* CharacterInfoCardHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCE5059E558EFFBE555258B /* CharacterInfoCardHeader.swift */; };
 		897066C41DA5C8AB5756FD5C /* DataBackupPreviewLists.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CAC174D6D8AEFB30F37FCA /* DataBackupPreviewLists.swift */; };
@@ -148,13 +143,36 @@
 		9DF1AAA1CA06598E30A0D102 /* RootViewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAB787F1FD31CBE50233E99C /* RootViewSupport.swift */; };
 		9FB09F61436FEC0895B7801D /* CharacterDetailActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 401726CD7E9A7E7092AA1160 /* CharacterDetailActions.swift */; };
 		A05EBFC59DC951C9EFDB9FF9 /* PromptModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFF92F2BA13EBA1A3A64D44 /* PromptModels.swift */; };
-		A17C0DE1A17C0DE1A17C0DE1 /* SavedPageRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17C0DE2A17C0DE2A17C0DE2 /* SavedPageRules.swift */; };
+		A0C0FFEE1000000000000001 /* ConversationPracticeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C0FFEE1000000000000002 /* ConversationPracticeModels.swift */; };
+		A0627B0A0627B0A0627B0A01 /* radix_unified_backup.json in Resources */ = {isa = PBXBuildFile; fileRef = A0627B0A0627B0A0627B0A02 /* radix_unified_backup.json */; };
 		A0C0D0E10123456789ABCDEF /* RadixProjectSource.zip in Resources */ = {isa = PBXBuildFile; fileRef = A0C0D0E30123456789ABCDEF /* RadixProjectSource.zip */; };
 		A0C0D0E20123456789ABCDEF /* RadixProjectSourceManifest.json in Resources */ = {isa = PBXBuildFile; fileRef = A0C0D0E40123456789ABCDEF /* RadixProjectSourceManifest.json */; };
-		A0627B0A0627B0A0627B0A01 /* radix_unified_backup.json in Resources */ = {isa = PBXBuildFile; fileRef = A0627B0A0627B0A0627B0A02 /* radix_unified_backup.json */; };
+		A11B00000000000000000002 /* RadixNavigationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000001 /* RadixNavigationState.swift */; };
+		A11B00000000000000000004 /* RadixSearchState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000003 /* RadixSearchState.swift */; };
+		A11B00000000000000000006 /* RadixLineageState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000005 /* RadixLineageState.swift */; };
+		A11B00000000000000000008 /* RadixUserLibraryState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000007 /* RadixUserLibraryState.swift */; };
+		A11B0000000000000000000A /* RadixCharacterContextState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000009 /* RadixCharacterContextState.swift */; };
+		A11B0000000000000000000C /* RadixBrowseGridState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000000B /* RadixBrowseGridState.swift */; };
+		A11B0000000000000000000E /* RadixRootExplorerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000000D /* RadixRootExplorerState.swift */; };
+		A11B00000000000000000010 /* RadixDataAuditState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000000F /* RadixDataAuditState.swift */; };
+		A11B00000000000000000012 /* RadixCollectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000011 /* RadixCollectionState.swift */; };
+		A11B00000000000000000014 /* RadixAILinkState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000013 /* RadixAILinkState.swift */; };
+		A11B00000000000000000016 /* RadixAIProviderState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000015 /* RadixAIProviderState.swift */; };
+		A11B00000000000000000018 /* RadixDataEditFormState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000017 /* RadixDataEditFormState.swift */; };
+		A11B0000000000000000001A /* RadixBrowseFilterState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000019 /* RadixBrowseFilterState.swift */; };
+		A11B0000000000000000001C /* RadixBrowseHighlightState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000001B /* RadixBrowseHighlightState.swift */; };
+		A11B0000000000000000001E /* RadixPresentationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000001D /* RadixPresentationState.swift */; };
+		A11B00000000000000000020 /* RadixDataWorkspaceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000001F /* RadixDataWorkspaceState.swift */; };
+		A11B00000000000000000022 /* RadixStoreProfileImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000021 /* RadixStoreProfileImport.swift */; };
+		A11B00000000000000000024 /* RadixStoreLifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000023 /* RadixStoreLifecycle.swift */; };
+		A11B00000000000000000026 /* RadixPreferenceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000025 /* RadixPreferenceKey.swift */; };
+		A11B00000000000000000028 /* RadixNavigationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000027 /* RadixNavigationModels.swift */; };
+		A11B0000000000000000002A /* RadixDataCompatibilityModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000029 /* RadixDataCompatibilityModels.swift */; };
+		A11B0000000000000000002C /* RadixPreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000002B /* RadixPreferenceStore.swift */; };
 		A11C00000000000000000002 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A11C00000000000000000001 /* Localizable.xcstrings */; };
 		A11D00000000000000000002 /* DataEditRestoreFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11D00000000000000000001 /* DataEditRestoreFlow.swift */; };
 		A15BA759BECE6523607ED145 /* BrowseCollectionEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F50BA811752E1399832FE15 /* BrowseCollectionEditing.swift */; };
+		A17C0DE1A17C0DE1A17C0DE1 /* SavedPageRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17C0DE2A17C0DE2A17C0DE2 /* SavedPageRules.swift */; };
 		A25A6B76FA82ED15A21B35B6 /* CharacterContextMenus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017A2AA3385BA68AF39D6502 /* CharacterContextMenus.swift */; };
 		A32E2D319703CBD70DD1FE9C /* CapturePhotoImportButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D1381DD7D9E6CB3DD939B2 /* CapturePhotoImportButton.swift */; };
 		A3CC58284FEA74A76CA9E482 /* CharacterPhraseLookupSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40849972D5C5B5B073CC736 /* CharacterPhraseLookupSection.swift */; };
@@ -210,22 +228,6 @@
 		DB13A9406626201537E2ECD4 /* StrokePathTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE03E201F79FCFAB850CDE6F /* StrokePathTransformer.swift */; };
 		DC1C183DB4C0A81C326CC255 /* HanziSVGPathParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71530386F0F64282F5D0D731 /* HanziSVGPathParser.swift */; };
 		DCC759676B6048A433B23A9D /* RadixStoreNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2985A1DA9963F761DC9D7589 /* RadixStoreNavigation.swift */; };
-		A11B00000000000000000002 /* RadixNavigationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000001 /* RadixNavigationState.swift */; };
-		A11B00000000000000000004 /* RadixSearchState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000003 /* RadixSearchState.swift */; };
-		A11B00000000000000000006 /* RadixLineageState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000005 /* RadixLineageState.swift */; };
-		A11B00000000000000000008 /* RadixUserLibraryState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000007 /* RadixUserLibraryState.swift */; };
-		A11B0000000000000000000A /* RadixCharacterContextState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000009 /* RadixCharacterContextState.swift */; };
-		A11B0000000000000000000C /* RadixBrowseGridState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000000B /* RadixBrowseGridState.swift */; };
-		A11B0000000000000000000E /* RadixRootExplorerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000000D /* RadixRootExplorerState.swift */; };
-		A11B00000000000000000010 /* RadixDataAuditState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000000F /* RadixDataAuditState.swift */; };
-		A11B00000000000000000012 /* RadixCollectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000011 /* RadixCollectionState.swift */; };
-		A11B00000000000000000014 /* RadixAILinkState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000013 /* RadixAILinkState.swift */; };
-		A11B00000000000000000016 /* RadixAIProviderState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000015 /* RadixAIProviderState.swift */; };
-		A11B00000000000000000018 /* RadixDataEditFormState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000017 /* RadixDataEditFormState.swift */; };
-		A11B0000000000000000001A /* RadixBrowseFilterState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B00000000000000000019 /* RadixBrowseFilterState.swift */; };
-		A11B0000000000000000001C /* RadixBrowseHighlightState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000001B /* RadixBrowseHighlightState.swift */; };
-		A11B0000000000000000001E /* RadixPresentationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000001D /* RadixPresentationState.swift */; };
-		A11B00000000000000000020 /* RadixDataWorkspaceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B0000000000000000001F /* RadixDataWorkspaceState.swift */; };
 		E0B9DCC48818910D85D64BB4 /* AddPhraseExtractForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 748FFF3F2D143261D761C3E5 /* AddPhraseExtractForm.swift */; };
 		E226F8082AFCF3050DAE80B8 /* ComponentScriptClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5AF1D96BD7173BE85A77C48 /* ComponentScriptClassifier.swift */; };
 		E26C22B6C95E2488BC05573E /* StrokeRepositories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1692697F59E1BCD65DB5D27B /* StrokeRepositories.swift */; };
@@ -315,28 +317,6 @@
 		276962E491CFFC78F147A1F7 /* RadixStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStore.swift; sourceTree = "<group>"; };
 		27DBF3C2A0303896F94B3DE0 /* StrokeAnimationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeAnimationProvider.swift; sourceTree = "<group>"; };
 		2985A1DA9963F761DC9D7589 /* RadixStoreNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreNavigation.swift; sourceTree = "<group>"; };
-		A11B00000000000000000001 /* RadixNavigationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixNavigationState.swift; sourceTree = "<group>"; };
-		A11B00000000000000000003 /* RadixSearchState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixSearchState.swift; sourceTree = "<group>"; };
-		A11B00000000000000000005 /* RadixLineageState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixLineageState.swift; sourceTree = "<group>"; };
-		A11B00000000000000000007 /* RadixUserLibraryState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixUserLibraryState.swift; sourceTree = "<group>"; };
-		A11B00000000000000000009 /* RadixCharacterContextState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixCharacterContextState.swift; sourceTree = "<group>"; };
-		A11B0000000000000000000B /* RadixBrowseGridState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixBrowseGridState.swift; sourceTree = "<group>"; };
-		A11B0000000000000000000D /* RadixRootExplorerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixRootExplorerState.swift; sourceTree = "<group>"; };
-		A11B0000000000000000000F /* RadixDataAuditState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixDataAuditState.swift; sourceTree = "<group>"; };
-		A11B00000000000000000011 /* RadixCollectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixCollectionState.swift; sourceTree = "<group>"; };
-		A11B00000000000000000013 /* RadixAILinkState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixAILinkState.swift; sourceTree = "<group>"; };
-		A11B00000000000000000015 /* RadixAIProviderState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixAIProviderState.swift; sourceTree = "<group>"; };
-		A11B00000000000000000017 /* RadixDataEditFormState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixDataEditFormState.swift; sourceTree = "<group>"; };
-		A11B00000000000000000019 /* RadixBrowseFilterState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixBrowseFilterState.swift; sourceTree = "<group>"; };
-		A11B0000000000000000001B /* RadixBrowseHighlightState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixBrowseHighlightState.swift; sourceTree = "<group>"; };
-		A11B0000000000000000001D /* RadixPresentationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixPresentationState.swift; sourceTree = "<group>"; };
-		A11B0000000000000000001F /* RadixDataWorkspaceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixDataWorkspaceState.swift; sourceTree = "<group>"; };
-		A11B00000000000000000021 /* RadixStoreProfileImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreProfileImport.swift; sourceTree = "<group>"; };
-		A11B00000000000000000023 /* RadixStoreLifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreLifecycle.swift; sourceTree = "<group>"; };
-		A11B00000000000000000025 /* RadixPreferenceKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixPreferenceKey.swift; sourceTree = "<group>"; };
-		A11B00000000000000000027 /* RadixNavigationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixNavigationModels.swift; sourceTree = "<group>"; };
-		A11B00000000000000000029 /* RadixDataCompatibilityModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixDataCompatibilityModels.swift; sourceTree = "<group>"; };
-		A11B0000000000000000002B /* RadixPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixPreferenceStore.swift; sourceTree = "<group>"; };
 		29C2F079E763FAB927F08ECC /* QuickCharacterEditorPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCharacterEditorPrompt.swift; sourceTree = "<group>"; };
 		2C69B8B81573C63284D8BB16 /* RadixStoreRootsCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreRootsCache.swift; sourceTree = "<group>"; };
 		2D219A6AEF25AA2392F9B8EE /* PhraseInfoAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseInfoAnimation.swift; sourceTree = "<group>"; };
@@ -403,7 +383,7 @@
 		69FA7173578AB59972C08654 /* BackupSummaryBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupSummaryBuilder.swift; sourceTree = "<group>"; };
 		6A92E5F9916EC19DB71BF75A /* BrowseGridComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseGridComponents.swift; sourceTree = "<group>"; };
 		6AFF92F2BA13EBA1A3A64D44 /* PromptModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptModels.swift; sourceTree = "<group>"; };
-		A17C0DE2A17C0DE2A17C0DE2 /* SavedPageRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPageRules.swift; sourceTree = "<group>"; };
+		A0C0FFEE1000000000000002 /* ConversationPracticeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeModels.swift; sourceTree = "<group>"; };
 		6C168A03A00D507535219249 /* JSONFileDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONFileDocument.swift; sourceTree = "<group>"; };
 		6C273EBF97CD77BF140DA188 /* CharacterInfoCardGuides.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterInfoCardGuides.swift; sourceTree = "<group>"; };
 		6C8EA1AAC376266D445DC85F /* phrases.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = phrases.db; sourceTree = "<group>"; };
@@ -424,6 +404,7 @@
 		8025BC7C066A0BC1F1B81786 /* BrowseGridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseGridLayout.swift; sourceTree = "<group>"; };
 		80A6F6CF05AE3482BCCF78FA /* PhrasePinyinSearchIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhrasePinyinSearchIndex.swift; sourceTree = "<group>"; };
 		82EB7BF38143D488D88E0632 /* AddPhraseInputForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPhraseInputForm.swift; sourceTree = "<group>"; };
+		8660A43C2FF0EFD6006153F6 /* conversation100.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = conversation100.json; sourceTree = "<group>"; };
 		86FCEABCE0BF3710ED511D5A /* RadixSharedImageImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixSharedImageImport.swift; sourceTree = "<group>"; };
 		877424A72314561B83933A31 /* ComponentsExplorerShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentsExplorerShell.swift; sourceTree = "<group>"; };
 		87E3CE2928A87E53A7A63469 /* ImagePhraseMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePhraseMatcher.swift; sourceTree = "<group>"; };
@@ -447,11 +428,34 @@
 		9BF651D793C06A737C7984F2 /* CameraCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureView.swift; sourceTree = "<group>"; };
 		9C1BCCCBE43BB69392F3847D /* InteractionHintRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionHintRow.swift; sourceTree = "<group>"; };
 		9E3504AC852FD2C08B8AB0E0 /* DataExportArchiveBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExportArchiveBuilder.swift; sourceTree = "<group>"; };
+		A0627B0A0627B0A0627B0A02 /* radix_unified_backup.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = radix_unified_backup.json; sourceTree = "<group>"; };
 		A0C0D0E30123456789ABCDEF /* RadixProjectSource.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = RadixProjectSource.zip; sourceTree = "<group>"; };
 		A0C0D0E40123456789ABCDEF /* RadixProjectSourceManifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = RadixProjectSourceManifest.json; sourceTree = "<group>"; };
-		A0627B0A0627B0A0627B0A02 /* radix_unified_backup.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = radix_unified_backup.json; sourceTree = "<group>"; };
+		A11B00000000000000000001 /* RadixNavigationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixNavigationState.swift; sourceTree = "<group>"; };
+		A11B00000000000000000003 /* RadixSearchState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixSearchState.swift; sourceTree = "<group>"; };
+		A11B00000000000000000005 /* RadixLineageState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixLineageState.swift; sourceTree = "<group>"; };
+		A11B00000000000000000007 /* RadixUserLibraryState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixUserLibraryState.swift; sourceTree = "<group>"; };
+		A11B00000000000000000009 /* RadixCharacterContextState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixCharacterContextState.swift; sourceTree = "<group>"; };
+		A11B0000000000000000000B /* RadixBrowseGridState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixBrowseGridState.swift; sourceTree = "<group>"; };
+		A11B0000000000000000000D /* RadixRootExplorerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixRootExplorerState.swift; sourceTree = "<group>"; };
+		A11B0000000000000000000F /* RadixDataAuditState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixDataAuditState.swift; sourceTree = "<group>"; };
+		A11B00000000000000000011 /* RadixCollectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixCollectionState.swift; sourceTree = "<group>"; };
+		A11B00000000000000000013 /* RadixAILinkState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixAILinkState.swift; sourceTree = "<group>"; };
+		A11B00000000000000000015 /* RadixAIProviderState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixAIProviderState.swift; sourceTree = "<group>"; };
+		A11B00000000000000000017 /* RadixDataEditFormState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixDataEditFormState.swift; sourceTree = "<group>"; };
+		A11B00000000000000000019 /* RadixBrowseFilterState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixBrowseFilterState.swift; sourceTree = "<group>"; };
+		A11B0000000000000000001B /* RadixBrowseHighlightState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixBrowseHighlightState.swift; sourceTree = "<group>"; };
+		A11B0000000000000000001D /* RadixPresentationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixPresentationState.swift; sourceTree = "<group>"; };
+		A11B0000000000000000001F /* RadixDataWorkspaceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixDataWorkspaceState.swift; sourceTree = "<group>"; };
+		A11B00000000000000000021 /* RadixStoreProfileImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreProfileImport.swift; sourceTree = "<group>"; };
+		A11B00000000000000000023 /* RadixStoreLifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreLifecycle.swift; sourceTree = "<group>"; };
+		A11B00000000000000000025 /* RadixPreferenceKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixPreferenceKey.swift; sourceTree = "<group>"; };
+		A11B00000000000000000027 /* RadixNavigationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixNavigationModels.swift; sourceTree = "<group>"; };
+		A11B00000000000000000029 /* RadixDataCompatibilityModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixDataCompatibilityModels.swift; sourceTree = "<group>"; };
+		A11B0000000000000000002B /* RadixPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixPreferenceStore.swift; sourceTree = "<group>"; };
 		A11C00000000000000000001 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		A11D00000000000000000001 /* DataEditRestoreFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditRestoreFlow.swift; sourceTree = "<group>"; };
+		A17C0DE2A17C0DE2A17C0DE2 /* SavedPageRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPageRules.swift; sourceTree = "<group>"; };
 		A1DAE07C4C7F1F05CE7BCB89 /* character_strokes.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = character_strokes.db; sourceTree = "<group>"; };
 		A25785DAB8BCDFA938DF3B94 /* BrowseSourceBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseSourceBar.swift; sourceTree = "<group>"; };
 		A27CC15099EADADD7CF493D1 /* PaywallPlans.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallPlans.swift; sourceTree = "<group>"; };
@@ -715,6 +719,7 @@
 				8025BC7C066A0BC1F1B81786 /* BrowseGridLayout.swift */,
 				A66713646EA8F820A34D16B4 /* CaptureModels.swift */,
 				BF7695C55BB9AFAA1CDFEB58 /* ComponentModels.swift */,
+				A0C0FFEE1000000000000002 /* ConversationPracticeModels.swift */,
 				87E3CE2928A87E53A7A63469 /* ImagePhraseMatcher.swift */,
 				911F85BE195D61BDA4442400 /* PhraseModels.swift */,
 				DD27274660D91075D6D0F237 /* PinyinSearchNormalizer.swift */,
@@ -774,6 +779,7 @@
 				E8D79C478F82A7AAB7CC0952 /* ViewModels */,
 				DE7A3CE0C7ED411F48530753 /* Views */,
 				3A87FC368D89F1E137FE85B5 /* Products */,
+				8660A43C2FF0EFD6006153F6 /* conversation100.json */,
 			);
 			sourceTree = "<group>";
 		};
@@ -969,6 +975,7 @@
 				DA68971EA8A0FD39BBFA4892 /* HANZI_WRITER_LICENSE.txt in Resources */,
 				43E2AF8FCB18F25425CAFC3D /* SUBTLEX-CH-CHR.txt in Resources */,
 				06DCD5B08E229E05145F3367 /* UNICODE_LICENSE.txt in Resources */,
+				8660A43D2FF0EFD6006153F6 /* conversation100.json in Resources */,
 				10BFF1342A315407AE49B74A /* character_strokes.db in Resources */,
 				B0DE21C9E5CAC9EF465BFD96 /* enhanced_component_map_with_etymology.json in Resources */,
 				859920E5386DA7A4254E2346 /* hanzi-writer.min.js in Resources */,
@@ -1128,6 +1135,7 @@
 				BC6354AC01398ECA9615CF44 /* PopoverSizingModifiers.swift in Sources */,
 				D110F24C3D0A6D1A3BE5B9DD /* ProjectLiveDataLocator.swift in Sources */,
 				A05EBFC59DC951C9EFDB9FF9 /* PromptModels.swift in Sources */,
+				A0C0FFEE1000000000000001 /* ConversationPracticeModels.swift in Sources */,
 				A17C0DE1A17C0DE1A17C0DE1 /* SavedPageRules.swift in Sources */,
 				C30C5CE40E44BA058AE9D806 /* QuickCharacterEditorActions.swift in Sources */,
 				9C71CCAC551A21F0D10FD146 /* QuickCharacterEditorFields.swift in Sources */,
