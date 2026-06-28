@@ -203,10 +203,13 @@ sentences in Simplified Chinese with pinyin and English. These lessons must
 tightly reuse Radix's Character/Phrase dictionary infrastructure: each sentence
 is a Phrase DB-backed practice item, tapping a lesson sentence opens the normal
 Phrase card or Browse inspection, and detected characters/sub-phrases should
-lead to existing Character and Phrase cards. Practice sets add ordering,
-difficulty, scenario grouping, and progress; they are not a parallel phrasebook
-database. Keep curated lesson progress separate from Added Phrases
-classification so users are not asked to accept/reject shipped lesson content.
+lead to existing Character and Phrase cards. Any phrase or character selected
+inside Practice is also pushed into the shared memory strip/recent Study state,
+so Practice feeds the same review and AI subject workflows as the rest of
+Radix. Practice sets add ordering, difficulty, scenario grouping, and progress;
+they are not a parallel phrasebook database. Keep curated lesson progress
+separate from Added Phrases classification so users are not asked to
+accept/reject shipped lesson content.
 The first useful practice modes should be simple offline drills such as Review
 Cards and Quick Quiz, with answer feedback linking back into Phrase and
 Character cards rather than dead-ending in a quiz-only screen. The detailed

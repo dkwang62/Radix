@@ -52,6 +52,7 @@
 		35D0A3A082837217EDD7569D /* BrowseImageGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5E8DCFE6C7D8A6737CE964 /* BrowseImageGrid.swift */; };
 		364FDA60094A6156103992B1 /* QuickPhraseEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06011CBE6BB9BA974CF6FA07 /* QuickPhraseEditorView.swift */; };
 		3656C480C200503860A94DCF /* RadixStoreCollections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0EDE4C11171B97872D6DEF /* RadixStoreCollections.swift */; };
+		36B91F2A67C34D29B7ED5001 /* RadixStoreConversationPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B91F2967C34D29B7ED5001 /* RadixStoreConversationPractice.swift */; };
 		36727714B069B22A901E0F4E /* CharacterInfoCardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BD0B5FE037AF96D58E17E07 /* CharacterInfoCardStyle.swift */; };
 		36AEA1868882B3EE0B67A1C9 /* RadixPhrasePreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21A6D3822EEEB44D9703C5F4 /* RadixPhrasePreferences.swift */; };
 		38A2021F42978B2D6C9FB0AD /* RadixStoreSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1080A3779F939B170A297250 /* RadixStoreSearch.swift */; };
@@ -332,6 +333,7 @@
 		330364E568A3FB492A77575D /* BrowseSourceMenuViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseSourceMenuViews.swift; sourceTree = "<group>"; };
 		33202BB31E48AE4194A2827D /* StrokeOrderSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeOrderSection.swift; sourceTree = "<group>"; };
 		3540B3D377590501F24DA833 /* RadixStorePhraseFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStorePhraseFile.swift; sourceTree = "<group>"; };
+		36B91F2967C34D29B7ED5001 /* RadixStoreConversationPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreConversationPractice.swift; sourceTree = "<group>"; };
 		3549E7DC987331EE0218ACB8 /* CapturePhraseMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePhraseMessages.swift; sourceTree = "<group>"; };
 		35D482E8E98F655E3644AF43 /* QuickEditSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEditSheets.swift; sourceTree = "<group>"; };
 		366A2962FBE43BCD1F9F4B6B /* AddPhrasesFileDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPhrasesFileDocument.swift; sourceTree = "<group>"; };
@@ -884,6 +886,7 @@
 				276962E491CFFC78F147A1F7 /* RadixStore.swift */,
 				7CF749EDD1C761250ACE36D9 /* RadixStoreAI.swift */,
 				1D0EDE4C11171B97872D6DEF /* RadixStoreCollections.swift */,
+				36B91F2967C34D29B7ED5001 /* RadixStoreConversationPractice.swift */,
 				5AEAB5363A3989250B765DFD /* RadixStoreDataEdit.swift */,
 				B9C4654C68AC3A345F1F26FF /* RadixStoreDataEditHelpers.swift */,
 				427473CE4784B45CDB2B8B0E /* RadixStoreFavorites.swift */,
@@ -1181,6 +1184,7 @@
 				AD8FBF95226EAEEECA288A25 /* RadixStore.swift in Sources */,
 				5958048AC96D5C27D5321296 /* RadixStoreAI.swift in Sources */,
 				3656C480C200503860A94DCF /* RadixStoreCollections.swift in Sources */,
+				36B91F2A67C34D29B7ED5001 /* RadixStoreConversationPractice.swift in Sources */,
 				902CF6C3B49115EEDB13AD2D /* RadixStoreDataEdit.swift in Sources */,
 				50D4F41069D766036CCE8426 /* RadixStoreDataEditHelpers.swift in Sources */,
 				E96339E23819A43EB3214E42 /* RadixStoreExtractedHelpers.swift in Sources */,

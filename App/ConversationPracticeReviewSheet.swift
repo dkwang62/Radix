@@ -211,14 +211,19 @@ struct ConversationPracticeReviewSheet: View {
     }
 
     func openPhrase(_ item: ConversationPracticeItem) {
-        inspectionPath.append(.phrase(phraseItem(for: item)))
+        let phrase = phraseItem(for: item)
+        store.pushPhraseBreadcrumb(phrase)
+        inspectionPath.append(.phrase(phrase))
     }
 
     func openPhraseHint(_ phrase: String) {
-        inspectionPath.append(.phrase(store.mergedPhrase(for: phrase) ?? PhraseItem(word: phrase, pinyin: "", meanings: "")))
+        let phraseItem = store.mergedPhrase(for: phrase) ?? PhraseItem(word: phrase, pinyin: "", meanings: "")
+        store.pushPhraseBreadcrumb(phraseItem)
+        inspectionPath.append(.phrase(phraseItem))
     }
 
     func openCharacter(_ character: String) {
+        store.pushRootBreadcrumb(character)
         inspectionPath.append(.character(character))
     }
 

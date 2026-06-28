@@ -186,7 +186,7 @@ extension RadixStore {
     func mergedPhrase(for word: String) -> PhraseItem? {
         let trimmedWord = phraseStorageWord(word)
         guard !trimmedWord.isEmpty else { return nil }
-        return phraseRepo.fetchPhrase(for: trimmedWord)
+        return phraseRepo.fetchPhrase(for: trimmedWord) ?? conversationPracticePhraseCache[trimmedWord]
     }
 
     func addedPhraseForReview(word: String) -> PhraseItem? {

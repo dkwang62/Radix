@@ -222,7 +222,7 @@ extension RadixStore {
     func isValidRootBreadcrumbItem(_ item: String) -> Bool {
         guard !item.isEmpty else { return false }
         if item.count == 1 { return componentRepo.hasCharacter(item) }
-        return phraseRepo.fetchPhrase(for: item) != nil
+        return mergedPhrase(for: item) != nil
     }
 
     var recentCharacterItems: [ComponentItem] {

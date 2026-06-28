@@ -149,6 +149,9 @@ struct FavouritesTab: View {
 
     func loadConversationPracticeLibrary() {
         conversationPracticeLibrary = try? ConversationPracticeService().loadStarterLibrary()
+        if let conversationPracticeLibrary {
+            store.registerConversationPracticeLibrary(conversationPracticeLibrary)
+        }
     }
 
     func presentConversationPracticeReview(_ library: ConversationPracticeLibrary) {

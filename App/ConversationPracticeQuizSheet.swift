@@ -235,10 +235,13 @@ struct ConversationPracticeQuizSheet: View {
     }
 
     func openPhrase(_ item: ConversationPracticeItem) {
-        inspectionPath.append(.phrase(phraseItem(for: item)))
+        let phrase = phraseItem(for: item)
+        store.pushPhraseBreadcrumb(phrase)
+        inspectionPath.append(.phrase(phrase))
     }
 
     func openCharacter(_ character: String) {
+        store.pushRootBreadcrumb(character)
         inspectionPath.append(.character(character))
     }
 
