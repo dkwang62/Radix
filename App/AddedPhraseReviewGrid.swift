@@ -11,8 +11,21 @@ extension AddedPhraseReviewSheet {
 
     @ViewBuilder
     var phrasePageGrid: some View {
-        phrasePageGridContent
-            .padding(.vertical, 2)
+        GeometryReader { proxy in
+            phrasePageGridContent
+                .padding(.vertical, phraseGridVerticalPadding / 2)
+                .frame(
+                    width: proxy.size.width,
+                    height: proxy.size.height,
+                    alignment: .top
+                )
+                .onAppear {
+                    updateAdaptivePageSize(for: proxy.size.height)
+                }
+                .onChange(of: proxy.size.height) { _, newHeight in
+                    updateAdaptivePageSize(for: newHeight)
+                }
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
@@ -20,12 +33,13 @@ extension AddedPhraseReviewSheet {
         LazyVGrid(
             columns: phraseReviewColumns,
             alignment: .center,
-            spacing: 5
+            spacing: phraseGridSpacing
         ) {
             ForEach(pagedPhrases) { phrase in
                 AddedPhraseReviewTile(
                     phrase: phrase,
                     isSelected: selectedPhrase?.word == phrase.word,
+                    height: phraseTileHeight,
                     onSelect: { applySelectedTool(to: phrase) },
                     onMarkNew: { setStatus(nil, for: phrase) },
                     onCheck: { setStatus(.checked, for: phrase) },
@@ -44,14 +58,13 @@ extension AddedPhraseReviewSheet {
         if !usesRegularReviewLayout {
             return Array(
                 repeating: GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 6, alignment: .center),
-                count: 3
+                count: phraseReviewColumnCount
             )
         }
 
-        let columnCount = RadixPlatform.isDesktop ? 5 : 4
         return Array(
             repeating: GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 7, alignment: .center),
-            count: columnCount
+            count: phraseReviewColumnCount
         )
     }
 }
@@ -59,6 +72,7 @@ extension AddedPhraseReviewSheet {
 struct AddedPhraseReviewTile: View {
     let phrase: PhraseItem
     let isSelected: Bool
+    let height: CGFloat
     let onSelect: () -> Void
     let onMarkNew: () -> Void
     let onCheck: () -> Void
@@ -74,7 +88,7 @@ struct AddedPhraseReviewTile: View {
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.62)
-                    .frame(maxWidth: .infinity, minHeight: 34)
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, 5)
 
                 Image(systemName: statusIcon)
@@ -82,6 +96,8 @@ struct AddedPhraseReviewTile: View {
                     .foregroundStyle(statusColor)
                     .padding(3)
             }
+            .frame(maxWidth: .infinity)
+            .frame(height: height)
             .background(tileFill)
             .overlay(
                 RoundedRectangle(cornerRadius: 7)

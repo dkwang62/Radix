@@ -189,11 +189,11 @@ non-base added phrases, then opens that page in Browse with a `Back to Study`
 return path. This action does not mark, accept, reject, or delete the source
 phrases. Review phrases sort by pinyin, and pagination uses the visible pinyin
 letter range such as `b-c` rather than page numbers. The sheet uses a paged
-non-scrolling grid sized to fill the visible surface: 30 tiles on iPhone,
-36 on iPad, and 50 on Mac Catalyst with five columns. The eligibility,
-ordering, page name, page-range label, and newline-delimited source text are
-portable `AddedPhraseReviewRules` behavior with compatibility tests so Android
-can share the same rule.
+non-scrolling grid whose page size is calculated from the measured vertical
+space above the footer; fixed platform counts are only first-render fallbacks.
+The eligibility, ordering, page name, page-range label, and newline-delimited
+source text are portable `AddedPhraseReviewRules` behavior with compatibility
+tests so Android can share the same rule.
 Content-driven cross-tab navigation uses the existing single-level return
 context. Destinations show a named return button (`Back to Study`, `Back to My
 Data`, and so on); manually choosing a primary tab clears that context.

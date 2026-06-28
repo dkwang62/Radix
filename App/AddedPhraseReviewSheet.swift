@@ -15,10 +15,18 @@ struct AddedPhraseReviewSheet: View {
     @State var phrasePendingDeletion: PhraseItem?
     @State var showsDeleteRejectedConfirmation = false
     @State var showsDeleteNewConfirmation = false
+    @State var adaptivePageSize: Int?
 
     let detailTextMaxWidth: CGFloat = 640
+    let phraseTileHeight: CGFloat = 34
+    let phraseGridSpacing: CGFloat = 5
+    let phraseGridVerticalPadding: CGFloat = 4
 
     var pageSize: Int {
+        adaptivePageSize ?? fallbackPageSize
+    }
+
+    var fallbackPageSize: Int {
         if RadixPlatform.isPhone { return 30 }
         if RadixPlatform.isDesktop { return 50 }
         return 36
@@ -26,6 +34,11 @@ struct AddedPhraseReviewSheet: View {
 
     var usesRegularReviewLayout: Bool {
         !RadixPlatform.isPhone
+    }
+
+    var phraseReviewColumnCount: Int {
+        if !usesRegularReviewLayout { return 3 }
+        return RadixPlatform.isDesktop ? 5 : 4
     }
 
     var reviewControlFont: Font {
@@ -213,6 +226,24 @@ extension AddedPhraseReviewSheet {
 
     func nextPage() {
         pageIndex = min(pageCount - 1, currentPageIndex + 1)
+    }
+
+    func updateAdaptivePageSize(for availableGridHeight: CGFloat) {
+        let usableHeight = max(0, availableGridHeight - phraseGridVerticalPadding)
+        let rowStride = phraseTileHeight + phraseGridSpacing
+        let rows = max(1, Int(floor((usableHeight + phraseGridSpacing) / rowStride)))
+        let proposedPageSize = max(phraseReviewColumnCount, rows * phraseReviewColumnCount)
+
+        guard proposedPageSize != adaptivePageSize else { return }
+
+        DispatchQueue.main.async {
+            adaptivePageSize = proposedPageSize
+            let adjustedPageCount = max(
+                1,
+                Int(ceil(Double(filteredPhrases.count) / Double(proposedPageSize)))
+            )
+            pageIndex = min(max(pageIndex, 0), adjustedPageCount - 1)
+        }
     }
 
     func checkNewPhrases() {

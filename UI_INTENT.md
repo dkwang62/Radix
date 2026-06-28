@@ -140,8 +140,9 @@ instruction blocks, and no separate AI shortcut above the grid. Put `Create AI
 Review Page` under an obvious `Actions` menu with its unreviewed count, alongside
 bulk actions and help. Sort phrases by pinyin and label pages by the visible
 pinyin-letter range, such as `b-c`, rather than generic page numbers. Use a
-paged grid, not an internal scroll view, and tune each platform to show as many
-phrase tiles as will comfortably fit.
+paged grid, not an internal scroll view, and calculate the page size from the
+visible grid height so the tiles fill down to just above the footer on each
+platform.
 
 On iPhone, Study may need to contain explicit Snapshot sections because the
 screen cannot permanently show a rich sidebar. On iPad and Mac, Save/Restore
