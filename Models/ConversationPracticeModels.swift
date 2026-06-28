@@ -48,18 +48,50 @@ public struct ConversationPracticePack: Codable, Equatable {
         case entries
     }
 
+    enum ImportedCodingKeys: String, CodingKey {
+        case theme
+        case entries
+    }
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        packID = try container.decode(String.self, forKey: .packID)
-        version = try container.decode(String.self, forKey: .version)
-        title = try container.decode(String.self, forKey: .title)
-        description = try container.decode(String.self, forKey: .description)
-        language = try container.decode(String.self, forKey: .language)
-        sourceType = try container.decodeIfPresent(String.self, forKey: .sourceType) ?? Self.defaultSourceType
-        createdFor = try container.decodeIfPresent(String.self, forKey: .createdFor) ?? Self.defaultCreatedFor
-        let drafts = try container.decode([ConversationPracticeEntryDraft].self, forKey: .entries)
-        entries = drafts.enumerated().map { index, draft in
-            ConversationPracticeEntry(draft: draft, fallbackSequence: index + 1)
+
+        if let decodedPackID = try container.decodeIfPresent(String.self, forKey: .packID) {
+            packID = decodedPackID
+            version = try container.decode(String.self, forKey: .version)
+            title = try container.decode(String.self, forKey: .title)
+            description = try container.decode(String.self, forKey: .description)
+            language = try container.decode(String.self, forKey: .language)
+            sourceType = try container.decodeIfPresent(String.self, forKey: .sourceType) ?? Self.defaultSourceType
+            createdFor = try container.decodeIfPresent(String.self, forKey: .createdFor) ?? Self.defaultCreatedFor
+            let drafts = try container.decode([ConversationPracticeEntryDraft].self, forKey: .entries)
+            let defaultCategory = ConversationPracticeRules.stableIdentifier(for: title)
+            entries = drafts.enumerated().map { index, draft in
+                ConversationPracticeEntry(
+                    draft: draft,
+                    fallbackSequence: index + 1,
+                    defaultCategory: defaultCategory
+                )
+            }
+        } else {
+            let importedContainer = try decoder.container(keyedBy: ImportedCodingKeys.self)
+            let theme = try importedContainer.decode(String.self, forKey: .theme)
+            title = theme
+            packID = ConversationPracticeRules.stableIdentifier(for: theme)
+            version = "1.0"
+            description = "Imported practice pack: \(theme)"
+            language = "zh-Hans"
+            sourceType = "user_imported_practice"
+            createdFor = Self.defaultCreatedFor
+            let defaultCategory = ConversationPracticeRules.stableIdentifier(for: theme)
+            let drafts = try importedContainer.decode([ConversationPracticeEntryDraft].self, forKey: .entries)
+            entries = drafts.enumerated().map { index, draft in
+                ConversationPracticeEntry(
+                    draft: draft,
+                    fallbackSequence: index + 1,
+                    defaultCategory: defaultCategory
+                )
+            }
         }
     }
 
@@ -100,14 +132,18 @@ public struct ConversationPracticeEntry: Codable, Equatable, Identifiable {
     public let metadata: ConversationPracticeMetadata
     public let notes: String
 
-    fileprivate init(draft: ConversationPracticeEntryDraft, fallbackSequence: Int) {
+    fileprivate init(
+        draft: ConversationPracticeEntryDraft,
+        fallbackSequence: Int,
+        defaultCategory: String
+    ) {
         id = draft.id
         sequence = draft.sequence ?? fallbackSequence
-        category = draft.category
+        category = draft.category ?? defaultCategory
         level = draft.level ?? "easy"
         sentence = draft.sentence
         analysis = draft.analysis ?? ConversationPracticeAnalysis(sentence: draft.sentence.zh)
-        metadata = draft.metadata ?? ConversationPracticeMetadata(category: draft.category)
+        metadata = draft.metadata ?? ConversationPracticeMetadata(category: category)
         notes = draft.notes ?? ""
     }
 }
@@ -163,12 +199,46 @@ public struct ConversationPracticeMetadata: Codable, Equatable {
 private struct ConversationPracticeEntryDraft: Decodable {
     let id: String
     let sequence: Int?
-    let category: String
+    let category: String?
     let level: String?
     let sentence: ConversationPracticeSentence
     let analysis: ConversationPracticeAnalysis?
     let metadata: ConversationPracticeMetadata?
     let notes: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case sequence
+        case category
+        case level
+        case sentence
+        case analysis
+        case metadata
+        case notes
+        case zh
+        case pinyin
+        case en
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        sequence = try container.decodeIfPresent(Int.self, forKey: .sequence)
+        category = try container.decodeIfPresent(String.self, forKey: .category)
+        level = try container.decodeIfPresent(String.self, forKey: .level)
+        if let decodedSentence = try container.decodeIfPresent(ConversationPracticeSentence.self, forKey: .sentence) {
+            sentence = decodedSentence
+        } else {
+            sentence = ConversationPracticeSentence(
+                zh: try container.decode(String.self, forKey: .zh),
+                pinyin: try container.decode(String.self, forKey: .pinyin),
+                en: try container.decode(String.self, forKey: .en)
+            )
+        }
+        analysis = try container.decodeIfPresent(ConversationPracticeAnalysis.self, forKey: .analysis)
+        metadata = try container.decodeIfPresent(ConversationPracticeMetadata.self, forKey: .metadata)
+        notes = try container.decodeIfPresent(String.self, forKey: .notes)
+    }
 }
 
 public struct ConversationPracticeSet: Equatable, Identifiable {
@@ -400,6 +470,24 @@ public enum ConversationPracticeRules {
 
     public static func phraseKey(for sentence: String) -> String {
         sentence.trimmingCharacters(in: .whitespacesAndNewlinesAndPunctuation)
+    }
+
+    public static func stableIdentifier(for title: String) -> String {
+        var result = ""
+        var previousWasSeparator = false
+
+        for scalar in title.lowercased().unicodeScalars {
+            if (65...90).contains(Int(scalar.value)) || (97...122).contains(Int(scalar.value)) || (48...57).contains(Int(scalar.value)) {
+                result.unicodeScalars.append(scalar)
+                previousWasSeparator = false
+            } else if !previousWasSeparator {
+                result.append("_")
+                previousWasSeparator = true
+            }
+        }
+
+        let trimmed = result.trimmingCharacters(in: CharacterSet(charactersIn: "_"))
+        return trimmed.isEmpty ? "imported_practice" : trimmed
     }
 
     public static func isChineseCharacter(_ character: Character) -> Bool {

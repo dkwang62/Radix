@@ -4,18 +4,19 @@ extension FavouritesTab {
     @ViewBuilder
     var conversationPracticeSection: some View {
         if !conversationPracticeTopics.isEmpty {
-            let topic = store.selectedConversationPracticeTopic
+            let topic = selectedConversationPracticeTopic
             VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Label("Conversation Practice", systemImage: "bubble.left.and.bubble.right")
                         .font(ResponsiveFont.headline)
                     Spacer(minLength: 8)
-                    Text(topic.hasBundledContent ? "\(conversationPracticeLibrary?.set.itemCount ?? topic.targetSentenceCount) sentences" : "Generate")
+                    Text(conversationPracticeLibrary.map { "\($0.set.itemCount) sentences" } ?? (topic.hasBundledContent ? "\(topic.targetSentenceCount) sentences" : "Generate"))
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
 
                 conversationPracticeTopicPicker(selectedTopic: topic)
+                conversationPracticeImportStatus
 
                 if let library = conversationPracticeLibrary {
                     conversationPracticeSetCard(library, topic: topic)
@@ -38,6 +39,14 @@ extension FavouritesTab {
                         Text(topic.title)
                     }
                 }
+            }
+
+            Divider()
+
+            Button {
+                showConversationPracticeImporter = true
+            } label: {
+                Label("Import Practice JSON", systemImage: "square.and.arrow.down")
             }
         } label: {
             HStack(spacing: 10) {
@@ -76,6 +85,30 @@ extension FavouritesTab {
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    var conversationPracticeImportStatus: some View {
+        if let message = conversationPracticeImportMessage {
+            Label(message, systemImage: "checkmark.circle")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(Color.accentColor)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        } else if let error = conversationPracticeImportError {
+            Label(error, systemImage: "exclamationmark.triangle")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.red)
+                .lineLimit(3)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.red.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
     }
 
     func conversationPracticeSetCard(

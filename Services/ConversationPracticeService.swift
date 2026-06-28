@@ -45,4 +45,17 @@ struct ConversationPracticeService {
         }
         return pack.practiceLibrary
     }
+
+    func loadPack(from data: Data, sourceName: String) throws -> ConversationPracticePack {
+        let pack = try JSONDecoder().decode(ConversationPracticePack.self, from: data)
+        let validation = ConversationPracticeRules.validate(pack)
+        guard validation.isValid else {
+            throw ConversationPracticeServiceError.invalidPack(sourceName, validation.errors)
+        }
+        return pack
+    }
+
+    func loadLibrary(from data: Data, sourceName: String) throws -> ConversationPracticeLibrary {
+        try loadPack(from: data, sourceName: sourceName).practiceLibrary
+    }
 }

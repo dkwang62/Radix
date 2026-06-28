@@ -92,6 +92,19 @@ Simplified uploaded packs may omit `source_type`, `created_for`, `sequence`,
 before validation so user- or AI-supplied content can still flow into the same
 Practice model.
 
+The Study loader also accepts a lightweight AI-friendly JSON shape:
+
+```text
+theme
+entries[].id
+entries[].zh
+entries[].pinyin
+entries[].en
+```
+
+Radix derives the stable pack ID, title, default category, character hints,
+full-sentence phrase hint, metadata, and notes before validation.
+
 Optional future fields:
 
 - key phrase hints
@@ -150,6 +163,8 @@ Set list:
 - keeps upcoming sets visibly distinct from available sets
 - lets a topic without bundled content open the AI generation task for that
   topic instead of pretending there are practice sentences ready
+- lets the user import Practice JSON from the topic dropdown; valid imported
+  packs are persisted, selected immediately, and shown as normal topics
 
 Set detail:
 

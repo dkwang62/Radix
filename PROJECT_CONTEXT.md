@@ -226,7 +226,14 @@ The AI Link generator task must emit the same structured JSON shape as
 `ConversationPracticePack` also accepts simplified uploaded packs that contain
 pack identity plus `entries[].id`, `category`, and `sentence`; the decoder fills
 safe defaults for source metadata, sequence, level, analysis, metadata, and
-notes before validation.
+notes before validation. The Study Conversation Practice dropdown includes an
+`Import Practice JSON` action. Imported packs are validated, persisted in
+preferences under `RadixPreferenceKey.importedConversationPracticePacks`, added
+to the topic dropdown, selected immediately, and registered with the same
+Practice phrase cache as bundled topics. User/imported files may also use the
+lightweight AI-friendly shape `{ "theme": "...", "entries": [{ "id", "zh",
+"pinyin", "en" }] }`; Radix derives the pack ID, title, category, analysis, and
+metadata before validation.
 The first useful practice modes should be simple offline drills such as Review
 Cards and Quick Quiz, with answer feedback linking back into Phrase and
 Character cards rather than dead-ending in a quiz-only screen. The detailed

@@ -17,6 +17,7 @@ enum RadixPreferenceKey {
     static let promptConfig = "radix.promptConfig"
     static let promptTaskSelection = "radix.promptSelectedTaskIDs"
     static let conversationPracticeTopic = "radix.conversationPracticeTopicID"
+    static let importedConversationPracticePacks = "radix.importedConversationPracticePacks"
     static let defaultAIPreset = "radix.defaultAIPreset"
     static let customAIURL = "radix.customAIURL"
     static let openAIAPIKey = "radix.openAIAPIKey"

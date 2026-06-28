@@ -318,7 +318,12 @@ final class RadixStore: ObservableObject {
 
     var selectedConversationPracticeTopicID: String {
         get { aiLinkState.selectedConversationPracticeTopicID }
-        set { aiLinkState.selectedConversationPracticeTopicID = ConversationPracticeTopic.topic(for: newValue).id }
+        set {
+            let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            aiLinkState.selectedConversationPracticeTopicID = trimmed.isEmpty
+                ? ConversationPracticeTopic.generalGreetings.id
+                : trimmed
+        }
     }
 
     var selectedConversationPracticeTopic: ConversationPracticeTopic {

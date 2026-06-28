@@ -192,6 +192,9 @@ Taipei. `Stay in Shanghai` is the fourth bundled topic for longer-stay study,
 housing, utilities, transport, local services, and administrative tasks. For
 future generation-only topics, show the topic purpose and a clear action into
 AI Link rather than empty practice controls.
+The topic dropdown also owns importing user-supplied Practice JSON. Importing a
+valid pack should add it as a normal selectable topic, select it immediately,
+and show compact inline feedback below the dropdown rather than an alert.
 
 Lesson screens should make the sentence card the main object. A user should be
 able to review or quiz the sentence, then tap the full sentence into its normal

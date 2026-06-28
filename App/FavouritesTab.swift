@@ -23,6 +23,10 @@ struct FavouritesTab: View {
     @State var pendingCheckpointReturn: LocalDataSnapshot?
     @State var conversationPracticeTopics = ConversationPracticeTopic.defaults
     @State var conversationPracticeLibrary: ConversationPracticeLibrary? = try? ConversationPracticeService().loadLibrary(for: .generalGreetings)
+    @State var importedConversationPracticeLibraries: [String: ConversationPracticeLibrary] = [:]
+    @State var showConversationPracticeImporter = false
+    @State var conversationPracticeImportMessage: String?
+    @State var conversationPracticeImportError: String?
     @State var conversationPracticeListPresentation: ConversationPracticeListPresentation?
     @State var conversationPracticeReviewPresentation: ConversationPracticeReviewPresentation?
     @State var conversationPracticeQuizPresentation: ConversationPracticeQuizPresentation?
@@ -99,6 +103,13 @@ struct FavouritesTab: View {
             .environmentObject(store)
             .environmentObject(entitlement)
         }
+        .fileImporter(
+            isPresented: $showConversationPracticeImporter,
+            allowedContentTypes: [RadixFileTypes.json],
+            allowsMultipleSelection: false
+        ) { result in
+            importConversationPracticePack(result)
+        }
         .alert("Return to Checkpoint?", isPresented: Binding(
             get: { pendingCheckpointReturn != nil },
             set: { if !$0 { pendingCheckpointReturn = nil } }
@@ -120,6 +131,7 @@ struct FavouritesTab: View {
             studyPageSortOrder = RadixStudyPreferences.pageSortOrder
             hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
             openAddedPhraseReviewIfRequested()
+            loadImportedConversationPracticePacks()
             loadConversationPracticeLibrary()
             onRefreshCheckpoints()
         }
@@ -152,17 +164,86 @@ struct FavouritesTab: View {
     }
 
     func loadConversationPracticeLibrary() {
-        let topic = store.selectedConversationPracticeTopic
-        conversationPracticeLibrary = try? ConversationPracticeService().loadLibrary(for: topic)
+        let topic = selectedConversationPracticeTopic
+        if let importedLibrary = importedConversationPracticeLibraries[topic.id] {
+            conversationPracticeLibrary = importedLibrary
+        } else {
+            conversationPracticeLibrary = try? ConversationPracticeService().loadLibrary(for: topic)
+        }
         if let conversationPracticeLibrary {
             store.registerConversationPracticeLibrary(conversationPracticeLibrary)
         }
     }
 
     func selectConversationPracticeTopic(_ topic: ConversationPracticeTopic) {
+        conversationPracticeImportMessage = nil
+        conversationPracticeImportError = nil
         store.selectedConversationPracticeTopicID = topic.id
         store.persistPromptSettings()
         loadConversationPracticeLibrary()
+    }
+
+    func loadImportedConversationPracticePacks() {
+        let packs = RadixStudyPreferences.importedConversationPracticePacks
+        importedConversationPracticeLibraries = Dictionary(
+            uniqueKeysWithValues: packs.map { ($0.packID, $0.practiceLibrary) }
+        )
+        let importedTopics = packs.map { conversationPracticeTopic(for: $0.practiceLibrary) }
+        conversationPracticeTopics = ConversationPracticeTopic.defaults + importedTopics.filter { importedTopic in
+            !ConversationPracticeTopic.defaults.contains { $0.id == importedTopic.id }
+        }
+        if !conversationPracticeTopics.contains(where: { $0.id == store.selectedConversationPracticeTopicID }) {
+            store.selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
+        }
+    }
+
+    func importConversationPracticePack(_ result: Result<[URL], Error>) {
+        do {
+            guard let url = try result.get().first else { return }
+            let accessed = url.startAccessingSecurityScopedResource()
+            defer {
+                if accessed {
+                    url.stopAccessingSecurityScopedResource()
+                }
+            }
+
+            let data = try Data(contentsOf: url)
+            let pack = try ConversationPracticeService().loadPack(
+                from: data,
+                sourceName: url.deletingPathExtension().lastPathComponent
+            )
+            var packs = RadixStudyPreferences.importedConversationPracticePacks
+            packs.removeAll { $0.packID == pack.packID }
+            packs.append(pack)
+            RadixStudyPreferences.importedConversationPracticePacks = packs
+            loadImportedConversationPracticePacks()
+            if let topic = conversationPracticeTopics.first(where: { $0.id == pack.packID }) {
+                selectConversationPracticeTopic(topic)
+            }
+            conversationPracticeImportMessage = "Loaded \(pack.title) · \(pack.entries.count) sentences"
+            conversationPracticeImportError = nil
+        } catch {
+            conversationPracticeImportMessage = nil
+            conversationPracticeImportError = error.localizedDescription
+        }
+    }
+
+    var selectedConversationPracticeTopic: ConversationPracticeTopic {
+        conversationPracticeTopics.first { $0.id == store.selectedConversationPracticeTopicID }
+            ?? .generalGreetings
+    }
+
+    func conversationPracticeTopic(for library: ConversationPracticeLibrary) -> ConversationPracticeTopic {
+        ConversationPracticeTopic(
+            id: library.set.id,
+            title: library.set.title,
+            summary: library.set.description,
+            difficultyLabel: "Imported practice set",
+            bundledResourceName: nil,
+            generationBrief: library.set.description,
+            situations: [],
+            targetSentenceCount: library.set.itemCount
+        )
     }
 
     func generateConversationPracticeTopic(_ topic: ConversationPracticeTopic) {

@@ -128,6 +128,43 @@ struct ConversationPracticeTests {
         #expect(pack.practiceItems.last?.rank == 100)
     }
 
+    @Test("Theme-only flat conversation practice JSON imports into a pack")
+    func themeOnlyFlatPracticeJSONImports() throws {
+        let data = Data("""
+        {
+          "theme": "Hobbies, Interests & Personal Time",
+          "entries": [
+            {
+              "id": "hob_001",
+              "zh": "你平时有什么爱好？",
+              "pinyin": "Nǐ píngshí yǒu shénme àihào?",
+              "en": "What hobbies do you have in your spare time?"
+            },
+            {
+              "id": "hob_002",
+              "zh": "我喜欢听音乐。",
+              "pinyin": "Wǒ xǐhuan tīng yīnyuè.",
+              "en": "I like listening to music."
+            }
+          ]
+        }
+        """.utf8)
+
+        let pack = try JSONDecoder().decode(ConversationPracticePack.self, from: data)
+        let result = ConversationPracticeRules.validate(pack)
+
+        #expect(result.isValid)
+        #expect(result.errors.isEmpty)
+        #expect(pack.packID == "hobbies_interests_personal_time")
+        #expect(pack.title == "Hobbies, Interests & Personal Time")
+        #expect(pack.sourceType == "user_imported_practice")
+        #expect(pack.entries.count == 2)
+        #expect(pack.practiceItems.first?.rank == 1)
+        #expect(pack.practiceItems.first?.category == "hobbies_interests_personal_time")
+        #expect(pack.practiceItems.first?.phraseKey == "你平时有什么爱好")
+        #expect(pack.practiceItems.first?.tags == ["hobbies_interests_personal_time"])
+    }
+
     @Test("Unknown conversation practice topic falls back to default starter topic")
     func unknownTopicFallsBackToGeneralGreetings() {
         #expect(ConversationPracticeTopic.topic(for: "missing").id == "general_greetings")
