@@ -15,16 +15,9 @@ extension AILinkView {
         let currentPreset = selectedAIPreset ?? store.defaultAIPreset
         let currentAIName = store.aiName(for: currentPreset)
 
-        if sizeClass == .compact {
-            VStack(alignment: .leading, spacing: 10) {
-                promptActionButtons(currentPreset: currentPreset, currentAIName: currentAIName)
-                promptStatusText(currentPreset: currentPreset, currentAIName: currentAIName)
-            }
-        } else {
-            HStack(spacing: 12) {
-                promptActionButtons(currentPreset: currentPreset, currentAIName: currentAIName)
-                promptStatusText(currentPreset: currentPreset, currentAIName: currentAIName)
-            }
+        VStack(alignment: .leading, spacing: 8) {
+            promptActionButtons(currentPreset: currentPreset, currentAIName: currentAIName)
+            promptStatusText(currentPreset: currentPreset, currentAIName: currentAIName)
         }
     }
 

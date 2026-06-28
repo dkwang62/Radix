@@ -4,9 +4,9 @@ extension AILinkView {
     var promptGenerationSection: some View {
         VStack(alignment: .leading, spacing: 18) {
             taskSelectionSection
-            selectedTaskTemplateSection
             selectedTaskSourceSection
             promptBox
+            selectedTaskTemplateSection
         }
     }
 

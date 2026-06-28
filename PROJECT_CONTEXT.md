@@ -161,13 +161,16 @@ also show a task-name field. Prompt edits are draft-only until the user taps
 starter prompt for custom tasks. The task menu includes `New AI
 Task...`. AI Link does not show a full generated prompt preview or a separate
 ready-to-send summary; the selected task appears on the primary open button
-(`Open Gemini: Task 2`) instead. The source appears as an obvious selector.
+(`Open Gemini: Task 2`) instead. The source selector and open controls appear
+immediately after the AI task menu, before the editable prompt, so the user can
+confirm the page/subject and send without scrolling through the template first.
 Opening the selected AI copies the prompt first, then opens the AI provider;
-copy-only remains available from the provider menu. Character and phrase tasks
-default to the most recent memory-strip subject, and the subject row itself is
-a dropdown of recent memory-strip items rather than a Search shortcut. Page
-tasks default to the last viewed saved page while still showing the chosen
-source so the user can change it before sending.
+copy-only remains available from the provider menu. Launch/copy status notices
+sit on their own row below the open controls rather than sharing the button row.
+Character and phrase tasks default to the most recent memory-strip subject, and
+the subject row itself is a dropdown of recent memory-strip items rather than a
+Search shortcut. Page tasks default to the last viewed saved page while still
+showing the chosen source so the user can change it before sending.
 OCR correction no longer has a proposal-approval screen. Automatic Gemini
 review creates and opens the corrected Browse page immediately; copy/paste uses
 one `Paste Answer and Create Corrected Page` action. The original OCR page is
