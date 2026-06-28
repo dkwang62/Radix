@@ -152,17 +152,18 @@ struct ConversationPracticeReviewSheet: View {
                 Spacer(minLength: 0)
             }
 
-            if !currentItem.phraseHints.isEmpty {
+            let phraseHints = store.verifiedPracticePhraseHints(for: currentItem)
+            if !phraseHints.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Phrases")
                         .font(ResponsiveFont.caption.bold())
                         .foregroundStyle(.secondary)
                     RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
-                        ForEach(currentItem.phraseHints, id: \.self) { phrase in
+                        ForEach(phraseHints) { phrase in
                             Button {
                                 openPhraseHint(phrase)
                             } label: {
-                                Text(phrase)
+                                Text(phrase.word)
                                     .font(ResponsiveFont.caption.weight(.semibold))
                                     .padding(.horizontal, 9)
                                     .padding(.vertical, 6)
@@ -217,9 +218,13 @@ struct ConversationPracticeReviewSheet: View {
     }
 
     func openPhraseHint(_ phrase: String) {
-        let phraseItem = store.mergedPhrase(for: phrase) ?? PhraseItem(word: phrase, pinyin: "", meanings: "")
-        store.pushPhraseBreadcrumb(phraseItem)
-        inspectionPath.append(.phrase(phraseItem))
+        guard let phraseItem = store.databasePhrase(for: phrase) else { return }
+        openPhraseHint(phraseItem)
+    }
+
+    func openPhraseHint(_ phrase: PhraseItem) {
+        store.pushPhraseBreadcrumb(phrase)
+        inspectionPath.append(.phrase(phrase))
     }
 
     func openCharacter(_ character: String) {

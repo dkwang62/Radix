@@ -86,13 +86,14 @@ struct ConversationPracticeListSheet: View {
 
     @ViewBuilder
     func linkedHintRow(_ item: ConversationPracticeItem) -> some View {
-        if !item.phraseHints.isEmpty || !item.characterHints.isEmpty {
+        let phraseHints = store.verifiedPracticePhraseHints(for: item)
+        if !phraseHints.isEmpty || !item.characterHints.isEmpty {
             RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
-                ForEach(item.phraseHints, id: \.self) { phrase in
+                ForEach(phraseHints) { phrase in
                     Button {
                         openPhraseHint(phrase)
                     } label: {
-                        Text(phrase)
+                        Text(phrase.word)
                             .font(ResponsiveFont.caption.weight(.semibold))
                             .padding(.horizontal, 9)
                             .padding(.vertical, 6)
@@ -121,9 +122,13 @@ struct ConversationPracticeListSheet: View {
     }
 
     func openPhraseHint(_ phrase: String) {
-        let phraseItem = store.mergedPhrase(for: phrase) ?? PhraseItem(word: phrase, pinyin: "", meanings: "")
-        store.pushPhraseBreadcrumb(phraseItem)
-        inspectionPath.append(.phrase(phraseItem))
+        guard let phraseItem = store.databasePhrase(for: phrase) else { return }
+        openPhraseHint(phraseItem)
+    }
+
+    func openPhraseHint(_ phrase: PhraseItem) {
+        store.pushPhraseBreadcrumb(phrase)
+        inspectionPath.append(.phrase(phrase))
     }
 
     func openCharacter(_ character: String) {
