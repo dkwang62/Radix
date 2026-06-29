@@ -44,6 +44,15 @@ struct ConversationPracticeQuizSheet: View {
         round?.choices ?? []
     }
 
+    var quizScriptFilter: ScriptFilter {
+        switch store.scriptFilter {
+        case .any:
+            return library.set.language == "zh-Hant" ? .traditional : .simplified
+        case .simplified, .traditional:
+            return store.scriptFilter
+        }
+    }
+
     var hasAnsweredCurrent: Bool {
         selectedAnswerID != nil
     }
@@ -89,6 +98,11 @@ struct ConversationPracticeQuizSheet: View {
                 .environmentObject(store)
             }
             .onAppear {
+                prepareCurrentRound()
+            }
+            .onChange(of: store.scriptFilter) { _, _ in
+                candidateCache.removeAll()
+                peerCache.removeAll()
                 prepareCurrentRound()
             }
         }
@@ -304,7 +318,7 @@ struct ConversationPracticeQuizSheet: View {
 
     func characterChoiceCandidates(for character: String) -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
         var characters = [character]
-        characters.append(contentsOf: peers(for: character, sharedLimit: 80, relatedLimit: 40))
+        characters.append(contentsOf: peers(for: character, limit: 80))
         characters.append(contentsOf: library.items.flatMap(\.characterHints))
 
         return characterChoiceCandidates(from: characters, allowingAnswer: character)
@@ -313,28 +327,23 @@ struct ConversationPracticeQuizSheet: View {
     func questionChoiceCandidates(for item: ConversationPracticeItem) -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
         var characters = item.characterHints
         for character in item.characterHints where isPotentialQuizOptionCharacter(character) {
-            characters.append(contentsOf: peers(for: character, sharedLimit: 24, relatedLimit: 12))
+            characters.append(contentsOf: peers(for: character, limit: 24))
         }
         return characterChoiceCandidates(from: characters, allowingAnswer: nil)
     }
 
-    func peers(for character: String, sharedLimit: Int, relatedLimit: Int) -> [String] {
-        if let cached = peerCache[character] {
+    func peers(for character: String, limit: Int) -> [String] {
+        let cacheKey = "\(quizScriptFilter.rawValue)#\(character)#\(limit)"
+        if let cached = peerCache[cacheKey] {
             return cached
         }
 
-        let shared = store.componentRepo.sharedComponentPeers(
+        let peers = store.componentRepo.confusablePeers(
             for: character,
-            scriptFilter: .any,
-            limit: sharedLimit
+            scriptFilter: quizScriptFilter,
+            limit: limit
         ).map(\.character)
-        let related = store.componentRepo.related(
-            for: character,
-            scriptFilter: .any,
-            max: relatedLimit
-        ).map(\.character)
-        let peers = shared + related
-        peerCache[character] = peers
+        peerCache[cacheKey] = peers
         return peers
     }
 
@@ -376,12 +385,13 @@ struct ConversationPracticeQuizSheet: View {
     func isPotentialQuizOptionCharacter(_ character: String) -> Bool {
         guard !store.componentRepo.isUsedComponent(character) else { return false }
         guard let item = store.item(for: character) else { return false }
+        guard store.componentRepo.matchesScriptFilter(item: item, filter: quizScriptFilter) else { return false }
         if item.definition.localizedCaseInsensitiveContains("radical") { return false }
         return true
     }
 
     func choiceComponents(for character: String) -> [String] {
-        var parts = store.components(for: character).map(\.character)
+        var parts = store.componentRepo.components(for: character, scriptFilter: quizScriptFilter).map(\.character)
         if let radical = store.item(for: character)?.radical,
            !radical.isEmpty,
            radical != "—",

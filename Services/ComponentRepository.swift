@@ -26,6 +26,7 @@ final class ComponentRepository {
     private var scriptClassifier = ComponentScriptClassifier()
     private var decompositionParser = ComponentDecompositionParser()
     private var searchIndex = ComponentSearchIndex()
+    private var confusablePeerCache: [ScriptFilter: [String: [String]]] = [:]
 
     var hasOverlayChanges: Bool {
         !overlayUpserts.isEmpty || !overlayDeletions.isEmpty
@@ -229,6 +230,7 @@ final class ComponentRepository {
         usedComponents = snapshot.usedComponents
         subtlexLoadedCount = snapshot.subtlexLoadedCount
         searchIndex = ComponentSearchIndex(allCharacters: snapshot.allCharacters, byCharacter: snapshot.byCharacter)
+        confusablePeerCache.removeAll()
     }
 
     func search(query: String, scriptFilter: ScriptFilter, limit: Int = 300) -> [ComponentItem] {
@@ -286,6 +288,16 @@ final class ComponentRepository {
             .sorted(by: frequencyThenUsageSort)
 
         return Array(peers.prefix(limit))
+    }
+
+    func confusablePeers(for character: String, scriptFilter: ScriptFilter, limit: Int = 80) -> [ComponentItem] {
+        if confusablePeerCache[scriptFilter] == nil {
+            confusablePeerCache[scriptFilter] = buildConfusablePeerMap(scriptFilter: scriptFilter)
+        }
+
+        return Array((confusablePeerCache[scriptFilter]?[character] ?? [])
+            .prefix(limit)
+            .compactMap { byCharacter[$0] })
     }
 
     func sharedPeersByComponent(for character: String, scriptFilter: ScriptFilter, perComponentLimit: Int = 120) -> [String: [ComponentItem]] {
@@ -495,4 +507,112 @@ final class ComponentRepository {
         if lhs.usageCount != rhs.usageCount { return lhs.usageCount > rhs.usageCount }
         return lhs.character < rhs.character
     }
+
+    private func buildConfusablePeerMap(scriptFilter: ScriptFilter) -> [String: [String]] {
+        let eligibleItems = byCharacter.values
+            .filter { $0.character.count == 1 }
+            .filter { !$0.decomposition.isEmpty }
+            .filter { matchesScriptFilter(item: $0, filter: scriptFilter) }
+
+        let rawComponentsByCharacter = Dictionary(uniqueKeysWithValues: eligibleItems.map { item in
+            (
+                item.character,
+                Set(decompositionParts(from: item.decomposition, excluding: item.character))
+            )
+        })
+        let componentUsage = rawComponentsByCharacter.values.reduce(into: [String: Int]()) { counts, components in
+            for component in components {
+                counts[component, default: 0] += 1
+            }
+        }
+
+        func qualifies(_ component: String) -> Bool {
+            guard let item = byCharacter[component] else { return false }
+            guard !Self.lowSignalConfusableComponents.contains(component) else { return false }
+            guard !item.definition.localizedCaseInsensitiveContains("radical") else { return false }
+            let usage = componentUsage[component, default: 0]
+            guard usage >= 2 && usage <= 180 else { return false }
+            if let strokes = item.strokes, strokes <= 2 { return false }
+            return true
+        }
+
+        let componentsByCharacter = rawComponentsByCharacter.mapValues { components in
+            components.filter(qualifies)
+        }
+        let inverted = componentsByCharacter.reduce(into: [String: [String]]()) { index, pair in
+            let (character, components) = pair
+            for component in components {
+                index[component, default: []].append(character)
+            }
+        }
+
+        var output: [String: [String]] = [:]
+        for item in eligibleItems {
+            let sourceComponents = componentsByCharacter[item.character] ?? []
+            guard !sourceComponents.isEmpty else { continue }
+
+            var scores: [String: Int] = [:]
+            for component in sourceComponents {
+                for peer in inverted[component, default: []] where peer != item.character {
+                    scores[peer, default: 0] += 10
+                }
+            }
+
+            let variants = Set(allVariants(for: item.character))
+            let sourceStructure = structureKey(for: item)
+            let ranked = scores.compactMap { peerCharacter, baseScore -> (item: ComponentItem, score: Int)? in
+                guard !variants.contains(peerCharacter),
+                      let peer = byCharacter[peerCharacter],
+                      matchesScriptFilter(item: peer, filter: scriptFilter)
+                else { return nil }
+
+                let peerComponents = componentsByCharacter[peerCharacter] ?? []
+                let shared = sourceComponents.intersection(peerComponents)
+                guard !shared.isEmpty else { return nil }
+
+                var score = baseScore
+                if sourceStructure != "None", sourceStructure == structureKey(for: peer) {
+                    score += 4
+                }
+                if let sourceStrokes = item.strokes, let peerStrokes = peer.strokes {
+                    let distance = abs(sourceStrokes - peerStrokes)
+                    if distance <= 2 {
+                        score += 3
+                    } else if distance >= 7 {
+                        score -= 4
+                    }
+                }
+                if item.radical == peer.radical, shared.count == 1 {
+                    score -= 5
+                }
+                if shared.count >= 2 {
+                    score += 6
+                }
+
+                guard score >= 8 else { return nil }
+                return (peer, score)
+            }
+            .sorted { lhs, rhs in
+                if lhs.score != rhs.score { return lhs.score > rhs.score }
+                return frequencyThenUsageSort(lhs.item, rhs.item)
+            }
+
+            output[item.character] = ranked.map(\.item.character)
+        }
+
+        return output
+    }
+
+    private static let lowSignalConfusableComponents: Set<String> = [
+        "一", "丨", "丶", "丿", "乙", "亅", "二", "十", "厂", "匚", "卜", "人", "亻",
+        "儿", "入", "八", "冂", "冖", "冫", "几", "凵", "刀", "刂", "力", "勹", "匕",
+        "匸", "卩", "又", "口", "囗", "土", "士", "夂", "夊", "夕", "大", "女", "子",
+        "宀", "寸", "小", "尢", "尸", "屮", "山", "巛", "工", "己", "巾", "干", "幺",
+        "广", "廴", "廾", "弋", "弓", "彐", "彡", "彳", "心", "忄", "戈", "户", "手",
+        "扌", "支", "攵", "文", "斗", "斤", "方", "日", "曰", "月", "木", "欠", "止",
+        "水", "氵", "火", "灬", "爪", "爫", "牛", "牜", "犬", "犭", "玉", "王", "示",
+        "礻", "糸", "纟", "艹", "衣", "衤", "言", "讠", "辶", "邑", "阝", "金", "钅",
+        "門", "门", "頁", "页", "風", "风", "食", "饣", "馬", "马", "魚", "鱼", "鳥",
+        "鸟"
+    ]
 }
