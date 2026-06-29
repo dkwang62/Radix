@@ -44,7 +44,9 @@ extension FavouritesTab {
             recentStudySection
         }
 
-        studyCheckpointsSection
+        if isPhone {
+            studyCheckpointsSection
+        }
     }
 
     @ViewBuilder

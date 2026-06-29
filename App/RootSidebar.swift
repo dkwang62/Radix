@@ -9,12 +9,18 @@ extension RootView {
                 sidebarGlobalActionRow
                 sidebarMainNavigation
 
-                if store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil {
+                if sidebarShowsInfoCard {
                     sidebarPreview
+                } else {
+                    sidebarCheckpointsSection
                 }
             }
             .padding(8)
         }
+    }
+
+    var sidebarShowsInfoCard: Bool {
+        store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil
     }
 
     var sidebarBrandHeader: some View {
@@ -196,6 +202,133 @@ extension RootView {
             }
         )
         .help(RadixNavigationGuideTopic.settings.summary)
+    }
+
+    var sidebarCheckpointsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .firstTextBaseline) {
+                Label("Checkpoints", systemImage: "clock.arrow.circlepath")
+                    .font(ResponsiveFont.subheadline.weight(.bold))
+                Spacer()
+                if quickLocalSnapshots.count > 3 {
+                    Text("\(quickLocalSnapshots.count)")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Button {
+                quickSaveMemory()
+            } label: {
+                sidebarCheckpointActionContent(
+                    title: isQuickSavingMemory ? "Creating..." : RadixCopy.createCheckpoint,
+                    subtitle: "Save this moment",
+                    systemImage: "clock.badge.checkmark",
+                    isLocked: entitlement.requiresPro(.datedCopies)
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(isQuickSavingMemory || isQuickRestoringMemory)
+
+            sidebarCheckpointRows
+        }
+        .padding(8)
+        .background(RadixTheme.secondaryBackground.opacity(0.58))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(RadixTheme.separator, lineWidth: 0.5)
+        )
+    }
+
+    @ViewBuilder
+    var sidebarCheckpointRows: some View {
+        if quickLocalSnapshots.isEmpty {
+            Text("No checkpoints created yet.")
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .padding(8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(RadixTheme.background)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        } else {
+            VStack(spacing: 6) {
+                ForEach(Array(quickLocalSnapshots.prefix(3))) { checkpoint in
+                    Button {
+                        pendingSidebarCheckpointReturn = checkpoint
+                    } label: {
+                        sidebarCheckpointRow(checkpoint)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isQuickSavingMemory || isQuickRestoringMemory)
+                }
+            }
+        }
+    }
+
+    func sidebarCheckpointActionContent(
+        title: String,
+        subtitle: String,
+        systemImage: String,
+        isLocked: Bool
+    ) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: isLocked ? "lock.fill" : systemImage)
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 26, height: 26)
+                .background(Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 7))
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title)
+                    .font(ResponsiveFont.caption.bold())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Text(subtitle)
+                    .font(ResponsiveFont.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            .layoutPriority(1)
+
+            Spacer(minLength: 0)
+        }
+        .padding(8)
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .background(Color.accentColor.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    func sidebarCheckpointRow(_ checkpoint: LocalDataSnapshot) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "clock.arrow.circlepath")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 24, height: 24)
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 7))
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(checkpoint.title)
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .lineLimit(1)
+                Text(checkpoint.relativeSavedText)
+                    .font(ResponsiveFont.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            .layoutPriority(1)
+
+            Image(systemName: "arrow.counterclockwise")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 7)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RadixTheme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     @ViewBuilder

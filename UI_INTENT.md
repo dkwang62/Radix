@@ -153,9 +153,10 @@ drag indicator; prefer compact icon-and-word controls there, while status tools
 should keep readable words and icons rather than becoming icon-only.
 
 On iPhone, Study may need to contain explicit Snapshot sections because the
-screen cannot permanently show a rich sidebar. On iPad and Mac, Save/Restore
-Snapshot can remain a sidebar-level learning action instead of being buried
-inside Study.
+screen cannot permanently show a rich sidebar. On iPad and Mac, Checkpoints can
+remain a sidebar-level learning action instead of being buried inside Study, but
+they should disappear while a character or phrase information card is using the
+sidebar.
 
 Study should not become a hodgepodge. Group it by intent:
 
@@ -275,13 +276,16 @@ Study should show Checkpoints directly because they are one-step undo points for
 learning changes on the current device. My Data should not duplicate those
 controls; it should show a small link back to Study when users look for
 Checkpoints there.
-Study includes a compact `Backup files` link to My Data so users can learn the
-difference without losing the quick Checkpoint workflow. Put Checkpoints at the
-bottom of Study so the safety net is available without competing with the main
-review choices. Show one Create Checkpoint action plus a scrollable list of
-checkpoint rows; the rows themselves return to that checkpoint after
-confirmation. Backup file rows in My Data offer Merge or Replace and use the
-picker only when the exported file is no longer directly readable.
+On iPhone, Study includes a compact `Backup files` link to My Data so users can
+learn the difference without losing the quick Checkpoint workflow. Put
+Checkpoints at the bottom of iPhone Study so the safety net is available without
+competing with the main review choices. On iPad and Mac, put Checkpoints in the
+sidebar when no character/phrase information card is displayed; hide them while
+that card is visible so the sidebar has one clear focus. Show one Create
+Checkpoint action plus recent checkpoint rows; the rows themselves return to
+that checkpoint after confirmation. Backup file rows in My Data offer Merge or
+Replace and use the picker only when the exported file is no longer directly
+readable.
 
 The shared meaning is:
 

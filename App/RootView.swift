@@ -29,6 +29,7 @@ struct RootView: View {
     @State var isQuickSavingMemory = false
     @State var isQuickRestoringMemory = false
     @State var quickLocalSnapshots: [LocalDataSnapshot] = []
+    @State var pendingSidebarCheckpointReturn: LocalDataSnapshot?
     @State var shouldOpenPhoneCamera = false
     @State var navigationGuideTopic: RadixNavigationGuideTopic?
     @State var lastNavigationGuideTap: RadixNavigationGuideTopic?
@@ -68,6 +69,21 @@ struct RootView: View {
         .sheet(item: store.presentationBinding(\.quickEditDestination)) { destination in
             QuickEditSheet(destination: destination)
                 .environmentObject(store)
+        }
+        .alert("Return to Checkpoint?", isPresented: Binding(
+            get: { pendingSidebarCheckpointReturn != nil },
+            set: { if !$0 { pendingSidebarCheckpointReturn = nil } }
+        )) {
+            Button("Cancel", role: .cancel) {
+                pendingSidebarCheckpointReturn = nil
+            }
+            Button("Return to Checkpoint", role: .destructive) {
+                let checkpoint = pendingSidebarCheckpointReturn
+                pendingSidebarCheckpointReturn = nil
+                quickRestoreMemory(from: checkpoint)
+            }
+        } message: {
+            Text("Current study data on this device will be replaced by the selected checkpoint. Backup files are not affected.")
         }
         .popover(item: $navigationGuideTopic, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) { topic in
             NavigationGuidePopover(topic: topic) {

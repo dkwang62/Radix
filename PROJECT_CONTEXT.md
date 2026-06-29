@@ -395,14 +395,17 @@ exports the user's work.
 The global capture action is labelled `Camera` across iPhone, iPad, and Mac;
 avoid reverting to `Take Photo` in visible navigation.
 Local snapshots are presented as `Checkpoints` to avoid colliding with backup
-language. Checkpoints live at the bottom of Study as a safety-net section after
-the main review content. The section has one Create Checkpoint action and a
-scrollable checkpoint list with roughly three rows visible; tapping a row is the
-return action after confirmation, so there is no separate restore menu competing
-with the learning content. Returning to a checkpoint always leaves the user in
-Study, even if the checkpoint was created while another tab was active.
-Study includes a compact `Backup files` bridge to My Data so users can still
-distinguish local learning recovery from portable file protection.
+language. On iPad and Mac, Checkpoints live in the sidebar when no
+character/phrase information card is displayed; the section disappears while an
+information card owns the sidebar focus. On iPhone, where there is no persistent
+sidebar, Checkpoints remain at the bottom of Study as a safety-net section after
+the main review content. The section has one Create Checkpoint action and recent
+checkpoint rows; tapping a row is the return action after confirmation, so there
+is no separate restore menu competing with the learning content. Returning to a
+checkpoint always leaves the user in Study, even if the checkpoint was created
+while another tab was active. iPhone Study includes a compact `Backup files`
+bridge to My Data so users can still distinguish local learning recovery from
+portable file protection.
 My Data’s `Backup File` screen owns Backup File actions only. Backup
 history stores lightweight file metadata and shows filenames; a selected backup
 file restores immediately when the saved path is still readable, otherwise
