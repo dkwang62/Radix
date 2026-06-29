@@ -18,8 +18,19 @@ struct ConversationPracticeQuizSheet: View {
         library.items[currentIndex]
     }
 
-    var choices: [ConversationPracticeItem] {
-        ConversationPracticeQuizRules.choices(for: currentItem, in: library.items)
+    var quizCharacter: String {
+        ConversationPracticeQuizRules.questionCharacter(for: currentItem)
+    }
+
+    var currentCharacterItem: ComponentItem? {
+        store.item(for: quizCharacter)
+    }
+
+    var choices: [String] {
+        ConversationPracticeQuizRules.characterChoices(
+            for: quizCharacter,
+            from: characterChoiceCandidates()
+        )
     }
 
     var hasAnsweredCurrent: Bool {
@@ -27,7 +38,7 @@ struct ConversationPracticeQuizSheet: View {
     }
 
     var selectedIsCorrect: Bool {
-        selectedAnswerID == currentItem.id
+        selectedAnswerID == quizCharacter
     }
 
     var body: some View {
@@ -86,15 +97,24 @@ struct ConversationPracticeQuizSheet: View {
 
     var questionCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(currentItem.simplified)
-                .font(.system(size: RadixPlatform.isPhone ? 34 : 42, weight: .bold, design: .rounded))
-                .frame(maxWidth: .infinity, alignment: .center)
-                .multilineTextAlignment(.center)
-                .minimumScaleFactor(0.6)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Choose the matching character.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
 
-            Text("Choose the natural English meaning.")
+                Text(currentCharacterItem?.pinyinText ?? currentItem.pinyin)
+                    .font(ResponsiveFont.title.weight(.bold))
+
+                Text(currentCharacterItem?.definition ?? currentItem.english)
+                    .font(ResponsiveFont.body)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Text("From: \(currentItem.simplified)")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -104,7 +124,7 @@ struct ConversationPracticeQuizSheet: View {
 
     var answerChoices: some View {
         VStack(spacing: 8) {
-            ForEach(choices) { choice in
+            ForEach(choices, id: \.self) { choice in
                 Button {
                     choose(choice)
                 } label: {
@@ -114,10 +134,10 @@ struct ConversationPracticeQuizSheet: View {
                             .foregroundStyle(answerTint(for: choice))
                             .frame(width: 24, height: 24)
 
-                        Text(choice.english)
-                            .font(ResponsiveFont.body.weight(.semibold))
-                            .multilineTextAlignment(.leading)
-                            .fixedSize(horizontal: false, vertical: true)
+                        Text(choice)
+                            .font(.system(size: 34, weight: .semibold, design: .rounded))
+                            .frame(maxWidth: .infinity, minHeight: 48)
+                            .minimumScaleFactor(0.7)
 
                         Spacer(minLength: 0)
                     }
@@ -144,9 +164,11 @@ struct ConversationPracticeQuizSheet: View {
                 .foregroundStyle(selectedIsCorrect ? Color.green : Color.orange)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(currentItem.pinyin)
+                Text(quizCharacter)
+                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                Text(currentCharacterItem?.pinyinText ?? currentItem.pinyin)
                     .font(ResponsiveFont.body.weight(.semibold))
-                Text(currentItem.english)
+                Text(currentCharacterItem?.definition ?? currentItem.english)
                     .font(ResponsiveFont.body)
             }
 
@@ -154,7 +176,7 @@ struct ConversationPracticeQuizSheet: View {
                 Button {
                     openPhrase(currentItem)
                 } label: {
-                    Label("Phrase Card", systemImage: "text.quote")
+                    Label("Sentence Card", systemImage: "text.quote")
                         .font(ResponsiveFont.caption.weight(.semibold))
                 }
                 .buttonStyle(.bordered)
@@ -199,9 +221,9 @@ struct ConversationPracticeQuizSheet: View {
         currentIndex >= library.items.count - 1
     }
 
-    func choose(_ choice: ConversationPracticeItem) {
-        selectedAnswerID = choice.id
-        answered[currentItem.id] = choice.id == currentItem.id
+    func choose(_ choice: String) {
+        selectedAnswerID = choice
+        answered["\(currentItem.id)#\(quizCharacter)"] = choice == quizCharacter
     }
 
     func advance() {
@@ -213,25 +235,51 @@ struct ConversationPracticeQuizSheet: View {
         selectedAnswerID = nil
     }
 
-    func answerIcon(for choice: ConversationPracticeItem) -> String {
+    func answerIcon(for choice: String) -> String {
         guard hasAnsweredCurrent else { return "circle" }
-        if choice.id == currentItem.id { return "checkmark.circle.fill" }
-        if choice.id == selectedAnswerID { return "xmark.circle.fill" }
+        if choice == quizCharacter { return "checkmark.circle.fill" }
+        if choice == selectedAnswerID { return "xmark.circle.fill" }
         return "circle"
     }
 
-    func answerTint(for choice: ConversationPracticeItem) -> Color {
+    func answerTint(for choice: String) -> Color {
         guard hasAnsweredCurrent else { return .secondary }
-        if choice.id == currentItem.id { return .green }
-        if choice.id == selectedAnswerID { return .red }
+        if choice == quizCharacter { return .green }
+        if choice == selectedAnswerID { return .red }
         return .secondary
     }
 
-    func answerBackground(for choice: ConversationPracticeItem) -> Color {
+    func answerBackground(for choice: String) -> Color {
         guard hasAnsweredCurrent else { return RadixTheme.secondaryBackground.opacity(0.45) }
-        if choice.id == currentItem.id { return Color.green.opacity(0.12) }
-        if choice.id == selectedAnswerID { return Color.red.opacity(0.1) }
+        if choice == quizCharacter { return Color.green.opacity(0.12) }
+        if choice == selectedAnswerID { return Color.red.opacity(0.1) }
         return RadixTheme.secondaryBackground.opacity(0.34)
+    }
+
+    func characterChoiceCandidates() -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
+        var characters = [quizCharacter]
+        characters.append(contentsOf: store.componentRepo.sharedComponentPeers(for: quizCharacter, scriptFilter: .any, limit: 36).map(\.character))
+        characters.append(contentsOf: store.componentRepo.related(for: quizCharacter, scriptFilter: .any, max: 24).map(\.character))
+        characters.append(contentsOf: library.items.flatMap(\.characterHints))
+
+        return characters.map { character in
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(
+                character: character,
+                components: choiceComponents(for: character),
+                rank: store.item(for: character)?.rank
+            )
+        }
+    }
+
+    func choiceComponents(for character: String) -> [String] {
+        var parts = store.components(for: character).map(\.character)
+        if let radical = store.item(for: character)?.radical,
+           !radical.isEmpty,
+           radical != "—",
+           !parts.contains(radical) {
+            parts.append(radical)
+        }
+        return parts
     }
 
     func openPhrase(_ item: ConversationPracticeItem) {

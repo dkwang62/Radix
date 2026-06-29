@@ -629,6 +629,62 @@ public enum ConversationPracticeRules {
 }
 
 public enum ConversationPracticeQuizRules {
+    public struct CharacterChoiceCandidate: Equatable {
+        public let character: String
+        public let components: [String]
+        public let rank: Int?
+
+        public init(character: String, components: [String] = [], rank: Int? = nil) {
+            self.character = character
+            self.components = components
+            self.rank = rank
+        }
+    }
+
+    public static func questionCharacter(for item: ConversationPracticeItem) -> String {
+        let hinted = item.characterHints.first(where: { $0.count == 1 && isChineseCharacter($0) })
+        if let hinted { return hinted }
+
+        return item.simplified
+            .map(String.init)
+            .first(where: { $0.count == 1 && isChineseCharacter($0) })
+            ?? item.simplified
+    }
+
+    public static func characterChoices(
+        for character: String,
+        from candidates: [CharacterChoiceCandidate],
+        count: Int = 4
+    ) -> [String] {
+        var uniqueCandidates: [CharacterChoiceCandidate] = []
+        var seen = Set<String>()
+        for candidate in candidates where candidate.character.count == 1 && isChineseCharacter(candidate.character) {
+            guard seen.insert(candidate.character).inserted else { continue }
+            uniqueCandidates.append(candidate)
+        }
+
+        guard let answer = uniqueCandidates.first(where: { $0.character == character }) else {
+            return [character]
+        }
+
+        let answerComponents = Set(answer.components)
+        let distractors = uniqueCandidates
+            .filter { $0.character != character }
+            .sorted {
+                characterChoiceSort(
+                    $0,
+                    before: $1,
+                    answerComponents: answerComponents,
+                    answerCharacter: character
+                )
+            }
+            .prefix(max(0, count - 1))
+
+        return ([answer.character] + distractors.map(\.character)).sorted {
+            stableOrderKey($0, itemID: character) < stableOrderKey($1, itemID: character)
+        }
+    }
+
     public static func choices(
         for item: ConversationPracticeItem,
         in items: [ConversationPracticeItem],
@@ -653,6 +709,29 @@ public enum ConversationPracticeQuizRules {
         let combined = "\(itemID)#\(id)"
         return combined.unicodeScalars.reduce(0) { partial, scalar in
             ((partial * 31) + Int(scalar.value)) % 997
+        }
+    }
+
+    private static func characterChoiceSort(
+        _ lhs: CharacterChoiceCandidate,
+        before rhs: CharacterChoiceCandidate,
+        answerComponents: Set<String>,
+        answerCharacter: String
+    ) -> Bool {
+        let lhsShared = Set(lhs.components).intersection(answerComponents).count
+        let rhsShared = Set(rhs.components).intersection(answerComponents).count
+        if lhsShared != rhsShared { return lhsShared > rhsShared }
+
+        let lhsRank = lhs.rank ?? Int.max
+        let rhsRank = rhs.rank ?? Int.max
+        if lhsRank != rhsRank { return lhsRank < rhsRank }
+
+        return stableOrderKey(lhs.character, itemID: answerCharacter) < stableOrderKey(rhs.character, itemID: answerCharacter)
+    }
+
+    private static func isChineseCharacter(_ value: String) -> Bool {
+        value.count == 1 && value.unicodeScalars.contains { scalar in
+            (0x4E00...0x9FFF).contains(Int(scalar.value))
         }
     }
 }

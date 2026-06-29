@@ -185,6 +185,34 @@ struct ConversationPracticeTests {
         #expect(Set(choices.map(\.id)).count == choices.count)
     }
 
+    @Test("Conversation practice character quiz uses component-sharing character choices")
+    func characterQuizUsesComponentSharingChoices() throws {
+        let pack = try loadConversationPackFixture()
+        let item = try #require(pack.practiceLibrary.items.first)
+        let candidates = [
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "请", components: ["讠", "青"], rank: 10),
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "情", components: ["忄", "青"], rank: 11),
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "清", components: ["氵", "青"], rank: 12),
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "晴", components: ["日", "青"], rank: 13),
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "好", components: ["女", "子"], rank: 1)
+        ]
+
+        let choices = ConversationPracticeQuizRules.characterChoices(for: "请", from: candidates)
+        let repeatedChoices = ConversationPracticeQuizRules.characterChoices(for: "请", from: candidates)
+        let answerComponents = Set(candidates[0].components)
+        let distractorComponents = Dictionary(uniqueKeysWithValues: candidates.map { ($0.character, Set($0.components)) })
+
+        #expect(ConversationPracticeQuizRules.questionCharacter(for: item) == "你")
+        #expect(choices.count == 4)
+        #expect(choices == repeatedChoices)
+        #expect(choices.contains("请"))
+        #expect(!choices.contains("好"))
+        #expect(choices.filter { $0 != "请" }.allSatisfy { character in
+            guard let components = distractorComponents[character] else { return false }
+            return !components.isDisjoint(with: answerComponents)
+        })
+    }
+
     @Test("Conversation practice validation rejects duplicate and incomplete rows")
     func validationRejectsBadRows() throws {
         let data = Data("""
