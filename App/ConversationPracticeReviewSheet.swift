@@ -223,7 +223,11 @@ struct ConversationPracticeReviewSheet: View {
     }
 
     func openPhrase(_ item: ConversationPracticeItem) {
-        let phrase = displayPhraseItem(for: item)
+        let phrase = ConversationPracticeScriptSupport.phraseItem(
+            for: item,
+            usesTraditionalScript: usesTraditionalScript,
+            store: store
+        )
         store.pushPhraseBreadcrumb(phrase)
         inspectionPath.append(.phrase(phrase))
     }
@@ -257,18 +261,9 @@ struct ConversationPracticeReviewSheet: View {
     }
 
     func displayCharacters(for item: ConversationPracticeItem, excludingPhrases phrases: [PhraseItem]) -> [String] {
-        let coveredCharacters = Set(phrases.flatMap { phrase in displayText(phrase.word).map(String.init) })
         return ConversationPracticeScriptSupport.displayCharacters(
             for: item,
-            usesTraditionalScript: usesTraditionalScript,
-            store: store
-        )
-        .filter { !coveredCharacters.contains($0) }
-    }
-
-    func displayPhraseItem(for item: ConversationPracticeItem) -> PhraseItem {
-        ConversationPracticeScriptSupport.phraseItem(
-            for: item,
+            excludingPhrases: phrases,
             usesTraditionalScript: usesTraditionalScript,
             store: store
         )

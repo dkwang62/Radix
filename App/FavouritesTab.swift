@@ -33,6 +33,8 @@ struct FavouritesTab: View {
     @State var conversationPracticeReviewPresentation: ConversationPracticeReviewPresentation?
     @State var conversationPracticeQuizPresentation: ConversationPracticeQuizPresentation?
 
+    private let conversationPracticeService = ConversationPracticeService()
+
     var isPhone: Bool {
         RadixPlatform.isPhone
     }
@@ -194,7 +196,7 @@ struct FavouritesTab: View {
         if let importedLibrary = importedConversationPracticeLibraries[topic.id] {
             conversationPracticeLibrary = importedLibrary
         } else {
-            conversationPracticeLibrary = try? ConversationPracticeService().loadLibrary(for: topic)
+            conversationPracticeLibrary = try? conversationPracticeService.loadLibrary(for: topic)
         }
         if let conversationPracticeLibrary {
             store.registerConversationPracticeLibrary(conversationPracticeLibrary)
@@ -234,14 +236,11 @@ struct FavouritesTab: View {
             }
 
             let data = try Data(contentsOf: url)
-            let pack = try ConversationPracticeService().loadPack(
+            let pack = try conversationPracticeService.loadPack(
                 from: data,
                 sourceName: url.deletingPathExtension().lastPathComponent
             )
-            var packs = RadixStudyPreferences.importedConversationPracticePacks
-            packs.removeAll { $0.packID == pack.packID }
-            packs.append(pack)
-            RadixStudyPreferences.importedConversationPracticePacks = packs
+            saveImportedConversationPracticePack(pack)
             loadImportedConversationPracticePacks()
             if let topic = conversationPracticeTopics.first(where: { $0.id == pack.packID }) {
                 selectConversationPracticeTopic(topic)
@@ -252,6 +251,13 @@ struct FavouritesTab: View {
             conversationPracticeImportMessage = nil
             conversationPracticeImportError = error.localizedDescription
         }
+    }
+
+    func saveImportedConversationPracticePack(_ pack: ConversationPracticePack) {
+        var packs = RadixStudyPreferences.importedConversationPracticePacks
+        packs.removeAll { $0.packID == pack.packID }
+        packs.append(pack)
+        RadixStudyPreferences.importedConversationPracticePacks = packs
     }
 
     var selectedConversationPracticeTopic: ConversationPracticeTopic {

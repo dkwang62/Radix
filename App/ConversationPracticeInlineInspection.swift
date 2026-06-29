@@ -31,6 +31,23 @@ enum ConversationPracticeScriptSupport {
         }
     }
 
+    static func displayCharacters(
+        for item: ConversationPracticeItem,
+        excludingPhrases phrases: [PhraseItem],
+        usesTraditionalScript: Bool,
+        store: RadixStore
+    ) -> [String] {
+        let coveredCharacters = Set(phrases.flatMap { phrase in
+            displayText(phrase.word, usesTraditionalScript: usesTraditionalScript, store: store).map(String.init)
+        })
+        return displayCharacters(
+            for: item,
+            usesTraditionalScript: usesTraditionalScript,
+            store: store
+        )
+        .filter { !coveredCharacters.contains($0) }
+    }
+
     static func phraseItem(
         for item: ConversationPracticeItem,
         usesTraditionalScript: Bool,

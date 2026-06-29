@@ -5,7 +5,7 @@ Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
 
-Last reviewed: 2026-06-28
+Last reviewed: 2026-06-29
 
 ## Product and Platform Scope
 
@@ -290,6 +290,8 @@ and character hint linked back to existing Radix Phrase and Character cards.
 The Conversation Practice Simplified/Traditional choice is shared across the
 Practice card, Flashcards, Quick Quiz, and Sentence List, including displayed
 sentences, hint chips, character links, and opened Phrase card titles.
+Shared script-support helpers own Practice phrase-card conversion and
+character-chip filtering so each practice mode follows the same coverage rules.
 Phrase hint chips in Practice are database-verified only, display longest-first,
 and appear before character chips; character chips omit any characters already
 covered by displayed phrases. Curated or detected groupings must resolve exactly

@@ -10,7 +10,7 @@ extension FavouritesTab {
                     Label("Conversation Practice", systemImage: "bubble.left.and.bubble.right")
                         .font(ResponsiveFont.headline)
                     Spacer(minLength: 8)
-                    Text(conversationPracticeLibrary.map { "\($0.set.itemCount) sentences" } ?? (topic.hasBundledContent ? "\(topic.targetSentenceCount) sentences" : "Generate"))
+                    Text(conversationPracticeStatusText(for: topic))
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
@@ -28,6 +28,13 @@ extension FavouritesTab {
                 }
             }
         }
+    }
+
+    func conversationPracticeStatusText(for topic: ConversationPracticeTopic) -> String {
+        if let conversationPracticeLibrary {
+            return "\(conversationPracticeLibrary.set.itemCount) sentences"
+        }
+        return topic.hasBundledContent ? "\(topic.targetSentenceCount) sentences" : "Generate"
     }
 
     func conversationPracticeTopicPicker(selectedTopic: ConversationPracticeTopic) -> some View {

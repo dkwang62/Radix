@@ -622,10 +622,6 @@ public enum ConversationPracticeRules {
         )
     }
 
-    private static func normalizedText(_ value: String) -> String {
-        value.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
 }
 
 public enum ConversationPracticeQuizRules {
