@@ -20,6 +20,7 @@ struct DataBackupPreviewSection: View {
     @Binding var showSavedPagesPreview: Bool
     @Binding var showFavoritesPreview: Bool
     @Binding var showAITemplatesPreview: Bool
+    @Binding var showPracticePreview: Bool
     @Binding var showAppStatePreview: Bool
     @Binding var showAddedCharactersPreview: Bool
     @Binding var showEditedCharactersPreview: Bool
@@ -133,6 +134,10 @@ struct DataBackupPreviewSection: View {
 
             DisclosureGroup("AI Link Buttons (\(store.promptConfig.tasks.count))", isExpanded: $showAITemplatesPreview) {
                 backupAITemplatesSummary
+            }
+
+            DisclosureGroup("Practice", isExpanded: $showPracticePreview) {
+                backupPracticeSummary
             }
 
             DisclosureGroup("App State & Settings", isExpanded: $showAppStatePreview) {

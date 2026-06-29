@@ -220,6 +220,10 @@ travel situations. `Stay in Shanghai` is the fourth configured topic, backed by
 `Stay in Shanghai.json` for longer-stay study, housing, utilities, transport,
 local services, and administrative tasks. Topic configuration must remain
 data-driven so future topics can be added without rebuilding the Study UI.
+Imported Conversation Practice packs persist through the same backup and
+checkpoint flows as the rest of Study. My Data's backup preview lists Practice
+as its own saved section, including the selected topic, bundled topic count,
+and imported practice-pack sentence counts.
 The AI Link generator task emits the lightweight importable Practice JSON shape
 `{ "theme": "...", "entries": [{ "id", "zh", "pinyin", "en" }] }`, so AI
 content can be saved as a file, imported from the Study dropdown, validated by

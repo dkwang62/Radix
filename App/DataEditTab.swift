@@ -88,6 +88,7 @@ struct DataEditTab: View {
     @State var showSavedPagesPreview = false
     @State var showFavoritesPreview = false
     @State var showAITemplatesPreview = false
+    @State var showPracticePreview = false
     @State var showAppStatePreview = false
     @State var showBackupContentsDetails = false
 

@@ -1,6 +1,30 @@
 import SwiftUI
 
 extension DataBackupPreviewSection {
+    var backupPracticeSummary: some View {
+        let importedPacks = RadixStudyPreferences.importedConversationPracticePacks
+
+        return VStack(alignment: .leading, spacing: 8) {
+            BackupSummaryLine(title: "Selected topic", value: store.selectedConversationPracticeTopic.title)
+            BackupSummaryLine(title: "Built-in topics", value: "\(ConversationPracticeTopic.defaults.count)")
+            BackupSummaryLine(title: "Imported practice packs", value: "\(importedPacks.count)")
+
+            if !importedPacks.isEmpty {
+                ForEach(importedPacks, id: \.packID) { pack in
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text(pack.title)
+                            .font(ResponsiveFont.caption)
+                        Spacer(minLength: 0)
+                        Text("\(pack.entries.count) sentences")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .padding(.top, 8)
+    }
+
     var backupFavoritesSummary: some View {
         VStack(alignment: .leading, spacing: 8) {
             BackupSummaryLine(title: "Favorite characters", value: "\(store.favoriteItems.count)")
@@ -60,10 +84,6 @@ extension DataBackupPreviewSection {
             BackupSummaryLine(title: "Recent searches", value: "\(store.searchHistory.count)")
             BackupSummaryLine(title: "Remembered characters", value: "\(store.rootBreadcrumb.count)")
             BackupSummaryLine(title: "Phrase length choice", value: store.activePhraseLengthFilterLabel)
-            BackupSummaryLine(
-                title: "Imported practice packs",
-                value: "\(RadixStudyPreferences.importedConversationPracticePacks.count)"
-            )
         }
         .padding(.top, 8)
     }
