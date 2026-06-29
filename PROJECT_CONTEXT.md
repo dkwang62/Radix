@@ -277,6 +277,9 @@ pinyin/meaning, score for the session, and links back to the existing Phrase and
 Character card presentation. Quiz results remain local until the persistent
 lesson-progress store is designed. Quick Quiz caches the selected round plus
 per-character peer/candidate lookups so SwiftUI redraws do not rebuild choices.
+If the strict confusability index cannot supply enough distractors, Quick Quiz
+falls back through broader shared-component, related-character, and
+script-matched dictionary choices rather than showing a one-choice round.
 Step 6 adds a full `Sentence List` browse sheet for the starter set. It shows
 the curated order for all sentences and keeps each full sentence, phrase hint,
 and character hint linked back to existing Radix Phrase and Character cards.

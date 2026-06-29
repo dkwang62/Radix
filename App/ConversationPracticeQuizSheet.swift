@@ -321,7 +321,16 @@ struct ConversationPracticeQuizSheet: View {
         characters.append(contentsOf: peers(for: character, limit: 80))
         characters.append(contentsOf: library.items.flatMap(\.characterHints))
 
-        return characterChoiceCandidates(from: characters, allowingAnswer: character)
+        var candidates = characterChoiceCandidates(from: characters, allowingAnswer: character)
+        if candidates.count < 4 {
+            let fallbackCharacters = fallbackChoiceCharacters(
+                for: character,
+                excluding: Set(candidates.map(\.character)),
+                limit: 80
+            )
+            candidates.append(contentsOf: characterChoiceCandidates(from: fallbackCharacters, allowingAnswer: nil))
+        }
+        return candidates
     }
 
     func questionChoiceCandidates(for item: ConversationPracticeItem) -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
@@ -378,12 +387,58 @@ struct ConversationPracticeQuizSheet: View {
         return candidate
     }
 
+    func fallbackChoiceCharacters(for character: String, excluding excludedCharacters: Set<String>, limit: Int) -> [String] {
+        let answerVariants = Set(store.componentRepo.allVariants(for: character))
+        var seen = excludedCharacters.union(answerVariants)
+        seen.insert(character)
+        var result: [String] = []
+
+        func append(_ characters: [String]) {
+            for candidate in characters {
+                guard result.count < limit else { return }
+                guard seen.insert(candidate).inserted else { continue }
+                guard isPotentialQuizOptionCharacter(candidate) else { continue }
+                result.append(candidate)
+            }
+        }
+
+        append(store.componentRepo.sharedComponentPeers(
+            for: character,
+            scriptFilter: quizScriptFilter,
+            limit: limit
+        ).map(\.character))
+        append(store.componentRepo.related(
+            for: character,
+            scriptFilter: quizScriptFilter,
+            max: limit
+        ).map(\.character))
+
+        let rankedDictionaryCharacters = store.componentRepo.byCharacter.values
+            .filter { item in
+                item.character != character
+                && !seen.contains(item.character)
+                && isPotentialQuizOptionCharacter(item.character)
+            }
+            .sorted { lhs, rhs in
+                let lhsRank = lhs.rank ?? Int.max
+                let rhsRank = rhs.rank ?? Int.max
+                if lhsRank != rhsRank { return lhsRank < rhsRank }
+
+                return lhs.character < rhs.character
+            }
+            .map(\.character)
+        append(rankedDictionaryCharacters)
+
+        return result
+    }
+
     func isQuizOptionCharacter(_ character: String, allowingAnswer answer: String?) -> Bool {
         character == answer || isPotentialQuizOptionCharacter(character)
     }
 
     func isPotentialQuizOptionCharacter(_ character: String) -> Bool {
-        guard !store.componentRepo.isUsedComponent(character) else { return false }
+        guard character.count == 1 else { return false }
+        guard character.unicodeScalars.contains(where: { (0x4E00...0x9FFF).contains(Int($0.value)) }) else { return false }
         guard let item = store.item(for: character) else { return false }
         guard store.componentRepo.matchesScriptFilter(item: item, filter: quizScriptFilter) else { return false }
         if item.definition.localizedCaseInsensitiveContains("radical") { return false }
