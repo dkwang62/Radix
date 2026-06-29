@@ -95,7 +95,7 @@ compatibility contracts. Current portable contracts include:
 - navigation, tab, script-filter, and restore-mode identifiers
 - preference keys and the preference-storage interface
 
-The portable test suite currently contains 32 tests across eight suites.
+The portable test suite currently contains 33 tests across eight suites.
 
 ## Active Workstream
 
@@ -267,11 +267,13 @@ and character hints back into existing Phrase and Character card presentation.
 Progress is intentionally local for now; persistent lesson progress remains a
 future storage decision.
 Step 5 has the first `Quick Quiz` flow: the starter set opens an offline
-single-character recognition sheet using deterministic portable answer-choice
-rules that prefer similar-looking characters with shared components. Feedback
-shows pinyin/meaning, score for the session, and links back to the existing
-Phrase and Character card presentation. Quiz results remain local until the
-persistent lesson-progress store is designed.
+single-character recognition sheet that blanks one character inside the source
+sentence, prioritizes action/verb characters for the blank, and uses
+deterministic portable answer-choice rules that prefer similar-looking full
+characters with shared components rather than radicals. Feedback shows
+pinyin/meaning, score for the session, and links back to the existing Phrase and
+Character card presentation. Quiz results remain local until the persistent
+lesson-progress store is designed.
 Step 6 adds a full `Sentence List` browse sheet for the starter set. It shows
 the curated order for all sentences and keeps each full sentence, phrase hint,
 and character hint linked back to existing Radix Phrase and Character cards.

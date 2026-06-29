@@ -629,6 +629,16 @@ public enum ConversationPracticeRules {
 }
 
 public enum ConversationPracticeQuizRules {
+    public struct CharacterQuestion: Equatable {
+        public let character: String
+        public let blankedSentence: String
+
+        public init(character: String, blankedSentence: String) {
+            self.character = character
+            self.blankedSentence = blankedSentence
+        }
+    }
+
     public struct CharacterChoiceCandidate: Equatable {
         public let character: String
         public let components: [String]
@@ -641,13 +651,32 @@ public enum ConversationPracticeQuizRules {
         }
     }
 
+    public static func characterQuestion(for item: ConversationPracticeItem) -> CharacterQuestion {
+        let character = questionCharacter(for: item)
+        return CharacterQuestion(
+            character: character,
+            blankedSentence: sentenceByBlanking(character, in: item.simplified)
+        )
+    }
+
     public static func questionCharacter(for item: ConversationPracticeItem) -> String {
-        let hinted = item.characterHints.first(where: { $0.count == 1 && isChineseCharacter($0) })
-        if let hinted { return hinted }
+        let hintedCharacters = item.characterHints.filter { $0.count == 1 && isChineseCharacter($0) }
+        if let actionCharacter = hintedCharacters.first(where: isPreferredActionCharacter) {
+            return actionCharacter
+        }
+
+        if let substantialCharacter = hintedCharacters.first(where: isSubstantialQuizCharacter) {
+            return substantialCharacter
+        }
+
+        if let hinted = hintedCharacters.first { return hinted }
 
         return item.simplified
             .map(String.init)
-            .first(where: { $0.count == 1 && isChineseCharacter($0) })
+            .first(where: { isChineseCharacter($0) && isSubstantialQuizCharacter($0) })
+            ?? item.simplified
+                .map(String.init)
+                .first(where: { $0.count == 1 && isChineseCharacter($0) })
             ?? item.simplified
     }
 
@@ -734,6 +763,31 @@ public enum ConversationPracticeQuizRules {
             (0x4E00...0x9FFF).contains(Int(scalar.value))
         }
     }
+
+    private static func sentenceByBlanking(_ character: String, in sentence: String) -> String {
+        guard !character.isEmpty else { return sentence }
+        return sentence.replacingOccurrences(of: character, with: "＿", options: [], range: sentence.startIndex..<sentence.endIndex)
+    }
+
+    private static func isPreferredActionCharacter(_ character: String) -> Bool {
+        preferredActionCharacters.contains(character)
+    }
+
+    private static func isSubstantialQuizCharacter(_ character: String) -> Bool {
+        !lowValueQuestionCharacters.contains(character)
+    }
+
+    private static let preferredActionCharacters: Set<String> = [
+        "去", "来", "回", "走", "到", "进", "出", "坐", "住", "停", "带", "打", "叫", "开",
+        "买", "卖", "订", "付", "换", "找", "问", "说", "讲", "听", "看", "读", "写", "学",
+        "吃", "喝", "点", "加", "做", "办", "帮", "给", "拿", "放", "用", "修", "试", "排",
+        "要", "想", "会", "能", "需", "请"
+    ]
+
+    private static let lowValueQuestionCharacters: Set<String> = [
+        "我", "你", "他", "她", "它", "们", "这", "那", "哪", "个", "的", "了", "吗", "呢",
+        "吧", "啊", "是", "在", "有", "不", "很", "太", "一", "二", "三"
+    ]
 }
 
 private extension CharacterSet {

@@ -202,7 +202,7 @@ struct ConversationPracticeTests {
         let answerComponents = Set(candidates[0].components)
         let distractorComponents = Dictionary(uniqueKeysWithValues: candidates.map { ($0.character, Set($0.components)) })
 
-        #expect(ConversationPracticeQuizRules.questionCharacter(for: item) == "你")
+        #expect(ConversationPracticeQuizRules.questionCharacter(for: item) == "好")
         #expect(choices.count == 4)
         #expect(choices == repeatedChoices)
         #expect(choices.contains("请"))
@@ -211,6 +211,47 @@ struct ConversationPracticeTests {
             guard let components = distractorComponents[character] else { return false }
             return !components.isDisjoint(with: answerComponents)
         })
+    }
+
+    @Test("Conversation practice character quiz blanks the sentence and prefers action characters")
+    func characterQuizBlanksSentenceAndPrefersActionCharacters() throws {
+        let pack = try JSONDecoder().decode(ConversationPracticePack.self, from: Data("""
+        {
+          "pack_id": "quiz_target_fixture",
+          "version": "1.0",
+          "title": "Quiz Target Fixture",
+          "description": "Fixture",
+          "language": "zh-Hans",
+          "source_type": "conversation_pack",
+          "created_for": "Radix Chinese",
+          "entries": [
+            {
+              "id": "target-001",
+              "sequence": 1,
+              "category": "travel",
+              "level": "easy",
+              "sentence": {
+                "zh": "你打算去哪里度假？",
+                "pinyin": "Nǐ dǎsuàn qù nǎlǐ dùjià?",
+                "en": "Where do you plan to go on vacation?"
+              },
+              "analysis": {
+                "characters": ["你", "打", "算", "去", "哪", "里", "度", "假"],
+                "phrases": ["打算", "去", "哪里", "度假"]
+              },
+              "metadata": { "difficulty": 1, "frequency": 1, "tags": ["travel"] },
+              "notes": ""
+            }
+          ]
+        }
+        """.utf8))
+
+        let item = try #require(pack.practiceLibrary.items.first)
+        let question = ConversationPracticeQuizRules.characterQuestion(for: item)
+
+        #expect(question.character == "打")
+        #expect(question.blankedSentence == "你＿算去哪里度假？")
+        #expect(!question.blankedSentence.contains(question.character))
     }
 
     @Test("Conversation practice validation rejects duplicate and incomplete rows")

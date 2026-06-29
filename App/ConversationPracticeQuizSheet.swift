@@ -18,8 +18,12 @@ struct ConversationPracticeQuizSheet: View {
         library.items[currentIndex]
     }
 
+    var question: ConversationPracticeQuizRules.CharacterQuestion {
+        ConversationPracticeQuizRules.characterQuestion(for: currentItem)
+    }
+
     var quizCharacter: String {
-        ConversationPracticeQuizRules.questionCharacter(for: currentItem)
+        question.character
     }
 
     var currentCharacterItem: ComponentItem? {
@@ -98,23 +102,24 @@ struct ConversationPracticeQuizSheet: View {
     var questionCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Choose the matching character.")
+                Text("Which character completes the sentence?")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
 
-                Text(currentCharacterItem?.pinyinText ?? currentItem.pinyin)
-                    .font(ResponsiveFont.title.weight(.bold))
+                Text(question.blankedSentence)
+                    .font(.system(size: RadixPlatform.isPhone ? 32 : 40, weight: .bold, design: .rounded))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.55)
+                    .fixedSize(horizontal: false, vertical: true)
 
-                Text(currentCharacterItem?.definition ?? currentItem.english)
-                    .font(ResponsiveFont.body)
+                Text(currentItem.english)
+                    .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
-
-            Text("From: \(currentItem.simplified)")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -258,17 +263,24 @@ struct ConversationPracticeQuizSheet: View {
 
     func characterChoiceCandidates() -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
         var characters = [quizCharacter]
-        characters.append(contentsOf: store.componentRepo.sharedComponentPeers(for: quizCharacter, scriptFilter: .any, limit: 36).map(\.character))
-        characters.append(contentsOf: store.componentRepo.related(for: quizCharacter, scriptFilter: .any, max: 24).map(\.character))
+        characters.append(contentsOf: store.componentRepo.sharedComponentPeers(for: quizCharacter, scriptFilter: .any, limit: 80).map(\.character))
+        characters.append(contentsOf: store.componentRepo.related(for: quizCharacter, scriptFilter: .any, max: 40).map(\.character))
         characters.append(contentsOf: library.items.flatMap(\.characterHints))
 
-        return characters.map { character in
+        return characters.filter(isQuizOptionCharacter).map { character in
             ConversationPracticeQuizRules.CharacterChoiceCandidate(
                 character: character,
                 components: choiceComponents(for: character),
                 rank: store.item(for: character)?.rank
             )
         }
+    }
+
+    func isQuizOptionCharacter(_ character: String) -> Bool {
+        guard character == quizCharacter || !store.componentRepo.isUsedComponent(character) else { return false }
+        guard let item = store.item(for: character) else { return character == quizCharacter }
+        if item.definition.localizedCaseInsensitiveContains("radical") { return false }
+        return true
     }
 
     func choiceComponents(for character: String) -> [String] {
