@@ -12,10 +12,13 @@ private struct ConversationPracticeQuizRound: Equatable {
 }
 
 struct ConversationPracticeQuizSheet: View {
+    private static let sessionQuestionLimit = 20
+
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var store: RadixStore
     let library: ConversationPracticeLibrary
     @State private var currentIndex = 0
+    @State private var sessionItems: [ConversationPracticeItem] = []
     @State private var selectedAnswerID: String?
     @State private var answered: [String: Bool] = [:]
     @State private var inspectionPath: [ConversationPracticeInspectionRoute] = []
@@ -23,8 +26,13 @@ struct ConversationPracticeQuizSheet: View {
     @State private var candidateCache: [String: ConversationPracticeQuizRules.CharacterChoiceCandidate] = [:]
     @State private var peerCache: [String: [String]] = [:]
 
+    var quizItems: [ConversationPracticeItem] {
+        sessionItems.isEmpty ? Array(library.items.prefix(Self.sessionQuestionLimit)) : sessionItems
+    }
+
     var currentItem: ConversationPracticeItem {
-        library.items[currentIndex]
+        let items = quizItems
+        return items[min(currentIndex, items.count - 1)]
     }
 
     private var round: ConversationPracticeQuizRound? {
@@ -98,6 +106,7 @@ struct ConversationPracticeQuizSheet: View {
                 .environmentObject(store)
             }
             .onAppear {
+                initializeQuizSession()
                 prepareCurrentRound()
             }
             .onChange(of: store.scriptFilter) { _, _ in
@@ -113,7 +122,7 @@ struct ConversationPracticeQuizSheet: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(library.set.title)
                     .font(ResponsiveFont.body.weight(.semibold))
-                Text("\(currentIndex + 1) of \(library.items.count)")
+                Text("\(currentIndex + 1) of \(quizItems.count)")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             }
@@ -254,7 +263,7 @@ struct ConversationPracticeQuizSheet: View {
     }
 
     var isLastQuestion: Bool {
-        currentIndex >= library.items.count - 1
+        currentIndex >= quizItems.count - 1
     }
 
     func choose(_ choice: String) {
@@ -297,6 +306,15 @@ struct ConversationPracticeQuizSheet: View {
         currentRound = makeRound(for: currentItem)
     }
 
+    func initializeQuizSession() {
+        guard sessionItems.isEmpty else { return }
+        sessionItems = Array(library.items.shuffled().prefix(Self.sessionQuestionLimit))
+        currentIndex = 0
+        selectedAnswerID = nil
+        answered = [:]
+        currentRound = nil
+    }
+
     private func makeRound(for item: ConversationPracticeItem) -> ConversationPracticeQuizRound {
         let questionCandidates = questionChoiceCandidates(for: item)
         let question = ConversationPracticeQuizRules.characterQuestion(
@@ -307,7 +325,7 @@ struct ConversationPracticeQuizSheet: View {
         let choices = ConversationPracticeQuizRules.characterChoices(
             for: question.character,
             from: choiceCandidates
-        )
+        ).shuffled()
 
         return ConversationPracticeQuizRound(
             itemID: item.id,

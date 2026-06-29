@@ -268,9 +268,10 @@ Progress is intentionally local for now; persistent lesson progress remains a
 future storage decision.
 Step 5 has the first `Quick Quiz` flow: the starter set opens an offline
 single-character recognition sheet that blanks one character inside the source
-sentence, prioritizes characters with strong visually confusable peers, and uses
-deterministic portable answer-choice rules that prefer similar-looking full
-characters rather than radicals. `ComponentRepository` maintains a cached,
+sentence. Each run samples up to 20 practice items in random order, shuffles the
+displayed options for each round, prioritizes characters with strong visually
+confusable peers, and uses deterministic portable answer-choice rules that
+prefer similar-looking full characters rather than radicals. `ComponentRepository` maintains a cached,
 script-filtered confusability index built from meaningful decomposition overlap;
 generic stroke/radical-only overlap is treated as low signal. Feedback shows
 pinyin/meaning, score for the session, and links back to the existing Phrase and
