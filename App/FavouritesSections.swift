@@ -4,22 +4,56 @@ extension FavouritesTab {
     var favouritesScrollContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                if !hasDismissedStudyIntro {
-                    studyIntroCard
+                studyModePicker
+
+                switch studyMode {
+                case .review:
+                    reviewStudyContent
+                case .practice:
+                    practiceStudyContent
                 }
-
-                studyDashboardSummary
-
-                if hasStudyGridItems {
-                    recentStudySection
-                }
-
-                conversationPracticeSection
-
-                studyCheckpointsSection
             }
             .padding(.horizontal)
             .padding(.bottom, 20)
+        }
+    }
+
+    var studyModePicker: some View {
+        Picker("Study mode", selection: $studyMode) {
+            ForEach(StudyMode.allCases) { mode in
+                Text(mode.rawValue).tag(mode)
+            }
+        }
+        .pickerStyle(.segmented)
+        .padding(.top, 2)
+    }
+
+    @ViewBuilder
+    var reviewStudyContent: some View {
+        if !hasDismissedStudyIntro {
+            studyIntroCard
+        }
+
+        studyDashboardSummary
+
+        if hasStudyGridItems {
+            recentStudySection
+        }
+
+        studyCheckpointsSection
+    }
+
+    @ViewBuilder
+    var practiceStudyContent: some View {
+        if conversationPracticeTopics.isEmpty {
+            ContentUnavailableView(
+                "No Practice Sets",
+                systemImage: "bubble.left.and.bubble.right",
+                description: Text("Conversation practice sets will appear here when they are available.")
+            )
+            .frame(maxWidth: .infinity, minHeight: 220)
+        } else {
+            conversationPracticeSection
         }
     }
 

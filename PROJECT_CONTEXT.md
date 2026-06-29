@@ -188,12 +188,11 @@ Corrected pages retain the longest possible prefix of the original 11-character
 name and add a unique numeric suffix such as `1` or `2`.
 The corrected source remains Chinese, while change reasons, confidence, and
 uncertainty explanations are explicitly requested in English.
-Study uses its four summary tiles as the section selectors. Recent and Favorites
-must not be repeated as a segmented picker above the review grid. The next
-Study structure direction is an internal `Review | Practice` split: keep the
-main app tab named `Study`, put existing recent/favorites/added/saved material
-under Review, and put Conversation Practice plus future guided lesson sets under
-Practice.
+Study has an internal `Review | Practice` split while the main app tab remains
+named `Study`. Review holds existing recent/favorites/added/saved material,
+including the four summary tiles and checkpoints. Practice holds Conversation
+Practice plus future guided lesson sets. Recent and Favorites must not be
+repeated as a segmented picker above the review grid.
 On iPad and Mac Catalyst those four tiles use an explicit two-column layout so
 all labels remain readable; phone keeps its adaptive layout.
 Conversation Practice is the next Study learning section. It presents curated

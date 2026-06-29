@@ -164,14 +164,14 @@ Study should not become a hodgepodge. Group it by intent:
 - Practice: guided lesson sets and drills such as Conversation Practice.
 - Snapshots: save and restore learning states.
 
-The Study tab can split internally into `Review` and `Practice`, but do not
-create a separate main app tab for Practice unless the whole navigation model is
+The Study tab splits internally into `Review` and `Practice`; do not create a
+separate main app tab for Practice unless the whole navigation model is
 reconsidered. Review holds the user's kept material; Practice holds guided
 lesson content.
 
-The four Study summary buttons are the section selectors. Do not repeat
-Recent/Favorites as a segmented picker above the review grid; the grid heading
-should reflect the summary button most recently selected.
+Inside Review, the four Study summary buttons are the section selectors. Do not
+repeat Recent/Favorites as a segmented picker above the review grid; the grid
+heading should reflect the summary button most recently selected.
 On iPad and Mac Catalyst, arrange the four Study summary buttons as two
 equal-width buttons per row so labels such as Added Phrases and Saved Pages
 remain fully readable.
