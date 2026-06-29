@@ -169,7 +169,7 @@ Set list:
 Set detail:
 
 - uses the sentence card as the central object
-- offers `Review Cards` first
+- offers `Flashcards` first
 - offers `Quick Quiz` next
 - lets the user browse the full sentence list
 - keeps every sentence tappable into its Phrase card or Browse inspection
@@ -183,7 +183,7 @@ Practice feedback:
 - never dead-ends in a quiz-only screen where the dictionary/card system
   disappears
 - opens Phrase and Character cards inside the current practice sheet, with the
-  normal back button returning to Review Cards, Quick Quiz, or Sentence List
+  normal back button returning to Flashcards, Quick Quiz, or Sentence List
 
 ## Initial Build Phases
 
@@ -210,23 +210,25 @@ Practice feedback:
      `Conversation Practice` section for `General Greetings`, including count
      and sample sentences that open through the normal Phrase card path.
 
-4. Review Cards
+4. Flashcards
    - Show Chinese first.
    - Reveal pinyin and English.
    - Add simple progress responses.
    - Link sentence and components back to Phrase and Character cards.
-   - Status: `Review Cards` opens from the Study set card, reveals pinyin and
+   - Status: `Flashcards` opens from the Study set card, reveals pinyin and
      English on demand, records local Again/Good/Easy responses for the current
-     session, and dismisses back to existing Phrase/Character card presentation
+     session, and keeps Phrase/Character inspection inside the active sheet
      when users tap the sentence, phrase hints, or character hints.
 
 5. Quick Quiz
-   - Start with Chinese-to-English multiple choice.
-   - Use lesson-set items as answer pools.
+   - Start with offline single-character recognition inside the source sentence.
+   - Use script-aware component/confusability data for answer choices.
    - Show Radix-backed answer feedback after each question.
-   - Status: `Quick Quiz` opens from the Study set card with deterministic
-     portable answer choices, shows immediate feedback with pinyin/English and
-     session score, and links feedback back to existing Phrase/Character cards.
+   - Status: `Quick Quiz` opens from the Study set card, samples up to 20
+     practice items per run, blanks one character, builds script-aware choices
+     from confusable/component peers with broader dictionary fallbacks, shows
+     immediate feedback with pinyin/English and session score, and keeps
+     Phrase/Character inspection inside the quiz sheet.
 
 6. Sentence List
    - Let users browse every sentence in the starter set.
@@ -245,9 +247,10 @@ Practice feedback:
    - Status: Topic selection is in place as a reusable configuration layer.
      `Food / Eating Conversation` is the first expansion topic, backed by
      `Food Dining.json`; `Trip to 4 Cities` is the second expansion topic,
-     backed by `Trip to 4 cities.json`. AI Link provides a generator prompt
-     that emits the lightweight importable JSON shape for future topics or
-     draft replacement packs.
+     backed by `Trip to 4 cities.json`; `Stay in Shanghai` is the third
+     expansion topic, backed by `Stay in Shanghai.json`. AI Link provides a
+     generator prompt that emits the lightweight importable JSON shape for
+     future topics or draft replacement packs.
 
 8. AI-generated practice packs
    - Add an AI Link task named `Generate Practice Pack`.
@@ -256,6 +259,51 @@ Practice feedback:
      `entries[].id`, `zh`, `pinyin`, and `en` fields.
    - Keep generated packs draft-only until validated by the existing
      `ConversationPracticeRules`.
+   - Status: The generator task is built into AI Link. Study imports validated
+     Practice JSON from the topic dropdown, persists imported packs in
+     preferences, selects them immediately, registers their phrase cache, and
+     lets users delete imported topics without affecting bundled topics.
+
+9. Backup and transfer
+   - Include imported Practice packs in portable backups and checkpoints.
+   - Show Practice as its own backup-preview section rather than hiding imported
+     packs inside generic app state.
+   - Status: `UnifiedPackage` carries imported Conversation Practice packs.
+     My Data's backup preview has a pending Practice section that summarizes
+     selected topic, bundled topic count, imported pack count, and imported
+     sentence counts.
+
+## Next Build Candidates
+
+These are the remaining useful Practice work items, in likely build order:
+
+1. Persistent progress
+   - Define a portable practice-progress model keyed by pack ID and item ID.
+   - Store Flashcards responses, quiz attempts, last practiced date, and simple
+     per-topic completion counts.
+   - Include progress in backup/checkpoint flows after the storage contract is
+     stable.
+
+2. Progress-aware Study UI
+   - Replace placeholder progress/last-practiced copy with real values from the
+     progress model.
+   - Keep the Practice card compact: topic, count, last practiced, and simple
+     completion signal are enough.
+
+3. Import review and replacement flow
+   - Before replacing an imported pack with the same ID, show a compact summary
+     of title, sentence count, and validation warnings.
+   - Keep the current fast import path for valid first-time packs.
+
+4. Practice audio/read-aloud
+   - Reuse existing speech infrastructure for sentence read-aloud in Flashcards,
+     Quick Quiz feedback, and Sentence List.
+   - Do not make audio required for offline practice.
+
+5. Additional modes only after progress exists
+   - Consider sentence-to-English or English-to-Chinese drills once the
+     persistent progress model can track attempts consistently.
+   - Keep every mode linked back to Phrase and Character cards.
 
 ## Non-Goals For First Version
 
@@ -268,13 +316,17 @@ Practice feedback:
 
 ## Open Decisions
 
-- Whether imported lesson phrases should be bundled standard data, user data, or
-  a new curated-data category.
 - Whether practice progress belongs in preferences, SQLite, or a portable
   practice-progress store.
-- Whether practice sets should appear as a fifth Study summary tile or as a row
-  inside the existing Review area.
-- How much automatic character/sub-phrase detection is needed for the first
-  version.
 - Whether uploaded content should be reviewed in a staging screen before import
-  or validated through a developer script first.
+  when it replaces an existing imported pack.
+
+## Resolved Decisions
+
+- Practice stays inside the Study tab under the internal `Review | Practice`
+  split, not as a fifth main tab or a fifth Review summary tile.
+- Imported packs are user data in preferences and portable backups; bundled
+  topics remain fixed app content.
+- Phrase hint chips are database-verified exact matches only. Character chips
+  omit characters already covered by displayed phrase chips, and shared script
+  helpers keep Flashcards, Quick Quiz, and Sentence List aligned.

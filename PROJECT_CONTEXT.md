@@ -240,8 +240,9 @@ them across devices.
 The first useful practice modes should be simple offline drills such as
 Flashcards and Quick Quiz, with answer feedback linking back into Phrase and
 Character cards rather than dead-ending in a quiz-only screen. The detailed
-implementation plan is `CONVERSATION_PRACTICE_PLAN.md`; use it before building
-content import, data models, or Study UI for this feature.
+implementation plan and current Practice roadmap are
+`CONVERSATION_PRACTICE_PLAN.md`; use it before building content import, data
+models, progress tracking, or Study UI for this feature.
 Step 1 of that plan is now in place: `conversation100.json` is the starter
 content, and `ConversationPracticePack` plus `ConversationPracticeRules` define
 the portable JSON contract, mapping, ordering, duplicate checks, and validation
@@ -303,6 +304,9 @@ Flashcards, Quick Quiz, and Sentence List now open those Phrase and Character
 cards inside their own navigation stacks, so Back returns to the practice mode
 instead of ejecting the user from the lesson flow. Character links use the normal
 full `CharacterDetailView`, not the lightweight preview card.
+The next Practice build should start with a portable progress model keyed by
+pack/item ID, then use it for last-practiced and completion signals in Study;
+import replacement review and sentence read-aloud are lower-priority follow-ups.
 `CharacterDetailView` no longer embeds the old Breakdown/Derivatives lineage
 grid; structure exploration remains available through the dedicated Character
 Breakdown explorer instead of crowding the info card.
