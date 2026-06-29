@@ -139,8 +139,7 @@ extension RootView {
             .accessibilityLabel("Search in Radix")
 
             Button {
-                store.showiPhoneDetail = false
-                store.previewCharacter = nil
+                store.clearInformationCardFocus()
                 store.startBrowseCameraPage()
             } label: {
                 PrimaryActionTile(
@@ -197,12 +196,7 @@ extension RootView {
         return Button {
             handleNavigationGuideTap(guideTopic, isActive: isActive) {
                 store.clearCrossTabOrigin()
-                if RadixPlatform.isPhone {
-                    if id != 2 {
-                        store.previewCharacter = nil
-                        store.showiPhoneDetail = false
-                    }
-                }
+                store.clearInformationCardFocus()
                 switch id {
                 case 0:
                     store.startBrowseCameraPage()
@@ -259,6 +253,7 @@ extension RootView {
         return Button {
             handleNavigationGuideTap(.settings, isActive: isActive) {
                 store.clearCrossTabOrigin()
+                store.clearInformationCardFocus()
                 store.goToSettings()
             }
         } label: {

@@ -281,9 +281,11 @@ learn the difference without losing the quick Checkpoint workflow. Put
 Checkpoints at the bottom of iPhone Study so the safety net is available without
 competing with the main review choices. On iPad and Mac, put Checkpoints in the
 sidebar when no character/phrase information card is displayed; hide them while
-that card is visible so the sidebar has one clear focus. Show one Create
-Checkpoint action plus recent checkpoint rows; the rows themselves return to
-that checkpoint after confirmation. Backup file rows in My Data offer Merge or
+that card is visible so the sidebar has one clear focus. Top-level navigation
+and global actions that are not selecting a character or phrase should clear the
+information card, making Checkpoints visible again. Show one Create Checkpoint
+action plus recent checkpoint rows; the rows themselves return to that
+checkpoint after confirmation. Backup file rows in My Data offer Merge or
 Replace and use the picker only when the exported file is no longer directly
 readable.
 

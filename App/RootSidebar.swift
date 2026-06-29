@@ -56,8 +56,7 @@ extension RootView {
 
             Button {
                 hasUsedSidebarNavigation = true
-                store.showiPhoneDetail = false
-                store.previewCharacter = nil
+                store.clearInformationCardFocus()
                 store.startBrowseCameraPage()
             } label: {
                 PrimaryActionTile(
@@ -103,6 +102,7 @@ extension RootView {
         return Button {
             handleNavigationGuideTap(guideTopic, isActive: isActive) {
                 store.clearCrossTabOrigin()
+                store.clearInformationCardFocus()
                 switch id {
                 case 2:
                     hasUsedSidebarNavigation = true
@@ -164,6 +164,7 @@ extension RootView {
         return Button {
             handleNavigationGuideTap(.settings, isActive: isActive) {
                 store.clearCrossTabOrigin()
+                store.clearInformationCardFocus()
                 hasUsedSidebarNavigation = true
                 store.goToSettings()
             }
@@ -218,6 +219,7 @@ extension RootView {
             }
 
             Button {
+                store.clearInformationCardFocus()
                 quickSaveMemory()
             } label: {
                 sidebarCheckpointActionContent(
@@ -255,6 +257,7 @@ extension RootView {
             VStack(spacing: 6) {
                 ForEach(Array(quickLocalSnapshots.prefix(3))) { checkpoint in
                     Button {
+                        store.clearInformationCardFocus()
                         pendingSidebarCheckpointReturn = checkpoint
                     } label: {
                         sidebarCheckpointRow(checkpoint)

@@ -230,12 +230,14 @@ extension RadixStore {
         route = .aiLink
     }
 
-    func goToSearchRoot() {
+    func goToSearchRoot(restorePreview: Bool = true) {
         clearCrossTabOrigin()
         route = .search
         homeTab = .smart
         activeFavouriteCharacter = nil
-        restoreLastPreviewedCharacterIfNeeded()
+        if restorePreview {
+            restoreLastPreviewedCharacterIfNeeded()
+        }
     }
 
     func goToFavourites(preservingOrigin: Bool = false) {
@@ -498,6 +500,12 @@ extension RadixStore {
     func dismissImagePhrasePreview() {
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
+    }
+
+    func clearInformationCardFocus() {
+        dismissSidebarPhrasePreview()
+        previewCharacter = nil
+        showiPhoneDetail = false
     }
 
     // MARK: - Highlight helpers

@@ -57,8 +57,8 @@ extension RootView {
 
     /// Starts the same clean Search flow from every platform's primary navigation.
     func beginNewSearch() {
-        store.showiPhoneDetail = false
-        store.goToSearchRoot()
+        store.clearInformationCardFocus()
+        store.goToSearchRoot(restorePreview: false)
         DispatchQueue.main.async {
             store.query = ""
             store.clearSearch()
