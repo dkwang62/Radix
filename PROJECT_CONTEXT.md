@@ -269,9 +269,12 @@ future storage decision.
 Step 5 has the first `Quick Quiz` flow: the starter set opens an offline
 single-character recognition sheet that blanks one character inside the source
 sentence. Each run samples up to 20 practice items in random order, shuffles the
-displayed options for each round, prioritizes characters with strong visually
-confusable peers, and uses deterministic portable answer-choice rules that
-prefer similar-looking full characters rather than radicals. `ComponentRepository` maintains a cached,
+displayed options for each round, and includes a Simplified/Traditional control;
+the blanked sentence, answer options, feedback character, phrase card word, and
+character links follow the shared Study Practice script choice. Quick Quiz
+prioritizes characters with strong visually confusable peers and uses
+deterministic portable answer-choice rules that prefer similar-looking full
+characters rather than radicals. `ComponentRepository` maintains a cached,
 script-filtered confusability index built from meaningful decomposition overlap;
 generic stroke/radical-only overlap is treated as low signal. Feedback shows
 pinyin/meaning, score for the session, and links back to the existing Phrase and
@@ -284,6 +287,9 @@ script-matched dictionary choices rather than showing a one-choice round.
 Step 6 adds a full `Sentence List` browse sheet for the starter set. It shows
 the curated order for all sentences and keeps each full sentence, phrase hint,
 and character hint linked back to existing Radix Phrase and Character cards.
+The Conversation Practice Simplified/Traditional choice is shared across the
+Practice card, Review Cards, Quick Quiz, and Sentence List, including displayed
+sentences, hint chips, character links, and opened Phrase card titles.
 Phrase hint chips in Practice are database-verified only, display longest-first,
 and appear before character chips; character chips omit any characters already
 covered by displayed phrases. Curated or detected groupings must resolve exactly

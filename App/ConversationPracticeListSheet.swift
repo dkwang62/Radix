@@ -9,12 +9,14 @@ struct ConversationPracticeListSheet: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var store: RadixStore
     let library: ConversationPracticeLibrary
+    @Binding var usesTraditionalScript: Bool
     @State private var inspectionPath: [ConversationPracticeInspectionRoute] = []
 
     var body: some View {
         NavigationStack(path: $inspectionPath) {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 10) {
+                    scriptPicker
                     ForEach(library.items) { item in
                         sentenceRow(item)
                     }
@@ -40,6 +42,15 @@ struct ConversationPracticeListSheet: View {
         }
     }
 
+    var scriptPicker: some View {
+        Picker("Script", selection: $usesTraditionalScript) {
+            Text("Simplified").tag(false)
+            Text("Traditional").tag(true)
+        }
+        .pickerStyle(.segmented)
+        .padding(.bottom, 2)
+    }
+
     func sentenceRow(_ item: ConversationPracticeItem) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Button {
@@ -54,7 +65,7 @@ struct ConversationPracticeListSheet: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(item.simplified)
+                        Text(displayText(item.simplified))
                             .font(ResponsiveFont.body.weight(.semibold))
                             .fixedSize(horizontal: false, vertical: true)
                         Text(item.pinyin)
@@ -75,7 +86,7 @@ struct ConversationPracticeListSheet: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Open phrase \(item.simplified)")
+            .accessibilityLabel("Open phrase \(displayText(item.simplified))")
 
             linkedHintRow(item)
         }
@@ -88,35 +99,38 @@ struct ConversationPracticeListSheet: View {
     func linkedHintRow(_ item: ConversationPracticeItem) -> some View {
         let hints = store.linkedPracticeHints(for: item)
         if !hints.phrases.isEmpty || !hints.characters.isEmpty {
-            RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
-                ForEach(hints.phrases) { phrase in
-                    Button {
-                        openPhraseHint(phrase)
-                    } label: {
-                        Text(phrase.word)
-                            .font(ResponsiveFont.caption.weight(.semibold))
-                            .padding(.horizontal, 9)
-                            .padding(.vertical, 6)
+            let characters = displayCharacters(for: item, excludingPhrases: hints.phrases)
+            if !hints.phrases.isEmpty || !characters.isEmpty {
+                RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
+                    ForEach(hints.phrases) { phrase in
+                        Button {
+                            openPhraseHint(phrase)
+                        } label: {
+                            Text(displayText(phrase.word))
+                                .font(ResponsiveFont.caption.weight(.semibold))
+                                .padding(.horizontal, 9)
+                                .padding(.vertical, 6)
+                        }
+                        .buttonStyle(.bordered)
                     }
-                    .buttonStyle(.bordered)
-                }
 
-                ForEach(hints.characters, id: \.self) { character in
-                    Button {
-                        openCharacter(character)
-                    } label: {
-                        Text(character)
-                            .font(ResponsiveFont.caption.weight(.semibold))
-                            .frame(minWidth: 30, minHeight: 30)
+                    ForEach(characters, id: \.self) { character in
+                        Button {
+                            openCharacter(character)
+                        } label: {
+                            Text(character)
+                                .font(ResponsiveFont.caption.weight(.semibold))
+                                .frame(minWidth: 30, minHeight: 30)
+                        }
+                        .buttonStyle(.bordered)
                     }
-                    .buttonStyle(.bordered)
                 }
             }
         }
     }
 
     func openPhrase(_ item: ConversationPracticeItem) {
-        let phrase = phraseItem(for: item)
+        let phrase = displayPhraseItem(for: item)
         store.pushPhraseBreadcrumb(phrase)
         inspectionPath.append(.phrase(phrase))
     }
@@ -127,8 +141,13 @@ struct ConversationPracticeListSheet: View {
     }
 
     func openPhraseHint(_ phrase: PhraseItem) {
-        store.pushPhraseBreadcrumb(phrase)
-        inspectionPath.append(.phrase(phrase))
+        let displayPhrase = ConversationPracticeScriptSupport.displayPhrase(
+            phrase,
+            usesTraditionalScript: usesTraditionalScript,
+            store: store
+        )
+        store.pushPhraseBreadcrumb(displayPhrase)
+        inspectionPath.append(.phrase(displayPhrase))
     }
 
     func openCharacter(_ character: String) {
@@ -136,12 +155,29 @@ struct ConversationPracticeListSheet: View {
         inspectionPath.append(.character(character))
     }
 
-    func phraseItem(for item: ConversationPracticeItem) -> PhraseItem {
-        store.mergedPhrase(for: item.phraseKey) ?? PhraseItem(
-            word: item.phraseKey,
-            pinyin: item.pinyin,
-            meanings: item.english,
-            notes: item.notes
+    func displayText(_ text: String) -> String {
+        ConversationPracticeScriptSupport.displayText(
+            text,
+            usesTraditionalScript: usesTraditionalScript,
+            store: store
+        )
+    }
+
+    func displayCharacters(for item: ConversationPracticeItem, excludingPhrases phrases: [PhraseItem]) -> [String] {
+        let coveredCharacters = Set(phrases.flatMap { phrase in displayText(phrase.word).map(String.init) })
+        return ConversationPracticeScriptSupport.displayCharacters(
+            for: item,
+            usesTraditionalScript: usesTraditionalScript,
+            store: store
+        )
+        .filter { !coveredCharacters.contains($0) }
+    }
+
+    func displayPhraseItem(for item: ConversationPracticeItem) -> PhraseItem {
+        ConversationPracticeScriptSupport.phraseItem(
+            for: item,
+            usesTraditionalScript: usesTraditionalScript,
+            store: store
         )
     }
 }

@@ -86,21 +86,30 @@ struct FavouritesTab: View {
         .sheet(item: $conversationPracticeReviewPresentation, onDismiss: {
             conversationPracticeReviewPresentation = nil
         }) { presentation in
-            ConversationPracticeReviewSheet(library: presentation.library)
+            ConversationPracticeReviewSheet(
+                library: presentation.library,
+                usesTraditionalScript: $studyGridUsesTraditionalScript
+            )
             .environmentObject(store)
             .environmentObject(entitlement)
         }
         .sheet(item: $conversationPracticeListPresentation, onDismiss: {
             conversationPracticeListPresentation = nil
         }) { presentation in
-            ConversationPracticeListSheet(library: presentation.library)
+            ConversationPracticeListSheet(
+                library: presentation.library,
+                usesTraditionalScript: $studyGridUsesTraditionalScript
+            )
             .environmentObject(store)
             .environmentObject(entitlement)
         }
         .sheet(item: $conversationPracticeQuizPresentation, onDismiss: {
             conversationPracticeQuizPresentation = nil
         }) { presentation in
-            ConversationPracticeQuizSheet(library: presentation.library)
+            ConversationPracticeQuizSheet(
+                library: presentation.library,
+                usesTraditionalScript: $studyGridUsesTraditionalScript
+            )
             .environmentObject(store)
             .environmentObject(entitlement)
         }

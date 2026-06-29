@@ -151,6 +151,8 @@ extension FavouritesTab {
 
                 Spacer(minLength: 8)
 
+                studyScriptToggle
+
                 Label("\(library.set.itemCount)", systemImage: "list.number")
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .foregroundStyle(Color.accentColor)
@@ -313,11 +315,10 @@ extension FavouritesTab {
     }
 
     func presentConversationPracticePhrase(_ item: ConversationPracticeItem) {
-        let phrase = store.mergedPhrase(for: item.phraseKey) ?? PhraseItem(
-            word: item.phraseKey,
-            pinyin: item.pinyin,
-            meanings: item.english,
-            notes: item.notes
+        let phrase = ConversationPracticeScriptSupport.phraseItem(
+            for: item,
+            usesTraditionalScript: studyGridUsesTraditionalScript,
+            store: store
         )
         presentPhrase(phrase)
     }

@@ -659,10 +659,26 @@ public enum ConversationPracticeQuizRules {
         for item: ConversationPracticeItem,
         candidates: [CharacterChoiceCandidate]
     ) -> CharacterQuestion {
-        let character = questionCharacter(for: item, candidates: candidates)
+        characterQuestion(
+            sentence: item.simplified,
+            characterHints: item.characterHints,
+            candidates: candidates
+        )
+    }
+
+    public static func characterQuestion(
+        sentence: String,
+        characterHints: [String],
+        candidates: [CharacterChoiceCandidate]
+    ) -> CharacterQuestion {
+        let character = questionCharacter(
+            characterHints: characterHints,
+            fallbackSentence: sentence,
+            candidates: candidates
+        )
         return CharacterQuestion(
             character: character,
-            blankedSentence: sentenceByBlanking(character, in: item.simplified)
+            blankedSentence: sentenceByBlanking(character, in: sentence)
         )
     }
 
@@ -674,7 +690,19 @@ public enum ConversationPracticeQuizRules {
         for item: ConversationPracticeItem,
         candidates: [CharacterChoiceCandidate]
     ) -> String {
-        let hintedCharacters = item.characterHints.filter { $0.count == 1 && isChineseCharacter($0) }
+        questionCharacter(
+            characterHints: item.characterHints,
+            fallbackSentence: item.simplified,
+            candidates: candidates
+        )
+    }
+
+    public static func questionCharacter(
+        characterHints: [String],
+        fallbackSentence: String,
+        candidates: [CharacterChoiceCandidate]
+    ) -> String {
+        let hintedCharacters = characterHints.filter { $0.count == 1 && isChineseCharacter($0) }
         let usableCandidates = uniqueCandidates(candidates)
         if let confusableCharacter = confusableQuestionCharacter(
             from: hintedCharacters,
@@ -689,13 +717,13 @@ public enum ConversationPracticeQuizRules {
 
         if let hinted = hintedCharacters.first { return hinted }
 
-        return item.simplified
+        return fallbackSentence
             .map(String.init)
             .first(where: { isChineseCharacter($0) && isSubstantialQuizCharacter($0) })
-            ?? item.simplified
+            ?? fallbackSentence
                 .map(String.init)
                 .first(where: { $0.count == 1 && isChineseCharacter($0) })
-            ?? item.simplified
+            ?? fallbackSentence
     }
 
     public static func characterChoices(

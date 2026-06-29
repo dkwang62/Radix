@@ -9,6 +9,7 @@ struct ConversationPracticeReviewSheet: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var store: RadixStore
     let library: ConversationPracticeLibrary
+    @Binding var usesTraditionalScript: Bool
     @State private var currentIndex = 0
     @State private var isRevealed = false
     @State private var progress: [String: ConversationPracticeReviewResponse] = [:]
@@ -23,6 +24,7 @@ struct ConversationPracticeReviewSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     progressHeader
+                    scriptPicker
                     reviewCard
                     responseRow
                     linkedPartsSection
@@ -70,9 +72,17 @@ struct ConversationPracticeReviewSheet: View {
         }
     }
 
+    var scriptPicker: some View {
+        Picker("Script", selection: $usesTraditionalScript) {
+            Text("Simplified").tag(false)
+            Text("Traditional").tag(true)
+        }
+        .pickerStyle(.segmented)
+    }
+
     var reviewCard: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(currentItem.simplified)
+            Text(displayText(currentItem.simplified))
                 .font(.system(size: RadixPlatform.isPhone ? 38 : 46, weight: .bold, design: .rounded))
                 .frame(maxWidth: .infinity, alignment: .center)
                 .multilineTextAlignment(.center)
@@ -163,7 +173,7 @@ struct ConversationPracticeReviewSheet: View {
                             Button {
                                 openPhraseHint(phrase)
                             } label: {
-                                Text(phrase.word)
+                                Text(displayText(phrase.word))
                                     .font(ResponsiveFont.caption.weight(.semibold))
                                     .padding(.horizontal, 9)
                                     .padding(.vertical, 6)
@@ -174,13 +184,14 @@ struct ConversationPracticeReviewSheet: View {
                 }
             }
 
-            if !hints.characters.isEmpty {
+            let characters = displayCharacters(for: currentItem, excludingPhrases: hints.phrases)
+            if !characters.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Characters")
                         .font(ResponsiveFont.caption.bold())
                         .foregroundStyle(.secondary)
                     RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
-                        ForEach(hints.characters, id: \.self) { character in
+                        ForEach(characters, id: \.self) { character in
                             Button {
                                 openCharacter(character)
                             } label: {
@@ -212,7 +223,7 @@ struct ConversationPracticeReviewSheet: View {
     }
 
     func openPhrase(_ item: ConversationPracticeItem) {
-        let phrase = phraseItem(for: item)
+        let phrase = displayPhraseItem(for: item)
         store.pushPhraseBreadcrumb(phrase)
         inspectionPath.append(.phrase(phrase))
     }
@@ -223,8 +234,13 @@ struct ConversationPracticeReviewSheet: View {
     }
 
     func openPhraseHint(_ phrase: PhraseItem) {
-        store.pushPhraseBreadcrumb(phrase)
-        inspectionPath.append(.phrase(phrase))
+        let displayPhrase = ConversationPracticeScriptSupport.displayPhrase(
+            phrase,
+            usesTraditionalScript: usesTraditionalScript,
+            store: store
+        )
+        store.pushPhraseBreadcrumb(displayPhrase)
+        inspectionPath.append(.phrase(displayPhrase))
     }
 
     func openCharacter(_ character: String) {
@@ -232,12 +248,29 @@ struct ConversationPracticeReviewSheet: View {
         inspectionPath.append(.character(character))
     }
 
-    func phraseItem(for item: ConversationPracticeItem) -> PhraseItem {
-        store.mergedPhrase(for: item.phraseKey) ?? PhraseItem(
-            word: item.phraseKey,
-            pinyin: item.pinyin,
-            meanings: item.english,
-            notes: item.notes
+    func displayText(_ text: String) -> String {
+        ConversationPracticeScriptSupport.displayText(
+            text,
+            usesTraditionalScript: usesTraditionalScript,
+            store: store
+        )
+    }
+
+    func displayCharacters(for item: ConversationPracticeItem, excludingPhrases phrases: [PhraseItem]) -> [String] {
+        let coveredCharacters = Set(phrases.flatMap { phrase in displayText(phrase.word).map(String.init) })
+        return ConversationPracticeScriptSupport.displayCharacters(
+            for: item,
+            usesTraditionalScript: usesTraditionalScript,
+            store: store
+        )
+        .filter { !coveredCharacters.contains($0) }
+    }
+
+    func displayPhraseItem(for item: ConversationPracticeItem) -> PhraseItem {
+        ConversationPracticeScriptSupport.phraseItem(
+            for: item,
+            usesTraditionalScript: usesTraditionalScript,
+            store: store
         )
     }
 }

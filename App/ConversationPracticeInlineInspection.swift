@@ -5,6 +5,60 @@ enum ConversationPracticeInspectionRoute: Hashable {
     case character(String)
 }
 
+@MainActor
+enum ConversationPracticeScriptSupport {
+    static func filter(usesTraditionalScript: Bool) -> ScriptFilter {
+        usesTraditionalScript ? .traditional : .simplified
+    }
+
+    static func displayText(_ text: String, usesTraditionalScript: Bool, store: RadixStore) -> String {
+        usesTraditionalScript ? store.traditionalText(text) : store.simplifiedText(text)
+    }
+
+    static func displayCharacters(
+        for item: ConversationPracticeItem,
+        usesTraditionalScript: Bool,
+        store: RadixStore
+    ) -> [String] {
+        var seen = Set<String>()
+        return item.characterHints.compactMap { character in
+            let converted = displayText(character, usesTraditionalScript: usesTraditionalScript, store: store)
+            guard converted.count == 1,
+                  converted.unicodeScalars.contains(where: { (0x4E00...0x9FFF).contains(Int($0.value)) }),
+                  seen.insert(converted).inserted
+            else { return nil }
+            return converted
+        }
+    }
+
+    static func phraseItem(
+        for item: ConversationPracticeItem,
+        usesTraditionalScript: Bool,
+        store: RadixStore
+    ) -> PhraseItem {
+        let base = store.mergedPhrase(for: item.phraseKey)
+        return PhraseItem(
+            word: displayText(item.simplified, usesTraditionalScript: usesTraditionalScript, store: store),
+            pinyin: base?.pinyin ?? item.pinyin,
+            meanings: base?.meanings ?? item.english,
+            notes: base?.notes ?? item.notes
+        )
+    }
+
+    static func displayPhrase(
+        _ phrase: PhraseItem,
+        usesTraditionalScript: Bool,
+        store: RadixStore
+    ) -> PhraseItem {
+        PhraseItem(
+            word: displayText(phrase.word, usesTraditionalScript: usesTraditionalScript, store: store),
+            pinyin: phrase.pinyin,
+            meanings: phrase.meanings,
+            notes: phrase.notes
+        )
+    }
+}
+
 extension ConversationPracticeInspectionRoute {
     var character: String? {
         if case let .character(value) = self {

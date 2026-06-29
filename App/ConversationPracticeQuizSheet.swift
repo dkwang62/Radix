@@ -7,6 +7,7 @@ struct ConversationPracticeQuizPresentation: Identifiable {
 
 private struct ConversationPracticeQuizRound: Equatable {
     let itemID: String
+    let scriptFilter: ScriptFilter
     let question: ConversationPracticeQuizRules.CharacterQuestion
     let choices: [String]
 }
@@ -17,12 +18,15 @@ struct ConversationPracticeQuizSheet: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var store: RadixStore
     let library: ConversationPracticeLibrary
+    @Binding var usesTraditionalScript: Bool
     @State private var currentIndex = 0
     @State private var sessionItems: [ConversationPracticeItem] = []
     @State private var selectedAnswerID: String?
     @State private var answered: [String: Bool] = [:]
     @State private var inspectionPath: [ConversationPracticeInspectionRoute] = []
     @State private var currentRound: ConversationPracticeQuizRound?
+    @State private var selectedQuizScriptFilter: ScriptFilter = .simplified
+    @State private var hasInitializedQuizScript = false
     @State private var candidateCache: [String: ConversationPracticeQuizRules.CharacterChoiceCandidate] = [:]
     @State private var peerCache: [String: [String]] = [:]
 
@@ -36,7 +40,8 @@ struct ConversationPracticeQuizSheet: View {
     }
 
     private var round: ConversationPracticeQuizRound? {
-        guard currentRound?.itemID == currentItem.id else { return nil }
+        guard currentRound?.itemID == currentItem.id,
+              currentRound?.scriptFilter == quizScriptFilter else { return nil }
         return currentRound
     }
 
@@ -53,12 +58,11 @@ struct ConversationPracticeQuizSheet: View {
     }
 
     var quizScriptFilter: ScriptFilter {
-        switch store.scriptFilter {
-        case .any:
-            return library.set.language == "zh-Hant" ? .traditional : .simplified
-        case .simplified, .traditional:
-            return store.scriptFilter
-        }
+        selectedQuizScriptFilter
+    }
+
+    var defaultQuizScriptFilter: ScriptFilter {
+        ConversationPracticeScriptSupport.filter(usesTraditionalScript: usesTraditionalScript)
     }
 
     var hasAnsweredCurrent: Bool {
@@ -76,6 +80,7 @@ struct ConversationPracticeQuizSheet: View {
                     if let round {
                         VStack(alignment: .leading, spacing: 14) {
                             progressHeader
+                            scriptPicker
                             questionCard(round)
                             answerChoices
                             if hasAnsweredCurrent {
@@ -106,13 +111,17 @@ struct ConversationPracticeQuizSheet: View {
                 .environmentObject(store)
             }
             .onAppear {
+                initializeQuizScript()
                 initializeQuizSession()
                 prepareCurrentRound()
             }
-            .onChange(of: store.scriptFilter) { _, _ in
-                candidateCache.removeAll()
-                peerCache.removeAll()
-                prepareCurrentRound()
+            .onChange(of: selectedQuizScriptFilter) { _, newValue in
+                changeQuizScript(newValue)
+            }
+            .onChange(of: usesTraditionalScript) { _, _ in
+                let newValue = defaultQuizScriptFilter
+                guard selectedQuizScriptFilter != newValue else { return }
+                changeQuizScript(newValue)
             }
         }
     }
@@ -137,6 +146,14 @@ struct ConversationPracticeQuizSheet: View {
                 .background(Color.accentColor.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
+    }
+
+    var scriptPicker: some View {
+        Picker("Script", selection: $selectedQuizScriptFilter) {
+            Text("Simplified").tag(ScriptFilter.simplified)
+            Text("Traditional").tag(ScriptFilter.traditional)
+        }
+        .pickerStyle(.segmented)
     }
 
     private func questionCard(_ round: ConversationPracticeQuizRound) -> some View {
@@ -238,9 +255,10 @@ struct ConversationPracticeQuizSheet: View {
                 .tint(Color.accentColor)
             }
 
-            if !currentItem.characterHints.isEmpty {
+            let characterHints = quizCharacterHints(for: currentItem)
+            if !characterHints.isEmpty {
                 RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
-                    ForEach(currentItem.characterHints, id: \.self) { character in
+                    ForEach(characterHints, id: \.self) { character in
                         Button {
                             openCharacter(character)
                         } label: {
@@ -306,6 +324,12 @@ struct ConversationPracticeQuizSheet: View {
         currentRound = makeRound(for: currentItem)
     }
 
+    func initializeQuizScript() {
+        guard !hasInitializedQuizScript else { return }
+        selectedQuizScriptFilter = defaultQuizScriptFilter
+        hasInitializedQuizScript = true
+    }
+
     func initializeQuizSession() {
         guard sessionItems.isEmpty else { return }
         sessionItems = Array(library.items.shuffled().prefix(Self.sessionQuestionLimit))
@@ -315,10 +339,22 @@ struct ConversationPracticeQuizSheet: View {
         currentRound = nil
     }
 
+    func changeQuizScript(_ scriptFilter: ScriptFilter) {
+        guard scriptFilter == .simplified || scriptFilter == .traditional else { return }
+        selectedQuizScriptFilter = scriptFilter
+        usesTraditionalScript = scriptFilter == .traditional
+        selectedAnswerID = nil
+        currentRound = nil
+        candidateCache.removeAll()
+        peerCache.removeAll()
+        prepareCurrentRound()
+    }
+
     private func makeRound(for item: ConversationPracticeItem) -> ConversationPracticeQuizRound {
         let questionCandidates = questionChoiceCandidates(for: item)
         let question = ConversationPracticeQuizRules.characterQuestion(
-            for: item,
+            sentence: quizSentence(for: item),
+            characterHints: quizCharacterHints(for: item),
             candidates: questionCandidates
         )
         let choiceCandidates = characterChoiceCandidates(for: question.character)
@@ -329,6 +365,7 @@ struct ConversationPracticeQuizSheet: View {
 
         return ConversationPracticeQuizRound(
             itemID: item.id,
+            scriptFilter: quizScriptFilter,
             question: question,
             choices: choices
         )
@@ -337,7 +374,7 @@ struct ConversationPracticeQuizSheet: View {
     func characterChoiceCandidates(for character: String) -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
         var characters = [character]
         characters.append(contentsOf: peers(for: character, limit: 80))
-        characters.append(contentsOf: library.items.flatMap(\.characterHints))
+        characters.append(contentsOf: quizItems.flatMap(quizCharacterHints(for:)))
 
         var candidates = characterChoiceCandidates(from: characters, allowingAnswer: character)
         if candidates.count < 4 {
@@ -352,8 +389,9 @@ struct ConversationPracticeQuizSheet: View {
     }
 
     func questionChoiceCandidates(for item: ConversationPracticeItem) -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
-        var characters = item.characterHints
-        for character in item.characterHints where isPotentialQuizOptionCharacter(character) {
+        let hints = quizCharacterHints(for: item)
+        var characters = hints
+        for character in hints where isPotentialQuizOptionCharacter(character) {
             characters.append(contentsOf: peers(for: character, limit: 24))
         }
         return characterChoiceCandidates(from: characters, allowingAnswer: nil)
@@ -385,13 +423,16 @@ struct ConversationPracticeQuizSheet: View {
             guard isQuizOptionCharacter(character, allowingAnswer: answer) else { continue }
             if let candidate = characterChoiceCandidate(for: character) {
                 result.append(candidate)
+            } else if character == answer {
+                result.append(ConversationPracticeQuizRules.CharacterChoiceCandidate(character: character))
             }
         }
         return result
     }
 
     func characterChoiceCandidate(for character: String) -> ConversationPracticeQuizRules.CharacterChoiceCandidate? {
-        if let cached = candidateCache[character] {
+        let cacheKey = "\(quizScriptFilter.rawValue)#\(character)"
+        if let cached = candidateCache[cacheKey] {
             return cached
         }
 
@@ -401,7 +442,7 @@ struct ConversationPracticeQuizSheet: View {
             components: choiceComponents(for: character),
             rank: store.item(for: character)?.rank
         )
-        candidateCache[character] = candidate
+        candidateCache[cacheKey] = candidate
         return candidate
     }
 
@@ -474,6 +515,22 @@ struct ConversationPracticeQuizSheet: View {
         return parts
     }
 
+    func quizSentence(for item: ConversationPracticeItem) -> String {
+        ConversationPracticeScriptSupport.displayText(
+            item.simplified,
+            usesTraditionalScript: quizScriptFilter == .traditional,
+            store: store
+        )
+    }
+
+    func quizCharacterHints(for item: ConversationPracticeItem) -> [String] {
+        ConversationPracticeScriptSupport.displayCharacters(
+            for: item,
+            usesTraditionalScript: quizScriptFilter == .traditional,
+            store: store
+        )
+    }
+
     func openPhrase(_ item: ConversationPracticeItem) {
         let phrase = phraseItem(for: item)
         store.pushPhraseBreadcrumb(phrase)
@@ -486,11 +543,10 @@ struct ConversationPracticeQuizSheet: View {
     }
 
     func phraseItem(for item: ConversationPracticeItem) -> PhraseItem {
-        store.mergedPhrase(for: item.phraseKey) ?? PhraseItem(
-            word: item.phraseKey,
-            pinyin: item.pinyin,
-            meanings: item.english,
-            notes: item.notes
+        ConversationPracticeScriptSupport.phraseItem(
+            for: item,
+            usesTraditionalScript: quizScriptFilter == .traditional,
+            store: store
         )
     }
 }
