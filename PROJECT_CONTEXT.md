@@ -273,7 +273,9 @@ peers, and uses deterministic portable answer-choice rules that prefer
 similar-looking full characters rather than radicals. Feedback shows
 pinyin/meaning, score for the session, and links back to the existing Phrase and
 Character card presentation. Quiz results remain local until the persistent
-lesson-progress store is designed.
+lesson-progress store is designed. Quick Quiz caches the selected round plus
+per-character peer/candidate lookups so SwiftUI redraws do not repeatedly scan
+shared-component peers.
 Step 6 adds a full `Sentence List` browse sheet for the starter set. It shows
 the curated order for all sentences and keeps each full sentence, phrase hint,
 and character hint linked back to existing Radix Phrase and Character cards.

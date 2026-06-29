@@ -5,6 +5,12 @@ struct ConversationPracticeQuizPresentation: Identifiable {
     let library: ConversationPracticeLibrary
 }
 
+private struct ConversationPracticeQuizRound: Equatable {
+    let itemID: String
+    let question: ConversationPracticeQuizRules.CharacterQuestion
+    let choices: [String]
+}
+
 struct ConversationPracticeQuizSheet: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var store: RadixStore
@@ -13,20 +19,21 @@ struct ConversationPracticeQuizSheet: View {
     @State private var selectedAnswerID: String?
     @State private var answered: [String: Bool] = [:]
     @State private var inspectionPath: [ConversationPracticeInspectionRoute] = []
+    @State private var currentRound: ConversationPracticeQuizRound?
+    @State private var candidateCache: [String: ConversationPracticeQuizRules.CharacterChoiceCandidate] = [:]
+    @State private var peerCache: [String: [String]] = [:]
 
     var currentItem: ConversationPracticeItem {
         library.items[currentIndex]
     }
 
-    var question: ConversationPracticeQuizRules.CharacterQuestion {
-        ConversationPracticeQuizRules.characterQuestion(
-            for: currentItem,
-            candidates: questionChoiceCandidates()
-        )
+    private var round: ConversationPracticeQuizRound? {
+        guard currentRound?.itemID == currentItem.id else { return nil }
+        return currentRound
     }
 
     var quizCharacter: String {
-        question.character
+        round?.question.character ?? ConversationPracticeQuizRules.questionCharacter(for: currentItem)
     }
 
     var currentCharacterItem: ComponentItem? {
@@ -34,10 +41,7 @@ struct ConversationPracticeQuizSheet: View {
     }
 
     var choices: [String] {
-        ConversationPracticeQuizRules.characterChoices(
-            for: quizCharacter,
-            from: characterChoiceCandidates()
-        )
+        round?.choices ?? []
     }
 
     var hasAnsweredCurrent: Bool {
@@ -51,12 +55,19 @@ struct ConversationPracticeQuizSheet: View {
     var body: some View {
         NavigationStack(path: $inspectionPath) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    progressHeader
-                    questionCard
-                    answerChoices
-                    if hasAnsweredCurrent {
-                        feedbackSection
+                Group {
+                    if let round {
+                        VStack(alignment: .leading, spacing: 14) {
+                            progressHeader
+                            questionCard(round)
+                            answerChoices
+                            if hasAnsweredCurrent {
+                                feedbackSection
+                            }
+                        }
+                    } else {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, minHeight: 180)
                     }
                 }
                 .padding()
@@ -76,6 +87,9 @@ struct ConversationPracticeQuizSheet: View {
                     onOpenCharacter: openCharacter
                 )
                 .environmentObject(store)
+            }
+            .onAppear {
+                prepareCurrentRound()
             }
         }
     }
@@ -102,14 +116,14 @@ struct ConversationPracticeQuizSheet: View {
         }
     }
 
-    var questionCard: some View {
+    private func questionCard(_ round: ConversationPracticeQuizRound) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Which character completes the sentence?")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
 
-                Text(question.blankedSentence)
+                Text(round.question.blankedSentence)
                     .font(.system(size: RadixPlatform.isPhone ? 32 : 40, weight: .bold, design: .rounded))
                     .frame(maxWidth: .infinity, alignment: .center)
                     .multilineTextAlignment(.center)
@@ -241,6 +255,7 @@ struct ConversationPracticeQuizSheet: View {
         }
         currentIndex += 1
         selectedAnswerID = nil
+        prepareCurrentRound()
     }
 
     func answerIcon(for choice: String) -> String {
@@ -264,39 +279,98 @@ struct ConversationPracticeQuizSheet: View {
         return RadixTheme.secondaryBackground.opacity(0.34)
     }
 
-    func characterChoiceCandidates() -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
-        var characters = [quizCharacter]
-        characters.append(contentsOf: store.componentRepo.sharedComponentPeers(for: quizCharacter, scriptFilter: .any, limit: 80).map(\.character))
-        characters.append(contentsOf: store.componentRepo.related(for: quizCharacter, scriptFilter: .any, max: 40).map(\.character))
+    func prepareCurrentRound() {
+        currentRound = makeRound(for: currentItem)
+    }
+
+    private func makeRound(for item: ConversationPracticeItem) -> ConversationPracticeQuizRound {
+        let questionCandidates = questionChoiceCandidates(for: item)
+        let question = ConversationPracticeQuizRules.characterQuestion(
+            for: item,
+            candidates: questionCandidates
+        )
+        let choiceCandidates = characterChoiceCandidates(for: question.character)
+        let choices = ConversationPracticeQuizRules.characterChoices(
+            for: question.character,
+            from: choiceCandidates
+        )
+
+        return ConversationPracticeQuizRound(
+            itemID: item.id,
+            question: question,
+            choices: choices
+        )
+    }
+
+    func characterChoiceCandidates(for character: String) -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
+        var characters = [character]
+        characters.append(contentsOf: peers(for: character, sharedLimit: 80, relatedLimit: 40))
         characters.append(contentsOf: library.items.flatMap(\.characterHints))
 
-        return characterChoiceCandidates(from: characters)
+        return characterChoiceCandidates(from: characters, allowingAnswer: character)
     }
 
-    func questionChoiceCandidates() -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
-        var characters = currentItem.characterHints
-        for character in currentItem.characterHints where isPotentialQuizOptionCharacter(character) {
-            characters.append(contentsOf: store.componentRepo.sharedComponentPeers(for: character, scriptFilter: .any, limit: 40).map(\.character))
-            characters.append(contentsOf: store.componentRepo.related(for: character, scriptFilter: .any, max: 20).map(\.character))
+    func questionChoiceCandidates(for item: ConversationPracticeItem) -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
+        var characters = item.characterHints
+        for character in item.characterHints where isPotentialQuizOptionCharacter(character) {
+            characters.append(contentsOf: peers(for: character, sharedLimit: 24, relatedLimit: 12))
         }
-        return characters.filter(isPotentialQuizOptionCharacter).map { characterChoiceCandidate(for: $0) }
+        return characterChoiceCandidates(from: characters, allowingAnswer: nil)
     }
 
-    func characterChoiceCandidates(from characters: [String]) -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
-        characters.filter(isQuizOptionCharacter).map { characterChoiceCandidate(for: $0) }
+    func peers(for character: String, sharedLimit: Int, relatedLimit: Int) -> [String] {
+        if let cached = peerCache[character] {
+            return cached
+        }
+
+        let shared = store.componentRepo.sharedComponentPeers(
+            for: character,
+            scriptFilter: .any,
+            limit: sharedLimit
+        ).map(\.character)
+        let related = store.componentRepo.related(
+            for: character,
+            scriptFilter: .any,
+            max: relatedLimit
+        ).map(\.character)
+        let peers = shared + related
+        peerCache[character] = peers
+        return peers
     }
 
-    func characterChoiceCandidate(for character: String) -> ConversationPracticeQuizRules.CharacterChoiceCandidate {
-        ConversationPracticeQuizRules.CharacterChoiceCandidate(
+    func characterChoiceCandidates(
+        from characters: [String],
+        allowingAnswer answer: String?
+    ) -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
+        var seen = Set<String>()
+        var result: [ConversationPracticeQuizRules.CharacterChoiceCandidate] = []
+        for character in characters {
+            guard seen.insert(character).inserted else { continue }
+            guard isQuizOptionCharacter(character, allowingAnswer: answer) else { continue }
+            if let candidate = characterChoiceCandidate(for: character) {
+                result.append(candidate)
+            }
+        }
+        return result
+    }
+
+    func characterChoiceCandidate(for character: String) -> ConversationPracticeQuizRules.CharacterChoiceCandidate? {
+        if let cached = candidateCache[character] {
+            return cached
+        }
+
+        guard isPotentialQuizOptionCharacter(character) else { return nil }
+        let candidate = ConversationPracticeQuizRules.CharacterChoiceCandidate(
             character: character,
             components: choiceComponents(for: character),
             rank: store.item(for: character)?.rank
         )
+        candidateCache[character] = candidate
+        return candidate
     }
 
-    func isQuizOptionCharacter(_ character: String) -> Bool {
-        guard character == quizCharacter || isPotentialQuizOptionCharacter(character) else { return false }
-        return true
+    func isQuizOptionCharacter(_ character: String, allowingAnswer answer: String?) -> Bool {
+        character == answer || isPotentialQuizOptionCharacter(character)
     }
 
     func isPotentialQuizOptionCharacter(_ character: String) -> Bool {
