@@ -237,8 +237,8 @@ lightweight AI-friendly shape `{ "theme": "...", "entries": [{ "id", "zh",
 metadata before validation. Imported Practice packs are also part of
 `UnifiedPackage`, so normal backup files and local checkpoints save and restore
 them across devices.
-The first useful practice modes should be simple offline drills such as Review
-Cards and Quick Quiz, with answer feedback linking back into Phrase and
+The first useful practice modes should be simple offline drills such as
+Flashcards and Quick Quiz, with answer feedback linking back into Phrase and
 Character cards rather than dead-ending in a quiz-only screen. The detailed
 implementation plan is `CONVERSATION_PRACTICE_PLAN.md`; use it before building
 content import, data models, or Study UI for this feature.
@@ -260,7 +260,7 @@ Imported practice topics can be removed from the same Study section with a
 dedicated delete control; bundled starter topics remain fixed.
 The selected Practice topic name should appear once in the topic picker rather
 than being repeated again in the card header beneath it.
-Step 4 has the first `Review Cards` flow: the starter set opens a card sheet
+Step 4 has the first `Flashcards` flow: the starter set opens a card sheet
 that shows Chinese first, reveals pinyin/English, records local Again/Good/Easy
 responses for the session, and links the full sentence, detected phrase hints,
 and character hints back into existing Phrase and Character card presentation.
@@ -288,7 +288,7 @@ Step 6 adds a full `Sentence List` browse sheet for the starter set. It shows
 the curated order for all sentences and keeps each full sentence, phrase hint,
 and character hint linked back to existing Radix Phrase and Character cards.
 The Conversation Practice Simplified/Traditional choice is shared across the
-Practice card, Review Cards, Quick Quiz, and Sentence List, including displayed
+Practice card, Flashcards, Quick Quiz, and Sentence List, including displayed
 sentences, hint chips, character links, and opened Phrase card titles.
 Phrase hint chips in Practice are database-verified only, display longest-first,
 and appear before character chips; character chips omit any characters already
@@ -297,7 +297,7 @@ in the bundled base phrase database or the additional phrase database before
 display. Practice must not show inferred adjacent-character groupings or
 placeholder phrase cards such as `No meaning saved`; unmatched sequences fall
 back to individual character links or smaller exact phrase matches.
-Review Cards, Quick Quiz, and Sentence List now open those Phrase and Character
+Flashcards, Quick Quiz, and Sentence List now open those Phrase and Character
 cards inside their own navigation stacks, so Back returns to the practice mode
 instead of ejecting the user from the lesson flow. Character links use the normal
 full `CharacterDetailView`, not the lightweight preview card.

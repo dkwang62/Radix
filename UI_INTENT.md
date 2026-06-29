@@ -204,7 +204,7 @@ should reinforce those links by showing the sentence, pinyin, English, and key
 Radix-backed parts after an answer. Avoid dead-end quiz screens where the
 dictionary/card system disappears. When a lesson flow opens a Phrase or
 Character card, keep that inspection inside the current lesson sheet with a
-normal back path to the practice mode; do not eject the user from Review Cards,
+normal back path to the practice mode; do not eject the user from Flashcards,
 Quick Quiz, or Sentence List just because they inspected a Radix card. Character
 inspection in Practice should use the normal full character card, not the
 compact preview.
@@ -212,7 +212,7 @@ compact preview.
 Keep curated lessons visually and behaviorally separate from Added Phrases
 cleanup. Added Phrases is for user/imported phrase classification; Conversation
 Practice is guided learning content. It should support simple offline practice
-first, such as Review Cards and Quick Quiz, with AI remaining optional future
+first, such as Flashcards and Quick Quiz, with AI remaining optional future
 enhancement rather than a requirement. Use `CONVERSATION_PRACTICE_PLAN.md` as
 the project plan for content intake, validation, Phrase DB integration, and
 build phases.

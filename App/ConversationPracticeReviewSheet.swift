@@ -32,7 +32,7 @@ struct ConversationPracticeReviewSheet: View {
                 .padding()
             }
             .background(RadixTheme.background)
-            .navigationTitle("Review Cards")
+            .navigationTitle("Flashcards")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -42,7 +42,7 @@ struct ConversationPracticeReviewSheet: View {
             .navigationDestination(for: ConversationPracticeInspectionRoute.self) { route in
                 ConversationPracticeInspectionDestination(
                     route: route,
-                    sourceTitle: "Review Cards",
+                    sourceTitle: "Flashcards",
                     onOpenCharacter: openCharacter
                 )
                 .environmentObject(store)

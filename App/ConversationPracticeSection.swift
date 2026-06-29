@@ -173,7 +173,7 @@ extension FavouritesTab {
                 Button {
                     presentConversationPracticeReview(library)
                 } label: {
-                    Label("Review Cards", systemImage: "rectangle.stack")
+                    Label("Flashcards", systemImage: "rectangle.stack")
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .frame(maxWidth: .infinity, minHeight: 38)
                 }
