@@ -152,14 +152,14 @@ struct ConversationPracticeReviewSheet: View {
                 Spacer(minLength: 0)
             }
 
-            let phraseHints = store.verifiedPracticePhraseHints(for: currentItem)
-            if !phraseHints.isEmpty {
+            let hints = store.linkedPracticeHints(for: currentItem)
+            if !hints.phrases.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Phrases")
                         .font(ResponsiveFont.caption.bold())
                         .foregroundStyle(.secondary)
                     RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
-                        ForEach(phraseHints) { phrase in
+                        ForEach(hints.phrases) { phrase in
                             Button {
                                 openPhraseHint(phrase)
                             } label: {
@@ -174,13 +174,13 @@ struct ConversationPracticeReviewSheet: View {
                 }
             }
 
-            if !currentItem.characterHints.isEmpty {
+            if !hints.characters.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Characters")
                         .font(ResponsiveFont.caption.bold())
                         .foregroundStyle(.secondary)
                     RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
-                        ForEach(currentItem.characterHints, id: \.self) { character in
+                        ForEach(hints.characters, id: \.self) { character in
                             Button {
                                 openCharacter(character)
                             } label: {

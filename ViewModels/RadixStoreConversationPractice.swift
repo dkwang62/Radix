@@ -1,5 +1,10 @@
 import Foundation
 
+struct ConversationPracticeLinkedHints {
+    let phrases: [PhraseItem]
+    let characters: [String]
+}
+
 extension RadixStore {
     func loadConversationPracticePhraseCache() {
         guard let library = try? ConversationPracticeService().loadStarterLibrary() else { return }
@@ -79,5 +84,32 @@ extension RadixStore {
             if $0.word.count != $1.word.count { return $0.word.count > $1.word.count }
             return $0.word < $1.word
         }
+    }
+
+    func linkedPracticeHints(for item: ConversationPracticeItem) -> ConversationPracticeLinkedHints {
+        let phrases = verifiedPracticePhraseHints(for: item).sorted {
+            if $0.word.count != $1.word.count { return $0.word.count > $1.word.count }
+
+            let lhsPosition = item.simplified.range(of: $0.word)?.lowerBound
+            let rhsPosition = item.simplified.range(of: $1.word)?.lowerBound
+            if lhsPosition != rhsPosition {
+                if lhsPosition == nil { return false }
+                if rhsPosition == nil { return true }
+                return lhsPosition! < rhsPosition!
+            }
+            return $0.word < $1.word
+        }
+
+        let coveredCharacters = Set(phrases.flatMap { phrase in phrase.word.map(String.init) })
+        var seenCharacters = Set<String>()
+        let characters = item.characterHints.filter { character in
+            guard !coveredCharacters.contains(character) else { return false }
+            return seenCharacters.insert(character).inserted
+        }
+
+        return ConversationPracticeLinkedHints(
+            phrases: phrases,
+            characters: characters
+        )
     }
 }

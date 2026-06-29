@@ -284,12 +284,13 @@ script-matched dictionary choices rather than showing a one-choice round.
 Step 6 adds a full `Sentence List` browse sheet for the starter set. It shows
 the curated order for all sentences and keeps each full sentence, phrase hint,
 and character hint linked back to existing Radix Phrase and Character cards.
-Phrase hint chips in Practice are database-verified only: curated or detected
-groupings must resolve exactly in the bundled base phrase database or the
-additional phrase database before display. Practice must not show inferred
-adjacent-character groupings or placeholder phrase cards such as `No meaning
-saved`; unmatched sequences fall back to individual character links or smaller
-exact phrase matches.
+Phrase hint chips in Practice are database-verified only, display longest-first,
+and appear before character chips; character chips omit any characters already
+covered by displayed phrases. Curated or detected groupings must resolve exactly
+in the bundled base phrase database or the additional phrase database before
+display. Practice must not show inferred adjacent-character groupings or
+placeholder phrase cards such as `No meaning saved`; unmatched sequences fall
+back to individual character links or smaller exact phrase matches.
 Review Cards, Quick Quiz, and Sentence List now open those Phrase and Character
 cards inside their own navigation stacks, so Back returns to the practice mode
 instead of ejecting the user from the lesson flow. Character links use the normal

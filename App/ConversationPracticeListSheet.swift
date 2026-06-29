@@ -86,10 +86,10 @@ struct ConversationPracticeListSheet: View {
 
     @ViewBuilder
     func linkedHintRow(_ item: ConversationPracticeItem) -> some View {
-        let phraseHints = store.verifiedPracticePhraseHints(for: item)
-        if !phraseHints.isEmpty || !item.characterHints.isEmpty {
+        let hints = store.linkedPracticeHints(for: item)
+        if !hints.phrases.isEmpty || !hints.characters.isEmpty {
             RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
-                ForEach(phraseHints) { phrase in
+                ForEach(hints.phrases) { phrase in
                     Button {
                         openPhraseHint(phrase)
                     } label: {
@@ -101,7 +101,7 @@ struct ConversationPracticeListSheet: View {
                     .buttonStyle(.bordered)
                 }
 
-                ForEach(item.characterHints, id: \.self) { character in
+                ForEach(hints.characters, id: \.self) { character in
                     Button {
                         openCharacter(character)
                     } label: {
