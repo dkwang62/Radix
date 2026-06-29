@@ -5,13 +5,7 @@ extension FavouritesTab {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 studyModePicker
-
-                switch studyMode {
-                case .review:
-                    reviewStudyContent
-                case .practice:
-                    practiceStudyContent
-                }
+                studyModeContent
             }
             .padding(.horizontal)
             .padding(.bottom, 20)
@@ -21,11 +15,21 @@ extension FavouritesTab {
     var studyModePicker: some View {
         Picker("Study mode", selection: $studyMode) {
             ForEach(StudyMode.allCases) { mode in
-                Text(mode.rawValue).tag(mode)
+                Text(mode.title).tag(mode)
             }
         }
         .pickerStyle(.segmented)
         .padding(.top, 2)
+    }
+
+    @ViewBuilder
+    var studyModeContent: some View {
+        switch studyMode {
+        case .review:
+            reviewStudyContent
+        case .practice:
+            practiceStudyContent
+        }
     }
 
     @ViewBuilder

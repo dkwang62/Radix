@@ -363,4 +363,6 @@ enum StudyMode: String, CaseIterable, Identifiable {
     case practice = "Practice"
 
     var id: String { rawValue }
+
+    var title: String { rawValue }
 }
