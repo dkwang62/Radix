@@ -19,7 +19,10 @@ struct ConversationPracticeQuizSheet: View {
     }
 
     var question: ConversationPracticeQuizRules.CharacterQuestion {
-        ConversationPracticeQuizRules.characterQuestion(for: currentItem)
+        ConversationPracticeQuizRules.characterQuestion(
+            for: currentItem,
+            candidates: questionChoiceCandidates()
+        )
     }
 
     var quizCharacter: String {
@@ -267,18 +270,38 @@ struct ConversationPracticeQuizSheet: View {
         characters.append(contentsOf: store.componentRepo.related(for: quizCharacter, scriptFilter: .any, max: 40).map(\.character))
         characters.append(contentsOf: library.items.flatMap(\.characterHints))
 
-        return characters.filter(isQuizOptionCharacter).map { character in
-            ConversationPracticeQuizRules.CharacterChoiceCandidate(
-                character: character,
-                components: choiceComponents(for: character),
-                rank: store.item(for: character)?.rank
-            )
+        return characterChoiceCandidates(from: characters)
+    }
+
+    func questionChoiceCandidates() -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
+        var characters = currentItem.characterHints
+        for character in currentItem.characterHints where isPotentialQuizOptionCharacter(character) {
+            characters.append(contentsOf: store.componentRepo.sharedComponentPeers(for: character, scriptFilter: .any, limit: 40).map(\.character))
+            characters.append(contentsOf: store.componentRepo.related(for: character, scriptFilter: .any, max: 20).map(\.character))
         }
+        return characters.filter(isPotentialQuizOptionCharacter).map { characterChoiceCandidate(for: $0) }
+    }
+
+    func characterChoiceCandidates(from characters: [String]) -> [ConversationPracticeQuizRules.CharacterChoiceCandidate] {
+        characters.filter(isQuizOptionCharacter).map { characterChoiceCandidate(for: $0) }
+    }
+
+    func characterChoiceCandidate(for character: String) -> ConversationPracticeQuizRules.CharacterChoiceCandidate {
+        ConversationPracticeQuizRules.CharacterChoiceCandidate(
+            character: character,
+            components: choiceComponents(for: character),
+            rank: store.item(for: character)?.rank
+        )
     }
 
     func isQuizOptionCharacter(_ character: String) -> Bool {
-        guard character == quizCharacter || !store.componentRepo.isUsedComponent(character) else { return false }
-        guard let item = store.item(for: character) else { return character == quizCharacter }
+        guard character == quizCharacter || isPotentialQuizOptionCharacter(character) else { return false }
+        return true
+    }
+
+    func isPotentialQuizOptionCharacter(_ character: String) -> Bool {
+        guard !store.componentRepo.isUsedComponent(character) else { return false }
+        guard let item = store.item(for: character) else { return false }
         if item.definition.localizedCaseInsensitiveContains("radical") { return false }
         return true
     }

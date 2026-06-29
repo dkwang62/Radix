@@ -213,8 +213,8 @@ struct ConversationPracticeTests {
         })
     }
 
-    @Test("Conversation practice character quiz blanks the sentence and prefers action characters")
-    func characterQuizBlanksSentenceAndPrefersActionCharacters() throws {
+    @Test("Conversation practice character quiz blanks the sentence and prefers confusable characters")
+    func characterQuizBlanksSentenceAndPrefersConfusableCharacters() throws {
         let pack = try JSONDecoder().decode(ConversationPracticePack.self, from: Data("""
         {
           "pack_id": "quiz_target_fixture",
@@ -247,10 +247,22 @@ struct ConversationPracticeTests {
         """.utf8))
 
         let item = try #require(pack.practiceLibrary.items.first)
-        let question = ConversationPracticeQuizRules.characterQuestion(for: item)
+        let candidates = [
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "你", components: ["亻", "尔"]),
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "打", components: ["扌", "丁"]),
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "把", components: ["扌", "巴"]),
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "找", components: ["扌", "戈"]),
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "算", components: ["竹", "目", "廾"]),
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "管", components: ["竹", "官"]),
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "答", components: ["竹", "合"]),
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "等", components: ["竹", "寺"]),
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "鼻", components: ["自", "田", "廾"]),
+            ConversationPracticeQuizRules.CharacterChoiceCandidate(character: "去", components: ["土", "厶"])
+        ]
+        let question = ConversationPracticeQuizRules.characterQuestion(for: item, candidates: candidates)
 
-        #expect(question.character == "打")
-        #expect(question.blankedSentence == "你＿算去哪里度假？")
+        #expect(question.character == "算")
+        #expect(question.blankedSentence == "你打＿去哪里度假？")
         #expect(!question.blankedSentence.contains(question.character))
     }
 

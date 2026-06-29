@@ -268,9 +268,9 @@ Progress is intentionally local for now; persistent lesson progress remains a
 future storage decision.
 Step 5 has the first `Quick Quiz` flow: the starter set opens an offline
 single-character recognition sheet that blanks one character inside the source
-sentence, prioritizes action/verb characters for the blank, and uses
-deterministic portable answer-choice rules that prefer similar-looking full
-characters with shared components rather than radicals. Feedback shows
+sentence, prioritizes characters with strong similar-looking shared-component
+peers, and uses deterministic portable answer-choice rules that prefer
+similar-looking full characters rather than radicals. Feedback shows
 pinyin/meaning, score for the session, and links back to the existing Phrase and
 Character card presentation. Quiz results remain local until the persistent
 lesson-progress store is designed.

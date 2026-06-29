@@ -652,7 +652,14 @@ public enum ConversationPracticeQuizRules {
     }
 
     public static func characterQuestion(for item: ConversationPracticeItem) -> CharacterQuestion {
-        let character = questionCharacter(for: item)
+        characterQuestion(for: item, candidates: [])
+    }
+
+    public static func characterQuestion(
+        for item: ConversationPracticeItem,
+        candidates: [CharacterChoiceCandidate]
+    ) -> CharacterQuestion {
+        let character = questionCharacter(for: item, candidates: candidates)
         return CharacterQuestion(
             character: character,
             blankedSentence: sentenceByBlanking(character, in: item.simplified)
@@ -660,9 +667,20 @@ public enum ConversationPracticeQuizRules {
     }
 
     public static func questionCharacter(for item: ConversationPracticeItem) -> String {
+        questionCharacter(for: item, candidates: [])
+    }
+
+    public static func questionCharacter(
+        for item: ConversationPracticeItem,
+        candidates: [CharacterChoiceCandidate]
+    ) -> String {
         let hintedCharacters = item.characterHints.filter { $0.count == 1 && isChineseCharacter($0) }
-        if let actionCharacter = hintedCharacters.first(where: isPreferredActionCharacter) {
-            return actionCharacter
+        let usableCandidates = uniqueCandidates(candidates)
+        if let confusableCharacter = confusableQuestionCharacter(
+            from: hintedCharacters,
+            candidates: usableCandidates
+        ) {
+            return confusableCharacter
         }
 
         if let substantialCharacter = hintedCharacters.first(where: isSubstantialQuizCharacter) {
@@ -685,12 +703,7 @@ public enum ConversationPracticeQuizRules {
         from candidates: [CharacterChoiceCandidate],
         count: Int = 4
     ) -> [String] {
-        var uniqueCandidates: [CharacterChoiceCandidate] = []
-        var seen = Set<String>()
-        for candidate in candidates where candidate.character.count == 1 && isChineseCharacter(candidate.character) {
-            guard seen.insert(candidate.character).inserted else { continue }
-            uniqueCandidates.append(candidate)
-        }
+        let uniqueCandidates = uniqueCandidates(candidates)
 
         guard let answer = uniqueCandidates.first(where: { $0.character == character }) else {
             return [character]
@@ -764,25 +777,60 @@ public enum ConversationPracticeQuizRules {
         }
     }
 
+    private static func uniqueCandidates(_ candidates: [CharacterChoiceCandidate]) -> [CharacterChoiceCandidate] {
+        var uniqueCandidates: [CharacterChoiceCandidate] = []
+        var seen = Set<String>()
+        for candidate in candidates where candidate.character.count == 1 && isChineseCharacter(candidate.character) {
+            guard seen.insert(candidate.character).inserted else { continue }
+            uniqueCandidates.append(candidate)
+        }
+        return uniqueCandidates
+    }
+
+    private static func confusableQuestionCharacter(
+        from characters: [String],
+        candidates: [CharacterChoiceCandidate]
+    ) -> String? {
+        let byCharacter = Dictionary(uniqueKeysWithValues: candidates.map { ($0.character, $0) })
+        let scored = characters.compactMap { character -> (character: String, score: Int, lowValue: Bool)? in
+            guard let candidate = byCharacter[character] else { return nil }
+            let score = confusabilityScore(for: candidate, in: candidates)
+            guard score > 0 else { return nil }
+            return (character, score, !isSubstantialQuizCharacter(character))
+        }
+
+        return scored.sorted { lhs, rhs in
+            if lhs.lowValue != rhs.lowValue { return !lhs.lowValue }
+            if lhs.score != rhs.score { return lhs.score > rhs.score }
+            return characters.firstIndex(of: lhs.character) ?? Int.max < characters.firstIndex(of: rhs.character) ?? Int.max
+        }.first?.character
+    }
+
+    private static func confusabilityScore(
+        for candidate: CharacterChoiceCandidate,
+        in candidates: [CharacterChoiceCandidate]
+    ) -> Int {
+        let components = Set(candidate.components)
+        guard !components.isEmpty else { return 0 }
+
+        return candidates
+            .filter { $0.character != candidate.character }
+            .reduce(0) { score, peer in
+                let sharedCount = Set(peer.components).intersection(components).count
+                if sharedCount >= 2 { return score + 3 }
+                if sharedCount == 1 { return score + 1 }
+                return score
+            }
+    }
+
     private static func sentenceByBlanking(_ character: String, in sentence: String) -> String {
         guard !character.isEmpty else { return sentence }
         return sentence.replacingOccurrences(of: character, with: "＿", options: [], range: sentence.startIndex..<sentence.endIndex)
     }
 
-    private static func isPreferredActionCharacter(_ character: String) -> Bool {
-        preferredActionCharacters.contains(character)
-    }
-
     private static func isSubstantialQuizCharacter(_ character: String) -> Bool {
         !lowValueQuestionCharacters.contains(character)
     }
-
-    private static let preferredActionCharacters: Set<String> = [
-        "去", "来", "回", "走", "到", "进", "出", "坐", "住", "停", "带", "打", "叫", "开",
-        "买", "卖", "订", "付", "换", "找", "问", "说", "讲", "听", "看", "读", "写", "学",
-        "吃", "喝", "点", "加", "做", "办", "帮", "给", "拿", "放", "用", "修", "试", "排",
-        "要", "想", "会", "能", "需", "请"
-    ]
 
     private static let lowValueQuestionCharacters: Set<String> = [
         "我", "你", "他", "她", "它", "们", "这", "那", "哪", "个", "的", "了", "吗", "呢",
