@@ -5,7 +5,19 @@ struct ConversationPracticeLinkedHints {
     let characters: [String]
 }
 
+struct ConversationPracticeHintCacheKey: Hashable {
+    let setID: String
+    let itemID: String
+    let simplified: String
+    let phraseHints: [String]
+    let characterHints: [String]
+}
+
 extension RadixStore {
+    func invalidateConversationPracticeHintCache() {
+        conversationPracticeLinkedHintCache.removeAll()
+    }
+
     func loadConversationPracticePhraseCache() {
         guard let library = try? ConversationPracticeService().loadStarterLibrary() else { return }
         registerConversationPracticeLibrary(library)
@@ -41,6 +53,7 @@ extension RadixStore {
     }
 
     func registerConversationPracticeLibrary(_ library: ConversationPracticeLibrary) {
+        var didRegisterPhrase = false
         for seed in library.phraseSeeds {
             let key = phraseStorageWord(seed.phraseKey)
             guard !key.isEmpty, phraseRepo.fetchPhrase(for: key) == nil else { continue }
@@ -50,6 +63,10 @@ extension RadixStore {
                 meanings: seed.english,
                 notes: seed.notes
             )
+            didRegisterPhrase = true
+        }
+        if didRegisterPhrase {
+            invalidateConversationPracticeHintCache()
         }
     }
 
@@ -87,6 +104,17 @@ extension RadixStore {
     }
 
     func linkedPracticeHints(for item: ConversationPracticeItem) -> ConversationPracticeLinkedHints {
+        let cacheKey = ConversationPracticeHintCacheKey(
+            setID: item.setID,
+            itemID: item.id,
+            simplified: item.simplified,
+            phraseHints: item.phraseHints.map(phraseStorageWord(_:)),
+            characterHints: item.characterHints
+        )
+        if let cached = conversationPracticeLinkedHintCache[cacheKey] {
+            return cached
+        }
+
         let phrases = verifiedPracticePhraseHints(for: item).sorted {
             if $0.word.count != $1.word.count { return $0.word.count > $1.word.count }
 
@@ -107,9 +135,11 @@ extension RadixStore {
             return seenCharacters.insert(character).inserted
         }
 
-        return ConversationPracticeLinkedHints(
+        let hints = ConversationPracticeLinkedHints(
             phrases: phrases,
             characters: characters
         )
+        conversationPracticeLinkedHintCache[cacheKey] = hints
+        return hints
     }
 }

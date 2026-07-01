@@ -365,7 +365,10 @@ sheet. The Translate drill is split by responsibility: the sheet owns lifecycle
 and state, `ConversationPracticeTranslationQuizComponents.swift` owns view
 sections, `ConversationPracticeTranslationQuizLogic.swift` owns session/progress
 behavior, and `ConversationPracticeTranslationQuizSupport.swift` owns small
-supporting types.
+supporting types. Practice linked phrase/character hints are cached in
+`RadixStoreConversationPractice` per practice item and invalidated when Practice
+phrase libraries register or phrase-backed Study data refreshes, so drill sheets
+do not repeatedly rediscover the same hints during SwiftUI redraws.
 `CharacterDetailView` no longer embeds the old Breakdown/Derivatives lineage
 grid; structure exploration remains available through the dedicated Character
 Breakdown explorer instead of crowding the info card.

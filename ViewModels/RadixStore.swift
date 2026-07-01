@@ -419,6 +419,7 @@ final class RadixStore: ObservableObject {
     var selectedBrowseCollectionCharacters: Set<String>? = nil
     var phraseCache: [String: [PhraseItem]] = [:]
     var conversationPracticePhraseCache: [String: PhraseItem] = [:]
+    var conversationPracticeLinkedHintCache: [ConversationPracticeHintCacheKey: ConversationPracticeLinkedHints] = [:]
     var rootsDerivativesCache: [RootsCacheKey: RootsDerivativesCacheValue] = [:]
 
     struct RootsCacheKey: Hashable {
