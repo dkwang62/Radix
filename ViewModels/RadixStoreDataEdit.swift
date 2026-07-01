@@ -619,6 +619,7 @@ extension RadixStore {
         refreshAddedPhrases()
         syncDataEditPhraseCaches()
         dataEditPhrases = addedPhrases
+        dataImportRevision += 1
     }
 
     // MARK: - Variance check

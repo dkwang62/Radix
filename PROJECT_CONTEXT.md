@@ -224,6 +224,9 @@ Imported Conversation Practice packs persist through the same backup and
 checkpoint flows as the rest of Study. My Data's backup preview lists Practice
 as its own saved section, including the selected topic, bundled topic count,
 and imported practice-pack sentence counts.
+Checkpoint or backup returns must refresh Study's imported Practice cache
+immediately after restore so deleted imported packs reappear without requiring
+the Study tab to be recreated.
 The AI Link generator task emits the lightweight importable Practice JSON shape
 `{ "theme": "...", "entries": [{ "id", "zh", "pinyin", "en" }] }`, so AI
 content can be saved as a file, imported from the Study dropdown, validated by

@@ -65,6 +65,7 @@ final class RadixStore: ObservableObject {
     
     // MARK: - DataEdit (Character Studio) State
     @Published var dataEditFormState = RadixDataEditFormState()
+    @Published var dataImportRevision = 0
 
     var dataEditLoadTask: Task<Void, Never>?
     /// Cache to avoid reloading heavy entries when toggling between AI/Data.

@@ -176,6 +176,10 @@ struct FavouritesTab: View {
         .onChange(of: store.selectedConversationPracticeTopicID) { _, _ in
             loadConversationPracticeLibrary()
         }
+        .onChange(of: store.dataImportRevision) { _, _ in
+            loadImportedConversationPracticePacks()
+            loadConversationPracticeLibrary()
+        }
     }
 
     func openAddedPhraseReviewIfRequested() {
