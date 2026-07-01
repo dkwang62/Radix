@@ -361,7 +361,11 @@ adding a separate explanation row. Translate is a third lightweight Practice
 drill with an in-sheet direction toggle for English-to-Chinese and
 Chinese-to-English. It records correct/incorrect outcomes through the same
 portable progress model and keeps sentence/character inspection inside the drill
-sheet.
+sheet. The Translate drill is split by responsibility: the sheet owns lifecycle
+and state, `ConversationPracticeTranslationQuizComponents.swift` owns view
+sections, `ConversationPracticeTranslationQuizLogic.swift` owns session/progress
+behavior, and `ConversationPracticeTranslationQuizSupport.swift` owns small
+supporting types.
 `CharacterDetailView` no longer embeds the old Breakdown/Derivatives lineage
 grid; structure exploration remains available through the dedicated Character
 Breakdown explorer instead of crowding the info card.

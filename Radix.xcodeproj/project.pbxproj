@@ -121,6 +121,9 @@
 		86C0FFEE4000000000000001 /* ConversationPracticeReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */; };
 		86C0FFEE5000000000000001 /* ConversationPracticeQuizSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE5000000000000002 /* ConversationPracticeQuizSheet.swift */; };
 		86C0FFEE8000000000000001 /* ConversationPracticeTranslationQuizSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE8000000000000002 /* ConversationPracticeTranslationQuizSheet.swift */; };
+		86C0FFEE8100000000000001 /* ConversationPracticeTranslationQuizComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE8100000000000002 /* ConversationPracticeTranslationQuizComponents.swift */; };
+		86C0FFEE8200000000000001 /* ConversationPracticeTranslationQuizLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE8200000000000002 /* ConversationPracticeTranslationQuizLogic.swift */; };
+		86C0FFEE8300000000000001 /* ConversationPracticeTranslationQuizSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE8300000000000002 /* ConversationPracticeTranslationQuizSupport.swift */; };
 		86C0FFEE7000000000000001 /* ConversationPracticeInlineInspection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE7000000000000002 /* ConversationPracticeInlineInspection.swift */; };
 		86D4638F44188A238A8ECB14 /* SmartSearchTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF9DDFA3D17CF300D881367 /* SmartSearchTab.swift */; };
 		8925A237D932F85F3087F717 /* CharacterInfoCardHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCE5059E558EFFBE555258B /* CharacterInfoCardHeader.swift */; };
@@ -422,6 +425,9 @@
 		86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeReviewSheet.swift; sourceTree = "<group>"; };
 		86C0FFEE5000000000000002 /* ConversationPracticeQuizSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeQuizSheet.swift; sourceTree = "<group>"; };
 		86C0FFEE8000000000000002 /* ConversationPracticeTranslationQuizSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeTranslationQuizSheet.swift; sourceTree = "<group>"; };
+		86C0FFEE8100000000000002 /* ConversationPracticeTranslationQuizComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeTranslationQuizComponents.swift; sourceTree = "<group>"; };
+		86C0FFEE8200000000000002 /* ConversationPracticeTranslationQuizLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeTranslationQuizLogic.swift; sourceTree = "<group>"; };
+		86C0FFEE8300000000000002 /* ConversationPracticeTranslationQuizSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeTranslationQuizSupport.swift; sourceTree = "<group>"; };
 		86C0FFEE7000000000000002 /* ConversationPracticeInlineInspection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeInlineInspection.swift; sourceTree = "<group>"; };
 		86FCEABCE0BF3710ED511D5A /* RadixSharedImageImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixSharedImageImport.swift; sourceTree = "<group>"; };
 		877424A72314561B83933A31 /* ComponentsExplorerShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentsExplorerShell.swift; sourceTree = "<group>"; };
@@ -590,7 +596,10 @@
 				86C0FFEE5000000000000002 /* ConversationPracticeQuizSheet.swift */,
 				86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */,
 				86C0FFEE3000000000000002 /* ConversationPracticeSection.swift */,
+				86C0FFEE8100000000000002 /* ConversationPracticeTranslationQuizComponents.swift */,
+				86C0FFEE8200000000000002 /* ConversationPracticeTranslationQuizLogic.swift */,
 				86C0FFEE8000000000000002 /* ConversationPracticeTranslationQuizSheet.swift */,
+				86C0FFEE8300000000000002 /* ConversationPracticeTranslationQuizSupport.swift */,
 				FBE7B98237AD3F0926A20783 /* DataBackupPreviewActions.swift */,
 				D5CAC174D6D8AEFB30F37FCA /* DataBackupPreviewLists.swift */,
 				E33C8D1C277846EDE781C7E5 /* DataBackupPreviewRows.swift */,
@@ -1102,7 +1111,10 @@
 				86C0FFEE5000000000000001 /* ConversationPracticeQuizSheet.swift in Sources */,
 				86C0FFEE4000000000000001 /* ConversationPracticeReviewSheet.swift in Sources */,
 				86C0FFEE3000000000000001 /* ConversationPracticeSection.swift in Sources */,
+				86C0FFEE8100000000000001 /* ConversationPracticeTranslationQuizComponents.swift in Sources */,
+				86C0FFEE8200000000000001 /* ConversationPracticeTranslationQuizLogic.swift in Sources */,
 				86C0FFEE8000000000000001 /* ConversationPracticeTranslationQuizSheet.swift in Sources */,
+				86C0FFEE8300000000000001 /* ConversationPracticeTranslationQuizSupport.swift in Sources */,
 				8DF266A5667C4089D6D7ECF1 /* ComponentsExplorerFilters.swift in Sources */,
 				E7596797333E80E868F2B087 /* ComponentsExplorerNavigation.swift in Sources */,
 				4F4693724B00942FD1AC5453 /* ComponentsExplorerSections.swift in Sources */,
