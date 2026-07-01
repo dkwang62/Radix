@@ -70,6 +70,28 @@ related controls into one local cluster when they operate on the same object,
 such as page navigation, script choice, and display language for a sentence
 list.
 
+### Balance with best-practice guardrails
+
+The design rules above should make Radix focused, but not cryptic. Add these
+counterweights before declaring a UI done:
+
+- Keep one small orientation cue on focused screens when users might return
+  later and need to know where they are.
+- Do not make every control local if that fragments scanning; a single clean
+  toolbar can be better than several tiny clusters.
+- Use progressive disclosure for secondary power features so first-time users
+  can still discover import, generate, help, restore, or destructive actions.
+- Preserve breathing room around the main learning object; compactness should
+  feel calm and efficient, not crowded.
+- Separate beginner clarity from expert efficiency with first-use, dismissible,
+  or replayable help instead of permanent instruction blocks.
+- Test compact layouts with small-phone width, larger text, and future
+  localization before relying on tight one-row control designs.
+- Prefer reversible hiding over permanent removal for guidance users may need
+  later, such as an info button or replayable help card.
+- Show small confirmations or visible state changes after import, delete,
+  restore, page change, or other actions that alter the user's working context.
+
 ## Main navigation intent
 
 The four primary destinations use this plain-language division of responsibility
