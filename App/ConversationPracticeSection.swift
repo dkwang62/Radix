@@ -140,39 +140,53 @@ extension FavouritesTab {
         topic: ConversationPracticeTopic
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                Spacer(minLength: 8)
-
-                studyScriptToggle
-                conversationPracticeSentenceDisplayToggle
-            }
-
             conversationPracticeSentenceList(library)
-
-            HStack(spacing: 8) {
-                Button {
-                    presentConversationPracticeReview(library)
-                } label: {
-                    Label("Flashcards", systemImage: "rectangle.stack")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .frame(maxWidth: .infinity, minHeight: 38)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.accentColor)
-
-                Button {
-                    presentConversationPracticeQuiz(library)
-                } label: {
-                    Label("Quick Quiz", systemImage: "checkmark.circle")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .frame(maxWidth: .infinity, minHeight: 38)
-                }
-                .buttonStyle(.bordered)
-            }
         }
         .padding(10)
         .background(RadixTheme.secondaryBackground.opacity(0.52))
         .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    var showsConversationPracticeFloatingControls: Bool {
+        studyMode == .practice && conversationPracticeLibrary != nil
+    }
+
+    var conversationPracticeFloatingTopControls: some View {
+        HStack(spacing: 8) {
+            Spacer(minLength: 8)
+
+            studyScriptToggle
+            conversationPracticeSentenceDisplayToggle
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(.bar)
+    }
+
+    func conversationPracticeFloatingBottomActions(_ library: ConversationPracticeLibrary) -> some View {
+        HStack(spacing: 8) {
+            Button {
+                presentConversationPracticeReview(library)
+            } label: {
+                Label("Flashcards", systemImage: "rectangle.stack")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 38)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color.accentColor)
+
+            Button {
+                presentConversationPracticeQuiz(library)
+            } label: {
+                Label("Quick Quiz", systemImage: "checkmark.circle")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 38)
+            }
+            .buttonStyle(.bordered)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(.bar)
     }
 
     var conversationPracticeSentenceDisplayToggle: some View {

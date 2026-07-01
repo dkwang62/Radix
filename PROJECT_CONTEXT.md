@@ -324,6 +324,9 @@ sentence card itself shows a compact `Sentences` return action so the expanded
 sentence list is reachable without adding generic Browse/Study shortcuts.
 Character links use the normal full `CharacterDetailView`, not the lightweight
 preview card.
+Conversation Practice keeps script and Chinese/English display controls pinned
+above the long sentence list, with Flashcards and Quick Quiz pinned below it, so
+the list can scroll without hiding the primary practice controls.
 The next Practice build should start with a portable progress model keyed by
 pack/item ID, then use it for last-practiced and completion signals in Study;
 import replacement review and sentence read-aloud are lower-priority follow-ups.

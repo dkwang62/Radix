@@ -10,6 +10,17 @@ extension FavouritesTab {
             .padding(.horizontal)
             .padding(.bottom, 20)
         }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if showsConversationPracticeFloatingControls {
+                conversationPracticeFloatingTopControls
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if showsConversationPracticeFloatingControls,
+               let conversationPracticeLibrary {
+                conversationPracticeFloatingBottomActions(conversationPracticeLibrary)
+            }
+        }
     }
 
     var studyModePicker: some View {
