@@ -220,8 +220,9 @@ The selected sentence should remain visibly highlighted and clickable in the
 Practice list, making the main list the simple way back to the sentence card
 after sidebar phrase or character exploration. The phone information preview
 should not add extra `Study` or `Browse` shortcut buttons above this flow; when
-a character preview can return to its sentence card, label that action
-`Sentence`.
+a Practice sentence card is open on iPhone, provide a compact `Sentences`
+return action to the expanded sentence list, and when a character preview can
+return to its sentence card, label that action `Sentence`.
 Character inspection in Practice should use the normal full character card, not
 the compact preview.
 

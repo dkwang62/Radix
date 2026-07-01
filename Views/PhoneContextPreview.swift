@@ -4,6 +4,7 @@ struct PhoneContextPreview: View {
     @EnvironmentObject private var store: RadixStore
     let phrase: PhraseItem?
     let character: String?
+    var listReturnTitle: String? = nil
     let onReturn: () -> Void
     @State private var phraseReturnTarget: PhraseItem?
     @State private var phraseReturnLookupOverride: [PhraseItem]?
@@ -11,6 +12,24 @@ struct PhoneContextPreview: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             if let phrase {
+                if let listReturnTitle {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            onReturn()
+                        }
+                    } label: {
+                        Label(listReturnTitle, systemImage: "chevron.backward")
+                            .font(ResponsiveFont.subheadline.weight(.semibold))
+                            .foregroundStyle(Color.accentColor)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(RadixTheme.secondaryBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Back to sentence list")
+                }
+
                 PhraseInfoCard(
                     phrase: phrase,
                     phraseLookupOverride: store.sidebarPhraseLookupOverride,
