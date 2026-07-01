@@ -173,7 +173,8 @@ Set detail:
 - offers `Quick Quiz` next
 - lets the visible sentence preview expand in place to the full sentence list
 - keeps every sentence tappable into its Phrase card or Browse inspection
-- exposes detected characters and sub-phrases as links into existing cards
+- keeps the expanded Study list sparse, leaving detailed phrase and character
+  exploration to the information card or drill feedback
 
 Practice feedback:
 
@@ -234,13 +235,13 @@ Practice feedback:
    - Let users expand the Study Practice card from a short sentence preview to
      every sentence in the selected set.
    - Preserve curated rank order.
-   - Link every full sentence, phrase hint, and character hint back to existing
-     Phrase and Character cards.
+   - Keep the expanded Study list sparse so users can scroll and scan quickly.
+   - Link every full sentence back to existing Phrase and Character inspection
+     through the normal Study information card.
    - Status: The Study set card shows a compact preview and expands in place to
-     all sentences in curated order. Expanded rows include pinyin, English,
-     verified phrase hint chips, and character hint chips tied to existing
-     Phrase/Character card presentation. Flashcards and Quick Quiz keep lesson
-     card inspection inside their active sheets.
+     all sentences in curated order. Expanded rows include Chinese, pinyin, and
+     English only, without phrase or character chips. Flashcards and Quick Quiz
+     keep detailed lesson-card inspection inside their active sheets.
 
 7. Expansion
    - Add more situational sets.
@@ -330,4 +331,4 @@ These are the remaining useful Practice work items, in likely build order:
   topics remain fixed app content.
 - Phrase hint chips are database-verified exact matches only. Character chips
   omit characters already covered by displayed phrase chips, and shared script
-  helpers keep Flashcards, Quick Quiz, and the expanded sentence list aligned.
+  helpers keep Flashcards and Quick Quiz aligned.

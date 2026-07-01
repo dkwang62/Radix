@@ -345,81 +345,44 @@ extension FavouritesTab {
     }
 
     func conversationPracticeExpandedSentenceRow(_ item: ConversationPracticeItem) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Button {
-                presentConversationPracticePhrase(item)
-            } label: {
-                HStack(alignment: .center, spacing: 10) {
-                    Text("\(item.rank)")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(Color.accentColor)
-                        .frame(width: 34, height: 34)
-                        .background(Color.accentColor.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+        Button {
+            presentConversationPracticePhrase(item)
+        } label: {
+            HStack(alignment: .center, spacing: 10) {
+                Text("\(item.rank)")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 34, height: 34)
+                    .background(Color.accentColor.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(studyGridDisplayText(item.simplified))
-                            .font(ResponsiveFont.body.weight(.semibold))
-                            .fixedSize(horizontal: false, vertical: true)
-                        Text(item.pinyin)
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                        Text(item.english)
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .layoutPriority(1)
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .semibold))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(studyGridDisplayText(item.simplified))
+                        .font(ResponsiveFont.body.weight(.semibold))
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(item.pinyin)
+                        .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                    Text(item.english)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.secondary)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Open phrase \(studyGridDisplayText(item.simplified))")
-
-            conversationPracticeLinkedHintRow(item)
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RadixTheme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
-        .padding(12)
-        .background(RadixTheme.background)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-
-    @ViewBuilder
-    func conversationPracticeLinkedHintRow(_ item: ConversationPracticeItem) -> some View {
-        let hints = store.linkedPracticeHints(for: item)
-        if !hints.phrases.isEmpty || !hints.characters.isEmpty {
-            let characters = conversationPracticeDisplayCharacters(for: item, excludingPhrases: hints.phrases)
-            if !hints.phrases.isEmpty || !characters.isEmpty {
-                RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
-                    ForEach(hints.phrases) { phrase in
-                        Button {
-                            presentConversationPracticePhraseHint(phrase)
-                        } label: {
-                            Text(studyGridDisplayText(phrase.word))
-                                .font(ResponsiveFont.caption.weight(.semibold))
-                                .padding(.horizontal, 9)
-                                .padding(.vertical, 6)
-                        }
-                        .buttonStyle(.bordered)
-                    }
-
-                    ForEach(characters, id: \.self) { character in
-                        Button {
-                            presentConversationPracticeCharacter(character)
-                        } label: {
-                            Text(character)
-                                .font(ResponsiveFont.caption.weight(.semibold))
-                                .frame(minWidth: 30, minHeight: 30)
-                        }
-                        .buttonStyle(.bordered)
-                    }
-                }
-            }
-        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Open phrase \(studyGridDisplayText(item.simplified))")
     }
 
     func presentConversationPracticePhrase(_ item: ConversationPracticeItem) {
@@ -429,31 +392,5 @@ extension FavouritesTab {
             store: store
         )
         presentPhrase(phrase)
-    }
-
-    func presentConversationPracticePhraseHint(_ phrase: PhraseItem) {
-        let displayPhrase = ConversationPracticeScriptSupport.displayPhrase(
-            phrase,
-            usesTraditionalScript: studyGridUsesTraditionalScript,
-            store: store
-        )
-        presentPhrase(displayPhrase)
-    }
-
-    func presentConversationPracticeCharacter(_ character: String) {
-        store.pushRootBreadcrumb(character)
-        store.select(character: character)
-    }
-
-    func conversationPracticeDisplayCharacters(
-        for item: ConversationPracticeItem,
-        excludingPhrases phrases: [PhraseItem]
-    ) -> [String] {
-        ConversationPracticeScriptSupport.displayCharacters(
-            for: item,
-            excludingPhrases: phrases,
-            usesTraditionalScript: studyGridUsesTraditionalScript,
-            store: store
-        )
     }
 }

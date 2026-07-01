@@ -5,7 +5,7 @@ Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
 
-Last reviewed: 2026-06-29
+Last reviewed: 2026-07-01
 
 ## Product and Platform Scope
 
@@ -291,14 +291,15 @@ falls back through broader shared-component, related-character, and
 script-matched dictionary choices rather than showing a one-choice round.
 Step 6 folds sentence browsing into the Study Practice card. The card starts
 with a compact preview of the first sentences and expands in place to show the
-curated order for all sentences, keeping each full sentence, phrase hint, and
-character hint linked back to existing Radix Phrase and Character cards.
+curated order for all sentences as a sparse, fast-scanning list. Expanded rows
+show the sentence, pinyin, and English only; tapping a row opens the normal
+Study information card for richer Phrase and Character inspection.
 The Conversation Practice Simplified/Traditional choice is shared across the
-Practice card, Flashcards, and Quick Quiz, including displayed sentences, hint
-chips, character links, and opened Phrase card titles.
+Practice card, Flashcards, and Quick Quiz, including displayed sentences, drill
+hint chips, character links, and opened Phrase card titles.
 Shared script-support helpers own Practice phrase-card conversion and
-character-chip filtering so each practice mode follows the same coverage rules.
-Phrase hint chips in Practice are database-verified only, display longest-first,
+character-chip filtering so drill modes follow the same coverage rules. Phrase
+hint chips in Practice drills are database-verified only, display longest-first,
 and appear before character chips; character chips omit any characters already
 covered by displayed phrases. Curated or detected groupings must resolve exactly
 in the bundled base phrase database or the additional phrase database before

@@ -205,13 +205,15 @@ should reinforce those links by showing the sentence, pinyin, English, and key
 Radix-backed parts after an answer. Avoid dead-end quiz screens where the
 dictionary/card system disappears. When a lesson flow opens a Phrase or
 Character card, keep that inspection inside the current lesson sheet with a
-normal back path to the practice mode; do not eject the user from Flashcards,
-or Quick Quiz just because they inspected a Radix card. The Study Practice card
+normal back path to the practice mode; do not eject the user from Flashcards or
+Quick Quiz just because they inspected a Radix card. The Study Practice card
 itself should make its visible sentence preview expandable to the full sentence
 list, so users get sentence browsing without a separate primary section. In the
-expanded card, sentence rows should include pinyin, English, and Radix-backed
-phrase/character links. Character inspection in Practice should use the normal
-full character card, not the compact preview.
+expanded card, sentence rows should stay sparse for scanning: Chinese, pinyin,
+English, and a clear tap target into the normal Study information card. Do not
+repeat phrase and character chips in that main list; the sidebar information
+card is the richer inspection place. Character inspection in Practice should use
+the normal full character card, not the compact preview.
 
 Keep curated lessons visually and behaviorally separate from Added Phrases
 cleanup. Added Phrases is for user/imported phrase classification; Conversation
