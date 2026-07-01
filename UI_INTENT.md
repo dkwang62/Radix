@@ -165,11 +165,13 @@ Study should not become a hodgepodge. Group it by intent:
 - Practice: guided lesson sets and drills such as Conversation Practice.
 - Snapshots: save and restore learning states.
 
-The Study tab splits internally into `Review` and `Practice`; do not create a
-separate main app tab for Practice unless the whole navigation model is
-reconsidered. Review holds the user's kept material; Practice holds guided
-lesson content. Keep the internal `Review | Practice` control compact instead
-of stretching it across the full content width.
+The Study tab should not create a separate main app tab for Practice unless the
+whole navigation model is reconsidered. The main Study screen holds the user's
+kept material and summary tiles. Add `Conversation Practices` as a normal
+summary tile beside Recent, Favorites, Added Phrases, and Saved Pages; it should
+show the available theme count and open a focused Practice screen with a clear
+`Back to Study` return button. Do not show a persistent `Review | Practice`
+switch row on the Study main screen.
 
 Inside Review, the four Study summary buttons are the section selectors. Do not
 repeat Recent/Favorites as a segmented picker above the review grid; the grid

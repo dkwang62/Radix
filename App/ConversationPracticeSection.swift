@@ -194,7 +194,7 @@ extension FavouritesTab {
     }
 
     var showsConversationPracticeFloatingControls: Bool {
-        studyMode == .practice && conversationPracticeLibrary != nil
+        isShowingConversationPractice && conversationPracticeLibrary != nil
     }
 
     var conversationPracticeFloatingTopControls: some View {

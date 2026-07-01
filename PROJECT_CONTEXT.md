@@ -188,13 +188,12 @@ Corrected pages retain the longest possible prefix of the original 11-character
 name and add a unique numeric suffix such as `1` or `2`.
 The corrected source remains Chinese, while change reasons, confidence, and
 uncertainty explanations are explicitly requested in English.
-Study has an internal `Review | Practice` split while the main app tab remains
-named `Study`. Review holds existing recent/favorites/added/saved material,
-including the four summary tiles and checkpoints. Practice holds Conversation
-Practice plus future guided lesson sets. The split is local `StudyMode` state
-with separate Review and Practice content builders, and its segmented control
-stays compact rather than full-width. Recent and Favorites must not be repeated
-as a segmented picker above the review grid.
+The Study tab remains the user's main review surface. Its summary grid includes
+`Conversation Practices` beside Recent, Favorites, Added Phrases, and Saved
+Pages; the tile shows the available theme count and opens a focused Practice
+screen with a `Back to Study` return button. There is no persistent
+`Review | Practice` switch row. Recent and Favorites must not be repeated as a
+segmented picker above the review grid.
 On iPad and Mac Catalyst those four tiles use an explicit two-column layout so
 all labels remain readable; phone keeps its adaptive layout.
 Conversation Practice is the next Study learning section. It presents curated
@@ -325,12 +324,12 @@ sentence card itself shows a compact `Sentences` return action so the expanded
 sentence list is reachable without adding generic Browse/Study shortcuts.
 Character links use the normal full `CharacterDetailView`, not the lightweight
 preview card.
-Conversation Practice keeps script and Chinese/English display controls pinned
-above the sentence list, with Flashcards and Quick Quiz pinned below it. The
-section header replaces the raw sentence count with previous/next page controls
-and a visible range, so users page through lesson rows instead of scrolling a
-100-sentence list. Imported topic deletion is an icon action beside the topic
-picker, not a full-width row.
+The focused Conversation Practice screen keeps script and Chinese/English
+display controls pinned above the sentence list, with Flashcards and Quick Quiz
+pinned below it. The section header replaces the raw sentence count with
+previous/next page controls and a visible range, so users page through lesson
+rows instead of scrolling a 100-sentence list. Imported topic deletion is an
+icon action beside the topic picker, not a full-width row.
 The next Practice build should start with a portable progress model keyed by
 pack/item ID, then use it for last-practiced and completion signals in Study;
 import replacement review and sentence read-aloud are lower-priority follow-ups.

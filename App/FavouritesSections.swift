@@ -4,8 +4,11 @@ extension FavouritesTab {
     var favouritesScrollContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                studyModePicker
-                studyModeContent
+                if isShowingConversationPractice {
+                    conversationPracticeStudyScreen
+                } else {
+                    studyMainContent
+                }
             }
             .padding(.horizontal)
             .padding(.bottom, 20)
@@ -23,33 +26,8 @@ extension FavouritesTab {
         }
     }
 
-    var studyModePicker: some View {
-        HStack {
-            Picker("Study mode", selection: $studyMode) {
-                ForEach(StudyMode.allCases) { mode in
-                    Text(mode.title).tag(mode)
-                }
-            }
-            .pickerStyle(.segmented)
-            .frame(width: isNarrowStudyLayout ? 220 : 280)
-
-            Spacer(minLength: 0)
-        }
-        .padding(.top, 2)
-    }
-
     @ViewBuilder
-    var studyModeContent: some View {
-        switch studyMode {
-        case .review:
-            reviewStudyContent
-        case .practice:
-            practiceStudyContent
-        }
-    }
-
-    @ViewBuilder
-    var reviewStudyContent: some View {
+    var studyMainContent: some View {
         if !hasDismissedStudyIntro {
             studyIntroCard
         }
@@ -66,8 +44,9 @@ extension FavouritesTab {
     }
 
     @ViewBuilder
-    var practiceStudyContent: some View {
+    var conversationPracticeStudyScreen: some View {
         if conversationPracticeTopics.isEmpty {
+            conversationPracticeBackButton
             ContentUnavailableView(
                 "No Practice Sets",
                 systemImage: "bubble.left.and.bubble.right",
@@ -75,8 +54,27 @@ extension FavouritesTab {
             )
             .frame(maxWidth: .infinity, minHeight: 220)
         } else {
+            conversationPracticeBackButton
             conversationPracticeSection
         }
+    }
+
+    var conversationPracticeBackButton: some View {
+        Button {
+            withAnimation(.snappy(duration: 0.18)) {
+                isShowingConversationPractice = false
+            }
+        } label: {
+            Label("Back to Study", systemImage: "chevron.left")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .labelStyle(.titleAndIcon)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(Color.accentColor)
     }
 
     var studyIntroCard: some View {
@@ -156,6 +154,17 @@ extension FavouritesTab {
                 tint: .purple,
                 action: {
                     store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
+                }
+            )
+            studySummaryTile(
+                title: "Conversation Practices",
+                value: "\(conversationPracticeTopics.count)",
+                systemImage: "bubble.left.and.bubble.right",
+                tint: .teal,
+                action: {
+                    withAnimation(.snappy(duration: 0.18)) {
+                        isShowingConversationPractice = true
+                    }
                 }
             )
         }

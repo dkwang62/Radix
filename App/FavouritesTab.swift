@@ -15,7 +15,7 @@ struct FavouritesTab: View {
     let isCreatingCheckpoint: Bool
     let isReturningToCheckpoint: Bool
     @State var selectedPhrase: PhraseItem?
-    @State var studyMode: StudyMode = .review
+    @State var isShowingConversationPractice = false
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
     @State var studyGridScope = RadixStudyPreferences.gridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
@@ -358,15 +358,6 @@ enum StudyGridScope: String, CaseIterable, Identifiable {
         case .favorites: return "Tap a favorite character or phrase to preview it. Use the star to remove it from Favorites."
         }
     }
-}
-
-enum StudyMode: String, CaseIterable, Identifiable {
-    case review = "Review"
-    case practice = "Practice"
-
-    var id: String { rawValue }
-
-    var title: String { rawValue }
 }
 
 enum ConversationPracticeSentenceDisplay: String, CaseIterable, Identifiable {
