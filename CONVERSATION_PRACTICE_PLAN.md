@@ -328,6 +328,9 @@ These are the remaining useful Practice work items, in likely build order:
    - Consider sentence-to-English or English-to-Chinese drills once the
      persistent progress model can track attempts consistently.
    - Keep every mode linked back to Phrase and Character cards.
+   - Status: `Translate` is the first additional mode. It prompts with English,
+     offers Chinese sentence choices, records correct/incorrect progress, and
+     opens linked sentence/character cards inside the drill sheet.
 
 ## Non-Goals For First Version
 

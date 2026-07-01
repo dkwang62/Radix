@@ -242,6 +242,15 @@ extension FavouritesTab {
                     .frame(maxWidth: .infinity, minHeight: 38)
             }
             .buttonStyle(.bordered)
+
+            Button {
+                presentConversationPracticeTranslationQuiz(library)
+            } label: {
+                Label("Translate", systemImage: "text.bubble")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 38)
+            }
+            .buttonStyle(.bordered)
         }
         .padding(.horizontal)
         .padding(.vertical, 8)

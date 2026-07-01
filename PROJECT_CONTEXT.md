@@ -5,7 +5,7 @@ Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
 
-Last reviewed: 2026-07-01
+Last reviewed: 2026-07-02
 
 ## Product and Platform Scope
 
@@ -357,8 +357,10 @@ correct/incorrect attempts, and only Good/Easy/correct outcomes count an item
 complete. Progress is persisted under `RadixPreferenceKey.conversationPracticeProgress`
 and included in `UnifiedPackage` backup/checkpoint flows. The focused Practice
 topic subtitle shows per-topic completion and last-practiced state without
-adding a separate explanation row. Additional drill modes are the next
-lower-priority Practice follow-up.
+adding a separate explanation row. Translate is a third lightweight Practice
+drill: it prompts with English, offers Chinese sentence choices, records
+correct/incorrect outcomes through the same portable progress model, and keeps
+sentence/character inspection inside the drill sheet.
 `CharacterDetailView` no longer embeds the old Breakdown/Derivatives lineage
 grid; structure exploration remains available through the dedicated Character
 Breakdown explorer instead of crowding the info card.
