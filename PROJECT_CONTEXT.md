@@ -345,10 +345,12 @@ split into two compact rows to avoid crowding the range label and language
 toggles. Flashcards and Quick Quiz remain pinned below the list. Imported topic
 deletion is an icon action beside the topic picker, not a full-width row.
 Practice sentence read-aloud uses the existing Radix speech infrastructure and
-respects the app-wide Read Aloud setting. Flashcards and Quick Quiz show compact
-speaker controls beside the active sentence; the expanded sentence list continues
-to open and read the normal Phrase-backed sentence card rather than adding a
-speaker control to every row.
+the shared Chinese voice. Flashcards and Quick Quiz show compact speaker controls
+beside the active sentence; Flashcards also read the sentence, phrase, or
+character when opening the Phrase Card, phrase chips, or character chips into
+their information cards. The expanded sentence list continues to open and read
+the normal Phrase-backed sentence card rather than adding a speaker control to
+every row.
 Practice progress is a portable `ConversationPracticeProgressSnapshot` keyed by
 pack/item ID. Flashcards record Again/Good/Easy responses, Quick Quiz records
 correct/incorrect attempts, and only Good/Easy/correct outcomes count an item

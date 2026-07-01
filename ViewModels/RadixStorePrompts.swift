@@ -81,6 +81,14 @@ extension RadixStore {
         speechService.speakPhrase(phrase)
     }
 
+    func readPhraseAloud(_ phrase: PhraseItem) {
+        speechService.speakPhrase(phrase)
+    }
+
+    func readCharacterAloud(_ character: String) {
+        speechService.speak(character)
+    }
+
     @discardableResult
     func speakCharacters(in text: String) -> Int {
         speechService.speakCharacters(in: text)

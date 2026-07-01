@@ -319,9 +319,10 @@ These are the remaining useful Practice work items, in likely build order:
      Quick Quiz feedback, and the expanded sentence list.
    - Do not make audio required for offline practice.
    - Status: Flashcards and Quick Quiz use compact speaker controls beside the
-     active sentence and respect the app-wide Read Aloud setting. The expanded
-     sentence list keeps its content-first rows; tapping a row opens and reads
-     the normal Phrase-backed sentence card.
+     active sentence. Flashcards also read aloud when Phrase Card, phrase chips,
+     or character chips open their information cards. The expanded sentence
+     list keeps its content-first rows; tapping a row opens and reads the normal
+     Phrase-backed sentence card.
 
 5. Additional modes only after progress exists
    - Consider sentence-to-English or English-to-Chinese drills once the

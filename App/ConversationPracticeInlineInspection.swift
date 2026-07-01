@@ -86,11 +86,13 @@ struct ConversationPracticeSpeechButton: View {
         Button {
             speakSentence()
         } label: {
-            Image(systemName: store.speechMenuSymbolName)
-                .font(.system(size: 15, weight: .semibold))
-                .frame(width: 34, height: 34)
+            Label("Read", systemImage: "speaker.wave.2")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .labelStyle(.iconOnly)
+                .frame(width: 38, height: 34)
         }
-        .buttonStyle(.bordered)
+        .buttonStyle(.borderedProminent)
+        .tint(Color.accentColor)
         .accessibilityLabel(accessibilityLabel)
         .help(accessibilityLabel)
     }
@@ -101,7 +103,7 @@ struct ConversationPracticeSpeechButton: View {
             usesTraditionalScript: usesTraditionalScript,
             store: store
         )
-        store.speakPhrase(phrase)
+        store.readPhraseAloud(phrase)
     }
 }
 

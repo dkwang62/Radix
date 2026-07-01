@@ -247,6 +247,7 @@ struct ConversationPracticeReviewSheet: View {
             usesTraditionalScript: usesTraditionalScript,
             store: store
         )
+        store.readPhraseAloud(phrase)
         store.pushPhraseBreadcrumb(phrase)
         inspectionPath.append(.phrase(phrase))
     }
@@ -262,11 +263,13 @@ struct ConversationPracticeReviewSheet: View {
             usesTraditionalScript: usesTraditionalScript,
             store: store
         )
+        store.readPhraseAloud(displayPhrase)
         store.pushPhraseBreadcrumb(displayPhrase)
         inspectionPath.append(.phrase(displayPhrase))
     }
 
     func openCharacter(_ character: String) {
+        store.readCharacterAloud(character)
         store.pushRootBreadcrumb(character)
         inspectionPath.append(.character(character))
     }
