@@ -289,12 +289,13 @@ per-character peer/candidate lookups so SwiftUI redraws do not rebuild choices.
 If the strict confusability index cannot supply enough distractors, Quick Quiz
 falls back through broader shared-component, related-character, and
 script-matched dictionary choices rather than showing a one-choice round.
-Step 6 adds a full `Sentence List` browse sheet for the starter set. It shows
-the curated order for all sentences and keeps each full sentence, phrase hint,
-and character hint linked back to existing Radix Phrase and Character cards.
+Step 6 folds sentence browsing into the Study Practice card. The card starts
+with a compact preview of the first sentences and expands in place to show the
+curated order for all sentences, keeping each full sentence, phrase hint, and
+character hint linked back to existing Radix Phrase and Character cards.
 The Conversation Practice Simplified/Traditional choice is shared across the
-Practice card, Flashcards, Quick Quiz, and Sentence List, including displayed
-sentences, hint chips, character links, and opened Phrase card titles.
+Practice card, Flashcards, and Quick Quiz, including displayed sentences, hint
+chips, character links, and opened Phrase card titles.
 Shared script-support helpers own Practice phrase-card conversion and
 character-chip filtering so each practice mode follows the same coverage rules.
 Phrase hint chips in Practice are database-verified only, display longest-first,
@@ -304,10 +305,11 @@ in the bundled base phrase database or the additional phrase database before
 display. Practice must not show inferred adjacent-character groupings or
 placeholder phrase cards such as `No meaning saved`; unmatched sequences fall
 back to individual character links or smaller exact phrase matches.
-Flashcards, Quick Quiz, and Sentence List now open those Phrase and Character
-cards inside their own navigation stacks, so Back returns to the practice mode
-instead of ejecting the user from the lesson flow. Character links use the normal
-full `CharacterDetailView`, not the lightweight preview card.
+Flashcards and Quick Quiz open those Phrase and Character cards inside their
+own navigation stacks, so Back returns to the practice mode instead of ejecting
+the user from the lesson flow. The embedded Study card list opens Phrase and
+Character cards through the normal Study information-card path. Character links
+use the normal full `CharacterDetailView`, not the lightweight preview card.
 The next Practice build should start with a portable progress model keyed by
 pack/item ID, then use it for last-practiced and completion signals in Study;
 import replacement review and sentence read-aloud are lower-priority follow-ups.

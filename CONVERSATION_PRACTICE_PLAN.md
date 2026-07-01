@@ -171,7 +171,7 @@ Set detail:
 - uses the sentence card as the central object
 - offers `Flashcards` first
 - offers `Quick Quiz` next
-- lets the user browse the full sentence list
+- lets the visible sentence preview expand in place to the full sentence list
 - keeps every sentence tappable into its Phrase card or Browse inspection
 - exposes detected characters and sub-phrases as links into existing cards
 
@@ -183,7 +183,7 @@ Practice feedback:
 - never dead-ends in a quiz-only screen where the dictionary/card system
   disappears
 - opens Phrase and Character cards inside the current practice sheet, with the
-  normal back button returning to Flashcards, Quick Quiz, or Sentence List
+  normal back button returning to Flashcards or Quick Quiz
 
 ## Initial Build Phases
 
@@ -230,16 +230,17 @@ Practice feedback:
      immediate feedback with pinyin/English and session score, and keeps
      Phrase/Character inspection inside the quiz sheet.
 
-6. Sentence List
-   - Let users browse every sentence in the starter set.
+6. Embedded Sentence List
+   - Let users expand the Study Practice card from a short sentence preview to
+     every sentence in the selected set.
    - Preserve curated rank order.
    - Link every full sentence, phrase hint, and character hint back to existing
      Phrase and Character cards.
-   - Status: `Sentence List` opens from the Study set card, shows all starter
-     sentences in curated order, and keeps full sentence rows plus hints tied
-     to existing Phrase/Character card presentation. Lesson card inspection now
-     stays inside the active practice sheet so the user can go back to the
-     practice mode without restarting the flow.
+   - Status: The Study set card shows a compact preview and expands in place to
+     all sentences in curated order. Expanded rows include pinyin, English,
+     verified phrase hint chips, and character hint chips tied to existing
+     Phrase/Character card presentation. Flashcards and Quick Quiz keep lesson
+     card inspection inside their active sheets.
 
 7. Expansion
    - Add more situational sets.
@@ -297,7 +298,7 @@ These are the remaining useful Practice work items, in likely build order:
 
 4. Practice audio/read-aloud
    - Reuse existing speech infrastructure for sentence read-aloud in Flashcards,
-     Quick Quiz feedback, and Sentence List.
+     Quick Quiz feedback, and the expanded sentence list.
    - Do not make audio required for offline practice.
 
 5. Additional modes only after progress exists
@@ -329,4 +330,4 @@ These are the remaining useful Practice work items, in likely build order:
   topics remain fixed app content.
 - Phrase hint chips are database-verified exact matches only. Character chips
   omit characters already covered by displayed phrase chips, and shared script
-  helpers keep Flashcards, Quick Quiz, and Sentence List aligned.
+  helpers keep Flashcards, Quick Quiz, and the expanded sentence list aligned.

@@ -170,11 +170,26 @@ extension FavouritesTab {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
-            LazyVGrid(columns: conversationPracticeSampleColumns, spacing: 6) {
-                ForEach(Array(library.items.prefix(conversationPracticeSampleCount))) { item in
-                    conversationPracticeSentenceButton(item)
+            conversationPracticeSentenceList(library)
+
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isConversationPracticeExpanded.toggle()
                 }
+            } label: {
+                Label(
+                    isConversationPracticeExpanded ? "Show Fewer" : "Show All Sentences",
+                    systemImage: isConversationPracticeExpanded ? "chevron.up" : "list.bullet.rectangle"
+                )
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .frame(maxWidth: .infinity, minHeight: 38)
             }
+            .buttonStyle(.bordered)
+            .accessibilityLabel(
+                isConversationPracticeExpanded
+                    ? "Collapse conversation practice sentences"
+                    : "Show all \(library.set.itemCount) conversation practice sentences"
+            )
 
             HStack(spacing: 8) {
                 Button {
@@ -196,15 +211,6 @@ extension FavouritesTab {
                 }
                 .buttonStyle(.bordered)
             }
-
-            Button {
-                presentConversationPracticeList(library)
-            } label: {
-                Label("Sentence List", systemImage: "list.bullet.rectangle")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .frame(maxWidth: .infinity, minHeight: 38)
-            }
-            .buttonStyle(.bordered)
         }
         .padding(10)
         .background(RadixTheme.secondaryBackground.opacity(0.52))
@@ -288,6 +294,23 @@ extension FavouritesTab {
         RadixPlatform.interfaceIdiom == .phone ? 3 : 4
     }
 
+    @ViewBuilder
+    func conversationPracticeSentenceList(_ library: ConversationPracticeLibrary) -> some View {
+        if isConversationPracticeExpanded {
+            LazyVStack(alignment: .leading, spacing: 8) {
+                ForEach(library.items) { item in
+                    conversationPracticeExpandedSentenceRow(item)
+                }
+            }
+        } else {
+            LazyVGrid(columns: conversationPracticeSampleColumns, spacing: 6) {
+                ForEach(Array(library.items.prefix(conversationPracticeSampleCount))) { item in
+                    conversationPracticeSentenceButton(item)
+                }
+            }
+        }
+    }
+
     func conversationPracticeSentenceButton(_ item: ConversationPracticeItem) -> some View {
         Button {
             presentConversationPracticePhrase(item)
@@ -321,6 +344,84 @@ extension FavouritesTab {
         .accessibilityLabel("Open phrase \(item.simplified)")
     }
 
+    func conversationPracticeExpandedSentenceRow(_ item: ConversationPracticeItem) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Button {
+                presentConversationPracticePhrase(item)
+            } label: {
+                HStack(alignment: .center, spacing: 10) {
+                    Text("\(item.rank)")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(Color.accentColor)
+                        .frame(width: 34, height: 34)
+                        .background(Color.accentColor.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(studyGridDisplayText(item.simplified))
+                            .font(ResponsiveFont.body.weight(.semibold))
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(item.pinyin)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(item.english)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .layoutPriority(1)
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Open phrase \(studyGridDisplayText(item.simplified))")
+
+            conversationPracticeLinkedHintRow(item)
+        }
+        .padding(12)
+        .background(RadixTheme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    @ViewBuilder
+    func conversationPracticeLinkedHintRow(_ item: ConversationPracticeItem) -> some View {
+        let hints = store.linkedPracticeHints(for: item)
+        if !hints.phrases.isEmpty || !hints.characters.isEmpty {
+            let characters = conversationPracticeDisplayCharacters(for: item, excludingPhrases: hints.phrases)
+            if !hints.phrases.isEmpty || !characters.isEmpty {
+                RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
+                    ForEach(hints.phrases) { phrase in
+                        Button {
+                            presentConversationPracticePhraseHint(phrase)
+                        } label: {
+                            Text(studyGridDisplayText(phrase.word))
+                                .font(ResponsiveFont.caption.weight(.semibold))
+                                .padding(.horizontal, 9)
+                                .padding(.vertical, 6)
+                        }
+                        .buttonStyle(.bordered)
+                    }
+
+                    ForEach(characters, id: \.self) { character in
+                        Button {
+                            presentConversationPracticeCharacter(character)
+                        } label: {
+                            Text(character)
+                                .font(ResponsiveFont.caption.weight(.semibold))
+                                .frame(minWidth: 30, minHeight: 30)
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+            }
+        }
+    }
+
     func presentConversationPracticePhrase(_ item: ConversationPracticeItem) {
         let phrase = ConversationPracticeScriptSupport.phraseItem(
             for: item,
@@ -328,5 +429,31 @@ extension FavouritesTab {
             store: store
         )
         presentPhrase(phrase)
+    }
+
+    func presentConversationPracticePhraseHint(_ phrase: PhraseItem) {
+        let displayPhrase = ConversationPracticeScriptSupport.displayPhrase(
+            phrase,
+            usesTraditionalScript: studyGridUsesTraditionalScript,
+            store: store
+        )
+        presentPhrase(displayPhrase)
+    }
+
+    func presentConversationPracticeCharacter(_ character: String) {
+        store.pushRootBreadcrumb(character)
+        store.select(character: character)
+    }
+
+    func conversationPracticeDisplayCharacters(
+        for item: ConversationPracticeItem,
+        excludingPhrases phrases: [PhraseItem]
+    ) -> [String] {
+        ConversationPracticeScriptSupport.displayCharacters(
+            for: item,
+            excludingPhrases: phrases,
+            usesTraditionalScript: studyGridUsesTraditionalScript,
+            store: store
+        )
     }
 }

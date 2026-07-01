@@ -29,7 +29,7 @@ struct FavouritesTab: View {
     @State var conversationPracticeImportMessage: String?
     @State var conversationPracticeImportError: String?
     @State var pendingConversationPracticeDeletion: ConversationPracticeTopic?
-    @State var conversationPracticeListPresentation: ConversationPracticeListPresentation?
+    @State var isConversationPracticeExpanded = false
     @State var conversationPracticeReviewPresentation: ConversationPracticeReviewPresentation?
     @State var conversationPracticeQuizPresentation: ConversationPracticeQuizPresentation?
 
@@ -90,16 +90,6 @@ struct FavouritesTab: View {
             conversationPracticeReviewPresentation = nil
         }) { presentation in
             ConversationPracticeReviewSheet(
-                library: presentation.library,
-                usesTraditionalScript: $studyGridUsesTraditionalScript
-            )
-            .environmentObject(store)
-            .environmentObject(entitlement)
-        }
-        .sheet(item: $conversationPracticeListPresentation, onDismiss: {
-            conversationPracticeListPresentation = nil
-        }) { presentation in
-            ConversationPracticeListSheet(
                 library: presentation.library,
                 usesTraditionalScript: $studyGridUsesTraditionalScript
             )
@@ -206,6 +196,7 @@ struct FavouritesTab: View {
     func selectConversationPracticeTopic(_ topic: ConversationPracticeTopic) {
         conversationPracticeImportMessage = nil
         conversationPracticeImportError = nil
+        isConversationPracticeExpanded = false
         store.selectedConversationPracticeTopicID = topic.id
         store.persistPromptSettings()
         loadConversationPracticeLibrary()
@@ -306,10 +297,6 @@ struct FavouritesTab: View {
 
     func presentConversationPracticeReview(_ library: ConversationPracticeLibrary) {
         conversationPracticeReviewPresentation = ConversationPracticeReviewPresentation(library: library)
-    }
-
-    func presentConversationPracticeList(_ library: ConversationPracticeLibrary) {
-        conversationPracticeListPresentation = ConversationPracticeListPresentation(library: library)
     }
 
     func presentConversationPracticeQuiz(_ library: ConversationPracticeLibrary) {

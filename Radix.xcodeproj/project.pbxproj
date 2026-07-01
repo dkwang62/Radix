@@ -120,7 +120,6 @@
 		86C0FFEE3000000000000001 /* ConversationPracticeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE3000000000000002 /* ConversationPracticeSection.swift */; };
 		86C0FFEE4000000000000001 /* ConversationPracticeReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */; };
 		86C0FFEE5000000000000001 /* ConversationPracticeQuizSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE5000000000000002 /* ConversationPracticeQuizSheet.swift */; };
-		86C0FFEE6000000000000001 /* ConversationPracticeListSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE6000000000000002 /* ConversationPracticeListSheet.swift */; };
 		86C0FFEE7000000000000001 /* ConversationPracticeInlineInspection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0FFEE7000000000000002 /* ConversationPracticeInlineInspection.swift */; };
 		86D4638F44188A238A8ECB14 /* SmartSearchTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF9DDFA3D17CF300D881367 /* SmartSearchTab.swift */; };
 		8925A237D932F85F3087F717 /* CharacterInfoCardHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCE5059E558EFFBE555258B /* CharacterInfoCardHeader.swift */; };
@@ -421,7 +420,6 @@
 		86C0FFEE3000000000000002 /* ConversationPracticeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeSection.swift; sourceTree = "<group>"; };
 		86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeReviewSheet.swift; sourceTree = "<group>"; };
 		86C0FFEE5000000000000002 /* ConversationPracticeQuizSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeQuizSheet.swift; sourceTree = "<group>"; };
-		86C0FFEE6000000000000002 /* ConversationPracticeListSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeListSheet.swift; sourceTree = "<group>"; };
 		86C0FFEE7000000000000002 /* ConversationPracticeInlineInspection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeInlineInspection.swift; sourceTree = "<group>"; };
 		86FCEABCE0BF3710ED511D5A /* RadixSharedImageImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixSharedImageImport.swift; sourceTree = "<group>"; };
 		877424A72314561B83933A31 /* ComponentsExplorerShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentsExplorerShell.swift; sourceTree = "<group>"; };
@@ -587,7 +585,6 @@
 				EBA5D8A4235FE8BABAD68AA7 /* CaptureTab.swift */,
 				B9D374F4138850CF5FF935A3 /* CaptureWorkbenchViews.swift */,
 				86C0FFEE7000000000000002 /* ConversationPracticeInlineInspection.swift */,
-				86C0FFEE6000000000000002 /* ConversationPracticeListSheet.swift */,
 				86C0FFEE5000000000000002 /* ConversationPracticeQuizSheet.swift */,
 				86C0FFEE4000000000000002 /* ConversationPracticeReviewSheet.swift */,
 				86C0FFEE3000000000000002 /* ConversationPracticeSection.swift */,
@@ -1099,7 +1096,6 @@
 				D2DB6B1F7905BD68CCC5630B /* ComponentSearchEngine.swift in Sources */,
 				86C0FFEE2000000000000001 /* ConversationPracticeService.swift in Sources */,
 				86C0FFEE7000000000000001 /* ConversationPracticeInlineInspection.swift in Sources */,
-				86C0FFEE6000000000000001 /* ConversationPracticeListSheet.swift in Sources */,
 				86C0FFEE5000000000000001 /* ConversationPracticeQuizSheet.swift in Sources */,
 				86C0FFEE4000000000000001 /* ConversationPracticeReviewSheet.swift in Sources */,
 				86C0FFEE3000000000000001 /* ConversationPracticeSection.swift in Sources */,
