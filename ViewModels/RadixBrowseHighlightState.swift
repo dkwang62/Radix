@@ -1,10 +1,5 @@
 import Foundation
 
-struct PracticeSidebarReturnTarget {
-    let phrase: PhraseItem
-    let phraseLookupOverride: [PhraseItem]?
-}
-
 /// Phrase, character, and scroll highlighting state for saved-page Browse grids.
 struct RadixBrowseHighlightState {
     var phraseContext: ImagePhraseContext?
@@ -17,7 +12,6 @@ struct RadixBrowseHighlightState {
     var imagePhrasePreview: PhraseItem?
     var sidebarPhrasePreview: PhraseItem?
     var sidebarPhraseLookupOverride: [PhraseItem]?
-    var practiceSidebarReturnStack: [PracticeSidebarReturnTarget] = []
     var pendingScrollTarget: BrowseScrollTarget?
     var highlightedCharacter: String?
     var memoryCollectionID: UUID?
@@ -81,11 +75,6 @@ extension RadixStore {
     var sidebarPhraseLookupOverride: [PhraseItem]? {
         get { browseHighlightState.sidebarPhraseLookupOverride }
         set { browseHighlightState.sidebarPhraseLookupOverride = newValue }
-    }
-
-    var practiceSidebarReturnStack: [PracticeSidebarReturnTarget] {
-        get { browseHighlightState.practiceSidebarReturnStack }
-        set { browseHighlightState.practiceSidebarReturnStack = newValue }
     }
 
     var pendingBrowseScrollTarget: BrowseScrollTarget? {

@@ -175,9 +175,9 @@ Set detail:
 - keeps every sentence tappable into its Phrase card or Browse inspection
 - keeps the expanded Study list sparse, leaving detailed phrase and character
   exploration to the information card or drill feedback
-- treats a sentence-opened information card as the return root, so sentence
-  phrase previews return to the sentence and phrase character previews return
-  through the phrase before the sentence
+- keeps the selected sentence highlighted and clickable in the main Practice
+  list, so users can return to that sentence card without extra sidebar back or
+  clear controls
 
 Practice feedback:
 

@@ -136,7 +136,6 @@ extension RadixStore {
             clearAnchoredImagePhraseHighlight()
             imageBrowsePhrasePreview = nil
             sidebarPhrasePreview = nil
-            practiceSidebarReturnStack = []
             imagePhraseHighlightRevision += 1
         }
         pushRootBreadcrumb(character)
@@ -182,7 +181,6 @@ extension RadixStore {
             clearAnchoredImagePhraseHighlight()
             imageBrowsePhrasePreview = nil
             sidebarPhrasePreview = nil
-            practiceSidebarReturnStack = []
             imagePhraseHighlightRevision += 1
         }
         pushRootBreadcrumb(character)
@@ -198,7 +196,6 @@ extension RadixStore {
         previewCharacter = nil
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
-        practiceSidebarReturnStack = []
     }
 
     func selectFavouriteCharacter(_ character: String) {
@@ -489,33 +486,10 @@ extension RadixStore {
 
     var activeSidebarPhrasePreview: PhraseItem? { sidebarPhrasePreview ?? imageBrowsePhrasePreview }
 
-    var hasPracticeSidebarReturnTarget: Bool {
-        !practiceSidebarReturnStack.isEmpty
-    }
-
-    var isPracticeSidebarInspectionActive: Bool {
-        sidebarPhraseLookupOverride != nil || !practiceSidebarReturnStack.isEmpty
-    }
-
-    private var currentPracticeSidebarReturnTarget: PracticeSidebarReturnTarget? {
-        guard let phrase = sidebarPhrasePreview else { return nil }
-        guard isPracticeSidebarInspectionActive else { return nil }
-        return PracticeSidebarReturnTarget(
-            phrase: phrase,
-            phraseLookupOverride: sidebarPhraseLookupOverride
-        )
-    }
-
-    private func pushCurrentPracticeSidebarReturnTarget() {
-        guard let target = currentPracticeSidebarReturnTarget else { return }
-        practiceSidebarReturnStack.append(target)
-    }
-
     func presentPhraseInSidebar(_ phrase: PhraseItem) {
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
-        practiceSidebarReturnStack = []
         pushPhraseBreadcrumb(phrase)
     }
 
@@ -523,56 +497,19 @@ extension RadixStore {
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = sentencePhrases
-        practiceSidebarReturnStack = []
         pushPhraseBreadcrumb(phrase)
-    }
-
-    func presentPracticePhraseFromSidebar(_ phrase: PhraseItem) {
-        guard isPracticeSidebarInspectionActive else {
-            presentPhraseInSidebar(phrase)
-            return
-        }
-        pushCurrentPracticeSidebarReturnTarget()
-        sidebarPhrasePreview = phrase
-        imageBrowsePhrasePreview = nil
-        sidebarPhraseLookupOverride = nil
-        pushPhraseBreadcrumb(phrase)
-    }
-
-    func presentPracticeSidebarCharacter(_ character: String, in phrase: PhraseItem, announce: Bool = false) {
-        guard isPracticeSidebarInspectionActive else {
-            previewPhraseCardCharacter(character, in: phrase, announce: announce)
-            return
-        }
-        pushCurrentPracticeSidebarReturnTarget()
-        sidebarPhrasePreview = nil
-        imageBrowsePhrasePreview = nil
-        sidebarPhraseLookupOverride = nil
-        preview(character: character, announce: announce, preservePhraseContext: true)
-    }
-
-    @discardableResult
-    func returnFromPracticeSidebarPreview() -> Bool {
-        guard let target = practiceSidebarReturnStack.popLast() else { return false }
-        previewCharacter = nil
-        imageBrowsePhrasePreview = nil
-        sidebarPhrasePreview = target.phrase
-        sidebarPhraseLookupOverride = target.phraseLookupOverride
-        return true
     }
 
     func dismissSidebarPhrasePreview() {
         sidebarPhrasePreview = nil
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
-        practiceSidebarReturnStack = []
     }
 
     func dismissImagePhrasePreview() {
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
         sidebarPhraseLookupOverride = nil
-        practiceSidebarReturnStack = []
     }
 
     func clearInformationCardFocus() {

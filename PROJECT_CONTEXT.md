@@ -293,10 +293,13 @@ Step 6 folds sentence browsing into the Study Practice card. The card starts
 with a compact preview of the first sentences and expands in place to show the
 curated order for all sentences as a sparse, fast-scanning list. Expanded rows
 show the sentence, pinyin, and English only; tapping a row opens the normal
-Study information card for richer Phrase and Character inspection. Only
-Conversation Practice sentence cards repurpose the sidebar `Phrase` button to
-show the verified phrases in that sentence; all other Phrase and Character
-information-card contexts keep their normal broad phrase lookup behavior.
+Study information card for richer Phrase and Character inspection. The tapped
+sentence stays visibly selected and remains clickable in the Practice list, so
+the main list acts as the way back to the sentence card after sidebar phrase or
+character exploration. Only Conversation Practice sentence cards repurpose the
+sidebar `Phrase` button to show the verified phrases in that sentence; all other
+Phrase and Character information-card contexts keep their normal broad phrase
+lookup behavior.
 The Conversation Practice Simplified/Traditional choice is shared across the
 Practice card, Flashcards, and Quick Quiz, including displayed sentences, drill
 hint chips, character links, and opened Phrase card titles.
@@ -312,9 +315,9 @@ back to individual character links or smaller exact phrase matches.
 Flashcards and Quick Quiz open those Phrase and Character cards inside their
 own navigation stacks, so Back returns to the practice mode instead of ejecting
 the user from the lesson flow. The embedded Study card list opens Phrase and
-Character cards through the normal Study information-card path, with the
-Practice sentence as the scoped return root: sentence phrases return to the
-sentence, and characters opened from those phrases return phrase then sentence.
+Character cards through the normal Study information-card path; users return to
+a sentence card by clicking the highlighted sentence row again rather than
+through extra sidebar back or clear controls.
 Character links use the normal full `CharacterDetailView`, not the lightweight
 preview card.
 The next Practice build should start with a portable progress model keyed by

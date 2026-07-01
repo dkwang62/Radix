@@ -211,7 +211,6 @@ extension RadixStore {
         clearAnchoredImagePhraseHighlight()
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
-        practiceSidebarReturnStack = []
         imagePhraseContext = nil
         imagePhraseHighlightOffsets = []
         imagePhraseHighlightRevision += 1

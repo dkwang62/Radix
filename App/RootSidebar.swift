@@ -342,27 +342,17 @@ extension RootView {
                     PhraseInfoCard(
                         phrase: phrase,
                         phraseLookupOverride: store.sidebarPhraseLookupOverride,
-                        onSelectCharacter: store.isPracticeSidebarInspectionActive ? { character in
-                            store.presentPracticeSidebarCharacter(character, in: phrase, announce: false)
-                        } : nil,
                         onDone: {
-                            if !store.returnFromPracticeSidebarPreview() {
-                                store.dismissSidebarPhrasePreview()
-                            }
+                            store.dismissSidebarPhrasePreview()
                         }
                     )
                     .environmentObject(store)
                 } else if let current = store.previewCharacter {
                     CharacterPreviewHeader(
                         character: current,
-                        showClearButton: store.hasPracticeSidebarReturnTarget,
+                        showClearButton: false,
                         showAddToMemoryButton: !(store.route == .search && store.homeTab == .favourites),
-                        isVertical: true,
-                        onClear: {
-                            if !store.returnFromPracticeSidebarPreview() {
-                                store.clearInformationCardFocus()
-                            }
-                        }
+                        isVertical: true
                     )
                 } else {
                     EmptyView()

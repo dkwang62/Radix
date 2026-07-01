@@ -20,7 +20,6 @@ extension RadixStore {
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
         sidebarPhraseLookupOverride = nil
-        practiceSidebarReturnStack = []
         imagePhraseHighlightRevision += 1
         preview(character: character, announce: announce, preservePhraseContext: false)
     }
@@ -255,7 +254,6 @@ extension RadixStore {
         anchorImagePhraseHighlight(phraseWord: phrase.word, context: imagePhraseContext, offsets: highlightedOffsets)
         imageBrowsePhrasePreview = phrase
         sidebarPhrasePreview = nil
-        practiceSidebarReturnStack = []
         previewCharacter = character
         imagePhraseHighlightRevision += 1
         pushPhraseBreadcrumb(phrase)
@@ -354,7 +352,6 @@ extension RadixStore {
         anchorImagePhraseHighlight(phraseWord: phrase.word, context: context, offsets: offsets)
         imageBrowsePhrasePreview = phrase
         sidebarPhrasePreview = nil
-        practiceSidebarReturnStack = []
         previewCharacter = phrase.word.first.map(String.init)
         imagePhraseHighlightRevision += 1
         pushPhraseBreadcrumb(phrase)

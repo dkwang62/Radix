@@ -312,7 +312,8 @@ extension FavouritesTab {
     }
 
     func conversationPracticeSentenceButton(_ item: ConversationPracticeItem) -> some View {
-        Button {
+        let isSelected = isSelectedConversationPracticeSentence(item)
+        return Button {
             presentConversationPracticePhrase(item)
         } label: {
             HStack(spacing: 8) {
@@ -332,28 +333,30 @@ extension FavouritesTab {
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(isSelected ? Color.accentColor : .secondary)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
-            .background(RadixTheme.background)
+            .background(conversationPracticeSentenceBackground(isSelected: isSelected))
             .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(conversationPracticeSentenceBorder(isSelected: isSelected, cornerRadius: 8))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Open phrase \(item.simplified)")
     }
 
     func conversationPracticeExpandedSentenceRow(_ item: ConversationPracticeItem) -> some View {
-        Button {
+        let isSelected = isSelectedConversationPracticeSentence(item)
+        return Button {
             presentConversationPracticePhrase(item)
         } label: {
             HStack(alignment: .center, spacing: 10) {
                 Text("\(item.rank)")
                     .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(isSelected ? Color.white : Color.accentColor)
                     .frame(width: 34, height: 34)
-                    .background(Color.accentColor.opacity(0.1))
+                    .background(isSelected ? Color.accentColor : Color.accentColor.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -374,18 +377,20 @@ extension FavouritesTab {
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(isSelected ? Color.accentColor : .secondary)
             }
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RadixTheme.background)
+            .background(conversationPracticeSentenceBackground(isSelected: isSelected))
             .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay(conversationPracticeSentenceBorder(isSelected: isSelected, cornerRadius: 10))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Open phrase \(studyGridDisplayText(item.simplified))")
     }
 
     func presentConversationPracticePhrase(_ item: ConversationPracticeItem) {
+        selectedConversationPracticeItemID = item.id
         let phrase = ConversationPracticeScriptSupport.phraseItem(
             for: item,
             usesTraditionalScript: studyGridUsesTraditionalScript,
@@ -402,5 +407,18 @@ extension FavouritesTab {
             }
         store.speakPhrase(phrase)
         store.presentPracticeSentenceInSidebar(phrase, sentencePhrases: sentencePhrases)
+    }
+
+    func isSelectedConversationPracticeSentence(_ item: ConversationPracticeItem) -> Bool {
+        selectedConversationPracticeItemID == item.id
+    }
+
+    func conversationPracticeSentenceBackground(isSelected: Bool) -> Color {
+        isSelected ? Color.accentColor.opacity(0.12) : RadixTheme.background
+    }
+
+    func conversationPracticeSentenceBorder(isSelected: Bool, cornerRadius: CGFloat) -> some View {
+        RoundedRectangle(cornerRadius: cornerRadius)
+            .stroke(isSelected ? Color.accentColor.opacity(0.75) : Color.clear, lineWidth: 1.4)
     }
 }

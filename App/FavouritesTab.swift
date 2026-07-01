@@ -30,6 +30,7 @@ struct FavouritesTab: View {
     @State var conversationPracticeImportError: String?
     @State var pendingConversationPracticeDeletion: ConversationPracticeTopic?
     @State var isConversationPracticeExpanded = false
+    @State var selectedConversationPracticeItemID: String?
     @State var conversationPracticeReviewPresentation: ConversationPracticeReviewPresentation?
     @State var conversationPracticeQuizPresentation: ConversationPracticeQuizPresentation?
 
@@ -190,6 +191,10 @@ struct FavouritesTab: View {
         }
         if let conversationPracticeLibrary {
             store.registerConversationPracticeLibrary(conversationPracticeLibrary)
+            if let selectedConversationPracticeItemID,
+               !conversationPracticeLibrary.items.contains(where: { $0.id == selectedConversationPracticeItemID }) {
+                self.selectedConversationPracticeItemID = nil
+            }
         }
     }
 
@@ -197,6 +202,7 @@ struct FavouritesTab: View {
         conversationPracticeImportMessage = nil
         conversationPracticeImportError = nil
         isConversationPracticeExpanded = false
+        selectedConversationPracticeItemID = nil
         store.selectedConversationPracticeTopicID = topic.id
         store.persistPromptSettings()
         loadConversationPracticeLibrary()
