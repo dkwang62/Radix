@@ -82,15 +82,23 @@ struct ConversationPracticeReviewSheet: View {
 
     var reviewCard: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(displayText(currentItem.simplified))
-                .font(.system(size: RadixPlatform.isPhone ? 38 : 46, weight: .bold, design: .rounded))
-                .frame(maxWidth: .infinity, alignment: .center)
-                .multilineTextAlignment(.center)
-                .minimumScaleFactor(0.6)
+            HStack(alignment: .top, spacing: 8) {
+                Text(displayText(currentItem.simplified))
+                    .font(.system(size: RadixPlatform.isPhone ? 38 : 46, weight: .bold, design: .rounded))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.6)
+
+                ConversationPracticeSpeechButton(
+                    item: currentItem,
+                    usesTraditionalScript: usesTraditionalScript,
+                    accessibilityLabel: "Read flashcard sentence"
+                )
+            }
 
             if isRevealed {
                 VStack(alignment: .leading, spacing: 8) {
-                    Label(currentItem.pinyin, systemImage: "speaker.wave.2")
+                    Text(currentItem.pinyin)
                         .font(ResponsiveFont.body.weight(.semibold))
                     Text(currentItem.english)
                         .font(ResponsiveFont.body)

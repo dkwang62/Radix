@@ -159,9 +159,19 @@ struct ConversationPracticeQuizSheet: View {
     private func questionCard(_ round: ConversationPracticeQuizRound) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Which character completes the sentence?")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
+                HStack(alignment: .center, spacing: 8) {
+                    Text("Which character completes the sentence?")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+
+                    Spacer(minLength: 8)
+
+                    ConversationPracticeSpeechButton(
+                        item: currentItem,
+                        usesTraditionalScript: quizScriptFilter == .traditional,
+                        accessibilityLabel: "Read quiz sentence"
+                    )
+                }
 
                 Text(round.question.blankedSentence)
                     .font(.system(size: RadixPlatform.isPhone ? 32 : 40, weight: .bold, design: .rounded))

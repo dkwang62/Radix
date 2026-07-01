@@ -400,6 +400,7 @@ extension FavouritesTab {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Open phrase \(studyGridDisplayText(item.simplified))")
+        .accessibilityHint("Opens and reads the practice sentence.")
     }
 
     @ViewBuilder

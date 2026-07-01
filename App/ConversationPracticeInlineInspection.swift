@@ -76,6 +76,35 @@ enum ConversationPracticeScriptSupport {
     }
 }
 
+struct ConversationPracticeSpeechButton: View {
+    @EnvironmentObject var store: RadixStore
+    let item: ConversationPracticeItem
+    let usesTraditionalScript: Bool
+    let accessibilityLabel: String
+
+    var body: some View {
+        Button {
+            speakSentence()
+        } label: {
+            Image(systemName: store.speechMenuSymbolName)
+                .font(.system(size: 15, weight: .semibold))
+                .frame(width: 34, height: 34)
+        }
+        .buttonStyle(.bordered)
+        .accessibilityLabel(accessibilityLabel)
+        .help(accessibilityLabel)
+    }
+
+    func speakSentence() {
+        let phrase = ConversationPracticeScriptSupport.phraseItem(
+            for: item,
+            usesTraditionalScript: usesTraditionalScript,
+            store: store
+        )
+        store.speakPhrase(phrase)
+    }
+}
+
 extension ConversationPracticeInspectionRoute {
     var character: String? {
         if case let .character(value) = self {
