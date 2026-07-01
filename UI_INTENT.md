@@ -201,6 +201,9 @@ valid pack should add it as a normal selectable topic, select it immediately,
 and show compact inline feedback below the dropdown rather than an alert. If an
 imported topic can be deleted, keep deletion as a compact icon action beside
 the topic picker rather than a full-width destructive row.
+The focused Practice screen should not repeat the generic Study description or
+add a separate `Conversation Practice` section header; the topic picker and
+sentence controls are enough context.
 
 Lesson screens should make the sentence card the main object. A user should be
 able to review or quiz the sentence, then tap the full sentence into its normal

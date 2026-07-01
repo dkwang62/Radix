@@ -6,19 +6,6 @@ extension FavouritesTab {
         if !conversationPracticeTopics.isEmpty {
             let topic = selectedConversationPracticeTopic
             VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Label("Conversation Practice", systemImage: "bubble.left.and.bubble.right")
-                        .font(ResponsiveFont.headline)
-                    Spacer(minLength: 8)
-                    if let library = conversationPracticeLibrary {
-                        conversationPracticePageNavigation(library)
-                    } else {
-                        Text(conversationPracticeStatusText(for: topic))
-                            .font(ResponsiveFont.caption.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
                 conversationPracticeTopicControlRow(selectedTopic: topic)
                 conversationPracticeImportStatus
 
@@ -29,10 +16,6 @@ extension FavouritesTab {
                 }
             }
         }
-    }
-
-    func conversationPracticeStatusText(for topic: ConversationPracticeTopic) -> String {
-        return topic.hasBundledContent ? "\(topic.targetSentenceCount) sentences" : "Generate"
     }
 
     func conversationPracticeTopicControlRow(selectedTopic: ConversationPracticeTopic) -> some View {
@@ -186,7 +169,7 @@ extension FavouritesTab {
         topic: ConversationPracticeTopic
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            conversationPracticeDisplayControls
+            conversationPracticeDisplayControls(library)
             conversationPracticeSentenceList(library)
         }
         .padding(10)
@@ -198,8 +181,11 @@ extension FavouritesTab {
         isShowingConversationPractice && conversationPracticeLibrary != nil
     }
 
-    var conversationPracticeDisplayControls: some View {
+    func conversationPracticeDisplayControls(_ library: ConversationPracticeLibrary) -> some View {
         HStack(spacing: 8) {
+            conversationPracticePageNavigation(library)
+                .fixedSize(horizontal: true, vertical: false)
+
             Spacer(minLength: 8)
 
             studyScriptToggle

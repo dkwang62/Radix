@@ -324,12 +324,13 @@ sentence card itself shows a compact `Sentences` return action so the expanded
 sentence list is reachable without adding generic Browse/Study shortcuts.
 Character links use the normal full `CharacterDetailView`, not the lightweight
 preview card.
-The focused Conversation Practice screen places script and Chinese/English
-display controls directly above the sentence list, with Flashcards and Quick Quiz
-pinned below it. The section header replaces the raw sentence count with
-previous/next page controls and a visible range, so users page through lesson
-rows instead of scrolling a 100-sentence list. Imported topic deletion is an
-icon action beside the topic picker, not a full-width row.
+The focused Conversation Practice screen hides the generic Study description
+and section title. A compact row directly above the sentence list combines
+previous/next page controls, the visible row range, script choice, and the
+Chinese/English display toggle, so users page through lesson rows instead of
+scrolling a 100-sentence list. Flashcards and Quick Quiz remain pinned below
+the list. Imported topic deletion is an icon action beside the topic picker,
+not a full-width row.
 The next Practice build should start with a portable progress model keyed by
 pack/item ID, then use it for last-practiced and completion signals in Study;
 import replacement review and sentence read-aloud are lower-priority follow-ups.
