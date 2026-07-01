@@ -8,7 +8,22 @@ struct ConversationPracticeTranslationQuizPresentation: Identifiable {
 private struct ConversationPracticeTranslationRound: Equatable {
     let itemID: String
     let scriptFilter: ScriptFilter
+    let direction: ConversationPracticeTranslationDirection
     let choices: [ConversationPracticeItem]
+}
+
+private enum ConversationPracticeTranslationDirection: String, CaseIterable, Identifiable {
+    case englishToChinese = "To Chinese"
+    case chineseToEnglish = "To English"
+
+    var id: String { rawValue }
+
+    var prompt: String {
+        switch self {
+        case .englishToChinese: return "Choose the Chinese sentence."
+        case .chineseToEnglish: return "Choose the English meaning."
+        }
+    }
 }
 
 struct ConversationPracticeTranslationQuizSheet: View {
@@ -26,6 +41,7 @@ struct ConversationPracticeTranslationQuizSheet: View {
     @State private var currentRound: ConversationPracticeTranslationRound?
     @State private var selectedScriptFilter: ScriptFilter = .simplified
     @State private var hasInitializedScript = false
+    @State private var direction: ConversationPracticeTranslationDirection = .englishToChinese
 
     var quizItems: [ConversationPracticeItem] {
         sessionItems.isEmpty ? Array(library.items.prefix(Self.sessionQuestionLimit)) : sessionItems
@@ -38,7 +54,8 @@ struct ConversationPracticeTranslationQuizSheet: View {
 
     private var round: ConversationPracticeTranslationRound? {
         guard currentRound?.itemID == currentItem.id,
-              currentRound?.scriptFilter == selectedScriptFilter else { return nil }
+              currentRound?.scriptFilter == selectedScriptFilter,
+              currentRound?.direction == direction else { return nil }
         return currentRound
     }
 
@@ -69,6 +86,7 @@ struct ConversationPracticeTranslationQuizSheet: View {
                     if let round {
                         VStack(alignment: .leading, spacing: 14) {
                             progressHeader
+                            directionPicker
                             scriptPicker
                             questionCard
                             answerChoices(round)
@@ -106,6 +124,11 @@ struct ConversationPracticeTranslationQuizSheet: View {
             }
             .onChange(of: selectedScriptFilter) { _, newValue in
                 changeScript(newValue)
+            }
+            .onChange(of: direction) { _, _ in
+                selectedAnswerID = nil
+                currentRound = nil
+                prepareCurrentRound()
             }
             .onChange(of: usesTraditionalScript) { _, _ in
                 let newValue = defaultScriptFilter
@@ -145,18 +168,49 @@ struct ConversationPracticeTranslationQuizSheet: View {
         .pickerStyle(.segmented)
     }
 
+    var directionPicker: some View {
+        Picker("Direction", selection: $direction) {
+            ForEach(ConversationPracticeTranslationDirection.allCases) { direction in
+                Text(direction.rawValue).tag(direction)
+            }
+        }
+        .pickerStyle(.segmented)
+    }
+
     var questionCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Choose the Chinese sentence.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
+            HStack(alignment: .center, spacing: 8) {
+                Text(direction.prompt)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
 
-            Text(currentItem.english)
-                .font(.system(size: RadixPlatform.isPhone ? 28 : 36, weight: .bold, design: .rounded))
-                .frame(maxWidth: .infinity, alignment: .center)
-                .multilineTextAlignment(.center)
-                .minimumScaleFactor(0.6)
-                .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
+
+                if direction == .chineseToEnglish {
+                    ConversationPracticeSpeechButton(
+                        item: currentItem,
+                        usesTraditionalScript: selectedScriptFilter == .traditional,
+                        accessibilityLabel: "Read translation prompt"
+                    )
+                }
+            }
+
+            switch direction {
+            case .englishToChinese:
+                Text(currentItem.english)
+                    .font(.system(size: RadixPlatform.isPhone ? 28 : 36, weight: .bold, design: .rounded))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.6)
+                    .fixedSize(horizontal: false, vertical: true)
+            case .chineseToEnglish:
+                Text(displayText(currentItem.simplified))
+                    .font(.system(size: RadixPlatform.isPhone ? 34 : 42, weight: .bold, design: .rounded))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.55)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -171,24 +225,7 @@ struct ConversationPracticeTranslationQuizSheet: View {
                     choose(choice)
                 } label: {
                     VStack(alignment: .leading, spacing: 3) {
-                        HStack(spacing: 8) {
-                            Image(systemName: answerIcon(for: choice))
-                                .font(.system(size: 15, weight: .semibold))
-                                .foregroundStyle(answerTint(for: choice))
-                                .frame(width: 24, height: 24)
-
-                            Text(displayText(choice.simplified))
-                                .font(ResponsiveFont.headline.weight(.semibold))
-                                .lineLimit(2)
-                                .minimumScaleFactor(0.75)
-                        }
-
-                        Text(choice.pinyin)
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                            .padding(.leading, 32)
+                        answerChoiceLabel(choice)
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 10)
@@ -202,6 +239,36 @@ struct ConversationPracticeTranslationQuizSheet: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(hasAnsweredCurrent)
+            }
+        }
+    }
+
+    func answerChoiceLabel(_ choice: ConversationPracticeItem) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: answerIcon(for: choice))
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(answerTint(for: choice))
+                .frame(width: 24, height: 24)
+
+            VStack(alignment: .leading, spacing: 3) {
+                switch direction {
+                case .englishToChinese:
+                    Text(displayText(choice.simplified))
+                        .font(ResponsiveFont.headline.weight(.semibold))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.75)
+
+                    Text(choice.pinyin)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                case .chineseToEnglish:
+                    Text(choice.english)
+                        .font(ResponsiveFont.body.weight(.semibold))
+                        .lineLimit(3)
+                        .minimumScaleFactor(0.78)
+                }
             }
         }
     }
@@ -303,6 +370,7 @@ struct ConversationPracticeTranslationQuizSheet: View {
         currentRound = ConversationPracticeTranslationRound(
             itemID: currentItem.id,
             scriptFilter: selectedScriptFilter,
+            direction: direction,
             choices: translationChoices(for: currentItem)
         )
     }
@@ -326,7 +394,7 @@ struct ConversationPracticeTranslationQuizSheet: View {
     func choose(_ choice: ConversationPracticeItem) {
         selectedAnswerID = choice.id
         let isCorrect = choice.id == currentItem.id
-        answered[currentItem.id] = isCorrect
+        answered[answerKey(for: currentItem)] = isCorrect
         var snapshot = RadixStudyPreferences.conversationPracticeProgress
         snapshot.record(
             packID: currentItem.setID,
@@ -386,6 +454,10 @@ struct ConversationPracticeTranslationQuizSheet: View {
 
     func phraseKey(for item: ConversationPracticeItem) -> String {
         store.phraseStorageWord(item.simplified)
+    }
+
+    func answerKey(for item: ConversationPracticeItem) -> String {
+        "\(direction.rawValue)#\(item.id)"
     }
 
     func openPhrase(_ item: ConversationPracticeItem) {
