@@ -324,8 +324,8 @@ sentence card itself shows a compact `Sentences` return action so the expanded
 sentence list is reachable without adding generic Browse/Study shortcuts.
 Character links use the normal full `CharacterDetailView`, not the lightweight
 preview card.
-The focused Conversation Practice screen keeps script and Chinese/English
-display controls pinned above the sentence list, with Flashcards and Quick Quiz
+The focused Conversation Practice screen places script and Chinese/English
+display controls directly above the sentence list, with Flashcards and Quick Quiz
 pinned below it. The section header replaces the raw sentence count with
 previous/next page controls and a visible range, so users page through lesson
 rows instead of scrolling a 100-sentence list. Imported topic deletion is an

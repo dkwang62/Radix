@@ -186,6 +186,7 @@ extension FavouritesTab {
         topic: ConversationPracticeTopic
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
+            conversationPracticeDisplayControls
             conversationPracticeSentenceList(library)
         }
         .padding(10)
@@ -197,16 +198,14 @@ extension FavouritesTab {
         isShowingConversationPractice && conversationPracticeLibrary != nil
     }
 
-    var conversationPracticeFloatingTopControls: some View {
+    var conversationPracticeDisplayControls: some View {
         HStack(spacing: 8) {
             Spacer(minLength: 8)
 
             studyScriptToggle
             conversationPracticeSentenceDisplayToggle
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(.bar)
+        .padding(.bottom, 2)
     }
 
     func conversationPracticeFloatingBottomActions(_ library: ConversationPracticeLibrary) -> some View {
