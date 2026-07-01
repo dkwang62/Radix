@@ -8,8 +8,6 @@ struct BrowsePhonePreview: View {
 
     var body: some View {
         PhoneContextPreview(
-            returnTitle: "Browse",
-            returnSystemImage: "square.grid.2x2",
             phrase: phrase,
             character: character,
             onReturn: onReturn

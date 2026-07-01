@@ -315,8 +315,6 @@ struct FavouritesTab: View {
 
     var phoneStudyPreview: some View {
         PhoneContextPreview(
-            returnTitle: "Study",
-            returnSystemImage: RadixIcon.study,
             phrase: store.activeSidebarPhrasePreview,
             character: store.previewCharacter,
             onReturn: {

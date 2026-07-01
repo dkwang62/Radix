@@ -317,7 +317,9 @@ own navigation stacks, so Back returns to the practice mode instead of ejecting
 the user from the lesson flow. The embedded Study card list opens Phrase and
 Character cards through the normal Study information-card path; users return to
 a sentence card by clicking the highlighted sentence row again rather than
-through extra sidebar back or clear controls.
+through extra sidebar back or clear controls. Phone information previews omit
+extra `Study`/`Browse` shortcut buttons in this flow, and the sentence return
+action from a character preview is labelled `Sentence`.
 Character links use the normal full `CharacterDetailView`, not the lightweight
 preview card.
 The next Practice build should start with a portable progress model keyed by

@@ -218,7 +218,10 @@ verified inside that sentence. This exception must not change normal Search,
 Browse, Review, Favorites, or other information-card phrase lookup behavior.
 The selected sentence should remain visibly highlighted and clickable in the
 Practice list, making the main list the simple way back to the sentence card
-after sidebar phrase or character exploration.
+after sidebar phrase or character exploration. The phone information preview
+should not add extra `Study` or `Browse` shortcut buttons above this flow; when
+a character preview can return to its sentence card, label that action
+`Sentence`.
 Character inspection in Practice should use the normal full character card, not
 the compact preview.
 

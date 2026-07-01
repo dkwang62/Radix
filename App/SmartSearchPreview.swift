@@ -29,8 +29,6 @@ extension SmartSearchTab {
     @ViewBuilder
     func phoneSearchPreview(proxy: ScrollViewProxy) -> some View {
         PhoneContextPreview(
-            returnTitle: "Search",
-            returnSystemImage: "magnifyingglass",
             phrase: store.activeSidebarPhrasePreview,
             character: searchDetailPreviewCharacter ?? searchPreviewCharacter ?? store.previewCharacter,
             onReturn: {
