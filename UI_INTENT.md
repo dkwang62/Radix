@@ -23,6 +23,53 @@ the controls they respond to. Do not place feedback text in the same horizontal
 row as action buttons; the message should never squeeze the buttons or compete
 with the primary action.
 
+## Design decision rules
+
+These rules should shape every new screen before implementation starts. They
+capture the user's recurring preferences so new UI does not need to be corrected
+after the fact.
+
+### Put the user in control
+
+Every exploratory, destructive, or cross-feature action needs a visible way back
+to where the user came from. Prefer one contextual return action such as
+`Back to Study` over hidden history. When a flow opens Phrase, Character, AI,
+Browse, quiz, or review detail from another context, keep the return path inside
+that flow instead of ejecting the user to a different destination.
+
+Selection should stay visible when it matters. If a list opens detail, keep the
+selected row highlighted or otherwise make the list itself the return path.
+Checkpoint and backup restores must restore the data the user reasonably
+believes was saved, and screens with local caches must refresh after restores so
+the visible state matches the restored state.
+
+### Fight for content space
+
+Space belongs first to the learning object, second to controls that directly
+manipulate it, and last to explanation, labels, and structure. Do not spend a
+full row on a secondary action when an icon beside the related object will do.
+Do not keep explanatory text on focused task screens once the user's context is
+obvious.
+
+Long lists should not make users scroll away from controls they need repeatedly.
+Use paging, pinned actions, or compact local control rows when they preserve the
+working surface. Floating controls are welcome only when they solve an actual
+long-content problem; otherwise controls should live with the thing they affect.
+
+### Remove duplicate meaning
+
+Do not repeat the same noun, mode, count, or action in adjacent UI layers. One
+concept gets one visible owner: a topic picker should not be followed by a card
+header repeating the same topic; a focused Practice screen should not also show
+a generic Study description; a normal tile should not be duplicated by a
+separate mode switch.
+
+Labels should earn their space. Prefer concrete controls placed beside the
+object they change over headers that merely restate the current screen. Combine
+related controls into one local cluster when they operate on the same object,
+such as page navigation, script choice, and display language for a sentence
+list.
+
 ## Main navigation intent
 
 The four primary destinations use this plain-language division of responsibility

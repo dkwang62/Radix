@@ -102,6 +102,9 @@ The portable test suite currently contains 33 tests across eight suites.
 The central-store maintainability refactor is complete. Current product work is
 restoring unobtrusive navigation guidance: optional labels plus first-use,
 dismissible destination explanations that experienced users can hide or replay.
+Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
+preserve visible return paths, fight for content space, and remove duplicate
+meaning before adding new labels, rows, switches, or cards.
 App-wide inline alerts, notices, and status messages should appear on the next
 row below their related controls, not beside them. This keeps action rows from
 being squeezed and makes the message read as feedback rather than another
