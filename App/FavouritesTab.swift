@@ -29,7 +29,7 @@ struct FavouritesTab: View {
     @State var conversationPracticeImportMessage: String?
     @State var conversationPracticeImportError: String?
     @State var pendingConversationPracticeDeletion: ConversationPracticeTopic?
-    @State var isConversationPracticeExpanded = false
+    @State var conversationPracticeSentenceDisplay: ConversationPracticeSentenceDisplay = .chinese
     @State var selectedConversationPracticeItemID: String?
     @State var conversationPracticeReviewPresentation: ConversationPracticeReviewPresentation?
     @State var conversationPracticeQuizPresentation: ConversationPracticeQuizPresentation?
@@ -201,7 +201,6 @@ struct FavouritesTab: View {
     func selectConversationPracticeTopic(_ topic: ConversationPracticeTopic) {
         conversationPracticeImportMessage = nil
         conversationPracticeImportError = nil
-        isConversationPracticeExpanded = false
         selectedConversationPracticeItemID = nil
         store.selectedConversationPracticeTopicID = topic.id
         store.persistPromptSettings()
@@ -363,4 +362,11 @@ enum StudyMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var title: String { rawValue }
+}
+
+enum ConversationPracticeSentenceDisplay: String, CaseIterable, Identifiable {
+    case chinese = "Chinese"
+    case english = "English"
+
+    var id: String { rawValue }
 }

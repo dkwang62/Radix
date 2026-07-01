@@ -139,57 +139,15 @@ extension FavouritesTab {
         _ library: ConversationPracticeLibrary,
         topic: ConversationPracticeTopic
     ) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: "text.bubble")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 32, height: 32)
-                    .background(Color.accentColor.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(topic.difficultyLabel)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-                .layoutPriority(1)
-
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
                 Spacer(minLength: 8)
 
                 studyScriptToggle
-
-                Label("\(library.set.itemCount)", systemImage: "list.number")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .labelStyle(.titleAndIcon)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
-                    .background(Color.accentColor.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                conversationPracticeSentenceDisplayToggle
             }
 
             conversationPracticeSentenceList(library)
-
-            Button {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    isConversationPracticeExpanded.toggle()
-                }
-            } label: {
-                Label(
-                    isConversationPracticeExpanded ? "Show Fewer" : "Show All Sentences",
-                    systemImage: isConversationPracticeExpanded ? "chevron.up" : "list.bullet.rectangle"
-                )
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .frame(maxWidth: .infinity, minHeight: 38)
-            }
-            .buttonStyle(.bordered)
-            .accessibilityLabel(
-                isConversationPracticeExpanded
-                    ? "Collapse conversation practice sentences"
-                    : "Show all \(library.set.itemCount) conversation practice sentences"
-            )
 
             HStack(spacing: 8) {
                 Button {
@@ -215,6 +173,16 @@ extension FavouritesTab {
         .padding(10)
         .background(RadixTheme.secondaryBackground.opacity(0.52))
         .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    var conversationPracticeSentenceDisplayToggle: some View {
+        Picker("Sentence Display", selection: $conversationPracticeSentenceDisplay) {
+            ForEach(ConversationPracticeSentenceDisplay.allCases) { display in
+                Text(display.rawValue).tag(display)
+            }
+        }
+        .pickerStyle(.segmented)
+        .frame(width: 150)
     }
 
     func conversationPracticeGenerateCard(_ topic: ConversationPracticeTopic) -> some View {
@@ -283,110 +251,66 @@ extension FavouritesTab {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
-    var conversationPracticeSampleColumns: [GridItem] {
-        if RadixPlatform.interfaceIdiom == .tablet || RadixPlatform.isDesktop {
-            return Array(repeating: GridItem(.flexible(minimum: 0), spacing: 6), count: 2)
-        }
-        return [GridItem(.flexible(minimum: 0), spacing: 6)]
-    }
-
-    var conversationPracticeSampleCount: Int {
-        RadixPlatform.interfaceIdiom == .phone ? 3 : 4
-    }
-
-    @ViewBuilder
     func conversationPracticeSentenceList(_ library: ConversationPracticeLibrary) -> some View {
-        if isConversationPracticeExpanded {
-            LazyVStack(alignment: .leading, spacing: 8) {
-                ForEach(library.items) { item in
-                    conversationPracticeExpandedSentenceRow(item)
-                }
-            }
-        } else {
-            LazyVGrid(columns: conversationPracticeSampleColumns, spacing: 6) {
-                ForEach(Array(library.items.prefix(conversationPracticeSampleCount))) { item in
-                    conversationPracticeSentenceButton(item)
-                }
+        LazyVStack(alignment: .leading, spacing: 4) {
+            ForEach(library.items) { item in
+                conversationPracticeSentenceRow(item)
             }
         }
     }
 
-    func conversationPracticeSentenceButton(_ item: ConversationPracticeItem) -> some View {
+    func conversationPracticeSentenceRow(_ item: ConversationPracticeItem) -> some View {
         let isSelected = isSelectedConversationPracticeSentence(item)
         return Button {
             presentConversationPracticePhrase(item)
         } label: {
-            HStack(spacing: 8) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(studyGridDisplayText(item.simplified))
-                        .font(ResponsiveFont.body.weight(.semibold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
-                    Text(item.pinyin)
-                        .font(ResponsiveFont.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-                .layoutPriority(1)
+            HStack(alignment: .center, spacing: 8) {
+                Text("\(item.rank)")
+                    .font(ResponsiveFont.caption2.weight(.semibold))
+                    .foregroundStyle(isSelected ? Color.white : Color.accentColor)
+                    .frame(width: 28, height: 28)
+                    .background(isSelected ? Color.accentColor : Color.accentColor.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 7))
 
-                Spacer(minLength: 6)
+                conversationPracticeSentenceRowText(item)
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(isSelected ? Color.accentColor : .secondary)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-            .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
             .background(conversationPracticeSentenceBackground(isSelected: isSelected))
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(conversationPracticeSentenceBorder(isSelected: isSelected, cornerRadius: 8))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Open phrase \(item.simplified)")
+        .accessibilityLabel("Open phrase \(studyGridDisplayText(item.simplified))")
     }
 
-    func conversationPracticeExpandedSentenceRow(_ item: ConversationPracticeItem) -> some View {
-        let isSelected = isSelectedConversationPracticeSentence(item)
-        return Button {
-            presentConversationPracticePhrase(item)
-        } label: {
-            HStack(alignment: .center, spacing: 10) {
-                Text("\(item.rank)")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(isSelected ? Color.white : Color.accentColor)
-                    .frame(width: 34, height: 34)
-                    .background(isSelected ? Color.accentColor : Color.accentColor.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(studyGridDisplayText(item.simplified))
-                        .font(ResponsiveFont.body.weight(.semibold))
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Text(item.pinyin)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                    Text(item.english)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-                .layoutPriority(1)
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(isSelected ? Color.accentColor : .secondary)
+    @ViewBuilder
+    func conversationPracticeSentenceRowText(_ item: ConversationPracticeItem) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            switch conversationPracticeSentenceDisplay {
+            case .chinese:
+                Text(studyGridDisplayText(item.simplified))
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Text(item.pinyin)
+                    .font(ResponsiveFont.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+            case .english:
+                Text(item.english)
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
             }
-            .padding(12)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(conversationPracticeSentenceBackground(isSelected: isSelected))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .overlay(conversationPracticeSentenceBorder(isSelected: isSelected, cornerRadius: 10))
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Open phrase \(studyGridDisplayText(item.simplified))")
+        .layoutPriority(1)
     }
 
     func presentConversationPracticePhrase(_ item: ConversationPracticeItem) {

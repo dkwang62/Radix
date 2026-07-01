@@ -207,10 +207,10 @@ dictionary/card system disappears. When a lesson flow opens a Phrase or
 Character card, keep that inspection inside the current lesson sheet with a
 normal back path to the practice mode; do not eject the user from Flashcards or
 Quick Quiz just because they inspected a Radix card. The Study Practice card
-itself should make its visible sentence preview expandable to the full sentence
-list, so users get sentence browsing without a separate primary section. In the
-expanded card, sentence rows should stay sparse for scanning: Chinese, pinyin,
-English, and a clear tap target into the normal Study information card. Do not
+itself should show all sentences directly, so users get sentence browsing
+without a separate primary section or a teaser/expansion step. Rows should stay
+sparse for scanning, with a toggle between Chinese plus pinyin and English-only
+display, and a clear tap target into the normal Study information card. Do not
 repeat phrase and character chips in that main list; the sidebar information
 card is the richer inspection place. When that information card was opened from
 a Conversation Practice sentence, its `Phrase` action should show only phrases
