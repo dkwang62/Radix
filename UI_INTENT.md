@@ -168,7 +168,8 @@ Study should not become a hodgepodge. Group it by intent:
 The Study tab splits internally into `Review` and `Practice`; do not create a
 separate main app tab for Practice unless the whole navigation model is
 reconsidered. Review holds the user's kept material; Practice holds guided
-lesson content.
+lesson content. Keep the internal `Review | Practice` control compact instead
+of stretching it across the full content width.
 
 Inside Review, the four Study summary buttons are the section selectors. Do not
 repeat Recent/Favorites as a segmented picker above the review grid; the grid
@@ -195,7 +196,9 @@ future generation-only topics, show the topic purpose and a clear action into
 AI Link rather than empty practice controls.
 The topic dropdown also owns importing user-supplied Practice JSON. Importing a
 valid pack should add it as a normal selectable topic, select it immediately,
-and show compact inline feedback below the dropdown rather than an alert.
+and show compact inline feedback below the dropdown rather than an alert. If an
+imported topic can be deleted, keep deletion as a compact icon action beside
+the topic picker rather than a full-width destructive row.
 
 Lesson screens should make the sentence card the main object. A user should be
 able to review or quiz the sentence, then tap the full sentence into its normal

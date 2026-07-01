@@ -24,12 +24,17 @@ extension FavouritesTab {
     }
 
     var studyModePicker: some View {
-        Picker("Study mode", selection: $studyMode) {
-            ForEach(StudyMode.allCases) { mode in
-                Text(mode.title).tag(mode)
+        HStack {
+            Picker("Study mode", selection: $studyMode) {
+                ForEach(StudyMode.allCases) { mode in
+                    Text(mode.title).tag(mode)
+                }
             }
+            .pickerStyle(.segmented)
+            .frame(width: isNarrowStudyLayout ? 220 : 280)
+
+            Spacer(minLength: 0)
         }
-        .pickerStyle(.segmented)
         .padding(.top, 2)
     }
 

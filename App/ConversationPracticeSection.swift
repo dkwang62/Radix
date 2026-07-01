@@ -19,10 +19,7 @@ extension FavouritesTab {
                     }
                 }
 
-                conversationPracticeTopicPicker(selectedTopic: topic)
-                if isImportedConversationPracticeTopic(topic) {
-                    conversationPracticeDeleteButton(topic)
-                }
+                conversationPracticeTopicControlRow(selectedTopic: topic)
                 conversationPracticeImportStatus
 
                 if let library = conversationPracticeLibrary {
@@ -36,6 +33,16 @@ extension FavouritesTab {
 
     func conversationPracticeStatusText(for topic: ConversationPracticeTopic) -> String {
         return topic.hasBundledContent ? "\(topic.targetSentenceCount) sentences" : "Generate"
+    }
+
+    func conversationPracticeTopicControlRow(selectedTopic: ConversationPracticeTopic) -> some View {
+        HStack(spacing: 8) {
+            conversationPracticeTopicPicker(selectedTopic: selectedTopic)
+
+            if isImportedConversationPracticeTopic(selectedTopic) {
+                conversationPracticeDeleteButton(selectedTopic)
+            }
+        }
     }
 
     func conversationPracticePageNavigation(_ library: ConversationPracticeLibrary) -> some View {
@@ -139,12 +146,15 @@ extension FavouritesTab {
             conversationPracticeImportError = nil
             pendingConversationPracticeDeletion = topic
         } label: {
-            Label("Delete This Practice", systemImage: "trash")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .frame(maxWidth: .infinity, minHeight: 36)
+            Image(systemName: "trash")
+                .font(.system(size: 16, weight: .semibold))
+                .frame(width: 44, height: 44)
+                .background(Color.red.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
         }
-        .buttonStyle(.bordered)
-        .tint(.red)
+        .buttonStyle(.plain)
+        .foregroundStyle(.red)
+        .accessibilityLabel("Delete this practice")
     }
 
     @ViewBuilder
