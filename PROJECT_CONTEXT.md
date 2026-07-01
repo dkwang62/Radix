@@ -293,7 +293,10 @@ Step 6 folds sentence browsing into the Study Practice card. The card starts
 with a compact preview of the first sentences and expands in place to show the
 curated order for all sentences as a sparse, fast-scanning list. Expanded rows
 show the sentence, pinyin, and English only; tapping a row opens the normal
-Study information card for richer Phrase and Character inspection.
+Study information card for richer Phrase and Character inspection. Only
+Conversation Practice sentence cards repurpose the sidebar `Phrase` button to
+show the verified phrases in that sentence; all other Phrase and Character
+information-card contexts keep their normal broad phrase lookup behavior.
 The Conversation Practice Simplified/Traditional choice is shared across the
 Practice card, Flashcards, and Quick Quiz, including displayed sentences, drill
 hint chips, character links, and opened Phrase card titles.

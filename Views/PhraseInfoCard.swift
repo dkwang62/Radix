@@ -3,6 +3,7 @@ import SwiftUI
 struct PhraseInfoCard: View {
     @EnvironmentObject var store: RadixStore
     let phrase: PhraseItem
+    var phraseLookupOverride: [PhraseItem]? = nil
     var onSelectCharacter: ((String) -> Void)?
     var onDone: (() -> Void)?
     @State var animationScript = RadixPhrasePreferences.animationScript
@@ -35,9 +36,10 @@ struct PhraseInfoCard: View {
             )
             .sheet(isPresented: $showPhraseTableSheet) {
                 PhraseTableSheet(
-                    character: phraseCharacters.first ?? phrase.word,
+                    character: phraseLookupOverride == nil ? (phraseCharacters.first ?? phrase.word) : phrase.word,
                     isVertical: true,
-                    requiredCharacters: phraseCharacters.isEmpty ? phrase.word.map(String.init) : phraseCharacters
+                    requiredCharacters: phraseCharacters.isEmpty ? phrase.word.map(String.init) : phraseCharacters,
+                    fixedPhrases: phraseLookupOverride
                 )
                 .environmentObject(store)
             }

@@ -212,8 +212,12 @@ list, so users get sentence browsing without a separate primary section. In the
 expanded card, sentence rows should stay sparse for scanning: Chinese, pinyin,
 English, and a clear tap target into the normal Study information card. Do not
 repeat phrase and character chips in that main list; the sidebar information
-card is the richer inspection place. Character inspection in Practice should use
-the normal full character card, not the compact preview.
+card is the richer inspection place. When that information card was opened from
+a Conversation Practice sentence, its `Phrase` action should show only phrases
+verified inside that sentence. This exception must not change normal Search,
+Browse, Review, Favorites, or other information-card phrase lookup behavior.
+Character inspection in Practice should use the normal full character card, not
+the compact preview.
 
 Keep curated lessons visually and behaviorally separate from Added Phrases
 cleanup. Added Phrases is for user/imported phrase classification; Conversation

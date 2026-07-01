@@ -391,6 +391,16 @@ extension FavouritesTab {
             usesTraditionalScript: studyGridUsesTraditionalScript,
             store: store
         )
-        presentPhrase(phrase)
+        let sentencePhrases = store.verifiedPracticePhraseHints(for: item)
+            .filter { store.phraseStorageWord($0.word) != item.phraseKey }
+            .map {
+                ConversationPracticeScriptSupport.displayPhrase(
+                    $0,
+                    usesTraditionalScript: studyGridUsesTraditionalScript,
+                    store: store
+                )
+            }
+        store.speakPhrase(phrase)
+        store.presentPracticeSentenceInSidebar(phrase, sentencePhrases: sentencePhrases)
     }
 }

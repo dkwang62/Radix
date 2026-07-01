@@ -238,6 +238,9 @@ Practice feedback:
    - Keep the expanded Study list sparse so users can scroll and scan quickly.
    - Link every full sentence back to existing Phrase and Character inspection
      through the normal Study information card.
+   - Scope the sentence card's `Phrase` action to verified phrases in that
+     sentence only; keep all non-Practice information-card phrase lookup
+     behavior unchanged.
    - Status: The Study set card shows a compact preview and expands in place to
      all sentences in curated order. Expanded rows include Chinese, pinyin, and
      English only, without phrase or character chips. Flashcards and Quick Quiz

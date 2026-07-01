@@ -11,6 +11,7 @@ struct RadixBrowseHighlightState {
     var revision = 0
     var imagePhrasePreview: PhraseItem?
     var sidebarPhrasePreview: PhraseItem?
+    var sidebarPhraseLookupOverride: [PhraseItem]?
     var pendingScrollTarget: BrowseScrollTarget?
     var highlightedCharacter: String?
     var memoryCollectionID: UUID?
@@ -63,7 +64,17 @@ extension RadixStore {
 
     var sidebarPhrasePreview: PhraseItem? {
         get { browseHighlightState.sidebarPhrasePreview }
-        set { browseHighlightState.sidebarPhrasePreview = newValue }
+        set {
+            browseHighlightState.sidebarPhrasePreview = newValue
+            if newValue == nil {
+                browseHighlightState.sidebarPhraseLookupOverride = nil
+            }
+        }
+    }
+
+    var sidebarPhraseLookupOverride: [PhraseItem]? {
+        get { browseHighlightState.sidebarPhraseLookupOverride }
+        set { browseHighlightState.sidebarPhraseLookupOverride = newValue }
     }
 
     var pendingBrowseScrollTarget: BrowseScrollTarget? {

@@ -8,6 +8,7 @@ struct PhoneContextPreview: View {
     let character: String?
     let onReturn: () -> Void
     @State private var phraseReturnTarget: PhraseItem?
+    @State private var phraseReturnLookupOverride: [PhraseItem]?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -16,6 +17,7 @@ struct PhoneContextPreview: View {
             if let phrase {
                 PhraseInfoCard(
                     phrase: phrase,
+                    phraseLookupOverride: store.sidebarPhraseLookupOverride,
                     onSelectCharacter: { character in
                         phraseReturnTarget = phrase
                         store.previewPhraseCardCharacter(character, in: phrase, announce: false)
@@ -27,7 +29,14 @@ struct PhoneContextPreview: View {
                 if let phraseReturnTarget {
                     Button {
                         withAnimation(.easeInOut(duration: 0.2)) {
-                            store.presentPhraseInSidebar(phraseReturnTarget)
+                            if let phraseReturnLookupOverride {
+                                store.presentPracticeSentenceInSidebar(
+                                    phraseReturnTarget,
+                                    sentencePhrases: phraseReturnLookupOverride
+                                )
+                            } else {
+                                store.presentPhraseInSidebar(phraseReturnTarget)
+                            }
                         }
                     } label: {
                         Label("Phrase", systemImage: "chevron.backward")
@@ -51,11 +60,13 @@ struct PhoneContextPreview: View {
         .onAppear {
             if let phrase {
                 phraseReturnTarget = phrase
+                phraseReturnLookupOverride = store.sidebarPhraseLookupOverride
             }
         }
         .onChange(of: phrase) { _, newValue in
             if let newValue {
                 phraseReturnTarget = newValue
+                phraseReturnLookupOverride = store.sidebarPhraseLookupOverride
             }
         }
     }

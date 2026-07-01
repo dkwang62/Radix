@@ -6,14 +6,21 @@ struct PhraseTableSheet: View {
     let character: String
     let requiredCharacters: [String]
     let isVertical: Bool
+    let fixedPhrases: [PhraseItem]?
     private let visiblePhraseRows = 6
     @State private var selectedPhrase: PhraseItem?
     @State private var showAddPhraseSheet = false
 
-    init(character: String, isVertical: Bool, requiredCharacters: [String]? = nil) {
+    init(
+        character: String,
+        isVertical: Bool,
+        requiredCharacters: [String]? = nil,
+        fixedPhrases: [PhraseItem]? = nil
+    ) {
         self.character = character
         self.requiredCharacters = requiredCharacters ?? [character]
         self.isVertical = isVertical
+        self.fixedPhrases = fixedPhrases
     }
 
     private var isPhone: Bool {
@@ -55,7 +62,7 @@ struct PhraseTableSheet: View {
             } else {
                 HStack(alignment: .center, spacing: 12) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Label("Phrase Library", systemImage: "text.quote")
+                        Label(isFixedPhraseLookup ? "Sentence Phrases" : "Phrase Library", systemImage: "text.quote")
                             .font(ResponsiveFont.headline.weight(.semibold))
                         Text("\(displayedPhrases.count) \(displayedPhrases.count == 1 ? "match" : "matches")")
                             .font(ResponsiveFont.caption)
@@ -66,13 +73,15 @@ struct PhraseTableSheet: View {
 
                     Spacer()
 
-                    Button {
-                        showAddPhraseSheet = true
-                    } label: {
-                        Label("Phrase", systemImage: "plus.circle.fill")
+                    if !isFixedPhraseLookup {
+                        Button {
+                            showAddPhraseSheet = true
+                        } label: {
+                            Label("Phrase", systemImage: "plus.circle.fill")
+                        }
+                        .buttonStyle(.bordered)
+                        .accessibilityLabel("Add Phrase")
                     }
-                    .buttonStyle(.bordered)
-                    .accessibilityLabel("Add Phrase")
                 }
                 .padding(12)
                 .background(RadixTheme.secondaryBackground.opacity(0.55))
@@ -126,23 +135,31 @@ struct PhraseTableSheet: View {
                 .environmentObject(store)
         }
         .onAppear {
-            if !isMultiCharacterLookup {
+            if !isMultiCharacterLookup && !isFixedPhraseLookup {
                 store.refreshPhrases(for: character)
             }
         }
         .onChange(of: store.phraseLength) { _, _ in
             selectedPhrase = nil
-            if !isMultiCharacterLookup {
+            if !isMultiCharacterLookup && !isFixedPhraseLookup {
                 store.refreshPhrases(for: character)
             }
         }
     }
 
     private var matchingPhrases: [PhraseItem] {
+        if let fixedPhrases {
+            let phrases = fixedPhrases.filter(store.phraseMatchesActiveLength)
+            return sortSentencePhrases(phrases)
+        }
         if isMultiCharacterLookup {
             return store.phraseMatches(for: requiredCharacters.joined(), length: store.phraseLength)
         }
         return store.phrases
+    }
+
+    private var isFixedPhraseLookup: Bool {
+        fixedPhrases != nil
     }
 
     private var isMultiCharacterLookup: Bool {
@@ -151,7 +168,11 @@ struct PhraseTableSheet: View {
 
     @ViewBuilder
     private var phraseScopeLabel: some View {
-        if isMultiCharacterLookup {
+        if isFixedPhraseLookup {
+            Text("In this sentence")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+        } else if isMultiCharacterLookup {
             Text("Containing \(requiredCharacters.joined(separator: " "))")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
@@ -159,10 +180,27 @@ struct PhraseTableSheet: View {
     }
 
     private var emptyPhraseDescription: String {
+        if isFixedPhraseLookup {
+            return "No \(store.activePhraseLengthFilterLabel)-length phrases are available for this sentence."
+        }
         if isMultiCharacterLookup {
             return "No \(store.activePhraseLengthFilterLabel)-length phrases contain matching parts of \(requiredCharacters.joined(separator: " "))."
         }
         return "No \(store.activePhraseLengthFilterLabel)-length phrases were found for \(character)."
+    }
+
+    private func sortSentencePhrases(_ phrases: [PhraseItem]) -> [PhraseItem] {
+        phrases.sorted {
+            let lhsPosition = character.range(of: $0.word)?.lowerBound
+            let rhsPosition = character.range(of: $1.word)?.lowerBound
+            if lhsPosition != rhsPosition {
+                if lhsPosition == nil { return false }
+                if rhsPosition == nil { return true }
+                return lhsPosition! < rhsPosition!
+            }
+            if $0.word.count != $1.word.count { return $0.word.count > $1.word.count }
+            return $0.word < $1.word
+        }
     }
 
     private func presentPhrase(_ phrase: PhraseItem) {

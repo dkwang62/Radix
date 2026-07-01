@@ -19,6 +19,7 @@ extension RadixStore {
         imagePhraseHighlightOffsets = []
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
+        sidebarPhraseLookupOverride = nil
         imagePhraseHighlightRevision += 1
         preview(character: character, announce: announce, preservePhraseContext: false)
     }

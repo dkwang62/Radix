@@ -29,7 +29,7 @@ extension PhraseInfoCard {
 
     @ViewBuilder
     var phraseLookupButton: some View {
-        if phraseCharacters.count > 1 {
+        if shouldShowPhraseLookupButton {
             Button {
                 showPhraseTableSheet = true
             } label: {
@@ -57,4 +57,10 @@ extension PhraseInfoCard {
         }
     }
 
+    var shouldShowPhraseLookupButton: Bool {
+        if let phraseLookupOverride {
+            return !phraseLookupOverride.isEmpty
+        }
+        return phraseCharacters.count > 1
+    }
 }

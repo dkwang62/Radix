@@ -339,9 +339,13 @@ extension RootView {
         VStack(alignment: .leading, spacing: 8) {
             Group {
                 if let phrase = store.activeSidebarPhrasePreview {
-                    PhraseInfoCard(phrase: phrase, onDone: {
-                        store.dismissSidebarPhrasePreview()
-                    })
+                    PhraseInfoCard(
+                        phrase: phrase,
+                        phraseLookupOverride: store.sidebarPhraseLookupOverride,
+                        onDone: {
+                            store.dismissSidebarPhrasePreview()
+                        }
+                    )
                     .environmentObject(store)
                 } else if let current = store.previewCharacter {
                     CharacterPreviewHeader(

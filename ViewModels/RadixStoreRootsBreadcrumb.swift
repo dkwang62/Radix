@@ -141,6 +141,7 @@ extension RadixStore {
 
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
+        sidebarPhraseLookupOverride = nil
         pushPhraseBreadcrumb(phrase)
 
         switch route {
