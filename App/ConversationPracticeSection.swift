@@ -10,9 +10,13 @@ extension FavouritesTab {
                     Label("Conversation Practice", systemImage: "bubble.left.and.bubble.right")
                         .font(ResponsiveFont.headline)
                     Spacer(minLength: 8)
-                    Text(conversationPracticeStatusText(for: topic))
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                    if let library = conversationPracticeLibrary {
+                        conversationPracticePageNavigation(library)
+                    } else {
+                        Text(conversationPracticeStatusText(for: topic))
+                            .font(ResponsiveFont.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
                 }
 
                 conversationPracticeTopicPicker(selectedTopic: topic)
@@ -31,10 +35,42 @@ extension FavouritesTab {
     }
 
     func conversationPracticeStatusText(for topic: ConversationPracticeTopic) -> String {
-        if let conversationPracticeLibrary {
-            return "\(conversationPracticeLibrary.set.itemCount) sentences"
-        }
         return topic.hasBundledContent ? "\(topic.targetSentenceCount) sentences" : "Generate"
+    }
+
+    func conversationPracticePageNavigation(_ library: ConversationPracticeLibrary) -> some View {
+        HStack(spacing: 6) {
+            Button {
+                moveConversationPracticePage(by: -1, in: library)
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 12, weight: .bold))
+                    .frame(width: 26, height: 26)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(canMoveConversationPracticePage(by: -1, in: library) ? Color.accentColor : .secondary)
+            .disabled(!canMoveConversationPracticePage(by: -1, in: library))
+            .accessibilityLabel("Previous sentence page")
+
+            Text(conversationPracticePageLabel(for: library))
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+
+            Button {
+                moveConversationPracticePage(by: 1, in: library)
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .bold))
+                    .frame(width: 26, height: 26)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(canMoveConversationPracticePage(by: 1, in: library) ? Color.accentColor : .secondary)
+            .disabled(!canMoveConversationPracticePage(by: 1, in: library))
+            .accessibilityLabel("Next sentence page")
+        }
     }
 
     func conversationPracticeTopicPicker(selectedTopic: ConversationPracticeTopic) -> some View {
@@ -267,9 +303,49 @@ extension FavouritesTab {
 
     func conversationPracticeSentenceList(_ library: ConversationPracticeLibrary) -> some View {
         LazyVStack(alignment: .leading, spacing: 4) {
-            ForEach(library.items) { item in
+            ForEach(conversationPracticePagedItems(for: library)) { item in
                 conversationPracticeSentenceRow(item)
             }
+        }
+    }
+
+    var conversationPracticePageSize: Int {
+        isNarrowStudyLayout ? 5 : 10
+    }
+
+    func conversationPracticePageCount(for library: ConversationPracticeLibrary) -> Int {
+        max(1, Int(ceil(Double(library.items.count) / Double(conversationPracticePageSize))))
+    }
+
+    func conversationPracticeClampedPageIndex(for library: ConversationPracticeLibrary) -> Int {
+        min(max(conversationPracticePageIndex, 0), conversationPracticePageCount(for: library) - 1)
+    }
+
+    func conversationPracticePagedItems(for library: ConversationPracticeLibrary) -> [ConversationPracticeItem] {
+        let pageIndex = conversationPracticeClampedPageIndex(for: library)
+        let startIndex = pageIndex * conversationPracticePageSize
+        let endIndex = min(startIndex + conversationPracticePageSize, library.items.count)
+        guard startIndex < endIndex else { return [] }
+        return Array(library.items[startIndex..<endIndex])
+    }
+
+    func conversationPracticePageLabel(for library: ConversationPracticeLibrary) -> String {
+        guard !library.items.isEmpty else { return "0 of 0" }
+        let pageIndex = conversationPracticeClampedPageIndex(for: library)
+        let startRank = pageIndex * conversationPracticePageSize + 1
+        let endRank = min(startRank + conversationPracticePageSize - 1, library.items.count)
+        return "\(startRank)-\(endRank) of \(library.items.count)"
+    }
+
+    func canMoveConversationPracticePage(by offset: Int, in library: ConversationPracticeLibrary) -> Bool {
+        let nextIndex = conversationPracticeClampedPageIndex(for: library) + offset
+        return nextIndex >= 0 && nextIndex < conversationPracticePageCount(for: library)
+    }
+
+    func moveConversationPracticePage(by offset: Int, in library: ConversationPracticeLibrary) {
+        guard canMoveConversationPracticePage(by: offset, in: library) else { return }
+        withAnimation(.snappy(duration: 0.18)) {
+            conversationPracticePageIndex = conversationPracticeClampedPageIndex(for: library) + offset
         }
     }
 

@@ -207,8 +207,9 @@ dictionary/card system disappears. When a lesson flow opens a Phrase or
 Character card, keep that inspection inside the current lesson sheet with a
 normal back path to the practice mode; do not eject the user from Flashcards or
 Quick Quiz just because they inspected a Radix card. The Study Practice card
-itself should show all sentences directly, so users get sentence browsing
-without a separate primary section or a teaser/expansion step. Rows should stay
+itself should show sentence browsing directly, without a separate primary
+section or a teaser/expansion step. Use compact page controls rather than a
+long internal sentence scroll when a set contains many rows. Rows should stay
 sparse for scanning, with a toggle between Chinese plus pinyin and English-only
 display, and a clear tap target into the normal Study information card. Do not
 repeat phrase and character chips in that main list; the sidebar information
@@ -216,9 +217,9 @@ card is the richer inspection place. When that information card was opened from
 a Conversation Practice sentence, its `Phrase` action should show only phrases
 verified inside that sentence. This exception must not change normal Search,
 Browse, Review, Favorites, or other information-card phrase lookup behavior.
-The selected sentence should remain visibly highlighted and clickable in the
-Practice list, making the main list the simple way back to the sentence card
-after sidebar phrase or character exploration. The phone information preview
+The selected sentence should remain visibly highlighted and clickable when its
+page is visible, making the Practice list the simple way back to the sentence
+card after sidebar phrase or character exploration. The phone information preview
 should not add extra `Study` or `Browse` shortcut buttons above this flow; when
 a Practice sentence card is open on iPhone, provide a compact `Sentences`
 return action to the expanded sentence list, and when a character preview can
