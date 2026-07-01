@@ -220,8 +220,8 @@ Practice feedback:
    - Add simple progress responses.
    - Link sentence and components back to Phrase and Character cards.
    - Status: `Flashcards` opens from the Study set card, reveals pinyin and
-     English on demand, records local Again/Good/Easy responses for the current
-     session, and keeps Phrase/Character inspection inside the active sheet
+     English on demand, records Again/Good/Easy responses to portable Practice
+     progress, and keeps Phrase/Character inspection inside the active sheet
      when users tap the sentence, phrase hints, or character hints.
 
 5. Quick Quiz
@@ -230,9 +230,10 @@ Practice feedback:
    - Show Radix-backed answer feedback after each question.
    - Status: `Quick Quiz` opens from the Study set card, samples up to 20
      practice items per run, blanks one character, builds script-aware choices
-     from confusable/component peers with broader dictionary fallbacks, shows
-     immediate feedback with pinyin/English and session score, and keeps
-     Phrase/Character inspection inside the quiz sheet.
+     from confusable/component peers with broader dictionary fallbacks, records
+     correct/incorrect attempts to portable Practice progress, shows immediate
+     feedback with pinyin/English and session score, and keeps Phrase/Character
+     inspection inside the quiz sheet.
 
 6. Embedded Sentence List
    - Let users expand the Study Practice card from a short sentence preview to
@@ -276,10 +277,10 @@ Practice feedback:
    - Include imported Practice packs in portable backups and checkpoints.
    - Show Practice as its own backup-preview section rather than hiding imported
      packs inside generic app state.
-   - Status: `UnifiedPackage` carries imported Conversation Practice packs.
-     My Data's backup preview has a pending Practice section that summarizes
-     selected topic, bundled topic count, imported pack count, and imported
-     sentence counts.
+   - Status: `UnifiedPackage` carries imported Conversation Practice packs and
+     portable Practice progress. My Data's backup preview has a Practice section
+     that summarizes selected topic, bundled topic count, imported pack count,
+     and imported sentence counts.
 
 ## Next Build Candidates
 
@@ -291,12 +292,18 @@ These are the remaining useful Practice work items, in likely build order:
      per-topic completion counts.
    - Include progress in backup/checkpoint flows after the storage contract is
      stable.
+   - Status: A portable `ConversationPracticeProgressSnapshot` keyed by pack ID
+     and item ID stores Flashcards responses, quiz attempts, completion state,
+     and last-practiced dates; backup/checkpoint packages include it.
 
 2. Progress-aware Study UI
    - Replace placeholder progress/last-practiced copy with real values from the
      progress model.
    - Keep the Practice card compact: topic, count, last practiced, and simple
      completion signal are enough.
+   - Status: The focused Study Practice topic subtitle shows per-topic
+     completion and last-practiced state without adding a separate explanation
+     row.
 
 3. Import review and replacement flow
    - Before replacing an imported pack with the same ID, show a compact summary
@@ -331,8 +338,8 @@ These are the remaining useful Practice work items, in likely build order:
 
 ## Resolved Decisions
 
-- Practice stays inside the Study tab under the internal `Review | Practice`
-  split, not as a fifth main tab or a fifth Review summary tile.
+- Practice stays inside the Study tab as a `Conversation Practices` summary
+  tile that opens a focused Practice screen, not as a fifth main tab.
 - Imported packs are user data in preferences and portable backups; bundled
   topics remain fixed app content.
 - Phrase hint chips are database-verified exact matches only. Character chips

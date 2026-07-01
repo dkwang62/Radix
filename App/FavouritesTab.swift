@@ -32,6 +32,7 @@ struct FavouritesTab: View {
     @State var conversationPracticeSentenceDisplay: ConversationPracticeSentenceDisplay = .chinese
     @State var conversationPracticePageIndex = 0
     @State var selectedConversationPracticeItemID: String?
+    @State var conversationPracticeProgress = RadixStudyPreferences.conversationPracticeProgress
     @State var conversationPracticeReviewPresentation: ConversationPracticeReviewPresentation?
     @State var conversationPracticeQuizPresentation: ConversationPracticeQuizPresentation?
 
@@ -92,6 +93,7 @@ struct FavouritesTab: View {
         }
         .sheet(item: $conversationPracticeReviewPresentation, onDismiss: {
             conversationPracticeReviewPresentation = nil
+            refreshConversationPracticeProgress()
         }) { presentation in
             ConversationPracticeReviewSheet(
                 library: presentation.library,
@@ -102,6 +104,7 @@ struct FavouritesTab: View {
         }
         .sheet(item: $conversationPracticeQuizPresentation, onDismiss: {
             conversationPracticeQuizPresentation = nil
+            refreshConversationPracticeProgress()
         }) { presentation in
             ConversationPracticeQuizSheet(
                 library: presentation.library,
@@ -190,6 +193,7 @@ struct FavouritesTab: View {
     }
 
     func loadConversationPracticeLibrary() {
+        refreshConversationPracticeProgress()
         let topic = selectedConversationPracticeTopic
         if let importedLibrary = importedConversationPracticeLibraries[topic.id] {
             conversationPracticeLibrary = importedLibrary
@@ -312,11 +316,17 @@ struct FavouritesTab: View {
     }
 
     func presentConversationPracticeReview(_ library: ConversationPracticeLibrary) {
+        refreshConversationPracticeProgress()
         conversationPracticeReviewPresentation = ConversationPracticeReviewPresentation(library: library)
     }
 
     func presentConversationPracticeQuiz(_ library: ConversationPracticeLibrary) {
+        refreshConversationPracticeProgress()
         conversationPracticeQuizPresentation = ConversationPracticeQuizPresentation(library: library)
+    }
+
+    func refreshConversationPracticeProgress() {
+        conversationPracticeProgress = RadixStudyPreferences.conversationPracticeProgress
     }
 
     var isPhoneStudyPreviewActive: Bool {

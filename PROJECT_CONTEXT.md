@@ -343,9 +343,14 @@ scrolling a 100-sentence list. On narrow phone layouts, that control area may
 split into two compact rows to avoid crowding the range label and language
 toggles. Flashcards and Quick Quiz remain pinned below the list. Imported topic
 deletion is an icon action beside the topic picker, not a full-width row.
-The next Practice build should start with a portable progress model keyed by
-pack/item ID, then use it for last-practiced and completion signals in Study;
-import replacement review and sentence read-aloud are lower-priority follow-ups.
+Practice progress is a portable `ConversationPracticeProgressSnapshot` keyed by
+pack/item ID. Flashcards record Again/Good/Easy responses, Quick Quiz records
+correct/incorrect attempts, and only Good/Easy/correct outcomes count an item
+complete. Progress is persisted under `RadixPreferenceKey.conversationPracticeProgress`
+and included in `UnifiedPackage` backup/checkpoint flows. The focused Practice
+topic subtitle shows per-topic completion and last-practiced state without
+adding a separate explanation row. Import replacement review and sentence
+read-aloud are the next lower-priority Practice follow-ups.
 `CharacterDetailView` no longer embeds the old Breakdown/Derivatives lineage
 grid; structure exploration remains available through the dedicated Character
 Breakdown explorer instead of crowding the info card.

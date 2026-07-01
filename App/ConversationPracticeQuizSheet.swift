@@ -287,6 +287,13 @@ struct ConversationPracticeQuizSheet: View {
     func choose(_ choice: String) {
         selectedAnswerID = choice
         answered["\(currentItem.id)#\(quizCharacter)"] = choice == quizCharacter
+        var snapshot = RadixStudyPreferences.conversationPracticeProgress
+        snapshot.record(
+            packID: currentItem.setID,
+            itemID: currentItem.id,
+            outcome: choice == quizCharacter ? .correct : .incorrect
+        )
+        RadixStudyPreferences.conversationPracticeProgress = snapshot
     }
 
     func advance() {

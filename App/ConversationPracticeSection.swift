@@ -99,7 +99,7 @@ extension FavouritesTab {
                         .foregroundStyle(.primary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
-                    Text(selectedTopic.summary)
+                    Text(conversationPracticeTopicSubtitle(selectedTopic))
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
@@ -121,6 +121,19 @@ extension FavouritesTab {
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
+    }
+
+    func conversationPracticeTopicSubtitle(_ topic: ConversationPracticeTopic) -> String {
+        guard let library = conversationPracticeLibrary, library.set.id == topic.id else {
+            return topic.summary
+        }
+        let summary = conversationPracticeProgress.summary(for: library)
+        guard summary.totalItems > 0 else { return topic.summary }
+        let completion = "\(summary.completedItems)/\(summary.totalItems) complete"
+        if let lastPracticedAt = summary.lastPracticedAt {
+            return "\(completion) · Last \(lastPracticedAt.formatted(date: .abbreviated, time: .omitted))"
+        }
+        return "\(completion) · Not practiced yet"
     }
 
     func conversationPracticeDeleteButton(_ topic: ConversationPracticeTopic) -> some View {

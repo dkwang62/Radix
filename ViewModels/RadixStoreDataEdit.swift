@@ -479,6 +479,7 @@ extension RadixStore {
             collections: allCollections,
             selectedAICollectionID: selectedAICollectionID,
             conversationPracticePacks: RadixStudyPreferences.importedConversationPracticePacks,
+            conversationPracticeProgress: RadixStudyPreferences.conversationPracticeProgress,
             apiKeys: currentAPIKeyBackup()
         )
     }
@@ -570,6 +571,8 @@ extension RadixStore {
                 try phraseRepo.addPhrasesAdditively(uniquePhrases(package.phrases))
                 mergeImportedCollections(package.collections, selectedAICollectionID: package.selectedAICollectionID)
                 applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .additive)
+                RadixStudyPreferences.conversationPracticeProgress =
+                    RadixStudyPreferences.conversationPracticeProgress.merging(package.conversationPracticeProgress)
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .additive)
 
@@ -584,6 +587,8 @@ extension RadixStore {
                 try phraseRepo.replaceAllPhrases(uniquePhrases(package.phrases))
                 replaceCollections(with: package.collections, selectedAICollectionID: package.selectedAICollectionID)
                 applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .complete)
+                RadixStudyPreferences.conversationPracticeProgress =
+                    package.conversationPracticeProgress ?? ConversationPracticeProgressSnapshot()
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .complete)
             }

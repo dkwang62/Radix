@@ -15,6 +15,7 @@ struct PreferenceKeyCompatibilityTests {
         #expect(RadixPreferenceKey.promptTaskSelection == "radix.promptSelectedTaskIDs")
         #expect(RadixPreferenceKey.conversationPracticeTopic == "radix.conversationPracticeTopicID")
         #expect(RadixPreferenceKey.importedConversationPracticePacks == "radix.importedConversationPracticePacks")
+        #expect(RadixPreferenceKey.conversationPracticeProgress == "radix.conversationPracticeProgress")
     }
 
     @Test("Legacy speech identifiers stay available for migration")

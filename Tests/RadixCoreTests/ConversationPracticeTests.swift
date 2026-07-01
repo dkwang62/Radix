@@ -4,6 +4,72 @@ import Testing
 
 @Suite("Conversation practice compatibility")
 struct ConversationPracticeTests {
+    @Test("Practice progress records completion and last practiced state")
+    func practiceProgressRecordsCompletion() throws {
+        let library = try loadConversationPackFixture().practiceLibrary
+        let first = try #require(library.items.first)
+        let second = try #require(library.items.dropFirst().first)
+        let earlyDate = Date(timeIntervalSince1970: 1_750_000_000)
+        let laterDate = Date(timeIntervalSince1970: 1_750_100_000)
+        var snapshot = ConversationPracticeProgressSnapshot()
+
+        snapshot.record(
+            packID: library.set.id,
+            itemID: first.id,
+            outcome: .again,
+            practicedAt: earlyDate
+        )
+        snapshot.record(
+            packID: library.set.id,
+            itemID: second.id,
+            outcome: .correct,
+            practicedAt: laterDate
+        )
+
+        let summary = snapshot.summary(for: library)
+        #expect(summary.totalItems == library.items.count)
+        #expect(summary.completedItems == 1)
+        #expect(summary.lastPracticedAt == laterDate)
+        #expect(snapshot.record(for: library.set.id, itemID: first.id)?.isCompleted == false)
+        #expect(snapshot.record(for: library.set.id, itemID: second.id)?.isCompleted == true)
+    }
+
+    @Test("Practice progress merge keeps the newest item record")
+    func practiceProgressMergeUsesNewestRecord() throws {
+        let library = try loadConversationPackFixture().practiceLibrary
+        let first = try #require(library.items.first)
+        let earlyDate = Date(timeIntervalSince1970: 1_750_000_000)
+        let laterDate = Date(timeIntervalSince1970: 1_750_100_000)
+        let local = ConversationPracticeProgressSnapshot(records: [
+            ConversationPracticeItemProgress(
+                packID: library.set.id,
+                itemID: first.id,
+                attempts: 1,
+                completedAttempts: 0,
+                lastOutcome: .again,
+                lastPracticedAt: earlyDate,
+                completedAt: nil
+            )
+        ])
+        let imported = ConversationPracticeProgressSnapshot(records: [
+            ConversationPracticeItemProgress(
+                packID: library.set.id,
+                itemID: first.id,
+                attempts: 2,
+                completedAttempts: 1,
+                lastOutcome: .easy,
+                lastPracticedAt: laterDate,
+                completedAt: laterDate
+            )
+        ])
+
+        let merged = local.merging(imported)
+        let record = try #require(merged.record(for: library.set.id, itemID: first.id))
+        #expect(record.attempts == 2)
+        #expect(record.lastOutcome == .easy)
+        #expect(record.completedAt == laterDate)
+    }
+
     @Test("Uploaded conversation pack decodes and validates")
     func uploadedConversationPackValidates() throws {
         let pack = try loadConversationPackFixture()

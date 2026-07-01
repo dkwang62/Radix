@@ -49,4 +49,18 @@ enum RadixStudyPreferences {
             preferences.set(data, forKey: RadixPreferenceKey.importedConversationPracticePacks)
         }
     }
+
+    static var conversationPracticeProgress: ConversationPracticeProgressSnapshot {
+        get {
+            guard let data = preferences.data(forKey: RadixPreferenceKey.conversationPracticeProgress) else {
+                return ConversationPracticeProgressSnapshot()
+            }
+            return (try? JSONDecoder().decode(ConversationPracticeProgressSnapshot.self, from: data))
+                ?? ConversationPracticeProgressSnapshot()
+        }
+        set {
+            let data = try? JSONEncoder().encode(newValue)
+            preferences.set(data, forKey: RadixPreferenceKey.conversationPracticeProgress)
+        }
+    }
 }

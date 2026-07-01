@@ -212,6 +212,7 @@ struct ConversationPracticeReviewSheet: View {
 
     func record(_ response: ConversationPracticeReviewResponse) {
         progress[currentItem.id] = response
+        storePracticeProgress(response)
         if response == .again {
             isRevealed = false
             return
@@ -220,6 +221,16 @@ struct ConversationPracticeReviewSheet: View {
             currentIndex += 1
             isRevealed = false
         }
+    }
+
+    func storePracticeProgress(_ response: ConversationPracticeReviewResponse) {
+        var snapshot = RadixStudyPreferences.conversationPracticeProgress
+        snapshot.record(
+            packID: currentItem.setID,
+            itemID: currentItem.id,
+            outcome: response.progressOutcome
+        )
+        RadixStudyPreferences.conversationPracticeProgress = snapshot
     }
 
     func openPhrase(_ item: ConversationPracticeItem) {
@@ -296,6 +307,14 @@ enum ConversationPracticeReviewResponse: Equatable {
         case .again: return .orange
         case .good: return Color.accentColor
         case .easy: return .green
+        }
+    }
+
+    var progressOutcome: ConversationPracticeProgressOutcome {
+        switch self {
+        case .again: return .again
+        case .good: return .good
+        case .easy: return .easy
         }
     }
 }
