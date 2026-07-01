@@ -181,17 +181,32 @@ extension FavouritesTab {
         isShowingConversationPractice && conversationPracticeLibrary != nil
     }
 
+    @ViewBuilder
     func conversationPracticeDisplayControls(_ library: ConversationPracticeLibrary) -> some View {
-        HStack(spacing: 8) {
-            conversationPracticePageNavigation(library)
-                .fixedSize(horizontal: true, vertical: false)
+        if isNarrowStudyLayout {
+            VStack(alignment: .leading, spacing: 6) {
+                conversationPracticePageNavigation(library)
+                    .fixedSize(horizontal: true, vertical: false)
 
-            Spacer(minLength: 8)
+                HStack(spacing: 8) {
+                    Spacer(minLength: 0)
+                    studyScriptToggle
+                    conversationPracticeSentenceDisplayToggle
+                }
+            }
+            .padding(.bottom, 2)
+        } else {
+            HStack(spacing: 8) {
+                conversationPracticePageNavigation(library)
+                    .fixedSize(horizontal: true, vertical: false)
 
-            studyScriptToggle
-            conversationPracticeSentenceDisplayToggle
+                Spacer(minLength: 8)
+
+                studyScriptToggle
+                conversationPracticeSentenceDisplayToggle
+            }
+            .padding(.bottom, 2)
         }
-        .padding(.bottom, 2)
     }
 
     func conversationPracticeFloatingBottomActions(_ library: ConversationPracticeLibrary) -> some View {

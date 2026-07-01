@@ -5,6 +5,7 @@ struct CharacterDetailView: View {
     @EnvironmentObject var entitlement: EntitlementManager
     @Environment(\.horizontalSizeClass) var sizeClass
     let item: ComponentItem
+    var phraseTargetCharacter: String?
     @State var showPhraseTable = false
 
     var body: some View {
@@ -42,11 +43,16 @@ struct CharacterDetailView: View {
             }
         }
         .onChange(of: store.phraseLength) { _, _ in
-            store.refreshPhrases()
+            refreshDisplayedPhrases()
         }
         .onChange(of: store.previewCharacter) { _, _ in
-            store.refreshPhrases()
+            guard phraseTargetCharacter == nil else { return }
+            refreshDisplayedPhrases()
         }
-        .onAppear { store.refreshPhrases() }
+        .onAppear { refreshDisplayedPhrases() }
+    }
+
+    func refreshDisplayedPhrases() {
+        store.refreshPhrases(for: phraseTargetCharacter)
     }
 }

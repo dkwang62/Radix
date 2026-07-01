@@ -108,7 +108,7 @@ struct ConversationPracticeInspectionDestination: View {
             case let .character(character):
                 ScrollView {
                     if let item = store.item(for: character) {
-                        CharacterDetailView(item: item)
+                        CharacterDetailView(item: item, phraseTargetCharacter: character)
                             .environmentObject(store)
                     } else {
                         ContentUnavailableView(
@@ -121,10 +121,6 @@ struct ConversationPracticeInspectionDestination: View {
                 }
                 .background(RadixTheme.background)
                 .navigationTitle(character)
-                .onAppear {
-                    store.previewCharacter = character
-                    store.refreshPhrases()
-                }
             }
         }
         .navigationBarTitleDisplayMode(.inline)

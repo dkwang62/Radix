@@ -331,14 +331,18 @@ action from a character preview is labelled `Sentence`. On iPhone, a Practice
 sentence card itself shows a compact `Sentences` return action so the expanded
 sentence list is reachable without adding generic Browse/Study shortcuts.
 Character links use the normal full `CharacterDetailView`, not the lightweight
-preview card.
+preview card. Drill-sheet character inspection must not set the global
+`previewCharacter`, because dismissing Flashcards or Quick Quiz should return
+to the focused Practice screen rather than switching the phone Study surface to
+the character preview.
 The focused Conversation Practice screen hides the generic Study description
-and section title. A compact row directly above the sentence list combines
+and section title. A compact control area directly above the sentence list combines
 previous/next page controls, the visible row range, script choice, and the
 Chinese/English display toggle, so users page through lesson rows instead of
-scrolling a 100-sentence list. Flashcards and Quick Quiz remain pinned below
-the list. Imported topic deletion is an icon action beside the topic picker,
-not a full-width row.
+scrolling a 100-sentence list. On narrow phone layouts, that control area may
+split into two compact rows to avoid crowding the range label and language
+toggles. Flashcards and Quick Quiz remain pinned below the list. Imported topic
+deletion is an icon action beside the topic picker, not a full-width row.
 The next Practice build should start with a portable progress model keyed by
 pack/item ID, then use it for last-practiced and completion signals in Study;
 import replacement review and sentence read-aloud are lower-priority follow-ups.
