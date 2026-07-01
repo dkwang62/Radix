@@ -77,6 +77,7 @@ extension RadixStore {
         pushRootBreadcrumb(key)
         sidebarPhrasePreview = nil
         imageBrowsePhrasePreview = nil
+        practiceSidebarReturnStack = []
 
         switch route {
         case .capture:
@@ -132,6 +133,7 @@ extension RadixStore {
             if didHighlight {
                 sidebarPhrasePreview = nil
                 imageBrowsePhrasePreview = nil
+                practiceSidebarReturnStack = []
                 previewCharacter = nil
                 pushPhraseBreadcrumb(phrase)
                 if speechEnabled { speechService.speak(phrase.word) }
@@ -142,6 +144,7 @@ extension RadixStore {
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
+        practiceSidebarReturnStack = []
         pushPhraseBreadcrumb(phrase)
 
         switch route {

@@ -312,8 +312,11 @@ back to individual character links or smaller exact phrase matches.
 Flashcards and Quick Quiz open those Phrase and Character cards inside their
 own navigation stacks, so Back returns to the practice mode instead of ejecting
 the user from the lesson flow. The embedded Study card list opens Phrase and
-Character cards through the normal Study information-card path. Character links
-use the normal full `CharacterDetailView`, not the lightweight preview card.
+Character cards through the normal Study information-card path, with the
+Practice sentence as the scoped return root: sentence phrases return to the
+sentence, and characters opened from those phrases return phrase then sentence.
+Character links use the normal full `CharacterDetailView`, not the lightweight
+preview card.
 The next Practice build should start with a portable progress model keyed by
 pack/item ID, then use it for last-practiced and completion signals in Study;
 import replacement review and sentence read-aloud are lower-priority follow-ups.

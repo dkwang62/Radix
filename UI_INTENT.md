@@ -216,6 +216,10 @@ card is the richer inspection place. When that information card was opened from
 a Conversation Practice sentence, its `Phrase` action should show only phrases
 verified inside that sentence. This exception must not change normal Search,
 Browse, Review, Favorites, or other information-card phrase lookup behavior.
+Practice sentence-originated previews should return through the sentence-rooted
+inspection path: sentence to phrase to character backs out as character, phrase,
+sentence, while a character opened directly from the sentence returns to the
+sentence.
 Character inspection in Practice should use the normal full character card, not
 the compact preview.
 

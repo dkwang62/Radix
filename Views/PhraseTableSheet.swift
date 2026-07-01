@@ -7,6 +7,7 @@ struct PhraseTableSheet: View {
     let requiredCharacters: [String]
     let isVertical: Bool
     let fixedPhrases: [PhraseItem]?
+    let onPresentPhrase: ((PhraseItem) -> Void)?
     private let visiblePhraseRows = 6
     @State private var selectedPhrase: PhraseItem?
     @State private var showAddPhraseSheet = false
@@ -15,12 +16,14 @@ struct PhraseTableSheet: View {
         character: String,
         isVertical: Bool,
         requiredCharacters: [String]? = nil,
-        fixedPhrases: [PhraseItem]? = nil
+        fixedPhrases: [PhraseItem]? = nil,
+        onPresentPhrase: ((PhraseItem) -> Void)? = nil
     ) {
         self.character = character
         self.requiredCharacters = requiredCharacters ?? [character]
         self.isVertical = isVertical
         self.fixedPhrases = fixedPhrases
+        self.onPresentPhrase = onPresentPhrase
     }
 
     private var isPhone: Bool {
@@ -55,9 +58,16 @@ struct PhraseTableSheet: View {
                 }
                 .buttonStyle(.plain)
 
-                PhraseInfoCard(phrase: selectedPhrase, onDone: {
-                    dismiss()
-                })
+                PhraseInfoCard(
+                    phrase: selectedPhrase,
+                    onSelectCharacter: onPresentPhrase == nil ? nil : { character in
+                        store.presentPracticeSidebarCharacter(character, in: selectedPhrase, announce: false)
+                        dismiss()
+                    },
+                    onDone: {
+                        dismiss()
+                    }
+                )
                     .environmentObject(store)
             } else {
                 HStack(alignment: .center, spacing: 12) {
@@ -207,11 +217,19 @@ struct PhraseTableSheet: View {
         store.speakPhrase(phrase)
         withAnimation(.easeInOut(duration: 0.2)) {
             if isPhone {
-                store.presentPhraseInSidebar(phrase)
+                if let onPresentPhrase {
+                    onPresentPhrase(phrase)
+                } else {
+                    store.presentPhraseInSidebar(phrase)
+                }
                 selectedPhrase = phrase
             } else {
                 selectedPhrase = nil
-                store.presentPhraseInSidebar(phrase)
+                if let onPresentPhrase {
+                    onPresentPhrase(phrase)
+                } else {
+                    store.presentPhraseInSidebar(phrase)
+                }
             }
         }
     }

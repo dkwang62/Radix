@@ -39,7 +39,10 @@ struct PhraseInfoCard: View {
                     character: phraseLookupOverride == nil ? (phraseCharacters.first ?? phrase.word) : phrase.word,
                     isVertical: true,
                     requiredCharacters: phraseCharacters.isEmpty ? phrase.word.map(String.init) : phraseCharacters,
-                    fixedPhrases: phraseLookupOverride
+                    fixedPhrases: phraseLookupOverride,
+                    onPresentPhrase: phraseLookupOverride == nil ? nil : { phrase in
+                        store.presentPracticePhraseFromSidebar(phrase)
+                    }
                 )
                 .environmentObject(store)
             }

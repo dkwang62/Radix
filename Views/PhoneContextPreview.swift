@@ -19,14 +19,18 @@ struct PhoneContextPreview: View {
                     phrase: phrase,
                     phraseLookupOverride: store.sidebarPhraseLookupOverride,
                     onSelectCharacter: { character in
-                        phraseReturnTarget = phrase
-                        store.previewPhraseCardCharacter(character, in: phrase, announce: false)
+                        if store.isPracticeSidebarInspectionActive {
+                            store.presentPracticeSidebarCharacter(character, in: phrase, announce: false)
+                        } else {
+                            phraseReturnTarget = phrase
+                            store.previewPhraseCardCharacter(character, in: phrase, announce: false)
+                        }
                     },
-                    onDone: onReturn
+                    onDone: returnFromPreview
                 )
                 .environmentObject(store)
             } else if let character {
-                if let phraseReturnTarget {
+                if let phraseReturnTarget, !store.hasPracticeSidebarReturnTarget {
                     Button {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             if let phraseReturnLookupOverride {
@@ -53,7 +57,7 @@ struct PhoneContextPreview: View {
                 standardPhoneCharacterPreview(
                     character: character,
                     showAddToMemoryButton: false,
-                    onClear: onReturn
+                    onClear: returnFromPreview
                 )
             }
         }
@@ -86,7 +90,7 @@ struct PhoneContextPreview: View {
     }
 
     private var returnButton: some View {
-        Button(action: onReturn) {
+        Button(action: returnFromPreview) {
             Label(returnTitle, systemImage: returnSystemImage)
                 .font(ResponsiveFont.subheadline.weight(.semibold))
                 .foregroundStyle(Color.accentColor)
@@ -96,6 +100,13 @@ struct PhoneContextPreview: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
+    }
+
+    private func returnFromPreview() {
+        if store.returnFromPracticeSidebarPreview() {
+            return
+        }
+        onReturn()
     }
 
     @ViewBuilder
