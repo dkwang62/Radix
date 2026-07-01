@@ -243,12 +243,14 @@ notes before validation. The Study Conversation Practice dropdown includes an
 `Import Practice JSON` action. Imported packs are validated, persisted in
 preferences under `RadixPreferenceKey.importedConversationPracticePacks`, added
 to the topic dropdown, selected immediately, and registered with the same
-Practice phrase cache as bundled topics. User/imported files may also use the
-lightweight AI-friendly shape `{ "theme": "...", "entries": [{ "id", "zh",
-"pinyin", "en" }] }`; Radix derives the pack ID, title, category, analysis, and
-metadata before validation. Imported Practice packs are also part of
-`UnifiedPackage`, so normal backup files and local checkpoints save and restore
-them across devices.
+Practice phrase cache as bundled topics. If an import would replace an existing
+imported pack or override a bundled topic by using the same pack ID, Radix first
+shows a compact replacement confirmation with current/new sentence counts and
+validation-warning count. User/imported files may also use the lightweight
+AI-friendly shape `{ "theme": "...", "entries": [{ "id", "zh", "pinyin",
+"en" }] }`; Radix derives the pack ID, title, category, analysis, and metadata
+before validation. Imported Practice packs are also part of `UnifiedPackage`, so
+normal backup files and local checkpoints save and restore them across devices.
 The first useful practice modes should be simple offline drills such as
 Flashcards and Quick Quiz, with answer feedback linking back into Phrase and
 Character cards rather than dead-ending in a quiz-only screen. The detailed
@@ -274,11 +276,10 @@ dedicated delete control; bundled starter topics remain fixed.
 The selected Practice topic name should appear once in the topic picker rather
 than being repeated again in the card header beneath it.
 Step 4 has the first `Flashcards` flow: the starter set opens a card sheet
-that shows Chinese first, reveals pinyin/English, records local Again/Good/Easy
-responses for the session, and links the full sentence, detected phrase hints,
-and character hints back into existing Phrase and Character card presentation.
-Progress is intentionally local for now; persistent lesson progress remains a
-future storage decision.
+that shows Chinese first, reveals pinyin/English, records Again/Good/Easy
+responses to portable Practice progress, and links the full sentence, detected
+phrase hints, and character hints back into existing Phrase and Character card
+presentation.
 Step 5 has the first `Quick Quiz` flow: the starter set opens an offline
 single-character recognition sheet that blanks one character inside the source
 sentence. Each run samples up to 20 practice items in random order, shuffles the
@@ -291,8 +292,8 @@ characters rather than radicals. `ComponentRepository` maintains a cached,
 script-filtered confusability index built from meaningful decomposition overlap;
 generic stroke/radical-only overlap is treated as low signal. Feedback shows
 pinyin/meaning, score for the session, and links back to the existing Phrase and
-Character card presentation. Quiz results remain local until the persistent
-lesson-progress store is designed. Quick Quiz caches the selected round plus
+Character card presentation. Quiz results record correct/incorrect attempts to
+portable Practice progress. Quick Quiz caches the selected round plus
 per-character peer/candidate lookups so SwiftUI redraws do not rebuild choices.
 If the strict confusability index cannot supply enough distractors, Quick Quiz
 falls back through broader shared-component, related-character, and
@@ -349,8 +350,8 @@ correct/incorrect attempts, and only Good/Easy/correct outcomes count an item
 complete. Progress is persisted under `RadixPreferenceKey.conversationPracticeProgress`
 and included in `UnifiedPackage` backup/checkpoint flows. The focused Practice
 topic subtitle shows per-topic completion and last-practiced state without
-adding a separate explanation row. Import replacement review and sentence
-read-aloud are the next lower-priority Practice follow-ups.
+adding a separate explanation row. Sentence read-aloud is the next
+lower-priority Practice follow-up.
 `CharacterDetailView` no longer embeds the old Breakdown/Derivatives lineage
 grid; structure exploration remains available through the dedicated Character
 Breakdown explorer instead of crowding the info card.

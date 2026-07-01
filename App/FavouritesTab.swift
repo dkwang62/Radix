@@ -29,6 +29,7 @@ struct FavouritesTab: View {
     @State var conversationPracticeImportMessage: String?
     @State var conversationPracticeImportError: String?
     @State var pendingConversationPracticeDeletion: ConversationPracticeTopic?
+    @State var pendingConversationPracticeReplacement: ConversationPracticeReplacementReview?
     @State var conversationPracticeSentenceDisplay: ConversationPracticeSentenceDisplay = .chinese
     @State var conversationPracticePageIndex = 0
     @State var selectedConversationPracticeItemID: String?
@@ -150,6 +151,21 @@ struct FavouritesTab: View {
         } message: {
             Text("This removes the imported practice set from this device.")
         }
+        .alert("Replace Practice?", isPresented: Binding(
+            get: { pendingConversationPracticeReplacement != nil },
+            set: { if !$0 { pendingConversationPracticeReplacement = nil } }
+        )) {
+            Button("Cancel", role: .cancel) {
+                pendingConversationPracticeReplacement = nil
+            }
+            Button("Replace Practice", role: .destructive) {
+                guard let review = pendingConversationPracticeReplacement else { return }
+                pendingConversationPracticeReplacement = nil
+                finishImportingConversationPracticePack(review.pack, replacing: true)
+            }
+        } message: {
+            Text(pendingConversationPracticeReplacement?.message ?? "")
+        }
         .onAppear {
             studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
             studyGridScope = RadixStudyPreferences.gridScope
@@ -251,17 +267,47 @@ struct FavouritesTab: View {
                 from: data,
                 sourceName: url.deletingPathExtension().lastPathComponent
             )
-            saveImportedConversationPracticePack(pack)
-            loadImportedConversationPracticePacks()
-            if let topic = conversationPracticeTopics.first(where: { $0.id == pack.packID }) {
-                selectConversationPracticeTopic(topic)
-            }
-            conversationPracticeImportMessage = "Loaded \(pack.title) · \(pack.entries.count) sentences"
-            conversationPracticeImportError = nil
+            reviewOrFinishImportingConversationPracticePack(pack)
         } catch {
             conversationPracticeImportMessage = nil
             conversationPracticeImportError = error.localizedDescription
         }
+    }
+
+    func reviewOrFinishImportingConversationPracticePack(_ pack: ConversationPracticePack) {
+        let existingPack = RadixStudyPreferences.importedConversationPracticePacks
+            .first { $0.packID == pack.packID }
+        let bundledTopic = ConversationPracticeTopic.defaults.first { $0.id == pack.packID }
+
+        guard existingPack != nil || bundledTopic != nil else {
+            finishImportingConversationPracticePack(pack, replacing: false)
+            return
+        }
+
+        let validation = ConversationPracticeRules.validate(pack)
+        pendingConversationPracticeReplacement = ConversationPracticeReplacementReview(
+            pack: pack,
+            existingTitle: existingPack?.title ?? bundledTopic?.title ?? pack.title,
+            existingSentenceCount: existingPack?.entries.count ?? bundledTopic?.targetSentenceCount ?? 0,
+            replacementSentenceCount: pack.entries.count,
+            warningCount: validation.warnings.count,
+            replacesBundledTopic: existingPack == nil && bundledTopic != nil
+        )
+        conversationPracticeImportMessage = nil
+        conversationPracticeImportError = nil
+    }
+
+    func finishImportingConversationPracticePack(
+        _ pack: ConversationPracticePack,
+        replacing: Bool
+    ) {
+        saveImportedConversationPracticePack(pack)
+        loadImportedConversationPracticePacks()
+        if let topic = conversationPracticeTopics.first(where: { $0.id == pack.packID }) {
+            selectConversationPracticeTopic(topic)
+        }
+        conversationPracticeImportMessage = "\(replacing ? "Replaced" : "Loaded") \(pack.title) · \(pack.entries.count) sentences"
+        conversationPracticeImportError = nil
     }
 
     func saveImportedConversationPracticePack(_ pack: ConversationPracticePack) {
@@ -381,4 +427,29 @@ enum ConversationPracticeSentenceDisplay: String, CaseIterable, Identifiable {
     case english = "English"
 
     var id: String { rawValue }
+}
+
+struct ConversationPracticeReplacementReview: Identifiable {
+    let id = UUID()
+    let pack: ConversationPracticePack
+    let existingTitle: String
+    let existingSentenceCount: Int
+    let replacementSentenceCount: Int
+    let warningCount: Int
+    let replacesBundledTopic: Bool
+
+    var message: String {
+        var lines = [
+            "\(existingTitle) already exists.",
+            "Current: \(existingSentenceCount) sentences",
+            "New file: \(replacementSentenceCount) sentences"
+        ]
+        if warningCount > 0 {
+            lines.append("\(warningCount) validation warning\(warningCount == 1 ? "" : "s")")
+        }
+        if replacesBundledTopic {
+            lines.append("The built-in topic stays recoverable if you delete this imported replacement later.")
+        }
+        return lines.joined(separator: "\n")
+    }
 }

@@ -309,6 +309,10 @@ These are the remaining useful Practice work items, in likely build order:
    - Before replacing an imported pack with the same ID, show a compact summary
      of title, sentence count, and validation warnings.
    - Keep the current fast import path for valid first-time packs.
+   - Status: First-time imports still load directly. Same-ID imports now show a
+     compact `Replace Practice?` confirmation with current/new sentence counts
+     and validation-warning count before overwriting an imported pack or
+     overriding a bundled topic.
 
 4. Practice audio/read-aloud
    - Reuse existing speech infrastructure for sentence read-aloud in Flashcards,
@@ -334,7 +338,7 @@ These are the remaining useful Practice work items, in likely build order:
 - Whether practice progress belongs in preferences, SQLite, or a portable
   practice-progress store.
 - Whether uploaded content should be reviewed in a staging screen before import
-  when it replaces an existing imported pack.
+  for broader quality checks beyond same-ID replacement.
 
 ## Resolved Decisions
 
@@ -342,6 +346,8 @@ These are the remaining useful Practice work items, in likely build order:
   tile that opens a focused Practice screen, not as a fifth main tab.
 - Imported packs are user data in preferences and portable backups; bundled
   topics remain fixed app content.
+- Same-ID imported pack replacement uses a compact confirmation, not a full
+  staging screen.
 - Phrase hint chips are database-verified exact matches only. Character chips
   omit characters already covered by displayed phrase chips, and shared script
   helpers keep Flashcards and Quick Quiz aligned.
