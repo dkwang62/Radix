@@ -275,16 +275,20 @@ The JSON must match this exact lightweight top-level shape so Radix can import i
 Rules:
 1. Set "theme" exactly to the Page value above: "{collection_name}". Do not summarize, translate, rename, shorten, or add punctuation to the theme.
 2. Extract complete, useful Chinese sentences or short conversation-ready lines from the saved page.
-3. Preserve the original Chinese meaning. Use Simplified Chinese in zh unless the source is clearly Traditional-only.
-4. Skip OCR noise, fragments, duplicated lines, headings that are not useful for practice, and isolated vocabulary items.
-5. Add accurate tone-mark pinyin for the full sentence.
-6. Keep English translations natural, short, and learner-friendly.
-7. Aim for 10 to 30 entries. If the page has fewer useful sentences, return only the useful ones.
-8. IDs must be stable and lowercase, using page_sentence plus a zero-padded sequence number, for example "page_sentence_001".
-9. Each entry must have exactly these keys: "id", "zh", "pinyin", and "en".
-10. Do not include analysis, metadata, notes, markdown, comments, or explanation text. Radix derives those during import.
+3. Every zh value must be no more than 12 Chinese characters, not counting punctuation or spaces.
+4. If a source idea is longer than 12 Chinese characters, reword it or split it into multiple complete practice sentences while preserving the same meaning across those entries.
+5. Do not create fragments. Each zh value must be a complete, speakable sentence or conversation line.
+6. If a source idea cannot be turned into useful complete practice sentences of 12 Chinese characters or fewer, skip it.
+7. Preserve the original Chinese meaning. Use Simplified Chinese in zh unless the source is clearly Traditional-only.
+8. Skip OCR noise, fragments, duplicated lines, headings that are not useful for practice, and isolated vocabulary items.
+9. Add accurate tone-mark pinyin for the full sentence.
+10. Keep English translations natural, short, and learner-friendly.
+11. Aim for 10 to 30 entries. If the page has fewer useful sentences, return only the useful ones.
+12. IDs must be stable and lowercase, using page_sentence plus a zero-padded sequence number, for example "page_sentence_001".
+13. Each entry must have exactly these keys: "id", "zh", "pinyin", and "en".
+14. Do not include analysis, metadata, notes, markdown, comments, or explanation text. Radix derives those during import.
 
-Before returning, silently validate that the JSON is valid, imports cleanly, and every entry contains only the required keys.
+Before returning, silently validate that the JSON is valid, imports cleanly, every entry contains only the required keys, and every zh value is 12 Chinese characters or fewer.
 
 """
             ),
@@ -327,12 +331,16 @@ Rules:
 2. Use tone marks in pinyin.
 3. Keep English translations natural, short, and learner-friendly.
 4. Start easy and gradually become slightly more complex.
-5. IDs must be stable and lowercase, using the topic ID plus a zero-padded sequence number, for example "{practice_topic_id}_001".
-6. Cover the required situations across the full pack.
-7. Include practical beginner conversation patterns: questions, answers, polite requests, offers, preferences, prices, portions, and short responses when relevant to the theme.
-8. Do not include analysis, metadata, notes, markdown, comments, or explanation text. Radix derives those during import.
+5. Every zh value must be no more than 12 Chinese characters, not counting punctuation or spaces.
+6. Reword or split longer ideas so each entry remains complete, natural, and studyable.
+7. Do not create fragments. Each zh value must be a complete, speakable sentence or conversation line.
+8. Skip any idea that cannot be expressed as useful complete practice material within the 12-character limit.
+9. IDs must be stable and lowercase, using the topic ID plus a zero-padded sequence number, for example "{practice_topic_id}_001".
+10. Cover the required situations across the full pack.
+11. Include practical beginner conversation patterns: questions, answers, polite requests, offers, preferences, prices, portions, and short responses when relevant to the theme.
+12. Do not include analysis, metadata, notes, markdown, comments, or explanation text. Radix derives those during import.
 
-Before returning, silently validate that the JSON is valid, imports cleanly, and every entry contains only the required keys.
+Before returning, silently validate that the JSON is valid, imports cleanly, every entry contains only the required keys, and every zh value is 12 Chinese characters or fewer.
 
 """
             )

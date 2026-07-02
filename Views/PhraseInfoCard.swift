@@ -31,13 +31,6 @@ struct PhraseInfoCard: View {
         }
     }
 
-    var isPracticeSentence: Bool {
-        if case .sentence = favoriteTarget {
-            return true
-        }
-        return false
-    }
-
     var body: some View {
         phraseContent
             .padding(16)
@@ -79,11 +72,7 @@ struct PhraseInfoCard: View {
         VStack(alignment: .leading, spacing: 14) {
             phraseHeader
             animationScriptToggle
-            if isPracticeSentence {
-                practiceSentenceCharacters
-            } else {
-                phraseAnimationPicker
-            }
+            phraseAnimationPicker
             phraseMeaningAndNotes
         }
     }

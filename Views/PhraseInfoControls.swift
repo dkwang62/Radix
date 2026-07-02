@@ -34,7 +34,7 @@ extension PhraseInfoCard {
                 showPhraseTableSheet = true
             } label: {
                 Label {
-                    Text(isPracticeSentence ? "Phrases" : "Phrase")
+                    Text("Phrase")
                 } icon: {
                     Text("词")
                         .font(ResponsiveFont.caption.weight(.bold))

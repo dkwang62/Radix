@@ -27,58 +27,6 @@ extension PhraseInfoCard {
     }
 
     @ViewBuilder
-    var practiceSentenceCharacters: some View {
-        let characters = phraseCharacters
-        if !characters.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Label("Characters", systemImage: "square.grid.2x2")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Spacer(minLength: 0)
-                    Text("\(characters.count)")
-                        .font(ResponsiveFont.caption2.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                }
-
-                LazyVGrid(columns: practiceSentenceCharacterColumns, alignment: .leading, spacing: 8) {
-                    ForEach(Array(characters.enumerated()), id: \.offset) { _, character in
-                        practiceSentenceCharacterButton(character)
-                    }
-                }
-            }
-            .padding(10)
-            .background(RadixTheme.secondaryBackground.opacity(0.45))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-    }
-
-    var practiceSentenceCharacterColumns: [GridItem] {
-        [GridItem(.adaptive(minimum: 42, maximum: 56), spacing: 8)]
-    }
-
-    func practiceSentenceCharacterButton(_ character: String) -> some View {
-        let displayCharacter = animationCharacter(for: character)
-        return Button {
-            selectCharacterFromPhrase(displayCharacter)
-        } label: {
-            Text(displayCharacter)
-                .font(.system(size: 24, weight: .semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
-                .frame(maxWidth: .infinity, minHeight: 40)
-                .background(RadixTheme.background)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(RadixTheme.separator.opacity(0.7), lineWidth: 1)
-                )
-        }
-        .buttonStyle(.plain)
-        .copyCharacterContextMenu(displayCharacter, pinyin: store.item(for: displayCharacter)?.pinyinText)
-    }
-
-    @ViewBuilder
     func phraseAnimationPageButtons(_ characters: [String]) -> some View {
         let pageCount = phraseAnimationPageCount(for: characters)
         if pageCount > 1 {
