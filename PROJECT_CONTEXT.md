@@ -182,6 +182,9 @@ AI should reword or split longer source ideas into complete short study
 sentences that preserve meaning; material that cannot become useful short
 practice content should be skipped rather than imported with warnings for the
 user to resolve.
+Phrase info cards keep explicit previous/next controls beside the character
+group counter so every four-character animation page remains reachable even
+when the chip row overflows in the sidebar.
 The page-sentence AI template instructs AI to set the import `theme` exactly to
 the source page title. Browse currently uses that same-name convention to show a
 page-row Practice shortcut. Do not add a full source-metadata schema yet; if

@@ -12,9 +12,7 @@ extension PhraseInfoCard {
                         .foregroundStyle(.secondary)
                     Spacer(minLength: 0)
                     if characters.count > 4 {
-                        Text("\(min(selectedAnimationPage + 1, phraseAnimationPageCount(for: characters)))/\(phraseAnimationPageCount(for: characters))")
-                            .font(ResponsiveFont.caption2.weight(.semibold))
-                            .foregroundStyle(.secondary)
+                        phraseAnimationPageStepper(characters)
                     }
                 }
                 phraseAnimationPageButtons(characters)
@@ -24,6 +22,57 @@ extension PhraseInfoCard {
             .background(RadixTheme.secondaryBackground.opacity(0.45))
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
+    }
+
+    func phraseAnimationPageStepper(_ characters: [String]) -> some View {
+        let pageCount = phraseAnimationPageCount(for: characters)
+        let safePage = phraseAnimationSafePage(for: characters)
+        return HStack(spacing: 6) {
+            phraseAnimationStepButton(
+                systemName: "chevron.left",
+                isEnabled: safePage > 0,
+                accessibilityLabel: "Previous character group"
+            ) {
+                let newPage = max(safePage - 1, 0)
+                selectedAnimationPage = newPage
+                speakPhraseAnimationPage(newPage, characters: characters)
+            }
+
+            Text("\(safePage + 1)/\(pageCount)")
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+                .frame(minWidth: 34)
+
+            phraseAnimationStepButton(
+                systemName: "chevron.right",
+                isEnabled: safePage < pageCount - 1,
+                accessibilityLabel: "Next character group"
+            ) {
+                let newPage = min(safePage + 1, pageCount - 1)
+                selectedAnimationPage = newPage
+                speakPhraseAnimationPage(newPage, characters: characters)
+            }
+        }
+    }
+
+    func phraseAnimationStepButton(
+        systemName: String,
+        isEnabled: Bool,
+        accessibilityLabel: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(ResponsiveFont.caption.weight(.bold))
+                .frame(width: 26, height: 26)
+                .background(RadixTheme.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(isEnabled ? Color.accentColor : Color.secondary.opacity(0.45))
+        .disabled(!isEnabled)
+        .accessibilityLabel(accessibilityLabel)
     }
 
     @ViewBuilder
@@ -38,6 +87,7 @@ extension PhraseInfoCard {
                 }
                 .padding(.vertical, 1)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -66,7 +116,7 @@ extension PhraseInfoCard {
     }
 
     func phraseAnimationTileGrid(_ characters: [String]) -> some View {
-        let safePage = min(selectedAnimationPage, max(phraseAnimationPageCount(for: characters) - 1, 0))
+        let safePage = phraseAnimationSafePage(for: characters)
         let pageCharacters = phraseAnimationCharacters(on: safePage, from: characters)
         return LazyVGrid(columns: phraseGridColumns, spacing: 10) {
             ForEach(Array(pageCharacters.enumerated()), id: \.offset) { _, character in
@@ -118,6 +168,10 @@ extension PhraseInfoCard {
         max(1, Int(ceil(Double(characters.count) / 4.0)))
     }
 
+    func phraseAnimationSafePage(for characters: [String]) -> Int {
+        min(selectedAnimationPage, max(phraseAnimationPageCount(for: characters) - 1, 0))
+    }
+
     func phraseAnimationCharacters(on page: Int, from characters: [String]) -> [String] {
         let start = page * 4
         guard start < characters.count else { return Array(characters.prefix(4)) }
@@ -127,6 +181,11 @@ extension PhraseInfoCard {
 
     func phraseAnimationPageLabel(page: Int, characters: [String]) -> String {
         phraseAnimationCharacters(on: page, from: characters).joined()
+    }
+
+    func speakPhraseAnimationPage(_ page: Int, characters: [String]) {
+        let label = phraseAnimationPageLabel(page: page, characters: characters)
+        store.speakCharacters(in: label)
     }
 
     func phraseTileStrokeText(for character: String) -> String {
