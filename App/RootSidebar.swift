@@ -342,7 +342,7 @@ extension RootView {
                     PhraseInfoCard(
                         phrase: phrase,
                         phraseLookupOverride: store.sidebarPhraseLookupOverride,
-                        favoriteSentenceItem: store.activePracticeSentenceItem,
+                        favoriteTarget: store.activePracticeSentenceItem.map(PhraseInfoFavoriteTarget.sentence) ?? .phrase,
                         onDone: {
                             store.dismissSidebarPhrasePreview()
                         }

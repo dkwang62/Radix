@@ -77,9 +77,9 @@ Do not move domain behavior back into `RadixStore.swift`.
   snapshots and exposed as a generated `Favorite Sentences` Conversation
   Practice library, so sentence review uses the same flashcard, quiz, translate,
   speech, backup, and checkpoint pathways as other practice sets.
-  Sentence info cards preserve their source practice item so the star saves the
-  whole sentence instead of accidentally saving it as an ordinary phrase,
-  including cards opened from flashcards, quick quiz, and translate drills.
+  Sentence info cards pass an explicit `.sentence` favorite target, while
+  ordinary phrase cards use `.phrase`, so the star cannot silently switch
+  between character, phrase, and sentence semantics.
 - Portable backup: `UnifiedPackage` schema 5, with legacy backup decoding retained.
 - Bundled standard data imports additively once on startup from
   `radix_unified_backup.json`, guarded by `RadixPreferenceKey.standardDataImportID`.

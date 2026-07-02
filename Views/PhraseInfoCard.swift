@@ -1,10 +1,15 @@
 import SwiftUI
 
+enum PhraseInfoFavoriteTarget {
+    case phrase
+    case sentence(ConversationPracticeItem)
+}
+
 struct PhraseInfoCard: View {
     @EnvironmentObject var store: RadixStore
     let phrase: PhraseItem
     var phraseLookupOverride: [PhraseItem]? = nil
-    var favoriteSentenceItem: ConversationPracticeItem?
+    var favoriteTarget: PhraseInfoFavoriteTarget = .phrase
     var onSelectCharacter: ((String) -> Void)?
     var onDone: (() -> Void)?
     @State var animationScript = RadixPhrasePreferences.animationScript

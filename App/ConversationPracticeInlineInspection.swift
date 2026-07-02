@@ -129,7 +129,7 @@ struct ConversationPracticeInspectionDestination: View {
                 ScrollView {
                     PhraseInfoCard(
                         phrase: phrase,
-                        favoriteSentenceItem: practiceItem,
+                        favoriteTarget: practiceItem.map(PhraseInfoFavoriteTarget.sentence) ?? .phrase,
                         onSelectCharacter: onOpenCharacter
                     )
                     .environmentObject(store)

@@ -18,7 +18,7 @@ extension PhraseInfoCard {
             Spacer(minLength: 0)
 
             HStack(spacing: 6) {
-                phraseFavoriteButton
+                favoriteTargetButton
 
                 if !isEditingNotes {
                     Button {
@@ -43,8 +43,9 @@ extension PhraseInfoCard {
     }
 
     @ViewBuilder
-    var phraseFavoriteButton: some View {
-        if let practiceItem = favoriteSentenceItem ?? store.activePracticeSentenceItem {
+    var favoriteTargetButton: some View {
+        switch favoriteTarget {
+        case .sentence(let practiceItem):
             Button {
                 store.toggleFavoriteSentence(practiceItem)
             } label: {
@@ -58,7 +59,7 @@ extension PhraseInfoCard {
             .buttonStyle(.plain)
             .accessibilityLabel(store.isFavoriteSentence(practiceItem) ? "Remove sentence from favorites" : "Add sentence to favorites")
             .help(store.isFavoriteSentence(practiceItem) ? "Remove sentence from favorites" : "Add sentence to favorites")
-        } else {
+        case .phrase:
             Button {
                 store.togglePhraseFavorite(phrase.word)
             } label: {
