@@ -96,6 +96,26 @@ extension RadixStore {
         return report
     }
 
+    func runGeminiPageSentenceExtraction(for collection: CharacterCollection) async throws -> ConversationPracticePack {
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: ["task10"])
+        let response = try await GeminiTextGenerationService().generateText(
+            apiKey: geminiAPIKey,
+            modelID: geminiModelID,
+            prompt: prompt,
+            systemInstruction: """
+            You create validated JSON import packs for a Chinese learning app. Return valid JSON only, with no Markdown and no explanatory text.
+            """
+        )
+        let pack = try ConversationPracticeService().loadPack(
+            fromPastedText: response,
+            sourceName: collection.name
+        )
+        saveImportedConversationPracticePack(pack)
+        selectedConversationPracticeTopicID = pack.packID
+        persistPromptSettings()
+        return pack
+    }
+
     func runGeminiOCRReview(for collection: CharacterCollection) async throws -> String {
         try await GeminiTextGenerationService().generateText(
             apiKey: geminiAPIKey,

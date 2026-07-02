@@ -244,9 +244,9 @@ OCR text/context:
             ),
             PromptTask(
                 id: "task10",
-                title: "Extract Page Sentences",
+                title: "Extract Sentences",
                 template: """
-Extract Page Sentences
+Extract Sentences
 
 Create a Radix Conversation Practice import pack from one saved page.
 

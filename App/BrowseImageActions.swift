@@ -82,6 +82,32 @@ extension FilterGridTab {
         imageActionMessage = "Sentence extraction prompt copied. Paste the AI JSON in Study > Conversation Practices > Paste Practice JSON."
     }
 
+    func runBrowseGeminiSentenceExtraction(_ collection: CharacterCollection) {
+        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else {
+            imageActionMessage = "Add a Gemini API key in Settings first."
+            return
+        }
+        isRunningImageAction = true
+        imageActionMessage = "Extracting sentences automatically..."
+        Task {
+            do {
+                let pack = try await store.runGeminiPageSentenceExtraction(for: collection)
+                await MainActor.run {
+                    store.goToBrowse()
+                    store.selectBrowseCollection(id: collection.id)
+                    imageActionMessage = "Loaded \(pack.title) · \(pack.entries.count) sentences"
+                    isRunningImageAction = false
+                }
+            } catch {
+                await MainActor.run {
+                    offerManualAIFallback(.extractSentences(collection), error: error)
+                    isRunningImageAction = false
+                }
+            }
+        }
+    }
+
     func runBrowseGeminiTranslationAndSave(_ collection: CharacterCollection) {
         let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !key.isEmpty else {
@@ -216,6 +242,8 @@ extension FilterGridTab {
             beginManualPhraseExtraction(collection)
         case .translate(let collection):
             beginBrowseTranslation(collection)
+        case .extractSentences(let collection):
+            beginPageSentenceExtraction(collection)
         }
     }
 

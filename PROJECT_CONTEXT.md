@@ -165,23 +165,24 @@ When a Gemini API key is configured, `Check OCR` additionally offers an
 automatic multimodal review using the same prompt and saved image. Its response
 creates and opens a corrected saved page immediately.
 Saved-page AI actions are grouped by task—Check OCR, Extract Phrases,
-Translate Page, Create Quiz, and page sentence extraction. Each task
-consistently offers copy/paste with ChatGPT or an automatic Gemini route where
-automation is implemented. A missing-key automatic choice becomes `Set Up Gemini
-API Key…`, navigates to Settings with Private API Keys expanded, and preserves
-`Back to Browse`. Setup is described as enabling all page AI automation, not
-just one task.
+Translate Page, Create Quiz, and Extract Sentences. Each task consistently
+offers copy/paste with ChatGPT or an automatic Gemini route where automation is
+implemented. A missing-key automatic choice becomes `Set Up Gemini API Key…`,
+navigates to Settings with Private API Keys expanded, and preserves `Back to
+Browse`. Setup is described as enabling all page AI automation, not just one
+task.
 These tasks also exist as editable saved-page templates in AI Link. Browse OCR
 review renders the `Check OCR` template with saved page characters,
 recognized/unrecognized characters, and nearby phrase evidence rather than a
 separate hard-coded instruction. Legacy `Check OCR` templates that described
 `ORIGINAL OCR` normalize to the saved-page-character wording so placeholder raw
 OCR cannot become the primary AI input.
-`Extract Page Sentences` is the first step toward page-derived sentence study:
+`Extract Sentences` is the first step toward page-derived sentence study:
 it asks AI to return the same lightweight Conversation Practice import JSON
 shape (`theme` plus `entries`) used by generated practice packs, so imported
 page sentences reuse the existing practice, favorite-sentence, backup,
-checkpoint, and speech pathways instead of creating another sentence store.
+checkpoint, and speech pathways instead of creating another sentence store. The
+automatic Gemini route validates and imports that pack directly.
 AI-generated Conversation Practice sentences should be concise and complete, but
 there is no hard total-character limit; the sidebar handles longer sentences by
 inspecting them as navigable four-character animation groups. When a Practice
@@ -201,9 +202,10 @@ Conversation Practice accepts AI-generated packs through `Paste Practice JSON`
 as the primary return path from ChatGPT/Gemini, while `Import JSON File` remains
 available for saved files and transfer. The paste route previews the theme,
 sentence count, sample sentences, and validation warnings before import.
-Browse page Actions exposes `Extract Page Sentences` as a page AI task that
-copies/opens the saved-page sentence extraction prompt; the user returns the AI
-JSON through Study's Conversation Practice paste importer.
+Browse page Actions exposes `Extract Sentences` as a page AI task. Manual use
+copies/opens the saved-page sentence extraction prompt and returns through
+Study's Conversation Practice paste importer; automatic Gemini use imports the
+pack directly.
 When an imported Conversation Practice pack title matches the selected saved
 page title, Browse shows a compact practice shortcut in that saved-page row,
 beside the delete control. Tapping it opens Study directly into that matching

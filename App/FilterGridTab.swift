@@ -4,12 +4,14 @@ enum BrowseAIFallbackTask: Identifiable {
     case checkOCR(CharacterCollection)
     case extractPhrases(CharacterCollection)
     case translate(CharacterCollection)
+    case extractSentences(CharacterCollection)
 
     var id: String {
         switch self {
         case .checkOCR(let collection): return "ocr-\(collection.id)"
         case .extractPhrases(let collection): return "extract-\(collection.id)"
         case .translate(let collection): return "translate-\(collection.id)"
+        case .extractSentences(let collection): return "sentences-\(collection.id)"
         }
     }
 }

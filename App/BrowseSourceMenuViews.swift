@@ -24,6 +24,7 @@ struct CollectionPageActionsMenu: View {
         case quizManually
         case quizAutomatically
         case extractSentencesManually
+        case extractSentencesAutomatically
     }
 
     let collection: CharacterCollection
@@ -40,6 +41,7 @@ struct CollectionPageActionsMenu: View {
     let onCreateQuizManually: () -> Void
     let onCreateQuizAutomatically: () -> Void
     let onExtractSentences: () -> Void
+    let onExtractSentencesAutomatically: () -> Void
     @State private var showsAIOrientation = false
     @State private var pendingAIMethod: PendingAIMethod?
 
@@ -107,10 +109,13 @@ struct CollectionPageActionsMenu: View {
                     Label("Create Quiz", systemImage: "questionmark.circle")
                 }
 
-                Button {
-                    chooseAIMethod(.extractSentencesManually)
+                Menu {
+                    aiMethodButton(
+                        manualMethod: .extractSentencesManually,
+                        automaticMethod: .extractSentencesAutomatically
+                    )
                 } label: {
-                    Label("Extract Page Sentences", systemImage: "bubble.left.and.bubble.right")
+                    Label("Extract Sentences", systemImage: "bubble.left.and.bubble.right")
                 }
 
                 Button {
@@ -203,6 +208,7 @@ struct CollectionPageActionsMenu: View {
         case .quizManually: onCreateQuizManually()
         case .quizAutomatically: onCreateQuizAutomatically()
         case .extractSentencesManually: onExtractSentences()
+        case .extractSentencesAutomatically: onExtractSentencesAutomatically()
         }
     }
 }

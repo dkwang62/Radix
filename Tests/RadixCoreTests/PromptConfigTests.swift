@@ -56,7 +56,7 @@ struct PromptConfigTests {
         let normalized = PromptConfig.streamlitDefault.normalized()
         let extractor = normalized.tasks.first { $0.id == "task10" }
 
-        #expect(extractor?.title == "Extract Page Sentences")
+        #expect(extractor?.title == "Extract Sentences")
         #expect(extractor?.template.contains("Conversation Practice import pack") == true)
         #expect(extractor?.template.contains("\"theme\": \"{collection_name}\"") == true)
         #expect(extractor?.template.contains("Set \"theme\" exactly to the Page value above") == true)

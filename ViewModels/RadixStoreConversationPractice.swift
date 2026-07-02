@@ -52,6 +52,14 @@ extension RadixStore {
         registerConversationPracticeLibrary(library)
     }
 
+    func saveImportedConversationPracticePack(_ pack: ConversationPracticePack) {
+        var packs = RadixStudyPreferences.importedConversationPracticePacks
+        packs.removeAll { $0.packID == pack.packID }
+        packs.append(pack)
+        RadixStudyPreferences.importedConversationPracticePacks = packs
+        registerConversationPracticeLibrary(pack.practiceLibrary)
+    }
+
     func applyImportedConversationPracticePacks(
         _ packs: [ConversationPracticePack]?,
         mode: RestoreMode
