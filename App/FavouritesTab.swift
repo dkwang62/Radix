@@ -497,7 +497,7 @@ struct FavouritesTab: View {
         PhoneContextPreview(
             phrase: store.activeSidebarPhrasePreview,
             character: store.previewCharacter,
-            listReturnTitle: store.sidebarPhraseLookupOverride == nil ? nil : "Sentences",
+            listReturnTitle: store.sidebarPhraseLookupOverride == nil ? nil : selectedConversationPracticeTopic.title,
             onReturn: {
                 selectedPhrase = nil
                 store.dismissSidebarPhrasePreview()

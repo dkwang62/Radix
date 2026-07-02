@@ -28,7 +28,7 @@ struct PhoneContextPreview: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Back to sentence list")
+                    .accessibilityLabel("Back to \(listReturnTitle)")
                 }
 
                 PhraseInfoCard(
