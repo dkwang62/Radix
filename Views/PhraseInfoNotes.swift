@@ -4,10 +4,6 @@ extension PhraseInfoCard {
     var phraseMeaningAndNotes: some View {
         VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 6) {
-                Label("Meaning", systemImage: "text.book.closed")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-
                 Text(phrase.meanings.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "No meaning saved" : phrase.meanings)
                     .font(ResponsiveFont.body)
                     .fixedSize(horizontal: false, vertical: true)
