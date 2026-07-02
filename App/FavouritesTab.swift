@@ -195,6 +195,7 @@ struct FavouritesTab: View {
             loadImportedConversationPracticePacks()
             loadFavoriteSentences()
             loadConversationPracticeLibrary()
+            openPendingConversationPracticeIfNeeded()
             onRefreshCheckpoints()
         }
         .onChange(of: studyGridUsesTraditionalScript) { _, newValue in
@@ -216,6 +217,9 @@ struct FavouritesTab: View {
         .onChange(of: store.selectedConversationPracticeTopicID) { _, _ in
             loadConversationPracticeLibrary()
         }
+        .onChange(of: store.pendingConversationPracticeTopicID) { _, _ in
+            openPendingConversationPracticeIfNeeded()
+        }
         .onChange(of: store.dataImportRevision) { _, _ in
             loadImportedConversationPracticePacks()
             loadFavoriteSentences()
@@ -232,6 +236,20 @@ struct FavouritesTab: View {
         store.shouldOpenAddedPhraseReview = false
         guard !addedStudyPhraseEntries.isEmpty else { return }
         presentAddedPhraseReview()
+    }
+
+    func openPendingConversationPracticeIfNeeded() {
+        guard let topicID = store.pendingConversationPracticeTopicID else { return }
+        loadImportedConversationPracticePacks()
+        guard let topic = conversationPracticeTopics.first(where: { $0.id == topicID }) else {
+            store.pendingConversationPracticeTopicID = nil
+            return
+        }
+        selectConversationPracticeTopic(topic)
+        withAnimation(.snappy(duration: 0.18)) {
+            isShowingConversationPractice = true
+        }
+        store.pendingConversationPracticeTopicID = nil
     }
 
     func loadConversationPracticeLibrary() {

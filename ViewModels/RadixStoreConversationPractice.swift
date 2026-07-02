@@ -14,6 +14,35 @@ struct ConversationPracticeHintCacheKey: Hashable {
 }
 
 extension RadixStore {
+    func matchingConversationPracticeTopicID(forPageTitle title: String) -> String? {
+        let target = conversationPracticeTitleKey(title)
+        guard !target.isEmpty else { return nil }
+        return RadixStudyPreferences.importedConversationPracticePacks
+            .first { conversationPracticeTitleKey($0.title) == target }?
+            .packID
+    }
+
+    func openConversationPractice(topicID: String) {
+        let trimmed = topicID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        rememberCrossTabOrigin()
+        selectedConversationPracticeTopicID = trimmed
+        pendingConversationPracticeTopicID = trimmed
+        route = .search
+        homeTab = .favourites
+        activeFavouriteCharacter = nil
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
+        persistPromptSettings()
+    }
+
+    private func conversationPracticeTitleKey(_ value: String) -> String {
+        let trimCharacters = CharacterSet.whitespacesAndNewlines
+            .union(.punctuationCharacters)
+            .union(CharacterSet(charactersIn: "。！？；，、"))
+        return value.trimmingCharacters(in: trimCharacters)
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+    }
+
     func invalidateConversationPracticeHintCache() {
         conversationPracticeLinkedHintCache.removeAll()
     }

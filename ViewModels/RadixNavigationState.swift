@@ -9,6 +9,7 @@ struct RadixNavigationState: Equatable {
     var sidebarNavigationStyle: SidebarNavigationStyle = .defaultStyle
     var rootsReturnContext: RootsReturnContext?
     var shouldRevealAPIKeys = false
+    var pendingConversationPracticeTopicID: String?
     var previewCharacter: String?
     var history: [String] = []
 }
@@ -40,6 +41,11 @@ extension RadixStore {
     var shouldRevealAPIKeys: Bool {
         get { navigationState.shouldRevealAPIKeys }
         set { navigationState.shouldRevealAPIKeys = newValue }
+    }
+
+    var pendingConversationPracticeTopicID: String? {
+        get { navigationState.pendingConversationPracticeTopicID }
+        set { navigationState.pendingConversationPracticeTopicID = newValue }
     }
 
     var previewCharacter: String? {

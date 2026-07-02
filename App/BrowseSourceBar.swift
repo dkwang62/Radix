@@ -135,6 +135,10 @@ extension FilterGridTab {
 
     func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
         return HStack(spacing: 6) {
+            if let topicID = store.matchingConversationPracticeTopicID(forPageTitle: collection.name) {
+                openPagePracticeButton(topicID: topicID, pageTitle: collection.name)
+            }
+
             CollectionPageActionsMenu(collection: collection, onEdit: {
                 beginEditing(collection)
             }, onCheckOCR: collection.sourceType == .ocr && collection.correctedFromCollectionID == nil ? {
@@ -167,6 +171,20 @@ extension FilterGridTab {
 
             readBrowseSourceButton(collection)
         }
+    }
+
+    func openPagePracticeButton(topicID: String, pageTitle: String) -> some View {
+        Button {
+            store.openConversationPractice(topicID: topicID)
+        } label: {
+            Image(systemName: "bubble.left.and.bubble.right.fill")
+                .radixMinimumTapTarget()
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.small)
+        .tint(Color.accentColor)
+        .accessibilityLabel("Open practice for \(pageTitle.isEmpty ? RadixCopy.savedPage : pageTitle)")
+        .help("Open Page Practice")
     }
 
     private func runAutomaticPageAIAction(_ action: () -> Void) {

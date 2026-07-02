@@ -182,6 +182,9 @@ sentence count, sample sentences, and validation warnings before import.
 Browse page Actions exposes `Extract Page Sentences` as a page AI task that
 copies/opens the saved-page sentence extraction prompt; the user returns the AI
 JSON through Study's Conversation Practice paste importer.
+When an imported Conversation Practice pack title matches the selected saved
+page title, Browse shows a compact page-local practice shortcut. Tapping it
+opens Study directly into that matching Conversation Practice theme.
 AI Link exposes one task per user goal. The former API-only phrase task is
 removed; `Extract Phrases` supports both copy/paste and automatic Gemini
 execution without appearing twice.
