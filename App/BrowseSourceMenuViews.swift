@@ -296,6 +296,7 @@ struct SourceCollectionRow: View {
     let thumbnail: RadixThumbnail?
     var dateMode: PageCollectionSortOrder = .lastViewed
     let onSelect: () -> Void
+    var onOpenPractice: (() -> Void)? = nil
     var onDelete: (() -> Void)? = nil
 
     var body: some View {
@@ -330,6 +331,18 @@ struct SourceCollectionRow: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+
+            if let onOpenPractice {
+                Button(action: onOpenPractice) {
+                    Image(systemName: "bubble.left.and.bubble.right.fill")
+                        .frame(width: 30, height: 30)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .tint(Color.accentColor)
+                .accessibilityLabel("Open practice for \(collection.name)")
+                .help("Open Page Practice")
+            }
 
             if let onDelete {
                 Button(role: .destructive, action: onDelete) {

@@ -208,19 +208,31 @@ extension FilterGridTab {
         dateMode: PageCollectionSortOrder? = nil
     ) -> some View {
         let isSelected = store.selectedBrowseCollectionID == collection.id
+        let matchingPracticeID = store.matchingConversationPracticeTopicID(forPageTitle: collection.name)
+        let openPractice: (() -> Void)? = matchingPracticeID.map { topicID in
+            {
+                store.openConversationPractice(topicID: topicID)
+                withAnimation {
+                    showBrowseSource = false
+                }
+            }
+        }
         return SourceCollectionRow(
             collection: collection,
             isSelected: isSelected,
             thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData),
-            dateMode: dateMode ?? .lastViewed
-        ) {
-            store.selectBrowseCollection(id: collection.id)
-            withAnimation {
-                showBrowseSource = false
+            dateMode: dateMode ?? .lastViewed,
+            onSelect: {
+                store.selectBrowseCollection(id: collection.id)
+                withAnimation {
+                    showBrowseSource = false
+                }
+            },
+            onOpenPractice: openPractice,
+            onDelete: {
+                pendingDeleteCollection = collection
             }
-        } onDelete: {
-            pendingDeleteCollection = collection
-        }
+        )
     }
 
     func sourceOptionButton(
