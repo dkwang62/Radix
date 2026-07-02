@@ -220,8 +220,9 @@ uncertainty explanations are explicitly requested in English.
 The Study tab remains the user's main review surface. Its summary grid includes
 `Conversation Practices` beside Recent, Favorites, Added Phrases, and Saved
 Pages; the tile shows the available theme count and opens a focused Practice
-screen with a `Back to Study` return button. There is no persistent
-`Review | Practice` switch row. Recent and Favorites must not be repeated as a
+screen with a contextual return button. It says `Back to Study` from Study and
+`Back to Browse` when a Browse page shortcut opened the practice. There is no
+persistent `Review | Practice` switch row. Recent and Favorites must not be repeated as a
 segmented picker above the review grid.
 On iPad and Mac Catalyst those four tiles use an explicit two-column layout so
 all labels remain readable; phone keeps its adaptive layout.

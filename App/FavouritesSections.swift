@@ -59,8 +59,11 @@ extension FavouritesTab {
             withAnimation(.snappy(duration: 0.18)) {
                 isShowingConversationPractice = false
             }
+            if store.rootsReturnContext != nil {
+                store.returnFromRoots()
+            }
         } label: {
-            Label("Back to Study", systemImage: "chevron.left")
+            Label(conversationPracticeBackButtonTitle, systemImage: "chevron.left")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .labelStyle(.titleAndIcon)
                 .padding(.horizontal, 10)
@@ -70,6 +73,10 @@ extension FavouritesTab {
         }
         .buttonStyle(.plain)
         .foregroundStyle(Color.accentColor)
+    }
+
+    var conversationPracticeBackButtonTitle: String {
+        store.rootsReturnContext == nil ? "Back to Study" : store.rootsReturnButtonTitle
     }
 
     var studyIntroCard: some View {
