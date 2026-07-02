@@ -21,25 +21,29 @@ extension PhraseInfoCard {
                 favoriteTargetButton
 
                 if !isEditingNotes {
-                    Button {
-                        editableNotes = phrase.notes
-                        editStatus = nil
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            isEditingNotes = true
-                        }
-                    } label: {
-                        Image(systemName: "square.and.pencil")
-                            .font(ResponsiveFont.subheadline.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                            .frame(width: 32, height: 32)
-                            .background(RadixTheme.secondaryBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                    .buttonStyle(.plain)
-                    .help("Edit notes")
+                    editNotesButton
                 }
             }
         }
+    }
+
+    var editNotesButton: some View {
+        Button {
+            editableNotes = phrase.notes
+            editStatus = nil
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isEditingNotes = true
+            }
+        } label: {
+            Image(systemName: "square.and.pencil")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .frame(width: 32, height: 32)
+                .background(RadixTheme.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+        .help("Edit notes")
     }
 
     @ViewBuilder

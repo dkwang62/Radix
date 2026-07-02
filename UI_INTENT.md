@@ -317,12 +317,11 @@ Practice JSON shape with `theme` plus `entries[].id`, `zh`, `pinyin`, and `en`.
 Do not ask AI for loose prose, markdown tables, or unvalidated phrase lists when
 the app needs reusable lesson content.
 Keep Conversation Practice sentences short enough for study and sidebar
-inspection. AI-created `zh` values should be no more than 16 Chinese characters,
-excluding punctuation and spaces, so the sidebar can inspect them as at most
-four pages of four animated characters. Longer source meaning should be
-reworded or split into multiple complete, speakable practice lines; source
-material that cannot become useful short practice content should be skipped
-before import rather than handed to the user as a warning.
+inspection, but do not enforce a hard total-character limit. Longer source
+meaning may stay in one complete, speakable practice line when that is the best
+study material. The sidebar should adapt by focusing on navigable
+four-character animation groups and should not duplicate the full sentence or
+pinyin already visible in the main Practice list.
 
 ## AI intent
 

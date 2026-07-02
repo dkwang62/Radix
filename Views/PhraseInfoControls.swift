@@ -1,6 +1,34 @@
 import SwiftUI
 
 extension PhraseInfoCard {
+    var practiceSentenceToolbar: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                scriptSegment
+                phraseLookupButton
+                Spacer(minLength: 0)
+                favoriteTargetButton
+                if !isEditingNotes {
+                    editNotesButton
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 10) {
+                    scriptSegment
+                    phraseLookupButton
+                }
+
+                HStack(spacing: 8) {
+                    favoriteTargetButton
+                    if !isEditingNotes {
+                        editNotesButton
+                    }
+                }
+            }
+        }
+    }
+
     var animationScriptToggle: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 10) {

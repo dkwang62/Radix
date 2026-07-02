@@ -6,12 +6,9 @@ extension PhraseInfoCard {
         let characters = phraseCharacters
         if !characters.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Label("Characters", systemImage: "square.grid.2x2")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Spacer(minLength: 0)
-                    if characters.count > 4 {
+                if characters.count > 4 {
+                    HStack {
+                        Spacer(minLength: 0)
                         phraseAnimationPageStepper(characters)
                     }
                 }
@@ -79,15 +76,26 @@ extension PhraseInfoCard {
     func phraseAnimationPageButtons(_ characters: [String]) -> some View {
         let pageCount = phraseAnimationPageCount(for: characters)
         if pageCount > 1 {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
-                    ForEach(0..<pageCount, id: \.self) { page in
-                        phraseAnimationPageButton(page: page, characters: characters)
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(0..<pageCount, id: \.self) { page in
+                            phraseAnimationPageButton(page: page, characters: characters)
+                                .id(page)
+                        }
+                    }
+                    .padding(.vertical, 1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .onAppear {
+                    proxy.scrollTo(phraseAnimationSafePage(for: characters), anchor: .center)
+                }
+                .onChange(of: selectedAnimationPage) { _, _ in
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        proxy.scrollTo(phraseAnimationSafePage(for: characters), anchor: .center)
                     }
                 }
-                .padding(.vertical, 1)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
