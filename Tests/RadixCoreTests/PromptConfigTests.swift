@@ -57,6 +57,7 @@ struct PromptConfigTests {
         #expect(extractor?.title == "Extract Page Sentences")
         #expect(extractor?.template.contains("Conversation Practice import pack") == true)
         #expect(extractor?.template.contains("\"theme\": \"{collection_name}\"") == true)
+        #expect(extractor?.template.contains("Set \"theme\" exactly to the Page value above") == true)
         #expect(extractor?.template.contains("\"id\": \"page_sentence_001\"") == true)
         #expect(extractor?.template.contains("Each entry must have exactly these keys: \"id\", \"zh\", \"pinyin\", and \"en\".") == true)
         #expect(PromptConfig.collectionTaskIDs.contains("task10"))
@@ -171,6 +172,7 @@ struct PromptConfigTests {
 
         #expect(prompt.contains("Page: Coffee Shop Sign"))
         #expect(prompt.contains("\"theme\": \"Coffee Shop Sign\""))
+        #expect(prompt.contains("Set \"theme\" exactly to the Page value above: \"Coffee Shop Sign\""))
         #expect(prompt.contains("請 先 付 款 然 後 取 餐"))
         #expect(prompt.contains("請先付款然後取餐"))
         #expect(prompt.contains("\"entries\""))

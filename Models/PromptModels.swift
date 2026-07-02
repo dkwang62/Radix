@@ -273,15 +273,16 @@ The JSON must match this exact lightweight top-level shape so Radix can import i
 }
 
 Rules:
-1. Extract complete, useful Chinese sentences or short conversation-ready lines from the saved page.
-2. Preserve the original Chinese meaning. Use Simplified Chinese in zh unless the source is clearly Traditional-only.
-3. Skip OCR noise, fragments, duplicated lines, headings that are not useful for practice, and isolated vocabulary items.
-4. Add accurate tone-mark pinyin for the full sentence.
-5. Keep English translations natural, short, and learner-friendly.
-6. Aim for 10 to 30 entries. If the page has fewer useful sentences, return only the useful ones.
-7. IDs must be stable and lowercase, using page_sentence plus a zero-padded sequence number, for example "page_sentence_001".
-8. Each entry must have exactly these keys: "id", "zh", "pinyin", and "en".
-9. Do not include analysis, metadata, notes, markdown, comments, or explanation text. Radix derives those during import.
+1. Set "theme" exactly to the Page value above: "{collection_name}". Do not summarize, translate, rename, shorten, or add punctuation to the theme.
+2. Extract complete, useful Chinese sentences or short conversation-ready lines from the saved page.
+3. Preserve the original Chinese meaning. Use Simplified Chinese in zh unless the source is clearly Traditional-only.
+4. Skip OCR noise, fragments, duplicated lines, headings that are not useful for practice, and isolated vocabulary items.
+5. Add accurate tone-mark pinyin for the full sentence.
+6. Keep English translations natural, short, and learner-friendly.
+7. Aim for 10 to 30 entries. If the page has fewer useful sentences, return only the useful ones.
+8. IDs must be stable and lowercase, using page_sentence plus a zero-padded sequence number, for example "page_sentence_001".
+9. Each entry must have exactly these keys: "id", "zh", "pinyin", and "en".
+10. Do not include analysis, metadata, notes, markdown, comments, or explanation text. Radix derives those during import.
 
 Before returning, silently validate that the JSON is valid, imports cleanly, and every entry contains only the required keys.
 

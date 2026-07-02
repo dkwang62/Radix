@@ -175,6 +175,12 @@ it asks AI to return the same lightweight Conversation Practice import JSON
 shape (`theme` plus `entries`) used by generated practice packs, so imported
 page sentences reuse the existing practice, favorite-sentence, backup,
 checkpoint, and speech pathways instead of creating another sentence store.
+The page-sentence AI template instructs AI to set the import `theme` exactly to
+the source page title. Browse currently uses that same-name convention to show a
+page-row Practice shortcut. Do not add a full source-metadata schema yet; if
+title matching becomes unreliable, revisit a `Practice Source Link` model with
+source kind, stable source ID when available, source title/date, and a content
+fingerprint fallback.
 Conversation Practice accepts AI-generated packs through `Paste Practice JSON`
 as the primary return path from ChatGPT/Gemini, while `Import JSON File` remains
 available for saved files and transfer. The paste route previews the theme,
