@@ -159,6 +159,8 @@ extension FilterGridTab {
                 beginManualPageQuiz(collection)
             }, onCreateQuizAutomatically: {
                 runAutomaticPageAIAction { beginPageQuiz(collection) }
+            }, onExtractSentences: {
+                beginPageSentenceExtraction(collection)
             })
 
             BrowseImageScriptToggle(mode: $browseImageScriptMode)

@@ -77,6 +77,11 @@ extension FilterGridTab {
         imageActionMessage = "Quiz AI prompt copied. Use it in ChatGPT, Gemini, or another AI app to quiz yourself without an API key."
     }
 
+    func beginPageSentenceExtraction(_ collection: CharacterCollection) {
+        openImageActionPrompt(collection: collection, taskID: "task10")
+        imageActionMessage = "Sentence extraction prompt copied. Paste the AI JSON in Study > Conversation Practices > Paste Practice JSON."
+    }
+
     func runBrowseGeminiTranslationAndSave(_ collection: CharacterCollection) {
         let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !key.isEmpty else {

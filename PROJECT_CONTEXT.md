@@ -179,6 +179,9 @@ Conversation Practice accepts AI-generated packs through `Paste Practice JSON`
 as the primary return path from ChatGPT/Gemini, while `Import JSON File` remains
 available for saved files and transfer. The paste route previews the theme,
 sentence count, sample sentences, and validation warnings before import.
+Browse page Actions exposes `Extract Page Sentences` as a page AI task that
+copies/opens the saved-page sentence extraction prompt; the user returns the AI
+JSON through Study's Conversation Practice paste importer.
 AI Link exposes one task per user goal. The former API-only phrase task is
 removed; `Extract Phrases` supports both copy/paste and automatic Gemini
 execution without appearing twice.
