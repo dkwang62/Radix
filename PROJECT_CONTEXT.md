@@ -158,17 +158,23 @@ When a Gemini API key is configured, `Check OCR` additionally offers an
 automatic multimodal review using the same prompt and saved image. Its response
 creates and opens a corrected saved page immediately.
 Saved-page AI actions are grouped by task—Check OCR, Extract Phrases,
-Translate Page, and Create Quiz. Each task consistently offers copy/paste with
-ChatGPT or an automatic Gemini route. A missing-key automatic choice becomes
-`Set Up Gemini API Key…`, navigates to Settings with Private API Keys expanded,
-and preserves `Back to Browse`. Setup is described as enabling all page AI
-automation, not just one task.
-All four also exist as editable saved-page templates in AI Link. Browse OCR
+Translate Page, Create Quiz, and page sentence extraction. Each task
+consistently offers copy/paste with ChatGPT or an automatic Gemini route where
+automation is implemented. A missing-key automatic choice becomes `Set Up Gemini
+API Key…`, navigates to Settings with Private API Keys expanded, and preserves
+`Back to Browse`. Setup is described as enabling all page AI automation, not
+just one task.
+These tasks also exist as editable saved-page templates in AI Link. Browse OCR
 review renders the `Check OCR` template with saved page characters,
 recognized/unrecognized characters, and nearby phrase evidence rather than a
 separate hard-coded instruction. Legacy `Check OCR` templates that described
 `ORIGINAL OCR` normalize to the saved-page-character wording so placeholder raw
 OCR cannot become the primary AI input.
+`Extract Page Sentences` is the first step toward page-derived sentence study:
+it asks AI to return the same lightweight Conversation Practice import JSON
+shape (`theme` plus `entries`) used by generated practice packs, so imported
+page sentences reuse the existing practice, favorite-sentence, backup,
+checkpoint, and speech pathways instead of creating another sentence store.
 AI Link exposes one task per user goal. The former API-only phrase task is
 removed; `Extract Phrases` supports both copy/paste and automatic Gemini
 execution without appearing twice.

@@ -243,6 +243,51 @@ OCR text/context:
 """
             ),
             PromptTask(
+                id: "task10",
+                title: "Extract Page Sentences",
+                template: """
+Extract Page Sentences
+
+Create a Radix Conversation Practice import pack from one saved page.
+
+Page: {collection_name}
+Saved page characters in reading order:
+{capture_chars}
+
+OCR text/context:
+{capture_text}
+
+Return JSON only. Do not wrap it in Markdown. Do not include explanations outside the JSON.
+
+The JSON must match this exact lightweight top-level shape so Radix can import it directly:
+{
+  "theme": "{collection_name}",
+  "entries": [
+    {
+      "id": "page_sentence_001",
+      "zh": "Simplified Chinese sentence from the page.",
+      "pinyin": "Tone-mark pinyin.",
+      "en": "Natural English translation."
+    }
+  ]
+}
+
+Rules:
+1. Extract complete, useful Chinese sentences or short conversation-ready lines from the saved page.
+2. Preserve the original Chinese meaning. Use Simplified Chinese in zh unless the source is clearly Traditional-only.
+3. Skip OCR noise, fragments, duplicated lines, headings that are not useful for practice, and isolated vocabulary items.
+4. Add accurate tone-mark pinyin for the full sentence.
+5. Keep English translations natural, short, and learner-friendly.
+6. Aim for 10 to 30 entries. If the page has fewer useful sentences, return only the useful ones.
+7. IDs must be stable and lowercase, using page_sentence plus a zero-padded sequence number, for example "page_sentence_001".
+8. Each entry must have exactly these keys: "id", "zh", "pinyin", and "en".
+9. Do not include analysis, metadata, notes, markdown, comments, or explanation text. Radix derives those during import.
+
+Before returning, silently validate that the JSON is valid, imports cleanly, and every entry contains only the required keys.
+
+"""
+            ),
+            PromptTask(
                 id: "task9",
                 title: "Generate Practice Pack",
                 template: """
@@ -304,7 +349,7 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
         """
     )
 
-    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7", "task8"]
+    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7", "task8", "task10"]
     static let practiceTopicTaskIDs: Set<String> = ["task9"]
 
     static var defaultSelectedTaskIDs: [String] {
@@ -464,7 +509,7 @@ extension PromptConfig {
         case .character:
             full = cfg.preamble + body + cfg.epilogue
         case .collection:
-            if selected == ["task5"] || selected == ["task7"] || selected == ["task8"] {
+            if selected == ["task5"] || selected == ["task7"] || selected == ["task8"] || selected == ["task10"] {
                 full = cfg.collectionPreamble + body
             } else {
                 full = cfg.collectionPreamble + body + cfg.collectionEpilogue

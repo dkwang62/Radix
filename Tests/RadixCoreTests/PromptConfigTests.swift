@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import RadixCore
 
@@ -48,6 +49,38 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task9"))
     }
 
+    @Test("Page sentence extractor is a saved-page AI task")
+    func pageSentenceExtractorTaskAvailability() {
+        let normalized = PromptConfig.streamlitDefault.normalized()
+        let extractor = normalized.tasks.first { $0.id == "task10" }
+
+        #expect(extractor?.title == "Extract Page Sentences")
+        #expect(extractor?.template.contains("Conversation Practice import pack") == true)
+        #expect(extractor?.template.contains("\"theme\": \"{collection_name}\"") == true)
+        #expect(extractor?.template.contains("\"id\": \"page_sentence_001\"") == true)
+        #expect(extractor?.template.contains("Each entry must have exactly these keys: \"id\", \"zh\", \"pinyin\", and \"en\".") == true)
+        #expect(PromptConfig.collectionTaskIDs.contains("task10"))
+        #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task10"))
+    }
+
+    @Test("Legacy prompt configs receive new built-in page sentence extractor")
+    func legacyPromptConfigAddsPageSentenceExtractor() {
+        let legacyTasks = PromptConfig.streamlitDefault.tasks.filter { $0.id != "task10" }
+        let legacyConfig = PromptConfig(
+            version: 1,
+            preamble: "",
+            tasks: legacyTasks,
+            epilogue: "",
+            collectionPreamble: "",
+            collectionEpilogue: ""
+        )
+
+        let normalized = legacyConfig.normalized()
+
+        #expect(normalized.tasks.contains { $0.id == "task10" })
+        #expect(normalized.tasks.filter { $0.id == "task10" }.count == 1)
+    }
+
     @Test("Conversation practice generator renders selected topic details")
     func practiceGeneratorRendersTopicContext() {
         let task = PromptConfig.streamlitDefault.tasks.first { $0.id == "task9" }!
@@ -92,5 +125,56 @@ struct PromptConfigTests {
         #expect(!prompt.contains("\"metadata\""))
         #expect(prompt.contains("Create exactly 100 entries"))
         #expect(!prompt.contains("{practice_topic_title}"))
+    }
+
+    @Test("Page sentence extractor renders saved page context as import JSON")
+    func pageSentenceExtractorRendersSavedPageContext() {
+        let task = PromptConfig.streamlitDefault.tasks.first { $0.id == "task10" }!
+        let collection = CharacterCollection(
+            id: UUID(),
+            name: "Coffee Shop Sign",
+            characters: "請先付款然後取餐".map(String.init),
+            createdAt: Date(timeIntervalSince1970: 0),
+            sourceType: .manual,
+            isFavorite: false
+        )
+        let context = PromptRenderContext(
+            char: "",
+            definitionEN: "",
+            decomposition: "",
+            semantic: "",
+            phonetic: "",
+            phoneticPinyin: "",
+            isSoundMatch: "",
+            pronunciationFamily: "",
+            semanticFamily: "",
+            collectionName: collection.name,
+            captureCharacters: collection.characters.joined(separator: " "),
+            captureText: collection.characters.joined(),
+            originalOCRText: "",
+            recognizedOCRCharacters: "",
+            unrecognizedOCRCharacters: "",
+            nearbyOCRPhrases: "",
+            practiceTopicID: "",
+            practiceTopicTitle: "",
+            practiceTopicSummary: "",
+            practiceTopicBrief: "",
+            practiceTopicSituations: "",
+            practiceTopicSentenceCount: ""
+        )
+
+        let prompt = PromptConfig.streamlitDefault.renderPrompt(
+            selectedTaskIDs: [task.id],
+            context: context,
+            subject: .collection(collection)
+        )
+
+        #expect(prompt.contains("Page: Coffee Shop Sign"))
+        #expect(prompt.contains("\"theme\": \"Coffee Shop Sign\""))
+        #expect(prompt.contains("請 先 付 款 然 後 取 餐"))
+        #expect(prompt.contains("請先付款然後取餐"))
+        #expect(prompt.contains("\"entries\""))
+        #expect(!prompt.contains("{collection_name}"))
+        #expect(!prompt.contains("Image: Coffee Shop Sign"))
     }
 }

@@ -332,6 +332,8 @@ extension AILinkView {
             return "Compare page OCR with its source image and Radix evidence, then propose clearly marked corrections for review."
         case "task8":
             return "Create a practice quiz from a saved page, with difficulty guidance and answers hidden until the learner responds."
+        case "task10":
+            return "Extract complete page sentences into a Conversation Practice JSON pack you can import and study."
         case "task9":
             return "Generate a structured Conversation Practice JSON pack for the selected topic."
         default:
