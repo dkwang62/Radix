@@ -79,7 +79,9 @@ Do not move domain behavior back into `RadixStore.swift`.
   speech, backup, and checkpoint pathways as other practice sets.
   Sentence info cards pass an explicit `.sentence` favorite target, while
   ordinary phrase cards use `.phrase`, so the star cannot silently switch
-  between character, phrase, and sentence semantics.
+  between character, phrase, and sentence semantics. Conversation Practice
+  sentence preview cards also expose an explicit read-aloud button for the full
+  sentence.
 - Portable backup: `UnifiedPackage` schema 5, with legacy backup decoding retained.
 - Bundled standard data imports additively once on startup from
   `radix_unified_backup.json`, guarded by `RadixPreferenceKey.standardDataImportID`.
