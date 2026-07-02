@@ -137,38 +137,65 @@ extension FilterGridTab {
         return HStack(spacing: 6) {
             CollectionPageActionsMenu(collection: collection, onEdit: {
                 beginEditing(collection)
-            }, onCheckOCR: collection.sourceType == .ocr && collection.correctedFromCollectionID == nil ? {
-                beginOCRReview(collection)
-            } : nil, hasGeminiAPIKey: !store.geminiAPIKey
+            }, hasGeminiAPIKey: !store.geminiAPIKey
                 .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-            onCheckOCRAutomatically: {
-                runAutomaticPageAIAction { runAutomaticOCRReview(collection) }
-            }, onChoosePhrases: {
+            onChoosePhrases: {
                 pagePhraseListCollection = collection
             }, onViewTranslation: {
                 beginTranslationReport(collection)
-            }, onManualExtract: {
-                beginManualPhraseExtraction(collection)
-            }, onAIExtract: {
-                runAutomaticPageAIAction { runBrowseGeminiPhraseExtraction(collection) }
-            }, onTranslate: {
-                beginBrowseTranslation(collection)
-            }, onTranslateAndSave: {
-                runAutomaticPageAIAction { runBrowseGeminiTranslationAndSave(collection) }
-            }, onCreateQuizManually: {
-                beginManualPageQuiz(collection)
-            }, onCreateQuizAutomatically: {
-                runAutomaticPageAIAction { beginPageQuiz(collection) }
-            }, onExtractSentences: {
-                beginPageSentenceExtraction(collection)
-            }, onExtractSentencesAutomatically: {
-                runAutomaticPageAIAction { runBrowseGeminiSentenceExtraction(collection) }
-            })
+            }, aiTasks: pageAITasks(for: collection))
 
             BrowseImageScriptToggle(mode: $browseImageScriptMode)
 
             readBrowseSourceButton(collection)
         }
+    }
+
+    func pageAITasks(for collection: CharacterCollection) -> [CollectionPageAITask] {
+        var tasks: [CollectionPageAITask] = []
+
+        if collection.sourceType == .ocr && collection.correctedFromCollectionID == nil {
+            tasks.append(CollectionPageAITask(
+                id: "check_ocr",
+                title: "Check OCR",
+                systemImage: "text.viewfinder",
+                manualAction: { beginOCRReview(collection) },
+                automaticAction: { runAutomaticPageAIAction { runAutomaticOCRReview(collection) } }
+            ))
+        }
+
+        tasks.append(contentsOf: [
+            CollectionPageAITask(
+                id: "extract_phrases",
+                title: "Extract Phrases",
+                systemImage: "text.badge.plus",
+                manualAction: { beginManualPhraseExtraction(collection) },
+                automaticAction: { runAutomaticPageAIAction { runBrowseGeminiPhraseExtraction(collection) } }
+            ),
+            CollectionPageAITask(
+                id: "translate_page",
+                title: "Translate Page",
+                systemImage: "translate",
+                manualAction: { beginBrowseTranslation(collection) },
+                automaticAction: { runAutomaticPageAIAction { runBrowseGeminiTranslationAndSave(collection) } }
+            ),
+            CollectionPageAITask(
+                id: "create_quiz",
+                title: "Create Quiz",
+                systemImage: "questionmark.circle",
+                manualAction: { beginManualPageQuiz(collection) },
+                automaticAction: { runAutomaticPageAIAction { beginPageQuiz(collection) } }
+            ),
+            CollectionPageAITask(
+                id: "extract_sentences",
+                title: "Extract Sentences",
+                systemImage: "bubble.left.and.bubble.right",
+                manualAction: { beginPageSentenceExtraction(collection) },
+                automaticAction: { runAutomaticPageAIAction { runBrowseGeminiSentenceExtraction(collection) } }
+            )
+        ])
+
+        return tasks
     }
 
     private func runAutomaticPageAIAction(_ action: () -> Void) {

@@ -13,37 +13,33 @@ struct BrowseImageScriptToggle: View {
     }
 }
 
+struct CollectionPageAITask: Identifiable {
+    enum Route {
+        case manual
+        case automatic
+    }
+
+    let id: String
+    let title: String
+    let systemImage: String
+    let manualAction: () -> Void
+    let automaticAction: () -> Void
+}
+
 struct CollectionPageActionsMenu: View {
-    private enum PendingAIMethod {
-        case checkOCRManually
-        case checkOCRAutomatically
-        case extractManually
-        case extractAutomatically
-        case translateManually
-        case translateAutomatically
-        case quizManually
-        case quizAutomatically
-        case extractSentencesManually
-        case extractSentencesAutomatically
+    private struct PendingAISelection {
+        let taskID: String
+        let route: CollectionPageAITask.Route
     }
 
     let collection: CharacterCollection
     let onEdit: () -> Void
-    let onCheckOCR: (() -> Void)?
     let hasGeminiAPIKey: Bool
-    let onCheckOCRAutomatically: () -> Void
     let onChoosePhrases: () -> Void
     let onViewTranslation: () -> Void
-    let onManualExtract: () -> Void
-    let onAIExtract: () -> Void
-    let onTranslate: () -> Void
-    let onTranslateAndSave: () -> Void
-    let onCreateQuizManually: () -> Void
-    let onCreateQuizAutomatically: () -> Void
-    let onExtractSentences: () -> Void
-    let onExtractSentencesAutomatically: () -> Void
+    let aiTasks: [CollectionPageAITask]
     @State private var showsAIOrientation = false
-    @State private var pendingAIMethod: PendingAIMethod?
+    @State private var pendingAISelection: PendingAISelection?
 
     var body: some View {
         Menu {
@@ -71,55 +67,16 @@ struct CollectionPageActionsMenu: View {
             }
 
             Section("AI Tasks") {
-                if onCheckOCR != nil {
+                ForEach(aiTasks) { task in
                     Menu {
-                        aiMethodButton(
-                            manualMethod: .checkOCRManually,
-                            automaticMethod: .checkOCRAutomatically
-                        )
+                        aiMethodButton(for: task)
                     } label: {
-                        Label("Check OCR", systemImage: "text.viewfinder")
+                        Label(task.title, systemImage: task.systemImage)
                     }
                 }
 
-                Menu {
-                    aiMethodButton(
-                        manualMethod: .extractManually,
-                        automaticMethod: .extractAutomatically
-                    )
-                } label: {
-                    Label("Extract Phrases", systemImage: "text.badge.plus")
-                }
-
-                Menu {
-                    aiMethodButton(
-                        manualMethod: .translateManually,
-                        automaticMethod: .translateAutomatically
-                    )
-                } label: {
-                    Label("Translate Page", systemImage: "translate")
-                }
-
-                Menu {
-                    aiMethodButton(
-                        manualMethod: .quizManually,
-                        automaticMethod: .quizAutomatically
-                    )
-                } label: {
-                    Label("Create Quiz", systemImage: "questionmark.circle")
-                }
-
-                Menu {
-                    aiMethodButton(
-                        manualMethod: .extractSentencesManually,
-                        automaticMethod: .extractSentencesAutomatically
-                    )
-                } label: {
-                    Label("Extract Sentences", systemImage: "bubble.left.and.bubble.right")
-                }
-
                 Button {
-                    pendingAIMethod = nil
+                    pendingAISelection = nil
                     showsAIOrientation = true
                 } label: {
                     Label("How Radix Uses AI", systemImage: "info.circle")
@@ -143,7 +100,7 @@ struct CollectionPageActionsMenu: View {
         .help("Page Actions")
         .sheet(isPresented: $showsAIOrientation) {
             PageAIOrientationView(
-                continuesSelectedAction: pendingAIMethod != nil,
+                continuesSelectedAction: pendingAISelection != nil,
                 onContinue: completeAIOrientation,
                 onCancel: cancelAIOrientation
             )
@@ -151,18 +108,15 @@ struct CollectionPageActionsMenu: View {
     }
 
     @ViewBuilder
-    private func aiMethodButton(
-        manualMethod: PendingAIMethod,
-        automaticMethod: PendingAIMethod
-    ) -> some View {
+    private func aiMethodButton(for task: CollectionPageAITask) -> some View {
         Button {
-            chooseAIMethod(manualMethod)
+            chooseAIMethod(taskID: task.id, route: .manual)
         } label: {
             Label("Use Another AI App", systemImage: "doc.on.clipboard")
         }
 
         Button {
-            chooseAIMethod(automaticMethod)
+            chooseAIMethod(taskID: task.id, route: .automatic)
         } label: {
             Label(
                 hasGeminiAPIKey ? "Run Automatically in Radix" : "Set Up Gemini API Key…",
@@ -171,44 +125,37 @@ struct CollectionPageActionsMenu: View {
         }
     }
 
-    private func chooseAIMethod(_ method: PendingAIMethod) {
+    private func chooseAIMethod(taskID: String, route: CollectionPageAITask.Route) {
         guard RadixRootPreferences.hasSeenPageAIOrientation else {
-            pendingAIMethod = method
+            pendingAISelection = PendingAISelection(taskID: taskID, route: route)
             showsAIOrientation = true
             return
         }
-        run(method)
+        run(taskID: taskID, route: route)
     }
 
     private func completeAIOrientation() {
-        let method = pendingAIMethod
+        let selection = pendingAISelection
         RadixRootPreferences.hasSeenPageAIOrientation = true
-        pendingAIMethod = nil
+        pendingAISelection = nil
         showsAIOrientation = false
-        if let method {
+        if let selection {
             DispatchQueue.main.async {
-                run(method)
+                run(taskID: selection.taskID, route: selection.route)
             }
         }
     }
 
     private func cancelAIOrientation() {
-        pendingAIMethod = nil
+        pendingAISelection = nil
         showsAIOrientation = false
     }
 
-    private func run(_ method: PendingAIMethod) {
-        switch method {
-        case .checkOCRManually: onCheckOCR?()
-        case .checkOCRAutomatically: onCheckOCRAutomatically()
-        case .extractManually: onManualExtract()
-        case .extractAutomatically: onAIExtract()
-        case .translateManually: onTranslate()
-        case .translateAutomatically: onTranslateAndSave()
-        case .quizManually: onCreateQuizManually()
-        case .quizAutomatically: onCreateQuizAutomatically()
-        case .extractSentencesManually: onExtractSentences()
-        case .extractSentencesAutomatically: onExtractSentencesAutomatically()
+    private func run(taskID: String, route: CollectionPageAITask.Route) {
+        guard let task = aiTasks.first(where: { $0.id == taskID }) else { return }
+        switch route {
+        case .manual: task.manualAction()
+        case .automatic: task.automaticAction()
         }
     }
 }
