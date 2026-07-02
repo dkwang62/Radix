@@ -398,7 +398,7 @@ extension AILinkView {
     }
 
     func aiResultWorkflowSupportsPaste(_ taskID: String) -> Bool {
-        ["task4", "task5", "task7", "task9", "task10"].contains(taskID)
+        store.supportsAIResultImport(taskID: taskID)
     }
 
     func canApplyAIResult(for task: PromptTask) -> Bool {
@@ -417,43 +417,25 @@ extension AILinkView {
         guard !result.isEmpty else { return }
 
         do {
-            switch task.id {
-            case "task4":
-                let summary = store.importPhraseDiscoveryResponse(result)
-                aiResultMessage = summary.message(defaultAIName: store.defaultAIName)
-            case "task5":
-                guard let selectedCollection else { throw aiResultError("Choose a saved page first.") }
-                store.updateCollectionTranslationReport(id: selectedCollection.id, report: result)
-                aiResultMessage = "Translation saved to \(selectedCollection.name)."
-            case "task7":
-                guard let selectedCollection else { throw aiResultError("Choose a saved page first.") }
-                guard let proposal = OCRReviewParser.parse(result) else {
-                    throw aiResultError("Radix could not read the AI answer. Ask it to keep the required [[CORRECTED TEXT]], [[CHANGES]], and [[UNCERTAIN]] headings.")
-                }
-                guard let corrected = store.createCorrectedOCRCollection(
-                    from: selectedCollection.id,
-                    correctedText: proposal.correctedText
-                ) else {
-                    throw aiResultError("The corrected text does not contain a Chinese character recognized by Radix.")
-                }
+            let outcome = try store.applyAIResult(
+                taskID: task.id,
+                responseText: result,
+                collection: selectedCollection,
+                sourceName: aiResultSourceName(for: task.id)
+            )
+
+            if case .correctedOCR(let corrected) = outcome {
                 store.selectAICollection(id: corrected.id)
-                aiResultMessage = "Corrected page created: \(corrected.name)."
-            case "task9", "task10":
-                let pack = try ConversationPracticeService().loadPack(
-                    fromPastedText: result,
-                    sourceName: task.id == "task10" ? (selectedCollection?.name ?? "AI Link") : "AI Link"
-                )
-                store.saveImportedConversationPracticePack(pack)
-                store.selectedConversationPracticeTopicID = pack.packID
-                store.persistPromptSettings()
-                aiResultMessage = "Imported \(pack.title) - \(pack.entries.count) sentences."
-            default:
-                return
             }
+            aiResultMessage = outcome.message(defaultAIName: store.defaultAIName)
             aiResultText = ""
         } catch {
             aiResultError = error.localizedDescription
         }
+    }
+
+    func aiResultSourceName(for taskID: String) -> String {
+        taskID == AIResultTaskID.extractSentences ? (selectedCollection?.name ?? "AI Link") : "AI Link"
     }
 
     func resetAIResultWorkflow() {
@@ -464,21 +446,21 @@ extension AILinkView {
 
     func aiResultIcon(for taskID: String) -> String {
         switch taskID {
-        case "task4": return "text.badge.plus"
-        case "task5": return "translate"
-        case "task7": return "text.viewfinder"
-        case "task9", "task10": return "bubble.left.and.bubble.right"
+        case AIResultTaskID.extractPhrases: return "text.badge.plus"
+        case AIResultTaskID.translatePage: return "translate"
+        case AIResultTaskID.checkOCR: return "text.viewfinder"
+        case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences: return "bubble.left.and.bubble.right"
         default: return "doc.text"
         }
     }
 
     func aiResultInstruction(for taskID: String) -> String {
         switch taskID {
-        case "task4": return "Paste the extracted phrase list here to add the phrases to Radix."
-        case "task5": return "Paste the translation here to save it with the selected page."
-        case "task7": return "Paste the OCR review here to create a corrected saved page."
-        case "task9": return "Paste the practice-pack JSON here to import it into Study."
-        case "task10": return "Paste the extracted-sentences JSON here to import it into Conversation Practice."
+        case AIResultTaskID.extractPhrases: return "Paste the extracted phrase list here to add the phrases to Radix."
+        case AIResultTaskID.translatePage: return "Paste the translation here to save it with the selected page."
+        case AIResultTaskID.checkOCR: return "Paste the OCR review here to create a corrected saved page."
+        case AIResultTaskID.generatePracticePack: return "Paste the practice-pack JSON here to import it into Study."
+        case AIResultTaskID.extractSentences: return "Paste the extracted-sentences JSON here to import it into Conversation Practice."
         case "task8": return "This prompt runs the quiz inside the AI app, so there is no Radix paste step."
         default: return "Use the AI answer as a reference. This task does not import data back into Radix."
         }
@@ -486,10 +468,10 @@ extension AILinkView {
 
     func aiResultApplyTitle(for taskID: String) -> String {
         switch taskID {
-        case "task4": return "Add Phrases"
-        case "task5": return "Save Translation"
-        case "task7": return "Create Corrected Page"
-        case "task9", "task10": return "Import Practice"
+        case AIResultTaskID.extractPhrases: return "Add Phrases"
+        case AIResultTaskID.translatePage: return "Save Translation"
+        case AIResultTaskID.checkOCR: return "Create Corrected Page"
+        case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences: return "Import Practice"
         default: return "Apply"
         }
     }
@@ -501,9 +483,5 @@ extension AILinkView {
         default:
             return "After opening the prompt, read or save the AI answer where it is useful. Radix has no structured import step for this task."
         }
-    }
-
-    func aiResultError(_ message: String) -> NSError {
-        NSError(domain: "Radix", code: 5100, userInfo: [NSLocalizedDescriptionKey: message])
     }
 }

@@ -18,6 +18,62 @@ private struct GeminiPageQuizQuestionDTO: Decodable {
     let explanation: String
 }
 
+enum AIResultTaskID {
+    static let extractPhrases = "task4"
+    static let translatePage = "task5"
+    static let checkOCR = "task7"
+    static let generatePracticePack = "task9"
+    static let extractSentences = "task10"
+
+    static let importableTasks: Set<String> = [
+        extractPhrases,
+        translatePage,
+        checkOCR,
+        generatePracticePack,
+        extractSentences
+    ]
+}
+
+enum AIResultApplicationError: LocalizedError {
+    case missingCollection
+    case invalidOCRReview
+    case emptyCorrectedOCR
+    case unsupportedTask
+
+    var errorDescription: String? {
+        switch self {
+        case .missingCollection:
+            return "Choose a saved page first."
+        case .invalidOCRReview:
+            return "Radix could not read the AI answer. Ask it to keep the required [[CORRECTED TEXT]], [[CHANGES]], and [[UNCERTAIN]] headings."
+        case .emptyCorrectedOCR:
+            return "The corrected text does not contain a Chinese character recognized by Radix."
+        case .unsupportedTask:
+            return "This AI task does not import data back into Radix."
+        }
+    }
+}
+
+enum AIResultApplicationOutcome {
+    case phraseExtraction(PhraseDiscoveryImportSummary)
+    case translation(CharacterCollection)
+    case correctedOCR(CharacterCollection)
+    case conversationPractice(ConversationPracticePack)
+
+    func message(defaultAIName: String) -> String {
+        switch self {
+        case .phraseExtraction(let summary):
+            return summary.message(defaultAIName: defaultAIName)
+        case .translation(let collection):
+            return "Translation saved to \(collection.name)."
+        case .correctedOCR(let collection):
+            return "Corrected page created: \(collection.name)."
+        case .conversationPractice(let pack):
+            return "Imported \(pack.title) - \(pack.entries.count) sentences."
+        }
+    }
+}
+
 extension RadixStore {
 
     // MARK: - Task selection
@@ -86,6 +142,58 @@ extension RadixStore {
         )
     }
 
+    func supportsAIResultImport(taskID: String) -> Bool {
+        AIResultTaskID.importableTasks.contains(taskID)
+    }
+
+    func createCorrectedOCRCollection(fromAIResponse responseText: String, original collection: CharacterCollection) throws -> CharacterCollection {
+        guard let proposal = OCRReviewParser.parse(responseText) else {
+            throw AIResultApplicationError.invalidOCRReview
+        }
+        guard let corrected = createCorrectedOCRCollection(
+            from: collection.id,
+            correctedText: proposal.correctedText
+        ) else {
+            throw AIResultApplicationError.emptyCorrectedOCR
+        }
+        return corrected
+    }
+
+    @discardableResult
+    func saveTranslationReport(fromAIResponse responseText: String, for collection: CharacterCollection) -> CharacterCollection {
+        updateCollectionTranslationReport(id: collection.id, report: responseText)
+        return self.collection(id: collection.id) ?? collection
+    }
+
+    @discardableResult
+    func importConversationPracticePack(fromAIResponse responseText: String, sourceName: String) throws -> ConversationPracticePack {
+        let pack = try ConversationPracticeService().loadPack(
+            fromPastedText: responseText,
+            sourceName: sourceName
+        )
+        saveImportedConversationPracticePack(pack)
+        selectedConversationPracticeTopicID = pack.packID
+        persistPromptSettings()
+        return pack
+    }
+
+    func applyAIResult(taskID: String, responseText: String, collection: CharacterCollection?, sourceName: String) throws -> AIResultApplicationOutcome {
+        switch taskID {
+        case AIResultTaskID.extractPhrases:
+            return .phraseExtraction(importPhraseDiscoveryResponse(responseText))
+        case AIResultTaskID.translatePage:
+            guard let collection else { throw AIResultApplicationError.missingCollection }
+            return .translation(saveTranslationReport(fromAIResponse: responseText, for: collection))
+        case AIResultTaskID.checkOCR:
+            guard let collection else { throw AIResultApplicationError.missingCollection }
+            return .correctedOCR(try createCorrectedOCRCollection(fromAIResponse: responseText, original: collection))
+        case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences:
+            return .conversationPractice(try importConversationPracticePack(fromAIResponse: responseText, sourceName: sourceName))
+        default:
+            throw AIResultApplicationError.unsupportedTask
+        }
+    }
+
     func runGeminiTranslationReport(for collection: CharacterCollection) async throws -> String {
         let prompt = promptText(for: .collection(collection), selectedTaskIDs: ["task5"])
         let report = try await GeminiTextGenerationService().generateText(
@@ -96,7 +204,7 @@ extension RadixStore {
             You are an expert bilingual Chinese editor and translator. Return a polished translation only, with no preface about being an AI and no follow-up questions.
             """
         )
-        updateCollectionTranslationReport(id: collection.id, report: report)
+        saveTranslationReport(fromAIResponse: report, for: collection)
         return report
     }
 
@@ -110,14 +218,7 @@ extension RadixStore {
             You create validated JSON import packs for a Chinese learning app. Return valid JSON only, with no Markdown and no explanatory text.
             """
         )
-        let pack = try ConversationPracticeService().loadPack(
-            fromPastedText: response,
-            sourceName: collection.name
-        )
-        saveImportedConversationPracticePack(pack)
-        selectedConversationPracticeTopicID = pack.packID
-        persistPromptSettings()
-        return pack
+        return try importConversationPracticePack(fromAIResponse: response, sourceName: collection.name)
     }
 
     func runGeminiOCRReview(for collection: CharacterCollection) async throws -> String {

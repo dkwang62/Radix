@@ -44,20 +44,14 @@ extension FilterGridTab {
     }
 
     private func createCorrectedOCRPage(from response: String, original collection: CharacterCollection) {
-        guard let proposal = OCRReviewParser.parse(response) else {
-            imageActionMessage = "Radix could not read the AI answer. Ask it to keep the required [[CORRECTED TEXT]], [[CHANGES]], and [[UNCERTAIN]] headings."
-            return
+        do {
+            let corrected = try store.createCorrectedOCRCollection(fromAIResponse: response, original: collection)
+            ocrReviewCollection = nil
+            store.selectBrowseCollection(id: corrected.id)
+            imageActionMessage = "Corrected page created and opened. The original OCR page remains available in Browse."
+        } catch {
+            imageActionMessage = error.localizedDescription
         }
-        guard let corrected = store.createCorrectedOCRCollection(
-            from: collection.id,
-            correctedText: proposal.correctedText
-        ) else {
-            imageActionMessage = "The proposed text does not contain a Chinese character recognized by Radix."
-            return
-        }
-        ocrReviewCollection = nil
-        store.selectBrowseCollection(id: corrected.id)
-        imageActionMessage = "Corrected page created and opened. The original OCR page remains available in Browse."
     }
 
     func beginTranslationReport(_ collection: CharacterCollection) {
@@ -181,11 +175,9 @@ extension FilterGridTab {
     }
 
     func saveTranslationReport(_ collection: CharacterCollection) {
-        store.updateCollectionTranslationReport(id: collection.id, report: translationReportDraft)
-        if let updated = store.collection(id: collection.id) {
-            translationReportCollection = updated
-            translationReportDraft = updated.translationReport ?? ""
-        }
+        let updated = store.saveTranslationReport(fromAIResponse: translationReportDraft, for: collection)
+        translationReportCollection = updated
+        translationReportDraft = updated.translationReport ?? ""
     }
 
     func clearTranslationReport(_ collection: CharacterCollection) {
@@ -259,40 +251,7 @@ extension FilterGridTab {
     }
 
     func addManualExtractedPhrases(_ collection: CharacterCollection) {
-        let parsed = PhraseDiscoveryParser.parse(phraseExtractionOutput)
-        let candidates = PhraseDiscoveryCandidateTools.selectingAll(parsed.candidates, isSelected: true)
-        let prepared = PhraseDiscoveryCandidateTools.preparingForImport(candidates)
-        var added = 0
-        var skippedExisting = 0
-        var errors: [String] = []
-        for item in prepared.candidates {
-            do {
-                let wasAdded = try store.addAIPastedPhraseIfNew(
-                    word: item.phrase,
-                    pinyin: item.candidate.pinyin,
-                    meanings: item.candidate.meaning,
-                    refreshViews: false
-                )
-                if wasAdded {
-                    added += 1
-                } else {
-                    skippedExisting += 1
-                }
-            } catch {
-                errors.append("\(item.phrase): \(error.localizedDescription)")
-            }
-        }
-        if added > 0 {
-            store.refreshAddedPhrases()
-            store.refreshPhrases()
-        }
-        let summary = PhraseDiscoveryImportSummary(
-            selectedCount: prepared.candidates.count,
-            addedCount: added,
-            skippedCount: prepared.skippedCount + skippedExisting,
-            skippedExistingCount: skippedExisting,
-            errors: errors
-        )
+        let summary = store.importPhraseDiscoveryResponse(phraseExtractionOutput)
         imageActionMessage = summary.message(defaultAIName: store.defaultAIName)
         if let updated = store.collection(id: collection.id) {
             phraseExtractionCollection = updated

@@ -220,6 +220,10 @@ task-specific result paste/apply controls live in AI Link for OCR correction,
 phrase extraction, translation reports, and Conversation Practice imports. The
 prompt template editor is collapsed by default so task, source, send, and result
 remain the primary workflow.
+Manual paste results and automatic Gemini results share store-level application
+helpers for phrase imports, OCR correction, translation reports, and Conversation
+Practice imports; UI layers should only choose presentation, source selection,
+and follow-up navigation.
 The AI Link tab presents one task at a time through an `AI Task` dropdown. The
 old `Instructions`/`Customize` split is collapsed into a single editable
 `AI Prompt` template for the selected task. Built-in tasks edit the prompt
