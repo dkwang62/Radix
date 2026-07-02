@@ -420,6 +420,7 @@ final class RadixStore: ObservableObject {
     var phraseCache: [String: [PhraseItem]] = [:]
     var conversationPracticePhraseCache: [String: PhraseItem] = [:]
     var conversationPracticeLinkedHintCache: [ConversationPracticeHintCacheKey: ConversationPracticeLinkedHints] = [:]
+    @Published var favoriteSentenceRevision = 0
     var rootsDerivativesCache: [RootsCacheKey: RootsDerivativesCacheValue] = [:]
 
     struct RootsCacheKey: Hashable {

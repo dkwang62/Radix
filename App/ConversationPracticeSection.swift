@@ -468,7 +468,7 @@ extension FavouritesTab {
                 )
             }
         store.speakPhrase(phrase)
-        store.presentPracticeSentenceInSidebar(phrase, sentencePhrases: sentencePhrases)
+        store.presentPracticeSentenceInSidebar(phrase, sentencePhrases: sentencePhrases, practiceItem: item)
     }
 
     func isSelectedConversationPracticeSentence(_ item: ConversationPracticeItem) -> Bool {

@@ -18,19 +18,7 @@ extension PhraseInfoCard {
             Spacer(minLength: 0)
 
             HStack(spacing: 6) {
-                Button {
-                    store.togglePhraseFavorite(phrase.word)
-                } label: {
-                    Image(systemName: store.isPhraseFavorite(phrase.word) ? "star.fill" : "star")
-                        .font(ResponsiveFont.subheadline.weight(.semibold))
-                        .foregroundStyle(store.isPhraseFavorite(phrase.word) ? .yellow : .secondary)
-                        .radixMinimumTapTarget()
-                        .background(RadixTheme.secondaryBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(store.isPhraseFavorite(phrase.word) ? "Remove from favorites" : "Add to favorites")
-                .help(store.isPhraseFavorite(phrase.word) ? "Remove from favorites" : "Add to favorites")
+                phraseFavoriteButton
 
                 if !isEditingNotes {
                     Button {
@@ -51,6 +39,40 @@ extension PhraseInfoCard {
                     .help("Edit notes")
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    var phraseFavoriteButton: some View {
+        if let practiceItem = store.activePracticeSentenceItem,
+           store.phraseStorageWord(practiceItem.phraseKey) == store.phraseStorageWord(phrase.word) {
+            Button {
+                store.toggleFavoriteSentence(practiceItem)
+            } label: {
+                Image(systemName: store.isFavoriteSentence(practiceItem) ? "star.fill" : "star")
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .foregroundStyle(store.isFavoriteSentence(practiceItem) ? .yellow : .secondary)
+                    .radixMinimumTapTarget()
+                    .background(RadixTheme.secondaryBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(store.isFavoriteSentence(practiceItem) ? "Remove sentence from favorites" : "Add sentence to favorites")
+            .help(store.isFavoriteSentence(practiceItem) ? "Remove sentence from favorites" : "Add sentence to favorites")
+        } else {
+            Button {
+                store.togglePhraseFavorite(phrase.word)
+            } label: {
+                Image(systemName: store.isPhraseFavorite(phrase.word) ? "star.fill" : "star")
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .foregroundStyle(store.isPhraseFavorite(phrase.word) ? .yellow : .secondary)
+                    .radixMinimumTapTarget()
+                    .background(RadixTheme.secondaryBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(store.isPhraseFavorite(phrase.word) ? "Remove from favorites" : "Add to favorites")
+            .help(store.isPhraseFavorite(phrase.word) ? "Remove from favorites" : "Add to favorites")
         }
     }
 

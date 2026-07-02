@@ -490,13 +490,19 @@ extension RadixStore {
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
+        activePracticeSentenceItem = nil
         pushPhraseBreadcrumb(phrase)
     }
 
-    func presentPracticeSentenceInSidebar(_ phrase: PhraseItem, sentencePhrases: [PhraseItem]) {
+    func presentPracticeSentenceInSidebar(
+        _ phrase: PhraseItem,
+        sentencePhrases: [PhraseItem],
+        practiceItem: ConversationPracticeItem? = nil
+    ) {
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = sentencePhrases
+        activePracticeSentenceItem = practiceItem
         pushPhraseBreadcrumb(phrase)
     }
 
@@ -504,12 +510,14 @@ extension RadixStore {
         sidebarPhrasePreview = nil
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
+        activePracticeSentenceItem = nil
     }
 
     func dismissImagePhrasePreview() {
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
         sidebarPhraseLookupOverride = nil
+        activePracticeSentenceItem = nil
     }
 
     func clearInformationCardFocus() {

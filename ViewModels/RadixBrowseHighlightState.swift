@@ -12,6 +12,7 @@ struct RadixBrowseHighlightState {
     var imagePhrasePreview: PhraseItem?
     var sidebarPhrasePreview: PhraseItem?
     var sidebarPhraseLookupOverride: [PhraseItem]?
+    var sidebarPracticeSentenceItem: ConversationPracticeItem?
     var pendingScrollTarget: BrowseScrollTarget?
     var highlightedCharacter: String?
     var memoryCollectionID: UUID?
@@ -68,6 +69,7 @@ extension RadixStore {
             browseHighlightState.sidebarPhrasePreview = newValue
             if newValue == nil {
                 browseHighlightState.sidebarPhraseLookupOverride = nil
+                browseHighlightState.sidebarPracticeSentenceItem = nil
             }
         }
     }
@@ -75,6 +77,11 @@ extension RadixStore {
     var sidebarPhraseLookupOverride: [PhraseItem]? {
         get { browseHighlightState.sidebarPhraseLookupOverride }
         set { browseHighlightState.sidebarPhraseLookupOverride = newValue }
+    }
+
+    var activePracticeSentenceItem: ConversationPracticeItem? {
+        get { browseHighlightState.sidebarPracticeSentenceItem }
+        set { browseHighlightState.sidebarPracticeSentenceItem = newValue }
     }
 
     var pendingBrowseScrollTarget: BrowseScrollTarget? {

@@ -162,4 +162,21 @@ extension RadixStore {
         conversationPracticeLinkedHintCache[cacheKey] = hints
         return hints
     }
+
+    func isFavoriteSentence(_ item: ConversationPracticeItem) -> Bool {
+        let id = FavoriteSentenceRecord.identifier(for: item)
+        return RadixStudyPreferences.favoriteSentences.contains { $0.id == id }
+    }
+
+    func toggleFavoriteSentence(_ item: ConversationPracticeItem) {
+        let id = FavoriteSentenceRecord.identifier(for: item)
+        var records = RadixStudyPreferences.favoriteSentences
+        if records.contains(where: { $0.id == id }) {
+            records.removeAll { $0.id == id }
+        } else {
+            records.append(FavoriteSentenceRecord(item: item))
+        }
+        RadixStudyPreferences.favoriteSentences = records
+        favoriteSentenceRevision += 1
+    }
 }
