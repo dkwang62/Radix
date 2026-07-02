@@ -44,6 +44,17 @@ struct PortableBackupCodecTests {
                 completedAt: exportedAt
             )
         ])
+        let favoriteSentence = FavoriteSentenceRecord(
+            id: "sentence:你好。",
+            simplified: "你好。",
+            pinyin: "Nǐ hǎo.",
+            english: "Hello.",
+            sourceSetID: practicePack.packID,
+            sourceItemID: "test_topic_001",
+            phraseHints: ["你好。"],
+            characterHints: ["你", "好"],
+            favoritedAt: exportedAt
+        )
         let package = UnifiedPackage(
             schemaVersion: PortableBackupCodec.currentSchemaVersion,
             exportedAt: exportedAt,
@@ -51,7 +62,8 @@ struct PortableBackupCodecTests {
             phrases: [phrase],
             profile: UserProfile(schemaVersion: 1, favouritesList: ["学"]),
             conversationPracticePacks: [practicePack],
-            conversationPracticeProgress: practiceProgress
+            conversationPracticeProgress: practiceProgress,
+            favoriteSentences: [favoriteSentence]
         )
 
         let data = try codec.encode(package)
@@ -66,6 +78,7 @@ struct PortableBackupCodecTests {
         #expect(decoded.profile.favouritesList == ["学"])
         #expect(decoded.conversationPracticePacks == [practicePack])
         #expect(decoded.conversationPracticeProgress == practiceProgress)
+        #expect(decoded.favoriteSentences == [favoriteSentence])
     }
 
     @Test("Legacy Apple reference dates still decode")
@@ -87,6 +100,7 @@ struct PortableBackupCodecTests {
         #expect(decoded.exportedAt == package.exportedAt)
         #expect(decoded.conversationPracticePacks == nil)
         #expect(decoded.conversationPracticeProgress == nil)
+        #expect(decoded.favoriteSentences == nil)
     }
 
     @Test("Empty and future backups fail safely")

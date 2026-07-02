@@ -125,6 +125,7 @@ struct UnifiedPackage: Codable {
     let selectedAICollectionID: UUID?
     let conversationPracticePacks: [ConversationPracticePack]?
     let conversationPracticeProgress: ConversationPracticeProgressSnapshot?
+    let favoriteSentences: [FavoriteSentenceRecord]?
     let apiKeys: APIKeyBackup?
 
     enum CodingKeys: String, CodingKey {
@@ -141,6 +142,7 @@ struct UnifiedPackage: Codable {
         case selectedAICollectionID = "selected_ai_collection_id"
         case conversationPracticePacks = "conversation_practice_packs"
         case conversationPracticeProgress = "conversation_practice_progress"
+        case favoriteSentences = "favorite_sentences"
         case apiKeys = "api_keys"
     }
 
@@ -158,6 +160,7 @@ struct UnifiedPackage: Codable {
         selectedAICollectionID: UUID? = nil,
         conversationPracticePacks: [ConversationPracticePack]? = nil,
         conversationPracticeProgress: ConversationPracticeProgressSnapshot? = nil,
+        favoriteSentences: [FavoriteSentenceRecord]? = nil,
         apiKeys: APIKeyBackup? = nil
     ) {
         self.schemaVersion = schemaVersion
@@ -173,6 +176,7 @@ struct UnifiedPackage: Codable {
         self.selectedAICollectionID = selectedAICollectionID
         self.conversationPracticePacks = conversationPracticePacks
         self.conversationPracticeProgress = conversationPracticeProgress
+        self.favoriteSentences = favoriteSentences
         self.apiKeys = apiKeys
     }
 }

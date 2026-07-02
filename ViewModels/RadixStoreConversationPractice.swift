@@ -52,6 +52,26 @@ extension RadixStore {
         }
     }
 
+    func applyImportedFavoriteSentences(
+        _ records: [FavoriteSentenceRecord]?,
+        mode: RestoreMode
+    ) {
+        switch mode {
+        case .additive:
+            guard let records, !records.isEmpty else { return }
+            RadixStudyPreferences.favoriteSentences = RadixStudyPreferences.favoriteSentences + records
+        case .complete:
+            RadixStudyPreferences.favoriteSentences = records ?? []
+        }
+
+        if let library = ConversationPracticeLibrary.favoriteSentencesLibrary(from: RadixStudyPreferences.favoriteSentences) {
+            registerConversationPracticeLibrary(library)
+        } else if selectedConversationPracticeTopicID == ConversationPracticeTopic.favoriteSentencesID {
+            selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
+            persistPromptSettings()
+        }
+    }
+
     func registerConversationPracticeLibrary(_ library: ConversationPracticeLibrary) {
         var didRegisterPhrase = false
         for seed in library.phraseSeeds {

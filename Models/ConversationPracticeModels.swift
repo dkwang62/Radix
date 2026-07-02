@@ -338,8 +338,101 @@ public struct ConversationPracticeTopic: Codable, Equatable, Identifiable, Senda
         .stayInShanghai
     ]
 
+    public static let favoriteSentencesID = "favorite_sentences"
+
+    public static func favoriteSentences(count: Int) -> ConversationPracticeTopic {
+        ConversationPracticeTopic(
+            id: favoriteSentencesID,
+            title: "Favorite Sentences",
+            summary: "\(count) saved sentences",
+            difficultyLabel: "Saved from Study",
+            bundledResourceName: nil,
+            generationBrief: "Learner-saved Chinese sentences for review and practice.",
+            situations: [],
+            targetSentenceCount: count
+        )
+    }
+
     public static func topic(for id: String) -> ConversationPracticeTopic {
         defaults.first { $0.id == id } ?? .generalGreetings
+    }
+}
+
+public struct FavoriteSentenceRecord: Codable, Equatable, Identifiable, Sendable {
+    public let id: String
+    public let simplified: String
+    public let pinyin: String
+    public let english: String
+    public let sourceSetID: String
+    public let sourceItemID: String
+    public let phraseHints: [String]
+    public let characterHints: [String]
+    public let favoritedAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case simplified
+        case pinyin
+        case english
+        case sourceSetID = "source_set_id"
+        case sourceItemID = "source_item_id"
+        case phraseHints = "phrase_hints"
+        case characterHints = "character_hints"
+        case favoritedAt = "favorited_at"
+    }
+
+    public init(
+        id: String,
+        simplified: String,
+        pinyin: String,
+        english: String,
+        sourceSetID: String,
+        sourceItemID: String,
+        phraseHints: [String],
+        characterHints: [String],
+        favoritedAt: Date
+    ) {
+        self.id = id
+        self.simplified = simplified
+        self.pinyin = pinyin
+        self.english = english
+        self.sourceSetID = sourceSetID
+        self.sourceItemID = sourceItemID
+        self.phraseHints = phraseHints
+        self.characterHints = characterHints
+        self.favoritedAt = favoritedAt
+    }
+
+    init(item: ConversationPracticeItem, favoritedAt: Date = Date()) {
+        self.init(
+            id: Self.identifier(for: item),
+            simplified: item.simplified,
+            pinyin: item.pinyin,
+            english: item.english,
+            sourceSetID: item.setID,
+            sourceItemID: item.id,
+            phraseHints: item.phraseHints,
+            characterHints: item.characterHints,
+            favoritedAt: favoritedAt
+        )
+    }
+
+    public static func identifier(for item: ConversationPracticeItem) -> String {
+        "sentence:\(ConversationPracticeRules.phraseKey(for: item.simplified))"
+    }
+
+    public static func deduplicated(_ records: [FavoriteSentenceRecord]) -> [FavoriteSentenceRecord] {
+        var byID: [String: FavoriteSentenceRecord] = [:]
+        for record in records {
+            if let existing = byID[record.id], existing.favoritedAt <= record.favoritedAt {
+                continue
+            }
+            byID[record.id] = record
+        }
+        return byID.values.sorted {
+            if $0.favoritedAt != $1.favoritedAt { return $0.favoritedAt > $1.favoritedAt }
+            return $0.simplified < $1.simplified
+        }
     }
 }
 
@@ -375,6 +468,22 @@ public struct ConversationPracticeItem: Equatable, Identifiable {
         characterHints = entry.analysis.characters
         phraseHints = entry.analysis.phrases
         notes = entry.notes
+    }
+
+    init(favoriteSentence record: FavoriteSentenceRecord, rank: Int) {
+        id = record.id
+        setID = ConversationPracticeTopic.favoriteSentencesID
+        phraseKey = ConversationPracticeRules.phraseKey(for: record.simplified)
+        self.rank = rank
+        simplified = record.simplified
+        pinyin = record.pinyin
+        english = record.english
+        category = ConversationPracticeTopic.favoriteSentencesID
+        difficulty = .easy
+        tags = ["favorite"]
+        characterHints = record.characterHints
+        phraseHints = record.phraseHints
+        notes = "Saved from \(record.sourceSetID)"
     }
 }
 
@@ -428,6 +537,26 @@ public struct ConversationPracticeLibrary: Equatable {
 
     public var phraseKeys: [String] {
         memberships.map(\.phraseKey)
+    }
+
+    static func favoriteSentencesLibrary(from records: [FavoriteSentenceRecord]) -> ConversationPracticeLibrary? {
+        let records = FavoriteSentenceRecord.deduplicated(records)
+        guard !records.isEmpty else { return nil }
+        let items = records.enumerated().map { index, record in
+            ConversationPracticeItem(favoriteSentence: record, rank: index + 1)
+        }
+        return ConversationPracticeLibrary(
+            set: ConversationPracticeSet(
+                id: ConversationPracticeTopic.favoriteSentencesID,
+                title: "Favorite Sentences",
+                description: "\(items.count) saved sentences",
+                language: "zh",
+                itemCount: items.count
+            ),
+            items: items,
+            phraseSeeds: items.map(ConversationPracticePhraseSeed.init),
+            memberships: items.map(ConversationPracticeMembership.init)
+        )
     }
 }
 

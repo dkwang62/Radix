@@ -73,6 +73,10 @@ Do not move domain behavior back into `RadixStore.swift`.
   practice-set layer that points to Phrase DB records. Do not build a separate
   lesson-only Chinese sentence store that bypasses Radix Phrase cards,
   Character cards, favorites, notes, Browse inspection, or review state.
+- Study-owned favorite sentences are persisted as `FavoriteSentenceRecord`
+  snapshots and exposed as a generated `Favorite Sentences` Conversation
+  Practice library, so sentence review uses the same flashcard, quiz, translate,
+  speech, backup, and checkpoint pathways as other practice sets.
 - Portable backup: `UnifiedPackage` schema 5, with legacy backup decoding retained.
 - Bundled standard data imports additively once on startup from
   `radix_unified_backup.json`, guarded by `RadixPreferenceKey.standardDataImportID`.

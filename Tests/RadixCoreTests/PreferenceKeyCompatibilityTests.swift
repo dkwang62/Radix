@@ -8,6 +8,7 @@ struct PreferenceKeyCompatibilityTests {
         #expect(RadixPreferenceKey.favorites == "radix.favorites")
         #expect(RadixPreferenceKey.favoriteEntries == "radix.favoriteEntries")
         #expect(RadixPreferenceKey.favoritePhrases == "radix.favoritePhrases")
+        #expect(RadixPreferenceKey.favoriteSentences == "radix.favoriteSentences")
         #expect(RadixPreferenceKey.collections == "radix.characterCollections")
         #expect(RadixPreferenceKey.selectedAICollection == "radix.selectedAICollectionID")
         #expect(RadixPreferenceKey.searchHistory == "radix.searchHistory")

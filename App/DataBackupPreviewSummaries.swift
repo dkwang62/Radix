@@ -3,11 +3,13 @@ import SwiftUI
 extension DataBackupPreviewSection {
     var backupPracticeSummary: some View {
         let importedPacks = RadixStudyPreferences.importedConversationPracticePacks
+        let favoriteSentences = RadixStudyPreferences.favoriteSentences
 
         return VStack(alignment: .leading, spacing: 8) {
             BackupSummaryLine(title: "Selected topic", value: store.selectedConversationPracticeTopic.title)
             BackupSummaryLine(title: "Built-in topics", value: "\(ConversationPracticeTopic.defaults.count)")
             BackupSummaryLine(title: "Imported practice packs", value: "\(importedPacks.count)")
+            BackupSummaryLine(title: "Favorite sentences", value: "\(favoriteSentences.count)")
 
             if !importedPacks.isEmpty {
                 ForEach(importedPacks, id: \.packID) { pack in

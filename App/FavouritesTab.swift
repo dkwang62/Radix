@@ -25,6 +25,7 @@ struct FavouritesTab: View {
     @State var conversationPracticeTopics = ConversationPracticeTopic.defaults
     @State var conversationPracticeLibrary: ConversationPracticeLibrary? = try? ConversationPracticeService().loadLibrary(for: .generalGreetings)
     @State var importedConversationPracticeLibraries: [String: ConversationPracticeLibrary] = [:]
+    @State var favoriteSentenceRecords = RadixStudyPreferences.favoriteSentences
     @State var showConversationPracticeImporter = false
     @State var conversationPracticeImportMessage: String?
     @State var conversationPracticeImportError: String?
@@ -55,6 +56,7 @@ struct FavouritesTab: View {
             || !store.favoritePhrasesItems.isEmpty
             || !store.allCollections.isEmpty
             || !addedStudyPhraseEntries.isEmpty
+            || !favoriteSentenceRecords.isEmpty
             || !conversationPracticeTopics.isEmpty
     }
 
@@ -185,6 +187,7 @@ struct FavouritesTab: View {
             hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
             openAddedPhraseReviewIfRequested()
             loadImportedConversationPracticePacks()
+            loadFavoriteSentences()
             loadConversationPracticeLibrary()
             onRefreshCheckpoints()
         }
@@ -209,6 +212,7 @@ struct FavouritesTab: View {
         }
         .onChange(of: store.dataImportRevision) { _, _ in
             loadImportedConversationPracticePacks()
+            loadFavoriteSentences()
             loadConversationPracticeLibrary()
         }
     }
@@ -223,7 +227,9 @@ struct FavouritesTab: View {
     func loadConversationPracticeLibrary() {
         refreshConversationPracticeProgress()
         let topic = selectedConversationPracticeTopic
-        if let importedLibrary = importedConversationPracticeLibraries[topic.id] {
+        if topic.id == ConversationPracticeTopic.favoriteSentencesID {
+            conversationPracticeLibrary = ConversationPracticeLibrary.favoriteSentencesLibrary(from: favoriteSentenceRecords)
+        } else if let importedLibrary = importedConversationPracticeLibraries[topic.id] {
             conversationPracticeLibrary = importedLibrary
         } else {
             conversationPracticeLibrary = try? conversationPracticeService.loadLibrary(for: topic)
@@ -256,10 +262,31 @@ struct FavouritesTab: View {
             uniqueKeysWithValues: packs.map { ($0.packID, $0.practiceLibrary) }
         )
         let importedTopics = packs.map { conversationPracticeTopic(for: $0.practiceLibrary) }
-        conversationPracticeTopics = ConversationPracticeTopic.defaults + importedTopics.filter { importedTopic in
+        favoriteSentenceRecords = RadixStudyPreferences.favoriteSentences
+        conversationPracticeTopics = conversationPracticeBaseTopics(importedTopics: importedTopics)
+        if !conversationPracticeTopics.contains(where: { $0.id == store.selectedConversationPracticeTopicID }) {
+            store.selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
+        }
+    }
+
+    func conversationPracticeBaseTopics(importedTopics: [ConversationPracticeTopic]) -> [ConversationPracticeTopic] {
+        var topics = ConversationPracticeTopic.defaults + importedTopics.filter { importedTopic in
             !ConversationPracticeTopic.defaults.contains { $0.id == importedTopic.id }
         }
-        if !conversationPracticeTopics.contains(where: { $0.id == store.selectedConversationPracticeTopicID }) {
+        if !favoriteSentenceRecords.isEmpty {
+            topics.append(.favoriteSentences(count: favoriteSentenceRecords.count))
+        }
+        return topics
+    }
+
+    func loadFavoriteSentences() {
+        favoriteSentenceRecords = RadixStudyPreferences.favoriteSentences
+        let importedTopics = RadixStudyPreferences.importedConversationPracticePacks.map {
+            conversationPracticeTopic(for: $0.practiceLibrary)
+        }
+        conversationPracticeTopics = conversationPracticeBaseTopics(importedTopics: importedTopics)
+        if store.selectedConversationPracticeTopicID == ConversationPracticeTopic.favoriteSentencesID,
+           favoriteSentenceRecords.isEmpty {
             store.selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
         }
     }
@@ -390,6 +417,28 @@ struct FavouritesTab: View {
 
     func refreshConversationPracticeProgress() {
         conversationPracticeProgress = RadixStudyPreferences.conversationPracticeProgress
+    }
+
+    func isFavoriteSentence(_ item: ConversationPracticeItem) -> Bool {
+        let id = FavoriteSentenceRecord.identifier(for: item)
+        return favoriteSentenceRecords.contains { $0.id == id }
+    }
+
+    func toggleFavoriteSentence(_ item: ConversationPracticeItem) {
+        let id = FavoriteSentenceRecord.identifier(for: item)
+        var records = favoriteSentenceRecords
+        if records.contains(where: { $0.id == id }) {
+            records.removeAll { $0.id == id }
+        } else {
+            records.append(FavoriteSentenceRecord(item: item))
+        }
+
+        RadixStudyPreferences.favoriteSentences = records
+        loadFavoriteSentences()
+        if let library = ConversationPracticeLibrary.favoriteSentencesLibrary(from: favoriteSentenceRecords) {
+            store.registerConversationPracticeLibrary(library)
+        }
+        loadConversationPracticeLibrary()
     }
 
     var isPhoneStudyPreviewActive: Bool {

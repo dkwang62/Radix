@@ -480,6 +480,7 @@ extension RadixStore {
             selectedAICollectionID: selectedAICollectionID,
             conversationPracticePacks: RadixStudyPreferences.importedConversationPracticePacks,
             conversationPracticeProgress: RadixStudyPreferences.conversationPracticeProgress,
+            favoriteSentences: RadixStudyPreferences.favoriteSentences,
             apiKeys: currentAPIKeyBackup()
         )
     }
@@ -573,6 +574,7 @@ extension RadixStore {
                 applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .additive)
                 RadixStudyPreferences.conversationPracticeProgress =
                     RadixStudyPreferences.conversationPracticeProgress.merging(package.conversationPracticeProgress)
+                applyImportedFavoriteSentences(package.favoriteSentences, mode: .additive)
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .additive)
 
@@ -589,6 +591,7 @@ extension RadixStore {
                 applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .complete)
                 RadixStudyPreferences.conversationPracticeProgress =
                     package.conversationPracticeProgress ?? ConversationPracticeProgressSnapshot()
+                applyImportedFavoriteSentences(package.favoriteSentences, mode: .complete)
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .complete)
             }

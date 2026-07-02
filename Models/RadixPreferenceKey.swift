@@ -8,6 +8,7 @@ enum RadixPreferenceKey {
     static let favoriteEntries = "radix.favoriteEntries"
     static let favoritePhrases = "radix.favoritePhrases"
     static let favoritePhraseDates = "radix.favoritePhraseDates"
+    static let favoriteSentences = "radix.favoriteSentences"
     static let overlayAddedDates = "radix.overlayAddedDates"
 
     static let speechEnabled = "radix.speechEnabled"

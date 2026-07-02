@@ -63,4 +63,17 @@ enum RadixStudyPreferences {
             preferences.set(data, forKey: RadixPreferenceKey.conversationPracticeProgress)
         }
     }
+
+    static var favoriteSentences: [FavoriteSentenceRecord] {
+        get {
+            guard let data = preferences.data(forKey: RadixPreferenceKey.favoriteSentences) else {
+                return []
+            }
+            return (try? JSONDecoder().decode([FavoriteSentenceRecord].self, from: data)) ?? []
+        }
+        set {
+            let data = try? JSONEncoder().encode(FavoriteSentenceRecord.deduplicated(newValue))
+            preferences.set(data, forKey: RadixPreferenceKey.favoriteSentences)
+        }
+    }
 }

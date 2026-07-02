@@ -152,6 +152,19 @@ extension FavouritesTab {
                 }
             )
             studySummaryTile(
+                title: "Favorite Sentences",
+                value: "\(favoriteSentenceRecords.count)",
+                systemImage: "star.bubble",
+                tint: .orange,
+                action: {
+                    guard !favoriteSentenceRecords.isEmpty else { return }
+                    withAnimation(.snappy(duration: 0.18)) {
+                        isShowingConversationPractice = true
+                    }
+                    selectConversationPracticeTopic(.favoriteSentences(count: favoriteSentenceRecords.count))
+                }
+            )
+            studySummaryTile(
                 title: "Conversation Practices",
                 value: "\(conversationPracticeTopics.count)",
                 systemImage: "bubble.left.and.bubble.right",
