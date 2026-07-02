@@ -764,6 +764,42 @@ public struct ConversationPracticeValidationResult: Equatable {
 public enum ConversationPracticeRules {
     public static let supportedLanguages: Set<String> = ["zh-Hans"]
 
+    static func importJSONCandidates(from text: String) -> [String] {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return [] }
+
+        var candidates = [trimmed]
+        let lines = trimmed.components(separatedBy: .newlines)
+        if let firstLine = lines.first?.trimmingCharacters(in: .whitespacesAndNewlines),
+           firstLine.hasPrefix("```") {
+            var bodyLines = Array(lines.dropFirst())
+            if bodyLines.last?.trimmingCharacters(in: .whitespacesAndNewlines) == "```" {
+                bodyLines.removeLast()
+            }
+            let fencedBody = bodyLines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+            if !fencedBody.isEmpty {
+                candidates.append(fencedBody)
+            }
+        }
+
+        if let firstBrace = trimmed.firstIndex(of: "{"),
+           let lastBrace = trimmed.lastIndex(of: "}"),
+           firstBrace < lastBrace {
+            let objectBody = String(trimmed[firstBrace...lastBrace])
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if !objectBody.isEmpty {
+                candidates.append(objectBody)
+            }
+        }
+
+        var seen = Set<String>()
+        return candidates.filter { candidate in
+            guard !seen.contains(candidate) else { return false }
+            seen.insert(candidate)
+            return true
+        }
+    }
+
     public static func phraseKey(for sentence: String) -> String {
         sentence.trimmingCharacters(in: .whitespacesAndNewlinesAndPunctuation)
     }

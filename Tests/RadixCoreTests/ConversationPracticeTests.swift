@@ -231,6 +231,38 @@ struct ConversationPracticeTests {
         #expect(pack.practiceItems.first?.tags == ["hobbies_interests_personal_time"])
     }
 
+    @Test("Pasted conversation practice JSON can be extracted from AI fences")
+    func pastedPracticeJSONCandidatesHandleAIFences() throws {
+        let pasted = """
+        Here is the JSON:
+
+        ```json
+        {
+          "theme": "Page Sentences",
+          "entries": [
+            {
+              "id": "page_sentence_001",
+              "zh": "请先付款。",
+              "pinyin": "Qǐng xiān fùkuǎn.",
+              "en": "Please pay first."
+            }
+          ]
+        }
+        ```
+        """
+
+        let candidates = ConversationPracticeRules.importJSONCandidates(from: pasted)
+        let pack = try JSONDecoder().decode(
+            ConversationPracticePack.self,
+            from: Data(candidates.last?.utf8 ?? pasted.utf8)
+        )
+
+        #expect(candidates.count == 2)
+        #expect(pack.title == "Page Sentences")
+        #expect(pack.entries.count == 1)
+        #expect(ConversationPracticeRules.validate(pack).isValid)
+    }
+
     @Test("Unknown conversation practice topic falls back to default starter topic")
     func unknownTopicFallsBackToGeneralGreetings() {
         #expect(ConversationPracticeTopic.topic(for: "missing").id == "general_greetings")

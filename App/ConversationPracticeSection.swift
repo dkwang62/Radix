@@ -80,9 +80,15 @@ extension FavouritesTab {
             Divider()
 
             Button {
+                showConversationPracticePasteImporter = true
+            } label: {
+                Label("Paste Practice JSON", systemImage: "doc.on.clipboard")
+            }
+
+            Button {
                 showConversationPracticeImporter = true
             } label: {
-                Label("Import Practice JSON", systemImage: "square.and.arrow.down")
+                Label("Import JSON File", systemImage: "square.and.arrow.down")
             }
         } label: {
             HStack(spacing: 10) {
@@ -482,5 +488,208 @@ extension FavouritesTab {
     func conversationPracticeSentenceBorder(isSelected: Bool, cornerRadius: CGFloat) -> some View {
         RoundedRectangle(cornerRadius: cornerRadius)
             .stroke(isSelected ? Color.accentColor.opacity(0.75) : Color.clear, lineWidth: 1.4)
+    }
+}
+
+struct ConversationPracticePasteImportSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var pastedText = ""
+    @State private var preview: ConversationPracticePasteImportPreview?
+    @State private var errorMessage: String?
+
+    let onImport: (ConversationPracticePack) -> Void
+    private let service = ConversationPracticeService()
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    pasteEditor
+                    previewSection
+                }
+                .padding()
+            }
+            .background(RadixTheme.groupedBackground)
+            .navigationTitle("Paste Practice JSON")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+            .safeAreaInset(edge: .bottom) {
+                bottomActions
+            }
+            .onAppear(perform: prefillFromClipboardIfUseful)
+        }
+    }
+
+    var pasteEditor: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            TextEditor(text: Binding(
+                get: { pastedText },
+                set: {
+                    pastedText = $0
+                    preview = nil
+                    errorMessage = nil
+                }
+            ))
+            .font(.system(size: 14, design: .monospaced))
+            .frame(minHeight: 220)
+            .padding(8)
+            .background(RadixTheme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.secondary.opacity(0.22), lineWidth: 1)
+            )
+
+            if pastedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Label("Paste JSON with a theme and entries.", systemImage: "doc.on.clipboard")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    @ViewBuilder
+    var previewSection: some View {
+        if let preview {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 10) {
+                    Image(systemName: "bubble.left.and.bubble.right")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(Color.accentColor)
+                        .frame(width: 32, height: 32)
+                        .background(Color.accentColor.opacity(0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(preview.pack.title)
+                            .font(ResponsiveFont.body.weight(.semibold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                        Text("\(preview.pack.entries.count) sentences")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer(minLength: 0)
+                }
+
+                ForEach(preview.sampleItems) { item in
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(item.simplified)
+                            .font(ResponsiveFont.subheadline.weight(.semibold))
+                            .lineLimit(2)
+                        Text(item.pinyin)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                        Text(item.english)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                    .padding(8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(RadixTheme.background)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+
+                if !preview.validation.warnings.isEmpty {
+                    Label("\(preview.validation.warnings.count) warning\(preview.validation.warnings.count == 1 ? "" : "s")", systemImage: "exclamationmark.triangle")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.orange)
+                }
+            }
+            .padding(10)
+            .background(RadixTheme.secondaryBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        } else if let errorMessage {
+            Label(errorMessage, systemImage: "exclamationmark.triangle")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.red)
+                .lineLimit(4)
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.red.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+
+    var bottomActions: some View {
+        HStack(spacing: 8) {
+            Button {
+                pasteFromClipboard()
+            } label: {
+                Label("Paste", systemImage: "doc.on.clipboard")
+                    .frame(maxWidth: .infinity, minHeight: 38)
+            }
+            .buttonStyle(.bordered)
+
+            Button {
+                reviewPaste()
+            } label: {
+                Label("Review", systemImage: "checklist")
+                    .frame(maxWidth: .infinity, minHeight: 38)
+            }
+            .buttonStyle(.bordered)
+            .disabled(pastedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+            Button {
+                guard let pack = preview?.pack else { return }
+                onImport(pack)
+                dismiss()
+            } label: {
+                Label("Import", systemImage: "square.and.arrow.down")
+                    .frame(maxWidth: .infinity, minHeight: 38)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color.accentColor)
+            .disabled(preview == nil)
+        }
+        .font(ResponsiveFont.caption.weight(.semibold))
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(.bar)
+    }
+
+    func prefillFromClipboardIfUseful() {
+        guard pastedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let clipboard = RadixPlatform.pasteboardString.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard clipboard.contains("\"entries\"") || clipboard.contains("\"theme\"") else { return }
+        pastedText = clipboard
+        reviewPaste()
+    }
+
+    func pasteFromClipboard() {
+        pastedText = RadixPlatform.pasteboardString
+        preview = nil
+        errorMessage = nil
+        if pastedText.contains("\"entries\"") || pastedText.contains("\"theme\"") {
+            reviewPaste()
+        }
+    }
+
+    func reviewPaste() {
+        do {
+            let pack = try service.loadPack(fromPastedText: pastedText, sourceName: "Pasted Practice JSON")
+            let validation = ConversationPracticeRules.validate(pack)
+            preview = ConversationPracticePasteImportPreview(pack: pack, validation: validation)
+            errorMessage = nil
+        } catch {
+            preview = nil
+            errorMessage = error.localizedDescription
+        }
+    }
+}
+
+private struct ConversationPracticePasteImportPreview {
+    let pack: ConversationPracticePack
+    let validation: ConversationPracticeValidationResult
+
+    var sampleItems: [ConversationPracticeItem] {
+        Array(pack.practiceItems.prefix(3))
     }
 }

@@ -55,6 +55,25 @@ struct ConversationPracticeService {
         return pack
     }
 
+    func loadPack(fromPastedText text: String, sourceName: String) throws -> ConversationPracticePack {
+        var lastError: Error?
+        for candidate in ConversationPracticeRules.importJSONCandidates(from: text) {
+            guard let data = candidate.data(using: .utf8) else { continue }
+            do {
+                return try loadPack(from: data, sourceName: sourceName)
+            } catch {
+                lastError = error
+            }
+        }
+        if let lastError {
+            throw lastError
+        }
+        throw DecodingError.dataCorrupted(.init(
+            codingPath: [],
+            debugDescription: "Paste a JSON object with a theme and entries."
+        ))
+    }
+
     func loadLibrary(from data: Data, sourceName: String) throws -> ConversationPracticeLibrary {
         try loadPack(from: data, sourceName: sourceName).practiceLibrary
     }

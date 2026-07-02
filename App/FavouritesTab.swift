@@ -27,6 +27,7 @@ struct FavouritesTab: View {
     @State var importedConversationPracticeLibraries: [String: ConversationPracticeLibrary] = [:]
     @State var favoriteSentenceRecords = RadixStudyPreferences.favoriteSentences
     @State var showConversationPracticeImporter = false
+    @State var showConversationPracticePasteImporter = false
     @State var conversationPracticeImportMessage: String?
     @State var conversationPracticeImportError: String?
     @State var pendingConversationPracticeDeletion: ConversationPracticeTopic?
@@ -127,6 +128,11 @@ struct FavouritesTab: View {
             )
             .environmentObject(store)
             .environmentObject(entitlement)
+        }
+        .sheet(isPresented: $showConversationPracticePasteImporter) {
+            ConversationPracticePasteImportSheet { pack in
+                importPastedConversationPracticePack(pack)
+            }
         }
         .fileImporter(
             isPresented: $showConversationPracticeImporter,
@@ -317,6 +323,10 @@ struct FavouritesTab: View {
             conversationPracticeImportMessage = nil
             conversationPracticeImportError = error.localizedDescription
         }
+    }
+
+    func importPastedConversationPracticePack(_ pack: ConversationPracticePack) {
+        reviewOrFinishImportingConversationPracticePack(pack)
     }
 
     func reviewOrFinishImportingConversationPracticePack(_ pack: ConversationPracticePack) {

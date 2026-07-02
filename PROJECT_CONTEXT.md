@@ -102,7 +102,7 @@ compatibility contracts. Current portable contracts include:
 - navigation, tab, script-filter, and restore-mode identifiers
 - preference keys and the preference-storage interface
 
-The portable test suite currently contains 33 tests across eight suites.
+The portable test suite currently contains 39 tests across eight suites.
 
 ## Active Workstream
 
@@ -175,6 +175,10 @@ it asks AI to return the same lightweight Conversation Practice import JSON
 shape (`theme` plus `entries`) used by generated practice packs, so imported
 page sentences reuse the existing practice, favorite-sentence, backup,
 checkpoint, and speech pathways instead of creating another sentence store.
+Conversation Practice accepts AI-generated packs through `Paste Practice JSON`
+as the primary return path from ChatGPT/Gemini, while `Import JSON File` remains
+available for saved files and transfer. The paste route previews the theme,
+sentence count, sample sentences, and validation warnings before import.
 AI Link exposes one task per user goal. The former API-only phrase task is
 removed; `Extract Phrases` supports both copy/paste and automatic Gemini
 execution without appearing twice.
