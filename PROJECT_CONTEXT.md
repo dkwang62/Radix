@@ -93,6 +93,8 @@ Do not move domain behavior back into `RadixStore.swift`.
 - Apple persistence uses `RadixPreferences`, backed by `UserDefaults`.
 - `RadixStore`, `EntitlementManager`, and the phrase database location manager
   accept an injected preference store.
+- On iPhone, character or phrase previews opened from a saved Browse page show a
+  contextual return button named for that page, not a generic Browse label.
 
 Never change an existing preference key, enum raw value, backup field, or review
 status without an explicit migration and compatibility test.

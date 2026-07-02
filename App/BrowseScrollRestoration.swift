@@ -6,6 +6,7 @@ extension FilterGridTab {
         BrowsePhonePreview(
             phrase: store.activeSidebarPhrasePreview,
             character: store.previewCharacter,
+            pageReturnTitle: store.selectedBrowseCollection?.name,
             onReturn: { returnToBrowse(proxy: proxy) }
         )
         .environmentObject(store)

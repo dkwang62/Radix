@@ -12,25 +12,11 @@ struct PhoneContextPreview: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if let phrase {
-                if let listReturnTitle {
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            onReturn()
-                        }
-                    } label: {
-                        Label(listReturnTitle, systemImage: "chevron.backward")
-                            .font(ResponsiveFont.subheadline.weight(.semibold))
-                            .foregroundStyle(Color.accentColor)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(RadixTheme.secondaryBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Back to \(listReturnTitle)")
-                }
+            if let listReturnTitle {
+                listReturnButton(title: listReturnTitle)
+            }
 
+            if let phrase {
                 PhraseInfoCard(
                     phrase: phrase,
                     phraseLookupOverride: store.sidebarPhraseLookupOverride,
@@ -90,5 +76,23 @@ struct PhoneContextPreview: View {
                 phraseReturnPracticeItem = store.activePracticeSentenceItem
             }
         }
+    }
+
+    func listReturnButton(title: String) -> some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                onReturn()
+            }
+        } label: {
+            Label(title, systemImage: "chevron.backward")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .foregroundStyle(Color.accentColor)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(RadixTheme.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Back to \(title)")
     }
 }
