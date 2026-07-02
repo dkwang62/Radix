@@ -5,7 +5,7 @@ Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
 
-Last reviewed: 2026-07-02
+Last reviewed: 2026-07-03
 
 ## Product and Platform Scope
 
@@ -215,6 +215,11 @@ Conversation Practice theme.
 AI Link exposes one task per user goal. The former API-only phrase task is
 removed; `Extract Phrases` supports both copy/paste and automatic Gemini
 execution without appearing twice.
+AI Link is the complete manual AI round trip: after opening/copying a prompt,
+task-specific result paste/apply controls live in AI Link for OCR correction,
+phrase extraction, translation reports, and Conversation Practice imports. The
+prompt template editor is collapsed by default so task, source, send, and result
+remain the primary workflow.
 The AI Link tab presents one task at a time through an `AI Task` dropdown. The
 old `Instructions`/`Customize` split is collapsed into a single editable
 `AI Prompt` template for the selected task. Built-in tasks edit the prompt

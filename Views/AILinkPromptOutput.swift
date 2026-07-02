@@ -255,3 +255,255 @@ extension AILinkView {
         }
     }
 }
+
+extension AILinkView {
+    @ViewBuilder
+    var aiResultWorkflowSection: some View {
+        if let selectedPromptTask {
+            VStack(alignment: .leading, spacing: 10) {
+                resultWorkflowHeader(for: selectedPromptTask)
+
+                if aiResultWorkflowSupportsPaste(selectedPromptTask.id) {
+                    aiResultPasteEditor
+                    aiResultActions(for: selectedPromptTask)
+                } else {
+                    aiResultNoPasteNeeded(for: selectedPromptTask)
+                }
+
+                if let aiResultMessage {
+                    Label(aiResultMessage, systemImage: "checkmark.circle")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(Color.accentColor)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else if let aiResultError {
+                    Label(aiResultError, systemImage: "exclamationmark.triangle")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.red)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(12)
+            .background(RadixTheme.secondaryBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+
+    func resultWorkflowHeader(for task: PromptTask) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: aiResultIcon(for: task.id))
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 32, height: 32)
+                .background(Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("AI Result")
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                Text(aiResultInstruction(for: task.id))
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .layoutPriority(1)
+        }
+    }
+
+    var aiResultPasteEditor: some View {
+        TextEditor(text: Binding(
+            get: { aiResultText },
+            set: {
+                aiResultText = $0
+                aiResultMessage = nil
+                aiResultError = nil
+            }
+        ))
+        .font(.system(size: 14, design: .monospaced))
+        .frame(minHeight: 150)
+        .padding(8)
+        .background(RadixTheme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(alignment: .topLeading) {
+            if aiResultText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Text("Paste the AI answer here.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.tertiary)
+                    .padding(.top, 16)
+                    .padding(.leading, 14)
+                    .allowsHitTesting(false)
+            }
+        }
+    }
+
+    func aiResultActions(for task: PromptTask) -> some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                aiPasteButton
+                aiApplyResultButton(for: task)
+                aiClearResultButton
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                aiPasteButton
+                aiApplyResultButton(for: task)
+                aiClearResultButton
+            }
+        }
+    }
+
+    var aiPasteButton: some View {
+        Button {
+            aiResultText = RadixPlatform.pasteboardString
+            aiResultMessage = nil
+            aiResultError = nil
+        } label: {
+            Label("Paste", systemImage: "doc.on.clipboard")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+    }
+
+    func aiApplyResultButton(for task: PromptTask) -> some View {
+        Button {
+            applyAIResult(for: task)
+        } label: {
+            Label(aiResultApplyTitle(for: task.id), systemImage: "checkmark.circle")
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.small)
+        .disabled(!canApplyAIResult(for: task))
+    }
+
+    var aiClearResultButton: some View {
+        Button(role: .destructive) {
+            aiResultText = ""
+            aiResultMessage = nil
+            aiResultError = nil
+        } label: {
+            Label("Clear", systemImage: "xmark.circle")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .disabled(aiResultText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+    }
+
+    func aiResultNoPasteNeeded(for task: PromptTask) -> some View {
+        Label(aiResultNoPasteText(for: task.id), systemImage: "checkmark.circle")
+            .font(ResponsiveFont.caption)
+            .foregroundStyle(.secondary)
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RadixTheme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    func aiResultWorkflowSupportsPaste(_ taskID: String) -> Bool {
+        ["task4", "task5", "task7", "task9", "task10"].contains(taskID)
+    }
+
+    func canApplyAIResult(for task: PromptTask) -> Bool {
+        let hasText = !aiResultText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        guard hasText else { return false }
+        if PromptConfig.collectionTaskIDs.contains(task.id), selectedCollection == nil {
+            return false
+        }
+        return aiResultWorkflowSupportsPaste(task.id)
+    }
+
+    func applyAIResult(for task: PromptTask) {
+        aiResultMessage = nil
+        aiResultError = nil
+        let result = aiResultText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !result.isEmpty else { return }
+
+        do {
+            switch task.id {
+            case "task4":
+                let summary = store.importPhraseDiscoveryResponse(result)
+                aiResultMessage = summary.message(defaultAIName: store.defaultAIName)
+            case "task5":
+                guard let selectedCollection else { throw aiResultError("Choose a saved page first.") }
+                store.updateCollectionTranslationReport(id: selectedCollection.id, report: result)
+                aiResultMessage = "Translation saved to \(selectedCollection.name)."
+            case "task7":
+                guard let selectedCollection else { throw aiResultError("Choose a saved page first.") }
+                guard let proposal = OCRReviewParser.parse(result) else {
+                    throw aiResultError("Radix could not read the AI answer. Ask it to keep the required [[CORRECTED TEXT]], [[CHANGES]], and [[UNCERTAIN]] headings.")
+                }
+                guard let corrected = store.createCorrectedOCRCollection(
+                    from: selectedCollection.id,
+                    correctedText: proposal.correctedText
+                ) else {
+                    throw aiResultError("The corrected text does not contain a Chinese character recognized by Radix.")
+                }
+                store.selectAICollection(id: corrected.id)
+                aiResultMessage = "Corrected page created: \(corrected.name)."
+            case "task9", "task10":
+                let pack = try ConversationPracticeService().loadPack(
+                    fromPastedText: result,
+                    sourceName: task.id == "task10" ? (selectedCollection?.name ?? "AI Link") : "AI Link"
+                )
+                store.saveImportedConversationPracticePack(pack)
+                store.selectedConversationPracticeTopicID = pack.packID
+                store.persistPromptSettings()
+                aiResultMessage = "Imported \(pack.title) - \(pack.entries.count) sentences."
+            default:
+                return
+            }
+            aiResultText = ""
+        } catch {
+            aiResultError = error.localizedDescription
+        }
+    }
+
+    func resetAIResultWorkflow() {
+        aiResultText = ""
+        aiResultMessage = nil
+        aiResultError = nil
+    }
+
+    func aiResultIcon(for taskID: String) -> String {
+        switch taskID {
+        case "task4": return "text.badge.plus"
+        case "task5": return "translate"
+        case "task7": return "text.viewfinder"
+        case "task9", "task10": return "bubble.left.and.bubble.right"
+        default: return "doc.text"
+        }
+    }
+
+    func aiResultInstruction(for taskID: String) -> String {
+        switch taskID {
+        case "task4": return "Paste the extracted phrase list here to add the phrases to Radix."
+        case "task5": return "Paste the translation here to save it with the selected page."
+        case "task7": return "Paste the OCR review here to create a corrected saved page."
+        case "task9": return "Paste the practice-pack JSON here to import it into Study."
+        case "task10": return "Paste the extracted-sentences JSON here to import it into Conversation Practice."
+        case "task8": return "This prompt runs the quiz inside the AI app, so there is no Radix paste step."
+        default: return "Use the AI answer as a reference. This task does not import data back into Radix."
+        }
+    }
+
+    func aiResultApplyTitle(for taskID: String) -> String {
+        switch taskID {
+        case "task4": return "Add Phrases"
+        case "task5": return "Save Translation"
+        case "task7": return "Create Corrected Page"
+        case "task9", "task10": return "Import Practice"
+        default: return "Apply"
+        }
+    }
+
+    func aiResultNoPasteText(for taskID: String) -> String {
+        switch taskID {
+        case "task8":
+            return "After opening the prompt, continue the quiz in the AI app. Radix has no separate result to import for this task."
+        default:
+            return "After opening the prompt, read or save the AI answer where it is useful. Radix has no structured import step for this task."
+        }
+    }
+
+    func aiResultError(_ message: String) -> NSError {
+        NSError(domain: "Radix", code: 5100, userInfo: [NSLocalizedDescriptionKey: message])
+    }
+}

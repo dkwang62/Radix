@@ -23,6 +23,10 @@ struct AILinkView: View {
     @State var selectedAIPreset: DefaultAIPreset?
     @State var isRunningGeminiPhraseAPI = false
     @State var geminiPhraseAPIMessage: String?
+    @State var isPromptTemplateExpanded = false
+    @State var aiResultText = ""
+    @State var aiResultMessage: String?
+    @State var aiResultError: String?
 
     /// The character or phrase word that tasks 1-3 will act on.
     /// Phrase preview takes priority over single character preview.
@@ -147,6 +151,12 @@ struct AILinkView: View {
                 selectedAIPreset = store.defaultAIPreset
             }
             ensureSelectedPromptTask()
+        }
+        .onChange(of: selectedPromptTask?.id) { _, _ in
+            resetAIResultWorkflow()
+        }
+        .onChange(of: selectedCollection?.id) { _, _ in
+            resetAIResultWorkflow()
         }
     }
 

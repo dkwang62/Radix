@@ -47,6 +47,10 @@ extension RadixStore {
             characters: text,
             knownPhrases: phraseDiscoveryKnownPhrases(in: text)
         )
+        return importPhraseDiscoveryResponse(responseText)
+    }
+
+    func importPhraseDiscoveryResponse(_ responseText: String) -> PhraseDiscoveryImportSummary {
         let parsed = PhraseDiscoveryParser.parse(responseText)
         let candidates = PhraseDiscoveryCandidateTools.selectingAll(parsed.candidates, isSelected: true)
         let prepared = PhraseDiscoveryCandidateTools.preparingForImport(candidates)

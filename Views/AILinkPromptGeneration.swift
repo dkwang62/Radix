@@ -6,6 +6,7 @@ extension AILinkView {
             taskSelectionSection
             selectedTaskSourceSection
             promptBox
+            aiResultWorkflowSection
             selectedTaskTemplateSection
         }
     }
@@ -76,57 +77,46 @@ extension AILinkView {
     @ViewBuilder
     var selectedTaskTemplateSection: some View {
         if selectedPromptTask != nil {
-            VStack(alignment: .leading, spacing: 6) {
-                ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .center, spacing: 8) {
-                        Text("AI Prompt")
-                            .font(ResponsiveFont.headline)
-                            .layoutPriority(1)
-
-                        Spacer(minLength: 8)
-
-                        promptEditorActions
+            DisclosureGroup(isExpanded: $isPromptTemplateExpanded) {
+                VStack(alignment: .leading, spacing: 8) {
+                    if let promptSaveStatus {
+                        Text(promptSaveStatus)
+                            .font(ResponsiveFont.footnote)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("AI Prompt")
-                            .font(ResponsiveFont.headline)
-
-                        promptEditorActions
+                    if isCustomPromptTask {
+                        TextField("AI task name", text: Binding(
+                            get: { draftPromptTitle },
+                            set: {
+                                draftPromptTitle = $0
+                                promptSaveStatus = nil
+                            }
+                        ))
+                        .font(ResponsiveFont.body.bold())
+                        .textFieldStyle(.roundedBorder)
                     }
-                }
 
-                if let promptSaveStatus {
-                    Text(promptSaveStatus)
-                        .font(ResponsiveFont.footnote)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                if isCustomPromptTask {
-                    TextField("AI task name", text: Binding(
-                        get: { draftPromptTitle },
+                    TextEditor(text: Binding(
+                        get: { draftPromptTemplate },
                         set: {
-                            draftPromptTitle = $0
+                            draftPromptTemplate = $0
                             promptSaveStatus = nil
                         }
                     ))
-                    .font(ResponsiveFont.body.bold())
-                    .textFieldStyle(.roundedBorder)
-                }
+                    .font(.system(size: 14, design: .monospaced))
+                    .frame(minHeight: sizeClass == .compact ? 180 : 220)
+                    .padding(8)
+                    .background(RadixTheme.tertiaryBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                TextEditor(text: Binding(
-                    get: { draftPromptTemplate },
-                    set: {
-                        draftPromptTemplate = $0
-                        promptSaveStatus = nil
-                    }
-                ))
-                .font(.system(size: 14, design: .monospaced))
-                .frame(minHeight: sizeClass == .compact ? 180 : 220)
-                .padding(8)
-                .background(RadixTheme.tertiaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                    promptEditorActions
+                }
+                .padding(.top, 10)
+            } label: {
+                Label("AI Prompt Template", systemImage: "slider.horizontal.3")
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
             }
             .padding(12)
             .background(RadixTheme.secondaryBackground)
