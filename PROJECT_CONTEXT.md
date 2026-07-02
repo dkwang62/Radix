@@ -175,11 +175,13 @@ it asks AI to return the same lightweight Conversation Practice import JSON
 shape (`theme` plus `entries`) used by generated practice packs, so imported
 page sentences reuse the existing practice, favorite-sentence, backup,
 checkpoint, and speech pathways instead of creating another sentence store.
-AI-generated Conversation Practice sentences are capped at 12 Chinese
-characters per `zh` value, excluding punctuation and spaces. AI should reword
-or split longer source ideas into complete short study sentences that preserve
-meaning; material that cannot become useful short practice content should be
-skipped rather than imported with warnings for the user to resolve.
+AI-generated Conversation Practice sentences are capped at 16 Chinese
+characters per `zh` value, excluding punctuation and spaces. That fits the
+sidebar's character-animation model: four pages of four animated characters.
+AI should reword or split longer source ideas into complete short study
+sentences that preserve meaning; material that cannot become useful short
+practice content should be skipped rather than imported with warnings for the
+user to resolve.
 The page-sentence AI template instructs AI to set the import `theme` exactly to
 the source page title. Browse currently uses that same-name convention to show a
 page-row Practice shortcut. Do not add a full source-metadata schema yet; if
