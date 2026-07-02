@@ -44,13 +44,6 @@ extension CharacterInfoCard {
     var definitionAndNotes: some View {
         VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 4) {
-                    Label("Definition", systemImage: "text.book.closed")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    GlossaryTermButton(term: "Definition")
-                }
-
                 Text(item.definition.isEmpty ? "No definition" : item.definition)
                     .font(ResponsiveFont.subheadline)
                     .foregroundStyle(.primary)

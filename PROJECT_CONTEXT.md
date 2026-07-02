@@ -81,8 +81,9 @@ Do not move domain behavior back into `RadixStore.swift`.
   ordinary phrase cards use `.phrase`, so the star cannot silently switch
   between character, phrase, and sentence semantics. Conversation Practice
   sentence preview cards also expose an explicit read-aloud button for the full
-  sentence. Phrase and sentence preview cards show the meaning text directly
-  without a redundant `Meaning` heading.
+  sentence. Phrase and sentence preview cards show the meaning text directly,
+  and character preview cards show the definition directly, without redundant
+  section headings.
 - Portable backup: `UnifiedPackage` schema 5, with legacy backup decoding retained.
 - Bundled standard data imports additively once on startup from
   `radix_unified_backup.json`, guarded by `RadixPreferenceKey.standardDataImportID`.
