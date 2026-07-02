@@ -175,6 +175,8 @@ it asks AI to return the same lightweight Conversation Practice import JSON
 shape (`theme` plus `entries`) used by generated practice packs, so imported
 page sentences reuse the existing practice, favorite-sentence, backup,
 checkpoint, and speech pathways instead of creating another sentence store.
+AI-generated practice sentences should stay natural and must not be capped to a
+short display length; sidebar and card UI must adapt to long sentences instead.
 The page-sentence AI template instructs AI to set the import `theme` exactly to
 the source page title. Browse currently uses that same-name convention to show a
 page-row Practice shortcut. Do not add a full source-metadata schema yet; if

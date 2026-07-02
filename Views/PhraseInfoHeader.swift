@@ -5,9 +5,9 @@ extension PhraseInfoCard {
         HStack(alignment: .top, spacing: 10) {
             VStack(alignment: .leading, spacing: 6) {
                 Text(phrase.word)
-                    .font(.system(size: 32, weight: .bold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.32)
+                    .font(.system(size: isPracticeSentence ? 24 : 32, weight: .bold))
+                    .lineLimit(isPracticeSentence ? 4 : 1)
+                    .minimumScaleFactor(isPracticeSentence ? 0.75 : 0.32)
                     .allowsTightening(true)
                     .layoutPriority(1)
                     .phraseContextMenu(phrase)
