@@ -1,6 +1,6 @@
 import Foundation
 
-public enum ConversationPracticeDifficulty: String, Codable, CaseIterable {
+public enum ConversationPracticeDifficulty: String, Codable, CaseIterable, Hashable {
     case easy
     case medium
     case hard
@@ -436,7 +436,7 @@ public struct FavoriteSentenceRecord: Codable, Equatable, Identifiable, Sendable
     }
 }
 
-public struct ConversationPracticeItem: Equatable, Identifiable {
+public struct ConversationPracticeItem: Equatable, Hashable, Identifiable {
     public let id: String
     public let setID: String
     public let phraseKey: String

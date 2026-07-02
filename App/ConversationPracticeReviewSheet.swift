@@ -249,7 +249,7 @@ struct ConversationPracticeReviewSheet: View {
         )
         store.readPhraseAloud(phrase)
         store.pushPhraseBreadcrumb(phrase)
-        inspectionPath.append(.phrase(phrase))
+        inspectionPath.append(.phrase(phrase, item))
     }
 
     func openPhraseHint(_ phrase: String) {
@@ -265,7 +265,7 @@ struct ConversationPracticeReviewSheet: View {
         )
         store.readPhraseAloud(displayPhrase)
         store.pushPhraseBreadcrumb(displayPhrase)
-        inspectionPath.append(.phrase(displayPhrase))
+        inspectionPath.append(.phrase(displayPhrase, nil))
     }
 
     func openCharacter(_ character: String) {

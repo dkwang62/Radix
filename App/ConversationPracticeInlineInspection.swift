@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum ConversationPracticeInspectionRoute: Hashable {
-    case phrase(PhraseItem)
+    case phrase(PhraseItem, ConversationPracticeItem?)
     case character(String)
 }
 
@@ -125,10 +125,11 @@ struct ConversationPracticeInspectionDestination: View {
     var body: some View {
         Group {
             switch route {
-            case let .phrase(phrase):
+            case let .phrase(phrase, practiceItem):
                 ScrollView {
                     PhraseInfoCard(
                         phrase: phrase,
+                        favoriteSentenceItem: practiceItem,
                         onSelectCharacter: onOpenCharacter
                     )
                     .environmentObject(store)

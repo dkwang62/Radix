@@ -127,7 +127,7 @@ extension ConversationPracticeTranslationQuizSheet {
         )
         store.readPhraseAloud(phrase)
         store.pushPhraseBreadcrumb(phrase)
-        inspectionPath.append(.phrase(phrase))
+        inspectionPath.append(.phrase(phrase, item))
     }
 
     func openCharacter(_ character: String) {

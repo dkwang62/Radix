@@ -44,8 +44,7 @@ extension PhraseInfoCard {
 
     @ViewBuilder
     var phraseFavoriteButton: some View {
-        if let practiceItem = store.activePracticeSentenceItem,
-           store.phraseStorageWord(practiceItem.phraseKey) == store.phraseStorageWord(phrase.word) {
+        if let practiceItem = favoriteSentenceItem ?? store.activePracticeSentenceItem {
             Button {
                 store.toggleFavoriteSentence(practiceItem)
             } label: {

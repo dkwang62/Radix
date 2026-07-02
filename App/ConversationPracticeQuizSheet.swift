@@ -551,7 +551,7 @@ struct ConversationPracticeQuizSheet: View {
     func openPhrase(_ item: ConversationPracticeItem) {
         let phrase = phraseItem(for: item)
         store.pushPhraseBreadcrumb(phrase)
-        inspectionPath.append(.phrase(phrase))
+        inspectionPath.append(.phrase(phrase, item))
     }
 
     func openCharacter(_ character: String) {

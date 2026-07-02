@@ -34,6 +34,7 @@ struct PhoneContextPreview: View {
                 PhraseInfoCard(
                     phrase: phrase,
                     phraseLookupOverride: store.sidebarPhraseLookupOverride,
+                    favoriteSentenceItem: store.activePracticeSentenceItem,
                     onSelectCharacter: { character in
                         phraseReturnTarget = phrase
                         phraseReturnPracticeItem = store.activePracticeSentenceItem
