@@ -338,9 +338,14 @@ final class RadixStore: ObservableObject {
         }
     }
 
+    var shouldAutoOpenAILinkPrompt: Bool {
+        get { aiLinkState.shouldAutoOpenPrompt }
+        set { aiLinkState.shouldAutoOpenPrompt = newValue }
+    }
+
     var shouldAutoOpenAILinkTask4: Bool {
-        get { aiLinkState.shouldAutoOpenTask4 }
-        set { aiLinkState.shouldAutoOpenTask4 = newValue }
+        get { shouldAutoOpenAILinkPrompt }
+        set { shouldAutoOpenAILinkPrompt = newValue }
     }
 
     var shouldAutoRunGeminiPhraseAPI: Bool {

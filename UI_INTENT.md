@@ -518,7 +518,9 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   and Create Practice from Page also exist as saved-page tasks in AI Link. Their
   templates are editable as AI prompts in the selected task view, and Browse
   must render those same templates rather than maintaining separate hidden
-  instructions.
+  instructions. Manual `Use Another AI App` actions from Browse should route
+  into that same AI Link task/result workflow with the saved page selected and
+  a contextual `Back to Browse` return path.
 - Conversation-generating AI tasks show one compact quantity selector beside
   the selected topic/page, defaulting to 25 entries with 50 and 100 as larger
   choices. Keep this as a shared control for future similar tasks rather than

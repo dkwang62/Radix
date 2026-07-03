@@ -156,48 +156,48 @@ extension FilterGridTab {
 
         if collection.sourceType == .ocr && collection.correctedFromCollectionID == nil {
             tasks.append(CollectionPageAITask(
-                id: "check_ocr",
+                id: AIResultTaskID.checkOCR,
                 title: "Check OCR",
                 systemImage: "text.viewfinder",
-                manualAction: { beginOCRReview(collection) },
+                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.checkOCR) },
                 automaticAction: { runAutomaticPageAIAction { runAutomaticOCRReview(collection) } }
             ))
         }
 
         tasks.append(contentsOf: [
             CollectionPageAITask(
-                id: "extract_phrases",
+                id: AIResultTaskID.extractPhrases,
                 title: "Extract Phrases",
                 systemImage: "text.badge.plus",
-                manualAction: { beginManualPhraseExtraction(collection) },
+                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.extractPhrases) },
                 automaticAction: { runAutomaticPageAIAction { runBrowseGeminiPhraseExtraction(collection) } }
             ),
             CollectionPageAITask(
-                id: "translate_page",
+                id: AIResultTaskID.translatePage,
                 title: "Translate Page",
                 systemImage: "translate",
-                manualAction: { beginBrowseTranslation(collection) },
+                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.translatePage) },
                 automaticAction: { runAutomaticPageAIAction { runBrowseGeminiTranslationAndSave(collection) } }
             ),
             CollectionPageAITask(
-                id: "create_quiz",
+                id: "task8",
                 title: "Create Quiz",
                 systemImage: "questionmark.circle",
-                manualAction: { beginManualPageQuiz(collection) },
+                manualAction: { beginAILinkPageTask(collection, taskID: "task8") },
                 automaticAction: { runAutomaticPageAIAction { beginPageQuiz(collection) } }
             ),
             CollectionPageAITask(
-                id: "extract_sentences",
+                id: AIResultTaskID.extractSentences,
                 title: "Extract Sentences",
                 systemImage: "bubble.left.and.bubble.right",
-                manualAction: { beginPageSentenceExtraction(collection) },
+                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences) },
                 automaticAction: { runAutomaticPageAIAction { runBrowseGeminiSentenceExtraction(collection) } }
             ),
             CollectionPageAITask(
-                id: "create_page_practice",
+                id: AIResultTaskID.createPagePractice,
                 title: "Create Practice from Page",
                 systemImage: "sparkles",
-                manualAction: { beginPagePracticeGeneration(collection) },
+                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice) },
                 automaticAction: { runAutomaticPageAIAction { runBrowseGeminiPagePracticeGeneration(collection) } }
             )
         ])

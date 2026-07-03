@@ -146,18 +146,18 @@ struct AILinkView: View {
         .background(RadixTheme.groupedBackground)
         .onAppear {
             store.refreshPhrases()
-            if store.shouldAutoOpenAILinkTask4 {
-                store.shouldAutoOpenAILinkTask4 = false
+            if selectedAIPreset == nil {
+                selectedAIPreset = store.defaultAIPreset
+            }
+            ensureSelectedPromptTask()
+            if store.shouldAutoOpenAILinkPrompt {
+                store.shouldAutoOpenAILinkPrompt = false
                 openPromptInDefaultAI()
             }
             if store.shouldAutoRunGeminiPhraseAPI {
                 store.shouldAutoRunGeminiPhraseAPI = false
                 runGeminiPhraseAPI()
             }
-            if selectedAIPreset == nil {
-                selectedAIPreset = store.defaultAIPreset
-            }
-            ensureSelectedPromptTask()
         }
         .onChange(of: selectedPromptTask?.id) { _, _ in
             resetAIResultWorkflow()
@@ -323,15 +323,15 @@ struct AILinkView: View {
             selectedPromptTaskID = nil
             return
         }
-        if let selectedPromptTaskID,
-           normalizedTasks.contains(where: { $0.id == selectedPromptTaskID }) {
-            loadPromptDraft(taskID: selectedPromptTaskID)
-            return
-        }
         if let savedID = store.promptSelectedTaskIDs.first,
            normalizedTasks.contains(where: { $0.id == savedID }) {
             selectedPromptTaskID = savedID
             loadPromptDraft(taskID: savedID)
+            return
+        }
+        if let selectedPromptTaskID,
+           normalizedTasks.contains(where: { $0.id == selectedPromptTaskID }) {
+            loadPromptDraft(taskID: selectedPromptTaskID)
             return
         }
         let fallbackID = normalizedTasks[0].id

@@ -22,7 +22,6 @@ struct FilterGridTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
     @Environment(\.horizontalSizeClass) var sizeClass
-    @Environment(\.openURL) var openURL
     @State var hasShownBrowseInteractionHintRow = RadixBrowsePreferences.hasShownInteractionHint
     @State var browseImageScriptMode = RadixBrowsePreferences.imageScriptMode
     @State var browsePageSortOrder = RadixBrowsePreferences.pageSortOrder
@@ -43,14 +42,11 @@ struct FilterGridTab: View {
     @State var collectionEditorError: String?
     @State var translationReportCollection: CharacterCollection?
     @State var translationReportDraft = ""
-    @State var phraseExtractionCollection: CharacterCollection?
-    @State var ocrReviewCollection: CharacterCollection?
     @State var pageQuizCollection: CharacterCollection?
     @State var pageQuizQuestions: [PageQuizQuestion] = []
     @State var pageQuizMessage: String?
     @State var isGeneratingPageQuiz = false
     @State var pagePhraseListCollection: CharacterCollection?
-    @State var phraseExtractionOutput = ""
     @State var imageActionMessage: String?
     @State var aiFallbackTask: BrowseAIFallbackTask?
     @State var automaticAIError = ""
@@ -217,30 +213,6 @@ struct FilterGridTab: View {
                     onSave: { saveTranslationReport(collection) },
                     onClear: { clearTranslationReport(collection) },
                     onDone: { translationReportCollection = nil }
-                )
-            }
-            .sheet(item: $phraseExtractionCollection) { collection in
-                BrowsePhraseExtractionSheet(
-                    collectionName: collection.name,
-                    prompt: store.promptText(for: .collection(collection), selectedTaskIDs: ["task4"]),
-                    output: $phraseExtractionOutput,
-                    message: imageActionMessage,
-                    onCopyPrompt: { copyImageActionPrompt(collection: collection, taskID: "task4") },
-                    onOpenAI: { openImageActionPrompt(collection: collection, taskID: "task4") },
-                    onPaste: { phraseExtractionOutput = clipboardText() },
-                    onAdd: { addManualExtractedPhrases(collection) },
-                    onDone: { phraseExtractionCollection = nil }
-                )
-                .environmentObject(store)
-            }
-            .sheet(item: $ocrReviewCollection) { collection in
-                BrowseOCRReviewSheet(
-                    instruction: store.ocrReviewPrompt(for: collection),
-                    aiName: store.defaultAIName,
-                    message: imageActionMessage,
-                    onOpenAI: { openOCRReviewInDefaultAI(collection) },
-                    onPasteAndCreate: { pasteAndCreateCorrectedOCRPage(from: collection) },
-                    onDone: { ocrReviewCollection = nil }
                 )
             }
             .sheet(item: $pageQuizCollection) { collection in

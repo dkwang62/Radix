@@ -444,7 +444,7 @@ extension RadixStore {
         }
         if let target = characters.first ?? previewCharacter { select(character: target, announce: false) }
         promptSelectedTaskIDs = ["task4"]
-        shouldAutoOpenAILinkTask4 = true
+        shouldAutoOpenAILinkPrompt = true
         route = .aiLink
         if RadixPlatform.isPhone { showiPhoneDetail = false }
         persistPromptSettings()
@@ -462,7 +462,7 @@ extension RadixStore {
         selectedBrowseCollectionID = collection.id
         selectedBrowseCollectionCharacters = Set(collection.characters)
         promptSelectedTaskIDs = [taskID]
-        shouldAutoOpenAILinkTask4 = true
+        shouldAutoOpenAILinkPrompt = true
         shouldAutoRunGeminiPhraseAPI = false
         route = .aiLink
         if RadixPlatform.isPhone { showiPhoneDetail = false }
@@ -475,7 +475,7 @@ extension RadixStore {
         }
         selectedConversationPracticeTopicID = topic.id
         promptSelectedTaskIDs = ["task9"]
-        shouldAutoOpenAILinkTask4 = false
+        shouldAutoOpenAILinkPrompt = false
         shouldAutoRunGeminiPhraseAPI = false
         route = .aiLink
         if RadixPlatform.isPhone { showiPhoneDetail = false }

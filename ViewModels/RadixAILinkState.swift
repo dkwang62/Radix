@@ -7,7 +7,7 @@ struct RadixAILinkState {
     var promptConfig: PromptConfig = .streamlitDefault
     var selectedTaskIDs: [String] = PromptConfig.defaultSelectedTaskIDs
     var autosaveStatus = "Changes save automatically."
-    var shouldAutoOpenTask4 = false
+    var shouldAutoOpenPrompt = false
     var shouldAutoRunGeminiPhraseAPI = false
     var selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
     var conversationEntryCount = 25

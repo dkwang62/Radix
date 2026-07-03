@@ -1,9 +1,9 @@
 import SwiftUI
 
 extension FilterGridTab {
-    func beginOCRReview(_ collection: CharacterCollection) {
+    func beginAILinkPageTask(_ collection: CharacterCollection, taskID: String) {
         imageActionMessage = nil
-        ocrReviewCollection = collection
+        store.goToAILinkCollectionTask(collection: collection, taskID: taskID)
     }
 
     func runAutomaticOCRReview(_ collection: CharacterCollection) {
@@ -25,28 +25,9 @@ extension FilterGridTab {
         }
     }
 
-    func openOCRReviewInDefaultAI(_ collection: CharacterCollection) {
-        let prompt = store.ocrReviewPrompt(for: collection)
-        RadixPlatform.copyToPasteboard(prompt)
-        let preset = store.defaultAIPreset
-        if let url = store.aiURL(for: preset, prompt: prompt) {
-            openURL(url)
-        }
-        if preset == .chatGPT {
-            imageActionMessage = "Opening ChatGPT. The AI prompt is copied; paste it into the message box manually so Chinese text is preserved."
-        } else {
-            imageActionMessage = "Opening \(store.aiName(for: preset)). The AI prompt is also copied."
-        }
-    }
-
-    func pasteAndCreateCorrectedOCRPage(from collection: CharacterCollection) {
-        createCorrectedOCRPage(from: clipboardText(), original: collection)
-    }
-
     private func createCorrectedOCRPage(from response: String, original collection: CharacterCollection) {
         do {
             let corrected = try store.createCorrectedOCRCollection(fromAIResponse: response, original: collection)
-            ocrReviewCollection = nil
             store.selectBrowseCollection(id: corrected.id)
             imageActionMessage = "Corrected page created and opened. The original OCR page remains available in Browse."
         } catch {
@@ -57,28 +38,6 @@ extension FilterGridTab {
     func beginTranslationReport(_ collection: CharacterCollection) {
         translationReportDraft = collection.translationReport ?? ""
         translationReportCollection = collection
-    }
-
-    func beginBrowseTranslation(_ collection: CharacterCollection) {
-        copyImageActionPrompt(collection: collection, taskID: "task5")
-        openImageActionPrompt(collection: collection, taskID: "task5")
-        beginTranslationReport(collection)
-        imageActionMessage = "Translation AI prompt copied. Paste the AI result into the report sheet and save it."
-    }
-
-    func beginManualPageQuiz(_ collection: CharacterCollection) {
-        openImageActionPrompt(collection: collection, taskID: "task8")
-        imageActionMessage = "Quiz AI prompt copied. Use it in ChatGPT, Gemini, or another AI app to quiz yourself without an API key."
-    }
-
-    func beginPageSentenceExtraction(_ collection: CharacterCollection) {
-        openImageActionPrompt(collection: collection, taskID: "task10")
-        imageActionMessage = "Sentence extraction prompt copied. Paste the AI JSON in Study > Conversation Practices > Paste Practice JSON."
-    }
-
-    func beginPagePracticeGeneration(_ collection: CharacterCollection) {
-        openImageActionPrompt(collection: collection, taskID: AIResultTaskID.createPagePractice)
-        imageActionMessage = "Page practice prompt copied. Paste the AI JSON in AI Link or Study's Conversation Practice importer."
     }
 
     func runBrowseGeminiSentenceExtraction(_ collection: CharacterCollection) {
@@ -195,12 +154,6 @@ extension FilterGridTab {
         isGeneratingPageQuiz = false
     }
 
-    func beginManualPhraseExtraction(_ collection: CharacterCollection) {
-        phraseExtractionOutput = ""
-        imageActionMessage = nil
-        phraseExtractionCollection = collection
-    }
-
     func pasteTranslationReport() {
         translationReportDraft = clipboardText()
     }
@@ -245,12 +198,6 @@ extension FilterGridTab {
         }
     }
 
-    func copyImageActionPrompt(collection: CharacterCollection, taskID: String) {
-        let prompt = store.promptText(for: .collection(collection), selectedTaskIDs: [taskID])
-        RadixPlatform.copyToPasteboard(prompt)
-        imageActionMessage = "AI prompt copied."
-    }
-
     func offerManualAIFallback(_ task: BrowseAIFallbackTask, error: Error) {
         automaticAIError = error.localizedDescription
         imageActionMessage = "Automatic AI is unavailable. You can still use another AI app."
@@ -260,34 +207,16 @@ extension FilterGridTab {
     func useManualFallback(_ task: BrowseAIFallbackTask) {
         switch task {
         case .checkOCR(let collection):
-            beginOCRReview(collection)
+            beginAILinkPageTask(collection, taskID: AIResultTaskID.checkOCR)
         case .extractPhrases(let collection):
-            beginManualPhraseExtraction(collection)
+            beginAILinkPageTask(collection, taskID: AIResultTaskID.extractPhrases)
         case .translate(let collection):
-            beginBrowseTranslation(collection)
+            beginAILinkPageTask(collection, taskID: AIResultTaskID.translatePage)
         case .extractSentences(let collection):
-            beginPageSentenceExtraction(collection)
+            beginAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences)
         case .createPagePractice(let collection):
-            beginPagePracticeGeneration(collection)
+            beginAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice)
         }
     }
 
-    func openImageActionPrompt(collection: CharacterCollection, taskID: String) {
-        let prompt = store.promptText(for: .collection(collection), selectedTaskIDs: [taskID])
-        copyImageActionPrompt(collection: collection, taskID: taskID)
-        let preset = store.defaultAIPreset
-        if let url = store.aiURL(for: preset, prompt: prompt) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                openURL(url)
-            }
-        }
-    }
-
-    func addManualExtractedPhrases(_ collection: CharacterCollection) {
-        let summary = store.importPhraseDiscoveryResponse(phraseExtractionOutput)
-        imageActionMessage = summary.message(defaultAIName: store.defaultAIName)
-        if let updated = store.collection(id: collection.id) {
-            phraseExtractionCollection = updated
-        }
-    }
 }
