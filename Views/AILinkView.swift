@@ -27,6 +27,7 @@ struct AILinkView: View {
     @State var aiResultText = ""
     @State var aiResultMessage: String?
     @State var aiResultError: String?
+    @State var aiImportedPracticePack: ConversationPracticePack?
 
     /// The character or phrase word that tasks 1-3 will act on.
     /// Phrase preview takes priority over single character preview.

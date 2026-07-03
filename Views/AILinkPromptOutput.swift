@@ -274,21 +274,40 @@ extension AILinkView {
                     aiResultNoPasteNeeded(for: selectedPromptTask)
                 }
 
-                if let aiResultMessage {
-                    Label(aiResultMessage, systemImage: "checkmark.circle")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(Color.accentColor)
-                        .fixedSize(horizontal: false, vertical: true)
-                } else if let aiResultError {
-                    Label(aiResultError, systemImage: "exclamationmark.triangle")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(.red)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+                aiResultStatusBlock
             }
             .padding(12)
             .background(RadixTheme.secondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+
+    @ViewBuilder
+    var aiResultStatusBlock: some View {
+        if let aiResultMessage {
+            VStack(alignment: .leading, spacing: 8) {
+                Label(aiResultMessage, systemImage: "checkmark.circle")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if let aiImportedPracticePack {
+                    Button {
+                        store.openConversationPractice(topicID: aiImportedPracticePack.packID)
+                    } label: {
+                        Label("Study Practice", systemImage: "arrow.forward.circle")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .accessibilityLabel("Open imported practice in Study")
+                }
+            }
+        } else if let aiResultError {
+            Label(aiResultError, systemImage: "exclamationmark.triangle")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.red)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -320,6 +339,7 @@ extension AILinkView {
                 aiResultText = $0
                 aiResultMessage = nil
                 aiResultError = nil
+                aiImportedPracticePack = nil
             }
         ))
         .font(.system(size: 14, design: .monospaced))
@@ -360,6 +380,7 @@ extension AILinkView {
             aiResultText = RadixPlatform.pasteboardString
             aiResultMessage = nil
             aiResultError = nil
+            aiImportedPracticePack = nil
         } label: {
             Label("Paste", systemImage: "doc.on.clipboard")
         }
@@ -383,6 +404,7 @@ extension AILinkView {
             aiResultText = ""
             aiResultMessage = nil
             aiResultError = nil
+            aiImportedPracticePack = nil
         } label: {
             Label("Clear", systemImage: "xmark.circle")
         }
@@ -431,9 +453,15 @@ extension AILinkView {
             if case .correctedOCR(let corrected) = outcome {
                 store.selectAICollection(id: corrected.id)
             }
+            if case .conversationPractice(let pack) = outcome {
+                aiImportedPracticePack = pack
+            } else {
+                aiImportedPracticePack = nil
+            }
             aiResultMessage = outcome.message(defaultAIName: store.defaultAIName)
             aiResultText = ""
         } catch {
+            aiImportedPracticePack = nil
             aiResultError = error.localizedDescription
         }
     }
@@ -451,6 +479,7 @@ extension AILinkView {
         aiResultText = ""
         aiResultMessage = nil
         aiResultError = nil
+        aiImportedPracticePack = nil
     }
 
     func aiResultIcon(for taskID: String) -> String {

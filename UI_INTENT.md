@@ -316,6 +316,10 @@ AI-generated Conversation Practice content should use the lightweight importable
 Practice JSON shape with `theme` plus `entries[].id`, `zh`, `pinyin`, and `en`.
 Do not ask AI for loose prose, markdown tables, or unvalidated phrase lists when
 the app needs reusable lesson content.
+After AI Link imports one of these Practice JSON packs, keep the workflow
+complete by showing a direct action into Study for that imported practice. The
+focused Study Practice screen should preserve a contextual `Back to AI Link`
+return path.
 Keep Conversation Practice sentences short enough for study and sidebar
 inspection, but do not enforce a hard total-character limit. Longer source
 meaning may stay in one complete, speakable practice line when that is the best

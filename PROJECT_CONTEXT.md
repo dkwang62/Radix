@@ -225,6 +225,10 @@ task-specific result paste/apply controls live in AI Link for OCR correction,
 phrase extraction, translation reports, and Conversation Practice imports. The
 prompt template editor is collapsed by default so task, source, send, and result
 remain the primary workflow.
+After AI Link imports a Conversation Practice pack, the success state offers a
+direct `Study Practice` action. It opens Study to the imported practice set and
+uses the existing contextual return path so the focused Practice screen shows
+`Back to AI Link`.
 Manual paste results and automatic Gemini results share store-level application
 helpers for phrase imports, OCR correction, translation reports, and Conversation
 Practice imports; UI layers should only choose presentation, source selection,
