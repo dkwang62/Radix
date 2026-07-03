@@ -25,24 +25,6 @@ extension FilterGridTab {
 
     func selectedImageSourceLabel(_ collection: CharacterCollection) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 10) {
-                Image(systemName: "photo.on.rectangle")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 34, height: 34)
-                    .background(Color.accentColor.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(collection.characters.count) characters")
-                        .font(ResponsiveFont.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-
-                Spacer(minLength: 0)
-            }
-
             ScrollView(.horizontal, showsIndicators: false) {
                 selectedImageSourceActions(collection)
             }
@@ -131,6 +113,15 @@ extension FilterGridTab {
     func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
         return HStack(spacing: 6) {
             browseSourceBackButton
+
+            Text("\(collection.characters.count) characters")
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .padding(.horizontal, 8)
+                .frame(minHeight: 32)
+                .background(RadixTheme.secondaryBackground.opacity(0.55))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
 
             CollectionPageActionsMenu(collection: collection, onEdit: {
                 beginEditing(collection)

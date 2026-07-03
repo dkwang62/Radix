@@ -98,8 +98,8 @@ Do not move domain behavior back into `RadixStore.swift`.
 - In Browse, the top `Browse [page name]` navigation title is the quick
   saved-page selector for Dictionary and saved pages. The open-page card still
   keeps its source button because that opens the full source/import panel, but
-  the card does not repeat the page name and keeps that source button in the
-  local control row.
+  it does not have a separate header row; its source button and compact
+  character count live in the local control row.
 
 Never change an existing preference key, enum raw value, backup field, or review
 status without an explicit migration and compatibility test.
