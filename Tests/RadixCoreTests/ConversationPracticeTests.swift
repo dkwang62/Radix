@@ -120,6 +120,18 @@ struct ConversationPracticeTests {
             "china_taiwan_travel",
             "shanghai_relocation_study"
         ])
+        #expect(topics.map(\.id).suffix(10) == [
+            "everyday_conversation",
+            "food_shopping",
+            "travel_transportation",
+            "home_personal_life",
+            "work_school",
+            "health_emergencies",
+            "city_life_services",
+            "social_culture",
+            "technology_modern_life",
+            "opinions_deeper_talk"
+        ])
         #expect(topics.first?.bundledResourceName == "conversation100")
         #expect(topics.first?.hasBundledContent == true)
 
@@ -142,6 +154,16 @@ struct ConversationPracticeTests {
         #expect(shanghai.bundledResourceName == "Stay in Shanghai")
         #expect(shanghai.targetSentenceCount == 100)
         #expect(shanghai.situations.contains("finding housing and handling rent or utilities"))
+
+        let everyday = ConversationPracticeTopic.topic(for: "everyday_conversation")
+        #expect(everyday.hasBundledContent == false)
+        #expect(everyday.title == "Everyday Conversation")
+        #expect(everyday.targetSentenceCount == 100)
+        #expect(everyday.generationBrief.contains("small talk"))
+
+        let deeperTalk = ConversationPracticeTopic.topic(for: "opinions_deeper_talk")
+        #expect(deeperTalk.hasBundledContent == false)
+        #expect(deeperTalk.situations.contains("talking about emotions, goals, plans, and values"))
     }
 
     @Test("Food dining conversation pack decodes and validates")

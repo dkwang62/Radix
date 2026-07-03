@@ -244,6 +244,12 @@ Character and phrase tasks default to the most recent memory-strip subject, and
 the subject row itself is a dropdown of recent memory-strip items rather than a
 Search shortcut. Page tasks default to the last viewed saved page while still
 showing the chosen source so the user can change it before sending.
+The `Generate Practice Pack` topic menu includes the four bundled Practice
+topics plus generation-ready broad themes: Everyday Conversation, Food &
+Shopping, Travel & Transportation, Home & Personal Life, Work & School, Health
+& Emergencies, City Life & Services, Social & Culture, Technology & Modern Life,
+and Opinions & Deeper Talk. Keep these as broad choices in the AI tab rather
+than expanding them into a long flat menu of narrow situations.
 OCR correction no longer has a proposal-approval screen. Automatic Gemini
 review creates and opens the corrected Browse page immediately; copy/paste uses
 one `Paste Answer and Create Corrected Page` action. The original OCR page is

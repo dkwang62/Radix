@@ -237,15 +237,18 @@ extension AILinkView {
 
     var aiSelectedPracticeTopicRow: some View {
         Menu {
-            ForEach(ConversationPracticeTopic.defaults) { topic in
-                Button {
-                    store.selectedConversationPracticeTopicID = topic.id
-                    store.persistPromptSettings()
-                } label: {
-                    Label(
-                        topic.title,
-                        systemImage: topic.id == store.selectedConversationPracticeTopic.id ? "checkmark" : "bubble.left.and.bubble.right"
-                    )
+            let bundledTopics = ConversationPracticeTopic.defaults.filter(\.hasBundledContent)
+            let generationTopics = ConversationPracticeTopic.defaults.filter { !$0.hasBundledContent }
+
+            Section("Ready Practice Packs") {
+                ForEach(bundledTopics) { topic in
+                    aiPracticeTopicButton(topic)
+                }
+            }
+
+            Section("Generate Broad Themes") {
+                ForEach(generationTopics) { topic in
+                    aiPracticeTopicButton(topic)
                 }
             }
         } label: {
@@ -258,6 +261,18 @@ extension AILinkView {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Choose Conversation Practice Topic")
+    }
+
+    func aiPracticeTopicButton(_ topic: ConversationPracticeTopic) -> some View {
+        Button {
+            store.selectedConversationPracticeTopicID = topic.id
+            store.persistPromptSettings()
+        } label: {
+            Label(
+                topic.title,
+                systemImage: topic.id == store.selectedConversationPracticeTopic.id ? "checkmark" : "bubble.left.and.bubble.right"
+            )
+        }
     }
 
     @ViewBuilder
