@@ -297,7 +297,7 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
                 template: """
 Generate Conversation Practice Pack
 
-Create structured Mandarin conversation practice content for Radix.
+Create a personalized, current, and varied Mandarin conversation practice pack for Radix.
 
 Topic ID: {practice_topic_id}
 Topic: {practice_topic_title}
@@ -305,6 +305,12 @@ Summary: {practice_topic_summary}
 Theme brief: {practice_topic_brief}
 Required situations:
 {practice_topic_situations}
+
+Use the selected topic as the anchor, but do not make a generic textbook list.
+Use any context you have from this chat about the learner's goals, location, interests, upcoming plans, work, study, travel, hobbies, current needs, or preferred style.
+If you can browse, search, or use current knowledge, include timely everyday scenarios and popular topics of the day that naturally fit the selected theme.
+If you do not have user context or current-event access, invent varied realistic circumstances that would be useful for a Mandarin learner.
+The result should feel tailored to this learner and this moment, while still being practical language-learning material.
 
 Return JSON only. Do not wrap it in Markdown. Do not include explanations outside the JSON.
 
@@ -334,9 +340,10 @@ Rules:
 6. Reword or split longer ideas when that makes the practice material clearer.
 7. Do not create fragments. Each zh value must be a complete, speakable sentence or conversation line.
 8. IDs must be stable and lowercase, using the topic ID plus a zero-padded sequence number, for example "{practice_topic_id}_001".
-9. Cover the required situations across the full pack.
-10. Include practical beginner conversation patterns: questions, answers, polite requests, offers, preferences, prices, portions, and short responses when relevant to the theme.
-11. Do not include analysis, metadata, notes, markdown, comments, or explanation text. Radix derives those during import.
+9. Cover the required situations across the full pack, but vary the concrete people, places, problems, and conversation contexts.
+10. Include practical conversation patterns: questions, answers, polite requests, offers, preferences, prices, opinions, comparisons, clarifications, and short responses when relevant to the theme.
+11. Make some entries refer to timely or popular topics when they fit naturally, but keep each sentence useful even after the topic is no longer trending.
+12. Do not include analysis, metadata, notes, markdown, comments, or explanation text. Radix derives those during import.
 
 Before returning, silently validate that the JSON is valid, imports cleanly, and every entry contains only the required keys.
 

@@ -250,6 +250,12 @@ Shopping, Travel & Transportation, Home & Personal Life, Work & School, Health
 & Emergencies, City Life & Services, Social & Culture, Technology & Modern Life,
 and Opinions & Deeper Talk. Keep these as broad choices in the AI tab rather
 than expanding them into a long flat menu of narrow situations.
+The `Generate Practice Pack` template asks the user's chosen AI app to tailor
+conversation packs from the selected theme using available chat context,
+learner circumstances, and current or popular topics when the AI app can browse
+or use current knowledge. Radix should keep the output contract strict
+(`theme` plus `entries[]` with `id`, `zh`, `pinyin`, and `en`) without adding
+extra content guardrails beyond import format and language-learning usefulness.
 OCR correction no longer has a proposal-approval screen. Automatic Gemini
 review creates and opens the corrected Browse page immediately; copy/paste uses
 one `Paste Answer and Create Corrected Page` action. The original OCR page is
