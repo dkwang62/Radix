@@ -1,4 +1,4 @@
-import Foundation
+import SwiftUI
 
 /// Canonical customer-facing vocabulary. Keeping these terms in one place
 /// prevents iPhone, iPad, and Mac labels from drifting apart.
@@ -47,6 +47,15 @@ enum RadixIcon {
     static let copy = "doc.on.doc"
 }
 
+enum RadixTerm {
+    static let backup = "Backup"
+    static let history = "History"
+    static let notes = "Notes"
+    static let recent = "Recent"
+    static let savedPage = "Saved Page"
+    static let translation = "Translation"
+}
+
 enum RadixGlossaryIcon {
     static let backup = "externaldrive"
     static let history = "clock"
@@ -65,7 +74,7 @@ enum RadixGlossaryIcon {
         case "AI Prompt": return "text.badge.sparkles"
         case "API Key": return "key"
         case "Gemini API Key": return "key.fill"
-        case "Backup": return backup
+        case RadixTerm.backup: return backup
         case "Character": return "character"
         case "Checkpoint": return "clock.arrow.circlepath"
         case "Classify & Prune": return "slider.horizontal.3"
@@ -80,19 +89,19 @@ enum RadixGlossaryIcon {
         case "Favorite": return RadixIcon.saved
         case "Favorite Sentence": return "star.circle"
         case "Hidden": return "eye.slash"
-        case "History": return history
+        case RadixTerm.history: return history
         case "Make AI Text Page": return "doc.badge.plus"
         case "Memory": return "archivebox"
-        case "Notes": return notes
+        case RadixTerm.notes: return notes
         case "Origin": return "sparkle.magnifyingglass"
         case "Page Phrases": return "text.viewfinder"
         case "Phrase": return "text.bubble"
         case "Practice Pack": return "shippingbox"
         case "Radical": return "leaf"
         case "Radix Plus": return "crown"
-        case "Recent": return recent
+        case RadixTerm.recent: return recent
         case "Rejected": return "xmark.circle"
-        case "Saved Page": return savedPage
+        case RadixTerm.savedPage: return savedPage
         case "Sentence": return "quote.bubble"
         case "Sentence Phrases": return "text.bubble.fill"
         case "Simplified": return "character.book.closed"
@@ -101,10 +110,30 @@ enum RadixGlossaryIcon {
         case "Study": return RadixIcon.study
         case "Tier": return "chart.bar"
         case "Traditional": return "character.book.closed.zh"
-        case "Translation": return translation
+        case RadixTerm.translation: return translation
         case "Unreviewed": return "questionmark.circle"
         default: return fallback
         }
+    }
+}
+
+struct RadixTermLabel: View {
+    let title: String
+    let term: String
+
+    init(_ title: String? = nil, term: String) {
+        self.title = title ?? term
+        self.term = term
+    }
+
+    var body: some View {
+        Label(title, systemImage: RadixGlossaryIcon.systemImage(for: term))
+    }
+}
+
+struct RadixHelpLabel: View {
+    var body: some View {
+        Label("Help", systemImage: RadixIcon.help)
     }
 }
 

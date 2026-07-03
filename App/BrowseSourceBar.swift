@@ -163,7 +163,7 @@ extension FilterGridTab {
             CollectionPageAITask(
                 id: AIResultTaskID.translatePage,
                 title: "Translate Page",
-                systemImage: RadixGlossaryIcon.translation,
+                systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.translation),
                 manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.translatePage) },
                 automaticAction: { runAutomaticPageAIAction { runBrowseGeminiTranslationAndSave(collection) } }
             ),

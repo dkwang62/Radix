@@ -154,7 +154,7 @@ private struct RadixDesignSystemPreview: View {
                 .font(.title.bold())
 
             VStack(alignment: .leading, spacing: RadixSpacing.small) {
-                Label("Saved Page", systemImage: RadixGlossaryIcon.savedPage)
+                RadixTermLabel(term: RadixTerm.savedPage)
                     .font(.headline)
                 Text("Cards, controls, and explanatory text should retain the same hierarchy at every text size.")
                     .font(.body)

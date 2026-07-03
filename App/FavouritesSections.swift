@@ -121,7 +121,7 @@ extension FavouritesTab {
             studySummaryTile(
                 title: "Recent",
                 value: "\(store.recentCharacterCount)",
-                systemImage: RadixGlossaryIcon.recent,
+                systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.recent),
                 tint: .blue,
                 action: {
                     withAnimation {
@@ -152,7 +152,7 @@ extension FavouritesTab {
             studySummaryTile(
                 title: RadixCopy.savedPages,
                 value: "\(store.allCollections.count)",
-                systemImage: RadixGlossaryIcon.savedPage,
+                systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage),
                 tint: .purple,
                 action: {
                     store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
@@ -211,7 +211,7 @@ extension FavouritesTab {
 
     var backupFilesLink: some View {
         Button(action: onOpenProtectRecover) {
-            Label("Backup files", systemImage: RadixGlossaryIcon.backup)
+            RadixTermLabel("Backup files", term: RadixTerm.backup)
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .labelStyle(.titleAndIcon)
                 .padding(.horizontal, 8)

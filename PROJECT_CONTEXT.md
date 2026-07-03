@@ -167,7 +167,8 @@ tasks, and private API-key automation. Glossary entries should pair terms with
 the icons users see in the app whenever an SF Symbol can make the reference more
 recognizable. `RadixGlossaryIcon` is the canonical mapping for glossary/help term
 icons and matching in-app labels; use it instead of scattering per-view
-term-to-symbol switches.
+term-to-symbol switches. Prefer `RadixTermLabel` for visible labels tied to
+glossary terms, and `RadixHelpLabel` for ordinary Help menu rows.
 `Icons & Labels` is the explicit startup default navigation style; launch
 normalizes the saved preference back to that style so an old `Icons Only`
 choice cannot silently persist across app restarts. `Icons Only` remains an

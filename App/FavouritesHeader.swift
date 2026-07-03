@@ -19,7 +19,7 @@ extension FavouritesTab {
                         if store.sidebarNavigationStyle == .compact {
                             Image(systemName: RadixIcon.help)
                         } else {
-                            Label("Help", systemImage: RadixIcon.help)
+                            RadixHelpLabel()
                         }
                     }
                     .buttonStyle(.bordered)

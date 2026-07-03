@@ -137,7 +137,7 @@ extension RootView {
                         } label: {
                             let title = collection.name.isEmpty ? RadixCopy.savedPage : collection.name
                             let isSelected = store.selectedBrowseCollectionID == collection.id
-                            Label(title, systemImage: isSelected ? "checkmark" : "photo.on.rectangle")
+                            Label(title, systemImage: isSelected ? "checkmark" : RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
                         }
                     }
                 }
@@ -165,7 +165,7 @@ extension RootView {
         Button {
             offerNavigationGuide(topic, force: true)
         } label: {
-            Label("Help", systemImage: RadixIcon.help)
+            RadixHelpLabel()
         }
     }
 

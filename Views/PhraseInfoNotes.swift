@@ -82,7 +82,7 @@ extension PhraseInfoCard {
         let trimmedNotes = noteSource.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedNotes.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
-                Label("Notes", systemImage: RadixGlossaryIcon.notes)
+                RadixTermLabel(term: RadixTerm.notes)
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
 

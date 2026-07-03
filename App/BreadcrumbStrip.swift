@@ -23,17 +23,17 @@ struct BreadcrumbStrip: View {
                 Button {
                     showsHistoryHelp.toggle()
                 } label: {
-                    Image(systemName: RadixGlossaryIcon.history)
+                    Image(systemName: RadixGlossaryIcon.systemImage(for: RadixTerm.history))
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(.secondary)
                         .frame(width: 22, height: 32)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("History")
-                .help("History")
+                .accessibilityLabel(RadixTerm.history)
+                .help(RadixTerm.history)
                 .popover(isPresented: $showsHistoryHelp, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Label("History", systemImage: RadixGlossaryIcon.history)
+                        RadixTermLabel(term: RadixTerm.history)
                             .font(ResponsiveFont.subheadline.weight(.semibold))
                         Text("Recently inspected characters and phrases for fast exploration.")
                             .font(ResponsiveFont.caption)

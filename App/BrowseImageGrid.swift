@@ -158,7 +158,7 @@ struct BrowsePagePhraseListSheet: View {
                         .listStyle(.plain)
                     }
                 } else {
-                    ContentUnavailableView("Page not found", systemImage: RadixGlossaryIcon.savedPage)
+                    ContentUnavailableView("Page not found", systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
                 }
             }
             .navigationTitle("Page Phrases")
