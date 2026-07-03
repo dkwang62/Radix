@@ -55,6 +55,67 @@ extension RootView {
         store.selectedBrowseCollection.map { "Browse \($0.name)" } ?? "Browse Dictionary"
     }
 
+    var isBrowseDestinationActive: Bool {
+        store.route == .search && store.homeTab == .filter
+    }
+
+    var browseTitleMenuPages: [CharacterCollection] {
+        store.allCollections.sorted {
+            let lhsDate = $0.lastViewedAt ?? $0.createdAt
+            let rhsDate = $1.lastViewedAt ?? $1.createdAt
+            if lhsDate != rhsDate { return lhsDate > rhsDate }
+            return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+        }
+    }
+
+    var browseTitlePicker: some View {
+        Menu {
+            Button {
+                store.selectBrowseCollection(id: nil)
+            } label: {
+                Label("Dictionary", systemImage: store.selectedBrowseCollection == nil ? "checkmark" : "book")
+            }
+
+            if !browseTitleMenuPages.isEmpty {
+                Section("Saved Pages") {
+                    ForEach(browseTitleMenuPages) { collection in
+                        Button {
+                            store.selectBrowseCollection(id: collection.id)
+                        } label: {
+                            let title = collection.name.isEmpty ? RadixCopy.savedPage : collection.name
+                            let isSelected = store.selectedBrowseCollectionID == collection.id
+                            Label(title, systemImage: isSelected ? "checkmark" : "photo.on.rectangle")
+                        }
+                    }
+                }
+            }
+
+            Section {
+                Button {
+                    store.shouldOpenBrowsePages = true
+                } label: {
+                    Label("Browse Sources...", systemImage: "square.grid.2x2")
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text(browseNavigationTitle)
+                    .font(ResponsiveFont.headline.weight(.semibold))
+                    .lineLimit(1)
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(.secondary)
+            }
+            .foregroundStyle(.primary)
+            .frame(maxWidth: 420)
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .accessibilityLabel("Choose Browse page")
+        .accessibilityValue(browseNavigationTitle)
+        .help("Choose Browse page")
+    }
+
     /// Starts the same clean Search flow from every platform's primary navigation.
     func beginNewSearch() {
         store.clearInformationCardFocus()

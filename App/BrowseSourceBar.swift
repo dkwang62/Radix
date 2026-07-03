@@ -44,8 +44,6 @@ extension FilterGridTab {
                 }
 
                 Spacer(minLength: 0)
-
-                browseSourceBackButton
             }
 
             ScrollView(.horizontal, showsIndicators: false) {

@@ -98,6 +98,13 @@ extension RootView {
         }
         .navigationTitle(detailPaneTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if isBrowseDestinationActive {
+                ToolbarItem(placement: .principal) {
+                    browseTitlePicker
+                }
+            }
+        }
     }
 
     @ViewBuilder

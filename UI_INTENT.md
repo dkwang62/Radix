@@ -181,11 +181,13 @@ When the user opens a saved page, returning to the page list should be obvious.
 Dictionary should behave like another browse item and should not break the
 navigation routine.
 
-For an open saved page, keep navigation separate from page actions. The source
-chooser remains a distinct back/photo control. Consolidate secondary commands
-such as Edit Page, Check OCR, phrase selection, translation, and AI workflows
-under one clearly labelled `Actions` menu. Keep only frequently adjusted
-controls—Simplified/Traditional and Read Aloud—visible beside it.
+For an open saved page, keep navigation separate from page actions. The top
+`Browse [page name]` title is the page selector and should provide access to
+Dictionary, saved pages, and the fuller source/import panel; do not add a second
+page-switch control inside the page card. Consolidate secondary commands such as
+Edit Page, Check OCR, phrase selection, translation, and AI workflows under one
+clearly labelled `Actions` menu. Keep only frequently adjusted controls—
+Simplified/Traditional and Read Aloud—visible beside it.
 Check OCR should use the saved page characters as the primary text to review.
 The AI is asked to find likely capture/OCR anomalies in those page characters;
 any source image or raw OCR provenance is supporting evidence only.

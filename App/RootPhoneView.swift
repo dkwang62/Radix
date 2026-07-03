@@ -53,6 +53,13 @@ extension RootView {
             }
             .navigationTitle(phoneTitle)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                if isBrowseDestinationActive {
+                    ToolbarItem(placement: .principal) {
+                        browseTitlePicker
+                    }
+                }
+            }
             .navigationDestination(isPresented: phoneDetailNavigationBinding) {
                 if let current = store.previewCharacter,
                    let item = store.item(for: current) {
