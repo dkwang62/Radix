@@ -23,7 +23,7 @@ struct BreadcrumbStrip: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(.secondary)
                     .frame(width: 22, height: 32)
-                    .accessibilityLabel("Recent study items")
+                    .accessibilityLabel("Memory Strip")
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
@@ -60,18 +60,20 @@ struct BreadcrumbStrip: View {
 
     private var shouldShowStrip: Bool {
         guard !store.rootBreadcrumb.isEmpty else { return false }
-        if store.route == .search && store.homeTab == .dataEdit {
+
+        switch store.route {
+        case .search:
+            switch store.homeTab {
+            case .smart, .filter:
+                return true
+            case .favourites, .dataEdit:
+                return false
+            }
+        case .lineage:
+            return true
+        case .capture, .favourites, .aiLink, .settings:
             return false
         }
-        if RadixPlatform.isPhone {
-            if store.route == .favourites {
-                return false
-            }
-            if store.route == .search && store.homeTab == .favourites {
-                return false
-            }
-        }
-        return true
     }
 }
 

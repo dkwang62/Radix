@@ -141,7 +141,9 @@ recently inspected characters and phrases while searching, browsing saved pages,
 or following item details. Do not treat it as global navigation. Study uses
 Recent for deliberate review, My Data represents stored memory, and AI Link or
 Settings should avoid the strip by default unless a future workflow has an
-explicit exploration need.
+explicit exploration need. The shared `BreadcrumbStrip` follows this rule by
+appearing only on Search, Browse, and Character Breakdown, and staying hidden on
+Camera, Study, AI Link, My Data, and Settings.
 Navigation help presentation belongs at `RootView`; do not attach popover or
 context-menu presentation containers to the five equal-width tab buttons because
 those wrappers can collapse the SwiftUI HStack to one visible destination.
