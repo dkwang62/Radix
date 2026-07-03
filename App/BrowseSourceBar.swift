@@ -34,9 +34,6 @@ extension FilterGridTab {
                     .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(collection.name.isEmpty ? RadixCopy.savedPage : collection.name)
-                        .font(ResponsiveFont.body.weight(.semibold))
-                        .lineLimit(1)
                     Text("\(collection.characters.count) characters")
                         .font(ResponsiveFont.caption2)
                         .foregroundStyle(.secondary)
@@ -44,8 +41,6 @@ extension FilterGridTab {
                 }
 
                 Spacer(minLength: 0)
-
-                browseSourceBackButton
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -135,6 +130,8 @@ extension FilterGridTab {
 
     func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
         return HStack(spacing: 6) {
+            browseSourceBackButton
+
             CollectionPageActionsMenu(collection: collection, onEdit: {
                 beginEditing(collection)
             }, hasGeminiAPIKey: !store.geminiAPIKey

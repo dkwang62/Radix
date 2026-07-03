@@ -183,8 +183,9 @@ navigation routine.
 
 For an open saved page, keep navigation separate from page actions. The top
 `Browse [page name]` title is the quick page selector for Dictionary and saved
-pages. The page-card source button remains the entry point to the full Browse
-source/import panel, so do not remove it as a mere duplicate. Consolidate
+pages, so the open-page card should not repeat the page name. The page-card
+source button remains the entry point to the full Browse source/import panel,
+and belongs in the local control row rather than the title row. Consolidate
 secondary commands such as Edit Page, Check OCR, phrase selection, translation,
 and AI workflows under one clearly labelled `Actions` menu. Keep frequently
 adjusted controls—Simplified/Traditional and Read Aloud—visible beside it.
