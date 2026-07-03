@@ -71,6 +71,12 @@ extension RootView {
     var browseTitlePicker: some View {
         Menu {
             Button {
+                offerNavigationGuide(.browse, force: true)
+            } label: {
+                Label("Help", systemImage: "questionmark.circle")
+            }
+
+            Button {
                 store.selectBrowseCollection(id: nil)
                 store.shouldCloseBrowsePages = true
             } label: {
@@ -135,17 +141,11 @@ extension RootView {
     }
 
     func handleNavigationGuideTap(
-        _ topic: RadixNavigationGuideTopic,
-        isActive: Bool,
+        _: RadixNavigationGuideTopic,
+        isActive _: Bool,
         navigate: () -> Void
     ) {
-        if isActive && lastNavigationGuideTap == topic {
-            lastNavigationGuideTap = nil
-            offerNavigationGuide(topic, force: true)
-        } else {
-            lastNavigationGuideTap = topic
-            navigate()
-        }
+        navigate()
     }
 
     func dismissNavigationGuide(_ topic: RadixNavigationGuideTopic) {

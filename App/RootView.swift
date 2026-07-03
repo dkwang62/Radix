@@ -32,7 +32,6 @@ struct RootView: View {
     @State var pendingSidebarCheckpointReturn: LocalDataSnapshot?
     @State var shouldOpenPhoneCamera = false
     @State var navigationGuideTopic: RadixNavigationGuideTopic?
-    @State var lastNavigationGuideTap: RadixNavigationGuideTopic?
 
     var body: some View {
         Group {
