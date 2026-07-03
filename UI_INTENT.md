@@ -474,10 +474,11 @@ Prefer:
 Keep roman text, pinyin, and helper labels legible. Avoid shrinking important
 learning text below the app's current minimum readability floor.
 
-Memory Strip is working memory for exploration, not a global app breadcrumb.
-Show it on Search, Browse, and Character Breakdown. Keep it off Study, My Data,
-AI Link, Settings, and Camera unless a future workflow has a specific
-exploration need; Study already provides Recent for deliberate review.
+History is the user-facing name for the working-memory strip used during
+exploration, not a global app breadcrumb. Show it on Search, Browse, and
+Character Breakdown. Keep it off Study, My Data, AI Link, Settings, and Camera
+unless a future workflow has a specific exploration need; Study already provides
+Recent for deliberate review.
 
 The five primary navigation destinations use progressive guidance:
 

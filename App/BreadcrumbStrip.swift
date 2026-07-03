@@ -23,7 +23,7 @@ struct BreadcrumbStrip: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(.secondary)
                     .frame(width: 22, height: 32)
-                    .accessibilityLabel("Memory Strip")
+                    .accessibilityLabel("History")
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {

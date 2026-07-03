@@ -115,9 +115,9 @@ enum RadixGlossary {
             relatedTerms: ["Checkpoint", "Radix Plus", "Backup", "Added", "Favorite", "Favorite Sentence"]
         ),
         GlossaryEntry(
-            term: "Memory Strip",
+            term: "History",
             shortDefinition: "The short-term exploration trail for characters and phrases you recently touched.",
-            significance: "Memory Strip is working memory for exploration, not global navigation. Its role is to help you quickly recall the characters and phrases you have been inspecting, especially while searching, browsing saved pages, and following character or phrase details. On larger screens, it can stay visible beside info cards because there is room to explore and compare. On iPhone, it should be more selective because space is precious: Search and Browse are its natural homes, while Study already has Recent for deliberate review, My Data is stored memory, and AI Link or Settings should stay focused on their own workflows.",
+            significance: "History is working memory for exploration, not global navigation. Its role is to help you quickly recall the characters and phrases you have been inspecting, especially while searching, browsing saved pages, and following character or phrase details. On larger screens, it can stay visible beside info cards because there is room to explore and compare. On iPhone, it should be more selective because space is precious: Search and Browse are its natural homes, while Study already has Recent for deliberate review, My Data is stored memory, and AI Link or Settings should stay focused on their own workflows.",
             contexts: ["Search", "Browse", "Saved Pages", "Character info card", "Phrase info card"],
             relatedTerms: ["Memory", "Recent", "Study", "Saved Page", "Character", "Phrase"]
         ),
