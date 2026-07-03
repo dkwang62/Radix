@@ -31,17 +31,17 @@ struct BreadcrumbStrip: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel(RadixTerm.history)
                 .help(RadixTerm.history)
-                .popover(isPresented: $showsHistoryHelp, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        RadixTermLabel(term: RadixTerm.history)
-                            .font(ResponsiveFont.subheadline.weight(.semibold))
-                        Text("Recently inspected characters and phrases for fast exploration.")
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding()
-                    .frame(maxWidth: 280, alignment: .leading)
+
+                if showsHistoryHelp {
+                    RadixTermLabel(term: RadixTerm.history)
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .padding(.horizontal, 8)
+                        .frame(height: 28)
+                        .background(RadixTheme.secondaryBackground.opacity(0.72))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .transition(.opacity.combined(with: .move(edge: .leading)))
                 }
 
                 ScrollView(.horizontal, showsIndicators: false) {

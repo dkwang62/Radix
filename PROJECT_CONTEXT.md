@@ -144,7 +144,9 @@ AI Link or Settings should avoid the strip by default unless a future workflow
 has an explicit exploration need. The shared `BreadcrumbStrip` follows this rule
 by appearing only on Search, Browse, and Character Breakdown, and staying hidden
 on Camera, Study, AI Link, My Data, and Settings. The leading History clock must
-identify itself on hover and tap so the icon is not an unnamed mystery control.
+identify itself on hover and tap so the icon is not an unnamed mystery control;
+tap disclosure should stay inline with the strip, not in a popover that can
+collide with the navigation title.
 Navigation help presentation belongs at `RootView`; do not attach popover or
 context-menu presentation containers to the five equal-width tab buttons because
 those wrappers can collapse the SwiftUI HStack to one visible destination.
