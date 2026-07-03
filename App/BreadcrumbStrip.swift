@@ -23,7 +23,7 @@ struct BreadcrumbStrip: View {
                 Button {
                     showsHistoryHelp.toggle()
                 } label: {
-                    Image(systemName: "clock")
+                    Image(systemName: RadixGlossaryIcon.history)
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(.secondary)
                         .frame(width: 22, height: 32)
@@ -33,7 +33,7 @@ struct BreadcrumbStrip: View {
                 .help("History")
                 .popover(isPresented: $showsHistoryHelp, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Label("History", systemImage: "clock")
+                        Label("History", systemImage: RadixGlossaryIcon.history)
                             .font(ResponsiveFont.subheadline.weight(.semibold))
                         Text("Recently inspected characters and phrases for fast exploration.")
                             .font(ResponsiveFont.caption)

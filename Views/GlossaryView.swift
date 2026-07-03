@@ -14,49 +14,7 @@ struct GlossaryEntry: Identifiable, Hashable {
     }
 
     var systemImage: String {
-        switch term {
-        case "Accepted": return "checkmark.circle"
-        case "Added", "Added Phrase": return "plus.circle"
-        case "AI Link": return "wand.and.stars"
-        case "AI Prompt": return "text.badge.sparkles"
-        case "API Key", "Gemini API Key": return "key"
-        case "Backup": return "externaldrive"
-        case "Character": return "character"
-        case "Checkpoint": return "clock.arrow.circlepath"
-        case "Classify & Prune": return "slider.horizontal.3"
-        case "Components": return "square.stack.3d.up"
-        case "Conversation Practice": return "bubble.left.and.bubble.right"
-        case "Create Practice from Page": return "doc.text.magnifyingglass"
-        case "Data Portability": return "arrow.triangle.2.circlepath"
-        case "Definition", "Meaning": return "text.book.closed"
-        case "Extract Phrases": return "text.badge.plus"
-        case "Extract Sentences": return "text.quote"
-        case "Favorite", "Favorite Sentence": return "star"
-        case "Hidden": return "eye.slash"
-        case "History": return "clock"
-        case "Make AI Text Page": return "doc.badge.plus"
-        case "Memory": return "archivebox"
-        case "Notes": return "note.text"
-        case "Origin": return "sparkle.magnifyingglass"
-        case "Page Phrases": return "text.viewfinder"
-        case "Phrase", "Sentence Phrases": return "text.bubble"
-        case "Practice Pack": return "shippingbox"
-        case "Radical": return "leaf"
-        case "Radix Plus": return "crown"
-        case "Recent": return "clock.badge"
-        case "Rejected": return "xmark.circle"
-        case "Saved Page": return "photo.on.rectangle"
-        case "Sentence": return "quote.bubble"
-        case "Simplified": return "character.book.closed"
-        case "Stroke Order": return "scribble"
-        case "Structure": return "rectangle.split.3x1"
-        case "Study": return "star.square"
-        case "Tier": return "chart.bar"
-        case "Traditional": return "character.book.closed.zh"
-        case "Translation": return "translate"
-        case "Unreviewed": return "questionmark.circle"
-        default: return "book.closed"
-        }
+        RadixGlossaryIcon.systemImage(for: term)
     }
 }
 

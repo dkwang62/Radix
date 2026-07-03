@@ -47,6 +47,62 @@ enum RadixIcon {
     static let copy = "doc.on.doc"
 }
 
+enum RadixGlossaryIcon {
+    static let history = "clock"
+    static let fallback = "book.closed"
+
+    static func systemImage(for term: String) -> String {
+        switch term {
+        case "Accepted": return "checkmark.circle"
+        case "Added": return "plus.circle"
+        case "Added Phrase": return "plus.bubble"
+        case "AI Link": return RadixIcon.aiLink
+        case "AI Prompt": return "text.badge.sparkles"
+        case "API Key": return "key"
+        case "Gemini API Key": return "key.fill"
+        case "Backup": return "externaldrive"
+        case "Character": return "character"
+        case "Checkpoint": return "clock.arrow.circlepath"
+        case "Classify & Prune": return "slider.horizontal.3"
+        case "Components": return "square.stack.3d.up"
+        case "Conversation Practice": return "bubble.left.and.bubble.right"
+        case "Create Practice from Page": return "doc.text.magnifyingglass"
+        case "Data Portability": return "arrow.triangle.2.circlepath"
+        case "Definition": return "text.book.closed"
+        case "Meaning": return "text.alignleft"
+        case "Extract Phrases": return "text.badge.plus"
+        case "Extract Sentences": return "text.quote"
+        case "Favorite": return RadixIcon.saved
+        case "Favorite Sentence": return "star.circle"
+        case "Hidden": return "eye.slash"
+        case "History": return history
+        case "Make AI Text Page": return "doc.badge.plus"
+        case "Memory": return "archivebox"
+        case "Notes": return "note.text"
+        case "Origin": return "sparkle.magnifyingglass"
+        case "Page Phrases": return "text.viewfinder"
+        case "Phrase": return "text.bubble"
+        case "Practice Pack": return "shippingbox"
+        case "Radical": return "leaf"
+        case "Radix Plus": return "crown"
+        case "Recent": return "clock.badge"
+        case "Rejected": return "xmark.circle"
+        case "Saved Page": return "photo.on.rectangle"
+        case "Sentence": return "quote.bubble"
+        case "Sentence Phrases": return "text.bubble.fill"
+        case "Simplified": return "character.book.closed"
+        case "Stroke Order": return "scribble"
+        case "Structure": return "rectangle.split.3x1"
+        case "Study": return RadixIcon.study
+        case "Tier": return "chart.bar"
+        case "Traditional": return "character.book.closed.zh"
+        case "Translation": return "translate"
+        case "Unreviewed": return "questionmark.circle"
+        default: return fallback
+        }
+    }
+}
+
 enum RadixNavigationItem: Int, CaseIterable, Identifiable {
     case scan = 0
     case browse = 2

@@ -165,7 +165,8 @@ Keep glossary coverage current with user-visible learning objects and workflows,
 including sentence-level practice, favorite sentences, practice packs, page AI
 tasks, and private API-key automation. Glossary entries should pair terms with
 the icons users see in the app whenever an SF Symbol can make the reference more
-recognizable.
+recognizable. `RadixGlossaryIcon` is the canonical mapping for glossary/help term
+icons; use it instead of scattering per-view term-to-symbol switches.
 `Icons & Labels` is the explicit startup default navigation style; launch
 normalizes the saved preference back to that style so an old `Icons Only`
 choice cannot silently persist across app restarts. `Icons Only` remains an
