@@ -268,13 +268,13 @@ extension AILinkView {
                 resultWorkflowHeader(for: selectedPromptTask)
 
                 if aiResultWorkflowSupportsPaste(selectedPromptTask.id) {
-                    aiResultPasteEditor
                     aiResultActions(for: selectedPromptTask)
+                    aiResultStatusBlock
+                    aiResultTextSection
                 } else {
                     aiResultNoPasteNeeded(for: selectedPromptTask)
+                    aiResultStatusBlock
                 }
-
-                aiResultStatusBlock
             }
             .padding(12)
             .background(RadixTheme.secondaryBackground)
@@ -329,7 +329,85 @@ extension AILinkView {
                     .fixedSize(horizontal: false, vertical: true)
             }
             .layoutPriority(1)
+
+            if aiResultWorkflowSupportsPaste(task.id),
+               !aiResultText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Button {
+                    withAnimation(.snappy(duration: 0.16)) {
+                        isAIResultTextExpanded.toggle()
+                    }
+                } label: {
+                    ViewThatFits(in: .horizontal) {
+                        Label(
+                            isAIResultTextExpanded ? "Hide Text" : "Show Text",
+                            systemImage: isAIResultTextExpanded ? "chevron.up.circle" : "chevron.down.circle"
+                        )
+                        .font(ResponsiveFont.caption.weight(.semibold))
+
+                        Image(systemName: isAIResultTextExpanded ? "chevron.up.circle" : "chevron.down.circle")
+                            .font(.system(size: 18, weight: .semibold))
+                            .frame(width: 34, height: 34)
+                    }
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .accessibilityLabel(isAIResultTextExpanded ? "Hide AI result text" : "Show AI result text")
+                .help(isAIResultTextExpanded ? "Hide AI result text" : "Show AI result text")
+            }
         }
+    }
+
+    @ViewBuilder
+    var aiResultTextSection: some View {
+        if isAIResultTextExpanded || aiResultText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            aiResultPasteEditor
+        } else {
+            aiResultCollapsedSummary
+        }
+    }
+
+    var aiResultCollapsedSummary: some View {
+        Button {
+            withAnimation(.snappy(duration: 0.16)) {
+                isAIResultTextExpanded = true
+            }
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "doc.text.magnifyingglass")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 30, height: 30)
+                    .background(Color.accentColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 7))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Result Text Hidden")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    Text(aiResultTextSummary)
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                .layoutPriority(1)
+
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RadixTheme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Show AI result text")
+    }
+
+    var aiResultTextSummary: String {
+        let trimmed = aiResultText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lineCount = max(1, trimmed.split(whereSeparator: \.isNewline).count)
+        return "\(trimmed.count) characters · \(lineCount) lines"
     }
 
     var aiResultPasteEditor: some View {
@@ -340,10 +418,11 @@ extension AILinkView {
                 aiResultMessage = nil
                 aiResultError = nil
                 aiImportedPracticePack = nil
+                isAIResultTextExpanded = true
             }
         ))
         .font(.system(size: 14, design: .monospaced))
-        .frame(minHeight: 150)
+        .frame(height: sizeClass == .compact ? 170 : 210)
         .padding(8)
         .background(RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -381,6 +460,7 @@ extension AILinkView {
             aiResultMessage = nil
             aiResultError = nil
             aiImportedPracticePack = nil
+            isAIResultTextExpanded = true
         } label: {
             Label("Paste", systemImage: "doc.on.clipboard")
         }
@@ -405,6 +485,7 @@ extension AILinkView {
             aiResultMessage = nil
             aiResultError = nil
             aiImportedPracticePack = nil
+            isAIResultTextExpanded = true
         } label: {
             Label("Clear", systemImage: "xmark.circle")
         }
@@ -459,7 +540,7 @@ extension AILinkView {
                 aiImportedPracticePack = nil
             }
             aiResultMessage = outcome.message(defaultAIName: store.defaultAIName)
-            aiResultText = ""
+            isAIResultTextExpanded = false
         } catch {
             aiImportedPracticePack = nil
             aiResultError = error.localizedDescription
@@ -480,6 +561,7 @@ extension AILinkView {
         aiResultMessage = nil
         aiResultError = nil
         aiImportedPracticePack = nil
+        isAIResultTextExpanded = true
     }
 
     func aiResultIcon(for taskID: String) -> String {

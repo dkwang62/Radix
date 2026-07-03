@@ -319,7 +319,9 @@ the app needs reusable lesson content.
 After AI Link imports one of these Practice JSON packs, keep the workflow
 complete by showing a direct action into Study for that imported practice. The
 focused Study Practice screen should preserve a contextual `Back to AI Link`
-return path.
+return path. Keep AI Result controls above the pasted answer, bound the result
+text height, and auto-collapse long pasted text after a successful import so
+follow-up actions stay visible without scrolling through generated JSON.
 Keep Conversation Practice sentences short enough for study and sidebar
 inspection, but do not enforce a hard total-character limit. Longer source
 meaning may stay in one complete, speakable practice line when that is the best

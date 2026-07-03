@@ -224,7 +224,9 @@ AI Link is the complete manual AI round trip: after opening/copying a prompt,
 task-specific result paste/apply controls live in AI Link for OCR correction,
 phrase extraction, translation reports, and Conversation Practice imports. The
 prompt template editor is collapsed by default so task, source, send, and result
-remain the primary workflow.
+remain the primary workflow. The AI Result action row stays above the pasted
+answer, pasted text is height-limited and collapsible, and successful imports
+auto-collapse long result text so follow-up actions remain visible.
 After AI Link imports a Conversation Practice pack, the success state offers a
 direct `Study Practice` action. It opens Study to the imported practice set and
 uses the existing contextual return path so the focused Practice screen shows
