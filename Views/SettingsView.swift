@@ -101,7 +101,7 @@ struct SettingsView: View {
                 }
 
                 if areAPIKeysExpanded {
-                    Text("A Gemini API key lets Radix check OCR, extract phrases, translate pages, create in-app quizzes, and extract sentences automatically. Copy-and-paste AI workflows do not require a key.")
+                    Text("A Gemini API key lets Radix check OCR, extract phrases, translate pages, create in-app quizzes, extract sentences, and create page-inspired practice automatically. Copy-and-paste AI workflows do not require a key.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -117,7 +117,7 @@ struct SettingsView: View {
                         Text("Google AI Studio")
                             .font(ResponsiveFont.caption.weight(.semibold))
 
-                        Text("Use this only if you want Radix to check OCR, extract phrases, translate pages, create in-app quizzes, and extract sentences automatically.")
+                        Text("Use this only if you want Radix to check OCR, extract phrases, translate pages, create in-app quizzes, extract sentences, and create page-inspired practice automatically.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
 
@@ -310,7 +310,7 @@ struct SettingsView: View {
         if trimmed.isEmpty {
             return SettingsHealth(
                 title: "Gemini key not saved",
-                detail: "Add one for automatic OCR checking, phrase extraction, translation, quizzes, and sentence extraction.",
+                detail: "Add one for automatic OCR checking, phrase extraction, translation, quizzes, sentence extraction, and page-inspired practice.",
                 systemImage: "key.slash",
                 color: .orange
             )
@@ -325,7 +325,7 @@ struct SettingsView: View {
         }
         return SettingsHealth(
             title: "Gemini key saved",
-            detail: "Ready for automatic OCR checking, phrase extraction, translation, quizzes, and sentence extraction.",
+            detail: "Ready for automatic OCR checking, phrase extraction, translation, quizzes, sentence extraction, and page-inspired practice.",
             systemImage: "checkmark.circle",
             color: .green
         )

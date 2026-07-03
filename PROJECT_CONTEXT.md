@@ -165,14 +165,14 @@ When a Gemini API key is configured, `Check OCR` additionally offers an
 automatic multimodal review using the same prompt and saved image. Its response
 creates and opens a corrected saved page immediately.
 Saved-page AI actions are grouped by task—Check OCR, Extract Phrases,
-Translate Page, Create Quiz, and Extract Sentences. Each task consistently
-offers copy/paste with ChatGPT or an automatic Gemini route where automation is
-implemented. A missing-key automatic choice becomes `Set Up Gemini API Key…`,
-navigates to Settings with Private API Keys expanded, and preserves `Back to
-Browse`. Setup is described as enabling all page AI automation, not just one
-task. Browse page actions declare AI tasks through a shared task model with one
-manual action and one automatic action; do not add task-specific menu plumbing
-for new page AI actions.
+Translate Page, Create Quiz, Extract Sentences, and Create Practice from Page.
+Each task consistently offers copy/paste with ChatGPT or an automatic Gemini
+route where automation is implemented. A missing-key automatic choice becomes
+`Set Up Gemini API Key…`, navigates to Settings with Private API Keys expanded,
+and preserves `Back to Browse`. Setup is described as enabling all page AI
+automation, not just one task. Browse page actions declare AI tasks through a
+shared task model with one manual action and one automatic action; do not add
+task-specific menu plumbing for new page AI actions.
 These tasks also exist as editable saved-page templates in AI Link. Browse OCR
 review renders the `Check OCR` template with saved page characters,
 recognized/unrecognized characters, and nearby phrase evidence rather than a
@@ -185,6 +185,11 @@ shape (`theme` plus `entries`) used by generated practice packs, so imported
 page sentences reuse the existing practice, favorite-sentence, backup,
 checkpoint, and speech pathways instead of creating another sentence store. The
 automatic Gemini route validates and imports that pack directly.
+`Create Practice from Page` is distinct from `Extract Sentences`: it uses the
+saved page as source inspiration, infers the page's broad conversational theme,
+and asks AI to generate new personalized/current Conversation Practice lines
+around that theme rather than staying close to the page wording. It returns the
+same lightweight Practice JSON shape and imports through the same shared path.
 AI-generated Conversation Practice sentences should be concise and complete, but
 there is no hard total-character limit; the sidebar handles longer sentences by
 inspecting them as navigable four-character animation groups. When a Practice

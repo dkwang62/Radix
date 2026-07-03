@@ -5,6 +5,7 @@ enum BrowseAIFallbackTask: Identifiable {
     case extractPhrases(CharacterCollection)
     case translate(CharacterCollection)
     case extractSentences(CharacterCollection)
+    case createPagePractice(CharacterCollection)
 
     var id: String {
         switch self {
@@ -12,6 +13,7 @@ enum BrowseAIFallbackTask: Identifiable {
         case .extractPhrases(let collection): return "extract-\(collection.id)"
         case .translate(let collection): return "translate-\(collection.id)"
         case .extractSentences(let collection): return "sentences-\(collection.id)"
+        case .createPagePractice(let collection): return "page-practice-\(collection.id)"
         }
     }
 }

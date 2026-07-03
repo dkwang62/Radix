@@ -435,7 +435,12 @@ extension AILinkView {
     }
 
     func aiResultSourceName(for taskID: String) -> String {
-        taskID == AIResultTaskID.extractSentences ? (selectedCollection?.name ?? "AI Link") : "AI Link"
+        switch taskID {
+        case AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice:
+            return selectedCollection?.name ?? "AI Link"
+        default:
+            return "AI Link"
+        }
     }
 
     func resetAIResultWorkflow() {
@@ -449,7 +454,7 @@ extension AILinkView {
         case AIResultTaskID.extractPhrases: return "text.badge.plus"
         case AIResultTaskID.translatePage: return "translate"
         case AIResultTaskID.checkOCR: return "text.viewfinder"
-        case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences: return "bubble.left.and.bubble.right"
+        case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice: return "bubble.left.and.bubble.right"
         default: return "doc.text"
         }
     }
@@ -461,6 +466,7 @@ extension AILinkView {
         case AIResultTaskID.checkOCR: return "Paste the OCR review here to create a corrected saved page."
         case AIResultTaskID.generatePracticePack: return "Paste the practice-pack JSON here to import it into Study."
         case AIResultTaskID.extractSentences: return "Paste the extracted-sentences JSON here to import it into Conversation Practice."
+        case AIResultTaskID.createPagePractice: return "Paste the page-practice JSON here to import it into Conversation Practice."
         case "task8": return "This prompt runs the quiz inside the AI app, so there is no Radix paste step."
         default: return "Use the AI answer as a reference. This task does not import data back into Radix."
         }
@@ -471,7 +477,7 @@ extension AILinkView {
         case AIResultTaskID.extractPhrases: return "Add Phrases"
         case AIResultTaskID.translatePage: return "Save Translation"
         case AIResultTaskID.checkOCR: return "Create Corrected Page"
-        case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences: return "Import Practice"
+        case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice: return "Import Practice"
         default: return "Apply"
         }
     }

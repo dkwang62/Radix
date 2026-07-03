@@ -292,6 +292,66 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
 """
             ),
             PromptTask(
+                id: "task11",
+                title: "Create Practice from Page",
+                template: """
+Create Practice from Page
+
+Create a personalized, current, and varied Mandarin conversation practice pack for Radix using one saved page as the source inspiration.
+
+Page: {collection_name}
+Saved page characters in reading order:
+{capture_chars}
+
+OCR text/context:
+{capture_text}
+
+First infer the broad conversational theme of the page. Use the page as a springboard, not a cage: do not merely extract or translate the page. Generate new useful conversation lines around the page's theme, related real-life situations, and natural follow-up topics.
+
+Use any context you have from this chat about the learner's goals, location, interests, upcoming plans, work, study, travel, hobbies, current needs, or preferred style.
+If you can browse, search, or use current knowledge, include timely everyday scenarios and popular topics of the day that naturally connect to the page's theme.
+If you do not have user context or current-event access, invent varied realistic circumstances that would be useful for a Mandarin learner.
+The result should feel tailored to this learner and this moment, while still being practical language-learning material.
+
+Return JSON only. Do not wrap it in Markdown. Do not include explanations outside the JSON.
+
+The JSON must match this exact lightweight top-level shape so Radix can import it directly:
+{
+  "theme": "Readable theme inspired by {collection_name}",
+  "entries": [
+    {
+      "id": "page_practice_001",
+      "zh": "Simplified Chinese conversation line.",
+      "pinyin": "Tone-mark pinyin.",
+      "en": "Natural English translation."
+    }
+  ]
+}
+
+Create 100 entries in the "entries" array.
+
+Each entry must have exactly these keys: "id", "zh", "pinyin", and "en".
+
+Rules:
+1. Set "theme" to a short readable title for the inferred page theme. It may be based on the page name, but it does not need to match it exactly.
+2. Use Simplified Chinese in zh.
+3. Use tone marks in pinyin.
+4. Keep English translations natural, short, and learner-friendly.
+5. Start easy and gradually become slightly more complex.
+6. Prefer concise studyable entries, but do not enforce a maximum Chinese character count.
+7. Reword or split longer ideas when that makes the practice material clearer.
+8. Do not create fragments. Each zh value must be a complete, speakable sentence or conversation line.
+9. IDs must be stable and lowercase, using page_practice plus a zero-padded sequence number, for example "page_practice_001".
+10. Vary the concrete people, places, problems, opinions, questions, answers, and conversation contexts.
+11. Include practical conversation patterns: questions, answers, polite requests, offers, preferences, opinions, comparisons, clarifications, and short responses when relevant to the inferred theme.
+12. Make some entries refer to timely or popular topics when they fit naturally, but keep each sentence useful even after the topic is no longer trending.
+13. Do not include analysis, metadata, notes, markdown, comments, or explanation text. Radix derives those during import.
+
+Before returning, silently validate that the JSON is valid, imports cleanly, and every entry contains only the required keys.
+
+"""
+            ),
+            PromptTask(
                 id: "task9",
                 title: "Generate Practice Pack",
                 template: """
@@ -363,7 +423,7 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
         """
     )
 
-    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7", "task8", "task10"]
+    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7", "task8", "task10", "task11"]
     static let practiceTopicTaskIDs: Set<String> = ["task9"]
 
     static var defaultSelectedTaskIDs: [String] {
@@ -523,7 +583,7 @@ extension PromptConfig {
         case .character:
             full = cfg.preamble + body + cfg.epilogue
         case .collection:
-            if selected == ["task5"] || selected == ["task7"] || selected == ["task8"] || selected == ["task10"] {
+            if selected == ["task5"] || selected == ["task7"] || selected == ["task8"] || selected == ["task10"] || selected == ["task11"] {
                 full = cfg.collectionPreamble + body
             } else {
                 full = cfg.collectionPreamble + body + cfg.collectionEpilogue

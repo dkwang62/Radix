@@ -24,13 +24,15 @@ enum AIResultTaskID {
     static let checkOCR = "task7"
     static let generatePracticePack = "task9"
     static let extractSentences = "task10"
+    static let createPagePractice = "task11"
 
     static let importableTasks: Set<String> = [
         extractPhrases,
         translatePage,
         checkOCR,
         generatePracticePack,
-        extractSentences
+        extractSentences,
+        createPagePractice
     ]
 }
 
@@ -187,7 +189,7 @@ extension RadixStore {
         case AIResultTaskID.checkOCR:
             guard let collection else { throw AIResultApplicationError.missingCollection }
             return .correctedOCR(try createCorrectedOCRCollection(fromAIResponse: responseText, original: collection))
-        case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences:
+        case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice:
             return .conversationPractice(try importConversationPracticePack(fromAIResponse: responseText, sourceName: sourceName))
         default:
             throw AIResultApplicationError.unsupportedTask
@@ -210,6 +212,19 @@ extension RadixStore {
 
     func runGeminiPageSentenceExtraction(for collection: CharacterCollection) async throws -> ConversationPracticePack {
         let prompt = promptText(for: .collection(collection), selectedTaskIDs: ["task10"])
+        let response = try await GeminiTextGenerationService().generateText(
+            apiKey: geminiAPIKey,
+            modelID: geminiModelID,
+            prompt: prompt,
+            systemInstruction: """
+            You create validated JSON import packs for a Chinese learning app. Return valid JSON only, with no Markdown and no explanatory text.
+            """
+        )
+        return try importConversationPracticePack(fromAIResponse: response, sourceName: collection.name)
+    }
+
+    func runGeminiPagePracticeGeneration(for collection: CharacterCollection) async throws -> ConversationPracticePack {
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: [AIResultTaskID.createPagePractice])
         let response = try await GeminiTextGenerationService().generateText(
             apiKey: geminiAPIKey,
             modelID: geminiModelID,

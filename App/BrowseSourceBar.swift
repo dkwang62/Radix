@@ -192,6 +192,13 @@ extension FilterGridTab {
                 systemImage: "bubble.left.and.bubble.right",
                 manualAction: { beginPageSentenceExtraction(collection) },
                 automaticAction: { runAutomaticPageAIAction { runBrowseGeminiSentenceExtraction(collection) } }
+            ),
+            CollectionPageAITask(
+                id: "create_page_practice",
+                title: "Create Practice from Page",
+                systemImage: "sparkles",
+                manualAction: { beginPagePracticeGeneration(collection) },
+                automaticAction: { runAutomaticPageAIAction { runBrowseGeminiPagePracticeGeneration(collection) } }
             )
         ])
 

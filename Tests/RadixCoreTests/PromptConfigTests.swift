@@ -71,9 +71,27 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task10"))
     }
 
-    @Test("Legacy prompt configs receive new built-in page sentence extractor")
-    func legacyPromptConfigAddsPageSentenceExtractor() {
-        let legacyTasks = PromptConfig.streamlitDefault.tasks.filter { $0.id != "task10" }
+    @Test("Page practice generator is a saved-page AI task")
+    func pagePracticeGeneratorTaskAvailability() {
+        let normalized = PromptConfig.streamlitDefault.normalized()
+        let generator = normalized.tasks.first { $0.id == "task11" }
+
+        #expect(generator?.title == "Create Practice from Page")
+        #expect(generator?.template.contains("source inspiration") == true)
+        #expect(generator?.template.contains("Use the page as a springboard, not a cage") == true)
+        #expect(generator?.template.contains("Use any context you have from this chat") == true)
+        #expect(generator?.template.contains("popular topics of the day") == true)
+        #expect(generator?.template.contains("\"id\": \"page_practice_001\"") == true)
+        #expect(generator?.template.contains("Each entry must have exactly these keys: \"id\", \"zh\", \"pinyin\", and \"en\".") == true)
+        #expect(generator?.template.contains("Prefer concise studyable entries, but do not enforce a maximum Chinese character count.") == true)
+        #expect(generator?.template.contains("Every zh value must be no more than") == false)
+        #expect(PromptConfig.collectionTaskIDs.contains("task11"))
+        #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task11"))
+    }
+
+    @Test("Legacy prompt configs receive new built-in page practice tasks")
+    func legacyPromptConfigAddsPagePracticeTasks() {
+        let legacyTasks = PromptConfig.streamlitDefault.tasks.filter { $0.id != "task10" && $0.id != "task11" }
         let legacyConfig = PromptConfig(
             version: 1,
             preamble: "",
@@ -87,6 +105,8 @@ struct PromptConfigTests {
 
         #expect(normalized.tasks.contains { $0.id == "task10" })
         #expect(normalized.tasks.filter { $0.id == "task10" }.count == 1)
+        #expect(normalized.tasks.contains { $0.id == "task11" })
+        #expect(normalized.tasks.filter { $0.id == "task11" }.count == 1)
     }
 
     @Test("Conversation practice generator renders selected topic details")
@@ -193,5 +213,61 @@ struct PromptConfigTests {
         #expect(prompt.contains("\"entries\""))
         #expect(!prompt.contains("{collection_name}"))
         #expect(!prompt.contains("Image: Coffee Shop Sign"))
+    }
+
+    @Test("Page practice generator renders saved page context as import JSON")
+    func pagePracticeGeneratorRendersSavedPageContext() {
+        let task = PromptConfig.streamlitDefault.tasks.first { $0.id == "task11" }!
+        let collection = CharacterCollection(
+            id: UUID(),
+            name: "China US News",
+            characters: "中美关系影响科技公司".map(String.init),
+            createdAt: Date(timeIntervalSince1970: 0),
+            sourceType: .manual,
+            isFavorite: false
+        )
+        let context = PromptRenderContext(
+            char: "",
+            definitionEN: "",
+            decomposition: "",
+            semantic: "",
+            phonetic: "",
+            phoneticPinyin: "",
+            isSoundMatch: "",
+            pronunciationFamily: "",
+            semanticFamily: "",
+            collectionName: collection.name,
+            captureCharacters: collection.characters.joined(separator: " "),
+            captureText: collection.characters.joined(),
+            originalOCRText: "",
+            recognizedOCRCharacters: "",
+            unrecognizedOCRCharacters: "",
+            nearbyOCRPhrases: "",
+            practiceTopicID: "",
+            practiceTopicTitle: "",
+            practiceTopicSummary: "",
+            practiceTopicBrief: "",
+            practiceTopicSituations: "",
+            practiceTopicSentenceCount: ""
+        )
+
+        let prompt = PromptConfig.streamlitDefault.renderPrompt(
+            selectedTaskIDs: [task.id],
+            context: context,
+            subject: .collection(collection)
+        )
+
+        #expect(prompt.contains("Page: China US News"))
+        #expect(prompt.contains("First infer the broad conversational theme of the page"))
+        #expect(prompt.contains("Use the page as a springboard, not a cage"))
+        #expect(prompt.contains("Use any context you have from this chat"))
+        #expect(prompt.contains("popular topics of the day"))
+        #expect(prompt.contains("\"id\": \"page_practice_001\""))
+        #expect(prompt.contains("Create 100 entries"))
+        #expect(prompt.contains("中 美 关 系 影 响 科 技 公 司"))
+        #expect(prompt.contains("中美关系影响科技公司"))
+        #expect(prompt.contains("\"entries\""))
+        #expect(!prompt.contains("{collection_name}"))
+        #expect(!prompt.contains("Image: China US News"))
     }
 }

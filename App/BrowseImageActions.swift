@@ -76,6 +76,11 @@ extension FilterGridTab {
         imageActionMessage = "Sentence extraction prompt copied. Paste the AI JSON in Study > Conversation Practices > Paste Practice JSON."
     }
 
+    func beginPagePracticeGeneration(_ collection: CharacterCollection) {
+        openImageActionPrompt(collection: collection, taskID: AIResultTaskID.createPagePractice)
+        imageActionMessage = "Page practice prompt copied. Paste the AI JSON in AI Link or Study's Conversation Practice importer."
+    }
+
     func runBrowseGeminiSentenceExtraction(_ collection: CharacterCollection) {
         let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !key.isEmpty else {
@@ -96,6 +101,32 @@ extension FilterGridTab {
             } catch {
                 await MainActor.run {
                     offerManualAIFallback(.extractSentences(collection), error: error)
+                    isRunningImageAction = false
+                }
+            }
+        }
+    }
+
+    func runBrowseGeminiPagePracticeGeneration(_ collection: CharacterCollection) {
+        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else {
+            imageActionMessage = "Add a Gemini API key in Settings first."
+            return
+        }
+        isRunningImageAction = true
+        imageActionMessage = "Creating page-inspired practice automatically..."
+        Task {
+            do {
+                let pack = try await store.runGeminiPagePracticeGeneration(for: collection)
+                await MainActor.run {
+                    store.goToBrowse()
+                    store.selectBrowseCollection(id: collection.id)
+                    imageActionMessage = "Loaded \(pack.title) · \(pack.entries.count) sentences"
+                    isRunningImageAction = false
+                }
+            } catch {
+                await MainActor.run {
+                    offerManualAIFallback(.createPagePractice(collection), error: error)
                     isRunningImageAction = false
                 }
             }
@@ -236,6 +267,8 @@ extension FilterGridTab {
             beginBrowseTranslation(collection)
         case .extractSentences(let collection):
             beginPageSentenceExtraction(collection)
+        case .createPagePractice(let collection):
+            beginPagePracticeGeneration(collection)
         }
     }
 
