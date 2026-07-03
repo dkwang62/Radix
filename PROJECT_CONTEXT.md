@@ -160,6 +160,9 @@ contextual translation, deeper explanation, emerging concepts, and phrase extrac
 That purpose-first framing is shared by the AI Link screen, welcome guidance,
 task descriptions, Browse extraction/translation sheets, and glossary; describe
 the learner outcome before copy/paste, API, or other implementation mechanics.
+Keep glossary coverage current with user-visible learning objects and workflows,
+including sentence-level practice, favorite sentences, practice packs, page AI
+tasks, and private API-key automation.
 `Icons & Labels` is the explicit startup default navigation style; launch
 normalizes the saved preference back to that style so an old `Icons Only`
 choice cannot silently persist across app restarts. `Icons Only` remains an
