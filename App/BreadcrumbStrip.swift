@@ -2,6 +2,7 @@ import SwiftUI
 
 struct BreadcrumbStrip: View {
     @EnvironmentObject private var store: RadixStore
+    @State private var showsHistoryHelp = false
 
     private var activeMemoryItem: String? {
         if let phrase = store.activeSidebarPhrasePreview {
@@ -19,11 +20,29 @@ struct BreadcrumbStrip: View {
     var body: some View {
         if shouldShowStrip {
             HStack(spacing: 6) {
-                Image(systemName: "clock")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 22, height: 32)
-                    .accessibilityLabel("History")
+                Button {
+                    showsHistoryHelp.toggle()
+                } label: {
+                    Image(systemName: "clock")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 22, height: 32)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("History")
+                .help("History")
+                .popover(isPresented: $showsHistoryHelp, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Label("History", systemImage: "clock")
+                            .font(ResponsiveFont.subheadline.weight(.semibold))
+                        Text("Recently inspected characters and phrases for fast exploration.")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding()
+                    .frame(maxWidth: 280, alignment: .leading)
+                }
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {

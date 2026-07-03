@@ -143,7 +143,8 @@ Study uses Recent for deliberate review, My Data represents stored memory, and
 AI Link or Settings should avoid the strip by default unless a future workflow
 has an explicit exploration need. The shared `BreadcrumbStrip` follows this rule
 by appearing only on Search, Browse, and Character Breakdown, and staying hidden
-on Camera, Study, AI Link, My Data, and Settings.
+on Camera, Study, AI Link, My Data, and Settings. The leading History clock must
+identify itself on hover and tap so the icon is not an unnamed mystery control.
 Navigation help presentation belongs at `RootView`; do not attach popover or
 context-menu presentation containers to the five equal-width tab buttons because
 those wrappers can collapse the SwiftUI HStack to one visible destination.
@@ -162,7 +163,9 @@ task descriptions, Browse extraction/translation sheets, and glossary; describe
 the learner outcome before copy/paste, API, or other implementation mechanics.
 Keep glossary coverage current with user-visible learning objects and workflows,
 including sentence-level practice, favorite sentences, practice packs, page AI
-tasks, and private API-key automation.
+tasks, and private API-key automation. Glossary entries should pair terms with
+the icons users see in the app whenever an SF Symbol can make the reference more
+recognizable.
 `Icons & Labels` is the explicit startup default navigation style; launch
 normalizes the saved preference back to that style so an old `Icons Only`
 choice cannot silently persist across app restarts. `Icons Only` remains an
