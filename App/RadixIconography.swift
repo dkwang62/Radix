@@ -280,7 +280,7 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
     }
 
     var reminder: String {
-        "Select the same navigation button twice in a row whenever you want to see this guide again."
+        "Open Help from the screen title menu whenever you want to see this guide again."
     }
 }
 

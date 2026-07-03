@@ -54,9 +54,9 @@ extension RootView {
             .navigationTitle(phoneTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                if isBrowseDestinationActive {
+                if showsTitleGuideMenu {
                     ToolbarItem(placement: .principal) {
-                        browseTitlePicker
+                        titleGuideMenu
                     }
                 }
             }
@@ -250,7 +250,7 @@ extension RootView {
         .buttonStyle(.plain)
         .accessibilityLabel(item.title)
         .accessibilityValue(isActive ? "Selected" : "")
-        .accessibilityHint("\(item.subtitle) Tap this selected destination again to show its guide.")
+        .accessibilityHint("\(item.subtitle) Open Help from the screen title menu.")
     }
 
     var phoneSettingsTabButton: some View {
@@ -286,6 +286,6 @@ extension RootView {
         .buttonStyle(.plain)
         .accessibilityLabel("Settings")
         .accessibilityValue(isActive ? "Selected" : "")
-        .accessibilityHint("\(RadixNavigationGuideTopic.settings.summary) Tap Settings again to show its guide.")
+        .accessibilityHint("\(RadixNavigationGuideTopic.settings.summary) Open Help from the screen title menu.")
     }
 }

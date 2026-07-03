@@ -143,7 +143,7 @@ extension RootView {
         .buttonStyle(.plain)
         .accessibilityLabel(item.title)
         .accessibilityValue(isActive ? "Selected" : "")
-        .accessibilityHint("\(item.subtitle) Select this destination again to show its guide.")
+        .accessibilityHint("\(item.subtitle) Open Help from the screen title menu.")
         .overlay(
             Group {
                 if isActive {
@@ -191,7 +191,7 @@ extension RootView {
         .buttonStyle(.plain)
         .accessibilityLabel("Settings")
         .accessibilityValue(isActive ? "Selected" : "")
-        .accessibilityHint("\(RadixNavigationGuideTopic.settings.summary) Select Settings again to show its guide.")
+        .accessibilityHint("\(RadixNavigationGuideTopic.settings.summary) Open Help from the screen title menu.")
         .overlay(
             Group {
                 if isActive {

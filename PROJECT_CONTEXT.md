@@ -140,9 +140,10 @@ Navigation help presentation belongs at `RootView`; do not attach popover or
 context-menu presentation containers to the five equal-width tab buttons because
 those wrappers can collapse the SwiftUI HStack to one visible destination.
 On iPhone, iPad, and Mac Catalyst, ordinary navigation only changes destination;
-reselecting the active destination never opens help. Browse exposes Help from
-the title dropdown above Dictionary so help remains discoverable without
-interfering with tab navigation.
+reselecting the active destination never opens help. Guided destination titles
+open a compact dropdown with Help as the first option; Browse keeps Help above
+Dictionary and saved-page choices in that same title menu so help remains
+discoverable without interfering with tab navigation.
 Each destination guide should name concrete user actions and examples, not merely
 summarize the section.
 Every guide uses `Why it matters` followed by `What you can do`; AI Link is

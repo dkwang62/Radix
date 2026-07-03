@@ -481,8 +481,8 @@ The five primary navigation destinations use progressive guidance:
 - Experienced users may choose `Icons Only` in Settings for the current session.
 - On iPhone, iPad, and Mac Catalyst, the first navigation press must only change
   destination, and reselecting the active destination must not open help. Put
-  contextual help in the screen title menu instead; Browse shows `Help` above
-  `Dictionary` in that dropdown.
+  contextual help in the screen title menu instead; guided destinations show
+  `Help` as the first dropdown option, and Browse places it above `Dictionary`.
 - Each explanation begins with why the destination matters, then describes what
   the user can do. Do not present a bare inventory of controls.
 - Once dismissed, the explanation stays out of the way.

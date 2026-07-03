@@ -99,9 +99,9 @@ extension RootView {
         .navigationTitle(detailPaneTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if isBrowseDestinationActive {
+            if showsTitleGuideMenu {
                 ToolbarItem(placement: .principal) {
-                    browseTitlePicker
+                    titleGuideMenu
                 }
             }
         }

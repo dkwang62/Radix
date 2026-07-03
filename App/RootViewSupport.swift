@@ -68,13 +68,58 @@ extension RootView {
         }
     }
 
+    var activeTitleGuideTopic: RadixNavigationGuideTopic? {
+        if isBrowseDestinationActive { return .browse }
+        switch store.route {
+        case .search:
+            switch store.homeTab {
+            case .favourites:
+                return .study
+            case .dataEdit:
+                return .myData
+            case .smart, .filter:
+                return nil
+            }
+        case .favourites:
+            return .study
+        case .aiLink:
+            return .aiLink
+        case .settings:
+            return .settings
+        case .capture, .lineage:
+            return nil
+        }
+    }
+
+    var showsTitleGuideMenu: Bool {
+        activeTitleGuideTopic != nil
+    }
+
+    @ViewBuilder
+    var titleGuideMenu: some View {
+        if isBrowseDestinationActive {
+            browseTitlePicker
+        } else if let topic = activeTitleGuideTopic {
+            navigationTitleMenu(for: topic)
+        }
+    }
+
+    func navigationTitleMenu(for topic: RadixNavigationGuideTopic) -> some View {
+        Menu {
+            navigationHelpButton(for: topic)
+        } label: {
+            navigationTitleMenuLabel(topic.title)
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(topic.title) menu")
+        .accessibilityValue(topic.title)
+        .help("\(topic.title) menu")
+    }
+
     var browseTitlePicker: some View {
         Menu {
-            Button {
-                offerNavigationGuide(.browse, force: true)
-            } label: {
-                Label("Help", systemImage: "questionmark.circle")
-            }
+            navigationHelpButton(for: .browse)
 
             Button {
                 store.selectBrowseCollection(id: nil)
@@ -106,23 +151,35 @@ extension RootView {
                 }
             }
         } label: {
-            HStack(spacing: 4) {
-                Text(browseNavigationTitle)
-                    .font(ResponsiveFont.headline.weight(.semibold))
-                    .lineLimit(1)
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(.secondary)
-            }
-            .foregroundStyle(.primary)
-            .frame(maxWidth: 420)
+            navigationTitleMenuLabel(browseNavigationTitle)
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
         .id(store.selectedBrowseCollectionID?.uuidString ?? "dictionary")
-        .accessibilityLabel("Choose Browse page")
+        .accessibilityLabel("Browse menu")
         .accessibilityValue(browseNavigationTitle)
-        .help("Choose Browse page")
+        .help("Browse menu")
+    }
+
+    func navigationHelpButton(for topic: RadixNavigationGuideTopic) -> some View {
+        Button {
+            offerNavigationGuide(topic, force: true)
+        } label: {
+            Label("Help", systemImage: "questionmark.circle")
+        }
+    }
+
+    func navigationTitleMenuLabel(_ title: String) -> some View {
+        HStack(spacing: 4) {
+            Text(title)
+                .font(ResponsiveFont.headline.weight(.semibold))
+                .lineLimit(1)
+            Image(systemName: "chevron.down")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(.secondary)
+        }
+        .foregroundStyle(.primary)
+        .frame(maxWidth: 420)
     }
 
     /// Starts the same clean Search flow from every platform's primary navigation.
