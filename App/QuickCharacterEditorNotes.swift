@@ -5,7 +5,7 @@ extension QuickCharacterEditorView {
     var notesSection: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
-                Label("Notes / Sentences / Phrases", systemImage: "note.text")
+                Label("Notes / Sentences / Phrases", systemImage: RadixGlossaryIcon.notes)
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
                 if !store.dataEditNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {

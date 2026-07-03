@@ -62,7 +62,7 @@ struct AddPhraseInputForm: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 VStack(alignment: .leading, spacing: 12) {
-                    Label("Study Notes", systemImage: "note.text")
+                    Label("Study Notes", systemImage: RadixGlossaryIcon.notes)
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                 fieldBlock("Notes / Sentences / Examples") {

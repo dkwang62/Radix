@@ -152,7 +152,7 @@ extension RootView {
                 PrimaryActionTile(
                     title: "Camera",
                     subtitle: "Capture text",
-                    systemImage: "camera.fill",
+                    systemImage: RadixIcon.scan,
                     isPrimary: true
                 )
             }

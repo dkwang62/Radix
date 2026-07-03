@@ -232,11 +232,11 @@ struct AILinkView: View {
                 store.goToSearchRoot()
             } label: {
                 ViewThatFits(in: .horizontal) {
-                    Label("Choose in Search", systemImage: "magnifyingglass")
+                    Label("Choose in Search", systemImage: RadixIcon.search)
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .fixedSize(horizontal: true, vertical: false)
 
-                    Image(systemName: "magnifyingglass")
+                    Image(systemName: RadixIcon.search)
                         .radixMinimumTapTarget()
                 }
             }

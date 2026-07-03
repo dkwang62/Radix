@@ -147,7 +147,7 @@ extension RootView {
                 Button {
                     store.shouldOpenBrowsePages = true
                 } label: {
-                    Label("Browse Sources...", systemImage: "square.grid.2x2")
+                    Label("Browse Sources...", systemImage: RadixIcon.browse)
                 }
             }
         } label: {
@@ -165,7 +165,7 @@ extension RootView {
         Button {
             offerNavigationGuide(topic, force: true)
         } label: {
-            Label("Help", systemImage: "questionmark.circle")
+            Label("Help", systemImage: RadixIcon.help)
         }
     }
 

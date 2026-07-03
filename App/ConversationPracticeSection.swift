@@ -252,7 +252,7 @@ extension FavouritesTab {
             Button {
                 presentConversationPracticeTranslationQuiz(library)
             } label: {
-                Label("Translate", systemImage: "text.bubble")
+                Label("Translate", systemImage: RadixGlossaryIcon.translation)
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .frame(maxWidth: .infinity, minHeight: 38)
             }

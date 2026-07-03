@@ -78,7 +78,7 @@ extension CharacterInfoCard {
             if !notesText.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 4) {
-                        Label("Notes", systemImage: "note.text")
+                        Label("Notes", systemImage: RadixGlossaryIcon.notes)
                             .font(ResponsiveFont.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                         GlossaryTermButton(term: "Notes")

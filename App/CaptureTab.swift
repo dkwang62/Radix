@@ -185,7 +185,7 @@ struct CaptureTab: View {
 
     private var directCameraEmptyState: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Ready to capture Chinese text", systemImage: "camera.viewfinder")
+            Label("Ready to capture Chinese text", systemImage: RadixIcon.scan)
                 .font(ResponsiveFont.body.weight(.semibold))
             Text("Use Camera above. New pages open in Browse after Radix reads the image.")
                 .font(ResponsiveFont.caption)

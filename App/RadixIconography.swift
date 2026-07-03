@@ -48,7 +48,12 @@ enum RadixIcon {
 }
 
 enum RadixGlossaryIcon {
+    static let backup = "externaldrive"
     static let history = "clock"
+    static let notes = "note.text"
+    static let recent = "clock.badge"
+    static let savedPage = "photo.on.rectangle"
+    static let translation = "translate"
     static let fallback = "book.closed"
 
     static func systemImage(for term: String) -> String {
@@ -60,7 +65,7 @@ enum RadixGlossaryIcon {
         case "AI Prompt": return "text.badge.sparkles"
         case "API Key": return "key"
         case "Gemini API Key": return "key.fill"
-        case "Backup": return "externaldrive"
+        case "Backup": return backup
         case "Character": return "character"
         case "Checkpoint": return "clock.arrow.circlepath"
         case "Classify & Prune": return "slider.horizontal.3"
@@ -78,16 +83,16 @@ enum RadixGlossaryIcon {
         case "History": return history
         case "Make AI Text Page": return "doc.badge.plus"
         case "Memory": return "archivebox"
-        case "Notes": return "note.text"
+        case "Notes": return notes
         case "Origin": return "sparkle.magnifyingglass"
         case "Page Phrases": return "text.viewfinder"
         case "Phrase": return "text.bubble"
         case "Practice Pack": return "shippingbox"
         case "Radical": return "leaf"
         case "Radix Plus": return "crown"
-        case "Recent": return "clock.badge"
+        case "Recent": return recent
         case "Rejected": return "xmark.circle"
-        case "Saved Page": return "photo.on.rectangle"
+        case "Saved Page": return savedPage
         case "Sentence": return "quote.bubble"
         case "Sentence Phrases": return "text.bubble.fill"
         case "Simplified": return "character.book.closed"
@@ -96,7 +101,7 @@ enum RadixGlossaryIcon {
         case "Study": return RadixIcon.study
         case "Tier": return "chart.bar"
         case "Traditional": return "character.book.closed.zh"
-        case "Translation": return "translate"
+        case "Translation": return translation
         case "Unreviewed": return "questionmark.circle"
         default: return fallback
         }

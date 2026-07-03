@@ -18,7 +18,7 @@ struct CaptureHeaderView: View {
                 RadixInlineHelpDisclosure(
                     title: "Scan help",
                     message: "Scan real-world Chinese text. Saved pages open in Browse.",
-                    systemImage: "camera.viewfinder"
+                    systemImage: RadixIcon.scan
                 )
             } else {
                 Text("Scan real-world Chinese text. Saved pages open in Browse.")
@@ -32,7 +32,7 @@ struct CaptureHeaderView: View {
                     CaptureSourceButton(
                         title: "Camera",
                         subtitle: freeScanStatusText,
-                        systemName: "camera.fill",
+                        systemName: RadixIcon.scan,
                         isPrimary: true
                     )
                 }

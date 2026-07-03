@@ -193,7 +193,7 @@ extension AddedPhraseReviewSheet {
             Button {
                 showsReviewHelp = true
             } label: {
-                Label("Help", systemImage: "questionmark.circle")
+                Label("Help", systemImage: RadixIcon.help)
             }
         } label: {
             Label(actionsMenuTitle, systemImage: "ellipsis.circle")
