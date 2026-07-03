@@ -17,6 +17,7 @@ extension RadixStore {
         get { collectionState.selectedBrowseCollectionID }
         set {
             guard collectionState.selectedBrowseCollectionID != newValue else { return }
+            objectWillChange.send()
             collectionState.selectedBrowseCollectionID = newValue
             selectedBrowseCollectionCharacters = newValue.flatMap {
                 collection(id: $0).map { Set($0.characters) }

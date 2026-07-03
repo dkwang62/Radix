@@ -100,6 +100,9 @@ Do not move domain behavior back into `RadixStore.swift`.
   keeps its source button because that opens the full source/import panel, but
   it does not have a separate header row; its source button and compact
   character count live in the local control row.
+- Browse saved-page selection is exposed through state adapters; keep selection
+  changes explicitly published so the navigation title menu, page card, and grid
+  do not drift out of sync.
 
 Never change an existing preference key, enum raw value, backup field, or review
 status without an explicit migration and compatibility test.

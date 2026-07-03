@@ -111,6 +111,7 @@ extension RootView {
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
+        .id(store.selectedBrowseCollectionID?.uuidString ?? "dictionary")
         .accessibilityLabel("Choose Browse page")
         .accessibilityValue(browseNavigationTitle)
         .help("Choose Browse page")
