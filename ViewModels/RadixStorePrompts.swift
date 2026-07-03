@@ -28,6 +28,11 @@ extension RadixStore {
         if let topicID = preferences.string(forKey: RadixPreferenceKey.conversationPracticeTopic) {
             selectedConversationPracticeTopicID = topicID
         }
+        if preferences.object(forKey: RadixPreferenceKey.aiConversationEntryCount) != nil {
+            aiConversationEntryCount = PromptConfig.normalizedConversationEntryCount(
+                preferences.integer(forKey: RadixPreferenceKey.aiConversationEntryCount)
+            )
+        }
         if let rawPreset = preferences.string(forKey: RadixPreferenceKey.defaultAIPreset),
            let preset = DefaultAIPreset(rawValue: rawPreset) {
             defaultAIPreset = preset
@@ -50,6 +55,7 @@ extension RadixStore {
         }
         preferences.set(promptSelectedTaskIDs, forKey: RadixPreferenceKey.promptTaskSelection)
         preferences.set(selectedConversationPracticeTopicID, forKey: RadixPreferenceKey.conversationPracticeTopic)
+        preferences.set(aiConversationEntryCount, forKey: RadixPreferenceKey.aiConversationEntryCount)
         preferences.set(defaultAIPreset.rawValue, forKey: RadixPreferenceKey.defaultAIPreset)
         preferences.set(customAIURLString, forKey: RadixPreferenceKey.customAIURL)
         preferences.set(openAIAPIKey, forKey: RadixPreferenceKey.openAIAPIKey)
@@ -172,6 +178,7 @@ extension RadixStore {
     func resetPromptConfigToDefaults() {
         promptConfig = .streamlitDefault
         promptSelectedTaskIDs = PromptConfig.defaultSelectedTaskIDs
+        aiConversationEntryCount = PromptConfig.defaultConversationEntryCount
         persistPromptSettings()
     }
 
@@ -322,7 +329,7 @@ extension RadixStore {
             practiceTopicSummary: practiceTopic?.summary ?? "",
             practiceTopicBrief: practiceTopic?.generationBrief ?? "",
             practiceTopicSituations: practiceTopic?.situations.map { "- \($0)" }.joined(separator: "\n") ?? "",
-            practiceTopicSentenceCount: practiceTopic.map { "\($0.targetSentenceCount)" } ?? ""
+            conversationEntryCount: "\(aiConversationEntryCount)"
         )
     }
 }

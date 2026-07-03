@@ -109,7 +109,7 @@ compatibility contracts. Current portable contracts include:
 - navigation, tab, script-filter, and restore-mode identifiers
 - preference keys and the preference-storage interface
 
-The portable test suite currently contains 39 tests across eight suites.
+The portable test suite currently contains 44 tests across eight suites.
 
 ## Active Workstream
 
@@ -261,6 +261,12 @@ learner circumstances, and current or popular topics when the AI app can browse
 or use current knowledge. Radix should keep the output contract strict
 (`theme` plus `entries[]` with `id`, `zh`, `pinyin`, and `en`) without adding
 extra content guardrails beyond import format and language-learning usefulness.
+AI Link exposes a shared quantity selector for Conversation Practice output
+tasks, defaulting to 25 entries with 50 and 100 available. `Generate Practice
+Pack`, `Extract Sentences`, and `Create Practice from Page` render this shared
+count through `{conversation_entry_count}`; future sentence/conversation
+generation tasks should opt into `conversationEntryCountTaskIDs` and reuse the
+same placeholder instead of hardcoding a pack size.
 OCR correction no longer has a proposal-approval screen. Automatic Gemini
 review creates and opens the corrected Browse page immediately; copy/paste uses
 one `Paste Answer and Create Corrected Page` action. The original OCR page is

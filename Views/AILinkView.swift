@@ -84,6 +84,11 @@ struct AILinkView: View {
         return PromptConfig.practiceTopicTaskIDs.contains(task.id)
     }
 
+    var selectedTaskSupportsConversationEntryCount: Bool {
+        guard let task = selectedPromptTask else { return false }
+        return PromptConfig.conversationEntryCountTaskIDs.contains(task.id)
+    }
+
     var hasCharacterTasks: Bool {
         selectedPromptTask != nil && !isSelectedTaskPageTask && !isSelectedTaskPracticeTopicTask
     }

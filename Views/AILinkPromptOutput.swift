@@ -215,6 +215,10 @@ extension AILinkView {
             parts.append("Topic: \(store.selectedConversationPracticeTopic.title)")
         }
 
+        if selectedTaskSupportsConversationEntryCount {
+            parts.append("\(store.aiConversationEntryCount) entries")
+        }
+
         return parts.isEmpty ? nil : parts.joined(separator: " • ")
     }
 

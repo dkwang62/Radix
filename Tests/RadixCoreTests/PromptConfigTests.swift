@@ -46,11 +46,13 @@ struct PromptConfigTests {
         #expect(generator?.template.contains("Use any context you have from this chat") == true)
         #expect(generator?.template.contains("If you can browse, search, or use current knowledge") == true)
         #expect(generator?.template.contains("timely everyday scenarios and popular topics of the day") == true)
+        #expect(generator?.template.contains("Create exactly {conversation_entry_count} entries") == true)
         #expect(generator?.template.contains("Each entry must have exactly these keys: \"id\", \"zh\", \"pinyin\", and \"en\".") == true)
         #expect(generator?.template.contains("Prefer concise studyable entries, but do not enforce a maximum Chinese character count.") == true)
         #expect(generator?.template.contains("Every zh value must be no more than") == false)
         #expect(generator?.template.contains("\"pack_id\"") == false)
         #expect(PromptConfig.practiceTopicTaskIDs == ["task9"])
+        #expect(PromptConfig.conversationEntryCountTaskIDs.contains("task9"))
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task9"))
     }
 
@@ -64,10 +66,12 @@ struct PromptConfigTests {
         #expect(extractor?.template.contains("\"theme\": \"{collection_name}\"") == true)
         #expect(extractor?.template.contains("Set \"theme\" exactly to the Page value above") == true)
         #expect(extractor?.template.contains("\"id\": \"page_sentence_001\"") == true)
+        #expect(extractor?.template.contains("Aim for up to {conversation_entry_count} entries") == true)
         #expect(extractor?.template.contains("Each entry must have exactly these keys: \"id\", \"zh\", \"pinyin\", and \"en\".") == true)
         #expect(extractor?.template.contains("Prefer concise studyable entries, but do not enforce a maximum Chinese character count.") == true)
         #expect(extractor?.template.contains("Every zh value must be no more than") == false)
         #expect(PromptConfig.collectionTaskIDs.contains("task10"))
+        #expect(PromptConfig.conversationEntryCountTaskIDs.contains("task10"))
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task10"))
     }
 
@@ -82,11 +86,24 @@ struct PromptConfigTests {
         #expect(generator?.template.contains("Use any context you have from this chat") == true)
         #expect(generator?.template.contains("popular topics of the day") == true)
         #expect(generator?.template.contains("\"id\": \"page_practice_001\"") == true)
+        #expect(generator?.template.contains("Create exactly {conversation_entry_count} entries") == true)
         #expect(generator?.template.contains("Each entry must have exactly these keys: \"id\", \"zh\", \"pinyin\", and \"en\".") == true)
         #expect(generator?.template.contains("Prefer concise studyable entries, but do not enforce a maximum Chinese character count.") == true)
         #expect(generator?.template.contains("Every zh value must be no more than") == false)
         #expect(PromptConfig.collectionTaskIDs.contains("task11"))
+        #expect(PromptConfig.conversationEntryCountTaskIDs.contains("task11"))
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task11"))
+    }
+
+    @Test("Conversation AI entry counts are shared and normalized")
+    func conversationEntryCountConfiguration() {
+        #expect(PromptConfig.defaultConversationEntryCount == 25)
+        #expect(PromptConfig.conversationEntryCountOptions == [25, 50, 100])
+        #expect(PromptConfig.normalizedConversationEntryCount(25) == 25)
+        #expect(PromptConfig.normalizedConversationEntryCount(50) == 50)
+        #expect(PromptConfig.normalizedConversationEntryCount(100) == 100)
+        #expect(PromptConfig.normalizedConversationEntryCount(0) == 25)
+        #expect(PromptConfig.normalizedConversationEntryCount(30) == 25)
     }
 
     @Test("Legacy prompt configs receive new built-in page practice tasks")
@@ -107,6 +124,41 @@ struct PromptConfigTests {
         #expect(normalized.tasks.filter { $0.id == "task10" }.count == 1)
         #expect(normalized.tasks.contains { $0.id == "task11" })
         #expect(normalized.tasks.filter { $0.id == "task11" }.count == 1)
+    }
+
+    @Test("Legacy conversation generators normalize to shared quantity placeholder")
+    func legacyConversationGeneratorCountsNormalize() {
+        let legacyTasks = [
+            PromptTask(
+                id: "task9",
+                title: "Generate Practice Pack",
+                template: "Create exactly {practice_topic_sentence_count} entries in the \"entries\" array."
+            ),
+            PromptTask(
+                id: "task10",
+                title: "Extract Sentences",
+                template: "Aim for 10 to 30 entries. If the page has fewer useful sentences, return only the useful ones."
+            ),
+            PromptTask(
+                id: "task11",
+                title: "Create Practice from Page",
+                template: "Create 100 entries in the \"entries\" array."
+            )
+        ]
+        let legacyConfig = PromptConfig(
+            version: 1,
+            preamble: "",
+            tasks: legacyTasks,
+            epilogue: "",
+            collectionPreamble: "",
+            collectionEpilogue: ""
+        )
+
+        let normalized = legacyConfig.normalized()
+
+        #expect(normalized.tasks.first { $0.id == "task9" }?.template.contains("{conversation_entry_count}") == true)
+        #expect(normalized.tasks.first { $0.id == "task10" }?.template.contains("Aim for up to {conversation_entry_count} entries.") == true)
+        #expect(normalized.tasks.first { $0.id == "task11" }?.template.contains("Create exactly {conversation_entry_count} entries") == true)
     }
 
     @Test("Conversation practice generator renders selected topic details")
@@ -135,7 +187,7 @@ struct PromptConfigTests {
             practiceTopicSummary: topic.summary,
             practiceTopicBrief: topic.generationBrief,
             practiceTopicSituations: topic.situations.map { "- \($0)" }.joined(separator: "\n"),
-            practiceTopicSentenceCount: "\(topic.targetSentenceCount)"
+            conversationEntryCount: "\(PromptConfig.defaultConversationEntryCount)"
         )
 
         let prompt = PromptConfig.streamlitDefault.renderPrompt(
@@ -157,8 +209,47 @@ struct PromptConfigTests {
         #expect(!prompt.contains("Every zh value must be no more than"))
         #expect(!prompt.contains("\"pack_id\""))
         #expect(!prompt.contains("\"metadata\""))
-        #expect(prompt.contains("Create exactly 100 entries"))
+        #expect(prompt.contains("Create exactly 25 entries"))
         #expect(!prompt.contains("{practice_topic_title}"))
+        #expect(!prompt.contains("{conversation_entry_count}"))
+    }
+
+    @Test("Conversation practice generator renders selected quantity")
+    func practiceGeneratorRendersSelectedQuantity() {
+        let task = PromptConfig.streamlitDefault.tasks.first { $0.id == "task9" }!
+        let topic = ConversationPracticeTopic.foodEating
+        let context = PromptRenderContext(
+            char: "",
+            definitionEN: "",
+            decomposition: "",
+            semantic: "",
+            phonetic: "",
+            phoneticPinyin: "",
+            isSoundMatch: "",
+            pronunciationFamily: "",
+            semanticFamily: "",
+            collectionName: "",
+            captureCharacters: "",
+            captureText: "",
+            originalOCRText: "",
+            recognizedOCRCharacters: "",
+            unrecognizedOCRCharacters: "",
+            nearbyOCRPhrases: "",
+            practiceTopicID: topic.id,
+            practiceTopicTitle: topic.title,
+            practiceTopicSummary: topic.summary,
+            practiceTopicBrief: topic.generationBrief,
+            practiceTopicSituations: topic.situations.map { "- \($0)" }.joined(separator: "\n"),
+            conversationEntryCount: "100"
+        )
+
+        let prompt = PromptConfig.streamlitDefault.renderPrompt(
+            selectedTaskIDs: [task.id],
+            context: context,
+            subject: .practiceTopic(topic)
+        )
+
+        #expect(prompt.contains("Create exactly 100 entries"))
     }
 
     @Test("Page sentence extractor renders saved page context as import JSON")
@@ -194,7 +285,7 @@ struct PromptConfigTests {
             practiceTopicSummary: "",
             practiceTopicBrief: "",
             practiceTopicSituations: "",
-            practiceTopicSentenceCount: ""
+            conversationEntryCount: "\(PromptConfig.defaultConversationEntryCount)"
         )
 
         let prompt = PromptConfig.streamlitDefault.renderPrompt(
@@ -206,12 +297,14 @@ struct PromptConfigTests {
         #expect(prompt.contains("Page: Coffee Shop Sign"))
         #expect(prompt.contains("\"theme\": \"Coffee Shop Sign\""))
         #expect(prompt.contains("Set \"theme\" exactly to the Page value above: \"Coffee Shop Sign\""))
+        #expect(prompt.contains("Aim for up to 25 entries"))
         #expect(prompt.contains("Prefer concise studyable entries, but do not enforce a maximum Chinese character count."))
         #expect(!prompt.contains("Every zh value must be no more than"))
         #expect(prompt.contains("請 先 付 款 然 後 取 餐"))
         #expect(prompt.contains("請先付款然後取餐"))
         #expect(prompt.contains("\"entries\""))
         #expect(!prompt.contains("{collection_name}"))
+        #expect(!prompt.contains("{conversation_entry_count}"))
         #expect(!prompt.contains("Image: Coffee Shop Sign"))
     }
 
@@ -248,7 +341,7 @@ struct PromptConfigTests {
             practiceTopicSummary: "",
             practiceTopicBrief: "",
             practiceTopicSituations: "",
-            practiceTopicSentenceCount: ""
+            conversationEntryCount: "\(PromptConfig.defaultConversationEntryCount)"
         )
 
         let prompt = PromptConfig.streamlitDefault.renderPrompt(
@@ -263,11 +356,12 @@ struct PromptConfigTests {
         #expect(prompt.contains("Use any context you have from this chat"))
         #expect(prompt.contains("popular topics of the day"))
         #expect(prompt.contains("\"id\": \"page_practice_001\""))
-        #expect(prompt.contains("Create 100 entries"))
+        #expect(prompt.contains("Create exactly 25 entries"))
         #expect(prompt.contains("中 美 关 系 影 响 科 技 公 司"))
         #expect(prompt.contains("中美关系影响科技公司"))
         #expect(prompt.contains("\"entries\""))
         #expect(!prompt.contains("{collection_name}"))
+        #expect(!prompt.contains("{conversation_entry_count}"))
         #expect(!prompt.contains("Image: China US News"))
     }
 }

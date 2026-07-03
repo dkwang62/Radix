@@ -282,7 +282,7 @@ Rules:
 7. Skip OCR noise, fragments, duplicated lines, headings that are not useful for practice, and isolated vocabulary items.
 8. Add accurate tone-mark pinyin for the full sentence.
 9. Keep English translations natural, short, and learner-friendly.
-10. Aim for 10 to 30 entries. If the page has fewer useful sentences, return only the useful ones.
+10. Aim for up to {conversation_entry_count} entries. If the page has fewer useful sentences, return only the useful ones.
 11. IDs must be stable and lowercase, using page_sentence plus a zero-padded sequence number, for example "page_sentence_001".
 12. Each entry must have exactly these keys: "id", "zh", "pinyin", and "en".
 13. Do not include analysis, metadata, notes, markdown, comments, or explanation text. Radix derives those during import.
@@ -328,7 +328,7 @@ The JSON must match this exact lightweight top-level shape so Radix can import i
   ]
 }
 
-Create 100 entries in the "entries" array.
+Create exactly {conversation_entry_count} entries in the "entries" array.
 
 Each entry must have exactly these keys: "id", "zh", "pinyin", and "en".
 
@@ -387,7 +387,7 @@ The JSON must match this exact lightweight top-level shape so Radix can import i
   ]
 }
 
-Create exactly {practice_topic_sentence_count} entries in the "entries" array.
+Create exactly {conversation_entry_count} entries in the "entries" array.
 
 Each entry must have exactly these keys: "id", "zh", "pinyin", and "en".
 
@@ -425,6 +425,13 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
 
     static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7", "task8", "task10", "task11"]
     static let practiceTopicTaskIDs: Set<String> = ["task9"]
+    static let conversationEntryCountTaskIDs: Set<String> = ["task9", "task10", "task11"]
+    static let conversationEntryCountOptions = [25, 50, 100]
+    static let defaultConversationEntryCount = 25
+
+    static func normalizedConversationEntryCount(_ value: Int) -> Int {
+        conversationEntryCountOptions.contains(value) ? value : defaultConversationEntryCount
+    }
 
     static var defaultSelectedTaskIDs: [String] {
         streamlitDefault.tasks
@@ -489,7 +496,7 @@ struct PromptRenderContext {
     let practiceTopicSummary: String
     let practiceTopicBrief: String
     let practiceTopicSituations: String
-    let practiceTopicSentenceCount: String
+    let conversationEntryCount: String
 }
 
 extension PromptConfig {
@@ -537,6 +544,21 @@ extension PromptConfig {
                 normalizedTemplate = task.template.replacingOccurrences(
                     of: "Task 4 – Isolate Phrases from Apple Vision",
                     with: defaultTask.title
+                )
+            } else if task.id == "task9", task.template.contains("{practice_topic_sentence_count}") {
+                normalizedTemplate = task.template.replacingOccurrences(
+                    of: "{practice_topic_sentence_count}",
+                    with: "{conversation_entry_count}"
+                )
+            } else if task.id == "task10", task.template.contains("Aim for 10 to 30 entries.") {
+                normalizedTemplate = task.template.replacingOccurrences(
+                    of: "Aim for 10 to 30 entries.",
+                    with: "Aim for up to {conversation_entry_count} entries."
+                )
+            } else if task.id == "task11", task.template.contains("Create 100 entries in the \"entries\" array.") {
+                normalizedTemplate = task.template.replacingOccurrences(
+                    of: "Create 100 entries in the \"entries\" array.",
+                    with: "Create exactly {conversation_entry_count} entries in the \"entries\" array."
                 )
             } else {
                 normalizedTemplate = task.template
@@ -613,6 +635,7 @@ extension PromptConfig {
             .replacingOccurrences(of: "{practice_topic_summary}", with: context.practiceTopicSummary)
             .replacingOccurrences(of: "{practice_topic_brief}", with: context.practiceTopicBrief)
             .replacingOccurrences(of: "{practice_topic_situations}", with: context.practiceTopicSituations)
-            .replacingOccurrences(of: "{practice_topic_sentence_count}", with: context.practiceTopicSentenceCount)
+            .replacingOccurrences(of: "{practice_topic_sentence_count}", with: context.conversationEntryCount)
+            .replacingOccurrences(of: "{conversation_entry_count}", with: context.conversationEntryCount)
     }
 }

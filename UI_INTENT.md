@@ -513,6 +513,10 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   templates are editable as AI prompts in the selected task view, and Browse
   must render those same templates rather than maintaining separate hidden
   instructions.
+- Conversation-generating AI tasks show one compact quantity selector beside
+  the selected topic/page, defaulting to 25 entries with 50 and 100 as larger
+  choices. Keep this as a shared control for future similar tasks rather than
+  adding per-template count fields or hardcoded prompt sizes.
 - Their Browse submenus use the same two method labels: `Use Another AI App`
   copies a prepared instruction for ChatGPT, Gemini, or another service, while
   `Run Automatically in Radix` uses the saved Gemini API key. A one-time,

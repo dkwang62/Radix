@@ -156,9 +156,59 @@ extension AILinkView {
             } else {
                 aiSelectedSubjectRow
             }
+
+            if selectedTaskSupportsConversationEntryCount {
+                aiConversationEntryCountRow
+            }
         }
         .padding(12)
         .background(RadixTheme.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    var aiConversationEntryCountRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "number")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 30, height: 30)
+                .background(Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 7))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Quantity")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                Text("\(store.aiConversationEntryCount) entries")
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+            }
+
+            Spacer(minLength: 0)
+
+            Menu {
+                ForEach(PromptConfig.conversationEntryCountOptions, id: \.self) { count in
+                    Button {
+                        store.aiConversationEntryCount = count
+                        store.persistPromptSettings()
+                    } label: {
+                        Label(
+                            "\(count) entries",
+                            systemImage: count == store.aiConversationEntryCount ? "checkmark" : "list.number"
+                        )
+                    }
+                }
+            } label: {
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 34, height: 30)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .accessibilityLabel("Choose AI conversation quantity")
+        }
+        .padding(10)
+        .background(RadixTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 

@@ -331,6 +331,13 @@ final class RadixStore: ObservableObject {
         ConversationPracticeTopic.topic(for: selectedConversationPracticeTopicID)
     }
 
+    var aiConversationEntryCount: Int {
+        get { aiLinkState.conversationEntryCount }
+        set {
+            aiLinkState.conversationEntryCount = PromptConfig.normalizedConversationEntryCount(newValue)
+        }
+    }
+
     var shouldAutoOpenAILinkTask4: Bool {
         get { aiLinkState.shouldAutoOpenTask4 }
         set { aiLinkState.shouldAutoOpenTask4 = newValue }
