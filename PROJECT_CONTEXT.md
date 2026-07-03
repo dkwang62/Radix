@@ -103,6 +103,9 @@ Do not move domain behavior back into `RadixStore.swift`.
 - Browse saved-page selection is exposed through state adapters; keep selection
   changes explicitly published so the navigation title menu, page card, and grid
   do not drift out of sync.
+- If the full Browse source/import panel is open, choosing Dictionary or a saved
+  page from the top title selector closes that panel so the selected content is
+  immediately visible.
 
 Never change an existing preference key, enum raw value, backup field, or review
 status without an explicit migration and compatibility test.

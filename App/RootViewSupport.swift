@@ -72,6 +72,7 @@ extension RootView {
         Menu {
             Button {
                 store.selectBrowseCollection(id: nil)
+                store.shouldCloseBrowsePages = true
             } label: {
                 Label("Dictionary", systemImage: store.selectedBrowseCollection == nil ? "checkmark" : "book")
             }
@@ -81,6 +82,7 @@ extension RootView {
                     ForEach(browseTitleMenuPages) { collection in
                         Button {
                             store.selectBrowseCollection(id: collection.id)
+                            store.shouldCloseBrowsePages = true
                         } label: {
                             let title = collection.name.isEmpty ? RadixCopy.savedPage : collection.name
                             let isSelected = store.selectedBrowseCollectionID == collection.id

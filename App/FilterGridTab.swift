@@ -172,6 +172,9 @@ struct FilterGridTab: View {
             .onChange(of: store.shouldOpenBrowsePages) { _, _ in
                 consumeBrowsePageRequests()
             }
+            .onChange(of: store.shouldCloseBrowsePages) { _, _ in
+                consumeBrowsePageRequests()
+            }
             .onChange(of: store.shouldStartBrowseCamera) { _, _ in
                 consumeBrowsePageRequests()
             }

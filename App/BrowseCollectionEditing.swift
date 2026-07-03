@@ -79,6 +79,13 @@ extension FilterGridTab {
             }
         }
 
+        if store.shouldCloseBrowsePages {
+            store.shouldCloseBrowsePages = false
+            withAnimation(.easeInOut(duration: 0.16)) {
+                showBrowseSource = false
+            }
+        }
+
         if store.shouldStartBrowseCamera {
             store.shouldStartBrowseCamera = false
             withAnimation(.easeInOut(duration: 0.16)) {
