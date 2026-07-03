@@ -95,9 +95,9 @@ Do not move domain behavior back into `RadixStore.swift`.
   accept an injected preference store.
 - On iPhone, character or phrase previews opened from a saved Browse page show a
   contextual return button named for that page, not a generic Browse label.
-- In Browse, the top `Browse [page name]` navigation title is the saved-page
-  selector. It offers Dictionary, saved pages, and the full source/import panel;
-  the open-page card should not grow another page-switch button.
+- In Browse, the top `Browse [page name]` navigation title is the quick
+  saved-page selector for Dictionary and saved pages. The open-page card still
+  keeps its source button because that opens the full source/import panel.
 
 Never change an existing preference key, enum raw value, backup field, or review
 status without an explicit migration and compatibility test.
