@@ -74,7 +74,6 @@ extension FavouritesTab {
                         studyScriptToggle
                     }
                 }
-                studyFavoriteLegend
             }
         } else {
             VStack(alignment: .leading, spacing: 6) {
@@ -93,23 +92,8 @@ extension FavouritesTab {
                         clearRecentButton
                     }
                 }
-                studyFavoriteLegend
             }
         }
-    }
-
-    var studyFavoriteLegend: some View {
-        HStack(spacing: 5) {
-            Image(systemName: RadixIcon.saved)
-                .font(ResponsiveFont.tinySystem(size: 10, weight: .semibold))
-                .foregroundStyle(.yellow)
-            Text(studyGridScope.legendText)
-                .font(ResponsiveFont.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .accessibilityElement(children: .combine)
     }
 
     var clearRecentButton: some View {

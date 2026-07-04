@@ -23,10 +23,6 @@ extension FavouritesTab {
 
     @ViewBuilder
     var studyMainContent: some View {
-        if !hasDismissedStudyIntro {
-            studyIntroCard
-        }
-
         studyDashboardSummary
 
         if hasStudyGridItems {
@@ -79,92 +75,54 @@ extension FavouritesTab {
         store.rootsReturnContext == nil ? "Back to Study" : store.rootsReturnButtonTitle
     }
 
-    var studyIntroCard: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: RadixIcon.help)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
-                .frame(width: 26, height: 26)
-                .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text("Choose what deserves more study.")
-                    .font(ResponsiveFont.body.weight(.semibold))
-                    .fixedSize(horizontal: false, vertical: true)
-                Text("Review recent items, favorite the useful ones, then clear Recent.")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            Spacer(minLength: 8)
-
-            Button {
-                withAnimation { hasDismissedStudyIntro = true }
-            } label: {
-                Image(systemName: "xmark")
-                    .frame(width: 28, height: 28)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.secondary)
-            .accessibilityLabel("Hide Study help")
-        }
-        .radixCard(
-            padding: RadixLayoutMetrics.compactCardPadding,
-            background: RadixTheme.secondaryBackground.opacity(0.72)
-        )
-    }
-
     var studyDashboardSummary: some View {
-        LazyVGrid(columns: studySummaryColumns, spacing: 6) {
-            studySummaryTile(
+        HStack(spacing: 8) {
+            studySummaryIconButton(
                 title: "Recent",
-                value: "\(store.recentCharacterCount)",
                 systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.recent),
                 tint: .blue,
+                isSelected: studyGridScope == .all,
                 action: {
                     withAnimation {
                         studyGridScope = .all
                     }
                 }
             )
-            studySummaryTile(
+            studySummaryIconButton(
                 title: "Favorites",
-                value: "\(store.favoriteItems.count + store.favoritePhrasesItems.count)",
                 systemImage: RadixIcon.saved,
                 tint: .yellow,
+                isSelected: studyGridScope == .favorites,
                 action: {
                     withAnimation {
                         studyGridScope = .favorites
                     }
                 }
             )
-            studySummaryTile(
+            studySummaryIconButton(
                 title: "Added Phrases",
-                value: "\(addedStudyPhraseEntries.count)",
                 systemImage: "text.quote",
                 tint: .green,
                 action: {
                     presentAddedPhraseReview()
                 }
             )
-            studySummaryTile(
+            studySummaryIconButton(
                 title: RadixCopy.savedPages,
-                value: "\(store.allCollections.count)",
                 systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage),
                 tint: .purple,
+                isSelected: studyGridScope == .savedPages,
                 action: {
                     withAnimation {
                         studyGridScope = .savedPages
                     }
                 }
             )
-            studySummaryTile(
+            studySummaryIconButton(
                 title: "Favorite Sentences",
-                value: "\(favoriteSentenceRecords.count)",
                 systemImage: "star.bubble",
                 tint: .orange,
+                isDisabled: favoriteSentenceRecords.isEmpty,
                 action: {
                     guard !favoriteSentenceRecords.isEmpty else { return }
                     withAnimation(.snappy(duration: 0.18)) {
@@ -173,11 +131,11 @@ extension FavouritesTab {
                     selectConversationPracticeTopic(.favoriteSentences(count: favoriteSentenceRecords.count))
                 }
             )
-            studySummaryTile(
+            studySummaryIconButton(
                 title: "Conversation Practices",
-                value: "\(conversationPracticeTopics.count)",
                 systemImage: "bubble.left.and.bubble.right",
                 tint: .teal,
+                isSelected: isShowingConversationPractice,
                 action: {
                     withAnimation(.snappy(duration: 0.18)) {
                         isShowingConversationPractice = true
@@ -186,6 +144,7 @@ extension FavouritesTab {
             )
         }
         .padding(.top, 2)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     var studyCheckpointsSection: some View {
@@ -367,52 +326,30 @@ extension FavouritesTab {
         162
     }
 
-    var studySummaryColumns: [GridItem] {
-        if RadixPlatform.interfaceIdiom == .tablet || RadixPlatform.isDesktop {
-            return Array(repeating: GridItem(.flexible(minimum: 0), spacing: 6), count: 2)
-        }
-        let minimum: CGFloat = isNarrowStudyLayout ? 132 : 136
-        return [GridItem(.adaptive(minimum: minimum), spacing: 6)]
-    }
-
-    @ViewBuilder
-    func studySummaryTile(
+    func studySummaryIconButton(
         title: String,
-        value: String,
         systemImage: String,
         tint: Color,
-        action: (() -> Void)? = nil
+        isSelected: Bool = false,
+        isDisabled: Bool = false,
+        action: @escaping () -> Void
     ) -> some View {
-        let content = HStack(spacing: 6) {
+        Button(action: action) {
             Image(systemName: systemImage)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(tint)
-                .frame(width: 20, height: 20)
-                .background(tint.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.small))
-
-            Text("\(value) \(title)")
-                .font(.system(size: 16, weight: .bold, design: .rounded))
-                .foregroundStyle(.primary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
-
-            Spacer(minLength: 0)
+                .frame(width: 40, height: 34)
+                .background(tint.opacity(isSelected ? 0.18 : 0.09))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 9)
+                        .stroke(tint.opacity(isSelected ? 0.42 : 0.18), lineWidth: 1)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 9))
         }
-        .padding(.horizontal, 8)
-        .frame(maxWidth: .infinity, minHeight: RadixControlMetrics.compactHeight, alignment: .leading)
-        .background(RadixTheme.secondaryBackground.opacity(0.48))
-        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
-
-        if let action {
-            Button(action: action) {
-                content
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Show \(title)")
-        } else {
-            content
-        }
+        .buttonStyle(.plain)
+        .opacity(isDisabled ? 0.45 : 1)
+        .accessibilityLabel(title)
+        .help(title)
     }
 
     func sectionTitle(_ title: String) -> some View {

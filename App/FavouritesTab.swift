@@ -33,7 +33,6 @@ struct FavouritesTab: View {
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
     @State var studyGridScope = RadixStudyPreferences.gridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
-    @State var hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
     @State var addedPhraseReviewPresentation: AddedPhraseReviewPresentation?
     @State var pendingCheckpointReturn: LocalDataSnapshot?
     @State var conversationPracticeTopics = ConversationPracticeTopic.defaults
@@ -305,7 +304,6 @@ struct FavouritesTab: View {
             studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
             studyGridScope = RadixStudyPreferences.gridScope
             studyPageSortOrder = RadixStudyPreferences.pageSortOrder
-            hasDismissedStudyIntro = RadixStudyPreferences.hasDismissedIntro
             openAddedPhraseReviewIfRequested()
             loadImportedConversationPracticePacks()
             loadFavoriteSentences()
@@ -321,9 +319,6 @@ struct FavouritesTab: View {
         }
         .onChange(of: studyPageSortOrder) { _, newValue in
             RadixStudyPreferences.pageSortOrder = newValue
-        }
-        .onChange(of: hasDismissedStudyIntro) { _, newValue in
-            RadixStudyPreferences.hasDismissedIntro = newValue
         }
         .onChange(of: store.shouldOpenAddedPhraseReview) { _, newValue in
             guard newValue else { return }
@@ -640,14 +635,6 @@ enum StudyGridScope: String, CaseIterable, Identifiable {
         case .all: return "No recent study items yet."
         case .favorites: return "No favorite study items yet."
         case .savedPages: return "No saved pages yet."
-        }
-    }
-
-    var legendText: String {
-        switch self {
-        case .all: return "Tap an item to preview it. Favorite the useful ones, then clear Recent."
-        case .favorites: return "Tap a favorite character or phrase to preview it. Use the star to remove it from Favorites."
-        case .savedPages: return "Saved pages gather the Practice, translation, quiz, and corrected-page work that came from that page."
         }
     }
 }

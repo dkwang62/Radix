@@ -130,6 +130,9 @@ Do not move domain behavior back into `RadixStore.swift`.
   rather than jumping directly to Browse. Each saved-page row surfaces linked
   page work in place: page phrase lists, Practice packs, translation, quiz
   entry point, corrected pages, favorite sentences, and Practice progress.
+  The six top-level Study scopes use a single icon-only row; names belong in
+  hover help and accessibility labels, while fuller guidance belongs in the
+  guided title Help menu rather than persistent text rows.
   The `Phrases` chip opens all dictionary and added phrases found on the page
   in the shared Phrase Library sheet used by the information-card Phrase
   button. Saved-page rows keep page artifacts in a compact two-row shape and
