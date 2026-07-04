@@ -106,6 +106,13 @@ Do not move domain behavior back into `RadixStore.swift`.
 - If the full Browse source/import panel is open, choosing Dictionary or a saved
   page from the top title selector closes that panel so the selected content is
   immediately visible.
+- The page-centered direction requires a page artifact model before destructive
+  cascade behavior is added. Corrected OCR pages, translations, quizzes,
+  extracted sentence packs, page-created conversation practice, and page-local
+  notes are page-owned artifacts. Added phrases, favorites, global notes, and
+  reusable practice progress are linked learning material that should not be
+  silently deleted with a page. Future page deletion must summarize owned
+  artifacts and distinguish link removal from global item deletion.
 
 Never change an existing preference key, enum raw value, backup field, or review
 status without an explicit migration and compatibility test.
