@@ -128,9 +128,12 @@ The central-store maintainability refactor is complete. Current product work is
 restoring unobtrusive navigation guidance: optional labels plus first-use,
 dismissible destination explanations that experienced users can hide or replay.
 App Store and marketing copy should position Radix as a Chinese learning
-workspace where real Chinese becomes personal study material. Lead with learner
-outcomes such as captured pages becoming vocabulary, notes, AI help, and
-practice, rather than raw feature names such as OCR or saved-page storage.
+workspace where the Chinese learners encounter in daily life becomes personal
+study material. The accepted product loop is `Scan -> Review -> Practise ->
+Keep`: scan a page from the world, review its characters/phrases/context,
+practise from that material, and keep everything connected for later. Lead with
+these learner outcomes rather than raw feature names such as OCR or saved-page
+storage.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules

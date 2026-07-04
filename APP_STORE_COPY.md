@@ -1,25 +1,35 @@
 # Radix App Store Copy
 
 This file is the working App Store introduction and description copy for Radix.
-It should lead with the learner outcome: real Chinese becomes personal study
-material.
+It should lead with the learner outcome: the Chinese a learner encounters in
+daily life becomes personal study material.
 
 ## Positioning
 
-Radix is a Chinese learning workspace for capturing, understanding, and
-remembering real Chinese text.
+Radix is a Chinese learning workspace for turning real Chinese into personal
+study material.
+
+By real Chinese, Radix means the Chinese learners actually encounter: restaurant
+menus, magazine pages, book pages, signs, subtitles, articles, screenshots,
+messages, and other sources from daily life.
+
+The core loop is:
+
+```text
+Scan -> Review -> Practise -> Keep
+```
 
 ## Subtitle Options
 
-- Turn real Chinese into study
-- Capture Chinese. Learn from it.
+- Turn daily Chinese into study
+- Scan, review, practise, keep
 - Your Chinese learning workspace
-- Real Chinese, personal study
+- Real Chinese. Personal study.
 
 ## Promotional Text Options
 
 - Turn menus, articles, subtitles, and book pages into saved Chinese lessons with characters, phrases, notes, AI help, and practice.
-- Capture real Chinese from the world, understand it deeply, and turn every useful page into personal study material.
+- Scan the Chinese you meet in daily life, review what it means, practise from it, and keep everything connected.
 
 ## Description Draft
 
@@ -37,15 +47,28 @@ notes, and practice you created from that same page.
 Imagine never losing an interesting piece of Chinese because every discovery
 becomes part of your own learning journey.
 
-Radix is a Chinese learning workspace built around real Chinese text. Capture a
-page, inspect the characters, discover useful phrases, ask AI for help, save
-what matters, and turn your discoveries into practice.
+Radix is built around the Chinese you actually meet in daily life: menus,
+magazine pages, book pages, signs, subtitles, articles, screenshots, messages,
+and more.
+
+Scan -> Review -> Practise -> Keep
+
+Scan a page from the world around you.
+
+Review the characters, phrases, meanings, pronunciation, notes, and original
+context.
+
+Practise with vocabulary, sentences, and conversation exercises created from
+that material.
+
+Keep everything connected, so months later you can return to the same page and
+continue learning from it.
 
 ## What You Can Do
 
 - Search Chinese characters, phrases, pinyin, and English meanings.
-- Capture Chinese text from camera, photos, files, or clipboard.
-- Save pages from the real world into your own learning library.
+- Scan Chinese text from camera, photos, files, or clipboard.
+- Save pages from daily life into your own learning library.
 - Inspect characters with definitions, pronunciation, stroke order, components,
   structure, variants, notes, and related phrases.
 - Explore phrases in the context of the page where you found them.
@@ -66,8 +89,8 @@ A menu, article, textbook page, screenshot, subtitle, or sign can become a saved
 page. A saved page can become character study, phrase discovery, AI explanation,
 sentence practice, conversation practice, notes, and future review.
 
-Radix helps you build a personal Chinese library from your own encounters with
-the language.
+Radix helps you scan, review, practise, and keep a personal Chinese library from
+your own encounters with the language.
 
 ## Good For
 
@@ -82,9 +105,8 @@ the language.
 
 ## Short Version
 
-Radix turns real Chinese into personal study material.
+Radix turns the Chinese you meet in daily life into personal study material.
 
-Capture a page, inspect characters and phrases, use AI to understand or transform
-the text, save notes and favorites, and turn discoveries into conversation
-practice. Build a Chinese learning library from the language you actually meet.
-
+Scan a page, review the characters and phrases, use AI to understand or
+transform the text, practise with sentences and conversation, and keep the page,
+notes, favorites, and progress connected for later.
