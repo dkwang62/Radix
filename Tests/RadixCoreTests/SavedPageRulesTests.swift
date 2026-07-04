@@ -25,6 +25,48 @@ struct SavedPageRulesTests {
         #expect(first.dropLast() == second.dropLast())
     }
 
+    @Test("Page artifact types declare deletion ownership")
+    func pageArtifactOwnership() {
+        #expect(SavedPageRules.ownership(for: .correctedOCRPage) == .pageOwned)
+        #expect(SavedPageRules.ownership(for: .translation) == .pageOwned)
+        #expect(SavedPageRules.ownership(for: .quiz) == .pageOwned)
+        #expect(SavedPageRules.ownership(for: .extractedSentencePractice) == .pageOwned)
+        #expect(SavedPageRules.ownership(for: .pageConversationPractice) == .pageOwned)
+        #expect(SavedPageRules.ownership(for: .pageLocalNotes) == .pageOwned)
+        #expect(SavedPageRules.ownership(for: .pageAIResult) == .pageOwned)
+
+        #expect(SavedPageRules.ownership(for: .addedPhrase) == .linked)
+        #expect(SavedPageRules.ownership(for: .favoriteCharacter) == .linked)
+        #expect(SavedPageRules.ownership(for: .favoritePhrase) == .linked)
+        #expect(SavedPageRules.ownership(for: .favoriteSentence) == .linked)
+        #expect(SavedPageRules.ownership(for: .globalNote) == .linked)
+        #expect(SavedPageRules.ownership(for: .reusablePracticeProgress) == .linked)
+    }
+
+    @Test("Artifact descriptor uses stable source/type/item identity")
+    func pageArtifactDescriptorIdentity() {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000101")!
+        let descriptor = PageArtifactDescriptor(
+            sourcePageID: pageID,
+            artifactType: .pageConversationPractice,
+            artifactID: "china-us-discussion",
+            displayTitle: "China US Discussion",
+            createdAt: Date(timeIntervalSince1970: 100)
+        )
+        let linked = PageArtifactDescriptor(
+            sourcePageID: pageID,
+            artifactType: .favoriteSentence,
+            artifactID: "sentence-1",
+            displayTitle: "Favorite sentence"
+        )
+
+        #expect(descriptor.id == "00000000-0000-0000-0000-000000000101:pageConversationPractice:china-us-discussion")
+        #expect(descriptor.ownership == .pageOwned)
+        #expect(SavedPageRules.isDeletedWithPage(descriptor))
+        #expect(linked.ownership == .linked)
+        #expect(!SavedPageRules.isDeletedWithPage(linked))
+    }
+
     private func page(created: TimeInterval, viewed: TimeInterval?) -> CharacterCollection {
         CharacterCollection(
             id: UUID(),

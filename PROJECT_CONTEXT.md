@@ -5,7 +5,7 @@ Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
 
-Last reviewed: 2026-07-03
+Last reviewed: 2026-07-04
 
 ## Product and Platform Scope
 
@@ -126,8 +126,9 @@ compatibility contracts. Current portable contracts include:
 - phrase-review status behavior
 - navigation, tab, script-filter, and restore-mode identifiers
 - preference keys and the preference-storage interface
+- saved-page naming, recent-page selection, and page artifact ownership rules
 
-The portable test suite currently contains 44 tests across eight suites.
+The portable test suite currently contains 46 tests across eight suites.
 
 ## Active Workstream
 

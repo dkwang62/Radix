@@ -29,7 +29,83 @@ enum SavedPageRules {
         return String(UUID().uuidString.prefix(maximumNameLength))
     }
 
+    static func ownership(for artifactType: PageArtifactType) -> PageArtifactOwnership {
+        artifactType.defaultOwnership
+    }
+
+    static func isDeletedWithPage(_ artifact: PageArtifactDescriptor) -> Bool {
+        artifact.ownership == .pageOwned
+    }
+
     private static func effectiveDate(_ page: CharacterCollection) -> Date {
         page.lastViewedAt ?? page.createdAt
+    }
+}
+
+enum PageArtifactOwnership: String, Codable, CaseIterable, Equatable, Hashable {
+    case pageOwned
+    case linked
+}
+
+enum PageArtifactType: String, Codable, CaseIterable, Equatable, Hashable {
+    case correctedOCRPage
+    case translation
+    case quiz
+    case extractedSentencePractice
+    case pageConversationPractice
+    case pageLocalNotes
+    case pageAIResult
+    case addedPhrase
+    case favoriteCharacter
+    case favoritePhrase
+    case favoriteSentence
+    case globalNote
+    case reusablePracticeProgress
+
+    var defaultOwnership: PageArtifactOwnership {
+        switch self {
+        case .correctedOCRPage,
+             .translation,
+             .quiz,
+             .extractedSentencePractice,
+             .pageConversationPractice,
+             .pageLocalNotes,
+             .pageAIResult:
+            return .pageOwned
+        case .addedPhrase,
+             .favoriteCharacter,
+             .favoritePhrase,
+             .favoriteSentence,
+             .globalNote,
+             .reusablePracticeProgress:
+            return .linked
+        }
+    }
+}
+
+struct PageArtifactDescriptor: Codable, Equatable, Hashable, Identifiable {
+    let id: String
+    let sourcePageID: UUID
+    let artifactType: PageArtifactType
+    let artifactID: String
+    let displayTitle: String
+    let createdAt: Date?
+    let ownership: PageArtifactOwnership
+
+    init(
+        sourcePageID: UUID,
+        artifactType: PageArtifactType,
+        artifactID: String,
+        displayTitle: String,
+        createdAt: Date? = nil,
+        ownership: PageArtifactOwnership? = nil
+    ) {
+        self.sourcePageID = sourcePageID
+        self.artifactType = artifactType
+        self.artifactID = artifactID
+        self.displayTitle = displayTitle
+        self.createdAt = createdAt
+        self.ownership = ownership ?? artifactType.defaultOwnership
+        self.id = "\(sourcePageID.uuidString):\(artifactType.rawValue):\(artifactID)"
     }
 }
