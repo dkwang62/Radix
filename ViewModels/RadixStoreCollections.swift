@@ -15,14 +15,11 @@ struct PageDeletionImpact {
     let linkedArtifacts: [PageArtifactDescriptor]
 
     var alertMessage: String {
-        var sections = ["Delete \"\(pageName)\" from saved pages?"]
-        if !ownedArtifacts.isEmpty {
-            sections.append("Also removes: \(Self.summaryList(ownedArtifacts.map(\.displayTitle))).")
-        }
-        if !linkedArtifacts.isEmpty {
-            sections.append("Keeps linked learning memory: \(Self.summaryList(linkedArtifacts.map(\.displayTitle))).")
-        }
-        return sections.joined(separator: "\n\n")
+        [
+            "Delete \"\(pageName)\" from saved pages?",
+            "Will remove with this page: \(Self.summaryList(ownedArtifacts.map(\.displayTitle))).",
+            "Will keep as learning memory: \(Self.summaryList(linkedArtifacts.map(\.displayTitle)))."
+        ].joined(separator: "\n\n")
     }
 
     private static func summaryList(_ values: [String]) -> String {

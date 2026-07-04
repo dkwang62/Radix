@@ -121,7 +121,8 @@ Do not move domain behavior back into `RadixStore.swift`.
   removes explicit page-owned descendants: corrected OCR pages and
   source-linked imported Practice packs. Linked sentence favorites and reusable
   Practice progress are summarized as kept learning memory rather than silently
-  deleted.
+  deleted. The delete alert should always show both `Will remove with this page`
+  and `Will keep as learning memory`, even when either list is currently `none`.
 
 Never change an existing preference key, enum raw value, backup field, or review
 status without an explicit migration and compatibility test.
