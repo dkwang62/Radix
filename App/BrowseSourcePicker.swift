@@ -228,10 +228,7 @@ extension FilterGridTab {
                     showBrowseSource = false
                 }
             },
-            onOpenPractice: openPractice,
-            onDelete: {
-                pendingDeleteCollection = collection
-            }
+            onOpenPractice: openPractice
         )
     }
 

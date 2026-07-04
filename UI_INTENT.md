@@ -186,11 +186,13 @@ For an open saved page, keep navigation separate from page actions. The top
 pages, so the open-page card should not spend a separate header row repeating
 the page name, icon, or character count. The page-card source button remains the
 entry point to the full Browse source/import panel, and belongs in the local
-control row with a compact character count. Browse should not own saved-page
-artifact work; commands such as Edit Page, Check OCR, phrase selection,
-translation, and AI workflows belong with the saved page in Study. Keep
-frequently adjusted Browse controls—Simplified/Traditional and Read Aloud—
-visible beside the source/count row.
+control row with a compact character count. Browse should own page-inspection
+controls that only make sense while looking at the page, such as Edit Page and
+Choose Page Phrases. Browse should not own saved-page artifact work such as
+translation, AI OCR review, phrase extraction, quiz generation, sentence
+extraction, page-practice generation, or deletion. Keep frequently adjusted
+Browse controls—Simplified/Traditional and Read Aloud—visible beside the
+source/count row.
 Check OCR should use the saved page characters as the primary text to review.
 The AI is asked to find likely capture/OCR anomalies in those page characters;
 any source image or raw OCR provenance is supporting evidence only.
@@ -253,11 +255,12 @@ heading should reflect the summary button most recently selected.
 On iPad and Mac Catalyst, arrange the four Study summary buttons as two
 equal-width buttons per row so labels such as Added Phrases and Saved Pages
 remain fully readable.
-Saved Pages in Study owns the page action workflow. Each saved-page row should
-offer an `Actions` menu for editing the page, choosing page phrases, viewing or
-saving translation, AI OCR review, phrase extraction, quiz generation, sentence
-extraction, and page-practice generation. Opening the page in Browse should be
-an explicit inspection action, not the default path for those artifacts.
+Saved Pages in Study owns page learning artifacts and deletion. Each saved-page
+row should offer an `Actions` menu for viewing or saving translation, AI OCR
+review, phrase extraction, quiz generation, sentence extraction, page-practice
+generation, and deleting the page with its impact summary. Opening the page in
+Browse should be an explicit inspection action with a clear return to Study;
+editing the page text and choosing visible page phrases belong in Browse.
 
 Conversation Practice should be a guided Study section built from Radix's
 existing Character and Phrase dictionary infrastructure, not a separate

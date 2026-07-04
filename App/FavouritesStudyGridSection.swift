@@ -209,16 +209,13 @@ extension FavouritesTab {
 
                 CollectionPageActionsMenu(
                     collection: collection,
-                    onEdit: {
-                        beginEditingStudyCollection(collection)
-                    },
                     hasGeminiAPIKey: !store.geminiAPIKey
                         .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                    onChoosePhrases: {
-                        studyPagePhraseListCollection = collection
-                    },
                     onViewTranslation: {
                         showStudyTranslationReport(collection)
+                    },
+                    onDelete: {
+                        pendingStudyDeleteCollection = collection
                     },
                     aiTasks: studyPageAITasks(for: collection)
                 )
@@ -233,6 +230,7 @@ extension FavouritesTab {
                 .buttonStyle(.bordered)
                 .controlSize(.small)
                 .accessibilityLabel("Open \(collection.name) in Browse")
+                .help("Browse Page and Return to Study")
             }
 
             if studyPageActionMessageCollectionID == collection.id, let studyPageActionMessage {

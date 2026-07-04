@@ -33,53 +33,72 @@ struct CollectionPageActionsMenu: View {
     }
 
     let collection: CharacterCollection
-    let onEdit: () -> Void
-    let hasGeminiAPIKey: Bool
-    let onChoosePhrases: () -> Void
-    let onViewTranslation: () -> Void
-    let aiTasks: [CollectionPageAITask]
+    var onEdit: (() -> Void)? = nil
+    var hasGeminiAPIKey = false
+    var onChoosePhrases: (() -> Void)? = nil
+    var onViewTranslation: (() -> Void)? = nil
+    var onDelete: (() -> Void)? = nil
+    var aiTasks: [CollectionPageAITask] = []
     @State private var showsAIOrientation = false
     @State private var pendingAISelection: PendingAISelection?
 
     var body: some View {
         Menu {
-            Section("Page") {
-                Button {
-                    onEdit()
-                } label: {
-                    Label("Edit Page", systemImage: "pencil")
-                }
+            if hasPageActions {
+                Section("Page") {
+                    if let onEdit {
+                        Button {
+                            onEdit()
+                        } label: {
+                            Label("Edit Page", systemImage: "pencil")
+                        }
+                    }
 
-                Button {
-                    onChoosePhrases()
-                } label: {
-                    Label("Choose Page Phrases", systemImage: "text.quote")
-                }
+                    if let onChoosePhrases {
+                        Button {
+                            onChoosePhrases()
+                        } label: {
+                            Label("Choose Page Phrases", systemImage: "text.quote")
+                        }
+                    }
 
-                Button {
-                    onViewTranslation()
-                } label: {
-                    Label(
-                        collection.translationReport == nil ? "Save Translation" : "View Translation",
-                        systemImage: collection.translationReport == nil ? "doc.badge.plus" : "doc.text"
-                    )
+                    if let onViewTranslation {
+                        Button {
+                            onViewTranslation()
+                        } label: {
+                            Label(
+                                collection.translationReport == nil ? "Save Translation" : "View Translation",
+                                systemImage: collection.translationReport == nil ? "doc.badge.plus" : "doc.text"
+                            )
+                        }
+                    }
+
+                    if let onDelete {
+                        Button(role: .destructive) {
+                            onDelete()
+                        } label: {
+                            Label("Delete Page", systemImage: "trash")
+                        }
+                    }
                 }
             }
 
-            Section("AI Tasks") {
-                ForEach(aiTasks) { task in
-                    Menu {
-                        aiMethodButton(for: task)
-                    } label: {
-                        Label(task.title, systemImage: task.systemImage)
+            if !aiTasks.isEmpty {
+                Section("AI Tasks") {
+                    ForEach(aiTasks) { task in
+                        Menu {
+                            aiMethodButton(for: task)
+                        } label: {
+                            Label(task.title, systemImage: task.systemImage)
+                        }
                     }
-                }
 
-                Button {
-                    pendingAISelection = nil
-                    showsAIOrientation = true
-                } label: {
-                    Label("How Radix Uses AI", systemImage: "info.circle")
+                    Button {
+                        pendingAISelection = nil
+                        showsAIOrientation = true
+                    } label: {
+                        Label("How Radix Uses AI", systemImage: "info.circle")
+                    }
                 }
             }
         } label: {
@@ -105,6 +124,10 @@ struct CollectionPageActionsMenu: View {
                 onCancel: cancelAIOrientation
             )
         }
+    }
+
+    private var hasPageActions: Bool {
+        onEdit != nil || onChoosePhrases != nil || onViewTranslation != nil || onDelete != nil
     }
 
     @ViewBuilder

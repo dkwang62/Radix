@@ -35,7 +35,6 @@ struct FilterGridTab: View {
     @State var showBrowseInteractionHint = false
     @State var manualCollectionName = ""
     @State var manualCollectionText = ""
-    @State var pendingDeleteCollection: CharacterCollection?
     @State var editingCollection: CharacterCollection?
     @State var editingCollectionName = ""
     @State var editingCollectionText = ""
@@ -268,24 +267,6 @@ struct FilterGridTab: View {
                     imageActionMessage = error.localizedDescription
                 }
             ))
-            .alert("Delete Saved Page?", isPresented: Binding(
-                get: { pendingDeleteCollection != nil },
-                set: { if !$0 { pendingDeleteCollection = nil } }
-            )) {
-                Button("Delete", role: .destructive) {
-                    if let collection = pendingDeleteCollection {
-                        store.deleteCollection(id: collection.id)
-                    }
-                    pendingDeleteCollection = nil
-                }
-                Button("Cancel", role: .cancel) {
-                    pendingDeleteCollection = nil
-                }
-            } message: {
-                if let collection = pendingDeleteCollection {
-                    Text(store.deletionImpact(for: collection).alertMessage)
-                }
-            }
         }
     }
 

@@ -161,30 +161,6 @@ extension FavouritesTab {
         studyPageActionMessageCollectionID = message == nil ? nil : collection.id
     }
 
-    func beginEditingStudyCollection(_ collection: CharacterCollection) {
-        editingStudyCollectionName = collection.name
-        editingStudyCollectionText = collection.characters.joined(separator: " ")
-        studyCollectionEditorError = nil
-        editingStudyCollection = collection
-    }
-
-    func saveEditedStudyCollection(_ collection: CharacterCollection) {
-        guard let updated = store.updateCollection(
-            id: collection.id,
-            newName: editingStudyCollectionName,
-            sourceText: editingStudyCollectionText
-        ) else {
-            studyCollectionEditorError = "Enter a name and at least one Chinese character that exists in Radix."
-            return
-        }
-
-        editingStudyCollectionName = updated.name
-        editingStudyCollectionText = updated.characters.joined(separator: " ")
-        studyCollectionEditorError = nil
-        editingStudyCollection = nil
-        setStudyPageActionMessage("Updated \(updated.name).", for: updated)
-    }
-
     func showStudyTranslationReport(_ collection: CharacterCollection) {
         studyTranslationReportDraft = collection.translationReport ?? ""
         studyTranslationReportCollection = collection

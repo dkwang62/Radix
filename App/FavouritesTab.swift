@@ -45,11 +45,7 @@ struct FavouritesTab: View {
     @State var studyPageQuizQuestions: [PageQuizQuestion] = []
     @State var studyPageQuizMessage: String?
     @State var isGeneratingStudyPageQuiz = false
-    @State var studyPagePhraseListCollection: CharacterCollection?
-    @State var editingStudyCollection: CharacterCollection?
-    @State var editingStudyCollectionName = ""
-    @State var editingStudyCollectionText = ""
-    @State var studyCollectionEditorError: String?
+    @State var pendingStudyDeleteCollection: CharacterCollection?
     @State var studyPageActionMessage: String?
     @State var studyPageActionMessageCollectionID: UUID?
     @State var studyAIFallbackTask: BrowseAIFallbackTask?
@@ -174,25 +170,6 @@ struct FavouritesTab: View {
                 onDone: { studyPageQuizCollection = nil }
             )
         }
-        .sheet(item: $studyPagePhraseListCollection) { collection in
-            BrowsePagePhraseListSheet(collectionID: collection.id)
-                .environmentObject(store)
-        }
-        .sheet(item: $editingStudyCollection) { collection in
-            EditBrowseCollectionSheet(
-                collection: collection,
-                name: $editingStudyCollectionName,
-                text: $editingStudyCollectionText,
-                error: studyCollectionEditorError,
-                onCancel: {
-                    editingStudyCollection = nil
-                    studyCollectionEditorError = nil
-                },
-                onSave: {
-                    saveEditedStudyCollection(collection)
-                }
-            )
-        }
         .sheet(isPresented: $showConversationPracticePasteImporter) {
             ConversationPracticePasteImportSheet { pack in
                 importPastedConversationPracticePack(pack)
@@ -249,6 +226,24 @@ struct FavouritesTab: View {
             }
         } message: {
             Text(pendingConversationPracticeReplacement?.message ?? "")
+        }
+        .alert("Delete Saved Page?", isPresented: Binding(
+            get: { pendingStudyDeleteCollection != nil },
+            set: { if !$0 { pendingStudyDeleteCollection = nil } }
+        )) {
+            Button("Delete", role: .destructive) {
+                if let collection = pendingStudyDeleteCollection {
+                    store.deleteCollection(id: collection.id)
+                }
+                pendingStudyDeleteCollection = nil
+            }
+            Button("Cancel", role: .cancel) {
+                pendingStudyDeleteCollection = nil
+            }
+        } message: {
+            if let collection = pendingStudyDeleteCollection {
+                Text(store.deletionImpact(for: collection).alertMessage)
+            }
         }
         .alert(item: $studyAIFallbackTask) { task in
             Alert(
