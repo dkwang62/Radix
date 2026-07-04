@@ -117,6 +117,11 @@ Do not move domain behavior back into `RadixStore.swift`.
   link with page ID, title, created date, and optional fingerprint. Page AI
   imports attach this link automatically; old title matching remains only as a
   fallback for legacy packs.
+- Deleting a saved page now uses a store-level deletion impact summary and
+  removes explicit page-owned descendants: corrected OCR pages and
+  source-linked imported Practice packs. Linked sentence favorites and reusable
+  Practice progress are summarized as kept learning memory rather than silently
+  deleted.
 
 Never change an existing preference key, enum raw value, backup field, or review
 status without an explicit migration and compatibility test.

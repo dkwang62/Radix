@@ -208,7 +208,7 @@ extension FilterGridTab {
         dateMode: PageCollectionSortOrder? = nil
     ) -> some View {
         let isSelected = store.selectedBrowseCollectionID == collection.id
-        let matchingPracticeID = store.matchingConversationPracticeTopicID(forPageTitle: collection.name)
+        let matchingPracticeID = store.matchingConversationPracticeTopicID(forPageID: collection.id, title: collection.name)
         let openPractice: (() -> Void)? = matchingPracticeID.map { topicID in
             {
                 store.openConversationPractice(topicID: topicID)

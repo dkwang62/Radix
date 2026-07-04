@@ -9,6 +9,32 @@ import SwiftUI
  exposed through compatibility properties on RadixStore.
 */
 
+struct PageDeletionImpact {
+    let pageName: String
+    let ownedArtifacts: [PageArtifactDescriptor]
+    let linkedArtifacts: [PageArtifactDescriptor]
+
+    var alertMessage: String {
+        var sections = ["Delete \"\(pageName)\" from saved pages?"]
+        if !ownedArtifacts.isEmpty {
+            sections.append("Also removes: \(Self.summaryList(ownedArtifacts.map(\.displayTitle))).")
+        }
+        if !linkedArtifacts.isEmpty {
+            sections.append("Keeps linked learning memory: \(Self.summaryList(linkedArtifacts.map(\.displayTitle))).")
+        }
+        return sections.joined(separator: "\n\n")
+    }
+
+    private static func summaryList(_ values: [String]) -> String {
+        let uniqueValues = Array(NSOrderedSet(array: values)).compactMap { $0 as? String }
+        guard !uniqueValues.isEmpty else { return "none" }
+        if uniqueValues.count <= 3 {
+            return uniqueValues.joined(separator: ", ")
+        }
+        return uniqueValues.prefix(3).joined(separator: ", ") + ", and \(uniqueValues.count - 3) more"
+    }
+}
+
 extension RadixStore {
 
     func mergeImportedCollections(_ importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
@@ -124,16 +150,98 @@ extension RadixStore {
         persistCollections()
     }
 
+    func deletionImpact(for collection: CharacterCollection) -> PageDeletionImpact {
+        let correctedPages = correctedCollectionDescendants(of: collection.id)
+        let linkedPracticePacks = RadixStudyPreferences.importedConversationPracticePacks
+            .filter { $0.sourceLink?.sourcePageID == collection.id }
+        let linkedPracticePackIDs = Set(linkedPracticePacks.map(\.packID))
+        let favoriteSentences = RadixStudyPreferences.favoriteSentences
+            .filter { linkedPracticePackIDs.contains($0.sourceSetID) }
+        let progressPackIDs = Set(RadixStudyPreferences.conversationPracticeProgress.records.map(\.packID))
+            .intersection(linkedPracticePackIDs)
+
+        var ownedArtifacts: [PageArtifactDescriptor] = []
+        ownedArtifacts.append(contentsOf: correctedPages.map {
+            PageArtifactDescriptor(
+                sourcePageID: collection.id,
+                artifactType: .correctedOCRPage,
+                artifactID: $0.id.uuidString,
+                displayTitle: "corrected page \"\($0.name)\"",
+                createdAt: $0.createdAt
+            )
+        })
+        if collection.translationReport?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
+            ownedArtifacts.append(PageArtifactDescriptor(
+                sourcePageID: collection.id,
+                artifactType: .translation,
+                artifactID: "translation",
+                displayTitle: "page translation",
+                createdAt: collection.translationReportUpdatedAt
+            ))
+        }
+        ownedArtifacts.append(contentsOf: linkedPracticePacks.map {
+            PageArtifactDescriptor(
+                sourcePageID: collection.id,
+                artifactType: .pageConversationPractice,
+                artifactID: $0.packID,
+                displayTitle: "practice pack \"\($0.title)\"",
+                createdAt: $0.sourceLink?.sourceCreatedAt
+            )
+        })
+
+        var linkedArtifacts: [PageArtifactDescriptor] = favoriteSentences.map {
+            PageArtifactDescriptor(
+                sourcePageID: collection.id,
+                artifactType: .favoriteSentence,
+                artifactID: $0.id,
+                displayTitle: "favorite sentence",
+                createdAt: $0.favoritedAt
+            )
+        }
+        linkedArtifacts.append(contentsOf: progressPackIDs.map {
+            PageArtifactDescriptor(
+                sourcePageID: collection.id,
+                artifactType: .reusablePracticeProgress,
+                artifactID: $0,
+                displayTitle: "practice progress",
+                createdAt: nil
+            )
+        })
+
+        return PageDeletionImpact(
+            pageName: collection.name,
+            ownedArtifacts: ownedArtifacts,
+            linkedArtifacts: linkedArtifacts
+        )
+    }
+
     func deleteCollection(id: UUID) {
-        allCollections.removeAll { $0.id == id }
-        browsePagePhraseTileCache.removeValue(forKey: id)
-        browsePagePhraseCandidateCache.removeValue(forKey: id)
-        if selectedBrowseCollectionID == id {
+        let descendantIDs = Set(correctedCollectionDescendants(of: id).map(\.id))
+        let removedCollectionIDs = descendantIDs.union([id])
+        let removedPracticePackIDs = Set(RadixStudyPreferences.importedConversationPracticePacks
+            .filter { $0.sourceLink?.sourcePageID == id }
+            .map(\.packID))
+
+        allCollections.removeAll { removedCollectionIDs.contains($0.id) }
+        for removedID in removedCollectionIDs {
+            browsePagePhraseTileCache.removeValue(forKey: removedID)
+            browsePagePhraseCandidateCache.removeValue(forKey: removedID)
+        }
+        if selectedBrowseCollectionID.map(removedCollectionIDs.contains) == true {
             selectedBrowseCollectionID = nil
             selectedBrowseCollectionCharacters = nil
         }
-        if selectedAICollectionID == id {
+        if selectedAICollectionID.map(removedCollectionIDs.contains) == true {
             selectedAICollectionID = nil
+        }
+        if !removedPracticePackIDs.isEmpty {
+            var packs = RadixStudyPreferences.importedConversationPracticePacks
+            packs.removeAll { removedPracticePackIDs.contains($0.packID) }
+            RadixStudyPreferences.importedConversationPracticePacks = packs
+            if removedPracticePackIDs.contains(selectedConversationPracticeTopicID) {
+                selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
+                persistPromptSettings()
+            }
         }
         persistCollections()
     }
@@ -332,6 +440,21 @@ extension RadixStore {
 
     func collectionNameFromSourceCharacters(_ characters: [String]) -> String {
         String(characters.prefix(11).joined())
+    }
+
+    private func correctedCollectionDescendants(of id: UUID) -> [CharacterCollection] {
+        var descendants: [CharacterCollection] = []
+        var pending = [id]
+        var seen: Set<UUID> = [id]
+        while let sourceID = pending.popLast() {
+            let children = allCollections.filter { $0.correctedFromCollectionID == sourceID && !seen.contains($0.id) }
+            for child in children {
+                seen.insert(child.id)
+                descendants.append(child)
+                pending.append(child.id)
+            }
+        }
+        return descendants
     }
 
 }

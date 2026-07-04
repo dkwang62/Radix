@@ -283,7 +283,7 @@ struct FilterGridTab: View {
                 }
             } message: {
                 if let collection = pendingDeleteCollection {
-                    Text("Delete “\(collection.name)” from saved pages?")
+                    Text(store.deletionImpact(for: collection).alertMessage)
                 }
             }
         }
