@@ -251,7 +251,6 @@ extension FavouritesTab {
                     if collection.translationReport?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
                         studyPageArtifactChip(
                             title: "Translation",
-                            systemImage: "doc.text",
                             tint: .blue
                         ) {
                             showStudyTranslationReport(collection)
@@ -260,7 +259,6 @@ extension FavouritesTab {
 
                     studyPageArtifactChip(
                         title: "Quiz",
-                        systemImage: "checkmark.circle",
                         tint: .orange
                     ) {
                         beginStudyPageQuiz(collection)
@@ -269,7 +267,6 @@ extension FavouritesTab {
                     if !pagePhrases.isEmpty {
                         studyPageArtifactChip(
                             title: "Phrases",
-                            systemImage: "text.badge.plus",
                             tint: .mint
                         ) {
                             showPagePhrases(collection)
@@ -279,7 +276,6 @@ extension FavouritesTab {
                     ForEach(practices, id: \.packID) { pack in
                         studyPageArtifactChip(
                             title: pagePracticeArtifactTitle(for: pack),
-                            systemImage: pagePracticeArtifactIcon(for: pack),
                             tint: .teal
                         ) {
                             openStudyPracticePack(pack)
@@ -289,7 +285,6 @@ extension FavouritesTab {
                     ForEach(correctedPages) { corrected in
                         studyPageArtifactChip(
                             title: "Corrected Page",
-                            systemImage: "checkmark.rectangle",
                             tint: .green
                         ) {
                             beginPromotingOCRCorrection(original: collection, corrected: corrected)
@@ -308,18 +303,13 @@ extension FavouritesTab {
 
     func studyPageArtifactChip(
         title: String,
-        systemImage: String,
         tint: Color,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
-            HStack(spacing: 6) {
-                Image(systemName: systemImage)
-                    .font(.system(size: 12, weight: .semibold))
-                Text(title)
-                    .font(ResponsiveFont.caption2.weight(.semibold))
-                    .lineLimit(1)
-            }
+            Text(title)
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .lineLimit(1)
             .padding(.horizontal, 9)
             .padding(.vertical, 7)
             .background(tint.opacity(0.11))

@@ -134,7 +134,8 @@ Do not move domain behavior back into `RadixStore.swift`.
   in the shared Phrase Library sheet used by the information-card Phrase
   button. Saved-page rows keep page artifacts in a compact two-row shape and
   avoid inline stats such as character counts, dates, phrase counts, sentence
-  counts, favorite counts, and progress counts. Page phrase lists are sorted by
+  counts, favorite counts, and progress counts. Artifact chips are text-only
+  when the visible word already names the action. Page phrase lists are sorted by
   pinyin and dismiss after phrase
   selection on sidebar layouts so the selected Phrase Info Card is unobstructed.
   Source-linked sentence-extraction packs are labeled `Sentences`; generated
