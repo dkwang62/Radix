@@ -294,6 +294,17 @@ extension RadixStore {
         }
     }
 
+    func goToBrowseCollection(id collectionID: UUID, preservingOrigin: Bool = false) {
+        let origin = preservingOrigin ? RootsReturnContext(
+            route: route,
+            homeTab: route == .search ? homeTab : nil
+        ) : nil
+        goToBrowse()
+        rootsReturnContext = origin
+        selectBrowseCollection(id: collectionID)
+        shouldCloseBrowsePages = true
+    }
+
     func goToStudyAddedPhrases() {
         rememberCrossTabOrigin()
         route = .search

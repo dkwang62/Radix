@@ -190,8 +190,7 @@ extension FavouritesTab {
     }
 
     func openSavedPageInBrowse(_ collection: CharacterCollection) {
-        store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
-        store.selectBrowseCollection(id: collection.id)
+        store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
     }
 
     func setStudyPageActionMessage(_ message: String?, for collection: CharacterCollection) {

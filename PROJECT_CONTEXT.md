@@ -140,8 +140,9 @@ Do not move domain behavior back into `RadixStore.swift`.
   artifacts, AI workflows, and saved-page deletion. Browse owns page inspection
   controls that only make sense while looking at the page, including editing
   the page text and choosing visible page phrases. The explicit page-open icon
-  in Study remains the route to inspect a saved page in Browse with a contextual
-  return path back to Study. Corrected OCR pages can be promoted from Study so
+  in Study opens that saved page's content directly in Browse, closes the
+  Browse source panel if it was open, and keeps a contextual return path back
+  to Study. Corrected OCR pages can be promoted from Study so
   the corrected text becomes the main page while preserving the main page ID and
   its linked learning artifacts; the old OCR can either be kept as a separate
   archived page or discarded during promotion.
