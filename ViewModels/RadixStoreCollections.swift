@@ -243,6 +243,71 @@ extension RadixStore {
         persistCollections()
     }
 
+    @discardableResult
+    func promoteCorrectedOCRCollection(
+        correctedID: UUID,
+        keepOriginalAsArchive: Bool
+    ) -> CharacterCollection? {
+        guard let correctedIndex = allCollections.firstIndex(where: { $0.id == correctedID }),
+              let originalID = allCollections[correctedIndex].correctedFromCollectionID,
+              let originalIndex = allCollections.firstIndex(where: { $0.id == originalID })
+        else { return nil }
+
+        let original = allCollections[originalIndex]
+        let corrected = allCollections[correctedIndex]
+        let now = Date()
+
+        var promoted = original
+        promoted.name = original.name
+        promoted.characters = corrected.characters
+        promoted.sourceType = corrected.sourceType
+        promoted.thumbnailJPEGData = corrected.thumbnailJPEGData ?? original.thumbnailJPEGData
+        promoted.sourceImageJPEGData = corrected.sourceImageJPEGData ?? original.sourceImageJPEGData
+        promoted.originalOCRText = original.originalOCRText ?? corrected.originalOCRText ?? original.characters.joined()
+        promoted.reviewedOCRText = corrected.reviewedOCRText ?? corrected.characters.joined()
+        promoted.ocrReviewedAt = corrected.ocrReviewedAt ?? now
+        promoted.correctedFromCollectionID = nil
+        promoted.hiddenPhraseWords = corrected.hiddenPhraseWords ?? original.hiddenPhraseWords
+        promoted.lastViewedAt = now
+
+        var replacementCollections = allCollections.filter { $0.id != correctedID }
+        if let index = replacementCollections.firstIndex(where: { $0.id == originalID }) {
+            replacementCollections[index] = promoted
+        }
+
+        if keepOriginalAsArchive {
+            let archive = archivedOriginalCollection(from: original, promotedAt: now)
+            replacementCollections.append(archive)
+        }
+
+        replacementCollections = replacementCollections.map { collection in
+            guard collection.correctedFromCollectionID == correctedID else { return collection }
+            var copy = collection
+            copy.correctedFromCollectionID = originalID
+            return copy
+        }
+
+        allCollections = replacementCollections
+        sortCollections()
+        browsePagePhraseTileCache.removeValue(forKey: originalID)
+        browsePagePhraseCandidateCache.removeValue(forKey: originalID)
+        browsePagePhraseTileCache.removeValue(forKey: correctedID)
+        browsePagePhraseCandidateCache.removeValue(forKey: correctedID)
+
+        if selectedBrowseCollectionID == correctedID {
+            selectedBrowseCollectionID = originalID
+        }
+        if selectedAICollectionID == correctedID {
+            selectedAICollectionID = originalID
+        }
+        if selectedBrowseCollectionID == originalID {
+            selectedBrowseCollectionCharacters = Set(promoted.characters)
+            activeSubject = .collection(promoted)
+        }
+        persistCollections()
+        return promoted
+    }
+
     func renameCollection(id: UUID, newName: String) {
         guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return }
         let cleanName = collectionDisplayName(newName)
@@ -437,6 +502,42 @@ extension RadixStore {
 
     func collectionNameFromSourceCharacters(_ characters: [String]) -> String {
         String(characters.prefix(11).joined())
+    }
+
+    private func archivedOriginalCollection(from collection: CharacterCollection, promotedAt: Date) -> CharacterCollection {
+        CharacterCollection(
+            id: UUID(),
+            name: archivedOriginalName(for: collection.name),
+            characters: collection.characters,
+            createdAt: promotedAt,
+            lastViewedAt: nil,
+            sourceType: collection.sourceType,
+            isFavorite: false,
+            thumbnailJPEGData: collection.thumbnailJPEGData,
+            sourceImageJPEGData: collection.sourceImageJPEGData,
+            originalOCRText: collection.originalOCRText,
+            reviewedOCRText: collection.reviewedOCRText,
+            ocrReviewedAt: collection.ocrReviewedAt,
+            correctedFromCollectionID: nil,
+            translationReport: nil,
+            translationReportUpdatedAt: nil,
+            hiddenPhraseWords: collection.hiddenPhraseWords
+        )
+    }
+
+    private func archivedOriginalName(for name: String) -> String {
+        let existingNames = Set(allCollections.map(\.name))
+        let stem = collectionDisplayName(name)
+        for suffix in 1...99 {
+            let prefix = "Old"
+            let suffixText = String(suffix)
+            let available = max(0, SavedPageRules.maximumNameLength - prefix.count - suffixText.count)
+            let candidate = prefix + String(stem.prefix(available)) + suffixText
+            if !existingNames.contains(candidate) {
+                return candidate
+            }
+        }
+        return String(UUID().uuidString.prefix(SavedPageRules.maximumNameLength))
     }
 
     private func correctedCollectionDescendants(of id: UUID) -> [CharacterCollection] {

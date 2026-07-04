@@ -261,6 +261,10 @@ review, phrase extraction, quiz generation, sentence extraction, page-practice
 generation, and deleting the page with its impact summary. Opening the page in
 Browse should be an explicit inspection action with a clear return to Study;
 editing the page text and choosing visible page phrases belong in Browse.
+When an OCR correction creates a corrected page, Study should let the user
+promote that correction to become the main saved page. Promotion must keep
+page-linked learning artifacts attached to the main page and let the user choose
+whether the original OCR remains as a separate archived page or is discarded.
 
 Conversation Practice should be a guided Study section built from Radix's
 existing Character and Phrase dictionary infrastructure, not a separate

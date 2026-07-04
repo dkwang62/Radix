@@ -1,5 +1,12 @@
 import SwiftUI
 
+struct StudyOCRPromotion: Identifiable {
+    let original: CharacterCollection
+    let corrected: CharacterCollection
+
+    var id: UUID { corrected.id }
+}
+
 struct FavouritesTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
@@ -46,6 +53,7 @@ struct FavouritesTab: View {
     @State var studyPageQuizMessage: String?
     @State var isGeneratingStudyPageQuiz = false
     @State var pendingStudyDeleteCollection: CharacterCollection?
+    @State var pendingStudyOCRPromotion: StudyOCRPromotion?
     @State var studyPageActionMessage: String?
     @State var studyPageActionMessageCollectionID: UUID?
     @State var studyAIFallbackTask: BrowseAIFallbackTask?
@@ -243,6 +251,24 @@ struct FavouritesTab: View {
         } message: {
             if let collection = pendingStudyDeleteCollection {
                 Text(store.deletionImpact(for: collection).alertMessage)
+            }
+        }
+        .alert("Promote Corrected OCR?", isPresented: Binding(
+            get: { pendingStudyOCRPromotion != nil },
+            set: { if !$0 { pendingStudyOCRPromotion = nil } }
+        )) {
+            Button("Promote, Keep Original") {
+                promotePendingOCRCorrection(keepOriginal: true)
+            }
+            Button("Promote, Delete Original", role: .destructive) {
+                promotePendingOCRCorrection(keepOriginal: false)
+            }
+            Button("Cancel", role: .cancel) {
+                pendingStudyOCRPromotion = nil
+            }
+        } message: {
+            if let promotion = pendingStudyOCRPromotion {
+                Text("Use \"\(promotion.corrected.name)\" as the main page for \"\(promotion.original.name)\". Existing page-linked practice, translation, favorites, and progress stay with the main page.")
             }
         }
         .alert(item: $studyAIFallbackTask) { task in

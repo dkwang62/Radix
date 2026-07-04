@@ -131,7 +131,10 @@ Do not move domain behavior back into `RadixStore.swift`.
   controls that only make sense while looking at the page, including editing
   the page text and choosing visible page phrases. The explicit page-open icon
   in Study remains the route to inspect a saved page in Browse with a contextual
-  return path back to Study.
+  return path back to Study. Corrected OCR pages can be promoted from Study so
+  the corrected text becomes the main page while preserving the main page ID and
+  its linked learning artifacts; the old OCR can either be kept as a separate
+  archived page or discarded during promotion.
 
 Never change an existing preference key, enum raw value, backup field, or review
 status without an explicit migration and compatibility test.
@@ -347,7 +350,9 @@ same placeholder instead of hardcoding a pack size.
 OCR correction no longer has a proposal-approval screen. Automatic Gemini
 review creates and opens the corrected Browse page immediately; copy/paste uses
 one `Paste Answer and Create Corrected Page` action. The original OCR page is
-always retained as the reversible source record.
+retained as the reversible source record until the user promotes a corrected
+page from Study, where the original can either be kept as an archived page or
+discarded.
 Corrected pages retain the longest possible prefix of the original 11-character
 name and add a unique numeric suffix such as `1` or `2`.
 The corrected source remains Chinese, while change reasons, confidence, and

@@ -285,11 +285,11 @@ extension FavouritesTab {
                 ForEach(correctedPages) { corrected in
                     studyPageArtifactChip(
                         title: "Corrected Page",
-                        detail: corrected.name,
+                        detail: "Promote \(corrected.name)",
                         systemImage: "checkmark.rectangle",
                         tint: .green
                     ) {
-                        openSavedPageInBrowse(corrected)
+                        beginPromotingOCRCorrection(original: collection, corrected: corrected)
                     }
                 }
 

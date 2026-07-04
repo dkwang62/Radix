@@ -197,6 +197,29 @@ extension FavouritesTab {
         isGeneratingStudyPageQuiz = false
     }
 
+    func beginPromotingOCRCorrection(original: CharacterCollection, corrected: CharacterCollection) {
+        pendingStudyOCRPromotion = StudyOCRPromotion(original: original, corrected: corrected)
+    }
+
+    func promotePendingOCRCorrection(keepOriginal: Bool) {
+        guard let promotion = pendingStudyOCRPromotion else { return }
+        pendingStudyOCRPromotion = nil
+        guard let promoted = store.promoteCorrectedOCRCollection(
+            correctedID: promotion.corrected.id,
+            keepOriginalAsArchive: keepOriginal
+        ) else {
+            setStudyPageActionMessage("Could not promote the corrected OCR page.", for: promotion.original)
+            return
+        }
+        loadImportedConversationPracticePacks()
+        setStudyPageActionMessage(
+            keepOriginal
+                ? "Promoted corrected OCR. The original OCR was kept as a separate page."
+                : "Promoted corrected OCR. The original OCR copy was deleted.",
+            for: promoted
+        )
+    }
+
     func beginStudyAILinkPageTask(_ collection: CharacterCollection, taskID: String) {
         setStudyPageActionMessage(nil, for: collection)
         store.goToAILinkCollectionTask(collection: collection, taskID: taskID)
