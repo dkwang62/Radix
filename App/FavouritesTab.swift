@@ -45,6 +45,16 @@ struct FavouritesTab: View {
     @State var studyPageQuizQuestions: [PageQuizQuestion] = []
     @State var studyPageQuizMessage: String?
     @State var isGeneratingStudyPageQuiz = false
+    @State var studyPagePhraseListCollection: CharacterCollection?
+    @State var editingStudyCollection: CharacterCollection?
+    @State var editingStudyCollectionName = ""
+    @State var editingStudyCollectionText = ""
+    @State var studyCollectionEditorError: String?
+    @State var studyPageActionMessage: String?
+    @State var studyPageActionMessageCollectionID: UUID?
+    @State var studyAIFallbackTask: BrowseAIFallbackTask?
+    @State var studyAutomaticAIError = ""
+    @State var isRunningStudyPageAction = false
 
     private let conversationPracticeService = ConversationPracticeService()
 
@@ -164,6 +174,25 @@ struct FavouritesTab: View {
                 onDone: { studyPageQuizCollection = nil }
             )
         }
+        .sheet(item: $studyPagePhraseListCollection) { collection in
+            BrowsePagePhraseListSheet(collectionID: collection.id)
+                .environmentObject(store)
+        }
+        .sheet(item: $editingStudyCollection) { collection in
+            EditBrowseCollectionSheet(
+                collection: collection,
+                name: $editingStudyCollectionName,
+                text: $editingStudyCollectionText,
+                error: studyCollectionEditorError,
+                onCancel: {
+                    editingStudyCollection = nil
+                    studyCollectionEditorError = nil
+                },
+                onSave: {
+                    saveEditedStudyCollection(collection)
+                }
+            )
+        }
         .sheet(isPresented: $showConversationPracticePasteImporter) {
             ConversationPracticePasteImportSheet { pack in
                 importPastedConversationPracticePack(pack)
@@ -220,6 +249,16 @@ struct FavouritesTab: View {
             }
         } message: {
             Text(pendingConversationPracticeReplacement?.message ?? "")
+        }
+        .alert(item: $studyAIFallbackTask) { task in
+            Alert(
+                title: Text("Automatic AI Is Unavailable"),
+                message: Text("\(studyAutomaticAIError)\n\nYour API key may still be valid. Gemini can occasionally be unavailable, so the copy-and-paste method remains available."),
+                primaryButton: .default(Text("Use Another AI App")) {
+                    useManualStudyAIFallback(task)
+                },
+                secondaryButton: .cancel(Text("Not Now"))
+            )
         }
         .onAppear {
             studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript

@@ -207,6 +207,23 @@ extension FavouritesTab {
 
                 Spacer(minLength: 8)
 
+                CollectionPageActionsMenu(
+                    collection: collection,
+                    onEdit: {
+                        beginEditingStudyCollection(collection)
+                    },
+                    hasGeminiAPIKey: !store.geminiAPIKey
+                        .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                    onChoosePhrases: {
+                        studyPagePhraseListCollection = collection
+                    },
+                    onViewTranslation: {
+                        showStudyTranslationReport(collection)
+                    },
+                    aiTasks: studyPageAITasks(for: collection)
+                )
+                .disabled(isRunningStudyPageAction)
+
                 Button {
                     openSavedPageInBrowse(collection)
                 } label: {
@@ -216,6 +233,23 @@ extension FavouritesTab {
                 .buttonStyle(.bordered)
                 .controlSize(.small)
                 .accessibilityLabel("Open \(collection.name) in Browse")
+            }
+
+            if studyPageActionMessageCollectionID == collection.id, let studyPageActionMessage {
+                Label {
+                    Text(studyPageActionMessage)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                } icon: {
+                    if isRunningStudyPageAction {
+                        ProgressView()
+                            .controlSize(.small)
+                    } else {
+                        Image(systemName: "checkmark.circle")
+                    }
+                }
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
             }
 
             RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {

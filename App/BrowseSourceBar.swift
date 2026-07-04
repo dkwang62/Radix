@@ -123,16 +123,6 @@ extension FilterGridTab {
                 .background(RadixTheme.secondaryBackground.opacity(0.55))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            CollectionPageActionsMenu(collection: collection, onEdit: {
-                beginEditing(collection)
-            }, hasGeminiAPIKey: !store.geminiAPIKey
-                .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-            onChoosePhrases: {
-                pagePhraseListCollection = collection
-            }, onViewTranslation: {
-                beginTranslationReport(collection)
-            }, aiTasks: pageAITasks(for: collection))
-
             BrowseImageScriptToggle(mode: $browseImageScriptMode)
 
             readBrowseSourceButton(collection)

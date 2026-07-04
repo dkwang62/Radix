@@ -156,6 +156,35 @@ extension FavouritesTab {
         store.selectBrowseCollection(id: collection.id)
     }
 
+    func setStudyPageActionMessage(_ message: String?, for collection: CharacterCollection) {
+        studyPageActionMessage = message
+        studyPageActionMessageCollectionID = message == nil ? nil : collection.id
+    }
+
+    func beginEditingStudyCollection(_ collection: CharacterCollection) {
+        editingStudyCollectionName = collection.name
+        editingStudyCollectionText = collection.characters.joined(separator: " ")
+        studyCollectionEditorError = nil
+        editingStudyCollection = collection
+    }
+
+    func saveEditedStudyCollection(_ collection: CharacterCollection) {
+        guard let updated = store.updateCollection(
+            id: collection.id,
+            newName: editingStudyCollectionName,
+            sourceText: editingStudyCollectionText
+        ) else {
+            studyCollectionEditorError = "Enter a name and at least one Chinese character that exists in Radix."
+            return
+        }
+
+        editingStudyCollectionName = updated.name
+        editingStudyCollectionText = updated.characters.joined(separator: " ")
+        studyCollectionEditorError = nil
+        editingStudyCollection = nil
+        setStudyPageActionMessage("Updated \(updated.name).", for: updated)
+    }
+
     func showStudyTranslationReport(_ collection: CharacterCollection) {
         studyTranslationReportDraft = collection.translationReport ?? ""
         studyTranslationReportCollection = collection
@@ -190,6 +219,233 @@ extension FavouritesTab {
         studyPageQuizQuestions = store.pageQuizQuestions(for: collection)
         studyPageQuizMessage = "Using a local Radix quiz because AI generation is unavailable."
         isGeneratingStudyPageQuiz = false
+    }
+
+    func beginStudyAILinkPageTask(_ collection: CharacterCollection, taskID: String) {
+        setStudyPageActionMessage(nil, for: collection)
+        store.goToAILinkCollectionTask(collection: collection, taskID: taskID)
+    }
+
+    func studyPageAITasks(for collection: CharacterCollection) -> [CollectionPageAITask] {
+        var tasks: [CollectionPageAITask] = []
+
+        if collection.sourceType == .ocr && collection.correctedFromCollectionID == nil {
+            tasks.append(CollectionPageAITask(
+                id: AIResultTaskID.checkOCR,
+                title: "Check OCR",
+                systemImage: "text.viewfinder",
+                manualAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.checkOCR) },
+                automaticAction: { runAutomaticStudyPageAIAction { runAutomaticStudyOCRReview(collection) } }
+            ))
+        }
+
+        tasks.append(contentsOf: [
+            CollectionPageAITask(
+                id: AIResultTaskID.extractPhrases,
+                title: "Extract Phrases",
+                systemImage: "text.badge.plus",
+                manualAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.extractPhrases) },
+                automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiPhraseExtraction(collection) } }
+            ),
+            CollectionPageAITask(
+                id: AIResultTaskID.translatePage,
+                title: "Translate Page",
+                systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.translation),
+                manualAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.translatePage) },
+                automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiTranslationAndSave(collection) } }
+            ),
+            CollectionPageAITask(
+                id: "task8",
+                title: "Create Quiz",
+                systemImage: "questionmark.circle",
+                manualAction: { beginStudyAILinkPageTask(collection, taskID: "task8") },
+                automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiPageQuiz(collection) } }
+            ),
+            CollectionPageAITask(
+                id: AIResultTaskID.extractSentences,
+                title: "Extract Sentences",
+                systemImage: "bubble.left.and.bubble.right",
+                manualAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences) },
+                automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiSentenceExtraction(collection) } }
+            ),
+            CollectionPageAITask(
+                id: AIResultTaskID.createPagePractice,
+                title: "Create Practice from Page",
+                systemImage: "sparkles",
+                manualAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice) },
+                automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiPagePracticeGeneration(collection) } }
+            )
+        ])
+
+        return tasks
+    }
+
+    func runAutomaticStudyPageAIAction(_ action: () -> Void) {
+        guard !store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            store.goToSettingsForAPIKeySetup()
+            return
+        }
+        action()
+    }
+
+    func runAutomaticStudyOCRReview(_ collection: CharacterCollection) {
+        isRunningStudyPageAction = true
+        setStudyPageActionMessage("Checking OCR automatically with Gemini...", for: collection)
+        Task {
+            do {
+                let response = try await store.runGeminiOCRReview(for: collection)
+                await MainActor.run {
+                    createStudyCorrectedOCRPage(from: response, original: collection)
+                    isRunningStudyPageAction = false
+                }
+            } catch {
+                await MainActor.run {
+                    offerManualStudyAIFallback(.checkOCR(collection), error: error)
+                    isRunningStudyPageAction = false
+                }
+            }
+        }
+    }
+
+    func createStudyCorrectedOCRPage(from response: String, original collection: CharacterCollection) {
+        do {
+            let corrected = try store.createCorrectedOCRCollection(fromAIResponse: response, original: collection)
+            setStudyPageActionMessage("Corrected page created: \(corrected.name).", for: collection)
+        } catch {
+            setStudyPageActionMessage(error.localizedDescription, for: collection)
+        }
+    }
+
+    func runStudyGeminiPhraseExtraction(_ collection: CharacterCollection) {
+        isRunningStudyPageAction = true
+        setStudyPageActionMessage("Extracting phrases automatically...", for: collection)
+        Task {
+            do {
+                let summary = try await store.runGeminiPhraseExtraction(for: collection)
+                await MainActor.run {
+                    setStudyPageActionMessage(summary.message(defaultAIName: "Gemini API"), for: collection)
+                    isRunningStudyPageAction = false
+                }
+            } catch {
+                await MainActor.run {
+                    offerManualStudyAIFallback(.extractPhrases(collection), error: error)
+                    isRunningStudyPageAction = false
+                }
+            }
+        }
+    }
+
+    func runStudyGeminiTranslationAndSave(_ collection: CharacterCollection) {
+        isRunningStudyPageAction = true
+        setStudyPageActionMessage("Translating and saving report...", for: collection)
+        Task {
+            do {
+                let report = try await store.runGeminiTranslationReport(for: collection)
+                await MainActor.run {
+                    let updated = store.collection(id: collection.id) ?? collection
+                    studyTranslationReportCollection = updated
+                    studyTranslationReportDraft = updated.translationReport ?? report
+                    setStudyPageActionMessage("Translation report saved.", for: collection)
+                    isRunningStudyPageAction = false
+                }
+            } catch {
+                await MainActor.run {
+                    offerManualStudyAIFallback(.translate(collection), error: error)
+                    isRunningStudyPageAction = false
+                }
+            }
+        }
+    }
+
+    func runStudyGeminiPageQuiz(_ collection: CharacterCollection) {
+        studyPageQuizQuestions = []
+        studyPageQuizMessage = "Creating quiz with AI..."
+        isGeneratingStudyPageQuiz = true
+        studyPageQuizCollection = collection
+        Task {
+            do {
+                let questions = try await store.runGeminiPageQuizQuestions(for: collection)
+                await MainActor.run {
+                    studyPageQuizQuestions = questions
+                    studyPageQuizMessage = "AI generated this quiz from the saved page."
+                    isGeneratingStudyPageQuiz = false
+                }
+            } catch {
+                await MainActor.run {
+                    studyPageQuizQuestions = []
+                    studyPageQuizMessage = "Gemini could not create the quiz: \(error.localizedDescription). You can use a local Radix quiz instead."
+                    isGeneratingStudyPageQuiz = false
+                }
+            }
+        }
+    }
+
+    func runStudyGeminiSentenceExtraction(_ collection: CharacterCollection) {
+        isRunningStudyPageAction = true
+        setStudyPageActionMessage("Extracting sentences automatically...", for: collection)
+        Task {
+            do {
+                let pack = try await store.runGeminiPageSentenceExtraction(for: collection)
+                await MainActor.run {
+                    loadImportedConversationPracticePacks()
+                    setStudyPageActionMessage("Loaded \(pack.title) · \(pack.entries.count) sentences.", for: collection)
+                    isRunningStudyPageAction = false
+                }
+            } catch {
+                await MainActor.run {
+                    offerManualStudyAIFallback(.extractSentences(collection), error: error)
+                    isRunningStudyPageAction = false
+                }
+            }
+        }
+    }
+
+    func runStudyGeminiPagePracticeGeneration(_ collection: CharacterCollection) {
+        isRunningStudyPageAction = true
+        setStudyPageActionMessage("Creating page-inspired practice automatically...", for: collection)
+        Task {
+            do {
+                let pack = try await store.runGeminiPagePracticeGeneration(for: collection)
+                await MainActor.run {
+                    loadImportedConversationPracticePacks()
+                    setStudyPageActionMessage("Loaded \(pack.title) · \(pack.entries.count) sentences.", for: collection)
+                    isRunningStudyPageAction = false
+                }
+            } catch {
+                await MainActor.run {
+                    offerManualStudyAIFallback(.createPagePractice(collection), error: error)
+                    isRunningStudyPageAction = false
+                }
+            }
+        }
+    }
+
+    func offerManualStudyAIFallback(_ task: BrowseAIFallbackTask, error: Error) {
+        studyAutomaticAIError = error.localizedDescription
+        switch task {
+        case .checkOCR(let collection),
+             .extractPhrases(let collection),
+             .translate(let collection),
+             .extractSentences(let collection),
+             .createPagePractice(let collection):
+            setStudyPageActionMessage("Automatic AI is unavailable. You can still use another AI app.", for: collection)
+        }
+        studyAIFallbackTask = task
+    }
+
+    func useManualStudyAIFallback(_ task: BrowseAIFallbackTask) {
+        switch task {
+        case .checkOCR(let collection):
+            beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.checkOCR)
+        case .extractPhrases(let collection):
+            beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.extractPhrases)
+        case .translate(let collection):
+            beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.translatePage)
+        case .extractSentences(let collection):
+            beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences)
+        case .createPagePractice(let collection):
+            beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice)
+        }
     }
 
     func openStudyPracticePack(_ pack: ConversationPracticePack) {
