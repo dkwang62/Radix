@@ -635,10 +635,10 @@ toolbar so page titles, instructions, options, and feedback are never obscured.
 If the automatic route is entered without a key, Radix explains the issue and
 offers both `Set Up Gemini API Key` and a local dictionary-backed fallback quiz.
 Browse and Study use the same explicit no-key quiz state instead of attempting
-an automatic request first. The setup action uses the shared Browse-to-Settings
-API-key path, reveals Private
-API Keys, and preserves `Back to Browse` instead of leaving the user to find
-Settings manually.
+an automatic request first. The setup action uses the shared contextual
+API-key setup path, reveals Private API Keys, and preserves the appropriate
+return action such as `Back to Browse` or `Back to Study` instead of leaving
+the user to find their way back manually.
 Navigation guidance and the welcome screen use one canonical division of work:
 Browse inspects the dictionary or captured pages; Study reviews what the user
 kept; AI understands or transforms material; My Data protects, transfers, or
