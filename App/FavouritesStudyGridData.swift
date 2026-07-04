@@ -2,7 +2,7 @@ import SwiftUI
 
 extension FavouritesTab {
     var hasStudyGridItems: Bool {
-        !studyReviewTiles.isEmpty
+        studyGridScope == .savedPages ? !store.allCollections.isEmpty : !studyReviewTiles.isEmpty
     }
 
     var studyReviewTiles: [StudyReviewTile] {
@@ -14,6 +14,8 @@ extension FavouritesTab {
                 .map(StudyReviewTile.characterTile)
             )
                 .sorted(by: StudyReviewRules.reviewTileSortPredicate)
+        case .savedPages:
+            return []
         }
     }
 
@@ -58,6 +60,8 @@ extension FavouritesTab {
             return store.favoritePhrasesItems
                 .map { ($0, .favorite) }
                 .sorted(by: StudyReviewRules.phraseMarkerSortPredicate)
+        case .savedPages:
+            return []
         }
     }
 
@@ -89,6 +93,8 @@ extension FavouritesTab {
                         isFavoriteCharacter: true
                     )
                 }
+        case .savedPages:
+            return []
         }
     }
 
@@ -117,5 +123,43 @@ extension FavouritesTab {
         DispatchQueue.main.async {
             addedPhraseReviewPresentation = AddedPhraseReviewPresentation()
         }
+    }
+
+    func sortedStudySavedPages() -> [CharacterCollection] {
+        store.sortedCollections(order: studyPageSortOrder)
+    }
+
+    func correctedStudyPages(for collection: CharacterCollection) -> [CharacterCollection] {
+        store.allCollections
+            .filter { $0.correctedFromCollectionID == collection.id }
+            .sorted { $0.createdAt > $1.createdAt }
+    }
+
+    func pagePracticePacks(for collection: CharacterCollection) -> [ConversationPracticePack] {
+        RadixStudyPreferences.importedConversationPracticePacks
+            .filter { $0.sourceLink?.sourcePageID == collection.id }
+            .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+    }
+
+    func favoriteSentenceCount(for packs: [ConversationPracticePack]) -> Int {
+        let packIDs = Set(packs.map(\.packID))
+        return favoriteSentenceRecords.filter { packIDs.contains($0.sourceSetID) }.count
+    }
+
+    func practiceProgressCount(for packs: [ConversationPracticePack]) -> Int {
+        let packIDs = Set(packs.map(\.packID))
+        return conversationPracticeProgress.records.filter { packIDs.contains($0.packID) }.count
+    }
+
+    func openSavedPageInBrowse(_ collection: CharacterCollection) {
+        store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
+        store.selectBrowseCollection(id: collection.id)
+    }
+
+    func openStudyPracticePack(_ pack: ConversationPracticePack) {
+        withAnimation(.snappy(duration: 0.18)) {
+            isShowingConversationPractice = true
+        }
+        selectConversationPracticeTopic(conversationPracticeTopic(for: pack.practiceLibrary))
     }
 }

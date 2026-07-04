@@ -5,7 +5,9 @@ extension FavouritesTab {
         VStack(alignment: .leading, spacing: 12) {
             recentStudyHeader
 
-            if studyReviewTiles.isEmpty {
+            if studyGridScope == .savedPages {
+                studySavedPagesList
+            } else if studyReviewTiles.isEmpty {
                 Text(studyGridScope.emptyMessage)
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
@@ -62,11 +64,15 @@ extension FavouritesTab {
                     Spacer(minLength: 8)
                     if studyGridScope == .all {
                         clearRecentButton
+                    } else if studyGridScope == .savedPages {
+                        studyPageSortMenu
                     }
                 }
-                HStack {
-                    Spacer(minLength: 0)
-                    studyScriptToggle
+                if studyGridScope != .savedPages {
+                    HStack {
+                        Spacer(minLength: 0)
+                        studyScriptToggle
+                    }
                 }
                 studyFavoriteLegend
             }
@@ -75,7 +81,11 @@ extension FavouritesTab {
                 HStack(alignment: .center, spacing: 8) {
                     sectionTitle(studyGridScope.title)
                     Spacer(minLength: 8)
-                    studyScriptToggle
+                    if studyGridScope == .savedPages {
+                        studyPageSortMenu
+                    } else {
+                        studyScriptToggle
+                    }
                 }
                 if studyGridScope == .all {
                     HStack {
@@ -138,6 +148,188 @@ extension FavouritesTab {
             studyGridUsesTraditionalScript.toggle()
         }
         .fixedSize(horizontal: true, vertical: false)
+    }
+
+    var studyPageSortMenu: some View {
+        Menu {
+            ForEach(PageCollectionSortOrder.allCases) { order in
+                Button {
+                    studyPageSortOrder = order
+                } label: {
+                    Label(order.rawValue, systemImage: studyPageSortOrder == order ? "checkmark" : "calendar")
+                }
+            }
+        } label: {
+            Label(studyPageSortOrder.rawValue, systemImage: "arrow.up.arrow.down")
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .labelStyle(.titleAndIcon)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(Color.accentColor)
+    }
+
+    var studySavedPagesList: some View {
+        VStack(spacing: 8) {
+            ForEach(sortedStudySavedPages()) { collection in
+                studySavedPageRow(collection)
+            }
+        }
+    }
+
+    func studySavedPageRow(_ collection: CharacterCollection) -> some View {
+        let practices = pagePracticePacks(for: collection)
+        let correctedPages = correctedStudyPages(for: collection)
+        let favoriteCount = favoriteSentenceCount(for: practices)
+        let progressCount = practiceProgressCount(for: practices)
+
+        return VStack(alignment: .leading, spacing: 9) {
+            HStack(alignment: .center, spacing: 10) {
+                RadixThumbnailView(
+                    thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData),
+                    size: 36,
+                    cornerRadius: 8,
+                    placeholderSystemImage: collection.isFavorite ? "star.fill" : "photo",
+                    placeholderColor: collection.isFavorite ? Color.yellow : Color.secondary
+                )
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(collection.name)
+                        .font(ResponsiveFont.body.weight(.semibold))
+                        .lineLimit(1)
+                    Text("\(collection.characters.count) characters")
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer(minLength: 8)
+
+                Button {
+                    openSavedPageInBrowse(collection)
+                } label: {
+                    Image(systemName: "arrow.up.right.square")
+                        .frame(width: 30, height: 30)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .accessibilityLabel("Open \(collection.name) in Browse")
+            }
+
+            RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
+                if collection.translationReport?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
+                    studyPageArtifactChip(
+                        title: "Translation",
+                        detail: collection.translationReportUpdatedAt.map(Self.studyPageDateText) ?? "Saved",
+                        systemImage: "doc.text",
+                        tint: .blue
+                    ) {
+                        openSavedPageInBrowse(collection)
+                    }
+                }
+
+                studyPageArtifactChip(
+                    title: "Quiz",
+                    detail: "Create or run",
+                    systemImage: "checkmark.circle",
+                    tint: .orange
+                ) {
+                    openSavedPageInBrowse(collection)
+                }
+
+                ForEach(practices, id: \.packID) { pack in
+                    studyPageArtifactChip(
+                        title: "Practice",
+                        detail: "\(pack.entries.count) sentences",
+                        systemImage: "bubble.left.and.bubble.right",
+                        tint: .teal
+                    ) {
+                        openStudyPracticePack(pack)
+                    }
+                }
+
+                ForEach(correctedPages) { corrected in
+                    studyPageArtifactChip(
+                        title: "Corrected Page",
+                        detail: corrected.name,
+                        systemImage: "checkmark.rectangle",
+                        tint: .green
+                    ) {
+                        openSavedPageInBrowse(corrected)
+                    }
+                }
+
+                if favoriteCount > 0 {
+                    studyPagePassiveChip(
+                        title: "\(favoriteCount) favorite sentence\(favoriteCount == 1 ? "" : "s")",
+                        systemImage: "star.bubble",
+                        tint: .yellow
+                    )
+                }
+
+                if progressCount > 0 {
+                    studyPagePassiveChip(
+                        title: "\(progressCount) progress record\(progressCount == 1 ? "" : "s")",
+                        systemImage: "chart.line.uptrend.xyaxis",
+                        tint: .purple
+                    )
+                }
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RadixTheme.secondaryBackground.opacity(0.58))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    func studyPageArtifactChip(
+        title: String,
+        detail: String,
+        systemImage: String,
+        tint: Color,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 12, weight: .semibold))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(title)
+                        .font(ResponsiveFont.caption2.weight(.semibold))
+                    Text(detail)
+                        .font(ResponsiveFont.tinySystem(size: 10))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(tint.opacity(0.11))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(tint)
+    }
+
+    func studyPagePassiveChip(title: String, systemImage: String, tint: Color) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: systemImage)
+                .font(.system(size: 12, weight: .semibold))
+            Text(title)
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .foregroundStyle(tint)
+        .background(tint.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    static func studyPageDateText(_ date: Date) -> String {
+        date.formatted(.dateTime.month(.abbreviated).day())
     }
 
     func recentStudyButton(_ entry: StudyGridEntry) -> some View {

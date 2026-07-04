@@ -508,6 +508,7 @@ struct FavouritesTab: View {
 enum StudyGridScope: String, CaseIterable, Identifiable {
     case all = "All"
     case favorites = "Saved"
+    case savedPages = "Saved Pages"
 
     var id: String { rawValue }
 
@@ -515,6 +516,7 @@ enum StudyGridScope: String, CaseIterable, Identifiable {
         switch self {
         case .all: return "Recent"
         case .favorites: return "Favorite"
+        case .savedPages: return "Saved Pages"
         }
     }
 
@@ -522,6 +524,7 @@ enum StudyGridScope: String, CaseIterable, Identifiable {
         switch self {
         case .all: return "No recent study items yet."
         case .favorites: return "No favorite study items yet."
+        case .savedPages: return "No saved pages yet."
         }
     }
 
@@ -529,6 +532,7 @@ enum StudyGridScope: String, CaseIterable, Identifiable {
         switch self {
         case .all: return "Tap an item to preview it. Favorite the useful ones, then clear Recent."
         case .favorites: return "Tap a favorite character or phrase to preview it. Use the star to remove it from Favorites."
+        case .savedPages: return "Saved pages gather the Practice, translation, quiz, and corrected-page work that came from that page."
         }
     }
 }

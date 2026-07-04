@@ -155,7 +155,9 @@ extension FavouritesTab {
                 systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage),
                 tint: .purple,
                 action: {
-                    store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
+                    withAnimation {
+                        studyGridScope = .savedPages
+                    }
                 }
             )
             studySummaryTile(
