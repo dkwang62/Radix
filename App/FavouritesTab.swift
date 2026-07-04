@@ -34,6 +34,7 @@ struct FavouritesTab: View {
     @State var studyGridScope = RadixStudyPreferences.gridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
     @State var addedPhraseReviewPresentation: AddedPhraseReviewPresentation?
+    @State var showStudyCheckpoints = false
     @State var pendingCheckpointReturn: LocalDataSnapshot?
     @State var conversationPracticeTopics = ConversationPracticeTopic.defaults
     @State var conversationPracticeLibrary: ConversationPracticeLibrary? = try? ConversationPracticeService().loadLibrary(for: .generalGreetings)
@@ -196,6 +197,24 @@ struct FavouritesTab: View {
                 dismissesOnPhraseSelection: true
             )
             .environmentObject(store)
+        }
+        .sheet(isPresented: $showStudyCheckpoints) {
+            NavigationStack {
+                ScrollView {
+                    studyCheckpointsSection
+                        .padding()
+                }
+                .navigationTitle("Checkpoints")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Done") {
+                            showStudyCheckpoints = false
+                        }
+                    }
+                }
+            }
+            .presentationDetents([.medium, .large])
         }
         .sheet(isPresented: $showConversationPracticePasteImporter) {
             ConversationPracticePasteImportSheet { pack in

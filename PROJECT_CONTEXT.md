@@ -130,9 +130,11 @@ Do not move domain behavior back into `RadixStore.swift`.
   rather than jumping directly to Browse. Each saved-page row surfaces linked
   page work in place: page phrase lists, Practice packs, translation, quiz
   entry point, corrected pages, favorite sentences, and Practice progress.
-  The six top-level Study scopes use a single icon-only row; names belong in
-  hover help and accessibility labels, while fuller guidance belongs in the
-  guided title Help menu rather than persistent text rows.
+  The top-level Study scopes use a single icon-only row; names belong in hover
+  help and accessibility labels, while fuller guidance belongs in the guided
+  title Help menu rather than persistent text rows. On iPhone, Checkpoints are
+  the seventh icon in that row and open the checkpoint/create/restore controls
+  in a sheet instead of a persistent card below the Study grid.
   The `Phrases` chip opens all dictionary and added phrases found on the page
   in the shared Phrase Library sheet used by the information-card Phrase
   button. Saved-page rows keep page artifacts in a compact two-row shape and
@@ -645,12 +647,12 @@ character/phrase information card is displayed; the section disappears while an
 information card owns the sidebar focus. Top-level navigation and global
 non-character/non-phrase actions clear the information card so Checkpoints
 return to the sidebar once that contextual focus is no longer active. On iPhone,
-where there is no persistent sidebar, Checkpoints remain at the bottom of Study
-as a safety-net section after the main review content. The section has one
-Create Checkpoint action and recent checkpoint rows; tapping a row is the return
-action after confirmation, so there is no separate restore menu competing with
-the learning content. Returning to a checkpoint always leaves the user in Study,
-even if the checkpoint was created while another tab was active. iPhone Study
+where there is no persistent sidebar, Checkpoints are the seventh icon in the
+top Study scope row and open a sheet with one Create Checkpoint action and recent
+checkpoint rows. Tapping a row is the return action after confirmation, so there
+is no separate restore menu competing with the learning content. Returning to a
+checkpoint always leaves the user in Study, even if the checkpoint was created
+while another tab was active. iPhone Study
 includes a compact `Backup files` bridge to My Data so users can still
 distinguish local learning recovery from portable file protection.
 My Data’s `Backup File` screen owns Backup File actions only. Backup

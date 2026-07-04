@@ -28,10 +28,6 @@ extension FavouritesTab {
         if hasStudyGridItems {
             recentStudySection
         }
-
-        if isPhone {
-            studyCheckpointsSection
-        }
     }
 
     @ViewBuilder
@@ -76,7 +72,7 @@ extension FavouritesTab {
     }
 
     var studyDashboardSummary: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             studySummaryIconButton(
                 title: "Recent",
                 systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.recent),
@@ -142,6 +138,17 @@ extension FavouritesTab {
                     }
                 }
             )
+            if isPhone {
+                studySummaryIconButton(
+                    title: "Checkpoints",
+                    systemImage: "clock.arrow.circlepath",
+                    tint: .gray,
+                    isSelected: showStudyCheckpoints,
+                    action: {
+                        showStudyCheckpoints = true
+                    }
+                )
+            }
         }
         .padding(.top, 2)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -155,11 +162,6 @@ extension FavouritesTab {
                 Spacer()
                 backupFilesLink
             }
-
-            Text("Use this safety net after study sessions or before cleanup. Tap a checkpoint row below to return to that moment.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
 
             checkpointActionRow
 
@@ -338,7 +340,7 @@ extension FavouritesTab {
             Image(systemName: systemImage)
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(tint)
-                .frame(width: 40, height: 34)
+                .frame(width: 38, height: 34)
                 .background(tint.opacity(isSelected ? 0.18 : 0.09))
                 .overlay(
                     RoundedRectangle(cornerRadius: 9)
