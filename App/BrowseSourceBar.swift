@@ -45,35 +45,12 @@ extension FilterGridTab {
     func dictionarySourceLabel(description: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                HStack(spacing: 8) {
-                    Image(systemName: "book")
-                        .font(.system(size: 16, weight: .semibold))
-                        .frame(width: 32, height: 32)
-                        .background(RadixTheme.secondaryBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
-
-                    Text("Dictionary")
-                        .font(ResponsiveFont.body.weight(.semibold))
-                        .lineLimit(1)
-                }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        toggleDictionaryHelp()
-                    }
-                    .onLongPressGesture {
-                        toggleDictionaryHelp()
-                    }
-                    .accessibilityLabel("Dictionary help")
-                    .accessibilityHint("Shows or hides dictionary help")
-                    .accessibilityAddTraits(.isButton)
-                    .accessibilityAction {
-                        toggleDictionaryHelp()
-                    }
-
-                smartGridControls
+                dictionaryHelpButton
                 Spacer(minLength: 0)
-                browseSourceBackButton
+                browseSourcePickerButton
             }
+
+            smartGridControls
 
             if showDictionaryHelp {
                 Text(description)
@@ -85,24 +62,50 @@ extension FilterGridTab {
         }
     }
 
+    var dictionaryHelpButton: some View {
+        Button {
+            toggleDictionaryHelp()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "book")
+                    .font(.system(size: 16, weight: .semibold))
+                    .frame(width: 32, height: 32)
+                    .background(RadixTheme.secondaryBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
+
+                Text("Dictionary")
+                    .font(ResponsiveFont.body.weight(.semibold))
+                    .lineLimit(1)
+
+                Image(systemName: showDictionaryHelp ? "chevron.up" : "chevron.down")
+                    .font(ResponsiveFont.caption.weight(.bold))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Dictionary help")
+        .accessibilityHint("Shows or hides dictionary help")
+        .accessibilityValue(showDictionaryHelp ? "Shown" : "Hidden")
+    }
+
     func toggleDictionaryHelp() {
         withAnimation(.easeInOut(duration: 0.16)) {
             showDictionaryHelp.toggle()
         }
     }
 
-    var browseSourceBackButton: some View {
+    var browseSourcePickerButton: some View {
         Button {
             withAnimation(.easeInOut(duration: 0.16)) {
                 showBrowseSource = true
             }
         } label: {
-            HStack(spacing: 7) {
-                Image(systemName: "chevron.left")
-                Image(systemName: "photo.on.rectangle")
-            }
-            .font(.system(size: 16, weight: .semibold))
-            .frame(width: 52, height: 32)
+            Label("Sources", systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .frame(minHeight: 32)
+                .padding(.horizontal, 4)
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
@@ -112,7 +115,7 @@ extension FilterGridTab {
 
     func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
         return HStack(spacing: 6) {
-            browseSourceBackButton
+            browseSourcePickerButton
 
             Text("\(collection.characters.count) characters")
                 .font(ResponsiveFont.caption2.weight(.semibold))

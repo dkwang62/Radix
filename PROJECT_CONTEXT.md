@@ -5,7 +5,7 @@ Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
 
-Last reviewed: 2026-07-04
+Last reviewed: 2026-07-05
 
 ## Product and Platform Scope
 
@@ -106,6 +106,11 @@ Do not move domain behavior back into `RadixStore.swift`.
 - If the full Browse source/import panel is open, choosing Dictionary or a saved
   page from the top title selector closes that panel so the selected content is
   immediately visible.
+- Dictionary Browse uses a visible help disclosure in its header and keeps the
+  source chooser labeled as `Sources`, because that panel includes Dictionary,
+  saved pages, clipboard, album, and file inputs. Dictionary grid controls
+  such as components, script choice, and filters live on their own compact row
+  instead of crowding the source/navigation row.
 - The page-centered direction requires a page artifact model before destructive
   cascade behavior is added. Corrected OCR pages, translations, quizzes,
   extracted sentence packs, page-created conversation practice, and page-local

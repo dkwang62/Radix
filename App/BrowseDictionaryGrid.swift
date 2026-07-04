@@ -70,21 +70,16 @@ extension FilterGridTab {
     @ViewBuilder
     var smartGridControls: some View {
         let isComponents = store.gridSortMode == .componentFrequency
+        let componentsTitle = isPhoneBrowseLayout ? "Parts" : "Components"
         let componentsToggle = Button {
             store.setGridSortMode(isComponents ? .characterFrequency : .componentFrequency)
         } label: {
-            Group {
-                if isPhoneBrowseLayout {
-                    Image(systemName: "puzzlepiece.extension")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .frame(width: 34, height: 34)
-                } else {
-                    Label("Components", systemImage: "puzzlepiece.extension")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                }
-            }
+            Label(componentsTitle, systemImage: "puzzlepiece.extension")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .padding(.horizontal, isPhoneBrowseLayout ? 8 : 10)
+                .padding(.vertical, 6)
                 .background(isComponents ? Color.accentColor : RadixTheme.secondaryBackground)
                 .foregroundStyle(isComponents ? Color.white : Color.primary)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -95,9 +90,11 @@ extension FilterGridTab {
         let filterButton = Button {
             showBrowseFilters = true
         } label: {
-            Image(systemName: activeBrowseFilterCount > 0 ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+            Label(filterButtonTitle, systemImage: activeBrowseFilterCount > 0 ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
                 .font(ResponsiveFont.caption.weight(.semibold))
-                .padding(.horizontal, 10)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .padding(.horizontal, isPhoneBrowseLayout ? 8 : 10)
                 .padding(.vertical, 6)
                 .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -110,7 +107,7 @@ extension FilterGridTab {
             CompactScriptFilterControl(selection: store.gridScriptFilter) { store.setGridScriptFilter($0) }
             filterButton
         }
-        .fixedSize(horizontal: true, vertical: false)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     var activeBrowseFilterCount: Int {

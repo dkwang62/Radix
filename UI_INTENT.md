@@ -181,6 +181,13 @@ When the user opens a saved page, returning to the page list should be obvious.
 Dictionary should behave like another browse item and should not break the
 navigation routine.
 
+In Dictionary Browse, the `Dictionary` label should be a real disclosure button
+with a visible chevron for help. Keep the full source/import chooser labeled as
+`Sources` rather than `Pages`, because it also includes Dictionary, clipboard,
+album, and file inputs. Dictionary grid tools such as Components, Simplified/
+Traditional, and Filters may use a second compact row when that keeps labels
+readable and avoids misleading icon-only controls.
+
 For an open saved page, keep navigation separate from page actions. The top
 `Browse [page name]` title is the quick page selector for Dictionary and saved
 pages, so the open-page card should not spend a separate header row repeating
