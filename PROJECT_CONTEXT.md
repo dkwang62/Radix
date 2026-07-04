@@ -111,8 +111,10 @@ Do not move domain behavior back into `RadixStore.swift`.
   extracted sentence packs, page-created conversation practice, and page-local
   notes are page-owned artifacts. Added phrases, favorites, global notes, and
   reusable practice progress are linked learning material that should not be
-  silently deleted with a page. Future page deletion must summarize owned
-  artifacts and distinguish link removal from global item deletion.
+  silently deleted with a page. Page phrase extraction records link newly added
+  phrase words back to the saved page that produced them, travel in backup, and
+  are removed only as page links when the page is deleted; the phrases stay in
+  the global phrase database.
 - Imported Conversation Practice packs may carry an optional saved-page source
   link with page ID, title, created date, and optional fingerprint. Page AI
   imports attach this link automatically; old title matching remains only as a
@@ -125,8 +127,9 @@ Do not move domain behavior back into `RadixStore.swift`.
   and `Will keep as learning memory`, even when either list is currently `none`.
 - In Study, the `Saved Pages` summary tile opens a Saved Pages review scope
   rather than jumping directly to Browse. Each saved-page row surfaces linked
-  page work in place: Practice packs, translation, quiz entry point, corrected
-  pages, favorite sentences, and Practice progress. Study owns learning
+  page work in place: extracted phrase lists, Practice packs, translation, quiz
+  entry point, corrected pages, favorite sentences, and Practice progress.
+  Study owns learning
   artifacts, AI workflows, and saved-page deletion. Browse owns page inspection
   controls that only make sense while looking at the page, including editing
   the page text and choosing visible page phrases. The explicit page-open icon
@@ -308,7 +311,9 @@ uses the existing contextual return path so the focused Practice screen shows
 Manual paste results and automatic Gemini results share store-level application
 helpers for phrase imports, OCR correction, translation reports, and Conversation
 Practice imports; UI layers should only choose presentation, source selection,
-and follow-up navigation.
+and follow-up navigation. When phrase extraction adds new phrases from a saved
+page, Radix records the added phrase words against that page so the Study saved
+page row can show a `Phrases` artifact chip and list those phrases later.
 The AI Link tab presents one task at a time through an `AI Task` dropdown. The
 old `Instructions`/`Customize` split is collapsed into a single editable
 `AI Prompt` template for the selected task. Built-in tasks edit the prompt

@@ -7,6 +7,15 @@ struct StudyOCRPromotion: Identifiable {
     var id: UUID { corrected.id }
 }
 
+struct StudyPagePhraseExtractionPresentation: Identifiable {
+    let pageID: UUID
+    let pageName: String
+    let phrases: [PhraseItem]
+    let extractedAt: Date
+
+    var id: UUID { pageID }
+}
+
 struct FavouritesTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
@@ -59,6 +68,7 @@ struct FavouritesTab: View {
     @State var studyAIFallbackTask: BrowseAIFallbackTask?
     @State var studyAutomaticAIError = ""
     @State var isRunningStudyPageAction = false
+    @State var studyPagePhraseExtractionPresentation: StudyPagePhraseExtractionPresentation?
 
     private let conversationPracticeService = ConversationPracticeService()
 
@@ -177,6 +187,49 @@ struct FavouritesTab: View {
                 },
                 onDone: { studyPageQuizCollection = nil }
             )
+        }
+        .sheet(item: $studyPagePhraseExtractionPresentation) { presentation in
+            NavigationStack {
+                List {
+                    Section {
+                        ForEach(presentation.phrases) { phrase in
+                            Button {
+                                studyPagePhraseExtractionPresentation = nil
+                                DispatchQueue.main.async {
+                                    selectedPhrase = phrase
+                                }
+                            } label: {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(studyGridDisplayText(phrase.word))
+                                        .font(ResponsiveFont.body.weight(.semibold))
+                                    if !phrase.pinyin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                        Text(phrase.pinyin)
+                                            .font(ResponsiveFont.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Text(phrase.meanings)
+                                        .font(ResponsiveFont.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(2)
+                                }
+                                .padding(.vertical, 4)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    } header: {
+                        Text(presentation.pageName)
+                    }
+                }
+                .navigationTitle("Phrases")
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") {
+                            studyPagePhraseExtractionPresentation = nil
+                        }
+                    }
+                }
+            }
+            .presentationDetents([.medium, .large])
         }
         .sheet(isPresented: $showConversationPracticePasteImporter) {
             ConversationPracticePasteImportSheet { pack in

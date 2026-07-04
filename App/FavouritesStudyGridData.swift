@@ -141,6 +141,32 @@ extension FavouritesTab {
             .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
     }
 
+    func pagePhraseExtractionRecord(for collection: CharacterCollection) -> PagePhraseExtractionRecord? {
+        RadixStudyPreferences.pagePhraseExtractions.first { $0.sourcePageID == collection.id }
+    }
+
+    func pageExtractedPhrases(for collection: CharacterCollection) -> [PhraseItem] {
+        guard let record = pagePhraseExtractionRecord(for: collection) else { return [] }
+        return record.phraseWords.compactMap { word in
+            store.databasePhrase(for: word) ?? store.addedPhraseForReview(word: word) ?? store.mergedPhrase(for: word)
+        }
+    }
+
+    func showPageExtractedPhrases(_ collection: CharacterCollection) {
+        guard let record = pagePhraseExtractionRecord(for: collection) else { return }
+        let phrases = pageExtractedPhrases(for: collection)
+        guard !phrases.isEmpty else {
+            setStudyPageActionMessage("No extracted phrases are still available for this page.", for: collection)
+            return
+        }
+        studyPagePhraseExtractionPresentation = StudyPagePhraseExtractionPresentation(
+            pageID: collection.id,
+            pageName: collection.name,
+            phrases: phrases,
+            extractedAt: record.extractedAt
+        )
+    }
+
     func favoriteSentenceCount(for packs: [ConversationPracticePack]) -> Int {
         let packIDs = Set(packs.map(\.packID))
         return favoriteSentenceRecords.filter { packIDs.contains($0.sourceSetID) }.count

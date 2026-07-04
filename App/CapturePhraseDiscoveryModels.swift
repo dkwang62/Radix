@@ -21,6 +21,7 @@ struct PhraseDiscoveryImportPreparation {
 struct PhraseDiscoveryImportSummary {
     var selectedCount: Int
     var addedCount: Int
+    var addedWords: [String] = []
     var skippedCount: Int
     var skippedExistingCount: Int = 0
     var errors: [String]

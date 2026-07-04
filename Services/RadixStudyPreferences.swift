@@ -76,4 +76,47 @@ enum RadixStudyPreferences {
             preferences.set(data, forKey: RadixPreferenceKey.favoriteSentences)
         }
     }
+
+    static var pagePhraseExtractions: [PagePhraseExtractionRecord] {
+        get {
+            guard let data = preferences.data(forKey: RadixPreferenceKey.pagePhraseExtractions) else {
+                return []
+            }
+            return (try? JSONDecoder().decode([PagePhraseExtractionRecord].self, from: data)) ?? []
+        }
+        set {
+            let records = newValue
+                .filter { !$0.phraseWords.isEmpty }
+                .sorted { $0.extractedAt > $1.extractedAt }
+            let data = try? JSONEncoder().encode(records)
+            preferences.set(data, forKey: RadixPreferenceKey.pagePhraseExtractions)
+        }
+    }
+
+    static func recordPagePhraseExtraction(
+        pageID: UUID,
+        title: String,
+        words: [String],
+        extractedAt: Date = Date()
+    ) {
+        let cleanWords = PagePhraseExtractionRecord.deduplicated(words)
+        guard !cleanWords.isEmpty else { return }
+
+        var records = pagePhraseExtractions
+        if let index = records.firstIndex(where: { $0.sourcePageID == pageID }) {
+            records[index] = records[index].merging(
+                words: cleanWords,
+                title: title,
+                extractedAt: extractedAt
+            )
+        } else {
+            records.append(PagePhraseExtractionRecord(
+                sourcePageID: pageID,
+                sourceTitle: title,
+                phraseWords: cleanWords,
+                extractedAt: extractedAt
+            ))
+        }
+        pagePhraseExtractions = records
+    }
 }

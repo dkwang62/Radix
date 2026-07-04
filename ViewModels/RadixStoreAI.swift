@@ -105,14 +105,15 @@ extension RadixStore {
             characters: text,
             knownPhrases: phraseDiscoveryKnownPhrases(in: text)
         )
-        return importPhraseDiscoveryResponse(responseText)
+        return importPhraseDiscoveryResponse(responseText, sourceCollection: collection)
     }
 
-    func importPhraseDiscoveryResponse(_ responseText: String) -> PhraseDiscoveryImportSummary {
+    func importPhraseDiscoveryResponse(_ responseText: String, sourceCollection: CharacterCollection? = nil) -> PhraseDiscoveryImportSummary {
         let parsed = PhraseDiscoveryParser.parse(responseText)
         let candidates = PhraseDiscoveryCandidateTools.selectingAll(parsed.candidates, isSelected: true)
         let prepared = PhraseDiscoveryCandidateTools.preparingForImport(candidates)
         var added = 0
+        var addedWords: [String] = []
         var skippedExisting = 0
         var errors: [String] = []
 
@@ -126,6 +127,7 @@ extension RadixStore {
                 )
                 if wasAdded {
                     added += 1
+                    addedWords.append(item.phrase)
                 } else {
                     skippedExisting += 1
                 }
@@ -135,9 +137,17 @@ extension RadixStore {
         }
 
         refreshPhraseOverlayViews()
+        if let sourceCollection, !addedWords.isEmpty {
+            RadixStudyPreferences.recordPagePhraseExtraction(
+                pageID: sourceCollection.id,
+                title: sourceCollection.name,
+                words: addedWords
+            )
+        }
         return PhraseDiscoveryImportSummary(
             selectedCount: candidates.count,
             addedCount: added,
+            addedWords: addedWords,
             skippedCount: prepared.skippedCount + skippedExisting,
             skippedExistingCount: skippedExisting,
             errors: errors
@@ -189,7 +199,7 @@ extension RadixStore {
     func applyAIResult(taskID: String, responseText: String, collection: CharacterCollection?, sourceName: String) throws -> AIResultApplicationOutcome {
         switch taskID {
         case AIResultTaskID.extractPhrases:
-            return .phraseExtraction(importPhraseDiscoveryResponse(responseText))
+            return .phraseExtraction(importPhraseDiscoveryResponse(responseText, sourceCollection: collection))
         case AIResultTaskID.translatePage:
             guard let collection else { throw AIResultApplicationError.missingCollection }
             return .translation(saveTranslationReport(fromAIResponse: responseText, for: collection))

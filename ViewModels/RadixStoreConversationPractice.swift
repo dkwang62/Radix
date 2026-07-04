@@ -126,6 +126,26 @@ extension RadixStore {
         }
     }
 
+    func applyImportedPagePhraseExtractions(
+        _ records: [PagePhraseExtractionRecord]?,
+        mode: RestoreMode
+    ) {
+        switch mode {
+        case .additive:
+            guard let records, !records.isEmpty else { return }
+            for record in records {
+                RadixStudyPreferences.recordPagePhraseExtraction(
+                    pageID: record.sourcePageID,
+                    title: record.sourceTitle,
+                    words: record.phraseWords,
+                    extractedAt: record.extractedAt
+                )
+            }
+        case .complete:
+            RadixStudyPreferences.pagePhraseExtractions = records ?? []
+        }
+    }
+
     func registerConversationPracticeLibrary(_ library: ConversationPracticeLibrary) {
         var didRegisterPhrase = false
         for seed in library.phraseSeeds {

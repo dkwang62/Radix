@@ -109,3 +109,48 @@ struct PageArtifactDescriptor: Codable, Equatable, Hashable, Identifiable {
         self.id = "\(sourcePageID.uuidString):\(artifactType.rawValue):\(artifactID)"
     }
 }
+
+struct PagePhraseExtractionRecord: Codable, Equatable, Hashable, Identifiable {
+    let sourcePageID: UUID
+    var sourceTitle: String
+    var phraseWords: [String]
+    var extractedAt: Date
+
+    var id: UUID { sourcePageID }
+
+    enum CodingKeys: String, CodingKey {
+        case sourcePageID = "source_page_id"
+        case sourceTitle = "source_title"
+        case phraseWords = "phrase_words"
+        case extractedAt = "extracted_at"
+    }
+
+    init(
+        sourcePageID: UUID,
+        sourceTitle: String,
+        phraseWords: [String],
+        extractedAt: Date
+    ) {
+        self.sourcePageID = sourcePageID
+        self.sourceTitle = sourceTitle
+        self.phraseWords = Self.deduplicated(phraseWords)
+        self.extractedAt = extractedAt
+    }
+
+    func merging(words newWords: [String], title: String, extractedAt date: Date) -> PagePhraseExtractionRecord {
+        PagePhraseExtractionRecord(
+            sourcePageID: sourcePageID,
+            sourceTitle: title,
+            phraseWords: Self.deduplicated(phraseWords + newWords),
+            extractedAt: date
+        )
+    }
+
+    static func deduplicated(_ words: [String]) -> [String] {
+        var seen = Set<String>()
+        return words
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .filter { seen.insert($0).inserted }
+    }
+}

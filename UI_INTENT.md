@@ -258,9 +258,12 @@ remain fully readable.
 Saved Pages in Study owns page learning artifacts and deletion. Each saved-page
 row should offer an `Actions` menu for viewing or saving translation, AI OCR
 review, phrase extraction, quiz generation, sentence extraction, page-practice
-generation, and deleting the page with its impact summary. Opening the page in
-Browse should be an explicit inspection action with a clear return to Study;
-editing the page text and choosing visible page phrases belong in Browse.
+generation, and deleting the page with its impact summary. When phrase
+extraction adds phrases from a page, show a compact `Phrases` artifact chip in
+that saved-page row so the user can reopen the list without hunting in global
+Added Phrases. Opening the page in Browse should be an explicit inspection
+action with a clear return to Study; editing the page text and choosing visible
+page phrases belong in Browse.
 When an OCR correction creates a corrected page, Study should let the user
 promote that correction to become the main saved page. Promotion must keep
 page-linked learning artifacts attached to the main page and let the user choose

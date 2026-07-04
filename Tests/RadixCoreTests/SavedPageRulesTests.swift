@@ -67,6 +67,28 @@ struct SavedPageRulesTests {
         #expect(!SavedPageRules.isDeletedWithPage(linked))
     }
 
+    @Test("Page phrase extraction records preserve page links and deduplicate words")
+    func pagePhraseExtractionRecordDeduplicatesWords() {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000202")!
+        let record = PagePhraseExtractionRecord(
+            sourcePageID: pageID,
+            sourceTitle: "China News",
+            phraseWords: [" 中美 ", "关系", "中美", ""],
+            extractedAt: Date(timeIntervalSince1970: 100)
+        )
+        let merged = record.merging(
+            words: ["科技", "关系"],
+            title: "China News Updated",
+            extractedAt: Date(timeIntervalSince1970: 200)
+        )
+
+        #expect(record.id == pageID)
+        #expect(record.phraseWords == ["中美", "关系"])
+        #expect(merged.sourceTitle == "China News Updated")
+        #expect(merged.phraseWords == ["中美", "关系", "科技"])
+        #expect(merged.extractedAt == Date(timeIntervalSince1970: 200))
+    }
+
     private func page(created: TimeInterval, viewed: TimeInterval?) -> CharacterCollection {
         CharacterCollection(
             id: UUID(),

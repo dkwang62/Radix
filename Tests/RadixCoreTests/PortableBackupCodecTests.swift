@@ -55,6 +55,12 @@ struct PortableBackupCodecTests {
             characterHints: ["你", "好"],
             favoritedAt: exportedAt
         )
+        let pagePhraseExtraction = PagePhraseExtractionRecord(
+            sourcePageID: UUID(uuidString: "00000000-0000-0000-0000-000000000303")!,
+            sourceTitle: "China News",
+            phraseWords: ["学习"],
+            extractedAt: exportedAt
+        )
         let package = UnifiedPackage(
             schemaVersion: PortableBackupCodec.currentSchemaVersion,
             exportedAt: exportedAt,
@@ -63,7 +69,8 @@ struct PortableBackupCodecTests {
             profile: UserProfile(schemaVersion: 1, favouritesList: ["学"]),
             conversationPracticePacks: [practicePack],
             conversationPracticeProgress: practiceProgress,
-            favoriteSentences: [favoriteSentence]
+            favoriteSentences: [favoriteSentence],
+            pagePhraseExtractions: [pagePhraseExtraction]
         )
 
         let data = try codec.encode(package)
@@ -79,6 +86,7 @@ struct PortableBackupCodecTests {
         #expect(decoded.conversationPracticePacks == [practicePack])
         #expect(decoded.conversationPracticeProgress == practiceProgress)
         #expect(decoded.favoriteSentences == [favoriteSentence])
+        #expect(decoded.pagePhraseExtractions == [pagePhraseExtraction])
     }
 
     @Test("Legacy Apple reference dates still decode")

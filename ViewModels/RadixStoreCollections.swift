@@ -156,6 +156,8 @@ extension RadixStore {
             .filter { linkedPracticePackIDs.contains($0.sourceSetID) }
         let progressPackIDs = Set(RadixStudyPreferences.conversationPracticeProgress.records.map(\.packID))
             .intersection(linkedPracticePackIDs)
+        let pagePhraseExtraction = RadixStudyPreferences.pagePhraseExtractions
+            .first { $0.sourcePageID == collection.id }
 
         var ownedArtifacts: [PageArtifactDescriptor] = []
         ownedArtifacts.append(contentsOf: correctedPages.map {
@@ -204,6 +206,15 @@ extension RadixStore {
                 createdAt: nil
             )
         })
+        if let pagePhraseExtraction {
+            linkedArtifacts.append(PageArtifactDescriptor(
+                sourcePageID: collection.id,
+                artifactType: .addedPhrase,
+                artifactID: "extracted-phrases",
+                displayTitle: "\(pagePhraseExtraction.phraseWords.count) extracted phrase\(pagePhraseExtraction.phraseWords.count == 1 ? "" : "s")",
+                createdAt: pagePhraseExtraction.extractedAt
+            ))
+        }
 
         return PageDeletionImpact(
             pageName: collection.name,
@@ -240,6 +251,9 @@ extension RadixStore {
                 persistPromptSettings()
             }
         }
+        var phraseExtractions = RadixStudyPreferences.pagePhraseExtractions
+        phraseExtractions.removeAll { removedCollectionIDs.contains($0.sourcePageID) }
+        RadixStudyPreferences.pagePhraseExtractions = phraseExtractions
         persistCollections()
     }
 
