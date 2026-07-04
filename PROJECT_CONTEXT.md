@@ -155,6 +155,8 @@ Do not move domain behavior back into `RadixStore.swift`.
   Keep this list lazy and avoid full per-page phrase scans during row drawing;
   row indicators may use recorded extraction links or existing caches, while
   full pinyin-sorted phrase lookup happens when the user opens `Phrases`.
+  Collapsed row indicators and expanded artifact chips are rendered from the
+  same page-artifact descriptors so labels, icons, and actions do not drift.
   The `Phrases` chip opens all dictionary and added phrases found on the page
   in the shared Phrase Library sheet used by the information-card Phrase
   button. Expanded saved-page rows avoid inline stats such as character counts,
