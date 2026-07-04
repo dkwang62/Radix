@@ -130,13 +130,14 @@ Do not move domain behavior back into `RadixStore.swift`.
   rather than jumping directly to Browse. Each saved-page row surfaces linked
   page work in place: page phrase lists, Practice packs, translation, quiz
   entry point, corrected pages, favorite sentences, and Practice progress.
-  The top-level Study scopes use a single icon-only row on compact layouts;
-  names belong in hover help and accessibility labels there, while fuller
-  guidance belongs in the guided title Help menu rather than persistent text
-  rows. Wider Study layouts render the same controls as labeled two-column
-  buttons so longer names remain readable. On iPhone, Checkpoints are the
-  seventh icon in the compact row and open the checkpoint/create/restore
-  controls in a sheet instead of a persistent card below the Study grid.
+  The top-level Study controls separate grid modes from shortcuts: Recent,
+  Favorites, and Saved Pages are a compact segmented scope switcher, while
+  Added Phrases, Favorite Sentences, Conversation Practices, and iPhone
+  Checkpoints are lower-emphasis shortcut chips below it. Compact layouts keep
+  the mode labels visible and show shortcuts in an adaptive grid so Checkpoints
+  does not disappear offscreen; wider layouts use four shortcut columns.
+  Fuller guidance belongs in the guided title Help menu rather than persistent
+  text rows.
   The `Phrases` chip opens all dictionary and added phrases found on the page
   in the shared Phrase Library sheet used by the information-card Phrase
   button. Saved-page rows keep page artifacts in a compact two-row shape and
@@ -385,16 +386,15 @@ Corrected pages retain the longest possible prefix of the original 11-character
 name and add a unique numeric suffix such as `1` or `2`.
 The corrected source remains Chinese, while change reasons, confidence, and
 uncertainty explanations are explicitly requested in English.
-The Study tab remains the user's main review surface. Its summary controls
-include `Conversation Practices` beside Recent, Favorites, Added Phrases, and
-Saved Pages; compact layouts use icon-only controls, while wider layouts keep
-readable labels. Conversation Practices opens a focused Practice screen with a
-contextual return button. It says `Back to Study` from Study and `Back to
-Browse` when a Browse page shortcut opened the practice. There is no persistent
-`Review | Practice` switch row. Recent and Favorites must not be repeated as a
-segmented picker above the review grid.
-On wider layouts the summary controls use an explicit two-column layout so all
-labels remain readable; phone keeps its adaptive icon row.
+The Study tab remains the user's main review surface. Its dashboard controls
+separate `Recent`, `Favorites`, and `Saved Pages` as mutually exclusive grid
+scopes from shortcut actions such as Added Phrases, Favorite Sentences,
+Conversation Practices, and iPhone Checkpoints. Conversation Practices opens a
+focused Practice screen with a contextual return button. It says `Back to
+Study` from Study and `Back to Browse` when a Browse page shortcut opened the
+practice. There is no persistent `Review | Practice` switch row. Recent and
+Favorites must not be repeated as another segmented picker above the review
+grid.
 Conversation Practice is the next Study learning section. It presents curated
 practice sets such as `General Greetings`, `Restaurants`, `Airport`, and
 `Shopping Mall`, starting with about 100 common beginner conversational

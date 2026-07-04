@@ -243,18 +243,19 @@ Study should not become a hodgepodge. Group it by intent:
 
 The Study tab should not create a separate main app tab for Practice unless the
 whole navigation model is reconsidered. The main Study screen holds the user's
-kept material and summary controls. Add `Conversation Practices` beside Recent,
-Favorites, Added Phrases, and Saved Pages; it should open a focused Practice
-screen with a clear `Back to Study` return button. Compact layouts may use
-icon-only controls with hover/accessibility names; wider layouts should keep
-readable labels. Do not show a persistent `Review | Practice` switch row on the
-Study main screen.
+kept material and summary controls. Keep grid modes and one-way shortcuts
+visually distinct: `Recent`, `Favorites`, and `Saved Pages` are mutually
+exclusive views of the review grid, while Added Phrases, Favorite Sentences,
+Conversation Practices, and iPhone Checkpoints are shortcuts to another review
+surface. Conversation Practices should open a focused Practice screen with a
+clear `Back to Study` return button. Do not show a persistent `Review |
+Practice` switch row on the Study main screen.
 
-Inside Review, the Study summary controls are the section selectors. Do not
-repeat Recent/Favorites as a segmented picker above the review grid; the grid
-heading should reflect the summary button most recently selected.
-On wider layouts, arrange Study summary controls in equal-width labeled buttons
-so labels such as Added Phrases and Saved Pages remain fully readable.
+Inside Review, the Study scope control is the section selector. Do not repeat
+Recent/Favorites as another segmented picker above the review grid; the grid
+heading should reflect the selected scope. Keep shortcut labels readable on
+compact and wider layouts; do not collapse important actions such as Checkpoints
+into an undiscoverable overflow.
 Saved Pages in Study owns page learning artifacts and deletion. Each saved-page
 row should offer an `Actions` menu for viewing or saving translation, AI OCR
 review, phrase extraction, quiz generation, sentence extraction, page conversation

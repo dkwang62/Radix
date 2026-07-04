@@ -1,6 +1,14 @@
 import SwiftUI
 
-private struct StudySummaryControl: Identifiable {
+private struct StudyScopeControl: Identifiable {
+    let title: String
+    let scope: StudyGridScope
+    let systemImage: String
+
+    var id: String { scope.id }
+}
+
+private struct StudyActionShortcut: Identifiable {
     let title: String
     let systemImage: String
     let tint: Color
@@ -82,31 +90,29 @@ extension FavouritesTab {
         store.rootsReturnContext == nil ? "Back to Study" : store.rootsReturnButtonTitle
     }
 
-    private var studySummaryControls: [StudySummaryControl] {
-        var controls = [
-            StudySummaryControl(
+    private var studyScopeControls: [StudyScopeControl] {
+        [
+            StudyScopeControl(
                 title: "Recent",
-                systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.recent),
-                tint: .blue,
-                isSelected: studyGridScope == .all,
-                action: {
-                    withAnimation {
-                        studyGridScope = .all
-                    }
-                }
+                scope: .all,
+                systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.recent)
             ),
-            StudySummaryControl(
+            StudyScopeControl(
                 title: "Favorites",
-                systemImage: RadixIcon.saved,
-                tint: .yellow,
-                isSelected: studyGridScope == .favorites,
-                action: {
-                    withAnimation {
-                        studyGridScope = .favorites
-                    }
-                }
+                scope: .favorites,
+                systemImage: RadixIcon.saved
             ),
-            StudySummaryControl(
+            StudyScopeControl(
+                title: RadixCopy.savedPages,
+                scope: .savedPages,
+                systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage)
+            )
+        ]
+    }
+
+    private var studyActionShortcuts: [StudyActionShortcut] {
+        var shortcuts = [
+            StudyActionShortcut(
                 title: "Added Phrases",
                 systemImage: "text.quote",
                 tint: .green,
@@ -114,18 +120,7 @@ extension FavouritesTab {
                     presentAddedPhraseReview()
                 }
             ),
-            StudySummaryControl(
-                title: RadixCopy.savedPages,
-                systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage),
-                tint: .purple,
-                isSelected: studyGridScope == .savedPages,
-                action: {
-                    withAnimation {
-                        studyGridScope = .savedPages
-                    }
-                }
-            ),
-            StudySummaryControl(
+            StudyActionShortcut(
                 title: "Favorite Sentences",
                 systemImage: "star.bubble",
                 tint: .orange,
@@ -138,11 +133,10 @@ extension FavouritesTab {
                     selectConversationPracticeTopic(.favoriteSentences(count: favoriteSentenceRecords.count))
                 }
             ),
-            StudySummaryControl(
+            StudyActionShortcut(
                 title: "Conversation Practices",
                 systemImage: "bubble.left.and.bubble.right",
                 tint: .teal,
-                isSelected: isShowingConversationPractice,
                 action: {
                     withAnimation(.snappy(duration: 0.18)) {
                         isShowingConversationPractice = true
@@ -152,8 +146,8 @@ extension FavouritesTab {
         ]
 
         if isPhone {
-            controls.append(
-                StudySummaryControl(
+            shortcuts.append(
+                StudyActionShortcut(
                     title: "Checkpoints",
                     systemImage: "clock.arrow.circlepath",
                     tint: .gray,
@@ -165,34 +159,89 @@ extension FavouritesTab {
             )
         }
 
-        return controls
+        return shortcuts
     }
 
-    @ViewBuilder
     var studyDashboardSummary: some View {
-        if isNarrowStudyLayout {
-            HStack(spacing: 6) {
-                ForEach(studySummaryControls) { control in
-                    studySummaryIconButton(control)
+        VStack(alignment: .leading, spacing: 8) {
+            studyScopeSwitcher
+
+            LazyVGrid(columns: studyActionShortcutColumns, spacing: 8) {
+                ForEach(studyActionShortcuts) { shortcut in
+                    studyActionShortcutButton(shortcut)
                 }
             }
-            .padding(.top, 2)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        } else {
-            LazyVGrid(columns: studySummaryColumns, spacing: 8) {
-                ForEach(studySummaryControls) { control in
-                    studySummaryLabeledButton(control)
-                }
-            }
-            .padding(.top, 2)
         }
+        .padding(.top, 2)
     }
 
-    private var studySummaryColumns: [GridItem] {
-        [
-            GridItem(.flexible(), spacing: 8),
-            GridItem(.flexible(), spacing: 8)
-        ]
+    private var studyScopeSwitcher: some View {
+        HStack(spacing: 3) {
+            ForEach(studyScopeControls) { control in
+                let isSelected = studyGridScope == control.scope
+                Button {
+                    withAnimation {
+                        studyGridScope = control.scope
+                    }
+                } label: {
+                    Label {
+                        Text(control.title)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.72)
+                    } icon: {
+                        Image(systemName: control.systemImage)
+                    }
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .labelStyle(.titleAndIcon)
+                    .frame(maxWidth: .infinity, minHeight: 34)
+                    .padding(.horizontal, 6)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(isSelected ? Color.white : Color.primary.opacity(0.68))
+                .background(isSelected ? Color.accentColor : Color.clear)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityLabel(control.title)
+                .accessibilityValue(isSelected ? "Selected" : "")
+                .help(control.title)
+            }
+        }
+        .padding(3)
+        .background(RadixTheme.secondaryBackground.opacity(0.55))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private var studyActionShortcutColumns: [GridItem] {
+        let count = isNarrowStudyLayout ? 2 : 4
+        return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
+    }
+
+    private func studyActionShortcutButton(_ shortcut: StudyActionShortcut) -> some View {
+        Button(action: shortcut.action) {
+            Label {
+                Text(shortcut.title)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+            } icon: {
+                Image(systemName: shortcut.systemImage)
+                    .foregroundStyle(shortcut.tint)
+            }
+            .font(ResponsiveFont.caption.weight(.semibold))
+            .labelStyle(.titleAndIcon)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 7)
+            .frame(maxWidth: .infinity, minHeight: 34, alignment: .leading)
+            .background(shortcut.tint.opacity(shortcut.isSelected ? 0.18 : 0.07))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(shortcut.tint.opacity(shortcut.isSelected ? 0.4 : 0.16), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(shortcut.tint)
+        .opacity(shortcut.isDisabled ? 0.45 : 1)
+        .accessibilityLabel(shortcut.title)
+        .help(shortcut.title)
     }
 
     var studyCheckpointsSection: some View {
@@ -367,74 +416,6 @@ extension FavouritesTab {
 
     var checkpointListMaxHeight: CGFloat {
         162
-    }
-
-    private func studySummaryIconButton(
-        _ control: StudySummaryControl
-    ) -> some View {
-        studySummaryIconButton(
-            title: control.title,
-            systemImage: control.systemImage,
-            tint: control.tint,
-            isSelected: control.isSelected,
-            isDisabled: control.isDisabled,
-            action: control.action
-        )
-    }
-
-    func studySummaryIconButton(
-        title: String,
-        systemImage: String,
-        tint: Color,
-        isSelected: Bool = false,
-        isDisabled: Bool = false,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(tint)
-                .frame(width: 38, height: 34)
-                .background(tint.opacity(isSelected ? 0.18 : 0.09))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 9)
-                        .stroke(tint.opacity(isSelected ? 0.42 : 0.18), lineWidth: 1)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 9))
-        }
-        .buttonStyle(.plain)
-        .opacity(isDisabled ? 0.45 : 1)
-        .accessibilityLabel(title)
-        .help(title)
-    }
-
-    private func studySummaryLabeledButton(_ control: StudySummaryControl) -> some View {
-        Button(action: control.action) {
-            Label {
-                Text(control.title)
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-            } icon: {
-                Image(systemName: control.systemImage)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(control.tint)
-            }
-            .labelStyle(.titleAndIcon)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-            .frame(maxWidth: .infinity, minHeight: 38, alignment: .leading)
-            .background(control.tint.opacity(control.isSelected ? 0.16 : 0.08))
-            .overlay(
-                RoundedRectangle(cornerRadius: 9)
-                    .stroke(control.tint.opacity(control.isSelected ? 0.38 : 0.16), lineWidth: 1)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 9))
-        }
-        .buttonStyle(.plain)
-        .opacity(control.isDisabled ? 0.45 : 1)
-        .accessibilityLabel(control.title)
-        .help(control.title)
     }
 
     func sectionTitle(_ title: String) -> some View {
