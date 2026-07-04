@@ -9,6 +9,8 @@ struct PhraseTableSheet: View {
     let fixedPhrases: [PhraseItem]?
     let fixedTitle: String
     let fixedScopeLabel: String
+    let fixedSort: FixedPhraseSort
+    let dismissesOnPhraseSelection: Bool
     private let visiblePhraseRows = 6
     @State private var selectedPhrase: PhraseItem?
     @State private var showAddPhraseSheet = false
@@ -19,7 +21,9 @@ struct PhraseTableSheet: View {
         requiredCharacters: [String]? = nil,
         fixedPhrases: [PhraseItem]? = nil,
         fixedTitle: String = "Sentence Phrases",
-        fixedScopeLabel: String = "In this sentence"
+        fixedScopeLabel: String = "In this sentence",
+        fixedSort: FixedPhraseSort = .sentenceOrder,
+        dismissesOnPhraseSelection: Bool = false
     ) {
         self.character = character
         self.requiredCharacters = requiredCharacters ?? [character]
@@ -27,6 +31,8 @@ struct PhraseTableSheet: View {
         self.fixedPhrases = fixedPhrases
         self.fixedTitle = fixedTitle
         self.fixedScopeLabel = fixedScopeLabel
+        self.fixedSort = fixedSort
+        self.dismissesOnPhraseSelection = dismissesOnPhraseSelection
     }
 
     private var isPhone: Bool {
@@ -156,7 +162,12 @@ struct PhraseTableSheet: View {
     private var matchingPhrases: [PhraseItem] {
         if let fixedPhrases {
             let phrases = fixedPhrases.filter(store.phraseMatchesActiveLength)
-            return sortSentencePhrases(phrases)
+            switch fixedSort {
+            case .sentenceOrder:
+                return sortSentencePhrases(phrases)
+            case .pinyin:
+                return store.sortPhrasesByPinyin(phrases)
+            }
         }
         if isMultiCharacterLookup {
             return store.phraseMatches(for: requiredCharacters.joined(), length: store.phraseLength)
@@ -218,6 +229,9 @@ struct PhraseTableSheet: View {
             } else {
                 selectedPhrase = nil
                 store.presentPhraseInSidebar(phrase)
+                if dismissesOnPhraseSelection {
+                    dismiss()
+                }
             }
         }
     }
@@ -229,6 +243,11 @@ struct PhraseTableSheet: View {
     private var phraseViewportHeight: CGFloat {
         (phraseRowHeight * CGFloat(visiblePhraseRows)) + 5
     }
+}
+
+enum FixedPhraseSort {
+    case sentenceOrder
+    case pinyin
 }
 
 private struct PhraseTableRow: View {

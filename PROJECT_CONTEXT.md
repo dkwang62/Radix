@@ -132,7 +132,8 @@ Do not move domain behavior back into `RadixStore.swift`.
   entry point, corrected pages, favorite sentences, and Practice progress.
   The `Phrases` chip counts all dictionary and added phrases found on the page
   and opens the shared Phrase Library sheet used by the information-card Phrase
-  button. Page phrase lists are sorted by pinyin.
+  button. Page phrase lists are sorted by pinyin and dismiss after phrase
+  selection on sidebar layouts so the selected Phrase Info Card is unobstructed.
   Source-linked sentence-extraction packs are labeled `Sentences`; generated
   page conversation packs are labeled `Conversation`.
   Study owns learning

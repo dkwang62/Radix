@@ -192,7 +192,9 @@ struct FavouritesTab: View {
                 isVertical: isPhone,
                 fixedPhrases: presentation.phrases,
                 fixedTitle: "Page Phrases",
-                fixedScopeLabel: presentation.collection.name
+                fixedScopeLabel: presentation.collection.name,
+                fixedSort: .pinyin,
+                dismissesOnPhraseSelection: true
             )
             .environmentObject(store)
         }
