@@ -283,14 +283,14 @@ enum RadixGlossary {
             term: "API Key",
             shortDefinition: "A private key that lets Radix call an AI service directly.",
             significance: "Without an API key, you can still copy AI prompts and paste results manually. With a key, Radix can combine steps automatically.",
-            contexts: ["Settings > Private API Keys", "Extract Phrases Automatically", "Translate and Save"],
+            contexts: ["Settings > Automatic AI", "Settings > Manual AI Keys", "Extract Phrases Automatically"],
             relatedTerms: ["AI Link", "Gemini API Key"]
         ),
         GlossaryEntry(
             term: "Gemini API Key",
             shortDefinition: "The private Google Gemini key Radix can use for automatic AI actions.",
             significance: "A Gemini API key lets Radix run supported AI workflows directly, such as OCR checking, phrase extraction, translation, quizzes, sentence extraction, and page-inspired practice. Copy-and-paste AI workflows still work without a key.",
-            contexts: ["Settings > Private API Keys", "Browse page actions", "AI Link"],
+            contexts: ["Settings > Automatic AI", "Browse page actions", "AI Link"],
             relatedTerms: ["API Key", "AI Link", "Extract Page Sentences", "Create Theme Practice"]
         ),
         GlossaryEntry(

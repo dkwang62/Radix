@@ -352,8 +352,8 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
                 ),
                 RadixNavigationGuideAction(
                     icon: "wand.and.stars",
-                    title: "Choose your AI service",
-                    detail: "Select where AI Link opens and optionally save private API keys for direct features."
+                    title: "Set up AI",
+                    detail: "Choose where AI Link opens, add Gemini for automatic actions, or save manual AI keys."
                 ),
                 RadixNavigationGuideAction(
                     icon: "rectangle.3.group",

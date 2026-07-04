@@ -81,30 +81,11 @@ struct SettingsView: View {
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 }
+            }
 
-                DisclosureGroup(isExpanded: $areAPIKeysExpanded) {
-                    apiKeyField("OpenAI API key", text: storeBinding(\.openAIAPIKey))
-                    apiKeyField("Gemini API key", text: storeBinding(\.geminiAPIKey))
-                    geminiKeyHealthRow
-                    apiKeyField("Claude API key", text: storeBinding(\.claudeAPIKey))
-                    apiKeyField("DeepSeek API key", text: storeBinding(\.deepSeekAPIKey))
-                    apiKeyField("Custom AI API key", text: storeBinding(\.customAIAPIKey))
-                } label: {
-                    HStack(spacing: 8) {
-                        Label("Private API Keys", systemImage: "key.fill")
-                        Spacer()
-                        Text("\(store.currentAPIKeyBackup().savedCount) saved")
-                            .font(ResponsiveFont.caption.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                    }
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-                }
-
-                if areAPIKeysExpanded {
-                    Text("A Gemini API key lets Radix check OCR, extract phrases, translate pages, create in-app quizzes, extract sentences, and create page-inspired practice automatically. Copy-and-paste AI workflows do not require a key.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                }
+            Section {
+                apiKeyField("Gemini API key", text: storeBinding(\.geminiAPIKey))
+                geminiKeyHealthRow
 
                 TextField("Gemini model", text: storeBinding(\.geminiModelID))
                     .textInputAutocapitalization(.never)
@@ -116,10 +97,6 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Google AI Studio")
                             .font(ResponsiveFont.caption.weight(.semibold))
-
-                        Text("Use this only if you want Radix to check OCR, extract phrases, translate pages, create in-app quizzes, extract sentences, and create page-inspired practice automatically.")
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
 
                         VStack(alignment: .leading, spacing: 6) {
                             Text("1. Visit aistudio.google.com.")
@@ -133,6 +110,30 @@ struct SettingsView: View {
                     }
                     .padding(.top, 4)
                 }
+            } header: {
+                Text("Automatic AI")
+            } footer: {
+                Text("Optional. Uses Gemini to let Radix check OCR, extract phrases, translate pages, create quizzes, extract sentences, and create page-inspired practice automatically.")
+            }
+
+            Section {
+                DisclosureGroup(isExpanded: $areAPIKeysExpanded) {
+                    apiKeyField("OpenAI API key", text: storeBinding(\.openAIAPIKey))
+                    apiKeyField("Claude API key", text: storeBinding(\.claudeAPIKey))
+                    apiKeyField("DeepSeek API key", text: storeBinding(\.deepSeekAPIKey))
+                    apiKeyField("Custom AI API key", text: storeBinding(\.customAIAPIKey))
+                } label: {
+                    HStack(spacing: 8) {
+                        Label("Manual AI Keys", systemImage: "key.fill")
+                        Spacer()
+                        Text("\(manualAIKeysSavedCount) saved")
+                            .font(ResponsiveFont.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                }
+            } footer: {
+                Text("For manual copy-and-paste AI Link workflows. These keys are not required for automatic Gemini features.")
             }
 
             Section("Help") {
@@ -215,9 +216,14 @@ struct SettingsView: View {
             .autocorrectionDisabled()
     }
 
+    private var manualAIKeysSavedCount: Int {
+        [store.openAIAPIKey, store.claudeAPIKey, store.deepSeekAPIKey, store.customAIAPIKey]
+            .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .count
+    }
+
     private func revealRequestedAPIKeySettings() {
         guard store.shouldRevealAPIKeys else { return }
-        areAPIKeysExpanded = true
         store.shouldRevealAPIKeys = false
     }
 

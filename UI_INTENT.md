@@ -403,6 +403,10 @@ be the selector, with recent memory-strip items in its dropdown; do not add a
 separate Search button there. Saved-page tasks default to the last viewed page.
 Always show the chosen source before sending so the smart default remains
 reversible and understandable.
+Settings should not make AI configuration feel like one large key vault. Keep
+`AI Link` settings about where manual prompts open, keep `Automatic AI` for
+Gemini key/model setup used by direct Radix actions, and keep `Manual AI Keys`
+for non-Gemini provider keys used by copy-and-paste workflows.
 
 ## Backup and checkpoint grammar
 
@@ -560,8 +564,8 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   `Translate Page`, `Create Quiz`, `Extract Page Sentences`, and `Create
   Conversation`. Each task offers the same two methods: copy/paste with ChatGPT or
   automatic processing with Gemini. When no key is saved, the automatic choice
-  becomes `Set Up Gemini API Key…`; it opens Settings with Private API Keys
-  expanded and a contextual `Back to Browse` action.
+  becomes `Set Up Gemini API Key…`; it opens Settings where `Automatic AI`
+  exposes Gemini setup, with a contextual `Back to Browse` action.
 - Check OCR, Extract Phrases, Translate Page, Create Quiz, Extract Page Sentences,
   and Create Conversation also exist as saved-page tasks in AI Link. Their
   templates are editable as AI prompts in the selected task view, and Browse
