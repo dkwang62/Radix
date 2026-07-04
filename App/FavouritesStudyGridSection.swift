@@ -157,14 +157,14 @@ extension FavouritesTab {
     }
 
     var studySavedPagesList: some View {
-        VStack(spacing: 8) {
-            ForEach(sortedStudySavedPages()) { collection in
-                studySavedPageRow(collection)
+        VStack(spacing: 0) {
+            ForEach(Array(sortedStudySavedPages().enumerated()), id: \.element.id) { index, collection in
+                studySavedPageRow(collection, rowNumber: index + 1)
             }
         }
     }
 
-    func studySavedPageRow(_ collection: CharacterCollection) -> some View {
+    func studySavedPageRow(_ collection: CharacterCollection, rowNumber: Int) -> some View {
         let practices = pagePracticePacks(for: collection)
         let correctedPages = correctedStudyPages(for: collection)
         let pagePhrases = pagePhrases(for: collection)
@@ -178,6 +178,7 @@ extension FavouritesTab {
             } label: {
                 studySavedPageCollapsedRow(
                     collection,
+                    rowNumber: rowNumber,
                     practices: practices,
                     correctedPages: correctedPages,
                     pagePhrases: pagePhrases,
@@ -290,11 +291,16 @@ extension FavouritesTab {
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(RadixTheme.secondaryBackground.opacity(0.58))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(RadixTheme.separator.opacity(0.7))
+                .frame(height: 0.5)
+        }
     }
 
     func studySavedPageCollapsedRow(
         _ collection: CharacterCollection,
+        rowNumber: Int,
         practices: [ConversationPracticePack],
         correctedPages: [CharacterCollection],
         pagePhrases: [PhraseItem],
@@ -310,6 +316,12 @@ extension FavouritesTab {
         let hiddenCount = indicators.count - visibleIndicators.count
 
         return HStack(alignment: .center, spacing: 10) {
+            Text("\(rowNumber)")
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+                .frame(width: 28, alignment: .trailing)
+
             RadixThumbnailView(
                 thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData),
                 size: 34,

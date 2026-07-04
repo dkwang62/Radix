@@ -143,10 +143,11 @@ Do not move domain behavior back into `RadixStore.swift`.
   does not disappear offscreen; wider layouts use four shortcut columns.
   Fuller guidance belongs in the guided title Help menu rather than persistent
   text rows.
-  Saved Pages in Study use a dense collapsed list by default so large libraries
-  remain scannable. Tapping a page row expands that single page to reveal the
-  Actions menu, Browse shortcut, status feedback, and artifact buttons; the
-  collapsed row itself is not a navigation shortcut.
+  Saved Pages in Study use a dense collapsed numbered list with no vertical gaps
+  between rows so large libraries remain scannable. Tapping a page row expands
+  that single page to reveal the Actions menu, Browse shortcut, status
+  feedback, and artifact buttons; the collapsed row itself is not a navigation
+  shortcut.
   The `Phrases` chip opens all dictionary and added phrases found on the page
   in the shared Phrase Library sheet used by the information-card Phrase
   button. Expanded saved-page rows avoid inline stats such as character counts,
