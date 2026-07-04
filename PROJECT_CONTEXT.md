@@ -235,7 +235,7 @@ When a Gemini API key is configured, `Check OCR` additionally offers an
 automatic multimodal review using the same prompt and saved image. Its response
 creates and opens a corrected saved page immediately.
 Saved-page AI actions are grouped by task—Check OCR, Extract Phrases,
-Translate Page, Create Quiz, Extract Sentences, and Create Practice from Page.
+Translate Page, Create Quiz, Extract Page Sentences, and Create Theme Practice.
 Each task consistently offers copy/paste with ChatGPT or an automatic Gemini
 route where automation is implemented. A missing-key automatic choice becomes
 `Set Up Gemini API Key…`, navigates to Settings with Private API Keys expanded,
@@ -253,13 +253,13 @@ recognized/unrecognized characters, and nearby phrase evidence rather than a
 separate hard-coded instruction. Legacy `Check OCR` templates that described
 `ORIGINAL OCR` normalize to the saved-page-character wording so placeholder raw
 OCR cannot become the primary AI input.
-`Extract Sentences` is the first step toward page-derived sentence study:
+`Extract Page Sentences` is the first step toward page-derived sentence study:
 it asks AI to return the same lightweight Conversation Practice import JSON
 shape (`theme` plus `entries`) used by generated practice packs, so imported
 page sentences reuse the existing practice, favorite-sentence, backup,
 checkpoint, and speech pathways instead of creating another sentence store. The
 automatic Gemini route validates and imports that pack directly.
-`Create Practice from Page` is distinct from `Extract Sentences`: it uses the
+`Create Theme Practice` is distinct from `Extract Page Sentences`: it uses the
 saved page as source inspiration, infers the page's broad conversational theme,
 and asks AI to generate new personalized/current Conversation Practice lines
 around that theme rather than staying close to the page wording. It returns the
@@ -283,7 +283,7 @@ Conversation Practice accepts AI-generated packs through `Paste Practice JSON`
 as the primary return path from ChatGPT/Gemini, while `Import JSON File` remains
 available for saved files and transfer. The paste route previews the theme,
 sentence count, sample sentences, and validation warnings before import.
-Browse page Actions exposes `Extract Sentences` as a page AI task. Manual use
+Browse page Actions exposes `Extract Page Sentences` as a page AI task. Manual use
 copies/opens the saved-page sentence extraction prompt and returns through
 Study's Conversation Practice paste importer; automatic Gemini use imports the
 pack directly.
@@ -343,7 +343,7 @@ or use current knowledge. Radix should keep the output contract strict
 extra content guardrails beyond import format and language-learning usefulness.
 AI Link exposes a shared quantity selector for Conversation Practice output
 tasks, defaulting to 25 entries with 50 and 100 available. `Generate Practice
-Pack`, `Extract Sentences`, and `Create Practice from Page` render this shared
+Pack`, `Extract Page Sentences`, and `Create Theme Practice` render this shared
 count through `{conversation_entry_count}`; future sentence/conversation
 generation tasks should opt into `conversationEntryCountTaskIDs` and reuse the
 same placeholder instead of hardcoding a pack size.

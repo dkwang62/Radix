@@ -262,14 +262,14 @@ extension FavouritesTab {
             ),
             CollectionPageAITask(
                 id: AIResultTaskID.extractSentences,
-                title: "Extract Sentences",
+                title: "Extract Page Sentences",
                 systemImage: "bubble.left.and.bubble.right",
                 manualAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences) },
                 automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiSentenceExtraction(collection) } }
             ),
             CollectionPageAITask(
                 id: AIResultTaskID.createPagePractice,
-                title: "Create Practice from Page",
+                title: "Create Theme Practice",
                 systemImage: "sparkles",
                 manualAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice) },
                 automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiPagePracticeGeneration(collection) } }

@@ -176,14 +176,14 @@ extension FilterGridTab {
             ),
             CollectionPageAITask(
                 id: AIResultTaskID.extractSentences,
-                title: "Extract Sentences",
+                title: "Extract Page Sentences",
                 systemImage: "bubble.left.and.bubble.right",
                 manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences) },
                 automaticAction: { runAutomaticPageAIAction { runBrowseGeminiSentenceExtraction(collection) } }
             ),
             CollectionPageAITask(
                 id: AIResultTaskID.createPagePractice,
-                title: "Create Practice from Page",
+                title: "Create Theme Practice",
                 systemImage: "sparkles",
                 manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice) },
                 automaticAction: { runAutomaticPageAIAction { runBrowseGeminiPagePracticeGeneration(collection) } }

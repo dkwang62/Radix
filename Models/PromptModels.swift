@@ -244,9 +244,9 @@ OCR text/context:
             ),
             PromptTask(
                 id: "task10",
-                title: "Extract Sentences",
+                title: "Extract Page Sentences",
                 template: """
-Extract Sentences
+Extract Page Sentences
 
 Create a Radix Conversation Practice import pack from one saved page.
 
@@ -293,9 +293,9 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
             ),
             PromptTask(
                 id: "task11",
-                title: "Create Practice from Page",
+                title: "Create Theme Practice",
                 template: """
-Create Practice from Page
+Create Theme Practice
 
 Create a personalized, current, and varied Mandarin conversation practice pack for Radix using one saved page as the source inspiration.
 
@@ -521,6 +521,12 @@ extension PromptConfig {
                 normalizedTitle = defaultTask.title
             } else if task.id == "task5",
                       task.title == "Task 5 – Universal Content Architect" {
+                normalizedTitle = defaultTask.title
+            } else if task.id == "task10",
+                      task.title == "Extract Sentences" {
+                normalizedTitle = defaultTask.title
+            } else if task.id == "task11",
+                      task.title == "Create Practice from Page" {
                 normalizedTitle = defaultTask.title
             } else {
                 normalizedTitle = task.title
