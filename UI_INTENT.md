@@ -263,9 +263,11 @@ extraction finds non-base phrases from a page, show a compact `Phrases` artifact
 chip in that saved-page row so the user can reopen the page-derived phrase list
 without hunting in global Added Phrases. Include matching user-added phrases
 that already existed before this extraction, not only phrases newly inserted by
-the latest import. Opening the page in Browse should be an explicit inspection
-action with a clear return to Study; editing the page text and choosing visible
-page phrases belong in Browse.
+the latest import. Show sentence-extraction results as `Sentences` and generated
+page-theme practice results as `Conversation`, while both can still open into the
+Practice flow. Opening the page in Browse should be an explicit inspection action
+with a clear return to Study; editing the page text and choosing visible page
+phrases belong in Browse.
 When an OCR correction creates a corrected page, Study should let the user
 promote that correction to become the main saved page. Promotion must keep
 page-linked learning artifacts attached to the main page and let the user choose

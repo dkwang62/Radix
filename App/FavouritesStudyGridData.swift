@@ -141,6 +141,28 @@ extension FavouritesTab {
             .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
     }
 
+    func isPageSentencePractice(_ pack: ConversationPracticePack) -> Bool {
+        guard let sourceTitle = pack.sourceLink?.sourceTitle.trimmingCharacters(in: .whitespacesAndNewlines),
+              !sourceTitle.isEmpty
+        else {
+            return false
+        }
+
+        let packTitle = pack.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        return packTitle.compare(
+            sourceTitle,
+            options: [.caseInsensitive, .diacriticInsensitive]
+        ) == .orderedSame
+    }
+
+    func pagePracticeArtifactTitle(for pack: ConversationPracticePack) -> String {
+        isPageSentencePractice(pack) ? "Sentences" : "Conversation"
+    }
+
+    func pagePracticeArtifactIcon(for pack: ConversationPracticePack) -> String {
+        isPageSentencePractice(pack) ? "text.quote" : "bubble.left.and.bubble.right"
+    }
+
     func pagePhraseExtractionRecord(for collection: CharacterCollection) -> PagePhraseExtractionRecord? {
         RadixStudyPreferences.pagePhraseExtractions.first { $0.sourcePageID == collection.id }
     }

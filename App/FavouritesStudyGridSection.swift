@@ -285,9 +285,9 @@ extension FavouritesTab {
 
                 ForEach(practices, id: \.packID) { pack in
                     studyPageArtifactChip(
-                        title: "Practice",
+                        title: pagePracticeArtifactTitle(for: pack),
                         detail: "\(pack.entries.count) sentences",
-                        systemImage: "bubble.left.and.bubble.right",
+                        systemImage: pagePracticeArtifactIcon(for: pack),
                         tint: .teal
                     ) {
                         openStudyPracticePack(pack)

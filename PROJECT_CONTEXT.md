@@ -130,6 +130,8 @@ Do not move domain behavior back into `RadixStore.swift`.
   rather than jumping directly to Browse. Each saved-page row surfaces linked
   page work in place: extracted phrase lists, Practice packs, translation, quiz
   entry point, corrected pages, favorite sentences, and Practice progress.
+  Source-linked sentence-extraction packs are labeled `Sentences`; generated
+  page-theme practice packs are labeled `Conversation`.
   Study owns learning
   artifacts, AI workflows, and saved-page deletion. Browse owns page inspection
   controls that only make sense while looking at the page, including editing
