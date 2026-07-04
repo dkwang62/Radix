@@ -293,9 +293,9 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
             ),
             PromptTask(
                 id: "task11",
-                title: "Create Theme Practice",
+                title: "Create Conversation",
                 template: """
-Create Theme Practice
+Create Conversation
 
 Create a personalized, current, and varied Mandarin conversation practice pack for Radix using one saved page as the source inspiration.
 
@@ -526,7 +526,8 @@ extension PromptConfig {
                       task.title == "Extract Sentences" {
                 normalizedTitle = defaultTask.title
             } else if task.id == "task11",
-                      task.title == "Create Practice from Page" {
+                      task.title == "Create Practice from Page" ||
+                      task.title == "Create Theme Practice" {
                 normalizedTitle = defaultTask.title
             } else {
                 normalizedTitle = task.title

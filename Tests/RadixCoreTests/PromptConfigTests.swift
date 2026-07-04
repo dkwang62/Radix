@@ -80,7 +80,7 @@ struct PromptConfigTests {
         let normalized = PromptConfig.streamlitDefault.normalized()
         let generator = normalized.tasks.first { $0.id == "task11" }
 
-        #expect(generator?.title == "Create Theme Practice")
+        #expect(generator?.title == "Create Conversation")
         #expect(generator?.template.contains("source inspiration") == true)
         #expect(generator?.template.contains("Use the page as a springboard, not a cage") == true)
         #expect(generator?.template.contains("Use any context you have from this chat") == true)
@@ -160,7 +160,7 @@ struct PromptConfigTests {
         #expect(normalized.tasks.first { $0.id == "task10" }?.template.contains("Aim for up to {conversation_entry_count} entries.") == true)
         #expect(normalized.tasks.first { $0.id == "task11" }?.template.contains("Create exactly {conversation_entry_count} entries") == true)
         #expect(normalized.tasks.first { $0.id == "task10" }?.title == "Extract Page Sentences")
-        #expect(normalized.tasks.first { $0.id == "task11" }?.title == "Create Theme Practice")
+        #expect(normalized.tasks.first { $0.id == "task11" }?.title == "Create Conversation")
     }
 
     @Test("Conversation practice generator renders selected topic details")

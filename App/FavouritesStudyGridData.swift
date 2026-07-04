@@ -317,7 +317,7 @@ extension FavouritesTab {
             ),
             CollectionPageAITask(
                 id: AIResultTaskID.createPagePractice,
-                title: "Create Theme Practice",
+                title: "Create Conversation",
                 systemImage: "sparkles",
                 manualAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice) },
                 automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiPagePracticeGeneration(collection) } }

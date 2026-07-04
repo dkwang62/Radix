@@ -183,7 +183,7 @@ extension FilterGridTab {
             ),
             CollectionPageAITask(
                 id: AIResultTaskID.createPagePractice,
-                title: "Create Theme Practice",
+                title: "Create Conversation",
                 systemImage: "sparkles",
                 manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice) },
                 automaticAction: { runAutomaticPageAIAction { runBrowseGeminiPagePracticeGeneration(collection) } }

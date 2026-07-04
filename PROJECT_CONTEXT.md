@@ -131,7 +131,7 @@ Do not move domain behavior back into `RadixStore.swift`.
   page work in place: extracted phrase lists, Practice packs, translation, quiz
   entry point, corrected pages, favorite sentences, and Practice progress.
   Source-linked sentence-extraction packs are labeled `Sentences`; generated
-  page-theme practice packs are labeled `Conversation`.
+  page conversation packs are labeled `Conversation`.
   Study owns learning
   artifacts, AI workflows, and saved-page deletion. Browse owns page inspection
   controls that only make sense while looking at the page, including editing
@@ -241,7 +241,7 @@ When a Gemini API key is configured, `Check OCR` additionally offers an
 automatic multimodal review using the same prompt and saved image. Its response
 creates and opens a corrected saved page immediately.
 Saved-page AI actions are grouped by task—Check OCR, Extract Phrases,
-Translate Page, Create Quiz, Extract Page Sentences, and Create Theme Practice.
+Translate Page, Create Quiz, Extract Page Sentences, and Create Conversation.
 Each task consistently offers copy/paste with ChatGPT or an automatic Gemini
 route where automation is implemented. A missing-key automatic choice becomes
 `Set Up Gemini API Key…`, navigates to Settings with Private API Keys expanded,
@@ -265,7 +265,7 @@ shape (`theme` plus `entries`) used by generated practice packs, so imported
 page sentences reuse the existing practice, favorite-sentence, backup,
 checkpoint, and speech pathways instead of creating another sentence store. The
 automatic Gemini route validates and imports that pack directly.
-`Create Theme Practice` is distinct from `Extract Page Sentences`: it uses the
+`Create Conversation` is distinct from `Extract Page Sentences`: it uses the
 saved page as source inspiration, infers the page's broad conversational theme,
 and asks AI to generate new personalized/current Conversation Practice lines
 around that theme rather than staying close to the page wording. It returns the
@@ -352,7 +352,7 @@ or use current knowledge. Radix should keep the output contract strict
 extra content guardrails beyond import format and language-learning usefulness.
 AI Link exposes a shared quantity selector for Conversation Practice output
 tasks, defaulting to 25 entries with 50 and 100 available. `Generate Practice
-Pack`, `Extract Page Sentences`, and `Create Theme Practice` render this shared
+Pack`, `Extract Page Sentences`, and `Create Conversation` render this shared
 count through `{conversation_entry_count}`; future sentence/conversation
 generation tasks should opt into `conversationEntryCountTaskIDs` and reuse the
 same placeholder instead of hardcoding a pack size.

@@ -190,7 +190,7 @@ control row with a compact character count. Browse should own page-inspection
 controls that only make sense while looking at the page, such as Edit Page and
 Choose Page Phrases. Browse should not own saved-page artifact work such as
 translation, AI OCR review, phrase extraction, quiz generation, sentence
-extraction, page-practice generation, or deletion. Keep frequently adjusted
+extraction, page conversation generation, or deletion. Keep frequently adjusted
 Browse controls—Simplified/Traditional and Read Aloud—visible beside the
 source/count row.
 Check OCR should use the saved page characters as the primary text to review.
@@ -264,7 +264,7 @@ chip in that saved-page row so the user can reopen the page-derived phrase list
 without hunting in global Added Phrases. Include matching user-added phrases
 that already existed before this extraction, not only phrases newly inserted by
 the latest import. Show sentence-extraction results as `Sentences` and generated
-page-theme practice results as `Conversation`, while both can still open into the
+page conversation results as `Conversation`, while both can still open into the
 Practice flow. Opening the page in Browse should be an explicit inspection action
 with a clear return to Study; editing the page text and choosing visible page
 phrases belong in Browse.
@@ -550,7 +550,7 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   becomes `Set Up Gemini API Key…`; it opens Settings with Private API Keys
   expanded and a contextual `Back to Browse` action.
 - Check OCR, Extract Phrases, Translate Page, Create Quiz, Extract Page Sentences,
-  and Create Theme Practice also exist as saved-page tasks in AI Link. Their
+  and Create Conversation also exist as saved-page tasks in AI Link. Their
   templates are editable as AI prompts in the selected task view, and Browse
   must render those same templates rather than maintaining separate hidden
   instructions. Manual `Use Another AI App` actions from Browse should route

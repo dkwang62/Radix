@@ -80,7 +80,7 @@ enum RadixGlossaryIcon {
         case "Classify & Prune": return "slider.horizontal.3"
         case "Components": return "square.stack.3d.up"
         case "Conversation Practice": return "bubble.left.and.bubble.right"
-        case "Create Theme Practice", "Create Practice from Page": return "doc.text.magnifyingglass"
+        case "Create Conversation", "Create Theme Practice", "Create Practice from Page": return "doc.text.magnifyingglass"
         case "Data Portability": return "arrow.triangle.2.circlepath"
         case "Definition": return "text.book.closed"
         case "Meaning": return "text.alignleft"
