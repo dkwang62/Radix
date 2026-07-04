@@ -244,17 +244,17 @@ thumbnail.
 When a Gemini API key is configured, `Check OCR` additionally offers an
 automatic multimodal review using the same prompt and saved image. Its response
 creates and opens a corrected saved page immediately.
-Saved-page AI actions are grouped by task—Check OCR, Extract Phrases,
+Study saved-page AI actions are grouped by task—Check OCR, Extract Phrases,
 Translate Page, Create Quiz, Extract Page Sentences, and Create Conversation.
 Each task consistently offers copy/paste with ChatGPT or an automatic Gemini
 route where automation is implemented. A missing-key automatic choice becomes
 `Set Up Gemini API Key…`, navigates to Settings with Private API Keys expanded,
-and preserves `Back to Browse`. Setup is described as enabling all page AI
-automation, not just one task. Browse page actions declare AI tasks through a
-shared task model with one manual action and one automatic action. Manual
-copy/paste page AI actions open the matching AI Link task with the saved page
-selected and preserve `Back to Browse`; automatic Gemini actions may stay in the
-Browse page workflow but must use the same store-level prompt/result helpers.
+and preserves the contextual return path. Setup is described as enabling all
+page AI automation, not just one task. Study page actions declare AI tasks
+through a shared task model with one manual action and one automatic action.
+Manual copy/paste page AI actions open the matching AI Link task with the saved
+page selected and preserve the contextual return path; automatic Gemini actions
+must use the same store-level prompt/result helpers.
 Do not add task-specific menu plumbing or separate paste sheets for new page AI
 actions.
 These tasks also exist as editable saved-page templates in AI Link. Browse OCR

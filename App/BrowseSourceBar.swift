@@ -139,68 +139,6 @@ extension FilterGridTab {
         }
     }
 
-    func pageAITasks(for collection: CharacterCollection) -> [CollectionPageAITask] {
-        var tasks: [CollectionPageAITask] = []
-
-        if collection.sourceType == .ocr && collection.correctedFromCollectionID == nil {
-            tasks.append(CollectionPageAITask(
-                id: AIResultTaskID.checkOCR,
-                title: "Check OCR",
-                systemImage: "text.viewfinder",
-                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.checkOCR) },
-                automaticAction: { runAutomaticPageAIAction { runAutomaticOCRReview(collection) } }
-            ))
-        }
-
-        tasks.append(contentsOf: [
-            CollectionPageAITask(
-                id: AIResultTaskID.extractPhrases,
-                title: "Extract Phrases",
-                systemImage: "text.badge.plus",
-                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.extractPhrases) },
-                automaticAction: { runAutomaticPageAIAction { runBrowseGeminiPhraseExtraction(collection) } }
-            ),
-            CollectionPageAITask(
-                id: AIResultTaskID.translatePage,
-                title: "Translate Page",
-                systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.translation),
-                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.translatePage) },
-                automaticAction: { runAutomaticPageAIAction { runBrowseGeminiTranslationAndSave(collection) } }
-            ),
-            CollectionPageAITask(
-                id: "task8",
-                title: "Create Quiz",
-                systemImage: "questionmark.circle",
-                manualAction: { beginAILinkPageTask(collection, taskID: "task8") },
-                automaticAction: { runAutomaticPageAIAction { beginPageQuiz(collection) } }
-            ),
-            CollectionPageAITask(
-                id: AIResultTaskID.extractSentences,
-                title: "Extract Page Sentences",
-                systemImage: "bubble.left.and.bubble.right",
-                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences) },
-                automaticAction: { runAutomaticPageAIAction { runBrowseGeminiSentenceExtraction(collection) } }
-            ),
-            CollectionPageAITask(
-                id: AIResultTaskID.createPagePractice,
-                title: "Create Conversation",
-                systemImage: "sparkles",
-                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice) },
-                automaticAction: { runAutomaticPageAIAction { runBrowseGeminiPagePracticeGeneration(collection) } }
-            )
-        ])
-
-        return tasks
-    }
-
-    private func runAutomaticPageAIAction(_ action: () -> Void) {
-        guard !store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            store.goToSettingsForAPIKeySetup()
-            return
-        }
-        action()
-    }
-
     func readBrowseSourceButton(_ collection: CharacterCollection) -> some View {
         Button {
             _ = store.speakCharacters(in: browseImageDisplayText(collection.characters.joined()))
