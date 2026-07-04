@@ -197,7 +197,7 @@ extension FavouritesTab {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(collection.name)
-                        .font(ResponsiveFont.body.weight(.semibold))
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
                         .lineLimit(1)
                 }
 
@@ -308,10 +308,10 @@ extension FavouritesTab {
     ) -> some View {
         Button(action: action) {
             Text(title)
-                .font(ResponsiveFont.caption2.weight(.semibold))
+                .font(ResponsiveFont.tinySystem(size: 11).weight(.semibold))
                 .lineLimit(1)
-            .padding(.horizontal, 9)
-            .padding(.vertical, 7)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
             .background(tint.opacity(0.11))
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
