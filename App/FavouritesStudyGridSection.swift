@@ -184,10 +184,8 @@ extension FavouritesTab {
         let practices = pagePracticePacks(for: collection)
         let correctedPages = correctedStudyPages(for: collection)
         let pagePhrases = pagePhrases(for: collection)
-        let favoriteCount = favoriteSentenceCount(for: practices)
-        let progressCount = practiceProgressCount(for: practices)
 
-        return VStack(alignment: .leading, spacing: 9) {
+        return VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center, spacing: 10) {
                 RadixThumbnailView(
                     thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData),
@@ -201,9 +199,6 @@ extension FavouritesTab {
                     Text(collection.name)
                         .font(ResponsiveFont.body.weight(.semibold))
                         .lineLimit(1)
-                    Text("\(collection.characters.count) characters")
-                        .font(ResponsiveFont.caption2)
-                        .foregroundStyle(.secondary)
                 }
 
                 Spacer(minLength: 8)
@@ -251,75 +246,58 @@ extension FavouritesTab {
                 .foregroundStyle(.secondary)
             }
 
-            RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
-                if collection.translationReport?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    if collection.translationReport?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
+                        studyPageArtifactChip(
+                            title: "Translation",
+                            systemImage: "doc.text",
+                            tint: .blue
+                        ) {
+                            showStudyTranslationReport(collection)
+                        }
+                    }
+
                     studyPageArtifactChip(
-                        title: "Translation",
-                        detail: collection.translationReportUpdatedAt.map(Self.studyPageDateText) ?? "Saved",
-                        systemImage: "doc.text",
-                        tint: .blue
+                        title: "Quiz",
+                        systemImage: "checkmark.circle",
+                        tint: .orange
                     ) {
-                        showStudyTranslationReport(collection)
+                        beginStudyPageQuiz(collection)
+                    }
+
+                    if !pagePhrases.isEmpty {
+                        studyPageArtifactChip(
+                            title: "Phrases",
+                            systemImage: "text.badge.plus",
+                            tint: .mint
+                        ) {
+                            showPagePhrases(collection)
+                        }
+                    }
+
+                    ForEach(practices, id: \.packID) { pack in
+                        studyPageArtifactChip(
+                            title: pagePracticeArtifactTitle(for: pack),
+                            systemImage: pagePracticeArtifactIcon(for: pack),
+                            tint: .teal
+                        ) {
+                            openStudyPracticePack(pack)
+                        }
+                    }
+
+                    ForEach(correctedPages) { corrected in
+                        studyPageArtifactChip(
+                            title: "Corrected Page",
+                            systemImage: "checkmark.rectangle",
+                            tint: .green
+                        ) {
+                            beginPromotingOCRCorrection(original: collection, corrected: corrected)
+                        }
                     }
                 }
-
-                studyPageArtifactChip(
-                    title: "Quiz",
-                    detail: "Create or run",
-                    systemImage: "checkmark.circle",
-                    tint: .orange
-                ) {
-                    beginStudyPageQuiz(collection)
-                }
-
-                if !pagePhrases.isEmpty {
-                    studyPageArtifactChip(
-                        title: "Phrases",
-                        detail: "\(pagePhrases.count) phrases",
-                        systemImage: "text.badge.plus",
-                        tint: .mint
-                    ) {
-                        showPagePhrases(collection)
-                    }
-                }
-
-                ForEach(practices, id: \.packID) { pack in
-                    studyPageArtifactChip(
-                        title: pagePracticeArtifactTitle(for: pack),
-                        detail: "\(pack.entries.count) sentences",
-                        systemImage: pagePracticeArtifactIcon(for: pack),
-                        tint: .teal
-                    ) {
-                        openStudyPracticePack(pack)
-                    }
-                }
-
-                ForEach(correctedPages) { corrected in
-                    studyPageArtifactChip(
-                        title: "Corrected Page",
-                        detail: "Promote \(corrected.name)",
-                        systemImage: "checkmark.rectangle",
-                        tint: .green
-                    ) {
-                        beginPromotingOCRCorrection(original: collection, corrected: corrected)
-                    }
-                }
-
-                if favoriteCount > 0 {
-                    studyPagePassiveChip(
-                        title: "\(favoriteCount) favorite sentence\(favoriteCount == 1 ? "" : "s")",
-                        systemImage: "star.bubble",
-                        tint: .yellow
-                    )
-                }
-
-                if progressCount > 0 {
-                    studyPagePassiveChip(
-                        title: "\(progressCount) progress record\(progressCount == 1 ? "" : "s")",
-                        systemImage: "chart.line.uptrend.xyaxis",
-                        tint: .purple
-                    )
-                }
+                .padding(.vertical, 1)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .padding(10)
@@ -330,7 +308,6 @@ extension FavouritesTab {
 
     func studyPageArtifactChip(
         title: String,
-        detail: String,
         systemImage: String,
         tint: Color,
         action: @escaping () -> Void
@@ -339,41 +316,17 @@ extension FavouritesTab {
             HStack(spacing: 6) {
                 Image(systemName: systemImage)
                     .font(.system(size: 12, weight: .semibold))
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(title)
-                        .font(ResponsiveFont.caption2.weight(.semibold))
-                    Text(detail)
-                        .font(ResponsiveFont.tinySystem(size: 10))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
+                Text(title)
+                    .font(ResponsiveFont.caption2.weight(.semibold))
+                    .lineLimit(1)
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 7)
             .background(tint.opacity(0.11))
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
         .foregroundStyle(tint)
-    }
-
-    func studyPagePassiveChip(title: String, systemImage: String, tint: Color) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: systemImage)
-                .font(.system(size: 12, weight: .semibold))
-            Text(title)
-                .font(ResponsiveFont.caption2.weight(.semibold))
-                .lineLimit(1)
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .foregroundStyle(tint)
-        .background(tint.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    static func studyPageDateText(_ date: Date) -> String {
-        date.formatted(.dateTime.month(.abbreviated).day())
     }
 
     func recentStudyButton(_ entry: StudyGridEntry) -> some View {

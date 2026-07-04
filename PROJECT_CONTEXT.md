@@ -130,9 +130,12 @@ Do not move domain behavior back into `RadixStore.swift`.
   rather than jumping directly to Browse. Each saved-page row surfaces linked
   page work in place: page phrase lists, Practice packs, translation, quiz
   entry point, corrected pages, favorite sentences, and Practice progress.
-  The `Phrases` chip counts all dictionary and added phrases found on the page
-  and opens the shared Phrase Library sheet used by the information-card Phrase
-  button. Page phrase lists are sorted by pinyin and dismiss after phrase
+  The `Phrases` chip opens all dictionary and added phrases found on the page
+  in the shared Phrase Library sheet used by the information-card Phrase
+  button. Saved-page rows keep page artifacts in a compact two-row shape and
+  avoid inline stats such as character counts, dates, phrase counts, sentence
+  counts, favorite counts, and progress counts. Page phrase lists are sorted by
+  pinyin and dismiss after phrase
   selection on sidebar layouts so the selected Phrase Info Card is unobstructed.
   Source-linked sentence-extraction packs are labeled `Sentences`; generated
   page conversation packs are labeled `Conversation`.
@@ -162,7 +165,7 @@ compatibility contracts. Current portable contracts include:
 - saved-page naming, recent-page selection, and page artifact ownership rules
 - Conversation Practice source-link metadata for page-derived practice packs
 
-The portable test suite currently contains 47 tests across eight suites.
+The portable test suite currently contains 48 tests across eight suites.
 
 ## Active Workstream
 
