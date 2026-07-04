@@ -152,6 +152,9 @@ Do not move domain behavior back into `RadixStore.swift`.
   feedback, and artifact buttons; the collapsed row itself is not a navigation
   shortcut. The row matching Browse's currently selected saved page is
   highlighted so returning from Browse makes the active page easy to identify.
+  Keep this list lazy and avoid full per-page phrase scans during row drawing;
+  row indicators may use recorded extraction links or existing caches, while
+  full pinyin-sorted phrase lookup happens when the user opens `Phrases`.
   The `Phrases` chip opens all dictionary and added phrases found on the page
   in the shared Phrase Library sheet used by the information-card Phrase
   button. Expanded saved-page rows avoid inline stats such as character counts,

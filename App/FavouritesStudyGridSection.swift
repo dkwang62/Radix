@@ -161,17 +161,28 @@ extension FavouritesTab {
     }
 
     var studySavedPagesList: some View {
-        VStack(spacing: 0) {
-            ForEach(Array(sortedStudySavedPages().enumerated()), id: \.element.id) { index, collection in
-                studySavedPageRow(collection, rowNumber: index + 1)
+        let pages = sortedStudySavedPages()
+        let pageIDsWithRecordedPhrases = pageIDsWithRecordedPhraseExtractions
+
+        return LazyVStack(spacing: 0) {
+            ForEach(Array(pages.enumerated()), id: \.element.id) { index, collection in
+                studySavedPageRow(
+                    collection,
+                    rowNumber: index + 1,
+                    hasRecordedPagePhrases: pageIDsWithRecordedPhrases.contains(collection.id)
+                )
             }
         }
     }
 
-    func studySavedPageRow(_ collection: CharacterCollection, rowNumber: Int) -> some View {
+    func studySavedPageRow(
+        _ collection: CharacterCollection,
+        rowNumber: Int,
+        hasRecordedPagePhrases: Bool
+    ) -> some View {
         let practices = pagePracticePacks(for: collection)
         let correctedPages = correctedStudyPages(for: collection)
-        let pagePhrases = pagePhrases(for: collection)
+        let hasPagePhrases = hasKnownPagePhrases(for: collection, hasRecordedPagePhrases: hasRecordedPagePhrases)
         let isExpanded = expandedStudySavedPageID == collection.id
         let isActiveBrowsePage = store.selectedBrowseCollectionID == collection.id
 
@@ -186,7 +197,7 @@ extension FavouritesTab {
                     rowNumber: rowNumber,
                     practices: practices,
                     correctedPages: correctedPages,
-                    pagePhrases: pagePhrases,
+                    hasPagePhrases: hasPagePhrases,
                     isExpanded: isExpanded,
                     isActiveBrowsePage: isActiveBrowsePage
                 )
@@ -263,7 +274,7 @@ extension FavouritesTab {
                                 beginStudyPageQuiz(collection)
                             }
 
-                            if !pagePhrases.isEmpty {
+                            if hasPagePhrases {
                                 studyPageArtifactChip(
                                     title: "Phrases",
                                     tint: .mint
@@ -320,7 +331,7 @@ extension FavouritesTab {
         rowNumber: Int,
         practices: [ConversationPracticePack],
         correctedPages: [CharacterCollection],
-        pagePhrases: [PhraseItem],
+        hasPagePhrases: Bool,
         isExpanded: Bool,
         isActiveBrowsePage: Bool
     ) -> some View {
@@ -328,7 +339,7 @@ extension FavouritesTab {
             collection: collection,
             practices: practices,
             correctedPages: correctedPages,
-            pagePhrases: pagePhrases
+            hasPagePhrases: hasPagePhrases
         )
         let visibleIndicators = Array(indicators.prefix(5))
         let hiddenCount = indicators.count - visibleIndicators.count
@@ -387,7 +398,7 @@ extension FavouritesTab {
         collection: CharacterCollection,
         practices: [ConversationPracticePack],
         correctedPages: [CharacterCollection],
-        pagePhrases: [PhraseItem]
+        hasPagePhrases: Bool
     ) -> [(systemImage: String, tint: Color, label: String)] {
         var indicators: [(systemImage: String, tint: Color, label: String)] = []
 
@@ -397,7 +408,7 @@ extension FavouritesTab {
 
         indicators.append(("checkmark.circle", .orange, "Quiz"))
 
-        if !pagePhrases.isEmpty {
+        if hasPagePhrases {
             indicators.append(("text.bubble", .mint, "Phrases"))
         }
 

@@ -280,6 +280,10 @@ viewing or saving translation, AI OCR review, phrase extraction, quiz generation
 sentence extraction, page conversation generation, and deleting the page with
 its impact summary. Show a compact `Phrases` artifact chip when Radix finds any
 base or added phrases on the page.
+The saved-page list must stay lazy and responsive: row drawing should not run
+full page-phrase scans for every saved page. Use recorded phrase-extraction
+links or already-warmed caches for row indicators, and do the full phrase lookup
+only when the user opens the page phrase sheet.
 It should use the same Phrase Library sheet and Phrase Info Card path as the
 information-card Phrase button, scoped to the saved page and sorted by pinyin.
 On sidebar layouts, selecting a page phrase should dismiss the phrase table so

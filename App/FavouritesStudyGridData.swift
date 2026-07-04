@@ -129,6 +129,10 @@ extension FavouritesTab {
         store.sortedCollections(order: studyPageSortOrder)
     }
 
+    var pageIDsWithRecordedPhraseExtractions: Set<UUID> {
+        Set(RadixStudyPreferences.pagePhraseExtractions.map(\.sourcePageID))
+    }
+
     func correctedStudyPages(for collection: CharacterCollection) -> [CharacterCollection] {
         store.allCollections
             .filter { $0.correctedFromCollectionID == collection.id }
@@ -165,6 +169,16 @@ extension FavouritesTab {
 
     func pagePhrases(for collection: CharacterCollection) -> [PhraseItem] {
         store.sortPhrasesByPinyin(store.browsePagePhraseCandidates(in: collection).map(\.phrase))
+    }
+
+    func hasKnownPagePhrases(for collection: CharacterCollection, hasRecordedPagePhrases: Bool) -> Bool {
+        if hasRecordedPagePhrases {
+            return true
+        }
+        if let cachedCandidates = store.browsePagePhraseCandidateCache[collection.id] {
+            return !cachedCandidates.isEmpty
+        }
+        return false
     }
 
     func showPagePhrases(_ collection: CharacterCollection) {
