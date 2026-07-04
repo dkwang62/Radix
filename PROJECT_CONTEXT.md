@@ -141,6 +141,9 @@ Do not move domain behavior back into `RadixStore.swift`.
   Checkpoints are lower-emphasis shortcut chips below it. Compact layouts keep
   the mode labels visible and show shortcuts in an adaptive grid so Checkpoints
   does not disappear offscreen; wider layouts use four shortcut columns.
+  These Study navigation and control rows stay pinned while the review content
+  scrolls so users can switch scope, use shortcuts, or sort saved pages from
+  deep in a long list.
   Fuller guidance belongs in the guided title Help menu rather than persistent
   text rows.
   Saved Pages in Study use a dense collapsed numbered list with no vertical gaps

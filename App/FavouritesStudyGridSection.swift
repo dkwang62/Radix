@@ -4,28 +4,32 @@ extension FavouritesTab {
     var recentStudySection: some View {
         VStack(alignment: .leading, spacing: 12) {
             recentStudyHeader
+            studyReviewContent
+        }
+    }
 
-            if studyGridScope == .savedPages {
-                studySavedPagesList
-            } else if studyReviewTiles.isEmpty {
-                Text(studyGridScope.emptyMessage)
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.vertical, 10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-                RadixTileFlowLayout(
-                    horizontalSpacing: RadixTileMetrics.compactSpacing,
-                    verticalSpacing: RadixTileMetrics.compactSpacing
-                ) {
-                    ForEach(studyReviewTiles) { tile in
-                        switch tile.kind {
-                        case .phrase(let row):
-                            studyPhraseTile(row)
-                        case .character(let entry):
-                            recentStudyButton(entry)
-                                .frame(width: recentStudyCharacterTileWidth)
-                        }
+    @ViewBuilder
+    var studyReviewContent: some View {
+        if studyGridScope == .savedPages {
+            studySavedPagesList
+        } else if studyReviewTiles.isEmpty {
+            Text(studyGridScope.emptyMessage)
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            RadixTileFlowLayout(
+                horizontalSpacing: RadixTileMetrics.compactSpacing,
+                verticalSpacing: RadixTileMetrics.compactSpacing
+            ) {
+                ForEach(studyReviewTiles) { tile in
+                    switch tile.kind {
+                    case .phrase(let row):
+                        studyPhraseTile(row)
+                    case .character(let entry):
+                        recentStudyButton(entry)
+                            .frame(width: recentStudyCharacterTileWidth)
                     }
                 }
             }

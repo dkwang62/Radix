@@ -21,16 +21,24 @@ private struct StudyActionShortcut: Identifiable {
 
 extension FavouritesTab {
     var favouritesScrollContent: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
-                if isShowingConversationPractice {
+        Group {
+            if isShowingConversationPractice {
+                ScrollView {
                     conversationPracticeStudyScreen
-                } else {
-                    studyMainContent
+                        .padding(.horizontal)
+                        .padding(.bottom, 20)
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 0) {
+                    studyPinnedControls
+
+                    ScrollView {
+                        studyReviewScrollContent
+                            .padding(.horizontal)
+                            .padding(.bottom, 20)
+                    }
                 }
             }
-            .padding(.horizontal)
-            .padding(.bottom, 20)
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if showsConversationPracticeFloatingControls,
@@ -47,6 +55,29 @@ extension FavouritesTab {
         if hasStudyGridItems {
             recentStudySection
         }
+    }
+
+    var studyPinnedControls: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            studyDashboardSummary
+            recentStudyHeader
+        }
+        .padding(.horizontal)
+        .padding(.top, 2)
+        .padding(.bottom, 8)
+        .background(.regularMaterial)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(RadixTheme.separator.opacity(0.72))
+                .frame(height: 0.5)
+        }
+    }
+
+    var studyReviewScrollContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            studyReviewContent
+        }
+        .padding(.top, 10)
     }
 
     @ViewBuilder
