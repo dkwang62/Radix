@@ -128,8 +128,11 @@ Do not move domain behavior back into `RadixStore.swift`.
   and `Will keep as learning memory`, even when either list is currently `none`.
 - In Study, the `Saved Pages` summary tile opens a Saved Pages review scope
   rather than jumping directly to Browse. Each saved-page row surfaces linked
-  page work in place: extracted phrase lists, Practice packs, translation, quiz
+  page work in place: page phrase lists, Practice packs, translation, quiz
   entry point, corrected pages, favorite sentences, and Practice progress.
+  The `Phrases` chip counts all dictionary and added phrases found on the page
+  and opens the shared Phrase Library sheet used by the information-card Phrase
+  button.
   Source-linked sentence-extraction packs are labeled `Sentences`; generated
   page conversation packs are labeled `Conversation`.
   Study owns learning

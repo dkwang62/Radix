@@ -183,7 +183,7 @@ extension FavouritesTab {
     func studySavedPageRow(_ collection: CharacterCollection) -> some View {
         let practices = pagePracticePacks(for: collection)
         let correctedPages = correctedStudyPages(for: collection)
-        let extractedPhrases = pageExtractedPhrases(for: collection)
+        let pagePhrases = pagePhrases(for: collection)
         let favoriteCount = favoriteSentenceCount(for: practices)
         let progressCount = practiceProgressCount(for: practices)
 
@@ -272,14 +272,14 @@ extension FavouritesTab {
                     beginStudyPageQuiz(collection)
                 }
 
-                if !extractedPhrases.isEmpty {
+                if !pagePhrases.isEmpty {
                     studyPageArtifactChip(
                         title: "Phrases",
-                        detail: "\(extractedPhrases.count) phrases",
+                        detail: "\(pagePhrases.count) phrases",
                         systemImage: "text.badge.plus",
                         tint: .mint
                     ) {
-                        showPageExtractedPhrases(collection)
+                        showPagePhrases(collection)
                     }
                 }
 

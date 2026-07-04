@@ -7,6 +7,8 @@ struct PhraseTableSheet: View {
     let requiredCharacters: [String]
     let isVertical: Bool
     let fixedPhrases: [PhraseItem]?
+    let fixedTitle: String
+    let fixedScopeLabel: String
     private let visiblePhraseRows = 6
     @State private var selectedPhrase: PhraseItem?
     @State private var showAddPhraseSheet = false
@@ -15,12 +17,16 @@ struct PhraseTableSheet: View {
         character: String,
         isVertical: Bool,
         requiredCharacters: [String]? = nil,
-        fixedPhrases: [PhraseItem]? = nil
+        fixedPhrases: [PhraseItem]? = nil,
+        fixedTitle: String = "Sentence Phrases",
+        fixedScopeLabel: String = "In this sentence"
     ) {
         self.character = character
         self.requiredCharacters = requiredCharacters ?? [character]
         self.isVertical = isVertical
         self.fixedPhrases = fixedPhrases
+        self.fixedTitle = fixedTitle
+        self.fixedScopeLabel = fixedScopeLabel
     }
 
     private var isPhone: Bool {
@@ -62,7 +68,7 @@ struct PhraseTableSheet: View {
             } else {
                 HStack(alignment: .center, spacing: 12) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Label(isFixedPhraseLookup ? "Sentence Phrases" : "Phrase Library", systemImage: "text.quote")
+                        Label(isFixedPhraseLookup ? fixedTitle : "Phrase Library", systemImage: "text.quote")
                             .font(ResponsiveFont.headline.weight(.semibold))
                         Text("\(displayedPhrases.count) \(displayedPhrases.count == 1 ? "match" : "matches")")
                             .font(ResponsiveFont.caption)
@@ -169,7 +175,7 @@ struct PhraseTableSheet: View {
     @ViewBuilder
     private var phraseScopeLabel: some View {
         if isFixedPhraseLookup {
-            Text("In this sentence")
+            Text(fixedScopeLabel)
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
         } else if isMultiCharacterLookup {

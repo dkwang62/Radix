@@ -257,13 +257,12 @@ equal-width buttons per row so labels such as Added Phrases and Saved Pages
 remain fully readable.
 Saved Pages in Study owns page learning artifacts and deletion. Each saved-page
 row should offer an `Actions` menu for viewing or saving translation, AI OCR
-review, phrase extraction, quiz generation, sentence extraction, page-practice
-generation, and deleting the page with its impact summary. When phrase
-extraction finds non-base phrases from a page, show a compact `Phrases` artifact
-chip in that saved-page row so the user can reopen the page-derived phrase list
-without hunting in global Added Phrases. Include matching user-added phrases
-that already existed before this extraction, not only phrases newly inserted by
-the latest import. Show sentence-extraction results as `Sentences` and generated
+review, phrase extraction, quiz generation, sentence extraction, page conversation
+generation, and deleting the page with its impact summary. Show a compact
+`Phrases` artifact chip when Radix finds any base or added phrases on the page.
+It should use the same Phrase Library sheet and Phrase Info Card path as the
+information-card Phrase button, scoped to the saved page. Show
+sentence-extraction results as `Sentences` and generated
 page conversation results as `Conversation`, while both can still open into the
 Practice flow. Opening the page in Browse should be an explicit inspection action
 with a clear return to Study; editing the page text and choosing visible page

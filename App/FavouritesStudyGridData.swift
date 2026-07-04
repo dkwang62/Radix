@@ -163,29 +163,19 @@ extension FavouritesTab {
         isPageSentencePractice(pack) ? "text.quote" : "bubble.left.and.bubble.right"
     }
 
-    func pagePhraseExtractionRecord(for collection: CharacterCollection) -> PagePhraseExtractionRecord? {
-        RadixStudyPreferences.pagePhraseExtractions.first { $0.sourcePageID == collection.id }
+    func pagePhrases(for collection: CharacterCollection) -> [PhraseItem] {
+        store.browsePagePhraseCandidates(in: collection).map(\.phrase)
     }
 
-    func pageExtractedPhrases(for collection: CharacterCollection) -> [PhraseItem] {
-        guard let record = pagePhraseExtractionRecord(for: collection) else { return [] }
-        return record.phraseWords.compactMap { word in
-            store.addedPhraseForReview(word: word) ?? store.databasePhrase(for: word) ?? store.mergedPhrase(for: word)
-        }
-    }
-
-    func showPageExtractedPhrases(_ collection: CharacterCollection) {
-        guard let record = pagePhraseExtractionRecord(for: collection) else { return }
-        let phrases = pageExtractedPhrases(for: collection)
+    func showPagePhrases(_ collection: CharacterCollection) {
+        let phrases = pagePhrases(for: collection)
         guard !phrases.isEmpty else {
-            setStudyPageActionMessage("No extracted phrases are still available for this page.", for: collection)
+            setStudyPageActionMessage("No page phrases are available for this page.", for: collection)
             return
         }
-        studyPagePhraseExtractionPresentation = StudyPagePhraseExtractionPresentation(
-            pageID: collection.id,
-            pageName: collection.name,
-            phrases: phrases,
-            extractedAt: record.extractedAt
+        studyPagePhrasesPresentation = StudyPagePhrasesPresentation(
+            collection: collection,
+            phrases: phrases
         )
     }
 
