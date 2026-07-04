@@ -67,6 +67,7 @@ struct FavouritesTab: View {
     @State var studyAutomaticAIError = ""
     @State var isRunningStudyPageAction = false
     @State var studyPagePhrasesPresentation: StudyPagePhrasesPresentation?
+    @State var expandedStudySavedPageID: UUID?
 
     private let conversationPracticeService = ConversationPracticeService()
 

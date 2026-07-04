@@ -196,6 +196,9 @@ extension FavouritesTab {
     func setStudyPageActionMessage(_ message: String?, for collection: CharacterCollection) {
         studyPageActionMessage = message
         studyPageActionMessageCollectionID = message == nil ? nil : collection.id
+        if message != nil {
+            expandedStudySavedPageID = collection.id
+        }
     }
 
     func showStudyTranslationReport(_ collection: CharacterCollection) {

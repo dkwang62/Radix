@@ -143,14 +143,17 @@ Do not move domain behavior back into `RadixStore.swift`.
   does not disappear offscreen; wider layouts use four shortcut columns.
   Fuller guidance belongs in the guided title Help menu rather than persistent
   text rows.
+  Saved Pages in Study use a dense collapsed list by default so large libraries
+  remain scannable. Tapping a page row expands that single page to reveal the
+  Actions menu, Browse shortcut, status feedback, and artifact buttons; the
+  collapsed row itself is not a navigation shortcut.
   The `Phrases` chip opens all dictionary and added phrases found on the page
   in the shared Phrase Library sheet used by the information-card Phrase
-  button. Saved-page rows keep page artifacts in a compact two-row shape and
-  avoid inline stats such as character counts, dates, phrase counts, sentence
-  counts, favorite counts, and progress counts. Artifact chips are text-only
-  when the visible word already names the action, and use compact type so the
-  page card remains scan-friendly on iPhone. Page phrase lists are sorted by
-  pinyin and dismiss after phrase
+  button. Expanded saved-page rows avoid inline stats such as character counts,
+  dates, phrase counts, sentence counts, favorite counts, and progress counts.
+  Artifact chips are text-only when the visible word already names the action,
+  and use compact type so the page card remains scan-friendly on iPhone. Page
+  phrase lists are sorted by pinyin and dismiss after phrase
   selection on sidebar layouts so the selected Phrase Info Card is unobstructed.
   Source-linked sentence-extraction packs are labeled `Sentences`; generated
   page conversation packs are labeled `Conversation`.

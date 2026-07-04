@@ -168,121 +168,221 @@ extension FavouritesTab {
         let practices = pagePracticePacks(for: collection)
         let correctedPages = correctedStudyPages(for: collection)
         let pagePhrases = pagePhrases(for: collection)
+        let isExpanded = expandedStudySavedPageID == collection.id
 
         return VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .center, spacing: 10) {
-                RadixThumbnailView(
-                    thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData),
-                    size: 36,
-                    cornerRadius: 8,
-                    placeholderSystemImage: collection.isFavorite ? "star.fill" : "photo",
-                    placeholderColor: collection.isFavorite ? Color.yellow : Color.secondary
+            Button {
+                withAnimation(.easeInOut(duration: 0.18)) {
+                    expandedStudySavedPageID = isExpanded ? nil : collection.id
+                }
+            } label: {
+                studySavedPageCollapsedRow(
+                    collection,
+                    practices: practices,
+                    correctedPages: correctedPages,
+                    pagePhrases: pagePhrases,
+                    isExpanded: isExpanded
                 )
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(collection.name)
-                        .font(ResponsiveFont.subheadline.weight(.semibold))
-                        .lineLimit(1)
-                }
-
-                Spacer(minLength: 8)
-
-                CollectionPageActionsMenu(
-                    collection: collection,
-                    hasGeminiAPIKey: !store.geminiAPIKey
-                        .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                    onViewTranslation: {
-                        showStudyTranslationReport(collection)
-                    },
-                    onDelete: {
-                        pendingStudyDeleteCollection = collection
-                    },
-                    aiTasks: studyPageAITasks(for: collection)
-                )
-                .disabled(isRunningStudyPageAction)
-
-                Button {
-                    openSavedPageInBrowse(collection)
-                } label: {
-                    Image(systemName: "arrow.up.right.square")
-                        .frame(width: 30, height: 30)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .accessibilityLabel("Open \(collection.name) in Browse")
-                .help("Browse Page and Return to Study")
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel("\(collectionDisplayName(collection)) saved page")
+            .accessibilityHint(isExpanded ? "Collapse page actions" : "Expand page actions")
 
-            if studyPageActionMessageCollectionID == collection.id, let studyPageActionMessage {
-                Label {
-                    Text(studyPageActionMessage)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                } icon: {
-                    if isRunningStudyPageAction {
-                        ProgressView()
-                            .controlSize(.small)
-                    } else {
-                        Image(systemName: "checkmark.circle")
+            if isExpanded {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .center, spacing: 8) {
+                        CollectionPageActionsMenu(
+                            collection: collection,
+                            hasGeminiAPIKey: !store.geminiAPIKey
+                                .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                            onViewTranslation: {
+                                showStudyTranslationReport(collection)
+                            },
+                            onDelete: {
+                                pendingStudyDeleteCollection = collection
+                            },
+                            aiTasks: studyPageAITasks(for: collection)
+                        )
+                        .disabled(isRunningStudyPageAction)
+
+                        Button {
+                            openSavedPageInBrowse(collection)
+                        } label: {
+                            Label("Browse", systemImage: "arrow.up.right.square")
+                                .font(ResponsiveFont.caption.weight(.semibold))
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                        .accessibilityLabel("Open \(collection.name) in Browse")
+                        .help("Browse Page and Return to Study")
+                    }
+
+                    if studyPageActionMessageCollectionID == collection.id, let studyPageActionMessage {
+                        Label {
+                            Text(studyPageActionMessage)
+                                .lineLimit(2)
+                                .fixedSize(horizontal: false, vertical: true)
+                        } icon: {
+                            if isRunningStudyPageAction {
+                                ProgressView()
+                                    .controlSize(.small)
+                            } else {
+                                Image(systemName: "checkmark.circle")
+                            }
+                        }
+                        .font(ResponsiveFont.caption2.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    }
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            if collection.translationReport?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
+                                studyPageArtifactChip(
+                                    title: "Translation",
+                                    tint: .blue
+                                ) {
+                                    showStudyTranslationReport(collection)
+                                }
+                            }
+
+                            studyPageArtifactChip(
+                                title: "Quiz",
+                                tint: .orange
+                            ) {
+                                beginStudyPageQuiz(collection)
+                            }
+
+                            if !pagePhrases.isEmpty {
+                                studyPageArtifactChip(
+                                    title: "Phrases",
+                                    tint: .mint
+                                ) {
+                                    showPagePhrases(collection)
+                                }
+                            }
+
+                            ForEach(practices, id: \.packID) { pack in
+                                studyPageArtifactChip(
+                                    title: pagePracticeArtifactTitle(for: pack),
+                                    tint: .teal
+                                ) {
+                                    openStudyPracticePack(pack)
+                                }
+                            }
+
+                            ForEach(correctedPages) { corrected in
+                                studyPageArtifactChip(
+                                    title: "Corrected Page",
+                                    tint: .green
+                                ) {
+                                    beginPromotingOCRCorrection(original: collection, corrected: corrected)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
-                .font(ResponsiveFont.caption2.weight(.semibold))
-                .foregroundStyle(.secondary)
-            }
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
-                    if collection.translationReport?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
-                        studyPageArtifactChip(
-                            title: "Translation",
-                            tint: .blue
-                        ) {
-                            showStudyTranslationReport(collection)
-                        }
-                    }
-
-                    studyPageArtifactChip(
-                        title: "Quiz",
-                        tint: .orange
-                    ) {
-                        beginStudyPageQuiz(collection)
-                    }
-
-                    if !pagePhrases.isEmpty {
-                        studyPageArtifactChip(
-                            title: "Phrases",
-                            tint: .mint
-                        ) {
-                            showPagePhrases(collection)
-                        }
-                    }
-
-                    ForEach(practices, id: \.packID) { pack in
-                        studyPageArtifactChip(
-                            title: pagePracticeArtifactTitle(for: pack),
-                            tint: .teal
-                        ) {
-                            openStudyPracticePack(pack)
-                        }
-                    }
-
-                    ForEach(correctedPages) { corrected in
-                        studyPageArtifactChip(
-                            title: "Corrected Page",
-                            tint: .green
-                        ) {
-                            beginPromotingOCRCorrection(original: collection, corrected: corrected)
-                        }
-                    }
-                }
-                .padding(.vertical, 1)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 2)
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .padding(10)
+        .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(RadixTheme.secondaryBackground.opacity(0.58))
         .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    func studySavedPageCollapsedRow(
+        _ collection: CharacterCollection,
+        practices: [ConversationPracticePack],
+        correctedPages: [CharacterCollection],
+        pagePhrases: [PhraseItem],
+        isExpanded: Bool
+    ) -> some View {
+        let indicators = studyPageArtifactIndicators(
+            collection: collection,
+            practices: practices,
+            correctedPages: correctedPages,
+            pagePhrases: pagePhrases
+        )
+        let visibleIndicators = Array(indicators.prefix(5))
+        let hiddenCount = indicators.count - visibleIndicators.count
+
+        return HStack(alignment: .center, spacing: 10) {
+            RadixThumbnailView(
+                thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData),
+                size: 34,
+                cornerRadius: 8,
+                placeholderSystemImage: collection.isFavorite ? "star.fill" : "photo",
+                placeholderColor: collection.isFavorite ? Color.yellow : Color.secondary
+            )
+
+            Text(collectionDisplayName(collection))
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .lineLimit(1)
+                .layoutPriority(1)
+
+            Spacer(minLength: 6)
+
+            HStack(spacing: 4) {
+                ForEach(Array(visibleIndicators.enumerated()), id: \.offset) { _, indicator in
+                    Image(systemName: indicator.systemImage)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(indicator.tint)
+                        .frame(width: 22, height: 22)
+                        .background(indicator.tint.opacity(0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .accessibilityLabel(indicator.label)
+                }
+
+                if hiddenCount > 0 {
+                    Text("+\(hiddenCount)")
+                        .font(ResponsiveFont.caption2.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .frame(minWidth: 22, minHeight: 22)
+                }
+            }
+
+            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(.secondary)
+                .frame(width: 22, height: 22)
+        }
+        .frame(minHeight: 44)
+    }
+
+    func studyPageArtifactIndicators(
+        collection: CharacterCollection,
+        practices: [ConversationPracticePack],
+        correctedPages: [CharacterCollection],
+        pagePhrases: [PhraseItem]
+    ) -> [(systemImage: String, tint: Color, label: String)] {
+        var indicators: [(systemImage: String, tint: Color, label: String)] = []
+
+        if collection.translationReport?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
+            indicators.append(("translate", .blue, "Translation"))
+        }
+
+        indicators.append(("checkmark.circle", .orange, "Quiz"))
+
+        if !pagePhrases.isEmpty {
+            indicators.append(("text.bubble", .mint, "Phrases"))
+        }
+
+        for pack in practices {
+            indicators.append((
+                pagePracticeArtifactIcon(for: pack),
+                .teal,
+                pagePracticeArtifactTitle(for: pack)
+            ))
+        }
+
+        for _ in correctedPages {
+            indicators.append(("doc.badge.gearshape", .green, "Corrected Page"))
+        }
+
+        return indicators
     }
 
     func studyPageArtifactChip(
