@@ -35,6 +35,7 @@ public struct ConversationPracticePack: Codable, Equatable {
     public let language: String
     public let sourceType: String
     public let createdFor: String
+    public let sourceLink: ConversationPracticeSourceLink?
     public let entries: [ConversationPracticeEntry]
 
     enum CodingKeys: String, CodingKey {
@@ -45,12 +46,36 @@ public struct ConversationPracticePack: Codable, Equatable {
         case language
         case sourceType = "source_type"
         case createdFor = "created_for"
+        case sourceLink = "source_link"
         case entries
     }
 
     enum ImportedCodingKeys: String, CodingKey {
         case theme
+        case sourceLink = "source_link"
         case entries
+    }
+
+    public init(
+        packID: String,
+        version: String,
+        title: String,
+        description: String,
+        language: String,
+        sourceType: String,
+        createdFor: String,
+        sourceLink: ConversationPracticeSourceLink?,
+        entries: [ConversationPracticeEntry]
+    ) {
+        self.packID = packID
+        self.version = version
+        self.title = title
+        self.description = description
+        self.language = language
+        self.sourceType = sourceType
+        self.createdFor = createdFor
+        self.sourceLink = sourceLink
+        self.entries = entries
     }
 
     public init(from decoder: Decoder) throws {
@@ -64,6 +89,7 @@ public struct ConversationPracticePack: Codable, Equatable {
             language = try container.decode(String.self, forKey: .language)
             sourceType = try container.decodeIfPresent(String.self, forKey: .sourceType) ?? Self.defaultSourceType
             createdFor = try container.decodeIfPresent(String.self, forKey: .createdFor) ?? Self.defaultCreatedFor
+            sourceLink = try container.decodeIfPresent(ConversationPracticeSourceLink.self, forKey: .sourceLink)
             let drafts = try container.decode([ConversationPracticeEntryDraft].self, forKey: .entries)
             let defaultCategory = ConversationPracticeRules.stableIdentifier(for: title)
             entries = drafts.enumerated().map { index, draft in
@@ -83,6 +109,7 @@ public struct ConversationPracticePack: Codable, Equatable {
             language = "zh-Hans"
             sourceType = "user_imported_practice"
             createdFor = Self.defaultCreatedFor
+            sourceLink = try importedContainer.decodeIfPresent(ConversationPracticeSourceLink.self, forKey: .sourceLink)
             let defaultCategory = ConversationPracticeRules.stableIdentifier(for: theme)
             let drafts = try importedContainer.decode([ConversationPracticeEntryDraft].self, forKey: .entries)
             entries = drafts.enumerated().map { index, draft in
@@ -119,6 +146,60 @@ public struct ConversationPracticePack: Codable, Equatable {
             phraseSeeds: items.map(ConversationPracticePhraseSeed.init),
             memberships: items.map(ConversationPracticeMembership.init)
         )
+    }
+
+    public func withSourceLink(_ sourceLink: ConversationPracticeSourceLink?) -> ConversationPracticePack {
+        ConversationPracticePack(
+            packID: packID,
+            version: version,
+            title: title,
+            description: description,
+            language: language,
+            sourceType: sourceType,
+            createdFor: createdFor,
+            sourceLink: sourceLink,
+            entries: entries
+        )
+    }
+}
+
+public enum ConversationPracticeSourceKind: String, Codable, CaseIterable, Equatable, Hashable, Sendable {
+    case savedPage = "saved_page"
+}
+
+public struct ConversationPracticeSourceLink: Codable, Equatable, Hashable, Sendable {
+    public let kind: ConversationPracticeSourceKind
+    public let sourceID: String?
+    public let sourceTitle: String
+    public let sourceCreatedAt: Date?
+    public let contentFingerprint: String?
+
+    enum CodingKeys: String, CodingKey {
+        case kind
+        case sourceID = "source_id"
+        case sourceTitle = "source_title"
+        case sourceCreatedAt = "source_created_at"
+        case contentFingerprint = "content_fingerprint"
+    }
+
+    public static func savedPage(
+        id: UUID,
+        title: String,
+        createdAt: Date?,
+        contentFingerprint: String? = nil
+    ) -> ConversationPracticeSourceLink {
+        ConversationPracticeSourceLink(
+            kind: .savedPage,
+            sourceID: id.uuidString,
+            sourceTitle: title,
+            sourceCreatedAt: createdAt,
+            contentFingerprint: contentFingerprint
+        )
+    }
+
+    public var sourcePageID: UUID? {
+        guard kind == .savedPage, let sourceID else { return nil }
+        return UUID(uuidString: sourceID)
     }
 }
 

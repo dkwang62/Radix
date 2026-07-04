@@ -253,6 +253,50 @@ struct ConversationPracticeTests {
         #expect(pack.practiceItems.first?.tags == ["hobbies_interests_personal_time"])
     }
 
+    @Test("Conversation practice packs preserve saved-page source links")
+    func practicePackPreservesSavedPageSourceLink() throws {
+        let sourceID = UUID(uuidString: "00000000-0000-0000-0000-000000000202")!
+        let data = Data("""
+        {
+          "theme": "China US News",
+          "source_link": {
+            "kind": "saved_page",
+            "source_id": "\(sourceID.uuidString)",
+            "source_title": "China US News",
+            "source_created_at": "2026-07-04T00:00:00Z"
+          },
+          "entries": [
+            {
+              "id": "news_001",
+              "zh": "这条新闻很重要。",
+              "pinyin": "Zhè tiáo xīnwén hěn zhòngyào.",
+              "en": "This news item is important."
+            }
+          ]
+        }
+        """.utf8)
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+
+        let pack = try decoder.decode(ConversationPracticePack.self, from: data)
+        let relinked = pack.withSourceLink(.savedPage(
+            id: sourceID,
+            title: "China US News",
+            createdAt: Date(timeIntervalSince1970: 1_783_209_600)
+        ))
+        let roundTrip = try decoder.decode(ConversationPracticePack.self, from: try encoder.encode(relinked))
+
+        #expect(pack.sourceLink?.kind == .savedPage)
+        #expect(pack.sourceLink?.sourcePageID == sourceID)
+        #expect(pack.sourceLink?.sourceTitle == "China US News")
+        #expect(roundTrip.sourceLink?.sourcePageID == sourceID)
+        #expect(roundTrip.sourceLink?.sourceTitle == "China US News")
+        #expect(roundTrip.practiceItems.first?.phraseKey == "这条新闻很重要")
+    }
+
     @Test("Pasted conversation practice JSON can be extracted from AI fences")
     func pastedPracticeJSONCandidatesHandleAIFences() throws {
         let pasted = """

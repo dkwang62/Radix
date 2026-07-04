@@ -168,11 +168,18 @@ extension RadixStore {
     }
 
     @discardableResult
-    func importConversationPracticePack(fromAIResponse responseText: String, sourceName: String) throws -> ConversationPracticePack {
-        let pack = try ConversationPracticeService().loadPack(
+    func importConversationPracticePack(
+        fromAIResponse responseText: String,
+        sourceName: String,
+        sourceCollection: CharacterCollection? = nil
+    ) throws -> ConversationPracticePack {
+        var pack = try ConversationPracticeService().loadPack(
             fromPastedText: responseText,
             sourceName: sourceName
         )
+        if let sourceCollection {
+            pack = pack.withSourceLink(conversationPracticeSourceLink(for: sourceCollection))
+        }
         saveImportedConversationPracticePack(pack)
         selectedConversationPracticeTopicID = pack.packID
         persistPromptSettings()
@@ -189,8 +196,15 @@ extension RadixStore {
         case AIResultTaskID.checkOCR:
             guard let collection else { throw AIResultApplicationError.missingCollection }
             return .correctedOCR(try createCorrectedOCRCollection(fromAIResponse: responseText, original: collection))
-        case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice:
+        case AIResultTaskID.generatePracticePack:
             return .conversationPractice(try importConversationPracticePack(fromAIResponse: responseText, sourceName: sourceName))
+        case AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice:
+            guard let collection else { throw AIResultApplicationError.missingCollection }
+            return .conversationPractice(try importConversationPracticePack(
+                fromAIResponse: responseText,
+                sourceName: sourceName,
+                sourceCollection: collection
+            ))
         default:
             throw AIResultApplicationError.unsupportedTask
         }
@@ -220,7 +234,11 @@ extension RadixStore {
             You create validated JSON import packs for a Chinese learning app. Return valid JSON only, with no Markdown and no explanatory text.
             """
         )
-        return try importConversationPracticePack(fromAIResponse: response, sourceName: collection.name)
+        return try importConversationPracticePack(
+            fromAIResponse: response,
+            sourceName: collection.name,
+            sourceCollection: collection
+        )
     }
 
     func runGeminiPagePracticeGeneration(for collection: CharacterCollection) async throws -> ConversationPracticePack {
@@ -233,7 +251,11 @@ extension RadixStore {
             You create validated JSON import packs for a Chinese learning app. Return valid JSON only, with no Markdown and no explanatory text.
             """
         )
-        return try importConversationPracticePack(fromAIResponse: response, sourceName: collection.name)
+        return try importConversationPracticePack(
+            fromAIResponse: response,
+            sourceName: collection.name,
+            sourceCollection: collection
+        )
     }
 
     func runGeminiOCRReview(for collection: CharacterCollection) async throws -> String {

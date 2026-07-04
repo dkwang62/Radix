@@ -14,6 +14,15 @@ struct ConversationPracticeHintCacheKey: Hashable {
 }
 
 extension RadixStore {
+    func matchingConversationPracticeTopicID(forPageID pageID: UUID, title fallbackTitle: String) -> String? {
+        if let linkedPackID = RadixStudyPreferences.importedConversationPracticePacks
+            .first(where: { $0.sourceLink?.sourcePageID == pageID })?
+            .packID {
+            return linkedPackID
+        }
+        return matchingConversationPracticeTopicID(forPageTitle: fallbackTitle)
+    }
+
     func matchingConversationPracticeTopicID(forPageTitle title: String) -> String? {
         let target = conversationPracticeTitleKey(title)
         guard !target.isEmpty else { return nil }
@@ -41,6 +50,14 @@ extension RadixStore {
             .union(CharacterSet(charactersIn: "。！？；，、"))
         return value.trimmingCharacters(in: trimCharacters)
             .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+    }
+
+    func conversationPracticeSourceLink(for collection: CharacterCollection) -> ConversationPracticeSourceLink {
+        ConversationPracticeSourceLink.savedPage(
+            id: collection.id,
+            title: collection.name,
+            createdAt: collection.createdAt
+        )
     }
 
     func invalidateConversationPracticeHintCache() {

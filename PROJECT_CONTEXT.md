@@ -113,6 +113,10 @@ Do not move domain behavior back into `RadixStore.swift`.
   reusable practice progress are linked learning material that should not be
   silently deleted with a page. Future page deletion must summarize owned
   artifacts and distinguish link removal from global item deletion.
+- Imported Conversation Practice packs may carry an optional saved-page source
+  link with page ID, title, created date, and optional fingerprint. Page AI
+  imports attach this link automatically; old title matching remains only as a
+  fallback for legacy packs.
 
 Never change an existing preference key, enum raw value, backup field, or review
 status without an explicit migration and compatibility test.
@@ -127,8 +131,9 @@ compatibility contracts. Current portable contracts include:
 - navigation, tab, script-filter, and restore-mode identifiers
 - preference keys and the preference-storage interface
 - saved-page naming, recent-page selection, and page artifact ownership rules
+- Conversation Practice source-link metadata for page-derived practice packs
 
-The portable test suite currently contains 46 tests across eight suites.
+The portable test suite currently contains 47 tests across eight suites.
 
 ## Active Workstream
 
