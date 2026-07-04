@@ -191,37 +191,6 @@ extension AILinkView {
         return taskName
     }
 
-    var promptContextLine: String? {
-        var parts: [String] = []
-
-        if hasCharacterTasks {
-            if let activeCharacter {
-                parts.append("Subject: \(activeCharacter)")
-            } else {
-                parts.append("Choose subject")
-            }
-        }
-
-        if hasCollectionTasks {
-            if let selectedCollection {
-                let name = selectedCollection.name.trimmingCharacters(in: .whitespacesAndNewlines)
-                parts.append("Page: \(name.isEmpty ? "Saved Page" : name)")
-            } else {
-                parts.append("Choose page")
-            }
-        }
-
-        if hasPracticeTopicTasks {
-            parts.append("Topic: \(store.selectedConversationPracticeTopic.title)")
-        }
-
-        if selectedTaskSupportsConversationEntryCount {
-            parts.append("\(store.aiConversationEntryCount) entries")
-        }
-
-        return parts.isEmpty ? nil : parts.joined(separator: " • ")
-    }
-
     func openPromptInDefaultAI() {
         openPromptInAI(selectedAIPreset ?? store.defaultAIPreset)
     }

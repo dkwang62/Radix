@@ -362,12 +362,18 @@ prompt for custom tasks and shows a compact next-row confirmation that editing
 can continue. The task menu includes `New AI Task...`. AI Link does not show a
 full generated prompt preview or a separate
 ready-to-send summary; the selected task appears on the primary open button
-(`Open Gemini: Task 2`) instead. The source selector and open controls appear
-immediately after the AI task menu, before the editable prompt, so the user can
-confirm the page/subject and send without scrolling through the template first.
+(`Open Gemini: Task 2`) instead. Do not reintroduce a separate prompt-context
+line because the task row and source selector already own subject/page/topic
+context. The active task selector and source selector rows share compact
+menu-card styling. The source selector and open controls appear immediately
+after the AI task menu, before the editable prompt, so the user can confirm the
+page/subject and send without scrolling through the template first.
 Opening the selected AI copies the prompt first, then opens the AI provider;
 copy-only remains available from the provider menu. Launch/copy status notices
 sit on their own row below the open controls rather than sharing the button row.
+The live prompt editor edits the selected task inline; the older bulk template
+editor file is currently disconnected pending a separate product decision about
+whether global prompt closings should be restored or removed.
 Character and phrase tasks default to the most recent memory-strip subject, and
 the subject row itself is a dropdown of recent memory-strip items rather than a
 Search shortcut. Page tasks default to the last viewed saved page while still

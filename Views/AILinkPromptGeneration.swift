@@ -39,11 +39,11 @@ extension AILinkView {
             } label: {
                 HStack(spacing: 12) {
                     Image(systemName: "sparkles")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(Color.accentColor)
-                        .frame(width: 30, height: 30)
+                        .frame(width: 34, height: 34)
                         .background(Color.accentColor.opacity(0.12))
-                        .clipShape(RoundedRectangle(cornerRadius: 7))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
 
                     Text(selectedPromptTask?.title ?? "Choose AI Task")
                         .font(ResponsiveFont.body.bold())
@@ -63,7 +63,7 @@ extension AILinkView {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.accentColor.opacity(0.45), lineWidth: 1)
+                        .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
                 )
             }
             .buttonStyle(.plain)

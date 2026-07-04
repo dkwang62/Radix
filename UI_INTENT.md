@@ -393,8 +393,10 @@ prompt after copy/open. The source
 selector should be obvious and come before action status; for saved-page tasks,
 the page row itself is the dropdown and uses the same page icon grammar as
 Browse. Do not repeat the selected page, subject, or task in a separate
-ready-to-send label. Opening the current AI should copy the prompt first and
-then open the provider, with the button naming the selected task, such as
+ready-to-send label. The task selector and source selector should read as the
+same family of compact menu-card controls. Opening the current AI should copy
+the prompt first and then open the provider, with the button naming the selected
+task, such as
 `Open Gemini: Task 2`; alternate providers and copy-only are menu choices, not
 competing primary buttons. Put launch/copy notices on the row below those
 buttons so they never squeeze the open controls. Character and phrase tasks
