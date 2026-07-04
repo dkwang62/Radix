@@ -275,7 +275,7 @@ extension FavouritesTab {
                 if !extractedPhrases.isEmpty {
                     studyPageArtifactChip(
                         title: "Phrases",
-                        detail: "\(extractedPhrases.count) added",
+                        detail: "\(extractedPhrases.count) phrases",
                         systemImage: "text.badge.plus",
                         tint: .mint
                     ) {

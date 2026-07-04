@@ -111,10 +111,11 @@ Do not move domain behavior back into `RadixStore.swift`.
   extracted sentence packs, page-created conversation practice, and page-local
   notes are page-owned artifacts. Added phrases, favorites, global notes, and
   reusable practice progress are linked learning material that should not be
-  silently deleted with a page. Page phrase extraction records link newly added
-  phrase words back to the saved page that produced them, travel in backup, and
-  are removed only as page links when the page is deleted; the phrases stay in
-  the global phrase database.
+  silently deleted with a page. Page phrase extraction records link extracted
+  non-base phrase words back to the saved page that produced them, including
+  user-added phrases that already existed before the current extraction. These
+  links travel in backup and are removed only as page links when the page is
+  deleted; the phrases stay in the global phrase database.
 - Imported Conversation Practice packs may carry an optional saved-page source
   link with page ID, title, created date, and optional fingerprint. Page AI
   imports attach this link automatically; old title matching remains only as a
@@ -311,9 +312,10 @@ uses the existing contextual return path so the focused Practice screen shows
 Manual paste results and automatic Gemini results share store-level application
 helpers for phrase imports, OCR correction, translation reports, and Conversation
 Practice imports; UI layers should only choose presentation, source selection,
-and follow-up navigation. When phrase extraction adds new phrases from a saved
-page, Radix records the added phrase words against that page so the Study saved
-page row can show a `Phrases` artifact chip and list those phrases later.
+and follow-up navigation. When phrase extraction runs from a saved page, Radix
+records all extracted non-base phrase words against that page, not just newly
+inserted phrases, so the Study saved page row can show a `Phrases` artifact chip
+and list the page-derived user phrase set later.
 The AI Link tab presents one task at a time through an `AI Task` dropdown. The
 old `Instructions`/`Customize` split is collapsed into a single editable
 `AI Prompt` template for the selected task. Built-in tasks edit the prompt

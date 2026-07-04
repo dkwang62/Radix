@@ -148,7 +148,7 @@ extension FavouritesTab {
     func pageExtractedPhrases(for collection: CharacterCollection) -> [PhraseItem] {
         guard let record = pagePhraseExtractionRecord(for: collection) else { return [] }
         return record.phraseWords.compactMap { word in
-            store.databasePhrase(for: word) ?? store.addedPhraseForReview(word: word) ?? store.mergedPhrase(for: word)
+            store.addedPhraseForReview(word: word) ?? store.databasePhrase(for: word) ?? store.mergedPhrase(for: word)
         }
     }
 

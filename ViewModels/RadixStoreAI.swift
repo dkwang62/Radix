@@ -114,6 +114,9 @@ extension RadixStore {
         let prepared = PhraseDiscoveryCandidateTools.preparingForImport(candidates)
         var added = 0
         var addedWords: [String] = []
+        let preExistingNonBaseWords = prepared.candidates
+            .map(\.phrase)
+            .filter { !isPhraseInBase($0) && isPhraseInAdd($0) }
         var skippedExisting = 0
         var errors: [String] = []
 
@@ -137,11 +140,12 @@ extension RadixStore {
         }
 
         refreshPhraseOverlayViews()
-        if let sourceCollection, !addedWords.isEmpty {
+        let linkedPhraseWords = PagePhraseExtractionRecord.deduplicated(preExistingNonBaseWords + addedWords)
+        if let sourceCollection, !linkedPhraseWords.isEmpty {
             RadixStudyPreferences.recordPagePhraseExtraction(
                 pageID: sourceCollection.id,
                 title: sourceCollection.name,
-                words: addedWords
+                words: linkedPhraseWords
             )
         }
         return PhraseDiscoveryImportSummary(
