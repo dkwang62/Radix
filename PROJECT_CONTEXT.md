@@ -126,9 +126,10 @@ Do not move domain behavior back into `RadixStore.swift`.
 - In Study, the `Saved Pages` summary tile opens a Saved Pages review scope
   rather than jumping directly to Browse. Each saved-page row surfaces linked
   page work in place: Practice packs, translation, quiz entry point, corrected
-  pages, favorite sentences, and Practice progress. Page/translation/quiz chips
-  route to the saved page in Browse; Practice chips open the linked Study
-  Conversation Practice set directly.
+  pages, favorite sentences, and Practice progress. Translation and quiz chips
+  present their artifact sheets directly from Study, Practice chips open the
+  linked Study Conversation Practice set directly, and the explicit page-open
+  icon remains the route to inspect the saved page in Browse.
 
 Never change an existing preference key, enum raw value, backup field, or review
 status without an explicit migration and compatibility test.

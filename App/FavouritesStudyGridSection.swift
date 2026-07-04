@@ -226,7 +226,7 @@ extension FavouritesTab {
                         systemImage: "doc.text",
                         tint: .blue
                     ) {
-                        openSavedPageInBrowse(collection)
+                        showStudyTranslationReport(collection)
                     }
                 }
 
@@ -236,7 +236,7 @@ extension FavouritesTab {
                     systemImage: "checkmark.circle",
                     tint: .orange
                 ) {
-                    openSavedPageInBrowse(collection)
+                    beginStudyPageQuiz(collection)
                 }
 
                 ForEach(practices, id: \.packID) { pack in

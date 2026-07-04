@@ -39,6 +39,12 @@ struct FavouritesTab: View {
     @State var conversationPracticeReviewPresentation: ConversationPracticeReviewPresentation?
     @State var conversationPracticeQuizPresentation: ConversationPracticeQuizPresentation?
     @State var conversationPracticeTranslationQuizPresentation: ConversationPracticeTranslationQuizPresentation?
+    @State var studyTranslationReportCollection: CharacterCollection?
+    @State var studyTranslationReportDraft = ""
+    @State var studyPageQuizCollection: CharacterCollection?
+    @State var studyPageQuizQuestions: [PageQuizQuestion] = []
+    @State var studyPageQuizMessage: String?
+    @State var isGeneratingStudyPageQuiz = false
 
     private let conversationPracticeService = ConversationPracticeService()
 
@@ -128,6 +134,35 @@ struct FavouritesTab: View {
             )
             .environmentObject(store)
             .environmentObject(entitlement)
+        }
+        .sheet(item: $studyTranslationReportCollection) { collection in
+            BrowseTranslationReportSheet(
+                collectionName: collection.name,
+                report: $studyTranslationReportDraft,
+                updatedAt: collection.translationReportUpdatedAt,
+                onPaste: pasteStudyTranslationReport,
+                onSave: { saveStudyTranslationReport(collection) },
+                onClear: { clearStudyTranslationReport(collection) },
+                onDone: { studyTranslationReportCollection = nil }
+            )
+        }
+        .sheet(item: $studyPageQuizCollection) { collection in
+            BrowsePageQuizSheet(
+                collectionName: collection.name,
+                questions: studyPageQuizQuestions,
+                message: studyPageQuizMessage,
+                isGenerating: isGeneratingStudyPageQuiz,
+                canSetUpGeminiKey: store.geminiAPIKey
+                    .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                onUseLocalFallback: { useLocalStudyPageQuizFallback(collection) },
+                onSetUpGeminiKey: {
+                    studyPageQuizCollection = nil
+                    DispatchQueue.main.async {
+                        store.goToSettingsForAPIKeySetup()
+                    }
+                },
+                onDone: { studyPageQuizCollection = nil }
+            )
         }
         .sheet(isPresented: $showConversationPracticePasteImporter) {
             ConversationPracticePasteImportSheet { pack in

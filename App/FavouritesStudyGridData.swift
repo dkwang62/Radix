@@ -156,6 +156,42 @@ extension FavouritesTab {
         store.selectBrowseCollection(id: collection.id)
     }
 
+    func showStudyTranslationReport(_ collection: CharacterCollection) {
+        studyTranslationReportDraft = collection.translationReport ?? ""
+        studyTranslationReportCollection = collection
+    }
+
+    func pasteStudyTranslationReport() {
+        studyTranslationReportDraft = RadixPlatform.pasteboardString
+    }
+
+    func saveStudyTranslationReport(_ collection: CharacterCollection) {
+        let updated = store.saveTranslationReport(fromAIResponse: studyTranslationReportDraft, for: collection)
+        studyTranslationReportCollection = updated
+        studyTranslationReportDraft = updated.translationReport ?? ""
+    }
+
+    func clearStudyTranslationReport(_ collection: CharacterCollection) {
+        studyTranslationReportDraft = ""
+        store.updateCollectionTranslationReport(id: collection.id, report: nil)
+        if let updated = store.collection(id: collection.id) {
+            studyTranslationReportCollection = updated
+        }
+    }
+
+    func beginStudyPageQuiz(_ collection: CharacterCollection) {
+        studyPageQuizQuestions = store.pageQuizQuestions(for: collection)
+        studyPageQuizMessage = "Using a local Radix quiz from this saved page."
+        isGeneratingStudyPageQuiz = false
+        studyPageQuizCollection = collection
+    }
+
+    func useLocalStudyPageQuizFallback(_ collection: CharacterCollection) {
+        studyPageQuizQuestions = store.pageQuizQuestions(for: collection)
+        studyPageQuizMessage = "Using a local Radix quiz because AI generation is unavailable."
+        isGeneratingStudyPageQuiz = false
+    }
+
     func openStudyPracticePack(_ pack: ConversationPracticePack) {
         withAnimation(.snappy(duration: 0.18)) {
             isShowingConversationPractice = true
