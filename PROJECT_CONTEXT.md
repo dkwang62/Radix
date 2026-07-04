@@ -257,6 +257,8 @@ automatic multimodal review using the same prompt and saved image. Its response
 creates and opens a corrected saved page immediately.
 Study saved-page AI actions are grouped by task—Check OCR, Extract Phrases,
 Translate Page, Create Quiz, Extract Page Sentences, and Create Conversation.
+Current UI copy uses `Create Conversation`; older labels such as `Create
+Practice from Page` are compatibility aliases only.
 Each task consistently offers copy/paste with ChatGPT or an automatic Gemini
 route where automation is implemented. A missing-key automatic choice becomes
 `Set Up Gemini API Key…`, navigates to Settings with Private API Keys expanded,

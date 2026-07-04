@@ -545,8 +545,8 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   using the same evidence and saved image.
 - API-key setup belongs with all automatic AI actions, not under one task.
   Organize page AI actions by the user's task: `Check OCR`, `Extract Phrases`,
-  `Translate Page`, `Create Quiz`, `Extract Page Sentences`, and `Create Theme
-  Practice`. Each task offers the same two methods: copy/paste with ChatGPT or
+  `Translate Page`, `Create Quiz`, `Extract Page Sentences`, and `Create
+  Conversation`. Each task offers the same two methods: copy/paste with ChatGPT or
   automatic processing with Gemini. When no key is saved, the automatic choice
   becomes `Set Up Gemini API Key…`; it opens Settings with Private API Keys
   expanded and a contextual `Back to Browse` action.
