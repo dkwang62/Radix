@@ -1,5 +1,16 @@
 import SwiftUI
 
+private struct StudySummaryControl: Identifiable {
+    let title: String
+    let systemImage: String
+    let tint: Color
+    var isSelected = false
+    var isDisabled = false
+    let action: () -> Void
+
+    var id: String { title }
+}
+
 extension FavouritesTab {
     var favouritesScrollContent: some View {
         ScrollView {
@@ -71,9 +82,9 @@ extension FavouritesTab {
         store.rootsReturnContext == nil ? "Back to Study" : store.rootsReturnButtonTitle
     }
 
-    var studyDashboardSummary: some View {
-        HStack(spacing: 6) {
-            studySummaryIconButton(
+    private var studySummaryControls: [StudySummaryControl] {
+        var controls = [
+            StudySummaryControl(
                 title: "Recent",
                 systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.recent),
                 tint: .blue,
@@ -83,8 +94,8 @@ extension FavouritesTab {
                         studyGridScope = .all
                     }
                 }
-            )
-            studySummaryIconButton(
+            ),
+            StudySummaryControl(
                 title: "Favorites",
                 systemImage: RadixIcon.saved,
                 tint: .yellow,
@@ -94,16 +105,16 @@ extension FavouritesTab {
                         studyGridScope = .favorites
                     }
                 }
-            )
-            studySummaryIconButton(
+            ),
+            StudySummaryControl(
                 title: "Added Phrases",
                 systemImage: "text.quote",
                 tint: .green,
                 action: {
                     presentAddedPhraseReview()
                 }
-            )
-            studySummaryIconButton(
+            ),
+            StudySummaryControl(
                 title: RadixCopy.savedPages,
                 systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage),
                 tint: .purple,
@@ -113,8 +124,8 @@ extension FavouritesTab {
                         studyGridScope = .savedPages
                     }
                 }
-            )
-            studySummaryIconButton(
+            ),
+            StudySummaryControl(
                 title: "Favorite Sentences",
                 systemImage: "star.bubble",
                 tint: .orange,
@@ -126,8 +137,8 @@ extension FavouritesTab {
                     }
                     selectConversationPracticeTopic(.favoriteSentences(count: favoriteSentenceRecords.count))
                 }
-            )
-            studySummaryIconButton(
+            ),
+            StudySummaryControl(
                 title: "Conversation Practices",
                 systemImage: "bubble.left.and.bubble.right",
                 tint: .teal,
@@ -138,8 +149,11 @@ extension FavouritesTab {
                     }
                 }
             )
-            if isPhone {
-                studySummaryIconButton(
+        ]
+
+        if isPhone {
+            controls.append(
+                StudySummaryControl(
                     title: "Checkpoints",
                     systemImage: "clock.arrow.circlepath",
                     tint: .gray,
@@ -148,10 +162,37 @@ extension FavouritesTab {
                         showStudyCheckpoints = true
                     }
                 )
-            }
+            )
         }
-        .padding(.top, 2)
-        .frame(maxWidth: .infinity, alignment: .leading)
+
+        return controls
+    }
+
+    @ViewBuilder
+    var studyDashboardSummary: some View {
+        if isNarrowStudyLayout {
+            HStack(spacing: 6) {
+                ForEach(studySummaryControls) { control in
+                    studySummaryIconButton(control)
+                }
+            }
+            .padding(.top, 2)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            LazyVGrid(columns: studySummaryColumns, spacing: 8) {
+                ForEach(studySummaryControls) { control in
+                    studySummaryLabeledButton(control)
+                }
+            }
+            .padding(.top, 2)
+        }
+    }
+
+    private var studySummaryColumns: [GridItem] {
+        [
+            GridItem(.flexible(), spacing: 8),
+            GridItem(.flexible(), spacing: 8)
+        ]
     }
 
     var studyCheckpointsSection: some View {
@@ -328,6 +369,19 @@ extension FavouritesTab {
         162
     }
 
+    private func studySummaryIconButton(
+        _ control: StudySummaryControl
+    ) -> some View {
+        studySummaryIconButton(
+            title: control.title,
+            systemImage: control.systemImage,
+            tint: control.tint,
+            isSelected: control.isSelected,
+            isDisabled: control.isDisabled,
+            action: control.action
+        )
+    }
+
     func studySummaryIconButton(
         title: String,
         systemImage: String,
@@ -352,6 +406,35 @@ extension FavouritesTab {
         .opacity(isDisabled ? 0.45 : 1)
         .accessibilityLabel(title)
         .help(title)
+    }
+
+    private func studySummaryLabeledButton(_ control: StudySummaryControl) -> some View {
+        Button(action: control.action) {
+            Label {
+                Text(control.title)
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            } icon: {
+                Image(systemName: control.systemImage)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(control.tint)
+            }
+            .labelStyle(.titleAndIcon)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, minHeight: 38, alignment: .leading)
+            .background(control.tint.opacity(control.isSelected ? 0.16 : 0.08))
+            .overlay(
+                RoundedRectangle(cornerRadius: 9)
+                    .stroke(control.tint.opacity(control.isSelected ? 0.38 : 0.16), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 9))
+        }
+        .buttonStyle(.plain)
+        .opacity(control.isDisabled ? 0.45 : 1)
+        .accessibilityLabel(control.title)
+        .help(control.title)
     }
 
     func sectionTitle(_ title: String) -> some View {

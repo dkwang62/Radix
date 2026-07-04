@@ -243,18 +243,18 @@ Study should not become a hodgepodge. Group it by intent:
 
 The Study tab should not create a separate main app tab for Practice unless the
 whole navigation model is reconsidered. The main Study screen holds the user's
-kept material and summary tiles. Add `Conversation Practices` as a normal
-summary tile beside Recent, Favorites, Added Phrases, and Saved Pages; it should
-show the available theme count and open a focused Practice screen with a clear
-`Back to Study` return button. Do not show a persistent `Review | Practice`
-switch row on the Study main screen.
+kept material and summary controls. Add `Conversation Practices` beside Recent,
+Favorites, Added Phrases, and Saved Pages; it should open a focused Practice
+screen with a clear `Back to Study` return button. Compact layouts may use
+icon-only controls with hover/accessibility names; wider layouts should keep
+readable labels. Do not show a persistent `Review | Practice` switch row on the
+Study main screen.
 
-Inside Review, the four Study summary buttons are the section selectors. Do not
+Inside Review, the Study summary controls are the section selectors. Do not
 repeat Recent/Favorites as a segmented picker above the review grid; the grid
 heading should reflect the summary button most recently selected.
-On iPad and Mac Catalyst, arrange the four Study summary buttons as two
-equal-width buttons per row so labels such as Added Phrases and Saved Pages
-remain fully readable.
+On wider layouts, arrange Study summary controls in equal-width labeled buttons
+so labels such as Added Phrases and Saved Pages remain fully readable.
 Saved Pages in Study owns page learning artifacts and deletion. Each saved-page
 row should offer an `Actions` menu for viewing or saving translation, AI OCR
 review, phrase extraction, quiz generation, sentence extraction, page conversation
