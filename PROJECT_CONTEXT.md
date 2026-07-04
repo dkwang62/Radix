@@ -634,7 +634,9 @@ English explanation. The quiz sheet must be scrollable and padded below the
 toolbar so page titles, instructions, options, and feedback are never obscured.
 If the automatic route is entered without a key, Radix explains the issue and
 offers both `Set Up Gemini API Key` and a local dictionary-backed fallback quiz.
-The setup action uses the shared Browse-to-Settings API-key path, reveals Private
+Browse and Study use the same explicit no-key quiz state instead of attempting
+an automatic request first. The setup action uses the shared Browse-to-Settings
+API-key path, reveals Private
 API Keys, and preserves `Back to Browse` instead of leaving the user to find
 Settings manually.
 Navigation guidance and the welcome screen use one canonical division of work:

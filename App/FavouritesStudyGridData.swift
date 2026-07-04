@@ -398,6 +398,14 @@ extension FavouritesTab {
         studyPageQuizMessage = "Creating quiz with AI..."
         isGeneratingStudyPageQuiz = true
         studyPageQuizCollection = collection
+
+        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else {
+            isGeneratingStudyPageQuiz = false
+            studyPageQuizMessage = "Add a Gemini API key in Settings to generate an AI quiz. You can still use a local Radix quiz."
+            return
+        }
+
         Task {
             do {
                 let questions = try await store.runGeminiPageQuizQuestions(for: collection)
