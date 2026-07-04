@@ -261,7 +261,7 @@ review, phrase extraction, quiz generation, sentence extraction, page conversati
 generation, and deleting the page with its impact summary. Show a compact
 `Phrases` artifact chip when Radix finds any base or added phrases on the page.
 It should use the same Phrase Library sheet and Phrase Info Card path as the
-information-card Phrase button, scoped to the saved page. Show
+information-card Phrase button, scoped to the saved page and sorted by pinyin. Show
 sentence-extraction results as `Sentences` and generated
 page conversation results as `Conversation`, while both can still open into the
 Practice flow. Opening the page in Browse should be an explicit inspection action

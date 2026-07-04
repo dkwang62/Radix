@@ -164,7 +164,7 @@ extension FavouritesTab {
     }
 
     func pagePhrases(for collection: CharacterCollection) -> [PhraseItem] {
-        store.browsePagePhraseCandidates(in: collection).map(\.phrase)
+        store.sortPhrasesByPinyin(store.browsePagePhraseCandidates(in: collection).map(\.phrase))
     }
 
     func showPagePhrases(_ collection: CharacterCollection) {
