@@ -273,12 +273,13 @@ Saved Pages in Study owns page learning artifacts and deletion. Each saved-page
 row should be collapsed by default when browsing the list, with only the page
 number, title, thumbnail, small artifact indicators, and expand affordance
 visible. Keep collapsed rows flush with zero vertical gap so large page
-libraries scan like a compact table. Tapping the row expands that page in place;
-the expanded state offers the `Actions` menu for viewing or saving translation,
-AI OCR review, phrase extraction, quiz generation, sentence extraction, page
-conversation generation, and deleting the page with its impact summary. Show a
-compact `Phrases` artifact chip when Radix finds any base or added phrases on
-the page.
+libraries scan like a compact table. Highlight the row for Browse's currently
+selected saved page so returning from Browse preserves orientation. Tapping the
+row expands that page in place; the expanded state offers the `Actions` menu for
+viewing or saving translation, AI OCR review, phrase extraction, quiz generation,
+sentence extraction, page conversation generation, and deleting the page with
+its impact summary. Show a compact `Phrases` artifact chip when Radix finds any
+base or added phrases on the page.
 It should use the same Phrase Library sheet and Phrase Info Card path as the
 information-card Phrase button, scoped to the saved page and sorted by pinyin.
 On sidebar layouts, selecting a page phrase should dismiss the phrase table so

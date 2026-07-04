@@ -173,6 +173,7 @@ extension FavouritesTab {
         let correctedPages = correctedStudyPages(for: collection)
         let pagePhrases = pagePhrases(for: collection)
         let isExpanded = expandedStudySavedPageID == collection.id
+        let isActiveBrowsePage = store.selectedBrowseCollectionID == collection.id
 
         return VStack(alignment: .leading, spacing: 8) {
             Button {
@@ -186,12 +187,17 @@ extension FavouritesTab {
                     practices: practices,
                     correctedPages: correctedPages,
                     pagePhrases: pagePhrases,
-                    isExpanded: isExpanded
+                    isExpanded: isExpanded,
+                    isActiveBrowsePage: isActiveBrowsePage
                 )
             }
             .buttonStyle(.plain)
             .accessibilityLabel("\(collectionDisplayName(collection)) saved page")
-            .accessibilityHint(isExpanded ? "Collapse page actions" : "Expand page actions")
+            .accessibilityHint(
+                isActiveBrowsePage
+                    ? "Currently open in Browse. \(isExpanded ? "Collapse page actions" : "Expand page actions")"
+                    : (isExpanded ? "Collapse page actions" : "Expand page actions")
+            )
 
             if isExpanded {
                 VStack(alignment: .leading, spacing: 8) {
@@ -294,7 +300,14 @@ extension FavouritesTab {
         }
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RadixTheme.secondaryBackground.opacity(0.58))
+        .background(isActiveBrowsePage ? Color.accentColor.opacity(0.11) : RadixTheme.secondaryBackground.opacity(0.58))
+        .overlay(alignment: .leading) {
+            if isActiveBrowsePage {
+                Rectangle()
+                    .fill(Color.accentColor)
+                    .frame(width: 3)
+            }
+        }
         .overlay(alignment: .bottom) {
             Rectangle()
                 .fill(RadixTheme.separator.opacity(0.7))
@@ -308,7 +321,8 @@ extension FavouritesTab {
         practices: [ConversationPracticePack],
         correctedPages: [CharacterCollection],
         pagePhrases: [PhraseItem],
-        isExpanded: Bool
+        isExpanded: Bool,
+        isActiveBrowsePage: Bool
     ) -> some View {
         let indicators = studyPageArtifactIndicators(
             collection: collection,
@@ -322,7 +336,7 @@ extension FavouritesTab {
         return HStack(alignment: .center, spacing: 10) {
             Text("\(rowNumber)")
                 .font(ResponsiveFont.caption2.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(isActiveBrowsePage ? Color.accentColor : Color.secondary)
                 .monospacedDigit()
                 .frame(width: 28, alignment: .trailing)
 
@@ -336,6 +350,7 @@ extension FavouritesTab {
 
             Text(collectionDisplayName(collection))
                 .font(ResponsiveFont.subheadline.weight(.semibold))
+                .foregroundStyle(isActiveBrowsePage ? Color.accentColor : Color.primary)
                 .lineLimit(1)
                 .layoutPriority(1)
 

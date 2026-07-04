@@ -150,7 +150,8 @@ Do not move domain behavior back into `RadixStore.swift`.
   between rows so large libraries remain scannable. Tapping a page row expands
   that single page to reveal the Actions menu, Browse shortcut, status
   feedback, and artifact buttons; the collapsed row itself is not a navigation
-  shortcut.
+  shortcut. The row matching Browse's currently selected saved page is
+  highlighted so returning from Browse makes the active page easy to identify.
   The `Phrases` chip opens all dictionary and added phrases found on the page
   in the shared Phrase Library sheet used by the information-card Phrase
   button. Expanded saved-page rows avoid inline stats such as character counts,
