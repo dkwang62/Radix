@@ -27,30 +27,24 @@ extension SmartSearchTab {
     }
 
     var searchResultsHeader: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top, spacing: 10) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(store.lastSearchQuery.isEmpty ? "Search Results" : "\"\(store.lastSearchQuery)\"")
-                        .font(ResponsiveFont.title3.bold())
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
+        HStack(alignment: .top, spacing: 10) {
+            Text(resultSummaryText)
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+                .fixedSize(horizontal: false, vertical: true)
 
-                    Text(resultSummaryText)
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
+            Spacer(minLength: 8)
+
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    CompactScriptFilterControl(selection: store.scriptFilter) { store.setScriptFilter($0) }
+                    editSearchButton
                 }
-
-                Spacer(minLength: 8)
-
-                ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 8) {
-                        CompactScriptFilterControl(selection: store.scriptFilter) { store.setScriptFilter($0) }
-                        editSearchButton
-                    }
-                    VStack(alignment: .trailing, spacing: 8) {
-                        CompactScriptFilterControl(selection: store.scriptFilter) { store.setScriptFilter($0) }
-                        editSearchButton
-                    }
+                VStack(alignment: .trailing, spacing: 8) {
+                    CompactScriptFilterControl(selection: store.scriptFilter) { store.setScriptFilter($0) }
+                    editSearchButton
                 }
             }
         }

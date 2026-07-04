@@ -203,6 +203,11 @@ App-wide inline alerts, notices, and status messages should appear on the next
 row below their related controls, not beside them. This keeps action rows from
 being squeezed and makes the message read as feedback rather than another
 control.
+Search treats the editable search field as the single owner of the current
+query. Result headers summarize counts and local result controls without
+restating the query as a second title. The search field keeps decorative search
+iconography at the leading edge and groups actions such as clear and Recent
+Searches at the trailing edge.
 History is the user-facing name for the app's working memory strip: it helps
 users recall recently inspected characters and phrases while searching, browsing
 saved pages, or following item details. Do not treat it as global navigation.

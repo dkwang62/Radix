@@ -14,8 +14,6 @@ extension SmartSearchTab {
                     Image(systemName: "magnifyingglass")
                         .foregroundStyle(.secondary)
 
-                    searchHistoryMenu
-
                     TextField("水, shui, water, =water, or 含水", text: $localQuery)
                         .font(ResponsiveFont.body)
                         .textInputAutocapitalization(.never)
@@ -36,6 +34,8 @@ extension SmartSearchTab {
                                 .foregroundStyle(.secondary)
                         }
                     }
+
+                    recentSearchesMenu
                 }
                 .padding(12)
                 .background(RadixTheme.secondaryBackground)
@@ -91,7 +91,7 @@ extension SmartSearchTab {
     }
 
     @ViewBuilder
-    var searchHistoryMenu: some View {
+    var recentSearchesMenu: some View {
         if !store.searchHistory.isEmpty {
             Menu {
                 ForEach(Array(store.searchHistory.enumerated().reversed()), id: \.offset) { _, query in
@@ -116,7 +116,8 @@ extension SmartSearchTab {
                     .frame(width: 28, height: 28)
                     .contentShape(Rectangle())
             }
-            .accessibilityLabel("Search History")
+            .accessibilityLabel("Recent Searches")
+            .help("Recent Searches")
         }
     }
 }

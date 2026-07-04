@@ -119,6 +119,10 @@ Search and Camera are global actions, not ordinary tab destinations.
 - Search is a core utility for characters, phrases, pinyin, meanings, saved
   pages, recent items, and added material. It should be reachable from almost
   anywhere and should not be buried inside Study.
+- In Search, the editable search field owns the current query. Results should
+  show count and filtering controls without repeating the query as a second
+  headline. Keep field actions such as clear and Recent Searches grouped at
+  the trailing edge, while the leading magnifying glass remains decorative.
 - Camera is the fastest capture action. It should be globally visible on
   primary screens and route into the existing OCR/page creation flow.
 - AI should remain first-class. It is a major product feature, not just a small
