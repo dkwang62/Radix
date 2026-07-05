@@ -50,6 +50,10 @@ definitions. Browse filter reset/recompute and collection-selection side effects
 live with their adapters. Continue this pattern only where it materially clarifies
 the remaining state: the central store should own state, while each state file
 exposes its related compatibility adapters.
+The forwarding properties in `RadixStore.swift` are compatibility shims for
+existing views and extensions. Prefer using the focused state/adapters directly
+for new work, and retire passthrough properties incrementally when touching the
+owning surface so the facade does not keep growing.
 
 ### Domain behavior
 
@@ -64,6 +68,19 @@ Large behavior groups have been extracted from the central store into
 - AI provider and prompt behavior
 
 Do not move domain behavior back into `RadixStore.swift`.
+
+### File-size pressure points
+
+Keep future refactors opportunistic and behavior-preserving:
+
+- Split `Models/ConversationPracticeModels.swift` by sub-domain when editing
+  nearby code: core pack/sentence records, quiz rules, progress snapshots, and
+  capture/import payloads should not keep accumulating in one model file.
+- Treat large SwiftUI/model/service files such as `FavouritesSections.swift`,
+  `FavouritesTab.swift`, `PromptModels.swift`, `RadixStoreDataEdit.swift`, and
+  `ComponentRepository.swift` as candidates for the same focused extraction
+  pattern already used elsewhere. Avoid adding unrelated responsibilities to
+  those files while making feature changes.
 
 ### Reuse-first rule
 

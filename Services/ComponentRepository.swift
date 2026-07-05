@@ -99,15 +99,6 @@ final class ComponentRepository {
         rebuildCurrentMap()
     }
 
-    func setRawEntryWithoutRebuild(character: String, entry: RawComponentEntry) {
-        overlayDeletions.remove(character)
-        if baseRawMap[character] == entry {
-            overlayUpserts.removeValue(forKey: character)
-        } else {
-            overlayUpserts[character] = entry
-        }
-    }
-
     func deleteEntry(character: String) {
         if baseRawMap[character] != nil {
             overlayDeletions.insert(character)
