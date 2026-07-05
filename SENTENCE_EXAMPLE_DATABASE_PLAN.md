@@ -29,7 +29,9 @@ views over sentence examples rather than separate sentence databases.
 - Backfill legacy Favorite Sentences into sentence-example favorite flags and
   build the Favorite Sentences practice topic from canonical sentence examples.
   Done. Restore applies sentence examples before legacy favorite records so
-  compatibility favorites overlay onto the canonical store.
+  compatibility favorites overlay onto the canonical store. Favorite/unfavorite
+  and delete actions keep the legacy compatibility list in sync with canonical
+  sentence flags.
 - Convert imported/page-generated practice packs to store ordered sentence
   references. Done.
 

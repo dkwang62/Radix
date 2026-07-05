@@ -254,6 +254,14 @@ struct ConversationPracticeTests {
         #expect(record.sources.first?.practiceItemID == "starter-001")
     }
 
+    @Test("Favorite sentence compatibility identifiers use normalized Chinese")
+    func favoriteSentenceCompatibilityIdentifiersUseNormalizedChinese() {
+        #expect(
+            FavoriteSentenceRecord.identifier(forChinese: "学习中文很有意思。") ==
+            FavoriteSentenceRecord.identifier(forChinese: "学习中文很有意思")
+        )
+    }
+
     @Test("Canonical favorite examples build the Favorite Sentences library")
     func canonicalFavoriteExamplesBuildFavoriteLibrary() throws {
         let record = SentenceExampleRecord(

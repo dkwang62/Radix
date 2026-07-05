@@ -209,7 +209,7 @@ compatibility contracts. Current portable contracts include:
 - Conversation Practice source-link and sentence-reference metadata for
   page-derived practice packs
 
-The portable test suite currently contains 64 tests across eight suites.
+The portable test suite currently contains 65 tests across eight suites.
 
 ## Active Workstream
 
@@ -273,7 +273,9 @@ sentence examples while keeping old favorite records only as compatibility data
 until a fuller migration removes the duplicate store. Backup restore applies
 canonical sentence examples before legacy favorite-sentence records so favorites
 overlay into the sentence database instead of being overwritten by restore
-ordering. AI outputs may include a
+ordering. Favorite toggles and sentence deletion update both the canonical
+sentence flag and the legacy compatibility list so old favorite records cannot
+resurrect deleted or unfavorited sentences. AI outputs may include a
 `[Radix Capture JSON]` block containing `sentences` or `sentence_examples`;
 Radix can parse those blocks into canonical sentence examples with optional
 source metadata. Approved OCR corrections also capture sentence fragments from

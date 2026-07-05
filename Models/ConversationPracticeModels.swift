@@ -1500,7 +1500,11 @@ public struct FavoriteSentenceRecord: Codable, Equatable, Identifiable, Sendable
     }
 
     public static func identifier(for item: ConversationPracticeItem) -> String {
-        "sentence:\(ConversationPracticeRules.phraseKey(for: item.simplified))"
+        identifier(forChinese: item.simplified)
+    }
+
+    public static func identifier(forChinese chinese: String) -> String {
+        "sentence:\(ConversationPracticeRules.phraseKey(for: chinese))"
     }
 
     public static func deduplicated(_ records: [FavoriteSentenceRecord]) -> [FavoriteSentenceRecord] {

@@ -259,16 +259,11 @@ extension RadixStore {
     }
 
     func toggleFavoriteSentence(_ item: ConversationPracticeItem) {
-        let id = FavoriteSentenceRecord.identifier(for: item)
-        var records = RadixStudyPreferences.favoriteSentences
-        if records.contains(where: { $0.id == id }) {
-            records.removeAll { $0.id == id }
+        if isFavoriteSentence(item) {
             RadixStudyPreferences.setSentenceExampleFavorite(item, isFavorited: false)
         } else {
-            records.append(FavoriteSentenceRecord(item: item))
             RadixStudyPreferences.setSentenceExampleFavorite(item, isFavorited: true)
         }
-        RadixStudyPreferences.favoriteSentences = records
         favoriteSentenceRevision += 1
     }
 }

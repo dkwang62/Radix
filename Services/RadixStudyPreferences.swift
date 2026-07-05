@@ -190,12 +190,18 @@ enum RadixStudyPreferences {
             records.append(incoming)
         }
         sentenceExamples = records
+        setCompatibilityFavoriteRecord(FavoriteSentenceRecord(item: item), isFavorited: isFavorited)
     }
 
     static func setSentenceExampleFavorite(id: UUID, isFavorited: Bool) {
+        var updatedRecord: SentenceExampleRecord?
         updateSentenceExample(id: id) { record in
             record.isFavorited = isFavorited
             record.qualityScore = max(0, record.qualityScore + (isFavorited ? 2 : -2))
+            updatedRecord = record
+        }
+        if let updatedRecord {
+            setCompatibilityFavoriteRecord(FavoriteSentenceRecord(sentenceExample: updatedRecord), isFavorited: isFavorited)
         }
     }
 
@@ -206,7 +212,11 @@ enum RadixStudyPreferences {
     }
 
     static func deleteSentenceExample(id: UUID) {
+        let deleted = sentenceExamples.first { $0.id == id }
         sentenceExamples = sentenceExamples.filter { $0.id != id }
+        if let deleted {
+            removeCompatibilityFavoriteRecord(matchingChinese: deleted.chinese)
+        }
     }
 
     private static func updateSentenceExample(id: UUID, mutate: (inout SentenceExampleRecord) -> Void) {
@@ -230,6 +240,22 @@ enum RadixStudyPreferences {
             return incoming
         }
         recordSentenceExamples(missingRecords)
+    }
+
+    static func setCompatibilityFavoriteRecord(_ record: FavoriteSentenceRecord, isFavorited: Bool) {
+        if isFavorited {
+            favoriteSentences = favoriteSentences + [record]
+        } else {
+            removeCompatibilityFavoriteRecord(matchingChinese: record.simplified)
+        }
+    }
+
+    static func removeCompatibilityFavoriteRecord(matchingChinese chinese: String) {
+        let id = FavoriteSentenceRecord.identifier(forChinese: chinese)
+        favoriteSentences = favoriteSentences.filter { record in
+            record.id != id &&
+                SentenceExampleRecord.normalizedChineseKey(record.simplified) != SentenceExampleRecord.normalizedChineseKey(chinese)
+        }
     }
 
     static func favoriteSentenceExamples() -> [SentenceExampleRecord] {
