@@ -36,7 +36,7 @@ extension DataEditTab {
 
             premiumExportOption(
                 title: "Xcode Project ZIP",
-                subtitle: "Swift source, resources, databases, and a manifest that an AI coding agent can examine when helping you author or adapt an app.",
+                subtitle: "Swift source, resources, databases, and a project manifest.",
                 toolsTip: AdvancedExportToolsTip(
                     title: "Code foundation",
                     message: "Use this on a Mac with Xcode or in an AI coding workspace. It provides the complete Radix project foundation rather than a normal backup."
@@ -56,7 +56,7 @@ extension DataEditTab {
 
             premiumExportOption(
                 title: "Full Dataset (JSON)",
-                subtitle: "One structured JSON file an AI agent, script, or new app can read when building features around your Radix data.",
+                subtitle: "One structured JSON file with your portable Radix data.",
                 toolsTip: AdvancedExportToolsTip(
                     title: "AI-friendly data",
                     message: "This is the easiest foundation to give an AI coding agent. It is readable by text editors, code tools, scripts, and any app that understands JSON."
@@ -75,7 +75,7 @@ extension DataEditTab {
 
             premiumExportOption(
                 title: "Character Database",
-                subtitle: "A reusable SQLite character dictionary for an AI agent or your own code to query and build upon.",
+                subtitle: "Reusable SQLite character dictionary.",
                 toolsTip: AdvancedExportToolsTip(
                     title: "Reusable SQLite foundation",
                     message: "Ask an AI coding agent to inspect the schema or connect it to your code. You can also use DB Browser for SQLite, TablePlus, or sqlite3."
@@ -94,7 +94,7 @@ extension DataEditTab {
 
             premiumExportOption(
                 title: "Phrase Database",
-                subtitle: "A reusable SQLite phrase collection for an AI agent or your own code to search, transform, and extend.",
+                subtitle: "Reusable SQLite phrase collection.",
                 toolsTip: AdvancedExportToolsTip(
                     title: "Reusable SQLite foundation",
                     message: "Ask an AI coding agent to inspect the schema or connect it to your code. You can also use DB Browser for SQLite, TablePlus, or sqlite3."

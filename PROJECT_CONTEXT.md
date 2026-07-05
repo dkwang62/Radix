@@ -83,6 +83,9 @@ their spacing, radius, borders, and accessibility affordance do not drift.
 My Data backup preview navigation/stat rows share one row renderer so labels,
 trailing counts, chevrons, phone subtitle behavior, and icon treatment stay
 aligned.
+My Data Advanced Exports keeps the AI-coding-agent purpose in the section intro
+and tooltip details; option subtitles should stay short and identify the
+exported file rather than repeating that purpose on every row.
 
 ### Data and persistence
 
