@@ -387,9 +387,9 @@ Keep curated lessons visually and behaviorally separate from Added Phrases
 cleanup. Added Phrases is for user/imported phrase classification; Conversation
 Practice is guided learning content. It should support simple offline practice
 first, such as Flashcards and Quick Quiz, with AI remaining optional future
-enhancement rather than a requirement. Use `CONVERSATION_PRACTICE_PLAN.md` as
-the project plan for content intake, validation, Phrase DB integration, and
-build phases.
+enhancement rather than a requirement. Content intake, validation, Phrase DB
+integration, and practice progress rules live in `PROJECT_CONTEXT.md` as current
+architecture rather than in separate completed plan files.
 
 AI-generated Conversation Practice content should use the lightweight importable
 Practice JSON shape with `theme` plus `entries[].id`, `zh`, `pinyin`, and `en`.

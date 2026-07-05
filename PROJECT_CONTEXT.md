@@ -248,28 +248,34 @@ compatibility contracts. Current portable contracts include:
 - saved-page naming, recent-page selection, and page artifact ownership rules
 - Conversation Practice source-link and sentence-reference metadata for
   page-derived practice packs
+- search query parsing, pinyin/chinese text classification, phrase result
+  sorting, phrase-length rules, added-phrase review rules, Study review rules,
+  Browse page phrase matching, and component search indexing
 
 The portable test suite currently contains 67 tests across eight suites.
+If a function can be tested without SwiftUI, UIKit, AppKit, file pickers,
+camera, speech, or StoreKit, prefer `Models` or `Services` over view or
+view-state ownership. Android migration should start from these portable
+contracts, then repository/query services, then state orchestration, with UI
+ported last.
 
-## Active Workstream
+## Current Product Direction
 
-The central-store maintainability refactor is complete. Current product work is
-restoring unobtrusive navigation guidance: optional labels plus first-use,
-dismissible destination explanations that experienced users can hide or replay.
-App Store and marketing copy should position Radix as a Chinese learning
-workspace where the Chinese learners encounter in daily life becomes personal
-study material. The accepted product loop is `Scan -> Review -> Practise ->
-Keep`: scan a page from the world, review its characters/phrases/context,
-practise from that material, and keep everything connected for later. Lead with
-these learner outcomes rather than raw feature names such as OCR or saved-page
-storage.
-Near-term polish should be incremental rather than broad navigation reshuffling:
+Radix is a Chinese learning workspace where material encountered in daily life
+becomes personal study material. The accepted product loop is
+`Scan -> Review -> Practise -> Keep`: scan a page from the world, review its
+characters/phrases/context, practise from that material, and keep everything
+connected for later. Lead with learner outcomes rather than raw feature names
+such as OCR or saved-page storage.
+
+Near-term work should be incremental rather than broad navigation reshuffling:
 make Saved Pages in Study feel like the center of the app; keep generated
 artifacts visibly tied to their source page; improve empty states with one clear
 next action; continue impact summaries for destructive actions; add lightweight
-resume signals such as last viewed or last practiced where useful; keep AI
-manual/API workflows using the same method vocabulary; and check iPhone
-one-handed ergonomics. Study Help now names the page-first mental model as
+resume signals only where useful; keep AI manual/API workflows using the same
+method vocabulary; and check iPhone one-handed ergonomics.
+
+Study Help names the page-first mental model as
 `Pages -> Artifacts -> Practice -> Memory -> Checkpoints`. Empty Saved Pages in
 Study offers one `Create Saved Page` action that opens Browse Sources while
 preserving a return path to Study.
@@ -635,61 +641,32 @@ normal backup files and local checkpoints save and restore them across devices.
 The first useful practice modes should be simple offline drills such as
 Flashcards and Quick Quiz, with answer feedback linking back into Phrase and
 Character cards rather than dead-ending in a quiz-only screen. The detailed
-implementation plan and current Practice roadmap are
-`CONVERSATION_PRACTICE_PLAN.md`; use it before building content import, data
-models, progress tracking, or Study UI for this feature.
-Step 1 of that plan is now in place: `conversation100.json` is the starter
-content, and `ConversationPracticePack` plus `ConversationPracticeRules` define
-the portable JSON contract, mapping, ordering, duplicate checks, and validation
-gate for uploaded or AI-generated lesson packs.
-Step 2 has the first Phrase-backed mapping layer: validated packs now produce a
-`ConversationPracticeLibrary` with display items, Phrase DB seed rows, and
-stable practice-set memberships. Sentence punctuation is preserved for display
-but trimmed from the phrase key so `你好。` resolves to the Radix phrase `你好`.
-`ConversationPracticeService` loads and validates the bundled starter pack for
-the future Study UI.
-Step 3 has a first Study entry point: `Conversation Practice` appears in Study
-when the starter pack loads, showing the `General Greetings` set count and a
-small set of sample sentences. Those samples resolve through the existing Phrase
-card presentation path, preserving the Radix dictionary connection.
-Imported practice topics can be removed from the same Study section with a
-dedicated delete control; bundled starter topics remain fixed.
-The selected Practice topic name should appear once in the topic picker rather
-than being repeated again in the card header beneath it.
-Step 4 has the first `Flashcards` flow: the starter set opens a card sheet
-that shows Chinese first, reveals pinyin/English, records Again/Good/Easy
-responses to portable Practice progress, and links the full sentence, detected
-phrase hints, and character hints back into existing Phrase and Character card
-presentation.
-Step 5 has the first `Quick Quiz` flow: the starter set opens an offline
-single-character recognition sheet that blanks one character inside the source
-sentence. Each run samples up to 20 practice items in random order, shuffles the
-displayed options for each round, and includes a Simplified/Traditional control;
-the blanked sentence, answer options, feedback character, phrase card word, and
-character links follow the shared Study Practice script choice. Quick Quiz
-prioritizes characters with strong visually confusable peers and uses
-deterministic portable answer-choice rules that prefer similar-looking full
-characters rather than radicals. `ComponentRepository` maintains a cached,
-script-filtered confusability index built from meaningful decomposition overlap;
-generic stroke/radical-only overlap is treated as low signal. Feedback shows
-pinyin/meaning, score for the session, and links back to the existing Phrase and
-Character card presentation. Quiz results record correct/incorrect attempts to
-portable Practice progress. Quick Quiz caches the selected round plus
-per-character peer/candidate lookups so SwiftUI redraws do not rebuild choices.
-If the strict confusability index cannot supply enough distractors, Quick Quiz
-falls back through broader shared-component, related-character, and
-script-matched dictionary choices rather than showing a one-choice round.
-Step 6 folds sentence browsing into the Study Practice card. The card directly
-shows the curated order for all sentences as a compact, fast-scanning list
-without a separate expansion button. A list toggle switches between Chinese
-rows with pinyin and English rows; tapping a row opens the normal Study
-information card for richer Phrase and Character inspection. The tapped sentence
-stays visibly selected and remains clickable in the Practice list, so the main
-list acts as the way back to the sentence card after sidebar phrase or character
-exploration. Only Conversation Practice sentence cards repurpose the sidebar
-`Phrase` button to show the verified phrases in that sentence; all other Phrase
-and Character information-card contexts keep their normal broad phrase lookup
-behavior.
+implementation state is current in the bullets below; do not recreate separate
+plan/status files for completed phases.
+`conversation100.json`, `Food Dining.json`, `Trip to 4 cities.json`, and
+`Stay in Shanghai.json` are bundled topics loaded through
+`ConversationPracticeService`. `ConversationPracticePack` and
+`ConversationPracticeRules` define the portable JSON contract, mapping,
+ordering, duplicate checks, and validation gate for bundled, uploaded, or
+AI-generated packs. Validated packs produce a `ConversationPracticeLibrary`
+with display items, Phrase DB seed rows, and stable practice-set memberships.
+Sentence punctuation is preserved for display but trimmed from phrase keys so
+sentences can resolve to Radix phrase records.
+Conversation Practice appears in Study as a focused practice workspace.
+Imported topics are removable; bundled topics are fixed. The selected topic
+name appears once in the topic picker rather than repeating in a nearby header.
+Flashcards show Chinese first, reveal pinyin/English, record Again/Good/Easy
+responses to portable Practice progress, and keep Phrase/Character inspection
+inside the active sheet. Quick Quiz is an offline single-character recognition
+sheet that blanks one character, uses script-aware confusable/component peers
+with dictionary fallbacks, records correct/incorrect attempts, and keeps
+feedback linked to Radix Phrase and Character cards. Sentence browsing is
+embedded directly in the Study Practice card with compact page controls, a
+Chinese/English display toggle, visible selected-row state, and the normal
+Study information-card path for richer inspection. Only Conversation Practice
+sentence cards repurpose the sidebar `Phrase` action to show phrases verified
+inside that sentence; all other information-card contexts keep normal broad
+phrase lookup behavior.
 The Conversation Practice Simplified/Traditional choice is shared across the
 Practice card, Flashcards, and Quick Quiz, including displayed sentences, drill
 hint chips, character links, and opened Phrase card titles.
@@ -869,18 +846,11 @@ readable two-row arrangement with Create Backup above Merge/Replace. My Data
 content is width-capped inside its column so long explanations and action cards
 do not visually spill to the screen edge.
 
-## Next Three Tasks
+## Current Engineering Posture
 
-1. Manually verify the saved-page `Actions` menu on iPhone, iPad, and Mac
-   Catalyst, including conditional `Check OCR`.
-2. Usability-test `Check OCR` with clear, ambiguous, and incorrect captures,
-   including the collapsed manual handoff and structured-response workflow.
-3. Perform a short regression for backup restore, Browse saved pages, phrase
-   classification, and My Data flows.
-
-Stop decision: the remaining `RadixStore` content is legitimate state ownership,
-caches, dependencies, and compatibility plumbing. Repository protocols are not
-being added until a concrete alternate repository implementation needs them.
+The remaining `RadixStore` content is legitimate state ownership, caches,
+dependencies, and compatibility plumbing. Repository protocols are not being
+added until a concrete alternate repository implementation needs them.
 
 ## Established Engineering Rules
 
@@ -911,30 +881,6 @@ Before a release or after platform-sensitive UI/data changes, also build the
 generic iOS target, which covers the universal iPhone/iPad application. Simulator
 launch failures caused by CoreSimulatorService are environmental and should be
 reported separately from compilation failures.
-
-Final refactor verification on 2026-06-25:
-
-- 15/15 portable tests passed across six suites.
-- Universal generic iOS build passed, covering iPhone and iPad.
-- Mac Catalyst build passed.
-- All 230 Swift source files are represented in the Xcode project.
-- Conservative unused-private-declaration audit found no remaining candidate.
-
-## Recent Milestones
-
-- Extracted focused state objects from the former monolithic `RadixStore`.
-- Moved domain behavior into dedicated store extensions.
-- Isolated lifecycle startup and profile restoration.
-- Removed confirmed dead code and audited Xcode source membership.
-- Centralized and tested persisted preference keys.
-- Moved navigation, script, and restore contracts into `RadixCore`.
-- Added a platform-neutral preference-storage boundary.
-- Co-located navigation, search, and Character Studio form adapters.
-- Co-located Browse filter adapters and their recompute side effects.
-- Co-located Browse grid and saved page collection adapters.
-- Co-located presentation and Browse highlight adapters.
-- Completed the final dead-code/source-membership audit and platform build matrix.
-- Restored optional navigation labels and progressive first-use destination help.
 
 ## Updating This File
 

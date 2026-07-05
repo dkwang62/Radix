@@ -1,45 +1,32 @@
 # Radix
 
-Native multi-platform SwiftUI version of the existing Streamlit Radix app.
+Radix is a native SwiftUI Chinese learning workspace for iPhone, iPad, and Mac
+Catalyst. It turns Chinese encountered in daily life into saved pages,
+dictionary inspection, AI-assisted understanding, Study practice, and portable
+learning memory.
 
-## Included
+The product loop is:
 
-- `project.yml` (XcodeGen spec for the Radix Xcode target)
-- SwiftUI app shell with iPhone, iPad, and Mac Catalyst layouts
-- JSON loader for `enhanced_component_map_with_etymology.json`
-- SQLite reader for `phrases.db`
-- Search by character/pinyin/definition
-- Search modes:
-  - Smart search (character/pinyin/meaning)
-  - Definition search (character + phrase meaning lookup)
-- Script filter (`简` / `繁`)
-- Standard tab headers across platforms:
-  - `Search`
-  - `Browse`
-  - `Roots`
-  - `Favorites`
-  - `AI Link`
-  - `My Data`
-- Remembered bar:
-  - Temporary session memory shown at the top of the app
-  - `Remember` adds a character to the bar
-  - Favorites persist after the app closes
-- Roots section:
-  - Components parsed from decomposition
-  - Derivatives from related characters
-  - Semantic/phonetic hints for ⿰ / ⿱ structures
-- Roots pagination (`25` per batch) and sort mode (`Usage` / `Frequency`)
-- Full-screen Roots Explorer for deep drill-down
-- Related character browsing
-- Stroke-order animation section (HanziWriter in-app web view)
-- Hosted stroke-order player (`animate.html`) for public character animation links
-- Phrase list by selected character (2/3/4 char)
-- Rich phrase cards with focus-character highlighting
-- Favorites persisted in `UserDefaults`
-- Profile import/export as JSON (`schema_version: 1`)
-- Paywall policy:
-  - Most app features are free
-  - `My Data` advanced editing/export features require Pro
+```text
+Scan -> Review -> Practise -> Keep
+```
+
+The current architecture and workflow source of truth is `PROJECT_CONTEXT.md`.
+Read `UI_INTENT.md` before changing navigation, tab structure, Browse, Study,
+AI, My Data, or other user-facing workflow structure.
+
+## Canonical Documentation
+
+- `AGENTS.md` — repository instructions for coding agents.
+- `PROJECT_CONTEXT.md` — current architecture, product direction, data rules,
+  workstream posture, and required verification.
+- `UI_INTENT.md` — UI/product intent and design decision rules.
+- `PORTABLE_BACKUP_FORMAT.md` — portable backup JSON contract.
+- `APP_STORE_COPY.md` — App Store and marketing copy draft.
+- `THIRD_PARTY_LICENSES.md` — bundled data/source license summary.
+
+Historical plan/status files have been removed once their completed decisions
+were folded into the canonical docs. Git history remains the audit trail.
 
 ## Third-Party Licenses
 
@@ -52,9 +39,11 @@ Native multi-platform SwiftUI version of the existing Streamlit Radix app.
 
 ## Naming Notes
 
-- The visible UI uses `Favorites`, `Roots`, and `Remembered`.
-- Some internal model, route, and persistence names still use `favourites`, `lineage`, or `breadcrumb` for backward compatibility. Do not rename those identifiers unless you also migrate saved data and route handling.
-- The Remembered bar was historically implemented as `rootBreadcrumb`; it is now the global temporary character memory bar.
+- Some internal model, route, and persistence names still use older terms such
+  as `favourites`, `lineage`, `breadcrumb`, or `rootBreadcrumb` for backward
+  compatibility. Do not rename those identifiers unless you also migrate saved
+  data and route handling.
+- The user-facing memory strip is called History in the app.
 
 ## Hosted Animation Links
 
@@ -80,8 +69,8 @@ Native multi-platform SwiftUI version of the existing Streamlit Radix app.
 ## Notes
 
 - Before making navigation or UI-structure changes, read `UI_INTENT.md`. It
-  records the intended Radix product model for global Search, Take Photo, Browse,
-  Study, AI, My Data, and Save/Restore workflows.
+  records the intended Radix product model for global Search, Camera, Browse,
+  Study, AI, My Data, and recovery workflows.
 - `project.yml` bundles data directly from:
   - `../enhanced_component_map_with_etymology.json`
   - `../phrases.db`
