@@ -284,9 +284,9 @@ struct FavouritesTab: View {
         }
         .alert(item: $studyAIFallbackTask) { task in
             Alert(
-                title: Text("Automatic AI Is Unavailable"),
-                message: Text("\(studyAutomaticAIError)\n\nYour API key may still be valid. Gemini can occasionally be unavailable, so the copy-and-paste method remains available."),
-                primaryButton: .default(Text("Use Another AI App")) {
+                title: Text(PageAIMethodCopy.unavailableTitle),
+                message: Text("\(studyAutomaticAIError)\n\n\(PageAIMethodCopy.unavailableMessage)"),
+                primaryButton: .default(Text(PageAIMethodCopy.fallbackTitle)) {
                     useManualStudyAIFallback(task)
                 },
                 secondaryButton: .cancel(Text("Not Now"))

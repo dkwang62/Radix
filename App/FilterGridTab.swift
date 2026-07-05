@@ -228,9 +228,9 @@ struct FilterGridTab: View {
             }
             .alert(item: $aiFallbackTask) { task in
                 Alert(
-                    title: Text("Automatic AI Is Unavailable"),
-                    message: Text("\(automaticAIError)\n\nYour API key may still be valid. Gemini can occasionally be unavailable, so the copy-and-paste method remains available."),
-                    primaryButton: .default(Text("Use Another AI App")) {
+                    title: Text(PageAIMethodCopy.unavailableTitle),
+                    message: Text("\(automaticAIError)\n\n\(PageAIMethodCopy.unavailableMessage)"),
+                    primaryButton: .default(Text(PageAIMethodCopy.fallbackTitle)) {
                         useManualFallback(task)
                     },
                     secondaryButton: .cancel(Text("Not Now"))

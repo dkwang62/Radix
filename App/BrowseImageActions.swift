@@ -8,7 +8,7 @@ extension FilterGridTab {
 
     func runAutomaticOCRReview(_ collection: CharacterCollection) {
         isRunningImageAction = true
-        imageActionMessage = "Checking OCR automatically with Gemini..."
+        imageActionMessage = "Checking OCR with Gemini API..."
         Task {
             do {
                 let response = try await store.runGeminiOCRReview(for: collection)
@@ -47,7 +47,7 @@ extension FilterGridTab {
             return
         }
         isRunningImageAction = true
-        imageActionMessage = "Extracting sentences automatically..."
+        imageActionMessage = "Extracting sentences with Gemini API..."
         Task {
             do {
                 let pack = try await store.runGeminiPageSentenceExtraction(for: collection)
@@ -73,7 +73,7 @@ extension FilterGridTab {
             return
         }
         isRunningImageAction = true
-        imageActionMessage = "Creating page-inspired practice automatically..."
+        imageActionMessage = "Creating page-inspired practice with Gemini API..."
         Task {
             do {
                 let pack = try await store.runGeminiPagePracticeGeneration(for: collection)
@@ -99,7 +99,7 @@ extension FilterGridTab {
             return
         }
         isRunningImageAction = true
-        imageActionMessage = "Translating and saving report..."
+        imageActionMessage = "Translating with Gemini API..."
         Task {
             do {
                 _ = try await store.runGeminiTranslationReport(for: collection)
@@ -141,7 +141,7 @@ extension FilterGridTab {
             return
         }
         isRunningImageAction = true
-        imageActionMessage = "Extracting phrases automatically..."
+        imageActionMessage = "Extracting phrases with Gemini API..."
         Task {
             do {
                 let summary = try await store.runGeminiPhraseExtraction(for: collection)
@@ -162,7 +162,7 @@ extension FilterGridTab {
 
     func offerManualAIFallback(_ task: BrowseAIFallbackTask, error: Error) {
         automaticAIError = error.localizedDescription
-        imageActionMessage = "Automatic AI is unavailable. You can still use another AI app."
+        imageActionMessage = "Gemini API is unavailable. You can still use Manual AI Link."
         aiFallbackTask = task
     }
 

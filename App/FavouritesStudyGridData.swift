@@ -330,7 +330,7 @@ extension FavouritesTab {
 
     func runAutomaticStudyOCRReview(_ collection: CharacterCollection) {
         isRunningStudyPageAction = true
-        setStudyPageActionMessage("Checking OCR automatically with Gemini...", for: collection)
+        setStudyPageActionMessage("Checking OCR with Gemini API...", for: collection)
         Task {
             do {
                 let response = try await store.runGeminiOCRReview(for: collection)
@@ -358,7 +358,7 @@ extension FavouritesTab {
 
     func runStudyGeminiPhraseExtraction(_ collection: CharacterCollection) {
         isRunningStudyPageAction = true
-        setStudyPageActionMessage("Extracting phrases automatically...", for: collection)
+        setStudyPageActionMessage("Extracting phrases with Gemini API...", for: collection)
         Task {
             do {
                 let summary = try await store.runGeminiPhraseExtraction(for: collection)
@@ -377,7 +377,7 @@ extension FavouritesTab {
 
     func runStudyGeminiTranslationAndSave(_ collection: CharacterCollection) {
         isRunningStudyPageAction = true
-        setStudyPageActionMessage("Translating and saving report...", for: collection)
+        setStudyPageActionMessage("Translating with Gemini API...", for: collection)
         Task {
             do {
                 let report = try await store.runGeminiTranslationReport(for: collection)
@@ -399,7 +399,7 @@ extension FavouritesTab {
 
     func runStudyGeminiSentenceExtraction(_ collection: CharacterCollection) {
         isRunningStudyPageAction = true
-        setStudyPageActionMessage("Extracting sentences automatically...", for: collection)
+        setStudyPageActionMessage("Extracting sentences with Gemini API...", for: collection)
         Task {
             do {
                 let pack = try await store.runGeminiPageSentenceExtraction(for: collection)
@@ -419,7 +419,7 @@ extension FavouritesTab {
 
     func runStudyGeminiPagePracticeGeneration(_ collection: CharacterCollection) {
         isRunningStudyPageAction = true
-        setStudyPageActionMessage("Creating page-inspired practice automatically...", for: collection)
+        setStudyPageActionMessage("Creating page-inspired practice with Gemini API...", for: collection)
         Task {
             do {
                 let pack = try await store.runGeminiPagePracticeGeneration(for: collection)
@@ -445,7 +445,7 @@ extension FavouritesTab {
              .translate(let collection),
              .extractSentences(let collection),
              .createPagePractice(let collection):
-            setStudyPageActionMessage("Automatic AI is unavailable. You can still use another AI app.", for: collection)
+            setStudyPageActionMessage("Gemini API is unavailable. You can still use Manual AI Link.", for: collection)
         }
         studyAIFallbackTask = task
     }

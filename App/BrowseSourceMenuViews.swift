@@ -1,5 +1,13 @@
 import SwiftUI
 
+enum PageAIMethodCopy {
+    static let manualTitle = "Manual AI Link"
+    static let apiTitle = "Gemini API"
+    static let fallbackTitle = "Use Manual AI Link"
+    static let unavailableTitle = "Gemini API Is Unavailable"
+    static let unavailableMessage = "Your API key may still be valid. Gemini can occasionally be unavailable, so Manual AI Link remains available."
+}
+
 struct BrowseImageScriptToggle: View {
     @Binding var mode: String
 
@@ -135,14 +143,14 @@ struct CollectionPageActionsMenu: View {
         Button {
             chooseAIMethod(taskID: task.id, route: .manual)
         } label: {
-            Label("Use Another AI App", systemImage: "doc.on.clipboard")
+            Label(PageAIMethodCopy.manualTitle, systemImage: "doc.on.clipboard")
         }
 
         Button {
             chooseAIMethod(taskID: task.id, route: .automatic)
         } label: {
             Label(
-                hasGeminiAPIKey ? "Run Automatically in Radix" : "Set Up Gemini API Key…",
+                hasGeminiAPIKey ? PageAIMethodCopy.apiTitle : "Set Up Gemini API Key…",
                 systemImage: hasGeminiAPIKey ? "sparkles" : "key"
             )
         }
@@ -200,13 +208,13 @@ private struct PageAIOrientationView: View {
 
                         method(
                             icon: "doc.on.clipboard",
-                            title: "Use Another AI App",
-                            detail: "Radix prepares the AI prompt and page evidence for you to copy into ChatGPT, Gemini, or another AI app. No API key is needed, and this option remains available even when automatic AI is configured."
+                            title: PageAIMethodCopy.manualTitle,
+                            detail: "Radix prepares the AI prompt and page evidence in AI Link so you can copy it into ChatGPT, Gemini, Claude, or another AI app. No API key is needed, and this option remains available even when Gemini API is configured."
                         )
 
                         method(
                             icon: "sparkles",
-                            title: "Run Automatically in Radix",
+                            title: PageAIMethodCopy.apiTitle,
                             detail: "Radix sends the task directly to Gemini and returns the result to the page workflow. This requires a private Gemini API key and depends on Gemini being available."
                         )
 

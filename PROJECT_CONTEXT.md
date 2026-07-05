@@ -230,6 +230,10 @@ sentences, and reusable practice progress is retained.
 Saved-page resume signals should remain selective: the collapsed Study list may
 show last-viewed context for the active Browse page or the top recently viewed
 page, but should not add date/status text to every row.
+Page AI actions should consistently name the two methods as `Manual AI Link`
+for copy/paste handoff and `Gemini API` for in-app API execution. Avoid mixing
+older labels such as automatic AI, another AI app, or copy-and-paste method in
+user-facing page-action flows.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules
