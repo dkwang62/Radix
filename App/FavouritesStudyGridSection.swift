@@ -5,6 +5,7 @@ private struct StudySavedPageRowData {
     let rowNumber: Int
     let practices: [ConversationPracticePack]
     let correctedPages: [CharacterCollection]
+    let showsResumeSignal: Bool
     let isExpanded: Bool
     let isActiveBrowsePage: Bool
     let artifacts: [StudyPageArtifact]
@@ -243,6 +244,7 @@ extension FavouritesTab {
         let hasPagePhrases = hasKnownPagePhrases(for: collection, hasRecordedPagePhrases: hasRecordedPagePhrases)
         let isExpanded = expandedStudySavedPageID == collection.id
         let isActiveBrowsePage = store.selectedBrowseCollectionID == collection.id
+        let showsResumeSignal = isActiveBrowsePage || rowNumber == 1
         let artifacts = studyPageArtifacts(
             collection: collection,
             practices: practices,
@@ -255,6 +257,7 @@ extension FavouritesTab {
             rowNumber: rowNumber,
             practices: practices,
             correctedPages: correctedPages,
+            showsResumeSignal: showsResumeSignal,
             isExpanded: isExpanded,
             isActiveBrowsePage: isActiveBrowsePage,
             artifacts: artifacts
@@ -383,6 +386,19 @@ extension FavouritesTab {
 
             Spacer(minLength: 6)
 
+            if rowData.showsResumeSignal {
+                Label(studyPageResumeText(rowData.collection), systemImage: "clock")
+                    .font(ResponsiveFont.caption2.weight(.semibold))
+                    .foregroundStyle(rowData.isActiveBrowsePage ? Color.accentColor : Color.secondary)
+                    .labelStyle(.titleAndIcon)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 4)
+                    .background((rowData.isActiveBrowsePage ? Color.accentColor : Color.secondary).opacity(0.10))
+                    .clipShape(RoundedRectangle(cornerRadius: 7))
+            }
+
             HStack(spacing: 4) {
                 ForEach(visibleArtifacts) { artifact in
                     Image(systemName: artifact.systemImage)
@@ -408,6 +424,11 @@ extension FavouritesTab {
                 .frame(width: 22, height: 22)
         }
         .frame(minHeight: 44)
+    }
+
+    private func studyPageResumeText(_ collection: CharacterCollection) -> String {
+        let date = collection.lastViewedAt ?? collection.createdAt
+        return "Viewed \(date.formatted(date: .abbreviated, time: .omitted))"
     }
 
     private func studyPageArtifacts(
