@@ -278,9 +278,9 @@ answers early or scrape ordinary chat prose. Study exposes a `Sentences`
 shortcut that opens the Sentence Examples browser with filters for All,
 Favorites, Page, Practice, OCR, and Hidden records, plus search and row actions
 for favorite, hide/restore, delete, copy Chinese, and opening the source page.
-The browser should reuse Conversation Practice's Chinese/English display toggle,
-shared sentence row, and sentence info-card preview path rather than creating a
-parallel sentence UI.
+The browser should reuse Conversation Practice's shared sentence controls
+(Simplified/Traditional plus Chinese/English), shared sentence row, and sentence
+info-card preview path rather than creating a parallel sentence UI.
 Sentence source/page origin should stay out of the default row and appear only
 inside row actions or source-specific filters.
 Future sentence actions should add edit and practice-again without creating a

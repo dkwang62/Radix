@@ -218,8 +218,7 @@ extension FavouritesTab {
 
                 HStack(spacing: 8) {
                     Spacer(minLength: 0)
-                    studyScriptToggle
-                    conversationPracticeSentenceDisplayToggle
+                    practiceSentenceModeControls
                 }
             }
             .padding(.bottom, 2)
@@ -230,8 +229,7 @@ extension FavouritesTab {
 
                 Spacer(minLength: 8)
 
-                studyScriptToggle
-                conversationPracticeSentenceDisplayToggle
+                practiceSentenceModeControls
             }
             .padding(.bottom, 2)
         }
@@ -280,6 +278,13 @@ extension FavouritesTab {
         }
         .pickerStyle(.segmented)
         .frame(width: 150)
+    }
+
+    var practiceSentenceModeControls: some View {
+        HStack(spacing: 8) {
+            studyScriptToggle
+            conversationPracticeSentenceDisplayToggle
+        }
     }
 
     func conversationPracticeGenerateCard(_ topic: ConversationPracticeTopic) -> some View {

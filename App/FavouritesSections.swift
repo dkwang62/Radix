@@ -192,7 +192,7 @@ extension FavouritesTab {
 
                 Spacer(minLength: 8)
 
-                conversationPracticeSentenceDisplayToggle
+                practiceSentenceModeControls
 
                 if let message = sentenceExampleStatusMessage {
                     Text(message)
