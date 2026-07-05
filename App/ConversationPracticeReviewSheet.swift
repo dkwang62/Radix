@@ -234,8 +234,7 @@ struct ConversationPracticeReviewSheet: View {
     func storePracticeProgress(_ response: ConversationPracticeReviewResponse) {
         var snapshot = RadixStudyPreferences.conversationPracticeProgress
         snapshot.record(
-            packID: currentItem.setID,
-            itemID: currentItem.id,
+            item: currentItem,
             outcome: response.progressOutcome
         )
         RadixStudyPreferences.conversationPracticeProgress = snapshot

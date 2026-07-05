@@ -56,8 +56,7 @@ extension ConversationPracticeTranslationQuizSheet {
         answered[answerKey(for: currentItem)] = isCorrect
         var snapshot = RadixStudyPreferences.conversationPracticeProgress
         snapshot.record(
-            packID: currentItem.setID,
-            itemID: currentItem.id,
+            item: currentItem,
             outcome: isCorrect ? .correct : .incorrect
         )
         RadixStudyPreferences.conversationPracticeProgress = snapshot

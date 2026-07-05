@@ -70,6 +70,44 @@ struct ConversationPracticeTests {
         #expect(record.completedAt == laterDate)
     }
 
+    @Test("Practice progress records canonical sentence identity")
+    func practiceProgressRecordsSentenceIdentity() throws {
+        let pack = try loadConversationPackFixture()
+        let examples = pack.practiceItems.prefix(2).map {
+            SentenceExampleRecord.fromPracticeItem($0, pack: pack)
+        }
+        let referencedPack = pack.withCanonicalSentenceReferences(from: examples)
+        let library = referencedPack.practiceLibrary
+        let first = try #require(library.items.first)
+        let expectedExample = try #require(examples.first)
+        let earlyDate = Date(timeIntervalSince1970: 1_750_000_000)
+        let laterDate = Date(timeIntervalSince1970: 1_750_100_000)
+        var snapshot = ConversationPracticeProgressSnapshot(records: [
+            ConversationPracticeItemProgress(
+                packID: first.setID,
+                itemID: first.id,
+                attempts: 1,
+                completedAttempts: 0,
+                lastOutcome: .again,
+                lastPracticedAt: earlyDate,
+                completedAt: nil
+            )
+        ])
+
+        snapshot.record(
+            item: first,
+            outcome: .correct,
+            practicedAt: laterDate
+        )
+
+        let record = try #require(snapshot.record(for: first))
+        #expect(record.sentenceExampleID == expectedExample.id)
+        #expect(record.sentenceKey == expectedExample.normalizedChineseKey)
+        #expect(record.attempts == 2)
+        #expect(record.isCompleted)
+        #expect(snapshot.records.count == 1)
+    }
+
     @Test("Uploaded conversation pack decodes and validates")
     func uploadedConversationPackValidates() throws {
         let pack = try loadConversationPackFixture()

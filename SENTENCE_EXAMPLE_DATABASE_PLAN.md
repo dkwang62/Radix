@@ -11,8 +11,9 @@ views over sentence examples rather than separate sentence databases.
 - Favorite sentences become a favorite flag on sentence examples, with existing
   records kept for compatibility during migration.
 - Page-derived sentences link back to the saved page through source metadata.
-- Practice progress should eventually key against sentence IDs or stable
-  sentence keys.
+- Practice progress keys against sentence IDs or stable sentence keys when
+  canonical identity is available, while old pack/item progress remains
+  compatible.
 
 ## Phase 1: Foundation
 

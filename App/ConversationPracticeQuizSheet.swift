@@ -299,8 +299,7 @@ struct ConversationPracticeQuizSheet: View {
         answered["\(currentItem.id)#\(quizCharacter)"] = choice == quizCharacter
         var snapshot = RadixStudyPreferences.conversationPracticeProgress
         snapshot.record(
-            packID: currentItem.setID,
-            itemID: currentItem.id,
+            item: currentItem,
             outcome: choice == quizCharacter ? .correct : .incorrect
         )
         RadixStudyPreferences.conversationPracticeProgress = snapshot

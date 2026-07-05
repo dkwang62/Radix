@@ -151,8 +151,16 @@ public struct ConversationPracticePack: Codable, Equatable {
     }
 
     public var practiceItems: [ConversationPracticeItem] {
-        entries.sorted { $0.sequence < $1.sequence }.map {
-            ConversationPracticeItem(entry: $0, setID: packID)
+        var referencesByItemID: [String: ConversationPracticeSentenceReference] = [:]
+        for reference in sentenceReferences {
+            referencesByItemID[reference.practiceItemID] = reference
+        }
+        return entries.sorted { $0.sequence < $1.sequence }.map {
+            ConversationPracticeItem(
+                entry: $0,
+                setID: packID,
+                sentenceReference: referencesByItemID[$0.id]
+            )
         }
     }
 
@@ -1526,6 +1534,8 @@ public struct ConversationPracticeItem: Equatable, Hashable, Identifiable {
     public let id: String
     public let setID: String
     public let phraseKey: String
+    public let sentenceExampleID: UUID?
+    public let sentenceKey: String
     public let rank: Int
     public let simplified: String
     public let pinyin: String
@@ -1537,10 +1547,16 @@ public struct ConversationPracticeItem: Equatable, Hashable, Identifiable {
     public let phraseHints: [String]
     public let notes: String
 
-    init(entry: ConversationPracticeEntry, setID: String) {
+    init(
+        entry: ConversationPracticeEntry,
+        setID: String,
+        sentenceReference: ConversationPracticeSentenceReference? = nil
+    ) {
         id = entry.id
         self.setID = setID
         phraseKey = ConversationPracticeRules.phraseKey(for: entry.sentence.zh)
+        sentenceExampleID = sentenceReference?.sentenceExampleID
+        sentenceKey = sentenceReference?.sentenceKey ?? SentenceExampleRecord.normalizedChineseKey(entry.sentence.zh)
         rank = entry.sequence
         simplified = entry.sentence.zh
         pinyin = entry.sentence.pinyin
@@ -1560,6 +1576,8 @@ public struct ConversationPracticeItem: Equatable, Hashable, Identifiable {
         id = record.id
         setID = ConversationPracticeTopic.favoriteSentencesID
         phraseKey = ConversationPracticeRules.phraseKey(for: record.simplified)
+        sentenceExampleID = nil
+        sentenceKey = SentenceExampleRecord.normalizedChineseKey(record.simplified)
         self.rank = rank
         simplified = record.simplified
         pinyin = record.pinyin
@@ -1576,6 +1594,8 @@ public struct ConversationPracticeItem: Equatable, Hashable, Identifiable {
         id = record.id.uuidString
         setID = "sentence_examples"
         phraseKey = ConversationPracticeRules.phraseKey(for: record.chinese)
+        sentenceExampleID = record.id
+        sentenceKey = record.normalizedChineseKey
         self.rank = rank
         simplified = record.chinese
         pinyin = record.pinyin ?? ""
@@ -1712,6 +1732,8 @@ public enum ConversationPracticeProgressOutcome: String, Codable, Equatable, Sen
 public struct ConversationPracticeItemProgress: Codable, Equatable, Identifiable, Sendable {
     public let packID: String
     public let itemID: String
+    public private(set) var sentenceExampleID: UUID?
+    public private(set) var sentenceKey: String?
     public private(set) var attempts: Int
     public private(set) var completedAttempts: Int
     public private(set) var lastOutcome: ConversationPracticeProgressOutcome
@@ -1721,6 +1743,8 @@ public struct ConversationPracticeItemProgress: Codable, Equatable, Identifiable
     enum CodingKeys: String, CodingKey {
         case packID = "pack_id"
         case itemID = "item_id"
+        case sentenceExampleID = "sentence_example_id"
+        case sentenceKey = "sentence_key"
         case attempts
         case completedAttempts = "completed_attempts"
         case lastOutcome = "last_outcome"
@@ -1736,9 +1760,21 @@ public struct ConversationPracticeItemProgress: Codable, Equatable, Identifiable
         completedAt != nil
     }
 
+    public var progressID: String {
+        if let sentenceExampleID {
+            return "sentence_id:\(sentenceExampleID.uuidString)"
+        }
+        if let sentenceKey, !sentenceKey.isEmpty {
+            return "sentence_key:\(sentenceKey)"
+        }
+        return id
+    }
+
     public init(
         packID: String,
         itemID: String,
+        sentenceExampleID: UUID? = nil,
+        sentenceKey: String? = nil,
         attempts: Int,
         completedAttempts: Int,
         lastOutcome: ConversationPracticeProgressOutcome,
@@ -1747,6 +1783,8 @@ public struct ConversationPracticeItemProgress: Codable, Equatable, Identifiable
     ) {
         self.packID = packID
         self.itemID = itemID
+        self.sentenceExampleID = sentenceExampleID
+        self.sentenceKey = Self.cleanSentenceKey(sentenceKey)
         self.attempts = max(0, attempts)
         self.completedAttempts = max(0, completedAttempts)
         self.lastOutcome = lastOutcome
@@ -1756,6 +1794,16 @@ public struct ConversationPracticeItemProgress: Codable, Equatable, Identifiable
 
     public static func identifier(packID: String, itemID: String) -> String {
         "\(packID)#\(itemID)"
+    }
+
+    public func matches(_ item: ConversationPracticeItem) -> Bool {
+        if let sentenceExampleID, sentenceExampleID == item.sentenceExampleID {
+            return true
+        }
+        if let sentenceKey, !sentenceKey.isEmpty, sentenceKey == item.sentenceKey {
+            return true
+        }
+        return packID == item.setID && itemID == item.id
     }
 
     public mutating func record(
@@ -1773,6 +1821,22 @@ public struct ConversationPracticeItemProgress: Codable, Equatable, Identifiable
             }
         }
     }
+
+    public mutating func attachSentenceIdentity(from item: ConversationPracticeItem) {
+        if sentenceExampleID == nil {
+            sentenceExampleID = item.sentenceExampleID
+        }
+        if sentenceKey == nil || sentenceKey?.isEmpty == true {
+            sentenceKey = Self.cleanSentenceKey(item.sentenceKey)
+        }
+    }
+
+    private static func cleanSentenceKey(_ value: String?) -> String? {
+        guard let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !trimmed.isEmpty
+        else { return nil }
+        return trimmed
+    }
 }
 
 public struct ConversationPracticeProgressSnapshot: Codable, Equatable, Sendable {
@@ -1789,6 +1853,10 @@ public struct ConversationPracticeProgressSnapshot: Codable, Equatable, Sendable
     public func record(for packID: String, itemID: String) -> ConversationPracticeItemProgress? {
         let id = ConversationPracticeItemProgress.identifier(packID: packID, itemID: itemID)
         return records.first { $0.id == id }
+    }
+
+    public func record(for item: ConversationPracticeItem) -> ConversationPracticeItemProgress? {
+        records.first { $0.matches(item) }
     }
 
     public mutating func record(
@@ -1816,9 +1884,36 @@ public struct ConversationPracticeProgressSnapshot: Codable, Equatable, Sendable
         }
     }
 
+    public mutating func record(
+        item: ConversationPracticeItem,
+        outcome: ConversationPracticeProgressOutcome,
+        practicedAt: Date = Date()
+    ) {
+        if let index = records.firstIndex(where: { $0.matches(item) }) {
+            records[index].attachSentenceIdentity(from: item)
+            records[index].record(outcome, practicedAt: practicedAt)
+        } else {
+            var progress = ConversationPracticeItemProgress(
+                packID: item.setID,
+                itemID: item.id,
+                sentenceExampleID: item.sentenceExampleID,
+                sentenceKey: item.sentenceKey,
+                attempts: 0,
+                completedAttempts: 0,
+                lastOutcome: outcome,
+                lastPracticedAt: practicedAt,
+                completedAt: nil
+            )
+            progress.record(outcome, practicedAt: practicedAt)
+            records.append(progress)
+        }
+        records = Self.uniqueNewest(records)
+    }
+
     public func summary(for library: ConversationPracticeLibrary) -> ConversationPracticeProgressSummary {
-        let itemIDs = Set(library.items.map(\.id))
-        let matchingRecords = records.filter { $0.packID == library.set.id && itemIDs.contains($0.itemID) }
+        let matchingRecords = library.items.compactMap { item in
+            record(for: item)
+        }
         let completed = matchingRecords.filter(\.isCompleted).count
         let lastPracticedAt = matchingRecords.map(\.lastPracticedAt).max()
         return ConversationPracticeProgressSummary(
@@ -1837,7 +1932,7 @@ public struct ConversationPracticeProgressSnapshot: Codable, Equatable, Sendable
     private static func uniqueNewest(
         _ records: [ConversationPracticeItemProgress]
     ) -> [ConversationPracticeItemProgress] {
-        let byID = Dictionary(grouping: records, by: \.id)
+        let byID = Dictionary(grouping: records, by: \.progressID)
         return byID.values.compactMap { grouped in
             grouped.max { lhs, rhs in
                 lhs.lastPracticedAt < rhs.lastPracticedAt

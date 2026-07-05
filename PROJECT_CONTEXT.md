@@ -302,6 +302,10 @@ library from canonical sentence examples and reuses the existing Flashcards
 flow instead of creating another practice UI. The sentence edit action updates
 the canonical sentence example record in place and synchronizes legacy favorite
 compatibility records when the sentence text or favorite state changes.
+Conversation Practice progress records now carry optional canonical sentence
+IDs and normalized sentence keys. New review and quiz attempts attach that
+identity when available, while old pack/item progress records remain readable
+and are upgraded the next time the matching item is practiced.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules
