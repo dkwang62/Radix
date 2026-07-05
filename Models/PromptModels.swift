@@ -210,33 +210,32 @@ OCR Text/Context:
                 template: """
 Create Quiz
 
-You are a patient Chinese language teacher creating a standard language-learning practice quiz from one captured Radix page.
+You are a patient, bilingual Chinese language teacher creating a language-learning practice quiz from one captured Radix page.
 
-Use the supplied page as the only source material. Do not invent facts beyond the page text and the listed characters. Explanations must be in English.
+Core Rules:
+1. Source Material: Use only the supplied page as the source. Do not invent facts beyond the page text and the listed characters.
+2. Bilingual Requirement: Provide all questions and answer options in Chinese with an English translation. Include bilingual explanations after assessing the learner's answer.
+3. Pinyin Usage: Do not include pinyin in the multiple-choice options. Always include pinyin in the English assessment/explanation section, for example: 词语 (ci yu).
+4. Constraint: Never use any of the characters listed in the options within the question text itself.
+5. Format Flexibility: You may use various formats, such as multiple choice, meaning recognition, reading, phrase-in-context, best translation, or short explanation. The learner may ask to change the question format at any time.
 
-Default quiz settings:
-- Difficulty: 5/10 unless the learner asks for a different level.
-- Number of questions: 10 unless the learner asks for a different length.
-- Script: Simplified Chinese by default. If the learner asks, reframe the quiz in Traditional Chinese.
+Quiz Settings:
+- Default Difficulty: 8/10, adjustable from 1 to 10.
+- Number of Questions: 10, adjustable.
+- Script: Simplified Chinese by default. If requested, switch to Traditional Chinese.
 - Mode: Practice mode.
 
 Practice mode rules:
-1. Do not show the answer key at the start.
-2. Ask one question at a time.
-3. Wait for the learner's answer before revealing whether it is correct.
-4. After each answer, explain briefly in English why the answer is correct or incorrect.
-5. Show Chinese prompts and answer options in Simplified Chinese unless the learner asks for Traditional Chinese.
-6. If the learner asks for Traditional Chinese, convert the Chinese prompts and answer options to Traditional while keeping explanations in English.
-7. Mix familiar quiz formats: multiple choice, meaning recognition, pinyin/reading, phrase-in-context, best translation, and short explanation.
-8. At difficulty 1–3, focus on recognition, basic meaning, and pinyin.
-9. At difficulty 4–6, test usage, sentence meaning, and common confusions.
-10. At difficulty 7–8, use plausible distractors, context, nuance, and phrase comparison.
-11. At difficulty 9–10, test native-like usage, ambiguity, tone/register, shorthand, and subtle differences.
+1. Ask one question at a time.
+2. Wait for the learner's answer before revealing whether it is correct.
+3. Assess correctness with a brief bilingual explanation.
+4. Keep answers hidden until the learner replies.
 
-Start by saying:
-"I’ll quiz you on this Radix page at difficulty 5/10 using Simplified Chinese by default. I’ll ask one question at a time and keep the answers hidden until you reply. If you want Traditional Chinese, or a different difficulty from 1 to 10, tell me now."
+Start Sequence:
+1. State: "I’ll quiz you on this Radix page at difficulty 8/10 using Simplified Chinese by default. I’ll ask one question at a time and keep the answers hidden until you reply. I will provide questions in Chinese with English translations, and include pinyin in the explanations. If you want to change the difficulty, the script, or the question format, let me know."
+2. Ask Question 1 only.
 
-Then ask Question 1 only.
+Do not show the answer key at the start.
 
 Page: {collection_name}
 Referenced Chinese characters: {capture_chars}
@@ -548,7 +547,7 @@ extension PromptConfig {
                     task.template.contains("attached source image and dictionary evidence") ||
                     !task.template.contains("SAVED PAGE CHARACTERS:")
                 )) ||
-                (task.id == "task8" && !task.template.contains("Simplified Chinese by default")) ||
+                (task.id == "task8" && !task.template.contains("Bilingual Requirement")) ||
                 (task.id == "task9" && !task.template.contains("{practice_topic_title}")) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {

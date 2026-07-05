@@ -95,21 +95,25 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task11"))
     }
 
-    @Test("Page quiz prompt stays in AI chat and defaults to simplified")
-    func pageQuizPromptDefaultsToSimplifiedChatQuiz() {
+    @Test("Page quiz prompt stays in AI chat and uses bilingual rules")
+    func pageQuizPromptUsesBilingualRules() {
         let normalized = PromptConfig.streamlitDefault.normalized()
         let quiz = normalized.tasks.first { $0.id == "task8" }
 
         #expect(quiz?.title == "Create Quiz")
+        #expect(quiz?.template.contains("patient, bilingual Chinese language teacher") == true)
+        #expect(quiz?.template.contains("Bilingual Requirement") == true)
+        #expect(quiz?.template.contains("Do not include pinyin in the multiple-choice options") == true)
+        #expect(quiz?.template.contains("Always include pinyin in the English assessment/explanation section") == true)
+        #expect(quiz?.template.contains("Never use any of the characters listed in the options within the question text itself") == true)
+        #expect(quiz?.template.contains("Default Difficulty: 8/10") == true)
         #expect(quiz?.template.contains("Simplified Chinese by default") == true)
-        #expect(quiz?.template.contains("If the learner asks for Traditional Chinese") == true)
-        #expect(quiz?.template.contains("using Simplified Chinese by default") == true)
-        #expect(quiz?.template.contains("Then ask Question 1 only.") == true)
+        #expect(quiz?.template.contains("Ask Question 1 only.") == true)
         #expect(PromptConfig.collectionTaskIDs.contains("task8"))
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task8"))
     }
 
-    @Test("Legacy page quiz prompts normalize to simplified chat quiz")
+    @Test("Legacy page quiz prompts normalize to bilingual chat quiz")
     func legacyPageQuizPromptNormalizes() {
         let legacy = PromptTask(
             id: "task8",
@@ -134,8 +138,9 @@ struct PromptConfigTests {
 
         let template = config.normalized().tasks.first { $0.id == "task8" }?.template ?? ""
 
-        #expect(template.contains("Simplified Chinese by default"))
-        #expect(template.contains("If the learner asks for Traditional Chinese"))
+        #expect(template.contains("Bilingual Requirement"))
+        #expect(template.contains("Default Difficulty: 8/10"))
+        #expect(template.contains("Do not include pinyin in the multiple-choice options"))
     }
 
     @Test("Conversation AI entry counts are shared and normalized")

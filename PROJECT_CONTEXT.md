@@ -663,10 +663,12 @@ answer to create the corrected page. Do not reintroduce separate visible
 Create Quiz is page-only and uses the AI Link saved-page task rather than a
 local Radix quiz screen. The Study page `Quiz` chip opens the editable quiz
 template in AI Link with the page selected, allowing the user to continue in
-ChatGPT, Gemini, or another AI chat. The default prompt asks for Simplified
-Chinese quiz prompts and answer options, while explicitly allowing the learner
-to ask for Traditional Chinese. Radix does not import a quiz result and must not
-offer a local dictionary-backed fallback quiz for this page task. The AI Link
+ChatGPT, Gemini, or another AI chat. The default prompt asks for bilingual
+Chinese-English questions and answer options, forbids pinyin in multiple-choice
+options, requires pinyin in the assessment/explanation, starts at difficulty
+8/10, uses Simplified Chinese by default, and explicitly allows Traditional
+Chinese or format changes on request. Radix does not import a quiz result and
+must not offer a local dictionary-backed fallback quiz for this page task. The AI Link
 route preserves the appropriate return action such as `Back to Study` instead
 of leaving the user to find their way back manually.
 Navigation guidance and the welcome screen use one canonical division of work:
