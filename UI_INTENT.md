@@ -239,9 +239,11 @@ visible grid height so the tiles fill down to just above the footer on each
 platform. Added Phrases review should be a focused Study workspace with a
 visible `Back to Study` control rather than a temporary pop-out when launched
 from Study. While a status tool is selected, preserve the active filter so
-large queues shrink in place as the user paints classifications. Prefer compact
-icon-and-word top controls there, while status tools should keep readable words
-and icons rather than becoming icon-only.
+large queues shrink in place as the user paints classifications. Previewing a
+phrase should use the same Phrase Info Card/sidebar path as Browse instead of a
+separate large inline preview on sidebar layouts. Prefer compact icon-and-word
+top controls there, while status tools should keep readable words and icons
+rather than becoming icon-only.
 
 On iPhone, Study may need to contain explicit Snapshot sections because the
 screen cannot permanently show a rich sidebar. On iPad and Mac, Checkpoints can

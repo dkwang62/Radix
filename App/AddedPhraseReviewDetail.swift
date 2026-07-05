@@ -1,9 +1,13 @@
 import SwiftUI
 
 extension AddedPhraseReviewSheet {
+    var activeReviewPhraseWord: String? {
+        selectedPhrase?.word ?? store.activeSidebarPhrasePreview?.word
+    }
+
     @ViewBuilder
     var selectedPhraseDetailCard: some View {
-        if let phrase = selectedPhrase {
+        if let phrase = selectedPhrase, !usesRegularReviewLayout {
             VStack(alignment: .leading, spacing: 8) {
                 phraseDetails(phrase)
             }

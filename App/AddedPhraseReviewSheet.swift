@@ -218,6 +218,7 @@ extension AddedPhraseReviewSheet {
 
         guard case let .apply(status) = action else {
             selectedPhrase = phrase
+            store.presentPhraseInSidebar(phrase)
             message = nil
             return
         }

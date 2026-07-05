@@ -38,7 +38,7 @@ extension AddedPhraseReviewSheet {
             ForEach(pagedPhrases) { phrase in
                 AddedPhraseReviewTile(
                     phrase: phrase,
-                    isSelected: selectedPhrase?.word == phrase.word,
+                    isSelected: activeReviewPhraseWord == phrase.word,
                     height: phraseTileHeight,
                     onSelect: { applySelectedTool(to: phrase) },
                     onMarkNew: { setStatus(nil, for: phrase) },

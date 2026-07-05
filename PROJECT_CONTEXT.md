@@ -616,8 +616,11 @@ page-jump menu. The review uses a paged non-scrolling grid whose page size is
 calculated from the measured vertical space above the footer; fixed platform
 counts are only first-render fallbacks. Bulk painting preserves the active
 filter while a status tool is selected so large unreviewed queues shrink in
-place instead of jumping to the phrase's new status bucket. Status tools keep
-readable words and icons rather than becoming icon-only.
+place instead of jumping to the phrase's new status bucket. Selecting a phrase
+for preview uses the shared Phrase Info Card route in the sidebar, matching
+Browse and Search; larger layouts should not also show a duplicate compact
+phrase preview row inside the review workspace. Status tools keep readable
+words and icons rather than becoming icon-only.
 The eligibility, ordering, page name, page-range label, and newline-delimited
 source text are portable `AddedPhraseReviewRules` behavior with compatibility
 tests so Android can share the same rule.
