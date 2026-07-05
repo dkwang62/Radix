@@ -34,6 +34,7 @@ struct FavouritesTab: View {
     @State var isShowingSentenceExamples = false
     @State var sentenceExampleFilter: SentenceExampleStudyFilter = .all
     @State var sentenceExampleSearchText = ""
+    @State var sentenceExamplePageIndex = 0
     @State var sentenceExampleRevision = 0
     @State var sentenceExampleStatusMessage: String?
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript

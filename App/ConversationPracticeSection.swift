@@ -29,37 +29,14 @@ extension FavouritesTab {
     }
 
     func conversationPracticePageNavigation(_ library: ConversationPracticeLibrary) -> some View {
-        HStack(spacing: 6) {
-            Button {
-                moveConversationPracticePage(by: -1, in: library)
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 12, weight: .bold))
-                    .frame(width: 26, height: 26)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(canMoveConversationPracticePage(by: -1, in: library) ? Color.accentColor : .secondary)
-            .disabled(!canMoveConversationPracticePage(by: -1, in: library))
-            .accessibilityLabel("Previous sentence page")
-
-            Text(conversationPracticePageLabel(for: library))
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .monospacedDigit()
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-
-            Button {
-                moveConversationPracticePage(by: 1, in: library)
-            } label: {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .bold))
-                    .frame(width: 26, height: 26)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(canMoveConversationPracticePage(by: 1, in: library) ? Color.accentColor : .secondary)
-            .disabled(!canMoveConversationPracticePage(by: 1, in: library))
-            .accessibilityLabel("Next sentence page")
+        practiceSentencePageNavigation(
+            label: conversationPracticePageLabel(for: library),
+            canMovePrevious: canMoveConversationPracticePage(by: -1, in: library),
+            canMoveNext: canMoveConversationPracticePage(by: 1, in: library)
+        ) {
+            moveConversationPracticePage(by: -1, in: library)
+        } onNext: {
+            moveConversationPracticePage(by: 1, in: library)
         }
     }
 

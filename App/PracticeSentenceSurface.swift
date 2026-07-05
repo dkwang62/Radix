@@ -1,6 +1,43 @@
 import SwiftUI
 
 extension FavouritesTab {
+    func practiceSentencePageNavigation(
+        label: String,
+        canMovePrevious: Bool,
+        canMoveNext: Bool,
+        onPrevious: @escaping () -> Void,
+        onNext: @escaping () -> Void
+    ) -> some View {
+        HStack(spacing: 6) {
+            Button(action: onPrevious) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 12, weight: .bold))
+                    .frame(width: 26, height: 26)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(canMovePrevious ? Color.accentColor : .secondary)
+            .disabled(!canMovePrevious)
+            .accessibilityLabel("Previous sentence page")
+
+            Text(label)
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+
+            Button(action: onNext) {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .bold))
+                    .frame(width: 26, height: 26)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(canMoveNext ? Color.accentColor : .secondary)
+            .disabled(!canMoveNext)
+            .accessibilityLabel("Next sentence page")
+        }
+    }
+
     var conversationPracticeSentenceDisplayToggle: some View {
         Picker("Sentence Display", selection: $conversationPracticeSentenceDisplay) {
             ForEach(ConversationPracticeSentenceDisplay.allCases) { display in

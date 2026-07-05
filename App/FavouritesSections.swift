@@ -154,7 +154,7 @@ extension FavouritesTab {
                         )
                         .frame(maxWidth: .infinity, minHeight: 240)
                     } else {
-                        ForEach(filteredSentenceExamples) { example in
+                        ForEach(pagedSentenceExamples) { example in
                             sentenceExampleRow(example)
                         }
                     }
@@ -186,9 +186,8 @@ extension FavouritesTab {
     var sentenceExamplesControls: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                Label("\(filteredSentenceExamples.count)/\(allSentenceExamples.count)", systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"))
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                sentenceExamplePageNavigation
+                    .fixedSize(horizontal: true, vertical: false)
 
                 Spacer(minLength: 8)
 
@@ -212,6 +211,7 @@ extension FavouritesTab {
                     ForEach(SentenceExampleStudyFilter.allCases) { filter in
                         Button {
                             sentenceExampleFilter = filter
+                            resetSentenceExamplePage()
                         } label: {
                             Label(filter.rawValue, systemImage: filter.systemImage)
                                 .font(ResponsiveFont.caption.weight(.semibold))
@@ -231,6 +231,9 @@ extension FavouritesTab {
         .padding(10)
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .onChange(of: sentenceExampleSearchText) { _, _ in
+            resetSentenceExamplePage()
+        }
     }
 
     var allSentenceExamples: [SentenceExampleRecord] {
@@ -244,6 +247,59 @@ extension FavouritesTab {
             return sentenceExampleMatchesSearch(example)
         }
         return filtered
+    }
+
+    var sentenceExamplePageSize: Int { 10 }
+
+    var sentenceExamplePageCount: Int {
+        max(1, Int(ceil(Double(filteredSentenceExamples.count) / Double(sentenceExamplePageSize))))
+    }
+
+    var clampedSentenceExamplePageIndex: Int {
+        min(max(sentenceExamplePageIndex, 0), sentenceExamplePageCount - 1)
+    }
+
+    var pagedSentenceExamples: [SentenceExampleRecord] {
+        let pageIndex = clampedSentenceExamplePageIndex
+        let startIndex = pageIndex * sentenceExamplePageSize
+        let endIndex = min(startIndex + sentenceExamplePageSize, filteredSentenceExamples.count)
+        guard startIndex < endIndex else { return [] }
+        return Array(filteredSentenceExamples[startIndex..<endIndex])
+    }
+
+    var sentenceExamplePageNavigation: some View {
+        practiceSentencePageNavigation(
+            label: sentenceExamplePageLabel,
+            canMovePrevious: canMoveSentenceExamplePage(by: -1),
+            canMoveNext: canMoveSentenceExamplePage(by: 1)
+        ) {
+            moveSentenceExamplePage(by: -1)
+        } onNext: {
+            moveSentenceExamplePage(by: 1)
+        }
+    }
+
+    var sentenceExamplePageLabel: String {
+        guard !filteredSentenceExamples.isEmpty else { return "0 of 0" }
+        let startRank = clampedSentenceExamplePageIndex * sentenceExamplePageSize + 1
+        let endRank = min(startRank + sentenceExamplePageSize - 1, filteredSentenceExamples.count)
+        return "\(startRank)-\(endRank) of \(filteredSentenceExamples.count)"
+    }
+
+    func canMoveSentenceExamplePage(by offset: Int) -> Bool {
+        let nextIndex = clampedSentenceExamplePageIndex + offset
+        return nextIndex >= 0 && nextIndex < sentenceExamplePageCount
+    }
+
+    func moveSentenceExamplePage(by offset: Int) {
+        guard canMoveSentenceExamplePage(by: offset) else { return }
+        withAnimation(.snappy(duration: 0.18)) {
+            sentenceExamplePageIndex = clampedSentenceExamplePageIndex + offset
+        }
+    }
+
+    func resetSentenceExamplePage() {
+        sentenceExamplePageIndex = 0
     }
 
     func sentenceExampleMatchesFilter(_ example: SentenceExampleRecord) -> Bool {
