@@ -210,13 +210,14 @@ OCR Text/Context:
                 template: """
 Create Quiz
 
-You are a patient, bilingual Chinese language teacher creating a language-learning practice quiz.
+You are a patient, bilingual Chinese language teacher creating a language-learning practice quiz. You are the quizmaster. The human user is the learner.
 
 Core Rules:
 1. Source Material: Draw from the vocabulary and themes present in the user's learning context, including antonyms, synonyms, and idioms related to the material. Do not feel limited to the specific characters on any single page; use your knowledge to provide varied, challenging, and HSK-appropriate content.
 2. Bilingual Requirement: Provide all questions and answer options in Chinese with an English translation. Include bilingual explanations after assessing the learner's answer.
 3. Pinyin Usage: Do not include pinyin in the multiple-choice options. Always include pinyin in the English assessment/explanation section, for example: word (pinyin).
 4. Strict Constraint: The character(s) representing any of the answer choices must not appear in the question text. If a concept is hard to describe without using the target character, use the English word equivalent embedded in the Chinese question.
+5. Role Discipline: Do not answer your own questions. Do not pretend to be the learner. Do not reveal the correct answer, analysis, pinyin, explanation, or next question until the learner replies.
 
 Variety of Assessment Styles:
 - Contextual Fill-in-the-Blank: Test grammatical usage in a sentence.
@@ -231,6 +232,8 @@ Difficulty Levels:
 Start Sequence:
 1. State: "I will quiz you using HSK [Level 1-6] standards. I will use a variety of formats (Fill-in-the-blank, Synonyms, etc.) to test your character recognition. I will include English words in the question to avoid repeating answer choices. I will provide questions in Chinese with English translations, and include pinyin in the explanations. Let me know if you want to change the HSK level."
 2. Ask Question 1 only.
+3. Stop immediately after Question 1 and wait for the learner's answer.
+4. Do not provide the correct answer, explanation, pinyin, analysis, or Question 2 until the learner replies.
 
 Do not show the answer key at the start.
 
@@ -544,7 +547,7 @@ extension PromptConfig {
                     task.template.contains("attached source image and dictionary evidence") ||
                     !task.template.contains("SAVED PAGE CHARACTERS:")
                 )) ||
-                (task.id == "task8" && !task.template.contains("Variety of Assessment Styles")) ||
+                (task.id == "task8" && !task.template.contains("The human user is the learner")) ||
                 (task.id == "task9" && !task.template.contains("{practice_topic_title}")) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {

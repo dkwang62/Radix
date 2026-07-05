@@ -102,6 +102,7 @@ struct PromptConfigTests {
 
         #expect(quiz?.title == "Create Quiz")
         #expect(quiz?.template.contains("patient, bilingual Chinese language teacher") == true)
+        #expect(quiz?.template.contains("You are the quizmaster. The human user is the learner.") == true)
         #expect(quiz?.template.contains("Draw from the vocabulary and themes present in the user's learning context") == true)
         #expect(quiz?.template.contains("Do not feel limited to the specific characters on any single page") == true)
         #expect(quiz?.template.contains("Bilingual Requirement") == true)
@@ -116,6 +117,8 @@ struct PromptConfigTests {
         #expect(quiz?.template.contains("Collocation Matching") == true)
         #expect(quiz?.template.contains("Use HSK standards, HSK 1 through HSK 6") == true)
         #expect(quiz?.template.contains("Ask Question 1 only.") == true)
+        #expect(quiz?.template.contains("Stop immediately after Question 1 and wait for the learner's answer") == true)
+        #expect(quiz?.template.contains("Do not provide the correct answer, explanation, pinyin, analysis, or Question 2 until the learner replies") == true)
         #expect(PromptConfig.collectionTaskIDs.contains("task8"))
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task8"))
     }
@@ -148,6 +151,47 @@ struct PromptConfigTests {
         #expect(template.contains("Variety of Assessment Styles"))
         #expect(template.contains("Use HSK standards, HSK 1 through HSK 6"))
         #expect(template.contains("answer choices must not appear in the question text"))
+        #expect(template.contains("The human user is the learner"))
+    }
+
+    @Test("Recent HSK page quiz prompts normalize to role-disciplined chat quiz")
+    func recentHSKPageQuizPromptNormalizesRoleDiscipline() {
+        let recent = PromptTask(
+            id: "task8",
+            title: "Create Quiz",
+            template: """
+            Create Quiz
+
+            You are a patient, bilingual Chinese language teacher creating a language-learning practice quiz.
+
+            Core Rules:
+            1. Source Material: Draw from the vocabulary and themes present in the user's learning context, including antonyms, synonyms, and idioms related to the material. Do not feel limited to the specific characters on any single page; use your knowledge to provide varied, challenging, and HSK-appropriate content.
+            2. Bilingual Requirement: Provide all questions and answer options in Chinese with an English translation. Include bilingual explanations after assessing the learner's answer.
+            3. Pinyin Usage: Do not include pinyin in the multiple-choice options. Always include pinyin in the English assessment/explanation section, for example: word (pinyin).
+            4. Strict Constraint: The character(s) representing any of the answer choices must not appear in the question text. If a concept is hard to describe without using the target character, use the English word equivalent embedded in the Chinese question.
+
+            Variety of Assessment Styles:
+            - Contextual Fill-in-the-Blank: Test grammatical usage in a sentence.
+
+            Start Sequence:
+            1. State: "I will quiz you using HSK [Level 1-6] standards."
+            2. Ask Question 1 only.
+            """
+        )
+        let config = PromptConfig(
+            version: 1,
+            preamble: "",
+            tasks: [recent],
+            epilogue: "",
+            collectionPreamble: "",
+            collectionEpilogue: ""
+        )
+
+        let template = config.normalized().tasks.first { $0.id == "task8" }?.template ?? ""
+
+        #expect(template.contains("The human user is the learner"))
+        #expect(template.contains("Do not answer your own questions"))
+        #expect(template.contains("Stop immediately after Question 1 and wait for the learner's answer"))
     }
 
     @Test("Conversation AI entry counts are shared and normalized")

@@ -667,9 +667,11 @@ ChatGPT, Gemini, or another AI chat. The default prompt asks the AI to draw from
 the user's learning themes instead of staying limited to one page's exact
 characters; it uses HSK 1-6 difficulty standards, rotates varied assessment
 styles, forbids answer-choice characters in the question text, keeps pinyin out
-of multiple-choice options, and requires pinyin in the explanation. Radix does
-not import a quiz result and must not offer a local dictionary-backed fallback
-quiz for this page task. The AI Link
+of multiple-choice options, and requires pinyin in the explanation. It must
+explicitly assign the AI as quizmaster and the human user as learner, then stop
+after Question 1 without revealing answers, analysis, pinyin, explanations, or
+Question 2 until the learner replies. Radix does not import a quiz result and
+must not offer a local dictionary-backed fallback quiz for this page task. The AI Link
 route preserves the appropriate return action such as `Back to Study` instead
 of leaving the user to find their way back manually.
 Navigation guidance and the welcome screen use one canonical division of work:
