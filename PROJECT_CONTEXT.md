@@ -264,7 +264,12 @@ source metadata. Approved OCR corrections also capture sentence fragments from
 the structured `[[CORRECTED TEXT]]` section as `ocr_source` examples linked to
 the original saved page. Quiz output remains intentionally uncaptured until its
 interactive flow has an explicit structured return path that does not reveal
-answers early or scrape ordinary chat prose.
+answers early or scrape ordinary chat prose. Study exposes a `Sentences`
+shortcut that opens the Sentence Examples browser with filters for All,
+Favorites, Page, Practice, OCR, and Hidden records, plus search and row actions
+for favorite, hide/restore, delete, copy Chinese, and opening the source page.
+Future sentence actions should add edit and practice-again without creating a
+second sentence store.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules

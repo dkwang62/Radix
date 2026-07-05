@@ -39,8 +39,9 @@ views over sentence examples rather than separate sentence databases.
 - Capture quiz-derived sentences only after quiz workflows have an explicit
   structured return path that does not reveal answers early or scrape chat
   prose.
-- Add a Sentence Examples browser with filters.
-- Add edit, hide, delete, copy, and practice-again actions.
+- Add a Sentence Examples browser with filters. Done.
+- Add edit and practice-again actions.
+- Add favorite, hide, restore, delete, copy, and source-page actions. Done.
 
 The rule is capture first, rank and curate later, but only from reliable
 structured sources until the quality controls are in place.

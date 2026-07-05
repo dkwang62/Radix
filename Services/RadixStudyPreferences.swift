@@ -176,6 +176,30 @@ enum RadixStudyPreferences {
         sentenceExamples = records
     }
 
+    static func setSentenceExampleFavorite(id: UUID, isFavorited: Bool) {
+        updateSentenceExample(id: id) { record in
+            record.isFavorited = isFavorited
+            record.qualityScore = max(0, record.qualityScore + (isFavorited ? 2 : -2))
+        }
+    }
+
+    static func setSentenceExampleHidden(id: UUID, isHidden: Bool) {
+        updateSentenceExample(id: id) { record in
+            record.isHidden = isHidden
+        }
+    }
+
+    static func deleteSentenceExample(id: UUID) {
+        sentenceExamples = sentenceExamples.filter { $0.id != id }
+    }
+
+    private static func updateSentenceExample(id: UUID, mutate: (inout SentenceExampleRecord) -> Void) {
+        var records = sentenceExamples
+        guard let index = records.firstIndex(where: { $0.id == id }) else { return }
+        mutate(&records[index])
+        sentenceExamples = records
+    }
+
     static func migrateLegacyFavoriteSentencesIntoSentenceExamples() {
         let records = favoriteSentences
         guard !records.isEmpty else { return }

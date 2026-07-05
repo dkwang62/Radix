@@ -30,6 +30,8 @@ extension FavouritesTab {
                 }
             } else if isShowingAddedPhraseReview {
                 addedPhraseReviewStudyScreen
+            } else if isShowingSentenceExamples {
+                sentenceExamplesStudyScreen
             } else {
                 VStack(alignment: .leading, spacing: 0) {
                     studyPinnedControls
@@ -133,6 +135,275 @@ extension FavouritesTab {
         .environmentObject(store)
     }
 
+    var sentenceExamplesStudyScreen: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sentenceExamplesBackButton
+                .padding(.horizontal)
+                .padding(.top, 8)
+
+            sentenceExamplesControls
+                .padding(.horizontal)
+
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 8) {
+                    if filteredSentenceExamples.isEmpty {
+                        ContentUnavailableView(
+                            "No Sentences",
+                            systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"),
+                            description: Text("Extract page sentences or import practice to fill the sentence database.")
+                        )
+                        .frame(maxWidth: .infinity, minHeight: 240)
+                    } else {
+                        ForEach(filteredSentenceExamples) { example in
+                            sentenceExampleRow(example)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 20)
+            }
+        }
+    }
+
+    var sentenceExamplesBackButton: some View {
+        Button {
+            withAnimation(.snappy(duration: 0.18)) {
+                isShowingSentenceExamples = false
+            }
+        } label: {
+            Label("Back to Study", systemImage: "chevron.left")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .labelStyle(.titleAndIcon)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(Color.accentColor)
+    }
+
+    var sentenceExamplesControls: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Label("\(filteredSentenceExamples.count)/\(allSentenceExamples.count)", systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"))
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+
+                Spacer(minLength: 8)
+
+                if let message = sentenceExampleStatusMessage {
+                    Text(message)
+                        .font(ResponsiveFont.caption2.weight(.semibold))
+                        .foregroundStyle(Color.accentColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+            }
+
+            TextField("Search sentences", text: $sentenceExampleSearchText)
+                .textFieldStyle(.roundedBorder)
+                .font(ResponsiveFont.body)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(SentenceExampleStudyFilter.allCases) { filter in
+                        Button {
+                            sentenceExampleFilter = filter
+                        } label: {
+                            Label(filter.rawValue, systemImage: filter.systemImage)
+                                .font(ResponsiveFont.caption.weight(.semibold))
+                                .labelStyle(.titleAndIcon)
+                                .padding(.horizontal, 9)
+                                .padding(.vertical, 6)
+                                .background(sentenceExampleFilter == filter ? Color.accentColor : RadixTheme.secondaryBackground)
+                                .foregroundStyle(sentenceExampleFilter == filter ? Color.white : Color.primary.opacity(0.72))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(.plain)
+                        .help(filter.rawValue)
+                    }
+                }
+            }
+        }
+        .padding(10)
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    var allSentenceExamples: [SentenceExampleRecord] {
+        _ = sentenceExampleRevision
+        return SentenceExampleRecord.ranked(RadixStudyPreferences.currentSentenceExamples)
+    }
+
+    var filteredSentenceExamples: [SentenceExampleRecord] {
+        let filtered = allSentenceExamples.filter { example in
+            guard sentenceExampleMatchesFilter(example) else { return false }
+            return sentenceExampleMatchesSearch(example)
+        }
+        return filtered
+    }
+
+    func sentenceExampleMatchesFilter(_ example: SentenceExampleRecord) -> Bool {
+        switch sentenceExampleFilter {
+        case .all:
+            return !example.isHidden
+        case .favorites:
+            return example.isFavorited && !example.isHidden
+        case .pageLinked:
+            return example.sources.contains { $0.sourcePageID != nil } && !example.isHidden
+        case .conversation:
+            return (example.hasSourceType(.conversationPractice) || example.hasSourceType(.sentencePractice)) && !example.isHidden
+        case .ocr:
+            return example.hasSourceType(.ocrSource) && !example.isHidden
+        case .hidden:
+            return example.isHidden
+        }
+    }
+
+    func sentenceExampleMatchesSearch(_ example: SentenceExampleRecord) -> Bool {
+        let query = sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return true }
+        let haystack = [
+            example.chinese,
+            example.pinyin ?? "",
+            example.english ?? "",
+            example.sources.compactMap(\.sourceTitle).joined(separator: " "),
+            example.tags.joined(separator: " ")
+        ]
+            .joined(separator: " ")
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+        return haystack.contains(query.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current))
+    }
+
+    func sentenceExampleRow(_ example: SentenceExampleRecord) -> some View {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(alignment: .top, spacing: 8) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(example.chinese)
+                        .font(ResponsiveFont.body.weight(.semibold))
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if let pinyin = example.pinyin {
+                        Text(pinyin)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    if let english = example.english {
+                        Text(english)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                sentenceExampleActions(example)
+            }
+
+            HStack(spacing: 6) {
+                Label(sentenceExampleSourceLabel(example), systemImage: sentenceExampleSourceIcon(example))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+
+                if example.isFavorited {
+                    Label("Favorite", systemImage: RadixIcon.saved)
+                }
+
+                if example.isHidden {
+                    Label("Hidden", systemImage: "eye.slash")
+                }
+            }
+            .font(ResponsiveFont.caption2.weight(.semibold))
+            .foregroundStyle(.secondary)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RadixTheme.secondaryBackground.opacity(0.52))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    func sentenceExampleActions(_ example: SentenceExampleRecord) -> some View {
+        Menu {
+            Button {
+                RadixStudyPreferences.setSentenceExampleFavorite(id: example.id, isFavorited: !example.isFavorited)
+                sentenceExampleRevision += 1
+                sentenceExampleStatusMessage = example.isFavorited ? "Removed favorite" : "Favorited"
+                loadFavoriteSentences()
+            } label: {
+                Label(example.isFavorited ? "Remove Favorite" : "Favorite", systemImage: RadixIcon.saved)
+            }
+
+            Button {
+                RadixPlatform.copyToPasteboard(example.chinese)
+                sentenceExampleStatusMessage = "Copied"
+            } label: {
+                Label("Copy Chinese", systemImage: RadixIcon.copy)
+            }
+
+            if let pageID = sentenceExampleSourcePageID(example),
+               store.collection(id: pageID) != nil {
+                Button {
+                    store.goToBrowseCollection(id: pageID, preservingOrigin: true)
+                } label: {
+                    Label("Open Source Page", systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
+                }
+            }
+
+            Divider()
+
+            Button {
+                RadixStudyPreferences.setSentenceExampleHidden(id: example.id, isHidden: !example.isHidden)
+                sentenceExampleRevision += 1
+                sentenceExampleStatusMessage = example.isHidden ? "Restored" : "Hidden"
+            } label: {
+                Label(example.isHidden ? "Restore" : "Hide", systemImage: example.isHidden ? "eye" : "eye.slash")
+            }
+
+            Button(role: .destructive) {
+                RadixStudyPreferences.deleteSentenceExample(id: example.id)
+                sentenceExampleRevision += 1
+                sentenceExampleStatusMessage = "Deleted"
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        } label: {
+            Image(systemName: "ellipsis.circle")
+                .font(.system(size: 18, weight: .semibold))
+                .frame(width: 34, height: 34)
+                .background(RadixTheme.systemGray5)
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(Color.accentColor)
+        .accessibilityLabel("Sentence actions")
+    }
+
+    func sentenceExampleSourcePageID(_ example: SentenceExampleRecord) -> UUID? {
+        example.sources.first(where: { $0.sourcePageID != nil })?.sourcePageID
+    }
+
+    func sentenceExampleSourceLabel(_ example: SentenceExampleRecord) -> String {
+        if let title = example.sources.compactMap(\.sourceTitle).first, !title.isEmpty {
+            return title
+        }
+        if example.hasSourceType(.ocrSource) { return "OCR" }
+        if example.hasSourceType(.sentencePractice) { return "Page Sentences" }
+        if example.hasSourceType(.conversationPractice) { return "Conversation Practice" }
+        if example.hasSourceType(.favoriteSentence) { return "Favorite Sentence" }
+        return "Sentence Example"
+    }
+
+    func sentenceExampleSourceIcon(_ example: SentenceExampleRecord) -> String {
+        if example.hasSourceType(.ocrSource) { return "doc.text.viewfinder" }
+        if example.hasSourceType(.sentencePractice) { return RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage) }
+        if example.hasSourceType(.conversationPractice) { return "bubble.left.and.bubble.right" }
+        if example.hasSourceType(.favoriteSentence) { return RadixIcon.saved }
+        return RadixGlossaryIcon.systemImage(for: "Sentence")
+    }
+
     private var studyScopeControls: [StudyScopeControl] {
         [
             StudyScopeControl(
@@ -169,6 +440,14 @@ extension FavouritesTab {
                 fill: .teal,
                 action: {
                     presentConversationPractice()
+                }
+            ),
+            StudyActionShortcut(
+                title: "Sentences",
+                systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"),
+                fill: .indigo,
+                action: {
+                    presentSentenceExamples()
                 }
             )
         ]

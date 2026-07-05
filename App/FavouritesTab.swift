@@ -31,6 +31,11 @@ struct FavouritesTab: View {
     @State var selectedPhrase: PhraseItem?
     @State var isShowingConversationPractice = false
     @State var isShowingAddedPhraseReview = false
+    @State var isShowingSentenceExamples = false
+    @State var sentenceExampleFilter: SentenceExampleStudyFilter = .all
+    @State var sentenceExampleSearchText = ""
+    @State var sentenceExampleRevision = 0
+    @State var sentenceExampleStatusMessage: String?
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
     @State var studyGridScope = RadixStudyPreferences.initialGridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
@@ -83,12 +88,13 @@ struct FavouritesTab: View {
             || !store.allCollections.isEmpty
             || !addedStudyPhraseEntries.isEmpty
             || !favoriteSentenceRecords.isEmpty
+            || !RadixStudyPreferences.currentSentenceExamples.isEmpty
             || !conversationPracticeTopics.isEmpty
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if !isShowingConversationPractice && !isShowingAddedPhraseReview {
+            if !isShowingConversationPractice && !isShowingAddedPhraseReview && !isShowingSentenceExamples {
                 favouritesHeader
             }
 
@@ -326,6 +332,7 @@ struct FavouritesTab: View {
             loadImportedConversationPracticePacks()
             loadFavoriteSentences()
             loadConversationPracticeLibrary()
+            sentenceExampleRevision += 1
         }
         .onChange(of: store.favoriteSentenceRevision) { _, _ in
             loadFavoriteSentences()
@@ -363,7 +370,17 @@ struct FavouritesTab: View {
         }
         withAnimation(.snappy(duration: 0.18)) {
             isShowingAddedPhraseReview = false
+            isShowingSentenceExamples = false
             isShowingConversationPractice = true
+        }
+    }
+
+    func presentSentenceExamples() {
+        sentenceExampleStatusMessage = nil
+        withAnimation(.snappy(duration: 0.18)) {
+            isShowingConversationPractice = false
+            isShowingAddedPhraseReview = false
+            isShowingSentenceExamples = true
         }
     }
 
@@ -689,6 +706,28 @@ enum StudyGridScope: String, CaseIterable, Identifiable {
         case .all: return RadixGlossaryIcon.systemImage(for: RadixTerm.recent)
         case .favorites: return RadixIcon.saved
         case .savedPages: return RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage)
+        }
+    }
+}
+
+enum SentenceExampleStudyFilter: String, CaseIterable, Identifiable {
+    case all = "All"
+    case favorites = "Favorites"
+    case pageLinked = "Page"
+    case conversation = "Practice"
+    case ocr = "OCR"
+    case hidden = "Hidden"
+
+    var id: String { rawValue }
+
+    var systemImage: String {
+        switch self {
+        case .all: return RadixGlossaryIcon.systemImage(for: "Sentence")
+        case .favorites: return RadixIcon.saved
+        case .pageLinked: return RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage)
+        case .conversation: return "bubble.left.and.bubble.right"
+        case .ocr: return "doc.text.viewfinder"
+        case .hidden: return "eye.slash"
         }
     }
 }
