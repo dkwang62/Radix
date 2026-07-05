@@ -14,6 +14,12 @@ struct StudyPagePhrasesPresentation: Identifiable {
     var id: UUID { collection.id }
 }
 
+struct SentenceExampleEditDraft: Identifiable {
+    let record: SentenceExampleRecord
+
+    var id: UUID { record.id }
+}
+
 struct FavouritesTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
@@ -37,6 +43,7 @@ struct FavouritesTab: View {
     @State var sentenceExamplePageIndex = 0
     @State var sentenceExampleRevision = 0
     @State var sentenceExampleStatusMessage: String?
+    @State var sentenceExampleEditDraft: SentenceExampleEditDraft?
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
     @State var studyGridScope = RadixStudyPreferences.initialGridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
@@ -177,6 +184,15 @@ struct FavouritesTab: View {
                 dismissesOnPhraseSelection: true
             )
             .environmentObject(store)
+        }
+        .sheet(item: $sentenceExampleEditDraft) { draft in
+            SentenceExampleEditSheet(record: draft.record) { updated in
+                RadixStudyPreferences.replaceSentenceExample(updated)
+                sentenceExampleRevision += 1
+                sentenceExampleStatusMessage = "Updated"
+                loadFavoriteSentences()
+                sentenceExampleEditDraft = nil
+            }
         }
         .sheet(isPresented: $showStudyCheckpoints) {
             NavigationStack {

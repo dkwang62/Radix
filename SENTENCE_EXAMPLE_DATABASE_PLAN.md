@@ -46,7 +46,8 @@ views over sentence examples rather than separate sentence databases.
 - Add a Sentence Examples browser with filters that reuses the Conversation
   Practice display toggle, row layout, and sentence info preview path. Done.
 - Add practice-again action that reuses Conversation Practice flashcards. Done.
-- Add edit action.
+- Add edit action that updates canonical sentence example records in place.
+  Done.
 - Add favorite, hide, restore, delete, copy, and source-page actions. Done.
 
 The rule is capture first, rank and curate later, but only from reliable

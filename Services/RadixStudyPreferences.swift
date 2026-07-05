@@ -216,6 +216,31 @@ enum RadixStudyPreferences {
         }
     }
 
+    static func replaceSentenceExample(_ updated: SentenceExampleRecord) {
+        var records = sentenceExamples
+        guard let index = records.firstIndex(where: { $0.id == updated.id }) else {
+            recordSentenceExamples([updated])
+            if updated.isFavorited {
+                setCompatibilityFavoriteRecord(FavoriteSentenceRecord(sentenceExample: updated), isFavorited: true)
+            }
+            return
+        }
+
+        let previous = records[index]
+        records[index] = updated
+        sentenceExamples = records
+
+        if previous.normalizedChineseKey != updated.normalizedChineseKey {
+            removeCompatibilityFavoriteRecord(matchingChinese: previous.chinese)
+        }
+
+        if updated.isFavorited {
+            setCompatibilityFavoriteRecord(FavoriteSentenceRecord(sentenceExample: updated), isFavorited: true)
+        } else {
+            removeCompatibilityFavoriteRecord(matchingChinese: updated.chinese)
+        }
+    }
+
     static func deleteSentenceExample(id: UUID) {
         let deleted = sentenceExamples.first { $0.id == id }
         sentenceExamples = sentenceExamples.filter { $0.id != id }
