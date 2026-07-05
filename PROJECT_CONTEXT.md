@@ -65,6 +65,16 @@ Large behavior groups have been extracted from the central store into
 
 Do not move domain behavior back into `RadixStore.swift`.
 
+### Reuse-first rule
+
+Before adding a new learning surface, search for an existing Radix surface that
+already owns that behavior and extend it instead of building a parallel version.
+This is especially important for sentence rows, Conversation Practice previews,
+Phrase Library sheets, phrase/sentence/character info cards, page artifact
+chips, and AI task flows. New code should introduce a second renderer or
+workflow only when the existing one cannot reasonably express the behavior, and
+the reason should be documented in the same change.
+
 ### Data and persistence
 
 - Character dictionary: JSON base data plus `component_map_changes.json` overlay.

@@ -64,6 +64,12 @@ header repeating the same topic; a focused Practice screen should not also show
 a generic Study description; a normal tile should not be duplicated by a
 separate mode switch.
 
+Do not duplicate an existing interaction pattern in new code. Before creating a
+new row, sheet, card, preview, or workflow for phrases, sentences, practice
+items, page artifacts, or AI tasks, search for the current shared component and
+reuse or extend it. A visually similar feature with different code is a product
+bug because behavior, styling, accessibility, and future fixes will drift.
+
 Labels should earn their space. Prefer concrete controls placed beside the
 object they change over headers that merely restate the current screen. Combine
 related controls into one local cluster when they operate on the same object,
