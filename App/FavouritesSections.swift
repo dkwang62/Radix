@@ -281,53 +281,37 @@ extension FavouritesTab {
     func sentenceExampleRow(_ example: SentenceExampleRecord) -> some View {
         let item = sentenceExamplePracticeItem(example)
         let isSelected = selectedConversationPracticeItemID == item.id
-        return VStack(alignment: .leading, spacing: 7) {
-            HStack(alignment: .top, spacing: 8) {
-                Button {
-                    presentConversationPracticePhrase(item)
-                } label: {
-                    HStack(alignment: .center, spacing: 8) {
-                        Text("\(item.rank)")
-                            .font(ResponsiveFont.caption2.weight(.semibold))
-                            .foregroundStyle(isSelected ? Color.white : Color.accentColor)
-                            .frame(width: 28, height: 28)
-                            .background(isSelected ? Color.accentColor : Color.accentColor.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: 7))
+        return HStack(alignment: .center, spacing: 6) {
+            Button {
+                presentConversationPracticePhrase(item)
+            } label: {
+                HStack(alignment: .center, spacing: 8) {
+                    Text("\(item.rank)")
+                        .font(ResponsiveFont.caption2.weight(.semibold))
+                        .foregroundStyle(isSelected ? Color.white : Color.accentColor)
+                        .frame(width: 28, height: 28)
+                        .background(isSelected ? Color.accentColor : Color.accentColor.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 7))
 
-                        conversationPracticeSentenceRowText(item)
+                    conversationPracticeSentenceRowText(item)
 
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 34, alignment: .leading)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(isSelected ? Color.accentColor : .secondary)
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Open sentence \(studyGridDisplayText(item.simplified))")
-                .accessibilityHint("Opens the sentence info card.")
-
-                sentenceExampleActions(example)
+                .frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Open sentence \(studyGridDisplayText(item.simplified))")
+            .accessibilityHint("Opens the sentence info card.")
 
-            HStack(spacing: 6) {
-                Label(sentenceExampleSourceLabel(example), systemImage: sentenceExampleSourceIcon(example))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-
-                if example.isFavorited {
-                    Label("Favorite", systemImage: RadixIcon.saved)
-                }
-
-                if example.isHidden {
-                    Label("Hidden", systemImage: "eye.slash")
-                }
-            }
-            .font(ResponsiveFont.caption2.weight(.semibold))
-            .foregroundStyle(.secondary)
+            sentenceExampleFavoriteButton(example)
+            sentenceExampleActions(example)
         }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RadixTheme.secondaryBackground.opacity(0.52))
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
+        .background(conversationPracticeSentenceBackground(isSelected: isSelected))
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(conversationPracticeSentenceBorder(isSelected: isSelected, cornerRadius: 8))
     }
@@ -337,13 +321,37 @@ extension FavouritesTab {
         return ConversationPracticeItem(sentenceExample: example, rank: rank)
     }
 
+    func sentenceExampleFavoriteButton(_ example: SentenceExampleRecord) -> some View {
+        Button {
+            toggleSentenceExampleFavorite(example)
+        } label: {
+            Image(systemName: example.isFavorited ? "star.fill" : "star")
+                .font(.system(size: 14, weight: .semibold))
+                .frame(width: 30, height: 30)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(example.isFavorited ? Color.yellow : .secondary)
+        .accessibilityLabel(example.isFavorited ? "Remove favorite sentence" : "Save favorite sentence")
+    }
+
     func sentenceExampleActions(_ example: SentenceExampleRecord) -> some View {
         Menu {
+            Button {} label: {
+                Label(sentenceExampleSourceLabel(example), systemImage: sentenceExampleSourceIcon(example))
+            }
+            .disabled(true)
+
+            if example.isHidden {
+                Button {} label: {
+                    Label("Hidden", systemImage: "eye.slash")
+                }
+                .disabled(true)
+            }
+
+            Divider()
+
             Button {
-                RadixStudyPreferences.setSentenceExampleFavorite(id: example.id, isFavorited: !example.isFavorited)
-                sentenceExampleRevision += 1
-                sentenceExampleStatusMessage = example.isFavorited ? "Removed favorite" : "Favorited"
-                loadFavoriteSentences()
+                toggleSentenceExampleFavorite(example)
             } label: {
                 Label(example.isFavorited ? "Remove Favorite" : "Favorite", systemImage: RadixIcon.saved)
             }
@@ -391,6 +399,13 @@ extension FavouritesTab {
         .buttonStyle(.plain)
         .foregroundStyle(Color.accentColor)
         .accessibilityLabel("Sentence actions")
+    }
+
+    func toggleSentenceExampleFavorite(_ example: SentenceExampleRecord) {
+        RadixStudyPreferences.setSentenceExampleFavorite(id: example.id, isFavorited: !example.isFavorited)
+        sentenceExampleRevision += 1
+        sentenceExampleStatusMessage = example.isFavorited ? "Removed favorite" : "Favorited"
+        loadFavoriteSentences()
     }
 
     func sentenceExampleSourcePageID(_ example: SentenceExampleRecord) -> UUID? {
