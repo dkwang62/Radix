@@ -138,9 +138,11 @@ Do not move domain behavior back into `RadixStore.swift`.
   The top-level Study controls separate grid modes from shortcuts: Recent,
   Favorites, and Saved Pages are a compact segmented scope switcher, while
   Added Phrases, Favorite Sentences, Conversation Practices, and iPhone
-  Checkpoints are lower-emphasis shortcut chips below it. Compact layouts keep
-  the mode labels visible and show shortcuts in an adaptive grid so Checkpoints
-  does not disappear offscreen; wider layouts use four shortcut columns.
+  Checkpoints are filled shortcut buttons below it. Saved Pages is the default
+  Study scope because page-linked artifacts are the center of the Study review
+  workflow. Compact layouts keep the mode labels visible and show shortcuts in
+  an adaptive grid so Checkpoints does not disappear offscreen; wider layouts
+  use four shortcut columns.
   These Study navigation and control rows stay pinned while the review content
   scrolls so users can switch scope, use shortcuts, or sort saved pages from
   deep in a long list.
@@ -422,14 +424,16 @@ uncertainty explanations are explicitly requested in English.
 The Study tab remains the user's main review surface. Its dashboard controls
 separate `Recent`, `Favorites`, and `Saved Pages` as mutually exclusive grid
 scopes from shortcut actions such as Added Phrases, Favorite Sentences,
-Conversation Practices, and iPhone Checkpoints. Added Phrases opens as a full
-Study workspace rather than a pop-out sheet, with a visible `Back to Study`
-control and no global Study header competing for space. Conversation Practices
-opens a focused Practice screen with a contextual return button. It says `Back
-to Study` from Study and `Back to Browse` when a Browse page shortcut opened
-the practice. There is no persistent `Review | Practice` switch row. Recent
-and Favorites must not be repeated as another segmented picker above the review
-grid.
+Conversation Practices, and iPhone Checkpoints. Saved Pages is the default
+scope for new Study sessions, and the shortcut actions below the scope switcher
+should look like real filled buttons rather than pale status chips. Added
+Phrases opens as a full Study workspace rather than a pop-out sheet, with a
+visible `Back to Study` control and no global Study header competing for space.
+Conversation Practices opens a focused Practice screen with a contextual return
+button. It says `Back to Study` from Study and `Back to Browse` when a Browse
+page shortcut opened the practice. There is no persistent `Review | Practice`
+switch row. Recent and Favorites must not be repeated as another segmented
+picker above the review grid.
 Conversation Practice is the next Study learning section. It presents curated
 practice sets such as `General Greetings`, `Restaurants`, `Airport`, and
 `Shopping Mall`, starting with about 100 common beginner conversational

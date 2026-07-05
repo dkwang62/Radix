@@ -11,7 +11,6 @@ private struct StudyScopeControl: Identifiable {
 private struct StudyActionShortcut: Identifiable {
     let title: String
     let systemImage: String
-    let tint: Color
     var isSelected = false
     var isDisabled = false
     let action: () -> Void
@@ -158,7 +157,6 @@ extension FavouritesTab {
             StudyActionShortcut(
                 title: "Added Phrases",
                 systemImage: "text.quote",
-                tint: .green,
                 action: {
                     presentAddedPhraseReview()
                 }
@@ -166,7 +164,6 @@ extension FavouritesTab {
             StudyActionShortcut(
                 title: "Favorite Sentences",
                 systemImage: "star.bubble",
-                tint: .orange,
                 isDisabled: favoriteSentenceRecords.isEmpty,
                 action: {
                     guard !favoriteSentenceRecords.isEmpty else { return }
@@ -180,7 +177,6 @@ extension FavouritesTab {
             StudyActionShortcut(
                 title: "Conversation Practices",
                 systemImage: "bubble.left.and.bubble.right",
-                tint: .teal,
                 action: {
                     withAnimation(.snappy(duration: 0.18)) {
                         isShowingAddedPhraseReview = false
@@ -195,7 +191,6 @@ extension FavouritesTab {
                 StudyActionShortcut(
                     title: "Checkpoints",
                     systemImage: "clock.arrow.circlepath",
-                    tint: .gray,
                     isSelected: showStudyCheckpoints,
                     action: {
                         showStudyCheckpoints = true
@@ -261,29 +256,32 @@ extension FavouritesTab {
     }
 
     private func studyActionShortcutButton(_ shortcut: StudyActionShortcut) -> some View {
-        Button(action: shortcut.action) {
+        let isActive = shortcut.isSelected || !shortcut.isDisabled
+        let fill = shortcut.isDisabled ? RadixTheme.systemGray5 : Color.accentColor
+        let foreground = shortcut.isDisabled ? Color.secondary : Color.white
+
+        return Button(action: shortcut.action) {
             Label {
                 Text(shortcut.title)
                     .lineLimit(1)
                     .minimumScaleFactor(0.72)
             } icon: {
                 Image(systemName: shortcut.systemImage)
-                    .foregroundStyle(shortcut.tint)
             }
             .font(ResponsiveFont.caption.weight(.semibold))
             .labelStyle(.titleAndIcon)
             .padding(.horizontal, 9)
             .padding(.vertical, 7)
             .frame(maxWidth: .infinity, minHeight: 34, alignment: .leading)
-            .background(shortcut.tint.opacity(shortcut.isSelected ? 0.18 : 0.07))
+            .foregroundStyle(foreground)
+            .background(fill.opacity(isActive ? 1 : 0.35))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(shortcut.tint.opacity(shortcut.isSelected ? 0.4 : 0.16), lineWidth: 1)
+                    .stroke(shortcut.isDisabled ? RadixTheme.separator.opacity(0.45) : Color.accentColor.opacity(0.95), lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
-        .foregroundStyle(shortcut.tint)
         .opacity(shortcut.isDisabled ? 0.45 : 1)
         .accessibilityLabel(shortcut.title)
         .help(shortcut.title)

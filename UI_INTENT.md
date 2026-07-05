@@ -264,7 +264,10 @@ kept material and summary controls. Keep grid modes and one-way shortcuts
 visually distinct: `Recent`, `Favorites`, and `Saved Pages` are mutually
 exclusive views of the review grid, while Added Phrases, Favorite Sentences,
 Conversation Practices, and iPhone Checkpoints are shortcuts to another review
-surface. Conversation Practices should open a focused Practice screen with a
+surface. Saved Pages should be the default Study scope because page-linked work
+is the center of the page-first Study flow. The shortcut row should still look
+button-like, with filled actionable controls rather than washed-out status
+chips. Conversation Practices should open a focused Practice screen with a
 clear `Back to Study` return button. Do not show a persistent `Review |
 Practice` switch row on the Study main screen.
 

@@ -15,9 +15,9 @@ enum RadixStudyPreferences {
     static var gridScope: StudyGridScope {
         get {
             guard let rawValue = preferences.string(forKey: gridScopeKey) else {
-                return .all
+                return .savedPages
             }
-            return StudyGridScope(rawValue: rawValue) ?? .all
+            return StudyGridScope(rawValue: rawValue) ?? .savedPages
         }
         set { preferences.set(newValue.rawValue, forKey: gridScopeKey) }
     }
