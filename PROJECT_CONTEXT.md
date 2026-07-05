@@ -86,6 +86,9 @@ aligned.
 My Data Advanced Exports keeps the AI-coding-agent purpose in the section intro
 and tooltip details; option subtitles should stay short and identify the
 exported file rather than repeating that purpose on every row.
+AI Link task/source dropdown labels share `RadixMenuSelectorRow`; keep selector
+row icon size, chevron, border, radius, and missing-state tint there instead of
+hand-copying row styling.
 
 ### Data and persistence
 

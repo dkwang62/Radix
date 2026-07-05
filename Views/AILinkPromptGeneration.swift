@@ -37,33 +37,13 @@ extension AILinkView {
                     Label("New AI Task...", systemImage: "plus.circle")
                 }
             } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(Color.accentColor)
-                        .frame(width: 34, height: 34)
-                        .background(Color.accentColor.opacity(0.12))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                    Text(selectedPromptTask?.title ?? "Choose AI Task")
-                        .font(ResponsiveFont.body.bold())
-                        .lineLimit(1)
-                        .layoutPriority(1)
-
-                    Spacer(minLength: 0)
-
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.horizontal, 12)
-                .frame(minHeight: 48)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(RadixTheme.background)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+                RadixMenuSelectorRow(
+                    icon: "sparkles",
+                    title: selectedPromptTask?.title ?? "Choose AI Task",
+                    subtitle: nil,
+                    isMissing: false,
+                    minHeight: 48,
+                    titleFont: ResponsiveFont.body.bold()
                 )
             }
             .buttonStyle(.plain)
@@ -326,38 +306,11 @@ extension AILinkView {
     }
 
     func sourceSelectorLabel(icon: String, title: String, subtitle: String, isMissing: Bool) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(isMissing ? Color.orange : Color.accentColor)
-                .frame(width: 34, height: 34)
-                .background((isMissing ? Color.orange : Color.accentColor).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(ResponsiveFont.body.weight(.semibold))
-                    .lineLimit(1)
-                Text(subtitle)
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
-            .layoutPriority(1)
-
-            Spacer(minLength: 0)
-
-            Image(systemName: "chevron.down")
-                .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(.secondary)
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
-        .background(RadixTheme.background)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+        RadixMenuSelectorRow(
+            icon: icon,
+            title: title,
+            subtitle: subtitle,
+            isMissing: isMissing
         )
     }
 
@@ -375,4 +328,57 @@ extension AILinkView {
         return pinyin.isEmpty ? subject : "\(subject)  \(pinyin)"
     }
 
+}
+
+struct RadixMenuSelectorRow: View {
+    let icon: String
+    let title: String
+    let subtitle: String?
+    var isMissing = false
+    var minHeight: CGFloat = 58
+    var titleFont: Font = ResponsiveFont.body.weight(.semibold)
+
+    private var tint: Color {
+        isMissing ? .orange : Color.accentColor
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(tint)
+                .frame(width: 34, height: 34)
+                .background(tint.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(titleFont)
+                    .lineLimit(1)
+
+                if let subtitle {
+                    Text(subtitle)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            .layoutPriority(1)
+
+            Spacer(minLength: 0)
+
+            Image(systemName: "chevron.down")
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, subtitle == nil ? 0 : 12)
+        .frame(maxWidth: .infinity, minHeight: minHeight, alignment: .leading)
+        .background(RadixTheme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+        )
+    }
 }
