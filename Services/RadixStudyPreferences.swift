@@ -155,6 +155,22 @@ enum RadixStudyPreferences {
         return pack.withCanonicalSentenceReferences(from: sentenceExamples)
     }
 
+    @discardableResult
+    static func migrateImportedConversationPracticePacksIntoSentenceExamples() -> Bool {
+        let packs = importedConversationPracticePacks
+        guard !packs.isEmpty else { return false }
+        var didMigrate = false
+        let migrated = packs.map { pack -> ConversationPracticePack in
+            guard pack.needsCanonicalSentenceReferences else { return pack }
+            didMigrate = true
+            return canonicalizedConversationPracticePack(pack)
+        }
+        if didMigrate {
+            importedConversationPracticePacks = migrated
+        }
+        return didMigrate
+    }
+
     static func refreshConversationPracticePackSentenceReferences() {
         let packs = importedConversationPracticePacks
         guard !packs.isEmpty else { return }

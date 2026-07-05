@@ -166,6 +166,40 @@ struct ConversationPracticeTests {
         #expect(firstReference.rank == firstItem.rank)
         #expect(firstReference.sentenceExampleID == firstRecord.id)
         #expect(firstReference.sentenceKey == firstRecord.normalizedChineseKey)
+        #expect(pack.needsCanonicalSentenceReferences)
+        #expect(!referencedPack.needsCanonicalSentenceReferences)
+    }
+
+    @Test("Legacy practice packs need canonical sentence migration")
+    func legacyPracticePacksNeedCanonicalSentenceMigration() throws {
+        let data = """
+        {
+          "pack_id": "legacy_pack",
+          "version": "1.0",
+          "title": "Legacy Pack",
+          "description": "No sentence references yet",
+          "language": "zh-Hans",
+          "entries": [
+            {
+              "id": "legacy-001",
+              "zh": "我们一起学习。",
+              "pinyin": "Wǒmen yìqǐ xuéxí.",
+              "en": "We study together."
+            }
+          ]
+        }
+        """.data(using: .utf8)!
+
+        let pack = try JSONDecoder().decode(ConversationPracticePack.self, from: data)
+        let examples = pack.practiceItems.map {
+            SentenceExampleRecord.fromPracticeItem($0, pack: pack)
+        }
+        let migrated = pack.withCanonicalSentenceReferences(from: examples)
+
+        #expect(pack.needsCanonicalSentenceReferences)
+        #expect(!migrated.needsCanonicalSentenceReferences)
+        #expect(migrated.sentenceReferences.count == 1)
+        #expect(migrated.sentenceReferences.first?.sentenceExampleID == examples.first?.id)
     }
 
     @Test("Legacy practice packs decode without sentence references")

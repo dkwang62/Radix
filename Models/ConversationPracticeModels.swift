@@ -156,6 +156,21 @@ public struct ConversationPracticePack: Codable, Equatable {
         }
     }
 
+    public var needsCanonicalSentenceReferences: Bool {
+        let items = practiceItems
+        guard sentenceReferences.count == items.count else { return true }
+        var referencesByItemID: [String: ConversationPracticeSentenceReference] = [:]
+        for reference in sentenceReferences {
+            referencesByItemID[reference.practiceItemID] = reference
+        }
+        return items.contains { item in
+            guard let reference = referencesByItemID[item.id] else { return true }
+            return reference.sentenceExampleID == nil ||
+                reference.rank != item.rank ||
+                reference.sentenceKey != SentenceExampleRecord.normalizedChineseKey(item.simplified)
+        }
+    }
+
     public var practiceLibrary: ConversationPracticeLibrary {
         let items = practiceItems
         return ConversationPracticeLibrary(

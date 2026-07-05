@@ -65,6 +65,7 @@ extension RadixStore {
     }
 
     func loadConversationPracticePhraseCache() {
+        RadixStudyPreferences.migrateImportedConversationPracticePacksIntoSentenceExamples()
         guard let library = try? ConversationPracticeService().loadStarterLibrary() else { return }
         registerConversationPracticeLibrary(library)
         if let favoriteLibrary = ConversationPracticeLibrary.favoriteSentencesLibrary(

@@ -419,6 +419,7 @@ struct FavouritesTab: View {
     }
 
     func loadImportedConversationPracticePacks() {
+        RadixStudyPreferences.migrateImportedConversationPracticePacksIntoSentenceExamples()
         let packs = RadixStudyPreferences.importedConversationPracticePacks
         importedConversationPracticeLibraries = Dictionary(
             uniqueKeysWithValues: packs.map { ($0.packID, $0.practiceLibrary) }

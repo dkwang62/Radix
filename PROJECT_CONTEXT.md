@@ -209,7 +209,7 @@ compatibility contracts. Current portable contracts include:
 - Conversation Practice source-link and sentence-reference metadata for
   page-derived practice packs
 
-The portable test suite currently contains 63 tests across eight suites.
+The portable test suite currently contains 64 tests across eight suites.
 
 ## Active Workstream
 
@@ -264,7 +264,10 @@ portability, source/character/phrase/page lookup helpers, automatic capture
 from Conversation Practice packs/favorite toggles, and legacy Favorite
 Sentences backfill. Imported/page-generated Conversation Practice packs now
 store ordered sentence references back to canonical examples, so packs act as
-grouping and sequencing metadata rather than another sentence database. The
+grouping and sequencing metadata rather than another sentence database. Existing
+stored imported packs are migrated idempotently when Study or the store loads
+Conversation Practice, so old practice sentences enter the sentence database
+without requiring re-import. The
 Favorite Sentences practice topic should be built from canonical favorited
 sentence examples while keeping old favorite records only as compatibility data
 until a fuller migration removes the duplicate store. AI outputs may include a
