@@ -363,6 +363,29 @@ struct ConversationPracticeTests {
         #expect(record.sources.isEmpty)
     }
 
+    @Test("OCR text captures sentence examples from corrected Chinese")
+    func ocrTextCapturesSentenceExamplesFromCorrectedChinese() {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000717")!
+        let createdAt = Date(timeIntervalSince1970: 1_730_000_000)
+        let records = SentenceExampleRecord.fromOCRText(
+            """
+            今天的会议很重要。请大家准时到达！
+            A
+            今天的会议很重要。
+            """,
+            sourcePageID: pageID,
+            sourceTitle: "Meeting Notice",
+            createdAt: createdAt
+        )
+
+        #expect(records.map(\.chinese) == ["今天的会议很重要", "请大家准时到达"])
+        #expect(records.first?.createdAt == createdAt)
+        #expect(records.first?.hasSourceType(.ocrSource) == true)
+        #expect(records.first?.isLinked(toPageID: pageID) == true)
+        #expect(records.first?.sources.first?.sourceTitle == "Meeting Notice")
+        #expect(records.first?.tags == ["ocr"])
+    }
+
     @Test("Conversation practice topics keep starter ordering and food generation brief")
     func defaultTopicsIncludeFoodExpansionTopic() {
         let topics = ConversationPracticeTopic.defaults

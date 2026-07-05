@@ -540,6 +540,32 @@ public struct SentenceExampleRecord: Codable, Equatable, Identifiable, Sendable 
         )
     }
 
+    public static func fromOCRText(
+        _ text: String,
+        sourcePageID: UUID,
+        sourceTitle: String,
+        createdAt: Date = Date()
+    ) -> [SentenceExampleRecord] {
+        let source = SentenceExampleSourceReference(
+            sourceType: .ocrSource,
+            sourceID: sourcePageID.uuidString,
+            sourceTitle: sourceTitle,
+            sourcePageID: sourcePageID,
+            practicePackID: nil,
+            practiceItemID: nil
+        )
+        return sentenceFragments(in: text).map { sentence in
+            SentenceExampleRecord(
+                chinese: sentence,
+                script: .unknown,
+                sources: [source],
+                detectedCharacters: detectChineseCharacters(in: sentence),
+                createdAt: createdAt,
+                tags: ["ocr"]
+            )
+        }
+    }
+
     public static func ranked(_ records: [SentenceExampleRecord]) -> [SentenceExampleRecord] {
         records
             .filter { !$0.isHidden }
@@ -598,6 +624,23 @@ public struct SentenceExampleRecord: Codable, Equatable, Identifiable, Sendable 
             characters.append(text)
         }
         return characters
+    }
+
+    public static func sentenceFragments(in value: String) -> [String] {
+        let separators = CharacterSet.newlines
+            .union(CharacterSet(charactersIn: "。！？!?；;"))
+        let fragments = value
+            .components(separatedBy: separators)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+
+        var seen: Set<String> = []
+        return fragments.compactMap { fragment in
+            let chineseCount = fragment.filter(ConversationPracticeRules.isChineseCharacter).count
+            guard chineseCount >= 2 else { return nil }
+            let key = normalizedChineseKey(fragment)
+            guard !key.isEmpty, seen.insert(key).inserted else { return nil }
+            return fragment
+        }
     }
 
     private static func deduplicated(_ values: [String]) -> [String] {

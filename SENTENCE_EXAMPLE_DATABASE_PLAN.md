@@ -35,7 +35,10 @@ views over sentence examples rather than separate sentence databases.
 ## Phase 3: Expansion
 
 - Parse `[Radix Capture JSON]` blocks from AI outputs. Done.
-- Capture quiz and OCR-derived sentences where structure is reliable.
+- Capture OCR-derived sentences where structure is reliable. Done.
+- Capture quiz-derived sentences only after quiz workflows have an explicit
+  structured return path that does not reveal answers early or scrape chat
+  prose.
 - Add a Sentence Examples browser with filters.
 - Add edit, hide, delete, copy, and practice-again actions.
 

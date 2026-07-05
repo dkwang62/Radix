@@ -199,7 +199,7 @@ compatibility contracts. Current portable contracts include:
 - Conversation Practice source-link and sentence-reference metadata for
   page-derived practice packs
 
-The portable test suite currently contains 61 tests across eight suites.
+The portable test suite currently contains 62 tests across eight suites.
 
 ## Active Workstream
 
@@ -260,8 +260,11 @@ sentence examples while keeping old favorite records only as compatibility data
 until a fuller migration removes the duplicate store. AI outputs may include a
 `[Radix Capture JSON]` block containing `sentences` or `sentence_examples`;
 Radix can parse those blocks into canonical sentence examples with optional
-source metadata, but quiz/OCR prompts should only start emitting them when their
-structure is reliable enough to avoid polluting the sentence database.
+source metadata. Approved OCR corrections also capture sentence fragments from
+the structured `[[CORRECTED TEXT]]` section as `ocr_source` examples linked to
+the original saved page. Quiz output remains intentionally uncaptured until its
+interactive flow has an explicit structured return path that does not reveal
+answers early or scrape ordinary chat prose.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules
