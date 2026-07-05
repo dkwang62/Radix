@@ -453,15 +453,16 @@ Checkpoints there.
 On iPhone, Study includes a compact `Backup files` link to My Data so users can
 learn the difference without losing the quick Checkpoint workflow. Put
 Checkpoints at the bottom of iPhone Study so the safety net is available without
-competing with the main review choices. On iPad and Mac, put Checkpoints in the
-sidebar when no character/phrase information card is displayed; hide them while
-that card is visible so the sidebar has one clear focus. Top-level navigation
-and global actions that are not selecting a character or phrase should clear the
-information card, making Checkpoints visible again. Show one Create Checkpoint
-action plus recent checkpoint rows; the rows themselves return to that
-checkpoint after confirmation. Backup file rows in My Data offer Merge or
-Replace and use the picker only when the exported file is no longer directly
-readable.
+competing with the main review choices, and show the full retained checkpoint
+list rather than trapping most rows behind a tiny inner scroll. On iPad and Mac,
+put Checkpoints in the sidebar when no character/phrase information card is
+displayed; hide them while that card is visible so the sidebar has one clear
+focus. Top-level navigation and global actions that are not selecting a
+character or phrase should clear the information card, making Checkpoints
+visible again. The sidebar may show only recent checkpoint rows, but it should
+label the subset when more exist. The rows themselves return to that checkpoint
+after confirmation. Backup file rows in My Data offer Merge or Replace and use
+the picker only when the exported file is no longer directly readable.
 
 The shared meaning is:
 

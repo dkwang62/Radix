@@ -212,7 +212,7 @@ extension RootView {
                     .font(ResponsiveFont.subheadline.weight(.bold))
                 Spacer()
                 if quickLocalSnapshots.count > 3 {
-                    Text("\(quickLocalSnapshots.count)")
+                    Text("Recent 3 of \(quickLocalSnapshots.count)")
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }

@@ -281,6 +281,9 @@ extension FavouritesTab {
                 Label("Checkpoints", systemImage: "clock.arrow.circlepath")
                     .font(ResponsiveFont.headline)
                 Spacer()
+                Text("\(checkpoints.count)/\(LocalDataSnapshotStore.maximumSnapshotCount)")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
                 backupFilesLink
             }
 
@@ -335,20 +338,17 @@ extension FavouritesTab {
                 .background(RadixTheme.background)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         } else {
-            ScrollView(.vertical, showsIndicators: checkpoints.count > 3) {
-                VStack(spacing: 6) {
-                    ForEach(checkpoints) { checkpoint in
-                        Button {
-                            pendingCheckpointReturn = checkpoint
-                        } label: {
-                            checkpointListRow(checkpoint)
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
+            VStack(spacing: 6) {
+                ForEach(checkpoints) { checkpoint in
+                    Button {
+                        pendingCheckpointReturn = checkpoint
+                    } label: {
+                        checkpointListRow(checkpoint)
                     }
+                    .buttonStyle(.plain)
+                    .disabled(isCreatingCheckpoint || isReturningToCheckpoint)
                 }
             }
-            .frame(maxHeight: checkpointListMaxHeight)
         }
     }
 
@@ -443,10 +443,6 @@ extension FavouritesTab {
             RoundedRectangle(cornerRadius: 9)
                 .stroke(tint.opacity(0.25), lineWidth: 1)
         )
-    }
-
-    var checkpointListMaxHeight: CGFloat {
-        162
     }
 
     func sectionTitle(_ title: String) -> some View {

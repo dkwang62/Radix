@@ -705,11 +705,13 @@ information card owns the sidebar focus. Top-level navigation and global
 non-character/non-phrase actions clear the information card so Checkpoints
 return to the sidebar once that contextual focus is no longer active. On iPhone,
 where there is no persistent sidebar, Checkpoints are the seventh icon in the
-top Study scope row and open a sheet with one Create Checkpoint action and recent
-checkpoint rows. Tapping a row is the return action after confirmation, so there
-is no separate restore menu competing with the learning content. Returning to a
-checkpoint always leaves the user in Study, even if the checkpoint was created
-while another tab was active. iPhone Study
+top Study scope row and open a sheet with one Create Checkpoint action and the
+full retained checkpoint list, up to `LocalDataSnapshotStore.maximumSnapshotCount`.
+The iPad/Mac sidebar remains a compact recent-checkpoint preview and should
+label that subset when more checkpoints exist. Tapping a row is the return
+action after confirmation, so there is no separate restore menu competing with
+the learning content. Returning to a checkpoint always leaves the user in Study,
+even if the checkpoint was created while another tab was active. iPhone Study
 includes a compact `Backup files` bridge to My Data so users can still
 distinguish local learning recovery from portable file protection.
 My Data’s `Backup File` screen owns Backup File actions only. Backup
