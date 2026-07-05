@@ -4,12 +4,6 @@ import PhotosUI
 #endif
 
 extension FilterGridTab {
-    var browseSourceOptions: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            browseSavedPageOptions
-        }
-    }
-
     var browseSavedPageOptions: some View {
         VStack(alignment: .leading, spacing: 6) {
             sourceOptionButton(

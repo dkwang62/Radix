@@ -121,29 +121,6 @@ extension RootView {
         }
     }
 
-    @ViewBuilder
-    var restoreSnapshotMenuContent: some View {
-        if quickLocalSnapshots.isEmpty {
-            Text("No checkpoints created")
-        } else {
-            ForEach(quickLocalSnapshots) { snapshot in
-                Button {
-                    quickRestoreMemory(from: snapshot)
-                } label: {
-                    Label(snapshot.title, systemImage: "clock.arrow.circlepath")
-                }
-            }
-        }
-
-        Divider()
-
-        Button {
-            refreshQuickLocalSnapshots()
-        } label: {
-            Label("Refresh List", systemImage: "arrow.clockwise")
-        }
-    }
-
     private func quickRestoreMemorySource(snapshot: LocalDataSnapshot?) throws -> (data: Data, name: String) {
         let snapshot = try snapshot ?? latestLocalSnapshot()
         return (try localSnapshotStore.data(for: snapshot), snapshot.title)

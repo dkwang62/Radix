@@ -28,13 +28,6 @@ private struct StudyPageArtifact: Identifiable {
 }
 
 extension FavouritesTab {
-    var recentStudySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            recentStudyHeader
-            studyReviewContent
-        }
-    }
-
     @ViewBuilder
     var studyReviewContent: some View {
         if studyGridScope == .savedPages {

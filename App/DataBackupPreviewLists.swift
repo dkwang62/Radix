@@ -53,38 +53,6 @@ extension DataBackupPreviewSection {
         }
     }
 
-    @ViewBuilder
-    func addedPhraseReviewRows(_ phrases: [PhraseItem]) -> some View {
-        let reviewPhrases = phrases
-        let sortedPhrases = sortedBackupPhrases(reviewPhrases)
-
-        if reviewPhrases.isEmpty {
-            Text("No phrases waiting for review.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-                .padding(.top, 8)
-        } else {
-            LazyVGrid(columns: backupPhraseColumns, alignment: .leading, spacing: 8) {
-                ForEach(sortedPhrases) { phrase in
-                    BackupPhraseRow(phrase: phrase, onSelect: {
-                        previewOrCycleAddedPhrase(phrase)
-                    }, showsReviewStatus: true)
-                }
-            }
-            .padding(.top, 8)
-        }
-    }
-
-    var backupSavedPagesRows: some View {
-        SavedImageRows(
-            collections: store.allCollections,
-            emptyDescription: "Scan or import an image.",
-            onOpen: openBackupSavedPage,
-            onDelete: deleteBackupSavedPage
-        )
-        .padding(.top, 8)
-    }
-
     var backupPhraseColumns: [GridItem] {
         [GridItem(.adaptive(minimum: isPhone ? 120 : 140), spacing: 8)]
     }

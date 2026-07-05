@@ -242,32 +242,6 @@ extension DataEditTab {
         }
     }
 
-    var otherDeviceSavedStatusRow: some View {
-        let hasSavedFile = lastOtherDeviceBackupMetadata.hasBackup
-        let fileURL = URL(fileURLWithPath: lastOtherDeviceBackupMetadata.path)
-        let filename = fileURL.lastPathComponent
-        let relativeText = hasSavedFile
-            ? LocalDataSnapshot.relativeText(for: Date(timeIntervalSince1970: lastOtherDeviceBackupMetadata.timestamp))
-            : nil
-
-        return HStack(spacing: 10) {
-            Image(systemName: hasSavedFile ? "checkmark.circle.fill" : "externaldrive")
-                .foregroundStyle(hasSavedFile ? Color.green : Color.secondary)
-
-            Text(hasSavedFile ? "Last backup created: \(filename) \(relativeText ?? "")." : "No backup created yet.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(hasSavedFile ? Color.green : Color.secondary)
-                .lineLimit(3)
-                .fixedSize(horizontal: false, vertical: true)
-
-            Spacer(minLength: 0)
-        }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(hasSavedFile ? Color.green.opacity(0.1) : RadixTheme.background)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
     func createPortableBackup() {
         guard !entitlement.requiresPro(.myBackup) else {
             onRequirePro(.myBackup)

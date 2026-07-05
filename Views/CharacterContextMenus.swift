@@ -117,39 +117,8 @@ extension View {
         modifier(CopyCharacterContextMenuModifier(character: character, pinyin: pinyin, onShowPhrases: onShowPhrases))
     }
 
-    func copyTextContextMenu(_ text: String, buttonTitle: String, secondaryText: String? = nil, secondaryButtonTitle: String? = nil) -> some View {
-        modifier(CopyTextContextMenuModifier(text: text, buttonTitle: buttonTitle, secondaryText: secondaryText, secondaryButtonTitle: secondaryButtonTitle))
-    }
-
     func phraseContextMenu(_ phrase: PhraseItem) -> some View {
         modifier(PhraseContextMenuModifier(phrase: phrase))
-    }
-}
-
-private struct CopyTextContextMenuModifier: ViewModifier {
-    let text: String
-    let buttonTitle: String
-    let secondaryText: String?
-    let secondaryButtonTitle: String?
-
-    func body(content: Content) -> some View {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.isEmpty {
-            content
-        } else {
-            content.contextMenu {
-                Button(buttonTitle) {
-                    copyToClipboard(trimmed)
-                }
-                if let secondaryButtonTitle,
-                   let trimmedSecondaryText = secondaryText?.trimmingCharacters(in: .whitespacesAndNewlines),
-                   !trimmedSecondaryText.isEmpty {
-                    Button(secondaryButtonTitle) {
-                        copyToClipboard(trimmedSecondaryText)
-                    }
-                }
-            }
-        }
     }
 }
 

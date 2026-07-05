@@ -262,5 +262,4 @@ struct FilterGridTab: View {
         }
     }
 
-    var browseWorkspaceHeader: some View { EmptyView() }
 }

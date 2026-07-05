@@ -24,15 +24,4 @@ extension DataEditTab {
         }
         return merged
     }
-
-    var activeCharacterContext: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            if let current = store.previewCharacter {
-                standardPhoneCharacterPreview(
-                    character: current,
-                    onClear: { store.previewCharacter = nil }
-                )
-            }
-        }
-    }
 }

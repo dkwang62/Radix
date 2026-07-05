@@ -52,15 +52,6 @@ extension FavouritesTab {
         }
     }
 
-    @ViewBuilder
-    var studyMainContent: some View {
-        studyDashboardSummary
-
-        if hasStudyGridItems {
-            recentStudySection
-        }
-    }
-
     var studyPinnedControls: some View {
         VStack(alignment: .leading, spacing: 10) {
             studyDashboardSummary

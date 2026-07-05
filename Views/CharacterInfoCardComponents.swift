@@ -1,17 +1,6 @@
 import SwiftUI
 
 extension CharacterInfoCard {
-    @ViewBuilder
-    var structureChipRow: some View {
-        if !structurePartsText.isEmpty || !item.radical.isEmpty {
-            HStack(spacing: 6) {
-                if !structurePartsText.isEmpty {
-                    chipButton(structurePartsText, guide: .structure)
-                }
-            }
-        }
-    }
-
     func chipButton(_ text: String, guide: ChipGuide) -> some View {
         Button {
             activeChipGuide = guide

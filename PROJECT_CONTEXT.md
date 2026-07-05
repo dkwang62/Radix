@@ -74,6 +74,9 @@ Phrase Library sheets, phrase/sentence/character info cards, page artifact
 chips, and AI task flows. New code should introduce a second renderer or
 workflow only when the existing one cannot reasonably express the behavior, and
 the reason should be documented in the same change.
+SwiftUI helper views in `App/` and `Views/` should have visible call sites; do
+not leave superseded alternate rows, cards, menu content, or one-off preview
+wrappers behind after a redesign.
 
 ### Data and persistence
 

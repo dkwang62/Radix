@@ -5,22 +5,6 @@ extension SmartSearchTab {
         RadixPlatform.isPhone
     }
 
-    @ViewBuilder
-    var phoneSearchPreviewIfNeeded: some View {
-        if RadixPlatform.isPhone,
-           let current = searchDetailPreviewCharacter ?? searchPreviewCharacter,
-           store.item(for: current) != nil {
-            standardPhoneCharacterPreview(
-                character: current,
-                onClear: {
-                    searchPreviewCharacter = nil
-                    searchDetailPreviewCharacter = nil
-                    store.previewCharacter = nil
-                }
-            )
-        }
-    }
-
     var isPhoneSearchPreviewActive: Bool {
         guard RadixPlatform.isPhone else { return false }
         return store.activeSidebarPhrasePreview != nil || searchDetailPreviewCharacter != nil || searchPreviewCharacter != nil
