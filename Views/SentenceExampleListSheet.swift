@@ -44,12 +44,23 @@ struct SentenceExampleListSheet: View {
                     .background(Color.accentColor.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: 7))
 
-                Text(example.chinese)
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.86)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(example.chinese)
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.86)
+
+                    if let english = example.english?.trimmingCharacters(in: .whitespacesAndNewlines),
+                       !english.isEmpty {
+                        Text(english)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.86)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 11, weight: .semibold))

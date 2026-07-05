@@ -132,8 +132,9 @@ hand-copying row styling.
   preview cards show the meaning text directly, and character preview cards show
   the definition directly, without redundant section headings.
   Character and phrase information cards do not inline sentence examples.
-  Examples appear through an `Examples` action, show a Chinese-only sentence
-  list first, and open the shared sentence information card on selection.
+  Examples appear through an `Examples` action, show a Chinese plus English
+  sentence list without pinyin first, and open the shared sentence information
+  card on selection.
 - Portable backup: `UnifiedPackage` schema 5, with legacy backup decoding retained.
 - Bundled standard data imports additively once on startup from
   `radix_unified_backup.json`, guarded by `RadixPreferenceKey.standardDataImportID`.
