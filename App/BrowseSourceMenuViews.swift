@@ -209,7 +209,7 @@ private struct PageAIOrientationView: View {
                         method(
                             icon: "doc.on.clipboard",
                             title: PageAIMethodCopy.manualTitle,
-                            detail: "Radix prepares the AI prompt and page evidence in AI Link so you can copy it into ChatGPT, Gemini, Claude, or another AI app. No API key is needed, and this option remains available even when Gemini API is configured."
+                            detail: "Radix prepares the AI prompt and page evidence in AI Link so you can copy it into ChatGPT, Gemini, Claude, or your chosen AI chat. No API key is needed, and this option remains available even when Gemini API is configured."
                         )
 
                         method(
