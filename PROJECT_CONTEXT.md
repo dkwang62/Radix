@@ -112,9 +112,9 @@ Do not move domain behavior back into `RadixStore.swift`.
   such as components, script choice, and filters live on their own compact row
   instead of crowding the source/navigation row.
 - The page-centered direction requires a page artifact model before destructive
-  cascade behavior is added. Corrected OCR pages, translations, quizzes,
-  extracted sentence packs, page-created conversation practice, and page-local
-  notes are page-owned artifacts. Added phrases, favorites, global notes, and
+  cascade behavior is added. Corrected OCR pages, translations, extracted
+  sentence packs, page-created conversation practice, and page-local notes are
+  page-owned artifacts. Added phrases, favorites, global notes, and
   reusable practice progress are linked learning material that should not be
   silently deleted with a page. Page phrase extraction records link extracted
   non-base phrase words back to the saved page that produced them, including
@@ -638,7 +638,8 @@ no saved pages exist.
 Saved-page name normalization, corrected-name suffixing, and most-recent
 selection live in portable `SavedPageRules` with compatibility tests. SwiftUI
 only supplies actions; one shared Browse gateway handles missing Gemini keys
-for OCR, phrase extraction, translation, and AI quiz generation.
+for OCR, phrase extraction, and translation. Page quiz generation is an AI Link
+chat-prompt workflow rather than a local quiz-generation/import path.
 The OCR, extraction, and translation task menus share the same method vocabulary:
 `Use Another AI App` or `Run Automatically in Radix`. The first method choice
 shows one concise orientation, then continues the chosen action; `How Radix Uses
@@ -646,9 +647,8 @@ AI` reopens it without adding permanent screen text. The orientation uses a
 sheet with pinned actions on every platform so iPad cannot truncate the
 description or lose the continuation control.
 Copy-and-paste is the durable fallback and remains visible even when a Gemini
-key is saved. Automatic OCR, extraction, translation, or quiz generation
-failures offer a clear fallback because a valid key does not guarantee Gemini
-service availability.
+key is saved. Automatic OCR, extraction, or translation failures offer a clear
+fallback because a valid key does not guarantee Gemini service availability.
 Manual ChatGPT handoff copies the full prompt to the pasteboard and opens the
 base ChatGPT URL only. Do not pass Chinese page text through ChatGPT URL query
 parameters; that path has corrupted CJK text into placeholder glyphs on iPad.
@@ -660,21 +660,15 @@ copies the instruction and opens the AI app. After that action is tapped, the
 instruction section collapses so the remaining next step is pasting the AI
 answer to create the corrected page. Do not reintroduce separate visible
 `Copy Instruction` or `Copy Image` buttons beside the primary action.
-Create Quiz is page-only and uses the same two-method menu as the other saved
-page AI tasks. `Use Another AI App` copies and opens the editable quiz template
-so the user can practice in ChatGPT, Gemini, or another service without an API
-key. `Run Automatically in Radix` asks Gemini for structured quiz JSON, then
-Radix presents the questions one at a time, keeps answers hidden until the user
-taps an option, and immediately marks the answer correct or wrong with an
-English explanation. The quiz sheet must be scrollable and padded below the
-toolbar so page titles, instructions, options, and feedback are never obscured.
-If the automatic route is entered without a key, Radix explains the issue and
-offers both `Set Up Gemini API Key` and a local dictionary-backed fallback quiz.
-Browse and Study use the same explicit no-key quiz state instead of attempting
-an automatic request first. The setup action uses the shared contextual
-API-key setup path, points to Settings' `Automatic AI` section, and preserves the appropriate
-return action such as `Back to Browse` or `Back to Study` instead of leaving
-the user to find their way back manually.
+Create Quiz is page-only and uses the AI Link saved-page task rather than a
+local Radix quiz screen. The Study page `Quiz` chip opens the editable quiz
+template in AI Link with the page selected, allowing the user to continue in
+ChatGPT, Gemini, or another AI chat. The default prompt asks for Simplified
+Chinese quiz prompts and answer options, while explicitly allowing the learner
+to ask for Traditional Chinese. Radix does not import a quiz result and must not
+offer a local dictionary-backed fallback quiz for this page task. The AI Link
+route preserves the appropriate return action such as `Back to Study` instead
+of leaving the user to find their way back manually.
 Navigation guidance and the welcome screen use one canonical division of work:
 Browse inspects the dictionary or captured pages; Study reviews what the user
 kept; AI understands or transforms material; My Data protects, transfers, or

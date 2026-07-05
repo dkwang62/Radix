@@ -193,7 +193,7 @@ private struct PageAIOrientationView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Radix can use AI to check OCR, extract useful phrases, translate a complete page in context, generate an in-app practice quiz, extract page sentences, or create Conversation Practice from a saved page theme.")
+                        Text("Radix can use AI to check OCR, extract useful phrases, translate a complete page in context, prepare an AI chat quiz, extract page sentences, or create Conversation Practice from a saved page theme.")
                             .font(ResponsiveFont.body)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)

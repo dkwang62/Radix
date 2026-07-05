@@ -55,10 +55,6 @@ struct FavouritesTab: View {
     @State var conversationPracticeTranslationQuizPresentation: ConversationPracticeTranslationQuizPresentation?
     @State var studyTranslationReportCollection: CharacterCollection?
     @State var studyTranslationReportDraft = ""
-    @State var studyPageQuizCollection: CharacterCollection?
-    @State var studyPageQuizQuestions: [PageQuizQuestion] = []
-    @State var studyPageQuizMessage: String?
-    @State var isGeneratingStudyPageQuiz = false
     @State var pendingStudyDeleteCollection: CharacterCollection?
     @State var pendingStudyOCRPromotion: StudyOCRPromotion?
     @State var studyPageActionMessage: String?
@@ -167,24 +163,6 @@ struct FavouritesTab: View {
                 onSave: { saveStudyTranslationReport(collection) },
                 onClear: { clearStudyTranslationReport(collection) },
                 onDone: { studyTranslationReportCollection = nil }
-            )
-        }
-        .sheet(item: $studyPageQuizCollection) { collection in
-            BrowsePageQuizSheet(
-                collectionName: collection.name,
-                questions: studyPageQuizQuestions,
-                message: studyPageQuizMessage,
-                isGenerating: isGeneratingStudyPageQuiz,
-                canSetUpGeminiKey: store.geminiAPIKey
-                    .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                onUseLocalFallback: { useLocalStudyPageQuizFallback(collection) },
-                onSetUpGeminiKey: {
-                    studyPageQuizCollection = nil
-                    DispatchQueue.main.async {
-                        store.goToSettingsForAPIKeySetup()
-                    }
-                },
-                onDone: { studyPageQuizCollection = nil }
             )
         }
         .sheet(item: $studyPagePhrasesPresentation) { presentation in

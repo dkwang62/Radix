@@ -238,19 +238,6 @@ extension FavouritesTab {
         }
     }
 
-    func beginStudyPageQuiz(_ collection: CharacterCollection) {
-        studyPageQuizQuestions = store.pageQuizQuestions(for: collection)
-        studyPageQuizMessage = "Using a local Radix quiz from this saved page."
-        isGeneratingStudyPageQuiz = false
-        studyPageQuizCollection = collection
-    }
-
-    func useLocalStudyPageQuizFallback(_ collection: CharacterCollection) {
-        studyPageQuizQuestions = store.pageQuizQuestions(for: collection)
-        studyPageQuizMessage = "Using a local Radix quiz because AI generation is unavailable."
-        isGeneratingStudyPageQuiz = false
-    }
-
     func beginPromotingOCRCorrection(original: CharacterCollection, corrected: CharacterCollection) {
         pendingStudyOCRPromotion = StudyOCRPromotion(original: original, corrected: corrected)
     }
@@ -308,11 +295,11 @@ extension FavouritesTab {
                 automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiTranslationAndSave(collection) } }
             ),
             CollectionPageAITask(
-                id: "task8",
+                id: AIResultTaskID.createQuiz,
                 title: "Create Quiz",
                 systemImage: "questionmark.circle",
-                manualAction: { beginStudyAILinkPageTask(collection, taskID: "task8") },
-                automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiPageQuiz(collection) } }
+                manualAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createQuiz) },
+                automaticAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createQuiz) }
             ),
             CollectionPageAITask(
                 id: AIResultTaskID.extractSentences,
@@ -405,37 +392,6 @@ extension FavouritesTab {
                 await MainActor.run {
                     offerManualStudyAIFallback(.translate(collection), error: error)
                     isRunningStudyPageAction = false
-                }
-            }
-        }
-    }
-
-    func runStudyGeminiPageQuiz(_ collection: CharacterCollection) {
-        studyPageQuizQuestions = []
-        studyPageQuizMessage = "Creating quiz with AI..."
-        isGeneratingStudyPageQuiz = true
-        studyPageQuizCollection = collection
-
-        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !key.isEmpty else {
-            isGeneratingStudyPageQuiz = false
-            studyPageQuizMessage = "Add a Gemini API key in Settings to generate an AI quiz. You can still use a local Radix quiz."
-            return
-        }
-
-        Task {
-            do {
-                let questions = try await store.runGeminiPageQuizQuestions(for: collection)
-                await MainActor.run {
-                    studyPageQuizQuestions = questions
-                    studyPageQuizMessage = "AI generated this quiz from the saved page."
-                    isGeneratingStudyPageQuiz = false
-                }
-            } catch {
-                await MainActor.run {
-                    studyPageQuizQuestions = []
-                    studyPageQuizMessage = "Gemini could not create the quiz: \(error.localizedDescription). You can use a local Radix quiz instead."
-                    isGeneratingStudyPageQuiz = false
                 }
             }
         }

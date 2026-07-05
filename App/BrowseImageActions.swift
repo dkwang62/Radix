@@ -116,44 +116,6 @@ extension FilterGridTab {
         }
     }
 
-    func beginPageQuiz(_ collection: CharacterCollection) {
-        imageActionMessage = nil
-        pageQuizQuestions = []
-        pageQuizMessage = "Creating quiz with AI..."
-        isGeneratingPageQuiz = true
-        pageQuizCollection = collection
-
-        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !key.isEmpty else {
-            isGeneratingPageQuiz = false
-            pageQuizMessage = "Add a Gemini API key in Settings to generate an AI quiz. You can still use a local Radix quiz."
-            return
-        }
-
-        Task {
-            do {
-                let questions = try await store.runGeminiPageQuizQuestions(for: collection)
-                await MainActor.run {
-                    pageQuizQuestions = questions
-                    pageQuizMessage = "AI generated this quiz from the saved page."
-                    isGeneratingPageQuiz = false
-                }
-            } catch {
-                await MainActor.run {
-                    pageQuizQuestions = []
-                    pageQuizMessage = "Gemini could not create the quiz: \(error.localizedDescription). You can use a local Radix quiz instead."
-                    isGeneratingPageQuiz = false
-                }
-            }
-        }
-    }
-
-    func useLocalPageQuizFallback(_ collection: CharacterCollection) {
-        pageQuizQuestions = store.pageQuizQuestions(for: collection)
-        pageQuizMessage = "Using a local Radix quiz because AI generation is unavailable."
-        isGeneratingPageQuiz = false
-    }
-
     func pasteTranslationReport() {
         translationReportDraft = clipboardText()
     }

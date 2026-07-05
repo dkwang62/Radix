@@ -605,17 +605,13 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
 - Do not expose API-specific variants as additional AI Link tasks. `Extract
   Phrases` is one task; copy/paste and automatic Gemini execution are methods
   for running it, just as with Check OCR and Translate Page.
-- Create Quiz starts page-only and should open a real in-app practice screen:
-  one question at a time, answers hidden until the user chooses, immediate
-  correct/wrong feedback, and English explanations after each answer. The
-  automatic method uses Gemini to generate structured quiz questions, then Radix
-  presents them inside the app. The no-key method uses the same `Use Another AI
-  App` pattern as the other page AI tasks: copy/open the editable quiz template
-  so ChatGPT, Gemini, or another service can quiz the user directly. The sheet
-  must be scrollable and must not allow the toolbar to obscure the page title,
-  question, answers, or feedback. If Gemini is unavailable or no key is
-  configured on the automatic path, explain that clearly and offer a local
-  dictionary-backed fallback rather than showing a prompt editor.
+- Create Quiz is page-only and belongs to AI Link, not a local Radix quiz
+  screen. Pressing a page `Quiz` chip opens the saved-page `Create Quiz`
+  template in AI Link so ChatGPT, Gemini, or another AI chat can quiz the user
+  directly. The prompt asks for Simplified Chinese by default and tells the AI
+  to reframe the quiz in Traditional Chinese when the learner asks. Radix does
+  not import a quiz result for this task, and it must not offer a local
+  dictionary-backed quiz fallback.
 - The AI must mark proposed changes and uncertainty in a structured response.
 - Corrected source text remains Chinese; every explanation, confidence reason,
   and uncertainty note is written in clear English.

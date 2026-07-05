@@ -95,6 +95,49 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task11"))
     }
 
+    @Test("Page quiz prompt stays in AI chat and defaults to simplified")
+    func pageQuizPromptDefaultsToSimplifiedChatQuiz() {
+        let normalized = PromptConfig.streamlitDefault.normalized()
+        let quiz = normalized.tasks.first { $0.id == "task8" }
+
+        #expect(quiz?.title == "Create Quiz")
+        #expect(quiz?.template.contains("Simplified Chinese by default") == true)
+        #expect(quiz?.template.contains("If the learner asks for Traditional Chinese") == true)
+        #expect(quiz?.template.contains("using Simplified Chinese by default") == true)
+        #expect(quiz?.template.contains("Then ask Question 1 only.") == true)
+        #expect(PromptConfig.collectionTaskIDs.contains("task8"))
+        #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task8"))
+    }
+
+    @Test("Legacy page quiz prompts normalize to simplified chat quiz")
+    func legacyPageQuizPromptNormalizes() {
+        let legacy = PromptTask(
+            id: "task8",
+            title: "Create Quiz",
+            template: """
+            Create Quiz
+
+            You are a patient Chinese language teacher creating a standard language-learning practice quiz from one captured Radix page.
+
+            Default quiz settings:
+            - Difficulty: 5/10 unless the learner asks for a different level.
+            """
+        )
+        let config = PromptConfig(
+            version: 1,
+            preamble: "",
+            tasks: [legacy],
+            epilogue: "",
+            collectionPreamble: "",
+            collectionEpilogue: ""
+        )
+
+        let template = config.normalized().tasks.first { $0.id == "task8" }?.template ?? ""
+
+        #expect(template.contains("Simplified Chinese by default"))
+        #expect(template.contains("If the learner asks for Traditional Chinese"))
+    }
+
     @Test("Conversation AI entry counts are shared and normalized")
     func conversationEntryCountConfiguration() {
         #expect(PromptConfig.defaultConversationEntryCount == 25)

@@ -551,7 +551,7 @@ extension AILinkView {
         case AIResultTaskID.generatePracticePack: return "Paste the practice-pack JSON here to import it into Study."
         case AIResultTaskID.extractSentences: return "Paste the extracted-sentences JSON here to import it into Conversation Practice."
         case AIResultTaskID.createPagePractice: return "Paste the page-practice JSON here to import it into Conversation Practice."
-        case "task8": return "This prompt runs the quiz inside the AI app, so there is no Radix paste step."
+        case AIResultTaskID.createQuiz: return "This prompt runs the quiz inside the AI app, so there is no Radix paste step."
         default: return "Use the AI answer as a reference. This task does not import data back into Radix."
         }
     }
@@ -568,7 +568,7 @@ extension AILinkView {
 
     func aiResultNoPasteText(for taskID: String) -> String {
         switch taskID {
-        case "task8":
+        case AIResultTaskID.createQuiz:
             return "After opening the prompt, continue the quiz in the AI app. Radix has no separate result to import for this task."
         default:
             return "After opening the prompt, read or save the AI answer where it is useful. Radix has no structured import step for this task."

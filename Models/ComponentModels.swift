@@ -70,22 +70,6 @@ struct CharacterCollection: Identifiable, Codable, Equatable, Hashable {
     var uniqueCharacters: Set<String> { Set(characters) }
 }
 
-struct PageQuizQuestion: Identifiable, Equatable, Hashable {
-    enum Kind: String, Codable, Equatable, Hashable {
-        case meaning
-        case pinyin
-        case character
-    }
-
-    let id: UUID
-    let kind: Kind
-    let character: String
-    let prompt: String
-    let options: [String]
-    let correctOption: String
-    let explanation: String
-}
-
 enum CollectionSourceType: String, Codable, Hashable {
     case ocr
     case manual

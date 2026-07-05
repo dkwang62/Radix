@@ -41,10 +41,6 @@ struct FilterGridTab: View {
     @State var collectionEditorError: String?
     @State var translationReportCollection: CharacterCollection?
     @State var translationReportDraft = ""
-    @State var pageQuizCollection: CharacterCollection?
-    @State var pageQuizQuestions: [PageQuizQuestion] = []
-    @State var pageQuizMessage: String?
-    @State var isGeneratingPageQuiz = false
     @State var pagePhraseListCollection: CharacterCollection?
     @State var imageActionMessage: String?
     @State var aiFallbackTask: BrowseAIFallbackTask?
@@ -215,24 +211,6 @@ struct FilterGridTab: View {
                     onSave: { saveTranslationReport(collection) },
                     onClear: { clearTranslationReport(collection) },
                     onDone: { translationReportCollection = nil }
-                )
-            }
-            .sheet(item: $pageQuizCollection) { collection in
-                BrowsePageQuizSheet(
-                    collectionName: collection.name,
-                    questions: pageQuizQuestions,
-                    message: pageQuizMessage,
-                    isGenerating: isGeneratingPageQuiz,
-                    canSetUpGeminiKey: store.geminiAPIKey
-                        .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                    onUseLocalFallback: { useLocalPageQuizFallback(collection) },
-                    onSetUpGeminiKey: {
-                        pageQuizCollection = nil
-                        DispatchQueue.main.async {
-                            store.goToSettingsForAPIKeySetup()
-                        }
-                    },
-                    onDone: { pageQuizCollection = nil }
                 )
             }
             .sheet(item: $pagePhraseListCollection) { collection in

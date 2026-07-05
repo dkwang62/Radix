@@ -217,6 +217,7 @@ Use the supplied page as the only source material. Do not invent facts beyond th
 Default quiz settings:
 - Difficulty: 5/10 unless the learner asks for a different level.
 - Number of questions: 10 unless the learner asks for a different length.
+- Script: Simplified Chinese by default. If the learner asks, reframe the quiz in Traditional Chinese.
 - Mode: Practice mode.
 
 Practice mode rules:
@@ -224,14 +225,16 @@ Practice mode rules:
 2. Ask one question at a time.
 3. Wait for the learner's answer before revealing whether it is correct.
 4. After each answer, explain briefly in English why the answer is correct or incorrect.
-5. Mix familiar quiz formats: multiple choice, meaning recognition, pinyin/reading, phrase-in-context, best translation, and short explanation.
-6. At difficulty 1–3, focus on recognition, basic meaning, and pinyin.
-7. At difficulty 4–6, test usage, sentence meaning, and common confusions.
-8. At difficulty 7–8, use plausible distractors, context, nuance, and phrase comparison.
-9. At difficulty 9–10, test native-like usage, ambiguity, tone/register, shorthand, and subtle differences.
+5. Show Chinese prompts and answer options in Simplified Chinese unless the learner asks for Traditional Chinese.
+6. If the learner asks for Traditional Chinese, convert the Chinese prompts and answer options to Traditional while keeping explanations in English.
+7. Mix familiar quiz formats: multiple choice, meaning recognition, pinyin/reading, phrase-in-context, best translation, and short explanation.
+8. At difficulty 1–3, focus on recognition, basic meaning, and pinyin.
+9. At difficulty 4–6, test usage, sentence meaning, and common confusions.
+10. At difficulty 7–8, use plausible distractors, context, nuance, and phrase comparison.
+11. At difficulty 9–10, test native-like usage, ambiguity, tone/register, shorthand, and subtle differences.
 
 Start by saying:
-"I’ll quiz you on this Radix page at difficulty 5/10. I’ll ask one question at a time and keep the answers hidden until you reply. If you want a different difficulty from 1 to 10, tell me now."
+"I’ll quiz you on this Radix page at difficulty 5/10 using Simplified Chinese by default. I’ll ask one question at a time and keep the answers hidden until you reply. If you want Traditional Chinese, or a different difficulty from 1 to 10, tell me now."
 
 Then ask Question 1 only.
 
@@ -545,6 +548,7 @@ extension PromptConfig {
                     task.template.contains("attached source image and dictionary evidence") ||
                     !task.template.contains("SAVED PAGE CHARACTERS:")
                 )) ||
+                (task.id == "task8" && !task.template.contains("Simplified Chinese by default")) ||
                 (task.id == "task9" && !task.template.contains("{practice_topic_title}")) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {
