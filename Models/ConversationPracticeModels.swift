@@ -36,6 +36,7 @@ public struct ConversationPracticePack: Codable, Equatable {
     public let sourceType: String
     public let createdFor: String
     public let sourceLink: ConversationPracticeSourceLink?
+    public let sentenceReferences: [ConversationPracticeSentenceReference]
     public let entries: [ConversationPracticeEntry]
 
     enum CodingKeys: String, CodingKey {
@@ -47,6 +48,7 @@ public struct ConversationPracticePack: Codable, Equatable {
         case sourceType = "source_type"
         case createdFor = "created_for"
         case sourceLink = "source_link"
+        case sentenceReferences = "sentence_references"
         case entries
     }
 
@@ -65,6 +67,7 @@ public struct ConversationPracticePack: Codable, Equatable {
         sourceType: String,
         createdFor: String,
         sourceLink: ConversationPracticeSourceLink?,
+        sentenceReferences: [ConversationPracticeSentenceReference] = [],
         entries: [ConversationPracticeEntry]
     ) {
         self.packID = packID
@@ -75,6 +78,7 @@ public struct ConversationPracticePack: Codable, Equatable {
         self.sourceType = sourceType
         self.createdFor = createdFor
         self.sourceLink = sourceLink
+        self.sentenceReferences = sentenceReferences
         self.entries = entries
     }
 
@@ -90,6 +94,10 @@ public struct ConversationPracticePack: Codable, Equatable {
             sourceType = try container.decodeIfPresent(String.self, forKey: .sourceType) ?? Self.defaultSourceType
             createdFor = try container.decodeIfPresent(String.self, forKey: .createdFor) ?? Self.defaultCreatedFor
             sourceLink = try container.decodeIfPresent(ConversationPracticeSourceLink.self, forKey: .sourceLink)
+            sentenceReferences = try container.decodeIfPresent(
+                [ConversationPracticeSentenceReference].self,
+                forKey: .sentenceReferences
+            ) ?? []
             let drafts = try container.decode([ConversationPracticeEntryDraft].self, forKey: .entries)
             let defaultCategory = ConversationPracticeRules.stableIdentifier(for: title)
             entries = drafts.enumerated().map { index, draft in
@@ -110,6 +118,7 @@ public struct ConversationPracticePack: Codable, Equatable {
             sourceType = "user_imported_practice"
             createdFor = Self.defaultCreatedFor
             sourceLink = try importedContainer.decodeIfPresent(ConversationPracticeSourceLink.self, forKey: .sourceLink)
+            sentenceReferences = []
             let defaultCategory = ConversationPracticeRules.stableIdentifier(for: theme)
             let drafts = try importedContainer.decode([ConversationPracticeEntryDraft].self, forKey: .entries)
             entries = drafts.enumerated().map { index, draft in
@@ -158,8 +167,43 @@ public struct ConversationPracticePack: Codable, Equatable {
             sourceType: sourceType,
             createdFor: createdFor,
             sourceLink: sourceLink,
+            sentenceReferences: sentenceReferences,
             entries: entries
         )
+    }
+
+    public func withSentenceReferences(_ references: [ConversationPracticeSentenceReference]) -> ConversationPracticePack {
+        ConversationPracticePack(
+            packID: packID,
+            version: version,
+            title: title,
+            description: description,
+            language: language,
+            sourceType: sourceType,
+            createdFor: createdFor,
+            sourceLink: sourceLink,
+            sentenceReferences: references,
+            entries: entries
+        )
+    }
+
+    public func withCanonicalSentenceReferences(
+        from sentenceExamples: [SentenceExampleRecord]
+    ) -> ConversationPracticePack {
+        var recordsByKey: [String: SentenceExampleRecord] = [:]
+        for record in sentenceExamples {
+            recordsByKey[record.normalizedChineseKey] = record
+        }
+        let references = practiceItems.map { item in
+            let key = SentenceExampleRecord.normalizedChineseKey(item.simplified)
+            return ConversationPracticeSentenceReference(
+                practiceItemID: item.id,
+                rank: item.rank,
+                sentenceExampleID: recordsByKey[key]?.id,
+                sentenceKey: key
+            )
+        }
+        return withSentenceReferences(references)
     }
 }
 
@@ -200,6 +244,36 @@ public struct ConversationPracticeSourceLink: Codable, Equatable, Hashable, Send
     public var sourcePageID: UUID? {
         guard kind == .savedPage, let sourceID else { return nil }
         return UUID(uuidString: sourceID)
+    }
+}
+
+public struct ConversationPracticeSentenceReference: Codable, Equatable, Hashable, Identifiable, Sendable {
+    public let practiceItemID: String
+    public let rank: Int
+    public let sentenceExampleID: UUID?
+    public let sentenceKey: String
+
+    enum CodingKeys: String, CodingKey {
+        case practiceItemID = "practice_item_id"
+        case rank
+        case sentenceExampleID = "sentence_example_id"
+        case sentenceKey = "sentence_key"
+    }
+
+    public var id: String {
+        "\(rank)#\(practiceItemID)"
+    }
+
+    public init(
+        practiceItemID: String,
+        rank: Int,
+        sentenceExampleID: UUID?,
+        sentenceKey: String
+    ) {
+        self.practiceItemID = practiceItemID
+        self.rank = rank
+        self.sentenceExampleID = sentenceExampleID
+        self.sentenceKey = sentenceKey
     }
 }
 

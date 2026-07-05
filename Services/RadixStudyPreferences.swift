@@ -126,6 +126,19 @@ enum RadixStudyPreferences {
         recordSentenceExamples(records)
     }
 
+    static func canonicalizedConversationPracticePack(_ pack: ConversationPracticePack) -> ConversationPracticePack {
+        recordSentenceExamples(from: pack)
+        return pack.withCanonicalSentenceReferences(from: sentenceExamples)
+    }
+
+    static func refreshConversationPracticePackSentenceReferences() {
+        let packs = importedConversationPracticePacks
+        guard !packs.isEmpty else { return }
+        importedConversationPracticePacks = packs.map {
+            $0.withCanonicalSentenceReferences(from: sentenceExamples)
+        }
+    }
+
     static func setSentenceExampleFavorite(_ item: ConversationPracticeItem, isFavorited: Bool) {
         var records = sentenceExamples
         let incoming = SentenceExampleRecord.fromPracticeItem(item, pack: nil, isFavorited: isFavorited)
@@ -194,6 +207,7 @@ enum RadixStudyPreferences {
         case .complete:
             sentenceExamples = records ?? []
         }
+        refreshConversationPracticePackSentenceReferences()
     }
 
     private static func limited(_ records: [SentenceExampleRecord], limit: Int?) -> [SentenceExampleRecord] {

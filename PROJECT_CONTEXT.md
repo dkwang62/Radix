@@ -196,9 +196,10 @@ compatibility contracts. Current portable contracts include:
 - navigation, tab, script-filter, and restore-mode identifiers
 - preference keys and the preference-storage interface
 - saved-page naming, recent-page selection, and page artifact ownership rules
-- Conversation Practice source-link metadata for page-derived practice packs
+- Conversation Practice source-link and sentence-reference metadata for
+  page-derived practice packs
 
-The portable test suite currently contains 51 tests across eight suites.
+The portable test suite currently contains 58 tests across eight suites.
 
 ## Active Workstream
 
@@ -251,9 +252,12 @@ progress records over sentence examples rather than separate sentence stores.
 Canonical records now provide exact normalized deduplication, backup
 portability, source/character/phrase/page lookup helpers, automatic capture
 from Conversation Practice packs/favorite toggles, and legacy Favorite
-Sentences backfill. The Favorite Sentences practice topic should be built from
-canonical favorited sentence examples while keeping old favorite records only as
-compatibility data until a fuller migration removes the duplicate store.
+Sentences backfill. Imported/page-generated Conversation Practice packs now
+store ordered sentence references back to canonical examples, so packs act as
+grouping and sequencing metadata rather than another sentence database. The
+Favorite Sentences practice topic should be built from canonical favorited
+sentence examples while keeping old favorite records only as compatibility data
+until a fuller migration removes the duplicate store.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules

@@ -30,7 +30,7 @@ views over sentence examples rather than separate sentence databases.
   build the Favorite Sentences practice topic from canonical sentence examples.
   Done.
 - Convert imported/page-generated practice packs to store ordered sentence
-  references.
+  references. Done.
 
 ## Phase 3: Expansion
 

@@ -149,6 +149,51 @@ struct ConversationPracticeTests {
         #expect(record.sources.first?.practiceItemID == item.id)
     }
 
+    @Test("Practice packs store ordered canonical sentence references")
+    func practicePacksStoreOrderedCanonicalSentenceReferences() throws {
+        let pack = try loadConversationPackFixture()
+        let examples = pack.practiceItems.map {
+            SentenceExampleRecord.fromPracticeItem($0, pack: pack)
+        }
+
+        let referencedPack = pack.withCanonicalSentenceReferences(from: examples)
+        let firstReference = try #require(referencedPack.sentenceReferences.first)
+        let firstItem = try #require(pack.practiceItems.first)
+        let firstRecord = try #require(examples.first)
+
+        #expect(referencedPack.sentenceReferences.count == pack.practiceItems.count)
+        #expect(firstReference.practiceItemID == firstItem.id)
+        #expect(firstReference.rank == firstItem.rank)
+        #expect(firstReference.sentenceExampleID == firstRecord.id)
+        #expect(firstReference.sentenceKey == firstRecord.normalizedChineseKey)
+    }
+
+    @Test("Legacy practice packs decode without sentence references")
+    func legacyPracticePacksDecodeWithoutSentenceReferences() throws {
+        let data = """
+        {
+          "pack_id": "legacy_pack",
+          "version": "1.0",
+          "title": "Legacy Pack",
+          "description": "No sentence references yet",
+          "language": "zh-Hans",
+          "entries": [
+            {
+              "id": "legacy-001",
+              "zh": "我们一起学习。",
+              "pinyin": "Wǒmen yìqǐ xuéxí.",
+              "en": "We study together."
+            }
+          ]
+        }
+        """.data(using: .utf8)!
+
+        let pack = try JSONDecoder().decode(ConversationPracticePack.self, from: data)
+
+        #expect(pack.sentenceReferences.isEmpty)
+        #expect(pack.practiceItems.count == 1)
+    }
+
     @Test("Legacy favorite sentence records hydrate canonical sentence examples")
     func favoriteSentenceRecordsHydrateSentenceExamples() {
         let favoritedAt = Date(timeIntervalSince1970: 1_700_000_000)

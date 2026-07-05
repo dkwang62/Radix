@@ -75,11 +75,11 @@ extension RadixStore {
     }
 
     func saveImportedConversationPracticePack(_ pack: ConversationPracticePack) {
+        let pack = RadixStudyPreferences.canonicalizedConversationPracticePack(pack)
         var packs = RadixStudyPreferences.importedConversationPracticePacks
         packs.removeAll { $0.packID == pack.packID }
         packs.append(pack)
         RadixStudyPreferences.importedConversationPracticePacks = packs
-        RadixStudyPreferences.recordSentenceExamples(from: pack)
         registerConversationPracticeLibrary(pack.practiceLibrary)
     }
 
@@ -92,21 +92,18 @@ extension RadixStore {
             guard let packs, !packs.isEmpty else { return }
             var merged = RadixStudyPreferences.importedConversationPracticePacks
             for pack in packs {
+                let pack = RadixStudyPreferences.canonicalizedConversationPracticePack(pack)
                 merged.removeAll { $0.packID == pack.packID }
                 merged.append(pack)
-                RadixStudyPreferences.recordSentenceExamples(from: pack)
                 registerConversationPracticeLibrary(pack.practiceLibrary)
             }
             RadixStudyPreferences.importedConversationPracticePacks = merged
 
         case .complete:
-            let restored = packs ?? []
+            let restored = (packs ?? []).map {
+                RadixStudyPreferences.canonicalizedConversationPracticePack($0)
+            }
             RadixStudyPreferences.importedConversationPracticePacks = restored
-            RadixStudyPreferences.recordSentenceExamples(restored.flatMap { pack in
-                pack.practiceItems.map {
-                    SentenceExampleRecord.fromPracticeItem($0, pack: pack)
-                }
-            })
             for pack in restored {
                 registerConversationPracticeLibrary(pack.practiceLibrary)
             }
