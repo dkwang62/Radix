@@ -280,7 +280,10 @@ Favorites, Page, Practice, OCR, and Hidden records, plus search and row actions
 for favorite, hide/restore, delete, copy Chinese, and opening the source page.
 The browser should reuse Conversation Practice's shared sentence controls
 (Simplified/Traditional plus Chinese/English), shared sentence row, and sentence
-info-card preview path rather than creating a parallel sentence UI.
+info-card preview path rather than creating a parallel sentence UI. Shared
+sentence UI primitives live in `App/PracticeSentenceSurface.swift`; keep
+Conversation Practice and the Sentence Examples browser as callers, not owners,
+of that row/control surface.
 Sentence source/page origin should stay out of the default row and appear only
 inside row actions or source-specific filters.
 Future sentence actions should add edit and practice-again without creating a
