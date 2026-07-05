@@ -234,6 +234,10 @@ Page AI actions should consistently name the two methods as `Manual AI Link`
 for copy/paste handoff and `Gemini API` for in-app API execution. Avoid mixing
 older labels such as automatic AI, another AI app, or copy-and-paste method in
 user-facing page-action flows.
+Study Help should explain the page-first mental model directly:
+`Pages -> Artifacts -> Practice -> Memory -> Checkpoints`, with saved pages as
+the center, page-owned artifacts attached to the source, practice growing from
+real text, learning memory retained, and checkpoints as the safety net.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules
