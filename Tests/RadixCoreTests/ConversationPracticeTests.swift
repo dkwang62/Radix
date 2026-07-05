@@ -242,6 +242,34 @@ struct ConversationPracticeTests {
         #expect(item.phraseHints == ["练习口语"])
     }
 
+    @Test("Sentence examples adapt to practice items for shared previews")
+    func sentenceExamplesAdaptToPracticeItemsForSharedPreviews() {
+        let record = SentenceExampleRecord(
+            id: UUID(uuidString: "00000000-0000-0000-0000-000000000818")!,
+            chinese: "我想练习口语。",
+            pinyin: "Wǒ xiǎng liànxí kǒuyǔ.",
+            english: "I want to practice speaking.",
+            targetCharacters: ["我", "想"],
+            targetPhrases: ["练习口语"],
+            difficulty: .medium,
+            notes: "Useful spoken example",
+            tags: ["speaking"]
+        )
+
+        let item = ConversationPracticeItem(sentenceExample: record, rank: 7)
+
+        #expect(item.id == record.id.uuidString)
+        #expect(item.setID == "sentence_examples")
+        #expect(item.rank == 7)
+        #expect(item.simplified == record.chinese)
+        #expect(item.pinyin == record.pinyin)
+        #expect(item.english == record.english)
+        #expect(item.characterHints == ["我", "想"])
+        #expect(item.phraseHints == ["练习口语"])
+        #expect(item.difficulty == .medium)
+        #expect(item.notes == "Useful spoken example")
+    }
+
     @Test("Sentence examples expose page and source lookup helpers")
     func sentenceExamplesExposePageAndSourceLookupHelpers() {
         let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000515")!

@@ -22,6 +22,15 @@ public enum ConversationPracticeDifficulty: String, Codable, CaseIterable, Hasha
             }
         }
     }
+
+    init(_ difficulty: SentenceExampleDifficulty) {
+        switch difficulty {
+        case .easy: self = .easy
+        case .medium: self = .medium
+        case .hard: self = .hard
+        case .unknown: self = .easy
+        }
+    }
 }
 
 public struct ConversationPracticePack: Codable, Equatable {
@@ -1542,6 +1551,22 @@ public struct ConversationPracticeItem: Equatable, Hashable, Identifiable {
         characterHints = record.characterHints
         phraseHints = record.phraseHints
         notes = "Saved from \(record.sourceSetID)"
+    }
+
+    init(sentenceExample record: SentenceExampleRecord, rank: Int) {
+        id = record.id.uuidString
+        setID = "sentence_examples"
+        phraseKey = ConversationPracticeRules.phraseKey(for: record.chinese)
+        self.rank = rank
+        simplified = record.chinese
+        pinyin = record.pinyin ?? ""
+        english = record.english ?? ""
+        category = record.sources.first?.sourceType.rawValue ?? "sentence_examples"
+        difficulty = ConversationPracticeDifficulty(record.difficulty)
+        tags = record.tags
+        characterHints = record.targetCharacters.isEmpty ? record.detectedCharacters : record.targetCharacters
+        phraseHints = record.targetPhrases.isEmpty ? record.detectedPhrases : record.targetPhrases
+        notes = record.notes
     }
 }
 

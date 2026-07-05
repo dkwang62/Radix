@@ -659,7 +659,7 @@ struct FavouritesTab: View {
         PhoneContextPreview(
             phrase: store.activeSidebarPhrasePreview,
             character: store.previewCharacter,
-            listReturnTitle: store.sidebarPhraseLookupOverride == nil ? nil : selectedConversationPracticeTopic.title,
+            listReturnTitle: phoneStudyPreviewReturnTitle,
             onReturn: {
                 selectedPhrase = nil
                 store.dismissSidebarPhrasePreview()
@@ -667,6 +667,12 @@ struct FavouritesTab: View {
             }
         )
         .environmentObject(store)
+    }
+
+    var phoneStudyPreviewReturnTitle: String? {
+        guard store.sidebarPhraseLookupOverride != nil else { return nil }
+        if isShowingSentenceExamples { return "Sentences" }
+        return selectedConversationPracticeTopic.title
     }
 }
 

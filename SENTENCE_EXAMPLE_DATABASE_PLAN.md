@@ -39,7 +39,8 @@ views over sentence examples rather than separate sentence databases.
 - Capture quiz-derived sentences only after quiz workflows have an explicit
   structured return path that does not reveal answers early or scrape chat
   prose.
-- Add a Sentence Examples browser with filters. Done.
+- Add a Sentence Examples browser with filters that reuses the Conversation
+  Practice display toggle and sentence info preview path. Done.
 - Add edit and practice-again actions.
 - Add favorite, hide, restore, delete, copy, and source-page actions. Done.
 

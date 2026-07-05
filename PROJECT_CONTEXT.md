@@ -199,7 +199,7 @@ compatibility contracts. Current portable contracts include:
 - Conversation Practice source-link and sentence-reference metadata for
   page-derived practice packs
 
-The portable test suite currently contains 62 tests across eight suites.
+The portable test suite currently contains 63 tests across eight suites.
 
 ## Active Workstream
 
@@ -268,6 +268,8 @@ answers early or scrape ordinary chat prose. Study exposes a `Sentences`
 shortcut that opens the Sentence Examples browser with filters for All,
 Favorites, Page, Practice, OCR, and Hidden records, plus search and row actions
 for favorite, hide/restore, delete, copy Chinese, and opening the source page.
+The browser should reuse Conversation Practice's Chinese/English display toggle
+and sentence info-card preview path rather than creating a parallel sentence UI.
 Future sentence actions should add edit and practice-again without creating a
 second sentence store.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:

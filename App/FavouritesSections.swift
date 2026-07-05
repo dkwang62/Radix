@@ -192,6 +192,8 @@ extension FavouritesTab {
 
                 Spacer(minLength: 8)
 
+                conversationPracticeSentenceDisplayToggle
+
                 if let message = sentenceExampleStatusMessage {
                     Text(message)
                         .font(ResponsiveFont.caption2.weight(.semibold))
@@ -277,28 +279,32 @@ extension FavouritesTab {
     }
 
     func sentenceExampleRow(_ example: SentenceExampleRecord) -> some View {
-        VStack(alignment: .leading, spacing: 7) {
+        let item = sentenceExamplePracticeItem(example)
+        let isSelected = selectedConversationPracticeItemID == item.id
+        return VStack(alignment: .leading, spacing: 7) {
             HStack(alignment: .top, spacing: 8) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(example.chinese)
-                        .font(ResponsiveFont.body.weight(.semibold))
-                        .fixedSize(horizontal: false, vertical: true)
+                Button {
+                    presentConversationPracticePhrase(item)
+                } label: {
+                    HStack(alignment: .center, spacing: 8) {
+                        Text("\(item.rank)")
+                            .font(ResponsiveFont.caption2.weight(.semibold))
+                            .foregroundStyle(isSelected ? Color.white : Color.accentColor)
+                            .frame(width: 28, height: 28)
+                            .background(isSelected ? Color.accentColor : Color.accentColor.opacity(0.1))
+                            .clipShape(RoundedRectangle(cornerRadius: 7))
 
-                    if let pinyin = example.pinyin {
-                        Text(pinyin)
-                            .font(ResponsiveFont.caption)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
+                        conversationPracticeSentenceRowText(item)
 
-                    if let english = example.english {
-                        Text(english)
-                            .font(ResponsiveFont.caption)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 11, weight: .semibold))
                             .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
                     }
+                    .frame(maxWidth: .infinity, minHeight: 34, alignment: .leading)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .buttonStyle(.plain)
+                .accessibilityLabel("Open sentence \(studyGridDisplayText(item.simplified))")
+                .accessibilityHint("Opens the sentence info card.")
 
                 sentenceExampleActions(example)
             }
@@ -323,6 +329,12 @@ extension FavouritesTab {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(RadixTheme.secondaryBackground.opacity(0.52))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(conversationPracticeSentenceBorder(isSelected: isSelected, cornerRadius: 8))
+    }
+
+    func sentenceExamplePracticeItem(_ example: SentenceExampleRecord) -> ConversationPracticeItem {
+        let rank = (filteredSentenceExamples.firstIndex(where: { $0.id == example.id }) ?? 0) + 1
+        return ConversationPracticeItem(sentenceExample: example, rank: rank)
     }
 
     func sentenceExampleActions(_ example: SentenceExampleRecord) -> some View {
