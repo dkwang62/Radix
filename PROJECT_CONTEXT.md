@@ -230,7 +230,9 @@ next action; continue impact summaries for destructive actions; add lightweight
 resume signals such as last viewed or last practiced where useful; keep AI
 manual/API workflows using the same method vocabulary; and check iPhone
 one-handed ergonomics. Study Help now names the page-first mental model as
-`Pages -> Artifacts -> Practice -> Memory -> Checkpoints`.
+`Pages -> Artifacts -> Practice -> Memory -> Checkpoints`. Empty Saved Pages in
+Study offers one `Create Saved Page` action that opens Browse Sources while
+preserving a return path to Study.
 Page-derived Conversation Practice topics should surface their saved-page origin
 in Study topic summaries, and keep that source cue visible alongside practice
 progress when the user opens the practice section.

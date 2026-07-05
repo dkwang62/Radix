@@ -42,8 +42,12 @@ extension FavouritesTab {
                 studyEmptyState(
                     title: "No Saved Pages Yet",
                     message: "Use Camera, paste Chinese text, or import an image to create your first page.",
-                    systemImage: "photo.on.rectangle"
-                )
+                    systemImage: "photo.on.rectangle",
+                    actionTitle: "Create Saved Page",
+                    actionSystemImage: "plus"
+                ) {
+                    store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
+                }
             } else {
                 studySavedPagesList
             }
@@ -71,7 +75,14 @@ extension FavouritesTab {
         }
     }
 
-    func studyEmptyState(title: String, message: String, systemImage: String) -> some View {
+    func studyEmptyState(
+        title: String,
+        message: String,
+        systemImage: String,
+        actionTitle: String? = nil,
+        actionSystemImage: String? = nil,
+        action: (() -> Void)? = nil
+    ) -> some View {
         VStack(spacing: 8) {
             Image(systemName: systemImage)
                 .font(.system(size: 30, weight: .semibold))
@@ -86,6 +97,17 @@ extension FavouritesTab {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
+
+            if let actionTitle, let action {
+                Button(action: action) {
+                    Label(actionTitle, systemImage: actionSystemImage ?? "arrow.right")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                }
+                .buttonStyle(.borderedProminent)
+                .padding(.top, 4)
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 28)
