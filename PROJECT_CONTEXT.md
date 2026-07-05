@@ -241,8 +241,9 @@ translations, page phrase lists, and page-derived practice packs are removed
 with the page, while standalone learning memory such as added phrases, favorite
 sentences, and reusable practice progress is retained.
 Saved-page resume signals should remain selective: the collapsed Study list may
-show last-viewed context for the active Browse page or the top recently viewed
-page, but should not add date/status text to every row.
+show last-viewed context for the active Browse page or the top page in `Viewed`
+sort, but should not add date/status text to every row or simply mark row 1 in
+other sort modes.
 Page AI actions should consistently name the two methods as `Manual AI Link`
 for copy/paste handoff and `Gemini API` for in-app API execution. Avoid mixing
 older labels such as automatic AI, another AI app, or copy-and-paste method in

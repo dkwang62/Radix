@@ -243,13 +243,15 @@ extension FavouritesTab {
     var studySavedPagesList: some View {
         let pages = sortedStudySavedPages()
         let pageIDsWithRecordedPhrases = pageIDsWithRecordedPhraseExtractions
+        let resumePageID = store.sortedCollections(order: .lastViewed).first?.id
 
         return LazyVStack(spacing: 0) {
             ForEach(Array(pages.enumerated()), id: \.element.id) { index, collection in
                 let rowData = studySavedPageRowData(
                     collection,
                     rowNumber: index + 1,
-                    hasRecordedPagePhrases: pageIDsWithRecordedPhrases.contains(collection.id)
+                    hasRecordedPagePhrases: pageIDsWithRecordedPhrases.contains(collection.id),
+                    resumePageID: resumePageID
                 )
                 studySavedPageRow(rowData)
             }
@@ -259,14 +261,15 @@ extension FavouritesTab {
     private func studySavedPageRowData(
         _ collection: CharacterCollection,
         rowNumber: Int,
-        hasRecordedPagePhrases: Bool
+        hasRecordedPagePhrases: Bool,
+        resumePageID: UUID?
     ) -> StudySavedPageRowData {
         let practices = pagePracticePacks(for: collection)
         let correctedPages = correctedStudyPages(for: collection)
         let hasPagePhrases = hasKnownPagePhrases(for: collection, hasRecordedPagePhrases: hasRecordedPagePhrases)
         let isExpanded = expandedStudySavedPageID == collection.id
         let isActiveBrowsePage = store.selectedBrowseCollectionID == collection.id
-        let showsResumeSignal = isActiveBrowsePage || rowNumber == 1
+        let showsResumeSignal = isActiveBrowsePage || resumePageID == collection.id
         let artifacts = studyPageArtifacts(
             collection: collection,
             practices: practices,
