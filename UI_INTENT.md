@@ -282,6 +282,11 @@ compact and wider layouts; do not collapse important actions such as Checkpoints
 into an undiscoverable overflow. Keep the Study scope, shortcut, and local
 review-control rows pinned above the scrolling review content so long lists do
 not hide the main navigation and controls.
+Empty states in Study should be short and action-oriented: no saved pages should
+point toward Camera, paste, or image import; no favorites should point toward
+starring items; no recent items should point toward searching, browsing, or
+inspecting Chinese. Avoid generic empty text that leaves the user with no next
+step.
 Saved Pages in Study owns page learning artifacts and deletion. Each saved-page
 row should be collapsed by default when browsing the list, with only the page
 number, title, thumbnail, small artifact indicators, and expand affordance

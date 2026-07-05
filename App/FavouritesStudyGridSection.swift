@@ -37,13 +37,21 @@ extension FavouritesTab {
     @ViewBuilder
     var studyReviewContent: some View {
         if studyGridScope == .savedPages {
-            studySavedPagesList
+            if store.allCollections.isEmpty {
+                studyEmptyState(
+                    title: "No Saved Pages Yet",
+                    message: "Use Camera, paste Chinese text, or import an image to create your first page.",
+                    systemImage: "photo.on.rectangle"
+                )
+            } else {
+                studySavedPagesList
+            }
         } else if studyReviewTiles.isEmpty {
-            Text(studyGridScope.emptyMessage)
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-                .padding(.vertical, 10)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            studyEmptyState(
+                title: studyGridScope.emptyTitle,
+                message: studyGridScope.emptyMessage,
+                systemImage: studyGridScope.emptySystemImage
+            )
         } else {
             RadixTileFlowLayout(
                 horizontalSpacing: RadixTileMetrics.compactSpacing,
@@ -60,6 +68,29 @@ extension FavouritesTab {
                 }
             }
         }
+    }
+
+    func studyEmptyState(title: String, message: String, systemImage: String) -> some View {
+        VStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .font(.system(size: 30, weight: .semibold))
+                .foregroundStyle(Color.secondary.opacity(0.55))
+
+            Text(title)
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .foregroundStyle(.primary)
+
+            Text(message)
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 28)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .background(RadixTheme.secondaryBackground.opacity(0.42))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     func studyPhraseTile(_ row: StudyPhraseRowData) -> some View {

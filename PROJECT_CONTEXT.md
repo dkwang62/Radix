@@ -212,6 +212,14 @@ Keep`: scan a page from the world, review its characters/phrases/context,
 practise from that material, and keep everything connected for later. Lead with
 these learner outcomes rather than raw feature names such as OCR or saved-page
 storage.
+Near-term polish should be incremental rather than broad navigation reshuffling:
+make Saved Pages in Study feel like the center of the app; keep generated
+artifacts visibly tied to their source page; improve empty states with one clear
+next action; continue impact summaries for destructive actions; add lightweight
+resume signals such as last viewed or last practiced where useful; keep AI
+manual/API workflows using the same method vocabulary; check iPhone one-handed
+ergonomics; and eventually add a short mental-model help page for
+`Pages -> Artifacts -> Practice -> Memory -> Checkpoints`.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules

@@ -645,9 +645,25 @@ enum StudyGridScope: String, CaseIterable, Identifiable {
 
     var emptyMessage: String {
         switch self {
-        case .all: return "No recent study items yet."
-        case .favorites: return "No favorite study items yet."
-        case .savedPages: return "No saved pages yet."
+        case .all: return "Search, browse, or inspect Chinese to build your recent review list."
+        case .favorites: return "Star characters and phrases you want to keep reviewing."
+        case .savedPages: return "Use Camera, paste Chinese text, or import an image to create your first page."
+        }
+    }
+
+    var emptyTitle: String {
+        switch self {
+        case .all: return "No Recent Items Yet"
+        case .favorites: return "No Favorites Yet"
+        case .savedPages: return "No Saved Pages Yet"
+        }
+    }
+
+    var emptySystemImage: String {
+        switch self {
+        case .all: return RadixGlossaryIcon.systemImage(for: RadixTerm.recent)
+        case .favorites: return RadixIcon.saved
+        case .savedPages: return RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage)
         }
     }
 }
