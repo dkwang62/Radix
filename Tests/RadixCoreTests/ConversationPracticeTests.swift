@@ -312,6 +312,29 @@ struct ConversationPracticeTests {
         #expect(item.notes == "Useful spoken example")
     }
 
+    @Test("Sentence examples build reusable practice library")
+    func sentenceExamplesBuildReusablePracticeLibrary() throws {
+        let record = SentenceExampleRecord(
+            chinese: "我想练习口语。",
+            pinyin: "Wǒ xiǎng liànxí kǒuyǔ.",
+            english: "I want to practice speaking.",
+            targetCharacters: ["我", "想"],
+            targetPhrases: ["练习口语"],
+            difficulty: .medium,
+            tags: ["speaking"]
+        )
+
+        let library = try #require(ConversationPracticeLibrary.sentenceExamplesLibrary(from: [record], title: "Practice Again"))
+        let item = try #require(library.items.first)
+
+        #expect(library.set.title == "Practice Again")
+        #expect(library.set.itemCount == 1)
+        #expect(item.simplified == record.chinese)
+        #expect(item.pinyin == record.pinyin)
+        #expect(item.english == record.english)
+        #expect(item.phraseHints == ["练习口语"])
+    }
+
     @Test("Sentence examples expose page and source lookup helpers")
     func sentenceExamplesExposePageAndSourceLookupHelpers() {
         let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000515")!

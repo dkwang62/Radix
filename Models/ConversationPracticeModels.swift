@@ -1641,6 +1641,29 @@ public struct ConversationPracticeLibrary: Equatable {
         memberships.map(\.phraseKey)
     }
 
+    static func sentenceExamplesLibrary(
+        from records: [SentenceExampleRecord],
+        title: String = "Sentence Practice"
+    ) -> ConversationPracticeLibrary? {
+        let records = SentenceExampleRecord.ranked(records)
+        guard !records.isEmpty else { return nil }
+        let items = records.enumerated().map { index, record in
+            ConversationPracticeItem(sentenceExample: record, rank: index + 1)
+        }
+        return ConversationPracticeLibrary(
+            set: ConversationPracticeSet(
+                id: "sentence_examples_review",
+                title: title,
+                description: "\(items.count) sentences",
+                language: "zh",
+                itemCount: items.count
+            ),
+            items: items,
+            phraseSeeds: items.map(ConversationPracticePhraseSeed.init),
+            memberships: items.map(ConversationPracticeMembership.init)
+        )
+    }
+
     static func favoriteSentencesLibrary(from records: [FavoriteSentenceRecord]) -> ConversationPracticeLibrary? {
         let records = FavoriteSentenceRecord.deduplicated(records)
         guard !records.isEmpty else { return nil }

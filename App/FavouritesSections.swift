@@ -391,6 +391,12 @@ extension FavouritesTab {
             }
 
             Button {
+                presentSentenceExamplePracticeAgain(example)
+            } label: {
+                Label("Practice Again", systemImage: "rectangle.stack")
+            }
+
+            Button {
                 RadixPlatform.copyToPasteboard(example.chinese)
                 sentenceExampleStatusMessage = "Copied"
             } label: {
@@ -440,6 +446,14 @@ extension FavouritesTab {
         sentenceExampleRevision += 1
         sentenceExampleStatusMessage = example.isFavorited ? "Removed favorite" : "Favorited"
         loadFavoriteSentences()
+    }
+
+    func presentSentenceExamplePracticeAgain(_ example: SentenceExampleRecord) {
+        guard let library = ConversationPracticeLibrary.sentenceExamplesLibrary(
+            from: [example],
+            title: "Practice Again"
+        ) else { return }
+        presentConversationPracticeReview(library)
     }
 
     func sentenceExampleSourcePageID(_ example: SentenceExampleRecord) -> UUID? {

@@ -209,7 +209,7 @@ compatibility contracts. Current portable contracts include:
 - Conversation Practice source-link and sentence-reference metadata for
   page-derived practice packs
 
-The portable test suite currently contains 65 tests across eight suites.
+The portable test suite currently contains 66 tests across eight suites.
 
 ## Active Workstream
 
@@ -297,8 +297,10 @@ parallel sentence UI. Shared sentence UI primitives live in
 Examples browser as callers, not owners, of that row/control surface.
 Sentence source/page origin should stay out of the default row and appear only
 inside row actions or source-specific filters.
-Future sentence actions should add edit and practice-again without creating a
-second sentence store.
+The `Practice Again` sentence action builds a temporary Conversation Practice
+library from canonical sentence examples and reuses the existing Flashcards
+flow instead of creating another practice UI. Future sentence actions should
+add edit without creating a second sentence store.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules
