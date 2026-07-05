@@ -95,30 +95,26 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task11"))
     }
 
-    @Test("Page quiz prompt stays in AI chat and uses HSK theme rules")
-    func pageQuizPromptUsesHSKThemeRules() {
+    @Test("Page quiz prompt stays in AI chat with cross-model quiz protocol")
+    func pageQuizPromptUsesCrossModelQuizProtocol() {
         let normalized = PromptConfig.streamlitDefault.normalized()
         let quiz = normalized.tasks.first { $0.id == "task8" }
 
         #expect(quiz?.title == "Create Quiz")
-        #expect(quiz?.template.contains("patient, bilingual Chinese language teacher") == true)
-        #expect(quiz?.template.contains("You are the quizmaster. The human user is the learner.") == true)
-        #expect(quiz?.template.contains("Draw from the vocabulary and themes present in the user's learning context") == true)
-        #expect(quiz?.template.contains("Do not feel limited to the specific characters on any single page") == true)
-        #expect(quiz?.template.contains("Bilingual Requirement") == true)
-        #expect(quiz?.template.contains("Do not include pinyin in the multiple-choice options") == true)
-        #expect(quiz?.template.contains("Always include pinyin in the English assessment/explanation section") == true)
-        #expect(quiz?.template.contains("answer choices must not appear in the question text") == true)
-        #expect(quiz?.template.contains("Variety of Assessment Styles") == true)
-        #expect(quiz?.template.contains("Contextual Fill-in-the-Blank") == true)
-        #expect(quiz?.template.contains("Synonym/Antonym Identification") == true)
-        #expect(quiz?.template.contains("Radical/Structural Analysis") == true)
-        #expect(quiz?.template.contains("Sentence Error Correction") == true)
-        #expect(quiz?.template.contains("Collocation Matching") == true)
-        #expect(quiz?.template.contains("Use HSK standards, HSK 1 through HSK 6") == true)
-        #expect(quiz?.template.contains("Ask Question 1 only.") == true)
-        #expect(quiz?.template.contains("Stop immediately after Question 1 and wait for the learner's answer") == true)
-        #expect(quiz?.template.contains("Do not provide the correct answer, explanation, pinyin, analysis, or Question 2 until the learner replies") == true)
+        #expect(quiz?.template.contains("bilingual Chinese dictionary editor, teacher, and quizmaster") == true)
+        #expect(quiz?.template.contains("The human user is the learner.") == true)
+        #expect(quiz?.template.contains("Simplified Chinese unless the learner asks for Traditional") == true)
+        #expect(quiz?.template.contains("Difficulty: HSK 4 unless the learner asks for another HSK level") == true)
+        #expect(quiz?.template.contains("Answer choices: Chinese only, no English, no pinyin, no definitions, no hints") == true)
+        #expect(quiz?.template.contains("English translations will not reveal the answer") == true)
+        #expect(quiz?.template.contains("Required question format") == true)
+        #expect(quiz?.template.contains("Question X - [Question Type] (HSK N)") == true)
+        #expect(quiz?.template.contains("请回答 A、B、C 或 D。") == true)
+        #expect(quiz?.template.contains("After displaying Question 1, stop immediately") == true)
+        #expect(quiz?.template.contains("Do not answer your own question") == true)
+        #expect(quiz?.template.contains("Do not reveal the correct answer, pinyin, analysis, explanation, or Question 2 until the learner replies") == true)
+        #expect(quiz?.template.contains("Never include English, pinyin, definitions, or hints inside answer choices") == true)
+        #expect(quiz?.template.contains("Before every question, silently verify") == true)
         #expect(PromptConfig.collectionTaskIDs.contains("task8"))
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task8"))
     }
@@ -148,14 +144,14 @@ struct PromptConfigTests {
 
         let template = config.normalized().tasks.first { $0.id == "task8" }?.template ?? ""
 
-        #expect(template.contains("Variety of Assessment Styles"))
-        #expect(template.contains("Use HSK standards, HSK 1 through HSK 6"))
-        #expect(template.contains("answer choices must not appear in the question text"))
+        #expect(template.contains("English translations will not reveal the answer"))
+        #expect(template.contains("Question X - [Question Type] (HSK N)"))
+        #expect(template.contains("Answer choices: Chinese only"))
         #expect(template.contains("The human user is the learner"))
     }
 
-    @Test("Recent HSK page quiz prompts normalize to role-disciplined chat quiz")
-    func recentHSKPageQuizPromptNormalizesRoleDiscipline() {
+    @Test("Recent HSK page quiz prompts normalize to cross-model chat quiz")
+    func recentHSKPageQuizPromptNormalizesCrossModelProtocol() {
         let recent = PromptTask(
             id: "task8",
             title: "Create Quiz",
@@ -190,8 +186,10 @@ struct PromptConfigTests {
         let template = config.normalized().tasks.first { $0.id == "task8" }?.template ?? ""
 
         #expect(template.contains("The human user is the learner"))
-        #expect(template.contains("Do not answer your own questions"))
-        #expect(template.contains("Stop immediately after Question 1 and wait for the learner's answer"))
+        #expect(template.contains("English translations will not reveal the answer"))
+        #expect(template.contains("Do not answer your own question"))
+        #expect(template.contains("After displaying Question 1, stop immediately"))
+        #expect(template.contains("Answer choices: Chinese only"))
     }
 
     @Test("Conversation AI entry counts are shared and normalized")
