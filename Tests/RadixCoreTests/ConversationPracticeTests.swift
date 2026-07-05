@@ -265,6 +265,104 @@ struct ConversationPracticeTests {
         #expect(record.containsCharacter("际"))
     }
 
+    @Test("Radix Capture JSON blocks parse into sentence examples")
+    func radixCaptureJSONBlocksParseIntoSentenceExamples() throws {
+        let createdAt = Date(timeIntervalSince1970: 1_720_000_000)
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000616")!
+        let response = """
+        Here are the examples.
+
+        [Radix Capture JSON]
+        ```json
+        {
+          "source": {
+            "source_type": "sentence_practice",
+            "source_id": "page-616",
+            "source_title": "China US News",
+            "source_page_id": "\(pageID.uuidString)"
+          },
+          "sentences": [
+            {
+              "zh": "国际关系正在变化。",
+              "pinyin": "Guójì guānxì zhèngzài biànhuà.",
+              "en": "International relations are changing.",
+              "phrases": ["国际关系"],
+              "characters": ["国", "际"],
+              "hsk_level": 5,
+              "difficulty": "medium",
+              "tags": ["news"]
+            }
+          ]
+        }
+        ```
+        [/Radix Capture JSON]
+        """
+
+        let records = RadixCaptureJSONParser.sentenceExamples(from: response, createdAt: createdAt)
+        let record = try #require(records.first)
+
+        #expect(records.count == 1)
+        #expect(record.chinese == "国际关系正在变化。")
+        #expect(record.pinyin == "Guójì guānxì zhèngzài biànhuà.")
+        #expect(record.english == "International relations are changing.")
+        #expect(record.createdAt == createdAt)
+        #expect(record.hskLevel == 5)
+        #expect(record.difficulty == .medium)
+        #expect(record.containsPhrase("国际关系"))
+        #expect(record.isLinked(toPageID: pageID))
+        #expect(record.sources.first?.sourceTitle == "China US News")
+    }
+
+    @Test("Radix Capture JSON supports sentence_examples and exact dedupe")
+    func radixCaptureJSONSupportsSentenceExamplesAndDedupe() {
+        let response = """
+        [Radix Capture JSON]
+        {
+          "sentence_examples": [
+            {
+              "chinese": "我们需要保持冷静。",
+              "english": "We need to stay calm.",
+              "is_favorited": true
+            },
+            {
+              "zh": "我们需要保持冷静",
+              "pinyin": "Wǒmen xūyào bǎochí lěngjìng.",
+              "en": "We need to stay calm."
+            }
+          ]
+        }
+        [/Radix Capture JSON]
+        """
+
+        let records = RadixCaptureJSONParser.sentenceExamples(from: response)
+
+        #expect(records.count == 1)
+        #expect(records.first?.isFavorited == true)
+        #expect(records.first?.english == "We need to stay calm.")
+        #expect(records.first?.pinyin == "Wǒmen xūyào bǎochí lěngjìng.")
+    }
+
+    @Test("Radix Capture JSON accepts top-level sentence arrays")
+    func radixCaptureJSONAcceptsTopLevelSentenceArrays() throws {
+        let response = """
+        [Radix Capture JSON]
+        [
+          {
+            "zh": "请再说一遍。",
+            "pinyin": "Qǐng zài shuō yí biàn.",
+            "en": "Please say it again."
+          }
+        ]
+        [/Radix Capture JSON]
+        """
+
+        let record = try #require(RadixCaptureJSONParser.sentenceExamples(from: response).first)
+
+        #expect(record.chinese == "请再说一遍。")
+        #expect(record.detectedCharacters.contains("请"))
+        #expect(record.sources.isEmpty)
+    }
+
     @Test("Conversation practice topics keep starter ordering and food generation brief")
     func defaultTopicsIncludeFoodExpansionTopic() {
         let topics = ConversationPracticeTopic.defaults

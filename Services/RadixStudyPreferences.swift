@@ -126,6 +126,13 @@ enum RadixStudyPreferences {
         recordSentenceExamples(records)
     }
 
+    @discardableResult
+    static func recordSentenceExamples(fromCaptureText text: String, createdAt: Date = Date()) -> [SentenceExampleRecord] {
+        let records = RadixCaptureJSONParser.sentenceExamples(from: text, createdAt: createdAt)
+        recordSentenceExamples(records)
+        return records
+    }
+
     static func canonicalizedConversationPracticePack(_ pack: ConversationPracticePack) -> ConversationPracticePack {
         recordSentenceExamples(from: pack)
         return pack.withCanonicalSentenceReferences(from: sentenceExamples)

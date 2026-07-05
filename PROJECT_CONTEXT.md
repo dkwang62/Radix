@@ -199,7 +199,7 @@ compatibility contracts. Current portable contracts include:
 - Conversation Practice source-link and sentence-reference metadata for
   page-derived practice packs
 
-The portable test suite currently contains 58 tests across eight suites.
+The portable test suite currently contains 61 tests across eight suites.
 
 ## Active Workstream
 
@@ -257,7 +257,11 @@ store ordered sentence references back to canonical examples, so packs act as
 grouping and sequencing metadata rather than another sentence database. The
 Favorite Sentences practice topic should be built from canonical favorited
 sentence examples while keeping old favorite records only as compatibility data
-until a fuller migration removes the duplicate store.
+until a fuller migration removes the duplicate store. AI outputs may include a
+`[Radix Capture JSON]` block containing `sentences` or `sentence_examples`;
+Radix can parse those blocks into canonical sentence examples with optional
+source metadata, but quiz/OCR prompts should only start emitting them when their
+structure is reliable enough to avoid polluting the sentence database.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules
