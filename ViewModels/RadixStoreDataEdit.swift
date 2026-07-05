@@ -640,25 +640,11 @@ extension RadixStore {
     // MARK: - Variance check
 
     func calculateDictionaryVariances() {
-        let masterRepo = ComponentRepository()
-        let masterPhraseRepo = PhraseRepository()
         do {
-            try masterRepo.loadFromBundle()
-            let masterMap = masterRepo.rawMap
-            let studioMap = componentRepo.rawMap
+            self.dictionaryVariances = currentDictionaryVariances()
 
-            var dictVars: [DictionaryVariance] = []
-            for char in studioMap.keys where masterMap[char] == nil {
-                dictVars.append(DictionaryVariance(character: char, type: .added))
-            }
-            for char in masterMap.keys where studioMap[char] == nil {
-                dictVars.append(DictionaryVariance(character: char, type: .missing))
-            }
-            self.dictionaryVariances = dictVars.sorted { $0.character < $1.character }
-
-            try masterPhraseRepo.openMasterBundleOnly()
-            let masterPhrases = Set(masterPhraseRepo.fetchAllPhrases().map(\.word))
-            let studioPhrases = Set(phraseRepo.fetchAllPhrases().map(\.word))
+            let masterPhrases = try cachedVarianceMasterPhraseWords()
+            let studioPhrases = phraseRepo.phraseWordSet()
 
             var phVars: [DictionaryVariance] = []
             for word in studioPhrases where !masterPhrases.contains(word) {
@@ -671,5 +657,25 @@ extension RadixStore {
         } catch {
             dataEditAutoSaveStatus = "Variance check failed: \(error.localizedDescription)"
         }
+    }
+
+    private func currentDictionaryVariances() -> [DictionaryVariance] {
+        let added = componentRepo.overlayUpserts.keys
+            .filter { componentRepo.baseEntry(for: $0) == nil }
+            .map { DictionaryVariance(character: $0, type: .added) }
+        let missing = componentRepo.overlayDeletions
+            .map { DictionaryVariance(character: $0, type: .missing) }
+        return (added + missing).sorted { $0.character < $1.character }
+    }
+
+    private func cachedVarianceMasterPhraseWords() throws -> Set<String> {
+        if let cached = varianceMasterPhraseWords {
+            return cached
+        }
+        let masterPhraseRepo = PhraseRepository()
+        try masterPhraseRepo.openMasterBundleOnly()
+        let baseline = masterPhraseRepo.phraseWordSet()
+        varianceMasterPhraseWords = baseline
+        return baseline
     }
 }

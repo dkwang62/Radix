@@ -94,6 +94,10 @@ hand-copying row styling.
 
 - Character dictionary: JSON base data plus `component_map_changes.json` overlay.
 - Phrases: bundled SQLite plus the user-added phrase database.
+- Dictionary variance audits derive added/missing characters from the in-memory
+  overlay and cache the immutable bundled phrase word set; do not reparse the
+  bundled dictionary or reopen/scan the master phrase database on every
+  Character Studio save.
 - Curated Study lesson sentences must be Phrase DB-backed, or referenced by a
   practice-set layer that points to Phrase DB records. Do not build a separate
   lesson-only Chinese sentence store that bypasses Radix Phrase cards,

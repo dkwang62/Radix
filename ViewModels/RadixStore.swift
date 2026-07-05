@@ -260,6 +260,11 @@ final class RadixStore: ObservableObject {
         set { dataAuditState.phraseVariances = newValue }
     }
 
+    var varianceMasterPhraseWords: Set<String>? {
+        get { dataAuditState.varianceMasterPhraseWords }
+        set { dataAuditState.varianceMasterPhraseWords = newValue }
+    }
+
     var addedDictionaryCharacters: [String] {
         get { dataAuditState.addedDictionaryCharacters }
         set { dataAuditState.addedDictionaryCharacters = newValue }

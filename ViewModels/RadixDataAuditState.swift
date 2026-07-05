@@ -4,6 +4,7 @@ import Foundation
 struct RadixDataAuditState {
     var dictionaryVariances: [DictionaryVariance] = []
     var phraseVariances: [DictionaryVariance] = []
+    var varianceMasterPhraseWords: Set<String>?
     var addedDictionaryCharacters: [String] = []
     var editedDictionaryCharacters: [String] = []
     var baseDictionaryCoreEditedCharacters: [String] = []
