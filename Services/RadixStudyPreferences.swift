@@ -133,23 +133,6 @@ enum RadixStudyPreferences {
         return records
     }
 
-    @discardableResult
-    static func recordSentenceExamples(
-        fromOCRText text: String,
-        sourcePageID: UUID,
-        sourceTitle: String,
-        createdAt: Date = Date()
-    ) -> [SentenceExampleRecord] {
-        let records = SentenceExampleRecord.fromOCRText(
-            text,
-            sourcePageID: sourcePageID,
-            sourceTitle: sourceTitle,
-            createdAt: createdAt
-        )
-        recordSentenceExamples(records)
-        return records
-    }
-
     static func canonicalizedConversationPracticePack(_ pack: ConversationPracticePack) -> ConversationPracticePack {
         recordSentenceExamples(from: pack)
         return pack.withCanonicalSentenceReferences(from: sentenceExamples)

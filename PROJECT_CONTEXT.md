@@ -325,14 +325,14 @@ and legacy favorite sentences are captured even if Study has not been opened in
 the current app session. AI outputs may include a
 `[Radix Capture JSON]` block containing `sentences` or `sentence_examples`;
 Radix can parse those blocks into canonical sentence examples with optional
-source metadata. Approved OCR corrections also capture sentence fragments from
-the structured `[[CORRECTED TEXT]]` section as `ocr_source` examples linked to
-the original saved page. Quiz output remains intentionally uncaptured until its
+source metadata. Approved OCR corrections update saved-page text only and do
+not automatically add OCR-derived sentences to Study. Quiz output remains
+intentionally uncaptured until its
 interactive flow has an explicit structured return path that does not reveal
 answers early or scrape ordinary chat prose. Study exposes a `Sentences`
 shortcut that opens the Sentence Examples browser with filters for All,
-Favorites, Page, Practice, OCR, and Hidden records, plus search and row actions
-for favorite, hide/restore, delete, copy Chinese, and opening the source page.
+Favorites, Page, and Practice records, plus search and row actions for favorite,
+delete, copy Chinese, and opening the source page.
 The browser should reuse Conversation Practice's shared sentence controls
 (range/page navigation, Simplified/Traditional plus Chinese/English), shared
 sentence row, and sentence info-card preview path rather than creating a

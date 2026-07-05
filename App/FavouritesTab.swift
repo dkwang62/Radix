@@ -739,8 +739,6 @@ enum SentenceExampleStudyFilter: String, CaseIterable, Identifiable {
     case favorites = "Favorites"
     case pageLinked = "Page"
     case conversation = "Practice"
-    case ocr = "OCR"
-    case hidden = "Hidden"
 
     var id: String { rawValue }
 
@@ -750,8 +748,6 @@ enum SentenceExampleStudyFilter: String, CaseIterable, Identifiable {
         case .favorites: return RadixIcon.saved
         case .pageLinked: return RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage)
         case .conversation: return "bubble.left.and.bubble.right"
-        case .ocr: return "doc.text.viewfinder"
-        case .hidden: return "eye.slash"
         }
     }
 }

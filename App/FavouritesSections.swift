@@ -141,7 +141,7 @@ extension FavouritesTab {
                         ContentUnavailableView(
                             "No Sentences",
                             systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"),
-                            description: Text("Extract page sentences or import practice to fill the sentence database.")
+                            description: Text("Import page sentences or practice packs to fill the sentence database.")
                         )
                         .frame(maxWidth: .infinity, minHeight: 240)
                     } else {
@@ -303,10 +303,6 @@ extension FavouritesTab {
             return example.sources.contains { $0.sourcePageID != nil } && !example.isHidden
         case .conversation:
             return (example.hasSourceType(.conversationPractice) || example.hasSourceType(.sentencePractice)) && !example.isHidden
-        case .ocr:
-            return example.hasSourceType(.ocrSource) && !example.isHidden
-        case .hidden:
-            return example.isHidden
         }
     }
 
@@ -366,13 +362,6 @@ extension FavouritesTab {
             }
             .disabled(true)
 
-            if example.isHidden {
-                Button {} label: {
-                    Label("Hidden", systemImage: "eye.slash")
-                }
-                .disabled(true)
-            }
-
             Divider()
 
             Button {
@@ -410,14 +399,6 @@ extension FavouritesTab {
             }
 
             Divider()
-
-            Button {
-                RadixStudyPreferences.setSentenceExampleHidden(id: example.id, isHidden: !example.isHidden)
-                sentenceExampleRevision += 1
-                sentenceExampleStatusMessage = example.isHidden ? "Restored" : "Hidden"
-            } label: {
-                Label(example.isHidden ? "Restore" : "Hide", systemImage: example.isHidden ? "eye" : "eye.slash")
-            }
 
             Button(role: .destructive) {
                 RadixStudyPreferences.deleteSentenceExample(id: example.id)
@@ -465,7 +446,7 @@ extension FavouritesTab {
         if let title = example.sources.compactMap(\.sourceTitle).first, !title.isEmpty {
             return title
         }
-        if example.hasSourceType(.ocrSource) { return "OCR" }
+        if example.hasSourceType(.ocrSource) { return "Captured Text" }
         if example.hasSourceType(.sentencePractice) { return "Page Sentences" }
         if example.hasSourceType(.conversationPractice) { return "Conversation Practice" }
         if example.hasSourceType(.favoriteSentence) { return "Favorite Sentence" }
@@ -473,7 +454,7 @@ extension FavouritesTab {
     }
 
     func sentenceExampleSourceIcon(_ example: SentenceExampleRecord) -> String {
-        if example.hasSourceType(.ocrSource) { return "doc.text.viewfinder" }
+        if example.hasSourceType(.ocrSource) { return "doc.text" }
         if example.hasSourceType(.sentencePractice) { return RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage) }
         if example.hasSourceType(.conversationPractice) { return "bubble.left.and.bubble.right" }
         if example.hasSourceType(.favoriteSentence) { return RadixIcon.saved }

@@ -164,11 +164,6 @@ extension RadixStore {
         ) else {
             throw AIResultApplicationError.emptyCorrectedOCR
         }
-        RadixStudyPreferences.recordSentenceExamples(
-            fromOCRText: proposal.correctedText,
-            sourcePageID: collection.id,
-            sourceTitle: collection.name
-        )
         return corrected
     }
 
