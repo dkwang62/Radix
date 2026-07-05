@@ -209,7 +209,7 @@ compatibility contracts. Current portable contracts include:
 - Conversation Practice source-link and sentence-reference metadata for
   page-derived practice packs
 
-The portable test suite currently contains 66 tests across eight suites.
+The portable test suite currently contains 67 tests across eight suites.
 
 ## Active Workstream
 
@@ -228,8 +228,8 @@ make Saved Pages in Study feel like the center of the app; keep generated
 artifacts visibly tied to their source page; improve empty states with one clear
 next action; continue impact summaries for destructive actions; add lightweight
 resume signals such as last viewed or last practiced where useful; keep AI
-manual/API workflows using the same method vocabulary; check iPhone one-handed
-ergonomics; and eventually add a short mental-model help page for
+manual/API workflows using the same method vocabulary; and check iPhone
+one-handed ergonomics. Study Help now names the page-first mental model as
 `Pages -> Artifacts -> Practice -> Memory -> Checkpoints`.
 Page-derived Conversation Practice topics should surface their saved-page origin
 in Study topic summaries, and keep that source cue visible alongside practice

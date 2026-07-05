@@ -239,7 +239,7 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
         case .browse:
             return "\(RadixCopy.browsePurpose) Browse connects dictionary detail with the original page, so you can move from a character to its structure, phrases, and real context."
         case .study:
-            return "\(RadixCopy.studyPurpose) Study is the page-first workspace where a captured page gathers its translation, phrases, quiz, sentences, Conversation practice, learning memory, and checkpoints."
+            return "\(RadixCopy.studyPurpose) Think of Study as Pages -> Artifacts -> Practice -> Memory -> Checkpoints: a captured page gathers its translation, phrases, quiz, sentences, Conversation practice, learning memory, and safety checkpoints."
         case .aiLink:
             return "\(RadixCopy.aiPurpose) AI Link goes beyond fixed dictionary definitions with contextual translation, deeper explanation, phrase extraction, and newer language."
         case .myData:
@@ -278,27 +278,27 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
             return [
                 RadixNavigationGuideAction(
                     icon: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage),
-                    title: "Pages are the center",
+                    title: "Pages",
                     detail: "Saved Pages hold the original Chinese you captured and act as the home for work created from that source."
                 ),
                 RadixNavigationGuideAction(
                     icon: "square.grid.2x2",
-                    title: "Artifacts stay with the page",
+                    title: "Artifacts",
                     detail: "Translation, page phrases, corrected OCR, Sentences, Conversation, and Quiz actions remain attached to the saved page that produced them."
                 ),
                 RadixNavigationGuideAction(
                     icon: RadixGlossaryIcon.systemImage(for: "Practice Pack"),
-                    title: "Practice grows from real text",
+                    title: "Practice",
                     detail: "Open page-derived Sentences or Conversation practice from Study, then return to the page that started it."
                 ),
                 RadixNavigationGuideAction(
                     icon: RadixGlossaryIcon.systemImage(for: "Favorite"),
-                    title: "Memory keeps useful discoveries",
+                    title: "Memory",
                     detail: "Favorites, added phrases, favorite sentences, and progress stay as learning memory even when a page-owned artifact is removed."
                 ),
                 RadixNavigationGuideAction(
                     icon: "clock.arrow.circlepath",
-                    title: "Checkpoints are the safety net",
+                    title: "Checkpoints",
                     detail: "Create a checkpoint before large study sessions or cleanup so you can return to that learning state later."
                 )
             ]
