@@ -110,6 +110,45 @@ struct ConversationPracticeTests {
         #expect(library.phraseKeys.last == "祝你一切顺利")
     }
 
+    @Test("Sentence examples deduplicate normalized Chinese sentences")
+    func sentenceExamplesDeduplicateNormalizedChinese() {
+        let first = SentenceExampleRecord(
+            chinese: "在这个关键时刻，我们需要冷静思考。",
+            pinyin: "Zài zhège guānjiàn shíkè, wǒmen xūyào lěngjìng sīkǎo.",
+            english: "At this crucial moment, we need to think calmly.",
+            detectedPhrases: ["关键时刻"]
+        )
+        let duplicate = SentenceExampleRecord(
+            chinese: "在这个关键时刻 我们需要冷静思考",
+            pinyin: nil,
+            english: nil,
+            detectedPhrases: ["冷静思考"],
+            isFavorited: true
+        )
+
+        let records = SentenceExampleRecord.upserting([duplicate], into: [first])
+
+        #expect(records.count == 1)
+        #expect(records.first?.pinyin == first.pinyin)
+        #expect(records.first?.isFavorited == true)
+        #expect(records.first?.detectedPhrases == ["关键时刻", "冷静思考"])
+    }
+
+    @Test("Conversation practice items map into canonical sentence examples")
+    func practiceItemsMapToSentenceExamples() throws {
+        let pack = try loadConversationPackFixture()
+        let item = try #require(pack.practiceItems.first)
+        let record = SentenceExampleRecord.fromPracticeItem(item, pack: pack)
+
+        #expect(record.chinese == item.simplified)
+        #expect(record.pinyin == item.pinyin)
+        #expect(record.english == item.english)
+        #expect(record.detectedCharacters.contains("你"))
+        #expect(record.detectedPhrases.contains(item.phraseKey))
+        #expect(record.sources.first?.practicePackID == pack.packID)
+        #expect(record.sources.first?.practiceItemID == item.id)
+    }
+
     @Test("Conversation practice topics keep starter ordering and food generation brief")
     func defaultTopicsIncludeFoodExpansionTopic() {
         let topics = ConversationPracticeTopic.defaults

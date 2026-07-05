@@ -126,6 +126,7 @@ struct UnifiedPackage: Codable {
     let conversationPracticePacks: [ConversationPracticePack]?
     let conversationPracticeProgress: ConversationPracticeProgressSnapshot?
     let favoriteSentences: [FavoriteSentenceRecord]?
+    let sentenceExamples: [SentenceExampleRecord]?
     let pagePhraseExtractions: [PagePhraseExtractionRecord]?
     let apiKeys: APIKeyBackup?
 
@@ -144,6 +145,7 @@ struct UnifiedPackage: Codable {
         case conversationPracticePacks = "conversation_practice_packs"
         case conversationPracticeProgress = "conversation_practice_progress"
         case favoriteSentences = "favorite_sentences"
+        case sentenceExamples = "sentence_examples"
         case pagePhraseExtractions = "page_phrase_extractions"
         case apiKeys = "api_keys"
     }
@@ -163,6 +165,7 @@ struct UnifiedPackage: Codable {
         conversationPracticePacks: [ConversationPracticePack]? = nil,
         conversationPracticeProgress: ConversationPracticeProgressSnapshot? = nil,
         favoriteSentences: [FavoriteSentenceRecord]? = nil,
+        sentenceExamples: [SentenceExampleRecord]? = nil,
         pagePhraseExtractions: [PagePhraseExtractionRecord]? = nil,
         apiKeys: APIKeyBackup? = nil
     ) {
@@ -180,6 +183,7 @@ struct UnifiedPackage: Codable {
         self.conversationPracticePacks = conversationPracticePacks
         self.conversationPracticeProgress = conversationPracticeProgress
         self.favoriteSentences = favoriteSentences
+        self.sentenceExamples = sentenceExamples
         self.pagePhraseExtractions = pagePhraseExtractions
         self.apiKeys = apiKeys
     }

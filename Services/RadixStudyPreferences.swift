@@ -89,6 +89,60 @@ enum RadixStudyPreferences {
         }
     }
 
+    static var sentenceExamples: [SentenceExampleRecord] {
+        get {
+            guard let data = preferences.data(forKey: RadixPreferenceKey.sentenceExamples) else {
+                return []
+            }
+            return (try? JSONDecoder().decode([SentenceExampleRecord].self, from: data)) ?? []
+        }
+        set {
+            let records = SentenceExampleRecord.upserting(newValue, into: [])
+            let data = try? JSONEncoder().encode(records)
+            preferences.set(data, forKey: RadixPreferenceKey.sentenceExamples)
+        }
+    }
+
+    static func recordSentenceExamples(_ records: [SentenceExampleRecord]) {
+        guard !records.isEmpty else { return }
+        sentenceExamples = SentenceExampleRecord.upserting(records, into: sentenceExamples)
+    }
+
+    static func recordSentenceExamples(from pack: ConversationPracticePack, createdAt: Date = Date()) {
+        let favoriteIDs = Set(favoriteSentences.map(\.sourceItemID))
+        let records = pack.practiceItems.map { item in
+            SentenceExampleRecord.fromPracticeItem(
+                item,
+                pack: pack,
+                isFavorited: favoriteIDs.contains(item.id),
+                createdAt: createdAt
+            )
+        }
+        recordSentenceExamples(records)
+    }
+
+    static func setSentenceExampleFavorite(_ item: ConversationPracticeItem, isFavorited: Bool) {
+        var records = sentenceExamples
+        let incoming = SentenceExampleRecord.fromPracticeItem(item, pack: nil, isFavorited: isFavorited)
+        let key = incoming.normalizedChineseKey
+        if let index = records.firstIndex(where: { $0.normalizedChineseKey == key }) {
+            records[index].isFavorited = isFavorited
+            records[index].qualityScore = max(0, records[index].qualityScore + (isFavorited ? 2 : -2))
+        } else {
+            records.append(incoming)
+        }
+        sentenceExamples = records
+    }
+
+    static func applyImportedSentenceExamples(_ records: [SentenceExampleRecord]?, mode: RestoreMode) {
+        switch mode {
+        case .additive:
+            recordSentenceExamples(records ?? [])
+        case .complete:
+            sentenceExamples = records ?? []
+        }
+    }
+
     static var pagePhraseExtractions: [PagePhraseExtractionRecord] {
         get {
             guard let data = preferences.data(forKey: RadixPreferenceKey.pagePhraseExtractions) else {

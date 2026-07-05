@@ -20,6 +20,8 @@ extension PhraseInfoCard {
                 savedNotesText
             }
 
+            phraseSentenceExamples
+
             if let editStatus {
                 Text(editStatus)
                     .font(ResponsiveFont.caption)
@@ -49,6 +51,14 @@ extension PhraseInfoCard {
                 saveNotesButton
                 cancelNotesButton
             }
+        }
+    }
+
+    @ViewBuilder
+    var phraseSentenceExamples: some View {
+        let examples = SentenceExampleDisplayRules.examples(containingPhrase: phrase.word)
+        if !examples.isEmpty {
+            SentenceExamplePreviewSection(title: "Examples", examples: examples)
         }
     }
 
@@ -114,5 +124,85 @@ extension PhraseInfoCard {
         } catch {
             editStatus = "Save failed: \(error.localizedDescription)"
         }
+    }
+}
+
+enum SentenceExampleDisplayRules {
+    static func examples(containingPhrase phrase: String, limit: Int = 3) -> [SentenceExampleRecord] {
+        let key = SentenceExampleRecord.normalizedChineseKey(phrase)
+        guard !key.isEmpty else { return [] }
+        return rankedExamples().filter { record in
+            record.detectedPhrases.contains { SentenceExampleRecord.normalizedChineseKey($0) == key } ||
+            record.targetPhrases.contains { SentenceExampleRecord.normalizedChineseKey($0) == key } ||
+            record.normalizedChineseKey.contains(key)
+        }
+        .prefix(limit)
+        .map { $0 }
+    }
+
+    static func examples(containingCharacter character: String, limit: Int = 3) -> [SentenceExampleRecord] {
+        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else { return [] }
+        return rankedExamples().filter { record in
+            record.detectedCharacters.contains(key) ||
+            record.targetCharacters.contains(key) ||
+            record.chinese.contains(key)
+        }
+        .prefix(limit)
+        .map { $0 }
+    }
+
+    private static func rankedExamples() -> [SentenceExampleRecord] {
+        RadixStudyPreferences.sentenceExamples
+            .filter { !$0.isHidden }
+            .sorted {
+                if $0.isFavorited != $1.isFavorited { return $0.isFavorited && !$1.isFavorited }
+                if $0.qualityScore != $1.qualityScore { return $0.qualityScore > $1.qualityScore }
+                if $0.practicedCount != $1.practicedCount { return $0.practicedCount > $1.practicedCount }
+                if $0.createdAt != $1.createdAt { return $0.createdAt > $1.createdAt }
+                return $0.chinese < $1.chinese
+            }
+    }
+}
+
+struct SentenceExamplePreviewSection: View {
+    let title: String
+    let examples: [SentenceExampleRecord]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(title, systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"))
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(examples) { example in
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(example.chinese)
+                            .font(ResponsiveFont.caption.weight(.semibold))
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        if let pinyin = example.pinyin {
+                            Text(pinyin)
+                                .font(ResponsiveFont.caption2)
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+
+                        if let english = example.english {
+                            Text(english)
+                                .font(ResponsiveFont.caption2)
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RadixTheme.secondaryBackground.opacity(0.35))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

@@ -74,6 +74,7 @@ extension RadixStore {
         packs.removeAll { $0.packID == pack.packID }
         packs.append(pack)
         RadixStudyPreferences.importedConversationPracticePacks = packs
+        RadixStudyPreferences.recordSentenceExamples(from: pack)
         registerConversationPracticeLibrary(pack.practiceLibrary)
     }
 
@@ -88,6 +89,7 @@ extension RadixStore {
             for pack in packs {
                 merged.removeAll { $0.packID == pack.packID }
                 merged.append(pack)
+                RadixStudyPreferences.recordSentenceExamples(from: pack)
                 registerConversationPracticeLibrary(pack.practiceLibrary)
             }
             RadixStudyPreferences.importedConversationPracticePacks = merged
@@ -95,6 +97,11 @@ extension RadixStore {
         case .complete:
             let restored = packs ?? []
             RadixStudyPreferences.importedConversationPracticePacks = restored
+            RadixStudyPreferences.recordSentenceExamples(restored.flatMap { pack in
+                pack.practiceItems.map {
+                    SentenceExampleRecord.fromPracticeItem($0, pack: pack)
+                }
+            })
             for pack in restored {
                 registerConversationPracticeLibrary(pack.practiceLibrary)
             }
@@ -247,8 +254,10 @@ extension RadixStore {
         var records = RadixStudyPreferences.favoriteSentences
         if records.contains(where: { $0.id == id }) {
             records.removeAll { $0.id == id }
+            RadixStudyPreferences.setSentenceExampleFavorite(item, isFavorited: false)
         } else {
             records.append(FavoriteSentenceRecord(item: item))
+            RadixStudyPreferences.setSentenceExampleFavorite(item, isFavorited: true)
         }
         RadixStudyPreferences.favoriteSentences = records
         favoriteSentenceRevision += 1
