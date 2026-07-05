@@ -28,7 +28,8 @@ views over sentence examples rather than separate sentence databases.
   status. Done.
 - Backfill legacy Favorite Sentences into sentence-example favorite flags and
   build the Favorite Sentences practice topic from canonical sentence examples.
-  Done.
+  Done. Restore applies sentence examples before legacy favorite records so
+  compatibility favorites overlay onto the canonical store.
 - Convert imported/page-generated practice packs to store ordered sentence
   references. Done.
 

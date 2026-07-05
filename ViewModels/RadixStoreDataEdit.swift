@@ -576,8 +576,8 @@ extension RadixStore {
                 applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .additive)
                 RadixStudyPreferences.conversationPracticeProgress =
                     RadixStudyPreferences.conversationPracticeProgress.merging(package.conversationPracticeProgress)
-                applyImportedFavoriteSentences(package.favoriteSentences, mode: .additive)
                 RadixStudyPreferences.applyImportedSentenceExamples(package.sentenceExamples, mode: .additive)
+                applyImportedFavoriteSentences(package.favoriteSentences, mode: .additive)
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .additive)
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .additive)
@@ -595,8 +595,8 @@ extension RadixStore {
                 applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .complete)
                 RadixStudyPreferences.conversationPracticeProgress =
                     package.conversationPracticeProgress ?? ConversationPracticeProgressSnapshot()
-                applyImportedFavoriteSentences(package.favoriteSentences, mode: .complete)
                 RadixStudyPreferences.applyImportedSentenceExamples(package.sentenceExamples, mode: .complete)
+                applyImportedFavoriteSentences(package.favoriteSentences, mode: .complete)
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .complete)
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .complete)

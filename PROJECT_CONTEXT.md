@@ -270,7 +270,10 @@ Conversation Practice, so old practice sentences enter the sentence database
 without requiring re-import. The
 Favorite Sentences practice topic should be built from canonical favorited
 sentence examples while keeping old favorite records only as compatibility data
-until a fuller migration removes the duplicate store. AI outputs may include a
+until a fuller migration removes the duplicate store. Backup restore applies
+canonical sentence examples before legacy favorite-sentence records so favorites
+overlay into the sentence database instead of being overwritten by restore
+ordering. AI outputs may include a
 `[Radix Capture JSON]` block containing `sentences` or `sentence_examples`;
 Radix can parse those blocks into canonical sentence examples with optional
 source metadata. Approved OCR corrections also capture sentence fragments from
