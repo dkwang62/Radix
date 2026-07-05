@@ -29,6 +29,7 @@ struct AILinkView: View {
     @State var aiResultError: String?
     @State var aiImportedPracticePack: ConversationPracticePack?
     @State var isAIResultTextExpanded = true
+    @State var isShowingTemplateManager = false
 
     /// The character or phrase word that tasks 1-3 will act on.
     /// Phrase preview takes priority over single character preview.
@@ -143,7 +144,38 @@ struct AILinkView: View {
             .padding(20)
         }
         .navigationTitle(RadixCopy.aiLink)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    isShowingTemplateManager = true
+                } label: {
+                    Label("AI Templates", systemImage: "slider.horizontal.3")
+                }
+                .accessibilityLabel("AI Templates")
+                .help("AI Templates")
+            }
+        }
         .background(RadixTheme.groupedBackground)
+        .sheet(isPresented: $isShowingTemplateManager, onDismiss: {
+            ensureSelectedPromptTask()
+        }) {
+            NavigationStack {
+                ScrollView {
+                    templateEditorSection
+                        .padding()
+                }
+                .background(RadixTheme.groupedBackground)
+                .navigationTitle("AI Templates")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") {
+                            isShowingTemplateManager = false
+                        }
+                    }
+                }
+            }
+        }
         .onAppear {
             store.refreshPhrases()
             if selectedAIPreset == nil {

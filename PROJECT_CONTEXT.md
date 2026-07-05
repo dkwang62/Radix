@@ -490,9 +490,10 @@ page/subject and send without scrolling through the template first.
 Opening the selected AI copies the prompt first, then opens the AI provider;
 copy-only remains available from the provider menu. Launch/copy status notices
 sit on their own row below the open controls rather than sharing the button row.
-The live prompt editor edits the selected task inline; the older bulk template
-editor file is currently disconnected pending a separate product decision about
-whether global prompt closings should be restored or removed.
+The live prompt editor edits the selected task inline. The bulk AI Templates
+manager is reachable from the AI Link toolbar and remains out of the primary
+workflow; use it for global character/page prompt closings, adding or deleting
+custom prompt tasks, and editing all templates in one place.
 Character and phrase tasks default to the most recent memory-strip subject, and
 the subject row itself is a dropdown of recent memory-strip items rather than a
 Search shortcut. Page tasks default to the last viewed saved page while still
