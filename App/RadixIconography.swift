@@ -73,6 +73,7 @@ enum RadixGlossaryIcon {
         case "AI Link": return RadixIcon.aiLink
         case "AI Prompt": return "text.badge.sparkles"
         case "API Key": return "key"
+        case "Artifact", "Page Artifact": return "square.grid.2x2"
         case "Gemini API Key": return "key.fill"
         case RadixTerm.backup: return backup
         case "Character": return "character"
@@ -80,7 +81,7 @@ enum RadixGlossaryIcon {
         case "Classify & Prune": return "slider.horizontal.3"
         case "Components": return "square.stack.3d.up"
         case "Conversation Practice": return "bubble.left.and.bubble.right"
-        case "Create Conversation", "Create Theme Practice", "Create Practice from Page": return "doc.text.magnifyingglass"
+        case "Create Conversation", "Create Theme Practice", "Create Practice from Page": return "sparkles"
         case "Data Portability": return "arrow.triangle.2.circlepath"
         case "Definition": return "text.book.closed"
         case "Meaning": return "text.alignleft"
@@ -88,21 +89,26 @@ enum RadixGlossaryIcon {
         case "Extract Page Sentences", "Extract Sentences": return "text.quote"
         case "Favorite": return RadixIcon.saved
         case "Favorite Sentence": return "star.circle"
+        case "Gemini API": return "sparkles.rectangle.stack"
         case "Hidden": return "eye.slash"
         case RadixTerm.history: return history
         case "Make AI Text Page": return "doc.badge.plus"
+        case "Manual AI Link": return "arrow.up.forward.app"
         case "Memory": return "archivebox"
         case RadixTerm.notes: return notes
         case "Origin": return "sparkle.magnifyingglass"
+        case "Page AI Task": return "wand.and.stars.inverse"
         case "Page Phrases": return "text.viewfinder"
         case "Phrase": return "text.bubble"
         case "Practice Pack": return "shippingbox"
+        case "Quiz": return "questionmark.circle"
         case "Radical": return "leaf"
         case "Radix Plus": return "crown"
         case RadixTerm.recent: return recent
         case "Rejected": return "xmark.circle"
         case RadixTerm.savedPage: return savedPage
         case "Sentence": return "quote.bubble"
+        case "Sentence Database", "Sentence Example": return "tray.full"
         case "Sentence Phrases": return "text.bubble.fill"
         case "Simplified": return "character.book.closed"
         case "Stroke Order": return "scribble"
