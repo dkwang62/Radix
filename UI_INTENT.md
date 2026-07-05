@@ -265,13 +265,15 @@ visually distinct: `Recent`, `Favorites`, and `Saved Pages` are mutually
 exclusive views of the review grid, while Added Phrases, Conversation
 Practices, and iPhone Checkpoints are shortcuts to another review surface.
 Favorite Sentences belongs inside Conversation Practices, so do not duplicate
-it as a dashboard shortcut. Saved Pages should be the default Study scope
-because page-linked work is the center of the page-first Study flow. The
-shortcut row should still look button-like, with filled actionable controls
-rather than washed-out status chips; distinct category colors are fine when
-they clarify the destinations. Conversation Practices should open a focused
-Practice screen with a clear `Back to Study` return button. Do not show a
-persistent `Review | Practice` switch row on the Study main screen.
+it as a dashboard shortcut; when favorite sentences exist, the Conversation
+Practices shortcut should open to that topic by default. Saved Pages should be
+the default Study scope because page-linked work is the center of the page-first
+Study flow. The shortcut row should still look button-like, with filled
+actionable controls rather than washed-out status chips; distinct category
+colors are fine when they clarify the destinations. Conversation Practices
+should open a focused Practice screen with a clear `Back to Study` return
+button. Do not show a persistent `Review | Practice` switch row on the Study
+main screen.
 
 Inside Review, the Study scope control is the section selector. Do not repeat
 Recent/Favorites as another segmented picker above the review grid; the grid

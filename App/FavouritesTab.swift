@@ -354,6 +354,19 @@ struct FavouritesTab: View {
         store.pendingConversationPracticeTopicID = nil
     }
 
+    func presentConversationPractice() {
+        loadFavoriteSentences()
+        if let favoriteSentencesTopic {
+            selectConversationPracticeTopic(favoriteSentencesTopic)
+        } else {
+            loadConversationPracticeLibrary()
+        }
+        withAnimation(.snappy(duration: 0.18)) {
+            isShowingAddedPhraseReview = false
+            isShowingConversationPractice = true
+        }
+    }
+
     func loadConversationPracticeLibrary() {
         refreshConversationPracticeProgress()
         migratePhraseFavoritesToFavoriteSentences()
@@ -396,7 +409,7 @@ struct FavouritesTab: View {
         favoriteSentenceRecords = RadixStudyPreferences.favoriteSentences
         conversationPracticeTopics = conversationPracticeBaseTopics(importedTopics: importedTopics)
         if !conversationPracticeTopics.contains(where: { $0.id == store.selectedConversationPracticeTopicID }) {
-            store.selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
+            store.selectedConversationPracticeTopicID = defaultConversationPracticeTopic.id
         }
     }
 
@@ -419,7 +432,7 @@ struct FavouritesTab: View {
         conversationPracticeTopics = conversationPracticeBaseTopics(importedTopics: importedTopics)
         if store.selectedConversationPracticeTopicID == ConversationPracticeTopic.favoriteSentencesID,
            favoriteSentenceRecords.isEmpty {
-            store.selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
+            store.selectedConversationPracticeTopicID = defaultConversationPracticeTopic.id
         }
     }
 
@@ -491,7 +504,15 @@ struct FavouritesTab: View {
 
     var selectedConversationPracticeTopic: ConversationPracticeTopic {
         conversationPracticeTopics.first { $0.id == store.selectedConversationPracticeTopicID }
-            ?? .generalGreetings
+            ?? defaultConversationPracticeTopic
+    }
+
+    var favoriteSentencesTopic: ConversationPracticeTopic? {
+        conversationPracticeTopics.first { $0.id == ConversationPracticeTopic.favoriteSentencesID }
+    }
+
+    var defaultConversationPracticeTopic: ConversationPracticeTopic {
+        favoriteSentencesTopic ?? .generalGreetings
     }
 
     func conversationPracticeTopic(for library: ConversationPracticeLibrary) -> ConversationPracticeTopic {

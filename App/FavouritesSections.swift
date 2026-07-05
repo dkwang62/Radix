@@ -168,10 +168,7 @@ extension FavouritesTab {
                 systemImage: "bubble.left.and.bubble.right",
                 fill: .teal,
                 action: {
-                    withAnimation(.snappy(duration: 0.18)) {
-                        isShowingAddedPhraseReview = false
-                        isShowingConversationPractice = true
-                    }
+                    presentConversationPractice()
                 }
             )
         ]
