@@ -28,6 +28,8 @@ extension FavouritesTab {
                         .padding(.horizontal)
                         .padding(.bottom, 20)
                 }
+            } else if isShowingAddedPhraseReview {
+                addedPhraseReviewStudyScreen
             } else {
                 VStack(alignment: .leading, spacing: 0) {
                     studyPinnedControls
@@ -121,6 +123,16 @@ extension FavouritesTab {
         store.rootsReturnContext == nil ? "Back to Study" : store.rootsReturnButtonTitle
     }
 
+    var addedPhraseReviewStudyScreen: some View {
+        AddedPhraseReviewSheet(isWorkspace: true) {
+            withAnimation(.snappy(duration: 0.18)) {
+                isShowingAddedPhraseReview = false
+            }
+            store.refreshAddedPhrases()
+        }
+        .environmentObject(store)
+    }
+
     private var studyScopeControls: [StudyScopeControl] {
         [
             StudyScopeControl(
@@ -159,6 +171,7 @@ extension FavouritesTab {
                 action: {
                     guard !favoriteSentenceRecords.isEmpty else { return }
                     withAnimation(.snappy(duration: 0.18)) {
+                        isShowingAddedPhraseReview = false
                         isShowingConversationPractice = true
                     }
                     selectConversationPracticeTopic(.favoriteSentences(count: favoriteSentenceRecords.count))
@@ -170,6 +183,7 @@ extension FavouritesTab {
                 tint: .teal,
                 action: {
                     withAnimation(.snappy(duration: 0.18)) {
+                        isShowingAddedPhraseReview = false
                         isShowingConversationPractice = true
                     }
                 }

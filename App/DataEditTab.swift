@@ -13,10 +13,6 @@ private extension DataEditTab {
     }
 }
 
-struct AddedPhraseReviewPresentation: Identifiable {
-    let id = UUID()
-}
-
 struct PendingBackupRestore: Identifiable {
     let id = UUID()
     let payload: PortableBackupPayload

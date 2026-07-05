@@ -17,10 +17,10 @@ enum PhraseReviewStatus: String, Codable, CaseIterable {
 }
 
 enum PhraseReviewStatusTool: String, CaseIterable, Identifiable {
-    case removed
     case checked
     case hidden
     case new
+    case removed
 
     var id: String { rawValue }
 
@@ -54,10 +54,10 @@ enum PhraseReviewStatusTool: String, CaseIterable, Identifiable {
 
     static func nextStatus(after status: PhraseReviewStatus?) -> PhraseReviewStatus? {
         switch status {
-        case nil: return .removed
-        case .removed: return .checked
+        case nil: return .checked
         case .checked, .completed: return .hidden
-        case .hidden: return nil
+        case .hidden: return .removed
+        case .removed: return nil
         }
     }
 }
@@ -76,7 +76,7 @@ enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    static let menuCases: [AddedPhraseReviewFilter] = [.removed, .checked, .hidden, .new, .all]
+    static let menuCases: [AddedPhraseReviewFilter] = [.checked, .hidden, .new, .removed, .all]
 
     var title: String {
         switch self {

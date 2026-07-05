@@ -119,9 +119,9 @@ extension FavouritesTab {
     }
 
     func presentAddedPhraseReview() {
-        addedPhraseReviewPresentation = nil
-        DispatchQueue.main.async {
-            addedPhraseReviewPresentation = AddedPhraseReviewPresentation()
+        withAnimation(.snappy(duration: 0.18)) {
+            isShowingConversationPractice = false
+            isShowingAddedPhraseReview = true
         }
     }
 

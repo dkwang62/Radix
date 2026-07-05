@@ -9,8 +9,8 @@ extension AddedPhraseReviewSheet {
 
             Spacer(minLength: 0)
 
-            Button { dismiss() } label: {
-                Label("Done", systemImage: "xmark")
+            Button { closeReview() } label: {
+                Label(isWorkspace ? "Back to Study" : "Done", systemImage: isWorkspace ? "chevron.left" : "xmark")
                     .font(reviewControlFont)
                     .lineLimit(1)
                     .fixedSize(horizontal: true, vertical: false)
@@ -18,7 +18,7 @@ extension AddedPhraseReviewSheet {
                 .buttonStyle(.bordered)
                 .controlSize(.small)
                 .keyboardShortcut(.cancelAction)
-                .accessibilityLabel("Close phrase classification")
+                .accessibilityLabel(isWorkspace ? "Back to Study" : "Close phrase classification")
         }
         .frame(maxWidth: .infinity)
     }
@@ -214,15 +214,56 @@ extension AddedPhraseReviewSheet {
         HStack(spacing: 10) {
             pageButton(systemImage: "chevron.left", action: previousPage, isEnabled: currentPageIndex > 0)
 
+            pageJumpControl
+
+            pageButton(systemImage: "chevron.right", action: nextPage, isEnabled: currentPageIndex < pageCount - 1)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+    }
+
+    @ViewBuilder
+    var pageJumpControl: some View {
+        if pageCount > 1 {
+            Menu {
+                ForEach(0..<pageCount, id: \.self) { index in
+                    Button {
+                        pageIndex = index
+                    } label: {
+                        if index == currentPageIndex {
+                            Label(pageMenuLabel(for: index), systemImage: "checkmark")
+                        } else {
+                            Text(pageMenuLabel(for: index))
+                        }
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text(pageRangeLabel)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.system(size: 9, weight: .bold))
+                        .opacity(0.6)
+                }
+                .font(reviewCaptionFont)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+            }
+            .frame(minWidth: 150)
+            .accessibilityLabel("Jump to phrase review page")
+        } else {
             Text(pageRangeLabel)
                 .font(reviewCaptionFont)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .frame(minWidth: 150)
-
-            pageButton(systemImage: "chevron.right", action: nextPage, isEnabled: currentPageIndex < pageCount - 1)
         }
-        .frame(maxWidth: .infinity, alignment: .center)
+    }
+
+    func pageMenuLabel(for index: Int) -> String {
+        let start = index * pageSize
+        guard filteredPhrases.indices.contains(start) else { return "Page \(index + 1)" }
+        let slice = Array(filteredPhrases.dropFirst(start).prefix(pageSize))
+        let range = AddedPhraseReviewRules.pinyinRangeLabel(for: slice)
+        return range.isEmpty ? "Page \(index + 1)" : "Page \(index + 1) · \(range)"
     }
 
     func pageButton(systemImage: String, action: @escaping () -> Void, isEnabled: Bool) -> some View {

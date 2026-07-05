@@ -30,10 +30,10 @@ struct FavouritesTab: View {
     let isReturningToCheckpoint: Bool
     @State var selectedPhrase: PhraseItem?
     @State var isShowingConversationPractice = false
+    @State var isShowingAddedPhraseReview = false
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
     @State var studyGridScope = RadixStudyPreferences.gridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
-    @State var addedPhraseReviewPresentation: AddedPhraseReviewPresentation?
     @State var showStudyCheckpoints = false
     @State var pendingCheckpointReturn: LocalDataSnapshot?
     @State var conversationPracticeTopics = ConversationPracticeTopic.defaults
@@ -88,7 +88,7 @@ struct FavouritesTab: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if !isShowingConversationPractice {
+            if !isShowingConversationPractice && !isShowingAddedPhraseReview {
                 favouritesHeader
             }
 
@@ -114,12 +114,6 @@ struct FavouritesTab: View {
                     .navigationBarTitleDisplayMode(.inline)
             }
             .presentationDetents([.medium, .large])
-        }
-        .sheet(item: $addedPhraseReviewPresentation, onDismiss: {
-            addedPhraseReviewPresentation = nil
-        }) { _ in
-            AddedPhraseReviewSheet()
-                .environmentObject(store)
         }
         .sheet(item: $conversationPracticeReviewPresentation, onDismiss: {
             conversationPracticeReviewPresentation = nil

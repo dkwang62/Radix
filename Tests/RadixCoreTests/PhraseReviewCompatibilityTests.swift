@@ -24,10 +24,10 @@ struct PhraseReviewCompatibilityTests {
 
     @Test("Classification cycle retains its established order")
     func classificationCycle() {
-        #expect(PhraseReviewStatusTool.nextStatus(after: nil) == .removed)
-        #expect(PhraseReviewStatusTool.nextStatus(after: .removed) == .checked)
+        #expect(PhraseReviewStatusTool.nextStatus(after: nil) == .checked)
         #expect(PhraseReviewStatusTool.nextStatus(after: .checked) == .hidden)
-        #expect(PhraseReviewStatusTool.nextStatus(after: .hidden) == nil)
+        #expect(PhraseReviewStatusTool.nextStatus(after: .hidden) == .removed)
+        #expect(PhraseReviewStatusTool.nextStatus(after: .removed) == nil)
     }
 
     @Test("AI review page includes only unreviewed non-base multi-character phrases")

@@ -4,6 +4,8 @@ struct AddedPhraseReviewSheet: View {
     @EnvironmentObject var store: RadixStore
     @Environment(\.dismiss) var dismiss
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    let isWorkspace: Bool
+    let onDone: (() -> Void)?
     @State var filter: AddedPhraseReviewFilter = .all
     @State var selectedTool: PhraseReviewStatusTool?
     @State var reviewCycle = PhraseReviewStatusCycleState()
@@ -21,6 +23,11 @@ struct AddedPhraseReviewSheet: View {
     let phraseTileHeight: CGFloat = 34
     let phraseGridSpacing: CGFloat = 5
     let phraseGridVerticalPadding: CGFloat = 4
+
+    init(isWorkspace: Bool = false, onDone: (() -> Void)? = nil) {
+        self.isWorkspace = isWorkspace
+        self.onDone = onDone
+    }
 
     var pageSize: Int {
         adaptivePageSize ?? fallbackPageSize
@@ -81,64 +88,74 @@ struct AddedPhraseReviewSheet: View {
     // - Keep the selected phrase preview compact so the grid stays useful for fast classification.
     // - Default to All so review can begin from the complete set before switching to a status filter.
     var body: some View {
-        NavigationStack {
-            GeometryReader { proxy in
-                VStack(alignment: .leading, spacing: 6) {
-                    topControlRow
-                    toolRow
-                    selectedPhraseDetailCard
-
-                    if filteredPhrases.isEmpty {
-                        emptyStateView
-                    } else {
-                        phraseGrid
-                    }
+        Group {
+            if isWorkspace {
+                reviewSurface
+            } else {
+                NavigationStack {
+                    reviewSurface
                 }
-                .padding(.horizontal, usesRegularReviewLayout ? 20 : 12)
-                .padding(.bottom, 8)
-                .padding(.top, reviewSheetTopPadding)
-                .frame(
-                    width: proxy.size.width,
-                    height: proxy.size.height,
-                    alignment: .top
-                )
-                .toolbar(.hidden, for: .navigationBar)
-                .onAppear {
-                    store.refreshAddedPhrases()
-                }
-                .sheet(isPresented: $showsReviewHelp) {
-                    AddedPhraseReviewHelpSheet()
-                }
-                .alert("Delete Phrase?", isPresented: deleteConfirmationBinding) {
-                    Button("Delete", role: .destructive) {
-                        deletePendingPhrase()
-                    }
-                    Button("Cancel", role: .cancel) {
-                        phrasePendingDeletion = nil
-                    }
-                } message: {
-                    Text(deleteConfirmationMessage)
-                }
-                .alert("Remove Rejected Phrases?", isPresented: $showsDeleteRejectedConfirmation) {
-                    Button("Remove", role: .destructive) {
-                        deleteRejectedPhrases()
-                    }
-                    Button("Cancel", role: .cancel) { }
-                } message: {
-                    Text(deleteRejectedConfirmationMessage)
-                }
-                .alert("Remove Unreviewed Phrases?", isPresented: $showsDeleteNewConfirmation) {
-                    Button("Remove", role: .destructive) {
-                        deleteNewPhrases()
-                    }
-                    Button("Cancel", role: .cancel) { }
-                } message: {
-                    Text(deleteNewConfirmationMessage)
-                }
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
             }
         }
-        .presentationDetents([.large])
-        .presentationDragIndicator(.visible)
+    }
+
+    var reviewSurface: some View {
+        GeometryReader { proxy in
+            VStack(alignment: .leading, spacing: 6) {
+                topControlRow
+                toolRow
+                selectedPhraseDetailCard
+
+                if filteredPhrases.isEmpty {
+                    emptyStateView
+                } else {
+                    phraseGrid
+                }
+            }
+            .padding(.horizontal, usesRegularReviewLayout ? 20 : 12)
+            .padding(.bottom, 8)
+            .padding(.top, isWorkspace ? 10 : reviewSheetTopPadding)
+            .frame(
+                width: proxy.size.width,
+                height: proxy.size.height,
+                alignment: .top
+            )
+            .toolbar(.hidden, for: .navigationBar)
+            .onAppear {
+                store.refreshAddedPhrases()
+            }
+            .sheet(isPresented: $showsReviewHelp) {
+                AddedPhraseReviewHelpSheet()
+            }
+            .alert("Delete Phrase?", isPresented: deleteConfirmationBinding) {
+                Button("Delete", role: .destructive) {
+                    deletePendingPhrase()
+                }
+                Button("Cancel", role: .cancel) {
+                    phrasePendingDeletion = nil
+                }
+            } message: {
+                Text(deleteConfirmationMessage)
+            }
+            .alert("Remove Rejected Phrases?", isPresented: $showsDeleteRejectedConfirmation) {
+                Button("Remove", role: .destructive) {
+                    deleteRejectedPhrases()
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text(deleteRejectedConfirmationMessage)
+            }
+            .alert("Remove Unreviewed Phrases?", isPresented: $showsDeleteNewConfirmation) {
+                Button("Remove", role: .destructive) {
+                    deleteNewPhrases()
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text(deleteNewConfirmationMessage)
+            }
+        }
     }
 }
 
@@ -171,7 +188,8 @@ extension AddedPhraseReviewSheet {
     func setStatus(
         _ status: PhraseReviewStatus?,
         for phrase: PhraseItem,
-        closeSelection: Bool = false
+        closeSelection: Bool = false,
+        preservesFilter: Bool = false
     ) {
         do {
             try store.updateAddedPhraseReviewStatus(word: phrase.word, status: status)
@@ -179,7 +197,7 @@ extension AddedPhraseReviewSheet {
             selectedPhrase = closeSelection || !filter.includes(updatedPhrase) ? nil : updatedPhrase
             selectedTool = PhraseReviewStatusTool.tool(for: status)
             reviewCycle.setActiveTool(selectedTool)
-            if filter != .all {
+            if filter != .all, !preservesFilter {
                 filter = AddedPhraseReviewFilter.filter(for: status)
             }
             clampPage()
@@ -203,7 +221,15 @@ extension AddedPhraseReviewSheet {
             message = nil
             return
         }
-        setStatus(status, for: phrase)
+        setStatus(status, for: phrase, preservesFilter: selectedTool != nil)
+    }
+
+    func closeReview() {
+        if let onDone {
+            onDone()
+        } else {
+            dismiss()
+        }
     }
 
     func toggleTool(_ tool: PhraseReviewStatusTool) {
@@ -281,7 +307,7 @@ extension AddedPhraseReviewSheet {
             return
         }
 
-        dismiss()
+        closeReview()
         DispatchQueue.main.async {
             store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
             store.selectBrowseCollection(id: collection.id)

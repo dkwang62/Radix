@@ -193,7 +193,7 @@ compatibility contracts. Current portable contracts include:
 - saved-page naming, recent-page selection, and page artifact ownership rules
 - Conversation Practice source-link metadata for page-derived practice packs
 
-The portable test suite currently contains 48 tests across eight suites.
+The portable test suite currently contains 51 tests across eight suites.
 
 ## Active Workstream
 
@@ -422,11 +422,13 @@ uncertainty explanations are explicitly requested in English.
 The Study tab remains the user's main review surface. Its dashboard controls
 separate `Recent`, `Favorites`, and `Saved Pages` as mutually exclusive grid
 scopes from shortcut actions such as Added Phrases, Favorite Sentences,
-Conversation Practices, and iPhone Checkpoints. Conversation Practices opens a
-focused Practice screen with a contextual return button. It says `Back to
-Study` from Study and `Back to Browse` when a Browse page shortcut opened the
-practice. There is no persistent `Review | Practice` switch row. Recent and
-Favorites must not be repeated as another segmented picker above the review
+Conversation Practices, and iPhone Checkpoints. Added Phrases opens as a full
+Study workspace rather than a pop-out sheet, with a visible `Back to Study`
+control and no global Study header competing for space. Conversation Practices
+opens a focused Practice screen with a contextual return button. It says `Back
+to Study` from Study and `Back to Browse` when a Browse page shortcut opened
+the practice. There is no persistent `Review | Practice` switch row. Recent
+and Favorites must not be repeated as another segmented picker above the review
 grid.
 Conversation Practice is the next Study learning section. It presents curated
 practice sets such as `General Greetings`, `Restaurants`, `Airport`, and
@@ -601,19 +603,21 @@ grid; structure exploration remains available through the dedicated Character
 Breakdown explorer instead of crowding the info card.
 Added Phrases review is phrase-first: no search field, no persistent help text,
 and no visible AI shortcut above the grid. The top row shows the status filter,
-an `Actions` menu, and `Done`; `Actions` includes `Create AI Review Page` for
-current unreviewed phrases, bulk status/deletion actions, and help. The AI
-Review action creates a saved Browse page from all current unreviewed,
-non-base added phrases, then opens that page in Browse with a `Back to Study`
-return path. This action does not mark, accept, reject, or delete the source
-phrases. Review phrases sort by pinyin, and pagination uses the visible pinyin
-letter range such as `b-c` rather than page numbers. The sheet uses a paged
-non-scrolling grid whose page size is calculated from the measured vertical
-space above the footer; fixed platform counts are only first-render fallbacks.
-On iPhone and iPad, the top controls sit below the drag indicator with extra
-breathing room and use compact icon-and-word labels so `Actions` is less likely
-to be confused with the dismiss handle. Status tools keep readable words and
-icons rather than becoming icon-only.
+an `Actions` menu, and `Back to Study` when it is opened as the Study
+workspace; the reusable modal wrapper may still show `Done` where a sheet is
+explicitly needed. `Actions` includes `Create AI Review Page` for current
+unreviewed phrases, bulk status/deletion actions, and help. The AI Review
+action creates a saved Browse page from all current unreviewed, non-base added
+phrases, then opens that page in Browse with a `Back to Study` return path.
+This action does not mark, accept, reject, or delete the source phrases. Review
+phrases sort by pinyin, and pagination uses the visible pinyin letter range
+such as `b-c`; when more than one page exists, that range label opens a direct
+page-jump menu. The review uses a paged non-scrolling grid whose page size is
+calculated from the measured vertical space above the footer; fixed platform
+counts are only first-render fallbacks. Bulk painting preserves the active
+filter while a status tool is selected so large unreviewed queues shrink in
+place instead of jumping to the phrase's new status bucket. Status tools keep
+readable words and icons rather than becoming icon-only.
 The eligibility, ordering, page name, page-range label, and newline-delimited
 source text are portable `AddedPhraseReviewRules` behavior with compatibility
 tests so Android can share the same rule.
