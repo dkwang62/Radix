@@ -298,6 +298,9 @@ viewing or saving translation, AI OCR review, phrase extraction, quiz generation
 sentence extraction, page conversation generation, and deleting the page with
 its impact summary. Show a compact `Phrases` artifact chip when Radix finds any
 base or added phrases on the page.
+On iPhone, expanded saved-page controls should be thumb-sized even though
+collapsed rows stay compact; prefer wider `Actions` and `Browse` controls once
+the user has opened a row.
 Resume signals in the collapsed list should stay selective: show last-viewed
 context for the active Browse page or the top recently viewed page, but do not
 add date/status text to every saved-page row.

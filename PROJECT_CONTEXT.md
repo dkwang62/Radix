@@ -238,6 +238,9 @@ Study Help should explain the page-first mental model directly:
 `Pages -> Artifacts -> Practice -> Memory -> Checkpoints`, with saved pages as
 the center, page-owned artifacts attached to the source, practice growing from
 real text, learning memory retained, and checkpoints as the safety net.
+iPhone saved-page ergonomics should keep collapsed rows compact for scanning,
+but make expanded page controls, especially `Actions` and `Browse`, wider and
+easier to tap once a row is opened.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules

@@ -284,32 +284,7 @@ extension FavouritesTab {
 
             if rowData.isExpanded {
                 VStack(alignment: .leading, spacing: 8) {
-                    HStack(alignment: .center, spacing: 8) {
-                        CollectionPageActionsMenu(
-                            collection: collection,
-                            hasGeminiAPIKey: !store.geminiAPIKey
-                                .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                            onViewTranslation: {
-                                showStudyTranslationReport(collection)
-                            },
-                            onDelete: {
-                                pendingStudyDeleteCollection = collection
-                            },
-                            aiTasks: studyPageAITasks(for: collection)
-                        )
-                        .disabled(isRunningStudyPageAction)
-
-                        Button {
-                            openSavedPageInBrowse(collection)
-                        } label: {
-                            Label("Browse", systemImage: "arrow.up.right.square")
-                                .font(ResponsiveFont.caption.weight(.semibold))
-                        }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
-                        .accessibilityLabel("Open \(collection.name) in Browse")
-                        .help("Browse Page and Return to Study")
-                    }
+                    studySavedPageExpandedControls(collection)
 
                     if studyPageActionMessageCollectionID == collection.id, let studyPageActionMessage {
                         Label {
@@ -424,6 +399,52 @@ extension FavouritesTab {
                 .frame(width: 22, height: 22)
         }
         .frame(minHeight: 44)
+    }
+
+    @ViewBuilder
+    private func studySavedPageExpandedControls(_ collection: CharacterCollection) -> some View {
+        if isNarrowStudyLayout {
+            HStack(alignment: .center, spacing: 8) {
+                studySavedPageActionsMenu(collection)
+                    .frame(maxWidth: .infinity, minHeight: 38)
+                studySavedPageBrowseButton(collection)
+                    .frame(maxWidth: .infinity, minHeight: 38)
+            }
+        } else {
+            HStack(alignment: .center, spacing: 8) {
+                studySavedPageActionsMenu(collection)
+                studySavedPageBrowseButton(collection)
+            }
+        }
+    }
+
+    private func studySavedPageActionsMenu(_ collection: CharacterCollection) -> some View {
+        CollectionPageActionsMenu(
+            collection: collection,
+            hasGeminiAPIKey: !store.geminiAPIKey
+                .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            onViewTranslation: {
+                showStudyTranslationReport(collection)
+            },
+            onDelete: {
+                pendingStudyDeleteCollection = collection
+            },
+            aiTasks: studyPageAITasks(for: collection)
+        )
+        .disabled(isRunningStudyPageAction)
+    }
+
+    private func studySavedPageBrowseButton(_ collection: CharacterCollection) -> some View {
+        Button {
+            openSavedPageInBrowse(collection)
+        } label: {
+            Label("Browse", systemImage: "arrow.up.right.square")
+                .font(ResponsiveFont.caption.weight(.semibold))
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .accessibilityLabel("Open \(collection.name) in Browse")
+        .help("Browse Page and Return to Study")
     }
 
     private func studyPageResumeText(_ collection: CharacterCollection) -> String {
