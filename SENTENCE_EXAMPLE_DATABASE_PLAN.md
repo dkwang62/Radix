@@ -31,7 +31,8 @@ views over sentence examples rather than separate sentence databases.
   Done. Restore applies sentence examples before legacy favorite records so
   compatibility favorites overlay onto the canonical store. Favorite/unfavorite
   and delete actions keep the legacy compatibility list in sync with canonical
-  sentence flags.
+  sentence flags. Backup export prepares the canonical sentence store first so
+  old compatibility records are not missed.
 - Convert imported/page-generated practice packs to store ordered sentence
   references. Done.
 

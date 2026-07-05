@@ -275,7 +275,10 @@ canonical sentence examples before legacy favorite-sentence records so favorites
 overlay into the sentence database instead of being overwritten by restore
 ordering. Favorite toggles and sentence deletion update both the canonical
 sentence flag and the legacy compatibility list so old favorite records cannot
-resurrect deleted or unfavorited sentences. AI outputs may include a
+resurrect deleted or unfavorited sentences. Portable backup creation prepares
+the canonical sentence store before packaging so old imported practice packs
+and legacy favorite sentences are captured even if Study has not been opened in
+the current app session. AI outputs may include a
 `[Radix Capture JSON]` block containing `sentences` or `sentence_examples`;
 Radix can parse those blocks into canonical sentence examples with optional
 source metadata. Approved OCR corrections also capture sentence fragments from

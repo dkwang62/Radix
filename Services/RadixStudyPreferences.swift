@@ -171,6 +171,11 @@ enum RadixStudyPreferences {
         return didMigrate
     }
 
+    static func prepareSentenceExamplesForBackup() {
+        migrateImportedConversationPracticePacksIntoSentenceExamples()
+        migrateLegacyFavoriteSentencesIntoSentenceExamples()
+    }
+
     static func refreshConversationPracticePackSentenceReferences() {
         let packs = importedConversationPracticePacks
         guard !packs.isEmpty else { return }

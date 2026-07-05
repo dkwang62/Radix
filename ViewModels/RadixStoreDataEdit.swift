@@ -466,7 +466,8 @@ extension RadixStore {
     }
 
     func portableBackupPackage() -> UnifiedPackage {
-        UnifiedPackage(
+        RadixStudyPreferences.prepareSentenceExamplesForBackup()
+        return UnifiedPackage(
             schemaVersion: PortableBackupCodec.currentSchemaVersion,
             exportedAt: Date(),
             backupID: UUID(),
