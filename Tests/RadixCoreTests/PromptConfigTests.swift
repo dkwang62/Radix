@@ -95,25 +95,32 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task11"))
     }
 
-    @Test("Page quiz prompt stays in AI chat and uses bilingual rules")
-    func pageQuizPromptUsesBilingualRules() {
+    @Test("Page quiz prompt stays in AI chat and uses HSK theme rules")
+    func pageQuizPromptUsesHSKThemeRules() {
         let normalized = PromptConfig.streamlitDefault.normalized()
         let quiz = normalized.tasks.first { $0.id == "task8" }
 
         #expect(quiz?.title == "Create Quiz")
         #expect(quiz?.template.contains("patient, bilingual Chinese language teacher") == true)
+        #expect(quiz?.template.contains("Draw from the vocabulary and themes present in the user's learning context") == true)
+        #expect(quiz?.template.contains("Do not feel limited to the specific characters on any single page") == true)
         #expect(quiz?.template.contains("Bilingual Requirement") == true)
         #expect(quiz?.template.contains("Do not include pinyin in the multiple-choice options") == true)
         #expect(quiz?.template.contains("Always include pinyin in the English assessment/explanation section") == true)
-        #expect(quiz?.template.contains("Never use any of the characters listed in the options within the question text itself") == true)
-        #expect(quiz?.template.contains("Default Difficulty: 8/10") == true)
-        #expect(quiz?.template.contains("Simplified Chinese by default") == true)
+        #expect(quiz?.template.contains("answer choices must not appear in the question text") == true)
+        #expect(quiz?.template.contains("Variety of Assessment Styles") == true)
+        #expect(quiz?.template.contains("Contextual Fill-in-the-Blank") == true)
+        #expect(quiz?.template.contains("Synonym/Antonym Identification") == true)
+        #expect(quiz?.template.contains("Radical/Structural Analysis") == true)
+        #expect(quiz?.template.contains("Sentence Error Correction") == true)
+        #expect(quiz?.template.contains("Collocation Matching") == true)
+        #expect(quiz?.template.contains("Use HSK standards, HSK 1 through HSK 6") == true)
         #expect(quiz?.template.contains("Ask Question 1 only.") == true)
         #expect(PromptConfig.collectionTaskIDs.contains("task8"))
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task8"))
     }
 
-    @Test("Legacy page quiz prompts normalize to bilingual chat quiz")
+    @Test("Legacy page quiz prompts normalize to HSK theme quiz")
     func legacyPageQuizPromptNormalizes() {
         let legacy = PromptTask(
             id: "task8",
@@ -138,9 +145,9 @@ struct PromptConfigTests {
 
         let template = config.normalized().tasks.first { $0.id == "task8" }?.template ?? ""
 
-        #expect(template.contains("Bilingual Requirement"))
-        #expect(template.contains("Default Difficulty: 8/10"))
-        #expect(template.contains("Do not include pinyin in the multiple-choice options"))
+        #expect(template.contains("Variety of Assessment Styles"))
+        #expect(template.contains("Use HSK standards, HSK 1 through HSK 6"))
+        #expect(template.contains("answer choices must not appear in the question text"))
     }
 
     @Test("Conversation AI entry counts are shared and normalized")

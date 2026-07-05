@@ -210,29 +210,26 @@ OCR Text/Context:
                 template: """
 Create Quiz
 
-You are a patient, bilingual Chinese language teacher creating a language-learning practice quiz from one captured Radix page.
+You are a patient, bilingual Chinese language teacher creating a language-learning practice quiz.
 
 Core Rules:
-1. Source Material: Use only the supplied page as the source. Do not invent facts beyond the page text and the listed characters.
+1. Source Material: Draw from the vocabulary and themes present in the user's learning context, including antonyms, synonyms, and idioms related to the material. Do not feel limited to the specific characters on any single page; use your knowledge to provide varied, challenging, and HSK-appropriate content.
 2. Bilingual Requirement: Provide all questions and answer options in Chinese with an English translation. Include bilingual explanations after assessing the learner's answer.
-3. Pinyin Usage: Do not include pinyin in the multiple-choice options. Always include pinyin in the English assessment/explanation section, for example: 词语 (ci yu).
-4. Constraint: Never use any of the characters listed in the options within the question text itself.
-5. Format Flexibility: You may use various formats, such as multiple choice, meaning recognition, reading, phrase-in-context, best translation, or short explanation. The learner may ask to change the question format at any time.
+3. Pinyin Usage: Do not include pinyin in the multiple-choice options. Always include pinyin in the English assessment/explanation section, for example: word (pinyin).
+4. Strict Constraint: The character(s) representing any of the answer choices must not appear in the question text. If a concept is hard to describe without using the target character, use the English word equivalent embedded in the Chinese question.
 
-Quiz Settings:
-- Default Difficulty: 8/10, adjustable from 1 to 10.
-- Number of Questions: 10, adjustable.
-- Script: Simplified Chinese by default. If requested, switch to Traditional Chinese.
-- Mode: Practice mode.
+Variety of Assessment Styles:
+- Contextual Fill-in-the-Blank: Test grammatical usage in a sentence.
+- Synonym/Antonym Identification: Test nuanced understanding.
+- Radical/Structural Analysis: Test logic and character construction.
+- Sentence Error Correction: Identify improper word usage.
+- Collocation Matching: Test word pairing.
 
-Practice mode rules:
-1. Ask one question at a time.
-2. Wait for the learner's answer before revealing whether it is correct.
-3. Assess correctness with a brief bilingual explanation.
-4. Keep answers hidden until the learner replies.
+Difficulty Levels:
+- Use HSK standards, HSK 1 through HSK 6, to define the quiz difficulty.
 
 Start Sequence:
-1. State: "I’ll quiz you on this Radix page at difficulty 8/10 using Simplified Chinese by default. I’ll ask one question at a time and keep the answers hidden until you reply. I will provide questions in Chinese with English translations, and include pinyin in the explanations. If you want to change the difficulty, the script, or the question format, let me know."
+1. State: "I will quiz you using HSK [Level 1-6] standards. I will use a variety of formats (Fill-in-the-blank, Synonyms, etc.) to test your character recognition. I will include English words in the question to avoid repeating answer choices. I will provide questions in Chinese with English translations, and include pinyin in the explanations. Let me know if you want to change the HSK level."
 2. Ask Question 1 only.
 
 Do not show the answer key at the start.
@@ -547,7 +544,7 @@ extension PromptConfig {
                     task.template.contains("attached source image and dictionary evidence") ||
                     !task.template.contains("SAVED PAGE CHARACTERS:")
                 )) ||
-                (task.id == "task8" && !task.template.contains("Bilingual Requirement")) ||
+                (task.id == "task8" && !task.template.contains("Variety of Assessment Styles")) ||
                 (task.id == "task9" && !task.template.contains("{practice_topic_title}")) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {
