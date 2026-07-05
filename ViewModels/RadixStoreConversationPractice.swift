@@ -67,6 +67,11 @@ extension RadixStore {
     func loadConversationPracticePhraseCache() {
         guard let library = try? ConversationPracticeService().loadStarterLibrary() else { return }
         registerConversationPracticeLibrary(library)
+        if let favoriteLibrary = ConversationPracticeLibrary.favoriteSentencesLibrary(
+            from: RadixStudyPreferences.favoriteSentenceExamples()
+        ) {
+            registerConversationPracticeLibrary(favoriteLibrary)
+        }
     }
 
     func saveImportedConversationPracticePack(_ pack: ConversationPracticePack) {
@@ -125,7 +130,8 @@ extension RadixStore {
             RadixStudyPreferences.favoriteSentences = records ?? []
         }
 
-        if let library = ConversationPracticeLibrary.favoriteSentencesLibrary(from: RadixStudyPreferences.favoriteSentences) {
+        RadixStudyPreferences.migrateLegacyFavoriteSentencesIntoSentenceExamples()
+        if let library = ConversationPracticeLibrary.favoriteSentencesLibrary(from: RadixStudyPreferences.favoriteSentenceExamples()) {
             registerConversationPracticeLibrary(library)
         } else if selectedConversationPracticeTopicID == ConversationPracticeTopic.favoriteSentencesID {
             selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
@@ -246,7 +252,12 @@ extension RadixStore {
 
     func isFavoriteSentence(_ item: ConversationPracticeItem) -> Bool {
         let id = FavoriteSentenceRecord.identifier(for: item)
-        return RadixStudyPreferences.favoriteSentences.contains { $0.id == id }
+        if RadixStudyPreferences.favoriteSentences.contains(where: { $0.id == id }) {
+            return true
+        }
+        let key = SentenceExampleRecord.normalizedChineseKey(item.simplified)
+        return RadixStudyPreferences.favoriteSentenceExamples()
+            .contains { $0.normalizedChineseKey == key }
     }
 
     func toggleFavoriteSentence(_ item: ConversationPracticeItem) {

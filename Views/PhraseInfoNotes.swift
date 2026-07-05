@@ -129,39 +129,11 @@ extension PhraseInfoCard {
 
 enum SentenceExampleDisplayRules {
     static func examples(containingPhrase phrase: String, limit: Int = 3) -> [SentenceExampleRecord] {
-        let key = SentenceExampleRecord.normalizedChineseKey(phrase)
-        guard !key.isEmpty else { return [] }
-        return rankedExamples().filter { record in
-            record.detectedPhrases.contains { SentenceExampleRecord.normalizedChineseKey($0) == key } ||
-            record.targetPhrases.contains { SentenceExampleRecord.normalizedChineseKey($0) == key } ||
-            record.normalizedChineseKey.contains(key)
-        }
-        .prefix(limit)
-        .map { $0 }
+        RadixStudyPreferences.sentenceExamples(containingPhrase: phrase, limit: limit)
     }
 
     static func examples(containingCharacter character: String, limit: Int = 3) -> [SentenceExampleRecord] {
-        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !key.isEmpty else { return [] }
-        return rankedExamples().filter { record in
-            record.detectedCharacters.contains(key) ||
-            record.targetCharacters.contains(key) ||
-            record.chinese.contains(key)
-        }
-        .prefix(limit)
-        .map { $0 }
-    }
-
-    private static func rankedExamples() -> [SentenceExampleRecord] {
-        RadixStudyPreferences.sentenceExamples
-            .filter { !$0.isHidden }
-            .sorted {
-                if $0.isFavorited != $1.isFavorited { return $0.isFavorited && !$1.isFavorited }
-                if $0.qualityScore != $1.qualityScore { return $0.qualityScore > $1.qualityScore }
-                if $0.practicedCount != $1.practicedCount { return $0.practicedCount > $1.practicedCount }
-                if $0.createdAt != $1.createdAt { return $0.createdAt > $1.createdAt }
-                return $0.chinese < $1.chinese
-            }
+        RadixStudyPreferences.sentenceExamples(containingCharacter: character, limit: limit)
     }
 }
 

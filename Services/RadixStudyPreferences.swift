@@ -103,6 +103,11 @@ enum RadixStudyPreferences {
         }
     }
 
+    static var currentSentenceExamples: [SentenceExampleRecord] {
+        migrateLegacyFavoriteSentencesIntoSentenceExamples()
+        return sentenceExamples
+    }
+
     static func recordSentenceExamples(_ records: [SentenceExampleRecord]) {
         guard !records.isEmpty else { return }
         sentenceExamples = SentenceExampleRecord.upserting(records, into: sentenceExamples)
@@ -134,6 +139,54 @@ enum RadixStudyPreferences {
         sentenceExamples = records
     }
 
+    static func migrateLegacyFavoriteSentencesIntoSentenceExamples() {
+        let records = favoriteSentences
+        guard !records.isEmpty else { return }
+        let existingByKey = Dictionary(
+            uniqueKeysWithValues: sentenceExamples.map { ($0.normalizedChineseKey, $0) }
+        )
+        let missingRecords = records.compactMap { record -> SentenceExampleRecord? in
+            let incoming = SentenceExampleRecord.fromFavoriteSentence(record)
+            if let existing = existingByKey[incoming.normalizedChineseKey], existing.isFavorited {
+                return nil
+            }
+            return incoming
+        }
+        recordSentenceExamples(missingRecords)
+    }
+
+    static func favoriteSentenceExamples() -> [SentenceExampleRecord] {
+        SentenceExampleRecord.ranked(currentSentenceExamples).filter(\.isFavorited)
+    }
+
+    static func sentenceExamples(containingCharacter character: String, limit: Int? = nil) -> [SentenceExampleRecord] {
+        limited(
+            SentenceExampleRecord.ranked(currentSentenceExamples).filter { $0.containsCharacter(character) },
+            limit: limit
+        )
+    }
+
+    static func sentenceExamples(containingPhrase phrase: String, limit: Int? = nil) -> [SentenceExampleRecord] {
+        limited(
+            SentenceExampleRecord.ranked(currentSentenceExamples).filter { $0.containsPhrase(phrase) },
+            limit: limit
+        )
+    }
+
+    static func sentenceExamples(linkedToPageID pageID: UUID, limit: Int? = nil) -> [SentenceExampleRecord] {
+        limited(
+            SentenceExampleRecord.ranked(currentSentenceExamples).filter { $0.isLinked(toPageID: pageID) },
+            limit: limit
+        )
+    }
+
+    static func sentenceExamples(sourceType: SentenceExampleSourceType, limit: Int? = nil) -> [SentenceExampleRecord] {
+        limited(
+            SentenceExampleRecord.ranked(currentSentenceExamples).filter { $0.hasSourceType(sourceType) },
+            limit: limit
+        )
+    }
+
     static func applyImportedSentenceExamples(_ records: [SentenceExampleRecord]?, mode: RestoreMode) {
         switch mode {
         case .additive:
@@ -141,6 +194,11 @@ enum RadixStudyPreferences {
         case .complete:
             sentenceExamples = records ?? []
         }
+    }
+
+    private static func limited(_ records: [SentenceExampleRecord], limit: Int?) -> [SentenceExampleRecord] {
+        guard let limit else { return records }
+        return Array(records.prefix(limit))
     }
 
     static var pagePhraseExtractions: [PagePhraseExtractionRecord] {

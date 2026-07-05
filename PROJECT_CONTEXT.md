@@ -244,13 +244,16 @@ easier to tap once a row is opened.
 Saved Pages is the Study default through a one-time preference migration for
 older installs; after that migration, user-selected Study scopes should persist
 normally rather than being reset on every launch.
-Sentence architecture should converge on a canonical Sentence Example database:
+Sentence architecture is converging on a canonical Sentence Example database:
 favorite sentences, page sentences, Conversation Practice items, and future
 practice packs should become flags, source links, ordered memberships, or
 progress records over sentence examples rather than separate sentence stores.
-The first milestone creates canonical sentence records, exact normalized
-deduplication, backup portability, and automatic capture from Conversation
-Practice packs/favorite sentence toggles while preserving existing UI and data.
+Canonical records now provide exact normalized deduplication, backup
+portability, source/character/phrase/page lookup helpers, automatic capture
+from Conversation Practice packs/favorite toggles, and legacy Favorite
+Sentences backfill. The Favorite Sentences practice topic should be built from
+canonical favorited sentence examples while keeping old favorite records only as
+compatibility data until a fuller migration removes the duplicate store.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules

@@ -406,7 +406,8 @@ struct FavouritesTab: View {
             uniqueKeysWithValues: packs.map { ($0.packID, $0.practiceLibrary) }
         )
         let importedTopics = packs.map { conversationPracticeTopic(for: $0) }
-        favoriteSentenceRecords = RadixStudyPreferences.favoriteSentences
+        favoriteSentenceRecords = RadixStudyPreferences.favoriteSentenceExamples()
+            .map { FavoriteSentenceRecord(sentenceExample: $0) }
         conversationPracticeTopics = conversationPracticeBaseTopics(importedTopics: importedTopics)
         if !conversationPracticeTopics.contains(where: { $0.id == store.selectedConversationPracticeTopicID }) {
             store.selectedConversationPracticeTopicID = defaultConversationPracticeTopic.id
@@ -425,7 +426,8 @@ struct FavouritesTab: View {
 
     func loadFavoriteSentences() {
         migratePhraseFavoritesToFavoriteSentences()
-        favoriteSentenceRecords = RadixStudyPreferences.favoriteSentences
+        favoriteSentenceRecords = RadixStudyPreferences.favoriteSentenceExamples()
+            .map { FavoriteSentenceRecord(sentenceExample: $0) }
         let importedTopics = RadixStudyPreferences.importedConversationPracticePacks.map {
             conversationPracticeTopic(for: $0)
         }
@@ -621,6 +623,7 @@ struct FavouritesTab: View {
         }
         guard !migratedRecords.isEmpty else { return }
         RadixStudyPreferences.favoriteSentences = RadixStudyPreferences.favoriteSentences + migratedRecords
+        RadixStudyPreferences.migrateLegacyFavoriteSentencesIntoSentenceExamples()
     }
 
     func availableConversationPracticeLibrariesForMigration() -> [ConversationPracticeLibrary] {

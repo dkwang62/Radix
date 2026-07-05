@@ -149,6 +149,77 @@ struct ConversationPracticeTests {
         #expect(record.sources.first?.practiceItemID == item.id)
     }
 
+    @Test("Legacy favorite sentence records hydrate canonical sentence examples")
+    func favoriteSentenceRecordsHydrateSentenceExamples() {
+        let favoritedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let favorite = FavoriteSentenceRecord(
+            id: "sentence:学习中文很有意思",
+            simplified: "学习中文很有意思。",
+            pinyin: "Xuéxí Zhōngwén hěn yǒu yìsi.",
+            english: "Learning Chinese is interesting.",
+            sourceSetID: "starter",
+            sourceItemID: "starter-001",
+            phraseHints: ["学习中文"],
+            characterHints: ["学", "习"],
+            favoritedAt: favoritedAt
+        )
+
+        let record = SentenceExampleRecord.fromFavoriteSentence(favorite)
+
+        #expect(record.chinese == favorite.simplified)
+        #expect(record.isFavorited)
+        #expect(record.createdAt == favoritedAt)
+        #expect(record.containsCharacter("学"))
+        #expect(record.containsPhrase("学习中文"))
+        #expect(record.hasSourceType(.favoriteSentence))
+        #expect(record.sources.first?.practiceItemID == "starter-001")
+    }
+
+    @Test("Canonical favorite examples build the Favorite Sentences library")
+    func canonicalFavoriteExamplesBuildFavoriteLibrary() throws {
+        let record = SentenceExampleRecord(
+            chinese: "我想练习口语。",
+            pinyin: "Wǒ xiǎng liànxí kǒuyǔ.",
+            english: "I want to practice speaking.",
+            detectedCharacters: ["我", "想"],
+            detectedPhrases: ["练习口语"],
+            isFavorited: true
+        )
+
+        let library = try #require(ConversationPracticeLibrary.favoriteSentencesLibrary(from: [record]))
+        let item = try #require(library.items.first)
+
+        #expect(library.set.id == ConversationPracticeTopic.favoriteSentencesID)
+        #expect(library.set.itemCount == 1)
+        #expect(item.simplified == record.chinese)
+        #expect(item.pinyin == record.pinyin)
+        #expect(item.english == record.english)
+        #expect(item.phraseHints == ["练习口语"])
+    }
+
+    @Test("Sentence examples expose page and source lookup helpers")
+    func sentenceExamplesExposePageAndSourceLookupHelpers() {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000515")!
+        let source = SentenceExampleSourceReference(
+            sourceType: .sentencePractice,
+            sourceID: "page-515",
+            sourceTitle: "News Page",
+            sourcePageID: pageID,
+            practicePackID: "pack-515",
+            practiceItemID: "item-001"
+        )
+        let record = SentenceExampleRecord(
+            chinese: "国际关系正在变化。",
+            sources: [source],
+            detectedPhrases: ["国际关系"]
+        )
+
+        #expect(record.isLinked(toPageID: pageID))
+        #expect(record.hasSourceType(.sentencePractice))
+        #expect(record.containsPhrase("国际关系"))
+        #expect(record.containsCharacter("际"))
+    }
+
     @Test("Conversation practice topics keep starter ordering and food generation brief")
     func defaultTopicsIncludeFoodExpansionTopic() {
         let topics = ConversationPracticeTopic.defaults

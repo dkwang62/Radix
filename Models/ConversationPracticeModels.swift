@@ -213,6 +213,7 @@ public enum SentenceExampleScript: String, Codable, CaseIterable, Equatable, Has
 public enum SentenceExampleSourceType: String, Codable, CaseIterable, Equatable, Hashable, Sendable {
     case aiGenerated = "ai_generated"
     case conversationPractice = "conversation_practice"
+    case favoriteSentence = "favorite_sentence"
     case sentencePractice = "sentence_practice"
     case quiz
     case ocrSource = "ocr_source"
@@ -257,6 +258,14 @@ public struct SentenceExampleSourceReference: Codable, Equatable, Hashable, Send
         self.sourcePageID = sourcePageID
         self.practicePackID = practicePackID
         self.practiceItemID = practiceItemID
+    }
+
+    public func matches(pageID: UUID) -> Bool {
+        sourcePageID == pageID
+    }
+
+    public func matches(sourceType: SentenceExampleSourceType) -> Bool {
+        self.sourceType == sourceType
     }
 }
 
@@ -345,6 +354,30 @@ public struct SentenceExampleRecord: Codable, Equatable, Identifiable, Sendable 
         Self.normalizedChineseKey(chinese)
     }
 
+    public func containsCharacter(_ character: String) -> Bool {
+        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else { return false }
+        return detectedCharacters.contains(key) ||
+            targetCharacters.contains(key) ||
+            chinese.contains(key)
+    }
+
+    public func containsPhrase(_ phrase: String) -> Bool {
+        let key = Self.normalizedChineseKey(phrase)
+        guard !key.isEmpty else { return false }
+        return detectedPhrases.contains { Self.normalizedChineseKey($0) == key } ||
+            targetPhrases.contains { Self.normalizedChineseKey($0) == key } ||
+            normalizedChineseKey.contains(key)
+    }
+
+    public func isLinked(toPageID pageID: UUID) -> Bool {
+        sources.contains { $0.matches(pageID: pageID) }
+    }
+
+    public func hasSourceType(_ sourceType: SentenceExampleSourceType) -> Bool {
+        sources.contains { $0.matches(sourceType: sourceType) }
+    }
+
     public mutating func merge(_ incoming: SentenceExampleRecord) {
         if pinyin == nil { pinyin = incoming.pinyin }
         if english == nil { english = incoming.english }
@@ -403,6 +436,46 @@ public struct SentenceExampleRecord: Codable, Equatable, Identifiable, Sendable 
             notes: item.notes,
             tags: item.tags
         )
+    }
+
+    public static func fromFavoriteSentence(_ record: FavoriteSentenceRecord) -> SentenceExampleRecord {
+        let source = SentenceExampleSourceReference(
+            sourceType: .favoriteSentence,
+            sourceID: record.sourceSetID,
+            sourceTitle: nil,
+            sourcePageID: nil,
+            practicePackID: record.sourceSetID,
+            practiceItemID: record.sourceItemID
+        )
+
+        return SentenceExampleRecord(
+            chinese: record.simplified,
+            script: .simplified,
+            pinyin: record.pinyin,
+            english: record.english,
+            sources: [source],
+            targetCharacters: record.characterHints,
+            targetPhrases: record.phraseHints,
+            detectedCharacters: Self.detectChineseCharacters(in: record.simplified),
+            detectedPhrases: record.phraseHints,
+            createdAt: record.favoritedAt,
+            usageCount: 1,
+            isFavorited: true,
+            qualityScore: 2,
+            tags: ["favorite"]
+        )
+    }
+
+    public static func ranked(_ records: [SentenceExampleRecord]) -> [SentenceExampleRecord] {
+        records
+            .filter { !$0.isHidden }
+            .sorted {
+                if $0.isFavorited != $1.isFavorited { return $0.isFavorited && !$1.isFavorited }
+                if $0.qualityScore != $1.qualityScore { return $0.qualityScore > $1.qualityScore }
+                if $0.practicedCount != $1.practicedCount { return $0.practicedCount > $1.practicedCount }
+                if $0.createdAt != $1.createdAt { return $0.createdAt > $1.createdAt }
+                return $0.chinese < $1.chinese
+            }
     }
 
     public static func upserting(
@@ -957,6 +1030,21 @@ public struct FavoriteSentenceRecord: Codable, Equatable, Identifiable, Sendable
         )
     }
 
+    init(sentenceExample record: SentenceExampleRecord, favoritedAt: Date? = nil) {
+        let source = record.sources.first
+        self.init(
+            id: "sentence:\(ConversationPracticeRules.phraseKey(for: record.chinese))",
+            simplified: record.chinese,
+            pinyin: record.pinyin ?? "",
+            english: record.english ?? "",
+            sourceSetID: source?.practicePackID ?? source?.sourceID ?? "sentence_examples",
+            sourceItemID: source?.practiceItemID ?? record.id.uuidString,
+            phraseHints: record.targetPhrases.isEmpty ? record.detectedPhrases : record.targetPhrases,
+            characterHints: record.targetCharacters.isEmpty ? record.detectedCharacters : record.targetCharacters,
+            favoritedAt: favoritedAt ?? record.createdAt
+        )
+    }
+
     public static func identifier(for item: ConversationPracticeItem) -> String {
         "sentence:\(ConversationPracticeRules.phraseKey(for: item.simplified))"
     }
@@ -1097,6 +1185,13 @@ public struct ConversationPracticeLibrary: Equatable {
             phraseSeeds: items.map(ConversationPracticePhraseSeed.init),
             memberships: items.map(ConversationPracticeMembership.init)
         )
+    }
+
+    static func favoriteSentencesLibrary(from sentenceExamples: [SentenceExampleRecord]) -> ConversationPracticeLibrary? {
+        let records = SentenceExampleRecord.ranked(sentenceExamples)
+            .filter(\.isFavorited)
+            .map { FavoriteSentenceRecord(sentenceExample: $0) }
+        return favoriteSentencesLibrary(from: records)
     }
 }
 

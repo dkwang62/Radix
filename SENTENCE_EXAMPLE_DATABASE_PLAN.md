@@ -24,11 +24,13 @@ views over sentence examples rather than separate sentence databases.
 
 ## Phase 2: Unification
 
+- Add lookup helpers for character, phrase, source page, source type, and hidden
+  status. Done.
+- Backfill legacy Favorite Sentences into sentence-example favorite flags and
+  build the Favorite Sentences practice topic from canonical sentence examples.
+  Done.
 - Convert imported/page-generated practice packs to store ordered sentence
   references.
-- Migrate Favorite Sentences to sentence-example favorite flags.
-- Add lookup helpers for character, phrase, source page, source type, and hidden
-  status.
 
 ## Phase 3: Expansion
 
