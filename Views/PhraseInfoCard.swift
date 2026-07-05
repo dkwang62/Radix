@@ -18,6 +18,7 @@ struct PhraseInfoCard: View {
     @State var hasLocalNotes = false
     @State var editStatus: String?
     @State var showPhraseTableSheet = false
+    @State var showSentenceExampleSheet = false
     @State var selectedAnimationPage = 0
 
     var phraseCharacters: [String] {
@@ -56,12 +57,20 @@ struct PhraseInfoCard: View {
                 )
                 .environmentObject(store)
             }
+            .sheet(isPresented: $showSentenceExampleSheet) {
+                SentenceExampleListSheet(
+                    title: "Examples",
+                    examples: SentenceExampleDisplayRules.examples(containingPhrase: phrase.word, limit: nil)
+                )
+                .environmentObject(store)
+            }
             .onChange(of: phrase.word) { _, _ in
                 editableNotes = phrase.notes
                 hasLocalNotes = false
                 editStatus = nil
                 isEditingNotes = false
                 showPhraseTableSheet = false
+                showSentenceExampleSheet = false
                 selectedAnimationPage = 0
             }
             .onAppear {

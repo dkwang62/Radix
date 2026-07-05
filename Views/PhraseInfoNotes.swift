@@ -20,8 +20,6 @@ extension PhraseInfoCard {
                 savedNotesText
             }
 
-            phraseSentenceExamples
-
             if let editStatus {
                 Text(editStatus)
                     .font(ResponsiveFont.caption)
@@ -51,14 +49,6 @@ extension PhraseInfoCard {
                 saveNotesButton
                 cancelNotesButton
             }
-        }
-    }
-
-    @ViewBuilder
-    var phraseSentenceExamples: some View {
-        let examples = SentenceExampleDisplayRules.examples(containingPhrase: phrase.word)
-        if !examples.isEmpty {
-            SentenceExamplePreviewSection(title: "Examples", examples: examples)
         }
     }
 
@@ -128,53 +118,11 @@ extension PhraseInfoCard {
 }
 
 enum SentenceExampleDisplayRules {
-    static func examples(containingPhrase phrase: String, limit: Int = 3) -> [SentenceExampleRecord] {
+    static func examples(containingPhrase phrase: String, limit: Int? = 3) -> [SentenceExampleRecord] {
         RadixStudyPreferences.sentenceExamples(containingPhrase: phrase, limit: limit)
     }
 
-    static func examples(containingCharacter character: String, limit: Int = 3) -> [SentenceExampleRecord] {
+    static func examples(containingCharacter character: String, limit: Int? = 3) -> [SentenceExampleRecord] {
         RadixStudyPreferences.sentenceExamples(containingCharacter: character, limit: limit)
-    }
-}
-
-struct SentenceExamplePreviewSection: View {
-    let title: String
-    let examples: [SentenceExampleRecord]
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label(title, systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"))
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            VStack(alignment: .leading, spacing: 8) {
-                ForEach(examples) { example in
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(example.chinese)
-                            .font(ResponsiveFont.caption.weight(.semibold))
-                            .fixedSize(horizontal: false, vertical: true)
-
-                        if let pinyin = example.pinyin {
-                            Text(pinyin)
-                                .font(ResponsiveFont.caption2)
-                                .foregroundStyle(.secondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-
-                        if let english = example.english {
-                            Text(english)
-                                .font(ResponsiveFont.caption2)
-                                .foregroundStyle(.secondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-        }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RadixTheme.secondaryBackground.opacity(0.35))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

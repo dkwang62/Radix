@@ -11,6 +11,7 @@ struct CharacterInfoCard: View {
     @State var showFrequencyGuide = false
     @State var activeChipGuide: ChipGuide?
     @State var showComponentsPopover = false
+    @State var showSentenceExampleSheet = false
     @State var selectedPopupComponent: String?
     @Binding var variantIndex: Int
 
@@ -67,6 +68,13 @@ struct CharacterInfoCard: View {
                 .environmentObject(store)
                 .applyComponentsRootsPopoverStyle()
             }
+            .sheet(isPresented: $showSentenceExampleSheet) {
+                SentenceExampleListSheet(
+                    title: "Examples",
+                    examples: SentenceExampleDisplayRules.examples(containingCharacter: item.character, limit: nil)
+                )
+                .environmentObject(store)
+            }
     }
 
     var standardContent: some View {
@@ -89,6 +97,7 @@ struct CharacterInfoCard: View {
             showClearButton: showClearButton,
             isPhone: isPhone,
             onShowPhrases: onShowPhrases,
+            onShowExamples: { showSentenceExampleSheet = true },
             onClear: onClear
         )
     }

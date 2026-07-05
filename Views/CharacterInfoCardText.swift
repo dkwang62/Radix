@@ -93,16 +93,6 @@ extension CharacterInfoCard {
                 .background(RadixTheme.secondaryBackground.opacity(0.35))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
-
-            characterSentenceExamples
-        }
-    }
-
-    @ViewBuilder
-    var characterSentenceExamples: some View {
-        let examples = SentenceExampleDisplayRules.examples(containingCharacter: item.character)
-        if !examples.isEmpty {
-            SentenceExamplePreviewSection(title: "Examples", examples: examples)
         }
     }
 }

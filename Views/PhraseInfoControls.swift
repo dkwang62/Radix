@@ -6,6 +6,7 @@ extension PhraseInfoCard {
             HStack(spacing: 10) {
                 scriptSegment
                 phraseLookupButton
+                sentenceExamplesButton
                 sentenceReadButton
                 Spacer(minLength: 0)
                 favoriteTargetButton
@@ -18,6 +19,7 @@ extension PhraseInfoCard {
                 HStack(spacing: 10) {
                     scriptSegment
                     phraseLookupButton
+                    sentenceExamplesButton
                 }
 
                 HStack(spacing: 8) {
@@ -53,11 +55,15 @@ extension PhraseInfoCard {
                 scriptSegment
                 Spacer(minLength: 0)
                 phraseLookupButton
+                sentenceExamplesButton
             }
 
             VStack(alignment: .leading, spacing: 10) {
                 scriptSegment
-                phraseLookupButton
+                HStack(spacing: 8) {
+                    phraseLookupButton
+                    sentenceExamplesButton
+                }
             }
         }
     }
@@ -91,5 +97,26 @@ extension PhraseInfoCard {
             return !phraseLookupOverride.isEmpty
         }
         return phraseCharacters.count > 1
+    }
+
+    @ViewBuilder
+    var sentenceExamplesButton: some View {
+        if shouldShowSentenceExamplesButton {
+            Button {
+                showSentenceExampleSheet = true
+            } label: {
+                InfoCardActionPill(
+                    title: "Examples",
+                    systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"),
+                    verticalPadding: 8
+                )
+            }
+            .buttonStyle(.plain)
+            .help("Show sentence examples")
+        }
+    }
+
+    var shouldShowSentenceExamplesButton: Bool {
+        !SentenceExampleDisplayRules.examples(containingPhrase: phrase.word, limit: 1).isEmpty
     }
 }

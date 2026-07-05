@@ -7,12 +7,16 @@ struct CharacterInfoCardActions: View {
     let showClearButton: Bool
     let isPhone: Bool
     let onShowPhrases: (() -> Void)?
+    let onShowExamples: (() -> Void)?
     let onClear: (() -> Void)?
 
     var body: some View {
         HStack(spacing: 8) {
             notesButton
             phrasesButton
+            if hasExamples {
+                examplesButton
+            }
             if !isPhone, showClearButton, onClear != nil {
                 clearPreviewButton
             }
@@ -37,6 +41,20 @@ struct CharacterInfoCardActions: View {
             InfoCardActionPill(title: "Phrases", textIcon: "词")
         }
         .buttonStyle(.plain)
+    }
+
+    private var examplesButton: some View {
+        Button {
+            onShowExamples?()
+        } label: {
+            InfoCardActionPill(title: "Examples", systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"))
+        }
+        .buttonStyle(.plain)
+        .help("Show sentence examples")
+    }
+
+    private var hasExamples: Bool {
+        !SentenceExampleDisplayRules.examples(containingCharacter: character, limit: 1).isEmpty
     }
 
     private var clearPreviewButton: some View {
