@@ -220,6 +220,9 @@ resume signals such as last viewed or last practiced where useful; keep AI
 manual/API workflows using the same method vocabulary; check iPhone one-handed
 ergonomics; and eventually add a short mental-model help page for
 `Pages -> Artifacts -> Practice -> Memory -> Checkpoints`.
+Page-derived Conversation Practice topics should surface their saved-page origin
+in Study topic summaries, and keep that source cue visible alongside practice
+progress when the user opens the practice section.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules

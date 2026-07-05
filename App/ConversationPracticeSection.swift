@@ -136,10 +136,19 @@ extension FavouritesTab {
         let summary = conversationPracticeProgress.summary(for: library)
         guard summary.totalItems > 0 else { return topic.summary }
         let completion = "\(summary.completedItems)/\(summary.totalItems) complete"
+        let progress: String
         if let lastPracticedAt = summary.lastPracticedAt {
-            return "\(completion) · Last \(lastPracticedAt.formatted(date: .abbreviated, time: .omitted))"
+            progress = "\(completion) · Last \(lastPracticedAt.formatted(date: .abbreviated, time: .omitted))"
+        } else {
+            progress = "\(completion) · Not practiced yet"
         }
-        return "\(completion) · Not practiced yet"
+
+        guard isImportedConversationPracticeTopic(topic),
+              topic.summary.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("From page:")
+        else {
+            return progress
+        }
+        return "\(topic.summary) · \(progress)"
     }
 
     func conversationPracticeDeleteButton(_ topic: ConversationPracticeTopic) -> some View {

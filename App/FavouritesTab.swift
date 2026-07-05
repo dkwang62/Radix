@@ -405,7 +405,7 @@ struct FavouritesTab: View {
         importedConversationPracticeLibraries = Dictionary(
             uniqueKeysWithValues: packs.map { ($0.packID, $0.practiceLibrary) }
         )
-        let importedTopics = packs.map { conversationPracticeTopic(for: $0.practiceLibrary) }
+        let importedTopics = packs.map { conversationPracticeTopic(for: $0) }
         favoriteSentenceRecords = RadixStudyPreferences.favoriteSentences
         conversationPracticeTopics = conversationPracticeBaseTopics(importedTopics: importedTopics)
         if !conversationPracticeTopics.contains(where: { $0.id == store.selectedConversationPracticeTopicID }) {
@@ -427,7 +427,7 @@ struct FavouritesTab: View {
         migratePhraseFavoritesToFavoriteSentences()
         favoriteSentenceRecords = RadixStudyPreferences.favoriteSentences
         let importedTopics = RadixStudyPreferences.importedConversationPracticePacks.map {
-            conversationPracticeTopic(for: $0.practiceLibrary)
+            conversationPracticeTopic(for: $0)
         }
         conversationPracticeTopics = conversationPracticeBaseTopics(importedTopics: importedTopics)
         if store.selectedConversationPracticeTopicID == ConversationPracticeTopic.favoriteSentencesID,
@@ -520,6 +520,28 @@ struct FavouritesTab: View {
             id: library.set.id,
             title: library.set.title,
             summary: library.set.description,
+            difficultyLabel: "Imported practice set",
+            bundledResourceName: nil,
+            generationBrief: library.set.description,
+            situations: [],
+            targetSentenceCount: library.set.itemCount
+        )
+    }
+
+    func conversationPracticeTopic(for pack: ConversationPracticePack) -> ConversationPracticeTopic {
+        let library = pack.practiceLibrary
+        let sourceTitle = pack.sourceLink?.sourceTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        let summary: String
+        if let sourceTitle, !sourceTitle.isEmpty {
+            summary = "From page: \(sourceTitle)"
+        } else {
+            summary = library.set.description
+        }
+
+        return ConversationPracticeTopic(
+            id: library.set.id,
+            title: library.set.title,
+            summary: summary,
             difficultyLabel: "Imported practice set",
             bundledResourceName: nil,
             generationBrief: library.set.description,
