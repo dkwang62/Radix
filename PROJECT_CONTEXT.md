@@ -80,6 +80,9 @@ wrappers behind after a redesign.
 Character and phrase info-card action pills share `InfoCardActionPill`; keep
 notes, phrase lookup, and related small info-card actions on that component so
 their spacing, radius, borders, and accessibility affordance do not drift.
+My Data backup preview navigation/stat rows share one row renderer so labels,
+trailing counts, chevrons, phone subtitle behavior, and icon treatment stay
+aligned.
 
 ### Data and persistence
 

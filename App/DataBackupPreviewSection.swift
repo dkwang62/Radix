@@ -187,7 +187,7 @@ struct DataBackupPreviewSection: View {
     ) -> some View {
         if let action {
             Button(action: action) {
-                backupStatisticRowContent(
+                backupPreviewNavigationRow(
                     title: title,
                     value: value,
                     subtitle: subtitle,
@@ -199,7 +199,7 @@ struct DataBackupPreviewSection: View {
             .buttonStyle(.plain)
             .accessibilityHint("Opens Study added phrases")
         } else {
-            backupStatisticRowContent(
+            backupPreviewNavigationRow(
                 title: title,
                 value: value,
                 subtitle: subtitle,
@@ -210,9 +210,9 @@ struct DataBackupPreviewSection: View {
         }
     }
 
-    func backupStatisticRowContent(
+    func backupPreviewNavigationRow(
         title: String,
-        value: String,
+        value: String? = nil,
         subtitle: String,
         systemName: String,
         tint: Color,
@@ -239,9 +239,11 @@ struct DataBackupPreviewSection: View {
 
             Spacer(minLength: 0)
 
-            Text(value)
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(tint)
+            if let value {
+                Text(value)
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(tint)
+            }
 
             if showsChevron {
                 Image(systemName: "chevron.right")
@@ -256,32 +258,14 @@ struct DataBackupPreviewSection: View {
         Button {
             onOpenSavedPages?()
         } label: {
-            HStack(alignment: .center, spacing: 10) {
-                Image(systemName: "photo.on.rectangle")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 26, height: 26)
-                    .background(Color.accentColor.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 7))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Saved Pages (\(store.allCollections.count))")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(.primary)
-                    if !RadixPlatform.isPhone {
-                        Text("Open and manage pages in Browse.")
-                            .font(ResponsiveFont.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                Spacer(minLength: 0)
-
-                Image(systemName: "chevron.right")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-            }
-            .contentShape(Rectangle())
+            backupPreviewNavigationRow(
+                title: "Saved Pages",
+                value: "\(store.allCollections.count)",
+                subtitle: "Open and manage pages in Browse.",
+                systemName: "photo.on.rectangle",
+                tint: Color.accentColor,
+                showsChevron: true
+            )
         }
         .buttonStyle(.plain)
         .disabled(onOpenSavedPages == nil)
