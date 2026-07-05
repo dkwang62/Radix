@@ -399,9 +399,38 @@ extension FavouritesTab {
     func conversationPracticeSentenceRow(_ item: ConversationPracticeItem) -> some View {
         let isSelected = isSelectedConversationPracticeSentence(item)
         let isFavorite = isFavoriteSentence(item)
-        return HStack(alignment: .center, spacing: 6) {
+        return practiceSentenceRow(
+            item,
+            isSelected: isSelected,
+            openAccessibilityLabel: "Open phrase \(studyGridDisplayText(item.simplified))",
+            openAccessibilityHint: "Opens and reads the practice sentence."
+        ) {
+            presentConversationPracticePhrase(item)
+        } trailing: {
             Button {
-                presentConversationPracticePhrase(item)
+                toggleFavoriteSentence(item)
+            } label: {
+                Image(systemName: isFavorite ? "star.fill" : "star")
+                    .font(.system(size: 14, weight: .semibold))
+                    .frame(width: 30, height: 30)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(isFavorite ? Color.yellow : .secondary)
+            .accessibilityLabel(isFavorite ? "Remove favorite sentence" : "Save favorite sentence")
+        }
+    }
+
+    func practiceSentenceRow<Trailing: View>(
+        _ item: ConversationPracticeItem,
+        isSelected: Bool,
+        openAccessibilityLabel: String,
+        openAccessibilityHint: String,
+        onOpen: @escaping () -> Void,
+        @ViewBuilder trailing: () -> Trailing
+    ) -> some View {
+        HStack(alignment: .center, spacing: 6) {
+            Button {
+                onOpen()
             } label: {
                 HStack(alignment: .center, spacing: 8) {
                     Text("\(item.rank)")
@@ -420,19 +449,10 @@ extension FavouritesTab {
                 .frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Open phrase \(studyGridDisplayText(item.simplified))")
-            .accessibilityHint("Opens and reads the practice sentence.")
+            .accessibilityLabel(openAccessibilityLabel)
+            .accessibilityHint(openAccessibilityHint)
 
-            Button {
-                toggleFavoriteSentence(item)
-            } label: {
-                Image(systemName: isFavorite ? "star.fill" : "star")
-                    .font(.system(size: 14, weight: .semibold))
-                    .frame(width: 30, height: 30)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(isFavorite ? Color.yellow : .secondary)
-            .accessibilityLabel(isFavorite ? "Remove favorite sentence" : "Save favorite sentence")
+            trailing()
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)

@@ -281,39 +281,17 @@ extension FavouritesTab {
     func sentenceExampleRow(_ example: SentenceExampleRecord) -> some View {
         let item = sentenceExamplePracticeItem(example)
         let isSelected = selectedConversationPracticeItemID == item.id
-        return HStack(alignment: .center, spacing: 6) {
-            Button {
-                presentConversationPracticePhrase(item)
-            } label: {
-                HStack(alignment: .center, spacing: 8) {
-                    Text("\(item.rank)")
-                        .font(ResponsiveFont.caption2.weight(.semibold))
-                        .foregroundStyle(isSelected ? Color.white : Color.accentColor)
-                        .frame(width: 28, height: 28)
-                        .background(isSelected ? Color.accentColor : Color.accentColor.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 7))
-
-                    conversationPracticeSentenceRowText(item)
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(isSelected ? Color.accentColor : .secondary)
-                }
-                .frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Open sentence \(studyGridDisplayText(item.simplified))")
-            .accessibilityHint("Opens the sentence info card.")
-
+        return practiceSentenceRow(
+            item,
+            isSelected: isSelected,
+            openAccessibilityLabel: "Open sentence \(studyGridDisplayText(item.simplified))",
+            openAccessibilityHint: "Opens the sentence info card."
+        ) {
+            presentConversationPracticePhrase(item)
+        } trailing: {
             sentenceExampleFavoriteButton(example)
             sentenceExampleActions(example)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
-        .background(conversationPracticeSentenceBackground(isSelected: isSelected))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(conversationPracticeSentenceBorder(isSelected: isSelected, cornerRadius: 8))
     }
 
     func sentenceExamplePracticeItem(_ example: SentenceExampleRecord) -> ConversationPracticeItem {
