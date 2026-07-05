@@ -223,6 +223,10 @@ ergonomics; and eventually add a short mental-model help page for
 Page-derived Conversation Practice topics should surface their saved-page origin
 in Study topic summaries, and keep that source cue visible alongside practice
 progress when the user opens the practice section.
+Saved-page deletion impact text must match actual ownership: corrected pages,
+translations, page phrase lists, and page-derived practice packs are removed
+with the page, while standalone learning memory such as added phrases, favorite
+sentences, and reusable practice progress is retained.
 Before changing any screen, apply `UI_INTENT.md`'s Design decision rules:
 preserve visible return paths, fight for content space, and remove duplicate
 meaning before adding new labels, rows, switches, or cards. Balance those rules

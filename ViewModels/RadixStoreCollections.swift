@@ -17,8 +17,8 @@ struct PageDeletionImpact {
     var alertMessage: String {
         [
             "Delete \"\(pageName)\" from saved pages?",
-            "Will remove with this page: \(Self.summaryList(ownedArtifacts.map(\.displayTitle))).",
-            "Will keep as learning memory: \(Self.summaryList(linkedArtifacts.map(\.displayTitle)))."
+            "Page-owned work removed: \(Self.summaryList(ownedArtifacts.map(\.displayTitle))).",
+            "Learning memory kept: \(Self.summaryList(linkedArtifacts.map(\.displayTitle)))."
         ].joined(separator: "\n\n")
     }
 
@@ -187,6 +187,15 @@ extension RadixStore {
                 createdAt: $0.sourceLink?.sourceCreatedAt
             )
         })
+        if let pagePhraseExtraction {
+            ownedArtifacts.append(PageArtifactDescriptor(
+                sourcePageID: collection.id,
+                artifactType: .pageAIResult,
+                artifactID: "extracted-phrases",
+                displayTitle: "page phrase list (\(pagePhraseExtraction.phraseWords.count) phrase\(pagePhraseExtraction.phraseWords.count == 1 ? "" : "s"))",
+                createdAt: pagePhraseExtraction.extractedAt
+            ))
+        }
 
         var linkedArtifacts: [PageArtifactDescriptor] = favoriteSentences.map {
             PageArtifactDescriptor(
@@ -207,13 +216,18 @@ extension RadixStore {
             )
         })
         if let pagePhraseExtraction {
-            linkedArtifacts.append(PageArtifactDescriptor(
-                sourcePageID: collection.id,
-                artifactType: .addedPhrase,
-                artifactID: "extracted-phrases",
-                displayTitle: "\(pagePhraseExtraction.phraseWords.count) extracted phrase\(pagePhraseExtraction.phraseWords.count == 1 ? "" : "s")",
-                createdAt: pagePhraseExtraction.extractedAt
-            ))
+            let addedPhraseCount = pagePhraseExtraction.phraseWords
+                .filter { !isPhraseInBase($0) && isPhraseInAdd($0) }
+                .count
+            if addedPhraseCount > 0 {
+                linkedArtifacts.append(PageArtifactDescriptor(
+                    sourcePageID: collection.id,
+                    artifactType: .addedPhrase,
+                    artifactID: "added-phrases",
+                    displayTitle: "\(addedPhraseCount) added phrase\(addedPhraseCount == 1 ? "" : "s")",
+                    createdAt: pagePhraseExtraction.extractedAt
+                ))
+            }
         }
 
         return PageDeletionImpact(
