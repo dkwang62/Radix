@@ -77,6 +77,9 @@ the reason should be documented in the same change.
 SwiftUI helper views in `App/` and `Views/` should have visible call sites; do
 not leave superseded alternate rows, cards, menu content, or one-off preview
 wrappers behind after a redesign.
+Character and phrase info-card action pills share `InfoCardActionPill`; keep
+notes, phrase lookup, and related small info-card actions on that component so
+their spacing, radius, borders, and accessibility affordance do not drift.
 
 ### Data and persistence
 

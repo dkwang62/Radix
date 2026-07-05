@@ -24,7 +24,7 @@ struct CharacterInfoCardActions: View {
         Button {
             store.openQuickCharacterEditor(character)
         } label: {
-            actionPill("Notes", systemImage: "square.and.pencil")
+            InfoCardActionPill(title: "Notes", systemImage: "square.and.pencil")
         }
         .buttonStyle(.plain)
     }
@@ -34,7 +34,7 @@ struct CharacterInfoCardActions: View {
             store.refreshPhrases(for: character)
             onShowPhrases?()
         } label: {
-            PhraseActionPill()
+            InfoCardActionPill(title: "Phrases", textIcon: "词")
         }
         .buttonStyle(.plain)
     }
@@ -48,22 +48,6 @@ struct CharacterInfoCardActions: View {
         .buttonStyle(.bordered)
         .controlSize(cardActionControlSize)
         .font(cardActionFont)
-    }
-
-    private func actionPill(_ title: String, systemImage: String) -> some View {
-        Label(title, systemImage: systemImage)
-            .font(cardActionFont)
-            .foregroundStyle(Color.accentColor)
-            .lineLimit(1)
-            .minimumScaleFactor(0.8)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
-            .background(RadixTheme.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(RadixTheme.separator, lineWidth: 0.5)
-            )
     }
 
     private var cardActionFont: Font {
@@ -83,26 +67,35 @@ struct CharacterInfoCardActions: View {
     }
 }
 
-struct PhraseActionPill: View {
+struct InfoCardActionPill: View {
+    let title: String
+    var systemImage: String?
+    var textIcon: String?
+    var verticalPadding: CGFloat = 7
+
     var body: some View {
-        Label {
-            Text("Phrases")
-        } icon: {
-            Text("词")
-                .font(cardActionFont)
+        HStack(spacing: 5) {
+            if let systemImage {
+                Image(systemName: systemImage)
+            } else if let textIcon {
+                Text(textIcon)
+                    .font(cardActionFont)
+            }
+
+            Text(title)
         }
-            .font(cardActionFont)
-            .foregroundStyle(Color.accentColor)
-            .lineLimit(1)
-            .minimumScaleFactor(0.8)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
-            .background(RadixTheme.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(RadixTheme.separator, lineWidth: 0.5)
-            )
+        .font(cardActionFont)
+        .foregroundStyle(Color.accentColor)
+        .lineLimit(1)
+        .minimumScaleFactor(0.8)
+        .padding(.horizontal, 10)
+        .padding(.vertical, verticalPadding)
+        .background(RadixTheme.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(RadixTheme.separator, lineWidth: 0.5)
+        )
     }
 
     private var cardActionFont: Font {
@@ -112,5 +105,4 @@ struct PhraseActionPill: View {
         return ResponsiveFont.caption.weight(.semibold)
         #endif
     }
-
 }
