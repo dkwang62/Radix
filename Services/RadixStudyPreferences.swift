@@ -3,6 +3,7 @@ import Foundation
 enum RadixStudyPreferences {
     private static let usesTraditionalScriptKey = "studyGridUsesTraditionalScript"
     private static let gridScopeKey = "studyGridScope"
+    private static let savedPagesDefaultMigrationKey = "studyGridScopeSavedPagesDefaultV1"
     private static let pageSortOrderKey = "studyPageSortOrder"
     private static let hasDismissedIntroKey = "hasDismissedStudyIntroV1"
     private static let preferences = RadixPreferences.standard
@@ -20,6 +21,17 @@ enum RadixStudyPreferences {
             return StudyGridScope(rawValue: rawValue) ?? .savedPages
         }
         set { preferences.set(newValue.rawValue, forKey: gridScopeKey) }
+    }
+
+    static var initialGridScope: StudyGridScope {
+        migrateSavedPagesDefaultIfNeeded()
+        return gridScope
+    }
+
+    static func migrateSavedPagesDefaultIfNeeded() {
+        guard preferences.object(forKey: savedPagesDefaultMigrationKey) == nil else { return }
+        gridScope = .savedPages
+        preferences.set(true, forKey: savedPagesDefaultMigrationKey)
     }
 
     static var pageSortOrder: PageCollectionSortOrder {

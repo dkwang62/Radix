@@ -32,7 +32,7 @@ struct FavouritesTab: View {
     @State var isShowingConversationPractice = false
     @State var isShowingAddedPhraseReview = false
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
-    @State var studyGridScope = RadixStudyPreferences.gridScope
+    @State var studyGridScope = RadixStudyPreferences.initialGridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
     @State var showStudyCheckpoints = false
     @State var pendingCheckpointReturn: LocalDataSnapshot?
@@ -294,7 +294,7 @@ struct FavouritesTab: View {
         }
         .onAppear {
             studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
-            studyGridScope = RadixStudyPreferences.gridScope
+            studyGridScope = RadixStudyPreferences.initialGridScope
             studyPageSortOrder = RadixStudyPreferences.pageSortOrder
             openAddedPhraseReviewIfRequested()
             loadImportedConversationPracticePacks()
