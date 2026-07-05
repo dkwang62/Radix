@@ -11,6 +11,7 @@ private struct StudyScopeControl: Identifiable {
 private struct StudyActionShortcut: Identifiable {
     let title: String
     let systemImage: String
+    let fill: Color
     var isSelected = false
     var isDisabled = false
     let action: () -> Void
@@ -157,26 +158,15 @@ extension FavouritesTab {
             StudyActionShortcut(
                 title: "Added Phrases",
                 systemImage: "text.quote",
+                fill: .green,
                 action: {
                     presentAddedPhraseReview()
                 }
             ),
             StudyActionShortcut(
-                title: "Favorite Sentences",
-                systemImage: "star.bubble",
-                isDisabled: favoriteSentenceRecords.isEmpty,
-                action: {
-                    guard !favoriteSentenceRecords.isEmpty else { return }
-                    withAnimation(.snappy(duration: 0.18)) {
-                        isShowingAddedPhraseReview = false
-                        isShowingConversationPractice = true
-                    }
-                    selectConversationPracticeTopic(.favoriteSentences(count: favoriteSentenceRecords.count))
-                }
-            ),
-            StudyActionShortcut(
                 title: "Conversation Practices",
                 systemImage: "bubble.left.and.bubble.right",
+                fill: .teal,
                 action: {
                     withAnimation(.snappy(duration: 0.18)) {
                         isShowingAddedPhraseReview = false
@@ -191,6 +181,7 @@ extension FavouritesTab {
                 StudyActionShortcut(
                     title: "Checkpoints",
                     systemImage: "clock.arrow.circlepath",
+                    fill: .gray,
                     isSelected: showStudyCheckpoints,
                     action: {
                         showStudyCheckpoints = true
@@ -251,13 +242,13 @@ extension FavouritesTab {
     }
 
     private var studyActionShortcutColumns: [GridItem] {
-        let count = isNarrowStudyLayout ? 2 : 4
+        let count = isNarrowStudyLayout ? 2 : 3
         return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
     }
 
     private func studyActionShortcutButton(_ shortcut: StudyActionShortcut) -> some View {
         let isActive = shortcut.isSelected || !shortcut.isDisabled
-        let fill = shortcut.isDisabled ? RadixTheme.systemGray5 : Color.accentColor
+        let fill = shortcut.isDisabled ? RadixTheme.systemGray5 : shortcut.fill
         let foreground = shortcut.isDisabled ? Color.secondary : Color.white
 
         return Button(action: shortcut.action) {
@@ -277,7 +268,7 @@ extension FavouritesTab {
             .background(fill.opacity(isActive ? 1 : 0.35))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(shortcut.isDisabled ? RadixTheme.separator.opacity(0.45) : Color.accentColor.opacity(0.95), lineWidth: 1)
+                    .stroke(shortcut.isDisabled ? RadixTheme.separator.opacity(0.45) : fill.opacity(0.95), lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
