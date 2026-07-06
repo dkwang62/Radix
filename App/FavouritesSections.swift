@@ -409,7 +409,7 @@ extension FavouritesTab {
                 )
         }
         .buttonStyle(.plain)
-        .foregroundStyle(Color.accentColor)
+        .foregroundStyle(RadixAccent.primary)
         .accessibilityLabel("Sentence actions")
     }
 

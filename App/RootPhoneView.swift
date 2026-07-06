@@ -243,7 +243,7 @@ extension RootView {
             .frame(height: showsTitle ? 48 : 42)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(isActive ? Color.accentColor : Color.clear)
+                    .fill(isActive ? RadixAccent.primary : Color.clear)
             )
             .contentShape(RoundedRectangle(cornerRadius: 8))
         }
@@ -279,7 +279,7 @@ extension RootView {
             .frame(height: showsTitle ? 48 : 42)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(isActive ? Color.accentColor : Color.clear)
+                    .fill(isActive ? RadixAccent.primary : Color.clear)
             )
             .contentShape(RoundedRectangle(cornerRadius: 8))
         }

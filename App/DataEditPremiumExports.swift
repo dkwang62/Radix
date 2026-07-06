@@ -107,7 +107,7 @@ extension DataEditTab {
         .padding()
         .background(
             LinearGradient(
-                colors: [Color.orange.opacity(0.08), Color.accentColor.opacity(0.06)],
+                colors: [Color.orange.opacity(0.08), RadixAccent.primary.opacity(0.06)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )

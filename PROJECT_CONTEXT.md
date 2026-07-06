@@ -206,6 +206,8 @@ inline help, phrase read-aloud controls, contextual return buttons, and
 interaction hints also use `RadixAccent.primary`; remaining direct
 `Color.accentColor` uses are mostly state, selection, grid, quiz, or review
 surfaces that should be converted only with local visual/runtime checks.
+AI template cards, Apple stroke lookup summaries, Advanced Export accent
+gradients, sentence action icons, and phone-tab active fills also use the alias.
 Add Phrase input form sections and text editors use the shared surface helper
 for their simple rounded backgrounds and borders.
 Shared haptics are wired into focused mutation moments: adding phrases, importing

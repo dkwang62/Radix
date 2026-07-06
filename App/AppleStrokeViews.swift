@@ -30,7 +30,7 @@ struct SearchExampleButton: View {
                         .minimumScaleFactor(0.8)
                     Text(query)
                         .font(isPhone ? ResponsiveFont.title3.bold() : ResponsiveFont.caption.bold())
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(RadixAccent.primary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
@@ -47,11 +47,11 @@ struct SearchExampleButton: View {
             .padding(.horizontal, isPhone ? 14 : 12)
             .padding(.vertical, isPhone ? 12 : 8)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.accentColor.opacity(0.05))
+            .background(RadixAccent.primary.opacity(0.05))
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.accentColor.opacity(0.1), lineWidth: 1)
+                    .stroke(RadixAccent.primary.opacity(0.1), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)

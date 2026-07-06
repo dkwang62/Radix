@@ -117,7 +117,7 @@ extension AILinkView {
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .padding(10)
-        .background(Color.accentColor.opacity(0.05))
+        .background(RadixAccent.primary.opacity(0.05))
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
