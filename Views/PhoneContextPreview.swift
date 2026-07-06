@@ -49,8 +49,7 @@ struct PhoneContextPreview: View {
                             .foregroundStyle(RadixAccent.primary)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(RadixTheme.secondaryBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .radixSurface(RadixTheme.secondaryBackground, radius: 10)
                     }
                     .buttonStyle(.plain)
                 }
@@ -89,8 +88,7 @@ struct PhoneContextPreview: View {
                 .foregroundStyle(RadixAccent.primary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(RadixTheme.secondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .radixSurface(RadixTheme.secondaryBackground, radius: 10)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Back to \(title)")

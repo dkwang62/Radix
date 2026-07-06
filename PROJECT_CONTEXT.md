@@ -204,6 +204,8 @@ Capture source controls and Browse source-menu selection affordances also use
 Simple leaf brand accents in AI result headers, Settings, Paywall, Glossary,
 inline help, phrase read-aloud controls, contextual return buttons, and
 interaction hints also use `RadixAccent.primary`.
+Phone context preview return buttons use the shared surface helper while keeping
+their contextual labels and primary accent tint.
 AI template cards, Apple stroke lookup summaries, Advanced Export accent
 gradients, sentence action icons, and phone-tab active fills also use the alias.
 The direct `Color.accentColor` audit is complete across `App/`, `Views/`,
