@@ -84,16 +84,21 @@ struct PhraseInfoCard: View {
             }
     }
 
+    @ViewBuilder
     var phraseContent: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            if isPracticeSentence {
+        if isPracticeSentence {
+            VStack(alignment: .leading, spacing: 14) {
                 practiceSentenceToolbar
-            } else {
+                phraseAnimationPicker
+                phraseMeaningAndNotes
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 14) {
                 phraseHeader
                 animationScriptToggle
+                phraseAnimationPicker
+                phraseMeaningAndNotes
             }
-            phraseAnimationPicker
-            phraseMeaningAndNotes
         }
     }
 }

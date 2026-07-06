@@ -130,18 +130,27 @@ extension PhraseInfoCard {
     func phraseAnimationTileGrid(_ characters: [String]) -> some View {
         let safePage = phraseAnimationSafePage(for: characters)
         let pageCharacters = phraseAnimationCharacters(on: safePage, from: characters)
-        return LazyVGrid(columns: phraseGridColumns, spacing: 10) {
-            ForEach(Array(pageCharacters.enumerated()), id: \.offset) { _, character in
-                phraseCharacterTile(character)
+        return VStack(spacing: 10) {
+            ForEach(Array(phraseAnimationRows(for: pageCharacters).enumerated()), id: \.offset) { _, rowCharacters in
+                HStack(spacing: 10) {
+                    ForEach(rowCharacters, id: \.self) { character in
+                        phraseCharacterTile(character)
+                    }
+
+                    if rowCharacters.count == 1 {
+                        Color.clear
+                            .frame(maxWidth: .infinity, minHeight: 154)
+                    }
+                }
             }
         }
     }
 
-    var phraseGridColumns: [GridItem] {
-        [
-            GridItem(.flexible(minimum: 120), spacing: 10),
-            GridItem(.flexible(minimum: 120), spacing: 10)
-        ]
+    func phraseAnimationRows(for characters: [String]) -> [[String]] {
+        stride(from: 0, to: characters.count, by: 2).map { start in
+            let end = min(start + 2, characters.count)
+            return Array(characters[start..<end])
+        }
     }
 
     func phraseCharacterTile(_ character: String) -> some View {
@@ -157,7 +166,7 @@ extension PhraseInfoCard {
 
                 StrokeOrderWebView(
                     character: animationCharacter,
-                    reloadToken: StrokeAnimationToken.stable(for: "phrase-card-\(phrase)-\(animationCharacter)"),
+                    reloadToken: StrokeAnimationToken.stable(for: "phrase-card-\(phrase.id)-\(animationCharacter)"),
                     canvasSize: 110
                 )
                 .frame(height: 118)

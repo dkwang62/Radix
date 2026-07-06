@@ -112,6 +112,9 @@ their spacing, radius, borders, and accessibility affordance do not drift.
 header use the shared Radix surface/pill primitives; keep new info-card chips
 on those helpers rather than hand-copying rounded backgrounds. Character Detail
 metric icons use the shared compact icon surface.
+Phrase info cards keep sentence and ordinary phrase content in separate
+top-level stacks and render animation tiles as explicit rows rather than a lazy
+grid, avoiding SwiftUI composition crashes while preserving the same controls.
 Small square info-card icon buttons use `radixIconButtonSurface` so favorite,
 edit, and read-aloud buttons keep one radius, background, and tap shape.
 Compact destructive icon buttons such as imported Conversation Practice delete
