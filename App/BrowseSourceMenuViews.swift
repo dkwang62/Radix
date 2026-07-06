@@ -127,6 +127,7 @@ struct CollectionPageActionsMenu: View {
                 onContinue: completeAIOrientation,
                 onCancel: cancelAIOrientation
             )
+            .presentationDetents([.medium, .large])
         }
     }
 

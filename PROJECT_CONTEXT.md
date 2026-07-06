@@ -226,6 +226,10 @@ the icon surface helper for leading status glyphs.
 Root-level and Browse editing/report sheets declare their expected detents at
 the `.sheet` presentation boundary so modal height behavior stays consistent
 without restructuring the sheet content views.
+AI Template editing, page AI orientation, Conversation Practice flashcards,
+character quiz, translation quiz, and pasted Practice import sheets also declare
+their expected detents at the presentation boundary; drill sheets use full
+height, while compact orientation/import workflows allow medium or large.
 Added Phrase Review keeps its review surface and phrase grid directly framed
 with `maxWidth`/`maxHeight`, using fixed platform page sizes instead of
 geometry-driven adaptive paging so SwiftUI does not rebuild the sheet through

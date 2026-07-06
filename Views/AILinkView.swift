@@ -175,6 +175,7 @@ struct AILinkView: View {
                     }
                 }
             }
+            .presentationDetents([.large])
         }
         .onAppear {
             store.refreshPhrases()

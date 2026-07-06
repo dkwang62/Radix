@@ -139,6 +139,7 @@ struct FavouritesTab: View {
             )
             .environmentObject(store)
             .environmentObject(entitlement)
+            .presentationDetents([.large])
         }
         .sheet(item: $conversationPracticeQuizPresentation, onDismiss: {
             conversationPracticeQuizPresentation = nil
@@ -150,6 +151,7 @@ struct FavouritesTab: View {
             )
             .environmentObject(store)
             .environmentObject(entitlement)
+            .presentationDetents([.large])
         }
         .sheet(item: $conversationPracticeTranslationQuizPresentation, onDismiss: {
             conversationPracticeTranslationQuizPresentation = nil
@@ -161,6 +163,7 @@ struct FavouritesTab: View {
             )
             .environmentObject(store)
             .environmentObject(entitlement)
+            .presentationDetents([.large])
         }
         .sheet(item: $studyTranslationReportCollection) { collection in
             BrowseTranslationReportSheet(
@@ -216,6 +219,7 @@ struct FavouritesTab: View {
             ConversationPracticePasteImportSheet { pack in
                 importPastedConversationPracticePack(pack)
             }
+            .presentationDetents([.medium, .large])
         }
         .fileImporter(
             isPresented: $showConversationPracticeImporter,
