@@ -122,9 +122,9 @@ exported file rather than repeating that purpose on every row.
 The My Data segmented picker owns the current section name; do not repeat
 `Backup File` or `Advanced Exports` as an immediate in-card heading below it.
 Tappable menu-selector labels share `RadixMenuSelectorRow`; AI Link task/source
-dropdowns and Conversation Practice topic selection should keep row icon size,
-chevron, border, radius, and missing-state tint there instead of hand-copying
-row styling.
+dropdowns, AI quantity selection, and Conversation Practice topic selection
+should keep row icon size, chevron, border, radius, and missing-state tint there
+instead of hand-copying row styling.
 UI polish passes should flow through `Services/RadixTheme.swift` primitives
 (`radixCard`, `radixPill`, `radixSurface`, shared spacing/radius/icon sizes,
 and haptic helpers) before touching many screens. Preserve the asset-catalog
