@@ -170,8 +170,9 @@ instead of separately laying out the text and disclosure chevron.
 Focused Study workspaces share one local back-pill renderer so Conversation
 Practice, Sentences, and future full-screen Study sections keep return action
 spacing and tint aligned.
-Study dashboard shortcuts are a fixed action set and render as explicit rows
-rather than a lazy grid.
+Study dashboard shortcuts are a fixed descriptor-driven action set and render
+as explicit rows rather than a lazy grid; keep their actions switch-based
+instead of storing escaping closures in transient row data.
 Study utility chips such as Clear Recent, saved-page sort, and active-page
 resume signals use `radixPill` for compact rounded feedback.
 Small previous/next pager arrows and row-accessory disclosure arrows also use

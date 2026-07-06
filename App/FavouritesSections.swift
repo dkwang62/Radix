@@ -8,15 +8,52 @@ private struct StudyScopeControl: Identifiable {
     var id: String { scope.id }
 }
 
-private struct StudyActionShortcut: Identifiable {
-    let title: String
-    let systemImage: String
-    let fill: Color
-    var isSelected = false
-    var isDisabled = false
-    let action: () -> Void
+private enum StudyActionShortcut: String, Identifiable {
+    case addedPhrases
+    case conversationPractice
+    case sentences
+    case checkpoints
 
-    var id: String { title }
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .addedPhrases:
+            "Added Phrases"
+        case .conversationPractice:
+            "Conversation Practices"
+        case .sentences:
+            "Sentences"
+        case .checkpoints:
+            "Checkpoints"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .addedPhrases:
+            "text.quote"
+        case .conversationPractice:
+            "bubble.left.and.bubble.right"
+        case .sentences:
+            RadixGlossaryIcon.systemImage(for: "Sentence")
+        case .checkpoints:
+            "clock.arrow.circlepath"
+        }
+    }
+
+    var fill: Color {
+        switch self {
+        case .addedPhrases:
+            .green
+        case .conversationPractice:
+            .teal
+        case .sentences:
+            .indigo
+        case .checkpoints:
+            .gray
+        }
+    }
 }
 
 extension FavouritesTab {
@@ -476,45 +513,14 @@ extension FavouritesTab {
     }
 
     private var studyActionShortcuts: [StudyActionShortcut] {
-        var shortcuts = [
-            StudyActionShortcut(
-                title: "Added Phrases",
-                systemImage: "text.quote",
-                fill: .green,
-                action: {
-                    presentAddedPhraseReview()
-                }
-            ),
-            StudyActionShortcut(
-                title: "Conversation Practices",
-                systemImage: "bubble.left.and.bubble.right",
-                fill: .teal,
-                action: {
-                    presentConversationPractice()
-                }
-            ),
-            StudyActionShortcut(
-                title: "Sentences",
-                systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"),
-                fill: .indigo,
-                action: {
-                    presentSentenceExamples()
-                }
-            )
+        var shortcuts: [StudyActionShortcut] = [
+            .addedPhrases,
+            .conversationPractice,
+            .sentences
         ]
 
         if isPhone {
-            shortcuts.append(
-                StudyActionShortcut(
-                    title: "Checkpoints",
-                    systemImage: "clock.arrow.circlepath",
-                    fill: .gray,
-                    isSelected: showStudyCheckpoints,
-                    action: {
-                        showStudyCheckpoints = true
-                    }
-                )
-            )
+            shortcuts.append(.checkpoints)
         }
 
         return shortcuts
@@ -594,11 +600,12 @@ extension FavouritesTab {
     }
 
     private func studyActionShortcutButton(_ shortcut: StudyActionShortcut) -> some View {
-        let isActive = shortcut.isSelected || !shortcut.isDisabled
-        let fill = shortcut.isDisabled ? RadixTheme.systemGray5 : shortcut.fill
-        let foreground = shortcut.isDisabled ? Color.secondary : Color.white
+        let fill = shortcut.fill
+        let foreground = Color.white
 
-        return Button(action: shortcut.action) {
+        return Button {
+            performStudyActionShortcut(shortcut)
+        } label: {
             Label {
                 Text(shortcut.title)
                     .lineLimit(1)
@@ -613,14 +620,31 @@ extension FavouritesTab {
             .frame(maxWidth: .infinity, minHeight: 34, alignment: .leading)
             .foregroundStyle(foreground)
             .radixSurface(
-                fill.opacity(isActive ? 1 : 0.35),
-                border: shortcut.isDisabled ? RadixTheme.separator.opacity(0.45) : fill.opacity(0.95)
+                fill,
+                border: fill.opacity(0.95)
             )
         }
         .buttonStyle(.plain)
-        .opacity(shortcut.isDisabled ? 0.45 : 1)
         .accessibilityLabel(shortcut.title)
+        .accessibilityValue(isStudyActionShortcutSelected(shortcut) ? "Selected" : "")
         .help(shortcut.title)
+    }
+
+    private func isStudyActionShortcutSelected(_ shortcut: StudyActionShortcut) -> Bool {
+        shortcut == .checkpoints && showStudyCheckpoints
+    }
+
+    private func performStudyActionShortcut(_ shortcut: StudyActionShortcut) {
+        switch shortcut {
+        case .addedPhrases:
+            presentAddedPhraseReview()
+        case .conversationPractice:
+            presentConversationPractice()
+        case .sentences:
+            presentSentenceExamples()
+        case .checkpoints:
+            showStudyCheckpoints = true
+        }
     }
 
     var studyCheckpointsSection: some View {
