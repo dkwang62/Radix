@@ -116,9 +116,10 @@ trailing counts, chevrons, phone subtitle behavior, and icon treatment stay
 aligned.
 My Data backup action cards, recent-backup rows, backup-preview badges, and
 advanced-export option cards use the shared Radix pill/surface primitives for
-simple leaf styling. Backup-content disclosures and backup-preview character
-tiles are part of that same shared surface vocabulary. Keep workflow-specific
-gradients local to their owning section.
+simple leaf styling, including compact option and tools info icon surfaces.
+Backup-content disclosures and backup-preview character tiles are part of that
+same shared surface vocabulary. Keep workflow-specific gradients local to their
+owning section.
 My Data Advanced Exports keeps the AI-coding-agent purpose in the section intro
 and tooltip details; option subtitles should stay short and identify the
 exported file rather than repeating that purpose on every row.

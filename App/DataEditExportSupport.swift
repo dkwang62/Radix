@@ -164,9 +164,10 @@ struct DataBackupActionButton: View {
         HStack(spacing: 10) {
             Image(systemName: isLocked ? "lock.fill" : systemName)
                 .font(.system(size: 18, weight: .bold))
-                .frame(width: 34, height: 34)
-                .background(foreground.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
+                .radixIconButtonSurface(
+                    size: 34,
+                    background: foreground.opacity(0.12)
+                )
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -264,9 +265,11 @@ struct AdvancedExportOptionRow: View {
                 Image(systemName: "info.circle")
                     .font(ResponsiveFont.body)
                     .foregroundStyle(color)
-                    .frame(width: 34, height: 34)
-                    .background(color.opacity(0.10))
-                    .clipShape(Circle())
+                    .radixIconButtonSurface(
+                        size: 34,
+                        background: color.opacity(0.10),
+                        radius: 17
+                    )
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Tools needed for \(title)")
