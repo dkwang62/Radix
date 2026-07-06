@@ -65,9 +65,11 @@ struct BrowseFiltersSheet: View {
             .pickerStyle(.menu)
             .frame(minWidth: 80)
         }
-        .padding(.horizontal, 8)
-        .background(RadixTheme.secondaryBackground.opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixPill(
+            horizontal: 8,
+            vertical: 0,
+            background: RadixTheme.secondaryBackground.opacity(0.5)
+        )
     }
 
     private var structurePicker: some View {
@@ -84,9 +86,11 @@ struct BrowseFiltersSheet: View {
             .pickerStyle(.menu)
             .frame(minWidth: 80)
         }
-        .padding(.horizontal, 8)
-        .background(RadixTheme.secondaryBackground.opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixPill(
+            horizontal: 8,
+            vertical: 0,
+            background: RadixTheme.secondaryBackground.opacity(0.5)
+        )
     }
 }
 
