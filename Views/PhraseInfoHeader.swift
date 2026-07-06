@@ -39,7 +39,8 @@ extension PhraseInfoCard {
                 .font(ResponsiveFont.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .frame(width: 32, height: 32)
-                .radixSurface(RadixTheme.secondaryBackground)
+                .background(RadixTheme.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
         .help("Edit notes")
@@ -56,7 +57,8 @@ extension PhraseInfoCard {
                     .font(ResponsiveFont.subheadline.weight(.semibold))
                     .foregroundStyle(store.isFavoriteSentence(practiceItem) ? .yellow : .secondary)
                     .radixMinimumTapTarget()
-                    .radixSurface(RadixTheme.secondaryBackground)
+                    .background(RadixTheme.secondaryBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .buttonStyle(.plain)
             .accessibilityLabel(store.isFavoriteSentence(practiceItem) ? "Remove sentence from favorites" : "Add sentence to favorites")
@@ -69,7 +71,8 @@ extension PhraseInfoCard {
                     .font(ResponsiveFont.subheadline.weight(.semibold))
                     .foregroundStyle(store.isPhraseFavorite(phrase.word) ? .yellow : .secondary)
                     .radixMinimumTapTarget()
-                    .radixSurface(RadixTheme.secondaryBackground)
+                    .background(RadixTheme.secondaryBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .buttonStyle(.plain)
             .accessibilityLabel(store.isPhraseFavorite(phrase.word) ? "Remove from favorites" : "Add to favorites")

@@ -51,7 +51,8 @@ extension CharacterInfoCard {
             }
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .radixSurface(RadixTheme.secondaryBackground.opacity(0.45))
+            .background(RadixTheme.secondaryBackground.opacity(0.45))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
 
             if !etymologyText.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
@@ -70,7 +71,8 @@ extension CharacterInfoCard {
                 }
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .radixSurface(RadixTheme.secondaryBackground.opacity(0.35))
+                .background(RadixTheme.secondaryBackground.opacity(0.35))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
             if !notesText.isEmpty {
@@ -88,7 +90,8 @@ extension CharacterInfoCard {
                 }
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .radixSurface(RadixTheme.secondaryBackground.opacity(0.35))
+                .background(RadixTheme.secondaryBackground.opacity(0.35))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
     }

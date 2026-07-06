@@ -39,9 +39,10 @@ extension PhraseInfoCard {
         } label: {
             Image(systemName: "speaker.wave.2")
                 .font(ResponsiveFont.subheadline.weight(.semibold))
-                .foregroundStyle(RadixAccent.primary)
+                .foregroundStyle(Color.accentColor)
                 .frame(width: 32, height: 32)
-                .radixSurface(RadixTheme.secondaryBackground)
+                .background(RadixTheme.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Read sentence aloud")

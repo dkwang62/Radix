@@ -99,9 +99,7 @@ notes, phrase lookup, and related small info-card actions on that component so
 their spacing, radius, borders, and accessibility affordance do not drift.
 `InfoCardActionPill`, character info tiles, and the regular Character Detail
 header use the shared Radix surface/pill primitives; keep new info-card chips
-on those helpers rather than hand-copying rounded backgrounds. Phrase Info and
-Character Info definition, notes, origin, component, and small icon-button
-panels also use shared Radix surfaces.
+on those helpers rather than hand-copying rounded backgrounds.
 My Data backup preview navigation/stat rows share one row renderer so labels,
 trailing counts, chevrons, phone subtitle behavior, and icon treatment stay
 aligned.
