@@ -97,9 +97,10 @@ wrappers behind after a redesign.
 The old `BrowsePhraseExtractionSheet` and an unused phrase-review cycle hint
 were removed after a call-site sweep. The old standalone
 `BrowseOCRReviewSheet` was also removed; OCR review now uses the shared AI task
-flow. `Views/AILinkTemplateEditor.swift` remains a disconnected complete
-feature, not dead duplicate UI; decide whether to wire it into AI Link or
-remove it before touching that file.
+flow. A follow-up single-reference view sweep across `App/` and `Views/` is
+clean outside the known exception: `Views/AILinkTemplateEditor.swift` remains a
+disconnected complete feature, not dead duplicate UI; decide whether to wire it
+into AI Link or remove it before touching that file.
 Character and phrase info-card action pills share `InfoCardActionPill`; keep
 notes, phrase lookup, and related small info-card actions on that component so
 their spacing, radius, borders, and accessibility affordance do not drift.
