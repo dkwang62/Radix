@@ -64,9 +64,10 @@ private struct CaptureImportButtonContent: View, Sendable {
         HStack(spacing: 10) {
             Image(systemName: systemName)
                 .font(.system(size: 18, weight: .semibold))
-                .frame(width: 34, height: 34)
-                .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixIconButtonSurface(
+                    size: 34,
+                    background: Color.accentColor.opacity(0.12)
+                )
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)

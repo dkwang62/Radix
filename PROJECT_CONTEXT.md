@@ -154,10 +154,10 @@ and haptic helpers) before touching many screens. Preserve the asset-catalog
 accent as Radix's primary identity; do not wholesale replace the app accent or
 drop in broad external bundles without reviewing each affected workflow against
 `UI_INTENT.md`. Apply those primitives directly to new or simple leaf
-components first, including Capture source action icons and simple Browse
-source-menu icon surfaces. For complex existing SwiftUI surfaces, especially
-AI Link and info cards, prefer surgical spacing/color/layout edits that
-preserve the current modifier structure; broad mechanical replacement of
+components first, including Capture source/import action icons and simple
+Browse source-menu icon surfaces. For complex existing SwiftUI surfaces,
+especially AI Link and info cards, prefer surgical spacing/color/layout edits
+that preserve the current modifier structure; broad mechanical replacement of
 background, clipShape, and overlay chains has already produced runtime
 regressions even when tests and builds passed.
 Root-level and Browse editing/report sheets declare their expected detents at
