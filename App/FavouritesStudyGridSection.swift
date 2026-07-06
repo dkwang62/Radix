@@ -547,10 +547,12 @@ extension FavouritesTab {
             Text(artifact.title)
                 .font(ResponsiveFont.tinySystem(size: 11).weight(.semibold))
                 .lineLimit(1)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .background(artifact.tint.opacity(0.11))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixPill(
+                    horizontal: 8,
+                    vertical: 6,
+                    background: artifact.tint.opacity(0.11),
+                    radius: 8
+                )
         }
         .buttonStyle(.plain)
         .foregroundStyle(artifact.tint)
