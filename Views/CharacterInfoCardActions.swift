@@ -103,16 +103,15 @@ struct InfoCardActionPill: View {
             Text(title)
         }
         .font(cardActionFont)
-        .foregroundStyle(Color.accentColor)
+        .foregroundStyle(RadixAccent.primary)
         .lineLimit(1)
         .minimumScaleFactor(0.8)
-        .padding(.horizontal, 10)
-        .padding(.vertical, verticalPadding)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(RadixTheme.separator, lineWidth: 0.5)
+        .radixPill(
+            horizontal: 10,
+            vertical: verticalPadding,
+            background: RadixTheme.secondaryBackground,
+            border: RadixTheme.separator,
+            borderWidth: 0.5
         )
     }
 

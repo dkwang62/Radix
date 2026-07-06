@@ -28,8 +28,7 @@ extension CharacterDetailView {
                 .font(.system(size: 112))
                 .lineLimit(1)
                 .frame(width: 132, height: 132)
-                .background(RadixTheme.secondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(RadixTheme.secondaryBackground)
                 .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
 
             VStack(alignment: .leading, spacing: 10) {
@@ -55,11 +54,9 @@ extension CharacterDetailView {
                                     .frame(width: 34, height: 34)
                             }
                             .buttonStyle(.plain)
-                            .background(Color.accentColor.opacity(0.10))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.accentColor.opacity(0.25), lineWidth: 1)
+                            .radixSurface(
+                                RadixAccent.primary.opacity(0.10),
+                                border: RadixAccent.primary.opacity(0.25)
                             )
                             .accessibilityLabel("Open variant \(variant.character)")
                         }
@@ -89,22 +86,20 @@ extension CharacterDetailView {
             Spacer(minLength: 0)
         }
         .padding(18)
-        .background(RadixTheme.background)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(RadixTheme.separator, lineWidth: 0.5)
+        .radixSurface(
+            RadixTheme.background,
+            border: RadixTheme.separator,
+            borderWidth: 0.5
         )
     }
 
     func characterMetric(title: String, value: String, systemImage: String) -> some View {
         HStack(spacing: 8) {
             Image(systemName: systemImage)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
+                .font(.system(size: RadixIconSize.small, weight: .semibold))
+                .foregroundStyle(RadixAccent.primary)
                 .frame(width: 26, height: 26)
-                .background(Color.accentColor.opacity(0.10))
-                .clipShape(RoundedRectangle(cornerRadius: 7))
+                .radixSurface(RadixAccent.primary.opacity(0.10))
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(value)
@@ -118,7 +113,6 @@ extension CharacterDetailView {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 7)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.secondaryBackground)
     }
 }

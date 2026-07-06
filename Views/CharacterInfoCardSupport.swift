@@ -11,7 +11,7 @@ struct CharacterInfoTile: View {
         VStack(spacing: 2) {
             Text(character)
                 .font(.system(size: characterSize, weight: .bold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
             if let subtitle {
@@ -23,11 +23,10 @@ struct CharacterInfoTile: View {
             }
         }
         .frame(width: size, height: size)
-        .background(isHighlighted ? Color.orange.opacity(0.18) : RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(isHighlighted ? Color.orange.opacity(0.75) : RadixTheme.separator, lineWidth: isHighlighted ? 1.5 : 0.5)
+        .radixSurface(
+            isHighlighted ? Color.orange.opacity(0.18) : RadixTheme.secondaryBackground,
+            border: isHighlighted ? Color.orange.opacity(0.75) : RadixTheme.separator,
+            borderWidth: isHighlighted ? 1.5 : 0.5
         )
     }
 }

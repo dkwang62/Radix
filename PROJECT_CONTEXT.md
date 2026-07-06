@@ -97,6 +97,9 @@ wrappers behind after a redesign.
 Character and phrase info-card action pills share `InfoCardActionPill`; keep
 notes, phrase lookup, and related small info-card actions on that component so
 their spacing, radius, borders, and accessibility affordance do not drift.
+`InfoCardActionPill`, character info tiles, and the regular Character Detail
+header use the shared Radix surface/pill primitives; keep new info-card chips
+on those helpers rather than hand-copying rounded backgrounds.
 My Data backup preview navigation/stat rows share one row renderer so labels,
 trailing counts, chevrons, phone subtitle behavior, and icon treatment stay
 aligned.
