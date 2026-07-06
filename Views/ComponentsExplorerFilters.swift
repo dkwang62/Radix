@@ -75,8 +75,7 @@ extension ComponentsExplorerShell {
             .frame(minWidth: 80)
         }
         .padding(.horizontal, 8)
-        .background(RadixTheme.secondaryBackground.opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.secondaryBackground.opacity(0.5))
     }
 
     var rootStructurePicker: some View {
@@ -93,7 +92,6 @@ extension ComponentsExplorerShell {
             .pickerStyle(.menu)
         }
         .padding(.horizontal, 8)
-        .background(RadixTheme.secondaryBackground.opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.secondaryBackground.opacity(0.5))
     }
 }

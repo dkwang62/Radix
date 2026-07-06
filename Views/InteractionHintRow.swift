@@ -91,8 +91,7 @@ struct InteractionHintRow: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RadixTheme.secondaryBackground.opacity(0.70))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.secondaryBackground.opacity(0.70))
     }
 
     private func phoneTip(icon: String, text: String) -> some View {
