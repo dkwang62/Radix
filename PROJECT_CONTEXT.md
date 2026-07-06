@@ -104,6 +104,8 @@ their spacing, radius, borders, and accessibility affordance do not drift.
 `InfoCardActionPill`, character info tiles, and the regular Character Detail
 header use the shared Radix surface/pill primitives; keep new info-card chips
 on those helpers rather than hand-copying rounded backgrounds.
+Small square info-card icon buttons use `radixIconButtonSurface` so favorite,
+edit, and read-aloud buttons keep one radius, background, and tap shape.
 My Data backup preview navigation/stat rows share one row renderer so labels,
 trailing counts, chevrons, phone subtitle behavior, and icon treatment stay
 aligned.

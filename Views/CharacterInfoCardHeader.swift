@@ -27,9 +27,7 @@ extension CharacterInfoCard {
         } label: {
             Image(systemName: store.isFavorite(item.character) ? "star.fill" : "star")
                 .foregroundStyle(store.isFavorite(item.character) ? .yellow : .secondary)
-                .radixMinimumTapTarget()
-                .background(RadixTheme.secondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixIconButtonSurface()
         }
         .buttonStyle(.plain)
         .controlSize(cardActionControlSize)

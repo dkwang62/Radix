@@ -221,6 +221,17 @@ extension View {
         )
         .contentShape(Rectangle())
     }
+
+    func radixIconButtonSurface(
+        size: CGFloat = RadixControlMetrics.standardHeight,
+        background: Color = RadixTheme.secondaryBackground,
+        radius: CGFloat = RadixRadius.medium
+    ) -> some View {
+        frame(width: size, height: size)
+            .background(background)
+            .clipShape(RoundedRectangle(cornerRadius: radius))
+            .contentShape(RoundedRectangle(cornerRadius: radius))
+    }
 }
 
 enum RadixHaptics {
