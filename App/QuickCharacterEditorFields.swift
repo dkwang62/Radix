@@ -21,8 +21,7 @@ extension QuickCharacterEditorView {
                     }
                     .padding(.vertical, 8)
                     .padding(.horizontal, 10)
-                    .background(RadixTheme.secondaryBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .radixSurface(RadixTheme.secondaryBackground)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)

@@ -137,12 +137,7 @@ struct QuickPhraseEditorView: View {
             }
         }
         .frame(height: phraseNotesHeight)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(RadixTheme.separator, lineWidth: 1)
-        )
+        .radixSurface(RadixTheme.secondaryBackground, border: RadixTheme.separator)
     }
 
     private var phraseNotesHeight: CGFloat {
@@ -194,11 +189,10 @@ struct QuickPhraseEditorView: View {
                     .font(ResponsiveFont.body)
                     .frame(height: phraseMeaningHeight)
                     .padding(8)
-                    .background(RadixTheme.secondaryBackground.opacity(0.6))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(RadixTheme.separator, lineWidth: 0.5)
+                    .radixSurface(
+                        RadixTheme.secondaryBackground.opacity(0.6),
+                        border: RadixTheme.separator,
+                        borderWidth: 0.5
                     )
                     .focused($focusedPhraseField, equals: .meanings)
             }

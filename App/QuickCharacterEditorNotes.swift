@@ -35,12 +35,7 @@ extension QuickCharacterEditorView {
             }
         }
         .frame(minHeight: notesMinimumHeight, maxHeight: .infinity)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(RadixTheme.separator, lineWidth: 1)
-        )
+        .radixSurface(RadixTheme.secondaryBackground, border: RadixTheme.separator)
     }
 
     var notesMinimumHeight: CGFloat {

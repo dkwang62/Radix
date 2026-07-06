@@ -232,6 +232,8 @@ Simple status and summary surfaces in Settings, Paywall, Add Phrase review,
 Capture messages, and phrase-discovery results also use `radixSurface`.
 Paywall plan cards, hero panels, loading states, and fixed benefit chips share
 Radix surface and pill primitives while preserving local paywall tint choices.
+Quick phrase/character editor notes, meaning fields, and compact dictionary
+expanders use the shared surface helper for their rounded editing containers.
 Root-level and Browse editing/report sheets declare their expected detents at
 the `.sheet` presentation boundary so modal height behavior stays consistent
 without restructuring the sheet content views.
