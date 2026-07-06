@@ -65,10 +65,11 @@ struct ConversationPracticeReviewSheet: View {
             Text("\(progress.count) reviewed")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .foregroundStyle(Color.accentColor)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(Color.accentColor.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixPill(
+                    horizontal: 8,
+                    vertical: 5,
+                    background: Color.accentColor.opacity(0.1)
+                )
         }
     }
 
