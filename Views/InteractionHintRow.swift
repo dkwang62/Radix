@@ -31,16 +31,10 @@ struct InteractionHintRow: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(RadixTheme.secondaryBackground)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(
-                    isPulsing ? RadixAccent.primary.opacity(0.26) : Color.primary.opacity(0.06),
-                    lineWidth: 1
-                )
+        .radixSurface(
+            RadixTheme.secondaryBackground,
+            radius: 10,
+            border: isPulsing ? RadixAccent.primary.opacity(0.26) : Color.primary.opacity(0.06)
         )
         .scaleEffect(isPulsing ? 1.025 : 1.0)
         .shadow(color: RadixAccent.primary.opacity(isPulsing ? 0.16 : 0), radius: 8)

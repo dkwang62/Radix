@@ -230,8 +230,9 @@ Paywall benefit copy is a short fixed list and stays in a simple stack rather
 than a lazy grid.
 Compact management rows such as checkpoints and other-device summaries also use
 the icon surface helper for leading status glyphs.
-Components Explorer filter picker rows and compact inline help/tips panels use
-`radixSurface` for their simple rounded backgrounds.
+Components Explorer filter picker rows, compact inline help/tips panels, and
+interaction hint containers use `radixSurface` for their simple rounded
+backgrounds.
 Simple status and summary surfaces in Settings, Paywall, Add Phrase review,
 Capture messages, and phrase-discovery results also use `radixSurface`.
 Paywall plan cards, hero panels, loading states, and fixed benefit chips share
