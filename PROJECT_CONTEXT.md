@@ -129,6 +129,8 @@ aligned. Their compact leading icons use the shared icon surface helper.
 My Data backup action cards, recent-backup rows, backup-preview badges, and
 advanced-export option cards use the shared Radix pill/surface primitives for
 simple leaf styling, including compact option and tools info icon surfaces.
+My Data backup affordances use `RadixAccent.primary` for brand-primary tinting,
+while destructive replacement actions keep their semantic orange styling.
 My Data backup action pairs use explicit `ViewThatFits` rows/stacks instead of
 lazy grids because there are only two sibling actions.
 Backup preview headers and Study checkpoint action icons use the shared icon

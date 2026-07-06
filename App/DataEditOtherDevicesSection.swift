@@ -23,10 +23,10 @@ extension DataEditTab {
             Label("Checkpoints", systemImage: "clock.arrow.circlepath")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .labelStyle(.titleAndIcon)
-                .radixPill(background: Color.accentColor.opacity(0.1))
+                .radixPill(background: RadixAccent.primary.opacity(0.1))
         }
         .buttonStyle(.plain)
-        .foregroundStyle(Color.accentColor)
+        .foregroundStyle(RadixAccent.primary)
     }
 
     var portableBackupActionsSection: some View {
@@ -51,8 +51,8 @@ extension DataEditTab {
     var plusBadge: some View {
         Text("Plus")
             .font(ResponsiveFont.caption.bold())
-            .foregroundStyle(Color.accentColor)
-            .radixPill(background: Color.accentColor.opacity(0.14))
+            .foregroundStyle(RadixAccent.primary)
+            .radixPill(background: RadixAccent.primary.opacity(0.14))
             .accessibilityLabel("Radix Plus feature")
     }
 
@@ -145,10 +145,10 @@ extension DataEditTab {
         HStack(spacing: 8) {
             Image(systemName: systemImage)
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .radixIconButtonSurface(
                     size: 24,
-                    background: Color.accentColor.opacity(0.1),
+                    background: RadixAccent.primary.opacity(0.1),
                     radius: RadixRadius.small
                 )
 
@@ -186,8 +186,8 @@ extension DataEditTab {
                 subtitle: "Choose where to save",
                 systemName: "square.and.arrow.up.fill",
                 foreground: .white,
-                background: Color.accentColor,
-                border: Color.accentColor,
+                background: RadixAccent.primary,
+                border: RadixAccent.primary,
                 isLocked: entitlement.requiresPro(.myBackup)
             )
         }
@@ -208,9 +208,9 @@ extension DataEditTab {
                 title: RadixCopy.mergeBackup,
                 subtitle: "Keep existing data",
                 systemName: "square.and.arrow.down",
-                foreground: Color.accentColor,
-                background: Color.accentColor.opacity(0.1),
-                border: Color.accentColor.opacity(0.35),
+                foreground: RadixAccent.primary,
+                background: RadixAccent.primary.opacity(0.1),
+                border: RadixAccent.primary.opacity(0.35),
                 isLocked: entitlement.requiresPro(.myBackup)
             )
         }

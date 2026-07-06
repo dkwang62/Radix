@@ -57,7 +57,7 @@ struct DataBackupPreviewSection: View {
         .padding(12)
         .background(
             LinearGradient(
-                colors: [Color.accentColor.opacity(0.10), RadixTheme.secondaryBackground.opacity(0.55)],
+                colors: [RadixAccent.primary.opacity(0.10), RadixTheme.secondaryBackground.opacity(0.55)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -73,10 +73,10 @@ struct DataBackupPreviewSection: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "externaldrive.badge.checkmark")
                 .font(.system(size: 22, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .radixIconButtonSurface(
                     size: 42,
-                    background: Color.accentColor.opacity(0.14)
+                    background: RadixAccent.primary.opacity(0.14)
                 )
 
             VStack(alignment: .leading, spacing: 8) {
@@ -117,8 +117,8 @@ struct DataBackupPreviewSection: View {
         ForEach(badges, id: \.self) { badge in
             Text(badge)
                 .font(ResponsiveFont.caption2.weight(.semibold))
-                .foregroundStyle(Color.accentColor)
-                .radixPill(background: Color.accentColor.opacity(0.12))
+                .foregroundStyle(RadixAccent.primary)
+                .radixPill(background: RadixAccent.primary.opacity(0.12))
         }
     }
 
@@ -266,7 +266,7 @@ struct DataBackupPreviewSection: View {
                 value: "\(store.allCollections.count)",
                 subtitle: "Open and manage pages in Browse.",
                 systemName: "photo.on.rectangle",
-                tint: Color.accentColor,
+                tint: RadixAccent.primary,
                 showsChevron: true
             )
         }
