@@ -6,7 +6,7 @@ extension PaywallView {
             HStack(alignment: .center, spacing: 12) {
                 Image(systemName: "sparkles.rectangle.stack.fill")
                     .font(.system(size: 30))
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(RadixAccent.primary)
                 Text("Upgrade Radix")
                     .font(ResponsiveFont.title.bold())
             }
@@ -38,7 +38,7 @@ extension PaywallView {
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.accentColor.opacity(0.18), lineWidth: 1)
+                .stroke(RadixAccent.primary.opacity(0.18), lineWidth: 1)
         )
     }
 

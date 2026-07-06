@@ -46,7 +46,7 @@ struct PhoneContextPreview: View {
                     } label: {
                         Label(phraseReturnLookupOverride == nil ? "Phrase" : "Sentence", systemImage: "chevron.backward")
                             .font(ResponsiveFont.subheadline.weight(.semibold))
-                            .foregroundStyle(Color.accentColor)
+                            .foregroundStyle(RadixAccent.primary)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
                             .background(RadixTheme.secondaryBackground)
@@ -86,7 +86,7 @@ struct PhoneContextPreview: View {
         } label: {
             Label(title, systemImage: "chevron.backward")
                 .font(ResponsiveFont.subheadline.weight(.semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(RadixTheme.secondaryBackground)

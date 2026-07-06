@@ -39,7 +39,7 @@ extension PhraseInfoCard {
         } label: {
             Image(systemName: "speaker.wave.2")
                 .font(ResponsiveFont.subheadline.weight(.semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .radixIconButtonSurface(size: 32)
         }
         .buttonStyle(.plain)

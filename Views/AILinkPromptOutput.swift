@@ -259,7 +259,7 @@ extension AILinkView {
             VStack(alignment: .leading, spacing: 8) {
                 Label(aiResultMessage, systemImage: "checkmark.circle")
                     .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(RadixAccent.primary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 if let aiImportedPracticePack {
@@ -286,10 +286,10 @@ extension AILinkView {
         HStack(spacing: 10) {
             Image(systemName: aiResultIcon(for: task.id))
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .radixIconButtonSurface(
                     size: 32,
-                    background: Color.accentColor.opacity(0.12)
+                    background: RadixAccent.primary.opacity(0.12)
                 )
 
             VStack(alignment: .leading, spacing: 2) {

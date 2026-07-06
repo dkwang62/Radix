@@ -288,10 +288,10 @@ struct SettingsView: View {
         HStack(spacing: 12) {
             Image(systemName: "slider.horizontal.3")
                 .font(.system(size: 22, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .radixIconButtonSurface(
                     size: 42,
-                    background: Color.accentColor.opacity(0.12)
+                    background: RadixAccent.primary.opacity(0.12)
                 )
 
             VStack(alignment: .leading, spacing: 3) {

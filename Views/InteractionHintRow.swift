@@ -38,12 +38,12 @@ struct InteractionHintRow: View {
         .overlay(
             RoundedRectangle(cornerRadius: 10)
                 .stroke(
-                    isPulsing ? Color.accentColor.opacity(0.26) : Color.primary.opacity(0.06),
+                    isPulsing ? RadixAccent.primary.opacity(0.26) : Color.primary.opacity(0.06),
                     lineWidth: 1
                 )
         )
         .scaleEffect(isPulsing ? 1.025 : 1.0)
-        .shadow(color: Color.accentColor.opacity(isPulsing ? 0.16 : 0), radius: 8)
+        .shadow(color: RadixAccent.primary.opacity(isPulsing ? 0.16 : 0), radius: 8)
         .onAppear {
             hasAnimatedInteractionHintRow = RadixInteractionPreferences.hasAnimatedHintRow
             schedulePulseIfNeeded()
@@ -69,7 +69,7 @@ struct InteractionHintRow: View {
             } label: {
                 Label("Tips", systemImage: "info.circle")
                     .font(ResponsiveFont.body.weight(.semibold))
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(RadixAccent.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .buttonStyle(.plain)
@@ -99,7 +99,7 @@ struct InteractionHintRow: View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
             Image(systemName: icon)
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .frame(width: 20, alignment: .center)
 
             Text(text)
@@ -113,7 +113,7 @@ struct InteractionHintRow: View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
             Image(systemName: icon)
                 .font(ResponsiveFont.tinySystem(size: 11, weight: .semibold))
-                .foregroundStyle(Color.accentColor.opacity(0.9))
+                .foregroundStyle(RadixAccent.primary.opacity(0.9))
                 .frame(width: 14, alignment: .center)
 
             Text(text)

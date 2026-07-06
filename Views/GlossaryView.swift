@@ -417,7 +417,7 @@ struct GlossaryView: View {
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: entry.systemImage)
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundStyle(Color.accentColor)
+                            .foregroundStyle(RadixAccent.primary)
                             .frame(width: 24, height: 24)
 
                         VStack(alignment: .leading, spacing: 4) {

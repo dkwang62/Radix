@@ -16,7 +16,7 @@ struct RadixInlineHelpDisclosure: View {
             } label: {
                 Label(title, systemImage: systemImage)
                     .font(ResponsiveFont.body.weight(.semibold))
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(RadixAccent.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .buttonStyle(.plain)

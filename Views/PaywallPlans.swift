@@ -93,19 +93,19 @@ extension PaywallView {
                     Image(systemName: productActionIcon(product))
                         .font(.system(size: 20))
                 }
-                .foregroundStyle(isRadixPlus ? .white : Color.accentColor)
+                .foregroundStyle(isRadixPlus ? RadixAccent.onPrimary : RadixAccent.primary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(isRadixPlus ? Color.accentColor : Color.accentColor.opacity(0.08))
+                .background(isRadixPlus ? RadixAccent.primary : RadixAccent.primary.opacity(0.08))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(isRadixPlus ? Color.accentColor.opacity(0.07) : RadixTheme.secondaryBackground)
+            .background(isRadixPlus ? RadixAccent.primary.opacity(0.07) : RadixTheme.secondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isRadixPlus ? Color.accentColor.opacity(0.35) : RadixTheme.separator, lineWidth: isRadixPlus ? 2 : 1)
+                    .stroke(isRadixPlus ? RadixAccent.primary.opacity(0.35) : RadixTheme.separator, lineWidth: isRadixPlus ? 2 : 1)
             )
         }
         .buttonStyle(.plain)
@@ -197,8 +197,8 @@ extension PaywallView {
             .font(ResponsiveFont.caption2.weight(.bold))
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(emphasized ? Color.accentColor.opacity(0.14) : Color.orange.opacity(0.14))
-            .foregroundStyle(emphasized ? Color.accentColor : Color.orange)
+            .background(emphasized ? RadixAccent.primary.opacity(0.14) : Color.orange.opacity(0.14))
+            .foregroundStyle(emphasized ? RadixAccent.primary : Color.orange)
             .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
