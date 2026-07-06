@@ -156,11 +156,12 @@ drop in broad external bundles without reviewing each affected workflow against
 `UI_INTENT.md`. Apply those primitives directly to new or simple leaf
 components first, including Capture source/import action icons and simple
 Browse source-menu icon surfaces. Small modal header icons for Add Phrase and
-Character Studio use the same surface helper. For complex existing SwiftUI
-surfaces, especially AI Link and info cards, prefer surgical spacing/color/layout
-edits that preserve the current modifier structure; broad mechanical replacement
-of background, clipShape, and overlay chains has already produced runtime
-regressions even when tests and builds passed.
+Character Studio, and root action card icons use the same surface helper. For
+complex existing SwiftUI surfaces, especially AI Link and info cards, prefer
+surgical spacing/color/layout edits that preserve the current modifier
+structure; broad mechanical replacement of background, clipShape, and overlay
+chains has already produced runtime regressions even when tests and builds
+passed.
 Root-level and Browse editing/report sheets declare their expected detents at
 the `.sheet` presentation boundary so modal height behavior stays consistent
 without restructuring the sheet content views.

@@ -306,10 +306,11 @@ struct PrimaryActionTile: View {
         HStack(spacing: 10) {
             Image(systemName: systemImage)
                 .font(.system(size: 17, weight: .semibold))
-                .frame(width: 34, height: 34)
                 .foregroundStyle(isPrimary ? Color.white : Color.accentColor)
-                .background(isPrimary ? Color.white.opacity(0.18) : Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
+                .radixIconButtonSurface(
+                    size: 34,
+                    background: isPrimary ? Color.white.opacity(0.18) : Color.accentColor.opacity(0.12)
+                )
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
