@@ -183,10 +183,12 @@ extension FavouritesTab {
         .buttonStyle(.plain)
         .controlSize(.small)
         .foregroundStyle(store.rootBreadcrumb.isEmpty ? Color.secondary : Color.red.opacity(0.82))
-        .padding(.horizontal, 8)
-        .padding(.vertical, 5)
-        .background(Color.red.opacity(store.rootBreadcrumb.isEmpty ? 0.04 : 0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixPill(
+            horizontal: 8,
+            vertical: 5,
+            background: Color.red.opacity(store.rootBreadcrumb.isEmpty ? 0.04 : 0.08),
+            radius: 8
+        )
         .disabled(store.rootBreadcrumb.isEmpty)
         .accessibilityLabel("Clear Recent")
     }
@@ -224,10 +226,12 @@ extension FavouritesTab {
             Label(studyPageSortOrder.rawValue, systemImage: "arrow.up.arrow.down")
                 .font(ResponsiveFont.caption2.weight(.semibold))
                 .labelStyle(.titleAndIcon)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(RadixAccent.primary.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixPill(
+                    horizontal: 8,
+                    vertical: 5,
+                    background: RadixAccent.primary.opacity(0.1),
+                    radius: 8
+                )
         }
         .buttonStyle(.plain)
         .foregroundStyle(RadixAccent.primary)
@@ -386,10 +390,12 @@ extension FavouritesTab {
                     .labelStyle(.titleAndIcon)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 4)
-                    .background((rowData.isActiveBrowsePage ? RadixAccent.primary : Color.secondary).opacity(0.10))
-                    .clipShape(RoundedRectangle(cornerRadius: 7))
+                    .radixPill(
+                        horizontal: 6,
+                        vertical: 4,
+                        background: (rowData.isActiveBrowsePage ? RadixAccent.primary : Color.secondary).opacity(0.10),
+                        radius: 7
+                    )
             }
 
             HStack(spacing: 4) {
