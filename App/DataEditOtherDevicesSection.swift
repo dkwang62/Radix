@@ -61,11 +61,24 @@ extension DataEditTab {
         VStack(spacing: 8) {
             backupToiCloudButton
 
-            LazyVGrid(columns: pairedBackupActionColumns, spacing: 8) {
+            pairedBackupActionButtons
+        }
+    }
+
+    @ViewBuilder
+    var pairedBackupActionButtons: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                addFromBackupButton
+                restoreBackupButton
+            }
+
+            VStack(spacing: 8) {
                 addFromBackupButton
                 restoreBackupButton
             }
         }
+        .frame(maxWidth: .infinity)
     }
 
     var recentBackupStrip: some View {
