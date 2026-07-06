@@ -98,9 +98,10 @@ private struct CaptureSourceButton: View {
         HStack(spacing: 10) {
             Image(systemName: systemName)
                 .font(.system(size: 18, weight: .semibold))
-                .frame(width: 34, height: 34)
-                .background((isPrimary ? Color.white : Color.accentColor).opacity(isPrimary ? 0.18 : 0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixIconButtonSurface(
+                    size: 34,
+                    background: (isPrimary ? Color.white : Color.accentColor).opacity(isPrimary ? 0.18 : 0.12)
+                )
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
