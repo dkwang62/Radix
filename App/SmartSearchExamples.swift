@@ -7,20 +7,7 @@ extension SmartSearchTab {
                 Label("Search by example", systemImage: "sparkle.magnifyingglass")
                     .font(ResponsiveFont.headline)
 
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: isRunningOnMac ? 150 : 132), spacing: 8)], spacing: 8) {
-                    SearchExampleButton(label: "Pinyin", query: "shui", desc: "水") { query in
-                        localQuery = query
-                        runSearch(query)
-                    }
-                    SearchExampleButton(label: "Exact meaning", query: "=water", desc: "water, not waterproof") { query in
-                        localQuery = query
-                        runSearch(query)
-                    }
-                    SearchExampleButton(label: "Phrase", query: "hanshui", desc: "含水") { query in
-                        localQuery = query
-                        runSearch(query)
-                    }
-                }
+                searchExampleButtons
             }
             .padding(isRunningOnMac ? 20 : 14)
             .background(RadixTheme.secondaryBackground.opacity(0.55))
@@ -71,5 +58,28 @@ extension SmartSearchTab {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, isRunningOnMac ? 40 : 12)
+    }
+
+    var searchExampleButtons: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                searchExampleButton(label: "Pinyin", query: "shui", desc: "水")
+                searchExampleButton(label: "Exact meaning", query: "=water", desc: "water, not waterproof")
+                searchExampleButton(label: "Phrase", query: "hanshui", desc: "含水")
+            }
+
+            VStack(spacing: 8) {
+                searchExampleButton(label: "Pinyin", query: "shui", desc: "水")
+                searchExampleButton(label: "Exact meaning", query: "=water", desc: "water, not waterproof")
+                searchExampleButton(label: "Phrase", query: "hanshui", desc: "含水")
+            }
+        }
+    }
+
+    func searchExampleButton(label: String, query: String, desc: String) -> some View {
+        SearchExampleButton(label: label, query: query, desc: desc) { query in
+            localQuery = query
+            runSearch(query)
+        }
     }
 }
