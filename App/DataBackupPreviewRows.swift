@@ -23,11 +23,9 @@ struct BackupCharacterTile: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, minHeight: 58)
-        .background(RadixTheme.secondaryBackground.opacity(0.65))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(RadixTheme.separator.opacity(0.45), lineWidth: 1)
+        .radixSurface(
+            RadixTheme.secondaryBackground.opacity(0.65),
+            border: RadixTheme.separator.opacity(0.45)
         )
         .copyCharacterContextMenu(character, pinyin: pinyin)
     }

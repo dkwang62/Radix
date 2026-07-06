@@ -43,8 +43,7 @@ extension DataEditTab {
             }
         }
         .padding(10)
-        .background(RadixTheme.background)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.background)
     }
 
     func previewBackupCharacter(_ character: String) {
