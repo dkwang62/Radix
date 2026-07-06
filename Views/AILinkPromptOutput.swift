@@ -341,33 +341,14 @@ extension AILinkView {
                 isAIResultTextExpanded = true
             }
         } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "doc.text.magnifyingglass")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 30, height: 30)
-                    .background(Color.accentColor.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 7))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Result Text Hidden")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(.primary)
-                    Text(aiResultTextSummary)
-                        .font(ResponsiveFont.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-                .layoutPriority(1)
-
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(.secondary)
-            }
-            .padding(10)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RadixTheme.background)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            RadixChevronRow(
+                icon: "doc.text.magnifyingglass",
+                title: "Result Text Hidden",
+                subtitle: aiResultTextSummary,
+                minHeight: 54,
+                titleFont: ResponsiveFont.caption.weight(.semibold),
+                chevronSystemName: "chevron.down"
+            )
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Show AI result text")

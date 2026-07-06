@@ -1,12 +1,13 @@
 import SwiftUI
 
-struct RadixMenuSelectorRow: View {
+struct RadixChevronRow: View {
     let icon: String
     let title: String
     let subtitle: String?
     var isMissing = false
     var minHeight: CGFloat = 58
     var titleFont: Font = ResponsiveFont.body.weight(.semibold)
+    var chevronSystemName = "chevron.down"
 
     private var tint: Color {
         isMissing ? .orange : Color.accentColor
@@ -38,7 +39,7 @@ struct RadixMenuSelectorRow: View {
 
             Spacer(minLength: 0)
 
-            Image(systemName: "chevron.down")
+            Image(systemName: chevronSystemName)
                 .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(.secondary)
         }
@@ -48,6 +49,27 @@ struct RadixMenuSelectorRow: View {
         .radixSurface(
             RadixTheme.background,
             border: Color.accentColor.opacity(0.35)
+        )
+    }
+}
+
+struct RadixMenuSelectorRow: View {
+    let icon: String
+    let title: String
+    let subtitle: String?
+    var isMissing = false
+    var minHeight: CGFloat = 58
+    var titleFont: Font = ResponsiveFont.body.weight(.semibold)
+
+    var body: some View {
+        RadixChevronRow(
+            icon: icon,
+            title: title,
+            subtitle: subtitle,
+            isMissing: isMissing,
+            minHeight: minHeight,
+            titleFont: titleFont,
+            chevronSystemName: "chevron.down"
         )
     }
 }
