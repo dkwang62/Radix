@@ -524,11 +524,7 @@ extension FavouritesTab {
         VStack(alignment: .leading, spacing: 8) {
             studyScopeSwitcher
 
-            LazyVGrid(columns: studyActionShortcutColumns, spacing: 8) {
-                ForEach(studyActionShortcuts) { shortcut in
-                    studyActionShortcutButton(shortcut)
-                }
-            }
+            studyActionShortcutRows
         }
         .padding(.top, 2)
     }
@@ -565,9 +561,36 @@ extension FavouritesTab {
         .radixCard(padding: 3, background: RadixTheme.secondaryBackground.opacity(0.55))
     }
 
-    private var studyActionShortcutColumns: [GridItem] {
-        let count = isNarrowStudyLayout ? 2 : 3
-        return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
+    private var studyActionShortcutRows: some View {
+        VStack(spacing: 8) {
+            ForEach(Array(studyActionShortcutRowData.enumerated()), id: \.offset) { _, rowShortcuts in
+                HStack(spacing: 8) {
+                    ForEach(rowShortcuts) { shortcut in
+                        studyActionShortcutButton(shortcut)
+                    }
+
+                    ForEach(0..<studyActionShortcutPlaceholderCount(for: rowShortcuts), id: \.self) { _ in
+                        Color.clear
+                            .frame(maxWidth: .infinity, minHeight: 34)
+                    }
+                }
+            }
+        }
+    }
+
+    private var studyActionShortcutColumnCount: Int {
+        isNarrowStudyLayout ? 2 : 3
+    }
+
+    private var studyActionShortcutRowData: [[StudyActionShortcut]] {
+        stride(from: 0, to: studyActionShortcuts.count, by: studyActionShortcutColumnCount).map { start in
+            let end = min(start + studyActionShortcutColumnCount, studyActionShortcuts.count)
+            return Array(studyActionShortcuts[start..<end])
+        }
+    }
+
+    private func studyActionShortcutPlaceholderCount(for row: [StudyActionShortcut]) -> Int {
+        max(0, studyActionShortcutColumnCount - row.count)
     }
 
     private func studyActionShortcutButton(_ shortcut: StudyActionShortcut) -> some View {
