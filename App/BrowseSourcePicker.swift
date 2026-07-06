@@ -58,11 +58,12 @@ extension FilterGridTab {
                     .font(ResponsiveFont.caption2)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(RadixTheme.secondaryBackground.opacity(0.45))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .radixPill(
+                        horizontal: 10,
+                        vertical: 6,
+                        background: RadixTheme.secondaryBackground.opacity(0.45)
+                    )
             }
 
             if store.allCollections.isEmpty {
