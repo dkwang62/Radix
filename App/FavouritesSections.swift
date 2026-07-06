@@ -174,14 +174,14 @@ extension FavouritesTab {
                 Spacer(minLength: 8)
 
                 practiceSentenceModeControls
+            }
 
-                if let message = sentenceExampleStatusMessage {
-                    Text(message)
-                        .font(ResponsiveFont.caption2.weight(.semibold))
-                        .foregroundStyle(RadixAccent.primary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                }
+            if let message = sentenceExampleStatusMessage {
+                Text(message)
+                    .font(ResponsiveFont.caption2.weight(.semibold))
+                    .foregroundStyle(RadixAccent.primary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             TextField("Search sentences", text: $sentenceExampleSearchText)

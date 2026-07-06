@@ -416,7 +416,8 @@ accessibility, and visible state changes.
 App-wide inline alerts, notices, and status messages should appear on the next
 row below their related controls, not beside them. This keeps action rows from
 being squeezed and makes the message read as feedback rather than another
-control.
+control. The Sentences browser status message follows this rule below its page
+and display controls.
 Search treats the editable search field as the single owner of the current
 query. Result headers summarize counts and local result controls without
 restating the query as a second title. The search field keeps decorative search
