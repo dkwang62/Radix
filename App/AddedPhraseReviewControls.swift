@@ -102,23 +102,18 @@ extension AddedPhraseReviewSheet {
 
     var toolRow: some View {
         HStack(alignment: .top, spacing: 8) {
-            LazyVGrid(columns: reviewToolColumns, spacing: 7) {
-                ForEach(PhraseReviewStatusTool.allCases) { option in
-                    Button {
-                        toggleTool(option)
-                    } label: {
-                        Label(option.title, systemImage: option.icon)
-                            .font(reviewControlFont)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                            .frame(maxWidth: .infinity, minHeight: RadixPlatform.isDesktop ? 34 : (usesRegularReviewLayout ? 30 : 26))
+            VStack(spacing: 7) {
+                ForEach(Array(reviewToolRows.enumerated()), id: \.offset) { _, rowTools in
+                    HStack(spacing: 7) {
+                        ForEach(rowTools) { option in
+                            reviewToolButton(option)
+                        }
+
+                        ForEach(0..<reviewToolPlaceholderCount(for: rowTools), id: \.self) { _ in
+                            Color.clear
+                                .frame(maxWidth: .infinity, minHeight: reviewToolButtonMinHeight)
+                        }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
-                    .tint(selectedTool == option ? option.color : RadixTheme.systemGray5)
-                    .foregroundStyle(selectedTool == option ? Color.white : Color.primary)
-                    .accessibilityLabel("Mark as \(option.title)")
-                    .help("Select this tool, then choose phrases to mark them as \(option.title).")
                 }
             }
             .frame(maxWidth: .infinity)
@@ -141,11 +136,42 @@ extension AddedPhraseReviewSheet {
         }
     }
 
-    var reviewToolColumns: [GridItem] {
-        Array(
-            repeating: GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 7),
-            count: usesRegularReviewLayout ? 4 : 2
-        )
+    func reviewToolButton(_ option: PhraseReviewStatusTool) -> some View {
+        Button {
+            toggleTool(option)
+        } label: {
+            Label(option.title, systemImage: option.icon)
+                .font(reviewControlFont)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .frame(maxWidth: .infinity, minHeight: reviewToolButtonMinHeight)
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.small)
+        .tint(selectedTool == option ? option.color : RadixTheme.systemGray5)
+        .foregroundStyle(selectedTool == option ? Color.white : Color.primary)
+        .accessibilityLabel("Mark as \(option.title)")
+        .help("Select this tool, then choose phrases to mark them as \(option.title).")
+    }
+
+    var reviewToolButtonMinHeight: CGFloat {
+        RadixPlatform.isDesktop ? 34 : (usesRegularReviewLayout ? 30 : 26)
+    }
+
+    var reviewToolColumnCount: Int {
+        usesRegularReviewLayout ? 4 : 2
+    }
+
+    var reviewToolRows: [[PhraseReviewStatusTool]] {
+        let tools = PhraseReviewStatusTool.allCases
+        return stride(from: 0, to: tools.count, by: reviewToolColumnCount).map { start in
+            let end = min(start + reviewToolColumnCount, tools.count)
+            return Array(tools[start..<end])
+        }
+    }
+
+    func reviewToolPlaceholderCount(for row: [PhraseReviewStatusTool]) -> Int {
+        max(0, reviewToolColumnCount - row.count)
     }
 
     var actionsMenu: some View {

@@ -195,7 +195,8 @@ Added Phrase Review keeps its review surface and phrase grid directly framed
 with `maxWidth`/`maxHeight`, using fixed platform page sizes instead of
 geometry-driven adaptive paging so SwiftUI does not rebuild the sheet through
 measurement feedback. Its phrase grid renders explicit rows instead of
-`LazyVGrid` for the same reason.
+`LazyVGrid` for the same reason; keep the status tool controls on explicit rows
+too.
 
 ### Data and persistence
 
