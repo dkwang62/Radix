@@ -225,9 +225,10 @@ extension FavouritesTab {
                 Image(systemName: "sparkles")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(Color.accentColor)
-                    .frame(width: 32, height: 32)
-                    .background(Color.accentColor.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .radixIconButtonSurface(
+                        size: 32,
+                        background: Color.accentColor.opacity(0.12)
+                    )
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(topic.title)

@@ -124,7 +124,8 @@ owning section.
 Study saved-page artifact indicators use the shared icon surface helper so
 collapsed row chips stay aligned with the broader surface vocabulary.
 Conversation Practice import previews also keep their header icon on that
-surface helper.
+surface helper. Conversation Practice generation cards use the same compact
+header icon treatment.
 My Data Advanced Exports keeps the AI-coding-agent purpose in the section intro
 and tooltip details; option subtitles should stay short and identify the
 exported file rather than repeating that purpose on every row.
