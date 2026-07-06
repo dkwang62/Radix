@@ -39,10 +39,19 @@ extension DataBackupPreviewSection {
 
             BackupSummaryLine(title: "Favorite phrases", value: "\(store.favoritePhrasesItems.count)")
             if !store.favoritePhrasesItems.isEmpty {
-                LazyVGrid(columns: backupPhraseColumns, alignment: .leading, spacing: 8) {
-                    ForEach(store.favoritePhrasesItems) { phrase in
-                        BackupPhraseRow(phrase: phrase) {
-                            presentPhrase(phrase)
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(Array(backupPhraseRows(for: store.favoritePhrasesItems).enumerated()), id: \.offset) { _, rowPhrases in
+                        HStack(spacing: 8) {
+                            ForEach(rowPhrases) { phrase in
+                                BackupPhraseRow(phrase: phrase) {
+                                    presentPhrase(phrase)
+                                }
+                            }
+
+                            ForEach(0..<backupPhrasePlaceholderCount(for: rowPhrases), id: \.self) { _ in
+                                Color.clear
+                                    .frame(maxWidth: .infinity, minHeight: 44)
+                            }
                         }
                     }
                 }

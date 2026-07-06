@@ -133,8 +133,9 @@ lazy grids because there are only two sibling actions.
 Backup preview headers and Study checkpoint action icons use the shared icon
 surface helper.
 Backup-content disclosures and backup-preview character tiles are part of that
-same shared surface vocabulary. Keep workflow-specific gradients local to their
-owning section.
+same shared surface vocabulary. Backup preview character and phrase summaries
+use explicit rows instead of lazy grids. Keep workflow-specific gradients local
+to their owning section.
 Study saved-page artifact indicators use the shared icon surface helper so
 collapsed row chips stay aligned with the broader surface vocabulary.
 Conversation Practice import previews also keep their header icon on that

@@ -13,11 +13,20 @@ extension DataBackupPreviewSection {
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             } else {
-                LazyVGrid(columns: backupCharacterColumns, alignment: .leading, spacing: 8) {
-                    ForEach(displayed, id: \.self) { character in
-                        let item = store.item(for: character)
-                        BackupCharacterTile(character: character, pinyin: item?.pinyinText ?? "") {
-                            onPreviewCharacter(character)
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(Array(backupCharacterRows(for: displayed).enumerated()), id: \.offset) { _, rowCharacters in
+                        HStack(spacing: 8) {
+                            ForEach(rowCharacters, id: \.self) { character in
+                                let item = store.item(for: character)
+                                BackupCharacterTile(character: character, pinyin: item?.pinyinText ?? "") {
+                                    onPreviewCharacter(character)
+                                }
+                            }
+
+                            ForEach(0..<backupCharacterPlaceholderCount(for: rowCharacters), id: \.self) { _ in
+                                Color.clear
+                                    .frame(maxWidth: .infinity, minHeight: 58)
+                            }
                         }
                     }
                 }
@@ -42,10 +51,19 @@ extension DataBackupPreviewSection {
                 .foregroundStyle(.secondary)
                 .padding(.top, 8)
         } else {
-            LazyVGrid(columns: backupPhraseColumns, alignment: .leading, spacing: 8) {
-                ForEach(sortedPhrases) { phrase in
-                    BackupPhraseRow(phrase: phrase) {
-                        presentPhrase(phrase)
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(Array(backupPhraseRows(for: sortedPhrases).enumerated()), id: \.offset) { _, rowPhrases in
+                    HStack(spacing: 8) {
+                        ForEach(rowPhrases) { phrase in
+                            BackupPhraseRow(phrase: phrase) {
+                                presentPhrase(phrase)
+                            }
+                        }
+
+                        ForEach(0..<backupPhrasePlaceholderCount(for: rowPhrases), id: \.self) { _ in
+                            Color.clear
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                        }
                     }
                 }
             }
@@ -53,12 +71,34 @@ extension DataBackupPreviewSection {
         }
     }
 
-    var backupPhraseColumns: [GridItem] {
-        [GridItem(.adaptive(minimum: isPhone ? 120 : 140), spacing: 8)]
+    var backupPhraseColumnCount: Int {
+        isPhone ? 2 : 3
     }
 
-    var backupCharacterColumns: [GridItem] {
-        [GridItem(.adaptive(minimum: isPhone ? 72 : 82), spacing: 8)]
+    var backupCharacterColumnCount: Int {
+        isPhone ? 4 : 6
+    }
+
+    func backupPhraseRows(for phrases: [PhraseItem]) -> [[PhraseItem]] {
+        stride(from: 0, to: phrases.count, by: backupPhraseColumnCount).map { start in
+            let end = min(start + backupPhraseColumnCount, phrases.count)
+            return Array(phrases[start..<end])
+        }
+    }
+
+    func backupCharacterRows(for characters: [String]) -> [[String]] {
+        stride(from: 0, to: characters.count, by: backupCharacterColumnCount).map { start in
+            let end = min(start + backupCharacterColumnCount, characters.count)
+            return Array(characters[start..<end])
+        }
+    }
+
+    func backupPhrasePlaceholderCount(for row: [PhraseItem]) -> Int {
+        max(0, backupPhraseColumnCount - row.count)
+    }
+
+    func backupCharacterPlaceholderCount(for row: [String]) -> Int {
+        max(0, backupCharacterColumnCount - row.count)
     }
 
     func sortedBackupCharacters(_ characters: [String]) -> [String] {
