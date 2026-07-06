@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct CaptureHeaderView: View {
-    @Environment(\.horizontalSizeClass) private var sizeClass
     let isProcessing: Bool
     let filePickerTitle: String
     let isImportLocked: Bool
@@ -27,63 +26,79 @@ struct CaptureHeaderView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            LazyVGrid(columns: sourceColumns, spacing: 10) {
-                Button(action: onCamera) {
-                    CaptureSourceButton(
-                        title: "Camera",
-                        subtitle: freeScanStatusText,
-                        systemName: RadixIcon.scan,
-                        isPrimary: true
-                    )
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Camera")
-                .disabled(isProcessing)
-
-                if isImportLocked {
-                    Button(action: onLockedImport) {
-                        CaptureSourceButton(
-                            title: "Album",
-                            subtitle: "Radix Plus",
-                            systemName: "photo.on.rectangle",
-                            lockBadge: "Plus"
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(isProcessing)
-                } else {
-                    CapturePhotoImportButton(
-                        title: "Album",
-                        subtitle: "Photos",
-                        systemName: "photo.on.rectangle",
-                        onImage: onAlbumImage,
-                        onError: onAlbumError
-                    )
-                    .buttonStyle(.plain)
-                    .disabled(isProcessing)
-                }
-
-                Button(action: onFiles) {
-                    CaptureSourceButton(
-                        title: filePickerTitle,
-                        subtitle: isImportLocked ? "Radix Plus" : "Import",
-                        systemName: "folder",
-                        lockBadge: isImportLocked ? "Plus" : nil
-                    )
-                }
-                .buttonStyle(.plain)
-                .disabled(isProcessing)
-            }
+            sourceButtons
 
             CaptureWorkflowHint()
         }
     }
 
-    private var sourceColumns: [GridItem] {
-        if sizeClass == .compact {
-            return [GridItem(.flexible(minimum: 220), spacing: 10)]
+    private var sourceButtons: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                cameraButton
+                albumButton
+                filesButton
+            }
+
+            VStack(spacing: 10) {
+                cameraButton
+                albumButton
+                filesButton
+            }
         }
-        return Array(repeating: GridItem(.flexible(minimum: 150), spacing: 10), count: 3)
+    }
+
+    private var cameraButton: some View {
+        Button(action: onCamera) {
+            CaptureSourceButton(
+                title: "Camera",
+                subtitle: freeScanStatusText,
+                systemName: RadixIcon.scan,
+                isPrimary: true
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Camera")
+        .disabled(isProcessing)
+    }
+
+    @ViewBuilder
+    private var albumButton: some View {
+        if isImportLocked {
+            Button(action: onLockedImport) {
+                CaptureSourceButton(
+                    title: "Album",
+                    subtitle: "Radix Plus",
+                    systemName: "photo.on.rectangle",
+                    lockBadge: "Plus"
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(isProcessing)
+        } else {
+            CapturePhotoImportButton(
+                title: "Album",
+                subtitle: "Photos",
+                systemName: "photo.on.rectangle",
+                onImage: onAlbumImage,
+                onError: onAlbumError
+            )
+            .buttonStyle(.plain)
+            .disabled(isProcessing)
+        }
+    }
+
+    private var filesButton: some View {
+        Button(action: onFiles) {
+            CaptureSourceButton(
+                title: filePickerTitle,
+                subtitle: isImportLocked ? "Radix Plus" : "Import",
+                systemName: "folder",
+                lockBadge: isImportLocked ? "Plus" : nil
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(isProcessing)
     }
 }
 
