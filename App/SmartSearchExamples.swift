@@ -10,8 +10,7 @@ extension SmartSearchTab {
                 searchExampleButtons
             }
             .padding(isRunningOnMac ? 20 : 14)
-            .background(RadixTheme.secondaryBackground.opacity(0.55))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .radixSurface(RadixTheme.secondaryBackground.opacity(0.55))
             .frame(maxWidth: {
                 #if targetEnvironment(macCatalyst)
                 return 900
@@ -53,8 +52,7 @@ extension SmartSearchTab {
             }
             .padding(isRunningOnMac ? 14 : 10)
             .frame(maxWidth: isRunningOnMac ? 760 : .infinity)
-            .background(RadixTheme.secondaryBackground.opacity(0.55))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .radixSurface(RadixTheme.secondaryBackground.opacity(0.55))
         }
         .frame(maxWidth: .infinity)
         .padding(.top, isRunningOnMac ? 40 : 12)

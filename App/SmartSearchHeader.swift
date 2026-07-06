@@ -38,11 +38,10 @@ extension SmartSearchTab {
                     recentSearchesMenu
                 }
                 .padding(12)
-                .background(RadixTheme.secondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(isSearchFocused ? RadixAccent.primary : Color.clear, lineWidth: 2)
+                .radixSurface(
+                    RadixTheme.secondaryBackground,
+                    border: isSearchFocused ? RadixAccent.primary : Color.clear,
+                    borderWidth: 2
                 )
                 .shadow(color: isSearchFocused ? RadixAccent.primary.opacity(0.2) : Color.clear, radius: 4)
 
@@ -54,9 +53,8 @@ extension SmartSearchTab {
                         Image(systemName: "magnifyingglass")
                             .font(ResponsiveFont.headline)
                             .frame(width: 48, height: 48)
-                            .background(RadixAccent.primary)
                             .foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .radixSurface(RadixAccent.primary)
                     }
                     .accessibilityLabel("Search")
                 }
@@ -134,9 +132,6 @@ private struct SearchTypePill: View {
                 .font(ResponsiveFont.caption2)
                 .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 5)
-        .background(RadixTheme.secondaryBackground.opacity(0.7))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixPill(horizontal: 8, vertical: 5, background: RadixTheme.secondaryBackground.opacity(0.7))
     }
 }

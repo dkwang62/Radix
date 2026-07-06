@@ -68,8 +68,7 @@ extension SmartSearchTab {
             .foregroundStyle(.secondary)
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RadixTheme.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .radixSurface(RadixTheme.secondaryBackground, radius: 10)
     }
 
     func phraseResultRow(_ phrase: PhraseItem, proxy: ScrollViewProxy) -> some View {
@@ -99,8 +98,7 @@ extension SmartSearchTab {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .radixSurface(RadixTheme.secondaryBackground, radius: 10)
         .contentShape(Rectangle())
         .onTapGesture {
             presentPhrase(phrase)

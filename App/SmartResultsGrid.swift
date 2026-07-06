@@ -121,11 +121,11 @@ struct SmartResultsGrid: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 6)
-                            .background(isActive ? RadixAccent.primary.opacity(0.18) : RadixTheme.secondaryBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(isActive ? RadixAccent.primary : Color.clear, lineWidth: 2)
+                            .radixSurface(
+                                isActive ? RadixAccent.primary.opacity(0.18) : RadixTheme.secondaryBackground,
+                                radius: 6,
+                                border: isActive ? RadixAccent.primary : Color.clear,
+                                borderWidth: 2
                             )
                             .overlay(alignment: .topTrailing) {
                                 if store.isFavorite(item.character) {
