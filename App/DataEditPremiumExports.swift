@@ -3,11 +3,6 @@ import SwiftUI
 extension DataEditTab {
     var premiumExportsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("Advanced Exports")
-                    .font(ResponsiveFont.headline)
-            }
-
             Label(
                 "Export the code and structured data foundation that you can give to AI coding agents to study, modify, or use when authoring your own software.",
                 systemImage: "hammer"
@@ -20,10 +15,8 @@ extension DataEditTab {
                 Label("You can see every file type here. Creating the files unlocks with Advanced Pro.", systemImage: "lock.open")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
-                    .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(RadixTheme.background)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .radixCard(padding: 10, background: RadixTheme.background)
             }
 
             if reuseExportInProgress && !reuseExportFilename.contains("backup") {

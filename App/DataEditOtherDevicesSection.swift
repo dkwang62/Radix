@@ -32,14 +32,7 @@ extension DataEditTab {
     var portableBackupActionsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("Backup File")
-                    .font(ResponsiveFont.headline)
-                Text("Plus")
-                    .font(ResponsiveFont.caption.bold())
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.accentColor.opacity(0.14))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                plusBadge
                 Spacer()
                 studyCheckpointsNote
             }
@@ -53,6 +46,14 @@ extension DataEditTab {
 
             portableBackupActionButtons
         }
+    }
+
+    var plusBadge: some View {
+        Text("Plus")
+            .font(ResponsiveFont.caption.bold())
+            .foregroundStyle(Color.accentColor)
+            .radixPill(background: Color.accentColor.opacity(0.14))
+            .accessibilityLabel("Radix Plus feature")
     }
 
     @ViewBuilder

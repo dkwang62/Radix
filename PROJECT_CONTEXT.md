@@ -116,6 +116,8 @@ section.
 My Data Advanced Exports keeps the AI-coding-agent purpose in the section intro
 and tooltip details; option subtitles should stay short and identify the
 exported file rather than repeating that purpose on every row.
+The My Data segmented picker owns the current section name; do not repeat
+`Backup File` or `Advanced Exports` as an immediate in-card heading below it.
 AI Link task/source dropdown labels share `RadixMenuSelectorRow`; keep selector
 row icon size, chevron, border, radius, and missing-state tint there instead of
 hand-copying row styling.
