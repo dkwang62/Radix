@@ -27,10 +27,11 @@ AVFoundation, and Apple file-picker behavior remain adapter-layer concerns.
 - `RadixStore` remains the observable facade consumed by existing SwiftUI views.
 - Platform-specific layout decisions use `RadixPlatform`; they must not create
   different data behavior between iPhone, iPad, and Catalyst.
-- Mac Catalyst uses `NavigationSplitView` for the sidebar/detail shell, but the
-  split columns must not set `.navigationTitle` or principal title toolbar
-  items; in-content headers own workspace identity and avoid SwiftUI
-  title-merge crashes.
+- Mac Catalyst enters the iPad-style split shell directly instead of routing
+  through size-class root switching, and avoids root-level dynamic type forcing.
+  Its `NavigationSplitView` columns must not set `.navigationTitle` or
+  principal title toolbar items; in-content headers own workspace identity and
+  avoid SwiftUI title-merge crashes.
 
 ### Store state and adapters
 

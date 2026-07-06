@@ -34,16 +34,7 @@ struct RootView: View {
     @State var navigationGuideTopic: RadixNavigationGuideTopic?
 
     var body: some View {
-        Group {
-            if sizeClass == .compact {
-                iPhoneView
-            } else {
-                iPadView
-            }
-        }
-        #if targetEnvironment(macCatalyst)
-        .dynamicTypeSize(.accessibility3)
-        #endif
+        rootContent
         .modifier(FileTransferModifier(
             profileExportDocument: $profileExportDocument,
             addPhrasesExportDocument: $addPhrasesExportDocument,
@@ -131,6 +122,19 @@ struct RootView: View {
             refreshQuickLocalSnapshots()
             importPendingSharedInputsIfNeeded()
         }
+    }
+
+    @ViewBuilder
+    private var rootContent: some View {
+        #if targetEnvironment(macCatalyst)
+        iPadView
+        #else
+        if sizeClass == .compact {
+            iPhoneView
+        } else {
+            iPadView
+        }
+        #endif
     }
 
     @MainActor
