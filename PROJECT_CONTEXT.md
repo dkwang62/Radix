@@ -120,6 +120,8 @@ simple leaf styling, including compact option and tools info icon surfaces.
 Backup-content disclosures and backup-preview character tiles are part of that
 same shared surface vocabulary. Keep workflow-specific gradients local to their
 owning section.
+Study saved-page artifact indicators use the shared icon surface helper so
+collapsed row chips stay aligned with the broader surface vocabulary.
 My Data Advanced Exports keeps the AI-coding-agent purpose in the section intro
 and tooltip details; option subtitles should stay short and identify the
 exported file rather than repeating that purpose on every row.

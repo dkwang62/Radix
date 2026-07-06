@@ -397,9 +397,11 @@ extension FavouritesTab {
                     Image(systemName: artifact.systemImage)
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(artifact.tint)
-                        .frame(width: 22, height: 22)
-                        .background(artifact.tint.opacity(0.12))
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .radixIconButtonSurface(
+                            size: 22,
+                            background: artifact.tint.opacity(0.12),
+                            radius: 6
+                        )
                         .accessibilityLabel(artifact.title)
                 }
 
