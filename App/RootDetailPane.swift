@@ -36,7 +36,7 @@ extension RootView {
 
     @ViewBuilder
     var detailPane: some View {
-        VStack(spacing: 12) {
+        let content = VStack(spacing: 12) {
             crossTabReturnBar
             BreadcrumbStrip()
             if let error = store.loadingError {
@@ -95,15 +95,21 @@ extension RootView {
                 }
             }
         }
-        .navigationTitle(detailPaneTitle)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if showsTitleGuideMenu {
-                ToolbarItem(placement: .principal) {
-                    titleGuideMenu
+
+        #if targetEnvironment(macCatalyst)
+        content
+        #else
+        content
+            .navigationTitle(detailPaneTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                if showsTitleGuideMenu {
+                    ToolbarItem(placement: .principal) {
+                        titleGuideMenu
+                    }
                 }
             }
-        }
+        #endif
     }
 
     @ViewBuilder
