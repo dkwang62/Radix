@@ -113,7 +113,7 @@ also use that helper while keeping their local tint. Sentence browser row
 action menus use the same helper for their compact icon surface.
 My Data backup preview navigation/stat rows share one row renderer so labels,
 trailing counts, chevrons, phone subtitle behavior, and icon treatment stay
-aligned.
+aligned. Their compact leading icons use the shared icon surface helper.
 My Data backup action cards, recent-backup rows, backup-preview badges, and
 advanced-export option cards use the shared Radix pill/surface primitives for
 simple leaf styling, including compact option and tools info icon surfaces.

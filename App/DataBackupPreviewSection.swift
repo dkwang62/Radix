@@ -218,8 +218,11 @@ struct DataBackupPreviewSection: View {
             Image(systemName: systemName)
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .foregroundStyle(tint)
-                .frame(width: 26, height: 26)
-                .radixSurface(tint.opacity(0.12), radius: RadixRadius.small)
+                .radixIconButtonSurface(
+                    size: 26,
+                    background: tint.opacity(0.12),
+                    radius: RadixRadius.small
+                )
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
