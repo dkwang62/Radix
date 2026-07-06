@@ -240,17 +240,16 @@ extension AddedPhraseReviewSheet {
                     }
                 }
             } label: {
-                HStack(spacing: 4) {
-                    Text(pageRangeLabel)
-                    Image(systemName: "chevron.up.chevron.down")
-                        .font(.system(size: 9, weight: .bold))
-                        .opacity(0.6)
-                }
-                .font(reviewCaptionFont)
+                RadixCompactChevronLabel(
+                    title: pageRangeLabel,
+                    chevronSystemName: "chevron.up.chevron.down",
+                    font: reviewCaptionFont,
+                    chevronFont: .system(size: 9, weight: .bold),
+                    spacing: 4,
+                    minWidth: 150
+                )
                 .foregroundStyle(.secondary)
-                .lineLimit(1)
             }
-            .frame(minWidth: 150)
             .accessibilityLabel("Jump to phrase review page")
         } else {
             Text(pageRangeLabel)

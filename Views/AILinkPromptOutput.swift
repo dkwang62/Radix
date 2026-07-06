@@ -68,9 +68,11 @@ extension AILinkView {
                     Label("Copy Prompt Only", systemImage: "doc.on.doc")
                 }
             } label: {
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 14, weight: .bold))
-                    .frame(width: 38, height: 34)
+                RadixCompactChevronLabel(
+                    chevronFont: .system(size: 14, weight: .bold),
+                    width: 38,
+                    height: 34
+                )
             }
             .menuStyle(.button)
             .buttonStyle(.borderedProminent)
