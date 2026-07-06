@@ -109,7 +109,8 @@ on those helpers rather than hand-copying rounded backgrounds.
 Small square info-card icon buttons use `radixIconButtonSurface` so favorite,
 edit, and read-aloud buttons keep one radius, background, and tap shape.
 Compact destructive icon buttons such as imported Conversation Practice delete
-also use that helper while keeping their local tint.
+also use that helper while keeping their local tint. Sentence browser row
+action menus use the same helper for their compact icon surface.
 My Data backup preview navigation/stat rows share one row renderer so labels,
 trailing counts, chevrons, phone subtitle behavior, and icon treatment stay
 aligned.

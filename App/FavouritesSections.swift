@@ -402,9 +402,11 @@ extension FavouritesTab {
         } label: {
             Image(systemName: "ellipsis.circle")
                 .font(.system(size: 18, weight: .semibold))
-                .frame(width: 34, height: 34)
-                .background(RadixTheme.systemGray5)
-                .clipShape(Circle())
+                .radixIconButtonSurface(
+                    size: 34,
+                    background: RadixTheme.systemGray5,
+                    radius: 17
+                )
         }
         .buttonStyle(.plain)
         .foregroundStyle(Color.accentColor)
