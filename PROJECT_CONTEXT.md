@@ -189,8 +189,9 @@ explicit `ViewThatFits` rows/stacks rather than a lazy grid. Small modal header
 icons for Add Phrase and Character
 Studio, and root action card icons use the same surface helper. For root-level
 onboarding/action content, keep simple icon surfaces on the same helper,
-including compact sidebar checkpoint action icons. Static Settings and
-navigation guide icons can use the helper directly. For complex existing SwiftUI
+including compact sidebar checkpoint action icons, and keep onboarding step rows
+on `radixSurface`. Static Settings and navigation guide icons can use the helper
+directly. For complex existing SwiftUI
 surfaces, especially AI Link and info cards, prefer surgical spacing/color/layout
 edits that preserve the current modifier structure; broad mechanical replacement
 of background, clipShape, and overlay chains has already produced runtime

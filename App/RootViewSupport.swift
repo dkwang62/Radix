@@ -512,7 +512,6 @@ struct RadixWelcomeView: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RadixTheme.secondaryBackground.opacity(0.7))
-        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
+        .radixSurface(RadixTheme.secondaryBackground.opacity(0.7))
     }
 }
