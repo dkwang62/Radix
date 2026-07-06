@@ -193,6 +193,8 @@ surfaces, especially AI Link and info cards, prefer surgical spacing/color/layou
 edits that preserve the current modifier structure; broad mechanical replacement
 of background, clipShape, and overlay chains has already produced runtime
 regressions even when tests and builds passed.
+Add Phrase input form sections and text editors use the shared surface helper
+for their simple rounded backgrounds and borders.
 Browse source status messages use `radixPill` for their inline feedback chip.
 Browse filter menu chips use `radixPill` while preserving picker-owned height.
 Smart Search result headers use `radixCard` for their compact summary surface.

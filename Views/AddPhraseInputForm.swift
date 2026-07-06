@@ -23,8 +23,7 @@ struct AddPhraseInputForm: View {
                         .foregroundStyle(.red)
                         .padding(10)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.red.opacity(0.08))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .radixSurface(Color.red.opacity(0.08))
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
@@ -32,46 +31,46 @@ struct AddPhraseInputForm: View {
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
 
-                fieldBlock("Phrase") {
-                    TextField("Chinese phrase", text: $word)
-                        .font(ResponsiveFont.body.bold())
-                        .textFieldStyle(.roundedBorder)
-                        .focused($focused, equals: .word)
-                }
+                    fieldBlock("Phrase") {
+                        TextField("Chinese phrase", text: $word)
+                            .font(ResponsiveFont.body.bold())
+                            .textFieldStyle(.roundedBorder)
+                            .focused($focused, equals: .word)
+                    }
 
-                fieldBlock("Pinyin") {
-                    TextField("Pinyin", text: $pinyin)
-                        .font(ResponsiveFont.body.monospaced())
-                        .textFieldStyle(.roundedBorder)
-                        .focused($focused, equals: .pinyin)
-                }
+                    fieldBlock("Pinyin") {
+                        TextField("Pinyin", text: $pinyin)
+                            .font(ResponsiveFont.body.monospaced())
+                            .textFieldStyle(.roundedBorder)
+                            .focused($focused, equals: .pinyin)
+                    }
 
-                fieldBlock("English Meaning") {
-                    TextEditor(text: $meanings)
-                        .font(ResponsiveFont.body)
-                        .frame(height: 80)
-                        .padding(8)
-                        .background(RadixTheme.secondaryBackground.opacity(0.6))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(RadixTheme.separator, lineWidth: 0.5))
-                        .focused($focused, equals: .meanings)
-                }
+                    fieldBlock("English Meaning") {
+                        TextEditor(text: $meanings)
+                            .font(ResponsiveFont.body)
+                            .frame(height: 80)
+                            .padding(8)
+                            .radixSurface(
+                                RadixTheme.secondaryBackground.opacity(0.6),
+                                border: RadixTheme.separator,
+                                borderWidth: 0.5
+                            )
+                            .focused($focused, equals: .meanings)
+                    }
                 }
                 .padding(12)
-                .background(RadixTheme.secondaryBackground.opacity(0.45))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(RadixTheme.secondaryBackground.opacity(0.45))
 
                 VStack(alignment: .leading, spacing: 12) {
                     RadixTermLabel("Study Notes", term: RadixTerm.notes)
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
-                fieldBlock("Notes / Sentences / Examples") {
-                    notesEditor
-                }
+                    fieldBlock("Notes / Sentences / Examples") {
+                        notesEditor
+                    }
                 }
                 .padding(12)
-                .background(RadixTheme.secondaryBackground.opacity(0.35))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(RadixTheme.secondaryBackground.opacity(0.35))
             }
             .padding()
         }
@@ -106,9 +105,7 @@ struct AddPhraseInputForm: View {
             }
         }
         .frame(height: 140)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(RadixTheme.separator, lineWidth: 1))
+        .radixSurface(RadixTheme.secondaryBackground, border: RadixTheme.separator)
     }
 
     private var actionRow: some View {
