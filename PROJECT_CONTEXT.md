@@ -110,7 +110,8 @@ notes, phrase lookup, and related small info-card actions on that component so
 their spacing, radius, borders, and accessibility affordance do not drift.
 `InfoCardActionPill`, character info tiles, and the regular Character Detail
 header use the shared Radix surface/pill primitives; keep new info-card chips
-on those helpers rather than hand-copying rounded backgrounds. Character Detail
+on those helpers rather than hand-copying rounded backgrounds. Character info
+card component strips use explicit rows rather than lazy grids. Character Detail
 metric icons use the shared compact icon surface, and the header's fixed metric
 chips use explicit `ViewThatFits` rows/stacks rather than a lazy grid.
 Phrase info cards keep sentence and ordinary phrase content in separate

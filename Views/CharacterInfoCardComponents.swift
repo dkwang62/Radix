@@ -35,15 +35,30 @@ extension CharacterInfoCard {
                     Spacer(minLength: 0)
                 }
 
-                LazyVGrid(columns: componentGridColumns, alignment: .leading, spacing: 8) {
-                    ForEach(cardComponents, id: \.character) { component in
-                        componentIconButton(component)
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(Array(componentRows.enumerated()), id: \.offset) { _, rowComponents in
+                        HStack(spacing: 6) {
+                            ForEach(rowComponents, id: \.character) { component in
+                                componentIconButton(component)
+                            }
+                        }
                     }
                 }
             }
             .padding(10)
             .background(RadixTheme.secondaryBackground.opacity(0.45))
             .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+
+    var componentColumnCount: Int {
+        isPhone ? 2 : 3
+    }
+
+    var componentRows: [[ComponentItem]] {
+        stride(from: 0, to: cardComponents.count, by: componentColumnCount).map { start in
+            let end = min(start + componentColumnCount, cardComponents.count)
+            return Array(cardComponents[start..<end])
         }
     }
 

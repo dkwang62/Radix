@@ -1,10 +1,6 @@
 import SwiftUI
 
 extension CharacterInfoCard {
-    var componentGridColumns: [GridItem] {
-        [GridItem(.adaptive(minimum: componentTileSize, maximum: componentTileSize), spacing: 6)]
-    }
-
     var characterTileSize: CGFloat {
         isPhone ? 64 : 70
     }
