@@ -247,9 +247,11 @@ private struct PageAIOrientationView: View {
             Image(systemName: icon)
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(Color.accentColor)
-                .frame(width: 30, height: 30)
-                .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 7))
+                .radixIconButtonSurface(
+                    size: 30,
+                    background: Color.accentColor.opacity(0.12),
+                    radius: 7
+                )
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
@@ -375,9 +377,11 @@ struct SourceMenuRow: View {
             Image(systemName: systemImage)
                 .font(ResponsiveFont.body)
                 .foregroundStyle(iconColor)
-                .frame(width: 34, height: 34)
-                .background(RadixTheme.background.opacity(0.8))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .radixIconButtonSurface(
+                    size: 34,
+                    background: RadixTheme.background.opacity(0.8),
+                    radius: 6
+                )
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
