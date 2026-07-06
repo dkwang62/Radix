@@ -244,6 +244,8 @@ Added Phrase Review detail feedback panels and explicit review tiles use the
 shared surface helper while preserving fixed paging and explicit row layout.
 Phrase table headers and list viewports use the shared surface helper for their
 simple rounded containers while preserving sheet detent behavior.
+Phrase lookup list containers, phrase-length filter chips, and photo import
+action rows use shared surface/pill helpers while preserving their fixed sizing.
 Root-level and Browse editing/report sheets declare their expected detents at
 the `.sheet` presentation boundary so modal height behavior stays consistent
 without restructuring the sheet content views.

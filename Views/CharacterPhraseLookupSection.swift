@@ -44,8 +44,7 @@ struct CharacterPhraseLookupSection: View {
                     }
                     .frame(height: phraseViewportHeight)
                 }
-                .background(RadixTheme.secondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .radixSurface(RadixTheme.secondaryBackground, radius: 10)
             }
 
         }
@@ -180,11 +179,13 @@ struct PhraseLengthFilterChips: View {
                     } label: {
                         Text(label(for: option))
                             .font(ResponsiveFont.caption.weight(.semibold))
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(selection == option ? RadixAccent.primary : RadixTheme.secondaryBackground)
                             .foregroundStyle(selection == option ? Color.white : Color.primary)
-                            .clipShape(Capsule())
+                            .radixPill(
+                                horizontal: 10,
+                                vertical: 6,
+                                background: selection == option ? RadixAccent.primary : RadixTheme.secondaryBackground,
+                                radius: 999
+                            )
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(option.map { $0 >= 7 ? "7 or more characters" : "\($0) characters" } ?? "All phrase lengths")

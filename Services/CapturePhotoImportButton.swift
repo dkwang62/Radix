@@ -84,11 +84,6 @@ private struct CaptureImportButtonContent: View, Sendable {
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
         .foregroundStyle(Color.primary)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(RadixTheme.separator.opacity(0.35), lineWidth: 1)
-        )
+        .radixSurface(RadixTheme.secondaryBackground, border: RadixTheme.separator.opacity(0.35))
     }
 }
