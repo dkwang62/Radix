@@ -10,13 +10,13 @@ extension QuickCharacterEditorView {
                 } label: {
                     HStack(spacing: 8) {
                         RadixCompactChevronLabel(
+                            title: detailsExpanded ? "Hide Dictionary Fields" : "Edit Dictionary Fields",
                             chevronSystemName: detailsExpanded ? "chevron.down" : "chevron.right",
+                            font: ResponsiveFont.subheadline.weight(.semibold),
                             chevronFont: ResponsiveFont.caption.bold(),
                             chevronOpacity: 1,
-                            width: 16
+                            spacing: 8
                         )
-                        Text(detailsExpanded ? "Hide Dictionary Fields" : "Edit Dictionary Fields")
-                            .font(ResponsiveFont.subheadline.weight(.semibold))
                         Spacer()
                     }
                     .padding(.vertical, 8)
