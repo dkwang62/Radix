@@ -94,6 +94,10 @@ the reason should be documented in the same change.
 SwiftUI helper views in `App/` and `Views/` should have visible call sites; do
 not leave superseded alternate rows, cards, menu content, or one-off preview
 wrappers behind after a redesign.
+The old `BrowsePhraseExtractionSheet` and an unused phrase-review cycle hint
+were removed after a call-site sweep. `Views/AILinkTemplateEditor.swift`
+remains a disconnected complete feature, not dead duplicate UI; decide whether
+to wire it into AI Link or remove it before touching that file.
 Character and phrase info-card action pills share `InfoCardActionPill`; keep
 notes, phrase lookup, and related small info-card actions on that component so
 their spacing, radius, borders, and accessibility affordance do not drift.

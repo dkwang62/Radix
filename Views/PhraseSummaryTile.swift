@@ -32,28 +32,6 @@ extension PhraseReviewStatusTool {
     }
 }
 
-struct PhraseReviewStatusCycleHint: View {
-    var usesPointer = false
-
-    var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 6) {
-            Image(systemName: usesPointer ? "cursorarrow.click" : "hand.tap")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
-
-            Text(usesPointer
-                ? "Click once to preview. Choose a status above to classify phrases directly."
-                : "Tap once to preview. Choose a status above to classify phrases directly.")
-                .font(.system(size: 14))
-                .foregroundStyle(.secondary)
-                .lineLimit(nil)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .frame(maxWidth: 560, alignment: .center)
-    }
-}
-
 struct RadixTileFlowLayout: Layout {
     var horizontalSpacing: CGFloat = RadixTileMetrics.compactSpacing
     var verticalSpacing: CGFloat = RadixTileMetrics.compactSpacing
