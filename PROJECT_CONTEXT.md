@@ -149,7 +149,8 @@ Small previous/next pager arrows and row-accessory disclosure arrows also use
 `RadixCompactChevronLabel` as the icon label while keeping their owning button
 styles and row surfaces local. Expanded/collapsed text toggles such as AI
 result visibility should also use the compact helper when the visible control
-is only text plus a chevron.
+is only text plus a chevron. The AI Link result header keeps its icon on the
+shared compact icon surface.
 UI polish passes should flow through `Services/RadixTheme.swift` primitives
 (`radixCard`, `radixPill`, `radixSurface`, shared spacing/radius/icon sizes,
 and haptic helpers) before touching many screens. Preserve the asset-catalog
