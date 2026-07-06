@@ -22,8 +22,7 @@ struct BrowseTranslationReportSheet: View {
                     .font(.system(.body, design: .serif))
                     .scrollContentBackground(.hidden)
                     .padding(10)
-                    .background(RadixTheme.secondaryBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .radixSurface(RadixTheme.secondaryBackground, radius: 10)
                     .overlay(alignment: .topLeading) {
                         if report.isEmpty {
                             Text("Paste the AI translation here, then tap Save.")

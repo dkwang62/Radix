@@ -339,8 +339,7 @@ struct SourceCollectionRow: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
-        .background(isSelected ? RadixAccent.primary.opacity(0.10) : RadixTheme.secondaryBackground.opacity(0.55))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(isSelected ? RadixAccent.primary.opacity(0.10) : RadixTheme.secondaryBackground.opacity(0.55))
     }
 
     private var dateText: String {
@@ -408,7 +407,6 @@ struct SourceMenuRow: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(isSelected ? RadixAccent.primary.opacity(0.10) : RadixTheme.secondaryBackground.opacity(0.55))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(isSelected ? RadixAccent.primary.opacity(0.10) : RadixTheme.secondaryBackground.opacity(0.55))
     }
 }

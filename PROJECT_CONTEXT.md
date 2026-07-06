@@ -238,6 +238,8 @@ Components Explorer section wrappers, filter buttons, and character tiles also
 use the shared surface helper while keeping their explicit grid behavior.
 Smart Search example/help panels, phrase-match rows, search chrome, and compact
 result tiles use shared surface/pill primitives for their rounded containers.
+Browse source disclosure wrappers, source-menu rows, compact count chips, and
+the page translation editor use shared surface helpers for simple containers.
 Root-level and Browse editing/report sheets declare their expected detents at
 the `.sheet` presentation boundary so modal height behavior stays consistent
 without restructuring the sheet content views.

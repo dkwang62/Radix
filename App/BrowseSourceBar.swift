@@ -15,12 +15,11 @@ extension FilterGridTab {
             }
         }
         .padding(showBrowseSource || selectedCollection == nil ? 10 : 8)
-        .background(RadixTheme.secondaryBackground.opacity(0.55))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(showBrowseSource || selectedCollection == nil ? RadixTheme.separator : Color.clear, lineWidth: 0.5)
+        .radixSurface(
+            RadixTheme.secondaryBackground.opacity(0.55),
+            border: showBrowseSource || selectedCollection == nil ? RadixTheme.separator : Color.clear,
+            borderWidth: 0.5
         )
-        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
     }
 
     func selectedImageSourceLabel(_ collection: CharacterCollection) -> some View {
@@ -124,8 +123,7 @@ extension FilterGridTab {
                 .lineLimit(1)
                 .padding(.horizontal, 8)
                 .frame(minHeight: 32)
-                .background(RadixTheme.secondaryBackground.opacity(0.55))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(RadixTheme.secondaryBackground.opacity(0.55))
 
             CollectionPageActionsMenu(
                 collection: collection,
