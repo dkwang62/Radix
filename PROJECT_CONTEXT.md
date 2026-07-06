@@ -191,6 +191,9 @@ the icon surface helper for leading status glyphs.
 Root-level and Browse editing/report sheets declare their expected detents at
 the `.sheet` presentation boundary so modal height behavior stays consistent
 without restructuring the sheet content views.
+Added Phrase Review keeps its top-level review surface directly framed with
+`maxWidth`/`maxHeight`; reserve `GeometryReader` for the inner measured grid so
+SwiftUI does not rebuild the whole sheet through an unnecessary geometry proxy.
 
 ### Data and persistence
 

@@ -102,59 +102,53 @@ struct AddedPhraseReviewSheet: View {
     }
 
     var reviewSurface: some View {
-        GeometryReader { proxy in
-            VStack(alignment: .leading, spacing: 6) {
-                topControlRow
-                toolRow
-                selectedPhraseDetailCard
+        VStack(alignment: .leading, spacing: 6) {
+            topControlRow
+            toolRow
+            selectedPhraseDetailCard
 
-                if filteredPhrases.isEmpty {
-                    emptyStateView
-                } else {
-                    phraseGrid
-                }
+            if filteredPhrases.isEmpty {
+                emptyStateView
+            } else {
+                phraseGrid
             }
-            .padding(.horizontal, usesRegularReviewLayout ? 20 : 12)
-            .padding(.bottom, 8)
-            .padding(.top, isWorkspace ? 10 : reviewSheetTopPadding)
-            .frame(
-                width: proxy.size.width,
-                height: proxy.size.height,
-                alignment: .top
-            )
-            .toolbar(.hidden, for: .navigationBar)
-            .onAppear {
-                store.refreshAddedPhrases()
+        }
+        .padding(.horizontal, usesRegularReviewLayout ? 20 : 12)
+        .padding(.bottom, 8)
+        .padding(.top, isWorkspace ? 10 : reviewSheetTopPadding)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            store.refreshAddedPhrases()
+        }
+        .sheet(isPresented: $showsReviewHelp) {
+            AddedPhraseReviewHelpSheet()
+        }
+        .alert("Delete Phrase?", isPresented: deleteConfirmationBinding) {
+            Button("Delete", role: .destructive) {
+                deletePendingPhrase()
             }
-            .sheet(isPresented: $showsReviewHelp) {
-                AddedPhraseReviewHelpSheet()
+            Button("Cancel", role: .cancel) {
+                phrasePendingDeletion = nil
             }
-            .alert("Delete Phrase?", isPresented: deleteConfirmationBinding) {
-                Button("Delete", role: .destructive) {
-                    deletePendingPhrase()
-                }
-                Button("Cancel", role: .cancel) {
-                    phrasePendingDeletion = nil
-                }
-            } message: {
-                Text(deleteConfirmationMessage)
+        } message: {
+            Text(deleteConfirmationMessage)
+        }
+        .alert("Remove Rejected Phrases?", isPresented: $showsDeleteRejectedConfirmation) {
+            Button("Remove", role: .destructive) {
+                deleteRejectedPhrases()
             }
-            .alert("Remove Rejected Phrases?", isPresented: $showsDeleteRejectedConfirmation) {
-                Button("Remove", role: .destructive) {
-                    deleteRejectedPhrases()
-                }
-                Button("Cancel", role: .cancel) { }
-            } message: {
-                Text(deleteRejectedConfirmationMessage)
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text(deleteRejectedConfirmationMessage)
+        }
+        .alert("Remove Unreviewed Phrases?", isPresented: $showsDeleteNewConfirmation) {
+            Button("Remove", role: .destructive) {
+                deleteNewPhrases()
             }
-            .alert("Remove Unreviewed Phrases?", isPresented: $showsDeleteNewConfirmation) {
-                Button("Remove", role: .destructive) {
-                    deleteNewPhrases()
-                }
-                Button("Cancel", role: .cancel) { }
-            } message: {
-                Text(deleteNewConfirmationMessage)
-            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text(deleteNewConfirmationMessage)
         }
     }
 }
