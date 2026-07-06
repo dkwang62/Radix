@@ -39,8 +39,7 @@ struct BreadcrumbStrip: View {
                         .lineLimit(1)
                         .padding(.horizontal, 8)
                         .frame(height: 28)
-                        .background(RadixTheme.secondaryBackground.opacity(0.72))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .radixSurface(RadixTheme.secondaryBackground.opacity(0.72))
                         .transition(.opacity.combined(with: .move(edge: .leading)))
                 }
 
@@ -60,8 +59,7 @@ struct BreadcrumbStrip: View {
                                     .frame(maxWidth: isPhrase ? 132 : 28, alignment: .center)
                                     .padding(.horizontal, isPhrase ? 10 : 8)
                                     .frame(height: 32)
-                                    .background(isActive ? RadixAccent.primary.opacity(0.18) : RadixTheme.secondaryBackground.opacity(0.72))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .radixSurface(isActive ? RadixAccent.primary.opacity(0.18) : RadixTheme.secondaryBackground.opacity(0.72))
                                     .contentShape(RoundedRectangle(cornerRadius: 8))
                             }
                             .buttonStyle(.plain)

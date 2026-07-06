@@ -80,9 +80,8 @@ extension FilterGridTab {
                 .minimumScaleFactor(0.75)
                 .padding(.horizontal, isPhoneBrowseLayout ? 8 : 10)
                 .padding(.vertical, 6)
-                .background(isComponents ? RadixAccent.primary : RadixTheme.secondaryBackground)
                 .foregroundStyle(isComponents ? Color.white : Color.primary)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(isComponents ? RadixAccent.primary : RadixTheme.secondaryBackground)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(isComponents ? "Show common characters first" : "Show component parts first")
@@ -96,8 +95,7 @@ extension FilterGridTab {
                 .minimumScaleFactor(0.75)
                 .padding(.horizontal, isPhoneBrowseLayout ? 8 : 10)
                 .padding(.vertical, 6)
-                .background(RadixTheme.secondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(RadixTheme.secondaryBackground)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(filterButtonTitle)

@@ -47,11 +47,10 @@ struct SearchExampleButton: View {
             .padding(.horizontal, isPhone ? 14 : 12)
             .padding(.vertical, isPhone ? 12 : 8)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RadixAccent.primary.opacity(0.05))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(RadixAccent.primary.opacity(0.1), lineWidth: 1)
+            .radixSurface(
+                RadixAccent.primary.opacity(0.05),
+                radius: 10,
+                border: RadixAccent.primary.opacity(0.1)
             )
         }
         .buttonStyle(.plain)
