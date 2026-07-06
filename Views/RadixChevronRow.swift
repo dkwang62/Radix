@@ -73,3 +73,35 @@ struct RadixMenuSelectorRow: View {
         )
     }
 }
+
+struct RadixCompactChevronLabel: View {
+    let title: String
+    let systemImage: String
+    var chevronSystemName = "chevron.down"
+    var font: Font = ResponsiveFont.caption2.weight(.semibold)
+    var chevronFont: Font = .system(size: 9, weight: .bold)
+    var spacing: CGFloat = 5
+    var minWidth: CGFloat? = nil
+    var usesHierarchicalSymbol = false
+
+    var body: some View {
+        HStack(spacing: spacing) {
+            if usesHierarchicalSymbol {
+                Image(systemName: systemImage)
+                    .symbolRenderingMode(.hierarchical)
+            } else {
+                Image(systemName: systemImage)
+            }
+
+            Text(title)
+
+            Image(systemName: chevronSystemName)
+                .font(chevronFont)
+                .opacity(0.75)
+        }
+        .font(font)
+        .lineLimit(1)
+        .minimumScaleFactor(0.75)
+        .frame(minWidth: minWidth ?? 0)
+    }
+}

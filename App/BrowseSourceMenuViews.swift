@@ -110,16 +110,12 @@ struct CollectionPageActionsMenu: View {
                 }
             }
         } label: {
-            HStack(spacing: 5) {
-                Image(systemName: "ellipsis.circle")
-                Text("Actions")
-                Image(systemName: "chevron.down")
-                    .font(ResponsiveFont.tinySystem(size: 9, weight: .bold))
-            }
-            .font(ResponsiveFont.caption2.weight(.semibold))
-            .lineLimit(1)
-            .minimumScaleFactor(0.75)
-            .frame(minWidth: 82)
+            RadixCompactChevronLabel(
+                title: "Actions",
+                systemImage: "ellipsis.circle",
+                chevronFont: ResponsiveFont.tinySystem(size: 9, weight: .bold),
+                minWidth: 82
+            )
         }
         .buttonStyle(.bordered)
         .controlSize(.small)

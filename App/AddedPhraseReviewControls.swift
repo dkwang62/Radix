@@ -28,17 +28,15 @@ extension AddedPhraseReviewSheet {
             Button {
                 showsFilterPicker.toggle()
             } label: {
-                HStack(spacing: 7) {
-                    Image(systemName: filter.icon)
-                        .symbolRenderingMode(.hierarchical)
-                    Text(filter.title)
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 8, weight: .bold))
-                        .opacity(0.75)
-                }
-                .font(reviewControlFont)
-                .lineLimit(1)
-                .frame(minWidth: usesTouchReviewControls ? 86 : 108)
+                RadixCompactChevronLabel(
+                    title: filter.title,
+                    systemImage: filter.icon,
+                    font: reviewControlFont,
+                    chevronFont: .system(size: 8, weight: .bold),
+                    spacing: 7,
+                    minWidth: usesTouchReviewControls ? 86 : 108,
+                    usesHierarchicalSymbol: true
+                )
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.small)
@@ -196,8 +194,13 @@ extension AddedPhraseReviewSheet {
                 RadixHelpLabel()
             }
         } label: {
-            Label(actionsMenuTitle, systemImage: "ellipsis.circle")
-                .font(reviewControlFont)
+            RadixCompactChevronLabel(
+                title: actionsMenuTitle,
+                systemImage: "ellipsis.circle",
+                font: reviewControlFont,
+                chevronFont: .system(size: 8, weight: .bold),
+                spacing: 7
+            )
         }
         .buttonStyle(.borderedProminent)
         .controlSize(.small)
