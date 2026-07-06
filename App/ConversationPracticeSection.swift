@@ -246,10 +246,12 @@ extension FavouritesTab {
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .foregroundStyle(RadixAccent.primary)
                     .labelStyle(.titleAndIcon)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
-                    .background(RadixAccent.primary.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .radixPill(
+                        horizontal: 8,
+                        vertical: 5,
+                        background: RadixAccent.primary.opacity(0.1),
+                        radius: 8
+                    )
             }
 
             Text(topic.summary)
@@ -262,10 +264,12 @@ extension FavouritesTab {
                     Text(situation)
                         .font(ResponsiveFont.caption2.weight(.semibold))
                         .foregroundStyle(RadixAccent.primary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 5)
-                        .background(RadixAccent.primary.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .radixPill(
+                            horizontal: 8,
+                            vertical: 5,
+                            background: RadixAccent.primary.opacity(0.1),
+                            radius: 8
+                        )
                 }
             }
 
@@ -280,8 +284,7 @@ extension FavouritesTab {
             .tint(RadixAccent.primary)
         }
         .padding(10)
-        .background(RadixTheme.secondaryBackground.opacity(0.52))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .radixSurface(RadixTheme.secondaryBackground.opacity(0.52), radius: 10)
     }
 
     func conversationPracticeSentenceList(_ library: ConversationPracticeLibrary) -> some View {

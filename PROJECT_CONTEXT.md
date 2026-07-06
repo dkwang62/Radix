@@ -143,8 +143,9 @@ Study saved-page artifact indicators use the shared icon surface helper so
 collapsed row chips stay aligned with the broader surface vocabulary.
 Conversation Practice import previews also keep their header icon on that
 surface helper. Conversation Practice generation cards use the same compact
-header icon treatment. Practice drill score/review counters use `radixPill`
-instead of local padding/background chains.
+header icon treatment, shared card surfaces, and pill chips for target counts
+and situations. Practice drill score/review counters use `radixPill` instead of
+local padding/background chains.
 My Data Advanced Exports keeps the AI-coding-agent purpose in the section intro
 and tooltip details; option subtitles should stay short and identify the
 exported file rather than repeating that purpose on every row.
