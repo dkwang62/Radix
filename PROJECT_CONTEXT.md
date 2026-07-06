@@ -224,6 +224,8 @@ geometry-driven adaptive paging so SwiftUI does not rebuild the sheet through
 measurement feedback. Its phrase grid renders explicit rows instead of
 `LazyVGrid` for the same reason; keep the status tool controls on explicit rows
 too.
+`CLAUDE_IDEAL_HANDOFF.md` summarizes the current UI-polish completion estimate,
+remaining audit work, and crash lessons for handing the finishing pass to Claude.
 
 ### Data and persistence
 
