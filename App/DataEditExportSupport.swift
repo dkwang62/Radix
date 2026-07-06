@@ -188,23 +188,15 @@ struct DataBackupActionButton: View {
             if isLocked {
                 Text(lockBadge)
                     .font(ResponsiveFont.caption.bold())
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
-                    .background(RadixTheme.background.opacity(0.75))
-                    .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
                     .fixedSize(horizontal: true, vertical: false)
+                    .radixPill(background: RadixTheme.background.opacity(0.75))
             }
         }
         .frame(maxWidth: .infinity, minHeight: RadixControlMetrics.actionCardHeight, alignment: .leading)
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
-        .background(background)
         .foregroundStyle(foreground)
-        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
-        .overlay(
-            RoundedRectangle(cornerRadius: RadixRadius.medium)
-                .stroke(border, lineWidth: 1)
-        )
+        .radixSurface(background, border: border)
     }
 }
 
@@ -311,20 +303,12 @@ private struct AdvancedExportOptionCard: View {
                 Text(badge)
                     .font(ResponsiveFont.caption.bold())
                     .foregroundStyle(color)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
-                    .background(color.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
+                    .radixPill(background: color.opacity(0.12))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 14)
         .padding(.horizontal, 14)
-        .background(color.opacity(0.12))
-        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
-        .overlay(
-            RoundedRectangle(cornerRadius: RadixRadius.medium)
-                .stroke(color.opacity(0.35), lineWidth: 1)
-        )
+        .radixSurface(color.opacity(0.12), border: color.opacity(0.35))
     }
 }

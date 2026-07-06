@@ -75,8 +75,7 @@ struct DataBackupPreviewSection: View {
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(Color.accentColor)
                 .frame(width: 42, height: 42)
-                .background(Color.accentColor.opacity(0.14))
-                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
+                .radixSurface(Color.accentColor.opacity(0.14))
 
             VStack(alignment: .leading, spacing: 8) {
                 VStack(alignment: .leading, spacing: 3) {
@@ -117,10 +116,7 @@ struct DataBackupPreviewSection: View {
             Text(badge)
                 .font(ResponsiveFont.caption2.weight(.semibold))
                 .foregroundStyle(Color.accentColor)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
+                .radixPill(background: Color.accentColor.opacity(0.12))
         }
     }
 
@@ -223,8 +219,7 @@ struct DataBackupPreviewSection: View {
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .foregroundStyle(tint)
                 .frame(width: 26, height: 26)
-                .background(tint.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 7))
+                .radixSurface(tint.opacity(0.12), radius: RadixRadius.small)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)

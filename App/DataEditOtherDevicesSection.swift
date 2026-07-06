@@ -13,8 +13,7 @@ extension DataEditTab {
             compactBackupContentsDisclosure
         }
         .padding(12)
-        .background(RadixTheme.secondaryBackground.opacity(0.4))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .radixSurface(RadixTheme.secondaryBackground.opacity(0.4))
     }
 
     var studyCheckpointsNote: some View {
@@ -24,10 +23,7 @@ extension DataEditTab {
             Label("Checkpoints", systemImage: "clock.arrow.circlepath")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .labelStyle(.titleAndIcon)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(Color.accentColor.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixPill(background: Color.accentColor.opacity(0.1))
         }
         .buttonStyle(.plain)
         .foregroundStyle(Color.accentColor)
@@ -123,8 +119,7 @@ extension DataEditTab {
             .foregroundStyle(.secondary)
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RadixTheme.background)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .radixSurface(RadixTheme.background)
     }
 
     func recoveryListRow(
@@ -138,8 +133,7 @@ extension DataEditTab {
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(Color.accentColor)
                 .frame(width: 24, height: 24)
-                .background(Color.accentColor.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 7))
+                .radixSurface(Color.accentColor.opacity(0.1), radius: RadixRadius.small)
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
@@ -159,8 +153,7 @@ extension DataEditTab {
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RadixTheme.background)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.background)
     }
 
     var backupToiCloudButton: some View {
@@ -235,10 +228,8 @@ extension DataEditTab {
             Label("You can preview contents for free. Saving and restoring backups unlocks with Radix Plus.", systemImage: "lock.open")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
-                .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(RadixTheme.background)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixCard(padding: 10, background: RadixTheme.background)
         }
     }
 
