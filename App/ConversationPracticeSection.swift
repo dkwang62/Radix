@@ -452,9 +452,10 @@ struct ConversationPracticePasteImportSheet: View {
                     Image(systemName: "bubble.left.and.bubble.right")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(Color.accentColor)
-                        .frame(width: 32, height: 32)
-                        .background(Color.accentColor.opacity(0.12))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .radixIconButtonSurface(
+                            size: 32,
+                            background: Color.accentColor.opacity(0.12)
+                        )
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(preview.pack.title)
