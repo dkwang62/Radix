@@ -16,23 +16,29 @@ extension AddedPhraseReviewSheet {
     }
 
     var phrasePageGridContent: some View {
-        LazyVGrid(
-            columns: phraseReviewColumns,
-            alignment: .center,
-            spacing: phraseGridSpacing
-        ) {
-            ForEach(pagedPhrases) { phrase in
-                AddedPhraseReviewTile(
-                    phrase: phrase,
-                    isSelected: activeReviewPhraseWord == phrase.word,
-                    height: phraseTileHeight,
-                    onSelect: { applySelectedTool(to: phrase) },
-                    onMarkNew: { setStatus(nil, for: phrase) },
-                    onCheck: { setStatus(.checked, for: phrase) },
-                    onHide: { setStatus(.hidden, for: phrase) },
-                    onReject: { setStatus(.removed, for: phrase) },
-                    showsStatusActions: true
-                )
+        VStack(spacing: phraseGridSpacing) {
+            ForEach(Array(phraseReviewRows.enumerated()), id: \.offset) { _, rowPhrases in
+                HStack(spacing: phraseGridColumnSpacing) {
+                    ForEach(rowPhrases) { phrase in
+                        AddedPhraseReviewTile(
+                            phrase: phrase,
+                            isSelected: activeReviewPhraseWord == phrase.word,
+                            height: phraseTileHeight,
+                            onSelect: { applySelectedTool(to: phrase) },
+                            onMarkNew: { setStatus(nil, for: phrase) },
+                            onCheck: { setStatus(.checked, for: phrase) },
+                            onHide: { setStatus(.hidden, for: phrase) },
+                            onReject: { setStatus(.removed, for: phrase) },
+                            showsStatusActions: true
+                        )
+                    }
+
+                    ForEach(0..<phraseReviewPlaceholderCount(for: rowPhrases), id: \.self) { _ in
+                        Color.clear
+                            .frame(maxWidth: .infinity)
+                            .frame(height: phraseTileHeight)
+                    }
+                }
             }
         }
         .padding(.horizontal, usesRegularReviewLayout ? 6 : 0)
@@ -40,18 +46,19 @@ extension AddedPhraseReviewSheet {
         .frame(maxWidth: .infinity)
     }
 
-    var phraseReviewColumns: [GridItem] {
-        if !usesRegularReviewLayout {
-            return Array(
-                repeating: GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 6, alignment: .center),
-                count: phraseReviewColumnCount
-            )
-        }
+    var phraseGridColumnSpacing: CGFloat {
+        usesRegularReviewLayout ? 7 : 6
+    }
 
-        return Array(
-            repeating: GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 7, alignment: .center),
-            count: phraseReviewColumnCount
-        )
+    var phraseReviewRows: [[PhraseItem]] {
+        stride(from: 0, to: pagedPhrases.count, by: phraseReviewColumnCount).map { start in
+            let end = min(start + phraseReviewColumnCount, pagedPhrases.count)
+            return Array(pagedPhrases[start..<end])
+        }
+    }
+
+    func phraseReviewPlaceholderCount(for row: [PhraseItem]) -> Int {
+        max(0, phraseReviewColumnCount - row.count)
     }
 }
 
