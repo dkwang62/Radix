@@ -240,6 +240,8 @@ Smart Search example/help panels, phrase-match rows, search chrome, and compact
 result tiles use shared surface/pill primitives for their rounded containers.
 Browse source disclosure wrappers, source-menu rows, compact count chips, and
 the page translation editor use shared surface helpers for simple containers.
+Added Phrase Review detail feedback panels and explicit review tiles use the
+shared surface helper while preserving fixed paging and explicit row layout.
 Root-level and Browse editing/report sheets declare their expected detents at
 the `.sheet` presentation boundary so modal height behavior stays consistent
 without restructuring the sheet content views.

@@ -14,12 +14,10 @@ extension AddedPhraseReviewSheet {
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RadixTheme.secondaryBackground.opacity(0.55))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(RadixTheme.separator.opacity(0.35), lineWidth: 1)
+            .radixSurface(
+                RadixTheme.secondaryBackground.opacity(0.55),
+                border: RadixTheme.separator.opacity(0.35)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 8))
         } else if let visibleMessage {
             VStack(alignment: .leading, spacing: 8) {
                 Text(visibleMessage)
@@ -30,8 +28,7 @@ extension AddedPhraseReviewSheet {
             }
             .padding(8)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RadixTheme.secondaryBackground.opacity(0.55))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .radixSurface(RadixTheme.secondaryBackground.opacity(0.55))
         }
     }
 

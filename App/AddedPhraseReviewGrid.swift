@@ -91,12 +91,12 @@ struct AddedPhraseReviewTile: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: height)
-            .background(tileFill)
-            .overlay(
-                RoundedRectangle(cornerRadius: 7)
-                    .stroke(tileStroke, lineWidth: isSelected ? 2 : 1)
+            .radixSurface(
+                tileFill,
+                radius: 7,
+                border: tileStroke,
+                borderWidth: isSelected ? 2 : 1
             )
-            .clipShape(RoundedRectangle(cornerRadius: 7))
         }
         .buttonStyle(.plain)
         .contextMenu {
