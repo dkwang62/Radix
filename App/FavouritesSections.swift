@@ -103,13 +103,10 @@ extension FavouritesTab {
             Label(conversationPracticeBackButtonTitle, systemImage: "chevron.left")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .labelStyle(.titleAndIcon)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 7)
-                .background(Color.accentColor.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixPill(horizontal: 10, vertical: 7, background: RadixAccent.primary.opacity(0.1))
         }
         .buttonStyle(.plain)
-        .foregroundStyle(Color.accentColor)
+        .foregroundStyle(RadixAccent.primary)
     }
 
     var conversationPracticeBackButtonTitle: String {
@@ -165,13 +162,10 @@ extension FavouritesTab {
             Label("Back to Study", systemImage: "chevron.left")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .labelStyle(.titleAndIcon)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 7)
-                .background(Color.accentColor.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixPill(horizontal: 10, vertical: 7, background: RadixAccent.primary.opacity(0.1))
         }
         .buttonStyle(.plain)
-        .foregroundStyle(Color.accentColor)
+        .foregroundStyle(RadixAccent.primary)
     }
 
     var sentenceExamplesControls: some View {
@@ -187,7 +181,7 @@ extension FavouritesTab {
                 if let message = sentenceExampleStatusMessage {
                     Text(message)
                         .font(ResponsiveFont.caption2.weight(.semibold))
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(RadixAccent.primary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
@@ -207,11 +201,12 @@ extension FavouritesTab {
                             Label(filter.rawValue, systemImage: filter.systemImage)
                                 .font(ResponsiveFont.caption.weight(.semibold))
                                 .labelStyle(.titleAndIcon)
-                                .padding(.horizontal, 9)
-                                .padding(.vertical, 6)
-                                .background(sentenceExampleFilter == filter ? Color.accentColor : RadixTheme.secondaryBackground)
+                                .radixPill(
+                                    horizontal: 9,
+                                    vertical: 6,
+                                    background: sentenceExampleFilter == filter ? RadixAccent.primary : RadixTheme.secondaryBackground
+                                )
                                 .foregroundStyle(sentenceExampleFilter == filter ? Color.white : Color.primary.opacity(0.72))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                         .buttonStyle(.plain)
                         .help(filter.rawValue)
@@ -221,7 +216,7 @@ extension FavouritesTab {
         }
         .padding(10)
         .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
         .onChange(of: sentenceExampleSearchText) { _, _ in
             resetSentenceExamplePage()
         }
@@ -562,16 +557,13 @@ extension FavouritesTab {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(isSelected ? Color.white : Color.primary.opacity(0.68))
-                .background(isSelected ? Color.accentColor : Color.clear)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(isSelected ? RadixAccent.primary : Color.clear)
                 .accessibilityLabel(control.title)
                 .accessibilityValue(isSelected ? "Selected" : "")
                 .help(control.title)
             }
         }
-        .padding(3)
-        .background(RadixTheme.secondaryBackground.opacity(0.55))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .radixCard(padding: 3, background: RadixTheme.secondaryBackground.opacity(0.55))
     }
 
     private var studyActionShortcutColumns: [GridItem] {
@@ -598,12 +590,10 @@ extension FavouritesTab {
             .padding(.vertical, 7)
             .frame(maxWidth: .infinity, minHeight: 34, alignment: .leading)
             .foregroundStyle(foreground)
-            .background(fill.opacity(isActive ? 1 : 0.35))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(shortcut.isDisabled ? RadixTheme.separator.opacity(0.45) : fill.opacity(0.95), lineWidth: 1)
+            .radixSurface(
+                fill.opacity(isActive ? 1 : 0.35),
+                border: shortcut.isDisabled ? RadixTheme.separator.opacity(0.45) : fill.opacity(0.95)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
         .opacity(shortcut.isDisabled ? 0.45 : 1)
@@ -627,9 +617,7 @@ extension FavouritesTab {
 
             latestCheckpointRows
         }
-        .padding(10)
-        .background(RadixTheme.secondaryBackground.opacity(0.52))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .radixCard(padding: 10, background: RadixTheme.secondaryBackground.opacity(0.52))
     }
 
     var backupFilesLink: some View {
@@ -637,13 +625,10 @@ extension FavouritesTab {
             RadixTermLabel("Backup files", term: RadixTerm.backup)
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .labelStyle(.titleAndIcon)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(Color.accentColor.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixPill(horizontal: 8, vertical: 5, background: RadixAccent.primary.opacity(0.1))
         }
         .buttonStyle(.plain)
-        .foregroundStyle(Color.accentColor)
+        .foregroundStyle(RadixAccent.primary)
     }
 
     var checkpointActionRow: some View {
@@ -651,7 +636,7 @@ extension FavouritesTab {
             title: isCreatingCheckpoint ? "Creating…" : RadixCopy.createCheckpoint,
             subtitle: "Save this moment",
             systemImage: "clock.badge.checkmark",
-            tint: Color.accentColor,
+            tint: RadixAccent.primary,
             isLocked: entitlement.requiresPro(.datedCopies),
             action: {
                 if entitlement.requiresPro(.datedCopies) {
@@ -671,8 +656,7 @@ extension FavouritesTab {
                 .foregroundStyle(.secondary)
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(RadixTheme.background)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(RadixTheme.background)
         } else {
             VStack(spacing: 6) {
                 ForEach(checkpoints) { checkpoint in
@@ -691,11 +675,10 @@ extension FavouritesTab {
     func checkpointListRow(_ checkpoint: LocalDataSnapshot) -> some View {
         HStack(spacing: 8) {
             Image(systemName: "clock.arrow.circlepath")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
+                .font(.system(size: RadixIconSize.standard, weight: .semibold))
+                .foregroundStyle(RadixAccent.primary)
                 .frame(width: 24, height: 24)
-                .background(Color.accentColor.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 7))
+                .radixSurface(RadixAccent.primary.opacity(0.1))
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(checkpoint.title)
@@ -710,14 +693,13 @@ extension FavouritesTab {
             Spacer(minLength: 0)
 
             Image(systemName: "arrow.counterclockwise")
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: RadixIconSize.small, weight: .semibold))
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RadixTheme.background)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.background)
     }
 
     func checkpointActionButton(
@@ -750,11 +732,10 @@ extension FavouritesTab {
     ) -> some View {
         HStack(spacing: 8) {
             Image(systemName: isLocked ? "lock.fill" : systemImage)
-                .font(.system(size: 15, weight: .bold))
+                .font(.system(size: RadixIconSize.standard, weight: .bold))
                 .foregroundStyle(tint)
                 .frame(width: 28, height: 28)
-                .background(tint.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(tint.opacity(0.12))
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
@@ -773,12 +754,7 @@ extension FavouritesTab {
         }
         .padding(8)
         .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
-        .background(tint.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 9))
-        .overlay(
-            RoundedRectangle(cornerRadius: 9)
-                .stroke(tint.opacity(0.25), lineWidth: 1)
-        )
+        .radixSurface(tint.opacity(0.08), border: tint.opacity(0.25))
     }
 
     func sectionTitle(_ title: String) -> some View {

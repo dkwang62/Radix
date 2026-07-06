@@ -27,10 +27,7 @@ extension CharacterInfoCard {
             .foregroundStyle(.white)
             .lineLimit(1)
             .minimumScaleFactor(0.8)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(tierColor)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .radixPill(horizontal: 8, vertical: 4, background: tierColor)
     }
 
     func chip(_ text: String) -> some View {
@@ -38,10 +35,7 @@ extension CharacterInfoCard {
             .font(chipFont)
             .lineLimit(1)
             .minimumScaleFactor(0.75)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(RadixTheme.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .radixPill(horizontal: 10, vertical: 6, background: RadixTheme.secondaryBackground)
     }
 
     var cardActionFont: Font {

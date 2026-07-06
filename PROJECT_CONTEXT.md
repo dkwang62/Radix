@@ -5,7 +5,7 @@ Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
 
-Last reviewed: 2026-07-05
+Last reviewed: 2026-07-06
 
 ## Product and Platform Scope
 
@@ -106,6 +106,12 @@ exported file rather than repeating that purpose on every row.
 AI Link task/source dropdown labels share `RadixMenuSelectorRow`; keep selector
 row icon size, chevron, border, radius, and missing-state tint there instead of
 hand-copying row styling.
+UI polish passes should flow through `Services/RadixTheme.swift` primitives
+(`radixCard`, `radixPill`, `radixSurface`, shared spacing/radius/icon sizes,
+and haptic helpers) before touching many screens. Preserve the asset-catalog
+accent as Radix's primary identity; do not wholesale replace the app accent or
+drop in broad external bundles without reviewing each affected workflow against
+`UI_INTENT.md`.
 
 ### Data and persistence
 
@@ -868,6 +874,8 @@ added until a concrete alternate repository implementation needs them.
 - Never block the main actor while waiting for iCloud or file coordination.
 - Remove code only when references and platform builds confirm it is dead.
 - Do not commit Xcode-generated localization-catalog churn unless intentional.
+- For broad UI polish, add or extend shared visual primitives first, then adopt
+  them in focused surfaces so style changes remain reviewable and reversible.
 
 ## Required Verification
 

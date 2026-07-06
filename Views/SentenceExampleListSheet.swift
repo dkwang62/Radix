@@ -39,10 +39,9 @@ struct SentenceExampleListSheet: View {
             HStack(alignment: .center, spacing: 10) {
                 Text("\(rank)")
                     .font(ResponsiveFont.caption2.weight(.semibold))
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(RadixAccent.primary)
                     .frame(width: 28, height: 28)
-                    .background(Color.accentColor.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 7))
+                    .radixSurface(RadixAccent.primary.opacity(0.1))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(example.chinese)
@@ -63,13 +62,13 @@ struct SentenceExampleListSheet: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: RadixIconSize.small, weight: .semibold))
                     .foregroundStyle(.secondary)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 9)
             .frame(maxWidth: .infinity, minHeight: 46, alignment: .leading)
-            .background(RadixTheme.background)
+            .radixSurface(RadixTheme.background)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Open sentence \(example.chinese)")

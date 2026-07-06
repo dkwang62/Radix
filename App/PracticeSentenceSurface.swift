@@ -11,11 +11,11 @@ extension FavouritesTab {
         HStack(spacing: 6) {
             Button(action: onPrevious) {
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: RadixIconSize.small, weight: .bold))
                     .frame(width: 26, height: 26)
             }
             .buttonStyle(.plain)
-            .foregroundStyle(canMovePrevious ? Color.accentColor : .secondary)
+            .foregroundStyle(canMovePrevious ? RadixAccent.primary : .secondary)
             .disabled(!canMovePrevious)
             .accessibilityLabel("Previous sentence page")
 
@@ -28,11 +28,11 @@ extension FavouritesTab {
 
             Button(action: onNext) {
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: RadixIconSize.small, weight: .bold))
                     .frame(width: 26, height: 26)
             }
             .buttonStyle(.plain)
-            .foregroundStyle(canMoveNext ? Color.accentColor : .secondary)
+            .foregroundStyle(canMoveNext ? RadixAccent.primary : .secondary)
             .disabled(!canMoveNext)
             .accessibilityLabel("Next sentence page")
         }
@@ -70,16 +70,15 @@ extension FavouritesTab {
                 HStack(alignment: .center, spacing: 8) {
                     Text("\(item.rank)")
                         .font(ResponsiveFont.caption2.weight(.semibold))
-                        .foregroundStyle(isSelected ? Color.white : Color.accentColor)
+                        .foregroundStyle(isSelected ? Color.white : RadixAccent.primary)
                         .frame(width: 28, height: 28)
-                        .background(isSelected ? Color.accentColor : Color.accentColor.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 7))
+                        .radixSurface(isSelected ? RadixAccent.primary : RadixAccent.primary.opacity(0.1))
 
                     conversationPracticeSentenceRowText(item)
 
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(isSelected ? Color.accentColor : .secondary)
+                        .font(.system(size: RadixIconSize.small, weight: .semibold))
+                        .foregroundStyle(isSelected ? RadixAccent.primary : .secondary)
                 }
                 .frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
             }
@@ -92,9 +91,11 @@ extension FavouritesTab {
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
         .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
-        .background(conversationPracticeSentenceBackground(isSelected: isSelected))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(conversationPracticeSentenceBorder(isSelected: isSelected, cornerRadius: 8))
+        .radixSurface(
+            conversationPracticeSentenceBackground(isSelected: isSelected),
+            border: conversationPracticeSentenceBorderColor(isSelected: isSelected),
+            borderWidth: 1.4
+        )
     }
 
     @ViewBuilder
@@ -122,11 +123,10 @@ extension FavouritesTab {
     }
 
     func conversationPracticeSentenceBackground(isSelected: Bool) -> Color {
-        isSelected ? Color.accentColor.opacity(0.12) : RadixTheme.background
+        isSelected ? RadixAccent.primary.opacity(0.12) : RadixTheme.background
     }
 
-    func conversationPracticeSentenceBorder(isSelected: Bool, cornerRadius: CGFloat) -> some View {
-        RoundedRectangle(cornerRadius: cornerRadius)
-            .stroke(isSelected ? Color.accentColor.opacity(0.75) : Color.clear, lineWidth: 1.4)
+    func conversationPracticeSentenceBorderColor(isSelected: Bool) -> Color {
+        isSelected ? RadixAccent.primary.opacity(0.75) : Color.clear
     }
 }

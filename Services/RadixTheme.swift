@@ -70,6 +70,23 @@ enum RadixTheme {
     }
 }
 
+/// Brand color aliases. Keep the current app accent as the primary identity;
+/// do not override it from code so the asset catalog remains the source of
+/// truth for Radix's teal/green visual language.
+enum RadixAccent {
+    static var primary: Color { Color.accentColor }
+    static var success: Color { Color.green }
+    static var onPrimary: Color { Color.white }
+}
+
+/// Shared glyph sizes for small symbolic controls. Use these for recurring
+/// icons so equivalent controls do not drift by a point or two per screen.
+enum RadixIconSize {
+    static let small: CGFloat = 12
+    static let standard: CGFloat = 15
+    static let large: CGFloat = 18
+}
+
 /// Shared visual measurements. Feature views should use these instead of
 /// introducing one-off spacing, radius, and control-height values.
 enum RadixSpacing {
@@ -120,6 +137,29 @@ private struct RadixCardModifier: ViewModifier {
     }
 }
 
+private struct RadixPillModifier: ViewModifier {
+    let horizontal: CGFloat
+    let vertical: CGFloat
+    let background: Color
+    let border: Color?
+    let borderWidth: CGFloat
+    let radius: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .padding(.horizontal, horizontal)
+            .padding(.vertical, vertical)
+            .background(background)
+            .clipShape(RoundedRectangle(cornerRadius: radius))
+            .overlay {
+                if let border {
+                    RoundedRectangle(cornerRadius: radius)
+                        .stroke(border, lineWidth: borderWidth)
+                }
+            }
+    }
+}
+
 extension View {
     func radixCard(
         padding: CGFloat = RadixLayoutMetrics.cardPadding,
@@ -135,6 +175,43 @@ extension View {
         ))
     }
 
+    func radixPill(
+        horizontal: CGFloat = RadixSpacing.small,
+        vertical: CGFloat = RadixSpacing.xSmall,
+        background: Color = RadixTheme.secondaryBackground,
+        border: Color? = nil,
+        borderWidth: CGFloat = 1,
+        radius: CGFloat = RadixRadius.medium
+    ) -> some View {
+        modifier(RadixPillModifier(
+            horizontal: horizontal,
+            vertical: vertical,
+            background: background,
+            border: border,
+            borderWidth: borderWidth,
+            radius: radius
+        ))
+    }
+
+    /// Applies the shared surface vocabulary when padding/frame order must stay
+    /// local to the caller. Prefer `radixCard` or `radixPill` when possible.
+    func radixSurface(
+        _ background: Color,
+        radius: CGFloat = RadixRadius.medium,
+        border: Color? = nil,
+        borderWidth: CGFloat = 1
+    ) -> some View {
+        self
+            .background(background)
+            .clipShape(RoundedRectangle(cornerRadius: radius))
+            .overlay {
+                if let border {
+                    RoundedRectangle(cornerRadius: radius)
+                        .stroke(border, lineWidth: borderWidth)
+                }
+            }
+    }
+
     /// Keeps compact icon controls visually small while preserving Apple's
     /// recommended minimum interactive area for touch and pointer users.
     func radixMinimumTapTarget() -> some View {
@@ -143,6 +220,36 @@ extension View {
             minHeight: RadixControlMetrics.standardHeight
         )
         .contentShape(Rectangle())
+    }
+}
+
+enum RadixHaptics {
+    @MainActor
+    static func light() {
+        #if canImport(UIKit) && !os(watchOS)
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        #endif
+    }
+
+    @MainActor
+    static func success() {
+        #if canImport(UIKit) && !os(watchOS)
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        #endif
+    }
+
+    @MainActor
+    static func error() {
+        #if canImport(UIKit) && !os(watchOS)
+        UINotificationFeedbackGenerator().notificationOccurred(.error)
+        #endif
+    }
+
+    @MainActor
+    static func selectionChanged() {
+        #if canImport(UIKit) && !os(watchOS)
+        UISelectionFeedbackGenerator().selectionChanged()
+        #endif
     }
 }
 
@@ -163,6 +270,10 @@ private struct RadixDesignSystemPreview: View {
             .radixCard()
 
             HStack(spacing: RadixSpacing.small) {
+                Text("Pill")
+                    .font(.caption.weight(.semibold))
+                    .radixPill(background: RadixAccent.primary.opacity(0.12))
+                    .foregroundStyle(RadixAccent.primary)
                 Button("Primary") { }
                     .buttonStyle(.borderedProminent)
                     .radixMinimumTapTarget()
