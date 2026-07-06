@@ -115,7 +115,7 @@ private struct CaptureSourceButton: View {
                 .font(.system(size: 18, weight: .semibold))
                 .radixIconButtonSurface(
                     size: 34,
-                    background: (isPrimary ? Color.white : Color.accentColor).opacity(isPrimary ? 0.18 : 0.12)
+                    background: (isPrimary ? Color.white : RadixAccent.primary).opacity(isPrimary ? 0.18 : 0.12)
                 )
 
             VStack(alignment: .leading, spacing: 2) {
@@ -135,19 +135,19 @@ private struct CaptureSourceButton: View {
                     .font(ResponsiveFont.caption2.weight(.bold))
                     .padding(.horizontal, 7)
                     .padding(.vertical, 4)
-                    .foregroundStyle(Color.accentColor)
-                    .background(Color.accentColor.opacity(0.12))
+                    .foregroundStyle(RadixAccent.primary)
+                    .background(RadixAccent.primary.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
         .foregroundStyle(isPrimary ? Color.white : Color.primary)
-        .background(isPrimary ? Color.accentColor : RadixTheme.secondaryBackground)
+        .background(isPrimary ? RadixAccent.primary : RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(isPrimary ? Color.accentColor : RadixTheme.separator.opacity(0.35), lineWidth: 1)
+                .stroke(isPrimary ? RadixAccent.primary : RadixTheme.separator.opacity(0.35), lineWidth: 1)
         )
     }
 }
@@ -187,10 +187,10 @@ private struct CaptureWorkflowHint: View {
             HStack(spacing: 6) {
                 Text(step.0)
                     .font(ResponsiveFont.tinySystem(size: 11, weight: .bold, design: .rounded))
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(RadixAccent.primary)
                     .radixIconButtonSurface(
                         size: 22,
-                        background: Color.accentColor.opacity(0.12),
+                        background: RadixAccent.primary.opacity(0.12),
                         radius: 11
                     )
                 Text(step.1)

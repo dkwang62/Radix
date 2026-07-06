@@ -66,7 +66,7 @@ private struct CaptureImportButtonContent: View, Sendable {
                 .font(.system(size: 18, weight: .semibold))
                 .radixIconButtonSurface(
                     size: 34,
-                    background: Color.accentColor.opacity(0.12)
+                    background: RadixAccent.primary.opacity(0.12)
                 )
 
             VStack(alignment: .leading, spacing: 2) {

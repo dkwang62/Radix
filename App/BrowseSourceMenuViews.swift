@@ -246,10 +246,10 @@ private struct PageAIOrientationView: View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: icon)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .radixIconButtonSurface(
                     size: 30,
-                    background: Color.accentColor.opacity(0.12),
+                    background: RadixAccent.primary.opacity(0.12),
                     radius: 7
                 )
 
@@ -306,7 +306,7 @@ struct SourceCollectionRow: View {
 
                     if isSelected {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(Color.accentColor)
+                            .foregroundStyle(RadixAccent.primary)
                             .font(.system(size: 14))
                     }
                 }
@@ -321,7 +321,7 @@ struct SourceCollectionRow: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
-                .tint(Color.accentColor)
+                .tint(RadixAccent.primary)
                 .accessibilityLabel("Open practice for \(collection.name)")
                 .help("Open Page Practice")
             }
@@ -338,7 +338,7 @@ struct SourceCollectionRow: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
-        .background(isSelected ? Color.accentColor.opacity(0.10) : RadixTheme.secondaryBackground.opacity(0.55))
+        .background(isSelected ? RadixAccent.primary.opacity(0.10) : RadixTheme.secondaryBackground.opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -400,14 +400,14 @@ struct SourceMenuRow: View {
 
             if let trailingSystemImage {
                 Image(systemName: trailingSystemImage)
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(RadixAccent.primary)
                     .font(.system(size: 14))
             }
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(isSelected ? Color.accentColor.opacity(0.10) : RadixTheme.secondaryBackground.opacity(0.55))
+        .background(isSelected ? RadixAccent.primary.opacity(0.10) : RadixTheme.secondaryBackground.opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

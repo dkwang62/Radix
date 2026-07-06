@@ -198,6 +198,8 @@ regressions even when tests and builds passed.
 Shared chevron rows, Add Phrase headers, Character Studio headers, root action
 tiles, script controls, welcome steps, and navigation guide icons use
 `RadixAccent.primary` for brand-primary tinting.
+Capture source controls and Browse source-menu selection affordances also use
+`RadixAccent.primary` for brand-primary tinting.
 Add Phrase input form sections and text editors use the shared surface helper
 for their simple rounded backgrounds and borders.
 Shared haptics are wired into focused mutation moments: adding phrases, importing
