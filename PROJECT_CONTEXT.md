@@ -118,6 +118,8 @@ aligned. Their compact leading icons use the shared icon surface helper.
 My Data backup action cards, recent-backup rows, backup-preview badges, and
 advanced-export option cards use the shared Radix pill/surface primitives for
 simple leaf styling, including compact option and tools info icon surfaces.
+Backup preview headers and Study checkpoint action icons use the shared icon
+surface helper.
 Backup-content disclosures and backup-preview character tiles are part of that
 same shared surface vocabulary. Keep workflow-specific gradients local to their
 owning section.

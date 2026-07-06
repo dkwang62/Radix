@@ -735,8 +735,10 @@ extension FavouritesTab {
             Image(systemName: isLocked ? "lock.fill" : systemImage)
                 .font(.system(size: RadixIconSize.standard, weight: .bold))
                 .foregroundStyle(tint)
-                .frame(width: 28, height: 28)
-                .radixSurface(tint.opacity(0.12))
+                .radixIconButtonSurface(
+                    size: 28,
+                    background: tint.opacity(0.12)
+                )
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)

@@ -74,8 +74,10 @@ struct DataBackupPreviewSection: View {
             Image(systemName: "externaldrive.badge.checkmark")
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(Color.accentColor)
-                .frame(width: 42, height: 42)
-                .radixSurface(Color.accentColor.opacity(0.14))
+                .radixIconButtonSurface(
+                    size: 42,
+                    background: Color.accentColor.opacity(0.14)
+                )
 
             VStack(alignment: .leading, spacing: 8) {
                 VStack(alignment: .leading, spacing: 3) {
