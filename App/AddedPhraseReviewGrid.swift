@@ -11,21 +11,7 @@ extension AddedPhraseReviewSheet {
 
     @ViewBuilder
     var phrasePageGrid: some View {
-        GeometryReader { proxy in
-            phrasePageGridContent
-                .padding(.vertical, phraseGridVerticalPadding / 2)
-                .frame(
-                    width: proxy.size.width,
-                    height: proxy.size.height,
-                    alignment: .top
-                )
-                .onAppear {
-                    updateAdaptivePageSize(for: proxy.size.height)
-                }
-                .onChange(of: proxy.size.height) { _, newHeight in
-                    updateAdaptivePageSize(for: newHeight)
-                }
-        }
+        phrasePageGridContent
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
