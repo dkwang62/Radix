@@ -173,9 +173,11 @@ private struct CaptureWorkflowHint: View {
                 Text(step.0)
                     .font(ResponsiveFont.tinySystem(size: 11, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.accentColor)
-                    .frame(width: 22, height: 22)
-                    .background(Color.accentColor.opacity(0.12))
-                    .clipShape(Circle())
+                    .radixIconButtonSurface(
+                        size: 22,
+                        background: Color.accentColor.opacity(0.12),
+                        radius: 11
+                    )
                 Text(step.1)
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
