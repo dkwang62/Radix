@@ -107,9 +107,10 @@ extension FavouritesTab {
         } label: {
             Image(systemName: "trash")
                 .font(.system(size: 16, weight: .semibold))
-                .frame(width: 44, height: 44)
-                .background(Color.red.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .radixIconButtonSurface(
+                    background: Color.red.opacity(0.12),
+                    radius: 10
+                )
         }
         .buttonStyle(.plain)
         .foregroundStyle(.red)
