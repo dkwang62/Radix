@@ -29,11 +29,7 @@ struct ComponentCharacterTile: View {
         }
         .padding(isCompact ? 4 : 8)
         .frame(minWidth: isCompact ? 48 : nil, minHeight: isCompact ? 56 : nil)
-        .background(RadixTheme.background)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8).stroke(RadixTheme.separator, lineWidth: 0.5)
-        )
+        .radixSurface(RadixTheme.background, border: RadixTheme.separator, borderWidth: 0.5)
         .contentShape(RoundedRectangle(cornerRadius: 8))
         .onTapGesture(perform: onTap)
         .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)

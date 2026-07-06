@@ -234,6 +234,8 @@ Paywall plan cards, hero panels, loading states, and fixed benefit chips share
 Radix surface and pill primitives while preserving local paywall tint choices.
 Quick phrase/character editor notes, meaning fields, and compact dictionary
 expanders use the shared surface helper for their rounded editing containers.
+Components Explorer section wrappers, filter buttons, and character tiles also
+use the shared surface helper while keeping their explicit grid behavior.
 Root-level and Browse editing/report sheets declare their expected detents at
 the `.sheet` presentation boundary so modal height behavior stays consistent
 without restructuring the sheet content views.

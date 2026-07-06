@@ -37,8 +37,7 @@ extension ComponentsExplorerShell {
             }
         }
         .padding(10)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .radixSurface(RadixTheme.secondaryBackground, radius: 10)
     }
 
     @ViewBuilder
@@ -90,8 +89,7 @@ extension ComponentsExplorerShell {
             }
         }
         .padding(10)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .radixSurface(RadixTheme.secondaryBackground, radius: 10)
     }
 
     @ViewBuilder
@@ -151,11 +149,7 @@ extension ComponentsExplorerShell {
                 .foregroundStyle(.tertiary)
         }
         .padding(8)
-        .background(RadixTheme.background)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8).stroke(RadixTheme.separator, lineWidth: 0.5)
-        )
+        .radixSurface(RadixTheme.background, border: RadixTheme.separator, borderWidth: 0.5)
         .contentShape(RoundedRectangle(cornerRadius: 8))
         .onTapGesture {
             startRootExploration(with: item.character, remember: false)

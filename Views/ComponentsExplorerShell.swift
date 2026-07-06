@@ -103,8 +103,7 @@ struct ComponentsExplorerShell: View {
                     .font(ResponsiveFont.subheadline.weight(.semibold))
                     .padding(.horizontal, 12)
                     .padding(.vertical, 10)
-                    .background(RadixTheme.secondaryBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .radixSurface(RadixTheme.secondaryBackground, radius: 12)
             }
             .buttonStyle(.plain)
 
