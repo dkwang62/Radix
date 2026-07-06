@@ -136,7 +136,7 @@ extension RootView {
             .frame(height: showsTitle ? 48 : 42)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(isActive ? Color.accentColor : RadixTheme.secondaryBackground.opacity(0.65))
+                    .fill(isActive ? RadixAccent.primary : RadixTheme.secondaryBackground.opacity(0.65))
             )
             .contentShape(RoundedRectangle(cornerRadius: 8))
         }
@@ -148,7 +148,7 @@ extension RootView {
             Group {
                 if isActive {
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+                        .stroke(RadixAccent.primary.opacity(0.35), lineWidth: 1)
                 } else {
                     EmptyView()
                 }
@@ -184,7 +184,7 @@ extension RootView {
             .frame(height: showsTitle ? 48 : 42)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(isActive ? Color.accentColor : RadixTheme.secondaryBackground.opacity(0.65))
+                    .fill(isActive ? RadixAccent.primary : RadixTheme.secondaryBackground.opacity(0.65))
             )
             .contentShape(RoundedRectangle(cornerRadius: 8))
         }
@@ -196,7 +196,7 @@ extension RootView {
             Group {
                 if isActive {
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+                        .stroke(RadixAccent.primary.opacity(0.35), lineWidth: 1)
                 } else {
                     EmptyView()
                 }
@@ -278,10 +278,10 @@ extension RootView {
         HStack(spacing: 8) {
             Image(systemName: isLocked ? "lock.fill" : systemImage)
                 .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .radixIconButtonSurface(
                     size: 26,
-                    background: Color.accentColor.opacity(0.12),
+                    background: RadixAccent.primary.opacity(0.12),
                     radius: 7
                 )
 
@@ -301,7 +301,7 @@ extension RootView {
         }
         .padding(8)
         .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-        .background(Color.accentColor.opacity(0.08))
+        .background(RadixAccent.primary.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -309,10 +309,10 @@ extension RootView {
         HStack(spacing: 8) {
             Image(systemName: "clock.arrow.circlepath")
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .radixIconButtonSurface(
                     size: 24,
-                    background: Color.accentColor.opacity(0.1),
+                    background: RadixAccent.primary.opacity(0.1),
                     radius: 7
                 )
 
