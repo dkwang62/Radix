@@ -63,17 +63,29 @@ extension SmartSearchTab {
     var searchExampleButtons: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 8) {
-                searchExampleButton(label: "Pinyin", query: "shui", desc: "水")
-                searchExampleButton(label: "Exact meaning", query: "=water", desc: "water, not waterproof")
-                searchExampleButton(label: "Phrase", query: "hanshui", desc: "含水")
+                ForEach(searchExampleSpecs) { example in
+                    searchExampleButton(example)
+                }
             }
 
             VStack(spacing: 8) {
-                searchExampleButton(label: "Pinyin", query: "shui", desc: "水")
-                searchExampleButton(label: "Exact meaning", query: "=water", desc: "water, not waterproof")
-                searchExampleButton(label: "Phrase", query: "hanshui", desc: "含水")
+                ForEach(searchExampleSpecs) { example in
+                    searchExampleButton(example)
+                }
             }
         }
+    }
+
+    private var searchExampleSpecs: [SearchExampleSpec] {
+        [
+            SearchExampleSpec(label: "Pinyin", query: "shui", desc: "水"),
+            SearchExampleSpec(label: "Exact meaning", query: "=water", desc: "water, not waterproof"),
+            SearchExampleSpec(label: "Phrase", query: "hanshui", desc: "含水")
+        ]
+    }
+
+    private func searchExampleButton(_ example: SearchExampleSpec) -> some View {
+        searchExampleButton(label: example.label, query: example.query, desc: example.desc)
     }
 
     func searchExampleButton(label: String, query: String, desc: String) -> some View {
@@ -82,4 +94,12 @@ extension SmartSearchTab {
             runSearch(query)
         }
     }
+}
+
+private struct SearchExampleSpec: Identifiable {
+    let label: String
+    let query: String
+    let desc: String
+
+    var id: String { label }
 }

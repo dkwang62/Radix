@@ -195,8 +195,8 @@ regressions even when tests and builds passed.
 Browse source status messages use `radixPill` for their inline feedback chip.
 Browse filter menu chips use `radixPill` while preserving picker-owned height.
 Smart Search result headers use `radixCard` for their compact summary surface.
-Smart Search example buttons are a fixed three-action set and use explicit
-`ViewThatFits` rows/stacks rather than a lazy grid.
+Smart Search example buttons are a fixed descriptor-driven three-action set and
+use explicit `ViewThatFits` rows/stacks rather than a lazy grid.
 Paywall benefit copy is a short fixed list and stays in a simple stack rather
 than a lazy grid.
 Compact management rows such as checkpoints and other-device summaries also use
