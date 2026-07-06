@@ -228,6 +228,8 @@ Compact management rows such as checkpoints and other-device summaries also use
 the icon surface helper for leading status glyphs.
 Components Explorer filter picker rows and compact inline help/tips panels use
 `radixSurface` for their simple rounded backgrounds.
+Simple status and summary surfaces in Settings, Paywall, Add Phrase review,
+Capture messages, and phrase-discovery results also use `radixSurface`.
 Root-level and Browse editing/report sheets declare their expected detents at
 the `.sheet` presentation boundary so modal height behavior stays consistent
 without restructuring the sheet content views.

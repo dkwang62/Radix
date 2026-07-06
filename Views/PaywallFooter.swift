@@ -33,8 +33,7 @@ extension PaywallView {
                     .foregroundStyle(.red)
                     .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.red.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .radixSurface(Color.red.opacity(0.08))
             }
 
             Label("The first 100 Camera or Text pages are free. Saved items, Browse, Search, Study, AI Link, and editing stay available; Radix Plus is for unlimited pages, import tools, snapshots, and backup.", systemImage: "info.circle")

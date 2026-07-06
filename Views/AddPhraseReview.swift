@@ -30,8 +30,7 @@ struct AddPhraseReview: View {
                         }
                         .padding(12)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.green.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .radixSurface(Color.green.opacity(0.1))
 
                         AddedPhraseResultList(candidates: addedPhrases, onDelete: onDelete)
                     }

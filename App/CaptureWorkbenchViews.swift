@@ -249,8 +249,7 @@ private struct CaptureMessageBanner: View {
             Spacer(minLength: 0)
         }
         .padding(10)
-        .background(color.opacity(0.10))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(color.opacity(0.10))
     }
 }
 

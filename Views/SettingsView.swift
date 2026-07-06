@@ -282,8 +282,7 @@ struct SettingsView: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(color.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(color.opacity(0.1))
     }
 
     private var settingsSummaryCard: some View {

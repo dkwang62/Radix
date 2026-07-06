@@ -128,8 +128,7 @@ struct AddExtractsToPhrasesPanel: View {
             }
         }
         .padding(10)
-        .background(RadixTheme.secondaryBackground.opacity(0.65))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.secondaryBackground.opacity(0.65))
     }
 
     private var phraseAnswerEditor: some View {
