@@ -310,9 +310,11 @@ extension RootView {
             Image(systemName: "clock.arrow.circlepath")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Color.accentColor)
-                .frame(width: 24, height: 24)
-                .background(Color.accentColor.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 7))
+                .radixIconButtonSurface(
+                    size: 24,
+                    background: Color.accentColor.opacity(0.1),
+                    radius: 7
+                )
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(checkpoint.title)

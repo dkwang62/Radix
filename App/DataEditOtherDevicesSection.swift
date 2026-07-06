@@ -133,8 +133,11 @@ extension DataEditTab {
             Image(systemName: systemImage)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(Color.accentColor)
-                .frame(width: 24, height: 24)
-                .radixSurface(Color.accentColor.opacity(0.1), radius: RadixRadius.small)
+                .radixIconButtonSurface(
+                    size: 24,
+                    background: Color.accentColor.opacity(0.1),
+                    radius: RadixRadius.small
+                )
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)

@@ -676,8 +676,10 @@ extension FavouritesTab {
             Image(systemName: "clock.arrow.circlepath")
                 .font(.system(size: RadixIconSize.standard, weight: .semibold))
                 .foregroundStyle(RadixAccent.primary)
-                .frame(width: 24, height: 24)
-                .radixSurface(RadixAccent.primary.opacity(0.1))
+                .radixIconButtonSurface(
+                    size: 24,
+                    background: RadixAccent.primary.opacity(0.1)
+                )
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(checkpoint.title)

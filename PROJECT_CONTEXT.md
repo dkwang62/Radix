@@ -172,6 +172,8 @@ surfaces, especially AI Link and info cards, prefer surgical spacing/color/layou
 edits that preserve the current modifier structure; broad mechanical replacement
 of background, clipShape, and overlay chains has already produced runtime
 regressions even when tests and builds passed.
+Compact management rows such as checkpoints and other-device summaries also use
+the icon surface helper for leading status glyphs.
 Root-level and Browse editing/report sheets declare their expected detents at
 the `.sheet` presentation boundary so modal height behavior stays consistent
 without restructuring the sheet content views.
