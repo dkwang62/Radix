@@ -61,9 +61,12 @@ struct SentenceExampleListSheet: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                Image(systemName: "chevron.right")
-                    .font(.system(size: RadixIconSize.small, weight: .semibold))
-                    .foregroundStyle(.secondary)
+                RadixCompactChevronLabel(
+                    chevronSystemName: "chevron.right",
+                    chevronFont: .system(size: RadixIconSize.small, weight: .semibold),
+                    chevronForegroundStyle: .secondary,
+                    chevronOpacity: 1
+                )
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 9)

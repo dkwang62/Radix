@@ -84,9 +84,12 @@ extension FavouritesTab {
 
                     conversationPracticeSentenceRowText(item)
 
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: RadixIconSize.small, weight: .semibold))
-                        .foregroundStyle(isSelected ? RadixAccent.primary : .secondary)
+                    RadixCompactChevronLabel(
+                        chevronSystemName: "chevron.right",
+                        chevronFont: .system(size: RadixIconSize.small, weight: .semibold),
+                        chevronForegroundStyle: isSelected ? RadixAccent.primary : .secondary,
+                        chevronOpacity: 1
+                    )
                 }
                 .frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
             }

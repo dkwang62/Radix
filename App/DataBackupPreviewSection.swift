@@ -241,9 +241,12 @@ struct DataBackupPreviewSection: View {
             }
 
             if showsChevron {
-                Image(systemName: "chevron.right")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                RadixCompactChevronLabel(
+                    chevronSystemName: "chevron.right",
+                    chevronFont: ResponsiveFont.caption.weight(.semibold),
+                    chevronForegroundStyle: .secondary,
+                    chevronOpacity: 1
+                )
             }
         }
         .accessibilityElement(children: .combine)
