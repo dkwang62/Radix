@@ -48,9 +48,10 @@ extension SmartSearchTab {
                 }
             }
         }
-        .padding(12)
-        .background(RadixTheme.secondaryBackground.opacity(0.55))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixCard(
+            padding: 12,
+            background: RadixTheme.secondaryBackground.opacity(0.55)
+        )
     }
 
     var resultSummaryText: String {

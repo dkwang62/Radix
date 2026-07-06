@@ -182,6 +182,7 @@ of background, clipShape, and overlay chains has already produced runtime
 regressions even when tests and builds passed.
 Browse source status messages use `radixPill` for their inline feedback chip.
 Browse filter menu chips use `radixPill` while preserving picker-owned height.
+Smart Search result headers use `radixCard` for their compact summary surface.
 Compact management rows such as checkpoints and other-device summaries also use
 the icon surface helper for leading status glyphs.
 Root-level and Browse editing/report sheets declare their expected detents at
