@@ -8,22 +8,14 @@ extension ComponentsExplorerShell {
                     derivativesExpanded.toggle()
                 }
             } label: {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Characters containing \(seed) (\(store.rootDerivativesTotal))")
-                            .font(ResponsiveFont.headline)
-                        if derivativesExpanded {
-                            Text("Sorted by popular usage.")
-                                .font(ResponsiveFont.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    Spacer()
-                    Image(systemName: derivativesExpanded ? "chevron.up" : "chevron.down")
-                        .font(ResponsiveFont.caption.bold())
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                RadixChevronRow(
+                    icon: "character",
+                    title: "Characters containing \(seed) (\(store.rootDerivativesTotal))",
+                    subtitle: derivativesExpanded ? "Sorted by popular usage." : nil,
+                    minHeight: 48,
+                    titleFont: ResponsiveFont.headline,
+                    chevronSystemName: derivativesExpanded ? "chevron.up" : "chevron.down"
+                )
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -81,22 +73,14 @@ extension ComponentsExplorerShell {
                     }
                 }
             } label: {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(componentSectionTitle(for: comp, item: compItem) + " (\(rowItems.count))")
-                            .font(ResponsiveFont.headline)
-                        if isExpanded {
-                            Text("Sorted by component frequency.")
-                                .font(ResponsiveFont.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    Spacer()
-                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(ResponsiveFont.caption.bold())
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                RadixChevronRow(
+                    icon: "square.grid.2x2",
+                    title: componentSectionTitle(for: comp, item: compItem) + " (\(rowItems.count))",
+                    subtitle: isExpanded ? "Sorted by component frequency." : nil,
+                    minHeight: 48,
+                    titleFont: ResponsiveFont.headline,
+                    chevronSystemName: isExpanded ? "chevron.up" : "chevron.down"
+                )
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
