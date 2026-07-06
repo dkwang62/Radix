@@ -112,8 +112,8 @@ their spacing, radius, borders, and accessibility affordance do not drift.
 header use the shared Radix surface/pill primitives; keep new info-card chips
 on those helpers rather than hand-copying rounded backgrounds. Character info
 card component strips use explicit rows rather than lazy grids. Character Detail
-metric icons use the shared compact icon surface, and the header's fixed metric
-chips use explicit `ViewThatFits` rows/stacks rather than a lazy grid.
+metric icons use the shared compact icon surface, and the header's descriptor-
+driven metric chips use explicit `ViewThatFits` rows/stacks rather than a lazy grid.
 Phrase info cards keep sentence and ordinary phrase content in separate
 top-level stacks and render animation tiles as explicit rows rather than a lazy
 grid, avoiding SwiftUI composition crashes while preserving the same controls.

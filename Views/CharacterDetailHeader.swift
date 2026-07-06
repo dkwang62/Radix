@@ -78,45 +78,44 @@ extension CharacterDetailView {
     var characterMetrics: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 8) {
-                characterMetric(
-                    title: "Frequency",
-                    value: item.rank.map { "Rank \($0)" } ?? "Unavailable",
-                    systemImage: "chart.bar"
-                )
-                characterMetric(
-                    title: "Strokes",
-                    value: item.strokes.map { "\($0)" } ?? "Unknown",
-                    systemImage: "pencil.line"
-                )
-                if !item.radical.isEmpty {
-                    characterMetric(
-                        title: "Radical",
-                        value: item.radical,
-                        systemImage: "square.split.2x2"
-                    )
+                ForEach(characterMetricSpecs) { metric in
+                    characterMetric(metric)
                 }
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                characterMetric(
-                    title: "Frequency",
-                    value: item.rank.map { "Rank \($0)" } ?? "Unavailable",
-                    systemImage: "chart.bar"
-                )
-                characterMetric(
-                    title: "Strokes",
-                    value: item.strokes.map { "\($0)" } ?? "Unknown",
-                    systemImage: "pencil.line"
-                )
-                if !item.radical.isEmpty {
-                    characterMetric(
-                        title: "Radical",
-                        value: item.radical,
-                        systemImage: "square.split.2x2"
-                    )
+                ForEach(characterMetricSpecs) { metric in
+                    characterMetric(metric)
                 }
             }
         }
+    }
+
+    private var characterMetricSpecs: [CharacterMetricSpec] {
+        var metrics = [
+            CharacterMetricSpec(
+                title: "Frequency",
+                value: item.rank.map { "Rank \($0)" } ?? "Unavailable",
+                systemImage: "chart.bar"
+            ),
+            CharacterMetricSpec(
+                title: "Strokes",
+                value: item.strokes.map { "\($0)" } ?? "Unknown",
+                systemImage: "pencil.line"
+            )
+        ]
+        if !item.radical.isEmpty {
+            metrics.append(CharacterMetricSpec(
+                title: "Radical",
+                value: item.radical,
+                systemImage: "square.split.2x2"
+            ))
+        }
+        return metrics
+    }
+
+    private func characterMetric(_ metric: CharacterMetricSpec) -> some View {
+        characterMetric(title: metric.title, value: metric.value, systemImage: metric.systemImage)
     }
 
     func characterMetric(title: String, value: String, systemImage: String) -> some View {
@@ -143,4 +142,12 @@ extension CharacterDetailView {
         .padding(.vertical, 7)
         .radixSurface(RadixTheme.secondaryBackground)
     }
+}
+
+private struct CharacterMetricSpec: Identifiable {
+    let title: String
+    let value: String
+    let systemImage: String
+
+    var id: String { title }
 }
