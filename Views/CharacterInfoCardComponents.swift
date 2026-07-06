@@ -42,8 +42,7 @@ extension CharacterInfoCard {
                 }
             }
             .padding(10)
-            .background(RadixTheme.secondaryBackground.opacity(0.45))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .radixSurface(RadixTheme.secondaryBackground.opacity(0.45))
         }
     }
 

@@ -10,8 +10,7 @@ extension PhraseInfoCard {
             }
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RadixTheme.secondaryBackground.opacity(0.45))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .radixSurface(RadixTheme.secondaryBackground.opacity(0.45))
 
             if isEditingNotes {
                 noteEditor
@@ -34,8 +33,7 @@ extension PhraseInfoCard {
             .font(ResponsiveFont.body)
             .frame(minHeight: 96)
             .padding(6)
-            .background(RadixTheme.secondaryBackground.opacity(0.6))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .radixSurface(RadixTheme.secondaryBackground.opacity(0.6))
     }
 
     var noteEditActions: some View {
@@ -93,8 +91,7 @@ extension PhraseInfoCard {
             }
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RadixTheme.secondaryBackground.opacity(0.35))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .radixSurface(RadixTheme.secondaryBackground.opacity(0.35))
         }
     }
 
