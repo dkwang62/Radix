@@ -16,11 +16,11 @@ struct AddedPhraseResultList: View {
                     Divider()
                 }
             }
-            .background(RadixTheme.background)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(RadixTheme.separator, lineWidth: 0.5)
+            .radixSurface(
+                RadixTheme.background,
+                radius: 8,
+                border: RadixTheme.separator,
+                borderWidth: 0.5
             )
         }
     }
@@ -119,8 +119,10 @@ struct AddExtractsToPhrasesPanel: View {
                     .foregroundStyle(addedPhrases.isEmpty ? Color.secondary : Color.green)
                     .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background((addedPhrases.isEmpty ? RadixTheme.secondaryBackground : Color.green.opacity(0.1)))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .radixSurface(
+                        addedPhrases.isEmpty ? RadixTheme.secondaryBackground : Color.green.opacity(0.1),
+                        radius: 8
+                    )
             }
 
             if !addedPhrases.isEmpty {

@@ -234,7 +234,8 @@ Components Explorer filter picker rows, compact inline help/tips panels, and
 interaction hint containers use `radixSurface` for their simple rounded
 backgrounds.
 Simple status and summary surfaces in Settings, Paywall, Add Phrase review,
-Capture messages, and phrase-discovery results also use `radixSurface`.
+Capture messages, and phrase-discovery feedback/results also use
+`radixSurface`.
 Paywall plan cards, hero panels, loading states, and fixed benefit chips share
 Radix surface and pill primitives while preserving local paywall tint choices.
 Quick phrase/character editor notes, meaning fields, and compact dictionary
