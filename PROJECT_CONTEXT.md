@@ -203,11 +203,12 @@ Capture source controls and Browse source-menu selection affordances also use
 `RadixAccent.primary` for brand-primary tinting.
 Simple leaf brand accents in AI result headers, Settings, Paywall, Glossary,
 inline help, phrase read-aloud controls, contextual return buttons, and
-interaction hints also use `RadixAccent.primary`; remaining direct
-`Color.accentColor` uses are mostly state, selection, grid, quiz, or review
-surfaces that should be converted only with local visual/runtime checks.
+interaction hints also use `RadixAccent.primary`.
 AI template cards, Apple stroke lookup summaries, Advanced Export accent
 gradients, sentence action icons, and phone-tab active fills also use the alias.
+The direct `Color.accentColor` audit is complete across `App/`, `Views/`,
+`Models/`, `Services/`, and `ViewModels`; only the alias definition in
+`RadixTheme` should reference it directly.
 Add Phrase input form sections and text editors use the shared surface helper
 for their simple rounded backgrounds and borders.
 Shared haptics are wired into focused mutation moments: adding phrases, importing

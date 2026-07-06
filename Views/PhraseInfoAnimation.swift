@@ -71,7 +71,7 @@ extension PhraseInfoCard {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
-        .foregroundStyle(isEnabled ? Color.accentColor : Color.secondary.opacity(0.45))
+        .foregroundStyle(isEnabled ? RadixAccent.primary : Color.secondary.opacity(0.45))
         .disabled(!isEnabled)
         .accessibilityLabel(accessibilityLabel)
     }
@@ -116,11 +116,11 @@ extension PhraseInfoCard {
                 .padding(.horizontal, 10)
                 .padding(.vertical, 7)
                 .foregroundStyle(isSelected ? Color.white : Color.primary)
-                .background(isSelected ? Color.accentColor : RadixTheme.secondaryBackground)
+                .background(isSelected ? RadixAccent.primary : RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.accentColor.opacity(isSelected ? 0 : 0.35), lineWidth: 1)
+                        .stroke(RadixAccent.primary.opacity(isSelected ? 0 : 0.35), lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)

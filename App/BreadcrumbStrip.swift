@@ -60,7 +60,7 @@ struct BreadcrumbStrip: View {
                                     .frame(maxWidth: isPhrase ? 132 : 28, alignment: .center)
                                     .padding(.horizontal, isPhrase ? 10 : 8)
                                     .frame(height: 32)
-                                    .background(isActive ? Color.accentColor.opacity(0.18) : RadixTheme.secondaryBackground.opacity(0.72))
+                                    .background(isActive ? RadixAccent.primary.opacity(0.18) : RadixTheme.secondaryBackground.opacity(0.72))
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                     .contentShape(RoundedRectangle(cornerRadius: 8))
                             }

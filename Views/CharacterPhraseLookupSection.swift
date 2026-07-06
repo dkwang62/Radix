@@ -182,7 +182,7 @@ struct PhraseLengthFilterChips: View {
                             .font(ResponsiveFont.caption.weight(.semibold))
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
-                            .background(selection == option ? Color.accentColor : RadixTheme.secondaryBackground)
+                            .background(selection == option ? RadixAccent.primary : RadixTheme.secondaryBackground)
                             .foregroundStyle(selection == option ? Color.white : Color.primary)
                             .clipShape(Capsule())
                     }

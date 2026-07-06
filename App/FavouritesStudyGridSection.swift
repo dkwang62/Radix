@@ -226,11 +226,11 @@ extension FavouritesTab {
                 .labelStyle(.titleAndIcon)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 5)
-                .background(Color.accentColor.opacity(0.1))
+                .background(RadixAccent.primary.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
-        .foregroundStyle(Color.accentColor)
+        .foregroundStyle(RadixAccent.primary)
     }
 
     var studySavedPagesList: some View {
@@ -337,11 +337,11 @@ extension FavouritesTab {
         }
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(rowData.isActiveBrowsePage ? Color.accentColor.opacity(0.11) : RadixTheme.secondaryBackground.opacity(0.58))
+        .background(rowData.isActiveBrowsePage ? RadixAccent.primary.opacity(0.11) : RadixTheme.secondaryBackground.opacity(0.58))
         .overlay(alignment: .leading) {
             if rowData.isActiveBrowsePage {
                 Rectangle()
-                    .fill(Color.accentColor)
+                    .fill(RadixAccent.primary)
                     .frame(width: 3)
             }
         }
@@ -359,7 +359,7 @@ extension FavouritesTab {
         return HStack(alignment: .center, spacing: 10) {
             Text("\(rowData.rowNumber)")
                 .font(ResponsiveFont.caption2.weight(.semibold))
-                .foregroundStyle(rowData.isActiveBrowsePage ? Color.accentColor : Color.secondary)
+                .foregroundStyle(rowData.isActiveBrowsePage ? RadixAccent.primary : Color.secondary)
                 .monospacedDigit()
                 .frame(width: 28, alignment: .trailing)
 
@@ -373,7 +373,7 @@ extension FavouritesTab {
 
             Text(collectionDisplayName(rowData.collection))
                 .font(ResponsiveFont.subheadline.weight(.semibold))
-                .foregroundStyle(rowData.isActiveBrowsePage ? Color.accentColor : Color.primary)
+                .foregroundStyle(rowData.isActiveBrowsePage ? RadixAccent.primary : Color.primary)
                 .lineLimit(1)
                 .layoutPriority(1)
 
@@ -382,13 +382,13 @@ extension FavouritesTab {
             if rowData.showsResumeSignal {
                 Label(studyPageResumeText(rowData.collection), systemImage: "clock")
                     .font(ResponsiveFont.caption2.weight(.semibold))
-                    .foregroundStyle(rowData.isActiveBrowsePage ? Color.accentColor : Color.secondary)
+                    .foregroundStyle(rowData.isActiveBrowsePage ? RadixAccent.primary : Color.secondary)
                     .labelStyle(.titleAndIcon)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 4)
-                    .background((rowData.isActiveBrowsePage ? Color.accentColor : Color.secondary).opacity(0.10))
+                    .background((rowData.isActiveBrowsePage ? RadixAccent.primary : Color.secondary).opacity(0.10))
                     .clipShape(RoundedRectangle(cornerRadius: 7))
             }
 

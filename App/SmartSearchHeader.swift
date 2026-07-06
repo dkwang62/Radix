@@ -42,9 +42,9 @@ extension SmartSearchTab {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(isSearchFocused ? Color.accentColor : Color.clear, lineWidth: 2)
+                        .stroke(isSearchFocused ? RadixAccent.primary : Color.clear, lineWidth: 2)
                 )
-                .shadow(color: isSearchFocused ? Color.accentColor.opacity(0.2) : Color.clear, radius: 4)
+                .shadow(color: isSearchFocused ? RadixAccent.primary.opacity(0.2) : Color.clear, radius: 4)
 
                 if !store.hasPerformedSearch || hasEditedQuerySinceResults {
                     Button {
@@ -54,7 +54,7 @@ extension SmartSearchTab {
                         Image(systemName: "magnifyingglass")
                             .font(ResponsiveFont.headline)
                             .frame(width: 48, height: 48)
-                            .background(Color.accentColor)
+                            .background(RadixAccent.primary)
                             .foregroundStyle(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }

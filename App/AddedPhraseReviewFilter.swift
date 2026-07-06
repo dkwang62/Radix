@@ -14,10 +14,10 @@ extension AddedPhraseReviewFilter {
     var color: Color {
         switch self {
         case .new: return Color.secondary
-        case .checked: return Color.accentColor
+        case .checked: return RadixAccent.primary
         case .hidden: return Color.orange
         case .removed: return Color.red
-        case .all: return Color.accentColor
+        case .all: return RadixAccent.primary
         }
     }
 }

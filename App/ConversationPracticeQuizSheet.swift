@@ -140,11 +140,11 @@ struct ConversationPracticeQuizSheet: View {
 
             Text("\(score) correct")
                 .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .radixPill(
                     horizontal: 8,
                     vertical: 5,
-                    background: Color.accentColor.opacity(0.1)
+                    background: RadixAccent.primary.opacity(0.1)
                 )
         }
     }
@@ -263,7 +263,7 @@ struct ConversationPracticeQuizSheet: View {
                         .font(ResponsiveFont.caption.weight(.semibold))
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(Color.accentColor)
+                .tint(RadixAccent.primary)
             }
 
             let characterHints = quizCharacterHints(for: currentItem)

@@ -22,8 +22,8 @@ extension FilterGridTab {
                         pinyin: item.pinyinText,
                         fontSize: fontSize,
                         isFavorite: store.isFavorite(item.character),
-                        background: isActive ? Color.accentColor.opacity(0.18) : RadixTheme.secondaryBackground,
-                        stroke: isActive ? Color.accentColor : Color.clear
+                        background: isActive ? RadixAccent.primary.opacity(0.18) : RadixTheme.secondaryBackground,
+                        stroke: isActive ? RadixAccent.primary : Color.clear
                     )
                 }
                 .buttonStyle(.plain)
@@ -80,7 +80,7 @@ extension FilterGridTab {
                 .minimumScaleFactor(0.75)
                 .padding(.horizontal, isPhoneBrowseLayout ? 8 : 10)
                 .padding(.vertical, 6)
-                .background(isComponents ? Color.accentColor : RadixTheme.secondaryBackground)
+                .background(isComponents ? RadixAccent.primary : RadixTheme.secondaryBackground)
                 .foregroundStyle(isComponents ? Color.white : Color.primary)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }

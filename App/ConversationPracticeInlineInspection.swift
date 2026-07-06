@@ -92,7 +92,7 @@ struct ConversationPracticeSpeechButton: View {
                 .frame(width: 38, height: 34)
         }
         .buttonStyle(.borderedProminent)
-        .tint(Color.accentColor)
+        .tint(RadixAccent.primary)
         .accessibilityLabel(accessibilityLabel)
         .help(accessibilityLabel)
     }

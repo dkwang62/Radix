@@ -150,28 +150,28 @@ enum BrowseImageTileStyle {
     static func background(isActive: Bool, highlightRole: ImagePhraseHighlightRole?, isMemoryHighlighted: Bool) -> Color {
         switch highlightRole {
         case .target:
-            return Color.accentColor.opacity(0.24)
+            return RadixAccent.primary.opacity(0.24)
         case .phraseMember:
             return Color.blue.opacity(0.16)
         case nil:
             if isMemoryHighlighted {
-                return Color.accentColor.opacity(0.18)
+                return RadixAccent.primary.opacity(0.18)
             }
-            return isActive ? Color.accentColor.opacity(0.18) : RadixTheme.secondaryBackground
+            return isActive ? RadixAccent.primary.opacity(0.18) : RadixTheme.secondaryBackground
         }
     }
 
     static func stroke(isActive: Bool, highlightRole: ImagePhraseHighlightRole?, isMemoryHighlighted: Bool) -> Color {
         switch highlightRole {
         case .target:
-            return Color.accentColor
+            return RadixAccent.primary
         case .phraseMember:
             return Color.blue.opacity(0.72)
         case nil:
             if isMemoryHighlighted {
-                return Color.accentColor
+                return RadixAccent.primary
             }
-            return isActive ? Color.accentColor : Color.clear
+            return isActive ? RadixAccent.primary : Color.clear
         }
     }
 }

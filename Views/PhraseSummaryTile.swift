@@ -25,7 +25,7 @@ extension PhraseReviewStatusTool {
     var color: Color {
         switch self {
         case .removed: return Color.red
-        case .checked: return Color.accentColor
+        case .checked: return RadixAccent.primary
         case .hidden: return Color.orange
         case .new: return Color.secondary
         }
@@ -243,19 +243,19 @@ struct PhraseSummaryTile: View {
     }
 
     private var tileBackground: Color {
-        if isActive { return Color.accentColor.opacity(0.16) }
+        if isActive { return RadixAccent.primary.opacity(0.16) }
         if isFavorite == true { return Color.yellow.opacity(0.12) }
         if showsReviewStatus, reviewStatus == .removed { return Color.red.opacity(0.08) }
-        if showsReviewStatus, reviewStatus == .checked || reviewStatus == .completed { return Color.accentColor.opacity(0.10) }
+        if showsReviewStatus, reviewStatus == .checked || reviewStatus == .completed { return RadixAccent.primary.opacity(0.10) }
         if showsReviewStatus, reviewStatus == .hidden { return Color.orange.opacity(0.10) }
         return RadixTheme.secondaryBackground.opacity(0.62)
     }
 
     private var tileStroke: Color {
-        if isActive { return Color.accentColor.opacity(0.8) }
+        if isActive { return RadixAccent.primary.opacity(0.8) }
         if isFavorite == true { return Color.yellow.opacity(0.65) }
         if showsReviewStatus, reviewStatus == .removed { return Color.red.opacity(0.38) }
-        if showsReviewStatus, reviewStatus == .checked || reviewStatus == .completed { return Color.accentColor.opacity(0.45) }
+        if showsReviewStatus, reviewStatus == .checked || reviewStatus == .completed { return RadixAccent.primary.opacity(0.45) }
         if showsReviewStatus, reviewStatus == .hidden { return Color.orange.opacity(0.38) }
         return Color.secondary.opacity(0.22)
     }
@@ -276,7 +276,7 @@ struct PhraseSummaryTile: View {
 
     private var reviewStatusColor: Color {
         switch reviewStatus {
-        case .checked, .completed: return Color.accentColor
+        case .checked, .completed: return RadixAccent.primary
         case .hidden: return Color.orange
         case .removed: return Color.red
         case nil: return Color.secondary.opacity(0.45)

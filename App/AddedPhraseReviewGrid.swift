@@ -126,7 +126,7 @@ struct AddedPhraseReviewTile: View {
 
     private var statusColor: Color {
         switch phrase.reviewStatus {
-        case .checked, .completed: return Color.accentColor
+        case .checked, .completed: return RadixAccent.primary
         case .hidden: return Color.orange
         case .removed: return Color.red
         case nil: return Color.secondary.opacity(0.45)
@@ -136,7 +136,7 @@ struct AddedPhraseReviewTile: View {
     private var tileFill: Color {
         switch phrase.reviewStatus {
         case .checked, .completed:
-            return Color.accentColor.opacity(0.14)
+            return RadixAccent.primary.opacity(0.14)
         case .hidden:
             return Color.orange.opacity(0.13)
         case .removed:
@@ -147,10 +147,10 @@ struct AddedPhraseReviewTile: View {
     }
 
     private var tileStroke: Color {
-        if isSelected { return Color.accentColor }
+        if isSelected { return RadixAccent.primary }
         switch phrase.reviewStatus {
         case .checked, .completed:
-            return Color.accentColor.opacity(0.45)
+            return RadixAccent.primary.opacity(0.45)
         case .hidden:
             return Color.orange.opacity(0.38)
         case .removed:

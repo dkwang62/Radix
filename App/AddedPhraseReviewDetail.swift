@@ -107,7 +107,7 @@ extension AddedPhraseReviewSheet {
 
     func statusColor(for status: PhraseReviewStatus?) -> Color {
         switch status {
-        case .checked, .completed: return Color.accentColor
+        case .checked, .completed: return RadixAccent.primary
         case .hidden: return Color.orange
         case .removed: return Color.red
         case nil: return Color.secondary

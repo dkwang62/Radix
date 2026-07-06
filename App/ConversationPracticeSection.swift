@@ -122,11 +122,11 @@ extension FavouritesTab {
         if let message = conversationPracticeImportMessage {
             Label(message, systemImage: "checkmark.circle")
                 .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.accentColor.opacity(0.1))
+                .background(RadixAccent.primary.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         } else if let error = conversationPracticeImportError {
             Label(error, systemImage: "exclamationmark.triangle")
@@ -194,7 +194,7 @@ extension FavouritesTab {
                     .frame(maxWidth: .infinity, minHeight: 38)
             }
             .buttonStyle(.borderedProminent)
-            .tint(Color.accentColor)
+            .tint(RadixAccent.primary)
 
             Button {
                 presentConversationPracticeQuiz(library)
@@ -224,10 +224,10 @@ extension FavouritesTab {
             HStack(alignment: .top, spacing: 10) {
                 Image(systemName: "sparkles")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(RadixAccent.primary)
                     .radixIconButtonSurface(
                         size: 32,
-                        background: Color.accentColor.opacity(0.12)
+                        background: RadixAccent.primary.opacity(0.12)
                     )
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -246,11 +246,11 @@ extension FavouritesTab {
 
                 Label("\(topic.targetSentenceCount)", systemImage: "list.number")
                     .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(RadixAccent.primary)
                     .labelStyle(.titleAndIcon)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 5)
-                    .background(Color.accentColor.opacity(0.1))
+                    .background(RadixAccent.primary.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -263,10 +263,10 @@ extension FavouritesTab {
                 ForEach(topic.situations.prefix(5), id: \.self) { situation in
                     Text(situation)
                         .font(ResponsiveFont.caption2.weight(.semibold))
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(RadixAccent.primary)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 5)
-                        .background(Color.accentColor.opacity(0.1))
+                        .background(RadixAccent.primary.opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
@@ -279,7 +279,7 @@ extension FavouritesTab {
                     .frame(maxWidth: .infinity, minHeight: 38)
             }
             .buttonStyle(.borderedProminent)
-            .tint(Color.accentColor)
+            .tint(RadixAccent.primary)
         }
         .padding(10)
         .background(RadixTheme.secondaryBackground.opacity(0.52))
@@ -452,10 +452,10 @@ struct ConversationPracticePasteImportSheet: View {
                 HStack(spacing: 10) {
                     Image(systemName: "bubble.left.and.bubble.right")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(RadixAccent.primary)
                         .radixIconButtonSurface(
                             size: 32,
-                            background: Color.accentColor.opacity(0.12)
+                            background: RadixAccent.primary.opacity(0.12)
                         )
 
                     VStack(alignment: .leading, spacing: 2) {
@@ -540,7 +540,7 @@ struct ConversationPracticePasteImportSheet: View {
                     .frame(maxWidth: .infinity, minHeight: 38)
             }
             .buttonStyle(.borderedProminent)
-            .tint(Color.accentColor)
+            .tint(RadixAccent.primary)
             .disabled(preview == nil)
         }
         .font(ResponsiveFont.caption.weight(.semibold))

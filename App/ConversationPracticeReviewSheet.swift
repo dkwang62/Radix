@@ -64,11 +64,11 @@ struct ConversationPracticeReviewSheet: View {
 
             Text("\(progress.count) reviewed")
                 .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .radixPill(
                     horizontal: 8,
                     vertical: 5,
-                    background: Color.accentColor.opacity(0.1)
+                    background: RadixAccent.primary.opacity(0.1)
                 )
         }
     }
@@ -119,7 +119,7 @@ struct ConversationPracticeReviewSheet: View {
                         .frame(maxWidth: .infinity, minHeight: 44)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(Color.accentColor)
+                .tint(RadixAccent.primary)
             }
         }
         .padding(18)
@@ -316,7 +316,7 @@ enum ConversationPracticeReviewResponse: Equatable {
     var tint: Color {
         switch self {
         case .again: return .orange
-        case .good: return Color.accentColor
+        case .good: return RadixAccent.primary
         case .easy: return .green
         }
     }
