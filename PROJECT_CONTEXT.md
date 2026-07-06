@@ -136,7 +136,9 @@ also use it when they are only title/icon plus chevron, so toolbar-scale
 chevrons, spacing, and scaling do not drift from the full-width row primitives.
 Small previous/next pager arrows and row-accessory disclosure arrows also use
 `RadixCompactChevronLabel` as the icon label while keeping their owning button
-styles and row surfaces local.
+styles and row surfaces local. Expanded/collapsed text toggles such as AI
+result visibility should also use the compact helper when the visible control
+is only text plus a chevron.
 UI polish passes should flow through `Services/RadixTheme.swift` primitives
 (`radixCard`, `radixPill`, `radixSurface`, shared spacing/radius/icon sizes,
 and haptic helpers) before touching many screens. Preserve the asset-catalog

@@ -60,9 +60,13 @@ extension PhraseInfoCard {
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
-            Image(systemName: systemName)
-                .font(ResponsiveFont.caption.weight(.bold))
-                .frame(width: 26, height: 26)
+            RadixCompactChevronLabel(
+                chevronSystemName: systemName,
+                chevronFont: .system(size: 12, weight: .bold),
+                chevronOpacity: 1,
+                width: 26,
+                height: 26
+            )
                 .background(RadixTheme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }

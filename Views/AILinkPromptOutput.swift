@@ -309,15 +309,22 @@ extension AILinkView {
                     }
                 } label: {
                     ViewThatFits(in: .horizontal) {
-                        Label(
-                            isAIResultTextExpanded ? "Hide Text" : "Show Text",
-                            systemImage: isAIResultTextExpanded ? "chevron.up.circle" : "chevron.down.circle"
+                        RadixCompactChevronLabel(
+                            title: isAIResultTextExpanded ? "Hide Text" : "Show Text",
+                            chevronSystemName: isAIResultTextExpanded ? "chevron.up.circle" : "chevron.down.circle",
+                            font: ResponsiveFont.caption.weight(.semibold),
+                            chevronFont: .system(size: 14, weight: .semibold),
+                            chevronOpacity: 1,
+                            spacing: 6
                         )
-                        .font(ResponsiveFont.caption.weight(.semibold))
 
-                        Image(systemName: isAIResultTextExpanded ? "chevron.up.circle" : "chevron.down.circle")
-                            .font(.system(size: 18, weight: .semibold))
-                            .frame(width: 34, height: 34)
+                        RadixCompactChevronLabel(
+                            chevronSystemName: isAIResultTextExpanded ? "chevron.up.circle" : "chevron.down.circle",
+                            chevronFont: .system(size: 18, weight: .semibold),
+                            chevronOpacity: 1,
+                            width: 34,
+                            height: 34
+                        )
                     }
                 }
                 .buttonStyle(.bordered)
