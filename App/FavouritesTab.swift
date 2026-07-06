@@ -694,6 +694,7 @@ struct FavouritesTab: View {
     }
 
     var phoneStudyPreviewReturnTitle: String? {
+        if isShowingAddedPhraseReview { return "Phrase Tiles" }
         guard store.sidebarPhraseLookupOverride != nil else { return nil }
         if isShowingSentenceExamples { return "Sentences" }
         return selectedConversationPracticeTopic.title

@@ -170,6 +170,8 @@ instead of separately laying out the text and disclosure chevron.
 Focused Study workspaces share one local back-pill renderer so Conversation
 Practice, Sentences, and future full-screen Study sections keep return action
 spacing and tint aligned.
+On iPhone, phrase previews launched from Added Phrases keep a visible return
+control back to the phrase tiles through the shared phone context preview.
 Study dashboard shortcuts are a fixed descriptor-driven action set and render
 as explicit rows rather than a lazy grid; keep their actions switch-based
 instead of storing escaping closures in transient row data.
