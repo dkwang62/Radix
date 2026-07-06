@@ -105,10 +105,7 @@ and tooltip details; option subtitles should stay short and identify the
 exported file rather than repeating that purpose on every row.
 AI Link task/source dropdown labels share `RadixMenuSelectorRow`; keep selector
 row icon size, chevron, border, radius, and missing-state tint there instead of
-hand-copying row styling. AI Link task cards, source cards, quantity rows, and
-result import rows now use the shared Radix surface/pill primitives; keep
-future AI workflow rows on those helpers unless the layout needs a genuine
-custom surface.
+hand-copying row styling.
 UI polish passes should flow through `Services/RadixTheme.swift` primitives
 (`radixCard`, `radixPill`, `radixSurface`, shared spacing/radius/icon sizes,
 and haptic helpers) before touching many screens. Preserve the asset-catalog

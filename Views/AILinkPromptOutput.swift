@@ -5,7 +5,9 @@ extension AILinkView {
         VStack(alignment: .leading, spacing: 8) {
             promptActions
         }
-        .radixCard()
+        .padding(12)
+        .background(RadixTheme.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     @ViewBuilder
@@ -243,7 +245,9 @@ extension AILinkView {
                     aiResultStatusBlock
                 }
             }
-            .radixCard()
+            .padding(12)
+            .background(RadixTheme.secondaryBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
 
@@ -253,7 +257,7 @@ extension AILinkView {
             VStack(alignment: .leading, spacing: 8) {
                 Label(aiResultMessage, systemImage: "checkmark.circle")
                     .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(RadixAccent.primary)
+                    .foregroundStyle(Color.accentColor)
                     .fixedSize(horizontal: false, vertical: true)
 
                 if let aiImportedPracticePack {
@@ -279,10 +283,11 @@ extension AILinkView {
     func resultWorkflowHeader(for task: PromptTask) -> some View {
         HStack(spacing: 10) {
             Image(systemName: aiResultIcon(for: task.id))
-                .font(.system(size: RadixIconSize.standard, weight: .semibold))
-                .foregroundStyle(RadixAccent.primary)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
                 .frame(width: 32, height: 32)
-                .radixSurface(RadixAccent.primary.opacity(0.12))
+                .background(Color.accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("AI Result")
@@ -309,7 +314,7 @@ extension AILinkView {
                         .font(ResponsiveFont.caption.weight(.semibold))
 
                         Image(systemName: isAIResultTextExpanded ? "chevron.up.circle" : "chevron.down.circle")
-                            .font(.system(size: RadixIconSize.large, weight: .semibold))
+                            .font(.system(size: 18, weight: .semibold))
                             .frame(width: 34, height: 34)
                     }
                 }
@@ -338,10 +343,11 @@ extension AILinkView {
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: "doc.text.magnifyingglass")
-                    .font(.system(size: RadixIconSize.standard, weight: .semibold))
-                    .foregroundStyle(RadixAccent.primary)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
                     .frame(width: 30, height: 30)
-                    .radixSurface(RadixAccent.primary.opacity(0.12))
+                    .background(Color.accentColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 7))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Result Text Hidden")
@@ -355,12 +361,13 @@ extension AILinkView {
                 .layoutPriority(1)
 
                 Image(systemName: "chevron.down")
-                    .font(.system(size: RadixIconSize.small, weight: .bold))
+                    .font(.system(size: 12, weight: .bold))
                     .foregroundStyle(.secondary)
             }
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .radixSurface(RadixTheme.background)
+            .background(RadixTheme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Show AI result text")
@@ -386,7 +393,8 @@ extension AILinkView {
         .font(.system(size: 14, design: .monospaced))
         .frame(height: sizeClass == .compact ? 170 : 210)
         .padding(8)
-        .radixSurface(RadixTheme.background)
+        .background(RadixTheme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(alignment: .topLeading) {
             if aiResultText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 Text("Paste the AI answer here.")
@@ -461,7 +469,8 @@ extension AILinkView {
             .foregroundStyle(.secondary)
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .radixSurface(RadixTheme.background)
+            .background(RadixTheme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     func aiResultWorkflowSupportsPaste(_ taskID: String) -> Bool {
