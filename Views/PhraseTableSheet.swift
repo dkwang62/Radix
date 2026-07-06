@@ -96,8 +96,7 @@ struct PhraseTableSheet: View {
                     }
                 }
                 .padding(12)
-                .background(RadixTheme.secondaryBackground.opacity(0.55))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(RadixTheme.secondaryBackground.opacity(0.55))
 
                 HStack {
                     copyHintLabel
@@ -128,8 +127,7 @@ struct PhraseTableSheet: View {
                         }
                     }
                     .frame(height: phraseViewportHeight)
-                    .background(RadixTheme.secondaryBackground.opacity(0.7))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .radixSurface(RadixTheme.secondaryBackground.opacity(0.7))
 
                     Spacer(minLength: 0)
                 }
