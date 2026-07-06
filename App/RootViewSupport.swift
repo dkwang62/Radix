@@ -497,9 +497,10 @@ struct RadixWelcomeView: View {
             Image(systemName: icon)
                 .font(ResponsiveFont.title3)
                 .foregroundStyle(Color.accentColor)
-                .frame(width: 40, height: 40)
-                .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
+                .radixIconButtonSurface(
+                    size: 40,
+                    background: Color.accentColor.opacity(0.12)
+                )
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
