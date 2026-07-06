@@ -279,9 +279,11 @@ extension RootView {
             Image(systemName: isLocked ? "lock.fill" : systemImage)
                 .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(Color.accentColor)
-                .frame(width: 26, height: 26)
-                .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 7))
+                .radixIconButtonSurface(
+                    size: 26,
+                    background: Color.accentColor.opacity(0.12),
+                    radius: 7
+                )
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)

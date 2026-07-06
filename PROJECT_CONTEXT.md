@@ -158,11 +158,11 @@ components first, including Capture source/import action icons and simple
 Browse source-menu icon surfaces. Small modal header icons for Add Phrase and
 Character Studio, and root action card icons use the same surface helper. For
 root-level onboarding/action content, keep simple icon surfaces on the same
-helper. For complex existing SwiftUI surfaces, especially AI Link and info
-cards, prefer surgical spacing/color/layout edits that preserve the current
-modifier structure; broad mechanical replacement of background, clipShape, and
-overlay chains has already produced runtime regressions even when tests and
-builds passed.
+helper, including compact sidebar checkpoint action icons. For complex existing
+SwiftUI surfaces, especially AI Link and info cards, prefer surgical
+spacing/color/layout edits that preserve the current modifier structure; broad
+mechanical replacement of background, clipShape, and overlay chains has already
+produced runtime regressions even when tests and builds passed.
 Root-level and Browse editing/report sheets declare their expected detents at
 the `.sheet` presentation boundary so modal height behavior stays consistent
 without restructuring the sheet content views.
