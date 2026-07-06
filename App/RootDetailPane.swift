@@ -5,7 +5,6 @@ extension RootView {
         #if targetEnvironment(macCatalyst)
         NavigationSplitView {
             sidebar
-                .navigationTitle("Radix")
                 .navigationSplitViewColumnWidth(min: 320, ideal: 360, max: 420)
         } detail: {
             detailPane
