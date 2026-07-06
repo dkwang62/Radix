@@ -49,9 +49,7 @@ extension AILinkView {
             .buttonStyle(.plain)
             .accessibilityLabel("Choose AI task")
         }
-        .padding()
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixCard()
     }
 
     @ViewBuilder
@@ -88,8 +86,7 @@ extension AILinkView {
                     .font(.system(size: 14, design: .monospaced))
                     .frame(minHeight: sizeClass == .compact ? 180 : 220)
                     .padding(8)
-                    .background(RadixTheme.tertiaryBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .radixSurface(RadixTheme.tertiaryBackground)
 
                     promptEditorActions
                 }
@@ -98,9 +95,7 @@ extension AILinkView {
                 Label("AI Prompt Template", systemImage: "slider.horizontal.3")
                     .font(ResponsiveFont.subheadline.weight(.semibold))
             }
-            .padding(12)
-            .background(RadixTheme.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .radixCard()
         }
     }
 
@@ -141,19 +136,16 @@ extension AILinkView {
                 aiConversationEntryCountRow
             }
         }
-        .padding(12)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixCard()
     }
 
     var aiConversationEntryCountRow: some View {
         HStack(spacing: 12) {
             Image(systemName: "number")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
+                .font(.system(size: RadixIconSize.standard, weight: .semibold))
+                .foregroundStyle(RadixAccent.primary)
                 .frame(width: 30, height: 30)
-                .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 7))
+                .radixSurface(RadixAccent.primary.opacity(0.12))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("Quantity")
@@ -179,7 +171,7 @@ extension AILinkView {
                 }
             } label: {
                 Image(systemName: "chevron.down")
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.system(size: RadixIconSize.small, weight: .bold))
                     .foregroundStyle(.secondary)
                     .frame(width: 34, height: 30)
             }
@@ -188,8 +180,7 @@ extension AILinkView {
             .accessibilityLabel("Choose AI conversation quantity")
         }
         .padding(10)
-        .background(RadixTheme.background)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.background)
     }
 
     var aiSelectedSubjectRow: some View {
@@ -339,17 +330,16 @@ struct RadixMenuSelectorRow: View {
     var titleFont: Font = ResponsiveFont.body.weight(.semibold)
 
     private var tint: Color {
-        isMissing ? .orange : Color.accentColor
+        isMissing ? .orange : RadixAccent.primary
     }
 
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 17, weight: .semibold))
+                .font(.system(size: RadixIconSize.large, weight: .semibold))
                 .foregroundStyle(tint)
                 .frame(width: 34, height: 34)
-                .background(tint.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(tint.opacity(0.12))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -368,17 +358,15 @@ struct RadixMenuSelectorRow: View {
             Spacer(minLength: 0)
 
             Image(systemName: "chevron.down")
-                .font(.system(size: 13, weight: .bold))
+                .font(.system(size: RadixIconSize.small, weight: .bold))
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, subtitle == nil ? 0 : 12)
         .frame(maxWidth: .infinity, minHeight: minHeight, alignment: .leading)
-        .background(RadixTheme.background)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+        .radixSurface(
+            RadixTheme.background,
+            border: RadixAccent.primary.opacity(0.35)
         )
     }
 }
