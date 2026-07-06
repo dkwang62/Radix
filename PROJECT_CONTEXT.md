@@ -105,7 +105,8 @@ notes, phrase lookup, and related small info-card actions on that component so
 their spacing, radius, borders, and accessibility affordance do not drift.
 `InfoCardActionPill`, character info tiles, and the regular Character Detail
 header use the shared Radix surface/pill primitives; keep new info-card chips
-on those helpers rather than hand-copying rounded backgrounds.
+on those helpers rather than hand-copying rounded backgrounds. Character Detail
+metric icons use the shared compact icon surface.
 Small square info-card icon buttons use `radixIconButtonSurface` so favorite,
 edit, and read-aloud buttons keep one radius, background, and tap shape.
 Compact destructive icon buttons such as imported Conversation Practice delete

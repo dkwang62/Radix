@@ -98,8 +98,10 @@ extension CharacterDetailView {
             Image(systemName: systemImage)
                 .font(.system(size: RadixIconSize.small, weight: .semibold))
                 .foregroundStyle(RadixAccent.primary)
-                .frame(width: 26, height: 26)
-                .radixSurface(RadixAccent.primary.opacity(0.10))
+                .radixIconButtonSurface(
+                    size: 26,
+                    background: RadixAccent.primary.opacity(0.10)
+                )
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(value)
