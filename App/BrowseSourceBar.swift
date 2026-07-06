@@ -68,9 +68,10 @@ extension FilterGridTab {
             HStack(spacing: 8) {
                 Image(systemName: "book")
                     .font(.system(size: 16, weight: .semibold))
-                    .frame(width: 32, height: 32)
-                    .background(RadixTheme.secondaryBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
+                    .radixIconButtonSurface(
+                        size: 32,
+                        background: RadixTheme.secondaryBackground
+                    )
 
                 RadixCompactChevronLabel(
                     title: "Dictionary",

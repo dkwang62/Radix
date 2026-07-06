@@ -183,11 +183,11 @@ accent as Radix's primary identity; do not wholesale replace the app accent or
 drop in broad external bundles without reviewing each affected workflow against
 `UI_INTENT.md`. Apply those primitives directly to new or simple leaf
 components first, including Capture source/import action icons and simple
-Browse source-menu icon surfaces. Capture step-number chips use the same helper
-with a circular radius. Capture's fixed Camera/Album/Files source actions use
-explicit `ViewThatFits` rows/stacks rather than a lazy grid. Small modal header
-icons for Add Phrase and Character
-Studio, and root action card icons use the same surface helper. For root-level
+Browse source-menu and dictionary-help icon surfaces. Capture step-number chips
+use the same helper with a circular radius. Capture's fixed Camera/Album/Files
+source actions use explicit `ViewThatFits` rows/stacks rather than a lazy grid.
+Small modal header icons for Add Phrase and Character Studio, and root action
+card icons use the same surface helper. For root-level
 onboarding/action content, keep simple icon surfaces on the same helper,
 including compact sidebar checkpoint action icons, and keep onboarding step rows
 on `radixSurface`. Static Settings and navigation guide icons can use the helper
