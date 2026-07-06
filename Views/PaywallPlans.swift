@@ -10,15 +10,13 @@ extension PaywallView {
                 ProgressView("Loading plans...")
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 24)
-                    .background(RadixTheme.secondaryBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .radixSurface(RadixTheme.secondaryBackground)
             } else if entitlement.products.isEmpty {
                 Label("Plans are not available right now. Please try again later.", systemImage: "wifi.exclamationmark")
                     .foregroundStyle(.secondary)
                     .padding(18)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(RadixTheme.secondaryBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .radixSurface(RadixTheme.secondaryBackground)
             } else {
                 VStack(spacing: 12) {
                     ForEach(entitlement.products, id: \.id) { product in
@@ -96,16 +94,14 @@ extension PaywallView {
                 .foregroundStyle(isRadixPlus ? RadixAccent.onPrimary : RadixAccent.primary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(isRadixPlus ? RadixAccent.primary : RadixAccent.primary.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(isRadixPlus ? RadixAccent.primary : RadixAccent.primary.opacity(0.08))
             }
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(isRadixPlus ? RadixAccent.primary.opacity(0.07) : RadixTheme.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(isRadixPlus ? RadixAccent.primary.opacity(0.35) : RadixTheme.separator, lineWidth: isRadixPlus ? 2 : 1)
+            .radixSurface(
+                isRadixPlus ? RadixAccent.primary.opacity(0.07) : RadixTheme.secondaryBackground,
+                border: isRadixPlus ? RadixAccent.primary.opacity(0.35) : RadixTheme.separator,
+                borderWidth: isRadixPlus ? 2 : 1
             )
         }
         .buttonStyle(.plain)
@@ -195,10 +191,11 @@ extension PaywallView {
     func badge(_ text: String, emphasized: Bool = false) -> some View {
         Text(text)
             .font(ResponsiveFont.caption2.weight(.bold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(emphasized ? RadixAccent.primary.opacity(0.14) : Color.orange.opacity(0.14))
             .foregroundStyle(emphasized ? RadixAccent.primary : Color.orange)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .radixPill(
+                horizontal: 8,
+                vertical: 4,
+                background: emphasized ? RadixAccent.primary.opacity(0.14) : Color.orange.opacity(0.14)
+            )
     }
 }

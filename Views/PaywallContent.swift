@@ -34,12 +34,7 @@ extension PaywallView {
             }
         }
         .padding(20)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(RadixAccent.primary.opacity(0.18), lineWidth: 1)
-        )
+        .radixSurface(RadixTheme.secondaryBackground, border: RadixAccent.primary.opacity(0.18))
     }
 
     var featureSection: some View {
@@ -56,8 +51,7 @@ extension PaywallView {
             }
         }
         .padding(18)
-        .background(RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.secondaryBackground)
     }
 
     func benefit(_ text: String) -> some View {
@@ -74,9 +68,6 @@ extension PaywallView {
     func heroChip(_ text: String) -> some View {
         Text(text)
             .font(ResponsiveFont.caption.weight(.semibold))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(RadixTheme.background.opacity(0.8))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .radixPill(horizontal: 10, vertical: 6, background: RadixTheme.background.opacity(0.8))
     }
 }
