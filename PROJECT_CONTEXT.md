@@ -235,7 +235,8 @@ interaction hint containers use `radixSurface` for their simple rounded
 backgrounds.
 Simple status and summary surfaces in Settings, Paywall, Add Phrase review,
 Capture messages, and phrase-discovery feedback/results also use
-`radixSurface`.
+`radixSurface`. Conversation Practice import status banners use the same helper
+for success and error feedback.
 Paywall plan cards, hero panels, loading states, and fixed benefit chips share
 Radix surface and pill primitives while preserving local paywall tint choices.
 Quick phrase/character editor notes, meaning fields, and compact dictionary

@@ -126,8 +126,7 @@ extension FavouritesTab {
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(RadixAccent.primary.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(RadixAccent.primary.opacity(0.1), radius: 8)
         } else if let error = conversationPracticeImportError {
             Label(error, systemImage: "exclamationmark.triangle")
                 .font(ResponsiveFont.caption.weight(.semibold))
@@ -136,8 +135,7 @@ extension FavouritesTab {
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.red.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(Color.red.opacity(0.08), radius: 8)
         }
     }
 
