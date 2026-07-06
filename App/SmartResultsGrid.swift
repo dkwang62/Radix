@@ -63,8 +63,12 @@ struct SmartResultsGrid: View {
                         Button {
                             currentPage = max(0, safePage - 1)
                         } label: {
-                            Image(systemName: "chevron.left")
-                                .frame(width: 30, height: 30)
+                            RadixCompactChevronLabel(
+                                chevronSystemName: "chevron.left",
+                                chevronOpacity: 1,
+                                width: 30,
+                                height: 30
+                            )
                         }
                         .font(ResponsiveFont.caption)
                         .buttonStyle(.bordered)
@@ -80,8 +84,12 @@ struct SmartResultsGrid: View {
                         Button {
                             currentPage = min(pageCount - 1, safePage + 1)
                         } label: {
-                            Image(systemName: "chevron.right")
-                                .frame(width: 30, height: 30)
+                            RadixCompactChevronLabel(
+                                chevronSystemName: "chevron.right",
+                                chevronOpacity: 1,
+                                width: 30,
+                                height: 30
+                            )
                         }
                         .font(ResponsiveFont.caption)
                         .buttonStyle(.bordered)

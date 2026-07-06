@@ -134,6 +134,8 @@ action menus, text-only page jump menus, and icon-only menu split buttons on
 that helper. Navigation title dropdown labels and compact row expanders should
 also use it when they are only title/icon plus chevron, so toolbar-scale
 chevrons, spacing, and scaling do not drift from the full-width row primitives.
+Small previous/next pager arrows also use `RadixCompactChevronLabel` as the
+button label while keeping their owning button styles local.
 UI polish passes should flow through `Services/RadixTheme.swift` primitives
 (`radixCard`, `radixPill`, `radixSurface`, shared spacing/radius/icon sizes,
 and haptic helpers) before touching many screens. Preserve the asset-catalog

@@ -81,6 +81,7 @@ struct RadixCompactChevronLabel: View {
     var font: Font = ResponsiveFont.caption2.weight(.semibold)
     var chevronFont: Font = .system(size: 9, weight: .bold)
     var chevronForegroundStyle: Color? = nil
+    var chevronOpacity: Double = 0.75
     var spacing: CGFloat = 5
     var minWidth: CGFloat? = nil
     var width: CGFloat? = nil
@@ -112,7 +113,7 @@ struct RadixCompactChevronLabel: View {
                         .font(chevronFont)
                 }
             }
-            .opacity(0.75)
+            .opacity(chevronOpacity)
         }
         .font(font)
         .lineLimit(1)

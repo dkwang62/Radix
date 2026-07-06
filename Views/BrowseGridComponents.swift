@@ -111,8 +111,12 @@ struct DictionaryGridFooter: View {
     var body: some View {
         HStack(spacing: 18) {
             Button(action: onPrevious) {
-                Image(systemName: "chevron.left")
-                    .frame(width: 36, height: 32)
+                RadixCompactChevronLabel(
+                    chevronSystemName: "chevron.left",
+                    chevronOpacity: 1,
+                    width: 36,
+                    height: 32
+                )
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
@@ -125,8 +129,12 @@ struct DictionaryGridFooter: View {
                 .monospacedDigit()
 
             Button(action: onNext) {
-                Image(systemName: "chevron.right")
-                    .frame(width: 36, height: 32)
+                RadixCompactChevronLabel(
+                    chevronSystemName: "chevron.right",
+                    chevronOpacity: 1,
+                    width: 36,
+                    height: 32
+                )
             }
             .buttonStyle(.bordered)
             .controlSize(.small)

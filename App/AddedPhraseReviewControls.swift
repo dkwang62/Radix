@@ -270,9 +270,13 @@ extension AddedPhraseReviewSheet {
 
     func pageButton(systemImage: String, action: @escaping () -> Void, isEnabled: Bool) -> some View {
         Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 12, weight: .semibold))
-                .frame(width: 30, height: 24)
+            RadixCompactChevronLabel(
+                chevronSystemName: systemImage,
+                chevronFont: .system(size: 12, weight: .semibold),
+                chevronOpacity: 1,
+                width: 30,
+                height: 24
+            )
         }
         .buttonStyle(.borderedProminent)
         .controlSize(.small)

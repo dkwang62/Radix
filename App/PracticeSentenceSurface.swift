@@ -10,9 +10,13 @@ extension FavouritesTab {
     ) -> some View {
         HStack(spacing: 6) {
             Button(action: onPrevious) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: RadixIconSize.small, weight: .bold))
-                    .frame(width: 26, height: 26)
+                RadixCompactChevronLabel(
+                    chevronSystemName: "chevron.left",
+                    chevronFont: .system(size: RadixIconSize.small, weight: .bold),
+                    chevronOpacity: 1,
+                    width: 26,
+                    height: 26
+                )
             }
             .buttonStyle(.plain)
             .foregroundStyle(canMovePrevious ? RadixAccent.primary : .secondary)
@@ -27,9 +31,13 @@ extension FavouritesTab {
                 .minimumScaleFactor(0.8)
 
             Button(action: onNext) {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: RadixIconSize.small, weight: .bold))
-                    .frame(width: 26, height: 26)
+                RadixCompactChevronLabel(
+                    chevronSystemName: "chevron.right",
+                    chevronFont: .system(size: RadixIconSize.small, weight: .bold),
+                    chevronOpacity: 1,
+                    width: 26,
+                    height: 26
+                )
             }
             .buttonStyle(.plain)
             .foregroundStyle(canMoveNext ? RadixAccent.primary : .secondary)
