@@ -136,6 +136,9 @@ also use it when they are only title/icon plus chevron, so toolbar-scale
 chevrons, spacing, and scaling do not drift from the full-width row primitives.
 Character Studio's compact dictionary-field expander follows this same helper
 instead of separately laying out the text and disclosure chevron.
+Focused Study workspaces share one local back-pill renderer so Conversation
+Practice, Sentences, and future full-screen Study sections keep return action
+spacing and tint aligned.
 Small previous/next pager arrows and row-accessory disclosure arrows also use
 `RadixCompactChevronLabel` as the icon label while keeping their owning button
 styles and row surfaces local. Expanded/collapsed text toggles such as AI

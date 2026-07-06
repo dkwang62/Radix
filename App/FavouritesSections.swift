@@ -92,21 +92,14 @@ extension FavouritesTab {
     }
 
     var conversationPracticeBackButton: some View {
-        Button {
+        focusedStudyBackButton(title: conversationPracticeBackButtonTitle) {
             withAnimation(.snappy(duration: 0.18)) {
                 isShowingConversationPractice = false
             }
             if store.rootsReturnContext != nil {
                 store.returnFromRoots()
             }
-        } label: {
-            Label(conversationPracticeBackButtonTitle, systemImage: "chevron.left")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .labelStyle(.titleAndIcon)
-                .radixPill(horizontal: 10, vertical: 7, background: RadixAccent.primary.opacity(0.1))
         }
-        .buttonStyle(.plain)
-        .foregroundStyle(RadixAccent.primary)
     }
 
     var conversationPracticeBackButtonTitle: String {
@@ -154,12 +147,16 @@ extension FavouritesTab {
     }
 
     var sentenceExamplesBackButton: some View {
-        Button {
+        focusedStudyBackButton(title: "Back to Study") {
             withAnimation(.snappy(duration: 0.18)) {
                 isShowingSentenceExamples = false
             }
-        } label: {
-            Label("Back to Study", systemImage: "chevron.left")
+        }
+    }
+
+    func focusedStudyBackButton(title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: "chevron.left")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .labelStyle(.titleAndIcon)
                 .radixPill(horizontal: 10, vertical: 7, background: RadixAccent.primary.opacity(0.1))
