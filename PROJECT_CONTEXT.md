@@ -190,6 +190,8 @@ Browse filter menu chips use `radixPill` while preserving picker-owned height.
 Smart Search result headers use `radixCard` for their compact summary surface.
 Smart Search example buttons are a fixed three-action set and use explicit
 `ViewThatFits` rows/stacks rather than a lazy grid.
+Paywall benefit copy is a short fixed list and stays in a simple stack rather
+than a lazy grid.
 Compact management rows such as checkpoints and other-device summaries also use
 the icon surface helper for leading status glyphs.
 Root-level and Browse editing/report sheets declare their expected detents at

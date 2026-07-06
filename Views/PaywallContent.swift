@@ -47,11 +47,7 @@ extension PaywallView {
             Text("What unlocks")
                 .font(ResponsiveFont.headline)
 
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 260), spacing: 10)],
-                alignment: .leading,
-                spacing: 10
-            ) {
+            VStack(alignment: .leading, spacing: 10) {
                 benefit("Free includes 100 Camera or Text pages and unlimited review of saved items")
                 benefit("Radix Plus unlocks unlimited pages, Album/File import, and local snapshots")
                 benefit("Radix Plus includes iCloud backup across iPhone, iPad, and Mac")
