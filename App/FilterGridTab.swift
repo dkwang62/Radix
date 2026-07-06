@@ -186,6 +186,7 @@ struct FilterGridTab: View {
                     onCancel: { showManualCollectionSheet = false },
                     onSave: saveManualCollection
                 )
+                .presentationDetents([.medium, .large])
             }
             .sheet(item: $editingCollection) { collection in
                 EditBrowseCollectionSheet(
@@ -201,6 +202,7 @@ struct FilterGridTab: View {
                         saveEditedCollection(collection)
                     }
                 )
+                .presentationDetents([.medium, .large])
             }
             .sheet(item: $translationReportCollection) { collection in
                 BrowseTranslationReportSheet(
@@ -212,10 +214,12 @@ struct FilterGridTab: View {
                     onClear: { clearTranslationReport(collection) },
                     onDone: { translationReportCollection = nil }
                 )
+                .presentationDetents([.large])
             }
             .sheet(item: $pagePhraseListCollection) { collection in
                 BrowsePagePhraseListSheet(collectionID: collection.id)
                     .environmentObject(store)
+                    .presentationDetents([.medium, .large])
             }
             .sheet(isPresented: $showBrowseCamera) {
                 CameraCaptureView { image in

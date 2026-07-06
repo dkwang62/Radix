@@ -64,10 +64,12 @@ struct RootView: View {
         .sheet(isPresented: store.presentationBinding(\.showPaywall)) {
             PaywallView(featureName: store.paywallFeatureName)
                 .environmentObject(entitlement)
+                .presentationDetents([.large])
         }
         .sheet(item: store.presentationBinding(\.quickEditDestination)) { destination in
             QuickEditSheet(destination: destination)
                 .environmentObject(store)
+                .presentationDetents([.medium, .large])
         }
         .alert("Return to Checkpoint?", isPresented: Binding(
             get: { pendingSidebarCheckpointReturn != nil },
@@ -98,6 +100,7 @@ struct RootView: View {
             RadixWelcomeView {
                 hasSeenWelcome = true
             }
+            .presentationDetents([.large])
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .inactive || newPhase == .background {
