@@ -289,9 +289,10 @@ struct SettingsView: View {
             Image(systemName: "slider.horizontal.3")
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(Color.accentColor)
-                .frame(width: 42, height: 42)
-                .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixIconButtonSurface(
+                    size: 42,
+                    background: Color.accentColor.opacity(0.12)
+                )
 
             VStack(alignment: .leading, spacing: 3) {
                 Text("Preferences")

@@ -240,9 +240,11 @@ struct NavigationGuidePopover: View {
                             Image(systemName: action.icon)
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundStyle(Color.accentColor)
-                                .frame(width: 24, height: 24)
-                                .background(Color.accentColor.opacity(0.1))
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .radixIconButtonSurface(
+                                    size: 24,
+                                    background: Color.accentColor.opacity(0.1),
+                                    radius: 6
+                                )
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(action.title)
