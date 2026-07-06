@@ -248,6 +248,8 @@ Phrase lookup list containers, phrase-length filter chips, and photo import
 action rows use shared surface/pill helpers while preserving their fixed sizing.
 Breadcrumb chips, Browse dictionary filter toggles, and reusable search example
 buttons use shared surface helpers while preserving their compact control sizes.
+Root sidebar checkpoint panels, preview shells, root action tiles, empty states,
+and compact script toggles use shared surface helpers for simple containers.
 Root-level and Browse editing/report sheets declare their expected detents at
 the `.sheet` presentation boundary so modal height behavior stays consistent
 without restructuring the sheet content views.

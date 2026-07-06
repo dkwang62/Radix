@@ -279,6 +279,7 @@ struct NavigationGuidePopover: View {
 }
 
 
+@MainActor
 func emptyStateCard(systemImage: String, title: String, message: String) -> some View {
     VStack(spacing: 8) {
         Image(systemName: systemImage)
@@ -293,8 +294,7 @@ func emptyStateCard(systemImage: String, title: String, message: String) -> some
     }
     .padding()
     .frame(maxWidth: .infinity, alignment: .center)
-    .background(RadixTheme.secondaryBackground)
-    .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
+    .radixSurface(RadixTheme.secondaryBackground)
     .padding()
 }
 
@@ -332,8 +332,7 @@ struct PrimaryActionTile: View {
         .padding(.vertical, 10)
         .frame(maxWidth: .infinity, minHeight: RadixControlMetrics.prominentHeight, alignment: .leading)
         .foregroundStyle(isPrimary ? Color.white : Color.primary)
-        .background(isPrimary ? RadixAccent.primary : RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
+        .radixSurface(isPrimary ? RadixAccent.primary : RadixTheme.secondaryBackground)
     }
 }
 
@@ -367,9 +366,8 @@ struct CompactScriptToggle: View {
             Text(isTraditional ? "繁" : "简")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .frame(minWidth: minWidth, minHeight: height)
-                .background(RadixAccent.primary)
                 .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
+                .radixSurface(RadixAccent.primary)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(accessibilityLabel)
@@ -401,9 +399,8 @@ struct CompactScriptFilterControl: View {
                 .font(ResponsiveFont.subheadline.weight(.semibold))
                 .frame(minWidth: selection == .any ? 44 : 34, minHeight: RadixControlMetrics.compactHeight)
                 .padding(.horizontal, selection == .any ? 2 : 0)
-                .background(RadixAccent.primary)
                 .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 9))
+                .radixSurface(RadixAccent.primary, radius: 9)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Character set")

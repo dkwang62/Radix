@@ -235,11 +235,10 @@ extension RootView {
             sidebarCheckpointRows
         }
         .padding(8)
-        .background(RadixTheme.secondaryBackground.opacity(0.58))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(RadixTheme.separator, lineWidth: 0.5)
+        .radixSurface(
+            RadixTheme.secondaryBackground.opacity(0.58),
+            border: RadixTheme.separator,
+            borderWidth: 0.5
         )
     }
 
@@ -251,8 +250,7 @@ extension RootView {
                 .foregroundStyle(.secondary)
                 .padding(8)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(RadixTheme.background)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(RadixTheme.background)
         } else {
             VStack(spacing: 6) {
                 ForEach(Array(quickLocalSnapshots.prefix(3))) { checkpoint in
@@ -301,8 +299,7 @@ extension RootView {
         }
         .padding(8)
         .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-        .background(RadixAccent.primary.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixAccent.primary.opacity(0.08))
     }
 
     func sidebarCheckpointRow(_ checkpoint: LocalDataSnapshot) -> some View {
@@ -334,8 +331,7 @@ extension RootView {
         .padding(.horizontal, 8)
         .padding(.vertical, 7)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RadixTheme.background)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.background)
     }
 
     @ViewBuilder
@@ -364,11 +360,10 @@ extension RootView {
                 }
             }
             .padding(8)
-            .background(RadixTheme.secondaryBackground.opacity(0.7))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(RadixTheme.separator, lineWidth: 0.5)
+            .radixSurface(
+                RadixTheme.secondaryBackground.opacity(0.7),
+                border: RadixTheme.separator,
+                borderWidth: 0.5
             )
         }
     }
