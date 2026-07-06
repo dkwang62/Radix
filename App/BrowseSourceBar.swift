@@ -73,13 +73,14 @@ extension FilterGridTab {
                     .background(RadixTheme.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
 
-                Text("Dictionary")
-                    .font(ResponsiveFont.body.weight(.semibold))
-                    .lineLimit(1)
-
-                Image(systemName: showDictionaryHelp ? "chevron.up" : "chevron.down")
-                    .font(ResponsiveFont.caption.weight(.bold))
-                    .foregroundStyle(.secondary)
+                RadixCompactChevronLabel(
+                    title: "Dictionary",
+                    chevronSystemName: showDictionaryHelp ? "chevron.up" : "chevron.down",
+                    font: ResponsiveFont.body.weight(.semibold),
+                    chevronFont: ResponsiveFont.caption.weight(.bold),
+                    chevronForegroundStyle: .secondary,
+                    spacing: 8
+                )
             }
         }
         .buttonStyle(.plain)

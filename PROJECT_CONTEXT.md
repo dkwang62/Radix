@@ -128,7 +128,7 @@ dropdowns, AI quantity selection, collapsed AI result text, and Conversation
 Practice topic selection, and Components Explorer disclosure headers should keep
 row icon size, chevron, border, radius, and missing-state tint there instead of
 hand-copying row styling.
-Compact menu buttons with an icon, label, and down chevron use
+Compact menu buttons or disclosure labels with an icon, label, and chevron use
 `RadixCompactChevronLabel`; keep page action menus and phrase-review filter or
 action menus, text-only page jump menus, and icon-only menu split buttons on
 that helper. Navigation title dropdown labels and compact row expanders should
