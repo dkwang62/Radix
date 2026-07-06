@@ -154,6 +154,7 @@ struct AddPhraseInputForm: View {
             let trimmed = store.normalizedPhraseWord(word)
             try store.addCustomPhrase(word: trimmed, pinyin: pinyin, meanings: meanings, notes: notes)
             editorError = nil
+            RadixHaptics.success()
             onAdd(
                 PhraseDiscoveryCandidate(
                     phrase: trimmed,
@@ -169,6 +170,7 @@ struct AddPhraseInputForm: View {
             notes = ""
         } catch {
             editorError = error.localizedDescription
+            RadixHaptics.error()
         }
     }
 }

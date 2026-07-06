@@ -117,6 +117,11 @@ struct AddPhraseExtractForm: View {
         )
         message = summary.message(defaultAIName: store.defaultAIName)
         resultMessage = message
+        if errors.isEmpty && added > 0 {
+            RadixHaptics.success()
+        } else if !errors.isEmpty {
+            RadixHaptics.error()
+        }
         if !addedCandidates.isEmpty {
             onReviewAdded()
         }
@@ -134,5 +139,6 @@ struct AddPhraseExtractForm: View {
         addedPhrases.removeAll { $0.phrase == candidate.phrase }
         message = CaptureStatusText.removedPhrase(candidate.phrase)
         resultMessage = message
+        RadixHaptics.light()
     }
 }

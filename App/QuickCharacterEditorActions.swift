@@ -48,6 +48,7 @@ extension QuickCharacterEditorView {
         } else if store.changedDictionaryCharacters.contains(store.dataEditCharacter) {
             Button("Revert") {
                 store.restoreFromLibrary()
+                RadixHaptics.light()
                 dismiss()
             }
             .buttonStyle(.bordered)
@@ -58,9 +59,11 @@ extension QuickCharacterEditorView {
     func deleteCurrentCharacter() {
         do {
             try store.deleteCurrentDataEditEntry()
+            RadixHaptics.success()
             dismiss()
         } catch {
             editorError = error.localizedDescription
+            RadixHaptics.error()
         }
     }
 
@@ -68,9 +71,11 @@ extension QuickCharacterEditorView {
         do {
             try store.saveCurrentDictionaryDraft()
             editorError = nil
+            RadixHaptics.success()
             dismiss()
         } catch {
             editorError = error.localizedDescription
+            RadixHaptics.error()
         }
     }
 }

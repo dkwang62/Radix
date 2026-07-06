@@ -195,6 +195,9 @@ of background, clipShape, and overlay chains has already produced runtime
 regressions even when tests and builds passed.
 Add Phrase input form sections and text editors use the shared surface helper
 for their simple rounded backgrounds and borders.
+Shared haptics are wired into focused mutation moments: adding phrases, importing
+AI pasted phrases, removing an added phrase from the current review batch,
+saving phrase notes, and saving/reverting/deleting edited characters.
 Browse source status messages use `radixPill` for their inline feedback chip.
 Browse filter menu chips use `radixPill` while preserving picker-owned height.
 Smart Search result headers use `radixCard` for their compact summary surface.

@@ -108,11 +108,13 @@ extension PhraseInfoCard {
             )
             hasLocalNotes = true
             editStatus = "Notes saved."
+            RadixHaptics.success()
             withAnimation(.easeInOut(duration: 0.2)) {
                 isEditingNotes = false
             }
         } catch {
             editStatus = "Save failed: \(error.localizedDescription)"
+            RadixHaptics.error()
         }
     }
 }
