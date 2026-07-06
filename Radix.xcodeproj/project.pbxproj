@@ -99,6 +99,7 @@
 		70E05D2427C79B3EAC679445 /* QuickCharacterEditorPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C2F079E763FAB927F08ECC /* QuickCharacterEditorPrompt.swift */; };
 		710EDFA9EADA2E4A83843E81 /* AddedPhraseReviewGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCCE5C9535CFE1A3292C23EB /* AddedPhraseReviewGrid.swift */; };
 		7113B1F25FBE7F50ED948C88 /* AILinkPromptGeneration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A18EB964381ED5C06B0960 /* AILinkPromptGeneration.swift */; };
+		7251D61C6D4E41E7A16E8D24 /* RadixMenuSelectorRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7251D61B6D4E41E7A16E8D24 /* RadixMenuSelectorRow.swift */; };
 		73E974D72068440CBC8F8EB3 /* StudyGridComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C815C00FA292B9750F68A6CA /* StudyGridComponents.swift */; };
 		795EC220C8541A3600C01EDA /* SmartSearchPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBBAE2D7A8E93163265581F /* SmartSearchPreview.swift */; };
 		7A08FF34AC518A10FD7CF881 /* PhraseInfoHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7858C7214C7B55FB9E03E5D0 /* PhraseInfoHeader.swift */; };
@@ -451,6 +452,7 @@
 		980725005B8270F5C225F4FC /* QuickEditFieldRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEditFieldRows.swift; sourceTree = "<group>"; };
 		98587459BD80A7C55018CD49 /* RadixInteractionPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixInteractionPreferences.swift; sourceTree = "<group>"; };
 		9A8E3A65B18B4BBE9D9F5511 /* RadixInlineHelpDisclosure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixInlineHelpDisclosure.swift; sourceTree = "<group>"; };
+		7251D61B6D4E41E7A16E8D24 /* RadixMenuSelectorRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixMenuSelectorRow.swift; sourceTree = "<group>"; };
 		9B7F5C8C9FCF78E23E125C52 /* ComponentCharacterTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentCharacterTile.swift; sourceTree = "<group>"; };
 		9BF651D793C06A737C7984F2 /* CameraCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureView.swift; sourceTree = "<group>"; };
 		9C1BCCCBE43BB69392F3847D /* InteractionHintRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionHintRow.swift; sourceTree = "<group>"; };
@@ -864,6 +866,7 @@
 				15A9DBE67334568FD280FFEE /* GlossaryView.swift */,
 				9C1BCCCBE43BB69392F3847D /* InteractionHintRow.swift */,
 				9A8E3A65B18B4BBE9D9F5511 /* RadixInlineHelpDisclosure.swift */,
+				7251D61B6D4E41E7A16E8D24 /* RadixMenuSelectorRow.swift */,
 				4B351B9317249CCDF2B1953A /* LightweightCharacterPreviewCard.swift */,
 				7E5D97C4FFF89450F8368529 /* PaywallContent.swift */,
 				451EF2BCCC7137CADEF9DA60 /* PaywallFooter.swift */,
@@ -1042,6 +1045,7 @@
 				39785996C0C7D74A636AA4FE /* AILinkPromptOutput.swift in Sources */,
 				9BEB64DA11DF3BDD49265EAE /* AILinkTemplateEditor.swift in Sources */,
 				08FB8569C66966596551E0E2 /* AILinkView.swift in Sources */,
+				7251D61C6D4E41E7A16E8D24 /* RadixMenuSelectorRow.swift in Sources */,
 				E0B9DCC48818910D85D64BB4 /* AddPhraseExtractForm.swift in Sources */,
 				39E3AC12B65DD5F2F733BE8D /* AddPhraseInputForm.swift in Sources */,
 				3FF97E7C69F1CA70B1BAFB8F /* AddPhraseReview.swift in Sources */,

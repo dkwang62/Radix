@@ -68,40 +68,11 @@ extension FavouritesTab {
                 Label("Import JSON File", systemImage: "square.and.arrow.down")
             }
         } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "list.bullet.rectangle.portrait")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 30, height: 30)
-                    .background(Color.accentColor.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(selectedTopic.title)
-                        .font(ResponsiveFont.body.weight(.semibold))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                    Text(conversationPracticeTopicSubtitle(selectedTopic))
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                }
-                .layoutPriority(1)
-
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(.secondary)
-            }
-            .padding(10)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RadixTheme.background)
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+            RadixMenuSelectorRow(
+                icon: "list.bullet.rectangle.portrait",
+                title: selectedTopic.title,
+                subtitle: conversationPracticeTopicSubtitle(selectedTopic)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
     }
