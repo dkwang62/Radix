@@ -209,8 +209,9 @@ gradients, sentence action icons, and phone-tab active fills also use the alias.
 The direct `Color.accentColor` audit is complete across `App/`, `Views/`,
 `Models/`, `Services/`, and `ViewModels`; only the alias definition in
 `RadixTheme` should reference it directly.
-Add Phrase input form sections and text editors use the shared surface helper
-for their simple rounded backgrounds and borders.
+Add Phrase input form sections and text editors, plus Capture source cards,
+workflow hints, previews, saved-page rows, and character editors, use the shared
+surface helper for simple rounded backgrounds and borders.
 Shared haptics are wired into focused mutation moments: adding phrases, importing
 AI pasted phrases, removing an added phrase from the current review batch,
 saving phrase notes, saving/reverting/deleting edited characters, deleting

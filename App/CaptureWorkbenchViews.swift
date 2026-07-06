@@ -136,18 +136,16 @@ private struct CaptureSourceButton: View {
                     .padding(.horizontal, 7)
                     .padding(.vertical, 4)
                     .foregroundStyle(RadixAccent.primary)
-                    .background(RadixAccent.primary.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .radixSurface(RadixAccent.primary.opacity(0.12), radius: 8)
             }
         }
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
         .foregroundStyle(isPrimary ? Color.white : Color.primary)
-        .background(isPrimary ? RadixAccent.primary : RadixTheme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(isPrimary ? RadixAccent.primary : RadixTheme.separator.opacity(0.35), lineWidth: 1)
+        .radixSurface(
+            isPrimary ? RadixAccent.primary : RadixTheme.secondaryBackground,
+            radius: 8,
+            border: isPrimary ? RadixAccent.primary : RadixTheme.separator.opacity(0.35)
         )
     }
 }
@@ -178,8 +176,7 @@ private struct CaptureWorkflowHint: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RadixTheme.secondaryBackground.opacity(0.55))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.secondaryBackground.opacity(0.55), radius: 8)
     }
 
     private var stepContent: some View {
@@ -213,8 +210,7 @@ struct CaptureImagePreview: View {
                 .frame(maxHeight: 260)
                 .frame(maxWidth: .infinity)
                 .padding(8)
-                .background(RadixTheme.secondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(RadixTheme.secondaryBackground, radius: 8)
         }
     }
 }
@@ -365,8 +361,7 @@ struct SavedImageRow: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
-        .background(RadixTheme.secondaryBackground.opacity(0.55))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.secondaryBackground.opacity(0.55), radius: 8)
     }
 
     @ViewBuilder
@@ -419,8 +414,7 @@ struct CaptureCharactersSection: View {
                 .font(ResponsiveFont.body)
                 .frame(minHeight: 70)
                 .padding(6)
-                .background(RadixTheme.secondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixSurface(RadixTheme.secondaryBackground, radius: 8)
         }
     }
 

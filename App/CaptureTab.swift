@@ -195,8 +195,7 @@ struct CaptureTab: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RadixTheme.secondaryBackground.opacity(0.55))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .radixSurface(RadixTheme.secondaryBackground.opacity(0.55), radius: 8)
     }
 
     private var isPhoneCapturePreviewActive: Bool {
