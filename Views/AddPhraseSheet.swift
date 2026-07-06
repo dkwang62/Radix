@@ -44,9 +44,10 @@ struct AddPhraseSheet: View {
             Image(systemName: step == .add ? "text.badge.plus" : "checkmark.circle")
                 .font(ResponsiveFont.title3.weight(.semibold))
                 .foregroundStyle(Color.accentColor)
-                .frame(width: 34, height: 34)
-                .background(Color.accentColor.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .radixIconButtonSurface(
+                    size: 34,
+                    background: Color.accentColor.opacity(0.12)
+                )
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(step == .add ? "Add Phrases" : "Review Added")
