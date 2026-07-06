@@ -42,12 +42,7 @@ extension CharacterDetailView {
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
             }
-            .font(ResponsiveFont.subheadline.weight(.semibold))
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(RadixTheme.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .frame(minHeight: 42)
+            .characterDetailActionSurface(font: ResponsiveFont.subheadline.weight(.semibold))
         }
         .buttonStyle(.plain)
     }
@@ -57,12 +52,7 @@ extension CharacterDetailView {
             store.openQuickCharacterEditor(item.character)
         } label: {
             Label("Notes", systemImage: "square.and.pencil")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .background(RadixTheme.secondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .frame(minHeight: 42)
+                .characterDetailActionSurface()
         }
         .buttonStyle(.plain)
     }
@@ -72,13 +62,21 @@ extension CharacterDetailView {
             store.goToRoots(character: item.character)
         } label: {
             Label("Breakdown", systemImage: "tree")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .background(RadixTheme.secondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .frame(minHeight: 42)
+                .characterDetailActionSurface()
         }
         .buttonStyle(.plain)
+    }
+}
+
+private extension View {
+    func characterDetailActionSurface(
+        font: Font = ResponsiveFont.caption.weight(.semibold)
+    ) -> some View {
+        self
+            .font(font)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .radixSurface(RadixTheme.secondaryBackground)
+            .frame(minHeight: 42)
     }
 }
