@@ -250,6 +250,7 @@ extension FavouritesTab {
             keepOriginalAsArchive: keepOriginal
         ) else {
             setStudyPageActionMessage("Could not promote the corrected OCR page.", for: promotion.original)
+            RadixHaptics.error()
             return
         }
         loadImportedConversationPracticePacks()
@@ -259,6 +260,7 @@ extension FavouritesTab {
                 : "Promoted corrected OCR. The original OCR copy was deleted.",
             for: promoted
         )
+        RadixHaptics.success()
     }
 
     func beginStudyAILinkPageTask(_ collection: CharacterCollection, taskID: String) {

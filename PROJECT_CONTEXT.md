@@ -213,7 +213,10 @@ Add Phrase input form sections and text editors use the shared surface helper
 for their simple rounded backgrounds and borders.
 Shared haptics are wired into focused mutation moments: adding phrases, importing
 AI pasted phrases, removing an added phrase from the current review batch,
-saving phrase notes, and saving/reverting/deleting edited characters.
+saving phrase notes, saving/reverting/deleting edited characters, deleting
+added-phrase batches or single phrases, erasing local app data, importing or
+deleting Conversation Practice packs, promoting corrected OCR pages, and
+completing backup restores.
 Browse source status messages use `radixPill` for their inline feedback chip.
 Browse filter menu chips use `radixPill` while preserving picker-owned height.
 Smart Search result headers use `radixCard` for their compact summary surface.

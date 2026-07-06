@@ -299,8 +299,10 @@ extension AddedPhraseReviewSheet {
             selectedPhrase = nil
             resetPageAndSelection()
             message = "Deleted \(count) unreviewed phrase\(count == 1 ? "" : "s")."
+            RadixHaptics.success()
         } catch {
             message = "Could not delete unreviewed phrases: \(error.localizedDescription)"
+            RadixHaptics.error()
         }
     }
 
@@ -318,8 +320,10 @@ extension AddedPhraseReviewSheet {
             selectedPhrase = nil
             resetPageAndSelection()
             message = "Deleted \(count) rejected phrase\(count == 1 ? "" : "s")."
+            RadixHaptics.success()
         } catch {
             message = "Could not delete rejected phrases: \(error.localizedDescription)"
+            RadixHaptics.error()
         }
     }
 
@@ -345,8 +349,10 @@ extension AddedPhraseReviewSheet {
             selectedPhrase = nil
             resetPageAndSelection()
             message = "\(phrase.word) deleted."
+            RadixHaptics.success()
         } catch {
             message = "Could not delete \(phrase.word): \(error.localizedDescription)"
+            RadixHaptics.error()
         }
     }
 

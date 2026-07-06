@@ -146,10 +146,12 @@ extension DataEditTab {
                     : "Merged backup data from: \(pending.filename)"
                 finishBackupRestore(operationID: operationID)
                 showBackupAlert = true
+                RadixHaptics.success()
             } catch {
                 guard isCurrentRestore(operationID) else { return }
                 finishBackupRestore(operationID: operationID)
                 presentBackupError(error.localizedDescription)
+                RadixHaptics.error()
             }
         }
     }

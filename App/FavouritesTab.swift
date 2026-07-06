@@ -537,6 +537,7 @@ struct FavouritesTab: View {
         }
         conversationPracticeImportMessage = "\(replacing ? "Replaced" : "Loaded") \(pack.title) · \(pack.entries.count) sentences"
         conversationPracticeImportError = nil
+        RadixHaptics.success()
     }
 
     func saveImportedConversationPracticePack(_ pack: ConversationPracticePack) {
@@ -611,6 +612,7 @@ struct FavouritesTab: View {
 
         conversationPracticeImportMessage = "Deleted \(topic.title)"
         conversationPracticeImportError = nil
+        RadixHaptics.success()
     }
 
     func generateConversationPracticeTopic(_ topic: ConversationPracticeTopic) {

@@ -238,8 +238,10 @@ struct SettingsView: View {
         do {
             try store.resetRadixMemory()
             resetMemoryStatus = "My data was erased. Device snapshots and API keys were kept."
+            RadixHaptics.success()
         } catch {
             resetMemoryStatus = "Could not erase my data: \(error.localizedDescription)"
+            RadixHaptics.error()
         }
     }
 
