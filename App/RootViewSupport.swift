@@ -170,14 +170,13 @@ extension RootView {
     }
 
     func navigationTitleMenuLabel(_ title: String) -> some View {
-        HStack(spacing: 4) {
-            Text(title)
-                .font(ResponsiveFont.headline.weight(.semibold))
-                .lineLimit(1)
-            Image(systemName: "chevron.down")
-                .font(.system(size: 11, weight: .bold))
-                .foregroundStyle(.secondary)
-        }
+        RadixCompactChevronLabel(
+            title: title,
+            font: ResponsiveFont.headline.weight(.semibold),
+            chevronFont: .system(size: 11, weight: .bold),
+            chevronForegroundStyle: .secondary,
+            spacing: 4
+        )
         .foregroundStyle(.primary)
         .frame(maxWidth: 420)
     }

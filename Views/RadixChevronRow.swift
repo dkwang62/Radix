@@ -80,6 +80,7 @@ struct RadixCompactChevronLabel: View {
     var chevronSystemName = "chevron.down"
     var font: Font = ResponsiveFont.caption2.weight(.semibold)
     var chevronFont: Font = .system(size: 9, weight: .bold)
+    var chevronForegroundStyle: Color? = nil
     var spacing: CGFloat = 5
     var minWidth: CGFloat? = nil
     var width: CGFloat? = nil
@@ -101,9 +102,17 @@ struct RadixCompactChevronLabel: View {
                 Text(title)
             }
 
-            Image(systemName: chevronSystemName)
-                .font(chevronFont)
-                .opacity(0.75)
+            Group {
+                if let chevronForegroundStyle {
+                    Image(systemName: chevronSystemName)
+                        .font(chevronFont)
+                        .foregroundStyle(chevronForegroundStyle)
+                } else {
+                    Image(systemName: chevronSystemName)
+                        .font(chevronFont)
+                }
+            }
+            .opacity(0.75)
         }
         .font(font)
         .lineLimit(1)

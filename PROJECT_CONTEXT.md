@@ -131,8 +131,9 @@ hand-copying row styling.
 Compact menu buttons with an icon, label, and down chevron use
 `RadixCompactChevronLabel`; keep page action menus and phrase-review filter or
 action menus, text-only page jump menus, and icon-only menu split buttons on
-that helper so toolbar-scale chevrons, spacing, and scaling do not drift from
-the full-width row primitives.
+that helper. Navigation title dropdown labels and compact row expanders should
+also use it when they are only title/icon plus chevron, so toolbar-scale
+chevrons, spacing, and scaling do not drift from the full-width row primitives.
 UI polish passes should flow through `Services/RadixTheme.swift` primitives
 (`radixCard`, `radixPill`, `radixSurface`, shared spacing/radius/icon sizes,
 and haptic helpers) before touching many screens. Preserve the asset-catalog

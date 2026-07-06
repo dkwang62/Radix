@@ -411,10 +411,13 @@ extension FavouritesTab {
                 }
             }
 
-            Image(systemName: rowData.isExpanded ? "chevron.up" : "chevron.down")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(.secondary)
-                .frame(width: 22, height: 22)
+            RadixCompactChevronLabel(
+                chevronSystemName: rowData.isExpanded ? "chevron.up" : "chevron.down",
+                chevronFont: .system(size: 12, weight: .bold),
+                chevronForegroundStyle: .secondary,
+                width: 22,
+                height: 22
+            )
         }
         .frame(minHeight: 44)
     }
