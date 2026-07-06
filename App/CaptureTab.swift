@@ -108,6 +108,7 @@ struct CaptureTab: View {
                 showCamera = false
                 errorMessage = error.localizedDescription
             }
+            .presentationDetents([.large])
         }
         .onAppear {
             freePageUseCount = RadixCaptureUsage.freeScanCount

@@ -229,6 +229,7 @@ struct FilterGridTab: View {
                     showBrowseCamera = false
                     imageActionMessage = error.localizedDescription
                 }
+                .presentationDetents([.large])
             }
             .alert(item: $aiFallbackTask) { task in
                 Alert(

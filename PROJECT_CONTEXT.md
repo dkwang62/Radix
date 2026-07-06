@@ -233,6 +233,8 @@ AI Template editing, page AI orientation, Conversation Practice flashcards,
 character quiz, translation quiz, and pasted Practice import sheets also declare
 their expected detents at the presentation boundary; drill sheets use full
 height, while compact orientation/import workflows allow medium or large.
+Camera capture sheets in Capture and Browse also declare full-height sheet
+detents so live image capture keeps a predictable workspace.
 Added Phrase Review keeps its review surface and phrase grid directly framed
 with `maxWidth`/`maxHeight`, using fixed platform page sizes instead of
 geometry-driven adaptive paging so SwiftUI does not rebuild the sheet through
