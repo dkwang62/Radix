@@ -63,25 +63,7 @@ extension CharacterDetailView {
                     }
                 }
 
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 130), spacing: 8)], alignment: .leading, spacing: 8) {
-                    characterMetric(
-                        title: "Frequency",
-                        value: item.rank.map { "Rank \($0)" } ?? "Unavailable",
-                        systemImage: "chart.bar"
-                    )
-                    characterMetric(
-                        title: "Strokes",
-                        value: item.strokes.map { "\($0)" } ?? "Unknown",
-                        systemImage: "pencil.line"
-                    )
-                    if !item.radical.isEmpty {
-                        characterMetric(
-                            title: "Radical",
-                            value: item.radical,
-                            systemImage: "square.split.2x2"
-                        )
-                    }
-                }
+                characterMetrics
             }
             Spacer(minLength: 0)
         }
@@ -91,6 +73,50 @@ extension CharacterDetailView {
             border: RadixTheme.separator,
             borderWidth: 0.5
         )
+    }
+
+    var characterMetrics: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                characterMetric(
+                    title: "Frequency",
+                    value: item.rank.map { "Rank \($0)" } ?? "Unavailable",
+                    systemImage: "chart.bar"
+                )
+                characterMetric(
+                    title: "Strokes",
+                    value: item.strokes.map { "\($0)" } ?? "Unknown",
+                    systemImage: "pencil.line"
+                )
+                if !item.radical.isEmpty {
+                    characterMetric(
+                        title: "Radical",
+                        value: item.radical,
+                        systemImage: "square.split.2x2"
+                    )
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                characterMetric(
+                    title: "Frequency",
+                    value: item.rank.map { "Rank \($0)" } ?? "Unavailable",
+                    systemImage: "chart.bar"
+                )
+                characterMetric(
+                    title: "Strokes",
+                    value: item.strokes.map { "\($0)" } ?? "Unknown",
+                    systemImage: "pencil.line"
+                )
+                if !item.radical.isEmpty {
+                    characterMetric(
+                        title: "Radical",
+                        value: item.radical,
+                        systemImage: "square.split.2x2"
+                    )
+                }
+            }
+        }
     }
 
     func characterMetric(title: String, value: String, systemImage: String) -> some View {
