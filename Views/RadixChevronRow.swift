@@ -10,7 +10,7 @@ struct RadixChevronRow: View {
     var chevronSystemName = "chevron.down"
 
     private var tint: Color {
-        isMissing ? .orange : Color.accentColor
+        isMissing ? .orange : RadixAccent.primary
     }
 
     var body: some View {
@@ -48,7 +48,7 @@ struct RadixChevronRow: View {
         .frame(maxWidth: .infinity, minHeight: minHeight, alignment: .leading)
         .radixSurface(
             RadixTheme.background,
-            border: Color.accentColor.opacity(0.35)
+            border: RadixAccent.primary.opacity(0.35)
         )
     }
 }

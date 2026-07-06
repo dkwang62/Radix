@@ -65,10 +65,10 @@ struct QuickCharacterEditorView: View {
         HStack(alignment: .center, spacing: 12) {
             Image(systemName: isNew ? "character.book.closed" : "square.and.pencil")
                 .font(ResponsiveFont.title3.weight(.semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .radixIconButtonSurface(
                     size: 34,
-                    background: Color.accentColor.opacity(0.12)
+                    background: RadixAccent.primary.opacity(0.12)
                 )
 
             VStack(alignment: .leading, spacing: 2) {

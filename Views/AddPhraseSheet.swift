@@ -43,10 +43,10 @@ struct AddPhraseSheet: View {
         HStack(alignment: .center, spacing: 12) {
             Image(systemName: step == .add ? "text.badge.plus" : "checkmark.circle")
                 .font(ResponsiveFont.title3.weight(.semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .radixIconButtonSurface(
                     size: 34,
-                    background: Color.accentColor.opacity(0.12)
+                    background: RadixAccent.primary.opacity(0.12)
                 )
 
             VStack(alignment: .leading, spacing: 2) {

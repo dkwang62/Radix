@@ -239,10 +239,10 @@ struct NavigationGuidePopover: View {
                         HStack(alignment: .top, spacing: 10) {
                             Image(systemName: action.icon)
                                 .font(.system(size: 15, weight: .semibold))
-                                .foregroundStyle(Color.accentColor)
+                                .foregroundStyle(RadixAccent.primary)
                                 .radixIconButtonSurface(
                                     size: 24,
-                                    background: Color.accentColor.opacity(0.1),
+                                    background: RadixAccent.primary.opacity(0.1),
                                     radius: 6
                                 )
 
@@ -308,10 +308,10 @@ struct PrimaryActionTile: View {
         HStack(spacing: 10) {
             Image(systemName: systemImage)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(isPrimary ? Color.white : Color.accentColor)
+                .foregroundStyle(isPrimary ? Color.white : RadixAccent.primary)
                 .radixIconButtonSurface(
                     size: 34,
-                    background: isPrimary ? Color.white.opacity(0.18) : Color.accentColor.opacity(0.12)
+                    background: isPrimary ? Color.white.opacity(0.18) : RadixAccent.primary.opacity(0.12)
                 )
 
             VStack(alignment: .leading, spacing: 1) {
@@ -332,7 +332,7 @@ struct PrimaryActionTile: View {
         .padding(.vertical, 10)
         .frame(maxWidth: .infinity, minHeight: RadixControlMetrics.prominentHeight, alignment: .leading)
         .foregroundStyle(isPrimary ? Color.white : Color.primary)
-        .background(isPrimary ? Color.accentColor : RadixTheme.secondaryBackground)
+        .background(isPrimary ? RadixAccent.primary : RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
     }
 }
@@ -367,7 +367,7 @@ struct CompactScriptToggle: View {
             Text(isTraditional ? "繁" : "简")
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .frame(minWidth: minWidth, minHeight: height)
-                .background(Color.accentColor)
+                .background(RadixAccent.primary)
                 .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
         }
@@ -401,7 +401,7 @@ struct CompactScriptFilterControl: View {
                 .font(ResponsiveFont.subheadline.weight(.semibold))
                 .frame(minWidth: selection == .any ? 44 : 34, minHeight: RadixControlMetrics.compactHeight)
                 .padding(.horizontal, selection == .any ? 2 : 0)
-                .background(Color.accentColor)
+                .background(RadixAccent.primary)
                 .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 9))
         }
@@ -498,10 +498,10 @@ struct RadixWelcomeView: View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: icon)
                 .font(ResponsiveFont.title3)
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(RadixAccent.primary)
                 .radixIconButtonSurface(
                     size: 40,
-                    background: Color.accentColor.opacity(0.12)
+                    background: RadixAccent.primary.opacity(0.12)
                 )
 
             VStack(alignment: .leading, spacing: 4) {
