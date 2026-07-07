@@ -60,25 +60,9 @@ extension DataEditTab {
     var portableBackupActionButtons: some View {
         VStack(spacing: 8) {
             backupToiCloudButton
-
-            pairedBackupActionButtons
+            mergeBackupButton
+            replaceBackupButton
         }
-    }
-
-    @ViewBuilder
-    var pairedBackupActionButtons: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 10) {
-                addFromBackupButton
-                restoreBackupButton
-            }
-
-            VStack(spacing: 8) {
-                addFromBackupButton
-                restoreBackupButton
-            }
-        }
-        .frame(maxWidth: .infinity)
     }
 
     var recentBackupStrip: some View {
@@ -195,7 +179,7 @@ extension DataEditTab {
         .disabled(reuseExportInProgress)
     }
 
-    var addFromBackupButton: some View {
+    var mergeBackupButton: some View {
         Button {
             guard !entitlement.requiresPro(.myBackup) else {
                 onRequirePro(.myBackup)
@@ -206,18 +190,18 @@ extension DataEditTab {
         } label: {
             DataBackupActionButton(
                 title: RadixCopy.mergeBackup,
-                subtitle: "Keep existing data",
+                subtitle: "Add missing or newer data",
                 systemName: "square.and.arrow.down",
-                foreground: RadixAccent.primary,
-                background: RadixAccent.primary.opacity(0.1),
-                border: RadixAccent.primary.opacity(0.35),
+                foreground: .white,
+                background: RadixAccent.primary,
+                border: RadixAccent.primary,
                 isLocked: entitlement.requiresPro(.myBackup)
             )
         }
         .buttonStyle(.plain)
     }
 
-    var restoreBackupButton: some View {
+    var replaceBackupButton: some View {
         Button {
             guard !entitlement.requiresPro(.myBackup) else {
                 onRequirePro(.myBackup)
@@ -227,12 +211,12 @@ extension DataEditTab {
             showRestorePicker = true
         } label: {
             DataBackupActionButton(
-                title: RadixCopy.replaceFromBackup,
-                subtitle: "Replace this device",
+                title: "Replace Instead",
+                subtitle: "Advanced: erase current Radix data first",
                 systemName: "square.and.arrow.down.fill",
                 foreground: Color.orange,
-                background: Color.orange.opacity(0.1),
-                border: Color.orange.opacity(0.35),
+                background: RadixTheme.background,
+                border: Color.orange.opacity(0.45),
                 isLocked: entitlement.requiresPro(.myBackup)
             )
         }

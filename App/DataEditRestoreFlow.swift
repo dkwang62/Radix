@@ -110,18 +110,18 @@ extension DataEditTab {
     }
 
     var restoreConfirmationTitle: String {
-        pendingBackupRestore?.mode == .complete ? "Replace from Backup?" : "Merge Backup?"
+        pendingBackupRestore?.mode == .complete ? "Replace Current Data?" : "Merge Backup?"
     }
 
     var restoreConfirmationButtonTitle: String {
-        pendingBackupRestore?.mode == .complete ? "Replace from Backup" : "Merge Backup"
+        pendingBackupRestore?.mode == .complete ? "Erase and Replace" : "Merge Backup"
     }
 
     var restoreConfirmationMessage: String {
         guard let pending = pendingBackupRestore else { return "" }
         let action = pending.mode == .complete
-            ? "Current data on this device will be replaced. Radix will save a recovery snapshot first."
-            : "Existing data will be kept and missing or newer backup data will be added."
+            ? "This will erase the current Radix data on this device and replace it with the backup. Radix will save a recovery checkpoint first, but Merge Backup is safer unless you need an exact replacement."
+            : "Existing data will be kept. Missing or newer backup data will be added to this device."
         return "Selected: \(pending.filename)\n\n\(pending.payload.contentsSummary)\n\n\(action)"
     }
 
