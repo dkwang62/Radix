@@ -23,7 +23,7 @@ enum RadixCopy {
 
     static let createBackup = String(localized: "Create Backup")
     static let mergeBackup = String(localized: "Merge Backup")
-    static let replaceFromBackup = String(localized: "Replace from Backup")
+    static let restoreBackup = String(localized: "Restore Backup")
     static let backupContents = String(localized: "Backup Contents")
 
     static let accepted = String(localized: "Accepted")

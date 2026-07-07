@@ -95,6 +95,10 @@ extension DataEditTab {
                 restorePhase = .validating
                 let payload = try PortableBackupCodec().decode(data)
                 guard isCurrentRestore(operationID) else { return }
+                if pendingRestoreMode == .additive {
+                    try await mergeBackupFile(url: url, payload: payload, operationID: operationID)
+                    return
+                }
                 finishBackupRestore(operationID: operationID)
                 pendingBackupRestore = PendingBackupRestore(
                     payload: payload,
@@ -109,19 +113,42 @@ extension DataEditTab {
         }
     }
 
+    private func mergeBackupFile(
+        url: URL,
+        payload: PortableBackupPayload,
+        operationID: UUID
+    ) async throws {
+        restorePhase = .restoring
+        try store.importDataEditPayload(payload, mode: .additive)
+        guard isCurrentRestore(operationID) else { return }
+
+        let mergedData = try dataExportService.exportPortableBackup(store.portableBackupPackage())
+        try await Task.detached(priority: .userInitiated) {
+            try DataExportService().writePortableBackup(mergedData, to: url)
+        }.value
+        guard isCurrentRestore(operationID) else { return }
+
+        lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.recordBackup(at: url)
+        recentBackupMetadata = RadixBackupMetadataStore.history
+        backupMessage = "Merged Radix memory with: \(url.lastPathComponent). The app and backup file now match."
+        finishBackupRestore(operationID: operationID)
+        showBackupAlert = true
+        RadixHaptics.success()
+    }
+
     var restoreConfirmationTitle: String {
-        pendingBackupRestore?.mode == .complete ? "Replace Current Data?" : "Merge Backup?"
+        pendingBackupRestore?.mode == .complete ? "Restore from Backup?" : "Merge Backup?"
     }
 
     var restoreConfirmationButtonTitle: String {
-        pendingBackupRestore?.mode == .complete ? "Erase and Replace" : "Merge Backup"
+        pendingBackupRestore?.mode == .complete ? "Wipe and Restore" : "Merge Backup"
     }
 
     var restoreConfirmationMessage: String {
         guard let pending = pendingBackupRestore else { return "" }
         let action = pending.mode == .complete
-            ? "This will erase the current Radix data on this device and replace it with the backup. Radix will save a recovery checkpoint first, but Merge Backup is safer unless you need an exact replacement."
-            : "Existing data will be kept. Missing or newer backup data will be added to this device."
+            ? "This will wipe the current Radix memory on this device and restore the selected backup file. Radix will save a recovery checkpoint first, but Merge Backup is safer unless you need an exact file restore."
+            : "Radix will merge this device with the selected backup file, then update the file so both match."
         return "Selected: \(pending.filename)\n\n\(pending.payload.contentsSummary)\n\n\(action)"
     }
 
@@ -142,7 +169,7 @@ extension DataEditTab {
                 guard isCurrentRestore(operationID) else { return }
 
                 backupMessage = pending.mode == .complete
-                    ? "Replaced my data from: \(pending.filename)"
+                    ? "Restored Radix memory from: \(pending.filename)"
                     : "Merged backup data from: \(pending.filename)"
                 finishBackupRestore(operationID: operationID)
                 showBackupAlert = true

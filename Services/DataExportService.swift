@@ -73,6 +73,27 @@ struct DataExportService {
         throw NSError(domain: "RadixBackup", code: 2054, userInfo: [NSLocalizedDescriptionKey: "The selected iCloud file could not be opened."])
     }
 
+    func writePortableBackup(_ data: Data, to url: URL) throws {
+        let coordinator = NSFileCoordinator()
+        var coordinationError: NSError?
+        var writeResult: Result<Void, Error>?
+
+        coordinator.coordinate(writingItemAt: url, options: .forReplacing, error: &coordinationError) { coordinatedURL in
+            writeResult = Result {
+                try data.write(to: coordinatedURL, options: .atomic)
+            }
+        }
+
+        if let writeResult {
+            try writeResult.get()
+            return
+        }
+        if let coordinationError {
+            throw coordinationError
+        }
+        throw NSError(domain: "RadixBackup", code: 2055, userInfo: [NSLocalizedDescriptionKey: "The selected backup file could not be updated."])
+    }
+
     func exportFullDataset(_ package: FullDatasetExportPackage) throws -> Data {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]

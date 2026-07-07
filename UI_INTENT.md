@@ -460,7 +460,7 @@ be explicit.
 Keep recovery choices close to the job they serve:
 
 - Study owns Create Checkpoint and checkpoint-row returns for local learning recovery.
-- My Data owns Create Backup / Merge Backup / Replace from Backup for portable files.
+- My Data owns Create Backup / Merge Backup / Restore Backup for portable files.
 - Save Export / Restore Export for Advanced Pro files.
 
 Study should show Checkpoints directly because they are one-step undo points for
@@ -478,8 +478,11 @@ focus. Top-level navigation and global actions that are not selecting a
 character or phrase should clear the information card, making Checkpoints
 visible again. The sidebar may show only recent checkpoint rows, but it should
 label the subset when more exist. The rows themselves return to that checkpoint
-after confirmation. Backup file rows in My Data offer Merge or Replace and use
-the picker only when the exported file is no longer directly readable.
+after confirmation. In My Data, Merge Backup means merge the selected backup
+file and this device, then update the file so both sides match. Restore Backup
+wipes this device's Radix memory and loads the selected file; it must stay
+explicitly destructive. Backup file rows use the picker only when the exported
+file is no longer directly readable.
 
 The shared meaning is:
 

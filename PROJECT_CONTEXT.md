@@ -130,11 +130,12 @@ My Data backup action cards, recent-backup rows, backup-preview badges, and
 advanced-export option cards use the shared Radix pill/surface primitives for
 simple leaf styling, including compact option and tools info icon surfaces.
 My Data backup affordances use `RadixAccent.primary` for brand-primary tinting,
-while destructive replacement actions keep their semantic orange styling.
+while destructive restore actions keep their semantic orange styling.
 My Data backup actions use explicit rows/stacks instead of lazy grids.
-My Data file restore defaults to `Merge Backup` as the primary full-width
-action. `Replace Instead` remains available as an advanced destructive action
-and must warn that it erases current device data before applying the backup.
+My Data file handling uses `Create Backup` for a new portable file,
+`Merge Backup` to merge the selected file with this device and then update that
+file so both sides match, and `Restore Backup` as the advanced destructive path
+that wipes this device's Radix memory before loading the selected file.
 Backup preview headers and Study checkpoint action icons use the shared icon
 surface helper.
 Backup-content disclosures and backup-preview character tiles are part of that
@@ -1022,16 +1023,16 @@ includes a compact `Backup files` bridge to My Data so users can still
 distinguish local learning recovery from portable file protection.
 My Data’s `Backup File` screen owns Backup File actions only. Backup
 history stores lightweight file metadata and shows filenames; a selected backup
-file restores immediately when the saved path is still readable, otherwise
-Radix falls back to the file picker with the chosen Merge/Replace intent
-preserved. My Data links back to Study for Checkpoints instead of duplicating
-the checkpoint controls; this is a compact `Checkpoints` button, not explanatory
-checkpoint copy.
+file merges or restores immediately when the saved path is still readable,
+otherwise Radix falls back to the file picker with the chosen Merge/Restore
+intent preserved. My Data links back to Study for Checkpoints instead of
+duplicating the checkpoint controls; this is a compact `Checkpoints` button,
+not explanatory checkpoint copy.
 Backup File actions keep the same three choices across iPhone, iPad, and Mac:
-Create Backup, Merge Backup, and Replace from Backup. All platforms use a
-readable two-row arrangement with Create Backup above Merge/Replace. My Data
-content is width-capped inside its column so long explanations and action cards
-do not visually spill to the screen edge.
+Create Backup, Merge Backup, and Restore Backup. All platforms stack the actions
+with Create Backup, then primary Merge Backup, then destructive Restore Backup.
+My Data content is width-capped inside its column so long explanations and
+action cards do not visually spill to the screen edge.
 
 ## Current Engineering Posture
 

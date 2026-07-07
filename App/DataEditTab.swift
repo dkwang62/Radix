@@ -31,7 +31,7 @@ enum BackupRestorePhase: Equatable {
         case .idle: return ""
         case .acquiringFile: return "Downloading and opening backup…"
         case .validating: return "Checking compatibility…"
-        case .restoring: return "Restoring data…"
+        case .restoring: return "Updating Radix data…"
         }
     }
 

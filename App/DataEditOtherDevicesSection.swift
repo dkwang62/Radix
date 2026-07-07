@@ -37,7 +37,7 @@ extension DataEditTab {
                 studyCheckpointsNote
             }
 
-            Text("Create a portable file, merge it without removing current work, or replace this device from it.")
+            Text("Create a new backup file, merge a file with this device, or restore this device from a file.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
 
@@ -92,13 +92,13 @@ extension DataEditTab {
             Button {
                 restoreBackup(metadata, mode: .additive)
             } label: {
-                Label("Merge Backup", systemImage: "square.and.arrow.down")
+                Label("Merge File and Device", systemImage: "arrow.triangle.2.circlepath")
             }
 
             Button(role: .destructive) {
                 restoreBackup(metadata, mode: .complete)
             } label: {
-                Label("Replace from Backup", systemImage: "square.and.arrow.down.fill")
+                Label("Restore from File", systemImage: "square.and.arrow.down.fill")
             }
         } label: {
             recoveryListRow(
@@ -167,7 +167,7 @@ extension DataEditTab {
         } label: {
             DataBackupActionButton(
                 title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : RadixCopy.createBackup,
-                subtitle: "Choose where to save",
+                subtitle: "New file from this device",
                 systemName: "square.and.arrow.up.fill",
                 foreground: .white,
                 background: RadixAccent.primary,
@@ -190,8 +190,8 @@ extension DataEditTab {
         } label: {
             DataBackupActionButton(
                 title: RadixCopy.mergeBackup,
-                subtitle: "Add missing or newer data",
-                systemName: "square.and.arrow.down",
+                subtitle: "Update file and this device",
+                systemName: "arrow.triangle.2.circlepath",
                 foreground: .white,
                 background: RadixAccent.primary,
                 border: RadixAccent.primary,
@@ -211,8 +211,8 @@ extension DataEditTab {
             showRestorePicker = true
         } label: {
             DataBackupActionButton(
-                title: "Replace Instead",
-                subtitle: "Advanced: erase current Radix data first",
+                title: RadixCopy.restoreBackup,
+                subtitle: "Advanced: wipe this device first",
                 systemName: "square.and.arrow.down.fill",
                 foreground: Color.orange,
                 background: RadixTheme.background,
