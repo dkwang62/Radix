@@ -113,9 +113,7 @@ extension FavouritesTab {
     }
 
     var addedStudyPhraseEntries: [PhraseItem] {
-        store.addedPhrases
-            .filter { $0.word.count >= 2 && !store.isPhraseInBase($0.word) }
-            .sorted(by: AddedPhraseReviewRules.reviewSortPredicate)
+        store.addedPhraseReviewPhrases
     }
 
     func presentAddedPhraseReview() {

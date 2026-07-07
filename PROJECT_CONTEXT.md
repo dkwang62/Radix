@@ -174,7 +174,9 @@ On iPhone, Added Phrases preview stays inside the focused review workspace as
 the compact inline detail strip above the phrase tiles; tile taps must not push
 the global Phrase Info Card/sidebar preview there. Added Phrases status taps
 optimistically update the local in-memory phrase state before deferred
-persistence so tile feedback stays immediate.
+persistence. Added Phrases review candidates are cached on the store and copied
+into the review screen locally so opening the grid and tile feedback stay
+immediate.
 Study dashboard shortcuts are a fixed descriptor-driven action set and render
 as explicit rows rather than a lazy grid; keep their actions switch-based
 instead of storing escaping closures in transient row data.

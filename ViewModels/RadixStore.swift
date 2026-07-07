@@ -216,6 +216,11 @@ final class RadixStore: ObservableObject {
         get { dataWorkspaceState.addedPhrases }
         set { dataWorkspaceState.addedPhrases = newValue }
     }
+
+    var addedPhraseReviewPhrases: [PhraseItem] {
+        get { dataWorkspaceState.addedPhraseReviewPhrases }
+        set { dataWorkspaceState.addedPhraseReviewPhrases = newValue }
+    }
     
     // MARK: - User Settings & Variances
     @Published private(set) var userLibraryState = RadixUserLibraryState()

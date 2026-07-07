@@ -17,6 +17,8 @@ struct AddedPhraseReviewSheet: View {
     @State var phrasePendingDeletion: PhraseItem?
     @State var showsDeleteRejectedConfirmation = false
     @State var showsDeleteNewConfirmation = false
+    @State var reviewPhrases: [PhraseItem] = []
+    @State var reviewInteractionRevision = 0
 
     let detailTextMaxWidth: CGFloat = 640
     let phraseTileHeight: CGFloat = 34
@@ -59,13 +61,11 @@ struct AddedPhraseReviewSheet: View {
     }
 
     var addedPhrases: [PhraseItem] {
-        store.addedPhrases.filter { $0.word.count >= 2 && !store.isPhraseInBase($0.word) }
+        reviewPhrases
     }
 
     var filteredPhrases: [PhraseItem] {
-        AddedPhraseReviewRules.sortedByPinyin(
-            addedPhrases.filter { filter.includes($0) }
-        )
+        addedPhrases.filter { filter.includes($0) }
     }
 
     var newPhrases: [PhraseItem] {
@@ -113,7 +113,15 @@ struct AddedPhraseReviewSheet: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
-            store.refreshAddedPhrases()
+            loadReviewPhrasesFromStore()
+            let startingRevision = reviewInteractionRevision
+            Task { @MainActor in
+                await Task.yield()
+                store.refreshAddedPhrases()
+                guard reviewInteractionRevision == startingRevision else { return }
+                loadReviewPhrasesFromStore()
+                clampPage()
+            }
         }
         .sheet(isPresented: $showsReviewHelp) {
             AddedPhraseReviewHelpSheet()
@@ -179,10 +187,12 @@ extension AddedPhraseReviewSheet {
         closeSelection: Bool = false,
         preservesFilter: Bool = false
     ) {
+        reviewInteractionRevision += 1
         let updatedPhrase = store.applyAddedPhraseReviewStatusLocally(
             word: phrase.word,
             status: status
         ) ?? phrase
+        replaceReviewPhrase(updatedPhrase)
         selectedPhrase = closeSelection || !filter.includes(updatedPhrase) ? nil : updatedPhrase
         selectedTool = PhraseReviewStatusTool.tool(for: status)
         reviewCycle.setActiveTool(selectedTool)
@@ -198,6 +208,7 @@ extension AddedPhraseReviewSheet {
                 try store.persistAddedPhraseReviewStatus(word: phrase.word, status: status)
             } catch {
                 store.refreshAddedPhrases()
+                loadReviewPhrasesFromStore()
                 selectedPhrase = nil
                 message = "Could not update \(phrase.word): \(error.localizedDescription)"
             }
@@ -232,6 +243,15 @@ extension AddedPhraseReviewSheet {
         }
         store.speakPhrase(phrase)
         setStatus(status, for: phrase, preservesFilter: selectedTool != nil)
+    }
+
+    func loadReviewPhrasesFromStore() {
+        reviewPhrases = store.addedPhraseReviewPhrases
+    }
+
+    func replaceReviewPhrase(_ phrase: PhraseItem) {
+        guard let index = reviewPhrases.firstIndex(where: { $0.word == phrase.word }) else { return }
+        reviewPhrases[index] = phrase
     }
 
     func closeReview() {

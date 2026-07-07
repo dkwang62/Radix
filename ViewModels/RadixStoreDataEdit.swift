@@ -342,6 +342,7 @@ extension RadixStore {
         }
         dataEditPhrases.removeAll(where: { phraseStorageWord($0.word) == storedWord })
         addedPhrases.removeAll(where: { phraseStorageWord($0.word) == storedWord })
+        refreshAddedPhraseReviewPhrases()
         do {
             try phraseRepo.deletePhrase(word: storedWord)
             refreshPhraseBackedViews(for: dataEditCharacter)
@@ -366,6 +367,7 @@ extension RadixStore {
         let deletedSet = Set(storedWords)
         dataEditPhrases.removeAll { deletedSet.contains(phraseStorageWord($0.word)) }
         addedPhrases.removeAll { deletedSet.contains(phraseStorageWord($0.word)) }
+        refreshAddedPhraseReviewPhrases()
         refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
         dataEditAutoSaveStatus = "Deleted \(storedWords.count) added phrase\(storedWords.count == 1 ? "" : "s")."
         return storedWords.count
@@ -405,6 +407,16 @@ extension RadixStore {
         }
 
         addedPhrases = addedPhrases.map(updated(_:))
+        if let updatedPhrase {
+            addedPhraseReviewPhrases = addedPhraseReviewPhrases.map(updated(_:))
+            if !addedPhraseReviewPhrases.contains(where: { phraseStorageWord($0.word) == storedWord }),
+               updatedPhrase.word.count >= 2,
+               !isPhraseInBase(updatedPhrase.word) {
+                addedPhraseReviewPhrases = AddedPhraseReviewRules.sortedByPinyin(
+                    addedPhraseReviewPhrases + [updatedPhrase]
+                )
+            }
+        }
         dataEditPhrases = dataEditPhrases.map(updated(_:))
         for (key, value) in dataEditCache {
             dataEditCache[key] = (
@@ -445,6 +457,7 @@ extension RadixStore {
         let removableSet = Set(removableWords.map(phraseStorageWord(_:)))
         dataEditPhrases.removeAll { removableSet.contains(phraseStorageWord($0.word)) }
         addedPhrases.removeAll { removableSet.contains(phraseStorageWord($0.word)) }
+        refreshAddedPhraseReviewPhrases()
         refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
         dataEditAutoSaveStatus = "Reverted \(removableWords.count) edited phrase\(removableWords.count == 1 ? "" : "s") without notes."
         return removableWords

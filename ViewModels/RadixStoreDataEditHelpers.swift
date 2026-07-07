@@ -69,6 +69,13 @@ extension RadixStore {
         browsePagePhraseCandidateCache.removeAll()
         invalidateConversationPracticeHintCache()
         addedPhrases = phraseRepo.fetchAddedPhrases()
+        refreshAddedPhraseReviewPhrases()
+    }
+
+    func refreshAddedPhraseReviewPhrases() {
+        addedPhraseReviewPhrases = AddedPhraseReviewRules.sortedByPinyin(
+            addedPhrases.filter { $0.word.count >= 2 && !isPhraseInBase($0.word) }
+        )
     }
 
     func refreshPhraseBackedViews(for character: String?) {
@@ -185,6 +192,7 @@ extension RadixStore {
 
         try phraseRepo.replaceAllPhrases([])
         addedPhrases = []
+        addedPhraseReviewPhrases = []
         dataEditPhrases = []
         phraseCache.removeAll()
         invalidateConversationPracticeHintCache()
