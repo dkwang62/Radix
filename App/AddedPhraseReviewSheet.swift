@@ -204,11 +204,19 @@ extension AddedPhraseReviewSheet {
 
         guard case let .apply(status) = action else {
             selectedPhrase = phrase
-            store.presentPhraseInSidebar(phrase)
+            if usesRegularReviewLayout {
+                store.presentPhraseInSidebar(phrase)
+            } else {
+                store.dismissSidebarPhrasePreview()
+                store.previewCharacter = nil
+            }
             message = nil
             Task { @MainActor in
-                try? await Task.sleep(nanoseconds: 120_000_000)
-                guard store.activeSidebarPhrasePreview?.word == phrase.word else { return }
+                try? await Task.sleep(nanoseconds: 80_000_000)
+                let isStillPreviewed = usesRegularReviewLayout
+                    ? store.activeSidebarPhrasePreview?.word == phrase.word
+                    : selectedPhrase?.word == phrase.word
+                guard isStillPreviewed else { return }
                 store.speakPhrase(phrase)
             }
             return

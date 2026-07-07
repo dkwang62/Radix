@@ -119,6 +119,8 @@ extension FavouritesTab {
     }
 
     func presentAddedPhraseReview() {
+        store.dismissSidebarPhrasePreview()
+        store.previewCharacter = nil
         withAnimation(.snappy(duration: 0.18)) {
             isShowingConversationPractice = false
             isShowingAddedPhraseReview = true

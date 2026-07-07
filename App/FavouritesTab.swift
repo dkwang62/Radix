@@ -676,7 +676,7 @@ struct FavouritesTab: View {
     }
 
     var isPhoneStudyPreviewActive: Bool {
-        isPhone && (store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil)
+        isPhone && !isShowingAddedPhraseReview && (store.previewCharacter != nil || store.activeSidebarPhrasePreview != nil)
     }
 
     var phoneStudyPreview: some View {
@@ -684,7 +684,6 @@ struct FavouritesTab: View {
             phrase: store.activeSidebarPhrasePreview,
             character: store.previewCharacter,
             listReturnTitle: phoneStudyPreviewReturnTitle,
-            animatesListReturn: !isShowingAddedPhraseReview,
             onReturn: {
                 selectedPhrase = nil
                 store.dismissSidebarPhrasePreview()
@@ -695,7 +694,6 @@ struct FavouritesTab: View {
     }
 
     var phoneStudyPreviewReturnTitle: String? {
-        if isShowingAddedPhraseReview { return "Added Phrases" }
         guard store.sidebarPhraseLookupOverride != nil else { return nil }
         if isShowingSentenceExamples { return "Sentences" }
         return selectedConversationPracticeTopic.title
