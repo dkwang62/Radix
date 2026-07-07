@@ -520,16 +520,17 @@ intentionally uncaptured until its
 interactive flow has an explicit structured return path that does not reveal
 answers early or scrape ordinary chat prose. Study exposes a `Sentences`
 shortcut that opens the Sentence Examples browser with filters for All,
-Favorites, Page, and Practice records, plus search and row actions for favorite,
-delete, copy Chinese, and opening the source page.
+Favorites, From Pages, and From Practice records, plus search and row actions
+for favorite, delete, copy Chinese, and opening sentence origins.
 The browser should reuse Conversation Practice's shared sentence controls
 (range/page navigation, Simplified/Traditional plus Chinese/English), shared
 sentence row, and sentence info-card preview path rather than creating a
 parallel sentence UI. Shared sentence UI primitives live in
 `App/PracticeSentenceSurface.swift`; keep Conversation Practice and the Sentence
 Examples browser as callers, not owners, of that row/control surface.
-Sentence source/page origin should stay out of the default row and appear only
-inside row actions or source-specific filters.
+Sentence source/page origin should stay out of the default row, but a selected
+sentence must surface direct `Open Page` and/or `Open Practice` actions when the
+source metadata can navigate there.
 The `Practice Again` sentence action builds a temporary Conversation Practice
 library from canonical sentence examples and reuses the existing Flashcards
 flow instead of creating another practice UI. The sentence edit action updates

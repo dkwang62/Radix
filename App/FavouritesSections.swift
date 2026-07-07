@@ -353,16 +353,23 @@ extension FavouritesTab {
     func sentenceExampleRow(_ example: SentenceExampleRecord) -> some View {
         let item = sentenceExamplePracticeItem(example)
         let isSelected = selectedConversationPracticeItemID == item.id
-        return practiceSentenceRow(
-            item,
-            isSelected: isSelected,
-            openAccessibilityLabel: "Open sentence \(studyGridDisplayText(item.simplified))",
-            openAccessibilityHint: "Opens the sentence info card."
-        ) {
-            presentConversationPracticePhrase(item)
-        } trailing: {
-            sentenceExampleFavoriteButton(example)
-            sentenceExampleActions(example)
+        return VStack(alignment: .leading, spacing: 4) {
+            practiceSentenceRow(
+                item,
+                isSelected: isSelected,
+                openAccessibilityLabel: "Open sentence \(studyGridDisplayText(item.simplified))",
+                openAccessibilityHint: "Opens the sentence info card."
+            ) {
+                presentConversationPracticePhrase(item)
+            } trailing: {
+                sentenceExampleFavoriteButton(example)
+                sentenceExampleActions(example)
+            }
+
+            if isSelected {
+                sentenceExampleSourceActions(example)
+                    .padding(.leading, 44)
+            }
         }
     }
 
@@ -450,6 +457,44 @@ extension FavouritesTab {
         .accessibilityLabel("Sentence actions")
     }
 
+    @ViewBuilder
+    func sentenceExampleSourceActions(_ example: SentenceExampleRecord) -> some View {
+        let hasPageAction = sentenceExampleSourcePageID(example).flatMap { store.collection(id: $0) } != nil
+        let hasPracticeAction = sentenceExamplePracticeTopic(for: example) != nil
+        if hasPageAction || hasPracticeAction {
+            HStack(spacing: 6) {
+                if let pageID = sentenceExampleSourcePageID(example),
+                   store.collection(id: pageID) != nil {
+                    Button {
+                        openSentenceExampleSourcePage(pageID)
+                    } label: {
+                        Label("Open Page", systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
+                            .font(ResponsiveFont.caption2.weight(.semibold))
+                            .labelStyle(.titleAndIcon)
+                            .radixPill(horizontal: 8, vertical: 5, background: RadixAccent.primary.opacity(0.1))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(RadixAccent.primary)
+                    .accessibilityLabel("Open source page")
+                }
+
+                if let topic = sentenceExamplePracticeTopic(for: example) {
+                    Button {
+                        openSentenceExamplePracticeSource(example, topic: topic)
+                    } label: {
+                        Label("Open Practice", systemImage: "bubble.left.and.bubble.right")
+                            .font(ResponsiveFont.caption2.weight(.semibold))
+                            .labelStyle(.titleAndIcon)
+                            .radixPill(horizontal: 8, vertical: 5, background: RadixAccent.primary.opacity(0.1))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(RadixAccent.primary)
+                    .accessibilityLabel("Open source practice")
+                }
+            }
+        }
+    }
+
     func toggleSentenceExampleFavorite(_ example: SentenceExampleRecord) {
         RadixStudyPreferences.setSentenceExampleFavorite(id: example.id, isFavorited: !example.isFavorited)
         sentenceExampleRevision += 1
@@ -471,6 +516,63 @@ extension FavouritesTab {
 
     func sentenceExampleSourcePageID(_ example: SentenceExampleRecord) -> UUID? {
         example.sources.first(where: { $0.sourcePageID != nil })?.sourcePageID
+    }
+
+    func sentenceExamplePracticeSource(_ example: SentenceExampleRecord) -> SentenceExampleSourceReference? {
+        example.sources.first {
+            switch $0.sourceType {
+            case .conversationPractice, .sentencePractice, .favoriteSentence:
+                return $0.practicePackID != nil || $0.sourceID != nil
+            default:
+                return false
+            }
+        }
+    }
+
+    func sentenceExamplePracticeTopic(for example: SentenceExampleRecord) -> ConversationPracticeTopic? {
+        guard let source = sentenceExamplePracticeSource(example) else { return nil }
+        let candidateIDs = [
+            source.practicePackID,
+            source.sourceID
+        ].compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        return conversationPracticeTopics.first { topic in
+            candidateIDs.contains(topic.id)
+        }
+    }
+
+    func openSentenceExampleSourcePage(_ pageID: UUID) {
+        store.goToBrowseCollection(id: pageID, preservingOrigin: true)
+    }
+
+    func openSentenceExamplePracticeSource(_ example: SentenceExampleRecord, topic: ConversationPracticeTopic) {
+        let source = sentenceExamplePracticeSource(example)
+        withAnimation(.snappy(duration: 0.18)) {
+            isShowingSentenceExamples = false
+            isShowingConversationPractice = true
+        }
+        selectConversationPracticeTopic(topic)
+        selectPracticeItemForSentenceExample(example, source: source)
+    }
+
+    func selectPracticeItemForSentenceExample(
+        _ example: SentenceExampleRecord,
+        source: SentenceExampleSourceReference?
+    ) {
+        guard let library = conversationPracticeLibrary else { return }
+        let targetID = source?.practiceItemID?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let targetKey = example.normalizedChineseKey
+        guard let index = library.items.firstIndex(where: { item in
+            if let targetID, !targetID.isEmpty, item.id == targetID {
+                return true
+            }
+            if item.sentenceExampleID == example.id {
+                return true
+            }
+            return item.sentenceKey == targetKey
+        }) else { return }
+        selectedConversationPracticeItemID = library.items[index].id
+        conversationPracticePageIndex = index / conversationPracticePageSize
     }
 
     func sentenceExampleSourceLabel(_ example: SentenceExampleRecord) -> String {

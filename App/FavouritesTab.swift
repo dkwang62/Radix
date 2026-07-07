@@ -743,8 +743,8 @@ enum StudyGridScope: String, CaseIterable, Identifiable {
 enum SentenceExampleStudyFilter: String, CaseIterable, Identifiable {
     case all = "All"
     case favorites = "Favorites"
-    case pageLinked = "Page"
-    case conversation = "Practice"
+    case pageLinked = "From Pages"
+    case conversation = "From Practice"
 
     var id: String { rawValue }
 
