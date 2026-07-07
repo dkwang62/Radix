@@ -372,13 +372,58 @@ extension RadixStore {
     }
 
     func updateAddedPhraseReviewStatus(word: String, status: PhraseReviewStatus?) throws {
+        let reviewedAt = Date()
+        let storedWord = phraseStorageWord(word)
+        guard !storedWord.isEmpty else { return }
+        applyAddedPhraseReviewStatusLocally(word: storedWord, status: status, reviewedAt: reviewedAt)
+        try persistAddedPhraseReviewStatus(word: storedWord, status: status)
+    }
+
+    @discardableResult
+    func applyAddedPhraseReviewStatusLocally(
+        word: String,
+        status: PhraseReviewStatus?,
+        reviewedAt: Date = Date()
+    ) -> PhraseItem? {
+        let storedWord = phraseStorageWord(word)
+        guard !storedWord.isEmpty else { return nil }
+        var updatedPhrase: PhraseItem?
+
+        func updated(_ phrase: PhraseItem) -> PhraseItem {
+            guard phraseStorageWord(phrase.word) == storedWord else { return phrase }
+            let replacement = PhraseItem(
+                word: phrase.word,
+                pinyin: phrase.pinyin,
+                meanings: phrase.meanings,
+                notes: phrase.notes,
+                addedAt: phrase.addedAt,
+                reviewStatus: status,
+                lastReviewedAt: reviewedAt
+            )
+            updatedPhrase = replacement
+            return replacement
+        }
+
+        addedPhrases = addedPhrases.map(updated(_:))
+        dataEditPhrases = dataEditPhrases.map(updated(_:))
+        for (key, value) in dataEditCache {
+            dataEditCache[key] = (
+                entry: value.entry,
+                phrases: value.phrases.map(updated(_:)),
+                isFav: value.isFav
+            )
+        }
+        phraseCache.removeAll()
+        browsePagePhraseTileCache.removeAll()
+        browsePagePhraseCandidateCache.removeAll()
+        invalidateConversationPracticeHintCache()
+        return updatedPhrase
+    }
+
+    func persistAddedPhraseReviewStatus(word: String, status: PhraseReviewStatus?) throws {
         let storedWord = phraseStorageWord(word)
         guard !storedWord.isEmpty else { return }
         try phraseRepo.updateReviewStatus(for: storedWord, status: status)
-        dataEditPhrases = phraseRepo.fetchAddedPhrases()
-        refreshAddedPhrases()
-        syncDataEditPhraseCaches()
-        refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
         let statusText = status?.title ?? "New"
         dataEditAutoSaveStatus = "\(storedWord) marked \(statusText)."
     }

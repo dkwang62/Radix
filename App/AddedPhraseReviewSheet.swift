@@ -179,19 +179,28 @@ extension AddedPhraseReviewSheet {
         closeSelection: Bool = false,
         preservesFilter: Bool = false
     ) {
-        do {
-            try store.updateAddedPhraseReviewStatus(word: phrase.word, status: status)
-            let updatedPhrase = store.addedPhrases.first { $0.word == phrase.word } ?? phrase
-            selectedPhrase = closeSelection || !filter.includes(updatedPhrase) ? nil : updatedPhrase
-            selectedTool = PhraseReviewStatusTool.tool(for: status)
-            reviewCycle.setActiveTool(selectedTool)
-            if filter != .all, !preservesFilter {
-                filter = AddedPhraseReviewFilter.filter(for: status)
+        let updatedPhrase = store.applyAddedPhraseReviewStatusLocally(
+            word: phrase.word,
+            status: status
+        ) ?? phrase
+        selectedPhrase = closeSelection || !filter.includes(updatedPhrase) ? nil : updatedPhrase
+        selectedTool = PhraseReviewStatusTool.tool(for: status)
+        reviewCycle.setActiveTool(selectedTool)
+        if filter != .all, !preservesFilter {
+            filter = AddedPhraseReviewFilter.filter(for: status)
+        }
+        clampPage()
+        message = AddedPhraseReviewRules.statusMessage(status, word: phrase.word)
+
+        Task { @MainActor in
+            await Task.yield()
+            do {
+                try store.persistAddedPhraseReviewStatus(word: phrase.word, status: status)
+            } catch {
+                store.refreshAddedPhrases()
+                selectedPhrase = nil
+                message = "Could not update \(phrase.word): \(error.localizedDescription)"
             }
-            clampPage()
-            message = AddedPhraseReviewRules.statusMessage(status, word: phrase.word)
-        } catch {
-            message = "Could not update \(phrase.word): \(error.localizedDescription)"
         }
     }
 
@@ -206,7 +215,7 @@ extension AddedPhraseReviewSheet {
             selectedPhrase = phrase
             if usesRegularReviewLayout {
                 store.presentPhraseInSidebar(phrase)
-            } else {
+            } else if store.activeSidebarPhrasePreview != nil || store.previewCharacter != nil {
                 store.dismissSidebarPhrasePreview()
                 store.previewCharacter = nil
             }
