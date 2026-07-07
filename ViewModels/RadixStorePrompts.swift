@@ -47,9 +47,11 @@ extension RadixStore {
            !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             geminiModelID = value
         }
+        restoreRetainedGeminiAPIKeyIfNeeded()
     }
 
     func persistPromptSettings() {
+        persistRetainedGeminiAPIKeyIfNeeded()
         if let data = try? JSONEncoder().encode(promptConfig) {
             preferences.set(data, forKey: RadixPreferenceKey.promptConfig)
         }
@@ -65,6 +67,23 @@ extension RadixStore {
         preferences.set(customAIAPIKey, forKey: RadixPreferenceKey.customAIAPIKey)
         preferences.set(geminiModelID, forKey: RadixPreferenceKey.geminiModelID)
         updatePromptAutosaveStatus()
+    }
+
+    func restoreRetainedGeminiAPIKeyIfNeeded(imported: String? = nil) {
+        let resolved = APIKeyRetentionPolicy.resolvedGeminiKey(
+            current: geminiAPIKey,
+            retainedLatest: preferences.string(forKey: RadixPreferenceKey.latestGeminiAPIKey),
+            imported: imported
+        )
+        guard !resolved.isEmpty, resolved != geminiAPIKey else { return }
+        geminiAPIKey = resolved
+        preferences.set(resolved, forKey: RadixPreferenceKey.latestGeminiAPIKey)
+    }
+
+    func persistRetainedGeminiAPIKeyIfNeeded() {
+        let trimmed = geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        preferences.set(trimmed, forKey: RadixPreferenceKey.latestGeminiAPIKey)
     }
 
     func updatePromptAutosaveStatus(now: Date = Date()) {

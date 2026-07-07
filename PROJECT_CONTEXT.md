@@ -555,6 +555,10 @@ Settings separates AI configuration by user goal: `AI Link` chooses where
 manual prompts open, `Automatic AI` owns Gemini key/model setup for direct
 Radix actions, and `Manual AI Keys` stores non-Gemini provider keys for
 copy-and-paste AI Link workflows.
+Gemini keeps a separate latest-device-key preference in addition to the portable
+backup field. A current or retained local Gemini key must survive checkpoint and
+backup restores; a backup Gemini key is used only when the device has no local
+Gemini key to retain.
 History is the user-facing name for the app's working memory strip: it helps
 users recall recently inspected characters and phrases while searching, browsing
 saved pages, or following item details. Do not treat it as global navigation.

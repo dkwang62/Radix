@@ -420,9 +420,12 @@ extension RadixStore {
     }
 
     func applyImportedAPIKeys(_ apiKeys: APIKeyBackup?) {
-        guard let apiKeys else { return }
+        guard let apiKeys else {
+            restoreRetainedGeminiAPIKeyIfNeeded()
+            return
+        }
         openAIAPIKey = apiKeys.openAI
-        geminiAPIKey = apiKeys.gemini
+        restoreRetainedGeminiAPIKeyIfNeeded(imported: apiKeys.gemini)
         claudeAPIKey = apiKeys.claude
         deepSeekAPIKey = apiKeys.deepSeek
         customAIAPIKey = apiKeys.custom

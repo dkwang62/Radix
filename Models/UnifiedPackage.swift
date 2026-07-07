@@ -110,6 +110,22 @@ struct APIKeyBackup: Codable, Equatable {
     }
 }
 
+enum APIKeyRetentionPolicy {
+    static func resolvedGeminiKey(
+        current: String,
+        retainedLatest: String?,
+        imported: String?
+    ) -> String {
+        let current = current.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !current.isEmpty { return current }
+
+        let retainedLatest = retainedLatest?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if !retainedLatest.isEmpty { return retainedLatest }
+
+        return imported?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    }
+}
+
 /// A unified package containing all user-editable data across dictionary, phrases, and settings.
 struct UnifiedPackage: Codable {
     let schemaVersion: Int

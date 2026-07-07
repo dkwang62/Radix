@@ -27,6 +27,7 @@ enum RadixPreferenceKey {
     static let customAIURL = "radix.customAIURL"
     static let openAIAPIKey = "radix.openAIAPIKey"
     static let geminiAPIKey = "radix.geminiAPIKey"
+    static let latestGeminiAPIKey = "radix.latestGeminiAPIKey"
     static let claudeAPIKey = "radix.claudeAPIKey"
     static let deepSeekAPIKey = "radix.deepSeekAPIKey"
     static let customAIAPIKey = "radix.customAIAPIKey"
