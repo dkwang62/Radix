@@ -196,8 +196,6 @@ extension AddedPhraseReviewSheet {
     }
 
     func applySelectedTool(to phrase: PhraseItem) {
-        store.speakPhrase(phrase)
-
         let action = reviewCycle.action(
             for: store.normalizedPhraseWord(phrase.word),
             currentStatus: phrase.reviewStatus,
@@ -208,8 +206,14 @@ extension AddedPhraseReviewSheet {
             selectedPhrase = phrase
             store.presentPhraseInSidebar(phrase)
             message = nil
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 120_000_000)
+                guard store.activeSidebarPhrasePreview?.word == phrase.word else { return }
+                store.speakPhrase(phrase)
+            }
             return
         }
+        store.speakPhrase(phrase)
         setStatus(status, for: phrase, preservesFilter: selectedTool != nil)
     }
 

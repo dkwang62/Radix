@@ -5,6 +5,7 @@ struct PhoneContextPreview: View {
     let phrase: PhraseItem?
     let character: String?
     var listReturnTitle: String? = nil
+    var animatesListReturn = true
     let onReturn: () -> Void
     @State private var phraseReturnTarget: PhraseItem?
     @State private var phraseReturnLookupOverride: [PhraseItem]?
@@ -79,7 +80,11 @@ struct PhoneContextPreview: View {
 
     func listReturnButton(title: String) -> some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.2)) {
+            if animatesListReturn {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    onReturn()
+                }
+            } else {
                 onReturn()
             }
         } label: {
