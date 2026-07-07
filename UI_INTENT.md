@@ -380,10 +380,10 @@ should not add extra `Study` or `Browse` shortcut buttons above this flow; when
 a Practice sentence card is open on iPhone, provide a compact `Sentences`
 return action to the expanded sentence list, and when a character preview can
 return to its sentence card, label that action `Sentence`.
-Sentence source filters must also provide source navigation: `From Pages`
-sentences should expose a direct way to open the saved page, and `From Practice`
-sentences should expose a direct way to open the originating practice set, with
-the sentence selected when possible.
+Sentence source filters must also provide source navigation: a selected sentence
+should name its origin, `From Pages` sentences should expose a direct way to
+open the saved page, and `From Practice` sentences should expose a direct way to
+open the originating practice set, with the sentence selected when possible.
 Character inspection in Practice should use the normal full character card, not
 the compact preview.
 

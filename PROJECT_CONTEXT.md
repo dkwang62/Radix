@@ -529,8 +529,9 @@ parallel sentence UI. Shared sentence UI primitives live in
 `App/PracticeSentenceSurface.swift`; keep Conversation Practice and the Sentence
 Examples browser as callers, not owners, of that row/control surface.
 Sentence source/page origin should stay out of the default row, but a selected
-sentence must surface direct `Open Page` and/or `Open Practice` actions when the
-source metadata can navigate there.
+sentence must show a compact `From ...` origin label and surface direct
+`Open Page` and/or `Open Practice` actions when the source metadata can
+navigate there.
 The `Practice Again` sentence action builds a temporary Conversation Practice
 library from canonical sentence examples and reuses the existing Flashcards
 flow instead of creating another practice UI. The sentence edit action updates

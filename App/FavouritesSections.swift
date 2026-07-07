@@ -462,34 +462,42 @@ extension FavouritesTab {
         let hasPageAction = sentenceExampleSourcePageID(example).flatMap { store.collection(id: $0) } != nil
         let hasPracticeAction = sentenceExamplePracticeTopic(for: example) != nil
         if hasPageAction || hasPracticeAction {
-            HStack(spacing: 6) {
-                if let pageID = sentenceExampleSourcePageID(example),
-                   store.collection(id: pageID) != nil {
-                    Button {
-                        openSentenceExampleSourcePage(pageID)
-                    } label: {
-                        Label("Open Page", systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
-                            .font(ResponsiveFont.caption2.weight(.semibold))
-                            .labelStyle(.titleAndIcon)
-                            .radixPill(horizontal: 8, vertical: 5, background: RadixAccent.primary.opacity(0.1))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(RadixAccent.primary)
-                    .accessibilityLabel("Open source page")
-                }
+            VStack(alignment: .leading, spacing: 4) {
+                Label(sentenceExampleOriginSummary(example), systemImage: sentenceExampleSourceIcon(example))
+                    .font(ResponsiveFont.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
 
-                if let topic = sentenceExamplePracticeTopic(for: example) {
-                    Button {
-                        openSentenceExamplePracticeSource(example, topic: topic)
-                    } label: {
-                        Label("Open Practice", systemImage: "bubble.left.and.bubble.right")
-                            .font(ResponsiveFont.caption2.weight(.semibold))
-                            .labelStyle(.titleAndIcon)
-                            .radixPill(horizontal: 8, vertical: 5, background: RadixAccent.primary.opacity(0.1))
+                HStack(spacing: 6) {
+                    if let pageID = sentenceExampleSourcePageID(example),
+                       store.collection(id: pageID) != nil {
+                        Button {
+                            openSentenceExampleSourcePage(pageID)
+                        } label: {
+                            Label("Open Page", systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
+                                .font(ResponsiveFont.caption2.weight(.semibold))
+                                .labelStyle(.titleAndIcon)
+                                .radixPill(horizontal: 8, vertical: 5, background: RadixAccent.primary.opacity(0.1))
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(RadixAccent.primary)
+                        .accessibilityLabel("Open source page")
                     }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(RadixAccent.primary)
-                    .accessibilityLabel("Open source practice")
+
+                    if let topic = sentenceExamplePracticeTopic(for: example) {
+                        Button {
+                            openSentenceExamplePracticeSource(example, topic: topic)
+                        } label: {
+                            Label("Open Practice", systemImage: "bubble.left.and.bubble.right")
+                                .font(ResponsiveFont.caption2.weight(.semibold))
+                                .labelStyle(.titleAndIcon)
+                                .radixPill(horizontal: 8, vertical: 5, background: RadixAccent.primary.opacity(0.1))
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(RadixAccent.primary)
+                        .accessibilityLabel("Open source practice")
+                    }
                 }
             }
         }
@@ -584,6 +592,15 @@ extension FavouritesTab {
         if example.hasSourceType(.conversationPractice) { return "Conversation Practice" }
         if example.hasSourceType(.favoriteSentence) { return "Favorite Sentence" }
         return "Sentence Example"
+    }
+
+    func sentenceExampleOriginSummary(_ example: SentenceExampleRecord) -> String {
+        let source = sentenceExampleSourceLabel(example)
+        if let topic = sentenceExamplePracticeTopic(for: example),
+           topic.title != source {
+            return "From \(source) / \(topic.title)"
+        }
+        return "From \(source)"
     }
 
     func sentenceExampleSourceIcon(_ example: SentenceExampleRecord) -> String {
