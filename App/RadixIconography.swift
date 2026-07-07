@@ -305,7 +305,7 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
                 RadixNavigationGuideAction(
                     icon: "clock.arrow.circlepath",
                     title: "Checkpoints",
-                    detail: "Create a checkpoint before large study sessions or cleanup so you can return to that learning state later."
+                    detail: "Save the current state as a memory checkpoint before large study sessions or cleanup."
                 )
             ]
         case .aiLink:

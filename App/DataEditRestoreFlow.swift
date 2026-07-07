@@ -147,8 +147,8 @@ extension DataEditTab {
     var restoreConfirmationMessage: String {
         guard let pending = pendingBackupRestore else { return "" }
         let action = pending.mode == .complete
-            ? "This will wipe the current Radix memory on this device and restore the selected backup file. Radix will save a recovery checkpoint first, but Merge Backup is safer unless you need an exact file restore."
-            : "Radix will merge this device with the selected backup file, then update the file so both match."
+            ? "This will replace memory with the selected file. Radix will save a recovery checkpoint first, but Merge Backup is safer unless you need an exact file restore."
+            : "Radix will combine the file and memory so both contain the merged contents."
         return "Selected: \(pending.filename)\n\n\(pending.payload.contentsSummary)\n\n\(action)"
     }
 

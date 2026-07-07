@@ -478,11 +478,12 @@ focus. Top-level navigation and global actions that are not selecting a
 character or phrase should clear the information card, making Checkpoints
 visible again. The sidebar may show only recent checkpoint rows, but it should
 label the subset when more exist. The rows themselves return to that checkpoint
-after confirmation. In My Data, Merge Backup means merge the selected backup
-file and this device, then update the file so both sides match. Restore Backup
-wipes this device's Radix memory and loads the selected file; it must stay
-explicitly destructive. Backup file rows use the picker only when the exported
-file is no longer directly readable.
+after confirmation. In My Data, Create Backup means create a new file from
+memory. Merge Backup means combine the file and memory so both contain the
+merged contents. Restore Backup means replace memory with the file and must
+stay explicitly destructive. Checkpoint means save the current state as a
+memory checkpoint. Backup file rows use the picker only when the exported file
+is no longer directly readable.
 
 The shared meaning is:
 

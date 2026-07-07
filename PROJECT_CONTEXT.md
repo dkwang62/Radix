@@ -132,10 +132,10 @@ simple leaf styling, including compact option and tools info icon surfaces.
 My Data backup affordances use `RadixAccent.primary` for brand-primary tinting,
 while destructive restore actions keep their semantic orange styling.
 My Data backup actions use explicit rows/stacks instead of lazy grids.
-My Data file handling uses `Create Backup` for a new portable file,
-`Merge Backup` to merge the selected file with this device and then update that
-file so both sides match, and `Restore Backup` as the advanced destructive path
-that wipes this device's Radix memory before loading the selected file.
+My Data file handling uses `Create Backup` to create a new file from memory,
+`Merge Backup` to combine the file and memory so both contain the merged
+contents, and `Restore Backup` as the advanced destructive path that replaces
+memory with the file.
 Backup preview headers and Study checkpoint action icons use the shared icon
 surface helper.
 Backup-content disclosures and backup-preview character tiles are part of that
@@ -1029,8 +1029,11 @@ intent preserved. My Data links back to Study for Checkpoints instead of
 duplicating the checkpoint controls; this is a compact `Checkpoints` button,
 not explanatory checkpoint copy.
 Backup File actions keep the same three choices across iPhone, iPad, and Mac:
-Create Backup, Merge Backup, and Restore Backup. All platforms stack the actions
-with Create Backup, then primary Merge Backup, then destructive Restore Backup.
+Create Backup, Merge Backup, and Restore Backup. Create means create a new file
+from memory; Merge means combine the file and memory so both contain the merged
+contents; Restore means replace memory with the file. Checkpoint means save the
+current state as a memory checkpoint. All platforms stack the actions with
+Create Backup, then primary Merge Backup, then destructive Restore Backup.
 My Data content is width-capped inside its column so long explanations and
 action cards do not visually spill to the screen edge.
 

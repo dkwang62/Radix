@@ -37,7 +37,7 @@ extension DataEditTab {
                 studyCheckpointsNote
             }
 
-            Text("Create a new backup file, merge a file with this device, or restore this device from a file.")
+            Text("Create a new file from memory, merge file and memory, or restore memory from a file.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
 
@@ -167,7 +167,7 @@ extension DataEditTab {
         } label: {
             DataBackupActionButton(
                 title: reuseExportInProgress && reuseExportFilename.contains("backup") ? "Preparing..." : RadixCopy.createBackup,
-                subtitle: "New file from this device",
+                subtitle: "Create a new file from memory",
                 systemName: "square.and.arrow.up.fill",
                 foreground: .white,
                 background: RadixAccent.primary,
@@ -190,7 +190,7 @@ extension DataEditTab {
         } label: {
             DataBackupActionButton(
                 title: RadixCopy.mergeBackup,
-                subtitle: "Update file and this device",
+                subtitle: "File and memory both contain the merged contents",
                 systemName: "arrow.triangle.2.circlepath",
                 foreground: .white,
                 background: RadixAccent.primary,
@@ -212,7 +212,7 @@ extension DataEditTab {
         } label: {
             DataBackupActionButton(
                 title: RadixCopy.restoreBackup,
-                subtitle: "Advanced: wipe this device first",
+                subtitle: "Replace memory with the file",
                 systemName: "square.and.arrow.down.fill",
                 foreground: Color.orange,
                 background: RadixTheme.background,
