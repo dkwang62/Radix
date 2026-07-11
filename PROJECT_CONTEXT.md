@@ -99,12 +99,12 @@ the reason should be documented in the same change.
 SwiftUI helper views in `App/` and `Views/` should have visible call sites; do
 not leave superseded alternate rows, cards, menu content, or one-off preview
 wrappers behind after a redesign.
-The old `BrowsePhraseExtractionSheet` and an unused phrase-review cycle hint
-were removed after a call-site sweep. The old standalone
-`BrowseOCRReviewSheet` was also removed; OCR review now uses the shared AI task
-flow. A follow-up single-reference view sweep across `App/` and `Views/` is
-clean; `Views/AILinkTemplateEditor.swift` is live through the `AI Templates`
-toolbar sheet in AI Link.
+The obsolete local page-quiz view in `BrowsePhraseExtractionSheet` and an
+unused phrase-review cycle hint were removed after a call-site sweep. The old
+standalone `BrowseOCRReviewSheet` was also removed; OCR review now uses the
+shared AI task flow. A follow-up single-reference view sweep across `App/` and
+`Views/` is clean; `Views/AILinkTemplateEditor.swift` is live through the
+`AI Templates` toolbar sheet in AI Link.
 Character and phrase info-card action pills share `InfoCardActionPill`; keep
 notes, phrase lookup, and related small info-card actions on that component so
 their spacing, radius, borders, and accessibility affordance do not drift.
@@ -118,6 +118,9 @@ rather than a lazy grid.
 Phrase info cards keep sentence and ordinary phrase content in separate
 top-level stacks and render animation tiles as explicit rows rather than a lazy
 grid, avoiding SwiftUI composition crashes while preserving the same controls.
+Phrase-card animation page chips intentionally use a plain horizontal scroll,
+not an embedded `ScrollViewReader`, because crash logs have shown SwiftUI retain
+failures while rebuilding phrase cards during Browse/page-phrase workflows.
 Small square info-card icon buttons use `radixIconButtonSurface` so favorite,
 edit, and read-aloud buttons keep one radius, background, and tap shape.
 Compact destructive icon buttons such as imported Conversation Practice delete
@@ -238,6 +241,9 @@ deleting Conversation Practice packs, promoting corrected OCR pages, and
 completing backup restores.
 Browse source status messages use `radixPill` for their inline feedback chip.
 Browse filter menu chips use `radixPill` while preserving picker-owned height.
+Browse page-phrase taps should own phrase preview state without also setting a
+character preview; on iPhone, the page-phrase sheet dismisses after opening a
+phrase so Browse can show one stable preview surface.
 Smart Search result headers use `radixCard` for their compact summary surface.
 Smart Search example buttons are a fixed descriptor-driven three-action set and
 use explicit `ViewThatFits` rows/stacks rather than a lazy grid.
@@ -1061,6 +1067,9 @@ added until a concrete alternate repository implementation needs them.
 - Never block the main actor while waiting for iCloud or file coordination.
 - Remove code only when references and platform builds confirm it is dead.
 - Do not commit Xcode-generated localization-catalog churn unless intentional.
+- When Xcode reports missing files, first distinguish stale project references
+  from real source loss; the app target should include the actual Swift files
+  under `App`, `Models`, `Services`, `ViewModels`, `Views`, and `Shared`.
 - For broad UI polish, add or extend shared visual primitives first, then adopt
   them in focused surfaces so style changes remain reviewable and reversible.
 
