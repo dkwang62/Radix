@@ -31,17 +31,10 @@ extension SmartSearchTab {
             ContentUnavailableView.search(text: store.lastSearchQuery)
 
             if !trimmedLastSearchQuery.isEmpty {
-                Button {
+                AddPhraseLaunchButton {
                     store.openNewPhraseEditor(word: trimmedLastSearchQuery)
-                } label: {
-                    Label("Add \"\(trimmedLastSearchQuery)\" as New Phrase", systemImage: "plus")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.small)
-                .accessibilityLabel("Add search text as new phrase")
+                .help("Add \(trimmedLastSearchQuery) as a new phrase")
             }
         }
         .frame(maxWidth: .infinity)

@@ -240,15 +240,9 @@ struct BrowsePagePhraseListSheet: View {
     }
 
     private var addNewPagePhraseButton: some View {
-        Button {
+        AddPhraseLaunchButton {
             store.openNewPhraseEditor()
-        } label: {
-            Label("New", systemImage: "plus")
-                .font(ResponsiveFont.caption.weight(.semibold))
         }
-        .buttonStyle(.borderedProminent)
-        .controlSize(.small)
-        .accessibilityLabel("Add new phrase")
         .help("Add a new phrase")
     }
 

@@ -4,6 +4,7 @@ struct AddPhraseSheet: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.dismiss) private var dismiss
     let returnTitle: String
+    let initialWord: String
 
     private enum AddPhraseMode: String, CaseIterable {
         case input = "Type"
@@ -20,8 +21,9 @@ struct AddPhraseSheet: View {
     @State private var addedPhrases: [PhraseDiscoveryCandidate] = []
     @State private var resultMessage: String?
 
-    init(returnTitle: String = "Phrase") {
+    init(returnTitle: String = "Phrase", initialWord: String = "") {
         self.returnTitle = returnTitle
+        self.initialWord = initialWord
     }
 
     var body: some View {
@@ -100,6 +102,7 @@ struct AddPhraseSheet: View {
         switch mode {
         case .input:
             AddPhraseInputForm(
+                initialWord: initialWord,
                 onAdd: recordAddedPhrase,
                 onCancel: { dismiss() }
             )
@@ -126,5 +129,17 @@ struct AddPhraseSheet: View {
         store.removeDataEditPhrase(word: candidate.phrase)
         addedPhrases.removeAll { $0.phrase == candidate.phrase }
         resultMessage = CaptureStatusText.removedPhrase(candidate.phrase)
+    }
+}
+
+struct AddPhraseLaunchButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label("Phrase", systemImage: "plus.circle.fill")
+        }
+        .buttonStyle(.bordered)
+        .accessibilityLabel("Add Phrase")
     }
 }

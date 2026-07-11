@@ -5,7 +5,7 @@ struct AddPhraseInputForm: View {
     let onAdd: (PhraseDiscoveryCandidate, String?) -> Void
     let onCancel: () -> Void
 
-    @State private var word = ""
+    @State private var word: String
     @State private var pinyin = ""
     @State private var meanings = ""
     @State private var notes = ""
@@ -13,6 +13,36 @@ struct AddPhraseInputForm: View {
 
     @FocusState private var focused: InputField?
     private enum InputField: Hashable { case word, pinyin, meanings, notes }
+
+    init(
+        initialWord: String = "",
+        onAdd: @escaping (PhraseDiscoveryCandidate, String?) -> Void,
+        onCancel: @escaping () -> Void
+    ) {
+        self.onAdd = onAdd
+        self.onCancel = onCancel
+        _word = State(initialValue: initialWord.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+
+    private var normalizedWord: String {
+        store.normalizedPhraseWord(word)
+    }
+
+    private var duplicateMessage: String? {
+        let phrase = normalizedWord
+        guard !phrase.isEmpty else { return nil }
+        if store.isPhraseInAdd(phrase) {
+            return "This phrase is already in your added phrases."
+        }
+        if store.isPhraseInBase(phrase) {
+            return "This phrase is already in Radix."
+        }
+        return nil
+    }
+
+    private var canAddPhrase: Bool {
+        !normalizedWord.isEmpty && duplicateMessage == nil
+    }
 
     var body: some View {
         ScrollView {
@@ -24,6 +54,14 @@ struct AddPhraseInputForm: View {
                         .padding(10)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .radixSurface(Color.red.opacity(0.08))
+                }
+                if let duplicateMessage {
+                    Label(duplicateMessage, systemImage: "info.circle")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .radixSurface(RadixTheme.secondaryBackground.opacity(0.45))
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
@@ -83,7 +121,7 @@ struct AddPhraseInputForm: View {
                     Button("Done") { focused = nil }
                     Spacer()
                     Button("Add Phrase") { addPhrase() }
-                        .disabled(word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        .disabled(!canAddPhrase)
                 }
             }
     }
@@ -137,7 +175,7 @@ struct AddPhraseInputForm: View {
             Label("Add Phrase", systemImage: "plus")
         }
         .buttonStyle(.borderedProminent)
-        .disabled(word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        .disabled(!canAddPhrase)
     }
 
     private func fieldBlock<C: View>(_ label: String, @ViewBuilder content: () -> C) -> some View {
@@ -151,7 +189,12 @@ struct AddPhraseInputForm: View {
 
     private func addPhrase() {
         do {
-            let trimmed = store.normalizedPhraseWord(word)
+            let trimmed = normalizedWord
+            if let duplicateMessage {
+                editorError = duplicateMessage
+                RadixHaptics.error()
+                return
+            }
             try store.addCustomPhrase(word: trimmed, pinyin: pinyin, meanings: meanings, notes: notes)
             editorError = nil
             RadixHaptics.success()

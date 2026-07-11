@@ -26,17 +26,9 @@ extension AddedPhraseReviewSheet {
     }
 
     var addPhraseButton: some View {
-        Button {
+        AddPhraseLaunchButton {
             store.openNewPhraseEditor()
-        } label: {
-            Image(systemName: "plus")
-                .font(.system(size: 13, weight: .bold))
-                .frame(width: 30, height: 30)
         }
-        .buttonStyle(.borderedProminent)
-        .controlSize(.small)
-        .tint(RadixAccent.primary)
-        .accessibilityLabel("Add new phrase")
         .help("Add a new phrase")
     }
 

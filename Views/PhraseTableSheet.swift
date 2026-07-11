@@ -86,13 +86,9 @@ struct PhraseTableSheet: View {
                     Spacer()
 
                     if !isFixedPhraseLookup {
-                        Button {
+                        AddPhraseLaunchButton {
                             showAddPhraseSheet = true
-                        } label: {
-                            Label("Phrase", systemImage: "plus.circle.fill")
                         }
-                        .buttonStyle(.bordered)
-                        .accessibilityLabel("Add Phrase")
                     }
                 }
                 .padding(12)

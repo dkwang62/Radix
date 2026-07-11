@@ -132,7 +132,9 @@ Single-phrase creation uses the shared quick phrase editor. Keep the convenient
 entry points in Study Added Phrases, Search no-results, and Browse Page Phrases
 on `openNewPhraseEditor(...)` so the add form, validation, and save path remain
 one implementation. New single-phrase saves must reject phrases already present
-in either the base phrase DB or the added phrase DB before writing.
+in either the base phrase DB or the added phrase DB before writing. All visible
+single-phrase add launchers use `AddPhraseLaunchButton`, and new-phrase entry
+points present `AddPhraseSheet` rather than a separate editor UI.
 Compact destructive icon buttons such as imported Conversation Practice delete
 also use that helper while keeping their local tint. Sentence browser row
 action menus use the same helper for their compact icon surface.

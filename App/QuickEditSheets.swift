@@ -12,7 +12,7 @@ struct QuickEditSheet: View {
         case .phrase(let word):
             QuickPhraseEditorView(word: word, isNew: false)
         case .newPhrase(let phrase):
-            QuickPhraseEditorView(word: phrase, isNew: true)
+            AddPhraseSheet(initialWord: phrase)
         }
     }
 }
