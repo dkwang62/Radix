@@ -123,6 +123,11 @@ not an embedded `ScrollViewReader`, because crash logs have shown SwiftUI retain
 failures while rebuilding phrase cards during Browse/page-phrase workflows.
 Small square info-card icon buttons use `radixIconButtonSurface` so favorite,
 edit, and read-aloud buttons keep one radius, background, and tap shape.
+Phrase-library actions follow one rule across phrase cards, phrase context
+menus, and Page Phrases: `Add Phrase` copies a known phrase into the added
+phrase database when it is not already there; `Delete Phrase` is shown only for
+user-added non-base phrases; edited base phrases use `Revert Phrase`; page-level
+Show/Hidden remains separate from deleting a phrase.
 Compact destructive icon buttons such as imported Conversation Practice delete
 also use that helper while keeping their local tint. Sentence browser row
 action menus use the same helper for their compact icon surface.

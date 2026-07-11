@@ -125,6 +125,8 @@ struct BrowsePagePhraseListSheet: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.dismiss) private var dismiss
     let collectionID: UUID
+    @State private var phrasePendingDeletion: PhraseItem?
+    @State private var pagePhraseActionMessage: String?
 
     private var collection: CharacterCollection? {
         store.collection(id: collectionID)
@@ -152,7 +154,13 @@ struct BrowsePagePhraseListSheet: View {
                                     phraseChoiceRow(candidate, collection: collection)
                                 }
                             } footer: {
-                                Text("Hide phrases that do not fit this page context. Hidden here only changes this saved page.")
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Hide phrases that do not fit this page context. Hidden here only changes this saved page.")
+                                    if let pagePhraseActionMessage {
+                                        Text(pagePhraseActionMessage)
+                                            .font(ResponsiveFont.caption.weight(.semibold))
+                                    }
+                                }
                             }
                         }
                         .listStyle(.plain)
@@ -169,11 +177,23 @@ struct BrowsePagePhraseListSheet: View {
                 }
             }
         }
+        .alert("Delete Phrase?", isPresented: deleteConfirmationBinding) {
+            Button("Delete Phrase", role: .destructive) {
+                deletePendingPhrase()
+            }
+            Button("Cancel", role: .cancel) {
+                phrasePendingDeletion = nil
+            }
+        } message: {
+            Text(deleteConfirmationMessage)
+        }
     }
 
     private func phraseChoiceRow(_ candidate: BrowsePagePhraseCandidate, collection: CharacterCollection) -> some View {
         let word = store.normalizedPhraseWord(candidate.phrase.word)
         let isHidden = collection.hiddenPhraseWords?.contains(word) == true
+        let isAdded = store.isPhraseInAdd(word)
+        let isBase = store.isPhraseInBase(word)
 
         return HStack(spacing: 10) {
             PhraseSummaryTile(
@@ -189,6 +209,8 @@ struct BrowsePagePhraseListSheet: View {
                 }
             )
             .phraseContextMenu(candidate.phrase)
+
+            pagePhraseLibraryActions(for: candidate.phrase, isAdded: isAdded, isBase: isBase)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(candidate.occurrenceCount == 1 ? "1 place" : "\(candidate.occurrenceCount) places")
@@ -207,5 +229,91 @@ struct BrowsePagePhraseListSheet: View {
             Spacer(minLength: 0)
         }
         .padding(.vertical, 4)
+    }
+
+    @ViewBuilder
+    private func pagePhraseLibraryActions(for phrase: PhraseItem, isAdded: Bool, isBase: Bool) -> some View {
+        if !isAdded {
+            Button {
+                addPagePhrase(phrase)
+            } label: {
+                Image(systemName: "plus")
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .foregroundStyle(RadixAccent.primary)
+                    .radixIconButtonSurface(size: 32)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Add phrase")
+            .help("Add phrase")
+        } else if !isBase {
+            Button(role: .destructive) {
+                phrasePendingDeletion = phrase
+            } label: {
+                Image(systemName: "trash")
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.red)
+                    .radixIconButtonSurface(size: 32)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Delete phrase")
+            .help("Delete phrase")
+        } else {
+            Button {
+                store.removeDataEditPhrase(word: phrase.word)
+                pagePhraseActionMessage = "\(phrase.word) reverted."
+                RadixHaptics.success()
+            } label: {
+                Image(systemName: "arrow.uturn.backward")
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .radixIconButtonSurface(size: 32)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Revert phrase")
+            .help("Revert phrase")
+        }
+    }
+
+    private var deleteConfirmationBinding: Binding<Bool> {
+        Binding(
+            get: { phrasePendingDeletion != nil },
+            set: { if !$0 { phrasePendingDeletion = nil } }
+        )
+    }
+
+    private var deleteConfirmationMessage: String {
+        guard let phrasePendingDeletion else {
+            return "This removes the phrase from your added phrases."
+        }
+        return "Delete \(phrasePendingDeletion.word)? This removes it from your added phrases. Hidden page-phrase settings are separate."
+    }
+
+    private func addPagePhrase(_ phrase: PhraseItem) {
+        do {
+            try store.addCustomPhrase(
+                word: phrase.word,
+                pinyin: phrase.pinyin,
+                meanings: phrase.meanings,
+                notes: phrase.notes
+            )
+            pagePhraseActionMessage = "\(phrase.word) added."
+            RadixHaptics.success()
+        } catch {
+            pagePhraseActionMessage = "Add failed: \(error.localizedDescription)"
+            RadixHaptics.error()
+        }
+    }
+
+    private func deletePendingPhrase() {
+        guard let phrase = phrasePendingDeletion else { return }
+        phrasePendingDeletion = nil
+        do {
+            _ = try store.removeAddedPhrases(words: [phrase.word])
+            pagePhraseActionMessage = "\(phrase.word) deleted."
+            RadixHaptics.success()
+        } catch {
+            pagePhraseActionMessage = "Delete failed: \(error.localizedDescription)"
+            RadixHaptics.error()
+        }
     }
 }

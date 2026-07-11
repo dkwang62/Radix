@@ -189,9 +189,23 @@ private struct PhraseActionMenuContent: View {
             }
         }
         Divider()
-        if store.isPhraseInAdd(trimmedWord) {
-            let isBuiltIn = store.isPhraseInBase(trimmedWord)
-            Button(isBuiltIn ? "Revert Phrase" : "Delete Phrase", role: isBuiltIn ? nil : .destructive) {
+        let isAdded = store.isPhraseInAdd(trimmedWord)
+        let isBuiltIn = store.isPhraseInBase(trimmedWord)
+        if !isAdded {
+            Button("Add Phrase") {
+                try? store.addCustomPhrase(
+                    word: trimmedWord,
+                    pinyin: phrase.pinyin,
+                    meanings: phrase.meanings,
+                    notes: phrase.notes
+                )
+            }
+        } else if isBuiltIn {
+            Button("Revert Phrase") {
+                store.removeDataEditPhrase(word: trimmedWord)
+            }
+        } else {
+            Button("Delete Phrase", role: .destructive) {
                 store.removeDataEditPhrase(word: trimmedWord)
             }
         }

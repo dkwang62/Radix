@@ -18,11 +18,55 @@ extension PhraseInfoCard {
             Spacer(minLength: 0)
 
             HStack(spacing: 6) {
+                phraseLibraryActionButton
                 favoriteTargetButton
 
                 if !isEditingNotes {
                     editNotesButton
                 }
+            }
+        }
+    }
+
+    @ViewBuilder
+    var phraseLibraryActionButton: some View {
+        if !isPracticeSentence {
+            if canAddPhraseToLibrary {
+                Button {
+                    addPhraseToLibrary()
+                } label: {
+                    Image(systemName: "plus")
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                        .foregroundStyle(RadixAccent.primary)
+                        .radixIconButtonSurface()
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Add phrase")
+                .help("Add phrase")
+            } else if canDeleteAddedPhrase {
+                Button(role: .destructive) {
+                    showDeletePhraseConfirmation = true
+                } label: {
+                    Image(systemName: "trash")
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.red)
+                        .radixIconButtonSurface()
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Delete phrase")
+                .help("Delete phrase")
+            } else if canRevertPhraseEdit {
+                Button {
+                    revertPhraseEdit()
+                } label: {
+                    Image(systemName: "arrow.uturn.backward")
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .radixIconButtonSurface()
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Revert phrase")
+                .help("Revert phrase")
             }
         }
     }
