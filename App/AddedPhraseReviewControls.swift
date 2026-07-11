@@ -5,6 +5,8 @@ extension AddedPhraseReviewSheet {
         HStack(spacing: 8) {
             filterRow
 
+            addPhraseButton
+
             actionsMenu
 
             Spacer(minLength: 0)
@@ -21,6 +23,21 @@ extension AddedPhraseReviewSheet {
                 .accessibilityLabel(isWorkspace ? "Back to Study" : "Close phrase classification")
         }
         .frame(maxWidth: .infinity)
+    }
+
+    var addPhraseButton: some View {
+        Button {
+            store.openNewPhraseEditor()
+        } label: {
+            Image(systemName: "plus")
+                .font(.system(size: 13, weight: .bold))
+                .frame(width: 30, height: 30)
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.small)
+        .tint(RadixAccent.primary)
+        .accessibilityLabel("Add new phrase")
+        .help("Add a new phrase")
     }
 
     var filterRow: some View {

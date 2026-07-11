@@ -76,7 +76,7 @@ struct QuickPhraseEditorView: View {
         }
         .onAppear {
             if isNew {
-                phraseEditorWord = ""
+                phraseEditorWord = store.simplifiedText(initialWord).trimmingCharacters(in: .whitespacesAndNewlines)
                 phraseEditorPinyin = ""
                 phraseEditorMeanings = ""
                 phraseEditorNotes = ""

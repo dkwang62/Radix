@@ -11,8 +11,8 @@ struct QuickEditSheet: View {
             QuickCharacterEditorView(character: "", isNew: true)
         case .phrase(let word):
             QuickPhraseEditorView(word: word, isNew: false)
-        case .newPhrase:
-            QuickPhraseEditorView(word: "", isNew: true)
+        case .newPhrase(let phrase):
+            QuickPhraseEditorView(word: phrase, isNew: true)
         }
     }
 }

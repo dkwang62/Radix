@@ -142,11 +142,16 @@ struct BrowsePagePhraseListSheet: View {
             Group {
                 if let collection {
                     if candidates.isEmpty {
-                        ContentUnavailableView(
-                            "No page phrases",
-                            systemImage: "text.quote",
-                            description: Text("Radix did not find any dictionary phrases on this page.")
-                        )
+                        VStack(spacing: 12) {
+                            ContentUnavailableView(
+                                "No page phrases",
+                                systemImage: "text.quote",
+                                description: Text("Radix did not find any dictionary phrases on this page.")
+                            )
+
+                            addNewPagePhraseButton
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
                         List {
                             Section {
@@ -172,6 +177,9 @@ struct BrowsePagePhraseListSheet: View {
             .navigationTitle("Page Phrases")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    addNewPagePhraseButton
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                 }
@@ -229,6 +237,19 @@ struct BrowsePagePhraseListSheet: View {
             Spacer(minLength: 0)
         }
         .padding(.vertical, 4)
+    }
+
+    private var addNewPagePhraseButton: some View {
+        Button {
+            store.openNewPhraseEditor()
+        } label: {
+            Label("New", systemImage: "plus")
+                .font(ResponsiveFont.caption.weight(.semibold))
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.small)
+        .accessibilityLabel("Add new phrase")
+        .help("Add a new phrase")
     }
 
     @ViewBuilder

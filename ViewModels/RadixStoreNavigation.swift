@@ -420,7 +420,10 @@ extension RadixStore {
         quickEditDestination = .phrase(simplifiedText(trimmedWord))
     }
 
-    func openNewPhraseEditor() { quickEditDestination = .newPhrase }
+    func openNewPhraseEditor(word: String = "") {
+        let trimmedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
+        quickEditDestination = .newPhrase(simplifiedText(trimmedWord))
+    }
 
     // MARK: - AI Link dispatch
 

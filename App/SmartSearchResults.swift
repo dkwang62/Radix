@@ -21,9 +21,30 @@ extension SmartSearchTab {
             initialPhraseMatches(proxy: proxy)
 
             if store.filteredResults.isEmpty && store.filteredSmartPhraseResults.isEmpty {
-                ContentUnavailableView.search(text: store.lastSearchQuery)
+                searchNoResultsView
             }
         }
+    }
+
+    var searchNoResultsView: some View {
+        VStack(spacing: 12) {
+            ContentUnavailableView.search(text: store.lastSearchQuery)
+
+            if !trimmedLastSearchQuery.isEmpty {
+                Button {
+                    store.openNewPhraseEditor(word: trimmedLastSearchQuery)
+                } label: {
+                    Label("Add \"\(trimmedLastSearchQuery)\" as New Phrase", systemImage: "plus")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .accessibilityLabel("Add search text as new phrase")
+            }
+        }
+        .frame(maxWidth: .infinity)
     }
 
     var searchResultsHeader: some View {

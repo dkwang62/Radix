@@ -123,6 +123,10 @@ struct AddedPhraseReviewSheet: View {
                 clampPage()
             }
         }
+        .onChange(of: store.addedPhraseReviewPhrases) { _, _ in
+            loadReviewPhrasesFromStore()
+            clampPage()
+        }
         .sheet(isPresented: $showsReviewHelp) {
             AddedPhraseReviewHelpSheet()
         }

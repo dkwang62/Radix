@@ -32,7 +32,7 @@ enum QuickEditDestination: Identifiable, Equatable {
     case character(String)
     case phrase(String)
     case newCharacter
-    case newPhrase
+    case newPhrase(String = "")
 
     var id: String {
         switch self {
@@ -42,8 +42,8 @@ enum QuickEditDestination: Identifiable, Equatable {
             return "phrase:\(phrase)"
         case .newCharacter:
             return "newCharacter"
-        case .newPhrase:
-            return "newPhrase"
+        case .newPhrase(let phrase):
+            return phrase.isEmpty ? "newPhrase" : "newPhrase:\(phrase)"
         }
     }
 }
