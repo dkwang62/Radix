@@ -5,34 +5,8 @@ extension PhraseInfoCard {
         store.normalizedPhraseWord(phrase.word)
     }
 
-    var canAddPhraseToLibrary: Bool {
-        !normalizedPhraseWord.isEmpty
-            && normalizedPhraseWord.count >= 2
-            && !store.isPhraseInAdd(normalizedPhraseWord)
-    }
-
     var canDeleteAddedPhrase: Bool {
         store.isPhraseInAdd(normalizedPhraseWord) && !store.isPhraseInBase(normalizedPhraseWord)
-    }
-
-    var canRevertPhraseEdit: Bool {
-        store.isPhraseInAdd(normalizedPhraseWord) && store.isPhraseInBase(normalizedPhraseWord)
-    }
-
-    func addPhraseToLibrary() {
-        do {
-            try store.addCustomPhrase(
-                word: phrase.word,
-                pinyin: phrase.pinyin,
-                meanings: phrase.meanings,
-                notes: phrase.notes
-            )
-            editStatus = "Phrase added."
-            RadixHaptics.success()
-        } catch {
-            editStatus = "Add failed: \(error.localizedDescription)"
-            RadixHaptics.error()
-        }
     }
 
     func deleteAddedPhrase() {
@@ -45,12 +19,6 @@ extension PhraseInfoCard {
             editStatus = "Delete failed: \(error.localizedDescription)"
             RadixHaptics.error()
         }
-    }
-
-    func revertPhraseEdit() {
-        store.removeDataEditPhrase(word: normalizedPhraseWord)
-        editStatus = "Phrase reverted."
-        RadixHaptics.success()
     }
 
     var practiceSentenceToolbar: some View {
