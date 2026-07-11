@@ -25,7 +25,24 @@ struct QuickPhraseEditorView: View {
     }
 
     private var canSavePhrase: Bool {
-        !phraseEditorWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !normalizedEditorWord.isEmpty && newPhraseDuplicateMessage == nil
+    }
+
+    private var normalizedEditorWord: String {
+        store.normalizedPhraseWord(phraseEditorWord)
+    }
+
+    private var newPhraseDuplicateMessage: String? {
+        guard isNew else { return nil }
+        let word = normalizedEditorWord
+        guard !word.isEmpty else { return nil }
+        if store.isPhraseInAdd(word) {
+            return "This phrase is already in your added phrases."
+        }
+        if store.isPhraseInBase(word) {
+            return "This phrase is already in Radix."
+        }
+        return nil
     }
 
     var body: some View {
@@ -46,6 +63,11 @@ struct QuickPhraseEditorView: View {
                         Text(editorError)
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.red)
+                    }
+                    if let newPhraseDuplicateMessage {
+                        Text(newPhraseDuplicateMessage)
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
                     }
 
                     phraseNotesSection
@@ -227,7 +249,17 @@ struct QuickPhraseEditorView: View {
 
     private func savePhrase() {
         do {
-            let wordToSave = store.normalizedPhraseWord(phraseEditorWord)
+            let wordToSave = normalizedEditorWord
+            if isNew {
+                if store.isPhraseInAdd(wordToSave) {
+                    editorError = "This phrase is already in your added phrases."
+                    return
+                }
+                if store.isPhraseInBase(wordToSave) {
+                    editorError = "This phrase is already in Radix."
+                    return
+                }
+            }
             try store.addCustomPhrase(
                 word: wordToSave,
                 pinyin: phraseEditorPinyin,
