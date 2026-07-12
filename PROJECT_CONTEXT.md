@@ -57,6 +57,9 @@ lists, example sheets, and sentence cards, not a second storage form.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.
+Study > Sentences search should not feel narrower than phrase-card Examples:
+typing a search resets the sentence filter to All, and searched results use a
+larger page size so phrase searches are not mistaken for missing examples.
 Extracted sentence rows reuse the shared Conversation Practice sentence row and
 open the shared sentence card, resolving back to the canonical sentence database
 record so active selection, phrase chips, read-aloud, and favorites stay aligned.

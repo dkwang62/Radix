@@ -497,7 +497,11 @@ extension FavouritesTab {
         .padding(10)
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
-        .onChange(of: sentenceExampleSearchText) { _, _ in
+        .onChange(of: sentenceExampleSearchText) { oldValue, newValue in
+            if oldValue.trimmingCharacters(in: .whitespacesAndNewlines) != newValue.trimmingCharacters(in: .whitespacesAndNewlines),
+               !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                sentenceExampleFilter = .all
+            }
             resetSentenceExamplePage()
         }
     }
@@ -515,7 +519,9 @@ extension FavouritesTab {
         return filtered
     }
 
-    var sentenceExamplePageSize: Int { 10 }
+    var sentenceExamplePageSize: Int {
+        sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 10 : 50
+    }
 
     var sentenceExamplePageCount: Int {
         max(1, Int(ceil(Double(filteredSentenceExamples.count) / Double(sentenceExamplePageSize))))
