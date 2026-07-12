@@ -121,6 +121,9 @@ blob cache. The sentence table owns count, search, filter, paging, row fetch,
 upsert, and delete through `RadixStudyPreferences.querySentenceExamples` and
 related repository helpers; SwiftUI should render the current page result
 instead of repeatedly loading and ranking every sentence record.
+Sentence source filters should use the indexed source flag columns maintained
+beside the JSON payload, not broad `source_text` scans, for common page-linked
+and practice-linked Study Sentences queries.
 
 ## Product and Platform Scope
 

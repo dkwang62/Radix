@@ -856,6 +856,11 @@ private final class SentenceExampleRepository: @unchecked Sendable {
           english TEXT,
           search_text TEXT,
           source_text TEXT,
+          source_page_ids TEXT,
+          has_page_source INTEGER NOT NULL DEFAULT 0,
+          has_conversation_practice_source INTEGER NOT NULL DEFAULT 0,
+          has_sentence_practice_source INTEGER NOT NULL DEFAULT 0,
+          has_ai_cleaned_page_source INTEGER NOT NULL DEFAULT 0,
           is_favorited INTEGER NOT NULL DEFAULT 0,
           is_hidden INTEGER NOT NULL DEFAULT 0,
           quality_score REAL NOT NULL DEFAULT 0,
@@ -887,16 +892,33 @@ private final class SentenceExampleRepository: @unchecked Sendable {
             }
             addedColumns = true
         }
+        let sourceFlagColumns: [(name: String, sql: String)] = [
+            ("source_page_ids", "ALTER TABLE sentence_examples ADD COLUMN source_page_ids TEXT"),
+            ("has_page_source", "ALTER TABLE sentence_examples ADD COLUMN has_page_source INTEGER NOT NULL DEFAULT 0"),
+            ("has_conversation_practice_source", "ALTER TABLE sentence_examples ADD COLUMN has_conversation_practice_source INTEGER NOT NULL DEFAULT 0"),
+            ("has_sentence_practice_source", "ALTER TABLE sentence_examples ADD COLUMN has_sentence_practice_source INTEGER NOT NULL DEFAULT 0"),
+            ("has_ai_cleaned_page_source", "ALTER TABLE sentence_examples ADD COLUMN has_ai_cleaned_page_source INTEGER NOT NULL DEFAULT 0")
+        ]
+        for column in sourceFlagColumns where !existingColumns.contains(column.name) {
+            guard sqlite3_exec(db, column.sql, nil, nil, nil) == SQLITE_OK else {
+                throw sqliteError(code: 3125, message: "Failed to add sentence source flag column")
+            }
+            addedColumns = true
+        }
         if addedColumns {
             try backfillSearchColumnsUnlocked()
         }
-        guard sqlite3_exec(
-            db,
-            "CREATE INDEX IF NOT EXISTS idx_sentence_examples_source_text ON sentence_examples(source_text)",
-            nil,
-            nil,
-            nil
-        ) == SQLITE_OK else {
+        let indexSQL = """
+        CREATE INDEX IF NOT EXISTS idx_sentence_examples_source_text
+          ON sentence_examples(source_text);
+        CREATE INDEX IF NOT EXISTS idx_sentence_examples_page_source
+          ON sentence_examples(has_page_source, is_hidden);
+        CREATE INDEX IF NOT EXISTS idx_sentence_examples_practice_source
+          ON sentence_examples(has_conversation_practice_source, has_sentence_practice_source, is_hidden);
+        CREATE INDEX IF NOT EXISTS idx_sentence_examples_ai_cleaned_source
+          ON sentence_examples(has_ai_cleaned_page_source, is_hidden);
+        """
+        guard sqlite3_exec(db, indexSQL, nil, nil, nil) == SQLITE_OK else {
             throw sqliteError(code: 3123, message: "Failed to index sentence source text")
         }
     }
@@ -1066,20 +1088,26 @@ private final class SentenceExampleRepository: @unchecked Sendable {
             clauses.append("is_favorited = 1")
         case .pageLinked:
             clauses.append("is_hidden = 0")
-            clauses.append("source_text LIKE ?")
-            bindings.append("% source_page %")
+            clauses.append("has_page_source = 1")
         case .practice:
             clauses.append("is_hidden = 0")
-            clauses.append("(source_text LIKE ? OR source_text LIKE ?)")
-            bindings.append("% source_type:conversation_practice %")
-            bindings.append("% source_type:sentence_practice %")
+            clauses.append("(has_conversation_practice_source = 1 OR has_sentence_practice_source = 1)")
         case .page(let pageID, let sourceType):
             clauses.append("is_hidden = 0")
-            clauses.append("source_text LIKE ?")
-            bindings.append("% page:\(pageID.uuidString.lowercased()) %")
+            clauses.append("source_page_ids LIKE ?")
+            bindings.append("%\(pageID.uuidString.lowercased())%")
             if let sourceType {
-                clauses.append("source_text LIKE ?")
-                bindings.append("% source_type:\(sourceType.rawValue) %")
+                switch sourceType {
+                case .conversationPractice:
+                    clauses.append("has_conversation_practice_source = 1")
+                case .sentencePractice:
+                    clauses.append("has_sentence_practice_source = 1")
+                case .aiCleanedPage:
+                    clauses.append("has_ai_cleaned_page_source = 1")
+                default:
+                    clauses.append("source_text LIKE ?")
+                    bindings.append("% source_type:\(sourceType.rawValue) %")
+                }
             }
         }
 
@@ -1176,13 +1204,18 @@ private final class SentenceExampleRepository: @unchecked Sendable {
           english,
           search_text,
           source_text,
+          source_page_ids,
+          has_page_source,
+          has_conversation_practice_source,
+          has_sentence_practice_source,
+          has_ai_cleaned_page_source,
           is_favorited,
           is_hidden,
           quality_score,
           created_at,
           updated_at,
           record_json
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
         var statement: OpaquePointer?
         guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else {
@@ -1201,19 +1234,24 @@ private final class SentenceExampleRepository: @unchecked Sendable {
             bind(record.english, to: 5, in: statement)
             bind(Self.searchText(for: record), to: 6, in: statement)
             bind(Self.sourceText(for: record), to: 7, in: statement)
-            sqlite3_bind_int(statement, 8, record.isFavorited ? 1 : 0)
-            sqlite3_bind_int(statement, 9, record.isHidden ? 1 : 0)
-            sqlite3_bind_double(statement, 10, record.qualityScore)
-            sqlite3_bind_double(statement, 11, record.createdAt.timeIntervalSince1970)
+            bind(Self.sourcePageIDText(for: record), to: 8, in: statement)
+            sqlite3_bind_int(statement, 9, record.sources.contains(where: { $0.sourcePageID != nil }) ? 1 : 0)
+            sqlite3_bind_int(statement, 10, record.hasSourceType(.conversationPractice) ? 1 : 0)
+            sqlite3_bind_int(statement, 11, record.hasSourceType(.sentencePractice) ? 1 : 0)
+            sqlite3_bind_int(statement, 12, record.hasSourceType(.aiCleanedPage) ? 1 : 0)
+            sqlite3_bind_int(statement, 13, record.isFavorited ? 1 : 0)
+            sqlite3_bind_int(statement, 14, record.isHidden ? 1 : 0)
+            sqlite3_bind_double(statement, 15, record.qualityScore)
+            sqlite3_bind_double(statement, 16, record.createdAt.timeIntervalSince1970)
             if let lastUsedAt = record.lastUsedAt {
-                sqlite3_bind_double(statement, 12, lastUsedAt.timeIntervalSince1970)
+                sqlite3_bind_double(statement, 17, lastUsedAt.timeIntervalSince1970)
             } else {
-                sqlite3_bind_null(statement, 12)
+                sqlite3_bind_null(statement, 17)
             }
             _ = data.withUnsafeBytes { buffer in
                 sqlite3_bind_blob(
                     statement,
-                    13,
+                    18,
                     buffer.baseAddress,
                     Int32(data.count),
                     SQLITE_TRANSIENT_SENTENCE_EXAMPLES
@@ -1271,6 +1309,13 @@ private final class SentenceExampleRepository: @unchecked Sendable {
             }
         }
         return " \(tokens.joined(separator: " ")) "
+    }
+
+    private static func sourcePageIDText(for record: SentenceExampleRecord) -> String {
+        let ids = record.sources
+            .compactMap(\.sourcePageID)
+            .map { $0.uuidString.lowercased() }
+        return " \(Array(Set(ids)).sorted().joined(separator: " ")) "
     }
 
     private static func foldedSearchText(_ value: String) -> String {
