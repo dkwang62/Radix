@@ -49,10 +49,13 @@ struct FavouritesTab: View {
     @State var sentenceExamplePageIndex = 0
     @State var sentenceExamplePageRecords: [SentenceExampleRecord] = []
     @State var sentenceExampleResultCount = 0
+    @State var isSelectingSentenceExamples = false
+    @State var selectedSentenceExampleIDs = Set<UUID>()
     @State var sentenceExampleRevision = 0
     @State var sentenceExampleStatusMessage: String?
     @State var sentenceExampleEditDraft: SentenceExampleEditDraft?
     @State var showDeleteFilteredSentenceExamplesConfirmation = false
+    @State var showDeleteSelectedSentenceExamplesConfirmation = false
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
     @State var studyGridScope = RadixStudyPreferences.initialGridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
@@ -290,6 +293,14 @@ struct FavouritesTab: View {
             }
         } message: {
             Text(sentenceExampleBulkDeleteMessage)
+        }
+        .alert("Delete Selected Sentences?", isPresented: $showDeleteSelectedSentenceExamplesConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button(sentenceExampleSelectedDeleteConfirmationTitle, role: .destructive) {
+                deleteSelectedSentenceExamples()
+            }
+        } message: {
+            Text("This permanently deletes only the selected sentences shown in Study.")
         }
         .alert("Delete Saved Page?", isPresented: Binding(
             get: { pendingStudyDeleteCollection != nil },

@@ -94,6 +94,10 @@ Study > Sentences can batch-delete the current searched result set after
 confirmation. Batch and single sentence deletes share the same `RadixStore`
 path so sentence database rows, favorite compatibility records, and
 page-owned extracted-sentence records are removed together.
+Study > Sentences also supports a visible page-local selection mode for
+deleting specific sentences from a search or filter result. Keep selected
+sentences visible, clear the selection when the page/search/filter changes, and
+route selected deletes through the same `RadixStore` sentence deletion path.
 Study > Sentences must treat SQLite as the live query engine, not as a JSON
 blob cache. The sentence table owns count, search, filter, paging, row fetch,
 upsert, and delete through `RadixStudyPreferences.querySentenceExamples` and

@@ -459,6 +459,8 @@ extension FavouritesTab {
 
                 Spacer(minLength: 8)
 
+                sentenceExampleSelectionControls
+
                 sentenceExampleBulkDeleteButton
 
                 practiceSentenceModeControls
@@ -482,6 +484,7 @@ extension FavouritesTab {
                         Button {
                             sentenceExampleFilter = filter
                             resetSentenceExamplePage()
+                            clearSentenceExampleSelection()
                             refreshSentenceExampleResults()
                         } label: {
                             Label(filter.rawValue, systemImage: filter.systemImage)
@@ -509,6 +512,7 @@ extension FavouritesTab {
                 sentenceExampleFilter = .all
             }
             resetSentenceExamplePage()
+            clearSentenceExampleSelection()
             refreshSentenceExampleResults()
         }
     }
@@ -518,7 +522,8 @@ extension FavouritesTab {
     }
 
     var canBulkDeleteFilteredSentenceExamples: Bool {
-        !sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !isSelectingSentenceExamples
+            && !sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && sentenceExampleResultCount > 0
     }
 
@@ -531,6 +536,19 @@ extension FavouritesTab {
 
     var sentenceExampleBulkDeleteConfirmationTitle: String {
         let count = sentenceExampleResultCount
+        return "Delete \(count) Sentence\(count == 1 ? "" : "s")"
+    }
+
+    var selectedSentenceExamples: [SentenceExampleRecord] {
+        sentenceExamplePageRecords.filter { selectedSentenceExampleIDs.contains($0.id) }
+    }
+
+    var selectedSentenceExampleCount: Int {
+        selectedSentenceExampleIDs.count
+    }
+
+    var sentenceExampleSelectedDeleteConfirmationTitle: String {
+        let count = selectedSentenceExampleCount
         return "Delete \(count) Sentence\(count == 1 ? "" : "s")"
     }
 
@@ -583,6 +601,49 @@ extension FavouritesTab {
         }
     }
 
+    @ViewBuilder
+    var sentenceExampleSelectionControls: some View {
+        if isSelectingSentenceExamples {
+            HStack(spacing: 6) {
+                Button {
+                    clearSentenceExampleSelection()
+                    isSelectingSentenceExamples = false
+                } label: {
+                    Text("Cancel")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .radixPill(horizontal: 9, vertical: 6, background: RadixTheme.secondaryBackground)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+
+                Button(role: .destructive) {
+                    showDeleteSelectedSentenceExamplesConfirmation = true
+                } label: {
+                    Label("Delete \(selectedSentenceExampleCount)", systemImage: "trash")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .labelStyle(.titleAndIcon)
+                        .radixPill(horizontal: 9, vertical: 6, background: Color.red.opacity(0.12))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(Color.red)
+                .disabled(selectedSentenceExampleIDs.isEmpty)
+            }
+        } else if sentenceExampleResultCount > 0 {
+            Button {
+                isSelectingSentenceExamples = true
+                sentenceExampleStatusMessage = nil
+            } label: {
+                Label("Select", systemImage: "checklist")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .labelStyle(.titleAndIcon)
+                    .radixPill(horizontal: 9, vertical: 6, background: RadixTheme.secondaryBackground)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(RadixAccent.primary)
+            .help("Select sentences to delete")
+        }
+    }
+
     func canMoveSentenceExamplePage(by offset: Int) -> Bool {
         let nextIndex = clampedSentenceExamplePageIndex + offset
         return nextIndex >= 0 && nextIndex < sentenceExamplePageCount
@@ -593,6 +654,7 @@ extension FavouritesTab {
         withAnimation(.snappy(duration: 0.18)) {
             sentenceExamplePageIndex = clampedSentenceExamplePageIndex + offset
         }
+        clearSentenceExampleSelection()
         refreshSentenceExampleResults()
     }
 
@@ -623,6 +685,8 @@ extension FavouritesTab {
         let result = RadixStudyPreferences.querySentenceExamples(sentenceExampleQuery)
         sentenceExampleResultCount = result.totalCount
         sentenceExamplePageRecords = result.records
+        let visibleIDs = Set(result.records.map(\.id))
+        selectedSentenceExampleIDs = selectedSentenceExampleIDs.intersection(visibleIDs)
         if sentenceExamplePageIndex != clampedSentenceExamplePageIndex {
             sentenceExamplePageIndex = clampedSentenceExamplePageIndex
         }
@@ -655,10 +719,18 @@ extension FavouritesTab {
                 openAccessibilityLabel: "Open sentence \(studyGridDisplayText(item.simplified))",
                 openAccessibilityHint: "Opens the sentence info card."
             ) {
-                presentConversationPracticePhrase(item)
+                if isSelectingSentenceExamples {
+                    toggleSentenceExampleSelection(example)
+                } else {
+                    presentConversationPracticePhrase(item)
+                }
             } trailing: {
-                sentenceExampleFavoriteButton(example)
-                sentenceExampleActions(example)
+                if isSelectingSentenceExamples {
+                    sentenceExampleSelectionButton(example)
+                } else {
+                    sentenceExampleFavoriteButton(example)
+                    sentenceExampleActions(example)
+                }
             }
 
             if isSelected {
@@ -686,6 +758,20 @@ extension FavouritesTab {
         .buttonStyle(.plain)
         .foregroundStyle(example.isFavorited ? Color.yellow : .secondary)
         .accessibilityLabel(example.isFavorited ? "Remove favorite sentence" : "Save favorite sentence")
+    }
+
+    func sentenceExampleSelectionButton(_ example: SentenceExampleRecord) -> some View {
+        let isSelected = selectedSentenceExampleIDs.contains(example.id)
+        return Button {
+            toggleSentenceExampleSelection(example)
+        } label: {
+            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                .font(.system(size: 18, weight: .semibold))
+                .frame(width: 34, height: 34)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(isSelected ? RadixAccent.primary : .secondary)
+        .accessibilityLabel(isSelected ? "Deselect sentence" : "Select sentence")
     }
 
     func sentenceExampleActions(_ example: SentenceExampleRecord) -> some View {
@@ -763,6 +849,30 @@ extension FavouritesTab {
         sentenceExampleRevision += 1
         resetSentenceExamplePage()
         sentenceExampleStatusMessage = "Deleted \(examples.count) sentence\(examples.count == 1 ? "" : "s")"
+        loadFavoriteSentences()
+        refreshSentenceExampleResults()
+    }
+
+    func toggleSentenceExampleSelection(_ example: SentenceExampleRecord) {
+        if selectedSentenceExampleIDs.contains(example.id) {
+            selectedSentenceExampleIDs.remove(example.id)
+        } else {
+            selectedSentenceExampleIDs.insert(example.id)
+        }
+    }
+
+    func clearSentenceExampleSelection() {
+        selectedSentenceExampleIDs.removeAll()
+    }
+
+    func deleteSelectedSentenceExamples() {
+        let examples = selectedSentenceExamples
+        guard !examples.isEmpty else { return }
+        store.deleteSentenceExamples(examples)
+        sentenceExampleRevision += 1
+        clearSentenceExampleSelection()
+        isSelectingSentenceExamples = false
+        sentenceExampleStatusMessage = "Deleted \(examples.count) selected sentence\(examples.count == 1 ? "" : "s")"
         loadFavoriteSentences()
         refreshSentenceExampleResults()
     }
