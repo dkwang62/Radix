@@ -421,6 +421,50 @@ extension RadixStore {
         favoriteSentenceRevision += 1
     }
 
+    @discardableResult
+    func convertStudySentencesToSimplified() -> Int {
+        let convertedSentenceCount = RadixStudyPreferences.convertStoredSentenceExamplesToSimplified()
+        let convertedPageCount = convertAICleanedPagesToSimplified()
+        favoriteSentenceRevision += 1
+        if convertedPageCount > 0 {
+            RadixStudyPreferences.recordSentenceExamples(
+                RadixStudyPreferences.aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
+            )
+        }
+        return convertedSentenceCount
+    }
+
+    private func convertAICleanedPagesToSimplified() -> Int {
+        var pages = RadixStudyPreferences.aiCleanedPages
+        var changedCount = 0
+        for index in pages.indices {
+            let original = pages[index]
+            pages[index].cleanedTitle = ScriptTextConverter.simplified(original.cleanedTitle)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            pages[index].cleanedChineseText = ScriptTextConverter.simplified(original.cleanedChineseText)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            pages[index].repairNotes = original.repairNotes.map {
+                ScriptTextConverter.simplified($0).trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            pages[index].sentences = original.sentences.map { sentence in
+                AICleanedPageSentence(
+                    id: sentence.id,
+                    chinese: ScriptTextConverter.simplified(sentence.chinese),
+                    pinyin: sentence.pinyin,
+                    english: sentence.english,
+                    phraseHints: sentence.phraseHints.map { ScriptTextConverter.simplified($0) }
+                )
+            }
+            if pages[index] != original {
+                changedCount += 1
+            }
+        }
+        if changedCount > 0 {
+            RadixStudyPreferences.aiCleanedPages = pages
+        }
+        return changedCount
+    }
+
     private func removeSentencesFromOwningAICleanedPages(sentenceKeys: Set<String>) {
         let keys = sentenceKeys.filter { !$0.isEmpty }
         guard !keys.isEmpty else { return }

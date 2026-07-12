@@ -54,6 +54,9 @@ and legacy UserDefaults payloads are migrated into the database on first read.
 Sentence examples are canonically stored as simplified Chinese, including phrase
 and character hints; traditional Chinese is a display mode exposed by sentence
 lists, example sheets, and sentence cards, not a second storage form.
+Study > Sentences exposes a confirmed raw conversion action that rewrites the
+stored sentence database and page-owned extracted-sentence artifacts into
+Simplified Chinese. This is a data mutation, not a display toggle.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.

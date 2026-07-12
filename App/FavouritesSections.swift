@@ -635,6 +635,8 @@ extension FavouritesTab {
 
                 sentenceExampleBulkDeleteButton
 
+                sentenceExampleSimplifyButton
+
                 practiceSentenceModeControls
             }
 
@@ -682,6 +684,24 @@ extension FavouritesTab {
                 sentenceExampleFilter = .all
             }
             resetSentenceExampleResultsContext()
+        }
+    }
+
+    @ViewBuilder
+    var sentenceExampleSimplifyButton: some View {
+        if sentenceExampleResultCount > 0 {
+            Button {
+                showSimplifySentenceExamplesConfirmation = true
+            } label: {
+                Label("Simplify", systemImage: "arrow.triangle.2.circlepath")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .labelStyle(.titleAndIcon)
+                    .radixPill(horizontal: 9, vertical: 6, background: RadixTheme.secondaryBackground)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(RadixAccent.primary)
+            .help("Convert stored Study Sentences to Simplified Chinese")
+            .accessibilityHint("Rewrites the stored sentence database and extracted-page sentences as Simplified Chinese.")
         }
     }
 
@@ -1056,6 +1076,17 @@ extension FavouritesTab {
             examples,
             statusMessage: "Deleted \(examples.count) selected sentence\(examples.count == 1 ? "" : "s")",
             exitSelection: true
+        )
+    }
+
+    func convertStudySentencesToSimplified() {
+        let convertedCount = store.convertStudySentencesToSimplified()
+        aiCleanedPageSentencePageCache = nil
+        stopSelectingSentenceExamples()
+        studyGridUsesTraditionalScript = false
+        RadixStudyPreferences.usesTraditionalScript = false
+        refreshSentenceExamplesAfterMutation(
+            statusMessage: "Converted \(convertedCount) stored sentence\(convertedCount == 1 ? "" : "s") to Simplified"
         )
     }
 

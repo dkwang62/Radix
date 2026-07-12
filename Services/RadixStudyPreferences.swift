@@ -161,6 +161,19 @@ enum RadixStudyPreferences {
         sentenceExampleRepository.upsert(canonicalizedSentenceExamples(records))
     }
 
+    @discardableResult
+    static func convertStoredSentenceExamplesToSimplified() -> Int {
+        let records = currentSentenceExamples
+        guard !records.isEmpty else {
+            favoriteSentences = canonicalizedFavoriteSentences(favoriteSentences)
+            return 0
+        }
+        let converted = canonicalizedSentenceExamples(records)
+        sentenceExampleRepository.replaceAll(converted)
+        favoriteSentences = canonicalizedFavoriteSentences(favoriteSentences)
+        return converted.count
+    }
+
     static func recordSentenceExamples(from pack: ConversationPracticePack, createdAt: Date = Date()) {
         let favoriteIDs = Set(favoriteSentences.map(\.sourceItemID))
         let records = pack.practiceItems.map { item in
