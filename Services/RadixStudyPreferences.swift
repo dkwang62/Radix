@@ -149,6 +149,13 @@ enum RadixStudyPreferences {
         )
     }
 
+    static func sentenceExamples(normalizedKeys: [String]) -> [String: SentenceExampleRecord] {
+        sentenceExampleRepository.fetch(
+            normalizedKeys: normalizedKeys,
+            migratingLegacy: legacySentenceExamplesFromPreferences
+        )
+    }
+
     static func recordSentenceExamples(_ records: [SentenceExampleRecord]) {
         guard !records.isEmpty else { return }
         sentenceExampleRepository.upsert(canonicalizedSentenceExamples(records))
@@ -677,6 +684,32 @@ private final class SentenceExampleRepository: @unchecked Sendable {
         }
     }
 
+    func fetch(
+        normalizedKeys: [String],
+        migratingLegacy legacyProvider: () -> [SentenceExampleRecord]
+    ) -> [String: SentenceExampleRecord] {
+        let keys = Array(Set(normalizedKeys.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }))
+            .filter { !$0.isEmpty }
+        guard !keys.isEmpty else { return [:] }
+
+        lock.lock()
+        defer { lock.unlock() }
+
+        if let fallbackRecords {
+            return recordsByNormalizedKey(fallbackRecords, matching: keys)
+        }
+
+        do {
+            try openIfNeeded()
+            try migrateLegacyIfNeededUnlocked(legacyProvider)
+            return try fetchManyUnlocked(normalizedKeys: keys)
+        } catch {
+            let legacy = RadixStudyPreferences.canonicalizedSentenceExamples(legacyProvider())
+            fallbackRecords = legacy
+            return recordsByNormalizedKey(legacy, matching: keys)
+        }
+    }
+
     func replaceAll(_ records: [SentenceExampleRecord]) {
         lock.lock()
         defer { lock.unlock() }
@@ -998,6 +1031,29 @@ private final class SentenceExampleRepository: @unchecked Sendable {
         return decodeRecord(from: statement, column: 0)
     }
 
+    private func fetchManyUnlocked(normalizedKeys keys: [String]) throws -> [String: SentenceExampleRecord] {
+        guard let db, !keys.isEmpty else { return [:] }
+        let placeholders = Array(repeating: "?", count: keys.count).joined(separator: ",")
+        let sql = """
+        SELECT record_json
+        FROM sentence_examples
+        WHERE normalized_key IN (\(placeholders))
+        """
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else {
+            throw sqliteError(code: 3124, message: "Failed to prepare sentence batch lookup")
+        }
+        defer { sqlite3_finalize(statement) }
+        bind(keys, in: statement)
+
+        var records: [String: SentenceExampleRecord] = [:]
+        while sqlite3_step(statement) == SQLITE_ROW {
+            guard let record = decodeRecord(from: statement, column: 0) else { continue }
+            records[record.normalizedChineseKey] = record
+        }
+        return records
+    }
+
     private func querySQLParts(for query: SentenceExampleQuery) -> (whereClause: String, bindings: [String]) {
         var clauses: [String] = []
         var bindings: [String] = []
@@ -1075,6 +1131,18 @@ private final class SentenceExampleRepository: @unchecked Sendable {
         let start = min(max(0, query.offset), totalCount)
         let end = min(start + max(0, limit), totalCount)
         return (Array(filtered[start..<end]), totalCount)
+    }
+
+    private func recordsByNormalizedKey(
+        _ records: [SentenceExampleRecord],
+        matching keys: [String]
+    ) -> [String: SentenceExampleRecord] {
+        let keySet = Set(keys)
+        var matches: [String: SentenceExampleRecord] = [:]
+        for record in records where keySet.contains(record.normalizedChineseKey) {
+            matches[record.normalizedChineseKey] = record
+        }
+        return matches
     }
 
     private func replaceAllUnlocked(_ records: [SentenceExampleRecord]) throws {

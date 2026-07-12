@@ -519,13 +519,17 @@ extension FavouritesTab {
     ) -> [ConversationPracticeItem] {
         let startIndex = pageIndex * aiCleanedPageSentencePageSize
         let sourceSentences = aiCleanedPageVisibleSentences(for: record, startIndex: startIndex)
-
-        return sourceSentences.enumerated().compactMap { localIndex, sentence in
+        let keyedSentences = sourceSentences.enumerated().compactMap { localIndex, sentence -> (rank: Int, sentence: AICleanedPageSentence, key: String)? in
             let key = SentenceExampleRecord.normalizedChineseKey(sentence.chinese)
             guard !key.isEmpty else { return nil }
-            let example = RadixStudyPreferences.sentenceExample(normalizedKey: key) ??
-                aiCleanedPageFallbackSentenceExample(sentence, record: record)
-            return ConversationPracticeItem(sentenceExample: example, rank: startIndex + localIndex + 1)
+            return (startIndex + localIndex + 1, sentence, key)
+        }
+        let storedExamples = RadixStudyPreferences.sentenceExamples(normalizedKeys: keyedSentences.map(\.key))
+
+        return keyedSentences.map { pair in
+            let example = storedExamples[pair.key] ??
+                aiCleanedPageFallbackSentenceExample(pair.sentence, record: record)
+            return ConversationPracticeItem(sentenceExample: example, rank: pair.rank)
         }
     }
 

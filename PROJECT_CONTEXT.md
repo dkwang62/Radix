@@ -75,6 +75,9 @@ The extracted-page reader keeps a small state cache for the current visible
 sentence page and renders long cleaned page text as a collapsed preview by
 default. Avoid reintroducing row DB lookups, item construction, or full-page
 text rendering directly into the reader body.
+When a visible extracted-sentence page needs canonical records, use the
+repository batch lookup by normalized keys instead of one SQLite lookup per
+row.
 Repeated Simplified/Traditional conversion goes through `ScriptTextConverter`'s
 bounded cache. Keep row-level display code on shared conversion helpers instead
 of calling `CFStringTransform` repeatedly from SwiftUI body paths.
