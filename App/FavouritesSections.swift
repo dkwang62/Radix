@@ -456,6 +456,8 @@ extension FavouritesTab {
 
                 Spacer(minLength: 8)
 
+                sentenceExampleBulkDeleteButton
+
                 practiceSentenceModeControls
             }
 
@@ -523,6 +525,23 @@ extension FavouritesTab {
         sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 10 : 50
     }
 
+    var canBulkDeleteFilteredSentenceExamples: Bool {
+        !sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !filteredSentenceExamples.isEmpty
+    }
+
+    var sentenceExampleBulkDeleteMessage: String {
+        let query = sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let count = filteredSentenceExamples.count
+        let filterDescription = sentenceExampleFilter == .all ? "" : " in \(sentenceExampleFilter.rawValue)"
+        return "This will permanently delete \(count) sentence\(count == 1 ? "" : "s") matching \"\(query)\"\(filterDescription). This also removes matching extracted-page sentence entries so they do not reappear later."
+    }
+
+    var sentenceExampleBulkDeleteConfirmationTitle: String {
+        let count = filteredSentenceExamples.count
+        return "Delete \(count) Sentence\(count == 1 ? "" : "s")"
+    }
+
     var sentenceExamplePageCount: Int {
         max(1, Int(ceil(Double(filteredSentenceExamples.count) / Double(sentenceExamplePageSize))))
     }
@@ -556,6 +575,24 @@ extension FavouritesTab {
         let startRank = clampedSentenceExamplePageIndex * sentenceExamplePageSize + 1
         let endRank = min(startRank + sentenceExamplePageSize - 1, filteredSentenceExamples.count)
         return "\(startRank)-\(endRank) of \(filteredSentenceExamples.count)"
+    }
+
+    @ViewBuilder
+    var sentenceExampleBulkDeleteButton: some View {
+        if canBulkDeleteFilteredSentenceExamples {
+            Button(role: .destructive) {
+                showDeleteFilteredSentenceExamplesConfirmation = true
+            } label: {
+                Label("Delete Results", systemImage: "trash")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .labelStyle(.titleAndIcon)
+                    .radixPill(horizontal: 9, vertical: 6, background: Color.red.opacity(0.12))
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(Color.red)
+            .help("Delete all matching sentences")
+            .accessibilityHint("Deletes every sentence currently matching the search and filter after confirmation.")
+        }
     }
 
     func canMoveSentenceExamplePage(by offset: Int) -> Bool {
@@ -678,9 +715,10 @@ extension FavouritesTab {
             Divider()
 
             Button(role: .destructive) {
-                RadixStudyPreferences.deleteSentenceExample(id: example.id)
+                store.deleteSentenceExamples([example])
                 sentenceExampleRevision += 1
                 sentenceExampleStatusMessage = "Deleted"
+                loadFavoriteSentences()
             } label: {
                 Label("Delete", systemImage: "trash")
             }
@@ -696,6 +734,16 @@ extension FavouritesTab {
         .buttonStyle(.plain)
         .foregroundStyle(RadixAccent.primary)
         .accessibilityLabel("Sentence actions")
+    }
+
+    func deleteFilteredSentenceExamples() {
+        let examples = filteredSentenceExamples
+        guard !examples.isEmpty else { return }
+        store.deleteSentenceExamples(examples)
+        sentenceExampleRevision += 1
+        resetSentenceExamplePage()
+        sentenceExampleStatusMessage = "Deleted \(examples.count) sentence\(examples.count == 1 ? "" : "s")"
+        loadFavoriteSentences()
     }
 
     @ViewBuilder

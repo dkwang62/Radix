@@ -90,6 +90,10 @@ sentence-as-phrase, phrase list, speech, and return label independently.
 Sentence-card destructive actions should delete through `RadixStore` so the
 canonical sentence database, favorite compatibility records, and any owning
 extracted-sentence page record stay in sync.
+Study > Sentences can batch-delete the current searched result set after
+confirmation. Batch and single sentence deletes share the same `RadixStore`
+path so sentence database rows, favorite compatibility records, and
+page-owned extracted-sentence records are removed together.
 
 ## Product and Platform Scope
 

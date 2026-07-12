@@ -50,6 +50,7 @@ struct FavouritesTab: View {
     @State var sentenceExampleRevision = 0
     @State var sentenceExampleStatusMessage: String?
     @State var sentenceExampleEditDraft: SentenceExampleEditDraft?
+    @State var showDeleteFilteredSentenceExamplesConfirmation = false
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
     @State var studyGridScope = RadixStudyPreferences.initialGridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
@@ -278,6 +279,14 @@ struct FavouritesTab: View {
             }
         } message: {
             Text(pendingConversationPracticeReplacement?.message ?? "")
+        }
+        .alert("Delete Matching Sentences?", isPresented: $showDeleteFilteredSentenceExamplesConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button(sentenceExampleBulkDeleteConfirmationTitle, role: .destructive) {
+                deleteFilteredSentenceExamples()
+            }
+        } message: {
+            Text(sentenceExampleBulkDeleteMessage)
         }
         .alert("Delete Saved Page?", isPresented: Binding(
             get: { pendingStudyDeleteCollection != nil },

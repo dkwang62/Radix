@@ -393,34 +393,43 @@ extension RadixStore {
 
     func deleteSentenceExample(_ item: ConversationPracticeItem) {
         let example = sentenceExample(for: item)
-        let sentenceKey = example?.normalizedChineseKey ?? SentenceExampleRecord.normalizedChineseKey(item.simplified)
-
         if let example {
-            RadixStudyPreferences.deleteSentenceExample(id: example.id)
-            removeSentenceFromOwningAICleanedPage(example)
+            deleteSentenceExamples([example], dismissActivePreview: true)
         } else {
+            let sentenceKey = SentenceExampleRecord.normalizedChineseKey(item.simplified)
             RadixStudyPreferences.deleteSentenceExample(matchingChinese: item.simplified)
+            removeSentencesFromOwningAICleanedPages(sentenceKeys: [sentenceKey])
+            dismissSidebarPhrasePreview()
+            favoriteSentenceRevision += 1
         }
+    }
 
-        if !sentenceKey.isEmpty {
-            removeSentenceFromOwningAICleanedPage(sentenceKey: sentenceKey)
+    func deleteSentenceExamples(_ examples: [SentenceExampleRecord], dismissActivePreview: Bool = false) {
+        let uniqueExamples = Dictionary(grouping: examples, by: \.id).compactMap { $0.value.first }
+        guard !uniqueExamples.isEmpty else { return }
+
+        let sentenceKeys = Set(uniqueExamples.map(\.normalizedChineseKey).filter { !$0.isEmpty })
+        for example in uniqueExamples {
+            RadixStudyPreferences.deleteSentenceExample(id: example.id)
         }
-        dismissSidebarPhrasePreview()
+        removeSentencesFromOwningAICleanedPages(sentenceKeys: sentenceKeys)
+        if dismissActivePreview,
+           let activePracticeSentenceItem,
+           sentenceKeys.contains(SentenceExampleRecord.normalizedChineseKey(activePracticeSentenceItem.simplified)) {
+            dismissSidebarPhrasePreview()
+        }
         favoriteSentenceRevision += 1
     }
 
-    private func removeSentenceFromOwningAICleanedPage(_ example: SentenceExampleRecord) {
-        removeSentenceFromOwningAICleanedPage(sentenceKey: example.normalizedChineseKey)
-    }
-
-    private func removeSentenceFromOwningAICleanedPage(sentenceKey: String) {
-        guard !sentenceKey.isEmpty else { return }
+    private func removeSentencesFromOwningAICleanedPages(sentenceKeys: Set<String>) {
+        let keys = sentenceKeys.filter { !$0.isEmpty }
+        guard !keys.isEmpty else { return }
         var pages = RadixStudyPreferences.aiCleanedPages
         var changed = false
         for index in pages.indices {
             let beforeCount = pages[index].sentences.count
             pages[index].sentences.removeAll {
-                SentenceExampleRecord.normalizedChineseKey($0.chinese) == sentenceKey
+                keys.contains(SentenceExampleRecord.normalizedChineseKey($0.chinese))
             }
             if pages[index].sentences.count != beforeCount {
                 pages[index].cleanedChineseText = pages[index].sentences
