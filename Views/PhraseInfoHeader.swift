@@ -18,6 +18,7 @@ extension PhraseInfoCard {
             Spacer(minLength: 0)
 
             HStack(spacing: 6) {
+                phraseSentenceReturnButton
                 phraseLibraryActionButton
                 favoriteTargetButton
 
@@ -25,6 +26,23 @@ extension PhraseInfoCard {
                     editNotesButton
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    var phraseSentenceReturnButton: some View {
+        if !isPracticeSentence, store.sidebarSentenceReturnPhrase != nil {
+            Button {
+                store.returnToPracticeSentenceInSidebar()
+            } label: {
+                InfoCardActionPill(
+                    title: "Sentence",
+                    systemImage: "chevron.left",
+                    verticalPadding: 8
+                )
+            }
+            .buttonStyle(.plain)
+            .help("Back to sentence")
         }
     }
 

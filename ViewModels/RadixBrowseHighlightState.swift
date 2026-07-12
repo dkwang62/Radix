@@ -13,6 +13,9 @@ struct RadixBrowseHighlightState {
     var sidebarPhrasePreview: PhraseItem?
     var sidebarPhraseLookupOverride: [PhraseItem]?
     var sidebarPracticeSentenceItem: ConversationPracticeItem?
+    var sidebarSentenceReturnPhrase: PhraseItem?
+    var sidebarSentenceReturnLookupOverride: [PhraseItem]?
+    var sidebarSentenceReturnPracticeItem: ConversationPracticeItem?
     var pendingScrollTarget: BrowseScrollTarget?
     var highlightedCharacter: String?
     var memoryCollectionID: UUID?
@@ -70,6 +73,9 @@ extension RadixStore {
             if newValue == nil {
                 browseHighlightState.sidebarPhraseLookupOverride = nil
                 browseHighlightState.sidebarPracticeSentenceItem = nil
+                browseHighlightState.sidebarSentenceReturnPhrase = nil
+                browseHighlightState.sidebarSentenceReturnLookupOverride = nil
+                browseHighlightState.sidebarSentenceReturnPracticeItem = nil
             }
         }
     }
@@ -82,6 +88,21 @@ extension RadixStore {
     var activePracticeSentenceItem: ConversationPracticeItem? {
         get { browseHighlightState.sidebarPracticeSentenceItem }
         set { browseHighlightState.sidebarPracticeSentenceItem = newValue }
+    }
+
+    var sidebarSentenceReturnPhrase: PhraseItem? {
+        get { browseHighlightState.sidebarSentenceReturnPhrase }
+        set { browseHighlightState.sidebarSentenceReturnPhrase = newValue }
+    }
+
+    var sidebarSentenceReturnLookupOverride: [PhraseItem]? {
+        get { browseHighlightState.sidebarSentenceReturnLookupOverride }
+        set { browseHighlightState.sidebarSentenceReturnLookupOverride = newValue }
+    }
+
+    var sidebarSentenceReturnPracticeItem: ConversationPracticeItem? {
+        get { browseHighlightState.sidebarSentenceReturnPracticeItem }
+        set { browseHighlightState.sidebarSentenceReturnPracticeItem = newValue }
     }
 
     var pendingBrowseScrollTarget: BrowseScrollTarget? {

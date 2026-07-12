@@ -169,7 +169,7 @@ extension PhraseInfoCard {
                 RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
                     ForEach(hints, id: \.word) { hint in
                         Button {
-                            store.presentPhraseInSidebar(hint)
+                            store.presentPhraseFromPracticeSentenceInSidebar(hint)
                         } label: {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(hint.word)
