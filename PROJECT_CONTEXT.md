@@ -51,6 +51,9 @@ source metadata, so Study > Sentences and sentence cards reuse the same records.
 The live sentence-example store is SQLite-backed via `RadixStudyPreferences`;
 the existing `sentence_examples` JSON remains the portable backup/import format
 and legacy UserDefaults payloads are migrated into the database on first read.
+Sentence examples are canonically stored as simplified Chinese, including phrase
+and character hints; traditional Chinese is a display mode exposed by sentence
+lists, example sheets, and sentence cards, not a second storage form.
 Extracted sentence rows reuse the shared Conversation Practice sentence row and
 open the shared sentence card, resolving back to the canonical sentence database
 record so active selection, phrase chips, read-aloud, and favorites stay aligned.

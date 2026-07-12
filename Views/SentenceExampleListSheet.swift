@@ -6,6 +6,7 @@ struct SentenceExampleListSheet: View {
 
     let title: String
     let examples: [SentenceExampleRecord]
+    @State private var usesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
 
     var body: some View {
         NavigationStack {
@@ -27,9 +28,29 @@ struct SentenceExampleListSheet: View {
                         dismiss()
                     }
                 }
+                ToolbarItem(placement: .primaryAction) {
+                    CompactScriptToggle(
+                        isTraditional: usesTraditionalScript,
+                        accessibilityLabel: "Example sentence script",
+                        minWidth: 34,
+                        height: 28
+                    ) {
+                        usesTraditionalScript.toggle()
+                        RadixStudyPreferences.usesTraditionalScript = usesTraditionalScript
+                    }
+                    .fixedSize(horizontal: true, vertical: false)
+                }
             }
         }
         .presentationDetents([.medium, .large])
+    }
+
+    private func displayText(_ value: String) -> String {
+        ConversationPracticeScriptSupport.displayText(
+            value,
+            usesTraditionalScript: usesTraditionalScript,
+            store: store
+        )
     }
 
     private func sentenceRow(_ example: SentenceExampleRecord, rank: Int) -> some View {
@@ -44,7 +65,7 @@ struct SentenceExampleListSheet: View {
                     .radixSurface(RadixAccent.primary.opacity(0.1))
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(example.chinese)
+                    Text(displayText(example.chinese))
                         .font(ResponsiveFont.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
                         .lineLimit(2)
@@ -74,7 +95,7 @@ struct SentenceExampleListSheet: View {
             .radixSurface(RadixTheme.background)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Open sentence \(example.chinese)")
+        .accessibilityLabel("Open sentence \(displayText(example.chinese))")
         .accessibilityHint("Opens the sentence information card.")
     }
 
@@ -82,7 +103,7 @@ struct SentenceExampleListSheet: View {
         let item = ConversationPracticeItem(sentenceExample: example, rank: rank)
         store.presentSentencePreviewInSidebar(
             item,
-            usesTraditionalScript: false,
+            usesTraditionalScript: usesTraditionalScript,
             speak: false
         )
         dismiss()

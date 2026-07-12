@@ -85,10 +85,12 @@ enum RadixStudyPreferences {
             guard let data = preferences.data(forKey: RadixPreferenceKey.favoriteSentences) else {
                 return []
             }
-            return (try? JSONDecoder().decode([FavoriteSentenceRecord].self, from: data)) ?? []
+            return canonicalizedFavoriteSentences(
+                (try? JSONDecoder().decode([FavoriteSentenceRecord].self, from: data)) ?? []
+            )
         }
         set {
-            let data = try? JSONEncoder().encode(FavoriteSentenceRecord.deduplicated(newValue))
+            let data = try? JSONEncoder().encode(canonicalizedFavoriteSentences(newValue))
             preferences.set(data, forKey: RadixPreferenceKey.favoriteSentences)
         }
     }
@@ -98,7 +100,7 @@ enum RadixStudyPreferences {
             sentenceExampleRepository.fetchAll(migratingLegacy: legacySentenceExamplesFromPreferences)
         }
         set {
-            let records = SentenceExampleRecord.upserting(newValue, into: [])
+            let records = canonicalizedSentenceExamples(newValue)
             sentenceExampleRepository.replaceAll(records)
         }
     }
@@ -110,7 +112,7 @@ enum RadixStudyPreferences {
 
     static func recordSentenceExamples(_ records: [SentenceExampleRecord]) {
         guard !records.isEmpty else { return }
-        sentenceExampleRepository.upsert(records)
+        sentenceExampleRepository.upsert(canonicalizedSentenceExamples(records))
     }
 
     static func recordSentenceExamples(from pack: ConversationPracticePack, createdAt: Date = Date()) {
@@ -128,7 +130,9 @@ enum RadixStudyPreferences {
 
     @discardableResult
     static func recordSentenceExamples(fromCaptureText text: String, createdAt: Date = Date()) -> [SentenceExampleRecord] {
-        let records = RadixCaptureJSONParser.sentenceExamples(from: text, createdAt: createdAt)
+        let records = canonicalizedSentenceExamples(
+            RadixCaptureJSONParser.sentenceExamples(from: text, createdAt: createdAt)
+        )
         recordSentenceExamples(records)
         return records
     }
@@ -276,10 +280,11 @@ enum RadixStudyPreferences {
     }
 
     static func removeCompatibilityFavoriteRecord(matchingChinese chinese: String) {
-        let id = FavoriteSentenceRecord.identifier(forChinese: chinese)
+        let simplifiedChinese = ScriptTextConverter.simplified(chinese)
+        let id = FavoriteSentenceRecord.identifier(forChinese: simplifiedChinese)
         favoriteSentences = favoriteSentences.filter { record in
             record.id != id &&
-                SentenceExampleRecord.normalizedChineseKey(record.simplified) != SentenceExampleRecord.normalizedChineseKey(chinese)
+                SentenceExampleRecord.normalizedChineseKey(record.simplified) != SentenceExampleRecord.normalizedChineseKey(simplifiedChinese)
         }
     }
 
@@ -335,6 +340,71 @@ enum RadixStudyPreferences {
             return []
         }
         return (try? JSONDecoder().decode([SentenceExampleRecord].self, from: data)) ?? []
+    }
+
+    fileprivate static func canonicalizedSentenceExamples(_ records: [SentenceExampleRecord]) -> [SentenceExampleRecord] {
+        SentenceExampleRecord.upserting(records.map(canonicalizedSentenceExample(_:)), into: [])
+    }
+
+    fileprivate static func canonicalizedSentenceExample(_ record: SentenceExampleRecord) -> SentenceExampleRecord {
+        let simplifiedChinese = ScriptTextConverter.simplified(record.chinese)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let detectedCharacters = SentenceExampleRecord.detectChineseCharacters(in: simplifiedChinese)
+        return SentenceExampleRecord(
+            id: record.id,
+            chinese: simplifiedChinese,
+            script: .simplified,
+            pinyin: record.pinyin,
+            english: record.english,
+            sources: record.sources,
+            targetCharacters: canonicalizedChineseList(record.targetCharacters),
+            targetPhrases: canonicalizedChineseList(record.targetPhrases),
+            detectedCharacters: detectedCharacters,
+            detectedPhrases: canonicalizedChineseList(record.detectedPhrases),
+            grammarPoints: record.grammarPoints,
+            hskLevel: record.hskLevel,
+            difficulty: record.difficulty,
+            naturalness: record.naturalness,
+            createdAt: record.createdAt,
+            lastUsedAt: record.lastUsedAt,
+            usageCount: record.usageCount,
+            viewedCount: record.viewedCount,
+            practicedCount: record.practicedCount,
+            skippedCount: record.skippedCount,
+            isFavorited: record.isFavorited,
+            isHidden: record.isHidden,
+            qualityScore: record.qualityScore,
+            notes: record.notes,
+            tags: record.tags
+        )
+    }
+
+    private static func canonicalizedChineseList(_ values: [String]) -> [String] {
+        var seen = Set<String>()
+        return values.compactMap { value in
+            let simplified = ScriptTextConverter.simplified(value)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !simplified.isEmpty, seen.insert(simplified).inserted else { return nil }
+            return simplified
+        }
+    }
+
+    private static func canonicalizedFavoriteSentences(_ records: [FavoriteSentenceRecord]) -> [FavoriteSentenceRecord] {
+        FavoriteSentenceRecord.deduplicated(records.map { record in
+            let simplified = ScriptTextConverter.simplified(record.simplified)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            return FavoriteSentenceRecord(
+                id: FavoriteSentenceRecord.identifier(forChinese: simplified),
+                simplified: simplified,
+                pinyin: record.pinyin,
+                english: record.english,
+                sourceSetID: record.sourceSetID,
+                sourceItemID: record.sourceItemID,
+                phraseHints: canonicalizedChineseList(record.phraseHints),
+                characterHints: canonicalizedChineseList(record.characterHints),
+                favoritedAt: record.favoritedAt
+            )
+        })
     }
 
     static var pagePhraseExtractions: [PagePhraseExtractionRecord] {
@@ -447,7 +517,7 @@ private final class SentenceExampleRepository: @unchecked Sendable {
 
         if let fallbackRecords {
             if fallbackRecords.isEmpty {
-                let legacy = SentenceExampleRecord.upserting(legacyProvider(), into: [])
+                let legacy = RadixStudyPreferences.canonicalizedSentenceExamples(legacyProvider())
                 self.fallbackRecords = legacy
                 return legacy
             }
@@ -458,15 +528,19 @@ private final class SentenceExampleRepository: @unchecked Sendable {
             try openIfNeeded()
             let records = try fetchAllUnlocked()
             if !records.isEmpty {
-                return records
+                let canonicalRecords = RadixStudyPreferences.canonicalizedSentenceExamples(records)
+                if canonicalRecords != records {
+                    try replaceAllUnlocked(canonicalRecords)
+                }
+                return canonicalRecords
             }
-            let legacy = SentenceExampleRecord.upserting(legacyProvider(), into: [])
+            let legacy = RadixStudyPreferences.canonicalizedSentenceExamples(legacyProvider())
             if !legacy.isEmpty {
                 try replaceAllUnlocked(legacy)
             }
             return legacy
         } catch {
-            let legacy = SentenceExampleRecord.upserting(legacyProvider(), into: [])
+            let legacy = RadixStudyPreferences.canonicalizedSentenceExamples(legacyProvider())
             fallbackRecords = legacy
             return legacy
         }
@@ -476,7 +550,7 @@ private final class SentenceExampleRepository: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
 
-        let records = SentenceExampleRecord.upserting(records, into: [])
+        let records = RadixStudyPreferences.canonicalizedSentenceExamples(records)
         if fallbackRecords != nil {
             fallbackRecords = records
             return
@@ -496,16 +570,18 @@ private final class SentenceExampleRepository: @unchecked Sendable {
         defer { lock.unlock() }
 
         if let fallbackRecords {
-            self.fallbackRecords = SentenceExampleRecord.upserting(records, into: fallbackRecords)
+            self.fallbackRecords = RadixStudyPreferences.canonicalizedSentenceExamples(
+                fallbackRecords + records
+            )
             return
         }
 
         do {
             try openIfNeeded()
-            let merged = SentenceExampleRecord.upserting(records, into: try fetchAllUnlocked())
+            let merged = RadixStudyPreferences.canonicalizedSentenceExamples(try fetchAllUnlocked() + records)
             try replaceAllUnlocked(merged)
         } catch {
-            fallbackRecords = SentenceExampleRecord.upserting(records, into: [])
+            fallbackRecords = RadixStudyPreferences.canonicalizedSentenceExamples(records)
         }
     }
 
