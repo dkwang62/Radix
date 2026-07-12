@@ -68,7 +68,7 @@ enum AIResultApplicationOutcome {
         case .conversationPractice(let pack):
             return "Imported \(pack.title) - \(pack.entries.count) sentences."
         case .aiCleanedPage(let record):
-            return "AI-cleaned page saved: \(record.cleanedTitle.isEmpty ? record.sourceTitle : record.cleanedTitle)."
+            return "Extracted sentences saved: \(record.cleanedTitle.isEmpty ? record.sourceTitle : record.cleanedTitle)."
         }
     }
 }

@@ -150,14 +150,14 @@ enum RadixGlossary {
             term: "Sentence",
             shortDefinition: "A complete Chinese line used for reading, listening, translation, or conversation practice.",
             significance: "Sentences give characters and phrases real context. In Radix, a sentence can be read aloud, inspected for useful phrases, favorited into Study, translated, edited, and practiced again. Sentence favorites are kept separate from phrase favorites so the star does not confuse a complete sentence with one dictionary phrase inside it.",
-            contexts: ["Conversation Practice", "Sentence Card", "Favorite Sentences", "Create Sentences", "Create Conversation", "Sentences in Study"],
+            contexts: ["Conversation Practice", "Sentence Card", "Favorite Sentences", "Extract Sentences", "Sentence Practice", "Create Conversation", "Sentences in Study"],
             relatedTerms: ["Phrase", "Sentence Phrases", "Favorite Sentence", "Sentence Database", "Conversation Practice", "Practice Pack"]
         ),
         GlossaryEntry(
             term: "Sentence Database",
             shortDefinition: "The shared place where Radix stores favorite, page-derived, OCR-derived, and practice sentences.",
             significance: "The sentence database prevents duplicate sentence stores. Favorite Sentences, page Sentences, Conversation Practice items, and reusable progress are views over the same canonical sentence examples whenever Radix has enough structure to capture them safely.",
-            contexts: ["Study > Sentences", "Favorite Sentences", "Create Sentences", "Conversation Practice", "Backup Contents"],
+            contexts: ["Study > Sentences", "Favorite Sentences", "Extract Sentences", "Sentence Practice", "Conversation Practice", "Backup Contents"],
             relatedTerms: ["Sentence", "Sentence Example", "Favorite Sentence", "Conversation Practice", "Practice Pack"]
         ),
         GlossaryEntry(
@@ -185,15 +185,15 @@ enum RadixGlossary {
             term: "Conversation Practice",
             shortDefinition: "A Study mode for practicing complete Chinese sentences by theme or saved source.",
             significance: "Conversation Practice turns sentences into review material with reading, speech, translation, flashcards, quizzes, and phrase inspection. It is where AI-generated or page-extracted practice packs become usable study material inside Radix.",
-            contexts: ["Study", "Generate Practice Pack", "Create Sentences", "Create Conversation", "Favorite Sentences"],
-            relatedTerms: ["Sentence", "Sentence Database", "Practice Pack", "Favorite Sentence", "Create Sentences", "Create Conversation"]
+            contexts: ["Study", "Generate Practice Pack", "Sentence Practice", "Create Conversation", "Favorite Sentences"],
+            relatedTerms: ["Sentence", "Sentence Database", "Practice Pack", "Favorite Sentence", "Sentence Practice", "Create Conversation"]
         ),
         GlossaryEntry(
             term: "Practice Pack",
             shortDefinition: "A structured set of conversation-practice sentences that Radix can import.",
             significance: "Practice packs let AI or saved pages produce sentences that return to Radix as real Study material. Radix now links imported practice entries back to canonical sentence examples when possible, so the pack acts as grouping and sequence rather than another sentence database.",
             contexts: ["AI Link", "Import Practice", "Conversation Practice", "Generate Practice Pack"],
-            relatedTerms: ["Conversation Practice", "Sentence", "Sentence Database", "Create Sentences", "Create Conversation"]
+            relatedTerms: ["Conversation Practice", "Sentence", "Sentence Database", "Sentence Practice", "Create Conversation"]
         ),
         GlossaryEntry(
             term: "Recent",
@@ -249,7 +249,7 @@ enum RadixGlossary {
             shortDefinition: "Work created from a saved page and attached back to that page.",
             significance: "Page artifacts keep Radix organized around the original source. Translation, corrected OCR, page phrases, Sentences, Conversation practice, and quiz entry points belong with the saved page that produced them; reusable memory such as added phrases, favorites, and progress can outlive the page.",
             contexts: ["Study > Saved Pages", "Saved page actions", "Delete Saved Page", "Backup Contents"],
-            relatedTerms: ["Saved Page", "Page Phrases", "Translation", "Create Sentences", "Create Conversation", "Memory"]
+            relatedTerms: ["Saved Page", "Page Phrases", "Translation", "Extract Sentences", "Sentence Practice", "Create Conversation", "Memory"]
         ),
         GlossaryEntry(
             term: "Radix Plus",
@@ -326,14 +326,14 @@ enum RadixGlossary {
             shortDefinition: "The private Google Gemini key Radix can use for automatic AI actions.",
             significance: "A Gemini API key lets Radix run supported AI workflows directly, such as OCR checking, phrase extraction, translation, quiz prompt preparation, sentence extraction, and page-inspired practice. Copy-and-paste AI workflows still work without a key.",
             contexts: ["Settings > Automatic AI", "Browse page actions", "AI Link"],
-            relatedTerms: ["API Key", "Gemini API", "AI Link", "Create Sentences", "Create Conversation"]
+            relatedTerms: ["API Key", "Gemini API", "AI Link", "Extract Sentences", "Sentence Practice", "Create Conversation"]
         ),
         GlossaryEntry(
             term: "Page AI Task",
             shortDefinition: "An AI action that uses a saved page as its source.",
             significance: "Page AI tasks include checking OCR, extracting phrases, translating a page, preparing a quiz prompt, extracting Sentences, and creating Conversation practice. Study and Browse use the same AI task flow; Study keeps page-owned learning work with the saved page.",
             contexts: ["Study page actions", "Browse page actions", "AI Link"],
-            relatedTerms: ["Saved Page", "Manual AI Link", "Gemini API", "Extract Phrases", "Translation", "Quiz", "Create Sentences", "Create Conversation"]
+            relatedTerms: ["Saved Page", "Manual AI Link", "Gemini API", "Extract Phrases", "Translation", "Quiz", "Extract Sentences", "Sentence Practice", "Create Conversation"]
         ),
         GlossaryEntry(
             term: "Extract Phrases",
@@ -343,18 +343,25 @@ enum RadixGlossary {
             relatedTerms: ["Added Phrase", "Classify & Prune", "Make AI Text Page"]
         ),
         GlossaryEntry(
-            term: "Create Sentences",
-            shortDefinition: "Ask AI to turn useful complete lines from a saved page into Conversation Practice.",
-            significance: "Create Sentences keeps practice close to the actual page text. It is best when the saved page already contains good complete sentences or short conversation-ready lines that you want to study inside Radix. The imported result is stored in the shared sentence database.",
-            contexts: ["Browse page actions", "AI Link", "Import Practice", "Conversation Practice"],
-            relatedTerms: ["Sentence", "Sentence Database", "Practice Pack", "Conversation Practice", "Saved Page"]
+            term: "Extract Sentences",
+            shortDefinition: "Ask AI to turn a saved page into cleaned study text and sentence cards.",
+            significance: "Extract Sentences keeps close to the source page while repairing obvious OCR errors and expanding shorthand into complete Chinese sentences. Each extracted sentence can include Chinese, pinyin, English, and useful phrase hints, and is saved into the shared sentence database.",
+            contexts: ["Study saved page actions", "AI Link", "Extracted Sentences", "Sentence Card"],
+            relatedTerms: ["Sentence", "Sentence Database", "Saved Page", "Sentence Practice", "Create Conversation"]
+        ),
+        GlossaryEntry(
+            term: "Sentence Practice",
+            shortDefinition: "Ask AI to create practice-pack sentences from a saved page.",
+            significance: "Sentence Practice imports page-derived sentences into Conversation Practice with Chinese, pinyin, and English. Use it when you want a drillable practice pack rather than a cleaned sentence-by-sentence page.",
+            contexts: ["Study saved page actions", "AI Link", "Import Practice", "Conversation Practice"],
+            relatedTerms: ["Sentence", "Sentence Database", "Practice Pack", "Conversation Practice", "Extract Sentences"]
         ),
         GlossaryEntry(
             term: "Create Conversation",
             shortDefinition: "Ask AI to create Conversation Practice inspired by a saved page's theme.",
             significance: "Create Conversation is broader than sentence extraction. It uses the saved page as a theme source, then creates useful conversation sentences around that topic, the learner's context, and current or timely examples when appropriate.",
             contexts: ["Browse page actions", "AI Link", "Import Practice", "Conversation Practice"],
-            relatedTerms: ["Saved Page", "Conversation Practice", "Practice Pack", "Create Sentences"]
+            relatedTerms: ["Saved Page", "Conversation Practice", "Practice Pack", "Sentence Practice", "Extract Sentences"]
         ),
         GlossaryEntry(
             term: "Quiz",

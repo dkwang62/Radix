@@ -293,7 +293,7 @@ extension FavouritesTab {
         tasks.append(contentsOf: [
             CollectionPageAITask(
                 id: AIResultTaskID.createAICleanedPage,
-                title: "Create AI Page",
+                title: "Extract Sentences",
                 systemImage: "doc.text.magnifyingglass",
                 manualAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createAICleanedPage) },
                 automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiAICleanedPage(collection) } }
@@ -321,7 +321,7 @@ extension FavouritesTab {
             ),
             CollectionPageAITask(
                 id: AIResultTaskID.extractSentences,
-                title: "Create Sentences",
+                title: "Sentence Practice",
                 systemImage: "bubble.left.and.bubble.right",
                 manualAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences) },
                 automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiSentenceExtraction(collection) } }
@@ -457,7 +457,7 @@ extension FavouritesTab {
 
     func runStudyGeminiAICleanedPage(_ collection: CharacterCollection) {
         isRunningStudyPageAction = true
-        setStudyPageActionMessage("Creating AI-cleaned page with Gemini API...", for: collection)
+        setStudyPageActionMessage("Extracting sentences with Gemini API...", for: collection)
         Task {
             do {
                 let record = try await store.runGeminiAICleanedPage(for: collection)

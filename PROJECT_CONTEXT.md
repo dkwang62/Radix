@@ -13,31 +13,33 @@ The pre-1.1 app is preserved at git tag `radix-v1.0-before-v1.1`.
 Version 1.1 work follows `VERSION_1_1_PLAN.md`: Radix should become a linked
 Page -> Sentence -> Phrase -> Character learning graph. Browse remains the
 source-inspection home for Original OCR, while Study becomes the page-centered
-learning workspace for AI-cleaned pages, sentence study, phrases, translation,
-quiz, conversation practice, and notes.
-AI-cleaned pages are modeled as page-owned `AICleanedPageRecord` artifacts, not
+learning workspace for extracted sentence pages, sentence study, phrases,
+translation, quiz, conversation practice, and notes.
+Extracted sentence pages are modeled as page-owned `AICleanedPageRecord` artifacts, not
 as replacements for `CharacterCollection.originalOCRText` or corrected OCR
-pages. The saved-page AI task `task12` / `Create AI Page` generates
-JSON for that record from the selected page's characters and OCR/source context.
-AI-cleaned page records are stored in `RadixStudyPreferences.aiCleanedPages`,
+pages. The saved-page AI task `task12` / `Extract Sentences` generates
+JSON for that record from the selected page's characters and OCR/source context,
+including per-sentence Chinese, pinyin, English, and phrase hints.
+Extracted sentence page records are stored in `RadixStudyPreferences.aiCleanedPages`,
 included in portable backups as `ai_cleaned_pages`, imported from fenced or raw
 AI JSON through AI Link, and removed with their owning saved page.
-Study saved pages expose imported AI-cleaned pages through an `AI Page` artifact
+Study saved pages expose imported extracted sentence pages through an
+`Extracted Sentences` artifact
 and focused reader. The same saved-page action menu can create or replace that
 artifact through Manual AI Link or Gemini API. Browse continues to show the
 source layer only, with OCR pages labeled as Original OCR or Corrected OCR.
-The AI Page reader uses the shared Study simplified/traditional display choice;
-the switch converts the visible AI-cleaned title, page text, notes, sentence
+The extracted-sentences reader uses the shared Study simplified/traditional display choice;
+the switch converts the visible cleaned title, page text, notes, sentence
 rows, and opened sentence card display without changing the stored record.
 Sentence previews still use the shared `PhraseInfoCard` presentation route, but
 its sentence mode is now sentence-first: whole sentence and English meaning,
 pinyin hidden behind a control, inline phrase highlighting in the Chinese text,
 sentence phrases behind the shared `Phrase` button/table, and character
 animation behind a secondary Characters disclosure.
-Saving or restoring an AI-cleaned page also upserts its sentence list into the
+Saving or restoring an extracted sentence page also upserts its sentence list into the
 shared `SentenceExampleRecord` database with `ai_cleaned_page` page-linked
 source metadata, so Study > Sentences and sentence cards reuse the same records.
-AI Page sentence rows reuse the shared Conversation Practice sentence row and
+Extracted sentence rows reuse the shared Conversation Practice sentence row and
 open the shared sentence card, resolving back to the canonical sentence database
 record so active selection, phrase chips, read-aloud, and favorites stay aligned.
 Sentence phrase maps use the same longest non-overlapping selection rule as page
@@ -686,7 +688,8 @@ When a Gemini API key is configured, `Check OCR` additionally offers an
 automatic multimodal review using the same prompt and saved image. Its response
 creates and opens a corrected saved page immediately.
 Study saved-page AI actions are grouped by task—Check OCR, Extract Phrases,
-Translate Page, Create Quiz, Create Sentences, and Create Conversation.
+Translate Page, Create Quiz, Extract Sentences, Sentence Practice, and Create
+Conversation.
 Current UI copy uses `Create Conversation`; older labels such as `Create
 Practice from Page` are compatibility aliases only.
 Each task consistently offers copy/paste with ChatGPT or an automatic Gemini
@@ -706,16 +709,20 @@ recognized/unrecognized characters, and nearby phrase evidence rather than a
 separate hard-coded instruction. Legacy `Check OCR` templates that described
 `ORIGINAL OCR` normalize to the saved-page-character wording so placeholder raw
 OCR cannot become the primary AI input.
-`Create Sentences` is the first step toward page-derived sentence study:
-it asks AI to return the same lightweight Conversation Practice import JSON
-shape (`theme` plus `entries`) used by generated practice packs, so imported
-page sentences reuse the existing practice, favorite-sentence, backup,
-checkpoint, and speech pathways instead of creating another sentence store. The
-automatic Gemini route validates and imports that pack directly. AI Link exposes
-one `Create Sentences` task with a `Brief` / `Detailed` detail selector instead
-of separate sentence-creation tasks; both modes must return the same import JSON
-and land in the shared sentence database.
-`Create Conversation` is distinct from `Create Sentences`: it uses the
+`Extract Sentences` is the close-to-source page transformation task: it asks AI
+to produce cleaned Chinese page prose plus sentence records with Chinese, pinyin,
+English, and phrase hints. The result is saved as a page-owned extracted
+sentence artifact and upserted into the shared sentence database.
+`Sentence Practice` is the drillable practice-pack task: it asks AI to return
+the same lightweight Conversation Practice import JSON shape (`theme` plus
+`entries`) used by generated practice packs, so imported page sentences reuse
+the existing practice, favorite-sentence, backup, checkpoint, and speech
+pathways instead of creating another sentence store. The automatic Gemini route
+validates and imports that pack directly. AI Link exposes one `Sentence
+Practice` task with a `Brief` / `Detailed` detail selector instead of separate
+sentence-practice tasks; both modes must return the same import JSON and land in
+the shared sentence database.
+`Create Conversation` is distinct from `Sentence Practice`: it uses the
 saved page as source inspiration, infers the page's broad conversational theme,
 and asks AI to generate new personalized/current Conversation Practice lines
 around that theme rather than staying close to the page wording. It returns the
@@ -739,10 +746,10 @@ Conversation Practice accepts AI-generated packs through `Paste Practice JSON`
 as the primary return path from ChatGPT/Gemini, while `Import JSON File` remains
 available for saved files and transfer. The paste route previews the theme,
 sentence count, sample sentences, and validation warnings before import.
-Browse page Actions exposes `Create Sentences` as a page AI task. Manual use
-copies/opens the saved-page sentence extraction prompt and returns through
-Study's Conversation Practice paste importer; automatic Gemini use imports the
-pack directly.
+Browse page Actions exposes `Sentence Practice` as a page AI task. Manual use
+copies/opens the saved-page sentence-practice prompt and returns through Study's
+Conversation Practice paste importer; automatic Gemini use imports the pack
+directly.
 When an imported Conversation Practice pack title matches the selected saved
 page title, Browse shows a compact practice shortcut in that saved-page row,
 beside the delete control. Tapping it opens Study directly into that matching
@@ -809,11 +816,11 @@ or use current knowledge. Radix should keep the output contract strict
 extra content guardrails beyond import format and language-learning usefulness.
 AI Link exposes a shared quantity selector for Conversation Practice output
 tasks, defaulting to 25 entries with 50 and 100 available. `Generate Practice
-Pack`, `Create Sentences`, and `Create Conversation` render this shared
+Pack`, `Sentence Practice`, and `Create Conversation` render this shared
 count through `{conversation_entry_count}`; future sentence/conversation
 generation tasks should opt into `conversationEntryCountTaskIDs` and reuse the
 same placeholder instead of hardcoding a pack size.
-The `Create Sentences` Brief/Detailed selector is a profile preference saved
+The `Sentence Practice` Brief/Detailed selector is a profile preference saved
 with local AI Link settings and portable backups; restore falls back to Brief
 when importing older profiles.
 OCR correction no longer has a proposal-approval screen. Automatic Gemini

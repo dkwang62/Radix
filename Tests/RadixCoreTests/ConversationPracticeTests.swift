@@ -184,6 +184,7 @@ struct ConversationPracticeTests {
                 AICleanedPageSentence(
                     id: "sentence-1",
                     chinese: "中美关系正在变化。",
+                    pinyin: "Zhōng-Měi guānxì zhèngzài biànhuà.",
                     english: "China-US relations are changing.",
                     phraseHints: ["中美关系", "变化"]
                 )
@@ -196,6 +197,7 @@ struct ConversationPracticeTests {
 
         #expect(examples.count == 1)
         #expect(example.chinese == "中美关系正在变化。")
+        #expect(example.pinyin == "Zhōng-Měi guānxì zhèngzài biànhuà.")
         #expect(example.english == "China-US relations are changing.")
         #expect(example.sources.first?.sourceType == .aiCleanedPage)
         #expect(example.sources.first?.sourcePageID == pageID)

@@ -496,7 +496,7 @@ extension FavouritesTab {
         if aiCleanedPage != nil {
             artifacts.append(StudyPageArtifact(
                 id: "ai-cleaned-page",
-                title: "AI Page",
+                title: "Extracted Sentences",
                 systemImage: "doc.text.magnifyingglass",
                 tint: .indigo,
                 kind: .aiCleanedPage

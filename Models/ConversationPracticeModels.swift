@@ -623,6 +623,7 @@ public struct SentenceExampleRecord: Codable, Equatable, Identifiable, Sendable 
             return SentenceExampleRecord(
                 chinese: chinese,
                 script: .unknown,
+                pinyin: sentence.pinyin,
                 english: sentence.english,
                 sources: [source],
                 targetCharacters: detectChineseCharacters(in: chinese),

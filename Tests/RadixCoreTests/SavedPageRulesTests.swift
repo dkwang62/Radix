@@ -119,6 +119,7 @@ struct SavedPageRulesTests {
             {
               "id": "ai_page_sentence_001",
               "chinese": "中美关系正在变化。",
+              "pinyin": "Zhōng-Měi guānxì zhèngzài biànhuà.",
               "english": "China-US relations are changing.",
               "phrase_hints": ["中美关系", "变化"]
             }
@@ -140,6 +141,7 @@ struct SavedPageRulesTests {
         #expect(record.cleanedTitle == "Cleaned News")
         #expect(record.cleanedChineseText == "中美关系正在变化。")
         #expect(record.sentences.count == 1)
+        #expect(record.sentences.first?.pinyin == "Zhōng-Měi guānxì zhèngzài biànhuà.")
         #expect(record.sentences.first?.phraseHints == ["中美关系", "变化"])
         #expect(record.englishSummary == "A short summary.")
         #expect(record.repairNotes == ["Expanded a headline fragment."])

@@ -246,7 +246,7 @@ extension FavouritesTab {
 
     func aiCleanedPageHeader(_ context: StudyAICleanedPageContext) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label("AI Page", systemImage: "doc.text.magnifyingglass")
+            Label("Extracted Sentences", systemImage: "doc.text.magnifyingglass")
                 .font(ResponsiveFont.title3.bold())
 
             Text(studyGridDisplayText(collectionDisplayName(context.collection)))
@@ -271,7 +271,7 @@ extension FavouritesTab {
 
                     CompactScriptToggle(
                         isTraditional: studyGridUsesTraditionalScript,
-                        accessibilityLabel: "AI Page Chinese script",
+                        accessibilityLabel: "Extracted sentences Chinese script",
                         minWidth: 34,
                         height: 28
                     ) {
@@ -385,6 +385,7 @@ extension FavouritesTab {
             $0.normalizedChineseKey == key
         } ?? SentenceExampleRecord(
             chinese: sentence.chinese,
+            pinyin: sentence.pinyin,
             english: sentence.english,
             sources: [
                 SentenceExampleSourceReference(
@@ -407,10 +408,10 @@ extension FavouritesTab {
 
     func aiCleanedPageEmptyState(_ collection: CharacterCollection) -> some View {
         studyEmptyState(
-            title: "No AI Page Yet",
-            message: "Create an AI-cleaned page to turn the original OCR into complete study sentences.",
+            title: "No Extracted Sentences Yet",
+            message: "Extract sentences to turn the original OCR into complete study text and sentence cards.",
             systemImage: "doc.text.magnifyingglass",
-            actionTitle: "Create AI Page",
+            actionTitle: "Extract Sentences",
             actionSystemImage: "sparkles"
         ) {
             beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createAICleanedPage)

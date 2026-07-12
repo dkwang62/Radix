@@ -70,6 +70,7 @@ struct PortableBackupCodecTests {
                 AICleanedPageSentence(
                     id: "ai_page_sentence_001",
                     chinese: "你好。",
+                    pinyin: "Nǐ hǎo.",
                     english: "Hello.",
                     phraseHints: ["你好"]
                 )

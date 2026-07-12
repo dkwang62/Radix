@@ -136,7 +136,7 @@ struct AICleanedPageRecord: Codable, Equatable, Hashable, Identifiable {
             sourcePageID: sourcePageID,
             artifactType: .aiCleanedPage,
             artifactID: sourcePageID.uuidString,
-            displayTitle: cleanedTitle.isEmpty ? "AI-cleaned page" : cleanedTitle,
+            displayTitle: cleanedTitle.isEmpty ? "Extracted sentences" : cleanedTitle,
             createdAt: createdAt
         )
     }
@@ -145,12 +145,14 @@ struct AICleanedPageRecord: Codable, Equatable, Hashable, Identifiable {
 struct AICleanedPageSentence: Codable, Equatable, Hashable, Identifiable {
     var id: String
     var chinese: String
+    var pinyin: String?
     var english: String?
     var phraseHints: [String]
 
     enum CodingKeys: String, CodingKey {
         case id
         case chinese
+        case pinyin
         case english
         case phraseHints = "phrase_hints"
     }
@@ -158,11 +160,14 @@ struct AICleanedPageSentence: Codable, Equatable, Hashable, Identifiable {
     init(
         id: String,
         chinese: String,
+        pinyin: String? = nil,
         english: String? = nil,
         phraseHints: [String] = []
     ) {
         self.id = id.trimmingCharacters(in: .whitespacesAndNewlines)
         self.chinese = chinese.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanPinyin = pinyin?.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.pinyin = cleanPinyin?.isEmpty == true ? nil : cleanPinyin
         let cleanEnglish = english?.trimmingCharacters(in: .whitespacesAndNewlines)
         self.english = cleanEnglish?.isEmpty == true ? nil : cleanEnglish
         self.phraseHints = phraseHints
@@ -191,7 +196,7 @@ struct AICleanedPageImportParser {
                 guard !record.cleanedChineseText.isEmpty || !record.sentences.isEmpty else {
                     throw DecodingError.dataCorrupted(.init(
                         codingPath: [],
-                        debugDescription: "The AI-cleaned page JSON is empty."
+                        debugDescription: "The extracted-sentences JSON is empty."
                     ))
                 }
                 return record
@@ -204,7 +209,7 @@ struct AICleanedPageImportParser {
         }
         throw DecodingError.dataCorrupted(.init(
             codingPath: [],
-            debugDescription: "Paste AI-cleaned page JSON with cleaned_chinese_text and sentences."
+            debugDescription: "Paste extracted-sentences JSON with cleaned_chinese_text and sentences."
         ))
     }
 }

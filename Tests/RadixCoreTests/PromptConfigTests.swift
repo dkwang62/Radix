@@ -56,12 +56,12 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task9"))
     }
 
-    @Test("Page sentence extractor is a saved-page AI task")
+    @Test("Sentence practice generator is a saved-page AI task")
     func pageSentenceExtractorTaskAvailability() {
         let normalized = PromptConfig.streamlitDefault.normalized()
         let extractor = normalized.tasks.first { $0.id == "task10" }
 
-        #expect(extractor?.title == "Create Sentences")
+        #expect(extractor?.title == "Sentence Practice")
         #expect(extractor?.template.contains("Conversation Practice import pack") == true)
         #expect(extractor?.template.contains("{sentence_extraction_detail}") == true)
         #expect(extractor?.template.contains("\"theme\": \"{collection_name}\"") == true)
@@ -96,15 +96,16 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task11"))
     }
 
-    @Test("AI-cleaned page generator is a saved-page AI task")
+    @Test("Extract sentences generator is a saved-page AI task")
     func aiCleanedPageTaskAvailability() {
         let normalized = PromptConfig.streamlitDefault.normalized()
         let generator = normalized.tasks.first { $0.id == "task12" }
 
-        #expect(generator?.title == "Create AI Page")
+        #expect(generator?.title == "Extract Sentences")
         #expect(generator?.template.contains("Original OCR/source context") == true)
         #expect(generator?.template.contains("cleaned_chinese_text") == true)
         #expect(generator?.template.contains("\"id\": \"ai_page_sentence_001\"") == true)
+        #expect(generator?.template.contains("\"pinyin\"") == true)
         #expect(generator?.template.contains("\"phrase_hints\"") == true)
         #expect(generator?.template.contains("Expand telegraphic media shorthand") == true)
         #expect(generator?.template.contains("Do not invent unrelated facts") == true)
@@ -277,7 +278,7 @@ struct PromptConfigTests {
         #expect(normalized.tasks.first { $0.id == "task9" }?.template.contains("{conversation_entry_count}") == true)
         #expect(normalized.tasks.first { $0.id == "task10" }?.template.contains("Aim for up to {conversation_entry_count} entries.") == true)
         #expect(normalized.tasks.first { $0.id == "task11" }?.template.contains("Create exactly {conversation_entry_count} entries") == true)
-        #expect(normalized.tasks.first { $0.id == "task10" }?.title == "Create Sentences")
+        #expect(normalized.tasks.first { $0.id == "task10" }?.title == "Sentence Practice")
         #expect(normalized.tasks.first { $0.id == "task11" }?.title == "Create Conversation")
     }
 
