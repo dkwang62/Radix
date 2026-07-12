@@ -224,6 +224,29 @@ extension RadixStore {
         }
     }
 
+    func storedPracticePhraseHints(for item: ConversationPracticeItem) -> [PhraseItem] {
+        let source = phraseStorageWord(item.simplified)
+        var seen = Set<String>()
+        let phrases = item.phraseHints.compactMap { rawHint -> PhraseItem? in
+            let key = phraseStorageWord(rawHint)
+            guard !key.isEmpty, seen.insert(key).inserted else { return nil }
+            return databasePhrase(for: key)
+        }
+        return phrases.sorted {
+            let lhsWord = phraseStorageWord($0.word)
+            let rhsWord = phraseStorageWord($1.word)
+            let lhsPosition = source.range(of: lhsWord)?.lowerBound
+            let rhsPosition = source.range(of: rhsWord)?.lowerBound
+            if lhsPosition != rhsPosition {
+                if lhsPosition == nil { return false }
+                if rhsPosition == nil { return true }
+                return lhsPosition! < rhsPosition!
+            }
+            if lhsWord.count != rhsWord.count { return lhsWord.count > rhsWord.count }
+            return lhsWord < rhsWord
+        }
+    }
+
     func linkedPracticeHints(for item: ConversationPracticeItem) -> ConversationPracticeLinkedHints {
         let cacheKey = ConversationPracticeHintCacheKey(
             setID: item.setID,

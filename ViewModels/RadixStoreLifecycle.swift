@@ -13,6 +13,7 @@ extension RadixStore {
             try loadDictionaryRepository()
             try phraseRepo.openFromBundle()
             loadConversationPracticePhraseCache()
+            preprocessStoredAICleanedPagesIfNeeded()
             setupInitialState()
         } catch {
             loadingError = error.localizedDescription
@@ -24,6 +25,7 @@ extension RadixStore {
             try componentRepo.loadFromBundle()
             try phraseRepo.openForTesting()
             loadConversationPracticePhraseCache()
+            preprocessStoredAICleanedPagesIfNeeded()
             setupInitialState()
         } catch {
             loadingError = error.localizedDescription

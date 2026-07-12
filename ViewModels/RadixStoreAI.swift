@@ -207,8 +207,48 @@ extension RadixStore {
             sourcePageID: collection.id,
             sourceTitle: collection.name
         )
-        RadixStudyPreferences.recordAICleanedPage(record)
-        return record
+        let preprocessed = preprocessedAICleanedPage(record)
+        RadixStudyPreferences.recordAICleanedPage(preprocessed)
+        return preprocessed
+    }
+
+    func preprocessedAICleanedPage(_ record: AICleanedPageRecord) -> AICleanedPageRecord {
+        var updated = record
+        updated.sentences = record.sentences.map(preprocessedAICleanedPageSentence(_:))
+        return updated
+    }
+
+    func preprocessedAICleanedPages(_ records: [AICleanedPageRecord]?) -> [AICleanedPageRecord]? {
+        records?.map(preprocessedAICleanedPage(_:))
+    }
+
+    func preprocessStoredAICleanedPagesIfNeeded() {
+        let records = RadixStudyPreferences.aiCleanedPages
+        guard !records.isEmpty else { return }
+        let updated = records.map(preprocessedAICleanedPage(_:))
+        guard updated != records else { return }
+        RadixStudyPreferences.aiCleanedPages = updated
+        RadixStudyPreferences.recordSentenceExamples(updated.flatMap(SentenceExampleRecord.fromAICleanedPage(_:)))
+    }
+
+    private func preprocessedAICleanedPageSentence(_ sentence: AICleanedPageSentence) -> AICleanedPageSentence {
+        let discovered = phraseDiscoveryKnownPhraseItems(in: sentence.chinese).map(\.word)
+        let mergedHints = mergedPreprocessedPhraseHints(primary: discovered, secondary: sentence.phraseHints)
+        guard mergedHints != sentence.phraseHints else { return sentence }
+        var updated = sentence
+        updated.phraseHints = mergedHints
+        return updated
+    }
+
+    private func mergedPreprocessedPhraseHints(primary: [String], secondary: [String]) -> [String] {
+        var seen = Set<String>()
+        var result: [String] = []
+        for phrase in primary + secondary {
+            let key = phraseStorageWord(phrase)
+            guard !key.isEmpty, seen.insert(key).inserted else { continue }
+            result.append(key)
+        }
+        return result
     }
 
     func applyAIResult(taskID: String, responseText: String, collection: CharacterCollection?, sourceName: String) throws -> AIResultApplicationOutcome {

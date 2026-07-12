@@ -61,7 +61,7 @@ extension PhraseInfoCard {
             return phraseLookupOverride
         }
         guard let practiceSentenceItem else { return [] }
-        return store.phraseDiscoveryKnownPhraseItems(in: practiceSentenceItem.simplified)
+        return store.storedPracticePhraseHints(for: practiceSentenceItem)
             .map {
                 ConversationPracticeScriptSupport.displayPhrase(
                     $0,

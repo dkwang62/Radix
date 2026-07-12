@@ -639,7 +639,10 @@ extension RadixStore {
                 RadixStudyPreferences.applyImportedSentenceExamples(package.sentenceExamples, mode: .additive)
                 applyImportedFavoriteSentences(package.favoriteSentences, mode: .additive)
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .additive)
-                RadixStudyPreferences.applyImportedAICleanedPages(package.aiCleanedPages, mode: .additive)
+                RadixStudyPreferences.applyImportedAICleanedPages(
+                    preprocessedAICleanedPages(package.aiCleanedPages),
+                    mode: .additive
+                )
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .additive)
 
@@ -659,7 +662,10 @@ extension RadixStore {
                 RadixStudyPreferences.applyImportedSentenceExamples(package.sentenceExamples, mode: .complete)
                 applyImportedFavoriteSentences(package.favoriteSentences, mode: .complete)
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .complete)
-                RadixStudyPreferences.applyImportedAICleanedPages(package.aiCleanedPages, mode: .complete)
+                RadixStudyPreferences.applyImportedAICleanedPages(
+                    preprocessedAICleanedPages(package.aiCleanedPages),
+                    mode: .complete
+                )
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .complete)
             }
