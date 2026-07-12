@@ -63,6 +63,46 @@ extension FavouritesTab {
         }
     }
 
+    @ViewBuilder
+    func practiceSentenceDisplayControls<Navigation: View>(
+        @ViewBuilder navigation: () -> Navigation
+    ) -> some View {
+        if isNarrowStudyLayout {
+            VStack(alignment: .leading, spacing: 6) {
+                navigation()
+                    .fixedSize(horizontal: true, vertical: false)
+
+                HStack(spacing: 8) {
+                    Spacer(minLength: 0)
+                    practiceSentenceModeControls
+                }
+            }
+            .padding(.bottom, 2)
+        } else {
+            HStack(spacing: 8) {
+                navigation()
+                    .fixedSize(horizontal: true, vertical: false)
+
+                Spacer(minLength: 8)
+
+                practiceSentenceModeControls
+            }
+            .padding(.bottom, 2)
+        }
+    }
+
+    func practiceSentenceList<Row: View>(
+        _ items: [ConversationPracticeItem],
+        spacing: CGFloat = 4,
+        @ViewBuilder row: @escaping (ConversationPracticeItem) -> Row
+    ) -> some View {
+        LazyVStack(alignment: .leading, spacing: spacing) {
+            ForEach(items) { item in
+                row(item)
+            }
+        }
+    }
+
     func practiceSentenceRow<Trailing: View>(
         _ item: ConversationPracticeItem,
         isSelected: Bool,

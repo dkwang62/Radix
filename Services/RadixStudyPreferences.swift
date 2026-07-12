@@ -8,6 +8,7 @@ enum SentenceExampleQueryScope: Equatable {
     case favorites
     case pageLinked
     case practice
+    case page(UUID, SentenceExampleSourceType?)
 }
 
 struct SentenceExampleQuery: Equatable {
@@ -1009,6 +1010,14 @@ private final class SentenceExampleRepository: @unchecked Sendable {
             clauses.append("(source_text LIKE ? OR source_text LIKE ?)")
             bindings.append("% source_type:conversation_practice %")
             bindings.append("% source_type:sentence_practice %")
+        case .page(let pageID, let sourceType):
+            clauses.append("is_hidden = 0")
+            clauses.append("source_text LIKE ?")
+            bindings.append("% page:\(pageID.uuidString.lowercased()) %")
+            if let sourceType {
+                clauses.append("source_text LIKE ?")
+                bindings.append("% source_type:\(sourceType.rawValue) %")
+            }
         }
 
         let searchBindings = searchPatterns(for: query.searchText)
@@ -1046,6 +1055,11 @@ private final class SentenceExampleRepository: @unchecked Sendable {
                 guard record.sources.contains(where: { $0.sourcePageID != nil }) else { return false }
             case .practice:
                 guard record.hasSourceType(.conversationPractice) || record.hasSourceType(.sentencePractice) else { return false }
+            case .page(let pageID, let sourceType):
+                guard record.isLinked(toPageID: pageID) else { return false }
+                if let sourceType, !record.hasSourceType(sourceType) {
+                    return false
+                }
             }
             return RadixStudyPreferences.sentenceExample(record, matchesSearchText: query.searchText)
         }

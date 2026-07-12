@@ -212,6 +212,7 @@ extension FavouritesTab {
             isShowingConversationPractice = false
             isShowingAddedPhraseReview = false
             isShowingSentenceExamples = false
+            aiCleanedPageSentencePageIndex = 0
             studyAICleanedPageCollectionID = collection.id
         }
     }

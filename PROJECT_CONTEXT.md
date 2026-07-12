@@ -60,12 +60,13 @@ simplified/traditional query conversion behave consistently.
 Study > Sentences search should not feel narrower than phrase-card Examples:
 typing a search resets the sentence filter to All, and searched results use a
 larger page size so phrase searches are not mistaken for missing examples.
-Extracted sentence rows reuse the shared Conversation Practice sentence row and
-open the shared sentence card, resolving back to the canonical sentence database
-record so active selection, phrase chips, read-aloud, and favorites stay aligned.
-The extracted-sentences reader must render from a precomputed page-level list of
-`ConversationPracticeItem`s and a lazy row stack; do not scan the sentence
-database or rebuild `SentenceExampleRecord.fromAICleanedPage` inside each row.
+Extracted sentence rows reuse the shared Conversation Practice sentence controls,
+lazy list, row, and sentence card, resolving back to the canonical sentence
+database record so active selection, Chinese/English display, script switching,
+phrase chips, read-aloud, and favorites stay aligned.
+The extracted-sentences reader must render from a page-scoped SQLite sentence
+query plus cheap page-sentence fallbacks; do not scan the whole sentence database
+or rebuild `SentenceExampleRecord.fromAICleanedPage` in the display path.
 Sentence phrase maps use the same longest non-overlapping selection rule as page
 phrase discovery: when candidate phrases overlap inside a sentence, the longer
 phrase owns that span and shorter overlapping chips are suppressed.

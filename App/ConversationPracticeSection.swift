@@ -158,27 +158,8 @@ extension FavouritesTab {
 
     @ViewBuilder
     func conversationPracticeDisplayControls(_ library: ConversationPracticeLibrary) -> some View {
-        if isNarrowStudyLayout {
-            VStack(alignment: .leading, spacing: 6) {
-                conversationPracticePageNavigation(library)
-                    .fixedSize(horizontal: true, vertical: false)
-
-                HStack(spacing: 8) {
-                    Spacer(minLength: 0)
-                    practiceSentenceModeControls
-                }
-            }
-            .padding(.bottom, 2)
-        } else {
-            HStack(spacing: 8) {
-                conversationPracticePageNavigation(library)
-                    .fixedSize(horizontal: true, vertical: false)
-
-                Spacer(minLength: 8)
-
-                practiceSentenceModeControls
-            }
-            .padding(.bottom, 2)
+        practiceSentenceDisplayControls {
+            conversationPracticePageNavigation(library)
         }
     }
 
@@ -288,10 +269,8 @@ extension FavouritesTab {
     }
 
     func conversationPracticeSentenceList(_ library: ConversationPracticeLibrary) -> some View {
-        LazyVStack(alignment: .leading, spacing: 4) {
-            ForEach(conversationPracticePagedItems(for: library)) { item in
-                conversationPracticeSentenceRow(item)
-            }
+        practiceSentenceList(conversationPracticePagedItems(for: library)) { item in
+            conversationPracticeSentenceRow(item)
         }
     }
 
