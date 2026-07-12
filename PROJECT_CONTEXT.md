@@ -7,6 +7,15 @@ describes the present state and immediate direction.
 
 Last reviewed: 2026-07-06
 
+## Version 1.1 Direction
+
+The pre-1.1 app is preserved at git tag `radix-v1.0-before-v1.1`.
+Version 1.1 work follows `VERSION_1_1_PLAN.md`: Radix should become a linked
+Page -> Sentence -> Phrase -> Character learning graph. Browse remains the
+source-inspection home for Original OCR, while Study becomes the page-centered
+learning workspace for AI-cleaned pages, sentence study, phrases, translation,
+quiz, conversation practice, and notes.
+
 ## Product and Platform Scope
 
 Radix is one SwiftUI application targeting iPhone, iPad, and Mac Catalyst. The
