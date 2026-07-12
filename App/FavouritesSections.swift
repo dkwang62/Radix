@@ -249,7 +249,7 @@ extension FavouritesTab {
             Label("AI Page", systemImage: "doc.text.magnifyingglass")
                 .font(ResponsiveFont.title3.bold())
 
-            Text(collectionDisplayName(context.collection))
+            Text(studyGridDisplayText(collectionDisplayName(context.collection)))
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
@@ -262,8 +262,23 @@ extension FavouritesTab {
     func aiCleanedPageReader(_ record: AICleanedPageRecord, collection: CharacterCollection) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
-                Text(record.cleanedTitle.isEmpty ? collectionDisplayName(collection) : record.cleanedTitle)
-                    .font(ResponsiveFont.headline.weight(.semibold))
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(studyGridDisplayText(record.cleanedTitle.isEmpty ? collectionDisplayName(collection) : record.cleanedTitle))
+                        .font(ResponsiveFont.headline.weight(.semibold))
+                        .lineLimit(2)
+
+                    Spacer(minLength: 8)
+
+                    CompactScriptToggle(
+                        isTraditional: studyGridUsesTraditionalScript,
+                        accessibilityLabel: "AI Page Chinese script",
+                        minWidth: 34,
+                        height: 28
+                    ) {
+                        studyGridUsesTraditionalScript.toggle()
+                    }
+                    .fixedSize(horizontal: true, vertical: false)
+                }
 
                 Text(studyGridDisplayText(record.cleanedChineseText))
                     .font(ResponsiveFont.body)
@@ -309,7 +324,7 @@ extension FavouritesTab {
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     ForEach(record.repairNotes, id: \.self) { note in
-                        Label(note, systemImage: "checkmark.circle")
+                        Label(studyGridDisplayText(note), systemImage: "checkmark.circle")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)

@@ -26,6 +26,9 @@ Study saved pages expose imported AI-cleaned pages through an `AI Page` artifact
 and focused reader. The same saved-page action menu can create or replace that
 artifact through Manual AI Link or Gemini API. Browse continues to show the
 source layer only, with OCR pages labeled as Original OCR or Corrected OCR.
+The AI Page reader uses the shared Study simplified/traditional display choice;
+the switch converts the visible AI-cleaned title, page text, notes, sentence
+rows, and opened sentence card display without changing the stored record.
 Sentence previews still use the shared `PhraseInfoCard` presentation route, but
 its sentence mode is now sentence-first: whole sentence and English meaning,
 pinyin hidden behind a control, phrase-map chips, and character animation behind
