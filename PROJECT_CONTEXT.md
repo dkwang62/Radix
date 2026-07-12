@@ -75,6 +75,9 @@ The extracted-page reader keeps a small state cache for the current visible
 sentence page and renders long cleaned page text as a collapsed preview by
 default. Avoid reintroducing row DB lookups, item construction, or full-page
 text rendering directly into the reader body.
+Repeated Simplified/Traditional conversion goes through `ScriptTextConverter`'s
+bounded cache. Keep row-level display code on shared conversion helpers instead
+of calling `CFStringTransform` repeatedly from SwiftUI body paths.
 Sentence phrase maps use the same longest non-overlapping selection rule as page
 phrase discovery: when candidate phrases overlap inside a sentence, the longer
 phrase owns that span and shorter overlapping chips are suppressed.
