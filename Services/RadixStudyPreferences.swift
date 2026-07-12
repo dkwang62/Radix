@@ -386,6 +386,7 @@ enum RadixStudyPreferences {
         records.removeAll { $0.sourcePageID == record.sourcePageID }
         records.append(record)
         aiCleanedPages = records
+        recordSentenceExamples(SentenceExampleRecord.fromAICleanedPage(record))
     }
 
     static func applyImportedAICleanedPages(_ records: [AICleanedPageRecord]?, mode: RestoreMode) {
@@ -396,7 +397,9 @@ enum RadixStudyPreferences {
                 recordAICleanedPage(record)
             }
         case .complete:
-            aiCleanedPages = records ?? []
+            let records = records ?? []
+            aiCleanedPages = records
+            recordSentenceExamples(records.flatMap(SentenceExampleRecord.fromAICleanedPage(_:)))
         }
     }
 }

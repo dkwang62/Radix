@@ -317,6 +317,7 @@ public enum SentenceExampleScript: String, Codable, CaseIterable, Equatable, Has
 }
 
 public enum SentenceExampleSourceType: String, Codable, CaseIterable, Equatable, Hashable, Sendable {
+    case aiCleanedPage = "ai_cleaned_page"
     case aiGenerated = "ai_generated"
     case conversationPractice = "conversation_practice"
     case favoriteSentence = "favorite_sentence"
@@ -594,6 +595,43 @@ public struct SentenceExampleRecord: Codable, Equatable, Identifiable, Sendable 
                 detectedCharacters: detectChineseCharacters(in: sentence),
                 createdAt: createdAt,
                 tags: ["ocr"]
+            )
+        }
+    }
+
+    static func fromAICleanedPage(_ record: AICleanedPageRecord) -> [SentenceExampleRecord] {
+        let source = SentenceExampleSourceReference(
+            sourceType: .aiCleanedPage,
+            sourceID: record.sourcePageID.uuidString,
+            sourceTitle: record.cleanedTitle.isEmpty ? record.sourceTitle : record.cleanedTitle,
+            sourcePageID: record.sourcePageID,
+            practicePackID: nil,
+            practiceItemID: nil
+        )
+        let sentences = record.sentences.isEmpty
+            ? sentenceFragments(in: record.cleanedChineseText).enumerated().map { index, sentence in
+                AICleanedPageSentence(
+                    id: "ai_cleaned_page_sentence_\(index + 1)",
+                    chinese: sentence
+                )
+            }
+            : record.sentences
+
+        return sentences.compactMap { sentence in
+            let chinese = sentence.chinese.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !chinese.isEmpty else { return nil }
+            return SentenceExampleRecord(
+                chinese: chinese,
+                script: .unknown,
+                english: sentence.english,
+                sources: [source],
+                targetCharacters: detectChineseCharacters(in: chinese),
+                targetPhrases: sentence.phraseHints,
+                detectedCharacters: detectChineseCharacters(in: chinese),
+                detectedPhrases: sentence.phraseHints,
+                createdAt: record.createdAt,
+                qualityScore: 1,
+                tags: ["ai-cleaned-page"]
             )
         }
     }

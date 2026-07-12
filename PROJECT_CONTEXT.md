@@ -30,6 +30,9 @@ Sentence previews still use the shared `PhraseInfoCard` presentation route, but
 its sentence mode is now sentence-first: whole sentence and English meaning,
 pinyin hidden behind a control, phrase-map chips, and character animation behind
 a secondary Characters disclosure.
+Saving or restoring an AI-cleaned page also upserts its sentence list into the
+shared `SentenceExampleRecord` database with `ai_cleaned_page` page-linked
+source metadata, so Study > Sentences and sentence cards reuse the same records.
 
 ## Product and Platform Scope
 

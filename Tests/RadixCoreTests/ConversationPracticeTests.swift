@@ -172,6 +172,40 @@ struct ConversationPracticeTests {
         #expect(records.first?.detectedPhrases == ["关键时刻", "冷静思考"])
     }
 
+    @Test("AI-cleaned page sentences map into canonical sentence examples")
+    func aiCleanedPageSentencesMapToSentenceExamples() throws {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000616")!
+        let record = AICleanedPageRecord(
+            sourcePageID: pageID,
+            sourceTitle: "Original OCR",
+            cleanedTitle: "Cleaned Page",
+            cleanedChineseText: "中美关系正在变化。",
+            sentences: [
+                AICleanedPageSentence(
+                    id: "sentence-1",
+                    chinese: "中美关系正在变化。",
+                    english: "China-US relations are changing.",
+                    phraseHints: ["中美关系", "变化"]
+                )
+            ],
+            createdAt: Date(timeIntervalSince1970: 616)
+        )
+
+        let examples = SentenceExampleRecord.fromAICleanedPage(record)
+        let example = try #require(examples.first)
+
+        #expect(examples.count == 1)
+        #expect(example.chinese == "中美关系正在变化。")
+        #expect(example.english == "China-US relations are changing.")
+        #expect(example.sources.first?.sourceType == .aiCleanedPage)
+        #expect(example.sources.first?.sourcePageID == pageID)
+        #expect(example.sources.first?.sourceTitle == "Cleaned Page")
+        #expect(example.detectedCharacters.contains("中"))
+        #expect(example.detectedPhrases == ["中美关系", "变化"])
+        #expect(example.containsPhrase("中美关系"))
+        #expect(example.isLinked(toPageID: pageID))
+    }
+
     @Test("Conversation practice items map into canonical sentence examples")
     func practiceItemsMapToSentenceExamples() throws {
         let pack = try loadConversationPackFixture()
