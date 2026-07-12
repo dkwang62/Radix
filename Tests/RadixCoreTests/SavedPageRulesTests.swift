@@ -148,6 +148,102 @@ struct SavedPageRulesTests {
         #expect(record.createdAt == Date(timeIntervalSince1970: 400))
     }
 
+    @Test("AI-cleaned page import parser salvages Gemini key variants")
+    func aiCleanedPageImportParserSalvagesGeminiKeyVariants() throws {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000405")!
+        let response = """
+        {
+          "page": {
+            "title": "Gemini News",
+            "cleanedText": "中美关系正在变化。双方正在保持沟通。",
+            "sentence_list": [
+              {
+                "zh": "中美关系正在变化。",
+                "pinyin": "Zhōng-Měi guānxì zhèngzài biànhuà.",
+                "en": "China-US relations are changing.",
+                "phrases": "中美关系，变化"
+              },
+              {
+                "sentence": "双方正在保持沟通。",
+                "translation": "Both sides are maintaining communication.",
+                "keyPhrases": ["保持沟通"]
+              }
+            ],
+            "summary": "A summary.",
+            "notes": "Gemini used alternate keys."
+          }
+        }
+        """
+
+        let record = try AICleanedPageImportParser.parse(
+            response,
+            sourcePageID: pageID,
+            sourceTitle: "Original Page",
+            createdAt: Date(timeIntervalSince1970: 405)
+        )
+
+        #expect(record.cleanedTitle == "Gemini News")
+        #expect(record.cleanedChineseText == "中美关系正在变化。双方正在保持沟通。")
+        #expect(record.sentences.map(\.id) == ["ai_page_sentence_001", "ai_page_sentence_002"])
+        #expect(record.sentences.first?.chinese == "中美关系正在变化。")
+        #expect(record.sentences.first?.english == "China-US relations are changing.")
+        #expect(record.sentences.first?.phraseHints == ["中美关系", "变化"])
+        #expect(record.sentences.last?.chinese == "双方正在保持沟通。")
+        #expect(record.sentences.last?.english == "Both sides are maintaining communication.")
+        #expect(record.sentences.last?.phraseHints == ["保持沟通"])
+        #expect(record.englishSummary == "A summary.")
+        #expect(record.repairNotes == ["Gemini used alternate keys."])
+    }
+
+    @Test("AI-cleaned page import parser derives sentences from cleaned prose")
+    func aiCleanedPageImportParserDerivesSentencesFromCleanedProse() throws {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000406")!
+        let response = """
+        {
+          "cleaned_title": "Prose Only",
+          "cleaned_chinese_text": "中美关系正在变化。双方正在保持沟通。"
+        }
+        """
+
+        let record = try AICleanedPageImportParser.parse(
+            response,
+            sourcePageID: pageID,
+            sourceTitle: "Original Page",
+            createdAt: Date(timeIntervalSince1970: 406)
+        )
+
+        #expect(record.cleanedTitle == "Prose Only")
+        #expect(record.sentences.map(\.id) == ["ai_page_sentence_001", "ai_page_sentence_002"])
+        #expect(record.sentences.map(\.chinese) == ["中美关系正在变化", "双方正在保持沟通"])
+    }
+
+    @Test("AI-cleaned page import parser accepts top-level sentence arrays")
+    func aiCleanedPageImportParserAcceptsTopLevelSentenceArrays() throws {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000407")!
+        let response = """
+        [
+          {
+            "zh": "中美关系正在变化。",
+            "en": "China-US relations are changing.",
+            "phrases": ["中美关系"]
+          }
+        ]
+        """
+
+        let record = try AICleanedPageImportParser.parse(
+            response,
+            sourcePageID: pageID,
+            sourceTitle: "Original Page",
+            createdAt: Date(timeIntervalSince1970: 407)
+        )
+
+        #expect(record.cleanedTitle == "Original Page")
+        #expect(record.cleanedChineseText == "中美关系正在变化。")
+        #expect(record.sentences.first?.id == "ai_page_sentence_001")
+        #expect(record.sentences.first?.english == "China-US relations are changing.")
+        #expect(record.sentences.first?.phraseHints == ["中美关系"])
+    }
+
     @Test("Page phrase extraction records preserve page links and deduplicate words")
     func pagePhraseExtractionRecordDeduplicatesWords() {
         let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000202")!

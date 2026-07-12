@@ -174,6 +174,23 @@ struct AICleanedPageSentence: Codable, Equatable, Hashable, Identifiable {
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
     }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: FlexibleCodingKey.self)
+        self.init(
+            id: container.decodeFirstString(for: ["id", "sentence_id", "sentenceID"]) ?? "",
+            chinese: container.decodeFirstString(for: ["chinese", "zh", "sentence", "text", "cn"]) ?? "",
+            pinyin: container.decodeFirstString(for: ["pinyin", "pin_yin"]),
+            english: container.decodeFirstString(for: ["english", "en", "meaning", "translation"]),
+            phraseHints: container.decodeFirstStringArray(for: [
+                "phrase_hints",
+                "phraseHints",
+                "phrases",
+                "key_phrases",
+                "keyPhrases"
+            ])
+        )
+    }
 }
 
 struct AICleanedPageImportParser {
@@ -199,6 +216,26 @@ struct AICleanedPageImportParser {
                         debugDescription: "The extracted-sentences JSON is empty."
                     ))
                 }
+                return record
+            } catch {
+                lastError = error
+            }
+
+            do {
+                let sentences = try JSONDecoder().decode([AICleanedPageSentence].self, from: data)
+                let payload = AICleanedPageImportPayload(
+                    cleanedTitle: sourceTitle,
+                    cleanedChineseText: sentences.map(\.chinese).joined(separator: " "),
+                    sentences: sentences,
+                    englishSummary: nil,
+                    repairNotes: ["Imported a top-level sentence array from the AI response."]
+                )
+                let record = payload.record(
+                    sourcePageID: sourcePageID,
+                    sourceTitle: sourceTitle,
+                    createdAt: createdAt
+                )
+                guard !record.sentences.isEmpty else { continue }
                 return record
             } catch {
                 lastError = error
@@ -229,21 +266,216 @@ private struct AICleanedPageImportPayload: Codable {
         case repairNotes = "repair_notes"
     }
 
+    init(
+        cleanedTitle: String,
+        cleanedChineseText: String,
+        sentences: [AICleanedPageSentence],
+        englishSummary: String?,
+        repairNotes: [String]?
+    ) {
+        self.cleanedTitle = cleanedTitle
+        self.cleanedChineseText = cleanedChineseText
+        self.sentences = sentences
+        self.englishSummary = englishSummary
+        self.repairNotes = repairNotes
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: FlexibleCodingKey.self)
+        let nestedPage = try? container.nestedContainer(
+            keyedBy: FlexibleCodingKey.self,
+            forKey: FlexibleCodingKey("page")
+        )
+        let nestedResult = try? container.nestedContainer(
+            keyedBy: FlexibleCodingKey.self,
+            forKey: FlexibleCodingKey("result")
+        )
+        let nestedData = try? container.nestedContainer(
+            keyedBy: FlexibleCodingKey.self,
+            forKey: FlexibleCodingKey("data")
+        )
+        let containers = [container, nestedPage, nestedResult, nestedData].compactMap { $0 }
+
+        cleanedTitle = containers.decodeFirstString(for: [
+            "cleaned_title",
+            "cleanedTitle",
+            "title",
+            "page_title",
+            "pageTitle"
+        ]) ?? ""
+        cleanedChineseText = containers.decodeFirstString(for: [
+            "cleaned_chinese_text",
+            "cleanedChineseText",
+            "cleaned_text",
+            "cleanedText",
+            "cleaned_chinese",
+            "cleanedChinese",
+            "prose",
+            "text",
+            "content"
+        ]) ?? ""
+        sentences = containers.decodeFirstSentenceArray(for: [
+            "sentences",
+            "sentence_records",
+            "sentenceRecords",
+            "sentence_list",
+            "sentenceList",
+            "items",
+            "records"
+        ])
+        englishSummary = containers.decodeFirstString(for: [
+            "english_summary",
+            "englishSummary",
+            "summary"
+        ])
+        repairNotes = containers.decodeFirstStringArray(for: [
+            "repair_notes",
+            "repairNotes",
+            "notes"
+        ])
+    }
+
     func record(
         sourcePageID: UUID,
         sourceTitle: String,
         createdAt: Date
     ) -> AICleanedPageRecord {
-        AICleanedPageRecord(
+        let normalizedSentences = normalizedSentences()
+        let normalizedCleanedText = cleanedChineseText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? normalizedSentences.map(\.chinese).joined(separator: " ")
+            : cleanedChineseText
+        return AICleanedPageRecord(
             sourcePageID: sourcePageID,
             sourceTitle: sourceTitle,
             cleanedTitle: cleanedTitle,
-            cleanedChineseText: cleanedChineseText,
-            sentences: sentences,
+            cleanedChineseText: normalizedCleanedText,
+            sentences: normalizedSentences,
             englishSummary: englishSummary,
             repairNotes: repairNotes ?? [],
             createdAt: createdAt
         )
+    }
+
+    private func normalizedSentences() -> [AICleanedPageSentence] {
+        let sourceSentences = sentences.isEmpty
+            ? SentenceExampleRecord.sentenceFragments(in: cleanedChineseText).enumerated().map { index, sentence in
+                AICleanedPageSentence(
+                    id: String(format: "ai_page_sentence_%03d", index + 1),
+                    chinese: sentence
+                )
+            }
+            : sentences
+        return sourceSentences.enumerated().compactMap { index, sentence in
+            let chinese = sentence.chinese.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !chinese.isEmpty else { return nil }
+            let id = sentence.id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                ? String(format: "ai_page_sentence_%03d", index + 1)
+                : sentence.id
+            return AICleanedPageSentence(
+                id: id,
+                chinese: chinese,
+                pinyin: sentence.pinyin,
+                english: sentence.english,
+                phraseHints: sentence.phraseHints
+            )
+        }
+    }
+}
+
+private struct FlexibleCodingKey: CodingKey {
+    var stringValue: String
+    var intValue: Int?
+
+    init(_ stringValue: String) {
+        self.stringValue = stringValue
+        intValue = nil
+    }
+
+    init?(stringValue: String) {
+        self.stringValue = stringValue
+        intValue = nil
+    }
+
+    init?(intValue: Int) {
+        self.stringValue = "\(intValue)"
+        self.intValue = intValue
+    }
+}
+
+private extension KeyedDecodingContainer where Key == FlexibleCodingKey {
+    func decodeFirstString(for keys: [String]) -> String? {
+        for key in keys {
+            guard contains(FlexibleCodingKey(key)) else { continue }
+            if let value = try? decode(String.self, forKey: FlexibleCodingKey(key)) {
+                let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty { return trimmed }
+            }
+        }
+        return nil
+    }
+
+    func decodeFirstStringArray(for keys: [String]) -> [String] {
+        for key in keys {
+            guard contains(FlexibleCodingKey(key)) else { continue }
+            if let values = try? decode([String].self, forKey: FlexibleCodingKey(key)) {
+                return values
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .filter { !$0.isEmpty }
+            }
+            if let value = try? decode(String.self, forKey: FlexibleCodingKey(key)) {
+                let pieces = value
+                    .components(separatedBy: CharacterSet(charactersIn: ",，、;；\n"))
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .filter { !$0.isEmpty }
+                if !pieces.isEmpty { return pieces }
+            }
+        }
+        return []
+    }
+
+    func decodeFirstSentenceArray(for keys: [String]) -> [AICleanedPageSentence] {
+        for key in keys {
+            guard contains(FlexibleCodingKey(key)) else { continue }
+            if let values = try? decode([AICleanedPageSentence].self, forKey: FlexibleCodingKey(key)) {
+                return values
+            }
+            if let strings = try? decode([String].self, forKey: FlexibleCodingKey(key)) {
+                return strings.enumerated().map { index, chinese in
+                    AICleanedPageSentence(
+                        id: String(format: "ai_page_sentence_%03d", index + 1),
+                        chinese: chinese
+                    )
+                }
+            }
+        }
+        return []
+    }
+}
+
+private extension Array where Element == KeyedDecodingContainer<FlexibleCodingKey> {
+    func decodeFirstString(for keys: [String]) -> String? {
+        for container in self {
+            if let value = container.decodeFirstString(for: keys) {
+                return value
+            }
+        }
+        return nil
+    }
+
+    func decodeFirstStringArray(for keys: [String]) -> [String] {
+        for container in self {
+            let value = container.decodeFirstStringArray(for: keys)
+            if !value.isEmpty { return value }
+        }
+        return []
+    }
+
+    func decodeFirstSentenceArray(for keys: [String]) -> [AICleanedPageSentence] {
+        for container in self {
+            let value = container.decodeFirstSentenceArray(for: keys)
+            if !value.isEmpty { return value }
+        }
+        return []
     }
 }
 
