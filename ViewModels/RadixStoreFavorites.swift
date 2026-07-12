@@ -24,13 +24,15 @@ extension RadixStore {
     }
 
     func togglePhraseFavorite(_ word: String) {
-        if favoritePhrases.contains(word) {
-            favoritePhrases.remove(word)
-            favoritePhraseDates.removeValue(forKey: word)
+        let storedWord = phraseStorageWord(word)
+        guard !storedWord.isEmpty else { return }
+        if favoritePhrases.contains(storedWord) {
+            favoritePhrases.remove(storedWord)
+            favoritePhraseDates.removeValue(forKey: storedWord)
         } else {
-            favoritePhrases.insert(word)
-            favoritePhraseDates[word] = Date()
-            if let phrase = phraseRepo.fetchPhrase(for: word) {
+            favoritePhrases.insert(storedWord)
+            favoritePhraseDates[storedWord] = Date()
+            if let phrase = phraseRepo.fetchPhrase(for: storedWord) {
                 pushPhraseBreadcrumb(phrase)
             }
         }
@@ -38,7 +40,7 @@ extension RadixStore {
     }
 
     func isFavorite(_ character: String) -> Bool { favorites.contains(character) }
-    func isPhraseFavorite(_ word: String) -> Bool { favoritePhrases.contains(word) }
+    func isPhraseFavorite(_ word: String) -> Bool { favoritePhrases.contains(phraseStorageWord(word)) }
     func favoriteAddedDate(for character: String) -> Date? { favoriteAddedDates[character] }
 
     var favoriteItems: [ComponentItem] {
@@ -141,7 +143,7 @@ extension RadixStore {
     }
 
     func applyFavoritePhraseWords(_ words: [String]) {
-        favoritePhrases = Set(words)
+        favoritePhrases = Set(words.map(phraseStorageWord(_:)).filter { !$0.isEmpty })
         favoritePhraseDates = [:]
     }
 
@@ -150,11 +152,11 @@ extension RadixStore {
         var datedEntries: [String: Date] = [:]
 
         for entry in entries {
-            let trimmedWord = entry.word.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmedWord.isEmpty else { continue }
-            words.insert(trimmedWord)
+            let storedWord = phraseStorageWord(entry.word)
+            guard !storedWord.isEmpty else { continue }
+            words.insert(storedWord)
             if let addedAt = entry.addedAt {
-                datedEntries[trimmedWord] = addedAt
+                datedEntries[storedWord] = addedAt
             }
         }
 

@@ -223,6 +223,16 @@ extension AddedPhraseReviewSheet {
                 Divider()
             }
 
+            if !store.addedPhrases.isEmpty {
+                Button {
+                    showsSimplifyPhrasesConfirmation = true
+                } label: {
+                    Label("Convert to Simplified", systemImage: "arrow.triangle.2.circlepath")
+                }
+
+                Divider()
+            }
+
             Button {
                 showsReviewHelp = true
             } label: {

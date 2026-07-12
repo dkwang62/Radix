@@ -57,6 +57,10 @@ lists, example sheets, and sentence cards, not a second storage form.
 Study > Sentences exposes a confirmed raw conversion action that rewrites the
 stored sentence database and page-owned extracted-sentence artifacts into
 Simplified Chinese. This is a data mutation, not a display toggle.
+Added Phrases exposes the same kind of confirmed raw conversion action for the
+phrase add-DB: user-added phrase words are rewritten to Simplified Chinese
+through the shared phrase storage rule, phrase favorite keys are normalized to
+match, and Traditional remains display-only.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.

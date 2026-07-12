@@ -463,6 +463,33 @@ extension RadixStore {
         return removableWords
     }
 
+    @discardableResult
+    func convertAddedPhrasesToSimplified() throws -> Int {
+        let existingPhrases = phraseRepo.fetchAddedPhrases()
+        let canonicalPhrases = uniquePhrases(existingPhrases)
+        try phraseRepo.replaceAllPhrases(canonicalPhrases)
+        normalizeFavoritePhraseStorage()
+        refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
+        dataEditAutoSaveStatus = "Converted \(canonicalPhrases.count) added phrase\(canonicalPhrases.count == 1 ? "" : "s") to Simplified."
+        return canonicalPhrases.count
+    }
+
+    private func normalizeFavoritePhraseStorage() {
+        var normalizedPhrases = Set<String>()
+        var normalizedDates: [String: Date] = [:]
+        for phrase in favoritePhrases {
+            let storedWord = phraseStorageWord(phrase)
+            guard !storedWord.isEmpty else { continue }
+            normalizedPhrases.insert(storedWord)
+            let existingDate = normalizedDates[storedWord]
+            let candidateDate = favoritePhraseDates[phrase]
+            normalizedDates[storedWord] = [existingDate, candidateDate].compactMap { $0 }.min()
+        }
+        favoritePhrases = normalizedPhrases
+        favoritePhraseDates = normalizedDates
+        persistFavoritePhrases()
+    }
+
     func addCustomPhrase(word: String, pinyin: String, meanings: String, notes: String? = nil, refreshViews: Bool = true) throws {
         let originalWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
         let storedWord = phraseStorageWord(originalWord)
