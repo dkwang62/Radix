@@ -195,7 +195,14 @@ extension RadixStore {
             phrases.append(phrase)
         }
 
-        return phrases.sorted {
+        let phraseByWord = Dictionary(uniqueKeysWithValues: phrases.map { ($0.word, $0) })
+        let orderedWords = ConversationPracticeRules.nonOverlappingPhraseHints(
+            phrases.map(\.word),
+            in: item.simplified
+        )
+        let nonOverlappingPhrases = orderedWords.compactMap { phraseByWord[$0] }
+
+        return nonOverlappingPhrases.sorted {
             let lhsPosition = item.simplified.range(of: $0.word)?.lowerBound
             let rhsPosition = item.simplified.range(of: $1.word)?.lowerBound
             if lhsPosition != rhsPosition {

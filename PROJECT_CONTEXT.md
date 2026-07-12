@@ -36,6 +36,9 @@ source metadata, so Study > Sentences and sentence cards reuse the same records.
 AI Page sentence rows reuse the shared Conversation Practice sentence row and
 open the shared sentence card, resolving back to the canonical sentence database
 record so active selection, phrase chips, read-aloud, and favorites stay aligned.
+Sentence phrase maps use the same longest non-overlapping selection rule as page
+phrase discovery: when candidate phrases overlap inside a sentence, the longer
+phrase owns that span and shorter overlapping chips are suppressed.
 When a phrase is opened from a sentence card, Radix stores a narrow sentence
 return context and shows a compact `Sentence` return action on the phrase card;
 ordinary phrase previews still clear that context.

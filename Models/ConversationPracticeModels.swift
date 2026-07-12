@@ -2093,6 +2093,67 @@ public enum ConversationPracticeRules {
         }
     }
 
+    public static func nonOverlappingPhraseHints(_ phrases: [String], in source: String) -> [String] {
+        struct Candidate {
+            let phrase: String
+            let normalizedPhrase: String
+            let start: Int
+            let end: Int
+
+            var length: Int { end - start }
+        }
+
+        var seen = Set<String>()
+        var candidates: [Candidate] = []
+
+        for rawPhrase in phrases {
+            let phrase = phraseKey(for: rawPhrase)
+            guard phrase.count >= 2, seen.insert(phrase).inserted else { continue }
+
+            var searchRange = source.startIndex..<source.endIndex
+            while let range = source.range(of: phrase, range: searchRange) {
+                let start = source.distance(from: source.startIndex, to: range.lowerBound)
+                let end = source.distance(from: source.startIndex, to: range.upperBound)
+                candidates.append(Candidate(
+                    phrase: rawPhrase,
+                    normalizedPhrase: phrase,
+                    start: start,
+                    end: end
+                ))
+
+                guard range.upperBound < source.endIndex else { break }
+                searchRange = range.upperBound..<source.endIndex
+            }
+        }
+
+        let priorityOrdered = candidates.sorted {
+            if $0.length != $1.length { return $0.length > $1.length }
+            if $0.start != $1.start { return $0.start < $1.start }
+            return $0.normalizedPhrase < $1.normalizedPhrase
+        }
+
+        var occupiedOffsets = Set<Int>()
+        var acceptedPhrases = Set<String>()
+        var accepted: [Candidate] = []
+
+        for candidate in priorityOrdered {
+            let offsets = candidate.start..<candidate.end
+            guard !offsets.contains(where: occupiedOffsets.contains),
+                  acceptedPhrases.insert(candidate.normalizedPhrase).inserted
+            else { continue }
+
+            occupiedOffsets.formUnion(offsets)
+            accepted.append(candidate)
+        }
+
+        return accepted.sorted {
+            if $0.start != $1.start { return $0.start < $1.start }
+            if $0.length != $1.length { return $0.length > $1.length }
+            return $0.normalizedPhrase < $1.normalizedPhrase
+        }
+        .map(\.phrase)
+    }
+
     public static func validate(_ pack: ConversationPracticePack) -> ConversationPracticeValidationResult {
         var issues: [ConversationPracticeValidationIssue] = []
 

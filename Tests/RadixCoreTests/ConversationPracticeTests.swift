@@ -921,6 +921,16 @@ struct ConversationPracticeTests {
         #expect(result.warnings.contains { $0.message.contains("Frequency must be at least 1") })
     }
 
+    @Test("Practice phrase hints prefer longer non-overlapping phrases")
+    func practicePhraseHintsPreferLongerNonOverlappingPhrases() {
+        let hints = ConversationPracticeRules.nonOverlappingPhraseHints(
+            ["中国", "中国市场", "市场", "正在", "变化", "正在变化"],
+            in: "中国市场正在变化。"
+        )
+
+        #expect(hints == ["中国市场", "正在变化"])
+    }
+
     private func loadConversationPackFixture() throws -> ConversationPracticePack {
         try loadConversationPackFixture(named: "conversation100")
     }
