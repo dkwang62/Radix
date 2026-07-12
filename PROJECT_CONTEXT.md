@@ -42,6 +42,9 @@ source metadata, so Study > Sentences and sentence cards reuse the same records.
 Extracted sentence rows reuse the shared Conversation Practice sentence row and
 open the shared sentence card, resolving back to the canonical sentence database
 record so active selection, phrase chips, read-aloud, and favorites stay aligned.
+The extracted-sentences reader must render from a precomputed page-level list of
+`ConversationPracticeItem`s and a lazy row stack; do not scan the sentence
+database or rebuild `SentenceExampleRecord.fromAICleanedPage` inside each row.
 Sentence phrase maps use the same longest non-overlapping selection rule as page
 phrase discovery: when candidate phrases overlap inside a sentence, the longer
 phrase owns that span and shorter overlapping chips are suppressed.
