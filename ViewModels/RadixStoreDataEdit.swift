@@ -112,6 +112,11 @@ extension RadixStore {
 
     // MARK: - Restore / revert
 
+    struct ChineseStorageNormalizationResult {
+        let phraseCount: Int
+        let sentenceCount: Int
+    }
+
     func restoreFromLibrary() {
         let key = dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines)
         guard key.count == 1 else { return }
@@ -472,6 +477,14 @@ extension RadixStore {
         refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
         dataEditAutoSaveStatus = "Converted \(canonicalPhrases.count) added phrase\(canonicalPhrases.count == 1 ? "" : "s") to Simplified."
         return canonicalPhrases.count
+    }
+
+    @discardableResult
+    func normalizeChineseStorageToSimplified() throws -> ChineseStorageNormalizationResult {
+        let phraseCount = try convertAddedPhrasesToSimplified()
+        let sentenceCount = convertStudySentencesToSimplified()
+        dataEditAutoSaveStatus = "Normalized Chinese storage to Simplified."
+        return ChineseStorageNormalizationResult(phraseCount: phraseCount, sentenceCount: sentenceCount)
     }
 
     private func normalizeFavoritePhraseStorage() {

@@ -17,7 +17,6 @@ struct AddedPhraseReviewSheet: View {
     @State var phrasePendingDeletion: PhraseItem?
     @State var showsDeleteRejectedConfirmation = false
     @State var showsDeleteNewConfirmation = false
-    @State var showsSimplifyPhrasesConfirmation = false
     @State var reviewPhrases: [PhraseItem] = []
     @State var reviewInteractionRevision = 0
 
@@ -156,14 +155,6 @@ struct AddedPhraseReviewSheet: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text(deleteNewConfirmationMessage)
-        }
-        .alert("Convert Phrases to Simplified?", isPresented: $showsSimplifyPhrasesConfirmation) {
-            Button("Cancel", role: .cancel) { }
-            Button("Convert", role: .destructive) {
-                convertAddedPhrasesToSimplified()
-            }
-        } message: {
-            Text("This rewrites your added phrase words into Simplified Chinese. It is a raw data conversion, not just a display switch.")
         }
     }
 }
@@ -406,20 +397,6 @@ extension AddedPhraseReviewSheet {
             RadixHaptics.success()
         } catch {
             message = "Could not delete \(phrase.word): \(error.localizedDescription)"
-            RadixHaptics.error()
-        }
-    }
-
-    func convertAddedPhrasesToSimplified() {
-        do {
-            let count = try store.convertAddedPhrasesToSimplified()
-            loadReviewPhrasesFromStore()
-            selectedPhrase = nil
-            resetPageAndSelection()
-            message = "Converted \(count) added phrase\(count == 1 ? "" : "s") to Simplified."
-            RadixHaptics.success()
-        } catch {
-            message = "Could not convert phrases: \(error.localizedDescription)"
             RadixHaptics.error()
         }
     }

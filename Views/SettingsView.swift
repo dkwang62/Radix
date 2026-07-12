@@ -4,7 +4,9 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var store: RadixStore
     @State private var showResetMemoryConfirmation = false
+    @State private var showNormalizeChineseStorageConfirmation = false
     @State private var resetMemoryStatus: String?
+    @State private var normalizeChineseStorageStatus: String?
     @State private var navigationTipsReset = false
     @State private var areAPIKeysExpanded = false
     let showsCloseButton: Bool
@@ -136,6 +138,26 @@ struct SettingsView: View {
                 Text("For manual copy-and-paste AI Link workflows. These keys are not required for automatic Gemini features.")
             }
 
+            Section {
+                Button {
+                    showNormalizeChineseStorageConfirmation = true
+                } label: {
+                    Label("Normalize Chinese Storage", systemImage: "arrow.triangle.2.circlepath")
+                }
+
+                Text("Rewrites Radix-owned sentence and phrase storage into Simplified Chinese. Traditional remains available as a display choice.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+
+                if let normalizeChineseStorageStatus {
+                    Text(normalizeChineseStorageStatus)
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(normalizeChineseStorageStatus.hasPrefix("Could not") ? .red : .secondary)
+                }
+            } header: {
+                Text("Storage")
+            }
+
             Section("Help") {
                 NavigationLink {
                     GlossaryView()
@@ -208,6 +230,14 @@ struct SettingsView: View {
         } message: {
             Text("This erases added characters, phrases, saved pages, favorites, recent items, and AI Link templates on this device. Device snapshots are kept so you can restore one from My Data.")
         }
+        .alert("Normalize Chinese Storage?", isPresented: $showNormalizeChineseStorageConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button("Normalize", role: .destructive) {
+                normalizeChineseStorage()
+            }
+        } message: {
+            Text("This rewrites Radix-owned Study Sentences, extracted sentence pages, added phrases, and phrase favorites into Simplified Chinese. This is a raw data conversion, not just a display switch.")
+        }
     }
 
     private func apiKeyField(_ title: String, text: Binding<String>) -> some View {
@@ -241,6 +271,17 @@ struct SettingsView: View {
             RadixHaptics.success()
         } catch {
             resetMemoryStatus = "Could not erase my data: \(error.localizedDescription)"
+            RadixHaptics.error()
+        }
+    }
+
+    private func normalizeChineseStorage() {
+        do {
+            let result = try store.normalizeChineseStorageToSimplified()
+            normalizeChineseStorageStatus = "Normalized \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.phraseCount) added phrase\(result.phraseCount == 1 ? "" : "s")."
+            RadixHaptics.success()
+        } catch {
+            normalizeChineseStorageStatus = "Could not normalize Chinese storage: \(error.localizedDescription)"
             RadixHaptics.error()
         }
     }

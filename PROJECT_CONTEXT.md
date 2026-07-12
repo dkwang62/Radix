@@ -5,7 +5,7 @@ Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
 
-Last reviewed: 2026-07-12
+Last reviewed: 2026-07-13
 
 ## Version 1.1 Direction
 
@@ -54,13 +54,11 @@ and legacy UserDefaults payloads are migrated into the database on first read.
 Sentence examples are canonically stored as simplified Chinese, including phrase
 and character hints; traditional Chinese is a display mode exposed by sentence
 lists, example sheets, and sentence cards, not a second storage form.
-Study > Sentences exposes a confirmed raw conversion action that rewrites the
-stored sentence database and page-owned extracted-sentence artifacts into
-Simplified Chinese. This is a data mutation, not a display toggle.
-Added Phrases exposes the same kind of confirmed raw conversion action for the
-phrase add-DB: user-added phrase words are rewritten to Simplified Chinese
-through the shared phrase storage rule, phrase favorite keys are normalized to
-match, and Traditional remains display-only.
+Settings exposes one confirmed `Normalize Chinese Storage` maintenance action.
+It rewrites the stored sentence database, page-owned extracted-sentence
+artifacts, user-added phrase words, and phrase favorite keys into Simplified
+Chinese. This is a data mutation, not a display toggle; Traditional remains
+display-only.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.

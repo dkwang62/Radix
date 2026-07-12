@@ -82,7 +82,6 @@ struct FavouritesTab: View {
     @State var sentenceExampleEditDraft: SentenceExampleEditDraft?
     @State var showDeleteFilteredSentenceExamplesConfirmation = false
     @State var showDeleteSelectedSentenceExamplesConfirmation = false
-    @State var showSimplifySentenceExamplesConfirmation = false
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
     @State var studyGridScope = RadixStudyPreferences.initialGridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
@@ -328,14 +327,6 @@ struct FavouritesTab: View {
             }
         } message: {
             Text("This permanently deletes only the selected sentences shown in Study.")
-        }
-        .alert("Convert Sentences to Simplified?", isPresented: $showSimplifySentenceExamplesConfirmation) {
-            Button("Cancel", role: .cancel) {}
-            Button("Convert", role: .destructive) {
-                convertStudySentencesToSimplified()
-            }
-        } message: {
-            Text("This rewrites the stored Chinese text for Study Sentences and extracted-page sentences into Simplified Chinese. This is a raw data conversion, not just a display switch.")
         }
         .alert("Delete Saved Page?", isPresented: Binding(
             get: { pendingStudyDeleteCollection != nil },
