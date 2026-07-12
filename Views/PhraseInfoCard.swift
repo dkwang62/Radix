@@ -53,10 +53,10 @@ struct PhraseInfoCard: View {
             )
             .sheet(isPresented: $showPhraseTableSheet) {
                 PhraseTableSheet(
-                    character: phraseLookupOverride == nil ? (phraseCharacters.first ?? phrase.word) : phrase.word,
+                    character: isPracticeSentence ? phrase.word : (phraseCharacters.first ?? phrase.word),
                     isVertical: true,
                     requiredCharacters: phraseCharacters.isEmpty ? phrase.word.map(String.init) : phraseCharacters,
-                    fixedPhrases: phraseLookupOverride
+                    fixedPhrases: isPracticeSentence ? sentencePhraseHints : phraseLookupOverride
                 )
                 .environmentObject(store)
             }

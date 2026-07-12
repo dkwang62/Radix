@@ -1,11 +1,16 @@
 import SwiftUI
 
+private struct SentencePhraseHighlightSegment: Identifiable {
+    let id = UUID()
+    let text: String
+    let isPhrase: Bool
+}
+
 extension PhraseInfoCard {
     var sentenceStudyContent: some View {
         VStack(alignment: .leading, spacing: 14) {
             sentenceStudyToolbar
             sentenceMeaningBlock
-            sentencePhraseMap
             sentenceStudyNotes
             sentenceCharacterDisclosure
         }
@@ -82,6 +87,7 @@ extension PhraseInfoCard {
                 sentenceScriptButton
                 sentenceReadButton
                 sentencePinyinButton
+                sentencePhraseButton
                 Spacer(minLength: 0)
                 favoriteTargetButton
             }
@@ -91,6 +97,7 @@ extension PhraseInfoCard {
                     sentenceScriptButton
                     sentenceReadButton
                     sentencePinyinButton
+                    sentencePhraseButton
                 }
                 favoriteTargetButton
             }
@@ -124,13 +131,22 @@ extension PhraseInfoCard {
         .help(showsSentencePinyin ? "Hide pinyin" : "Show pinyin")
     }
 
+    @ViewBuilder
+    var sentencePhraseButton: some View {
+        if !sentencePhraseHints.isEmpty {
+            Button {
+                showPhraseTableSheet = true
+            } label: {
+                InfoCardActionPill(title: "Phrase", textIcon: "词", verticalPadding: 8)
+            }
+            .buttonStyle(.plain)
+            .help("Show sentence phrases")
+        }
+    }
+
     var sentenceMeaningBlock: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(sentenceDisplayChinese)
-                .font(.system(size: RadixPlatform.isPhone ? 25 : 30, weight: .bold, design: .rounded))
-                .fixedSize(horizontal: false, vertical: true)
-                .textSelection(.enabled)
-                .phraseContextMenu(phrase)
+            sentenceHighlightedChineseText
 
             if showsSentencePinyin {
                 let pinyin = sentencePinyin.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -157,47 +173,62 @@ extension PhraseInfoCard {
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
-    @ViewBuilder
-    var sentencePhraseMap: some View {
-        let hints = sentencePhraseHints
-        if !hints.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                RadixTermLabel("Phrases", term: "Phrase")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-
-                RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
-                    ForEach(hints, id: \.word) { hint in
-                        Button {
-                            store.presentPhraseFromPracticeSentenceInSidebar(hint)
-                        } label: {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(hint.word)
-                                    .font(ResponsiveFont.caption.weight(.semibold))
-                                    .lineLimit(1)
-                                if !hint.meanings.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                    Text(hint.meanings)
-                                        .font(ResponsiveFont.caption2)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(1)
-                                }
-                            }
-                            .padding(.horizontal, 9)
-                            .padding(.vertical, 7)
-                            .background(RadixAccent.primary.opacity(0.08))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+    var sentenceHighlightedChineseText: some View {
+        RadixTileFlowLayout(horizontalSpacing: 3, verticalSpacing: 5) {
+            ForEach(sentencePhraseHighlightSegments) { segment in
+                Text(segment.text)
+                    .font(.system(size: RadixPlatform.isPhone ? 25 : 30, weight: .bold, design: .rounded))
+                    .foregroundStyle(.primary)
+                    .padding(.horizontal, segment.isPhrase ? 4 : 0)
+                    .padding(.vertical, segment.isPhrase ? 2 : 0)
+                    .background(segment.isPhrase ? RadixAccent.primary.opacity(0.14) : Color.clear)
+                    .clipShape(RoundedRectangle(cornerRadius: segment.isPhrase ? 6 : 0))
+                    .overlay(alignment: .bottom) {
+                        if segment.isPhrase {
+                            Rectangle()
+                                .fill(RadixAccent.primary.opacity(0.7))
+                                .frame(height: 2)
+                                .offset(y: 2)
                         }
-                        .buttonStyle(.plain)
-                        .foregroundStyle(RadixAccent.primary)
-                        .help("Open phrase")
                     }
-                }
+                    .phraseContextMenu(phrase)
             }
-            .padding(10)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RadixTheme.secondaryBackground.opacity(0.35))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
+        .fixedSize(horizontal: false, vertical: true)
+        .accessibilityLabel(sentenceDisplayChinese)
+    }
+
+    private var sentencePhraseHighlightSegments: [SentencePhraseHighlightSegment] {
+        let text = sentenceDisplayChinese
+        let phrases = sentencePhraseHints.map(\.word).filter { !$0.isEmpty }
+        guard !text.isEmpty, !phrases.isEmpty else {
+            return sentencePlainHighlightSegments(text)
+        }
+
+        var segments: [SentencePhraseHighlightSegment] = []
+        var cursor = text.startIndex
+
+        for phrase in phrases {
+            guard cursor < text.endIndex,
+                  let range = text.range(of: phrase, range: cursor..<text.endIndex)
+            else { continue }
+
+            if cursor < range.lowerBound {
+                segments.append(contentsOf: sentencePlainHighlightSegments(String(text[cursor..<range.lowerBound])))
+            }
+            segments.append(SentencePhraseHighlightSegment(text: phrase, isPhrase: true))
+            cursor = range.upperBound
+        }
+
+        if cursor < text.endIndex {
+            segments.append(contentsOf: sentencePlainHighlightSegments(String(text[cursor..<text.endIndex])))
+        }
+
+        return segments.isEmpty ? sentencePlainHighlightSegments(text) : segments
+    }
+
+    private func sentencePlainHighlightSegments(_ text: String) -> [SentencePhraseHighlightSegment] {
+        text.map { SentencePhraseHighlightSegment(text: String($0), isPhrase: false) }
     }
 
     @ViewBuilder
