@@ -67,6 +67,10 @@ phrase chips, read-aloud, and favorites stay aligned.
 The extracted-sentences reader must render from a page-scoped SQLite sentence
 query plus cheap page-sentence fallbacks; do not scan the whole sentence database
 or rebuild `SentenceExampleRecord.fromAICleanedPage` in the display path.
+For large extracted pages, page the `AICleanedPageRecord.sentences` array before
+building `ConversationPracticeItem`s or looking up canonical sentence records;
+the visible list should touch only the current page of rows during SwiftUI body
+evaluation.
 Sentence phrase maps use the same longest non-overlapping selection rule as page
 phrase discovery: when candidate phrases overlap inside a sentence, the longer
 phrase owns that span and shorter overlapping chips are suppressed.

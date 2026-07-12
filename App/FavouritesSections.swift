@@ -306,14 +306,14 @@ extension FavouritesTab {
                 .radixSurface(RadixTheme.secondaryBackground.opacity(0.35))
             }
 
-            let sentenceItems = aiCleanedPageSentenceItems(for: record)
-            if !sentenceItems.isEmpty {
+            let sentenceCount = aiCleanedPageSentenceCount(for: record)
+            if sentenceCount > 0 {
                 VStack(alignment: .leading, spacing: 8) {
                     practiceSentenceDisplayControls {
-                        aiCleanedPageSentenceNavigation(sentenceItems)
+                        aiCleanedPageSentenceNavigation(sentenceCount: sentenceCount)
                     }
 
-                    practiceSentenceList(aiCleanedPagePagedSentenceItems(sentenceItems), spacing: 8) { item in
+                    practiceSentenceList(aiCleanedPageVisibleSentenceItems(for: record), spacing: 8) { item in
                         aiCleanedPageSentenceRow(item)
                     }
                 }
@@ -341,15 +341,15 @@ extension FavouritesTab {
         }
     }
 
-    func aiCleanedPageSentenceNavigation(_ items: [ConversationPracticeItem]) -> some View {
+    func aiCleanedPageSentenceNavigation(sentenceCount: Int) -> some View {
         practiceSentencePageNavigation(
-            label: aiCleanedPageSentencePageLabel(for: items),
-            canMovePrevious: canMoveAICleanedPageSentencePage(by: -1, in: items),
-            canMoveNext: canMoveAICleanedPageSentencePage(by: 1, in: items)
+            label: aiCleanedPageSentencePageLabel(sentenceCount: sentenceCount),
+            canMovePrevious: canMoveAICleanedPageSentencePage(by: -1, sentenceCount: sentenceCount),
+            canMoveNext: canMoveAICleanedPageSentencePage(by: 1, sentenceCount: sentenceCount)
         ) {
-            moveAICleanedPageSentencePage(by: -1, in: items)
+            moveAICleanedPageSentencePage(by: -1, sentenceCount: sentenceCount)
         } onNext: {
-            moveAICleanedPageSentencePage(by: 1, in: items)
+            moveAICleanedPageSentencePage(by: 1, sentenceCount: sentenceCount)
         }
     }
 
@@ -382,63 +382,75 @@ extension FavouritesTab {
         conversationPracticePageSize
     }
 
-    func aiCleanedPageSentencePageCount(for items: [ConversationPracticeItem]) -> Int {
-        max(1, Int(ceil(Double(items.count) / Double(aiCleanedPageSentencePageSize))))
+    func aiCleanedPageSentenceCount(for record: AICleanedPageRecord) -> Int {
+        record.sentences.isEmpty
+            ? SentenceExampleRecord.sentenceFragments(in: record.cleanedChineseText).count
+            : record.sentences.count
     }
 
-    func aiCleanedPageSentenceClampedPageIndex(for items: [ConversationPracticeItem]) -> Int {
-        min(max(aiCleanedPageSentencePageIndex, 0), aiCleanedPageSentencePageCount(for: items) - 1)
+    func aiCleanedPageSentencePageCount(sentenceCount: Int) -> Int {
+        max(1, Int(ceil(Double(sentenceCount) / Double(aiCleanedPageSentencePageSize))))
     }
 
-    func aiCleanedPagePagedSentenceItems(_ items: [ConversationPracticeItem]) -> [ConversationPracticeItem] {
-        let pageIndex = aiCleanedPageSentenceClampedPageIndex(for: items)
-        let startIndex = pageIndex * aiCleanedPageSentencePageSize
-        let endIndex = min(startIndex + aiCleanedPageSentencePageSize, items.count)
-        guard startIndex < endIndex else { return [] }
-        return Array(items[startIndex..<endIndex])
+    func aiCleanedPageSentenceClampedPageIndex(sentenceCount: Int) -> Int {
+        min(max(aiCleanedPageSentencePageIndex, 0), aiCleanedPageSentencePageCount(sentenceCount: sentenceCount) - 1)
     }
 
-    func aiCleanedPageSentencePageLabel(for items: [ConversationPracticeItem]) -> String {
-        guard !items.isEmpty else { return "0 of 0" }
-        let pageIndex = aiCleanedPageSentenceClampedPageIndex(for: items)
+    func aiCleanedPageSentencePageLabel(sentenceCount: Int) -> String {
+        guard sentenceCount > 0 else { return "0 of 0" }
+        let pageIndex = aiCleanedPageSentenceClampedPageIndex(sentenceCount: sentenceCount)
         let startRank = pageIndex * aiCleanedPageSentencePageSize + 1
-        let endRank = min(startRank + aiCleanedPageSentencePageSize - 1, items.count)
-        return "\(startRank)-\(endRank) of \(items.count)"
+        let endRank = min(startRank + aiCleanedPageSentencePageSize - 1, sentenceCount)
+        return "\(startRank)-\(endRank) of \(sentenceCount)"
     }
 
-    func canMoveAICleanedPageSentencePage(by offset: Int, in items: [ConversationPracticeItem]) -> Bool {
-        let nextIndex = aiCleanedPageSentenceClampedPageIndex(for: items) + offset
-        return nextIndex >= 0 && nextIndex < aiCleanedPageSentencePageCount(for: items)
+    func canMoveAICleanedPageSentencePage(by offset: Int, sentenceCount: Int) -> Bool {
+        let nextIndex = aiCleanedPageSentenceClampedPageIndex(sentenceCount: sentenceCount) + offset
+        return nextIndex >= 0 && nextIndex < aiCleanedPageSentencePageCount(sentenceCount: sentenceCount)
     }
 
-    func moveAICleanedPageSentencePage(by offset: Int, in items: [ConversationPracticeItem]) {
-        guard canMoveAICleanedPageSentencePage(by: offset, in: items) else { return }
+    func moveAICleanedPageSentencePage(by offset: Int, sentenceCount: Int) {
+        guard canMoveAICleanedPageSentencePage(by: offset, sentenceCount: sentenceCount) else { return }
         withAnimation(.snappy(duration: 0.18)) {
-            aiCleanedPageSentencePageIndex = aiCleanedPageSentenceClampedPageIndex(for: items) + offset
+            aiCleanedPageSentencePageIndex = aiCleanedPageSentenceClampedPageIndex(sentenceCount: sentenceCount) + offset
         }
     }
 
-    func aiCleanedPageSentenceItems(for record: AICleanedPageRecord) -> [ConversationPracticeItem] {
-        let storedExamples = RadixStudyPreferences.sentenceExamples(
-            matching: SentenceExampleQuery(
-                scope: .page(record.sourcePageID, .aiCleanedPage),
-                searchText: "",
-                offset: 0,
-                limit: nil
-            )
-        )
-        var storedByKey: [String: SentenceExampleRecord] = [:]
-        for example in storedExamples where storedByKey[example.normalizedChineseKey] == nil {
-            storedByKey[example.normalizedChineseKey] = example
-        }
+    func aiCleanedPageVisibleSentenceItems(for record: AICleanedPageRecord) -> [ConversationPracticeItem] {
+        let sentenceCount = aiCleanedPageSentenceCount(for: record)
+        let pageIndex = aiCleanedPageSentenceClampedPageIndex(sentenceCount: sentenceCount)
+        let startIndex = pageIndex * aiCleanedPageSentencePageSize
+        let sourceSentences = aiCleanedPageVisibleSentences(for: record, startIndex: startIndex)
 
-        return record.sentences.enumerated().compactMap { index, sentence in
+        return sourceSentences.enumerated().compactMap { localIndex, sentence in
             let key = SentenceExampleRecord.normalizedChineseKey(sentence.chinese)
             guard !key.isEmpty else { return nil }
-            let example = storedByKey[key] ??
+            let example = RadixStudyPreferences.sentenceExample(normalizedKey: key) ??
                 aiCleanedPageFallbackSentenceExample(sentence, record: record)
-            return ConversationPracticeItem(sentenceExample: example, rank: index + 1)
+            return ConversationPracticeItem(sentenceExample: example, rank: startIndex + localIndex + 1)
         }
+    }
+
+    func aiCleanedPageVisibleSentences(
+        for record: AICleanedPageRecord,
+        startIndex: Int
+    ) -> [AICleanedPageSentence] {
+        let endIndex = startIndex + aiCleanedPageSentencePageSize
+        if !record.sentences.isEmpty {
+            let safeStart = min(max(0, startIndex), record.sentences.count)
+            let safeEnd = min(max(safeStart, endIndex), record.sentences.count)
+            return Array(record.sentences[safeStart..<safeEnd])
+        }
+
+        return SentenceExampleRecord.sentenceFragments(in: record.cleanedChineseText)
+            .enumerated()
+            .filter { index, _ in index >= startIndex && index < endIndex }
+            .map { index, sentence in
+                AICleanedPageSentence(
+                    id: "ai_cleaned_page_sentence_\(index + 1)",
+                    chinese: sentence
+                )
+            }
     }
 
     func aiCleanedPageFallbackSentenceExample(

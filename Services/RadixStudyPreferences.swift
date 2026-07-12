@@ -142,6 +142,13 @@ enum RadixStudyPreferences {
         return querySentenceExamples(allQuery).records
     }
 
+    static func sentenceExample(normalizedKey: String) -> SentenceExampleRecord? {
+        sentenceExampleRepository.fetch(
+            normalizedKey: normalizedKey,
+            migratingLegacy: legacySentenceExamplesFromPreferences
+        )
+    }
+
     static func recordSentenceExamples(_ records: [SentenceExampleRecord]) {
         guard !records.isEmpty else { return }
         sentenceExampleRepository.upsert(canonicalizedSentenceExamples(records))

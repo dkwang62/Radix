@@ -154,7 +154,7 @@ extension FavouritesTab {
         VStack(alignment: .leading, spacing: 1) {
             switch conversationPracticeSentenceDisplay {
             case .chinese:
-                Text(studyGridDisplayText(item.simplified))
+                Text(practiceSentenceDisplayText(item.simplified))
                     .font(ResponsiveFont.subheadline.weight(.semibold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
@@ -171,6 +171,10 @@ extension FavouritesTab {
             }
         }
         .layoutPriority(1)
+    }
+
+    func practiceSentenceDisplayText(_ text: String) -> String {
+        studyGridUsesTraditionalScript ? store.traditionalText(text) : text
     }
 
     func conversationPracticeSentenceBackground(isSelected: Bool) -> Color {
