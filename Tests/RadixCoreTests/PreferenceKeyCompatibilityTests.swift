@@ -18,6 +18,7 @@ struct PreferenceKeyCompatibilityTests {
         #expect(RadixPreferenceKey.promptTaskSelection == "radix.promptSelectedTaskIDs")
         #expect(RadixPreferenceKey.conversationPracticeTopic == "radix.conversationPracticeTopicID")
         #expect(RadixPreferenceKey.aiConversationEntryCount == "radix.aiConversationEntryCount")
+        #expect(RadixPreferenceKey.aiSentenceExtractionDetail == "radix.aiSentenceExtractionDetail")
         #expect(RadixPreferenceKey.importedConversationPracticePacks == "radix.importedConversationPracticePacks")
         #expect(RadixPreferenceKey.conversationPracticeProgress == "radix.conversationPracticeProgress")
         #expect(RadixPreferenceKey.openAIAPIKey == "radix.openAIAPIKey")

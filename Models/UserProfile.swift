@@ -72,6 +72,7 @@ struct UserProfile: Codable {
     let phraseLength: Int?
     let promptConfig: PromptConfig?
     let promptSelectedTaskIDs: [String]?
+    let aiSentenceExtractionDetail: String?
     let defaultAISettings: DefaultAISettings?
 
     init(
@@ -93,6 +94,7 @@ struct UserProfile: Codable {
         phraseLength: Int? = nil,
         promptConfig: PromptConfig? = nil,
         promptSelectedTaskIDs: [String]? = nil,
+        aiSentenceExtractionDetail: String? = nil,
         defaultAISettings: DefaultAISettings? = nil
     ) {
         self.schemaVersion = schemaVersion
@@ -113,6 +115,7 @@ struct UserProfile: Codable {
         self.phraseLength = phraseLength
         self.promptConfig = promptConfig
         self.promptSelectedTaskIDs = promptSelectedTaskIDs
+        self.aiSentenceExtractionDetail = aiSentenceExtractionDetail
         self.defaultAISettings = defaultAISettings
     }
 
@@ -135,6 +138,7 @@ struct UserProfile: Codable {
         case phraseLength = "phrase_length"
         case promptConfig = "prompt_config"
         case promptSelectedTaskIDs = "prompt_selected_task_ids"
+        case aiSentenceExtractionDetail = "ai_sentence_extraction_detail"
         case defaultAISettings = "default_ai_settings"
     }
 }

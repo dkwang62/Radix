@@ -73,6 +73,11 @@ extension RadixStore {
         } else if isCompleteRestore {
             promptSelectedTaskIDs = PromptConfig.defaultSelectedTaskIDs
         }
+        if let detail = profile.aiSentenceExtractionDetail {
+            aiSentenceExtractionDetail = SentenceExtractionDetail.normalized(detail)
+        } else if isCompleteRestore {
+            aiSentenceExtractionDetail = .brief
+        }
         if let settings = profile.defaultAISettings {
             defaultAIPreset = settings.preset
             customAIURLString = settings.customURLString

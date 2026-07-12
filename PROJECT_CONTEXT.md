@@ -812,6 +812,9 @@ Pack`, `Create Sentences`, and `Create Conversation` render this shared
 count through `{conversation_entry_count}`; future sentence/conversation
 generation tasks should opt into `conversationEntryCountTaskIDs` and reuse the
 same placeholder instead of hardcoding a pack size.
+The `Create Sentences` Brief/Detailed selector is a profile preference saved
+with local AI Link settings and portable backups; restore falls back to Brief
+when importing older profiles.
 OCR correction no longer has a proposal-approval screen. Automatic Gemini
 review creates and opens the corrected Browse page immediately; copy/paste uses
 one `Paste Answer and Create Corrected Page` action. The original OCR page is

@@ -83,7 +83,11 @@ struct PortableBackupCodecTests {
             exportedAt: exportedAt,
             backupID: UUID(uuidString: "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"),
             phrases: [phrase],
-            profile: UserProfile(schemaVersion: 1, favouritesList: ["学"]),
+            profile: UserProfile(
+                schemaVersion: 1,
+                favouritesList: ["学"],
+                aiSentenceExtractionDetail: SentenceExtractionDetail.detailed.rawValue
+            ),
             conversationPracticePacks: [practicePack],
             conversationPracticeProgress: practiceProgress,
             favoriteSentences: [favoriteSentence],
@@ -101,6 +105,7 @@ struct PortableBackupCodecTests {
         #expect(decoded.exportedAt == exportedAt)
         #expect(decoded.phrases == [phrase])
         #expect(decoded.profile.favouritesList == ["学"])
+        #expect(decoded.profile.aiSentenceExtractionDetail == SentenceExtractionDetail.detailed.rawValue)
         #expect(decoded.conversationPracticePacks == [practicePack])
         #expect(decoded.conversationPracticeProgress == practiceProgress)
         #expect(decoded.favoriteSentences == [favoriteSentence])

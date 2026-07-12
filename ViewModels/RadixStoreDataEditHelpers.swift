@@ -405,6 +405,7 @@ extension RadixStore {
             phraseLength: phraseLength,
             promptConfig: promptConfig,
             promptSelectedTaskIDs: promptSelectedTaskIDs,
+            aiSentenceExtractionDetail: aiSentenceExtractionDetail.rawValue,
             defaultAISettings: DefaultAISettings(preset: defaultAIPreset, customURLString: customAIURLString)
         )
     }
