@@ -393,6 +393,57 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
 """
             ),
             PromptTask(
+                id: "task12",
+                title: "Create AI-Cleaned Page",
+                template: """
+Create AI-Cleaned Page
+
+Create an AI-cleaned learning page from one Radix saved page.
+
+Page: {collection_name}
+Saved page characters in reading order:
+{capture_chars}
+
+Original OCR/source context:
+{capture_text}
+
+Your job is to turn the crude saved-page/OCR material into complete, studyable Chinese prose for Radix Study.
+
+Use the source faithfully, but repair obvious OCR/capture errors when context makes the repair likely. Expand telegraphic media shorthand, headline compression, captions, list fragments, or social-media shorthand into natural complete Chinese sentences. Do not invent unrelated facts, people, dates, claims, or events. If a detail is uncertain, keep it modest and note the uncertainty in repair_notes.
+
+Return JSON only. Do not wrap it in Markdown. Do not include explanations outside the JSON.
+
+The JSON must match this exact top-level shape:
+{
+  "cleaned_title": "Readable title for the cleaned page",
+  "cleaned_chinese_text": "Complete cleaned Chinese prose, suitable for sentence-by-sentence study.",
+  "sentences": [
+    {
+      "id": "ai_page_sentence_001",
+      "chinese": "One complete cleaned Chinese sentence.",
+      "english": "Natural English meaning.",
+      "phrase_hints": ["useful phrase", "another useful phrase"]
+    }
+  ],
+  "english_summary": "One short English summary of the cleaned page.",
+  "repair_notes": ["Brief note about one OCR repair or shorthand expansion."]
+}
+
+Rules:
+1. Use Simplified Chinese in cleaned_chinese_text and sentences unless the source is clearly Traditional-only.
+2. cleaned_chinese_text must be the joined, readable cleaned page prose, not a list of isolated characters.
+3. Each sentence item must be a complete sentence or conversation-ready line.
+4. IDs must be stable and lowercase, using ai_page_sentence plus a zero-padded sequence number, for example "ai_page_sentence_001".
+5. phrase_hints should contain useful 2- to 6-character Chinese chunks that help explain the sentence. Do not include pinyin or English in phrase_hints.
+6. If the original source is only a headline, caption, menu, subtitle, or short fragment, expand only enough to make natural learning sentences while preserving the source's meaning.
+7. repair_notes should be in English and should mention only meaningful OCR repairs, inferred expansions, or uncertainty. Use an empty array if there are none.
+8. Do not include pinyin, markdown, comments, extra keys, or analysis outside the JSON.
+
+Before returning, silently validate that the JSON is valid and every sentence contains exactly these keys: "id", "chinese", "english", and "phrase_hints".
+
+"""
+            ),
+            PromptTask(
                 id: "task9",
                 title: "Generate Practice Pack",
                 template: """
@@ -464,7 +515,7 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
         """
     )
 
-    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7", "task8", "task10", "task11"]
+    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7", "task8", "task10", "task11", "task12"]
     static let practiceTopicTaskIDs: Set<String> = ["task9"]
     static let conversationEntryCountTaskIDs: Set<String> = ["task9", "task10", "task11"]
     static let conversationEntryCountOptions = [25, 50, 100]
@@ -587,7 +638,8 @@ extension PromptConfig {
                     !task.template.contains("SAVED PAGE CHARACTERS:")
                 )) ||
                 (task.id == "task8" && !task.template.contains("English translations will not reveal the answer")) ||
-                (task.id == "task9" && !task.template.contains("{practice_topic_title}")) {
+                (task.id == "task9" && !task.template.contains("{practice_topic_title}")) ||
+                (task.id == "task12" && !task.template.contains("cleaned_chinese_text")) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {
                 normalizedTemplate = task.template.replacingOccurrences(
@@ -654,7 +706,7 @@ extension PromptConfig {
         case .character:
             full = cfg.preamble + body + cfg.epilogue
         case .collection:
-            if selected == ["task5"] || selected == ["task7"] || selected == ["task8"] || selected == ["task10"] || selected == ["task11"] {
+            if selected == ["task5"] || selected == ["task7"] || selected == ["task8"] || selected == ["task10"] || selected == ["task11"] || selected == ["task12"] {
                 full = cfg.collectionPreamble + body
             } else {
                 full = cfg.collectionPreamble + body + cfg.collectionEpilogue

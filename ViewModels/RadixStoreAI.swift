@@ -17,6 +17,7 @@ enum AIResultTaskID {
     static let generatePracticePack = "task9"
     static let extractSentences = "task10"
     static let createPagePractice = "task11"
+    static let createAICleanedPage = "task12"
 
     static let importableTasks: Set<String> = [
         extractPhrases,

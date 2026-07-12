@@ -95,6 +95,24 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task11"))
     }
 
+    @Test("AI-cleaned page generator is a saved-page AI task")
+    func aiCleanedPageTaskAvailability() {
+        let normalized = PromptConfig.streamlitDefault.normalized()
+        let generator = normalized.tasks.first { $0.id == "task12" }
+
+        #expect(generator?.title == "Create AI-Cleaned Page")
+        #expect(generator?.template.contains("Original OCR/source context") == true)
+        #expect(generator?.template.contains("cleaned_chinese_text") == true)
+        #expect(generator?.template.contains("\"id\": \"ai_page_sentence_001\"") == true)
+        #expect(generator?.template.contains("\"phrase_hints\"") == true)
+        #expect(generator?.template.contains("Expand telegraphic media shorthand") == true)
+        #expect(generator?.template.contains("Do not invent unrelated facts") == true)
+        #expect(generator?.template.contains("Return JSON only") == true)
+        #expect(PromptConfig.collectionTaskIDs.contains("task12"))
+        #expect(!PromptConfig.conversationEntryCountTaskIDs.contains("task12"))
+        #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task12"))
+    }
+
     @Test("Page quiz prompt stays in AI chat with cross-model quiz protocol")
     func pageQuizPromptUsesCrossModelQuizProtocol() {
         let normalized = PromptConfig.streamlitDefault.normalized()
@@ -205,7 +223,7 @@ struct PromptConfigTests {
 
     @Test("Legacy prompt configs receive new built-in page practice tasks")
     func legacyPromptConfigAddsPagePracticeTasks() {
-        let legacyTasks = PromptConfig.streamlitDefault.tasks.filter { $0.id != "task10" && $0.id != "task11" }
+        let legacyTasks = PromptConfig.streamlitDefault.tasks.filter { $0.id != "task10" && $0.id != "task11" && $0.id != "task12" }
         let legacyConfig = PromptConfig(
             version: 1,
             preamble: "",
@@ -221,6 +239,8 @@ struct PromptConfigTests {
         #expect(normalized.tasks.filter { $0.id == "task10" }.count == 1)
         #expect(normalized.tasks.contains { $0.id == "task11" })
         #expect(normalized.tasks.filter { $0.id == "task11" }.count == 1)
+        #expect(normalized.tasks.contains { $0.id == "task12" })
+        #expect(normalized.tasks.filter { $0.id == "task12" }.count == 1)
     }
 
     @Test("Legacy conversation generators normalize to shared quantity placeholder")

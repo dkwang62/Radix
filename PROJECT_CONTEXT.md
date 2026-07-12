@@ -17,7 +17,8 @@ learning workspace for AI-cleaned pages, sentence study, phrases, translation,
 quiz, conversation practice, and notes.
 AI-cleaned pages are modeled as page-owned `AICleanedPageRecord` artifacts, not
 as replacements for `CharacterCollection.originalOCRText` or corrected OCR
-pages.
+pages. The saved-page AI task `task12` / `Create AI-Cleaned Page` generates
+JSON for that record from the selected page's characters and OCR/source context.
 
 ## Product and Platform Scope
 
