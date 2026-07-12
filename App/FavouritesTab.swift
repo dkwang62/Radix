@@ -429,8 +429,7 @@ struct FavouritesTab: View {
 
     func presentSentenceExamples() {
         sentenceExampleStatusMessage = nil
-        resetSentenceExamplePage()
-        refreshSentenceExampleResults()
+        resetSentenceExampleResultsContext()
         withAnimation(.snappy(duration: 0.18)) {
             isShowingConversationPractice = false
             isShowingAddedPhraseReview = false

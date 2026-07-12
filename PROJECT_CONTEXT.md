@@ -98,6 +98,9 @@ Study > Sentences also supports a visible page-local selection mode for
 deleting specific sentences from a search or filter result. Keep selected
 sentences visible, clear the selection when the page/search/filter changes, and
 route selected deletes through the same `RadixStore` sentence deletion path.
+Keep page reset, selection reset, delete, and post-mutation refresh behavior on
+the shared Study Sentences helpers instead of repeating those state updates in
+individual buttons.
 Study > Sentences must treat SQLite as the live query engine, not as a JSON
 blob cache. The sentence table owns count, search, filter, paging, row fetch,
 upsert, and delete through `RadixStudyPreferences.querySentenceExamples` and

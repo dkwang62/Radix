@@ -483,9 +483,7 @@ extension FavouritesTab {
                     ForEach(SentenceExampleStudyFilter.allCases) { filter in
                         Button {
                             sentenceExampleFilter = filter
-                            resetSentenceExamplePage()
-                            clearSentenceExampleSelection()
-                            refreshSentenceExampleResults()
+                            resetSentenceExampleResultsContext()
                         } label: {
                             Label(filter.rawValue, systemImage: filter.systemImage)
                                 .font(ResponsiveFont.caption.weight(.semibold))
@@ -511,9 +509,7 @@ extension FavouritesTab {
                !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 sentenceExampleFilter = .all
             }
-            resetSentenceExamplePage()
-            clearSentenceExampleSelection()
-            refreshSentenceExampleResults()
+            resetSentenceExampleResultsContext()
         }
     }
 
@@ -606,8 +602,7 @@ extension FavouritesTab {
         if isSelectingSentenceExamples {
             HStack(spacing: 6) {
                 Button {
-                    clearSentenceExampleSelection()
-                    isSelectingSentenceExamples = false
+                    stopSelectingSentenceExamples()
                 } label: {
                     Text("Cancel")
                         .font(ResponsiveFont.caption.weight(.semibold))
@@ -630,8 +625,7 @@ extension FavouritesTab {
             }
         } else if sentenceExampleResultCount > 0 {
             Button {
-                isSelectingSentenceExamples = true
-                sentenceExampleStatusMessage = nil
+                startSelectingSentenceExamples()
             } label: {
                 Label("Select", systemImage: "checklist")
                     .font(ResponsiveFont.caption.weight(.semibold))
@@ -662,6 +656,12 @@ extension FavouritesTab {
         sentenceExamplePageIndex = 0
     }
 
+    func resetSentenceExampleResultsContext() {
+        resetSentenceExamplePage()
+        clearSentenceExampleSelection()
+        refreshSentenceExampleResults()
+    }
+
     var sentenceExampleQuery: SentenceExampleQuery {
         SentenceExampleQuery(
             scope: sentenceExampleFilter.queryScope,
@@ -690,6 +690,13 @@ extension FavouritesTab {
         if sentenceExamplePageIndex != clampedSentenceExamplePageIndex {
             sentenceExamplePageIndex = clampedSentenceExamplePageIndex
         }
+    }
+
+    func refreshSentenceExamplesAfterMutation(statusMessage: String) {
+        sentenceExampleRevision += 1
+        sentenceExampleStatusMessage = statusMessage
+        loadFavoriteSentences()
+        refreshSentenceExampleResults()
     }
 
     func sentenceExampleMatchesFilter(_ example: SentenceExampleRecord) -> Bool {
@@ -820,11 +827,7 @@ extension FavouritesTab {
             Divider()
 
             Button(role: .destructive) {
-                store.deleteSentenceExamples([example])
-                sentenceExampleRevision += 1
-                sentenceExampleStatusMessage = "Deleted"
-                loadFavoriteSentences()
-                refreshSentenceExampleResults()
+                deleteSentenceExamples([example], statusMessage: "Deleted")
             } label: {
                 Label("Delete", systemImage: "trash")
             }
@@ -845,12 +848,21 @@ extension FavouritesTab {
     func deleteFilteredSentenceExamples() {
         let examples = RadixStudyPreferences.sentenceExamples(matching: allMatchingSentenceExampleQuery)
         guard !examples.isEmpty else { return }
-        store.deleteSentenceExamples(examples)
-        sentenceExampleRevision += 1
-        resetSentenceExamplePage()
-        sentenceExampleStatusMessage = "Deleted \(examples.count) sentence\(examples.count == 1 ? "" : "s")"
-        loadFavoriteSentences()
-        refreshSentenceExampleResults()
+        deleteSentenceExamples(
+            examples,
+            statusMessage: "Deleted \(examples.count) sentence\(examples.count == 1 ? "" : "s")",
+            resetPage: true
+        )
+    }
+
+    func startSelectingSentenceExamples() {
+        isSelectingSentenceExamples = true
+        sentenceExampleStatusMessage = nil
+    }
+
+    func stopSelectingSentenceExamples() {
+        clearSentenceExampleSelection()
+        isSelectingSentenceExamples = false
     }
 
     func toggleSentenceExampleSelection(_ example: SentenceExampleRecord) {
@@ -868,13 +880,30 @@ extension FavouritesTab {
     func deleteSelectedSentenceExamples() {
         let examples = selectedSentenceExamples
         guard !examples.isEmpty else { return }
+        deleteSentenceExamples(
+            examples,
+            statusMessage: "Deleted \(examples.count) selected sentence\(examples.count == 1 ? "" : "s")",
+            exitSelection: true
+        )
+    }
+
+    func deleteSentenceExamples(
+        _ examples: [SentenceExampleRecord],
+        statusMessage: String,
+        resetPage: Bool = false,
+        exitSelection: Bool = false
+    ) {
+        guard !examples.isEmpty else { return }
         store.deleteSentenceExamples(examples)
-        sentenceExampleRevision += 1
-        clearSentenceExampleSelection()
-        isSelectingSentenceExamples = false
-        sentenceExampleStatusMessage = "Deleted \(examples.count) selected sentence\(examples.count == 1 ? "" : "s")"
-        loadFavoriteSentences()
-        refreshSentenceExampleResults()
+        if resetPage {
+            resetSentenceExamplePage()
+        }
+        if exitSelection {
+            stopSelectingSentenceExamples()
+        } else {
+            clearSentenceExampleSelection()
+        }
+        refreshSentenceExamplesAfterMutation(statusMessage: statusMessage)
     }
 
     @ViewBuilder
@@ -925,10 +954,9 @@ extension FavouritesTab {
 
     func toggleSentenceExampleFavorite(_ example: SentenceExampleRecord) {
         RadixStudyPreferences.setSentenceExampleFavorite(id: example.id, isFavorited: !example.isFavorited)
-        sentenceExampleRevision += 1
-        sentenceExampleStatusMessage = example.isFavorited ? "Removed favorite" : "Favorited"
-        loadFavoriteSentences()
-        refreshSentenceExampleResults()
+        refreshSentenceExamplesAfterMutation(
+            statusMessage: example.isFavorited ? "Removed favorite" : "Favorited"
+        )
     }
 
     func presentSentenceExamplePracticeAgain(_ example: SentenceExampleRecord) {
