@@ -19,6 +19,29 @@ struct StudyAICleanedPageContext {
     let record: AICleanedPageRecord?
 }
 
+struct StudyAICleanedSentencePageCache {
+    let sourcePageID: UUID
+    let recordRevision: String
+    let pageIndex: Int
+    let pageSize: Int
+    let sentenceCount: Int
+    let items: [ConversationPracticeItem]
+
+    func matches(
+        record: AICleanedPageRecord,
+        recordRevision: String,
+        pageIndex: Int,
+        pageSize: Int,
+        sentenceCount: Int
+    ) -> Bool {
+        sourcePageID == record.sourcePageID &&
+            self.recordRevision == recordRevision &&
+            self.pageIndex == pageIndex &&
+            self.pageSize == pageSize &&
+            self.sentenceCount == sentenceCount
+    }
+}
+
 struct SentenceExampleEditDraft: Identifiable {
     let record: SentenceExampleRecord
 
@@ -45,6 +68,8 @@ struct FavouritesTab: View {
     @State var isShowingSentenceExamples = false
     @State var studyAICleanedPageCollectionID: UUID?
     @State var aiCleanedPageSentencePageIndex = 0
+    @State var aiCleanedPageSentencePageCache: StudyAICleanedSentencePageCache?
+    @State var isAICleanedPageTextExpanded = false
     @State var sentenceExampleFilter: SentenceExampleStudyFilter = .all
     @State var sentenceExampleSearchText = ""
     @State var sentenceExamplePageIndex = 0

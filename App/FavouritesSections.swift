@@ -283,10 +283,27 @@ extension FavouritesTab {
                     .fixedSize(horizontal: true, vertical: false)
                 }
 
-                Text(studyGridDisplayText(record.cleanedChineseText))
+                Text(aiCleanedPageVisibleText(record.cleanedChineseText))
                     .font(ResponsiveFont.body)
                     .fixedSize(horizontal: false, vertical: true)
                     .textSelection(.enabled)
+
+                if shouldTruncateAICleanedPageText(record.cleanedChineseText) {
+                    Button {
+                        withAnimation(.snappy(duration: 0.18)) {
+                            isAICleanedPageTextExpanded.toggle()
+                        }
+                    } label: {
+                        Label(
+                            isAICleanedPageTextExpanded ? "Show Less" : "Show Full Text",
+                            systemImage: isAICleanedPageTextExpanded ? "chevron.up" : "chevron.down"
+                        )
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .radixPill(horizontal: 10, vertical: 7, background: RadixAccent.primary.opacity(0.1))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(RadixAccent.primary)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
@@ -310,16 +327,19 @@ extension FavouritesTab {
             if sentenceCount > 0 {
                 VStack(alignment: .leading, spacing: 8) {
                     practiceSentenceDisplayControls {
-                        aiCleanedPageSentenceNavigation(sentenceCount: sentenceCount)
+                        aiCleanedPageSentenceNavigation(record: record, sentenceCount: sentenceCount)
                     }
 
-                    practiceSentenceList(aiCleanedPageVisibleSentenceItems(for: record), spacing: 8) { item in
+                    practiceSentenceList(aiCleanedPageCachedSentenceItems(for: record, sentenceCount: sentenceCount), spacing: 8) { item in
                         aiCleanedPageSentenceRow(item)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(12)
                 .radixSurface(RadixTheme.secondaryBackground.opacity(0.35))
+                .task(id: aiCleanedPageSentenceCacheTaskID(for: record, sentenceCount: sentenceCount)) {
+                    refreshAICleanedPageSentenceCache(for: record, sentenceCount: sentenceCount)
+                }
             }
 
             if !record.repairNotes.isEmpty {
@@ -341,15 +361,32 @@ extension FavouritesTab {
         }
     }
 
-    func aiCleanedPageSentenceNavigation(sentenceCount: Int) -> some View {
+    var aiCleanedPageTextPreviewLimit: Int { 700 }
+
+    func shouldTruncateAICleanedPageText(_ text: String) -> Bool {
+        text.count > aiCleanedPageTextPreviewLimit
+    }
+
+    func aiCleanedPageVisibleText(_ text: String) -> String {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !isAICleanedPageTextExpanded,
+              trimmed.count > aiCleanedPageTextPreviewLimit
+        else {
+            return studyGridDisplayText(trimmed)
+        }
+        let preview = String(trimmed.prefix(aiCleanedPageTextPreviewLimit))
+        return studyGridDisplayText(preview) + "..."
+    }
+
+    func aiCleanedPageSentenceNavigation(record: AICleanedPageRecord, sentenceCount: Int) -> some View {
         practiceSentencePageNavigation(
             label: aiCleanedPageSentencePageLabel(sentenceCount: sentenceCount),
             canMovePrevious: canMoveAICleanedPageSentencePage(by: -1, sentenceCount: sentenceCount),
             canMoveNext: canMoveAICleanedPageSentencePage(by: 1, sentenceCount: sentenceCount)
         ) {
-            moveAICleanedPageSentencePage(by: -1, sentenceCount: sentenceCount)
+            moveAICleanedPageSentencePage(by: -1, record: record, sentenceCount: sentenceCount)
         } onNext: {
-            moveAICleanedPageSentencePage(by: 1, sentenceCount: sentenceCount)
+            moveAICleanedPageSentencePage(by: 1, record: record, sentenceCount: sentenceCount)
         }
     }
 
@@ -409,16 +446,77 @@ extension FavouritesTab {
         return nextIndex >= 0 && nextIndex < aiCleanedPageSentencePageCount(sentenceCount: sentenceCount)
     }
 
-    func moveAICleanedPageSentencePage(by offset: Int, sentenceCount: Int) {
+    func moveAICleanedPageSentencePage(by offset: Int, record: AICleanedPageRecord, sentenceCount: Int) {
         guard canMoveAICleanedPageSentencePage(by: offset, sentenceCount: sentenceCount) else { return }
         withAnimation(.snappy(duration: 0.18)) {
             aiCleanedPageSentencePageIndex = aiCleanedPageSentenceClampedPageIndex(sentenceCount: sentenceCount) + offset
         }
+        refreshAICleanedPageSentenceCache(for: record, sentenceCount: sentenceCount)
     }
 
-    func aiCleanedPageVisibleSentenceItems(for record: AICleanedPageRecord) -> [ConversationPracticeItem] {
-        let sentenceCount = aiCleanedPageSentenceCount(for: record)
+    func aiCleanedPageCachedSentenceItems(
+        for record: AICleanedPageRecord,
+        sentenceCount: Int
+    ) -> [ConversationPracticeItem] {
         let pageIndex = aiCleanedPageSentenceClampedPageIndex(sentenceCount: sentenceCount)
+        let revision = aiCleanedPageRecordRevisionKey(record)
+        guard let cache = aiCleanedPageSentencePageCache,
+              cache.matches(
+                record: record,
+                recordRevision: revision,
+                pageIndex: pageIndex,
+                pageSize: aiCleanedPageSentencePageSize,
+                sentenceCount: sentenceCount
+              )
+        else {
+            return []
+        }
+        return cache.items
+    }
+
+    func aiCleanedPageSentenceCacheTaskID(for record: AICleanedPageRecord, sentenceCount: Int) -> String {
+        [
+            record.sourcePageID.uuidString,
+            aiCleanedPageRecordRevisionKey(record),
+            "\(aiCleanedPageSentenceClampedPageIndex(sentenceCount: sentenceCount))",
+            "\(aiCleanedPageSentencePageSize)",
+            "\(sentenceCount)"
+        ].joined(separator: "|")
+    }
+
+    func refreshAICleanedPageSentenceCache(for record: AICleanedPageRecord, sentenceCount: Int? = nil) {
+        let sentenceCount = sentenceCount ?? aiCleanedPageSentenceCount(for: record)
+        let pageIndex = aiCleanedPageSentenceClampedPageIndex(sentenceCount: sentenceCount)
+        if aiCleanedPageSentencePageIndex != pageIndex {
+            aiCleanedPageSentencePageIndex = pageIndex
+        }
+        let revision = aiCleanedPageRecordRevisionKey(record)
+        if let cache = aiCleanedPageSentencePageCache,
+           cache.matches(
+            record: record,
+            recordRevision: revision,
+            pageIndex: pageIndex,
+            pageSize: aiCleanedPageSentencePageSize,
+            sentenceCount: sentenceCount
+           ) {
+            return
+        }
+        let items = buildAICleanedPageVisibleSentenceItems(for: record, sentenceCount: sentenceCount, pageIndex: pageIndex)
+        aiCleanedPageSentencePageCache = StudyAICleanedSentencePageCache(
+            sourcePageID: record.sourcePageID,
+            recordRevision: revision,
+            pageIndex: pageIndex,
+            pageSize: aiCleanedPageSentencePageSize,
+            sentenceCount: sentenceCount,
+            items: items
+        )
+    }
+
+    func buildAICleanedPageVisibleSentenceItems(
+        for record: AICleanedPageRecord,
+        sentenceCount: Int,
+        pageIndex: Int
+    ) -> [ConversationPracticeItem] {
         let startIndex = pageIndex * aiCleanedPageSentencePageSize
         let sourceSentences = aiCleanedPageVisibleSentences(for: record, startIndex: startIndex)
 
@@ -429,6 +527,16 @@ extension FavouritesTab {
                 aiCleanedPageFallbackSentenceExample(sentence, record: record)
             return ConversationPracticeItem(sentenceExample: example, rank: startIndex + localIndex + 1)
         }
+    }
+
+    func aiCleanedPageRecordRevisionKey(_ record: AICleanedPageRecord) -> String {
+        [
+            "\(record.createdAt.timeIntervalSinceReferenceDate)",
+            "\(record.sentences.count)",
+            "\(record.cleanedChineseText.count)",
+            record.sentences.first?.id ?? "",
+            record.sentences.last?.id ?? ""
+        ].joined(separator: ":")
     }
 
     func aiCleanedPageVisibleSentences(

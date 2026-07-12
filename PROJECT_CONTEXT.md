@@ -71,6 +71,10 @@ For large extracted pages, page the `AICleanedPageRecord.sentences` array before
 building `ConversationPracticeItem`s or looking up canonical sentence records;
 the visible list should touch only the current page of rows during SwiftUI body
 evaluation.
+The extracted-page reader keeps a small state cache for the current visible
+sentence page and renders long cleaned page text as a collapsed preview by
+default. Avoid reintroducing row DB lookups, item construction, or full-page
+text rendering directly into the reader body.
 Sentence phrase maps use the same longest non-overlapping selection rule as page
 phrase discovery: when candidate phrases overlap inside a sentence, the longer
 phrase owns that span and shorter overlapping chips are suppressed.
