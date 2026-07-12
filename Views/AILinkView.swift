@@ -92,6 +92,10 @@ struct AILinkView: View {
         return PromptConfig.conversationEntryCountTaskIDs.contains(task.id)
     }
 
+    var selectedTaskSupportsSentenceExtractionDetail: Bool {
+        selectedPromptTask?.id == AIResultTaskID.extractSentences
+    }
+
     var hasCharacterTasks: Bool {
         selectedPromptTask != nil && !isSelectedTaskPageTask && !isSelectedTaskPracticeTopicTask
     }

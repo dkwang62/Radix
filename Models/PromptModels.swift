@@ -6,6 +6,40 @@ struct PromptTask: Codable, Hashable, Identifiable {
     var template: String
 }
 
+enum SentenceExtractionDetail: String, CaseIterable, Identifiable {
+    case brief
+    case detailed
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .brief: return "Brief"
+        case .detailed: return "Detailed"
+        }
+    }
+
+    var promptInstruction: String {
+        switch self {
+        case .brief:
+            return """
+Brief mode: extract clean, concise sentence records. Keep each English translation short and natural. Include accurate tone-mark pinyin, but do not add notes, analysis, or extra metadata beyond the required JSON keys.
+"""
+        case .detailed:
+            return """
+Detailed mode: create richer study-ready sentence records. Keep each Chinese sentence complete and useful, include accurate tone-mark pinyin, provide a natural English meaning, and choose sentences that will display well with Chinese/English toggles, pinyin reveal, read-aloud, and phrase inspection in Radix. Prefer entries whose useful phrases can be inspected later, but do not add extra JSON keys.
+"""
+        }
+    }
+
+    static func normalized(_ rawValue: String?) -> SentenceExtractionDetail {
+        guard let rawValue,
+              let detail = SentenceExtractionDetail(rawValue: rawValue)
+        else { return .brief }
+        return detail
+    }
+}
+
 struct PromptConfig: Codable, Hashable {
     var version: Int
     var preamble: String
@@ -285,9 +319,9 @@ OCR text/context:
             ),
             PromptTask(
                 id: "task10",
-                title: "Extract Page Sentences",
+                title: "Create Sentences",
                 template: """
-Extract Page Sentences
+Create Sentences
 
 Create a Radix Conversation Practice import pack from one saved page.
 
@@ -297,6 +331,9 @@ Saved page characters in reading order:
 
 OCR text/context:
 {capture_text}
+
+Detail level:
+{sentence_extraction_detail}
 
 Return JSON only. Do not wrap it in Markdown. Do not include explanations outside the JSON.
 
@@ -327,6 +364,7 @@ Rules:
 11. IDs must be stable and lowercase, using page_sentence plus a zero-padded sequence number, for example "page_sentence_001".
 12. Each entry must have exactly these keys: "id", "zh", "pinyin", and "en".
 13. Do not include analysis, metadata, notes, markdown, comments, or explanation text. Radix derives those during import.
+14. Follow the selected Detail level above. Both Brief and Detailed modes must return the same JSON shape so Radix imports them into the same sentence database and displays them through the same sentence UI.
 
 Before returning, silently validate that the JSON is valid, imports cleanly, and every entry contains only the required keys.
 
@@ -394,9 +432,9 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
             ),
             PromptTask(
                 id: "task12",
-                title: "Create AI-Cleaned Page",
+                title: "Create AI Page",
                 template: """
-Create AI-Cleaned Page
+Create AI Page
 
 Create an AI-cleaned learning page from one Radix saved page.
 
@@ -589,6 +627,7 @@ struct PromptRenderContext {
     let practiceTopicBrief: String
     let practiceTopicSituations: String
     let conversationEntryCount: String
+    let sentenceExtractionDetail: String
 }
 
 extension PromptConfig {
@@ -615,11 +654,15 @@ extension PromptConfig {
                       task.title == "Task 5 – Universal Content Architect" {
                 normalizedTitle = defaultTask.title
             } else if task.id == "task10",
-                      task.title == "Extract Sentences" {
+                      task.title == "Extract Sentences" ||
+                        task.title == "Extract Page Sentences" {
                 normalizedTitle = defaultTask.title
             } else if task.id == "task11",
                       task.title == "Create Practice from Page" ||
                       task.title == "Create Theme Practice" {
+                normalizedTitle = defaultTask.title
+            } else if task.id == "task12",
+                      task.title == "Create AI-Cleaned Page" {
                 normalizedTitle = defaultTask.title
             } else {
                 normalizedTitle = task.title
@@ -639,6 +682,7 @@ extension PromptConfig {
                 )) ||
                 (task.id == "task8" && !task.template.contains("English translations will not reveal the answer")) ||
                 (task.id == "task9" && !task.template.contains("{practice_topic_title}")) ||
+                (task.id == "task10" && !task.template.contains("{sentence_extraction_detail}")) ||
                 (task.id == "task12" && !task.template.contains("cleaned_chinese_text")) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {
@@ -738,5 +782,6 @@ extension PromptConfig {
             .replacingOccurrences(of: "{practice_topic_situations}", with: context.practiceTopicSituations)
             .replacingOccurrences(of: "{practice_topic_sentence_count}", with: context.conversationEntryCount)
             .replacingOccurrences(of: "{conversation_entry_count}", with: context.conversationEntryCount)
+            .replacingOccurrences(of: "{sentence_extraction_detail}", with: context.sentenceExtractionDetail)
     }
 }

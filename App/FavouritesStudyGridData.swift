@@ -321,7 +321,7 @@ extension FavouritesTab {
             ),
             CollectionPageAITask(
                 id: AIResultTaskID.extractSentences,
-                title: "Extract Page Sentences",
+                title: "Create Sentences",
                 systemImage: "bubble.left.and.bubble.right",
                 manualAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences) },
                 automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiSentenceExtraction(collection) } }

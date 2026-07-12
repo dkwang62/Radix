@@ -17,7 +17,7 @@ learning workspace for AI-cleaned pages, sentence study, phrases, translation,
 quiz, conversation practice, and notes.
 AI-cleaned pages are modeled as page-owned `AICleanedPageRecord` artifacts, not
 as replacements for `CharacterCollection.originalOCRText` or corrected OCR
-pages. The saved-page AI task `task12` / `Create AI-Cleaned Page` generates
+pages. The saved-page AI task `task12` / `Create AI Page` generates
 JSON for that record from the selected page's characters and OCR/source context.
 AI-cleaned page records are stored in `RadixStudyPreferences.aiCleanedPages`,
 included in portable backups as `ai_cleaned_pages`, imported from fenced or raw
@@ -685,7 +685,7 @@ When a Gemini API key is configured, `Check OCR` additionally offers an
 automatic multimodal review using the same prompt and saved image. Its response
 creates and opens a corrected saved page immediately.
 Study saved-page AI actions are grouped by task—Check OCR, Extract Phrases,
-Translate Page, Create Quiz, Extract Page Sentences, and Create Conversation.
+Translate Page, Create Quiz, Create Sentences, and Create Conversation.
 Current UI copy uses `Create Conversation`; older labels such as `Create
 Practice from Page` are compatibility aliases only.
 Each task consistently offers copy/paste with ChatGPT or an automatic Gemini
@@ -705,13 +705,16 @@ recognized/unrecognized characters, and nearby phrase evidence rather than a
 separate hard-coded instruction. Legacy `Check OCR` templates that described
 `ORIGINAL OCR` normalize to the saved-page-character wording so placeholder raw
 OCR cannot become the primary AI input.
-`Extract Page Sentences` is the first step toward page-derived sentence study:
+`Create Sentences` is the first step toward page-derived sentence study:
 it asks AI to return the same lightweight Conversation Practice import JSON
 shape (`theme` plus `entries`) used by generated practice packs, so imported
 page sentences reuse the existing practice, favorite-sentence, backup,
 checkpoint, and speech pathways instead of creating another sentence store. The
-automatic Gemini route validates and imports that pack directly.
-`Create Conversation` is distinct from `Extract Page Sentences`: it uses the
+automatic Gemini route validates and imports that pack directly. AI Link exposes
+one `Create Sentences` task with a `Brief` / `Detailed` detail selector instead
+of separate sentence-creation tasks; both modes must return the same import JSON
+and land in the shared sentence database.
+`Create Conversation` is distinct from `Create Sentences`: it uses the
 saved page as source inspiration, infers the page's broad conversational theme,
 and asks AI to generate new personalized/current Conversation Practice lines
 around that theme rather than staying close to the page wording. It returns the
@@ -735,7 +738,7 @@ Conversation Practice accepts AI-generated packs through `Paste Practice JSON`
 as the primary return path from ChatGPT/Gemini, while `Import JSON File` remains
 available for saved files and transfer. The paste route previews the theme,
 sentence count, sample sentences, and validation warnings before import.
-Browse page Actions exposes `Extract Page Sentences` as a page AI task. Manual use
+Browse page Actions exposes `Create Sentences` as a page AI task. Manual use
 copies/opens the saved-page sentence extraction prompt and returns through
 Study's Conversation Practice paste importer; automatic Gemini use imports the
 pack directly.
@@ -805,7 +808,7 @@ or use current knowledge. Radix should keep the output contract strict
 extra content guardrails beyond import format and language-learning usefulness.
 AI Link exposes a shared quantity selector for Conversation Practice output
 tasks, defaulting to 25 entries with 50 and 100 available. `Generate Practice
-Pack`, `Extract Page Sentences`, and `Create Conversation` render this shared
+Pack`, `Create Sentences`, and `Create Conversation` render this shared
 count through `{conversation_entry_count}`; future sentence/conversation
 generation tasks should opt into `conversationEntryCountTaskIDs` and reuse the
 same placeholder instead of hardcoding a pack size.

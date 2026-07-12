@@ -61,8 +61,9 @@ struct PromptConfigTests {
         let normalized = PromptConfig.streamlitDefault.normalized()
         let extractor = normalized.tasks.first { $0.id == "task10" }
 
-        #expect(extractor?.title == "Extract Page Sentences")
+        #expect(extractor?.title == "Create Sentences")
         #expect(extractor?.template.contains("Conversation Practice import pack") == true)
+        #expect(extractor?.template.contains("{sentence_extraction_detail}") == true)
         #expect(extractor?.template.contains("\"theme\": \"{collection_name}\"") == true)
         #expect(extractor?.template.contains("Set \"theme\" exactly to the Page value above") == true)
         #expect(extractor?.template.contains("\"id\": \"page_sentence_001\"") == true)
@@ -100,7 +101,7 @@ struct PromptConfigTests {
         let normalized = PromptConfig.streamlitDefault.normalized()
         let generator = normalized.tasks.first { $0.id == "task12" }
 
-        #expect(generator?.title == "Create AI-Cleaned Page")
+        #expect(generator?.title == "Create AI Page")
         #expect(generator?.template.contains("Original OCR/source context") == true)
         #expect(generator?.template.contains("cleaned_chinese_text") == true)
         #expect(generator?.template.contains("\"id\": \"ai_page_sentence_001\"") == true)
@@ -276,7 +277,7 @@ struct PromptConfigTests {
         #expect(normalized.tasks.first { $0.id == "task9" }?.template.contains("{conversation_entry_count}") == true)
         #expect(normalized.tasks.first { $0.id == "task10" }?.template.contains("Aim for up to {conversation_entry_count} entries.") == true)
         #expect(normalized.tasks.first { $0.id == "task11" }?.template.contains("Create exactly {conversation_entry_count} entries") == true)
-        #expect(normalized.tasks.first { $0.id == "task10" }?.title == "Extract Page Sentences")
+        #expect(normalized.tasks.first { $0.id == "task10" }?.title == "Create Sentences")
         #expect(normalized.tasks.first { $0.id == "task11" }?.title == "Create Conversation")
     }
 
@@ -306,7 +307,8 @@ struct PromptConfigTests {
             practiceTopicSummary: topic.summary,
             practiceTopicBrief: topic.generationBrief,
             practiceTopicSituations: topic.situations.map { "- \($0)" }.joined(separator: "\n"),
-            conversationEntryCount: "\(PromptConfig.defaultConversationEntryCount)"
+            conversationEntryCount: "\(PromptConfig.defaultConversationEntryCount)",
+            sentenceExtractionDetail: SentenceExtractionDetail.brief.promptInstruction
         )
 
         let prompt = PromptConfig.streamlitDefault.renderPrompt(
@@ -359,7 +361,8 @@ struct PromptConfigTests {
             practiceTopicSummary: topic.summary,
             practiceTopicBrief: topic.generationBrief,
             practiceTopicSituations: topic.situations.map { "- \($0)" }.joined(separator: "\n"),
-            conversationEntryCount: "100"
+            conversationEntryCount: "100",
+            sentenceExtractionDetail: SentenceExtractionDetail.brief.promptInstruction
         )
 
         let prompt = PromptConfig.streamlitDefault.renderPrompt(
@@ -404,7 +407,8 @@ struct PromptConfigTests {
             practiceTopicSummary: "",
             practiceTopicBrief: "",
             practiceTopicSituations: "",
-            conversationEntryCount: "\(PromptConfig.defaultConversationEntryCount)"
+            conversationEntryCount: "\(PromptConfig.defaultConversationEntryCount)",
+            sentenceExtractionDetail: SentenceExtractionDetail.detailed.promptInstruction
         )
 
         let prompt = PromptConfig.streamlitDefault.renderPrompt(
@@ -416,6 +420,8 @@ struct PromptConfigTests {
         #expect(prompt.contains("Page: Coffee Shop Sign"))
         #expect(prompt.contains("\"theme\": \"Coffee Shop Sign\""))
         #expect(prompt.contains("Set \"theme\" exactly to the Page value above: \"Coffee Shop Sign\""))
+        #expect(prompt.contains("Detail level:"))
+        #expect(prompt.contains("Detailed mode: create richer study-ready sentence records."))
         #expect(prompt.contains("Aim for up to 25 entries"))
         #expect(prompt.contains("Prefer concise studyable entries, but do not enforce a maximum Chinese character count."))
         #expect(!prompt.contains("Every zh value must be no more than"))
@@ -460,7 +466,8 @@ struct PromptConfigTests {
             practiceTopicSummary: "",
             practiceTopicBrief: "",
             practiceTopicSituations: "",
-            conversationEntryCount: "\(PromptConfig.defaultConversationEntryCount)"
+            conversationEntryCount: "\(PromptConfig.defaultConversationEntryCount)",
+            sentenceExtractionDetail: SentenceExtractionDetail.brief.promptInstruction
         )
 
         let prompt = PromptConfig.streamlitDefault.renderPrompt(

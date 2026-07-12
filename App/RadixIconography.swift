@@ -86,7 +86,7 @@ enum RadixGlossaryIcon {
         case "Definition": return "text.book.closed"
         case "Meaning": return "text.alignleft"
         case "Extract Phrases": return "text.badge.plus"
-        case "Extract Page Sentences", "Extract Sentences": return "text.quote"
+        case "Create Sentences", "Extract Page Sentences", "Extract Sentences": return "text.quote"
         case "Favorite": return RadixIcon.saved
         case "Favorite Sentence": return "star.circle"
         case "Gemini API": return "sparkles.rectangle.stack"

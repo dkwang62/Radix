@@ -11,4 +11,5 @@ struct RadixAILinkState {
     var shouldAutoRunGeminiPhraseAPI = false
     var selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
     var conversationEntryCount = 25
+    var sentenceExtractionDetail: SentenceExtractionDetail = .brief
 }

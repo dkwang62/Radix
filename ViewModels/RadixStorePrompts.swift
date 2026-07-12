@@ -33,6 +33,9 @@ extension RadixStore {
                 preferences.integer(forKey: RadixPreferenceKey.aiConversationEntryCount)
             )
         }
+        aiSentenceExtractionDetail = SentenceExtractionDetail.normalized(
+            preferences.string(forKey: RadixPreferenceKey.aiSentenceExtractionDetail)
+        )
         if let rawPreset = preferences.string(forKey: RadixPreferenceKey.defaultAIPreset),
            let preset = DefaultAIPreset(rawValue: rawPreset) {
             defaultAIPreset = preset
@@ -58,6 +61,7 @@ extension RadixStore {
         preferences.set(promptSelectedTaskIDs, forKey: RadixPreferenceKey.promptTaskSelection)
         preferences.set(selectedConversationPracticeTopicID, forKey: RadixPreferenceKey.conversationPracticeTopic)
         preferences.set(aiConversationEntryCount, forKey: RadixPreferenceKey.aiConversationEntryCount)
+        preferences.set(aiSentenceExtractionDetail.rawValue, forKey: RadixPreferenceKey.aiSentenceExtractionDetail)
         preferences.set(defaultAIPreset.rawValue, forKey: RadixPreferenceKey.defaultAIPreset)
         preferences.set(customAIURLString, forKey: RadixPreferenceKey.customAIURL)
         preferences.set(openAIAPIKey, forKey: RadixPreferenceKey.openAIAPIKey)
@@ -198,6 +202,7 @@ extension RadixStore {
         promptConfig = .streamlitDefault
         promptSelectedTaskIDs = PromptConfig.defaultSelectedTaskIDs
         aiConversationEntryCount = PromptConfig.defaultConversationEntryCount
+        aiSentenceExtractionDetail = .brief
         persistPromptSettings()
     }
 
@@ -348,7 +353,8 @@ extension RadixStore {
             practiceTopicSummary: practiceTopic?.summary ?? "",
             practiceTopicBrief: practiceTopic?.generationBrief ?? "",
             practiceTopicSituations: practiceTopic?.situations.map { "- \($0)" }.joined(separator: "\n") ?? "",
-            conversationEntryCount: "\(aiConversationEntryCount)"
+            conversationEntryCount: "\(aiConversationEntryCount)",
+            sentenceExtractionDetail: aiSentenceExtractionDetail.promptInstruction
         )
     }
 }

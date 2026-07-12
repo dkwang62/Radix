@@ -140,6 +140,10 @@ extension AILinkView {
             if selectedTaskSupportsConversationEntryCount {
                 aiConversationEntryCountRow
             }
+
+            if selectedTaskSupportsSentenceExtractionDetail {
+                aiSentenceExtractionDetailRow
+            }
         }
         .padding(12)
         .background(RadixTheme.secondaryBackground)
@@ -168,6 +172,30 @@ extension AILinkView {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Choose AI conversation quantity")
+    }
+
+    var aiSentenceExtractionDetailRow: some View {
+        Menu {
+            ForEach(SentenceExtractionDetail.allCases) { detail in
+                Button {
+                    store.aiSentenceExtractionDetail = detail
+                    store.persistPromptSettings()
+                } label: {
+                    Label(
+                        detail.title,
+                        systemImage: detail == store.aiSentenceExtractionDetail ? "checkmark" : "text.alignleft"
+                    )
+                }
+            }
+        } label: {
+            RadixMenuSelectorRow(
+                icon: "text.alignleft",
+                title: "Detail",
+                subtitle: store.aiSentenceExtractionDetail.title
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Choose sentence extraction detail")
     }
 
     var aiSelectedSubjectRow: some View {

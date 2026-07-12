@@ -348,6 +348,11 @@ final class RadixStore: ObservableObject {
         }
     }
 
+    var aiSentenceExtractionDetail: SentenceExtractionDetail {
+        get { aiLinkState.sentenceExtractionDetail }
+        set { aiLinkState.sentenceExtractionDetail = newValue }
+    }
+
     var shouldAutoOpenAILinkPrompt: Bool {
         get { aiLinkState.shouldAutoOpenPrompt }
         set { aiLinkState.shouldAutoOpenPrompt = newValue }
