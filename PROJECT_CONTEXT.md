@@ -31,6 +31,9 @@ source layer only, with OCR pages labeled as Original OCR or Corrected OCR.
 The extracted-sentences reader uses the shared Study simplified/traditional display choice;
 the switch converts the visible cleaned title, page text, notes, sentence
 rows, and opened sentence card display without changing the stored record.
+The `Extract Sentences` prompt is a whole-page conversion task: the AI must
+process the entire source/OCR text into cleaned prose and sentence records in
+reading order, not choose a representative subset of study sentences.
 Sentence previews still use the shared `PhraseInfoCard` presentation route, but
 its sentence mode is now sentence-first: whole sentence and English meaning,
 pinyin hidden behind a control, inline phrase highlighting in the Chinese text,

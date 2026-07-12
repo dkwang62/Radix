@@ -436,7 +436,7 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
                 template: """
 Extract Sentences
 
-Extract clean, studyable sentences from one Radix saved page.
+Convert the full content of one Radix saved page into clean, studyable sentences.
 
 Page: {collection_name}
 Saved page characters in reading order:
@@ -446,6 +446,8 @@ Original OCR/source context:
 {capture_text}
 
 Your job is to turn the crude saved-page/OCR material into complete, studyable Chinese prose and sentence records for Radix Study.
+
+Completeness requirement: process the entire source page. Do not summarize, sample, choose representative sentences, or omit source content merely because it feels repetitive, difficult, long, or less interesting. The "sentences" array must cover the full cleaned_chinese_text in reading order. If one source line contains multiple ideas, split it into multiple complete sentences. If a source fragment is too short or telegraphic, expand it only enough to preserve that fragment's meaning as a natural learning sentence.
 
 Use the source faithfully, but repair obvious OCR/capture errors when context makes the repair likely. Expand telegraphic media shorthand, headline compression, captions, list fragments, or social-media shorthand into natural complete Chinese sentences. Do not invent unrelated facts, people, dates, claims, or events. If a detail is uncertain, keep it modest and note the uncertainty in repair_notes.
 
@@ -471,15 +473,16 @@ The JSON must match this exact top-level shape:
 Rules:
 1. Use Simplified Chinese in cleaned_chinese_text and sentences unless the source is clearly Traditional-only.
 2. cleaned_chinese_text must be the joined, readable cleaned page prose, not a list of isolated characters.
-3. Each sentence item must be a complete sentence or conversation-ready line.
+3. The sentences array must represent the entire cleaned page, not a sample. Every meaningful source clause, caption, subtitle, headline fragment, menu item, or list item should appear in cleaned_chinese_text and be represented by one or more sentence records.
 4. IDs must be stable and lowercase, using ai_page_sentence plus a zero-padded sequence number, for example "ai_page_sentence_001".
 5. Add accurate tone-mark pinyin for the full sentence in each sentence item's "pinyin" value.
 6. phrase_hints should contain useful 2- to 6-character Chinese chunks that help explain the sentence. Do not include pinyin or English in phrase_hints.
 7. If the original source is only a headline, caption, menu, subtitle, or short fragment, expand only enough to make natural learning sentences while preserving the source's meaning.
 8. repair_notes should be in English and should mention only meaningful OCR repairs, inferred expansions, or uncertainty. Use an empty array if there are none.
-9. Do not include markdown, comments, extra keys, or analysis outside the JSON.
+9. Do not drop difficult, repetitive, or low-interest content unless it is pure OCR noise; mention any omitted OCR noise in repair_notes.
+10. Do not include markdown, comments, extra keys, or analysis outside the JSON.
 
-Before returning, silently validate that the JSON is valid and every sentence contains exactly these keys: "id", "chinese", "pinyin", "english", and "phrase_hints".
+Before returning, silently validate that the JSON is valid, every sentence contains exactly these keys: "id", "chinese", "pinyin", "english", and "phrase_hints", and the sentence list covers the entire cleaned_chinese_text rather than a representative subset.
 
 """
             ),
