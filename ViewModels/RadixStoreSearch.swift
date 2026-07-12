@@ -206,7 +206,8 @@ extension RadixStore {
     }
 
     func phraseDiscoveryKnownPhrases(in text: String) -> [String] {
-        let candidates = phraseDiscoverySubstrings(in: text, maxLength: phraseRepo.maxPhraseLength())
+        let lookupText = phraseStorageWord(text)
+        let candidates = phraseDiscoverySubstrings(in: lookupText, maxLength: phraseRepo.maxPhraseLength())
         let known = phraseRepo.existingWords(in: candidates)
         return known.sorted {
             if $0.count != $1.count { return $0.count < $1.count }
@@ -215,14 +216,33 @@ extension RadixStore {
     }
 
     func phraseDiscoveryKnownPhraseItems(in text: String, includeHidden: Bool = true) -> [PhraseItem] {
-        let candidates = phraseDiscoverySubstrings(in: text, maxLength: phraseRepo.maxPhraseLength())
+        let lookupText = phraseStorageWord(text)
+        let cacheKey = "\(includeHidden ? "hidden" : "visible")|\(lookupText)"
+        if let cached = sentencePhraseDiscoveryCache[cacheKey] {
+            return cached
+        }
+
+        let candidates = phraseDiscoverySubstrings(in: lookupText, maxLength: phraseRepo.maxPhraseLength())
         let phrases = phraseRepo.fetchPhrases(matching: candidates, includeHidden: includeHidden)
-        let phraseByWord = Dictionary(uniqueKeysWithValues: phrases.map { ($0.word, $0) })
-        let orderedWords = ConversationPracticeRules.nonOverlappingPhraseHints(
-            phrases.map(\.word),
-            in: text
-        )
-        return orderedWords.compactMap { phraseByWord[$0] }
+        var phraseByWord: [String: PhraseItem] = [:]
+        for phrase in phrases where phraseByWord[phraseStorageWord(phrase.word)] == nil {
+            phraseByWord[phraseStorageWord(phrase.word)] = phrase
+        }
+        let result = phraseByWord.values.sorted {
+            let lhsWord = phraseStorageWord($0.word)
+            let rhsWord = phraseStorageWord($1.word)
+            let lhsPosition = lookupText.range(of: lhsWord)?.lowerBound
+            let rhsPosition = lookupText.range(of: rhsWord)?.lowerBound
+            if lhsPosition != rhsPosition {
+                if lhsPosition == nil { return false }
+                if rhsPosition == nil { return true }
+                return lhsPosition! < rhsPosition!
+            }
+            if lhsWord.count != rhsWord.count { return lhsWord.count > rhsWord.count }
+            return lhsWord < rhsWord
+        }
+        sentencePhraseDiscoveryCache[cacheKey] = result
+        return result
     }
 
     func normalizedPhraseWord(_ word: String) -> String { phraseStorageWord(word) }

@@ -48,9 +48,11 @@ database or rebuild `SentenceExampleRecord.fromAICleanedPage` inside each row.
 Sentence phrase maps use the same longest non-overlapping selection rule as page
 phrase discovery: when candidate phrases overlap inside a sentence, the longer
 phrase owns that span and shorter overlapping chips are suppressed.
-Sentence cards discover all known 2+ character phrase-library matches in the
-sentence, not only AI-provided `phrase_hints`, and the highlighted spans and
-`Phrase` button must use that same enriched phrase list.
+Sentence cards discover all known 2+ character phrase-library matches against
+the sentence's simplified storage form, not only AI-provided `phrase_hints`.
+Cache this discovery per sentence. The `Phrase` button should expose the full
+discovered list, while underlined spans use the longest non-overlapping subset
+needed for readable inline display.
 When a phrase is opened from a sentence card, Radix stores a narrow sentence
 return context and shows a compact `Sentence` return action on the phrase card;
 ordinary phrase previews still clear that context.

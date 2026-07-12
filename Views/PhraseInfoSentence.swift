@@ -61,9 +61,7 @@ extension PhraseInfoCard {
             return phraseLookupOverride
         }
         guard let practiceSentenceItem else { return [] }
-        let discovered = store.phraseDiscoveryKnownPhraseItems(in: practiceSentenceItem.simplified)
-        let curated = store.verifiedPracticePhraseHints(for: practiceSentenceItem)
-        return PhraseResultRules.mergedUniqueByWord(primary: discovered, secondary: curated)
+        return store.phraseDiscoveryKnownPhraseItems(in: practiceSentenceItem.simplified)
             .map {
                 ConversationPracticeScriptSupport.displayPhrase(
                     $0,

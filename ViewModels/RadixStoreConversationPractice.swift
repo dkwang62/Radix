@@ -62,6 +62,7 @@ extension RadixStore {
 
     func invalidateConversationPracticeHintCache() {
         conversationPracticeLinkedHintCache.removeAll()
+        sentencePhraseDiscoveryCache.removeAll()
     }
 
     func loadConversationPracticePhraseCache() {
@@ -183,8 +184,9 @@ extension RadixStore {
 
     func verifiedPracticePhraseHints(for item: ConversationPracticeItem) -> [PhraseItem] {
         let curatedCandidates = item.phraseHints.map(phraseStorageWord(_:))
+        let source = phraseStorageWord(item.simplified)
         let discoveredCandidates = phraseDiscoverySubstrings(
-            in: item.simplified,
+            in: source,
             maxLength: phraseRepo.maxPhraseLength()
         )
         .map(phraseStorageWord(_:))
@@ -199,16 +201,19 @@ extension RadixStore {
             phrases.append(phrase)
         }
 
-        let phraseByWord = Dictionary(uniqueKeysWithValues: phrases.map { ($0.word, $0) })
+        var phraseByWord: [String: PhraseItem] = [:]
+        for phrase in phrases where phraseByWord[phraseStorageWord(phrase.word)] == nil {
+            phraseByWord[phraseStorageWord(phrase.word)] = phrase
+        }
         let orderedWords = ConversationPracticeRules.nonOverlappingPhraseHints(
-            phrases.map(\.word),
-            in: item.simplified
+            phrases.map { phraseStorageWord($0.word) },
+            in: source
         )
         let nonOverlappingPhrases = orderedWords.compactMap { phraseByWord[$0] }
 
         return nonOverlappingPhrases.sorted {
-            let lhsPosition = item.simplified.range(of: $0.word)?.lowerBound
-            let rhsPosition = item.simplified.range(of: $1.word)?.lowerBound
+            let lhsPosition = source.range(of: phraseStorageWord($0.word))?.lowerBound
+            let rhsPosition = source.range(of: phraseStorageWord($1.word))?.lowerBound
             if lhsPosition != rhsPosition {
                 if lhsPosition == nil { return false }
                 if rhsPosition == nil { return true }
