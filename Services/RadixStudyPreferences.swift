@@ -301,7 +301,7 @@ enum RadixStudyPreferences {
 
     static func sentenceExamples(containingPhrase phrase: String, limit: Int? = nil) -> [SentenceExampleRecord] {
         limited(
-            SentenceExampleRecord.ranked(currentSentenceExamples).filter { $0.containsPhrase(phrase) },
+            SentenceExampleRecord.ranked(currentSentenceExamples).filter { sentenceExample($0, containsPhrase: phrase) },
             limit: limit
         )
     }
@@ -328,6 +328,40 @@ enum RadixStudyPreferences {
             sentenceExamples = records ?? []
         }
         refreshConversationPracticePackSentenceReferences()
+    }
+
+    static func sentenceExample(_ example: SentenceExampleRecord, containsPhrase phrase: String) -> Bool {
+        let simplifiedPhrase = ScriptTextConverter.simplified(phrase)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !simplifiedPhrase.isEmpty else { return false }
+        return example.containsPhrase(simplifiedPhrase)
+    }
+
+    static func sentenceExample(_ example: SentenceExampleRecord, matchesSearchText query: String) -> Bool {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedQuery.isEmpty else { return true }
+        if sentenceExample(example, containsPhrase: trimmedQuery) {
+            return true
+        }
+
+        let simplifiedQuery = ScriptTextConverter.simplified(trimmedQuery)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let haystack = [
+            example.chinese,
+            example.pinyin ?? "",
+            example.english ?? "",
+            example.targetPhrases.joined(separator: " "),
+            example.detectedPhrases.joined(separator: " "),
+            example.targetCharacters.joined(separator: " "),
+            example.detectedCharacters.joined(separator: " "),
+            example.sources.compactMap(\.sourceTitle).joined(separator: " "),
+            example.tags.joined(separator: " ")
+        ]
+            .joined(separator: " ")
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+        let foldedQuery = trimmedQuery.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+        let foldedSimplifiedQuery = simplifiedQuery.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+        return haystack.contains(foldedQuery) || haystack.contains(foldedSimplifiedQuery)
     }
 
     private static func limited(_ records: [SentenceExampleRecord], limit: Int?) -> [SentenceExampleRecord] {

@@ -582,18 +582,7 @@ extension FavouritesTab {
     }
 
     func sentenceExampleMatchesSearch(_ example: SentenceExampleRecord) -> Bool {
-        let query = sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !query.isEmpty else { return true }
-        let haystack = [
-            example.chinese,
-            example.pinyin ?? "",
-            example.english ?? "",
-            example.sources.compactMap(\.sourceTitle).joined(separator: " "),
-            example.tags.joined(separator: " ")
-        ]
-            .joined(separator: " ")
-            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
-        return haystack.contains(query.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current))
+        RadixStudyPreferences.sentenceExample(example, matchesSearchText: sentenceExampleSearchText)
     }
 
     func sentenceExampleRow(_ example: SentenceExampleRecord) -> some View {
