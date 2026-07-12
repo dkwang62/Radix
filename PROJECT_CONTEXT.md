@@ -58,6 +58,10 @@ inline display.
 When a phrase is opened from a sentence card, Radix stores a narrow sentence
 return context and shows a compact `Sentence` return action on the phrase card;
 ordinary phrase previews still clear that context.
+On phone, the Study preview return pill for a sentence card must derive from
+the active sentence example's real source before falling back to a Conversation
+Practice topic, so unrelated selected topics cannot leak into page/extracted
+sentence previews.
 
 ## Product and Platform Scope
 
