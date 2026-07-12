@@ -21,6 +21,8 @@ struct PhraseInfoCard: View {
     @State var showSentenceExampleSheet = false
     @State var showDeletePhraseConfirmation = false
     @State var selectedAnimationPage = 0
+    @State var showsSentencePinyin = false
+    @State var showsSentenceCharacters = false
 
     var phraseCharacters: [String] {
         phrase.word.map(String.init).filter { character in
@@ -82,6 +84,8 @@ struct PhraseInfoCard: View {
                 showSentenceExampleSheet = false
                 showDeletePhraseConfirmation = false
                 selectedAnimationPage = 0
+                showsSentencePinyin = false
+                showsSentenceCharacters = false
             }
             .onAppear {
                 animationScript = RadixPhrasePreferences.animationScript
@@ -97,11 +101,7 @@ struct PhraseInfoCard: View {
     @ViewBuilder
     var phraseContent: some View {
         if isPracticeSentence {
-            VStack(alignment: .leading, spacing: 14) {
-                practiceSentenceToolbar
-                phraseAnimationPicker
-                phraseMeaningAndNotes
-            }
+            sentenceStudyContent
         } else {
             VStack(alignment: .leading, spacing: 14) {
                 phraseHeader
