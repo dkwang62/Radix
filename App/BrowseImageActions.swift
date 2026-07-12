@@ -178,6 +178,8 @@ extension FilterGridTab {
             beginAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences)
         case .createPagePractice(let collection):
             beginAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice)
+        case .createAICleanedPage(let collection):
+            beginAILinkPageTask(collection, taskID: AIResultTaskID.createAICleanedPage)
         }
     }
 

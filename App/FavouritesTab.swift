@@ -14,6 +14,11 @@ struct StudyPagePhrasesPresentation: Identifiable {
     var id: UUID { collection.id }
 }
 
+struct StudyAICleanedPageContext {
+    let collection: CharacterCollection
+    let record: AICleanedPageRecord?
+}
+
 struct SentenceExampleEditDraft: Identifiable {
     let record: SentenceExampleRecord
 
@@ -38,6 +43,7 @@ struct FavouritesTab: View {
     @State var isShowingConversationPractice = false
     @State var isShowingAddedPhraseReview = false
     @State var isShowingSentenceExamples = false
+    @State var studyAICleanedPageCollectionID: UUID?
     @State var sentenceExampleFilter: SentenceExampleStudyFilter = .all
     @State var sentenceExampleSearchText = ""
     @State var sentenceExamplePageIndex = 0
@@ -102,7 +108,7 @@ struct FavouritesTab: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if !isShowingConversationPractice && !isShowingAddedPhraseReview && !isShowingSentenceExamples {
+            if !isShowingConversationPractice && !isShowingAddedPhraseReview && !isShowingSentenceExamples && studyAICleanedPageCollectionID == nil {
                 favouritesHeader
             }
 

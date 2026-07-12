@@ -286,6 +286,19 @@ extension RadixStore {
         )
     }
 
+    func runGeminiAICleanedPage(for collection: CharacterCollection) async throws -> AICleanedPageRecord {
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: [AIResultTaskID.createAICleanedPage])
+        let response = try await GeminiTextGenerationService().generateText(
+            apiKey: geminiAPIKey,
+            modelID: geminiModelID,
+            prompt: prompt,
+            systemInstruction: """
+            You create structured JSON for Radix. Return valid JSON only, without Markdown fences or commentary.
+            """
+        )
+        return try importAICleanedPage(fromAIResponse: response, for: collection)
+    }
+
     func runGeminiOCRReview(for collection: CharacterCollection) async throws -> String {
         try await GeminiTextGenerationService().generateText(
             apiKey: geminiAPIKey,

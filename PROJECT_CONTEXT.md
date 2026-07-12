@@ -5,7 +5,7 @@ Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
 
-Last reviewed: 2026-07-06
+Last reviewed: 2026-07-12
 
 ## Version 1.1 Direction
 
@@ -22,6 +22,10 @@ JSON for that record from the selected page's characters and OCR/source context.
 AI-cleaned page records are stored in `RadixStudyPreferences.aiCleanedPages`,
 included in portable backups as `ai_cleaned_pages`, imported from fenced or raw
 AI JSON through AI Link, and removed with their owning saved page.
+Study saved pages expose imported AI-cleaned pages through an `AI Page` artifact
+and focused reader. The same saved-page action menu can create or replace that
+artifact through Manual AI Link or Gemini API. Browse continues to show the
+source layer only, with OCR pages labeled as Original OCR or Corrected OCR.
 
 ## Product and Platform Scope
 

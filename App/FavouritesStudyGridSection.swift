@@ -18,6 +18,7 @@ private struct StudyPageArtifact: Identifiable {
         case phrases
         case practice(ConversationPracticePack)
         case correctedPage(CharacterCollection)
+        case aiCleanedPage
     }
 
     let id: String
@@ -263,6 +264,7 @@ extension FavouritesTab {
     ) -> StudySavedPageRowData {
         let practices = pagePracticePacks(for: collection)
         let correctedPages = correctedStudyPages(for: collection)
+        let aiCleanedPage = RadixStudyPreferences.aiCleanedPage(for: collection.id)
         let hasPagePhrases = hasKnownPagePhrases(for: collection, hasRecordedPagePhrases: hasRecordedPagePhrases)
         let isExpanded = expandedStudySavedPageID == collection.id
         let isActiveBrowsePage = store.selectedBrowseCollectionID == collection.id
@@ -271,6 +273,7 @@ extension FavouritesTab {
             collection: collection,
             practices: practices,
             correctedPages: correctedPages,
+            aiCleanedPage: aiCleanedPage,
             hasPagePhrases: hasPagePhrases
         )
 
@@ -485,9 +488,20 @@ extension FavouritesTab {
         collection: CharacterCollection,
         practices: [ConversationPracticePack],
         correctedPages: [CharacterCollection],
+        aiCleanedPage: AICleanedPageRecord?,
         hasPagePhrases: Bool
     ) -> [StudyPageArtifact] {
         var artifacts: [StudyPageArtifact] = []
+
+        if aiCleanedPage != nil {
+            artifacts.append(StudyPageArtifact(
+                id: "ai-cleaned-page",
+                title: "AI Page",
+                systemImage: "doc.text.magnifyingglass",
+                tint: .indigo,
+                kind: .aiCleanedPage
+            ))
+        }
 
         if collection.translationReport?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
             artifacts.append(StudyPageArtifact(
@@ -570,6 +584,8 @@ extension FavouritesTab {
             openStudyPracticePack(pack)
         case .correctedPage(let corrected):
             beginPromotingOCRCorrection(original: collection, corrected: corrected)
+        case .aiCleanedPage:
+            openAICleanedPage(collection)
         }
     }
 

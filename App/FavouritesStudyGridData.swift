@@ -207,6 +207,15 @@ extension FavouritesTab {
         store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
     }
 
+    func openAICleanedPage(_ collection: CharacterCollection) {
+        withAnimation(.snappy(duration: 0.18)) {
+            isShowingConversationPractice = false
+            isShowingAddedPhraseReview = false
+            isShowingSentenceExamples = false
+            studyAICleanedPageCollectionID = collection.id
+        }
+    }
+
     func setStudyPageActionMessage(_ message: String?, for collection: CharacterCollection) {
         studyPageActionMessage = message
         studyPageActionMessageCollectionID = message == nil ? nil : collection.id
@@ -282,6 +291,13 @@ extension FavouritesTab {
         }
 
         tasks.append(contentsOf: [
+            CollectionPageAITask(
+                id: AIResultTaskID.createAICleanedPage,
+                title: "Create AI Page",
+                systemImage: "doc.text.magnifyingglass",
+                manualAction: { beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createAICleanedPage) },
+                automaticAction: { runAutomaticStudyPageAIAction { runStudyGeminiAICleanedPage(collection) } }
+            ),
             CollectionPageAITask(
                 id: AIResultTaskID.extractPhrases,
                 title: "Extract Phrases",
@@ -439,6 +455,26 @@ extension FavouritesTab {
         }
     }
 
+    func runStudyGeminiAICleanedPage(_ collection: CharacterCollection) {
+        isRunningStudyPageAction = true
+        setStudyPageActionMessage("Creating AI-cleaned page with Gemini API...", for: collection)
+        Task {
+            do {
+                let record = try await store.runGeminiAICleanedPage(for: collection)
+                await MainActor.run {
+                    setStudyPageActionMessage("AI page saved: \(record.cleanedTitle.isEmpty ? collection.name : record.cleanedTitle).", for: collection)
+                    openAICleanedPage(collection)
+                    isRunningStudyPageAction = false
+                }
+            } catch {
+                await MainActor.run {
+                    offerManualStudyAIFallback(.createAICleanedPage(collection), error: error)
+                    isRunningStudyPageAction = false
+                }
+            }
+        }
+    }
+
     func offerManualStudyAIFallback(_ task: BrowseAIFallbackTask, error: Error) {
         studyAutomaticAIError = error.localizedDescription
         switch task {
@@ -446,7 +482,8 @@ extension FavouritesTab {
              .extractPhrases(let collection),
              .translate(let collection),
              .extractSentences(let collection),
-             .createPagePractice(let collection):
+             .createPagePractice(let collection),
+             .createAICleanedPage(let collection):
             setStudyPageActionMessage("Gemini API is unavailable. You can still use Manual AI Link.", for: collection)
         }
         studyAIFallbackTask = task
@@ -464,6 +501,8 @@ extension FavouritesTab {
             beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences)
         case .createPagePractice(let collection):
             beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice)
+        case .createAICleanedPage(let collection):
+            beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createAICleanedPage)
         }
     }
 

@@ -69,6 +69,8 @@ extension FavouritesTab {
                 addedPhraseReviewStudyScreen
             } else if isShowingSentenceExamples {
                 sentenceExamplesStudyScreen
+            } else if studyAICleanedPageCollectionID != nil {
+                aiCleanedPageStudyScreen
             } else {
                 VStack(alignment: .leading, spacing: 0) {
                     studyPinnedControls
@@ -180,6 +182,206 @@ extension FavouritesTab {
                 .padding(.horizontal)
                 .padding(.bottom, 20)
             }
+        }
+    }
+
+    @ViewBuilder
+    var aiCleanedPageStudyScreen: some View {
+        if let context = studyAICleanedPageContext {
+            VStack(alignment: .leading, spacing: 10) {
+                focusedStudyBackButton(title: "Back to Study") {
+                    withAnimation(.snappy(duration: 0.18)) {
+                        studyAICleanedPageCollectionID = nil
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 8)
+
+                ScrollView {
+                    aiCleanedPageContent(context)
+                        .padding(.horizontal)
+                        .padding(.bottom, 20)
+                }
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 10) {
+                focusedStudyBackButton(title: "Back to Study") {
+                    studyAICleanedPageCollectionID = nil
+                }
+                .padding(.horizontal)
+                .padding(.top, 8)
+
+                ContentUnavailableView(
+                    "Page Not Found",
+                    systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage),
+                    description: Text("This saved page is no longer available.")
+                )
+                .frame(maxWidth: .infinity, minHeight: 260)
+            }
+        }
+    }
+
+    var studyAICleanedPageContext: StudyAICleanedPageContext? {
+        guard let studyAICleanedPageCollectionID,
+              let collection = store.collection(id: studyAICleanedPageCollectionID)
+        else { return nil }
+        return StudyAICleanedPageContext(
+            collection: collection,
+            record: RadixStudyPreferences.aiCleanedPage(for: collection.id)
+        )
+    }
+
+    func aiCleanedPageContent(_ context: StudyAICleanedPageContext) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            aiCleanedPageHeader(context)
+
+            if let record = context.record {
+                aiCleanedPageReader(record, collection: context.collection)
+            } else {
+                aiCleanedPageEmptyState(context.collection)
+            }
+        }
+        .padding(.top, 8)
+    }
+
+    func aiCleanedPageHeader(_ context: StudyAICleanedPageContext) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label("AI Page", systemImage: "doc.text.magnifyingglass")
+                .font(ResponsiveFont.title3.bold())
+
+            Text(collectionDisplayName(context.collection))
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .radixSurface(RadixTheme.secondaryBackground.opacity(0.55))
+    }
+
+    func aiCleanedPageReader(_ record: AICleanedPageRecord, collection: CharacterCollection) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(record.cleanedTitle.isEmpty ? collectionDisplayName(collection) : record.cleanedTitle)
+                    .font(ResponsiveFont.headline.weight(.semibold))
+
+                Text(studyGridDisplayText(record.cleanedChineseText))
+                    .font(ResponsiveFont.body)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .textSelection(.enabled)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .radixSurface(RadixTheme.secondaryBackground.opacity(0.48))
+
+            if let englishSummary = record.englishSummary {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Summary")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(englishSummary)
+                        .font(ResponsiveFont.body)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .radixSurface(RadixTheme.secondaryBackground.opacity(0.35))
+            }
+
+            if !record.sentences.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Sentences")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+
+                    ForEach(Array(record.sentences.enumerated()), id: \.element.id) { index, sentence in
+                        aiCleanedPageSentenceRow(sentence, index: index)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .radixSurface(RadixTheme.secondaryBackground.opacity(0.35))
+            }
+
+            if !record.repairNotes.isEmpty {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("AI Notes")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    ForEach(record.repairNotes, id: \.self) { note in
+                        Label(note, systemImage: "checkmark.circle")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .radixSurface(RadixTheme.secondaryBackground.opacity(0.28))
+            }
+        }
+    }
+
+    func aiCleanedPageSentenceRow(_ sentence: AICleanedPageSentence, index: Int) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text("\(index + 1)")
+                    .font(ResponsiveFont.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                    .frame(width: 24, alignment: .trailing)
+
+                Text(studyGridDisplayText(sentence.chinese))
+                    .font(ResponsiveFont.body.weight(.semibold))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .textSelection(.enabled)
+            }
+
+            if let english = sentence.english {
+                Text(english)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, 32)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if !sentence.phraseHints.isEmpty {
+                RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
+                    ForEach(sentence.phraseHints, id: \.self) { phrase in
+                        Button {
+                            presentPhraseFromAICleanedPage(phrase)
+                        } label: {
+                            Text(studyGridDisplayText(phrase))
+                                .font(ResponsiveFont.caption2.weight(.semibold))
+                                .radixPill(horizontal: 8, vertical: 5, background: RadixAccent.primary.opacity(0.09))
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(RadixAccent.primary)
+                    }
+                }
+                .padding(.leading, 32)
+            }
+        }
+        .padding(.vertical, 6)
+    }
+
+    func aiCleanedPageEmptyState(_ collection: CharacterCollection) -> some View {
+        studyEmptyState(
+            title: "No AI Page Yet",
+            message: "Create an AI-cleaned page to turn the original OCR into complete study sentences.",
+            systemImage: "doc.text.magnifyingglass",
+            actionTitle: "Create AI Page",
+            actionSystemImage: "sparkles"
+        ) {
+            beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createAICleanedPage)
+        }
+    }
+
+    func presentPhraseFromAICleanedPage(_ phrase: String) {
+        if let item = store.mergedPhrase(for: phrase) {
+            presentPhrase(item)
+        } else {
+            store.openNewPhraseEditor(word: phrase)
         }
     }
 

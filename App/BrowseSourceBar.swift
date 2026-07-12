@@ -126,6 +126,17 @@ extension FilterGridTab {
                 .frame(minHeight: 32)
                 .radixSurface(RadixTheme.secondaryBackground.opacity(0.55))
 
+            if let sourceOCRLabel = browseSourceOCRLayerLabel(for: collection) {
+                Text(sourceOCRLabel)
+                    .font(ResponsiveFont.caption2.weight(.semibold))
+                    .foregroundStyle(RadixAccent.primary)
+                    .lineLimit(1)
+                    .padding(.horizontal, 8)
+                    .frame(minHeight: 32)
+                    .radixSurface(RadixAccent.primary.opacity(0.08))
+                    .help("Browse shows the original captured page. AI-cleaned pages appear in Study.")
+            }
+
             CollectionPageActionsMenu(
                 collection: collection,
                 onEdit: {
@@ -140,6 +151,11 @@ extension FilterGridTab {
 
             readBrowseSourceButton(collection)
         }
+    }
+
+    func browseSourceOCRLayerLabel(for collection: CharacterCollection) -> String? {
+        guard collection.sourceType == .ocr else { return nil }
+        return collection.correctedFromCollectionID == nil ? "Original OCR" : "Corrected OCR"
     }
 
     func readBrowseSourceButton(_ collection: CharacterCollection) -> some View {
