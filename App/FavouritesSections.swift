@@ -640,7 +640,7 @@ extension FavouritesTab {
     func sentenceExampleActions(_ example: SentenceExampleRecord) -> some View {
         Menu {
             Button {} label: {
-                Label(sentenceExampleSourceLabel(example), systemImage: sentenceExampleSourceIcon(example))
+                Label(store.sentenceExampleSourceLabel(example), systemImage: sentenceExampleSourceIcon(example))
             }
             .disabled(true)
 
@@ -829,19 +829,8 @@ extension FavouritesTab {
         conversationPracticePageIndex = index / conversationPracticePageSize
     }
 
-    func sentenceExampleSourceLabel(_ example: SentenceExampleRecord) -> String {
-        if let title = example.sources.compactMap(\.sourceTitle).first, !title.isEmpty {
-            return title
-        }
-        if example.hasSourceType(.ocrSource) { return "Captured Text" }
-        if example.hasSourceType(.sentencePractice) { return "Page Sentences" }
-        if example.hasSourceType(.conversationPractice) { return "Conversation Practice" }
-        if example.hasSourceType(.favoriteSentence) { return "Favorite Sentence" }
-        return "Sentence Example"
-    }
-
     func sentenceExampleOriginSummary(_ example: SentenceExampleRecord) -> String {
-        let source = sentenceExampleSourceLabel(example)
+        let source = store.sentenceExampleSourceLabel(example)
         if let topic = sentenceExamplePracticeTopic(for: example),
            topic.title != source {
             return "From \(source) / \(topic.title)"

@@ -361,22 +361,10 @@ extension FavouritesTab {
 
     func presentConversationPracticePhrase(_ item: ConversationPracticeItem) {
         selectedConversationPracticeItemID = item.id
-        let phrase = ConversationPracticeScriptSupport.phraseItem(
-            for: item,
-            usesTraditionalScript: studyGridUsesTraditionalScript,
-            store: store
+        store.presentSentencePreviewInSidebar(
+            item,
+            usesTraditionalScript: studyGridUsesTraditionalScript
         )
-        let sentencePhrases = store.verifiedPracticePhraseHints(for: item)
-            .filter { store.phraseStorageWord($0.word) != item.phraseKey }
-            .map {
-                ConversationPracticeScriptSupport.displayPhrase(
-                    $0,
-                    usesTraditionalScript: studyGridUsesTraditionalScript,
-                    store: store
-                )
-            }
-        store.speakPhrase(phrase)
-        store.presentPracticeSentenceInSidebar(phrase, sentencePhrases: sentencePhrases, practiceItem: item)
     }
 
     func isSelectedConversationPracticeSentence(_ item: ConversationPracticeItem) -> Bool {

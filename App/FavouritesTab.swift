@@ -702,28 +702,13 @@ struct FavouritesTab: View {
     var phoneStudyPreviewReturnTitle: String? {
         guard store.sidebarPhraseLookupOverride != nil else { return nil }
         if let item = store.activePracticeSentenceItem,
-           let title = phoneStudyPreviewReturnTitle(for: item) {
+           let title = store.sentencePreviewReturnTitle(for: item, topics: conversationPracticeTopics) {
             return title
         }
         if isShowingSentenceExamples { return "Sentences" }
         if studyAICleanedPageCollectionID != nil { return "Extracted Sentences" }
         if isShowingConversationPractice { return selectedConversationPracticeTopic.title }
         return "Study"
-    }
-
-    func phoneStudyPreviewReturnTitle(for item: ConversationPracticeItem) -> String? {
-        let examples = RadixStudyPreferences.currentSentenceExamples
-        if let id = item.sentenceExampleID,
-           let example = examples.first(where: { $0.id == id }) {
-            return sentenceExampleSourceLabel(example)
-        }
-        if let example = examples.first(where: { $0.normalizedChineseKey == item.sentenceKey }) {
-            return sentenceExampleSourceLabel(example)
-        }
-        if let topic = conversationPracticeTopics.first(where: { $0.id == item.setID }) {
-            return topic.title
-        }
-        return nil
     }
 }
 

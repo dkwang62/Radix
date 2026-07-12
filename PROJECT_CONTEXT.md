@@ -62,6 +62,10 @@ On phone, the Study preview return pill for a sentence card must derive from
 the active sentence example's real source before falling back to a Conversation
 Practice topic, so unrelated selected topics cannot leak into page/extracted
 sentence previews.
+Sentence-card presentation should go through RadixStore helpers
+(`presentSentencePreviewInSidebar`, `sentencePreviewPhrases`, and
+`sentencePreviewReturnTitle`) instead of each Study surface rebuilding the
+sentence-as-phrase, phrase list, speech, and return label independently.
 
 ## Product and Platform Scope
 

@@ -80,25 +80,10 @@ struct SentenceExampleListSheet: View {
 
     private func present(_ example: SentenceExampleRecord, rank: Int) {
         let item = ConversationPracticeItem(sentenceExample: example, rank: rank)
-        let phrase = ConversationPracticeScriptSupport.phraseItem(
-            for: item,
+        store.presentSentencePreviewInSidebar(
+            item,
             usesTraditionalScript: false,
-            store: store
-        )
-        let sentencePhrases = store.verifiedPracticePhraseHints(for: item)
-            .filter { store.phraseStorageWord($0.word) != item.phraseKey }
-            .map {
-                ConversationPracticeScriptSupport.displayPhrase(
-                    $0,
-                    usesTraditionalScript: false,
-                    store: store
-                )
-            }
-
-        store.presentPracticeSentenceInSidebar(
-            phrase,
-            sentencePhrases: sentencePhrases,
-            practiceItem: item
+            speak: false
         )
         dismiss()
     }

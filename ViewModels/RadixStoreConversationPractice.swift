@@ -247,6 +247,91 @@ extension RadixStore {
         }
     }
 
+    func sentencePreviewPhrase(
+        for item: ConversationPracticeItem,
+        usesTraditionalScript: Bool
+    ) -> PhraseItem {
+        ConversationPracticeScriptSupport.phraseItem(
+            for: item,
+            usesTraditionalScript: usesTraditionalScript,
+            store: self
+        )
+    }
+
+    func sentencePreviewPhrases(
+        for item: ConversationPracticeItem,
+        usesTraditionalScript: Bool
+    ) -> [PhraseItem] {
+        let storedHints = storedPracticePhraseHints(for: item)
+        let phraseHints = storedHints.isEmpty ? verifiedPracticePhraseHints(for: item) : storedHints
+        return phraseHints
+            .filter { phraseStorageWord($0.word) != item.phraseKey }
+            .map {
+                ConversationPracticeScriptSupport.displayPhrase(
+                    $0,
+                    usesTraditionalScript: usesTraditionalScript,
+                    store: self
+                )
+            }
+    }
+
+    func presentSentencePreviewInSidebar(
+        _ item: ConversationPracticeItem,
+        usesTraditionalScript: Bool,
+        speak: Bool = true
+    ) {
+        let phrase = sentencePreviewPhrase(
+            for: item,
+            usesTraditionalScript: usesTraditionalScript
+        )
+        let sentencePhrases = sentencePreviewPhrases(
+            for: item,
+            usesTraditionalScript: usesTraditionalScript
+        )
+        if speak {
+            speakPhrase(phrase)
+        }
+        presentPracticeSentenceInSidebar(
+            phrase,
+            sentencePhrases: sentencePhrases,
+            practiceItem: item
+        )
+    }
+
+    func sentenceExample(for item: ConversationPracticeItem) -> SentenceExampleRecord? {
+        let examples = RadixStudyPreferences.currentSentenceExamples
+        if let id = item.sentenceExampleID,
+           let example = examples.first(where: { $0.id == id }) {
+            return example
+        }
+        return examples.first { $0.normalizedChineseKey == item.sentenceKey }
+    }
+
+    func sentenceExampleSourceLabel(_ example: SentenceExampleRecord) -> String {
+        if let title = example.sources.compactMap(\.sourceTitle).first, !title.isEmpty {
+            return title
+        }
+        if example.hasSourceType(.aiCleanedPage) { return "Extracted Sentences" }
+        if example.hasSourceType(.ocrSource) { return "Captured Text" }
+        if example.hasSourceType(.sentencePractice) { return "Page Sentences" }
+        if example.hasSourceType(.conversationPractice) { return "Conversation Practice" }
+        if example.hasSourceType(.favoriteSentence) { return "Favorite Sentence" }
+        return "Sentence Example"
+    }
+
+    func sentencePreviewReturnTitle(
+        for item: ConversationPracticeItem,
+        topics: [ConversationPracticeTopic]
+    ) -> String? {
+        if let example = sentenceExample(for: item) {
+            return sentenceExampleSourceLabel(example)
+        }
+        if let topic = topics.first(where: { $0.id == item.setID }) {
+            return topic.title
+        }
+        return nil
+    }
+
     func linkedPracticeHints(for item: ConversationPracticeItem) -> ConversationPracticeLinkedHints {
         let cacheKey = ConversationPracticeHintCacheKey(
             setID: item.setID,
