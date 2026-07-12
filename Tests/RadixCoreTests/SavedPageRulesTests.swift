@@ -105,6 +105,47 @@ struct SavedPageRulesTests {
         #expect(SavedPageRules.isDeletedWithPage(descriptor))
     }
 
+    @Test("AI-cleaned page import parser accepts fenced JSON")
+    func aiCleanedPageImportParserAcceptsFencedJSON() throws {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000404")!
+        let response = """
+        Here is the cleaned page:
+
+        ```json
+        {
+          "cleaned_title": "Cleaned News",
+          "cleaned_chinese_text": "中美关系正在变化。",
+          "sentences": [
+            {
+              "id": "ai_page_sentence_001",
+              "chinese": "中美关系正在变化。",
+              "english": "China-US relations are changing.",
+              "phrase_hints": ["中美关系", "变化"]
+            }
+          ],
+          "english_summary": "A short summary.",
+          "repair_notes": ["Expanded a headline fragment."]
+        }
+        ```
+        """
+        let record = try AICleanedPageImportParser.parse(
+            response,
+            sourcePageID: pageID,
+            sourceTitle: "Original Page",
+            createdAt: Date(timeIntervalSince1970: 400)
+        )
+
+        #expect(record.sourcePageID == pageID)
+        #expect(record.sourceTitle == "Original Page")
+        #expect(record.cleanedTitle == "Cleaned News")
+        #expect(record.cleanedChineseText == "中美关系正在变化。")
+        #expect(record.sentences.count == 1)
+        #expect(record.sentences.first?.phraseHints == ["中美关系", "变化"])
+        #expect(record.englishSummary == "A short summary.")
+        #expect(record.repairNotes == ["Expanded a headline fragment."])
+        #expect(record.createdAt == Date(timeIntervalSince1970: 400))
+    }
+
     @Test("Page phrase extraction records preserve page links and deduplicate words")
     func pagePhraseExtractionRecordDeduplicatesWords() {
         let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000202")!

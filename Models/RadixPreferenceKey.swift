@@ -11,6 +11,7 @@ enum RadixPreferenceKey {
     static let favoriteSentences = "radix.favoriteSentences"
     static let sentenceExamples = "radix.sentenceExamples"
     static let pagePhraseExtractions = "radix.pagePhraseExtractions"
+    static let aiCleanedPages = "radix.aiCleanedPages"
     static let overlayAddedDates = "radix.overlayAddedDates"
 
     static let speechEnabled = "radix.speechEnabled"

@@ -144,6 +144,7 @@ struct UnifiedPackage: Codable {
     let favoriteSentences: [FavoriteSentenceRecord]?
     let sentenceExamples: [SentenceExampleRecord]?
     let pagePhraseExtractions: [PagePhraseExtractionRecord]?
+    let aiCleanedPages: [AICleanedPageRecord]?
     let apiKeys: APIKeyBackup?
 
     enum CodingKeys: String, CodingKey {
@@ -163,6 +164,7 @@ struct UnifiedPackage: Codable {
         case favoriteSentences = "favorite_sentences"
         case sentenceExamples = "sentence_examples"
         case pagePhraseExtractions = "page_phrase_extractions"
+        case aiCleanedPages = "ai_cleaned_pages"
         case apiKeys = "api_keys"
     }
 
@@ -183,6 +185,7 @@ struct UnifiedPackage: Codable {
         favoriteSentences: [FavoriteSentenceRecord]? = nil,
         sentenceExamples: [SentenceExampleRecord]? = nil,
         pagePhraseExtractions: [PagePhraseExtractionRecord]? = nil,
+        aiCleanedPages: [AICleanedPageRecord]? = nil,
         apiKeys: APIKeyBackup? = nil
     ) {
         self.schemaVersion = schemaVersion
@@ -201,6 +204,7 @@ struct UnifiedPackage: Codable {
         self.favoriteSentences = favoriteSentences
         self.sentenceExamples = sentenceExamples
         self.pagePhraseExtractions = pagePhraseExtractions
+        self.aiCleanedPages = aiCleanedPages
         self.apiKeys = apiKeys
     }
 }

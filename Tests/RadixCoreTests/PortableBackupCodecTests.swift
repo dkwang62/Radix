@@ -61,6 +61,23 @@ struct PortableBackupCodecTests {
             phraseWords: ["学习"],
             extractedAt: exportedAt
         )
+        let aiCleanedPage = AICleanedPageRecord(
+            sourcePageID: UUID(uuidString: "00000000-0000-0000-0000-000000000404")!,
+            sourceTitle: "Original Page",
+            cleanedTitle: "Cleaned Page",
+            cleanedChineseText: "你好。",
+            sentences: [
+                AICleanedPageSentence(
+                    id: "ai_page_sentence_001",
+                    chinese: "你好。",
+                    english: "Hello.",
+                    phraseHints: ["你好"]
+                )
+            ],
+            englishSummary: "Greeting.",
+            repairNotes: ["None"],
+            createdAt: exportedAt
+        )
         let package = UnifiedPackage(
             schemaVersion: PortableBackupCodec.currentSchemaVersion,
             exportedAt: exportedAt,
@@ -70,7 +87,8 @@ struct PortableBackupCodecTests {
             conversationPracticePacks: [practicePack],
             conversationPracticeProgress: practiceProgress,
             favoriteSentences: [favoriteSentence],
-            pagePhraseExtractions: [pagePhraseExtraction]
+            pagePhraseExtractions: [pagePhraseExtraction],
+            aiCleanedPages: [aiCleanedPage]
         )
 
         let data = try codec.encode(package)
@@ -87,6 +105,7 @@ struct PortableBackupCodecTests {
         #expect(decoded.conversationPracticeProgress == practiceProgress)
         #expect(decoded.favoriteSentences == [favoriteSentence])
         #expect(decoded.pagePhraseExtractions == [pagePhraseExtraction])
+        #expect(decoded.aiCleanedPages == [aiCleanedPage])
     }
 
     @Test("Legacy Apple reference dates still decode")
@@ -109,6 +128,7 @@ struct PortableBackupCodecTests {
         #expect(decoded.conversationPracticePacks == nil)
         #expect(decoded.conversationPracticeProgress == nil)
         #expect(decoded.favoriteSentences == nil)
+        #expect(decoded.aiCleanedPages == nil)
     }
 
     @Test("Empty and future backups fail safely")

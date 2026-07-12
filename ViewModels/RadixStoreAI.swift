@@ -25,7 +25,8 @@ enum AIResultTaskID {
         checkOCR,
         generatePracticePack,
         extractSentences,
-        createPagePractice
+        createPagePractice,
+        createAICleanedPage
     ]
 }
 
@@ -54,6 +55,7 @@ enum AIResultApplicationOutcome {
     case translation(CharacterCollection)
     case correctedOCR(CharacterCollection)
     case conversationPractice(ConversationPracticePack)
+    case aiCleanedPage(AICleanedPageRecord)
 
     func message(defaultAIName: String) -> String {
         switch self {
@@ -65,6 +67,8 @@ enum AIResultApplicationOutcome {
             return "Corrected page created: \(collection.name)."
         case .conversationPractice(let pack):
             return "Imported \(pack.title) - \(pack.entries.count) sentences."
+        case .aiCleanedPage(let record):
+            return "AI-cleaned page saved: \(record.cleanedTitle.isEmpty ? record.sourceTitle : record.cleanedTitle)."
         }
     }
 }
@@ -193,6 +197,20 @@ extension RadixStore {
         return pack
     }
 
+    @discardableResult
+    func importAICleanedPage(
+        fromAIResponse responseText: String,
+        for collection: CharacterCollection
+    ) throws -> AICleanedPageRecord {
+        let record = try AICleanedPageImportParser.parse(
+            responseText,
+            sourcePageID: collection.id,
+            sourceTitle: collection.name
+        )
+        RadixStudyPreferences.recordAICleanedPage(record)
+        return record
+    }
+
     func applyAIResult(taskID: String, responseText: String, collection: CharacterCollection?, sourceName: String) throws -> AIResultApplicationOutcome {
         switch taskID {
         case AIResultTaskID.extractPhrases:
@@ -212,6 +230,9 @@ extension RadixStore {
                 sourceName: sourceName,
                 sourceCollection: collection
             ))
+        case AIResultTaskID.createAICleanedPage:
+            guard let collection else { throw AIResultApplicationError.missingCollection }
+            return .aiCleanedPage(try importAICleanedPage(fromAIResponse: responseText, for: collection))
         default:
             throw AIResultApplicationError.unsupportedTask
         }

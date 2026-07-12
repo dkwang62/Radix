@@ -360,4 +360,43 @@ enum RadixStudyPreferences {
         }
         pagePhraseExtractions = records
     }
+
+    static var aiCleanedPages: [AICleanedPageRecord] {
+        get {
+            guard let data = preferences.data(forKey: RadixPreferenceKey.aiCleanedPages) else {
+                return []
+            }
+            return (try? JSONDecoder().decode([AICleanedPageRecord].self, from: data)) ?? []
+        }
+        set {
+            let records = newValue
+                .filter { !$0.cleanedChineseText.isEmpty || !$0.sentences.isEmpty }
+                .sorted { $0.createdAt > $1.createdAt }
+            let data = try? JSONEncoder().encode(records)
+            preferences.set(data, forKey: RadixPreferenceKey.aiCleanedPages)
+        }
+    }
+
+    static func aiCleanedPage(for pageID: UUID) -> AICleanedPageRecord? {
+        aiCleanedPages.first { $0.sourcePageID == pageID }
+    }
+
+    static func recordAICleanedPage(_ record: AICleanedPageRecord) {
+        var records = aiCleanedPages
+        records.removeAll { $0.sourcePageID == record.sourcePageID }
+        records.append(record)
+        aiCleanedPages = records
+    }
+
+    static func applyImportedAICleanedPages(_ records: [AICleanedPageRecord]?, mode: RestoreMode) {
+        switch mode {
+        case .additive:
+            guard let records, !records.isEmpty else { return }
+            for record in records {
+                recordAICleanedPage(record)
+            }
+        case .complete:
+            aiCleanedPages = records ?? []
+        }
+    }
 }

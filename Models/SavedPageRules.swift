@@ -171,6 +171,77 @@ struct AICleanedPageSentence: Codable, Equatable, Hashable, Identifiable {
     }
 }
 
+struct AICleanedPageImportParser {
+    static func parse(
+        _ text: String,
+        sourcePageID: UUID,
+        sourceTitle: String,
+        createdAt: Date = Date()
+    ) throws -> AICleanedPageRecord {
+        var lastError: Error?
+        for candidate in ConversationPracticeRules.importJSONCandidates(from: text) {
+            guard let data = candidate.data(using: .utf8) else { continue }
+            do {
+                let payload = try JSONDecoder().decode(AICleanedPageImportPayload.self, from: data)
+                let record = payload.record(
+                    sourcePageID: sourcePageID,
+                    sourceTitle: sourceTitle,
+                    createdAt: createdAt
+                )
+                guard !record.cleanedChineseText.isEmpty || !record.sentences.isEmpty else {
+                    throw DecodingError.dataCorrupted(.init(
+                        codingPath: [],
+                        debugDescription: "The AI-cleaned page JSON is empty."
+                    ))
+                }
+                return record
+            } catch {
+                lastError = error
+            }
+        }
+        if let lastError {
+            throw lastError
+        }
+        throw DecodingError.dataCorrupted(.init(
+            codingPath: [],
+            debugDescription: "Paste AI-cleaned page JSON with cleaned_chinese_text and sentences."
+        ))
+    }
+}
+
+private struct AICleanedPageImportPayload: Codable {
+    var cleanedTitle: String
+    var cleanedChineseText: String
+    var sentences: [AICleanedPageSentence]
+    var englishSummary: String?
+    var repairNotes: [String]?
+
+    enum CodingKeys: String, CodingKey {
+        case cleanedTitle = "cleaned_title"
+        case cleanedChineseText = "cleaned_chinese_text"
+        case sentences
+        case englishSummary = "english_summary"
+        case repairNotes = "repair_notes"
+    }
+
+    func record(
+        sourcePageID: UUID,
+        sourceTitle: String,
+        createdAt: Date
+    ) -> AICleanedPageRecord {
+        AICleanedPageRecord(
+            sourcePageID: sourcePageID,
+            sourceTitle: sourceTitle,
+            cleanedTitle: cleanedTitle,
+            cleanedChineseText: cleanedChineseText,
+            sentences: sentences,
+            englishSummary: englishSummary,
+            repairNotes: repairNotes ?? [],
+            createdAt: createdAt
+        )
+    }
+}
+
 struct PageArtifactDescriptor: Codable, Equatable, Hashable, Identifiable {
     let id: String
     let sourcePageID: UUID

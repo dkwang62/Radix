@@ -158,8 +158,12 @@ extension RadixStore {
             .intersection(linkedPracticePackIDs)
         let pagePhraseExtraction = RadixStudyPreferences.pagePhraseExtractions
             .first { $0.sourcePageID == collection.id }
+        let aiCleanedPage = RadixStudyPreferences.aiCleanedPage(for: collection.id)
 
         var ownedArtifacts: [PageArtifactDescriptor] = []
+        if let aiCleanedPage {
+            ownedArtifacts.append(aiCleanedPage.artifactDescriptor)
+        }
         ownedArtifacts.append(contentsOf: correctedPages.map {
             PageArtifactDescriptor(
                 sourcePageID: collection.id,
@@ -268,6 +272,9 @@ extension RadixStore {
         var phraseExtractions = RadixStudyPreferences.pagePhraseExtractions
         phraseExtractions.removeAll { removedCollectionIDs.contains($0.sourcePageID) }
         RadixStudyPreferences.pagePhraseExtractions = phraseExtractions
+        var cleanedPages = RadixStudyPreferences.aiCleanedPages
+        cleanedPages.removeAll { removedCollectionIDs.contains($0.sourcePageID) }
+        RadixStudyPreferences.aiCleanedPages = cleanedPages
         persistCollections()
     }
 

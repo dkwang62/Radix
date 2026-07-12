@@ -529,6 +529,7 @@ extension AILinkView {
         case AIResultTaskID.extractPhrases: return "text.badge.plus"
         case AIResultTaskID.translatePage: return "translate"
         case AIResultTaskID.checkOCR: return "text.viewfinder"
+        case AIResultTaskID.createAICleanedPage: return "text.page.badge.magnifyingglass"
         case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice: return "bubble.left.and.bubble.right"
         default: return "doc.text"
         }
@@ -539,6 +540,7 @@ extension AILinkView {
         case AIResultTaskID.extractPhrases: return "Paste the extracted phrase list here to add the phrases to Radix."
         case AIResultTaskID.translatePage: return "Paste the translation here to save it with the selected page."
         case AIResultTaskID.checkOCR: return "Paste the OCR review here to create a corrected saved page."
+        case AIResultTaskID.createAICleanedPage: return "Paste the AI-cleaned page JSON here to save it with the selected page."
         case AIResultTaskID.generatePracticePack: return "Paste the practice-pack JSON here to import it into Study."
         case AIResultTaskID.extractSentences: return "Paste the extracted-sentences JSON here to import it into Conversation Practice."
         case AIResultTaskID.createPagePractice: return "Paste the page-practice JSON here to import it into Conversation Practice."
@@ -552,6 +554,7 @@ extension AILinkView {
         case AIResultTaskID.extractPhrases: return "Add Phrases"
         case AIResultTaskID.translatePage: return "Save Translation"
         case AIResultTaskID.checkOCR: return "Create Corrected Page"
+        case AIResultTaskID.createAICleanedPage: return "Save Cleaned Page"
         case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice: return "Import Practice"
         default: return "Apply"
         }
