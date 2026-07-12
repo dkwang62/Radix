@@ -244,6 +244,67 @@ struct SavedPageRulesTests {
         #expect(record.sentences.first?.phraseHints == ["中美关系"])
     }
 
+    @Test("AI-cleaned page import parser extracts prose-wrapped top-level arrays")
+    func aiCleanedPageImportParserExtractsProseWrappedTopLevelArrays() throws {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000408")!
+        let response = """
+        You are correct. Here is the complete sentence list:
+
+        [
+          {
+            "zh": "中美关系正在变化。",
+            "pinyin": "Zhōng-Měi guānxì zhèngzài biànhuà.",
+            "en": "China-US relations are changing."
+          },
+          {
+            "zh": "双方正在保持沟通。",
+            "en": "Both sides are maintaining communication."
+          }
+        ]
+        """
+
+        let record = try AICleanedPageImportParser.parse(
+            response,
+            sourcePageID: pageID,
+            sourceTitle: "Original Page",
+            createdAt: Date(timeIntervalSince1970: 408)
+        )
+
+        #expect(record.sentences.count == 2)
+        #expect(record.sentences.first?.chinese == "中美关系正在变化。")
+        #expect(record.sentences.first?.pinyin == "Zhōng-Měi guānxì zhèngzài biànhuà.")
+        #expect(record.sentences.last?.english == "Both sides are maintaining communication.")
+    }
+
+    @Test("AI-cleaned page import parser salvages non-JSON Chinese response text")
+    func aiCleanedPageImportParserSalvagesNonJSONChineseResponseText() throws {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000409")!
+        let response = """
+        Gemini could not produce JSON, but the cleaned sentences are:
+
+        1. 中美关系正在变化。
+        2. 双方正在保持沟通。
+
+        Please import what is usable.
+        """
+
+        let record = try AICleanedPageImportParser.parse(
+            response,
+            sourcePageID: pageID,
+            sourceTitle: "Original Page",
+            createdAt: Date(timeIntervalSince1970: 409)
+        )
+
+        #expect(record.cleanedTitle == "Original Page")
+        #expect(record.sentences.map(\.chinese) == [
+            "中美关系正在变化",
+            "双方正在保持沟通"
+        ])
+        #expect(record.repairNotes == [
+            "Imported Chinese sentence fragments from a non-JSON AI response."
+        ])
+    }
+
     @Test("Page phrase extraction records preserve page links and deduplicate words")
     func pagePhraseExtractionRecordDeduplicatesWords() {
         let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000202")!

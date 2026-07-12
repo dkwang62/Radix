@@ -201,7 +201,7 @@ struct AICleanedPageImportParser {
         createdAt: Date = Date()
     ) throws -> AICleanedPageRecord {
         var lastError: Error?
-        for candidate in ConversationPracticeRules.importJSONCandidates(from: text) {
+        for candidate in importJSONCandidates(from: text) {
             guard let data = candidate.data(using: .utf8) else { continue }
             do {
                 let payload = try JSONDecoder().decode(AICleanedPageImportPayload.self, from: data)
@@ -242,12 +242,94 @@ struct AICleanedPageImportParser {
             }
         }
         if let lastError {
+            let salvage = plainTextRecord(
+                from: text,
+                sourcePageID: sourcePageID,
+                sourceTitle: sourceTitle,
+                createdAt: createdAt
+            )
+            if !salvage.sentences.isEmpty {
+                return salvage
+            }
             throw lastError
+        }
+        let salvage = plainTextRecord(
+            from: text,
+            sourcePageID: sourcePageID,
+            sourceTitle: sourceTitle,
+            createdAt: createdAt
+        )
+        if !salvage.sentences.isEmpty {
+            return salvage
         }
         throw DecodingError.dataCorrupted(.init(
             codingPath: [],
             debugDescription: "Paste extracted-sentences JSON with cleaned_chinese_text and sentences."
         ))
+    }
+
+    private static func plainTextRecord(
+        from text: String,
+        sourcePageID: UUID,
+        sourceTitle: String,
+        createdAt: Date
+    ) -> AICleanedPageRecord {
+        let fragments = SentenceExampleRecord.sentenceFragments(in: text)
+            .map(cleanLeadingListMarker)
+            .filter { !$0.isEmpty }
+        let sentences = fragments.enumerated().map { index, fragment in
+            AICleanedPageSentence(
+                id: String(format: "ai_page_sentence_%03d", index + 1),
+                chinese: fragment
+            )
+        }
+        return AICleanedPageRecord(
+            sourcePageID: sourcePageID,
+            sourceTitle: sourceTitle,
+            cleanedTitle: sourceTitle,
+            cleanedChineseText: fragments.joined(separator: " "),
+            sentences: sentences,
+            repairNotes: sentences.isEmpty ? [] : [
+                "Imported Chinese sentence fragments from a non-JSON AI response."
+            ],
+            createdAt: createdAt
+        )
+    }
+
+    private static func importJSONCandidates(from text: String) -> [String] {
+        var candidates = ConversationPracticeRules.importJSONCandidates(from: text)
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let firstBracket = trimmed.firstIndex(of: "["),
+           let lastBracket = trimmed.lastIndex(of: "]"),
+           firstBracket < lastBracket {
+            let arrayBody = String(trimmed[firstBracket...lastBracket])
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if !arrayBody.isEmpty {
+                candidates.append(arrayBody)
+            }
+        }
+
+        var seen = Set<String>()
+        return candidates.filter { candidate in
+            guard !seen.contains(candidate) else { return false }
+            seen.insert(candidate)
+            return true
+        }
+    }
+
+    private static func cleanLeadingListMarker(_ value: String) -> String {
+        var trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        while let first = trimmed.unicodeScalars.first,
+              CharacterSet.decimalDigits.contains(first) {
+            trimmed.removeFirst()
+        }
+        trimmed = trimmed.trimmingCharacters(in: .whitespacesAndNewlines)
+        while let first = trimmed.first,
+              [".", "．", "、", ")", "）", "-", "–", "—"].contains(first) {
+            trimmed.removeFirst()
+            trimmed = trimmed.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return trimmed
     }
 }
 
@@ -294,7 +376,27 @@ private struct AICleanedPageImportPayload: Codable {
             keyedBy: FlexibleCodingKey.self,
             forKey: FlexibleCodingKey("data")
         )
-        let containers = [container, nestedPage, nestedResult, nestedData].compactMap { $0 }
+        let nestedCleanedPage = try? container.nestedContainer(
+            keyedBy: FlexibleCodingKey.self,
+            forKey: FlexibleCodingKey("cleaned_page")
+        )
+        let nestedAICleanedPage = try? container.nestedContainer(
+            keyedBy: FlexibleCodingKey.self,
+            forKey: FlexibleCodingKey("ai_cleaned_page")
+        )
+        let nestedExtractedSentences = try? container.nestedContainer(
+            keyedBy: FlexibleCodingKey.self,
+            forKey: FlexibleCodingKey("extracted_sentences")
+        )
+        let containers = [
+            container,
+            nestedPage,
+            nestedResult,
+            nestedData,
+            nestedCleanedPage,
+            nestedAICleanedPage,
+            nestedExtractedSentences
+        ].compactMap { $0 }
 
         cleanedTitle = containers.decodeFirstString(for: [
             "cleaned_title",
@@ -320,6 +422,10 @@ private struct AICleanedPageImportPayload: Codable {
             "sentenceRecords",
             "sentence_list",
             "sentenceList",
+            "extracted_sentences",
+            "extractedSentences",
+            "cleaned_sentences",
+            "cleanedSentences",
             "items",
             "records"
         ])

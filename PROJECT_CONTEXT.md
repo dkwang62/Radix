@@ -36,8 +36,10 @@ process the entire source/OCR text into cleaned prose and sentence records in
 reading order, not choose a representative subset of study sentences.
 The importer remains tolerant at the boundary: exact Radix JSON is preferred,
 but common AI variants such as camelCase keys, nested page/result/data objects,
-`zh`/`en` sentence fields, string phrase lists, prose-only output, and top-level
-sentence arrays should be salvaged into `AICleanedPageRecord` when possible.
+cleaned-page wrapper keys, `zh`/`en` sentence fields, string phrase lists,
+prose-only output, prose-wrapped top-level sentence arrays, and numbered
+Chinese sentence lists should be salvaged into `AICleanedPageRecord` when
+possible.
 Sentence previews still use the shared `PhraseInfoCard` presentation route, but
 its sentence mode is now sentence-first: whole sentence and English meaning,
 pinyin hidden behind a control, inline phrase highlighting in the Chinese text,
