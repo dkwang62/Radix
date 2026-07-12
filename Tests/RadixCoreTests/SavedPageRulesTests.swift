@@ -27,6 +27,7 @@ struct SavedPageRulesTests {
 
     @Test("Page artifact types declare deletion ownership")
     func pageArtifactOwnership() {
+        #expect(SavedPageRules.ownership(for: .aiCleanedPage) == .pageOwned)
         #expect(SavedPageRules.ownership(for: .correctedOCRPage) == .pageOwned)
         #expect(SavedPageRules.ownership(for: .translation) == .pageOwned)
         #expect(SavedPageRules.ownership(for: .quiz) == .pageOwned)
@@ -65,6 +66,43 @@ struct SavedPageRulesTests {
         #expect(SavedPageRules.isDeletedWithPage(descriptor))
         #expect(linked.ownership == .linked)
         #expect(!SavedPageRules.isDeletedWithPage(linked))
+    }
+
+    @Test("AI-cleaned page records are page-owned artifacts")
+    func aiCleanedPageRecordDescriptor() {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000303")!
+        let record = AICleanedPageRecord(
+            sourcePageID: pageID,
+            sourceTitle: " Original News ",
+            cleanedTitle: " China US Relations ",
+            cleanedChineseText: " 中美关系正在变化。 ",
+            sentences: [
+                AICleanedPageSentence(
+                    id: " s1 ",
+                    chinese: " 中美关系正在变化。 ",
+                    english: " China-US relations are changing. ",
+                    phraseHints: [" 中美关系 ", "", "变化"]
+                )
+            ],
+            englishSummary: " ",
+            repairNotes: [" expanded headline shorthand ", ""],
+            createdAt: Date(timeIntervalSince1970: 300)
+        )
+        let descriptor = record.artifactDescriptor
+
+        #expect(record.id == pageID)
+        #expect(record.sourceTitle == "Original News")
+        #expect(record.cleanedTitle == "China US Relations")
+        #expect(record.cleanedChineseText == "中美关系正在变化。")
+        #expect(record.sentences.first?.id == "s1")
+        #expect(record.sentences.first?.chinese == "中美关系正在变化。")
+        #expect(record.sentences.first?.english == "China-US relations are changing.")
+        #expect(record.sentences.first?.phraseHints == ["中美关系", "变化"])
+        #expect(record.englishSummary == nil)
+        #expect(record.repairNotes == ["expanded headline shorthand"])
+        #expect(descriptor.id == "00000000-0000-0000-0000-000000000303:aiCleanedPage:00000000-0000-0000-0000-000000000303")
+        #expect(descriptor.ownership == .pageOwned)
+        #expect(SavedPageRules.isDeletedWithPage(descriptor))
     }
 
     @Test("Page phrase extraction records preserve page links and deduplicate words")

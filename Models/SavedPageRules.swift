@@ -48,6 +48,7 @@ enum PageArtifactOwnership: String, Codable, CaseIterable, Equatable, Hashable {
 }
 
 enum PageArtifactType: String, Codable, CaseIterable, Equatable, Hashable {
+    case aiCleanedPage
     case correctedOCRPage
     case translation
     case quiz
@@ -64,7 +65,8 @@ enum PageArtifactType: String, Codable, CaseIterable, Equatable, Hashable {
 
     var defaultOwnership: PageArtifactOwnership {
         switch self {
-        case .correctedOCRPage,
+        case .aiCleanedPage,
+             .correctedOCRPage,
              .translation,
              .quiz,
              .extractedSentencePractice,
@@ -80,6 +82,92 @@ enum PageArtifactType: String, Codable, CaseIterable, Equatable, Hashable {
              .reusablePracticeProgress:
             return .linked
         }
+    }
+}
+
+struct AICleanedPageRecord: Codable, Equatable, Hashable, Identifiable {
+    let sourcePageID: UUID
+    var sourceTitle: String
+    var cleanedTitle: String
+    var cleanedChineseText: String
+    var sentences: [AICleanedPageSentence]
+    var englishSummary: String?
+    var repairNotes: [String]
+    var createdAt: Date
+
+    var id: UUID { sourcePageID }
+
+    enum CodingKeys: String, CodingKey {
+        case sourcePageID = "source_page_id"
+        case sourceTitle = "source_title"
+        case cleanedTitle = "cleaned_title"
+        case cleanedChineseText = "cleaned_chinese_text"
+        case sentences
+        case englishSummary = "english_summary"
+        case repairNotes = "repair_notes"
+        case createdAt = "created_at"
+    }
+
+    init(
+        sourcePageID: UUID,
+        sourceTitle: String,
+        cleanedTitle: String,
+        cleanedChineseText: String,
+        sentences: [AICleanedPageSentence],
+        englishSummary: String? = nil,
+        repairNotes: [String] = [],
+        createdAt: Date
+    ) {
+        self.sourcePageID = sourcePageID
+        self.sourceTitle = sourceTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.cleanedTitle = cleanedTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.cleanedChineseText = cleanedChineseText.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.sentences = sentences
+        let cleanSummary = englishSummary?.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.englishSummary = cleanSummary?.isEmpty == true ? nil : cleanSummary
+        self.repairNotes = repairNotes
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        self.createdAt = createdAt
+    }
+
+    var artifactDescriptor: PageArtifactDescriptor {
+        PageArtifactDescriptor(
+            sourcePageID: sourcePageID,
+            artifactType: .aiCleanedPage,
+            artifactID: sourcePageID.uuidString,
+            displayTitle: cleanedTitle.isEmpty ? "AI-cleaned page" : cleanedTitle,
+            createdAt: createdAt
+        )
+    }
+}
+
+struct AICleanedPageSentence: Codable, Equatable, Hashable, Identifiable {
+    var id: String
+    var chinese: String
+    var english: String?
+    var phraseHints: [String]
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case chinese
+        case english
+        case phraseHints = "phrase_hints"
+    }
+
+    init(
+        id: String,
+        chinese: String,
+        english: String? = nil,
+        phraseHints: [String] = []
+    ) {
+        self.id = id.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.chinese = chinese.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanEnglish = english?.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.english = cleanEnglish?.isEmpty == true ? nil : cleanEnglish
+        self.phraseHints = phraseHints
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
     }
 }
 

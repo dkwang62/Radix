@@ -15,6 +15,9 @@ Page -> Sentence -> Phrase -> Character learning graph. Browse remains the
 source-inspection home for Original OCR, while Study becomes the page-centered
 learning workspace for AI-cleaned pages, sentence study, phrases, translation,
 quiz, conversation practice, and notes.
+AI-cleaned pages are modeled as page-owned `AICleanedPageRecord` artifacts, not
+as replacements for `CharacterCollection.originalOCRText` or corrected OCR
+pages.
 
 ## Product and Platform Scope
 
