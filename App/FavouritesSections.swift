@@ -166,7 +166,7 @@ extension FavouritesTab {
 
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 8) {
-                    if filteredSentenceExamples.isEmpty {
+                    if sentenceExampleResultCount == 0 {
                         ContentUnavailableView(
                             "No Sentences",
                             systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"),
@@ -182,6 +182,9 @@ extension FavouritesTab {
                 .padding(.horizontal)
                 .padding(.bottom, 20)
             }
+        }
+        .onAppear {
+            refreshSentenceExampleResults()
         }
     }
 
@@ -479,6 +482,7 @@ extension FavouritesTab {
                         Button {
                             sentenceExampleFilter = filter
                             resetSentenceExamplePage()
+                            refreshSentenceExampleResults()
                         } label: {
                             Label(filter.rawValue, systemImage: filter.systemImage)
                                 .font(ResponsiveFont.caption.weight(.semibold))
@@ -505,20 +509,8 @@ extension FavouritesTab {
                 sentenceExampleFilter = .all
             }
             resetSentenceExamplePage()
+            refreshSentenceExampleResults()
         }
-    }
-
-    var allSentenceExamples: [SentenceExampleRecord] {
-        _ = sentenceExampleRevision
-        return SentenceExampleRecord.ranked(RadixStudyPreferences.currentSentenceExamples)
-    }
-
-    var filteredSentenceExamples: [SentenceExampleRecord] {
-        let filtered = allSentenceExamples.filter { example in
-            guard sentenceExampleMatchesFilter(example) else { return false }
-            return sentenceExampleMatchesSearch(example)
-        }
-        return filtered
     }
 
     var sentenceExamplePageSize: Int {
@@ -527,23 +519,23 @@ extension FavouritesTab {
 
     var canBulkDeleteFilteredSentenceExamples: Bool {
         !sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            && !filteredSentenceExamples.isEmpty
+            && sentenceExampleResultCount > 0
     }
 
     var sentenceExampleBulkDeleteMessage: String {
         let query = sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        let count = filteredSentenceExamples.count
+        let count = sentenceExampleResultCount
         let filterDescription = sentenceExampleFilter == .all ? "" : " in \(sentenceExampleFilter.rawValue)"
         return "This will permanently delete \(count) sentence\(count == 1 ? "" : "s") matching \"\(query)\"\(filterDescription). This also removes matching extracted-page sentence entries so they do not reappear later."
     }
 
     var sentenceExampleBulkDeleteConfirmationTitle: String {
-        let count = filteredSentenceExamples.count
+        let count = sentenceExampleResultCount
         return "Delete \(count) Sentence\(count == 1 ? "" : "s")"
     }
 
     var sentenceExamplePageCount: Int {
-        max(1, Int(ceil(Double(filteredSentenceExamples.count) / Double(sentenceExamplePageSize))))
+        max(1, Int(ceil(Double(sentenceExampleResultCount) / Double(sentenceExamplePageSize))))
     }
 
     var clampedSentenceExamplePageIndex: Int {
@@ -551,11 +543,7 @@ extension FavouritesTab {
     }
 
     var pagedSentenceExamples: [SentenceExampleRecord] {
-        let pageIndex = clampedSentenceExamplePageIndex
-        let startIndex = pageIndex * sentenceExamplePageSize
-        let endIndex = min(startIndex + sentenceExamplePageSize, filteredSentenceExamples.count)
-        guard startIndex < endIndex else { return [] }
-        return Array(filteredSentenceExamples[startIndex..<endIndex])
+        sentenceExamplePageRecords
     }
 
     var sentenceExamplePageNavigation: some View {
@@ -571,10 +559,10 @@ extension FavouritesTab {
     }
 
     var sentenceExamplePageLabel: String {
-        guard !filteredSentenceExamples.isEmpty else { return "0 of 0" }
+        guard sentenceExampleResultCount > 0 else { return "0 of 0" }
         let startRank = clampedSentenceExamplePageIndex * sentenceExamplePageSize + 1
-        let endRank = min(startRank + sentenceExamplePageSize - 1, filteredSentenceExamples.count)
-        return "\(startRank)-\(endRank) of \(filteredSentenceExamples.count)"
+        let endRank = min(startRank + sentenceExamplePageRecords.count - 1, sentenceExampleResultCount)
+        return "\(startRank)-\(endRank) of \(sentenceExampleResultCount)"
     }
 
     @ViewBuilder
@@ -605,10 +593,39 @@ extension FavouritesTab {
         withAnimation(.snappy(duration: 0.18)) {
             sentenceExamplePageIndex = clampedSentenceExamplePageIndex + offset
         }
+        refreshSentenceExampleResults()
     }
 
     func resetSentenceExamplePage() {
         sentenceExamplePageIndex = 0
+    }
+
+    var sentenceExampleQuery: SentenceExampleQuery {
+        SentenceExampleQuery(
+            scope: sentenceExampleFilter.queryScope,
+            searchText: sentenceExampleSearchText,
+            offset: clampedSentenceExamplePageIndex * sentenceExamplePageSize,
+            limit: sentenceExamplePageSize
+        )
+    }
+
+    var allMatchingSentenceExampleQuery: SentenceExampleQuery {
+        SentenceExampleQuery(
+            scope: sentenceExampleFilter.queryScope,
+            searchText: sentenceExampleSearchText,
+            offset: 0,
+            limit: nil
+        )
+    }
+
+    func refreshSentenceExampleResults() {
+        _ = sentenceExampleRevision
+        let result = RadixStudyPreferences.querySentenceExamples(sentenceExampleQuery)
+        sentenceExampleResultCount = result.totalCount
+        sentenceExamplePageRecords = result.records
+        if sentenceExamplePageIndex != clampedSentenceExamplePageIndex {
+            sentenceExamplePageIndex = clampedSentenceExamplePageIndex
+        }
     }
 
     func sentenceExampleMatchesFilter(_ example: SentenceExampleRecord) -> Bool {
@@ -652,7 +669,9 @@ extension FavouritesTab {
     }
 
     func sentenceExamplePracticeItem(_ example: SentenceExampleRecord) -> ConversationPracticeItem {
-        let rank = (filteredSentenceExamples.firstIndex(where: { $0.id == example.id }) ?? 0) + 1
+        let rank = clampedSentenceExamplePageIndex * sentenceExamplePageSize
+            + (sentenceExamplePageRecords.firstIndex(where: { $0.id == example.id }) ?? 0)
+            + 1
         return ConversationPracticeItem(sentenceExample: example, rank: rank)
     }
 
@@ -719,6 +738,7 @@ extension FavouritesTab {
                 sentenceExampleRevision += 1
                 sentenceExampleStatusMessage = "Deleted"
                 loadFavoriteSentences()
+                refreshSentenceExampleResults()
             } label: {
                 Label("Delete", systemImage: "trash")
             }
@@ -737,13 +757,14 @@ extension FavouritesTab {
     }
 
     func deleteFilteredSentenceExamples() {
-        let examples = filteredSentenceExamples
+        let examples = RadixStudyPreferences.sentenceExamples(matching: allMatchingSentenceExampleQuery)
         guard !examples.isEmpty else { return }
         store.deleteSentenceExamples(examples)
         sentenceExampleRevision += 1
         resetSentenceExamplePage()
         sentenceExampleStatusMessage = "Deleted \(examples.count) sentence\(examples.count == 1 ? "" : "s")"
         loadFavoriteSentences()
+        refreshSentenceExampleResults()
     }
 
     @ViewBuilder
@@ -797,6 +818,7 @@ extension FavouritesTab {
         sentenceExampleRevision += 1
         sentenceExampleStatusMessage = example.isFavorited ? "Removed favorite" : "Favorited"
         loadFavoriteSentences()
+        refreshSentenceExampleResults()
     }
 
     func presentSentenceExamplePracticeAgain(_ example: SentenceExampleRecord) {

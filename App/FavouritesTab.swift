@@ -47,6 +47,8 @@ struct FavouritesTab: View {
     @State var sentenceExampleFilter: SentenceExampleStudyFilter = .all
     @State var sentenceExampleSearchText = ""
     @State var sentenceExamplePageIndex = 0
+    @State var sentenceExamplePageRecords: [SentenceExampleRecord] = []
+    @State var sentenceExampleResultCount = 0
     @State var sentenceExampleRevision = 0
     @State var sentenceExampleStatusMessage: String?
     @State var sentenceExampleEditDraft: SentenceExampleEditDraft?
@@ -201,6 +203,7 @@ struct FavouritesTab: View {
                 sentenceExampleRevision += 1
                 sentenceExampleStatusMessage = "Updated"
                 loadFavoriteSentences()
+                refreshSentenceExampleResults()
                 sentenceExampleEditDraft = nil
             }
         }
@@ -369,10 +372,12 @@ struct FavouritesTab: View {
             loadFavoriteSentences()
             loadConversationPracticeLibrary()
             sentenceExampleRevision += 1
+            refreshSentenceExampleResults()
         }
         .onChange(of: store.favoriteSentenceRevision) { _, _ in
             loadFavoriteSentences()
             loadConversationPracticeLibrary()
+            refreshSentenceExampleResults()
         }
     }
 
@@ -413,6 +418,8 @@ struct FavouritesTab: View {
 
     func presentSentenceExamples() {
         sentenceExampleStatusMessage = nil
+        resetSentenceExamplePage()
+        refreshSentenceExampleResults()
         withAnimation(.snappy(duration: 0.18)) {
             isShowingConversationPractice = false
             isShowingAddedPhraseReview = false
@@ -775,6 +782,15 @@ enum SentenceExampleStudyFilter: String, CaseIterable, Identifiable {
         case .favorites: return RadixIcon.saved
         case .pageLinked: return RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage)
         case .conversation: return "bubble.left.and.bubble.right"
+        }
+    }
+
+    var queryScope: SentenceExampleQueryScope {
+        switch self {
+        case .all: return .all
+        case .favorites: return .favorites
+        case .pageLinked: return .pageLinked
+        case .conversation: return .practice
         }
     }
 }

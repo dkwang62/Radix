@@ -94,6 +94,11 @@ Study > Sentences can batch-delete the current searched result set after
 confirmation. Batch and single sentence deletes share the same `RadixStore`
 path so sentence database rows, favorite compatibility records, and
 page-owned extracted-sentence records are removed together.
+Study > Sentences must treat SQLite as the live query engine, not as a JSON
+blob cache. The sentence table owns count, search, filter, paging, row fetch,
+upsert, and delete through `RadixStudyPreferences.querySentenceExamples` and
+related repository helpers; SwiftUI should render the current page result
+instead of repeatedly loading and ranking every sentence record.
 
 ## Product and Platform Scope
 
