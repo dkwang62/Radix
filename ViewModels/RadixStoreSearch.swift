@@ -206,12 +206,23 @@ extension RadixStore {
     }
 
     func phraseDiscoveryKnownPhrases(in text: String) -> [String] {
-        let candidates = phraseDiscoverySubstrings(in: text)
+        let candidates = phraseDiscoverySubstrings(in: text, maxLength: phraseRepo.maxPhraseLength())
         let known = phraseRepo.existingWords(in: candidates)
         return known.sorted {
             if $0.count != $1.count { return $0.count < $1.count }
             return $0 < $1
         }
+    }
+
+    func phraseDiscoveryKnownPhraseItems(in text: String, includeHidden: Bool = true) -> [PhraseItem] {
+        let candidates = phraseDiscoverySubstrings(in: text, maxLength: phraseRepo.maxPhraseLength())
+        let phrases = phraseRepo.fetchPhrases(matching: candidates, includeHidden: includeHidden)
+        let phraseByWord = Dictionary(uniqueKeysWithValues: phrases.map { ($0.word, $0) })
+        let orderedWords = ConversationPracticeRules.nonOverlappingPhraseHints(
+            phrases.map(\.word),
+            in: text
+        )
+        return orderedWords.compactMap { phraseByWord[$0] }
     }
 
     func normalizedPhraseWord(_ word: String) -> String { phraseStorageWord(word) }
@@ -276,14 +287,15 @@ extension RadixStore {
 
     // MARK: - Phrase discovery substrings
 
-    func phraseDiscoverySubstrings(in text: String) -> Set<String> {
+    func phraseDiscoverySubstrings(in text: String, maxLength: Int = 4) -> Set<String> {
+        let maxLength = max(2, maxLength)
         var results = Set<String>()
         var run: [Character] = []
 
         func flushRun() {
             guard run.count >= 2 else { run.removeAll(); return }
             for start in run.indices {
-                for length in 2...4 {
+                for length in 2...maxLength {
                     let end = start + length
                     guard end <= run.count else { continue }
                     results.insert(String(run[start..<end]))

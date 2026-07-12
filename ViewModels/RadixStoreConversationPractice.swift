@@ -183,7 +183,11 @@ extension RadixStore {
 
     func verifiedPracticePhraseHints(for item: ConversationPracticeItem) -> [PhraseItem] {
         let curatedCandidates = item.phraseHints.map(phraseStorageWord(_:))
-        let discoveredCandidates = phraseDiscoverySubstrings(in: item.simplified).map(phraseStorageWord(_:))
+        let discoveredCandidates = phraseDiscoverySubstrings(
+            in: item.simplified,
+            maxLength: phraseRepo.maxPhraseLength()
+        )
+        .map(phraseStorageWord(_:))
         let candidates = curatedCandidates + discoveredCandidates
 
         var seen = Set<String>()
