@@ -20,6 +20,7 @@ struct PhraseInfoCard: View {
     @State var showPhraseTableSheet = false
     @State var showSentenceExampleSheet = false
     @State var showDeletePhraseConfirmation = false
+    @State var showDeleteSentenceConfirmation = false
     @State var selectedAnimationPage = 0
     @State var showsSentencePinyin = false
     @State var showsSentenceCharacters = false
@@ -75,6 +76,14 @@ struct PhraseInfoCard: View {
             } message: {
                 Text("Delete \(normalizedPhraseWord)? This removes it from your added phrases.")
             }
+            .alert("Delete Sentence?", isPresented: $showDeleteSentenceConfirmation) {
+                Button("Delete Sentence", role: .destructive) {
+                    deletePracticeSentence()
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Delete this sentence from your sentence database?")
+            }
             .onChange(of: phrase.word) { _, _ in
                 editableNotes = phrase.notes
                 hasLocalNotes = false
@@ -83,6 +92,7 @@ struct PhraseInfoCard: View {
                 showPhraseTableSheet = false
                 showSentenceExampleSheet = false
                 showDeletePhraseConfirmation = false
+                showDeleteSentenceConfirmation = false
                 selectedAnimationPage = 0
                 showsSentencePinyin = false
                 showsSentenceCharacters = false

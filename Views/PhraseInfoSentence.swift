@@ -91,6 +91,7 @@ extension PhraseInfoCard {
                 sentencePinyinButton
                 sentencePhraseButton
                 Spacer(minLength: 0)
+                sentenceDeleteButton
                 favoriteTargetButton
             }
 
@@ -101,9 +102,26 @@ extension PhraseInfoCard {
                     sentencePinyinButton
                     sentencePhraseButton
                 }
-                favoriteTargetButton
+                HStack(spacing: 8) {
+                    sentenceDeleteButton
+                    favoriteTargetButton
+                }
             }
         }
+    }
+
+    var sentenceDeleteButton: some View {
+        Button(role: .destructive) {
+            showDeleteSentenceConfirmation = true
+        } label: {
+            Image(systemName: "trash")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .foregroundStyle(Color.red)
+                .radixIconButtonSurface()
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Delete sentence")
+        .help("Delete sentence")
     }
 
     var sentenceScriptButton: some View {

@@ -78,6 +78,9 @@ Sentence-card presentation should go through RadixStore helpers
 (`presentSentencePreviewInSidebar`, `sentencePreviewPhrases`, and
 `sentencePreviewReturnTitle`) instead of each Study surface rebuilding the
 sentence-as-phrase, phrase list, speech, and return label independently.
+Sentence-card destructive actions should delete through `RadixStore` so the
+canonical sentence database, favorite compatibility records, and any owning
+extracted-sentence page record stay in sync.
 
 ## Product and Platform Scope
 

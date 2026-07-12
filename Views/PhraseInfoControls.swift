@@ -21,6 +21,13 @@ extension PhraseInfoCard {
         }
     }
 
+    func deletePracticeSentence() {
+        guard let practiceSentenceItem else { return }
+        store.deleteSentenceExample(practiceSentenceItem)
+        RadixHaptics.success()
+        onDone?()
+    }
+
     var practiceSentenceToolbar: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 10) {

@@ -390,4 +390,47 @@ extension RadixStore {
         }
         favoriteSentenceRevision += 1
     }
+
+    func deleteSentenceExample(_ item: ConversationPracticeItem) {
+        let example = sentenceExample(for: item)
+        let sentenceKey = example?.normalizedChineseKey ?? SentenceExampleRecord.normalizedChineseKey(item.simplified)
+
+        if let example {
+            RadixStudyPreferences.deleteSentenceExample(id: example.id)
+            removeSentenceFromOwningAICleanedPage(example)
+        } else {
+            RadixStudyPreferences.deleteSentenceExample(matchingChinese: item.simplified)
+        }
+
+        if !sentenceKey.isEmpty {
+            removeSentenceFromOwningAICleanedPage(sentenceKey: sentenceKey)
+        }
+        dismissSidebarPhrasePreview()
+        favoriteSentenceRevision += 1
+    }
+
+    private func removeSentenceFromOwningAICleanedPage(_ example: SentenceExampleRecord) {
+        removeSentenceFromOwningAICleanedPage(sentenceKey: example.normalizedChineseKey)
+    }
+
+    private func removeSentenceFromOwningAICleanedPage(sentenceKey: String) {
+        guard !sentenceKey.isEmpty else { return }
+        var pages = RadixStudyPreferences.aiCleanedPages
+        var changed = false
+        for index in pages.indices {
+            let beforeCount = pages[index].sentences.count
+            pages[index].sentences.removeAll {
+                SentenceExampleRecord.normalizedChineseKey($0.chinese) == sentenceKey
+            }
+            if pages[index].sentences.count != beforeCount {
+                pages[index].cleanedChineseText = pages[index].sentences
+                    .map(\.chinese)
+                    .joined(separator: " ")
+                changed = true
+            }
+        }
+        if changed {
+            RadixStudyPreferences.aiCleanedPages = pages
+        }
+    }
 }

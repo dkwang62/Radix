@@ -232,6 +232,18 @@ enum RadixStudyPreferences {
         }
     }
 
+    static func deleteSentenceExample(matchingChinese chinese: String) {
+        let key = SentenceExampleRecord.normalizedChineseKey(chinese)
+        guard !key.isEmpty else { return }
+        let deleted = sentenceExamples.first { $0.normalizedChineseKey == key }
+        sentenceExamples = sentenceExamples.filter { $0.normalizedChineseKey != key }
+        if let deleted {
+            removeCompatibilityFavoriteRecord(matchingChinese: deleted.chinese)
+        } else {
+            removeCompatibilityFavoriteRecord(matchingChinese: chinese)
+        }
+    }
+
     private static func updateSentenceExample(id: UUID, mutate: (inout SentenceExampleRecord) -> Void) {
         var records = sentenceExamples
         guard let index = records.firstIndex(where: { $0.id == id }) else { return }
