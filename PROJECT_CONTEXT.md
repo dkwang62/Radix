@@ -33,6 +33,9 @@ a secondary Characters disclosure.
 Saving or restoring an AI-cleaned page also upserts its sentence list into the
 shared `SentenceExampleRecord` database with `ai_cleaned_page` page-linked
 source metadata, so Study > Sentences and sentence cards reuse the same records.
+AI Page sentence rows reuse the shared Conversation Practice sentence row and
+open the shared sentence card, resolving back to the canonical sentence database
+record so active selection, phrase chips, read-aloud, and favorites stay aligned.
 
 ## Product and Platform Scope
 

@@ -295,7 +295,7 @@ extension FavouritesTab {
                         .foregroundStyle(.secondary)
 
                     ForEach(Array(record.sentences.enumerated()), id: \.element.id) { index, sentence in
-                        aiCleanedPageSentenceRow(sentence, index: index)
+                        aiCleanedPageSentenceRow(sentence, index: index, record: record)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -322,47 +322,72 @@ extension FavouritesTab {
         }
     }
 
-    func aiCleanedPageSentenceRow(_ sentence: AICleanedPageSentence, index: Int) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("\(index + 1)")
-                    .font(ResponsiveFont.caption2.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-                    .frame(width: 24, alignment: .trailing)
-
-                Text(studyGridDisplayText(sentence.chinese))
-                    .font(ResponsiveFont.body.weight(.semibold))
-                    .fixedSize(horizontal: false, vertical: true)
-                    .textSelection(.enabled)
+    func aiCleanedPageSentenceRow(
+        _ sentence: AICleanedPageSentence,
+        index: Int,
+        record: AICleanedPageRecord
+    ) -> some View {
+        let example = aiCleanedPageSentenceExample(sentence, record: record)
+        let item = ConversationPracticeItem(sentenceExample: example, rank: index + 1)
+        let isSelected = selectedConversationPracticeItemID == item.id
+        return practiceSentenceRow(
+            item,
+            isSelected: isSelected,
+            openAccessibilityLabel: "Open sentence \(studyGridDisplayText(item.simplified))",
+            openAccessibilityHint: "Opens the sentence card."
+        ) {
+            presentConversationPracticePhrase(item)
+        } trailing: {
+            Button {
+                presentConversationPracticePhrase(item)
+            } label: {
+                Image(systemName: "text.quote")
+                    .font(.system(size: 14, weight: .semibold))
+                    .frame(width: 30, height: 30)
             }
-
-            if let english = sentence.english {
-                Text(english)
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, 32)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            if !sentence.phraseHints.isEmpty {
-                RadixTileFlowLayout(horizontalSpacing: 6, verticalSpacing: 6) {
-                    ForEach(sentence.phraseHints, id: \.self) { phrase in
-                        Button {
-                            presentPhraseFromAICleanedPage(phrase)
-                        } label: {
-                            Text(studyGridDisplayText(phrase))
-                                .font(ResponsiveFont.caption2.weight(.semibold))
-                                .radixPill(horizontal: 8, vertical: 5, background: RadixAccent.primary.opacity(0.09))
-                        }
-                        .buttonStyle(.plain)
-                        .foregroundStyle(RadixAccent.primary)
-                    }
-                }
-                .padding(.leading, 32)
-            }
+            .buttonStyle(.plain)
+            .foregroundStyle(RadixAccent.primary)
+            .accessibilityLabel("Open sentence card")
+            .help("Open sentence card")
         }
-        .padding(.vertical, 6)
+        .padding(.vertical, 2)
+    }
+
+    func aiCleanedPageSentenceExample(
+        _ sentence: AICleanedPageSentence,
+        record: AICleanedPageRecord
+    ) -> SentenceExampleRecord {
+        let key = SentenceExampleRecord.normalizedChineseKey(sentence.chinese)
+        if let stored = RadixStudyPreferences.currentSentenceExamples.first(where: { example in
+            example.normalizedChineseKey == key &&
+                example.isLinked(toPageID: record.sourcePageID) &&
+                example.hasSourceType(.aiCleanedPage)
+        }) {
+            return stored
+        }
+
+        return SentenceExampleRecord.fromAICleanedPage(record).first {
+            $0.normalizedChineseKey == key
+        } ?? SentenceExampleRecord(
+            chinese: sentence.chinese,
+            english: sentence.english,
+            sources: [
+                SentenceExampleSourceReference(
+                    sourceType: .aiCleanedPage,
+                    sourceID: record.sourcePageID.uuidString,
+                    sourceTitle: record.cleanedTitle.isEmpty ? record.sourceTitle : record.cleanedTitle,
+                    sourcePageID: record.sourcePageID,
+                    practicePackID: nil,
+                    practiceItemID: nil
+                )
+            ],
+            targetCharacters: SentenceExampleRecord.detectChineseCharacters(in: sentence.chinese),
+            targetPhrases: sentence.phraseHints,
+            detectedCharacters: SentenceExampleRecord.detectChineseCharacters(in: sentence.chinese),
+            detectedPhrases: sentence.phraseHints,
+            createdAt: record.createdAt,
+            tags: ["ai-cleaned-page"]
+        )
     }
 
     func aiCleanedPageEmptyState(_ collection: CharacterCollection) -> some View {
@@ -374,14 +399,6 @@ extension FavouritesTab {
             actionSystemImage: "sparkles"
         ) {
             beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createAICleanedPage)
-        }
-    }
-
-    func presentPhraseFromAICleanedPage(_ phrase: String) {
-        if let item = store.mergedPhrase(for: phrase) {
-            presentPhrase(item)
-        } else {
-            store.openNewPhraseEditor(word: phrase)
         }
     }
 
