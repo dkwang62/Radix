@@ -119,7 +119,7 @@ extension DataEditTab {
         operationID: UUID
     ) async throws {
         restorePhase = .restoring
-        try store.importDataEditPayload(payload, mode: .additive)
+        try await store.importDataEditPayloadForRestore(payload, mode: .additive)
         guard isCurrentRestore(operationID) else { return }
 
         let mergedData = try dataExportService.exportPortableBackup(store.portableBackupPackage())
@@ -165,7 +165,7 @@ extension DataEditTab {
                 if pending.mode == .complete {
                     try createRecoverySnapshotIfNeeded(for: pending.mode)
                 }
-                try store.importDataEditPayload(pending.payload, mode: pending.mode)
+                try await store.importDataEditPayloadForRestore(pending.payload, mode: pending.mode)
                 guard isCurrentRestore(operationID) else { return }
 
                 backupMessage = pending.mode == .complete

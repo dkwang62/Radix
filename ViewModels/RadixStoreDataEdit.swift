@@ -8,6 +8,11 @@ import Foundation
  All @Published properties remain declared in RadixStore.swift.
 */
 
+private struct SentencePhraseLinkCandidate {
+    let word: String
+    let key: String
+}
+
 extension RadixStore {
 
     func loadDictionaryRepository() throws {
@@ -588,12 +593,13 @@ extension RadixStore {
     private func refreshAICleanedPagePhraseLinks(availablePhraseWords words: [String]) -> Int {
         var records = RadixStudyPreferences.aiCleanedPages
         guard !records.isEmpty else { return 0 }
+        let candidates = sentencePhraseLinkCandidates(from: words)
         var changedPageCount = 0
         for pageIndex in records.indices {
             let original = records[pageIndex]
             records[pageIndex].sentences = original.sentences.map { sentence in
                 var updated = sentence
-                updated.phraseHints = orderedSentencePhraseLinks(in: sentence.chinese, phraseWords: words)
+                updated.phraseHints = orderedSentencePhraseLinks(in: sentence.chinese, candidates: candidates)
                 return updated
             }
             if records[pageIndex] != original {
@@ -604,6 +610,16 @@ extension RadixStore {
             RadixStudyPreferences.aiCleanedPages = records
         }
         return changedPageCount
+    }
+
+    private func sentencePhraseLinkCandidates(from phraseWords: [String]) -> [SentencePhraseLinkCandidate] {
+        var seen = Set<String>()
+        return phraseWords.compactMap { phrase in
+            let word = phraseStorageWord(phrase)
+            let key = SentenceExampleRecord.normalizedChineseKey(word)
+            guard word.count >= 2, !key.isEmpty, seen.insert(word).inserted else { return nil }
+            return SentencePhraseLinkCandidate(word: word, key: key)
+        }
     }
 
     private func addAICleanedPagePhraseLink(_ word: String) -> Int {
@@ -660,27 +676,28 @@ extension RadixStore {
     }
 
     private func orderedSentencePhraseLinks(in sentence: String, phraseWords: [String]) -> [String] {
+        orderedSentencePhraseLinks(in: sentence, candidates: sentencePhraseLinkCandidates(from: phraseWords))
+    }
+
+    private func orderedSentencePhraseLinks(in sentence: String, candidates: [SentencePhraseLinkCandidate]) -> [String] {
         let sentenceKey = SentenceExampleRecord.normalizedChineseKey(phraseStorageWord(sentence))
         var seen = Set<String>()
-        return phraseWords.compactMap { phrase -> String? in
-            let word = phraseStorageWord(phrase)
-            let key = SentenceExampleRecord.normalizedChineseKey(word)
-            guard word.count >= 2, sentenceKey.contains(key), seen.insert(word).inserted else { return nil }
-            return word
+        return candidates.compactMap { candidate -> SentencePhraseLinkCandidate? in
+            guard sentenceKey.contains(candidate.key), seen.insert(candidate.word).inserted else { return nil }
+            return candidate
         }
         .sorted {
-            let lhsKey = SentenceExampleRecord.normalizedChineseKey($0)
-            let rhsKey = SentenceExampleRecord.normalizedChineseKey($1)
-            let lhsPosition = sentenceKey.range(of: lhsKey)?.lowerBound
-            let rhsPosition = sentenceKey.range(of: rhsKey)?.lowerBound
+            let lhsPosition = sentenceKey.range(of: $0.key)?.lowerBound
+            let rhsPosition = sentenceKey.range(of: $1.key)?.lowerBound
             if lhsPosition != rhsPosition {
                 if lhsPosition == nil { return false }
                 if rhsPosition == nil { return true }
                 return lhsPosition! < rhsPosition!
             }
-            if lhsKey.count != rhsKey.count { return lhsKey.count > rhsKey.count }
-            return lhsKey < rhsKey
+            if $0.key.count != $1.key.count { return $0.key.count > $1.key.count }
+            return $0.key < $1.key
         }
+        .map(\.word)
     }
 
     private func normalizeFavoritePhraseStorage() {
@@ -909,10 +926,17 @@ extension RadixStore {
         try importDataEditPayload(payload, mode: mode)
     }
 
-    func importDataEditPayload(_ payload: PortableBackupPayload, mode: RestoreMode = .additive) throws {
+    func importDataEditPayload(
+        _ payload: PortableBackupPayload,
+        mode: RestoreMode = .additive,
+        createSafetySnapshots: Bool = true,
+        refreshSentenceLinks: Bool = true
+    ) throws {
         pendingDatasetAutosaveWorkItem?.cancel()
         pendingDatasetAutosaveWorkItem = nil
-        try createDatabaseSafetySnapshots(reason: "Before importing data")
+        if createSafetySnapshots {
+            try createDatabaseSafetySnapshots(reason: "Before importing data")
+        }
 
         switch payload {
         case .unified(let package):
@@ -972,7 +996,9 @@ extension RadixStore {
                 )
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .additive)
-                _ = refreshSentencePhraseLinks()
+                if refreshSentenceLinks {
+                    _ = refreshSentencePhraseLinks()
+                }
 
             case .complete:
                 componentRepo.applyOverlay(backupOverlay)
@@ -996,7 +1022,9 @@ extension RadixStore {
                 )
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .complete)
-                _ = refreshSentencePhraseLinks()
+                if refreshSentenceLinks {
+                    _ = refreshSentencePhraseLinks()
+                }
             }
 
             try persistDictionaryOverlay()
@@ -1031,6 +1059,17 @@ extension RadixStore {
         syncDataEditPhraseCaches()
         dataEditPhrases = addedPhrases
         dataImportRevision += 1
+    }
+
+    func importDataEditPayloadForRestore(_ payload: PortableBackupPayload, mode: RestoreMode = .additive) async throws {
+        try await createDatabaseSafetySnapshotsForSettings(reason: "Before importing data")
+        try importDataEditPayload(
+            payload,
+            mode: mode,
+            createSafetySnapshots: false,
+            refreshSentenceLinks: false
+        )
+        _ = await refreshSentencePhraseLinksForSettings(createSafetySnapshot: false)
     }
 
     // MARK: - Variance check

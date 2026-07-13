@@ -77,6 +77,10 @@ Settings maintenance actions that scan or rewrite the sentence database
 async background work from the UI. Do not call the synchronous store paths
 directly from SwiftUI buttons, or Mac Catalyst can show the app as not
 responding while SQLite and phrase-link maintenance run.
+File restore/merge flows have the same rule: use the async restore import path
+so post-import sentence phrase-link maintenance runs off the main actor, and
+avoid rebuilding extracted-page phrase hints with per-sentence repeated phrase
+normalization.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.
