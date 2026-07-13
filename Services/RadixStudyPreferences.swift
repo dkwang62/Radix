@@ -23,6 +23,13 @@ struct SentenceExampleQueryResult: Equatable {
     var totalCount: Int
 }
 
+struct SentenceExampleOptimizationStats: Equatable, Sendable {
+    var count: Int
+    var latestCreatedAt: TimeInterval
+    var latestUpdatedAt: TimeInterval
+    var normalizedKeyHash: String
+}
+
 enum RadixStudyPreferences {
     private static let usesTraditionalScriptKey = "studyGridUsesTraditionalScript"
     private static let gridScopeKey = "studyGridScope"
@@ -174,6 +181,10 @@ enum RadixStudyPreferences {
     static func recordSentenceExamples(_ records: [SentenceExampleRecord]) {
         guard !records.isEmpty else { return }
         sentenceExampleRepository.upsert(canonicalizedSentenceExamples(records))
+    }
+
+    static func sentenceOptimizationStats() -> SentenceExampleOptimizationStats {
+        sentenceExampleRepository.optimizationStats(migratingLegacy: legacySentenceExamplesFromPreferences)
     }
 
     @discardableResult
@@ -750,6 +761,25 @@ private final class SentenceExampleRepository: @unchecked Sendable {
         }
     }
 
+    func optimizationStats(migratingLegacy legacyProvider: () -> [SentenceExampleRecord]) -> SentenceExampleOptimizationStats {
+        lock.lock()
+        defer { lock.unlock() }
+
+        if let fallbackRecords {
+            return optimizationStats(for: fallbackRecords)
+        }
+
+        do {
+            try openIfNeeded()
+            try migrateLegacyIfNeededUnlocked(legacyProvider)
+            return try optimizationStatsUnlocked()
+        } catch {
+            let legacy = RadixStudyPreferences.canonicalizedSentenceExamples(legacyProvider())
+            fallbackRecords = legacy
+            return optimizationStats(for: legacy)
+        }
+    }
+
     func query(_ query: SentenceExampleQuery, migratingLegacy legacyProvider: () -> [SentenceExampleRecord]) -> SentenceExampleQueryResult {
         lock.lock()
         defer { lock.unlock() }
@@ -1187,6 +1217,61 @@ private final class SentenceExampleRepository: @unchecked Sendable {
         defer { sqlite3_finalize(statement) }
         guard sqlite3_step(statement) == SQLITE_ROW else { return 0 }
         return Int(sqlite3_column_int64(statement, 0))
+    }
+
+    private func optimizationStatsUnlocked() throws -> SentenceExampleOptimizationStats {
+        guard let db else {
+            return SentenceExampleOptimizationStats(count: 0, latestCreatedAt: 0, latestUpdatedAt: 0, normalizedKeyHash: "0")
+        }
+        let sql = """
+        SELECT normalized_key, created_at, COALESCE(updated_at, 0)
+        FROM sentence_examples
+        ORDER BY normalized_key
+        """
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else {
+            throw sqliteError(code: 3141, message: "Failed to prepare sentence optimization stats")
+        }
+        defer { sqlite3_finalize(statement) }
+
+        var count = 0
+        var latestCreatedAt: TimeInterval = 0
+        var latestUpdatedAt: TimeInterval = 0
+        var hash: UInt64 = 14_695_981_039_346_656_037
+        while sqlite3_step(statement) == SQLITE_ROW {
+            count += 1
+            let key = sqlite3_column_text(statement, 0).map { String(cString: $0) } ?? ""
+            hash = Self.stableHash(hash, key)
+            latestCreatedAt = max(latestCreatedAt, sqlite3_column_double(statement, 1))
+            latestUpdatedAt = max(latestUpdatedAt, sqlite3_column_double(statement, 2))
+        }
+        return SentenceExampleOptimizationStats(
+            count: count,
+            latestCreatedAt: latestCreatedAt,
+            latestUpdatedAt: latestUpdatedAt,
+            normalizedKeyHash: String(hash, radix: 16)
+        )
+    }
+
+    private func optimizationStats(for records: [SentenceExampleRecord]) -> SentenceExampleOptimizationStats {
+        var hash: UInt64 = 14_695_981_039_346_656_037
+        var latestCreatedAt: TimeInterval = 0
+        var latestUpdatedAt: TimeInterval = 0
+        for record in records.sorted(by: { $0.normalizedChineseKey < $1.normalizedChineseKey }) {
+            hash = Self.stableHash(hash, record.normalizedChineseKey)
+            latestCreatedAt = max(latestCreatedAt, record.createdAt.timeIntervalSince1970)
+            latestUpdatedAt = max(latestUpdatedAt, record.lastUsedAt?.timeIntervalSince1970 ?? 0)
+        }
+        return SentenceExampleOptimizationStats(
+            count: records.count,
+            latestCreatedAt: latestCreatedAt,
+            latestUpdatedAt: latestUpdatedAt,
+            normalizedKeyHash: String(hash, radix: 16)
+        )
+    }
+
+    private static func stableHash(_ seed: UInt64, _ value: String) -> UInt64 {
+        value.utf8.reduce(seed) { ($0 ^ UInt64($1)) &* 1_099_511_628_211 }
     }
 
     private func fetchAllUnlocked() throws -> [SentenceExampleRecord] {

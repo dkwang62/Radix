@@ -81,6 +81,12 @@ responding while SQLite and phrase-link maintenance run.
 File restore/merge flows must finish the user-visible restore first, then start
 the shared `Database Optimization` task. Keep the user wording at that level;
 technical phrase-link details belong in code and docs, not restore progress UI.
+Database Optimization is guarded by an input fingerprint: optimization
+algorithm version, sentence DB key stats, visible phrase words, and extracted
+page sentence text. Imports may conservatively mark optimization dirty, but the
+fingerprint wins; if the current fingerprint already matches the last optimized
+fingerprint, Radix skips the pass and reports that the database is already
+optimized.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.
