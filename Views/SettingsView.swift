@@ -144,6 +144,8 @@ struct SettingsView: View {
             }
 
             Section {
+                storageHealthSummary
+
                 Button {
                     showNormalizeChineseStorageConfirmation = true
                 } label: {
@@ -321,6 +323,84 @@ struct SettingsView: View {
         SecureField(title, text: text)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
+    }
+
+    private var storageHealthSummary: some View {
+        let health = store.storageHealth()
+        return VStack(alignment: .leading, spacing: 10) {
+            Label("Storage Health", systemImage: health.hasWarnings ? "exclamationmark.triangle" : "checkmark.circle")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .foregroundStyle(health.hasWarnings ? Color.orange : RadixAccent.primary)
+
+            VStack(alignment: .leading, spacing: 6) {
+                storageHealthRow("Sentences", "\(health.sentenceCount)", detail: fileSizeText(health.sentenceDatabaseByteCount))
+                storageHealthRow("Added phrases", "\(health.addedPhraseCount)", detail: fileSizeText(health.addedPhraseDatabaseByteCount))
+                storageHealthRow("Extracted pages", "\(health.extractedPageCount)", detail: largestPageText(health))
+                storageHealthRow("Optimization", optimizationStatusText(health), detail: lastOptimizedText(health))
+            }
+
+            ForEach(storageHealthWarnings(health), id: \.self) { warning in
+                Text(warning)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(Color.orange)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func storageHealthRow(_ title: String, _ value: String, detail: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(title)
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 8)
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(value)
+                    .fontWeight(.semibold)
+                Text(detail)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .font(ResponsiveFont.caption)
+    }
+
+    private func storageHealthWarnings(_ health: RadixStorageHealth) -> [String] {
+        var warnings: [String] = []
+        if health.optimizationMayBeNeeded {
+            warnings.append("Database optimization is recommended after recent imports or cleanup.")
+        }
+        if health.hasLargeSentenceLibrary {
+            warnings.append("Large sentence library: keep using paged lists and avoid full exports during active study.")
+        }
+        if health.hasLargeAddedPhraseLibrary {
+            warnings.append("Large added-phrase library: phrase review and search should stay paged.")
+        }
+        if health.hasLargeExtractedPage {
+            warnings.append("One extracted page has many sentences; very large pages may take longer to import or back up.")
+        }
+        if health.hasLargeDatabaseFiles {
+            warnings.append("Database files are large; backups may take longer.")
+        }
+        return warnings
+    }
+
+    private func optimizationStatusText(_ health: RadixStorageHealth) -> String {
+        if store.databaseOptimizationInProgress { return "Running" }
+        return health.optimizationMayBeNeeded ? "Recommended" : "OK"
+    }
+
+    private func largestPageText(_ health: RadixStorageHealth) -> String {
+        guard health.largestExtractedPageSentenceCount > 0 else { return "No extracted sentences" }
+        return "Largest page: \(health.largestExtractedPageSentenceCount) sentences"
+    }
+
+    private func lastOptimizedText(_ health: RadixStorageHealth) -> String {
+        guard let lastOptimizedAt = health.lastOptimizedAt else { return "Not yet optimized" }
+        return "Last: \(lastOptimizedAt.formatted(date: .abbreviated, time: .shortened))"
+    }
+
+    private func fileSizeText(_ byteCount: Int64) -> String {
+        byteCount > 0 ? ByteCountFormatter.string(fromByteCount: byteCount, countStyle: .file) : "No file yet"
     }
 
     private func databaseSnapshotRow(_ kind: RadixDatabaseSnapshotKind) -> some View {

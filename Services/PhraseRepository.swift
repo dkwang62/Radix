@@ -252,6 +252,21 @@ final class PhraseRepository {
         queryRunner.runQuery(db: addDb, sql: "SELECT \(addPhraseColumns) FROM phrases ORDER BY added_at DESC")
     }
 
+    func addedPhraseCount() -> Int {
+        guard let addDb else { return 0 }
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(addDb, "SELECT COUNT(*) FROM phrases WHERE \(visibleAddPhraseClause)", -1, &stmt, nil) == SQLITE_OK else {
+            return 0
+        }
+        defer { sqlite3_finalize(stmt) }
+        guard sqlite3_step(stmt) == SQLITE_ROW else { return 0 }
+        return Int(sqlite3_column_int64(stmt, 0))
+    }
+
+    func addedPhraseDatabaseByteCount() -> Int64 {
+        (((try? FileManager.default.attributesOfItem(atPath: currentAddDBURL.path)[.size]) as? NSNumber)?.int64Value) ?? 0
+    }
+
     func fetchPhrase(for word: String) -> PhraseItem? {
         fetchPhrase(for: word, includeHidden: false)
     }

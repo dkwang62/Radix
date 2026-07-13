@@ -77,10 +77,32 @@ private func stableOptimizationHash(_ values: [String]) -> String {
     return String(hash, radix: 16)
 }
 
+struct RadixStorageHealth: Equatable {
+    var sentenceCount: Int
+    var sentenceDatabaseByteCount: Int64
+    var addedPhraseCount: Int
+    var addedPhraseDatabaseByteCount: Int64
+    var extractedPageCount: Int
+    var largestExtractedPageSentenceCount: Int
+    var optimizationMayBeNeeded: Bool
+    var lastOptimizedAt: Date?
+
+    var hasLargeSentenceLibrary: Bool { sentenceCount >= 20_000 }
+    var hasLargeAddedPhraseLibrary: Bool { addedPhraseCount >= 10_000 }
+    var hasLargeExtractedPage: Bool { largestExtractedPageSentenceCount >= 300 }
+    var hasLargeDatabaseFiles: Bool {
+        sentenceDatabaseByteCount + addedPhraseDatabaseByteCount >= 50 * 1_024 * 1_024
+    }
+    var hasWarnings: Bool {
+        hasLargeSentenceLibrary || hasLargeAddedPhraseLibrary || hasLargeExtractedPage || hasLargeDatabaseFiles || optimizationMayBeNeeded
+    }
+}
+
 extension RadixStore {
     private var databaseOptimizationAlgorithmVersion: Int { 3 }
     private var databaseOptimizationFingerprintKey: String { "radix.databaseOptimization.lastFingerprint.v1" }
     private var databaseOptimizationDirtyKey: String { "radix.databaseOptimization.dirty.v1" }
+    private var databaseOptimizationLastRunKey: String { "radix.databaseOptimization.lastRun.v1" }
 
     func loadDictionaryRepository() throws {
         try componentRepo.loadFromBundle()
@@ -674,6 +696,23 @@ extension RadixStore {
         preferences.set(true, forKey: databaseOptimizationDirtyKey)
     }
 
+    func storageHealth() -> RadixStorageHealth {
+        let sentenceStats = RadixStudyPreferences.sentenceStorageStats()
+        let extractedPages = RadixStudyPreferences.aiCleanedPages
+        let largestExtractedPageSentenceCount = extractedPages.map { $0.sentences.count }.max() ?? 0
+        let lastOptimizedTimestamp = preferences.double(forKey: databaseOptimizationLastRunKey)
+        return RadixStorageHealth(
+            sentenceCount: sentenceStats.count,
+            sentenceDatabaseByteCount: sentenceStats.byteCount,
+            addedPhraseCount: phraseRepo.addedPhraseCount(),
+            addedPhraseDatabaseByteCount: phraseRepo.addedPhraseDatabaseByteCount(),
+            extractedPageCount: extractedPages.count,
+            largestExtractedPageSentenceCount: largestExtractedPageSentenceCount,
+            optimizationMayBeNeeded: preferences.bool(forKey: databaseOptimizationDirtyKey),
+            lastOptimizedAt: lastOptimizedTimestamp > 0 ? Date(timeIntervalSince1970: lastOptimizedTimestamp) : nil
+        )
+    }
+
     private func isDatabaseOptimizationNeeded(for fingerprint: String) -> Bool {
         if preferences.string(forKey: databaseOptimizationFingerprintKey) == fingerprint {
             preferences.set(false, forKey: databaseOptimizationDirtyKey)
@@ -685,6 +724,7 @@ extension RadixStore {
     private func recordDatabaseOptimizationFingerprint(_ fingerprint: String) {
         preferences.set(fingerprint, forKey: databaseOptimizationFingerprintKey)
         preferences.set(false, forKey: databaseOptimizationDirtyKey)
+        preferences.set(Date().timeIntervalSince1970, forKey: databaseOptimizationLastRunKey)
     }
 
     private func databaseOptimizationFingerprint() -> String {

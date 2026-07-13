@@ -37,6 +37,11 @@ struct SentenceExampleOptimizationStats: Equatable, Sendable {
     var normalizedKeyHash: String
 }
 
+struct SentenceExampleStorageStats: Equatable, Sendable {
+    var count: Int
+    var byteCount: Int64
+}
+
 enum RadixStudyPreferences {
     private static let usesTraditionalScriptKey = "studyGridUsesTraditionalScript"
     private static let gridScopeKey = "studyGridScope"
@@ -204,6 +209,13 @@ enum RadixStudyPreferences {
 
     static func sentenceOptimizationStats() -> SentenceExampleOptimizationStats {
         sentenceExampleRepository.optimizationStats(migratingLegacy: legacySentenceExamplesFromPreferences)
+    }
+
+    static func sentenceStorageStats() -> SentenceExampleStorageStats {
+        SentenceExampleStorageStats(
+            count: sentenceExampleCount(),
+            byteCount: sentenceExampleRepository.databaseByteCount()
+        )
     }
 
     @discardableResult
@@ -816,6 +828,10 @@ private final class SentenceExampleRepository: @unchecked Sendable {
             fallbackRecords = legacy
             return optimizationStats(for: legacy)
         }
+    }
+
+    func databaseByteCount() -> Int64 {
+        (((try? FileManager.default.attributesOfItem(atPath: databaseURL.path)[.size]) as? NSNumber)?.int64Value) ?? 0
     }
 
     func query(_ query: SentenceExampleQuery, migratingLegacy legacyProvider: () -> [SentenceExampleRecord]) -> SentenceExampleQueryResult {

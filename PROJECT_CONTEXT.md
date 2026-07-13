@@ -125,6 +125,13 @@ after each small edit. Prefer repository helpers such as
 `querySentenceExamples`, `sentenceExampleCount`, batch normalized-key lookups,
 stored sentence phrase hints, `ScriptTextConverter`'s bounded cache, and cached
 variance baselines.
+Do not cap user learning data just to protect weak code paths. Prefer soft
+limits and visible storage health: warn when sentence libraries, added phrases,
+extracted pages, or DB files become large, cap/chunk expensive operations such
+as imports, exports, and backups, and keep ordinary Study/Browse access paged
+and indexed. Current Settings storage health uses lightweight counts and file
+metadata; it must not load full sentence or phrase records merely to summarize
+database size.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.
