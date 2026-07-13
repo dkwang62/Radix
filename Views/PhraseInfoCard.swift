@@ -82,7 +82,7 @@ struct PhraseInfoCard: View {
                 }
                 Button("Cancel", role: .cancel) { }
             } message: {
-                Text("Delete this sentence from your sentence database?")
+                Text("Delete this sentence from your saved sentences?")
             }
             .onChange(of: phrase.word) { _, _ in
                 editableNotes = phrase.notes

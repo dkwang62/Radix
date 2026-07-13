@@ -170,7 +170,7 @@ extension FavouritesTab {
                         ContentUnavailableView(
                             "No Sentences",
                             systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"),
-                            description: Text("Import page sentences or practice packs to fill the sentence database.")
+                            description: Text("Import page sentences or practice packs to create saved sentences.")
                         )
                         .frame(maxWidth: .infinity, minHeight: 240)
                     } else {

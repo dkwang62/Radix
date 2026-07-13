@@ -54,28 +54,25 @@ and legacy UserDefaults payloads are migrated into the database on first read.
 Sentence examples are canonically stored as simplified Chinese, including phrase
 and character hints; traditional Chinese is a display mode exposed by sentence
 lists, example sheets, and sentence cards, not a second storage form.
-Settings exposes one confirmed `Normalize Chinese Storage` maintenance action.
-It rewrites the stored sentence database, page-owned extracted-sentence
-artifacts, user-added phrase words, and phrase favorite keys into Simplified
-Chinese. This is a data mutation, not a display toggle; Traditional remains
-display-only.
-Settings exposes `Optimize Database`, a background maintenance pass that rewrites
-stored sentence phrase hints from the current visible phrase library. Normal
+Settings exposes one user-facing `Optimize Database` maintenance action. Keep
+technical cleanup details out of the main UI: the full Settings action may
+rewrite Radix-owned sentence, extracted-page, added-phrase, and phrase-favorite
+storage into Simplified Chinese, then refresh stored sentence phrase hints from
+the current visible phrase library. Traditional remains display-only. Normal
 Study Sentences, practice, phrase-card Examples, sentence-card, and
 extracted-sentence reader access must never repair or rediscover phrase links
 while rendering; they are read-only consumers of stored hints. Phrase
 adds/deletes/status changes perform targeted write-time hint updates, while
-bulk restore/import starts a separate optimization task after the file data is
-restored.
+bulk restore/import starts a separate lighter optimization task after the file
+data is restored.
 The mutable SQLite stores for Study Sentences and added phrases keep quiet
-internal safety snapshots before bulk import/restore, normalization, phrase
+internal safety snapshots before bulk import/restore, optimization, phrase
 cleanup, sentence deletion, and phrase-link maintenance. Settings > Storage
-exposes these snapshots under `Database Recovery` for transparent inspection,
+exposes these snapshots under `Recovery Copies` for transparent inspection,
 manual safety-copy creation, and explicit restore without turning recovery into
 a distracting primary workflow.
-Settings maintenance actions that scan or rewrite the sentence database
-(`Normalize Chinese Storage` and `Optimize Database`) must run as
-async background work from the UI. Do not call the synchronous store paths
+Settings maintenance actions that scan or rewrite the sentence database must
+run as async background work from the UI. Do not call synchronous store paths
 directly from SwiftUI buttons, or Mac Catalyst can show the app as not
 responding while SQLite and phrase-link maintenance run.
 File restore/merge flows must finish the user-visible restore first, then start
@@ -87,6 +84,9 @@ page sentence text. Imports may conservatively mark optimization dirty, but the
 fingerprint wins; if the current fingerprint already matches the last optimized
 fingerprint, Radix skips the pass and reports that the database is already
 optimized.
+The manual Settings optimization intentionally runs the fuller maintenance pass
+even when the phrase-link fingerprint is current, because it also hides storage
+cleanup that users should not have to understand as a separate operation.
 
 ## Performance Rules
 
@@ -132,6 +132,16 @@ as imports, exports, and backups, and keep ordinary Study/Browse access paged
 and indexed. Current Settings storage health uses lightweight counts and file
 metadata; it must not load full sentence or phrase records merely to summarize
 database size.
+2026-07-14 performance/clarity review: user-facing Settings now shows one
+plain `Optimize Database` action. It hides the internal Simplified-storage
+cleanup and phrase-hint refresh inside that action, while restore/import keeps a
+lighter background optimization so file restore can finish promptly. Remaining
+performance-sensitive operations are acceptable only because they are explicit
+actions rather than render paths: portable backup/export serializes full data,
+Study > Sentences "delete all matching results" fetches matching records so
+page-owned artifacts stay consistent, and first pinyin phrase search may build
+the phrase pinyin index from the merged phrase set. If any of these become
+noticeably slow, optimize them before adding adjacent features.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.

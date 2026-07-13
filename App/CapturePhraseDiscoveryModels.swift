@@ -32,7 +32,7 @@ struct PhraseDiscoveryImportSummary {
         }
         if addedCount == 0 {
             if skippedExistingCount >= selectedCount && errors.isEmpty {
-                return "No phrases were added because every extracted phrase is already in the phrase database."
+                return "No phrases were added because every extracted phrase is already in your phrase library."
             }
             return "Radix read \(selectedCount) phrase\(selectedCount == 1 ? "" : "s"), but none were added to My Phrases.\(skippedSuffix)\(errorSuffix)"
         }
@@ -43,7 +43,7 @@ struct PhraseDiscoveryImportSummary {
         let invalidOrDuplicateCount = skippedCount - skippedExistingCount
         var parts: [String] = []
         if skippedExistingCount > 0 {
-            parts.append("\(skippedExistingCount) already in the phrase database")
+            parts.append("\(skippedExistingCount) already in your phrase library")
         }
         if invalidOrDuplicateCount > 0 {
             parts.append("\(invalidOrDuplicateCount) duplicate or invalid")

@@ -655,15 +655,15 @@ extension RadixStore {
         return SentencePhraseLinkRefreshResult(sentenceCount: sentenceCount, extractedPageCount: extractedPageCount)
     }
 
-    func startDatabaseOptimization(reason: String = "Optimizing database") {
+    func startDatabaseOptimization(reason: String = "Optimizing database", includeStorageCleanup: Bool = false) {
         if databaseOptimizationInProgress {
-            databaseOptimizationMessage = "Optimizing database… Radix is still usable."
+            databaseOptimizationMessage = "Optimizing… Radix is still usable."
             return
         }
 
         let startingFingerprint = databaseOptimizationFingerprint()
-        if !isDatabaseOptimizationNeeded(for: startingFingerprint) {
-            databaseOptimizationMessage = "Database already optimized."
+        if !includeStorageCleanup, !isDatabaseOptimizationNeeded(for: startingFingerprint) {
+            databaseOptimizationMessage = "Radix data is already optimized."
             databaseOptimizationTask?.cancel()
             databaseOptimizationTask = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .seconds(5))
@@ -675,17 +675,33 @@ extension RadixStore {
 
         databaseOptimizationTask?.cancel()
         databaseOptimizationInProgress = true
-        databaseOptimizationMessage = "Optimizing database… Radix is still usable."
+        databaseOptimizationMessage = includeStorageCleanup
+            ? "Optimizing… Radix is cleaning and preparing study data in the background."
+            : "Optimizing… Radix is still usable."
 
         databaseOptimizationTask = Task { @MainActor [weak self] in
             guard let self else { return }
-            let result = await self.refreshSentencePhraseLinksForSettings(createSafetySnapshot: false)
-            guard !Task.isCancelled else { return }
-            self.databaseOptimizationMessage = "Database optimization complete."
+            do {
+                let status: String
+                if includeStorageCleanup {
+                    let result = try await self.normalizeChineseStorageToSimplifiedForSettings()
+                    status = "\(reason) complete: prepared \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.phraseCount) added phrase\(result.phraseCount == 1 ? "" : "s")."
+                } else {
+                    let result = await self.refreshSentencePhraseLinksForSettings(createSafetySnapshot: false)
+                    self.recordDatabaseOptimizationFingerprint(self.databaseOptimizationFingerprint())
+                    status = "\(reason) complete: optimized \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s")."
+                }
+                guard !Task.isCancelled else { return }
+                self.databaseOptimizationMessage = "Optimization complete."
+                self.dataEditAutoSaveStatus = status
+            } catch {
+                guard !Task.isCancelled else { return }
+                let message = "Could not optimize Radix data: \(error.localizedDescription)"
+                self.databaseOptimizationMessage = message
+                self.dataEditAutoSaveStatus = message
+            }
             self.databaseOptimizationInProgress = false
             self.databaseOptimizationTask = nil
-            self.recordDatabaseOptimizationFingerprint(self.databaseOptimizationFingerprint())
-            self.dataEditAutoSaveStatus = "\(reason) complete: optimized \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s")."
             try? await Task.sleep(for: .seconds(8))
             guard !Task.isCancelled, !self.databaseOptimizationInProgress else { return }
             self.databaseOptimizationMessage = nil
@@ -1239,7 +1255,7 @@ extension RadixStore {
             refreshSentenceLinks: false
         )
         markDatabaseOptimizationNeeded()
-        startDatabaseOptimization(reason: "Restore database optimization")
+        startDatabaseOptimization(reason: "Restore optimization")
     }
 
     // MARK: - Variance check

@@ -155,15 +155,15 @@ enum RadixGlossary {
         ),
         GlossaryEntry(
             term: "Sentence Database",
-            shortDefinition: "The shared place where Radix stores favorite, page-derived, OCR-derived, and practice sentences.",
-            significance: "The sentence database prevents duplicate sentence stores. Favorite Sentences, page Sentences, Conversation Practice items, and reusable progress are views over the same canonical sentence examples whenever Radix has enough structure to capture them safely.",
+            shortDefinition: "The shared place where Radix keeps sentences you can study.",
+            significance: "Radix keeps favorite, page-derived, OCR-derived, and practice sentences together so the same sentence can appear in Study, Conversation Practice, and page work without becoming several unrelated copies.",
             contexts: ["Study > Sentences", "Favorite Sentences", "Extract Sentences", "Sentence Practice", "Conversation Practice", "Backup Contents"],
-            relatedTerms: ["Sentence", "Sentence Example", "Favorite Sentence", "Conversation Practice", "Practice Pack"]
+            relatedTerms: ["Sentence", "Sentence Example", "Favorite Sentence", "Conversation Practice", "Practice Pack", "Optimize Database"]
         ),
         GlossaryEntry(
             term: "Sentence Example",
-            shortDefinition: "One canonical sentence record in the sentence database.",
-            significance: "A sentence example can remember Chinese text, pinyin, English, source page, target phrases, tags, notes, favorite state, hidden state, and practice identity. Editing a sentence example updates the shared record instead of creating another copy.",
+            shortDefinition: "One saved sentence that Radix can show, search, or practice.",
+            significance: "A sentence example can remember Chinese text, pinyin, English, useful phrases, notes, and where it came from. Editing it updates the shared sentence instead of creating another copy.",
             contexts: ["Study > Sentences", "Sentence actions", "Sentence Card", "Backup Contents"],
             relatedTerms: ["Sentence Database", "Sentence", "Favorite Sentence", "Practice Pack"]
         ),
@@ -191,7 +191,7 @@ enum RadixGlossary {
         GlossaryEntry(
             term: "Practice Pack",
             shortDefinition: "A structured set of conversation-practice sentences that Radix can import.",
-            significance: "Practice packs let AI or saved pages produce sentences that return to Radix as real Study material. Radix now links imported practice entries back to canonical sentence examples when possible, so the pack acts as grouping and sequence rather than another sentence database.",
+            significance: "Practice packs let AI or saved pages produce sentences that return to Radix as real Study material. Radix links imported practice entries back to saved sentences when possible, so the pack acts as grouping and sequence rather than another copy of the same sentences.",
             contexts: ["AI Link", "Import Practice", "Conversation Practice", "Generate Practice Pack"],
             relatedTerms: ["Conversation Practice", "Sentence", "Sentence Database", "Sentence Practice", "Create Conversation"]
         ),
@@ -280,6 +280,34 @@ enum RadixGlossary {
             relatedTerms: ["Memory", "Checkpoint", "Radix Plus", "Data Portability"]
         ),
         GlossaryEntry(
+            term: "Recovery Copies",
+            shortDefinition: "Local safety copies Radix keeps before major data changes.",
+            significance: "Recovery Copies help you undo a problem after import, restore, cleanup, or optimization on this device. They are not the same as a portable backup file for moving Radix to another device.",
+            contexts: ["Settings > Storage", "Create Safety Copy Now", "Restore"],
+            relatedTerms: ["Safety Copy", "Backup", "Optimize Database", "Memory"]
+        ),
+        GlossaryEntry(
+            term: "Safety Copy",
+            shortDefinition: "A local recovery copy made before or during maintenance.",
+            significance: "Safety Copies are a safety net for data-changing actions. Radix can create them quietly before important maintenance, and you can also create one manually from Settings.",
+            contexts: ["Settings > Storage", "Create Safety Copy Now", "Recovery Copies"],
+            relatedTerms: ["Recovery Copies", "Backup", "Memory"]
+        ),
+        GlossaryEntry(
+            term: "Storage Health",
+            shortDefinition: "A quick check of how large your Radix study data has become.",
+            significance: "Storage Health shows counts and file sizes without loading your whole library. It helps you see when backups or optimization may take longer, while keeping normal Study and Browse use fast.",
+            contexts: ["Settings > Storage"],
+            relatedTerms: ["Optimize Database", "Recovery Copies", "Sentence Database", "Added Phrase"]
+        ),
+        GlossaryEntry(
+            term: "Optimize Database",
+            shortDefinition: "A background cleanup that keeps Radix fast and consistent.",
+            significance: "Optimize Database prepares study data after large imports or cleanup. It keeps sentence search, phrase highlights, and saved-page sentence results working smoothly without asking you to manage technical storage details.",
+            contexts: ["Settings > Storage", "After Restore", "After Import"],
+            relatedTerms: ["Storage Health", "Recovery Copies", "Sentence Database", "Phrase"]
+        ),
+        GlossaryEntry(
             term: "Data Portability",
             shortDefinition: "The ability to carry your Radix work between devices.",
             significance: "Radix keeps your work separate from the app itself so a compatible backup can move safely between supported devices and future platforms.",
@@ -345,7 +373,7 @@ enum RadixGlossary {
         GlossaryEntry(
             term: "Extract Sentences",
             shortDefinition: "Ask AI to turn a saved page into cleaned study text and sentence cards.",
-            significance: "Extract Sentences keeps close to the source page while repairing obvious OCR errors and expanding shorthand into complete Chinese sentences. Each extracted sentence can include Chinese, pinyin, English, and useful phrase hints, and is saved into the shared sentence database.",
+            significance: "Extract Sentences keeps close to the source page while repairing obvious OCR errors and expanding shorthand into complete Chinese sentences. Each extracted sentence can include Chinese, pinyin, English, and useful phrase hints, and becomes part of your saved sentences.",
             contexts: ["Study saved page actions", "AI Link", "Extracted Sentences", "Sentence Card"],
             relatedTerms: ["Sentence", "Sentence Database", "Saved Page", "Sentence Practice", "Create Conversation"]
         ),

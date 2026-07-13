@@ -4,14 +4,11 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var store: RadixStore
     @State private var showResetMemoryConfirmation = false
-    @State private var showNormalizeChineseStorageConfirmation = false
     @State private var showRefreshSentencePhraseLinksConfirmation = false
     @State private var showDatabaseSafetyDetails = false
     @State private var resetMemoryStatus: String?
-    @State private var normalizeChineseStorageStatus: String?
     @State private var databaseSnapshotStatus: String?
     @State private var pendingDatabaseSnapshotRestore: RadixDatabaseSnapshotMetadata?
-    @State private var isNormalizingChineseStorage = false
     @State private var navigationTipsReset = false
     @State private var areAPIKeysExpanded = false
     let showsCloseButton: Bool
@@ -147,27 +144,6 @@ struct SettingsView: View {
                 storageHealthSummary
 
                 Button {
-                    showNormalizeChineseStorageConfirmation = true
-                } label: {
-                    if isNormalizingChineseStorage {
-                        Label("Normalizing Chinese Storage", systemImage: "hourglass")
-                    } else {
-                        Label("Normalize Chinese Storage", systemImage: "arrow.triangle.2.circlepath")
-                    }
-                }
-                .disabled(isNormalizingChineseStorage || store.databaseOptimizationInProgress)
-
-                Text("Rewrites Radix-owned sentence and phrase storage into Simplified Chinese. Traditional remains available as a display choice.")
-                    .font(ResponsiveFont.caption)
-                    .foregroundStyle(.secondary)
-
-                if let normalizeChineseStorageStatus {
-                    Text(normalizeChineseStorageStatus)
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(normalizeChineseStorageStatus.hasPrefix("Could not") ? .red : .secondary)
-                }
-
-                Button {
                     showRefreshSentencePhraseLinksConfirmation = true
                 } label: {
                     if store.databaseOptimizationInProgress {
@@ -176,9 +152,9 @@ struct SettingsView: View {
                         Label("Optimize Database", systemImage: "externaldrive.badge.timemachine")
                     }
                 }
-                .disabled(isNormalizingChineseStorage || store.databaseOptimizationInProgress)
+                .disabled(store.databaseOptimizationInProgress)
 
-                Text("Improves sentence search, phrase highlighting, and saved-page sentence results after large imports or cleanup.")
+                Text("Keeps Study fast, search accurate, and sentence phrase highlights up to date after large imports or cleanup.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
 
@@ -190,7 +166,7 @@ struct SettingsView: View {
 
                 DisclosureGroup(isExpanded: $showDatabaseSafetyDetails) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Radix quietly keeps local recovery copies before import, restore, cleanup, and database optimization. Portable backups are still the full-app backup.")
+                        Text("Radix quietly keeps local recovery copies before import, restore, cleanup, and optimization. Portable backups are still the full-app backup.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
 
@@ -212,7 +188,7 @@ struct SettingsView: View {
                     }
                     .padding(.vertical, 4)
                 } label: {
-                    Label("Database Recovery", systemImage: "externaldrive.badge.timemachine")
+                    Label("Recovery Copies", systemImage: "externaldrive.badge.timemachine")
                         .font(ResponsiveFont.subheadline.weight(.semibold))
                 }
             } header: {
@@ -291,26 +267,18 @@ struct SettingsView: View {
         } message: {
             Text("This erases added characters, phrases, saved pages, favorites, recent items, and AI Link templates on this device. Device snapshots are kept so you can restore one from My Data.")
         }
-        .alert("Normalize Chinese Storage?", isPresented: $showNormalizeChineseStorageConfirmation) {
-            Button("Cancel", role: .cancel) {}
-            Button("Normalize", role: .destructive) {
-                normalizeChineseStorage()
-            }
-        } message: {
-            Text("This rewrites Radix-owned Study Sentences, extracted sentence pages, added phrases, and phrase favorites into Simplified Chinese. This is a raw data conversion, not just a display switch.")
-        }
         .alert("Optimize Database?", isPresented: $showRefreshSentencePhraseLinksConfirmation) {
             Button("Cancel", role: .cancel) {}
             Button("Optimize") {
                 refreshSentencePhraseLinks()
             }
         } message: {
-            Text("Radix will improve sentence search and phrase highlighting in the background. You can keep using the app while it works.")
+            Text("Radix will clean and prepare study data in the background so search, sentence lists, and phrase highlights stay fast and consistent. You can keep using the app while it works.")
         }
         .alert(item: $pendingDatabaseSnapshotRestore) { snapshot in
             Alert(
                 title: Text("Restore \(snapshot.kind.title)?"),
-                message: Text("Radix will first create a fresh safety copy, then replace the current \(snapshot.kind.title.lowercased()) database with the copy from \(snapshotDateText(snapshot))."),
+                message: Text("Radix will first create a fresh safety copy, then restore \(snapshot.kind.title.lowercased()) from \(snapshotDateText(snapshot))."),
                 primaryButton: .destructive(Text("Restore")) {
                     restoreDatabaseSnapshot(snapshot)
                 },
@@ -367,7 +335,7 @@ struct SettingsView: View {
     private func storageHealthWarnings(_ health: RadixStorageHealth) -> [String] {
         var warnings: [String] = []
         if health.optimizationMayBeNeeded {
-            warnings.append("Database optimization is recommended after recent imports or cleanup.")
+            warnings.append("Optimization is recommended after recent imports or cleanup.")
         }
         if health.hasLargeSentenceLibrary {
             warnings.append("Large sentence library: keep using paged lists and avoid full exports during active study.")
@@ -489,25 +457,8 @@ struct SettingsView: View {
         }
     }
 
-    private func normalizeChineseStorage() {
-        guard !isNormalizingChineseStorage else { return }
-        isNormalizingChineseStorage = true
-        normalizeChineseStorageStatus = "Normalizing in the background. Radix may take a while for large sentence libraries."
-        Task {
-            defer { isNormalizingChineseStorage = false }
-            do {
-                let result = try await store.normalizeChineseStorageToSimplifiedForSettings()
-                normalizeChineseStorageStatus = "Normalized \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.phraseCount) added phrase\(result.phraseCount == 1 ? "" : "s")."
-                RadixHaptics.success()
-            } catch {
-                normalizeChineseStorageStatus = "Could not normalize Chinese storage: \(error.localizedDescription)"
-                RadixHaptics.error()
-            }
-        }
-    }
-
     private func refreshSentencePhraseLinks() {
-        store.startDatabaseOptimization(reason: "Database optimization")
+        store.startDatabaseOptimization(reason: "Optimization", includeStorageCleanup: true)
         RadixHaptics.success()
     }
 
