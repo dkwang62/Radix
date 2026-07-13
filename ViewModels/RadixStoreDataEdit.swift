@@ -506,6 +506,27 @@ extension RadixStore {
     }
 
     @discardableResult
+    func normalizeChineseStorageToSimplifiedForSettings() async throws -> ChineseStorageNormalizationResult {
+        try await createDatabaseSafetySnapshotsForSettings(reason: "Before normalizing Chinese storage")
+        let phraseCount = try convertAddedPhrasesToSimplified()
+        let sentenceCount = await Task.detached(priority: .userInitiated) {
+            RadixStudyPreferences.convertStoredSentenceExamplesToSimplified()
+        }.value
+
+        let convertedPageCount = convertAICleanedPagesToSimplified()
+        favoriteSentenceRevision += 1
+        if convertedPageCount > 0 {
+            RadixStudyPreferences.recordSentenceExamples(
+                RadixStudyPreferences.aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
+            )
+        }
+
+        _ = await refreshSentencePhraseLinksForSettings(createSafetySnapshot: false)
+        dataEditAutoSaveStatus = "Normalized Chinese storage to Simplified."
+        return ChineseStorageNormalizationResult(phraseCount: phraseCount, sentenceCount: sentenceCount)
+    }
+
+    @discardableResult
     func refreshSentencePhraseLinks() -> SentencePhraseLinkRefreshResult {
         _ = try? createSentenceDatabaseSafetySnapshot(reason: "Before refreshing sentence phrase links")
         let phraseWords = activeSentencePhraseLinkWords()
@@ -516,6 +537,25 @@ extension RadixStore {
             )
         }
         let sentenceCount = RadixStudyPreferences.refreshSentencePhraseLinks(availablePhraseWords: phraseWords)
+        favoriteSentenceRevision += 1
+        return SentencePhraseLinkRefreshResult(sentenceCount: sentenceCount, extractedPageCount: extractedPageCount)
+    }
+
+    @discardableResult
+    func refreshSentencePhraseLinksForSettings(createSafetySnapshot: Bool = true) async -> SentencePhraseLinkRefreshResult {
+        if createSafetySnapshot {
+            _ = try? await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before refreshing sentence phrase links")
+        }
+        let phraseWords = activeSentencePhraseLinkWords()
+        let extractedPageCount = refreshAICleanedPagePhraseLinks(availablePhraseWords: phraseWords)
+        if extractedPageCount > 0 {
+            RadixStudyPreferences.recordSentenceExamples(
+                RadixStudyPreferences.aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
+            )
+        }
+        let sentenceCount = await Task.detached(priority: .userInitiated) {
+            RadixStudyPreferences.refreshSentencePhraseLinks(availablePhraseWords: phraseWords)
+        }.value
         favoriteSentenceRevision += 1
         return SentencePhraseLinkRefreshResult(sentenceCount: sentenceCount, extractedPageCount: extractedPageCount)
     }
@@ -806,8 +846,38 @@ extension RadixStore {
     }
 
     @discardableResult
+    func createDatabaseSafetySnapshotsForSettings(reason: String) async throws -> [RadixDatabaseSnapshotMetadata] {
+        var snapshots: [RadixDatabaseSnapshotMetadata] = []
+        var firstError: Error?
+
+        do {
+            snapshots.append(try await createSentenceDatabaseSafetySnapshotForSettings(reason: reason))
+        } catch {
+            firstError = firstError ?? error
+        }
+
+        do {
+            snapshots.append(try phraseRepo.createAddDatabaseSnapshot(reason: reason))
+        } catch {
+            firstError = firstError ?? error
+        }
+
+        if snapshots.isEmpty, let firstError {
+            throw firstError
+        }
+        return snapshots
+    }
+
+    @discardableResult
     func createSentenceDatabaseSafetySnapshot(reason: String) throws -> RadixDatabaseSnapshotMetadata {
         try RadixStudyPreferences.createSentenceDatabaseSnapshot(reason: reason)
+    }
+
+    @discardableResult
+    func createSentenceDatabaseSafetySnapshotForSettings(reason: String) async throws -> RadixDatabaseSnapshotMetadata {
+        try await Task.detached(priority: .userInitiated) {
+            try RadixStudyPreferences.createSentenceDatabaseSnapshot(reason: reason)
+        }.value
     }
 
     func restoreDatabaseSnapshot(_ snapshot: RadixDatabaseSnapshotMetadata) throws {

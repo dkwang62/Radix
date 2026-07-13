@@ -435,7 +435,7 @@ extension RadixStore {
         return convertedSentenceCount
     }
 
-    private func convertAICleanedPagesToSimplified() -> Int {
+    func convertAICleanedPagesToSimplified() -> Int {
         var pages = RadixStudyPreferences.aiCleanedPages
         var changedCount = 0
         for index in pages.indices {

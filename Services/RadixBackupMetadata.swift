@@ -55,7 +55,7 @@ enum RadixBackupMetadataStore {
     }
 }
 
-enum RadixDatabaseSnapshotKind: String, Codable, CaseIterable, Identifiable {
+enum RadixDatabaseSnapshotKind: String, Codable, CaseIterable, Identifiable, Sendable {
     case sentenceExamples
     case addedPhrases
 
@@ -83,7 +83,7 @@ enum RadixDatabaseSnapshotKind: String, Codable, CaseIterable, Identifiable {
     }
 }
 
-struct RadixDatabaseSnapshotMetadata: Codable, Identifiable, Equatable {
+struct RadixDatabaseSnapshotMetadata: Codable, Identifiable, Equatable, Sendable {
     var id: String
     var kind: RadixDatabaseSnapshotKind
     var reason: String

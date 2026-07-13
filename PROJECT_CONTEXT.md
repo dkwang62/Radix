@@ -72,6 +72,11 @@ cleanup, sentence deletion, and phrase-link maintenance. Settings > Storage
 exposes these snapshots under `Database Recovery` for transparent inspection,
 manual safety-copy creation, and explicit restore without turning recovery into
 a distracting primary workflow.
+Settings maintenance actions that scan or rewrite the sentence database
+(`Normalize Chinese Storage` and `Refresh Sentence Phrase Links`) must run as
+async background work from the UI. Do not call the synchronous store paths
+directly from SwiftUI buttons, or Mac Catalyst can show the app as not
+responding while SQLite and phrase-link maintenance run.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.

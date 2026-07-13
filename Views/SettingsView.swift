@@ -12,6 +12,8 @@ struct SettingsView: View {
     @State private var refreshSentencePhraseLinksStatus: String?
     @State private var databaseSnapshotStatus: String?
     @State private var pendingDatabaseSnapshotRestore: RadixDatabaseSnapshotMetadata?
+    @State private var isNormalizingChineseStorage = false
+    @State private var isRefreshingSentencePhraseLinks = false
     @State private var navigationTipsReset = false
     @State private var areAPIKeysExpanded = false
     let showsCloseButton: Bool
@@ -147,8 +149,13 @@ struct SettingsView: View {
                 Button {
                     showNormalizeChineseStorageConfirmation = true
                 } label: {
-                    Label("Normalize Chinese Storage", systemImage: "arrow.triangle.2.circlepath")
+                    if isNormalizingChineseStorage {
+                        Label("Normalizing Chinese Storage", systemImage: "hourglass")
+                    } else {
+                        Label("Normalize Chinese Storage", systemImage: "arrow.triangle.2.circlepath")
+                    }
                 }
+                .disabled(isNormalizingChineseStorage || isRefreshingSentencePhraseLinks)
 
                 Text("Rewrites Radix-owned sentence and phrase storage into Simplified Chinese. Traditional remains available as a display choice.")
                     .font(ResponsiveFont.caption)
@@ -163,8 +170,13 @@ struct SettingsView: View {
                 Button {
                     showRefreshSentencePhraseLinksConfirmation = true
                 } label: {
-                    Label("Refresh Sentence Phrase Links", systemImage: "link")
+                    if isRefreshingSentencePhraseLinks {
+                        Label("Refreshing Sentence Phrase Links", systemImage: "hourglass")
+                    } else {
+                        Label("Refresh Sentence Phrase Links", systemImage: "link")
+                    }
                 }
+                .disabled(isNormalizingChineseStorage || isRefreshingSentencePhraseLinks)
 
                 Text("Repairs stored phrase hints for sentence highlighting and sentence phrase lists using the current phrase library. Sentence screens never do this repair while you are studying.")
                     .font(ResponsiveFont.caption)
@@ -400,20 +412,32 @@ struct SettingsView: View {
     }
 
     private func normalizeChineseStorage() {
-        do {
-            let result = try store.normalizeChineseStorageToSimplified()
-            normalizeChineseStorageStatus = "Normalized \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.phraseCount) added phrase\(result.phraseCount == 1 ? "" : "s")."
-            RadixHaptics.success()
-        } catch {
-            normalizeChineseStorageStatus = "Could not normalize Chinese storage: \(error.localizedDescription)"
-            RadixHaptics.error()
+        guard !isNormalizingChineseStorage else { return }
+        isNormalizingChineseStorage = true
+        normalizeChineseStorageStatus = "Normalizing in the background. Radix may take a while for large sentence libraries."
+        Task {
+            defer { isNormalizingChineseStorage = false }
+            do {
+                let result = try await store.normalizeChineseStorageToSimplifiedForSettings()
+                normalizeChineseStorageStatus = "Normalized \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.phraseCount) added phrase\(result.phraseCount == 1 ? "" : "s")."
+                RadixHaptics.success()
+            } catch {
+                normalizeChineseStorageStatus = "Could not normalize Chinese storage: \(error.localizedDescription)"
+                RadixHaptics.error()
+            }
         }
     }
 
     private func refreshSentencePhraseLinks() {
-        let result = store.refreshSentencePhraseLinks()
-        refreshSentencePhraseLinksStatus = "Refreshed \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.extractedPageCount) extracted page\(result.extractedPageCount == 1 ? "" : "s")."
-        RadixHaptics.success()
+        guard !isRefreshingSentencePhraseLinks else { return }
+        isRefreshingSentencePhraseLinks = true
+        refreshSentencePhraseLinksStatus = "Refreshing in the background. Large sentence libraries may take a while."
+        Task {
+            defer { isRefreshingSentencePhraseLinks = false }
+            let result = await store.refreshSentencePhraseLinksForSettings()
+            refreshSentencePhraseLinksStatus = "Refreshed \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.extractedPageCount) extracted page\(result.extractedPageCount == 1 ? "" : "s")."
+            RadixHaptics.success()
+        }
     }
 
     private var geminiKeyHealthRow: some View {
