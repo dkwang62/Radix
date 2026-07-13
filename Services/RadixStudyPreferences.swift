@@ -125,6 +125,21 @@ enum RadixStudyPreferences {
         }
     }
 
+    @discardableResult
+    static func createSentenceDatabaseSnapshot(reason: String) throws -> RadixDatabaseSnapshotMetadata {
+        let date = Date()
+        let destinationURL = try RadixDatabaseSnapshotStore.destinationURL(kind: .sentenceExamples, date: date)
+        try sentenceExampleRepository.backupDatabase(to: destinationURL)
+        return RadixDatabaseSnapshotStore.record(kind: .sentenceExamples, reason: reason, at: destinationURL, date: date)
+    }
+
+    static func restoreSentenceDatabaseSnapshot(_ snapshot: RadixDatabaseSnapshotMetadata) throws {
+        guard snapshot.kind == .sentenceExamples else {
+            throw NSError(domain: "Radix", code: 3140, userInfo: [NSLocalizedDescriptionKey: "This snapshot is not a sentence database snapshot."])
+        }
+        try sentenceExampleRepository.restoreDatabase(from: URL(fileURLWithPath: snapshot.path))
+    }
+
     static var currentSentenceExamples: [SentenceExampleRecord] {
         migrateLegacyFavoriteSentencesIntoSentenceExamples()
         return sentenceExamples
@@ -916,6 +931,80 @@ private final class SentenceExampleRepository: @unchecked Sendable {
         delete(whereSQL: "normalized_key = ?", bindings: [key]) { record in
             record.normalizedChineseKey != key
         }
+    }
+
+    func backupDatabase(to destinationURL: URL) throws {
+        lock.lock()
+        defer { lock.unlock() }
+
+        guard fallbackRecords == nil else {
+            throw NSError(domain: "Radix", code: 3130, userInfo: [NSLocalizedDescriptionKey: "Sentence database is using in-memory fallback storage."])
+        }
+
+        try openIfNeeded()
+        guard let db else {
+            throw NSError(domain: "Radix", code: 3138, userInfo: [NSLocalizedDescriptionKey: "Sentence database is not open."])
+        }
+        try FileManager.default.createDirectory(
+            at: destinationURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        if FileManager.default.fileExists(atPath: destinationURL.path) {
+            try FileManager.default.removeItem(at: destinationURL)
+        }
+
+        var destinationDB: OpaquePointer?
+        guard sqlite3_open_v2(destinationURL.path, &destinationDB, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) == SQLITE_OK,
+              let destinationDB
+        else {
+            let message = destinationDB.map { String(cString: sqlite3_errmsg($0)) } ?? "unknown"
+            if let destinationDB { sqlite3_close(destinationDB) }
+            throw NSError(domain: "Radix", code: 3131, userInfo: [NSLocalizedDescriptionKey: "Failed to create sentence snapshot: \(message)"])
+        }
+        defer { sqlite3_close(destinationDB) }
+
+        guard let backup = sqlite3_backup_init(destinationDB, "main", db, "main") else {
+            throw NSError(domain: "Radix", code: 3132, userInfo: [NSLocalizedDescriptionKey: "Failed to start sentence snapshot: \(String(cString: sqlite3_errmsg(destinationDB)))"])
+        }
+        let stepResult = sqlite3_backup_step(backup, -1)
+        let finishResult = sqlite3_backup_finish(backup)
+        guard stepResult == SQLITE_DONE, finishResult == SQLITE_OK else {
+            throw NSError(domain: "Radix", code: 3133, userInfo: [NSLocalizedDescriptionKey: "Failed to finish sentence snapshot: \(String(cString: sqlite3_errmsg(destinationDB)))"])
+        }
+    }
+
+    func restoreDatabase(from sourceURL: URL) throws {
+        lock.lock()
+        defer { lock.unlock() }
+
+        guard FileManager.default.isReadableFile(atPath: sourceURL.path) else {
+            throw NSError(domain: "Radix", code: 3134, userInfo: [NSLocalizedDescriptionKey: "Sentence snapshot is not readable."])
+        }
+
+        try openIfNeeded()
+        guard let db else {
+            throw NSError(domain: "Radix", code: 3138, userInfo: [NSLocalizedDescriptionKey: "Sentence database is not open."])
+        }
+        var sourceDB: OpaquePointer?
+        guard sqlite3_open_v2(sourceURL.path, &sourceDB, SQLITE_OPEN_READONLY, nil) == SQLITE_OK,
+              let sourceDB
+        else {
+            let message = sourceDB.map { String(cString: sqlite3_errmsg($0)) } ?? "unknown"
+            if let sourceDB { sqlite3_close(sourceDB) }
+            throw NSError(domain: "Radix", code: 3135, userInfo: [NSLocalizedDescriptionKey: "Failed to open sentence snapshot: \(message)"])
+        }
+        defer { sqlite3_close(sourceDB) }
+
+        guard let backup = sqlite3_backup_init(db, "main", sourceDB, "main") else {
+            throw sqliteError(code: 3136, message: "Failed to start sentence restore")
+        }
+        let stepResult = sqlite3_backup_step(backup, -1)
+        let finishResult = sqlite3_backup_finish(backup)
+        guard stepResult == SQLITE_DONE, finishResult == SQLITE_OK else {
+            throw sqliteError(code: 3137, message: "Failed to finish sentence restore")
+        }
+        fallbackRecords = nil
+        try ensureSchema()
     }
 
     private func delete(

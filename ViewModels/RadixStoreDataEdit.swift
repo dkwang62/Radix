@@ -372,6 +372,7 @@ extension RadixStore {
             return 0
         }
 
+        try createDatabaseSafetySnapshots(reason: "Before deleting added phrases")
         for word in storedWords {
             try phraseRepo.deletePhrase(word: word)
         }
@@ -468,6 +469,7 @@ extension RadixStore {
             return []
         }
 
+        try createDatabaseSafetySnapshots(reason: "Before reverting edited phrases")
         for word in removableWords {
             try phraseRepo.deletePhrase(word: phraseStorageWord(word))
         }
@@ -495,6 +497,7 @@ extension RadixStore {
 
     @discardableResult
     func normalizeChineseStorageToSimplified() throws -> ChineseStorageNormalizationResult {
+        try createDatabaseSafetySnapshots(reason: "Before normalizing Chinese storage")
         let phraseCount = try convertAddedPhrasesToSimplified()
         let sentenceCount = convertStudySentencesToSimplified()
         _ = refreshSentencePhraseLinks()
@@ -504,6 +507,7 @@ extension RadixStore {
 
     @discardableResult
     func refreshSentencePhraseLinks() -> SentencePhraseLinkRefreshResult {
+        _ = try? createSentenceDatabaseSafetySnapshot(reason: "Before refreshing sentence phrase links")
         let phraseWords = activeSentencePhraseLinkWords()
         let extractedPageCount = refreshAICleanedPagePhraseLinks(availablePhraseWords: phraseWords)
         if extractedPageCount > 0 {
@@ -770,6 +774,64 @@ extension RadixStore {
         phraseRepo.fetchAllPhrases()
     }
 
+    func databaseSnapshots(kind: RadixDatabaseSnapshotKind? = nil) -> [RadixDatabaseSnapshotMetadata] {
+        RadixDatabaseSnapshotStore.snapshots(kind: kind)
+    }
+
+    func latestDatabaseSnapshot(kind: RadixDatabaseSnapshotKind) -> RadixDatabaseSnapshotMetadata? {
+        RadixDatabaseSnapshotStore.latest(kind: kind)
+    }
+
+    @discardableResult
+    func createDatabaseSafetySnapshots(reason: String) throws -> [RadixDatabaseSnapshotMetadata] {
+        var snapshots: [RadixDatabaseSnapshotMetadata] = []
+        var firstError: Error?
+
+        do {
+            snapshots.append(try createSentenceDatabaseSafetySnapshot(reason: reason))
+        } catch {
+            firstError = firstError ?? error
+        }
+
+        do {
+            snapshots.append(try phraseRepo.createAddDatabaseSnapshot(reason: reason))
+        } catch {
+            firstError = firstError ?? error
+        }
+
+        if snapshots.isEmpty, let firstError {
+            throw firstError
+        }
+        return snapshots
+    }
+
+    @discardableResult
+    func createSentenceDatabaseSafetySnapshot(reason: String) throws -> RadixDatabaseSnapshotMetadata {
+        try RadixStudyPreferences.createSentenceDatabaseSnapshot(reason: reason)
+    }
+
+    func restoreDatabaseSnapshot(_ snapshot: RadixDatabaseSnapshotMetadata) throws {
+        switch snapshot.kind {
+        case .sentenceExamples:
+            _ = try createSentenceDatabaseSafetySnapshot(reason: "Before restoring sentence snapshot")
+            try RadixStudyPreferences.restoreSentenceDatabaseSnapshot(snapshot)
+            favoriteSentenceRevision += 1
+            dismissSidebarPhrasePreview()
+        case .addedPhrases:
+            _ = try phraseRepo.createAddDatabaseSnapshot(reason: "Before restoring added-phrases snapshot")
+            try phraseRepo.restoreAddDatabaseSnapshot(snapshot)
+            refreshAddedPhrases()
+            syncDataEditPhraseCaches()
+            dataEditPhrases = addedPhrases
+            refreshAddedPhraseReviewPhrases()
+            phraseCache.removeAll()
+            browsePagePhraseTileCache.removeAll()
+            browsePagePhraseCandidateCache.removeAll()
+            invalidateConversationPracticeHintCache()
+            favoriteSentenceRevision += 1
+        }
+    }
+
     // MARK: - Import
 
     func importDataEditData(_ data: Data, mode: RestoreMode = .additive) throws {
@@ -780,6 +842,7 @@ extension RadixStore {
     func importDataEditPayload(_ payload: PortableBackupPayload, mode: RestoreMode = .additive) throws {
         pendingDatasetAutosaveWorkItem?.cancel()
         pendingDatasetAutosaveWorkItem = nil
+        try createDatabaseSafetySnapshots(reason: "Before importing data")
 
         switch payload {
         case .unified(let package):

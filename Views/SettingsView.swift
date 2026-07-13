@@ -6,9 +6,12 @@ struct SettingsView: View {
     @State private var showResetMemoryConfirmation = false
     @State private var showNormalizeChineseStorageConfirmation = false
     @State private var showRefreshSentencePhraseLinksConfirmation = false
+    @State private var showDatabaseSafetyDetails = false
     @State private var resetMemoryStatus: String?
     @State private var normalizeChineseStorageStatus: String?
     @State private var refreshSentencePhraseLinksStatus: String?
+    @State private var databaseSnapshotStatus: String?
+    @State private var pendingDatabaseSnapshotRestore: RadixDatabaseSnapshotMetadata?
     @State private var navigationTipsReset = false
     @State private var areAPIKeysExpanded = false
     let showsCloseButton: Bool
@@ -172,6 +175,34 @@ struct SettingsView: View {
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(refreshSentencePhraseLinksStatus.hasPrefix("Could not") ? .red : .secondary)
                 }
+
+                DisclosureGroup(isExpanded: $showDatabaseSafetyDetails) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Radix quietly keeps internal database copies before import, restore, cleanup, and sentence maintenance. These are local recovery points; portable backups are still the full-app backup.")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.secondary)
+
+                        ForEach(RadixDatabaseSnapshotKind.allCases) { kind in
+                            databaseSnapshotRow(kind)
+                        }
+
+                        Button {
+                            createDatabaseSafetyCopy()
+                        } label: {
+                            Label("Create Safety Copy Now", systemImage: "externaldrive.badge.plus")
+                        }
+
+                        if let databaseSnapshotStatus {
+                            Text(databaseSnapshotStatus)
+                                .font(ResponsiveFont.caption.weight(.semibold))
+                                .foregroundStyle(databaseSnapshotStatus.hasPrefix("Could not") ? .red : .secondary)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                } label: {
+                    Label("Database Recovery", systemImage: "externaldrive.badge.timemachine")
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                }
             } header: {
                 Text("Storage")
             }
@@ -264,12 +295,79 @@ struct SettingsView: View {
         } message: {
             Text("This scans the stored sentence database once and rewrites phrase hints using the current phrase library. Normal sentence and phrase-card access will continue to use stored hints only.")
         }
+        .alert(item: $pendingDatabaseSnapshotRestore) { snapshot in
+            Alert(
+                title: Text("Restore \(snapshot.kind.title)?"),
+                message: Text("Radix will first create a fresh safety copy, then replace the current \(snapshot.kind.title.lowercased()) database with the copy from \(snapshotDateText(snapshot))."),
+                primaryButton: .destructive(Text("Restore")) {
+                    restoreDatabaseSnapshot(snapshot)
+                },
+                secondaryButton: .cancel()
+            )
+        }
     }
 
     private func apiKeyField(_ title: String, text: Binding<String>) -> some View {
         SecureField(title, text: text)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
+    }
+
+    private func databaseSnapshotRow(_ kind: RadixDatabaseSnapshotKind) -> some View {
+        let snapshot = store.latestDatabaseSnapshot(kind: kind)
+        return HStack(spacing: 12) {
+            Label(kind.title, systemImage: kind == .sentenceExamples ? "text.quote" : "text.badge.plus")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+
+            Spacer(minLength: 8)
+
+            VStack(alignment: .trailing, spacing: 2) {
+                if let snapshot {
+                    Text(snapshotDateText(snapshot))
+                    Text(snapshotSizeText(snapshot))
+                } else {
+                    Text("No safety copy yet")
+                }
+            }
+            .font(ResponsiveFont.caption)
+            .foregroundStyle(.secondary)
+
+            Button("Restore") {
+                pendingDatabaseSnapshotRestore = snapshot
+            }
+            .buttonStyle(.bordered)
+            .disabled(snapshot == nil)
+        }
+    }
+
+    private func createDatabaseSafetyCopy() {
+        do {
+            let snapshots = try store.createDatabaseSafetySnapshots(reason: "Manual safety copy")
+            databaseSnapshotStatus = "Created \(snapshots.count) safety cop\(snapshots.count == 1 ? "y" : "ies")."
+            RadixHaptics.success()
+        } catch {
+            databaseSnapshotStatus = "Could not create safety copy: \(error.localizedDescription)"
+            RadixHaptics.error()
+        }
+    }
+
+    private func restoreDatabaseSnapshot(_ snapshot: RadixDatabaseSnapshotMetadata) {
+        do {
+            try store.restoreDatabaseSnapshot(snapshot)
+            databaseSnapshotStatus = "Restored \(snapshot.kind.title) from \(snapshotDateText(snapshot))."
+            RadixHaptics.success()
+        } catch {
+            databaseSnapshotStatus = "Could not restore \(snapshot.kind.title): \(error.localizedDescription)"
+            RadixHaptics.error()
+        }
+    }
+
+    private func snapshotDateText(_ snapshot: RadixDatabaseSnapshotMetadata) -> String {
+        snapshot.createdAt.formatted(date: .abbreviated, time: .shortened)
+    }
+
+    private func snapshotSizeText(_ snapshot: RadixDatabaseSnapshotMetadata) -> String {
+        ByteCountFormatter.string(fromByteCount: snapshot.byteCount, countStyle: .file)
     }
 
     private var manualAIKeysSavedCount: Int {

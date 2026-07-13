@@ -408,6 +408,7 @@ extension RadixStore {
         let uniqueExamples = Dictionary(grouping: examples, by: \.id).compactMap { $0.value.first }
         guard !uniqueExamples.isEmpty else { return }
 
+        _ = try? createSentenceDatabaseSafetySnapshot(reason: "Before deleting sentences")
         let sentenceKeys = Set(uniqueExamples.map(\.normalizedChineseKey).filter { !$0.isEmpty })
         for example in uniqueExamples {
             RadixStudyPreferences.deleteSentenceExample(id: example.id)

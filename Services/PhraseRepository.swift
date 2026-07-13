@@ -101,6 +101,51 @@ final class PhraseRepository {
 
     // MARK: - Writes (Add DB only)
 
+    @discardableResult
+    func createAddDatabaseSnapshot(reason: String) throws -> RadixDatabaseSnapshotMetadata {
+        guard let addDb else {
+            throw NSError(domain: "Radix", code: 120, userInfo: [NSLocalizedDescriptionKey: "Add phrases database is not open"])
+        }
+        let date = Date()
+        let destinationURL = try RadixDatabaseSnapshotStore.destinationURL(kind: .addedPhrases, date: date)
+        try backup(database: addDb, to: destinationURL)
+        return RadixDatabaseSnapshotStore.record(kind: .addedPhrases, reason: reason, at: destinationURL, date: date)
+    }
+
+    func restoreAddDatabaseSnapshot(_ snapshot: RadixDatabaseSnapshotMetadata) throws {
+        guard snapshot.kind == .addedPhrases else {
+            throw NSError(domain: "Radix", code: 121, userInfo: [NSLocalizedDescriptionKey: "This snapshot is not an added-phrases database snapshot."])
+        }
+        guard let addDb else {
+            throw NSError(domain: "Radix", code: 120, userInfo: [NSLocalizedDescriptionKey: "Add phrases database is not open"])
+        }
+        let sourceURL = URL(fileURLWithPath: snapshot.path)
+        guard FileManager.default.isReadableFile(atPath: sourceURL.path) else {
+            throw NSError(domain: "Radix", code: 122, userInfo: [NSLocalizedDescriptionKey: "Added-phrases snapshot is not readable."])
+        }
+        var sourceDB: OpaquePointer?
+        guard sqlite3_open_v2(sourceURL.path, &sourceDB, SQLITE_OPEN_READONLY, nil) == SQLITE_OK,
+              let sourceDB
+        else {
+            let message = sourceDB.map { String(cString: sqlite3_errmsg($0)) } ?? "unknown"
+            if let sourceDB { sqlite3_close(sourceDB) }
+            throw NSError(domain: "Radix", code: 123, userInfo: [NSLocalizedDescriptionKey: "Failed to open added-phrases snapshot: \(message)"])
+        }
+        defer { sqlite3_close(sourceDB) }
+
+        guard let backup = sqlite3_backup_init(addDb, "main", sourceDB, "main") else {
+            throw queryRunner.phraseWriteError(code: 124, prefix: "Added-phrases restore failed", db: addDb, currentAddDBPath: currentAddDBPath)
+        }
+        let stepResult = sqlite3_backup_step(backup, -1)
+        let finishResult = sqlite3_backup_finish(backup)
+        guard stepResult == SQLITE_DONE, finishResult == SQLITE_OK else {
+            throw queryRunner.phraseWriteError(code: 125, prefix: "Added-phrases restore failed", db: addDb, currentAddDBPath: currentAddDBPath)
+        }
+        try ensureAddTable()
+        try addDBLocationManager.syncWorkingAddDBToCustomSourceIfNeeded()
+        invalidateReadCaches()
+    }
+
     func addOrUpdatePhrase(word: String, pinyin: String, meanings: String, notes: String? = nil) throws {
         guard let addDb else {
             throw NSError(domain: "Radix", code: 12, userInfo: [NSLocalizedDescriptionKey: "Add phrases database is not open"])
@@ -654,6 +699,35 @@ final class PhraseRepository {
 
     private func resolvedActiveAddDBURL(fileManager: FileManager) throws -> URL {
         try addDBLocationManager.resolvedActiveAddDBURL(fileManager: fileManager)
+    }
+
+    private func backup(database sourceDB: OpaquePointer, to destinationURL: URL) throws {
+        try FileManager.default.createDirectory(
+            at: destinationURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        if FileManager.default.fileExists(atPath: destinationURL.path) {
+            try FileManager.default.removeItem(at: destinationURL)
+        }
+
+        var destinationDB: OpaquePointer?
+        guard sqlite3_open_v2(destinationURL.path, &destinationDB, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) == SQLITE_OK,
+              let destinationDB
+        else {
+            let message = destinationDB.map { String(cString: sqlite3_errmsg($0)) } ?? "unknown"
+            if let destinationDB { sqlite3_close(destinationDB) }
+            throw NSError(domain: "Radix", code: 126, userInfo: [NSLocalizedDescriptionKey: "Failed to create added-phrases snapshot: \(message)"])
+        }
+        defer { sqlite3_close(destinationDB) }
+
+        guard let backup = sqlite3_backup_init(destinationDB, "main", sourceDB, "main") else {
+            throw NSError(domain: "Radix", code: 127, userInfo: [NSLocalizedDescriptionKey: "Failed to start added-phrases snapshot: \(String(cString: sqlite3_errmsg(destinationDB)))"])
+        }
+        let stepResult = sqlite3_backup_step(backup, -1)
+        let finishResult = sqlite3_backup_finish(backup)
+        guard stepResult == SQLITE_DONE, finishResult == SQLITE_OK else {
+            throw NSError(domain: "Radix", code: 128, userInfo: [NSLocalizedDescriptionKey: "Failed to finish added-phrases snapshot: \(String(cString: sqlite3_errmsg(destinationDB)))"])
+        }
     }
 
     func restoreDefaultAddDB() throws {

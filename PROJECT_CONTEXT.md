@@ -66,6 +66,12 @@ and extracted-sentence reader access must never repair or rediscover phrase
 links while rendering; they are read-only consumers of stored hints. Phrase
 adds/deletes/status changes perform targeted write-time hint updates, and bulk
 restore/import/normalization performs one full write-time refresh after import.
+The mutable SQLite stores for Study Sentences and added phrases keep quiet
+internal safety snapshots before bulk import/restore, normalization, phrase
+cleanup, sentence deletion, and phrase-link maintenance. Settings > Storage
+exposes these snapshots under `Database Recovery` for transparent inspection,
+manual safety-copy creation, and explicit restore without turning recovery into
+a distracting primary workflow.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.
