@@ -162,6 +162,58 @@ enum RadixStudyPreferences {
     }
 
     @discardableResult
+    static func refreshSentencePhraseLinks(availablePhraseWords words: [String]) -> Int {
+        let records = currentSentenceExamples
+        guard !records.isEmpty else { return 0 }
+        let phraseWords = canonicalizedPhraseLinkWords(words)
+        let updatedRecords = records.map {
+            sentenceExample($0, refreshingPhraseLinksFrom: phraseWords)
+        }
+        let changedRecords = zip(records, updatedRecords).compactMap { original, updated in
+            original == updated ? nil : updated
+        }
+        sentenceExampleRepository.replace(changedRecords)
+        return changedRecords.count
+    }
+
+    @discardableResult
+    static func addSentencePhraseLink(_ phrase: String) -> Int {
+        let phraseWords = canonicalizedPhraseLinkWords([phrase])
+        guard let phraseWord = phraseWords.first else { return 0 }
+        let matchingRecords = sentenceExamplesContainingChineseText(phraseWord)
+        let updatedRecords = matchingRecords.compactMap { record -> SentenceExampleRecord? in
+            let updated = sentenceExample(record, refreshingPhraseLinksFrom: phraseWords)
+            return updated == record ? nil : updated
+        }
+        sentenceExampleRepository.replace(updatedRecords)
+        return updatedRecords.count
+    }
+
+    @discardableResult
+    static func removeSentencePhraseLinks(_ phrases: [String]) -> Int {
+        let phraseKeys = Set(canonicalizedPhraseLinkWords(phrases))
+        guard !phraseKeys.isEmpty else { return 0 }
+        var recordsByID: [UUID: SentenceExampleRecord] = [:]
+        for phrase in phraseKeys {
+            for record in sentenceExamples(matching: SentenceExampleQuery(searchText: phrase)) {
+                recordsByID[record.id] = record
+            }
+        }
+        let updatedRecords = recordsByID.values.compactMap { record -> SentenceExampleRecord? in
+            var updated = record
+            updated.targetPhrases = record.targetPhrases.filter {
+                !phraseKeys.contains(SentenceExampleRecord.normalizedChineseKey(ScriptTextConverter.simplified($0)))
+            }
+            updated.detectedPhrases = record.detectedPhrases.filter {
+                !phraseKeys.contains(SentenceExampleRecord.normalizedChineseKey(ScriptTextConverter.simplified($0)))
+            }
+            return updated == record ? nil : updated
+        }
+        sentenceExampleRepository.replace(updatedRecords)
+        return updatedRecords.count
+    }
+
+    @discardableResult
     static func convertStoredSentenceExamplesToSimplified() -> Int {
         let records = currentSentenceExamples
         guard !records.isEmpty else {
@@ -432,6 +484,55 @@ enum RadixStudyPreferences {
 
     fileprivate static func canonicalizedSentenceExamples(_ records: [SentenceExampleRecord]) -> [SentenceExampleRecord] {
         SentenceExampleRecord.upserting(records.map(canonicalizedSentenceExample(_:)), into: [])
+    }
+
+    private static func canonicalizedPhraseLinkWords(_ words: [String]) -> [String] {
+        var seen = Set<String>()
+        return words.compactMap { word in
+            let simplified = ScriptTextConverter.simplified(word)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let key = SentenceExampleRecord.normalizedChineseKey(simplified)
+            guard simplified.count >= 2, !key.isEmpty, seen.insert(key).inserted else { return nil }
+            return key
+        }
+    }
+
+    private static func sentenceExamplesContainingChineseText(_ text: String) -> [SentenceExampleRecord] {
+        let key = SentenceExampleRecord.normalizedChineseKey(text)
+        guard !key.isEmpty else { return [] }
+        return sentenceExamples(matching: SentenceExampleQuery(searchText: text)).filter {
+            $0.normalizedChineseKey.contains(key)
+        }
+    }
+
+    private static func sentenceExample(
+        _ record: SentenceExampleRecord,
+        refreshingPhraseLinksFrom phraseWords: [String]
+    ) -> SentenceExampleRecord {
+        var updated = record
+        let sentenceKey = record.normalizedChineseKey
+        let matchedPhrases = orderedPhraseLinks(in: sentenceKey, phraseWords: phraseWords)
+        updated.targetPhrases = matchedPhrases
+        updated.detectedPhrases = matchedPhrases
+        return updated
+    }
+
+    private static func orderedPhraseLinks(in normalizedSentence: String, phraseWords: [String]) -> [String] {
+        phraseWords
+            .filter { normalizedSentence.contains(SentenceExampleRecord.normalizedChineseKey($0)) }
+            .sorted {
+                let lhsKey = SentenceExampleRecord.normalizedChineseKey($0)
+                let rhsKey = SentenceExampleRecord.normalizedChineseKey($1)
+                let lhsPosition = normalizedSentence.range(of: lhsKey)?.lowerBound
+                let rhsPosition = normalizedSentence.range(of: rhsKey)?.lowerBound
+                if lhsPosition != rhsPosition {
+                    if lhsPosition == nil { return false }
+                    if rhsPosition == nil { return true }
+                    return lhsPosition! < rhsPosition!
+                }
+                if lhsKey.count != rhsKey.count { return lhsKey.count > rhsKey.count }
+                return lhsKey < rhsKey
+            }
     }
 
     fileprivate static func canonicalizedSentenceExample(_ record: SentenceExampleRecord) -> SentenceExampleRecord {
@@ -777,6 +878,29 @@ private final class SentenceExampleRepository: @unchecked Sendable {
             }
         } catch {
             fallbackRecords = RadixStudyPreferences.canonicalizedSentenceExamples(records)
+        }
+    }
+
+    func replace(_ records: [SentenceExampleRecord]) {
+        guard !records.isEmpty else { return }
+        lock.lock()
+        defer { lock.unlock() }
+
+        let records = RadixStudyPreferences.canonicalizedSentenceExamples(records)
+        if let fallbackRecords {
+            var updatedByKey = Dictionary(uniqueKeysWithValues: fallbackRecords.map { ($0.normalizedChineseKey, $0) })
+            for record in records {
+                updatedByKey[record.normalizedChineseKey] = record
+            }
+            self.fallbackRecords = fallbackRecords.map { updatedByKey[$0.normalizedChineseKey] ?? $0 }
+            return
+        }
+
+        do {
+            try openIfNeeded()
+            try insertUnlocked(records)
+        } catch {
+            return
         }
     }
 

@@ -5,8 +5,10 @@ struct SettingsView: View {
     @EnvironmentObject private var store: RadixStore
     @State private var showResetMemoryConfirmation = false
     @State private var showNormalizeChineseStorageConfirmation = false
+    @State private var showRefreshSentencePhraseLinksConfirmation = false
     @State private var resetMemoryStatus: String?
     @State private var normalizeChineseStorageStatus: String?
+    @State private var refreshSentencePhraseLinksStatus: String?
     @State private var navigationTipsReset = false
     @State private var areAPIKeysExpanded = false
     let showsCloseButton: Bool
@@ -154,6 +156,22 @@ struct SettingsView: View {
                         .font(ResponsiveFont.caption.weight(.semibold))
                         .foregroundStyle(normalizeChineseStorageStatus.hasPrefix("Could not") ? .red : .secondary)
                 }
+
+                Button {
+                    showRefreshSentencePhraseLinksConfirmation = true
+                } label: {
+                    Label("Refresh Sentence Phrase Links", systemImage: "link")
+                }
+
+                Text("Repairs stored phrase hints for sentence highlighting and sentence phrase lists using the current phrase library. Sentence screens never do this repair while you are studying.")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+
+                if let refreshSentencePhraseLinksStatus {
+                    Text(refreshSentencePhraseLinksStatus)
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(refreshSentencePhraseLinksStatus.hasPrefix("Could not") ? .red : .secondary)
+                }
             } header: {
                 Text("Storage")
             }
@@ -238,6 +256,14 @@ struct SettingsView: View {
         } message: {
             Text("This rewrites Radix-owned Study Sentences, extracted sentence pages, added phrases, and phrase favorites into Simplified Chinese. This is a raw data conversion, not just a display switch.")
         }
+        .alert("Refresh Sentence Phrase Links?", isPresented: $showRefreshSentencePhraseLinksConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button("Refresh") {
+                refreshSentencePhraseLinks()
+            }
+        } message: {
+            Text("This scans the stored sentence database once and rewrites phrase hints using the current phrase library. Normal sentence and phrase-card access will continue to use stored hints only.")
+        }
     }
 
     private func apiKeyField(_ title: String, text: Binding<String>) -> some View {
@@ -284,6 +310,12 @@ struct SettingsView: View {
             normalizeChineseStorageStatus = "Could not normalize Chinese storage: \(error.localizedDescription)"
             RadixHaptics.error()
         }
+    }
+
+    private func refreshSentencePhraseLinks() {
+        let result = store.refreshSentencePhraseLinks()
+        refreshSentencePhraseLinksStatus = "Refreshed \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.extractedPageCount) extracted page\(result.extractedPageCount == 1 ? "" : "s")."
+        RadixHaptics.success()
     }
 
     private var geminiKeyHealthRow: some View {

@@ -117,6 +117,11 @@ extension RadixStore {
         let sentenceCount: Int
     }
 
+    struct SentencePhraseLinkRefreshResult {
+        let sentenceCount: Int
+        let extractedPageCount: Int
+    }
+
     func restoreFromLibrary() {
         let key = dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines)
         guard key.count == 1 else { return }
@@ -253,6 +258,7 @@ extension RadixStore {
                 }
                 try phraseRepo.addOrUpdatePhrase(word: storedWord, pinyin: p.pinyin, meanings: p.meanings, notes: p.notes)
                 try removeLegacyPhraseIfNeeded(originalWord: originalWord, storedWord: storedWord)
+                refreshSentencePhraseLinksAfterAddingPhrase(storedWord)
             }
         }
 
@@ -350,6 +356,7 @@ extension RadixStore {
         refreshAddedPhraseReviewPhrases()
         do {
             try phraseRepo.deletePhrase(word: storedWord)
+            refreshSentencePhraseLinksAfterRemovingPhrases([storedWord])
             refreshPhraseBackedViews(for: dataEditCharacter)
             dataEditAutoSaveStatus = "Phrase removed from your custom list."
         } catch {
@@ -368,6 +375,7 @@ extension RadixStore {
         for word in storedWords {
             try phraseRepo.deletePhrase(word: word)
         }
+        refreshSentencePhraseLinksAfterRemovingPhrases(storedWords)
 
         let deletedSet = Set(storedWords)
         dataEditPhrases.removeAll { deletedSet.contains(phraseStorageWord($0.word)) }
@@ -441,6 +449,11 @@ extension RadixStore {
         let storedWord = phraseStorageWord(word)
         guard !storedWord.isEmpty else { return }
         try phraseRepo.updateReviewStatus(for: storedWord, status: status)
+        if status == .hidden || status == .removed {
+            refreshSentencePhraseLinksAfterRemovingPhrases([storedWord])
+        } else {
+            refreshSentencePhraseLinksAfterAddingPhrase(storedWord)
+        }
         let statusText = status?.title ?? "New"
         dataEditAutoSaveStatus = "\(storedWord) marked \(statusText)."
     }
@@ -458,6 +471,7 @@ extension RadixStore {
         for word in removableWords {
             try phraseRepo.deletePhrase(word: phraseStorageWord(word))
         }
+        refreshSentencePhraseLinksAfterRemovingPhrases(removableWords)
 
         let removableSet = Set(removableWords.map(phraseStorageWord(_:)))
         dataEditPhrases.removeAll { removableSet.contains(phraseStorageWord($0.word)) }
@@ -483,8 +497,146 @@ extension RadixStore {
     func normalizeChineseStorageToSimplified() throws -> ChineseStorageNormalizationResult {
         let phraseCount = try convertAddedPhrasesToSimplified()
         let sentenceCount = convertStudySentencesToSimplified()
+        _ = refreshSentencePhraseLinks()
         dataEditAutoSaveStatus = "Normalized Chinese storage to Simplified."
         return ChineseStorageNormalizationResult(phraseCount: phraseCount, sentenceCount: sentenceCount)
+    }
+
+    @discardableResult
+    func refreshSentencePhraseLinks() -> SentencePhraseLinkRefreshResult {
+        let phraseWords = activeSentencePhraseLinkWords()
+        let extractedPageCount = refreshAICleanedPagePhraseLinks(availablePhraseWords: phraseWords)
+        if extractedPageCount > 0 {
+            RadixStudyPreferences.recordSentenceExamples(
+                RadixStudyPreferences.aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
+            )
+        }
+        let sentenceCount = RadixStudyPreferences.refreshSentencePhraseLinks(availablePhraseWords: phraseWords)
+        favoriteSentenceRevision += 1
+        return SentencePhraseLinkRefreshResult(sentenceCount: sentenceCount, extractedPageCount: extractedPageCount)
+    }
+
+    private func refreshSentencePhraseLinksAfterAddingPhrase(_ word: String) {
+        let storedWord = phraseStorageWord(word)
+        guard !storedWord.isEmpty, phraseRepo.fetchPhrase(for: storedWord) != nil else { return }
+        _ = RadixStudyPreferences.addSentencePhraseLink(storedWord)
+        _ = addAICleanedPagePhraseLink(storedWord)
+        favoriteSentenceRevision += 1
+    }
+
+    private func refreshSentencePhraseLinksAfterRemovingPhrases(_ words: [String]) {
+        let storedWords = words.map(phraseStorageWord(_:)).filter { !$0.isEmpty }
+        guard !storedWords.isEmpty else { return }
+        _ = RadixStudyPreferences.removeSentencePhraseLinks(storedWords)
+        _ = removeAICleanedPagePhraseLinks(storedWords)
+        favoriteSentenceRevision += 1
+    }
+
+    private func activeSentencePhraseLinkWords() -> [String] {
+        var seen = Set<String>()
+        return phraseRepo.fetchAllPhrases().compactMap { phrase in
+            let word = phraseStorageWord(phrase.word)
+            guard word.count >= 2, seen.insert(word).inserted else { return nil }
+            return word
+        }
+    }
+
+    private func refreshAICleanedPagePhraseLinks(availablePhraseWords words: [String]) -> Int {
+        var records = RadixStudyPreferences.aiCleanedPages
+        guard !records.isEmpty else { return 0 }
+        var changedPageCount = 0
+        for pageIndex in records.indices {
+            let original = records[pageIndex]
+            records[pageIndex].sentences = original.sentences.map { sentence in
+                var updated = sentence
+                updated.phraseHints = orderedSentencePhraseLinks(in: sentence.chinese, phraseWords: words)
+                return updated
+            }
+            if records[pageIndex] != original {
+                changedPageCount += 1
+            }
+        }
+        if changedPageCount > 0 {
+            RadixStudyPreferences.aiCleanedPages = records
+        }
+        return changedPageCount
+    }
+
+    private func addAICleanedPagePhraseLink(_ word: String) -> Int {
+        let storedWord = phraseStorageWord(word)
+        guard storedWord.count >= 2 else { return 0 }
+        var records = RadixStudyPreferences.aiCleanedPages
+        guard !records.isEmpty else { return 0 }
+        var changedPageCount = 0
+        for pageIndex in records.indices {
+            let original = records[pageIndex]
+            records[pageIndex].sentences = original.sentences.map { sentence in
+                let sentenceKey = SentenceExampleRecord.normalizedChineseKey(phraseStorageWord(sentence.chinese))
+                let phraseKey = SentenceExampleRecord.normalizedChineseKey(storedWord)
+                guard sentenceKey.contains(phraseKey), !sentence.phraseHints.map(phraseStorageWord(_:)).contains(storedWord) else {
+                    return sentence
+                }
+                var updated = sentence
+                updated.phraseHints = orderedSentencePhraseLinks(in: sentence.chinese, phraseWords: sentence.phraseHints + [storedWord])
+                return updated
+            }
+            if records[pageIndex] != original {
+                changedPageCount += 1
+            }
+        }
+        if changedPageCount > 0 {
+            RadixStudyPreferences.aiCleanedPages = records
+        }
+        return changedPageCount
+    }
+
+    private func removeAICleanedPagePhraseLinks(_ words: [String]) -> Int {
+        let removedWords = Set(words.map(phraseStorageWord(_:)).filter { !$0.isEmpty })
+        guard !removedWords.isEmpty else { return 0 }
+        var records = RadixStudyPreferences.aiCleanedPages
+        guard !records.isEmpty else { return 0 }
+        var changedPageCount = 0
+        for pageIndex in records.indices {
+            let original = records[pageIndex]
+            records[pageIndex].sentences = original.sentences.map { sentence in
+                var updated = sentence
+                updated.phraseHints = sentence.phraseHints.filter {
+                    !removedWords.contains(phraseStorageWord($0))
+                }
+                return updated
+            }
+            if records[pageIndex] != original {
+                changedPageCount += 1
+            }
+        }
+        if changedPageCount > 0 {
+            RadixStudyPreferences.aiCleanedPages = records
+        }
+        return changedPageCount
+    }
+
+    private func orderedSentencePhraseLinks(in sentence: String, phraseWords: [String]) -> [String] {
+        let sentenceKey = SentenceExampleRecord.normalizedChineseKey(phraseStorageWord(sentence))
+        var seen = Set<String>()
+        return phraseWords.compactMap { phrase -> String? in
+            let word = phraseStorageWord(phrase)
+            let key = SentenceExampleRecord.normalizedChineseKey(word)
+            guard word.count >= 2, sentenceKey.contains(key), seen.insert(word).inserted else { return nil }
+            return word
+        }
+        .sorted {
+            let lhsKey = SentenceExampleRecord.normalizedChineseKey($0)
+            let rhsKey = SentenceExampleRecord.normalizedChineseKey($1)
+            let lhsPosition = sentenceKey.range(of: lhsKey)?.lowerBound
+            let rhsPosition = sentenceKey.range(of: rhsKey)?.lowerBound
+            if lhsPosition != rhsPosition {
+                if lhsPosition == nil { return false }
+                if rhsPosition == nil { return true }
+                return lhsPosition! < rhsPosition!
+            }
+            if lhsKey.count != rhsKey.count { return lhsKey.count > rhsKey.count }
+            return lhsKey < rhsKey
+        }
     }
 
     private func normalizeFavoritePhraseStorage() {
@@ -518,6 +670,7 @@ extension RadixStore {
             notes: notes?.trimmingCharacters(in: .whitespacesAndNewlines)
         )
         try removeLegacyPhraseIfNeeded(originalWord: originalWord, storedWord: storedWord)
+        refreshSentencePhraseLinksAfterAddingPhrase(storedWord)
 
         if refreshViews {
             refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
@@ -540,6 +693,7 @@ extension RadixStore {
             notes: nil
         )
         try removeLegacyPhraseIfNeeded(originalWord: originalWord, storedWord: storedWord)
+        refreshSentencePhraseLinksAfterAddingPhrase(storedWord)
 
         if refreshViews {
             refreshPhraseBackedViews(for: dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines))
@@ -685,6 +839,7 @@ extension RadixStore {
                 )
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .additive)
+                _ = refreshSentencePhraseLinks()
 
             case .complete:
                 componentRepo.applyOverlay(backupOverlay)
@@ -708,6 +863,7 @@ extension RadixStore {
                 )
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .complete)
+                _ = refreshSentencePhraseLinks()
             }
 
             try persistDictionaryOverlay()
