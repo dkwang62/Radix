@@ -104,6 +104,10 @@ struct DataEditTab: View {
                     VStack(alignment: .leading, spacing: 24) {
                         Color.clear.frame(height: 0).id("myDataTop")
 
+                        if store.databaseOptimizationInProgress || store.databaseOptimizationMessage != nil {
+                            databaseOptimizationStatusRow
+                        }
+
                         switch activeDataEditSection {
                         case .myBackup:
                             backupAndRestoreSection

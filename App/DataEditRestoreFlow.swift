@@ -1,6 +1,25 @@
 import SwiftUI
 
 extension DataEditTab {
+    var databaseOptimizationStatusRow: some View {
+        HStack(spacing: 10) {
+            if store.databaseOptimizationInProgress {
+                ProgressView()
+                    .controlSize(.small)
+            } else {
+                Image(systemName: "checkmark.circle")
+                    .foregroundStyle(RadixAccent.primary)
+            }
+
+            Text(store.databaseOptimizationMessage ?? "Database optimization complete.")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RadixAccent.primary.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
+    }
+
     @ViewBuilder
     var backupRestoreOverlay: some View {
         if restorePhase.isActive {
@@ -130,7 +149,7 @@ extension DataEditTab {
 
         lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.recordBackup(at: url)
         recentBackupMetadata = RadixBackupMetadataStore.history
-        backupMessage = "Merged Radix memory with: \(url.lastPathComponent). The app and backup file now match."
+        backupMessage = "Merged Radix memory with: \(url.lastPathComponent). Radix is optimizing the database in the background."
         finishBackupRestore(operationID: operationID)
         showBackupAlert = true
         RadixHaptics.success()
@@ -169,8 +188,8 @@ extension DataEditTab {
                 guard isCurrentRestore(operationID) else { return }
 
                 backupMessage = pending.mode == .complete
-                    ? "Restored Radix memory from: \(pending.filename)"
-                    : "Merged backup data from: \(pending.filename)"
+                    ? "Restored Radix memory from: \(pending.filename). Radix is optimizing the database in the background."
+                    : "Merged backup data from: \(pending.filename). Radix is optimizing the database in the background."
                 finishBackupRestore(operationID: operationID)
                 showBackupAlert = true
                 RadixHaptics.success()

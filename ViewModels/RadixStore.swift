@@ -66,8 +66,11 @@ final class RadixStore: ObservableObject {
     // MARK: - DataEdit (Character Studio) State
     @Published var dataEditFormState = RadixDataEditFormState()
     @Published var dataImportRevision = 0
+    @Published var databaseOptimizationInProgress = false
+    @Published var databaseOptimizationMessage: String?
 
     var dataEditLoadTask: Task<Void, Never>?
+    var databaseOptimizationTask: Task<Void, Never>?
     /// Cache to avoid reloading heavy entries when toggling between AI/Data.
     var dataEditCache: [String: (entry: RawComponentEntry, phrases: [PhraseItem], isFav: Bool)] = [:]
     var dataEditEtymologyType: String?

@@ -59,13 +59,14 @@ It rewrites the stored sentence database, page-owned extracted-sentence
 artifacts, user-added phrase words, and phrase favorite keys into Simplified
 Chinese. This is a data mutation, not a display toggle; Traditional remains
 display-only.
-Settings also exposes `Refresh Sentence Phrase Links`, a full maintenance pass
-that rewrites stored sentence phrase hints from the current visible phrase
-library. Normal Study Sentences, practice, phrase-card Examples, sentence-card,
-and extracted-sentence reader access must never repair or rediscover phrase
-links while rendering; they are read-only consumers of stored hints. Phrase
-adds/deletes/status changes perform targeted write-time hint updates, and bulk
-restore/import/normalization performs one full write-time refresh after import.
+Settings exposes `Optimize Database`, a background maintenance pass that rewrites
+stored sentence phrase hints from the current visible phrase library. Normal
+Study Sentences, practice, phrase-card Examples, sentence-card, and
+extracted-sentence reader access must never repair or rediscover phrase links
+while rendering; they are read-only consumers of stored hints. Phrase
+adds/deletes/status changes perform targeted write-time hint updates, while
+bulk restore/import starts a separate optimization task after the file data is
+restored.
 The mutable SQLite stores for Study Sentences and added phrases keep quiet
 internal safety snapshots before bulk import/restore, normalization, phrase
 cleanup, sentence deletion, and phrase-link maintenance. Settings > Storage
@@ -73,14 +74,13 @@ exposes these snapshots under `Database Recovery` for transparent inspection,
 manual safety-copy creation, and explicit restore without turning recovery into
 a distracting primary workflow.
 Settings maintenance actions that scan or rewrite the sentence database
-(`Normalize Chinese Storage` and `Refresh Sentence Phrase Links`) must run as
+(`Normalize Chinese Storage` and `Optimize Database`) must run as
 async background work from the UI. Do not call the synchronous store paths
 directly from SwiftUI buttons, or Mac Catalyst can show the app as not
 responding while SQLite and phrase-link maintenance run.
-File restore/merge flows have the same rule: use the async restore import path
-so post-import sentence phrase-link maintenance runs off the main actor, and
-avoid rebuilding extracted-page phrase hints with per-sentence repeated phrase
-normalization.
+File restore/merge flows must finish the user-visible restore first, then start
+the shared `Database Optimization` task. Keep the user wording at that level;
+technical phrase-link details belong in code and docs, not restore progress UI.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.

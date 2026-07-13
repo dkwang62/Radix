@@ -8,9 +8,66 @@ import Foundation
  All @Published properties remain declared in RadixStore.swift.
 */
 
-private struct SentencePhraseLinkCandidate {
+private struct SentencePhraseLinkCandidate: Sendable {
     let word: String
     let key: String
+}
+
+private func storagePhraseWord(_ word: String) -> String {
+    let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
+    let simplified = ScriptTextConverter.simplified(trimmed).trimmingCharacters(in: .whitespacesAndNewlines)
+    return simplified.isEmpty ? trimmed : simplified
+}
+
+private func sentencePhraseLinkCandidates(from phraseWords: [String]) -> [SentencePhraseLinkCandidate] {
+    var seen = Set<String>()
+    return phraseWords.compactMap { phrase in
+        let word = storagePhraseWord(phrase)
+        let key = SentenceExampleRecord.normalizedChineseKey(word)
+        guard word.count >= 2, !key.isEmpty, seen.insert(word).inserted else { return nil }
+        return SentencePhraseLinkCandidate(word: word, key: key)
+    }
+}
+
+private func orderedSentencePhraseLinksForCandidates(in sentence: String, candidates: [SentencePhraseLinkCandidate]) -> [String] {
+    let sentenceKey = SentenceExampleRecord.normalizedChineseKey(storagePhraseWord(sentence))
+    var seen = Set<String>()
+    return candidates.compactMap { candidate -> SentencePhraseLinkCandidate? in
+        guard sentenceKey.contains(candidate.key), seen.insert(candidate.word).inserted else { return nil }
+        return candidate
+    }
+    .sorted {
+        let lhsPosition = sentenceKey.range(of: $0.key)?.lowerBound
+        let rhsPosition = sentenceKey.range(of: $1.key)?.lowerBound
+        if lhsPosition != rhsPosition {
+            if lhsPosition == nil { return false }
+            if rhsPosition == nil { return true }
+            return lhsPosition! < rhsPosition!
+        }
+        if $0.key.count != $1.key.count { return $0.key.count > $1.key.count }
+        return $0.key < $1.key
+    }
+    .map(\.word)
+}
+
+private func refreshingAICleanedPagePhraseLinks(
+    in records: [AICleanedPageRecord],
+    candidates: [SentencePhraseLinkCandidate]
+) -> (records: [AICleanedPageRecord], changedPageCount: Int) {
+    var updatedRecords = records
+    var changedPageCount = 0
+    for pageIndex in updatedRecords.indices {
+        let original = updatedRecords[pageIndex]
+        updatedRecords[pageIndex].sentences = original.sentences.map { sentence in
+            var updated = sentence
+            updated.phraseHints = orderedSentencePhraseLinksForCandidates(in: sentence.chinese, candidates: candidates)
+            return updated
+        }
+        if updatedRecords[pageIndex] != original {
+            changedPageCount += 1
+        }
+    }
+    return (updatedRecords, changedPageCount)
 }
 
 extension RadixStore {
@@ -552,7 +609,7 @@ extension RadixStore {
             _ = try? await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before refreshing sentence phrase links")
         }
         let phraseWords = activeSentencePhraseLinkWords()
-        let extractedPageCount = refreshAICleanedPagePhraseLinks(availablePhraseWords: phraseWords)
+        let extractedPageCount = await refreshAICleanedPagePhraseLinksForOptimization(availablePhraseWords: phraseWords)
         if extractedPageCount > 0 {
             RadixStudyPreferences.recordSentenceExamples(
                 RadixStudyPreferences.aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
@@ -563,6 +620,30 @@ extension RadixStore {
         }.value
         favoriteSentenceRevision += 1
         return SentencePhraseLinkRefreshResult(sentenceCount: sentenceCount, extractedPageCount: extractedPageCount)
+    }
+
+    func startDatabaseOptimization(reason: String = "Optimizing database") {
+        if databaseOptimizationInProgress {
+            databaseOptimizationMessage = "Optimizing database… Radix is still usable."
+            return
+        }
+
+        databaseOptimizationTask?.cancel()
+        databaseOptimizationInProgress = true
+        databaseOptimizationMessage = "Optimizing database… Radix is still usable."
+
+        databaseOptimizationTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            let result = await self.refreshSentencePhraseLinksForSettings(createSafetySnapshot: false)
+            guard !Task.isCancelled else { return }
+            self.databaseOptimizationMessage = "Database optimization complete."
+            self.databaseOptimizationInProgress = false
+            self.databaseOptimizationTask = nil
+            self.dataEditAutoSaveStatus = "\(reason) complete: optimized \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s")."
+            try? await Task.sleep(for: .seconds(8))
+            guard !Task.isCancelled, !self.databaseOptimizationInProgress else { return }
+            self.databaseOptimizationMessage = nil
+        }
     }
 
     private func refreshSentencePhraseLinksAfterAddingPhrase(_ word: String) {
@@ -594,32 +675,26 @@ extension RadixStore {
         var records = RadixStudyPreferences.aiCleanedPages
         guard !records.isEmpty else { return 0 }
         let candidates = sentencePhraseLinkCandidates(from: words)
-        var changedPageCount = 0
-        for pageIndex in records.indices {
-            let original = records[pageIndex]
-            records[pageIndex].sentences = original.sentences.map { sentence in
-                var updated = sentence
-                updated.phraseHints = orderedSentencePhraseLinks(in: sentence.chinese, candidates: candidates)
-                return updated
-            }
-            if records[pageIndex] != original {
-                changedPageCount += 1
-            }
-        }
+        let result = refreshingAICleanedPagePhraseLinks(in: records, candidates: candidates)
+        records = result.records
+        let changedPageCount = result.changedPageCount
         if changedPageCount > 0 {
             RadixStudyPreferences.aiCleanedPages = records
         }
         return changedPageCount
     }
 
-    private func sentencePhraseLinkCandidates(from phraseWords: [String]) -> [SentencePhraseLinkCandidate] {
-        var seen = Set<String>()
-        return phraseWords.compactMap { phrase in
-            let word = phraseStorageWord(phrase)
-            let key = SentenceExampleRecord.normalizedChineseKey(word)
-            guard word.count >= 2, !key.isEmpty, seen.insert(word).inserted else { return nil }
-            return SentencePhraseLinkCandidate(word: word, key: key)
+    private func refreshAICleanedPagePhraseLinksForOptimization(availablePhraseWords words: [String]) async -> Int {
+        let records = RadixStudyPreferences.aiCleanedPages
+        guard !records.isEmpty else { return 0 }
+        let candidates = sentencePhraseLinkCandidates(from: words)
+        let result = await Task.detached(priority: .utility) {
+            refreshingAICleanedPagePhraseLinks(in: records, candidates: candidates)
+        }.value
+        if result.changedPageCount > 0 {
+            RadixStudyPreferences.aiCleanedPages = result.records
         }
+        return result.changedPageCount
     }
 
     private func addAICleanedPagePhraseLink(_ word: String) -> Int {
@@ -676,28 +751,7 @@ extension RadixStore {
     }
 
     private func orderedSentencePhraseLinks(in sentence: String, phraseWords: [String]) -> [String] {
-        orderedSentencePhraseLinks(in: sentence, candidates: sentencePhraseLinkCandidates(from: phraseWords))
-    }
-
-    private func orderedSentencePhraseLinks(in sentence: String, candidates: [SentencePhraseLinkCandidate]) -> [String] {
-        let sentenceKey = SentenceExampleRecord.normalizedChineseKey(phraseStorageWord(sentence))
-        var seen = Set<String>()
-        return candidates.compactMap { candidate -> SentencePhraseLinkCandidate? in
-            guard sentenceKey.contains(candidate.key), seen.insert(candidate.word).inserted else { return nil }
-            return candidate
-        }
-        .sorted {
-            let lhsPosition = sentenceKey.range(of: $0.key)?.lowerBound
-            let rhsPosition = sentenceKey.range(of: $1.key)?.lowerBound
-            if lhsPosition != rhsPosition {
-                if lhsPosition == nil { return false }
-                if rhsPosition == nil { return true }
-                return lhsPosition! < rhsPosition!
-            }
-            if $0.key.count != $1.key.count { return $0.key.count > $1.key.count }
-            return $0.key < $1.key
-        }
-        .map(\.word)
+        orderedSentencePhraseLinksForCandidates(in: sentence, candidates: sentencePhraseLinkCandidates(from: phraseWords))
     }
 
     private func normalizeFavoritePhraseStorage() {
@@ -1069,7 +1123,7 @@ extension RadixStore {
             createSafetySnapshots: false,
             refreshSentenceLinks: false
         )
-        _ = await refreshSentencePhraseLinksForSettings(createSafetySnapshot: false)
+        startDatabaseOptimization(reason: "Restore database optimization")
     }
 
     // MARK: - Variance check

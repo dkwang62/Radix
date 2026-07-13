@@ -9,11 +9,9 @@ struct SettingsView: View {
     @State private var showDatabaseSafetyDetails = false
     @State private var resetMemoryStatus: String?
     @State private var normalizeChineseStorageStatus: String?
-    @State private var refreshSentencePhraseLinksStatus: String?
     @State private var databaseSnapshotStatus: String?
     @State private var pendingDatabaseSnapshotRestore: RadixDatabaseSnapshotMetadata?
     @State private var isNormalizingChineseStorage = false
-    @State private var isRefreshingSentencePhraseLinks = false
     @State private var navigationTipsReset = false
     @State private var areAPIKeysExpanded = false
     let showsCloseButton: Bool
@@ -155,7 +153,7 @@ struct SettingsView: View {
                         Label("Normalize Chinese Storage", systemImage: "arrow.triangle.2.circlepath")
                     }
                 }
-                .disabled(isNormalizingChineseStorage || isRefreshingSentencePhraseLinks)
+                .disabled(isNormalizingChineseStorage || store.databaseOptimizationInProgress)
 
                 Text("Rewrites Radix-owned sentence and phrase storage into Simplified Chinese. Traditional remains available as a display choice.")
                     .font(ResponsiveFont.caption)
@@ -170,27 +168,27 @@ struct SettingsView: View {
                 Button {
                     showRefreshSentencePhraseLinksConfirmation = true
                 } label: {
-                    if isRefreshingSentencePhraseLinks {
-                        Label("Refreshing Sentence Phrase Links", systemImage: "hourglass")
+                    if store.databaseOptimizationInProgress {
+                        Label("Optimizing Database", systemImage: "hourglass")
                     } else {
-                        Label("Refresh Sentence Phrase Links", systemImage: "link")
+                        Label("Optimize Database", systemImage: "externaldrive.badge.timemachine")
                     }
                 }
-                .disabled(isNormalizingChineseStorage || isRefreshingSentencePhraseLinks)
+                .disabled(isNormalizingChineseStorage || store.databaseOptimizationInProgress)
 
-                Text("Repairs stored phrase hints for sentence highlighting and sentence phrase lists using the current phrase library. Sentence screens never do this repair while you are studying.")
+                Text("Improves sentence search, phrase highlighting, and saved-page sentence results after large imports or cleanup.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
 
-                if let refreshSentencePhraseLinksStatus {
-                    Text(refreshSentencePhraseLinksStatus)
+                if let databaseOptimizationStatusText {
+                    Text(databaseOptimizationStatusText)
                         .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(refreshSentencePhraseLinksStatus.hasPrefix("Could not") ? .red : .secondary)
+                        .foregroundStyle(.secondary)
                 }
 
                 DisclosureGroup(isExpanded: $showDatabaseSafetyDetails) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Radix quietly keeps internal database copies before import, restore, cleanup, and sentence maintenance. These are local recovery points; portable backups are still the full-app backup.")
+                        Text("Radix quietly keeps local recovery copies before import, restore, cleanup, and database optimization. Portable backups are still the full-app backup.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
 
@@ -299,13 +297,13 @@ struct SettingsView: View {
         } message: {
             Text("This rewrites Radix-owned Study Sentences, extracted sentence pages, added phrases, and phrase favorites into Simplified Chinese. This is a raw data conversion, not just a display switch.")
         }
-        .alert("Refresh Sentence Phrase Links?", isPresented: $showRefreshSentencePhraseLinksConfirmation) {
+        .alert("Optimize Database?", isPresented: $showRefreshSentencePhraseLinksConfirmation) {
             Button("Cancel", role: .cancel) {}
-            Button("Refresh") {
+            Button("Optimize") {
                 refreshSentencePhraseLinks()
             }
         } message: {
-            Text("This scans the stored sentence database once and rewrites phrase hints using the current phrase library. Normal sentence and phrase-card access will continue to use stored hints only.")
+            Text("Radix will improve sentence search and phrase highlighting in the background. You can keep using the app while it works.")
         }
         .alert(item: $pendingDatabaseSnapshotRestore) { snapshot in
             Alert(
@@ -429,15 +427,12 @@ struct SettingsView: View {
     }
 
     private func refreshSentencePhraseLinks() {
-        guard !isRefreshingSentencePhraseLinks else { return }
-        isRefreshingSentencePhraseLinks = true
-        refreshSentencePhraseLinksStatus = "Refreshing in the background. Large sentence libraries may take a while."
-        Task {
-            defer { isRefreshingSentencePhraseLinks = false }
-            let result = await store.refreshSentencePhraseLinksForSettings()
-            refreshSentencePhraseLinksStatus = "Refreshed \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.extractedPageCount) extracted page\(result.extractedPageCount == 1 ? "" : "s")."
-            RadixHaptics.success()
-        }
+        store.startDatabaseOptimization(reason: "Database optimization")
+        RadixHaptics.success()
+    }
+
+    private var databaseOptimizationStatusText: String? {
+        store.databaseOptimizationMessage
     }
 
     private var geminiKeyHealthRow: some View {
