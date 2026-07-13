@@ -90,6 +90,18 @@ optimized.
 
 ## Performance Rules
 
+Performance takes priority over non-essential features and implementation
+convenience. When reviewing or modifying Radix, first identify any feature,
+component, dependency, animation, background task, data operation, or
+architecture choice that can materially degrade startup time, responsiveness,
+memory use, battery life, scrolling performance, or stability. Clearly flag the
+impact and its cause, then try to preserve the functionality by optimizing the
+implementation. If practical optimization is not enough, recommend removing,
+simplifying, deferring, or replacing the feature, but do not remove user-facing
+functionality without explicit approval. Do not trade away correctness, data
+integrity, security, accessibility, or maintainability for tiny benchmark wins;
+prioritize changes that produce a real user-visible improvement.
+
 Treat full-library work as suspicious by default. Any code path that touches all
 sentences, phrases, saved pages, extracted pages, or dictionary entries must be
 classified as import, restore, explicit maintenance, or background cache
