@@ -4,14 +4,14 @@ extension DataBackupPreviewSection {
     var backupPracticeSummary: some View {
         let importedPacks = RadixStudyPreferences.importedConversationPracticePacks
         let favoriteSentences = RadixStudyPreferences.favoriteSentences
-        let sentenceExamples = RadixStudyPreferences.sentenceExamples
+        let sentenceExampleCount = RadixStudyPreferences.sentenceExampleCount()
 
         return VStack(alignment: .leading, spacing: 8) {
             BackupSummaryLine(title: "Selected topic", value: store.selectedConversationPracticeTopic.title)
             BackupSummaryLine(title: "Built-in topics", value: "\(ConversationPracticeTopic.defaults.count)")
             BackupSummaryLine(title: "Imported practice packs", value: "\(importedPacks.count)")
             BackupSummaryLine(title: "Favorite sentences", value: "\(favoriteSentences.count)")
-            BackupSummaryLine(title: "Sentence examples", value: "\(sentenceExamples.count)")
+            BackupSummaryLine(title: "Sentence examples", value: "\(sentenceExampleCount)")
 
             if !importedPacks.isEmpty {
                 ForEach(importedPacks, id: \.packID) { pack in

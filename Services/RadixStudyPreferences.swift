@@ -8,6 +8,7 @@ enum SentenceExampleQueryScope: Equatable {
     case favorites
     case pageLinked
     case practice
+    case sourceType(SentenceExampleSourceType)
     case page(UUID, SentenceExampleSourceType?)
 }
 
@@ -21,6 +22,12 @@ struct SentenceExampleQuery: Equatable {
 struct SentenceExampleQueryResult: Equatable {
     var records: [SentenceExampleRecord]
     var totalCount: Int
+}
+
+struct SentenceExampleExactQuery {
+    var searchText: String
+    var limit: Int?
+    var matches: (SentenceExampleRecord) -> Bool
 }
 
 struct SentenceExampleOptimizationStats: Equatable, Sendable {
@@ -157,11 +164,23 @@ enum RadixStudyPreferences {
         return sentenceExampleRepository.query(query, migratingLegacy: legacySentenceExamplesFromPreferences)
     }
 
+    static func sentenceExampleCount(scope: SentenceExampleQueryScope = .all, searchText: String = "") -> Int {
+        querySentenceExamples(SentenceExampleQuery(scope: scope, searchText: searchText, offset: 0, limit: 0)).totalCount
+    }
+
+    static var hasSentenceExamples: Bool {
+        sentenceExampleCount() > 0
+    }
+
     static func sentenceExamples(matching query: SentenceExampleQuery) -> [SentenceExampleRecord] {
         var allQuery = query
         allQuery.offset = 0
         allQuery.limit = nil
         return querySentenceExamples(allQuery).records
+    }
+
+    static func sentenceExample(id: UUID) -> SentenceExampleRecord? {
+        sentenceExampleRepository.fetch(id: id, migratingLegacy: legacySentenceExamplesFromPreferences)
     }
 
     static func sentenceExample(normalizedKey: String) -> SentenceExampleRecord? {
@@ -421,35 +440,35 @@ enum RadixStudyPreferences {
     }
 
     static func favoriteSentenceExamples() -> [SentenceExampleRecord] {
-        SentenceExampleRecord.ranked(currentSentenceExamples).filter(\.isFavorited)
+        sentenceExamples(matching: SentenceExampleQuery(scope: .favorites))
     }
 
     static func sentenceExamples(containingCharacter character: String, limit: Int? = nil) -> [SentenceExampleRecord] {
-        limited(
-            SentenceExampleRecord.ranked(currentSentenceExamples).filter { $0.containsCharacter(character) },
-            limit: limit
+        exactSentenceExamples(
+            SentenceExampleExactQuery(
+                searchText: character,
+                limit: limit,
+                matches: { $0.containsCharacter(character) }
+            )
         )
     }
 
     static func sentenceExamples(containingPhrase phrase: String, limit: Int? = nil) -> [SentenceExampleRecord] {
-        limited(
-            SentenceExampleRecord.ranked(currentSentenceExamples).filter { sentenceExample($0, containsPhrase: phrase) },
-            limit: limit
+        exactSentenceExamples(
+            SentenceExampleExactQuery(
+                searchText: phrase,
+                limit: limit,
+                matches: { sentenceExample($0, containsPhrase: phrase) }
+            )
         )
     }
 
     static func sentenceExamples(linkedToPageID pageID: UUID, limit: Int? = nil) -> [SentenceExampleRecord] {
-        limited(
-            SentenceExampleRecord.ranked(currentSentenceExamples).filter { $0.isLinked(toPageID: pageID) },
-            limit: limit
-        )
+        sentenceExamples(matching: SentenceExampleQuery(scope: .page(pageID, nil), offset: 0, limit: limit))
     }
 
     static func sentenceExamples(sourceType: SentenceExampleSourceType, limit: Int? = nil) -> [SentenceExampleRecord] {
-        limited(
-            SentenceExampleRecord.ranked(currentSentenceExamples).filter { $0.hasSourceType(sourceType) },
-            limit: limit
-        )
+        sentenceExamples(matching: SentenceExampleQuery(scope: .sourceType(sourceType), offset: 0, limit: limit))
     }
 
     static func applyImportedSentenceExamples(_ records: [SentenceExampleRecord]?, mode: RestoreMode) {
@@ -496,9 +515,28 @@ enum RadixStudyPreferences {
         return haystack.contains(foldedQuery) || haystack.contains(foldedSimplifiedQuery)
     }
 
-    private static func limited(_ records: [SentenceExampleRecord], limit: Int?) -> [SentenceExampleRecord] {
-        guard let limit else { return records }
-        return Array(records.prefix(limit))
+    private static func exactSentenceExamples(_ exactQuery: SentenceExampleExactQuery) -> [SentenceExampleRecord] {
+        let pageSize = max(24, min(120, (exactQuery.limit ?? 24) * 4))
+        var offset = 0
+        var matches: [SentenceExampleRecord] = []
+
+        while true {
+            let result = querySentenceExamples(
+                SentenceExampleQuery(
+                    searchText: exactQuery.searchText,
+                    offset: offset,
+                    limit: pageSize
+                )
+            )
+            matches.append(contentsOf: result.records.filter(exactQuery.matches))
+            if let limit = exactQuery.limit, matches.count >= limit {
+                return Array(matches.prefix(limit))
+            }
+            offset += result.records.count
+            if result.records.isEmpty || offset >= result.totalCount {
+                return matches
+            }
+        }
     }
 
     private static func legacySentenceExamplesFromPreferences() -> [SentenceExampleRecord] {
@@ -1403,6 +1441,19 @@ private final class SentenceExampleRepository: @unchecked Sendable {
         case .practice:
             clauses.append("is_hidden = 0")
             clauses.append("(has_conversation_practice_source = 1 OR has_sentence_practice_source = 1)")
+        case .sourceType(let sourceType):
+            clauses.append("is_hidden = 0")
+            switch sourceType {
+            case .conversationPractice:
+                clauses.append("has_conversation_practice_source = 1")
+            case .sentencePractice:
+                clauses.append("has_sentence_practice_source = 1")
+            case .aiCleanedPage:
+                clauses.append("has_ai_cleaned_page_source = 1")
+            default:
+                clauses.append("source_text LIKE ?")
+                bindings.append("% source_type:\(sourceType.rawValue) %")
+            }
         case .page(let pageID, let sourceType):
             clauses.append("is_hidden = 0")
             clauses.append("source_page_ids LIKE ?")
@@ -1457,6 +1508,8 @@ private final class SentenceExampleRepository: @unchecked Sendable {
                 guard record.sources.contains(where: { $0.sourcePageID != nil }) else { return false }
             case .practice:
                 guard record.hasSourceType(.conversationPractice) || record.hasSourceType(.sentencePractice) else { return false }
+            case .sourceType(let sourceType):
+                guard record.hasSourceType(sourceType) else { return false }
             case .page(let pageID, let sourceType):
                 guard record.isLinked(toPageID: pageID) else { return false }
                 if let sourceType, !record.hasSourceType(sourceType) {

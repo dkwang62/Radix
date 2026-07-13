@@ -87,6 +87,32 @@ page sentence text. Imports may conservatively mark optimization dirty, but the
 fingerprint wins; if the current fingerprint already matches the last optimized
 fingerprint, Radix skips the pass and reports that the database is already
 optimized.
+
+## Performance Rules
+
+Treat full-library work as suspicious by default. Any code path that touches all
+sentences, phrases, saved pages, extracted pages, or dictionary entries must be
+classified as import, restore, explicit maintenance, or background cache
+rebuild work before it is allowed. SwiftUI body evaluation, row rendering,
+card presentation, Study lists, phrase-card Examples, sentence-card display,
+and backup previews must use paged or targeted repository queries instead of
+loading whole databases just to count, find one item, or render a small list.
+Before adding database work, ask whether it runs on every display, every
+selection, every keystroke, every restore, or only after an explicit action.
+If it can scan many rows, it needs one of these protections: an indexed query,
+pagination, a batch lookup by stable keys, write-time preprocessing, a cached
+snapshot with invalidation, or the shared `Database Optimization` task with
+visible progress and fingerprint-based skip detection.
+
+The common performance hazards in Radix are: full sentence DB fetches for
+boolean/count checks, one SQLite lookup per visible row, phrase-link discovery
+or Simplified/Traditional conversion in render paths, broad `LIKE` scans when
+an indexed source flag exists, JSON export/import work mixed into visible
+restore progress, and repeated master dictionary or phrase baseline loading
+after each small edit. Prefer repository helpers such as
+`querySentenceExamples`, `sentenceExampleCount`, batch normalized-key lookups,
+stored sentence phrase hints, `ScriptTextConverter`'s bounded cache, and cached
+variance baselines.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.

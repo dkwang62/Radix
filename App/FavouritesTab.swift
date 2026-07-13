@@ -134,7 +134,7 @@ struct FavouritesTab: View {
             || !store.allCollections.isEmpty
             || !addedStudyPhraseEntries.isEmpty
             || !favoriteSentenceRecords.isEmpty
-            || !RadixStudyPreferences.currentSentenceExamples.isEmpty
+            || RadixStudyPreferences.hasSentenceExamples
             || !conversationPracticeTopics.isEmpty
     }
 

@@ -299,12 +299,11 @@ extension RadixStore {
     }
 
     func sentenceExample(for item: ConversationPracticeItem) -> SentenceExampleRecord? {
-        let examples = RadixStudyPreferences.currentSentenceExamples
         if let id = item.sentenceExampleID,
-           let example = examples.first(where: { $0.id == id }) {
+           let example = RadixStudyPreferences.sentenceExample(id: id) {
             return example
         }
-        return examples.first { $0.normalizedChineseKey == item.sentenceKey }
+        return RadixStudyPreferences.sentenceExample(normalizedKey: item.sentenceKey)
     }
 
     func sentenceExampleSourceLabel(_ example: SentenceExampleRecord) -> String {
