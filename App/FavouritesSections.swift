@@ -283,27 +283,9 @@ extension FavouritesTab {
                     .fixedSize(horizontal: true, vertical: false)
                 }
 
-                Text(aiCleanedPageVisibleText(record.cleanedChineseText))
-                    .font(ResponsiveFont.body)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .textSelection(.enabled)
-
-                if shouldTruncateAICleanedPageText(record.cleanedChineseText) {
-                    Button {
-                        withAnimation(.snappy(duration: 0.18)) {
-                            isAICleanedPageTextExpanded.toggle()
-                        }
-                    } label: {
-                        Label(
-                            isAICleanedPageTextExpanded ? "Show Less" : "Show Full Text",
-                            systemImage: isAICleanedPageTextExpanded ? "chevron.up" : "chevron.down"
-                        )
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .radixPill(horizontal: 10, vertical: 7, background: RadixAccent.primary.opacity(0.1))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(RadixAccent.primary)
-                }
+                Text("\(record.sentences.count) extracted sentences")
+                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
@@ -340,6 +322,13 @@ extension FavouritesTab {
                 .task(id: aiCleanedPageSentenceCacheTaskID(for: record, sentenceCount: sentenceCount)) {
                     refreshAICleanedPageSentenceCache(for: record, sentenceCount: sentenceCount)
                 }
+            } else {
+                ContentUnavailableView(
+                    "No Sentence List",
+                    systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"),
+                    description: Text("Run Extract Sentences again so Radix can save a paged sentence list for this page.")
+                )
+                .frame(maxWidth: .infinity, minHeight: 180)
             }
 
             if !record.repairNotes.isEmpty {
@@ -359,23 +348,6 @@ extension FavouritesTab {
                 .radixSurface(RadixTheme.secondaryBackground.opacity(0.28))
             }
         }
-    }
-
-    var aiCleanedPageTextPreviewLimit: Int { 700 }
-
-    func shouldTruncateAICleanedPageText(_ text: String) -> Bool {
-        text.count > aiCleanedPageTextPreviewLimit
-    }
-
-    func aiCleanedPageVisibleText(_ text: String) -> String {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !isAICleanedPageTextExpanded,
-              trimmed.count > aiCleanedPageTextPreviewLimit
-        else {
-            return studyGridDisplayText(trimmed)
-        }
-        let preview = String(trimmed.prefix(aiCleanedPageTextPreviewLimit))
-        return studyGridDisplayText(preview) + "..."
     }
 
     func aiCleanedPageSentenceNavigation(record: AICleanedPageRecord, sentenceCount: Int) -> some View {
@@ -420,9 +392,7 @@ extension FavouritesTab {
     }
 
     func aiCleanedPageSentenceCount(for record: AICleanedPageRecord) -> Int {
-        record.sentences.isEmpty
-            ? SentenceExampleRecord.sentenceFragments(in: record.cleanedChineseText).count
-            : record.sentences.count
+        record.sentences.count
     }
 
     func aiCleanedPageSentencePageCount(sentenceCount: Int) -> Int {
@@ -554,15 +524,7 @@ extension FavouritesTab {
             return Array(record.sentences[safeStart..<safeEnd])
         }
 
-        return SentenceExampleRecord.sentenceFragments(in: record.cleanedChineseText)
-            .enumerated()
-            .filter { index, _ in index >= startIndex && index < endIndex }
-            .map { index, sentence in
-                AICleanedPageSentence(
-                    id: "ai_cleaned_page_sentence_\(index + 1)",
-                    chinese: sentence
-                )
-            }
+        return []
     }
 
     func aiCleanedPageFallbackSentenceExample(

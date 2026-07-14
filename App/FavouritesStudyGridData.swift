@@ -214,7 +214,6 @@ extension FavouritesTab {
             isShowingSentenceExamples = false
             aiCleanedPageSentencePageIndex = 0
             aiCleanedPageSentencePageCache = nil
-            isAICleanedPageTextExpanded = false
             studyAICleanedPageCollectionID = collection.id
         }
         if let record = RadixStudyPreferences.aiCleanedPage(for: collection.id) {

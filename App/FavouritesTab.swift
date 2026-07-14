@@ -69,7 +69,6 @@ struct FavouritesTab: View {
     @State var studyAICleanedPageCollectionID: UUID?
     @State var aiCleanedPageSentencePageIndex = 0
     @State var aiCleanedPageSentencePageCache: StudyAICleanedSentencePageCache?
-    @State var isAICleanedPageTextExpanded = false
     @State var sentenceExampleFilter: SentenceExampleStudyFilter = .all
     @State var sentenceExampleSearchText = ""
     @State var sentenceExamplePageIndex = 0

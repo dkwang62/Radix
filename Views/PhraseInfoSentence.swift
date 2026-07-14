@@ -1,13 +1,5 @@
 import SwiftUI
 
-private struct SentencePhraseHighlightSegment: Identifiable {
-    let id = UUID()
-    let text: String
-    let phrase: PhraseItem?
-
-    var isPhrase: Bool { phrase != nil }
-}
-
 extension PhraseInfoCard {
     var sentenceStudyContent: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -194,127 +186,12 @@ extension PhraseInfoCard {
     }
 
     var sentenceHighlightedChineseText: some View {
-        RadixTileFlowLayout(horizontalSpacing: 3, verticalSpacing: 5) {
-            ForEach(sentencePhraseHighlightSegments) { segment in
-                sentenceHighlightedSegment(segment)
-            }
-        }
-        .fixedSize(horizontal: false, vertical: true)
-        .accessibilityLabel(sentenceDisplayChinese)
-    }
-
-    @ViewBuilder
-    private func sentenceHighlightedSegment(_ segment: SentencePhraseHighlightSegment) -> some View {
-        let content = Text(segment.text)
+        Text(sentenceDisplayChinese)
             .font(.system(size: RadixPlatform.isPhone ? 25 : 30, weight: .bold, design: .rounded))
             .foregroundStyle(.primary)
-            .padding(.horizontal, segment.isPhrase ? 4 : 0)
-            .padding(.vertical, segment.isPhrase ? 2 : 0)
-            .background(segment.isPhrase ? RadixAccent.primary.opacity(0.14) : Color.clear)
-            .clipShape(RoundedRectangle(cornerRadius: segment.isPhrase ? 6 : 0))
-            .overlay(alignment: .bottom) {
-                if segment.isPhrase {
-                    Rectangle()
-                        .fill(RadixAccent.primary.opacity(0.7))
-                        .frame(height: 2)
-                        .offset(y: 2)
-                }
-            }
-
-        if let phrase = segment.phrase {
-            content.phraseContextMenu(phrase)
-        } else {
-            content
-        }
-    }
-
-    private var sentencePhraseHighlightSegments: [SentencePhraseHighlightSegment] {
-        let text = sentenceDisplayChinese
-        let phrases = sentencePhraseHints.filter { !$0.word.isEmpty }
-        guard !text.isEmpty, !phrases.isEmpty else {
-            return sentencePlainHighlightSegments(text)
-        }
-
-        let matches = sentencePhraseHighlightMatches(in: text, phrases: phrases)
-        guard !matches.isEmpty else {
-            return sentencePlainHighlightSegments(text)
-        }
-
-        var segments: [SentencePhraseHighlightSegment] = []
-        var cursor = text.startIndex
-
-        for match in matches {
-            if cursor < match.range.lowerBound {
-                segments.append(contentsOf: sentencePlainHighlightSegments(String(text[cursor..<match.range.lowerBound])))
-            }
-            segments.append(SentencePhraseHighlightSegment(text: String(text[match.range]), phrase: match.phrase))
-            cursor = match.range.upperBound
-        }
-
-        if cursor < text.endIndex {
-            segments.append(contentsOf: sentencePlainHighlightSegments(String(text[cursor..<text.endIndex])))
-        }
-
-        return segments
-    }
-
-    private func sentencePhraseHighlightMatches(
-        in text: String,
-        phrases: [PhraseItem]
-    ) -> [(range: Range<String.Index>, phrase: PhraseItem)] {
-        struct Candidate {
-            let range: Range<String.Index>
-            let start: Int
-            let end: Int
-            let phrase: PhraseItem
-
-            var length: Int { end - start }
-        }
-
-        var candidates: [Candidate] = []
-        var seenWords = Set<String>()
-
-        for phrase in phrases {
-            let word = phrase.word.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard word.count >= 2, seenWords.insert(word).inserted else { continue }
-
-            var searchRange = text.startIndex..<text.endIndex
-            while let range = text.range(of: word, range: searchRange) {
-                let start = text.distance(from: text.startIndex, to: range.lowerBound)
-                let end = text.distance(from: text.startIndex, to: range.upperBound)
-                candidates.append(Candidate(range: range, start: start, end: end, phrase: phrase))
-
-                guard range.upperBound < text.endIndex else { break }
-                searchRange = range.upperBound..<text.endIndex
-            }
-        }
-
-        let priorityOrdered = candidates.sorted {
-            if $0.length != $1.length { return $0.length > $1.length }
-            if $0.start != $1.start { return $0.start < $1.start }
-            return $0.phrase.word < $1.phrase.word
-        }
-
-        var occupiedOffsets = Set<Int>()
-        var accepted: [Candidate] = []
-        for candidate in priorityOrdered {
-            let offsets = candidate.start..<candidate.end
-            guard !offsets.contains(where: occupiedOffsets.contains) else { continue }
-            occupiedOffsets.formUnion(offsets)
-            accepted.append(candidate)
-        }
-
-        return accepted
-            .sorted {
-                if $0.start != $1.start { return $0.start < $1.start }
-                if $0.length != $1.length { return $0.length > $1.length }
-                return $0.phrase.word < $1.phrase.word
-            }
-            .map { ($0.range, $0.phrase) }
-    }
-
-    private func sentencePlainHighlightSegments(_ text: String) -> [SentencePhraseHighlightSegment] {
-        text.map { SentencePhraseHighlightSegment(text: String($0), phrase: nil) }
+            .fixedSize(horizontal: false, vertical: true)
+            .textSelection(.enabled)
+            .accessibilityLabel(sentenceDisplayChinese)
     }
 
     @ViewBuilder
