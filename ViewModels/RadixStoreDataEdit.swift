@@ -974,12 +974,12 @@ extension RadixStore {
         return String(data: data, encoding: .utf8)
     }
 
-    func portableBackupPackage() -> UnifiedPackage {
+    func portableBackupPackage(exportedAt: Date = Date(), backupID: UUID = UUID()) -> UnifiedPackage {
         RadixStudyPreferences.prepareSentenceExamplesForBackup()
         return UnifiedPackage(
             schemaVersion: PortableBackupCodec.currentSchemaVersion,
-            exportedAt: Date(),
-            backupID: UUID(),
+            exportedAt: exportedAt,
+            backupID: backupID,
             baseDictionaryFingerprint: componentRepo.baseDictionaryFingerprint,
             dictionary: nil,
             dictionaryOverlay: nil,
@@ -999,11 +999,13 @@ extension RadixStore {
     }
 
     func fullDatasetExportPackage() -> FullDatasetExportPackage {
-        FullDatasetExportPackage(
-            schemaVersion: 1,
-            exportedAt: Date(),
+        let exportedAt = Date()
+        return FullDatasetExportPackage(
+            schemaVersion: 2,
+            exportedAt: exportedAt,
             dictionary: componentRepo.rawMap,
-            phrases: phraseRepo.fetchAllPhrases()
+            phrases: phraseRepo.fetchAllPhrases(),
+            portableBackup: portableBackupPackage(exportedAt: exportedAt)
         )
     }
 

@@ -71,6 +71,12 @@ cleanup, sentence deletion, and phrase-link maintenance. Settings > Storage
 exposes these snapshots under `Recovery Copies` for transparent inspection,
 manual safety-copy creation, and explicit restore without turning recovery into
 a distracting primary workflow.
+Advanced `Full Dataset (JSON)` is schema 2 and includes both the merged coding
+foundation (`dictionary` and `phrases`) and a nested `portable_backup` payload
+with the latest saved pages, Study sentences, Conversation practice, progress,
+page phrase extractions, extracted sentence pages, profile, and API-key backup
+metadata. Keep this aligned with `portableBackupPackage()` whenever new
+user-owned data is added.
 Settings maintenance actions that scan or rewrite the sentence database must
 run as async background work from the UI. Do not call synchronous store paths
 directly from SwiftUI buttons, or Mac Catalyst can show the app as not

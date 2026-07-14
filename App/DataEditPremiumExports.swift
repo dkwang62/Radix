@@ -49,10 +49,10 @@ extension DataEditTab {
 
             premiumExportOption(
                 title: "Full Dataset (JSON)",
-                subtitle: "One structured JSON file with your portable Radix data.",
+                subtitle: "One structured JSON file with merged data and your latest Radix memory.",
                 toolsTip: AdvancedExportToolsTip(
                     title: "AI-friendly data",
-                    message: "This is the easiest foundation to give an AI coding agent. It is readable by text editors, code tools, scripts, and any app that understands JSON."
+                    message: "This is the easiest foundation to give an AI coding agent. It includes the merged dictionary and phrase data plus the same current saved pages, sentences, practice, progress, extracted pages, profile, and API-key backup metadata as a portable Radix backup."
                 ),
                 systemName: "shippingbox.fill",
                 color: .green,

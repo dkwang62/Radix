@@ -30,6 +30,7 @@ Scripts/refresh_project_source_zip.sh
 
 Excluded from this package:
 - .git
+- .build
 - DerivedData
 - build folders
 - Xcode user state
@@ -40,6 +41,8 @@ EOF
 zip -qr "${tmp_zip}" . \
   -x '.git/*' \
   -x '*/.git/*' \
+  -x '.build/*' \
+  -x '*/.build/*' \
   -x '.codex_write_test' \
   -x '*/.codex_write_test' \
   -x 'DerivedData/*' \

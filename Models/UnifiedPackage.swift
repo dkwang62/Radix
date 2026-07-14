@@ -79,12 +79,14 @@ struct FullDatasetExportPackage: Codable {
     let exportedAt: Date
     let dictionary: [String: RawComponentEntry]
     let phrases: [PhraseItem]
+    let portableBackup: UnifiedPackage
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version"
         case exportedAt = "exported_at"
         case dictionary
         case phrases
+        case portableBackup = "portable_backup"
     }
 }
 
