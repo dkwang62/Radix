@@ -84,6 +84,12 @@ page sentence text. Imports may conservatively mark optimization dirty, but the
 fingerprint wins; if the current fingerprint already matches the last optimized
 fingerprint, Radix skips the pass and reports that the database is already
 optimized.
+Settings starts Database Optimization before computing that fingerprint, so the
+UI can immediately show progress instead of appearing frozen while phrase and
+sentence snapshots are prepared. The phrase-word snapshot for Settings
+maintenance should be built through `PhraseRepository.activeSentencePhraseLinkWords()`
+and the async settings helper, not by ad hoc `fetchAllPhrases()` scans in the
+store.
 The manual Settings optimization intentionally runs the fuller maintenance pass
 even when the phrase-link fingerprint is current, because it also hides storage
 cleanup that users should not have to understand as a separate operation.

@@ -344,6 +344,15 @@ final class PhraseRepository {
         Set(fetchAllPhrases().map(\.word))
     }
 
+    func activeSentencePhraseLinkWords() -> [String] {
+        var seen = Set<String>()
+        return fetchAllPhrases().compactMap { phrase in
+            let word = sentencePhraseLinkStorageWord(phrase.word)
+            guard word.count >= 2, seen.insert(word).inserted else { return nil }
+            return word
+        }
+    }
+
     func existingWords(in words: Set<String>) -> Set<String> {
         guard !words.isEmpty else { return [] }
         let activeLookup = phraseLookupCache()
@@ -710,6 +719,12 @@ final class PhraseRepository {
 
     private func ensureAddTable() throws {
         try PhraseAddDatabaseSchema.ensureTable(in: addDb)
+    }
+
+    private func sentencePhraseLinkStorageWord(_ word: String) -> String {
+        let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
+        let simplified = ScriptTextConverter.simplified(trimmed).trimmingCharacters(in: .whitespacesAndNewlines)
+        return simplified.isEmpty ? trimmed : simplified
     }
 
     private func resolvedActiveAddDBURL(fileManager: FileManager) throws -> URL {

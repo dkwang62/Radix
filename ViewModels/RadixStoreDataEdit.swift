@@ -616,7 +616,7 @@ extension RadixStore {
         }
 
         _ = await refreshSentencePhraseLinksForSettings(createSafetySnapshot: false)
-        recordDatabaseOptimizationFingerprint(databaseOptimizationFingerprint())
+        recordDatabaseOptimizationFingerprint(await databaseOptimizationFingerprintForSettings())
         dataEditAutoSaveStatus = "Normalized Chinese storage to Simplified."
         return ChineseStorageNormalizationResult(phraseCount: phraseCount, sentenceCount: sentenceCount)
     }
@@ -641,7 +641,7 @@ extension RadixStore {
         if createSafetySnapshot {
             _ = try? await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before refreshing sentence phrase links")
         }
-        let phraseWords = activeSentencePhraseLinkWords()
+        let phraseWords = await activeSentencePhraseLinkWordsForSettings()
         let extractedPageCount = await refreshAICleanedPagePhraseLinksForOptimization(availablePhraseWords: phraseWords)
         if extractedPageCount > 0 {
             RadixStudyPreferences.recordSentenceExamples(
@@ -661,34 +661,37 @@ extension RadixStore {
             return
         }
 
-        let startingFingerprint = databaseOptimizationFingerprint()
-        if !includeStorageCleanup, !isDatabaseOptimizationNeeded(for: startingFingerprint) {
-            databaseOptimizationMessage = "Radix data is already optimized."
-            databaseOptimizationTask?.cancel()
-            databaseOptimizationTask = Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .seconds(5))
-                guard !Task.isCancelled, self?.databaseOptimizationInProgress == false else { return }
-                self?.databaseOptimizationMessage = nil
-            }
-            return
-        }
-
         databaseOptimizationTask?.cancel()
         databaseOptimizationInProgress = true
         databaseOptimizationMessage = includeStorageCleanup
             ? "Optimizing… Radix is cleaning and preparing study data in the background."
-            : "Optimizing… Radix is still usable."
+            : "Checking database… Radix is still usable."
 
         databaseOptimizationTask = Task { @MainActor [weak self] in
             guard let self else { return }
             do {
+                let startingFingerprint = await self.databaseOptimizationFingerprintForSettings()
+                if !includeStorageCleanup, !self.isDatabaseOptimizationNeeded(for: startingFingerprint) {
+                    self.databaseOptimizationMessage = "Radix data is already optimized."
+                    self.databaseOptimizationInProgress = false
+                    self.databaseOptimizationTask = nil
+                    try? await Task.sleep(for: .seconds(5))
+                    guard !Task.isCancelled, !self.databaseOptimizationInProgress else { return }
+                    self.databaseOptimizationMessage = nil
+                    return
+                }
+
+                self.databaseOptimizationMessage = includeStorageCleanup
+                    ? "Optimizing… Radix is cleaning and preparing study data in the background."
+                    : "Optimizing… Radix is still usable."
+
                 let status: String
                 if includeStorageCleanup {
                     let result = try await self.normalizeChineseStorageToSimplifiedForSettings()
                     status = "\(reason) complete: prepared \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.phraseCount) added phrase\(result.phraseCount == 1 ? "" : "s")."
                 } else {
                     let result = await self.refreshSentencePhraseLinksForSettings(createSafetySnapshot: false)
-                    self.recordDatabaseOptimizationFingerprint(self.databaseOptimizationFingerprint())
+                    self.recordDatabaseOptimizationFingerprint(await self.databaseOptimizationFingerprintForSettings())
                     status = "\(reason) complete: optimized \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s")."
                 }
                 guard !Task.isCancelled else { return }
@@ -743,9 +746,9 @@ extension RadixStore {
         preferences.set(Date().timeIntervalSince1970, forKey: databaseOptimizationLastRunKey)
     }
 
-    private func databaseOptimizationFingerprint() -> String {
+    private func databaseOptimizationFingerprint(phraseWords: [String]? = nil) -> String {
         let sentenceStats = RadixStudyPreferences.sentenceOptimizationStats()
-        let phraseWords = activeSentencePhraseLinkWords().sorted()
+        let phraseWords = (phraseWords ?? activeSentencePhraseLinkWords()).sorted()
         let pages = RadixStudyPreferences.aiCleanedPages.sorted {
             if $0.sourcePageID != $1.sourcePageID {
                 return $0.sourcePageID.uuidString < $1.sourcePageID.uuidString
@@ -771,6 +774,11 @@ extension RadixStore {
         ].joined(separator: "|")
     }
 
+    private func databaseOptimizationFingerprintForSettings() async -> String {
+        let phraseWords = await activeSentencePhraseLinkWordsForSettings()
+        return databaseOptimizationFingerprint(phraseWords: phraseWords)
+    }
+
     private func refreshSentencePhraseLinksAfterAddingPhrase(_ word: String) {
         let storedWord = phraseStorageWord(word)
         guard !storedWord.isEmpty, phraseRepo.fetchPhrase(for: storedWord) != nil else { return }
@@ -788,12 +796,21 @@ extension RadixStore {
     }
 
     private func activeSentencePhraseLinkWords() -> [String] {
-        var seen = Set<String>()
-        return phraseRepo.fetchAllPhrases().compactMap { phrase in
-            let word = phraseStorageWord(phrase.word)
-            guard word.count >= 2, seen.insert(word).inserted else { return nil }
-            return word
-        }
+        phraseRepo.activeSentencePhraseLinkWords()
+    }
+
+    private func activeSentencePhraseLinkWordsForSettings() async -> [String] {
+        let words = await Task.detached(priority: .utility) {
+            let repository = PhraseRepository()
+            do {
+                try repository.openFromBundle()
+                defer { repository.close() }
+                return repository.activeSentencePhraseLinkWords()
+            } catch {
+                return []
+            }
+        }.value
+        return words.isEmpty ? activeSentencePhraseLinkWords() : words
     }
 
     private func refreshAICleanedPagePhraseLinks(availablePhraseWords words: [String]) -> Int {
