@@ -12,7 +12,7 @@ struct RadixBrowseHighlightState {
     var imagePhrasePreview: PhraseItem?
     var sidebarPhrasePreview: PhraseItem?
     var sidebarPhraseLookupOverride: [PhraseItem]?
-    var sidebarAllowsPhraseLookup = true
+    var sidebarPhraseLookupDepth: PhraseLookupDepth = .topLevel
     var sidebarPracticeSentenceItem: ConversationPracticeItem?
     var sidebarSentenceReturnPhrase: PhraseItem?
     var sidebarSentenceReturnLookupOverride: [PhraseItem]?
@@ -73,7 +73,7 @@ extension RadixStore {
             browseHighlightState.sidebarPhrasePreview = newValue
             if newValue == nil {
                 browseHighlightState.sidebarPhraseLookupOverride = nil
-                browseHighlightState.sidebarAllowsPhraseLookup = true
+                browseHighlightState.sidebarPhraseLookupDepth = .topLevel
                 browseHighlightState.sidebarPracticeSentenceItem = nil
                 browseHighlightState.sidebarSentenceReturnPhrase = nil
                 browseHighlightState.sidebarSentenceReturnLookupOverride = nil
@@ -87,9 +87,9 @@ extension RadixStore {
         set { browseHighlightState.sidebarPhraseLookupOverride = newValue }
     }
 
-    var sidebarAllowsPhraseLookup: Bool {
-        get { browseHighlightState.sidebarAllowsPhraseLookup }
-        set { browseHighlightState.sidebarAllowsPhraseLookup = newValue }
+    var sidebarPhraseLookupDepth: PhraseLookupDepth {
+        get { browseHighlightState.sidebarPhraseLookupDepth }
+        set { browseHighlightState.sidebarPhraseLookupDepth = newValue }
     }
 
     var activePracticeSentenceItem: ConversationPracticeItem? {

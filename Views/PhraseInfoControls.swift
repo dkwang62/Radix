@@ -118,7 +118,7 @@ extension PhraseInfoCard {
     }
 
     var shouldShowPhraseLookupButton: Bool {
-        guard allowsPhraseLookup else { return false }
+        guard phraseLookupDepth.allowsPhraseLookup else { return false }
         if isPracticeSentence {
             if sentencePhraseLookupPhrases?.isEmpty == false {
                 return true

@@ -500,11 +500,14 @@ extension RadixStore {
 
     var activeSidebarPhrasePreview: PhraseItem? { sidebarPhrasePreview ?? imageBrowsePhrasePreview }
 
-    func presentPhraseInSidebar(_ phrase: PhraseItem, allowsPhraseLookup: Bool = true) {
+    func presentPhraseInSidebar(
+        _ phrase: PhraseItem,
+        lookupDepth: PhraseLookupDepth = .topLevel
+    ) {
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
-        sidebarAllowsPhraseLookup = allowsPhraseLookup
+        sidebarPhraseLookupDepth = lookupDepth
         activePracticeSentenceItem = nil
         sidebarSentenceReturnPhrase = nil
         sidebarSentenceReturnLookupOverride = nil
@@ -519,7 +522,7 @@ extension RadixStore {
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
-        sidebarAllowsPhraseLookup = false
+        sidebarPhraseLookupDepth = .terminal
         activePracticeSentenceItem = nil
         pushPhraseBreadcrumb(phrase)
     }
@@ -543,7 +546,7 @@ extension RadixStore {
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = sentencePhrases
-        sidebarAllowsPhraseLookup = true
+        sidebarPhraseLookupDepth = .topLevel
         activePracticeSentenceItem = practiceItem
         sidebarSentenceReturnPhrase = nil
         sidebarSentenceReturnLookupOverride = nil
@@ -555,7 +558,7 @@ extension RadixStore {
         sidebarPhrasePreview = nil
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
-        sidebarAllowsPhraseLookup = true
+        sidebarPhraseLookupDepth = .topLevel
         activePracticeSentenceItem = nil
         sidebarSentenceReturnPhrase = nil
         sidebarSentenceReturnLookupOverride = nil
@@ -566,7 +569,7 @@ extension RadixStore {
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
         sidebarPhraseLookupOverride = nil
-        sidebarAllowsPhraseLookup = true
+        sidebarPhraseLookupDepth = .topLevel
         activePracticeSentenceItem = nil
         sidebarSentenceReturnPhrase = nil
         sidebarSentenceReturnLookupOverride = nil

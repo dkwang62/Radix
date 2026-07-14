@@ -52,7 +52,7 @@ struct CharacterPhraseLookupSection: View {
             NavigationStack {
                 PhraseInfoCard(
                     phrase: phrase,
-                    allowsPhraseLookup: false,
+                    phraseLookupDepth: .terminal,
                     onDone: finishLookup
                 )
                     .environmentObject(store)
@@ -137,11 +137,11 @@ struct CharacterPhraseLookupSection: View {
         store.speakPhrase(phrase)
         withAnimation(.easeInOut(duration: 0.2)) {
             if isPhone {
-                store.presentPhraseInSidebar(phrase, allowsPhraseLookup: false)
+                store.presentPhraseInSidebar(phrase, lookupDepth: .terminal)
                 selectedPhrase = phrase
             } else {
                 selectedPhrase = nil
-                store.presentPhraseInSidebar(phrase, allowsPhraseLookup: false)
+                store.presentPhraseInSidebar(phrase, lookupDepth: .terminal)
             }
         }
     }

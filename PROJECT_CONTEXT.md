@@ -61,14 +61,14 @@ origin return path. Phrase cards opened from inside a Phrase Library sheet are
 also terminal for phrase lookup: they must not show another `Phrase` button,
 because phrase -> phrase -> phrase nesting becomes confusing and breaks the
 single visible return rule. If a phrase-list callout routes the selected phrase
-through the sidebar instead of inside the sheet, it must pass the same terminal
-lookup flag so the sidebar card also hides its `Phrase` button. This must be
-driven by explicit origin flags, not inferred from whether stored sentence
-phrase hints are available, because sentences without usable hints can fall
-back to dynamic lookup. Conversation Practice inspection follows the same
-boundary: opening the whole sentence card keeps phrase lookup available, while
-opening one of that sentence's phrase hints is terminal and must not expose
-another phrase lookup.
+through the sidebar instead of inside the sheet, it must pass
+`PhraseLookupDepth.terminal` so the sidebar card also hides its `Phrase` button.
+Top-level phrase previews use `PhraseLookupDepth.topLevel`. This must be driven
+by explicit origin state, not inferred from whether stored sentence phrase hints
+are available, because sentences without usable hints can fall back to dynamic
+lookup. Conversation Practice inspection follows the same boundary: opening the
+whole sentence card keeps phrase lookup available, while opening one of that
+sentence's phrase hints is terminal and must not expose another phrase lookup.
 Saving or restoring an extracted sentence page also upserts its sentence list into the
 shared `SentenceExampleRecord` database with `ai_cleaned_page` page-linked
 source metadata, so Study > Sentences and sentence cards reuse the same records.

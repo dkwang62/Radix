@@ -343,7 +343,7 @@ extension RootView {
                         phrase: phrase,
                         phraseLookupOverride: store.sidebarPhraseLookupOverride,
                         favoriteTarget: store.activePracticeSentenceItem.map(PhraseInfoFavoriteTarget.sentence) ?? .phrase,
-                        allowsPhraseLookup: store.sidebarAllowsPhraseLookup,
+                        phraseLookupDepth: store.sidebarPhraseLookupDepth,
                         onDone: {
                             store.dismissSidebarPhrasePreview()
                         }

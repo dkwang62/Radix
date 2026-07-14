@@ -5,12 +5,21 @@ enum PhraseInfoFavoriteTarget {
     case sentence(ConversationPracticeItem)
 }
 
+enum PhraseLookupDepth {
+    case topLevel
+    case terminal
+
+    var allowsPhraseLookup: Bool {
+        self == .topLevel
+    }
+}
+
 struct PhraseInfoCard: View {
     @EnvironmentObject var store: RadixStore
     let phrase: PhraseItem
     var phraseLookupOverride: [PhraseItem]? = nil
     var favoriteTarget: PhraseInfoFavoriteTarget = .phrase
-    var allowsPhraseLookup: Bool = true
+    var phraseLookupDepth: PhraseLookupDepth = .topLevel
     var onSelectCharacter: ((String) -> Void)?
     var onDone: (() -> Void)?
     @State var animationScript = RadixPhrasePreferences.animationScript
