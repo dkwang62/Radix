@@ -97,7 +97,7 @@ extension DataEditTab {
                 startsExport: false,
                 action: {
                     activeAdvancedExportKind = .sentenceLibrary
-                    showDataEditImporter(.sentenceLibrary)
+                    presentDataEditImporter(.sentenceLibrary)
                 }
             )
 

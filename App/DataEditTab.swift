@@ -53,6 +53,7 @@ struct DataEditTab: View {
     let onRequirePro: (EntitlementManager.FeatureGate) -> Void
 
     @State var activeDataEditImporter: DataEditImportKind?
+    @State var isDataEditImporterPresented = false
     @State var pendingRestoreMode: RestoreMode = .additive
     @State var backupMessage: String?
     @State var backupError: String?
@@ -150,10 +151,7 @@ struct DataEditTab: View {
                 onExportSuccess: handleReuseExportSuccess
             ))
             .fileImporter(
-                isPresented: Binding(
-                    get: { activeDataEditImporter != nil },
-                    set: { if !$0 { activeDataEditImporter = nil } }
-                ),
+                isPresented: $isDataEditImporterPresented,
                 allowedContentTypes: activeDataEditImporter == .sentenceLibrary ? [RadixFileTypes.json] : RadixFileTypes.backupImports,
                 allowsMultipleSelection: false,
                 onCompletion: handleDataEditImport
@@ -198,13 +196,15 @@ struct DataEditTab: View {
         }
     }
 
-    func showDataEditImporter(_ kind: DataEditImportKind) {
+    func presentDataEditImporter(_ kind: DataEditImportKind) {
         activeDataEditImporter = kind
+        isDataEditImporterPresented = true
     }
 
     func handleDataEditImport(_ result: Result<[URL], Error>) {
         let kind = activeDataEditImporter
         activeDataEditImporter = nil
+        isDataEditImporterPresented = false
 
         switch kind {
         case .backupFile:

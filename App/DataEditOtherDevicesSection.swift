@@ -186,7 +186,7 @@ extension DataEditTab {
                 return
             }
             pendingRestoreMode = .additive
-            showDataEditImporter(.backupFile)
+            presentDataEditImporter(.backupFile)
         } label: {
             DataBackupActionButton(
                 title: RadixCopy.mergeBackup,
@@ -208,7 +208,7 @@ extension DataEditTab {
                 return
             }
             pendingRestoreMode = .complete
-            showDataEditImporter(.backupFile)
+            presentDataEditImporter(.backupFile)
         } label: {
             DataBackupActionButton(
                 title: RadixCopy.restoreBackup,
