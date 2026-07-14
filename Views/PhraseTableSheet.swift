@@ -62,14 +62,22 @@ struct PhraseTableSheet: View {
                         self.selectedPhrase = nil
                     }
                 } label: {
-                    Label("词Phrase", systemImage: "chevron.backward")
+                    Label(isFixedPhraseLookup ? fixedTitle : "词Phrase", systemImage: "chevron.backward")
                         .font(ResponsiveFont.subheadline.weight(.semibold))
                 }
                 .buttonStyle(.plain)
 
-                PhraseInfoCard(phrase: selectedPhrase, onDone: {
-                    dismiss()
-                })
+                PhraseInfoCard(
+                    phrase: selectedPhrase,
+                    onSelectCharacter: isFixedPhraseLookup ? { _ in } : nil,
+                    onDone: {
+                        if isFixedPhraseLookup {
+                            self.selectedPhrase = nil
+                        } else {
+                            dismiss()
+                        }
+                    }
+                )
                     .environmentObject(store)
             } else {
                 HStack(alignment: .center, spacing: 12) {
@@ -217,7 +225,9 @@ struct PhraseTableSheet: View {
     private func presentPhrase(_ phrase: PhraseItem) {
         store.speakPhrase(phrase)
         withAnimation(.easeInOut(duration: 0.2)) {
-            if isPhone {
+            if isFixedPhraseLookup {
+                selectedPhrase = phrase
+            } else if isPhone {
                 store.presentPhraseInSidebar(phrase)
                 selectedPhrase = phrase
             } else {
