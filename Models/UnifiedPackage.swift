@@ -217,12 +217,14 @@ struct SentenceLibraryExportPackage: Codable {
     let schemaVersion: Int
     let exportedAt: Date
     let sentenceExamples: [SentenceExampleRecord]
+    let favoriteSentences: [FavoriteSentenceRecord]
     let aiCleanedPages: [AICleanedPageRecord]
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version"
         case exportedAt = "exported_at"
         case sentenceExamples = "sentence_examples"
+        case favoriteSentences = "favorite_sentences"
         case aiCleanedPages = "ai_cleaned_pages"
     }
 
@@ -230,12 +232,23 @@ struct SentenceLibraryExportPackage: Codable {
         schemaVersion: Int = Self.currentSchemaVersion,
         exportedAt: Date = Date(),
         sentenceExamples: [SentenceExampleRecord],
+        favoriteSentences: [FavoriteSentenceRecord] = [],
         aiCleanedPages: [AICleanedPageRecord]
     ) {
         self.schemaVersion = schemaVersion
         self.exportedAt = exportedAt
         self.sentenceExamples = sentenceExamples
+        self.favoriteSentences = favoriteSentences
         self.aiCleanedPages = aiCleanedPages
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? Self.currentSchemaVersion
+        exportedAt = try container.decodeIfPresent(Date.self, forKey: .exportedAt) ?? Date()
+        sentenceExamples = try container.decodeIfPresent([SentenceExampleRecord].self, forKey: .sentenceExamples) ?? []
+        favoriteSentences = try container.decodeIfPresent([FavoriteSentenceRecord].self, forKey: .favoriteSentences) ?? []
+        aiCleanedPages = try container.decodeIfPresent([AICleanedPageRecord].self, forKey: .aiCleanedPages) ?? []
     }
 }
 

@@ -167,7 +167,7 @@ struct SettingsView: View {
 
                 DisclosureGroup(isExpanded: $showDatabaseSafetyDetails) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Radix quietly keeps local recovery copies before import, restore, cleanup, and optimization. Portable backups are still the full-app backup.")
+                        Text("Radix quietly keeps local recovery copies before import, restore, cleanup, and optimization. Portable backups protect core Radix memory; large sentence libraries are handled separately in Advanced.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
 

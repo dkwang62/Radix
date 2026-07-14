@@ -247,6 +247,7 @@ struct PortableBackupCodecTests {
         #expect(decoded.phrases == [phrase])
         #expect(decoded.portableBackup.schemaVersion == PortableBackupCodec.currentSchemaVersion)
         #expect(decoded.portableBackup.collections == [page])
+        #expect(decoded.portableBackup.favoriteSentences == nil)
         #expect(decoded.portableBackup.sentenceExamples == nil)
         #expect(decoded.portableBackup.aiCleanedPages == nil)
         #expect(decoded.portableBackup.pagePhraseExtractions?.first?.phraseWords == ["学习"])
@@ -281,6 +282,7 @@ struct PortableBackupCodecTests {
         let package = SentenceLibraryExportPackage(
             exportedAt: exportedAt,
             sentenceExamples: [sentence],
+            favoriteSentences: [FavoriteSentenceRecord(sentenceExample: sentence)],
             aiCleanedPages: [page]
         )
 
@@ -294,6 +296,16 @@ struct PortableBackupCodecTests {
 
         #expect(decoded.schemaVersion == SentenceLibraryExportPackage.currentSchemaVersion)
         #expect(decoded.sentenceExamples.first?.chinese == sentence.chinese)
+        #expect(decoded.favoriteSentences.first?.simplified == sentence.chinese)
         #expect(decoded.aiCleanedPages.first?.sentences.first?.phraseHints == ["学习"])
+
+        var legacyObject = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        legacyObject.removeValue(forKey: "favorite_sentences")
+        let legacyData = try JSONSerialization.data(withJSONObject: legacyObject)
+        let legacyDecoded = try decoder.decode(SentenceLibraryExportPackage.self, from: legacyData)
+
+        #expect(legacyDecoded.sentenceExamples.first?.chinese == sentence.chinese)
+        #expect(legacyDecoded.favoriteSentences.isEmpty)
+        #expect(legacyDecoded.aiCleanedPages.first?.sentences.first?.phraseHints == ["学习"])
     }
 }

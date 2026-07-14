@@ -555,9 +555,10 @@ remaining audit work, and crash lessons for handing the finishing pass to Claude
   lesson-only Chinese sentence store that bypasses Radix Phrase cards,
   Character cards, favorites, notes, Browse inspection, or review state.
 - Study-owned favorite sentences are persisted as `FavoriteSentenceRecord`
-  snapshots and exposed as a generated `Favorite Sentences` Conversation
-  Practice library, so sentence review uses the same flashcard, quiz, translate,
-  speech, backup, and checkpoint pathways as other practice sets.
+  snapshots inside the separate Sentence Library and exposed as a generated
+  `Favorite Sentences` Conversation Practice library, so sentence review uses the
+  same flashcard, quiz, translate, speech, and Sentence Library transfer path as
+  other sentence records.
   Sentence info cards pass an explicit `.sentence` favorite target, while
   ordinary phrase cards use `.phrase`, so the star cannot silently switch
   between character, phrase, and sentence semantics. Conversation Practice
@@ -744,7 +745,7 @@ Sentence architecture is converging on a canonical Sentence Example database:
 favorite sentences, page sentences, Conversation Practice items, and future
 practice packs should become flags, source links, ordered memberships, or
 progress records over sentence examples rather than separate sentence stores.
-Canonical records now provide exact normalized deduplication, backup
+Canonical records now provide exact normalized deduplication, Sentence Library
 portability, source/character/phrase/page lookup helpers, automatic capture
 from Conversation Practice packs/favorite toggles, and legacy Favorite
 Sentences backfill. Imported/page-generated Conversation Practice packs now
@@ -755,10 +756,10 @@ Conversation Practice, so old practice sentences enter the sentence database
 without requiring re-import. The
 Favorite Sentences practice topic should be built from canonical favorited
 sentence examples while keeping old favorite records only as compatibility data
-until a fuller migration removes the duplicate store. Backup restore applies
-canonical sentence examples before legacy favorite-sentence records so favorites
-overlay into the sentence database instead of being overwritten by restore
-ordering. Favorite toggles and sentence deletion update both the canonical
+until a fuller migration removes the duplicate store. Sentence Library import
+applies canonical sentence examples before legacy favorite-sentence records so
+favorites overlay into the sentence database instead of being overwritten by
+import ordering. Favorite toggles and sentence deletion update both the canonical
 sentence flag and the legacy compatibility list so old favorite records cannot
 resurrect deleted or unfavorited sentences. Sentence Library export prepares
 the canonical sentence store before packaging so old imported practice packs
