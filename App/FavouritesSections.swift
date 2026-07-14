@@ -662,6 +662,15 @@ extension FavouritesTab {
                 Label("Import Sentence DB", systemImage: "square.and.arrow.down")
             }
             .disabled(isRunningSentenceDatabaseTransfer)
+
+            Divider()
+
+            Button(role: .destructive) {
+                showClearSentenceDatabaseConfirmation = true
+            } label: {
+                Label("Clear Sentence Database...", systemImage: "trash")
+            }
+            .disabled(isRunningSentenceDatabaseTransfer)
         } label: {
             Label("Transfer", systemImage: "externaldrive")
                 .font(ResponsiveFont.caption.weight(.semibold))
@@ -952,6 +961,35 @@ extension FavouritesTab {
                 await MainActor.run {
                     isRunningSentenceDatabaseTransfer = false
                     sentenceExampleStatusMessage = "Import failed: \(error.localizedDescription)"
+                }
+            }
+        }
+    }
+
+    func clearSentenceDatabase() {
+        isRunningSentenceDatabaseTransfer = true
+        sentenceExampleStatusMessage = "Clearing sentence database..."
+
+        Task {
+            do {
+                try await store.clearSentenceDatabase()
+                await MainActor.run {
+                    resetSentenceExamplePage()
+                    stopSelectingSentenceExamples()
+                    sentenceExampleSearchText = ""
+                    sentenceExampleFilter = .all
+                    sentenceExamplePageRecords = []
+                    sentenceExampleResultCount = 0
+                    sentenceExampleRevision += 1
+                    loadFavoriteSentences()
+                    refreshSentenceExampleResults()
+                    isRunningSentenceDatabaseTransfer = false
+                    sentenceExampleStatusMessage = "Cleared sentence database. A recovery copy was created first."
+                }
+            } catch {
+                await MainActor.run {
+                    isRunningSentenceDatabaseTransfer = false
+                    sentenceExampleStatusMessage = "Clear failed: \(error.localizedDescription)"
                 }
             }
         }

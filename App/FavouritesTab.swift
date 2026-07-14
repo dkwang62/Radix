@@ -93,6 +93,7 @@ struct FavouritesTab: View {
     @State var showSentenceDatabaseImporter = false
     @State var pendingSentenceDatabaseImport: PendingSentenceDatabaseImport?
     @State var isRunningSentenceDatabaseTransfer = false
+    @State var showClearSentenceDatabaseConfirmation = false
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
     @State var studyGridScope = RadixStudyPreferences.initialGridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
@@ -376,6 +377,14 @@ struct FavouritesTab: View {
             }
         } message: {
             Text("Merge adds new sentences and updates matching ones. Replace swaps your sentence database with this file after creating a recovery copy.")
+        }
+        .alert("Clear Sentence Database?", isPresented: $showClearSentenceDatabaseConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button("Clear Sentence Database", role: .destructive) {
+                clearSentenceDatabase()
+            }
+        } message: {
+            Text("This deletes all saved sentences from Study. Pages, phrases, and practices are not deleted. Radix creates a recovery copy first.")
         }
         .alert("Delete Saved Page?", isPresented: Binding(
             get: { pendingStudyDeleteCollection != nil },

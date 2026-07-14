@@ -1312,6 +1312,15 @@ extension RadixStore {
         return importedCount
     }
 
+    func clearSentenceDatabase() async throws {
+        _ = try await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before clearing sentence database")
+        await Task.detached(priority: .userInitiated) {
+            RadixStudyPreferences.clearSentenceDatabase()
+        }.value
+        favoriteSentenceRevision += 1
+        dismissSidebarPhrasePreview()
+    }
+
     // MARK: - Variance check
 
     func calculateDictionaryVariances() {

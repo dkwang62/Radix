@@ -75,7 +75,10 @@ source metadata, so Study > Sentences and sentence cards reuse the same records.
 The live sentence-example store is SQLite-backed via `RadixStudyPreferences`;
 Study > Sentences > Transfer owns the fast sentence database `.db` export/import
 for Radix-to-Radix moves, including merge and replace modes with safety
-snapshots. `sentence_examples` JSON remains in Advanced `Sentence Library
+snapshots. The same Transfer menu owns the explicit `Clear Sentence Database`
+destructive action; it creates a sentence database safety snapshot first and
+clears only the saved sentence library, leaving pages, phrases, and practice
+sets intact. `sentence_examples` JSON remains in Advanced `Sentence Library
 (JSON)` for portable/developer inspection, and legacy UserDefaults payloads are
 migrated into the database on first read.
 Sentence examples are canonically stored as simplified Chinese, including phrase

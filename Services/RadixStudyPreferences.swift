@@ -186,6 +186,12 @@ enum RadixStudyPreferences {
         }
     }
 
+    static func clearSentenceDatabase() {
+        sentenceExampleRepository.replaceAll([])
+        preferences.removeObject(forKey: RadixPreferenceKey.sentenceExamples)
+        favoriteSentences = []
+    }
+
     static var currentSentenceExamples: [SentenceExampleRecord] {
         migrateLegacyFavoriteSentencesIntoSentenceExamples()
         return sentenceExamples
