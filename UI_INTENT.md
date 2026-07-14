@@ -36,6 +36,9 @@ to where the user came from. Prefer one contextual return action such as
 `Back to Study` over hidden history. When a flow opens Phrase, Character, AI,
 Browse, quiz, or review detail from another context, keep the return path inside
 that flow instead of ejecting the user to a different destination.
+Reference pages opened from primary tabs, such as Settings help or credits,
+should be dismissible sheets or otherwise preserve tab access; they should not
+push the user into a full-screen dead end with no visible route back.
 
 Selection should stay visible when it matters. If a list opens detail, keep the
 selected row highlighted or otherwise make the list itself the return path.

@@ -9,6 +9,7 @@ struct SettingsView: View {
     @State private var resetMemoryStatus: String?
     @State private var databaseSnapshotStatus: String?
     @State private var pendingDatabaseSnapshotRestore: RadixDatabaseSnapshotMetadata?
+    @State private var presentedReferenceSheet: SettingsReferenceSheet?
     @State private var navigationTipsReset = false
     @State private var areAPIKeysExpanded = false
     let showsCloseButton: Bool
@@ -196,8 +197,8 @@ struct SettingsView: View {
             }
 
             Section("Help") {
-                NavigationLink {
-                    GlossaryView()
+                Button {
+                    presentedReferenceSheet = .glossary
                 } label: {
                     Label("Glossary", systemImage: "book.closed")
                 }
@@ -235,8 +236,10 @@ struct SettingsView: View {
             }
 
             Section("About") {
-                NavigationLink("Credits and Data Sources") {
-                    CreditsView()
+                Button {
+                    presentedReferenceSheet = .credits
+                } label: {
+                    Label("Credits and Data Sources", systemImage: "info.circle")
                 }
             }
         }
@@ -246,6 +249,18 @@ struct SettingsView: View {
         }
         .onChange(of: store.shouldRevealAPIKeys) { _, _ in
             revealRequestedAPIKeySettings()
+        }
+        .sheet(item: $presentedReferenceSheet) { sheet in
+            NavigationStack {
+                sheet.content
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") {
+                                presentedReferenceSheet = nil
+                            }
+                        }
+                    }
+            }
         }
         .toolbar {
             if showsCloseButton {
@@ -584,4 +599,21 @@ private struct SettingsHealth {
     let detail: String
     let systemImage: String
     let color: Color
+}
+
+private enum SettingsReferenceSheet: String, Identifiable {
+    case glossary
+    case credits
+
+    var id: String { rawValue }
+
+    @ViewBuilder
+    var content: some View {
+        switch self {
+        case .glossary:
+            GlossaryView()
+        case .credits:
+            CreditsView()
+        }
+    }
 }

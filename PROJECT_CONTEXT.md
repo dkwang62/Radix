@@ -193,6 +193,10 @@ sentence-as-phrase, phrase list, speech, and return label independently.
 Sentence-card destructive actions should delete through `RadixStore` so the
 canonical sentence database, favorite compatibility records, and any owning
 extracted-sentence page record stay in sync.
+Settings reference pages such as Glossary and Credits must not push the user
+out of the tab shell on iPhone. Present them as dismissible reference sheets
+with an explicit Done control so users can always return to Settings, Study, or
+another primary tab.
 Study > Sentences can batch-delete the current searched result set after
 confirmation. Batch and single sentence deletes share the same `RadixStore`
 path so sentence database rows, favorite compatibility records, and
