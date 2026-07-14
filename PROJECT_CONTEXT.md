@@ -41,12 +41,13 @@ cleaned-page wrapper keys, `zh`/`en` sentence fields, string phrase lists,
 prose-only output, prose-wrapped top-level sentence arrays, and numbered
 Chinese sentence lists should be salvaged into `AICleanedPageRecord` when
 possible.
-Sentence previews still use the shared `PhraseInfoCard` presentation route, but
-its sentence mode is a terminal sentence-reading surface: whole sentence,
-English meaning, optional pinyin, read aloud, favorite, and delete. Do not let
-sentence cards open phrase tables, phrase cards, character cards, or character
-animation by default; those nested layers have caused phone instability and
-confusing return stacks.
+Sentence previews still use the shared `PhraseInfoCard` presentation route, and
+sentence mode must stay rich enough for learning: whole sentence, English
+meaning, optional pinyin, read aloud, Phrase button, four-character stroke
+animation pages, favorite, and delete. Keep the crash guardrails: the Phrase
+button should prefer stored sentence phrase hints, and tapping stroke-animation
+tiles inside a sentence should keep the sentence card open instead of replacing
+it with a nested character/phrase preview stack on iPhone.
 Saving or restoring an extracted sentence page also upserts its sentence list into the
 shared `SentenceExampleRecord` database with `ai_cleaned_page` page-linked
 source metadata, so Study > Sentences and sentence cards reuse the same records.

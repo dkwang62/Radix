@@ -5,6 +5,7 @@ extension PhraseInfoCard {
         VStack(alignment: .leading, spacing: 14) {
             sentenceStudyToolbar
             sentenceMeaningBlock
+            phraseAnimationPicker
             sentenceStudyNotes
         }
     }
@@ -14,6 +15,20 @@ extension PhraseInfoCard {
             return item
         }
         return nil
+    }
+
+    var sentencePhraseLookupPhrases: [PhraseItem]? {
+        guard let practiceSentenceItem else { return nil }
+        let hints = practiceSentenceItem.phraseHints
+        guard !hints.isEmpty else { return nil }
+
+        var seen: Set<String> = []
+        let phrases = hints.compactMap { hint -> PhraseItem? in
+            let key = store.normalizedPhraseWord(hint)
+            guard !key.isEmpty, seen.insert(key).inserted else { return nil }
+            return store.databasePhrase(for: key)
+        }
+        return phrases.isEmpty ? nil : phrases
     }
 
     var sentenceUsesTraditionalScript: Bool {
@@ -53,6 +68,7 @@ extension PhraseInfoCard {
                 sentenceScriptButton
                 sentenceReadButton
                 sentencePinyinButton
+                phraseLookupButton
                 Spacer(minLength: 0)
                 sentenceDeleteButton
                 favoriteTargetButton
@@ -63,6 +79,7 @@ extension PhraseInfoCard {
                     sentenceScriptButton
                     sentenceReadButton
                     sentencePinyinButton
+                    phraseLookupButton
                 }
                 HStack(spacing: 8) {
                     sentenceDeleteButton

@@ -236,6 +236,9 @@ extension PhraseInfoCard {
 
     func selectCharacterFromPhrase(_ character: String) {
         store.speakCharacter(character)
+        if isPracticeSentence {
+            return
+        }
         if let onSelectCharacter {
             onSelectCharacter(character)
             return
