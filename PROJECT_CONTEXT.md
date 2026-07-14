@@ -41,10 +41,11 @@ prose-only output, prose-wrapped top-level sentence arrays, and numbered
 Chinese sentence lists should be salvaged into `AICleanedPageRecord` when
 possible.
 Sentence previews still use the shared `PhraseInfoCard` presentation route, but
-its sentence mode is now sentence-first: whole sentence and English meaning,
-pinyin hidden behind a control, inline phrase highlighting in the Chinese text,
-sentence phrases behind the shared `Phrase` button/table, and character
-animation behind a secondary Characters disclosure.
+its sentence mode is a terminal sentence-reading surface: whole sentence,
+English meaning, optional pinyin, read aloud, favorite, and delete. Do not let
+sentence cards open phrase tables, phrase cards, character cards, or character
+animation by default; those nested layers have caused phone instability and
+confusing return stacks.
 Saving or restoring an extracted sentence page also upserts its sentence list into the
 shared `SentenceExampleRecord` database with `ai_cleaned_page` page-linked
 source metadata, so Study > Sentences and sentence cards reuse the same records.
@@ -187,9 +188,9 @@ phrase owns that span and shorter overlapping chips are suppressed.
 Extracted-sentence import, backup restore, and startup migration preprocess
 sentence `phrase_hints` by discovering all known 2+ character phrase-library
 matches against the sentence's simplified storage form. Sentence cards should
-render from those stored hints only; do not run phrase discovery from the card
-display path. The `Phrase` button owns sentence phrase inspection. Do not
-reintroduce default inline phrase tiling/highlighting in the sentence card
+not inspect those phrase hints in the render path; sentence rows and cards are
+terminal reading surfaces. Do not reintroduce phrase tiling/highlighting,
+sentence phrase-table buttons, or character animation in the sentence card
 unless it is proven stable on iPhone with large extracted pages.
 Extracted-sentence readers should not display the full cleaned page body or
 split the cleaned body into fallback sentence fragments during SwiftUI display.

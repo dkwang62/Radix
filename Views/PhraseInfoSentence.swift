@@ -6,7 +6,6 @@ extension PhraseInfoCard {
             sentenceStudyToolbar
             sentenceMeaningBlock
             sentenceStudyNotes
-            sentenceCharacterDisclosure
         }
     }
 
@@ -48,40 +47,12 @@ extension PhraseInfoCard {
         return phrase.pinyin
     }
 
-    var sentencePhraseHints: [PhraseItem] {
-        if let phraseLookupOverride {
-            return phraseLookupOverride
-        }
-        guard let practiceSentenceItem else { return [] }
-        return store.storedPracticePhraseHints(for: practiceSentenceItem)
-            .map {
-                ConversationPracticeScriptSupport.displayPhrase(
-                    $0,
-                    usesTraditionalScript: sentenceUsesTraditionalScript,
-                    store: store
-                )
-            }
-    }
-
-    var sentenceCharacterHints: [String] {
-        guard let practiceSentenceItem else {
-            return phraseCharacters
-        }
-        return ConversationPracticeScriptSupport.displayCharacters(
-            for: practiceSentenceItem,
-            excludingPhrases: sentencePhraseHints,
-            usesTraditionalScript: sentenceUsesTraditionalScript,
-            store: store
-        )
-    }
-
     var sentenceStudyToolbar: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 8) {
                 sentenceScriptButton
                 sentenceReadButton
                 sentencePinyinButton
-                sentencePhraseButton
                 Spacer(minLength: 0)
                 sentenceDeleteButton
                 favoriteTargetButton
@@ -92,7 +63,6 @@ extension PhraseInfoCard {
                     sentenceScriptButton
                     sentenceReadButton
                     sentencePinyinButton
-                    sentencePhraseButton
                 }
                 HStack(spacing: 8) {
                     sentenceDeleteButton
@@ -141,19 +111,6 @@ extension PhraseInfoCard {
         }
         .buttonStyle(.plain)
         .help(showsSentencePinyin ? "Hide pinyin" : "Show pinyin")
-    }
-
-    @ViewBuilder
-    var sentencePhraseButton: some View {
-        if !sentencePhraseHints.isEmpty {
-            Button {
-                showPhraseTableSheet = true
-            } label: {
-                InfoCardActionPill(title: "Phrase", textIcon: "词", verticalPadding: 8)
-            }
-            .buttonStyle(.plain)
-            .help("Show sentence phrases")
-        }
     }
 
     var sentenceMeaningBlock: some View {
@@ -212,37 +169,6 @@ extension PhraseInfoCard {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(RadixTheme.secondaryBackground.opacity(0.32))
             .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-    }
-
-    @ViewBuilder
-    var sentenceCharacterDisclosure: some View {
-        let characters = sentenceCharacterHints
-        if !characters.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                Button {
-                    withAnimation(.easeInOut(duration: 0.18)) {
-                        showsSentenceCharacters.toggle()
-                    }
-                } label: {
-                    HStack(spacing: 8) {
-                        Label("Characters", systemImage: "square.grid.2x2")
-                            .font(ResponsiveFont.caption.weight(.semibold))
-                        Spacer(minLength: 0)
-                        Image(systemName: showsSentenceCharacters ? "chevron.up" : "chevron.down")
-                            .font(.system(size: 12, weight: .bold))
-                    }
-                    .foregroundStyle(RadixAccent.primary)
-                    .padding(10)
-                    .background(RadixAccent.primary.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .buttonStyle(.plain)
-
-                if showsSentenceCharacters {
-                    phraseAnimationPicker
-                }
-            }
         }
     }
 }

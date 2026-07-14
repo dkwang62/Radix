@@ -23,7 +23,6 @@ struct PhraseInfoCard: View {
     @State var showDeleteSentenceConfirmation = false
     @State var selectedAnimationPage = 0
     @State var showsSentencePinyin = false
-    @State var showsSentenceCharacters = false
 
     var phraseCharacters: [String] {
         phrase.word.map(String.init).filter { character in
@@ -57,7 +56,7 @@ struct PhraseInfoCard: View {
                     character: isPracticeSentence ? phrase.word : (phraseCharacters.first ?? phrase.word),
                     isVertical: true,
                     requiredCharacters: phraseCharacters.isEmpty ? phrase.word.map(String.init) : phraseCharacters,
-                    fixedPhrases: isPracticeSentence ? sentencePhraseHints : phraseLookupOverride
+                    fixedPhrases: isPracticeSentence ? nil : phraseLookupOverride
                 )
                 .environmentObject(store)
             }
@@ -95,7 +94,6 @@ struct PhraseInfoCard: View {
                 showDeleteSentenceConfirmation = false
                 selectedAnimationPage = 0
                 showsSentencePinyin = false
-                showsSentenceCharacters = false
             }
             .onAppear {
                 animationScript = RadixPhrasePreferences.animationScript
