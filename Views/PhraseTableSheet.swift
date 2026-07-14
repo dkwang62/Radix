@@ -11,6 +11,7 @@ struct PhraseTableSheet: View {
     let fixedScopeLabel: String
     let fixedSort: FixedPhraseSort
     let dismissesOnPhraseSelection: Bool
+    let keepsPhraseInspectionInSheet: Bool
     private let visiblePhraseRows = 6
     @State private var selectedPhrase: PhraseItem?
     @State private var showAddPhraseSheet = false
@@ -23,7 +24,8 @@ struct PhraseTableSheet: View {
         fixedTitle: String = "Sentence Phrases",
         fixedScopeLabel: String = "In this sentence",
         fixedSort: FixedPhraseSort = .sentenceOrder,
-        dismissesOnPhraseSelection: Bool = false
+        dismissesOnPhraseSelection: Bool = false,
+        keepsPhraseInspectionInSheet: Bool = false
     ) {
         self.character = character
         self.requiredCharacters = requiredCharacters ?? [character]
@@ -33,6 +35,7 @@ struct PhraseTableSheet: View {
         self.fixedScopeLabel = fixedScopeLabel
         self.fixedSort = fixedSort
         self.dismissesOnPhraseSelection = dismissesOnPhraseSelection
+        self.keepsPhraseInspectionInSheet = keepsPhraseInspectionInSheet
     }
 
     private var isPhone: Bool {
@@ -62,16 +65,16 @@ struct PhraseTableSheet: View {
                         self.selectedPhrase = nil
                     }
                 } label: {
-                    Label(isFixedPhraseLookup ? fixedTitle : "词Phrase", systemImage: "chevron.backward")
+                    Label(keepsPhraseInspectionInSheet ? fixedTitle : "词Phrase", systemImage: "chevron.backward")
                         .font(ResponsiveFont.subheadline.weight(.semibold))
                 }
                 .buttonStyle(.plain)
 
                 PhraseInfoCard(
                     phrase: selectedPhrase,
-                    onSelectCharacter: isFixedPhraseLookup ? { _ in } : nil,
+                    onSelectCharacter: keepsPhraseInspectionInSheet ? { _ in } : nil,
                     onDone: {
-                        if isFixedPhraseLookup {
+                        if keepsPhraseInspectionInSheet {
                             self.selectedPhrase = nil
                         } else {
                             dismiss()
@@ -82,7 +85,7 @@ struct PhraseTableSheet: View {
             } else {
                 HStack(alignment: .center, spacing: 12) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Label(isFixedPhraseLookup ? fixedTitle : "Phrase Library", systemImage: "text.quote")
+                        Label(isScopedPhraseLookup ? fixedTitle : "Phrase Library", systemImage: "text.quote")
                             .font(ResponsiveFont.headline.weight(.semibold))
                         Text("\(displayedPhrases.count) \(displayedPhrases.count == 1 ? "match" : "matches")")
                             .font(ResponsiveFont.caption)
@@ -93,7 +96,7 @@ struct PhraseTableSheet: View {
 
                     Spacer()
 
-                    if !isFixedPhraseLookup {
+                    if !isScopedPhraseLookup {
                         AddPhraseLaunchButton {
                             showAddPhraseSheet = true
                         }
@@ -181,13 +184,17 @@ struct PhraseTableSheet: View {
         fixedPhrases != nil
     }
 
+    private var isScopedPhraseLookup: Bool {
+        keepsPhraseInspectionInSheet || isFixedPhraseLookup
+    }
+
     private var isMultiCharacterLookup: Bool {
         Set(requiredCharacters).count > 1
     }
 
     @ViewBuilder
     private var phraseScopeLabel: some View {
-        if isFixedPhraseLookup {
+        if isScopedPhraseLookup {
             Text(fixedScopeLabel)
                 .font(ResponsiveFont.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
@@ -199,8 +206,8 @@ struct PhraseTableSheet: View {
     }
 
     private var emptyPhraseDescription: String {
-        if isFixedPhraseLookup {
-            return "No \(store.activePhraseLengthFilterLabel)-length phrases are available for this sentence."
+        if isScopedPhraseLookup {
+            return "No \(store.activePhraseLengthFilterLabel)-length phrases are available here."
         }
         if isMultiCharacterLookup {
             return "No \(store.activePhraseLengthFilterLabel)-length phrases contain matching parts of \(requiredCharacters.joined(separator: " "))."
@@ -225,7 +232,7 @@ struct PhraseTableSheet: View {
     private func presentPhrase(_ phrase: PhraseItem) {
         store.speakPhrase(phrase)
         withAnimation(.easeInOut(duration: 0.2)) {
-            if isFixedPhraseLookup {
+            if keepsPhraseInspectionInSheet {
                 selectedPhrase = phrase
             } else if isPhone {
                 store.presentPhraseInSidebar(phrase)

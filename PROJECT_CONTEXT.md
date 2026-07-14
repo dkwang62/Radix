@@ -50,7 +50,10 @@ tiles inside a sentence should keep the sentence card open instead of replacing
 it with a nested character/phrase preview stack on iPhone. Phrase rows opened
 from a sentence-scoped Phrase Library must inspect the phrase inside that sheet
 on every device; do not send them to the sidebar character/phrase card route
-unless a visible return to the originating sentence is also provided.
+unless a visible return to the originating sentence is also provided. This must
+be driven by an explicit sentence-origin flag, not inferred from whether stored
+sentence phrase hints are available, because sentences without usable hints can
+fall back to dynamic lookup.
 Saving or restoring an extracted sentence page also upserts its sentence list into the
 shared `SentenceExampleRecord` database with `ai_cleaned_page` page-linked
 source metadata, so Study > Sentences and sentence cards reuse the same records.
