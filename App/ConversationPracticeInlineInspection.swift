@@ -130,6 +130,7 @@ struct ConversationPracticeInspectionDestination: View {
                     PhraseInfoCard(
                         phrase: phrase,
                         favoriteTarget: practiceItem.map(PhraseInfoFavoriteTarget.sentence) ?? .phrase,
+                        allowsPhraseLookup: practiceItem != nil,
                         onSelectCharacter: onOpenCharacter
                     )
                     .environmentObject(store)

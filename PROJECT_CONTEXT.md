@@ -65,7 +65,10 @@ through the sidebar instead of inside the sheet, it must pass the same terminal
 lookup flag so the sidebar card also hides its `Phrase` button. This must be
 driven by explicit origin flags, not inferred from whether stored sentence
 phrase hints are available, because sentences without usable hints can fall
-back to dynamic lookup.
+back to dynamic lookup. Conversation Practice inspection follows the same
+boundary: opening the whole sentence card keeps phrase lookup available, while
+opening one of that sentence's phrase hints is terminal and must not expose
+another phrase lookup.
 Saving or restoring an extracted sentence page also upserts its sentence list into the
 shared `SentenceExampleRecord` database with `ai_cleaned_page` page-linked
 source metadata, so Study > Sentences and sentence cards reuse the same records.
