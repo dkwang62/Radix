@@ -1128,7 +1128,7 @@ extension RadixStore {
         _ payload: PortableBackupPayload,
         mode: RestoreMode = .additive,
         createSafetySnapshots: Bool = true,
-        refreshSentenceLinks: Bool = true
+        refreshSentenceLinks: Bool = false
     ) throws {
         pendingDatasetAutosaveWorkItem?.cancel()
         pendingDatasetAutosaveWorkItem = nil
@@ -1274,7 +1274,7 @@ extension RadixStore {
             refreshSentenceLinks: false
         )
         markDatabaseOptimizationNeeded()
-        startDatabaseOptimization(reason: "Restore optimization")
+        databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
     }
 
     // MARK: - Variance check

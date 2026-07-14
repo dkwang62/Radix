@@ -149,7 +149,7 @@ extension DataEditTab {
 
         lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.recordBackup(at: url)
         recentBackupMetadata = RadixBackupMetadataStore.history
-        backupMessage = "Merged Radix memory with: \(url.lastPathComponent). Radix is optimizing in the background."
+        backupMessage = "Merged Radix memory with: \(url.lastPathComponent). Optimize Database is recommended when convenient."
         finishBackupRestore(operationID: operationID)
         showBackupAlert = true
         RadixHaptics.success()
@@ -188,8 +188,8 @@ extension DataEditTab {
                 guard isCurrentRestore(operationID) else { return }
 
                 backupMessage = pending.mode == .complete
-                    ? "Restored Radix memory from: \(pending.filename). Radix is optimizing in the background."
-                    : "Merged backup data from: \(pending.filename). Radix is optimizing in the background."
+                    ? "Restored Radix memory from: \(pending.filename). Optimize Database is recommended when convenient."
+                    : "Merged backup data from: \(pending.filename). Optimize Database is recommended when convenient."
                 finishBackupRestore(operationID: operationID)
                 showBackupAlert = true
                 RadixHaptics.success()

@@ -55,17 +55,18 @@ and legacy UserDefaults payloads are migrated into the database on first read.
 Sentence examples are canonically stored as simplified Chinese, including phrase
 and character hints; traditional Chinese is a display mode exposed by sentence
 lists, example sheets, and sentence cards, not a second storage form.
-Settings exposes one user-facing `Optimize Database` maintenance action. Keep
-technical cleanup details out of the main UI: the full Settings action may
+Settings exposes the only user-triggered `Optimize Database` maintenance
+action. Keep technical cleanup details out of the main UI: the full Settings action may
 rewrite Radix-owned sentence, extracted-page, added-phrase, and phrase-favorite
 storage into Simplified Chinese, then refresh stored sentence phrase hints from
 the current visible phrase library. Traditional remains display-only. Normal
 Study Sentences, practice, phrase-card Examples, sentence-card, and
 extracted-sentence reader access must never repair or rediscover phrase links
 while rendering; they are read-only consumers of stored hints. Phrase
-adds/deletes/status changes perform targeted write-time hint updates, while
-bulk restore/import starts a separate lighter optimization task after the file
-data is restored.
+adds/deletes/status changes perform targeted write-time hint updates. Bulk
+restore/import must not start optimization automatically; it should only mark
+optimization as recommended until the user explicitly runs Settings >
+Optimize Database.
 The mutable SQLite stores for Study Sentences and added phrases keep quiet
 internal safety snapshots before bulk import/restore, optimization, phrase
 cleanup, sentence deletion, and phrase-link maintenance. Settings > Storage
@@ -82,9 +83,11 @@ Settings maintenance actions that scan or rewrite the sentence database must
 run as async background work from the UI. Do not call synchronous store paths
 directly from SwiftUI buttons, or Mac Catalyst can show the app as not
 responding while SQLite and phrase-link maintenance run.
-File restore/merge flows must finish the user-visible restore first, then start
-the shared `Database Optimization` task. Keep the user wording at that level;
-technical phrase-link details belong in code and docs, not restore progress UI.
+File restore/merge flows must finish the user-visible restore and then stop.
+They may mark database optimization as recommended, but must not start the
+shared `Database Optimization` task automatically. Keep the user wording at
+that level; technical phrase-link details belong in code and docs, not restore
+progress UI.
 Database Optimization is guarded by an input fingerprint: optimization
 algorithm version, sentence DB key stats, visible phrase words, and extracted
 page sentence text. Imports may conservatively mark optimization dirty, but the
@@ -147,8 +150,8 @@ metadata; it must not load full sentence or phrase records merely to summarize
 database size.
 2026-07-14 performance/clarity review: user-facing Settings now shows one
 plain `Optimize Database` action. It hides the internal Simplified-storage
-cleanup and phrase-hint refresh inside that action, while restore/import keeps a
-lighter background optimization so file restore can finish promptly. Remaining
+cleanup and phrase-hint refresh inside that action. Restore/import only marks
+optimization as recommended; it does not run background optimization. Remaining
 performance-sensitive operations are acceptable only because they are explicit
 actions rather than render paths: portable backup/export serializes full data,
 Study > Sentences "delete all matching results" fetches matching records so
