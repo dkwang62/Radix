@@ -5,13 +5,11 @@ struct DataEditTransferModifier: ViewModifier {
     @Binding var reuseExportContentType: RadixFileType
     @Binding var reuseExportFilename: String
     @Binding var showReuseExporter: Bool
-    @Binding var showRestorePicker: Bool
     @Binding var reuseExportInProgress: Bool
     @Binding var backupError: String?
     @Binding var showBackupAlert: Bool
 
     let onExportSuccess: (URL) -> Void
-    let onRestore: (Result<[URL], Error>) -> Void
 
     func body(content: Content) -> some View {
         content
@@ -30,11 +28,5 @@ struct DataEditTransferModifier: ViewModifier {
                     showBackupAlert = true
                 }
             }
-            .fileImporter(
-                isPresented: $showRestorePicker,
-                allowedContentTypes: RadixFileTypes.backupImports,
-                allowsMultipleSelection: false,
-                onCompletion: onRestore
-            )
     }
 }

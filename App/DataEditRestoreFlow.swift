@@ -124,7 +124,7 @@ extension DataEditTab {
         let url = URL(fileURLWithPath: metadata.path)
         guard RadixBackupMetadataStore.isReadable(metadata) else {
             editorMessage = "Choose \(url.lastPathComponent) again to \(mode == .complete ? "replace this device" : "merge backup data")."
-            showRestorePicker = true
+            showDataEditImporter(.backupFile)
             return
         }
 

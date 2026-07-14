@@ -38,6 +38,11 @@ enum BackupRestorePhase: Equatable {
     var isActive: Bool { self != .idle }
 }
 
+enum DataEditImportKind {
+    case backupFile
+    case sentenceLibrary
+}
+
 struct DataEditTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
@@ -47,7 +52,7 @@ struct DataEditTab: View {
     let onUseDefaultAddPhrases: () -> Void
     let onRequirePro: (EntitlementManager.FeatureGate) -> Void
 
-    @State var showRestorePicker = false
+    @State var activeDataEditImporter: DataEditImportKind?
     @State var pendingRestoreMode: RestoreMode = .additive
     @State var backupMessage: String?
     @State var backupError: String?
@@ -66,7 +71,6 @@ struct DataEditTab: View {
     @State var reuseExportFilename: String = ""
     @State var reuseExportContentType = RadixFileTypes.json
     @State var showReuseExporter = false
-    @State var showSentenceLibraryImporter = false
     @State var reuseExportInProgress = false
     @State var reuseExportMessage: String?
     @State var lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.latest
@@ -140,18 +144,19 @@ struct DataEditTab: View {
                 reuseExportContentType: $reuseExportContentType,
                 reuseExportFilename: $reuseExportFilename,
                 showReuseExporter: $showReuseExporter,
-                showRestorePicker: $showRestorePicker,
                 reuseExportInProgress: $reuseExportInProgress,
                 backupError: $backupError,
                 showBackupAlert: $showBackupAlert,
-                onExportSuccess: handleReuseExportSuccess,
-                onRestore: restoreBackup
+                onExportSuccess: handleReuseExportSuccess
             ))
             .fileImporter(
-                isPresented: $showSentenceLibraryImporter,
-                allowedContentTypes: [RadixFileTypes.json],
+                isPresented: Binding(
+                    get: { activeDataEditImporter != nil },
+                    set: { if !$0 { activeDataEditImporter = nil } }
+                ),
+                allowedContentTypes: activeDataEditImporter == .sentenceLibrary ? [RadixFileTypes.json] : RadixFileTypes.backupImports,
                 allowsMultipleSelection: false,
-                onCompletion: importSentenceLibrary
+                onCompletion: handleDataEditImport
             )
             .alert("My Data", isPresented: $showBackupAlert) {
                 Button("OK", role: .cancel) {
@@ -190,6 +195,24 @@ struct DataEditTab: View {
                 lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.latest
                 recentBackupMetadata = RadixBackupMetadataStore.history
             }
+        }
+    }
+
+    func showDataEditImporter(_ kind: DataEditImportKind) {
+        activeDataEditImporter = kind
+    }
+
+    func handleDataEditImport(_ result: Result<[URL], Error>) {
+        let kind = activeDataEditImporter
+        activeDataEditImporter = nil
+
+        switch kind {
+        case .backupFile:
+            restoreBackup(from: result)
+        case .sentenceLibrary:
+            importSentenceLibrary(result)
+        case nil:
+            break
         }
     }
 

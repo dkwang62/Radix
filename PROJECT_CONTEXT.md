@@ -92,6 +92,11 @@ They may mark database optimization as recommended, but must not start the
 shared `Database Optimization` task automatically. Keep the user wording at
 that level; technical phrase-link details belong in code and docs, not restore
 progress UI.
+My Data owns document pickers explicitly: normal Backup File restore and
+Advanced Sentence Library import share one active importer state, while the
+reusable export modifier owns export presentation only. Do not attach competing
+file importers to the same DataEdit screen or the picker buttons can become
+unreliable even though recent-file restore still works.
 Database Optimization is guarded by an input fingerprint: optimization
 algorithm version, sentence DB key stats, visible phrase words, and extracted
 page sentence text. Imports may conservatively mark optimization dirty, but the
