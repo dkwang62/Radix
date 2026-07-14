@@ -50,7 +50,11 @@ struct CharacterPhraseLookupSection: View {
         }
         .sheet(item: phonePhraseSheetBinding) { phrase in
             NavigationStack {
-                PhraseInfoCard(phrase: phrase, onDone: finishLookup)
+                PhraseInfoCard(
+                    phrase: phrase,
+                    allowsPhraseLookup: false,
+                    onDone: finishLookup
+                )
                     .environmentObject(store)
                     .padding()
                     .navigationBarTitleDisplayMode(.inline)
@@ -133,11 +137,11 @@ struct CharacterPhraseLookupSection: View {
         store.speakPhrase(phrase)
         withAnimation(.easeInOut(duration: 0.2)) {
             if isPhone {
-                store.presentPhraseInSidebar(phrase)
+                store.presentPhraseInSidebar(phrase, allowsPhraseLookup: false)
                 selectedPhrase = phrase
             } else {
                 selectedPhrase = nil
-                store.presentPhraseInSidebar(phrase)
+                store.presentPhraseInSidebar(phrase, allowsPhraseLookup: false)
             }
         }
     }

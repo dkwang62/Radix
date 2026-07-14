@@ -70,6 +70,7 @@ struct PhraseTableSheet: View {
             if let selectedPhrase {
                 PhraseInfoCard(
                     phrase: selectedPhrase,
+                    allowsPhraseLookup: false,
                     onSelectCharacter: keepsPhraseInspectionInSheet ? { _ in } : nil,
                     onDone: dismiss.callAsFunction
                 )
@@ -236,11 +237,11 @@ struct PhraseTableSheet: View {
             if inspectsPhraseInsideSheet {
                 selectedPhrase = phrase
             } else if isPhone {
-                store.presentPhraseInSidebar(phrase)
+                store.presentPhraseInSidebar(phrase, allowsPhraseLookup: false)
                 selectedPhrase = phrase
             } else {
                 selectedPhrase = nil
-                store.presentPhraseInSidebar(phrase)
+                store.presentPhraseInSidebar(phrase, allowsPhraseLookup: false)
                 if dismissesOnPhraseSelection {
                     dismiss()
                 }

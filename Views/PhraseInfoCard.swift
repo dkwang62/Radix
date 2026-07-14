@@ -10,6 +10,7 @@ struct PhraseInfoCard: View {
     let phrase: PhraseItem
     var phraseLookupOverride: [PhraseItem]? = nil
     var favoriteTarget: PhraseInfoFavoriteTarget = .phrase
+    var allowsPhraseLookup: Bool = true
     var onSelectCharacter: ((String) -> Void)?
     var onDone: (() -> Void)?
     @State var animationScript = RadixPhrasePreferences.animationScript

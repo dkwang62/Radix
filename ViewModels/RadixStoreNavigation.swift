@@ -500,10 +500,11 @@ extension RadixStore {
 
     var activeSidebarPhrasePreview: PhraseItem? { sidebarPhrasePreview ?? imageBrowsePhrasePreview }
 
-    func presentPhraseInSidebar(_ phrase: PhraseItem) {
+    func presentPhraseInSidebar(_ phrase: PhraseItem, allowsPhraseLookup: Bool = true) {
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
+        sidebarAllowsPhraseLookup = allowsPhraseLookup
         activePracticeSentenceItem = nil
         sidebarSentenceReturnPhrase = nil
         sidebarSentenceReturnLookupOverride = nil
@@ -518,6 +519,7 @@ extension RadixStore {
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
+        sidebarAllowsPhraseLookup = false
         activePracticeSentenceItem = nil
         pushPhraseBreadcrumb(phrase)
     }
@@ -541,6 +543,7 @@ extension RadixStore {
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = sentencePhrases
+        sidebarAllowsPhraseLookup = true
         activePracticeSentenceItem = practiceItem
         sidebarSentenceReturnPhrase = nil
         sidebarSentenceReturnLookupOverride = nil
@@ -552,6 +555,7 @@ extension RadixStore {
         sidebarPhrasePreview = nil
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
+        sidebarAllowsPhraseLookup = true
         activePracticeSentenceItem = nil
         sidebarSentenceReturnPhrase = nil
         sidebarSentenceReturnLookupOverride = nil
@@ -562,6 +566,7 @@ extension RadixStore {
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
         sidebarPhraseLookupOverride = nil
+        sidebarAllowsPhraseLookup = true
         activePracticeSentenceItem = nil
         sidebarSentenceReturnPhrase = nil
         sidebarSentenceReturnLookupOverride = nil

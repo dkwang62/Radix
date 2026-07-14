@@ -57,9 +57,15 @@ phrase inside the sheet. Phrase- and character-origin phrase lookups inspect
 selected phrases inside the same sheet with `Back to Phrase` or `Back to
 Character`, so they do not replace the underlying sidebar object. Do not
 reintroduce a bottom close button or a nested phrase-detail -> phrase-list ->
-origin return path. This must be driven by explicit origin flags, not inferred
-from whether stored sentence phrase hints are available, because sentences
-without usable hints can fall back to dynamic lookup.
+origin return path. Phrase cards opened from inside a Phrase Library sheet are
+also terminal for phrase lookup: they must not show another `Phrase` button,
+because phrase -> phrase -> phrase nesting becomes confusing and breaks the
+single visible return rule. If a phrase-list callout routes the selected phrase
+through the sidebar instead of inside the sheet, it must pass the same terminal
+lookup flag so the sidebar card also hides its `Phrase` button. This must be
+driven by explicit origin flags, not inferred from whether stored sentence
+phrase hints are available, because sentences without usable hints can fall
+back to dynamic lookup.
 Saving or restoring an extracted sentence page also upserts its sentence list into the
 shared `SentenceExampleRecord` database with `ai_cleaned_page` page-linked
 source metadata, so Study > Sentences and sentence cards reuse the same records.

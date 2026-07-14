@@ -9,6 +9,7 @@ struct PhoneContextPreview: View {
     @State private var phraseReturnTarget: PhraseItem?
     @State private var phraseReturnLookupOverride: [PhraseItem]?
     @State private var phraseReturnPracticeItem: ConversationPracticeItem?
+    @State private var phraseReturnAllowsPhraseLookup = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -21,9 +22,11 @@ struct PhoneContextPreview: View {
                     phrase: phrase,
                     phraseLookupOverride: store.sidebarPhraseLookupOverride,
                     favoriteTarget: store.activePracticeSentenceItem.map(PhraseInfoFavoriteTarget.sentence) ?? .phrase,
+                    allowsPhraseLookup: store.sidebarAllowsPhraseLookup,
                     onSelectCharacter: { character in
                         phraseReturnTarget = phrase
                         phraseReturnPracticeItem = store.activePracticeSentenceItem
+                        phraseReturnAllowsPhraseLookup = store.sidebarAllowsPhraseLookup
                         store.previewPhraseCardCharacter(character, in: phrase, announce: false)
                     },
                     onDone: onReturn
@@ -40,7 +43,10 @@ struct PhoneContextPreview: View {
                                     practiceItem: phraseReturnPracticeItem
                                 )
                             } else {
-                                store.presentPhraseInSidebar(phraseReturnTarget)
+                                store.presentPhraseInSidebar(
+                                    phraseReturnTarget,
+                                    allowsPhraseLookup: phraseReturnAllowsPhraseLookup
+                                )
                             }
                         }
                     } label: {
@@ -66,6 +72,7 @@ struct PhoneContextPreview: View {
                 phraseReturnTarget = phrase
                 phraseReturnLookupOverride = store.sidebarPhraseLookupOverride
                 phraseReturnPracticeItem = store.activePracticeSentenceItem
+                phraseReturnAllowsPhraseLookup = store.sidebarAllowsPhraseLookup
             }
         }
         .onChange(of: phrase) { _, newValue in
@@ -73,6 +80,7 @@ struct PhoneContextPreview: View {
                 phraseReturnTarget = newValue
                 phraseReturnLookupOverride = store.sidebarPhraseLookupOverride
                 phraseReturnPracticeItem = store.activePracticeSentenceItem
+                phraseReturnAllowsPhraseLookup = store.sidebarAllowsPhraseLookup
             }
         }
     }
