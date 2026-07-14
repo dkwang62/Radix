@@ -49,10 +49,10 @@ extension DataEditTab {
 
             premiumExportOption(
                 title: "Full Dataset (JSON)",
-                subtitle: "One structured JSON file with merged data and your latest Radix memory.",
+                subtitle: "One structured JSON file with merged data and lightweight Radix memory.",
                 toolsTip: AdvancedExportToolsTip(
                     title: "AI-friendly data",
-                    message: "This is the easiest foundation to give an AI coding agent. It includes the merged dictionary and phrase data plus the same current saved pages, sentences, practice, progress, extracted pages, profile, and API-key backup metadata as a portable Radix backup."
+                    message: "This is the easiest foundation to give an AI coding agent. It includes the merged dictionary and phrase data plus the same current saved pages, practice, progress, profile, and API-key backup metadata as a portable Radix backup. The large Sentence Library has its own export."
                 ),
                 systemName: "shippingbox.fill",
                 color: .green,
@@ -63,6 +63,41 @@ extension DataEditTab {
                     reuseExportFilename = name.isEmpty ? "radix_full_dataset" : name
                     reuseExportContentType = RadixFileTypes.json
                     activeAdvancedExportKind = .fullDataset
+                }
+            )
+
+            premiumExportOption(
+                title: "Sentence Library (JSON)",
+                subtitle: "Export saved sentences and extracted sentence pages separately.",
+                toolsTip: AdvancedExportToolsTip(
+                    title: "Large sentence corpus",
+                    message: "Use this when you want to move or inspect your saved sentences. It is separate from normal backup and restore so large sentence libraries do not slow down core recovery."
+                ),
+                systemName: "text.quote",
+                color: .indigo,
+                action: {
+                    let name = sentenceLibraryFileName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let data = try dataExportService.exportSentenceLibrary(store.sentenceLibraryExportPackage())
+                    reuseExportDocument = BinaryFileDocument(data: data)
+                    reuseExportFilename = name.isEmpty ? "radix_sentence_library" : name
+                    reuseExportContentType = RadixFileTypes.json
+                    activeAdvancedExportKind = .sentenceLibrary
+                }
+            )
+
+            premiumExportOption(
+                title: "Import Sentence Library",
+                subtitle: "Merge a Sentence Library JSON into this device.",
+                toolsTip: AdvancedExportToolsTip(
+                    title: "Sentence import",
+                    message: "This imports only saved sentences and extracted sentence pages. It does not replace your normal Radix backup, saved pages, settings, or phrase library."
+                ),
+                systemName: "square.and.arrow.down",
+                color: .indigo,
+                startsExport: false,
+                action: {
+                    activeAdvancedExportKind = .sentenceLibrary
+                    showSentenceLibraryImporter = true
                 }
             )
 
@@ -128,6 +163,7 @@ extension DataEditTab {
         toolsTip: AdvancedExportToolsTip,
         systemName: String,
         color: Color,
+        startsExport: Bool = true,
         action: @escaping () throws -> Void
     ) -> some View {
         AdvancedExportOptionRow(
@@ -144,13 +180,17 @@ extension DataEditTab {
                     return
                 }
 
-                reuseExportInProgress = true
+                if startsExport {
+                    reuseExportInProgress = true
+                }
                 reuseExportMessage = nil
                 Task { @MainActor in
                     do {
                         try action()
-                        reuseExportInProgress = false
-                        showReuseExporter = true
+                        if startsExport {
+                            reuseExportInProgress = false
+                            showReuseExporter = true
+                        }
                     } catch {
                         reuseExportInProgress = false
                         reuseExportMessage = "Export failed: \(error.localizedDescription)"

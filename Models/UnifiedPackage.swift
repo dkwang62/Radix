@@ -211,6 +211,39 @@ struct UnifiedPackage: Codable {
     }
 }
 
+struct SentenceLibraryExportPackage: Codable {
+    static let currentSchemaVersion = 1
+
+    let schemaVersion: Int
+    let exportedAt: Date
+    let sentenceExamples: [SentenceExampleRecord]
+    let aiCleanedPages: [AICleanedPageRecord]
+
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "schema_version"
+        case exportedAt = "exported_at"
+        case sentenceExamples = "sentence_examples"
+        case aiCleanedPages = "ai_cleaned_pages"
+    }
+
+    init(
+        schemaVersion: Int = Self.currentSchemaVersion,
+        exportedAt: Date = Date(),
+        sentenceExamples: [SentenceExampleRecord],
+        aiCleanedPages: [AICleanedPageRecord]
+    ) {
+        self.schemaVersion = schemaVersion
+        self.exportedAt = exportedAt
+        self.sentenceExamples = sentenceExamples
+        self.aiCleanedPages = aiCleanedPages
+    }
+}
+
+struct SentenceLibraryImportResult {
+    let sentenceCount: Int
+    let extractedPageCount: Int
+}
+
 /// Platform-neutral JSON contract shared by every Radix client.
 ///
 /// Schema 5 writes ISO-8601 dates so an Android implementation does not need

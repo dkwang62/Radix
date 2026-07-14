@@ -57,6 +57,7 @@ struct DataEditTab: View {
     @State var pendingBackupRestore: PendingBackupRestore?
 
     @State var fullDatasetFileName: String = "radix_full_dataset"
+    @State var sentenceLibraryFileName: String = "radix_sentence_library"
     @State var mergedDictionaryFileName: String = "radix_merged_dictionary"
     @State var mergedPhrasesFileName: String = "radix_merged_phrases"
     @State var xcodeDataFilesFileName: String = "radix_xcode_data_files"
@@ -65,6 +66,7 @@ struct DataEditTab: View {
     @State var reuseExportFilename: String = ""
     @State var reuseExportContentType = RadixFileTypes.json
     @State var showReuseExporter = false
+    @State var showSentenceLibraryImporter = false
     @State var reuseExportInProgress = false
     @State var reuseExportMessage: String?
     @State var lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.latest
@@ -145,6 +147,12 @@ struct DataEditTab: View {
                 onExportSuccess: handleReuseExportSuccess,
                 onRestore: restoreBackup
             ))
+            .fileImporter(
+                isPresented: $showSentenceLibraryImporter,
+                allowedContentTypes: [RadixFileTypes.json],
+                allowsMultipleSelection: false,
+                onCompletion: importSentenceLibrary
+            )
             .alert("My Data", isPresented: $showBackupAlert) {
                 Button("OK", role: .cancel) {
                     backupMessage = nil
@@ -200,6 +208,8 @@ struct DataEditTab: View {
                 xcodeDataFilesFileName = base
             } else if activeAdvancedExportKind == .fullDataset {
                 fullDatasetFileName = base
+            } else if activeAdvancedExportKind == .sentenceLibrary {
+                sentenceLibraryFileName = base
             } else if activeAdvancedExportKind == .dictionaryDatabase {
                 mergedDictionaryFileName = base
             } else if activeAdvancedExportKind == .phraseDatabase {

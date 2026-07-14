@@ -77,6 +77,43 @@ extension DataEditTab {
         scheduleBackupAcquisitionTimeout(operationID: operationID)
     }
 
+    func importSentenceLibrary(_ result: Result<[URL], Error>) {
+        guard !entitlement.requiresPro(.advanced) else {
+            onRequirePro(.advanced)
+            return
+        }
+
+        let url: URL
+        do {
+            guard let selectedURL = try result.get().first else { return }
+            url = selectedURL
+        } catch {
+            reuseExportMessage = "Sentence Library import failed: \(error.localizedDescription)"
+            return
+        }
+
+        reuseExportInProgress = true
+        reuseExportMessage = nil
+        let accessed = url.startAccessingSecurityScopedResource()
+        Task { @MainActor in
+            defer { if accessed { url.stopAccessingSecurityScopedResource() } }
+            do {
+                let data = try await Task.detached(priority: .userInitiated) {
+                    try DataExportService().readPortableBackup(at: url)
+                }.value
+                let package = try dataExportService.decodeSentenceLibrary(data)
+                let result = try await store.importSentenceLibraryPackage(package, mode: .additive)
+                reuseExportInProgress = false
+                reuseExportMessage = "Imported \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.extractedPageCount) extracted page\(result.extractedPageCount == 1 ? "" : "s"). Optimize Database is recommended when convenient."
+                RadixHaptics.success()
+            } catch {
+                reuseExportInProgress = false
+                reuseExportMessage = "Sentence Library import failed: \(error.localizedDescription)"
+                RadixHaptics.error()
+            }
+        }
+    }
+
     func restoreBackup(_ metadata: RadixBackupMetadata, mode: RestoreMode) {
         guard !entitlement.requiresPro(.myBackup) else {
             onRequirePro(.myBackup)

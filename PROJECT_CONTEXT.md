@@ -21,8 +21,9 @@ pages. The saved-page AI task `task12` / `Extract Sentences` generates
 JSON for that record from the selected page's characters and OCR/source context,
 including per-sentence Chinese, pinyin, English, and phrase hints.
 Extracted sentence page records are stored in `RadixStudyPreferences.aiCleanedPages`,
-included in portable backups as `ai_cleaned_pages`, imported from fenced or raw
-AI JSON through AI Link, and removed with their owning saved page.
+included in the separate Advanced `Sentence Library (JSON)` export/import,
+imported from fenced or raw AI JSON through AI Link, and removed with their
+owning saved page.
 Study saved pages expose imported extracted sentence pages through an
 `Extracted Sentences` artifact
 and focused reader. The same saved-page action menu can create or replace that
@@ -50,8 +51,9 @@ Saving or restoring an extracted sentence page also upserts its sentence list in
 shared `SentenceExampleRecord` database with `ai_cleaned_page` page-linked
 source metadata, so Study > Sentences and sentence cards reuse the same records.
 The live sentence-example store is SQLite-backed via `RadixStudyPreferences`;
-the existing `sentence_examples` JSON remains the portable backup/import format
-and legacy UserDefaults payloads are migrated into the database on first read.
+`sentence_examples` JSON now belongs to the separate Advanced `Sentence Library
+(JSON)` export/import, and legacy UserDefaults payloads are migrated into the
+database on first read.
 Sentence examples are canonically stored as simplified Chinese, including phrase
 and character hints; traditional Chinese is a display mode exposed by sentence
 lists, example sheets, and sentence cards, not a second storage form.
@@ -74,11 +76,13 @@ exposes these snapshots under `Recovery Copies` for transparent inspection,
 manual safety-copy creation, and explicit restore without turning recovery into
 a distracting primary workflow.
 Advanced `Full Dataset (JSON)` is schema 2 and includes both the merged coding
-foundation (`dictionary` and `phrases`) and a nested `portable_backup` payload
-with the latest saved pages, Study sentences, Conversation practice, progress,
-page phrase extractions, extracted sentence pages, profile, and API-key backup
-metadata. Keep this aligned with `portableBackupPackage()` whenever new
-user-owned data is added.
+foundation (`dictionary` and `phrases`) and a nested lightweight
+`portable_backup` payload with the latest saved pages, Conversation practice,
+progress, page phrase extractions, profile, and API-key backup metadata. The
+heavy Sentence Library is not part of normal backup/restore or Full Dataset;
+Advanced exposes a separate `Sentence Library (JSON)` export/import for saved
+sentences and extracted sentence pages. Keep normal backup aligned with
+`portableBackupPackage()` whenever new lightweight user-owned data is added.
 Settings maintenance actions that scan or rewrite the sentence database must
 run as async background work from the UI. Do not call synchronous store paths
 directly from SwiftUI buttons, or Mac Catalyst can show the app as not
@@ -756,7 +760,7 @@ canonical sentence examples before legacy favorite-sentence records so favorites
 overlay into the sentence database instead of being overwritten by restore
 ordering. Favorite toggles and sentence deletion update both the canonical
 sentence flag and the legacy compatibility list so old favorite records cannot
-resurrect deleted or unfavorited sentences. Portable backup creation prepares
+resurrect deleted or unfavorited sentences. Sentence Library export prepares
 the canonical sentence store before packaging so old imported practice packs
 and legacy favorite sentences are captured even if Study has not been opened in
 the current app session. AI outputs may include a

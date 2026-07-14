@@ -975,7 +975,6 @@ extension RadixStore {
     }
 
     func portableBackupPackage(exportedAt: Date = Date(), backupID: UUID = UUID()) -> UnifiedPackage {
-        RadixStudyPreferences.prepareSentenceExamplesForBackup()
         return UnifiedPackage(
             schemaVersion: PortableBackupCodec.currentSchemaVersion,
             exportedAt: exportedAt,
@@ -991,10 +990,19 @@ extension RadixStore {
             conversationPracticePacks: RadixStudyPreferences.importedConversationPracticePacks,
             conversationPracticeProgress: RadixStudyPreferences.conversationPracticeProgress,
             favoriteSentences: RadixStudyPreferences.favoriteSentences,
-            sentenceExamples: RadixStudyPreferences.sentenceExamples,
+            sentenceExamples: nil,
             pagePhraseExtractions: RadixStudyPreferences.pagePhraseExtractions,
-            aiCleanedPages: RadixStudyPreferences.aiCleanedPages,
+            aiCleanedPages: nil,
             apiKeys: currentAPIKeyBackup()
+        )
+    }
+
+    func sentenceLibraryExportPackage(exportedAt: Date = Date()) -> SentenceLibraryExportPackage {
+        RadixStudyPreferences.prepareSentenceExamplesForBackup()
+        return SentenceLibraryExportPackage(
+            exportedAt: exportedAt,
+            sentenceExamples: RadixStudyPreferences.sentenceExamples,
+            aiCleanedPages: RadixStudyPreferences.aiCleanedPages
         )
     }
 
@@ -1185,13 +1193,8 @@ extension RadixStore {
                 applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .additive)
                 RadixStudyPreferences.conversationPracticeProgress =
                     RadixStudyPreferences.conversationPracticeProgress.merging(package.conversationPracticeProgress)
-                RadixStudyPreferences.applyImportedSentenceExamples(package.sentenceExamples, mode: .additive)
                 applyImportedFavoriteSentences(package.favoriteSentences, mode: .additive)
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .additive)
-                RadixStudyPreferences.applyImportedAICleanedPages(
-                    preprocessedAICleanedPages(package.aiCleanedPages),
-                    mode: .additive
-                )
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .additive)
                 if refreshSentenceLinks {
@@ -1214,13 +1217,8 @@ extension RadixStore {
                 applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .complete)
                 RadixStudyPreferences.conversationPracticeProgress =
                     package.conversationPracticeProgress ?? ConversationPracticeProgressSnapshot()
-                RadixStudyPreferences.applyImportedSentenceExamples(package.sentenceExamples, mode: .complete)
                 applyImportedFavoriteSentences(package.favoriteSentences, mode: .complete)
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .complete)
-                RadixStudyPreferences.applyImportedAICleanedPages(
-                    preprocessedAICleanedPages(package.aiCleanedPages),
-                    mode: .complete
-                )
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .complete)
                 if refreshSentenceLinks {
@@ -1275,6 +1273,21 @@ extension RadixStore {
         )
         markDatabaseOptimizationNeeded()
         databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
+    }
+
+    func importSentenceLibraryPackage(_ package: SentenceLibraryExportPackage, mode: RestoreMode = .additive) async throws -> SentenceLibraryImportResult {
+        _ = try? await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before importing sentence library")
+        let sentenceExamples = package.sentenceExamples
+        let cleanedPages = preprocessedAICleanedPages(package.aiCleanedPages) ?? []
+        RadixStudyPreferences.applyImportedSentenceExamples(sentenceExamples, mode: mode)
+        RadixStudyPreferences.applyImportedAICleanedPages(cleanedPages, mode: mode)
+        favoriteSentenceRevision += 1
+        markDatabaseOptimizationNeeded()
+        databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
+        return SentenceLibraryImportResult(
+            sentenceCount: sentenceExamples.count,
+            extractedPageCount: cleanedPages.count
+        )
     }
 
     // MARK: - Variance check

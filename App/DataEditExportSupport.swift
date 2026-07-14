@@ -11,6 +11,7 @@ enum AdvancedExportKind {
     case projectReadme
     case xcodeDataFiles
     case fullDataset
+    case sentenceLibrary
     case dictionaryDatabase
     case phraseDatabase
 }

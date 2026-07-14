@@ -101,6 +101,27 @@ struct DataExportService {
         return try encoder.encode(package)
     }
 
+    func exportSentenceLibrary(_ package: SentenceLibraryExportPackage) throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        encoder.dateEncodingStrategy = .iso8601
+        return try encoder.encode(package)
+    }
+
+    func decodeSentenceLibrary(_ data: Data) throws -> SentenceLibraryExportPackage {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let package = try decoder.decode(SentenceLibraryExportPackage.self, from: data)
+        guard package.schemaVersion == SentenceLibraryExportPackage.currentSchemaVersion else {
+            throw NSError(
+                domain: "RadixSentenceLibrary",
+                code: 3201,
+                userInfo: [NSLocalizedDescriptionKey: "This sentence library export is not compatible with this version of Radix."]
+            )
+        }
+        return package
+    }
+
     func exportMergedDictionaryDatabase(records: [DictionaryExportRecord]) throws -> Data {
         try DataExportDatabaseBuilder.makeMergedDictionaryDatabase(records: records)
     }

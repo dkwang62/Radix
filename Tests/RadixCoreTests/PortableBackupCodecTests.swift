@@ -182,22 +182,6 @@ struct PortableBackupCodecTests {
     func fullDatasetCarriesPortableBackupPayload() throws {
         let exportedAt = Date(timeIntervalSince1970: 1_800_000_000)
         let phrase = PhraseItem(word: "学习", pinyin: "xué xí", meanings: "to study")
-        let sentence = SentenceExampleRecord(
-            chinese: "我喜欢学习中文。",
-            pinyin: "Wǒ xǐhuān xuéxí Zhōngwén.",
-            english: "I like studying Chinese.",
-            sources: [
-                SentenceExampleSourceReference(
-                    sourceType: .conversationPractice,
-                    sourceID: "study",
-                    sourceTitle: "Study",
-                    sourcePageID: nil,
-                    practicePackID: nil,
-                    practiceItemID: nil
-                )
-            ],
-            targetPhrases: ["学习"]
-        )
         let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000505")!
         let page = CharacterCollection(
             id: pageID,
@@ -215,7 +199,6 @@ struct PortableBackupCodecTests {
             phrases: [phrase],
             profile: UserProfile(schemaVersion: 1, favouritesList: ["学"]),
             collections: [page],
-            sentenceExamples: [sentence],
             pagePhraseExtractions: [
                 PagePhraseExtractionRecord(
                     sourcePageID: pageID,
@@ -264,11 +247,53 @@ struct PortableBackupCodecTests {
         #expect(decoded.phrases == [phrase])
         #expect(decoded.portableBackup.schemaVersion == PortableBackupCodec.currentSchemaVersion)
         #expect(decoded.portableBackup.collections == [page])
-        #expect(decoded.portableBackup.sentenceExamples?.count == 1)
-        #expect(decoded.portableBackup.sentenceExamples?.first?.chinese == sentence.chinese)
-        #expect(decoded.portableBackup.sentenceExamples?.first?.targetPhrases == ["学习"])
-        #expect(decoded.portableBackup.sentenceExamples?.first?.sources.first?.sourceType == .conversationPractice)
+        #expect(decoded.portableBackup.sentenceExamples == nil)
+        #expect(decoded.portableBackup.aiCleanedPages == nil)
         #expect(decoded.portableBackup.pagePhraseExtractions?.first?.phraseWords == ["学习"])
         #expect(decoded.portableBackup.apiKeys?.gemini == "gemini-key")
+    }
+
+    @Test("Sentence library export carries the heavy sentence corpus separately")
+    func sentenceLibraryExportCarriesSentenceCorpus() throws {
+        let exportedAt = Date(timeIntervalSince1970: 1_800_000_100)
+        let sentence = SentenceExampleRecord(
+            chinese: "我喜欢学习中文。",
+            pinyin: "Wǒ xǐhuān xuéxí Zhōngwén.",
+            english: "I like studying Chinese.",
+            targetPhrases: ["学习"]
+        )
+        let page = AICleanedPageRecord(
+            sourcePageID: UUID(uuidString: "00000000-0000-0000-0000-000000000606")!,
+            sourceTitle: "Page",
+            cleanedTitle: "Cleaned Page",
+            cleanedChineseText: "我喜欢学习中文。",
+            sentences: [
+                AICleanedPageSentence(
+                    id: "sentence_001",
+                    chinese: "我喜欢学习中文。",
+                    pinyin: "Wǒ xǐhuān xuéxí Zhōngwén.",
+                    english: "I like studying Chinese.",
+                    phraseHints: ["学习"]
+                )
+            ],
+            createdAt: exportedAt
+        )
+        let package = SentenceLibraryExportPackage(
+            exportedAt: exportedAt,
+            sentenceExamples: [sentence],
+            aiCleanedPages: [page]
+        )
+
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let data = try encoder.encode(package)
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let decoded = try decoder.decode(SentenceLibraryExportPackage.self, from: data)
+
+        #expect(decoded.schemaVersion == SentenceLibraryExportPackage.currentSchemaVersion)
+        #expect(decoded.sentenceExamples.first?.chinese == sentence.chinese)
+        #expect(decoded.aiCleanedPages.first?.sentences.first?.phraseHints == ["学习"])
     }
 }
