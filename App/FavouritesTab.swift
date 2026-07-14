@@ -221,7 +221,8 @@ struct FavouritesTab: View {
                 fixedTitle: "Page Phrases",
                 fixedScopeLabel: presentation.collection.name,
                 fixedSort: .pinyin,
-                dismissesOnPhraseSelection: true
+                dismissesOnPhraseSelection: true,
+                returnTitle: "Back to Study"
             )
             .environmentObject(store)
         }

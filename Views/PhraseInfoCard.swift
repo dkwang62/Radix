@@ -57,7 +57,9 @@ struct PhraseInfoCard: View {
                     isVertical: true,
                     requiredCharacters: phraseCharacters.isEmpty ? phrase.word.map(String.init) : phraseCharacters,
                     fixedPhrases: isPracticeSentence ? sentencePhraseLookupPhrases : phraseLookupOverride,
-                    keepsPhraseInspectionInSheet: isPracticeSentence
+                    keepsPhraseInspectionInSheet: isPracticeSentence,
+                    inspectsPhraseInsideSheet: true,
+                    returnTitle: isPracticeSentence ? "Back to Sentence" : "Back to Phrase"
                 )
                 .environmentObject(store)
             }

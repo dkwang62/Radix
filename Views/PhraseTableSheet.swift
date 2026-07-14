@@ -12,6 +12,8 @@ struct PhraseTableSheet: View {
     let fixedSort: FixedPhraseSort
     let dismissesOnPhraseSelection: Bool
     let keepsPhraseInspectionInSheet: Bool
+    let inspectsPhraseInsideSheet: Bool
+    let returnTitle: String
     private let visiblePhraseRows = 6
     @State private var selectedPhrase: PhraseItem?
     @State private var showAddPhraseSheet = false
@@ -25,7 +27,9 @@ struct PhraseTableSheet: View {
         fixedScopeLabel: String = "In this sentence",
         fixedSort: FixedPhraseSort = .sentenceOrder,
         dismissesOnPhraseSelection: Bool = false,
-        keepsPhraseInspectionInSheet: Bool = false
+        keepsPhraseInspectionInSheet: Bool = false,
+        inspectsPhraseInsideSheet: Bool? = nil,
+        returnTitle: String? = nil
     ) {
         self.character = character
         self.requiredCharacters = requiredCharacters ?? [character]
@@ -36,6 +40,8 @@ struct PhraseTableSheet: View {
         self.fixedSort = fixedSort
         self.dismissesOnPhraseSelection = dismissesOnPhraseSelection
         self.keepsPhraseInspectionInSheet = keepsPhraseInspectionInSheet
+        self.inspectsPhraseInsideSheet = inspectsPhraseInsideSheet ?? keepsPhraseInspectionInSheet
+        self.returnTitle = returnTitle ?? (keepsPhraseInspectionInSheet ? "Back to Sentence" : "Back")
     }
 
     private var isPhone: Bool {
@@ -59,27 +65,13 @@ struct PhraseTableSheet: View {
     var body: some View {
         let displayedPhrases = matchingPhrases
         VStack(alignment: .leading, spacing: 12) {
-            if let selectedPhrase {
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        self.selectedPhrase = nil
-                    }
-                } label: {
-                    Label(keepsPhraseInspectionInSheet ? fixedTitle : "词Phrase", systemImage: "chevron.backward")
-                        .font(ResponsiveFont.subheadline.weight(.semibold))
-                }
-                .buttonStyle(.plain)
+            phraseTableReturnButton
 
+            if let selectedPhrase {
                 PhraseInfoCard(
                     phrase: selectedPhrase,
                     onSelectCharacter: keepsPhraseInspectionInSheet ? { _ in } : nil,
-                    onDone: {
-                        if keepsPhraseInspectionInSheet {
-                            self.selectedPhrase = nil
-                        } else {
-                            dismiss()
-                        }
-                    }
+                    onDone: dismiss.callAsFunction
                 )
                     .environmentObject(store)
             } else {
@@ -138,10 +130,6 @@ struct PhraseTableSheet: View {
 
                     Spacer(minLength: 0)
                 }
-                HStack {
-                    Spacer()
-                    DismissButton()
-                }
             }
         }
         .padding(20)
@@ -162,6 +150,19 @@ struct PhraseTableSheet: View {
                 store.refreshPhrases(for: character)
             }
         }
+    }
+
+    private var phraseTableReturnButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Label(returnTitle, systemImage: "chevron.backward")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .foregroundStyle(RadixAccent.primary)
+                .radixMinimumTapTarget()
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(returnTitle)
     }
 
     private var matchingPhrases: [PhraseItem] {
@@ -232,7 +233,7 @@ struct PhraseTableSheet: View {
     private func presentPhrase(_ phrase: PhraseItem) {
         store.speakPhrase(phrase)
         withAnimation(.easeInOut(duration: 0.2)) {
-            if keepsPhraseInspectionInSheet {
+            if inspectsPhraseInsideSheet {
                 selectedPhrase = phrase
             } else if isPhone {
                 store.presentPhraseInSidebar(phrase)
@@ -316,21 +317,5 @@ private struct PhraseTableDetentModifier: ViewModifier {
         } else {
             content
         }
-    }
-}
-
-struct DismissButton: View {
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        Button {
-            dismiss()
-        } label: {
-            Image(systemName: "xmark")
-                .font(ResponsiveFont.subheadline.weight(.semibold))
-                .radixMinimumTapTarget()
-        }
-        .buttonStyle(.borderedProminent)
-        .accessibilityLabel("Close")
     }
 }

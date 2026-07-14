@@ -68,7 +68,12 @@ struct CharacterPreviewHeader: View {
             }
         }
         .sheet(isPresented: $showPhraseTableSheet) {
-            PhraseTableSheet(character: character, isVertical: isVertical)
+            PhraseTableSheet(
+                character: character,
+                isVertical: isVertical,
+                inspectsPhraseInsideSheet: true,
+                returnTitle: "Back to Character"
+            )
                 .environmentObject(store)
         }
         .onReceive(NotificationCenter.default.publisher(for: .radixShowPhraseTable)) { notification in
