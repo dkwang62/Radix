@@ -48,6 +48,12 @@ struct SentenceExampleEditDraft: Identifiable {
     var id: UUID { record.id }
 }
 
+struct PendingSentenceDatabaseImport: Identifiable {
+    let url: URL
+
+    var id: String { url.path }
+}
+
 struct FavouritesTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
@@ -81,6 +87,12 @@ struct FavouritesTab: View {
     @State var sentenceExampleEditDraft: SentenceExampleEditDraft?
     @State var showDeleteFilteredSentenceExamplesConfirmation = false
     @State var showDeleteSelectedSentenceExamplesConfirmation = false
+    @State var sentenceDatabaseExportDocument = BinaryFileDocument(data: Data())
+    @State var sentenceDatabaseExportFilename = "radix_sentence_database"
+    @State var showSentenceDatabaseExporter = false
+    @State var showSentenceDatabaseImporter = false
+    @State var pendingSentenceDatabaseImport: PendingSentenceDatabaseImport?
+    @State var isRunningSentenceDatabaseTransfer = false
     @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
     @State var studyGridScope = RadixStudyPreferences.initialGridScope
     @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
@@ -267,6 +279,27 @@ struct FavouritesTab: View {
         ) { result in
             importConversationPracticePack(result)
         }
+        .fileExporter(
+            isPresented: $showSentenceDatabaseExporter,
+            document: sentenceDatabaseExportDocument,
+            contentType: RadixFileTypes.database,
+            defaultFilename: sentenceDatabaseExportFilename
+        ) { result in
+            isRunningSentenceDatabaseTransfer = false
+            switch result {
+            case .success:
+                sentenceExampleStatusMessage = "Exported sentence database."
+            case .failure(let error):
+                sentenceExampleStatusMessage = "Export failed: \(error.localizedDescription)"
+            }
+        }
+        .fileImporter(
+            isPresented: $showSentenceDatabaseImporter,
+            allowedContentTypes: RadixFileTypes.sentenceDatabaseImports,
+            allowsMultipleSelection: false
+        ) { result in
+            prepareSentenceDatabaseImport(result)
+        }
         .alert("Return to Checkpoint?", isPresented: Binding(
             get: { pendingCheckpointReturn != nil },
             set: { if !$0 { pendingCheckpointReturn = nil } }
@@ -327,6 +360,22 @@ struct FavouritesTab: View {
             }
         } message: {
             Text("This permanently deletes only the selected sentences shown in Study.")
+        }
+        .alert("Import Sentence Database?", isPresented: Binding(
+            get: { pendingSentenceDatabaseImport != nil },
+            set: { _ in }
+        )) {
+            Button("Cancel", role: .cancel) {
+                clearPendingSentenceDatabaseImport()
+            }
+            Button("Merge") {
+                importPendingSentenceDatabase(mode: .additive)
+            }
+            Button("Replace", role: .destructive) {
+                importPendingSentenceDatabase(mode: .complete)
+            }
+        } message: {
+            Text("Merge adds new sentences and updates matching ones. Replace swaps your sentence database with this file after creating a recovery copy.")
         }
         .alert("Delete Saved Page?", isPresented: Binding(
             get: { pendingStudyDeleteCollection != nil },

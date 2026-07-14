@@ -2,8 +2,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct BinaryFileDocument: FileDocument {
-    static var readableContentTypes: [UTType] { [.data] }
-    static var writableContentTypes: [UTType] { [.data, .json, .plainText, .commaSeparatedText, .zipArchive] }
+    static var readableContentTypes: [UTType] { [.data, RadixFileTypes.database, RadixFileTypes.sqlite] }
+    static var writableContentTypes: [UTType] { [.data, .json, .plainText, .commaSeparatedText, .zipArchive, RadixFileTypes.database, RadixFileTypes.sqlite] }
 
     var data: Data
 

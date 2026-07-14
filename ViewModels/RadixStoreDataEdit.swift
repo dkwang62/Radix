@@ -1295,6 +1295,23 @@ extension RadixStore {
         )
     }
 
+    func exportSentenceDatabaseData() async throws -> Data {
+        try await Task.detached(priority: .userInitiated) {
+            try RadixStudyPreferences.exportSentenceDatabaseData()
+        }.value
+    }
+
+    func importSentenceDatabase(from sourceURL: URL, mode: RestoreMode) async throws -> Int {
+        _ = try? await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before importing sentence database")
+        let importedCount = try await Task.detached(priority: .userInitiated) {
+            try RadixStudyPreferences.importSentenceDatabase(from: sourceURL, mode: mode)
+        }.value
+        favoriteSentenceRevision += 1
+        markDatabaseOptimizationNeeded()
+        databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
+        return importedCount
+    }
+
     // MARK: - Variance check
 
     func calculateDictionaryVariances() {

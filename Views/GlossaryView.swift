@@ -156,7 +156,7 @@ enum RadixGlossary {
         GlossaryEntry(
             term: "Sentence Database",
             shortDefinition: "The shared place where Radix keeps sentences you can study.",
-            significance: "Radix keeps favorite, page-derived, OCR-derived, and practice sentences together so the same sentence can appear in Study, Conversation Practice, and page work without becoming several unrelated copies. Because this library can grow large, it moves through Advanced > Sentence Library instead of normal backup files.",
+            significance: "Radix keeps favorite, page-derived, OCR-derived, and practice sentences together so the same sentence can appear in Study, Conversation Practice, and page work without becoming several unrelated copies. Because this library can grow large, it moves through Study > Sentences > Transfer instead of normal backup files.",
             contexts: ["Study > Sentences", "Favorite Sentences", "Extract Sentences", "Sentence Practice", "Conversation Practice", "Sentence Library"],
             relatedTerms: ["Sentence", "Sentence Example", "Favorite Sentence", "Conversation Practice", "Practice Pack", "Optimize Database", "Sentence Library"]
         ),
@@ -183,9 +183,9 @@ enum RadixGlossary {
         ),
         GlossaryEntry(
             term: "Sentence Library",
-            shortDefinition: "The separate export/import file for saved sentences and extracted sentence pages.",
-            significance: "Sentence Library keeps large sentence data out of normal backup and restore, so core recovery stays fast. Use Advanced > Sentence Library when you want to move or preserve saved sentences and extracted sentence pages.",
-            contexts: ["Advanced Exports", "Study > Sentences", "Extract Sentences"],
+            shortDefinition: "The separate sentence collection that can be transferred outside normal backup.",
+            significance: "Sentence Library keeps large sentence data out of normal backup and restore, so core recovery stays fast. Use Study > Sentences > Transfer for the fast database file, or Advanced Exports when you need a portable JSON file for inspection.",
+            contexts: ["Study > Sentences", "Advanced Exports", "Extract Sentences"],
             relatedTerms: ["Sentence Database", "Sentence Example", "Favorite Sentence", "Backup"]
         ),
         GlossaryEntry(

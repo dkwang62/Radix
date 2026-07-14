@@ -159,6 +159,33 @@ enum RadixStudyPreferences {
         try sentenceExampleRepository.restoreDatabase(from: URL(fileURLWithPath: snapshot.path))
     }
 
+    static func exportSentenceDatabaseData() throws -> Data {
+        prepareSentenceExamplesForBackup()
+        let exportURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("radix_sentence_database_export_\(UUID().uuidString)")
+            .appendingPathExtension("db")
+        defer { try? FileManager.default.removeItem(at: exportURL) }
+        try sentenceExampleRepository.backupDatabase(to: exportURL)
+        return try Data(contentsOf: exportURL)
+    }
+
+    @discardableResult
+    static func importSentenceDatabase(from sourceURL: URL, mode: RestoreMode) throws -> Int {
+        try SentenceExampleRepository.validateSentenceDatabase(at: sourceURL)
+        switch mode {
+        case .additive:
+            let sourceRepository = SentenceExampleRepository(databaseURL: sourceURL)
+            let importedRecords = sourceRepository.fetchAll(migratingLegacy: { [] })
+            recordSentenceExamples(importedRecords)
+            refreshConversationPracticePackSentenceReferences()
+            return importedRecords.count
+        case .complete:
+            try sentenceExampleRepository.restoreDatabase(from: sourceURL)
+            refreshConversationPracticePackSentenceReferences()
+            return sentenceExampleCount()
+        }
+    }
+
     static var currentSentenceExamples: [SentenceExampleRecord] {
         migrateLegacyFavoriteSentencesIntoSentenceExamples()
         return sentenceExamples
@@ -1054,6 +1081,39 @@ private final class SentenceExampleRepository: @unchecked Sendable {
         let finishResult = sqlite3_backup_finish(backup)
         guard stepResult == SQLITE_DONE, finishResult == SQLITE_OK else {
             throw NSError(domain: "Radix", code: 3133, userInfo: [NSLocalizedDescriptionKey: "Failed to finish sentence snapshot: \(String(cString: sqlite3_errmsg(destinationDB)))"])
+        }
+    }
+
+    static func validateSentenceDatabase(at sourceURL: URL) throws {
+        guard FileManager.default.isReadableFile(atPath: sourceURL.path) else {
+            throw NSError(domain: "Radix", code: 3141, userInfo: [NSLocalizedDescriptionKey: "Sentence database file is not readable."])
+        }
+
+        var sourceDB: OpaquePointer?
+        guard sqlite3_open_v2(sourceURL.path, &sourceDB, SQLITE_OPEN_READONLY, nil) == SQLITE_OK,
+              let sourceDB
+        else {
+            let message = sourceDB.map { String(cString: sqlite3_errmsg($0)) } ?? "unknown"
+            if let sourceDB { sqlite3_close(sourceDB) }
+            throw NSError(domain: "Radix", code: 3142, userInfo: [NSLocalizedDescriptionKey: "Failed to open sentence database: \(message)"])
+        }
+        defer { sqlite3_close(sourceDB) }
+
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(sourceDB, "PRAGMA table_info(sentence_examples)", -1, &statement, nil) == SQLITE_OK else {
+            throw NSError(domain: "Radix", code: 3143, userInfo: [NSLocalizedDescriptionKey: "Failed to inspect sentence database."])
+        }
+        defer { sqlite3_finalize(statement) }
+
+        var columns = Set<String>()
+        while sqlite3_step(statement) == SQLITE_ROW {
+            if let nameText = sqlite3_column_text(statement, 1) {
+                columns.insert(String(cString: nameText))
+            }
+        }
+        let requiredColumns: Set<String> = ["id", "normalized_key", "record_json"]
+        guard requiredColumns.isSubset(of: columns) else {
+            throw NSError(domain: "Radix", code: 3144, userInfo: [NSLocalizedDescriptionKey: "This is not a Radix sentence database."])
         }
     }
 

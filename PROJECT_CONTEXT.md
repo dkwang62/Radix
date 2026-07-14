@@ -21,7 +21,7 @@ pages. The saved-page AI task `task12` / `Extract Sentences` generates
 JSON for that record from the selected page's characters and OCR/source context,
 including per-sentence Chinese, pinyin, English, and phrase hints.
 Extracted sentence page records are stored in `RadixStudyPreferences.aiCleanedPages`,
-included in the separate Advanced `Sentence Library (JSON)` export/import,
+included in the separate sentence transfer surfaces,
 imported from fenced or raw AI JSON through AI Link, and removed with their
 owning saved page.
 Study saved pages expose imported extracted sentence pages through an
@@ -73,9 +73,11 @@ Saving or restoring an extracted sentence page also upserts its sentence list in
 shared `SentenceExampleRecord` database with `ai_cleaned_page` page-linked
 source metadata, so Study > Sentences and sentence cards reuse the same records.
 The live sentence-example store is SQLite-backed via `RadixStudyPreferences`;
-`sentence_examples` JSON now belongs to the separate Advanced `Sentence Library
-(JSON)` export/import, and legacy UserDefaults payloads are migrated into the
-database on first read.
+Study > Sentences > Transfer owns the fast sentence database `.db` export/import
+for Radix-to-Radix moves, including merge and replace modes with safety
+snapshots. `sentence_examples` JSON remains in Advanced `Sentence Library
+(JSON)` for portable/developer inspection, and legacy UserDefaults payloads are
+migrated into the database on first read.
 Sentence examples are canonically stored as simplified Chinese, including phrase
 and character hints; traditional Chinese is a display mode exposed by sentence
 lists, example sheets, and sentence cards, not a second storage form.
@@ -102,9 +104,11 @@ foundation (`dictionary` and `phrases`) and a nested lightweight
 `portable_backup` payload with the latest saved pages, Conversation practice,
 progress, page phrase extractions, profile, and API-key backup metadata. The
 heavy Sentence Library is not part of normal backup/restore or Full Dataset;
+Study > Sentences exposes fast sentence database transfer for normal use, while
 Advanced exposes a separate `Sentence Library (JSON)` export/import for saved
-sentences and extracted sentence pages. Keep normal backup aligned with
-`portableBackupPackage()` whenever new lightweight user-owned data is added.
+sentences and extracted sentence pages when a portable, inspectable format is
+needed. Keep normal backup aligned with `portableBackupPackage()` whenever new
+lightweight user-owned data is added.
 Settings maintenance actions that scan or rewrite the sentence database must
 run as async background work from the UI. Do not call synchronous store paths
 directly from SwiftUI buttons, or Mac Catalyst can show the app as not
@@ -785,15 +789,18 @@ Conversation Practice, so old practice sentences enter the sentence database
 without requiring re-import. The
 Favorite Sentences practice topic should be built from canonical favorited
 sentence examples while keeping old favorite records only as compatibility data
-until a fuller migration removes the duplicate store. Sentence Library import
-applies canonical sentence examples before legacy favorite-sentence records so
-favorites overlay into the sentence database instead of being overwritten by
-import ordering. Favorite toggles and sentence deletion update both the canonical
-sentence flag and the legacy compatibility list so old favorite records cannot
-resurrect deleted or unfavorited sentences. Sentence Library export prepares
-the canonical sentence store before packaging so old imported practice packs
-and legacy favorite sentences are captured even if Study has not been opened in
-the current app session. AI outputs may include a
+until a fuller migration removes the duplicate store. Sentence Library JSON
+import applies canonical sentence examples before legacy favorite-sentence
+records so favorites overlay into the sentence database instead of being
+overwritten by import ordering. Fast sentence database import in Study validates
+the SQLite sentence table, creates a safety snapshot, then either merges through
+the canonical upsert path or replaces through SQLite backup restore. Favorite
+toggles and sentence deletion update both the canonical sentence flag and the
+legacy compatibility list so old favorite records cannot resurrect deleted or
+unfavorited sentences. Sentence Library JSON export prepares the canonical
+sentence store before packaging so old imported practice packs and legacy
+favorite sentences are captured even if Study has not been opened in the current
+app session. AI outputs may include a
 `[Radix Capture JSON]` block containing `sentences` or `sentence_examples`;
 Radix can parse those blocks into canonical sentence examples with optional
 source metadata. Approved OCR corrections update saved-page text only and do
