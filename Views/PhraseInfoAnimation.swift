@@ -182,7 +182,13 @@ extension PhraseInfoCard {
             )
         }
         .buttonStyle(.plain)
-        .copyCharacterContextMenu(animationCharacter, pinyin: store.item(for: animationCharacter)?.pinyinText)
+        .copyCharacterContextMenu(
+            animationCharacter,
+            pinyin: store.item(for: animationCharacter)?.pinyinText,
+            onAddToHistory: {
+                store.recordInspectedCharacterInHistory(animationCharacter)
+            }
+        )
     }
 
     func phraseAnimationPageCount(for characters: [String]) -> Int {

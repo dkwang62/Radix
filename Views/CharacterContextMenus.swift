@@ -5,11 +5,17 @@ private struct CopyCharacterContextMenuModifier: ViewModifier {
     let character: String
     let pinyin: String?
     let onShowPhrases: (() -> Void)?
+    let onAddToHistory: (() -> Void)?
 
     func body(content: Content) -> some View {
         if character.isSingleChineseCharacter {
             content.contextMenu {
-                CharacterActionMenuContent(character: character, pinyin: pinyin, onShowPhrases: onShowPhrases)
+                CharacterActionMenuContent(
+                    character: character,
+                    pinyin: pinyin,
+                    onShowPhrases: onShowPhrases,
+                    onAddToHistory: onAddToHistory
+                )
             }
         } else {
             content
@@ -22,6 +28,7 @@ private struct CharacterActionMenuContent: View {
     let character: String
     let pinyin: String?
     let onShowPhrases: (() -> Void)?
+    let onAddToHistory: (() -> Void)?
     var compact: Bool = false
 
     private var trimmedPinyin: String? {
@@ -43,6 +50,13 @@ private struct CharacterActionMenuContent: View {
 
     @ViewBuilder
     private var characterActions: some View {
+        if let onAddToHistory {
+            Button {
+                onAddToHistory()
+            } label: {
+                Label("Add to History", systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.history))
+            }
+        }
         Button("Notes") {
             store.openQuickCharacterEditor(character)
         }
@@ -113,8 +127,18 @@ private struct CharacterActionMenuContent: View {
 }
 
 extension View {
-    func copyCharacterContextMenu(_ character: String, pinyin: String? = nil, onShowPhrases: (() -> Void)? = nil) -> some View {
-        modifier(CopyCharacterContextMenuModifier(character: character, pinyin: pinyin, onShowPhrases: onShowPhrases))
+    func copyCharacterContextMenu(
+        _ character: String,
+        pinyin: String? = nil,
+        onShowPhrases: (() -> Void)? = nil,
+        onAddToHistory: (() -> Void)? = nil
+    ) -> some View {
+        modifier(CopyCharacterContextMenuModifier(
+            character: character,
+            pinyin: pinyin,
+            onShowPhrases: onShowPhrases,
+            onAddToHistory: onAddToHistory
+        ))
     }
 
     func phraseContextMenu(_ phrase: PhraseItem) -> some View {

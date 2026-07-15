@@ -55,6 +55,8 @@ longest-phrase rule. Do not run discovery merely to render a sentence row, open
 a sentence card, or decide whether the button is visible. Tapping
 stroke-animation tiles inside a sentence should keep the sentence card open
 instead of replacing it with a nested character/phrase preview stack on iPhone.
+Their context menu may offer `Add to History`, which records the character
+without opening another preview layer.
 Phrase rows opened from a sentence-scoped Phrase Library must inspect the
 phrase inside that sheet on every device; do not send them to the sidebar
 character/phrase card route.
@@ -245,9 +247,9 @@ Extracted-sentence import, backup restore, and startup migration preprocess
 sentence `phrase_hints` by discovering all known 2+ character phrase-library
 matches against the sentence's simplified storage form. Sentence cards should
 not inspect those phrase hints in the render path; sentence rows and cards are
-terminal reading surfaces. Do not reintroduce phrase tiling/highlighting,
-sentence phrase-table buttons, or character animation in the sentence card
-unless it is proven stable on iPhone with large extracted pages.
+terminal reading surfaces. Phrase buttons and character animation in the
+sentence card must use precomputed or explicitly requested data only, and must
+not create nested preview stacks.
 Extracted-sentence readers should not display the full cleaned page body or
 split the cleaned body into fallback sentence fragments during SwiftUI display.
 If an extracted-page record has no saved sentence array, ask the user to
