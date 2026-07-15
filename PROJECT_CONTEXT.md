@@ -213,6 +213,12 @@ matching results" fetches matching records so page-owned artifacts stay
 consistent, and first pinyin phrase search may build the phrase pinyin index
 from the merged phrase set. If any of these become noticeably slow, optimize
 them before adding adjacent features.
+2026-07-15 maintainability/performance pass: keep state machines single-valued
+where possible. The Study section selector uses one focused-section enum rather
+than three independent booleans, reducing impossible UI states and duplicate
+title sync. Remaining large-file refactor targets are
+`ConversationPracticeModels.swift`, `FavouritesSections.swift`,
+`RadixStoreDataEdit.swift`, `FavouritesTab.swift`, and `PromptModels.swift`.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.
@@ -220,7 +226,8 @@ Study's lower section buttons (`Added Phrases`, `Conversation Practices`, and
 `Sentences`) are in-place Study section selectors, not separate drill-in
 screens. Keep the pinned Study controls visible when those sections are active,
 do not show a `Back to Study` button for normal switching, and clear the other
-focused Study sections when one is selected.
+focused Study sections when one is selected. Do not reintroduce separate
+booleans for these mutually exclusive sections.
 Mac Catalyst does not show the same native navigation title bar as phone/iPad,
 so the detail pane owns a visible root title row. Keep it driven by the shared
 `detailPaneTitle` / Browse title picker logic so Catalyst shows contextual

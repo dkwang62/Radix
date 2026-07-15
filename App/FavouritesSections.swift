@@ -133,7 +133,7 @@ extension FavouritesTab {
     var conversationPracticeBackButton: some View {
         focusedStudyBackButton(title: conversationPracticeBackButtonTitle) {
             withAnimation(.snappy(duration: 0.18)) {
-                isShowingConversationPractice = false
+                focusedStudySection = nil
             }
             if store.rootsReturnContext != nil {
                 store.returnFromRoots()
@@ -563,7 +563,7 @@ extension FavouritesTab {
     var sentenceExamplesBackButton: some View {
         focusedStudyBackButton(title: "Back to Study") {
             withAnimation(.snappy(duration: 0.18)) {
-                isShowingSentenceExamples = false
+                focusedStudySection = nil
             }
         }
     }
@@ -1295,9 +1295,7 @@ extension FavouritesTab {
     func openSentenceExamplePracticeSource(_ example: SentenceExampleRecord, topic: ConversationPracticeTopic) {
         let source = sentenceExamplePracticeSource(example)
         withAnimation(.snappy(duration: 0.18)) {
-            isShowingSentenceExamples = false
-            isShowingAddedPhraseReview = false
-            isShowingConversationPractice = true
+            focusedStudySection = .conversationPractice
             studyAICleanedPageCollectionID = nil
         }
         selectConversationPracticeTopic(topic)
@@ -1507,9 +1505,7 @@ extension FavouritesTab {
     }
 
     func clearFocusedStudySections() {
-        isShowingConversationPractice = false
-        isShowingAddedPhraseReview = false
-        isShowingSentenceExamples = false
+        focusedStudySection = nil
     }
 
     var studyCheckpointsSection: some View {

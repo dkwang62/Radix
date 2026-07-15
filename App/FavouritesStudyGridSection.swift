@@ -177,13 +177,23 @@ extension FavouritesTab {
     }
 
     var isShowingFocusedStudySection: Bool {
-        isShowingAddedPhraseReview || isShowingConversationPractice || isShowingSentenceExamples
+        focusedStudySection != nil
+    }
+
+    var isShowingAddedPhraseReview: Bool {
+        focusedStudySection == .addedPhrases
+    }
+
+    var isShowingConversationPractice: Bool {
+        focusedStudySection == .conversationPractice
+    }
+
+    var isShowingSentenceExamples: Bool {
+        focusedStudySection == .sentences
     }
 
     var activeStudySectionTitle: String {
-        if isShowingAddedPhraseReview { return "Added Phrases" }
-        if isShowingConversationPractice { return "Conversation Practices" }
-        if isShowingSentenceExamples { return "Sentences" }
+        if let focusedStudySection { return focusedStudySection.title }
         return studyGridScope.title
     }
 

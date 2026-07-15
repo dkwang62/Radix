@@ -54,6 +54,20 @@ struct PendingSentenceDatabaseImport: Identifiable {
     var id: String { url.path }
 }
 
+enum FocusedStudySection: String, Equatable {
+    case addedPhrases
+    case conversationPractice
+    case sentences
+
+    var title: String {
+        switch self {
+        case .addedPhrases: return "Added Phrases"
+        case .conversationPractice: return "Conversation Practices"
+        case .sentences: return "Sentences"
+        }
+    }
+}
+
 struct FavouritesTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
@@ -69,9 +83,7 @@ struct FavouritesTab: View {
     let isCreatingCheckpoint: Bool
     let isReturningToCheckpoint: Bool
     @State var selectedPhrase: PhraseItem?
-    @State var isShowingConversationPractice = false
-    @State var isShowingAddedPhraseReview = false
-    @State var isShowingSentenceExamples = false
+    @State var focusedStudySection: FocusedStudySection?
     @State var studyAICleanedPageCollectionID: UUID?
     @State var aiCleanedPageSentencePageIndex = 0
     @State var aiCleanedPageSentencePageCache: StudyAICleanedSentencePageCache?
@@ -451,7 +463,7 @@ struct FavouritesTab: View {
             RadixStudyPreferences.gridScope = newValue
             syncActiveStudySectionTitle()
         }
-        .onChange(of: activeStudySectionTitle) { _, _ in
+        .onChange(of: focusedStudySection) { _, _ in
             syncActiveStudySectionTitle()
         }
         .onChange(of: studyPageSortOrder) { _, newValue in
@@ -501,9 +513,7 @@ struct FavouritesTab: View {
         }
         selectConversationPracticeTopic(topic)
         withAnimation(.snappy(duration: 0.18)) {
-            isShowingAddedPhraseReview = false
-            isShowingSentenceExamples = false
-            isShowingConversationPractice = true
+            focusedStudySection = .conversationPractice
             studyAICleanedPageCollectionID = nil
         }
         store.pendingConversationPracticeTopicID = nil
@@ -517,9 +527,7 @@ struct FavouritesTab: View {
             loadConversationPracticeLibrary()
         }
         withAnimation(.snappy(duration: 0.18)) {
-            isShowingAddedPhraseReview = false
-            isShowingSentenceExamples = false
-            isShowingConversationPractice = true
+            focusedStudySection = .conversationPractice
             studyAICleanedPageCollectionID = nil
         }
     }
@@ -528,9 +536,7 @@ struct FavouritesTab: View {
         sentenceExampleStatusMessage = nil
         resetSentenceExampleResultsContext()
         withAnimation(.snappy(duration: 0.18)) {
-            isShowingConversationPractice = false
-            isShowingAddedPhraseReview = false
-            isShowingSentenceExamples = true
+            focusedStudySection = .sentences
             studyAICleanedPageCollectionID = nil
         }
     }
