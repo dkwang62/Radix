@@ -47,13 +47,17 @@ meaning, optional pinyin, read aloud, Phrase button, four-character stroke
 animation pages, favorite, and delete. Keep the crash guardrails: the Phrase
 button should show all exact phrase-library matches in the sentence by merging
 stored sentence phrase hints with on-demand phrase discovery when the phrase
-sheet is opened; sentence highlighting can still use the non-overlapping
-longest-phrase rule. Do not run discovery merely to render a sentence row or
-decide whether the button is visible. Tapping stroke-animation tiles inside a
-sentence should keep the sentence card open instead of replacing it with a
-nested character/phrase preview stack on iPhone. Phrase rows opened from a
-sentence-scoped Phrase Library must inspect the phrase inside that sheet on
-every device; do not send them to the sidebar character/phrase card route.
+sheet is opened. The full sheet lookup must use cached batch phrase discovery,
+not one SQLite lookup per candidate, and should skip dynamic discovery for
+unusually long sentence strings where stored/preprocessed hints are the safe
+fallback. Sentence highlighting can still use the non-overlapping
+longest-phrase rule. Do not run discovery merely to render a sentence row, open
+a sentence card, or decide whether the button is visible. Tapping
+stroke-animation tiles inside a sentence should keep the sentence card open
+instead of replacing it with a nested character/phrase preview stack on iPhone.
+Phrase rows opened from a sentence-scoped Phrase Library must inspect the
+phrase inside that sheet on every device; do not send them to the sidebar
+character/phrase card route.
 The Phrase Library sheet owns one top-left contextual return action. When the
 sheet was opened from a sentence, that action is always `Back to Sentence` and
 dismisses directly to the originating sentence card, even after inspecting a

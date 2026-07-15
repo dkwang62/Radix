@@ -262,7 +262,7 @@ extension RadixStore {
         for item: ConversationPracticeItem,
         usesTraditionalScript: Bool
     ) -> [PhraseItem] {
-        let phraseHints = allPracticePhraseMatches(for: item)
+        let phraseHints = storedPracticePhraseHints(for: item)
         return phraseHints
             .filter { phraseStorageWord($0.word) != item.phraseKey }
             .map {
@@ -277,25 +277,26 @@ extension RadixStore {
     func allPracticePhraseMatches(for item: ConversationPracticeItem) -> [PhraseItem] {
         let source = phraseStorageWord(item.simplified)
         let sentenceKey = item.phraseKey
-        let discoveredCandidates = phraseDiscoverySubstrings(
-            in: source,
-            maxLength: phraseRepo.maxPhraseLength()
-        )
-        .map(phraseStorageWord(_:))
+        let storedPhrases = storedPracticePhraseHints(for: item)
+        let discoveredPhrases = source.count <= 240
+            ? phraseDiscoveryKnownPhraseItems(in: source, includeHidden: true)
+            : []
 
-        let candidates = item.phraseHints.map(phraseStorageWord(_:)) + discoveredCandidates
         var seen = Set<String>()
         var phrases: [PhraseItem] = []
 
-        for candidate in candidates {
-            guard candidate.count > 1,
-                  candidate != sentenceKey,
-                  source.contains(candidate),
-                  seen.insert(candidate).inserted,
-                  let phrase = databasePhrase(for: candidate)
-            else { continue }
+        func append(_ phrase: PhraseItem) {
+            let key = phraseStorageWord(phrase.word)
+            guard key.count > 1,
+                  key != sentenceKey,
+                  source.contains(key),
+                  seen.insert(key).inserted
+            else { return }
             phrases.append(phrase)
         }
+
+        storedPhrases.forEach(append)
+        discoveredPhrases.forEach(append)
 
         return phrases.sorted {
             let lhsWord = phraseStorageWord($0.word)
