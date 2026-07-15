@@ -94,18 +94,20 @@ migrated into the database on first read.
 Sentence examples are canonically stored as simplified Chinese, including phrase
 and character hints; traditional Chinese is a display mode exposed by sentence
 lists, example sheets, and sentence cards, not a second storage form.
-Settings exposes the only user-triggered `Optimize Study Data` maintenance
-action. Keep technical cleanup details out of the main UI: the full Settings action may
-rewrite Radix-owned sentence, extracted-page, added-phrase, and phrase-favorite
-storage into Simplified Chinese, then refresh stored sentence phrase hints from
-the current visible phrase library. Traditional remains display-only. Normal
-Study Sentences, practice, phrase-card Examples, sentence-card, and
+Settings exposes the only user-triggered `Optimize Database` maintenance
+action. Keep technical cleanup details out of the main UI: the Settings action
+may rewrite Radix-owned sentence, extracted-page, added-phrase, and
+phrase-favorite storage into Simplified Chinese, but it must not perform a
+full sentence-by-phrase relink pass. Stored sentence phrase links are cache
+hints, not authoritative truth; phrase adds/deletes/status changes perform
+targeted write-time hint updates, and the sentence Phrase button can discover
+full matches on demand. Traditional remains display-only. Normal Study
+Sentences, practice, phrase-card Examples, sentence-card, and
 extracted-sentence reader access must never repair or rediscover phrase links
-while rendering; they are read-only consumers of stored hints. Phrase
-adds/deletes/status changes perform targeted write-time hint updates. Bulk
+while rendering; they are read-only consumers of stored hints. Bulk
 restore/import must not start optimization automatically; it should only mark
 optimization as recommended until the user explicitly runs Settings >
-Optimize Study Data.
+Optimize Database.
 The mutable SQLite stores for Study Sentences and added phrases keep quiet
 internal safety snapshots before bulk import/restore, optimization, phrase
 cleanup, sentence deletion, and phrase-link maintenance. Settings > Storage
@@ -198,16 +200,17 @@ as imports, exports, and backups, and keep ordinary Study/Browse access paged
 and indexed. Current Settings storage health uses lightweight counts and file
 metadata; it must not load full sentence or phrase records merely to summarize
 database size.
-2026-07-14 performance/clarity review: user-facing Settings now shows one
-plain `Optimize Database` action. It hides the internal Simplified-storage
-cleanup and phrase-hint refresh inside that action. Restore/import only marks
-optimization as recommended; it does not run background optimization. Remaining
-performance-sensitive operations are acceptable only because they are explicit
-actions rather than render paths: portable backup/export serializes full data,
-Study > Sentences "delete all matching results" fetches matching records so
-page-owned artifacts stay consistent, and first pinyin phrase search may build
-the phrase pinyin index from the merged phrase set. If any of these become
-noticeably slow, optimize them before adding adjacent features.
+2026-07-15 performance/clarity review: user-facing Settings shows one plain
+`Optimize Database` action. It hides Simplified-storage cleanup inside that
+action, but it no longer performs the expensive full phrase-link refresh.
+Restore/import only marks optimization as recommended; it does not run
+background optimization. Remaining performance-sensitive operations are
+acceptable only because they are explicit actions rather than render paths:
+portable backup/export serializes full data, Study > Sentences "delete all
+matching results" fetches matching records so page-owned artifacts stay
+consistent, and first pinyin phrase search may build the phrase pinyin index
+from the merged phrase set. If any of these become noticeably slow, optimize
+them before adding adjacent features.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.

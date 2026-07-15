@@ -104,7 +104,7 @@ extension DataEditTab {
                 let package = try dataExportService.decodeSentenceLibrary(data)
                 let result = try await store.importSentenceLibraryPackage(package, mode: .additive)
                 reuseExportInProgress = false
-                reuseExportMessage = "Imported \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.extractedPageCount) extracted page\(result.extractedPageCount == 1 ? "" : "s"). Optimize Study Data is recommended when convenient."
+                reuseExportMessage = "Imported \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.extractedPageCount) extracted page\(result.extractedPageCount == 1 ? "" : "s"). Optimize Database is recommended when convenient."
                 RadixHaptics.success()
             } catch {
                 reuseExportInProgress = false
@@ -186,7 +186,7 @@ extension DataEditTab {
 
         lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.recordBackup(at: url)
         recentBackupMetadata = RadixBackupMetadataStore.history
-        backupMessage = "Merged this device with: \(url.lastPathComponent). Optimize Study Data is recommended when convenient."
+        backupMessage = "Merged this device with: \(url.lastPathComponent). Optimize Database is recommended when convenient."
         finishBackupRestore(operationID: operationID)
         showBackupAlert = true
         RadixHaptics.success()
@@ -225,8 +225,8 @@ extension DataEditTab {
                 guard isCurrentRestore(operationID) else { return }
 
                 backupMessage = pending.mode == .complete
-                    ? "Restored this device from: \(pending.filename). Optimize Study Data is recommended when convenient."
-                    : "Merged backup data from: \(pending.filename). Optimize Study Data is recommended when convenient."
+                    ? "Restored this device from: \(pending.filename). Optimize Database is recommended when convenient."
+                    : "Merged backup data from: \(pending.filename). Optimize Database is recommended when convenient."
                 finishBackupRestore(operationID: operationID)
                 showBackupAlert = true
                 RadixHaptics.success()

@@ -99,7 +99,7 @@ struct RadixStorageHealth: Equatable {
 }
 
 extension RadixStore {
-    private var databaseOptimizationAlgorithmVersion: Int { 3 }
+    private var databaseOptimizationAlgorithmVersion: Int { 4 }
     private var databaseOptimizationFingerprintKey: String { "radix.databaseOptimization.lastFingerprint.v1" }
     private var databaseOptimizationDirtyKey: String { "radix.databaseOptimization.dirty.v1" }
     private var databaseOptimizationLastRunKey: String { "radix.databaseOptimization.lastRun.v1" }
@@ -615,7 +615,6 @@ extension RadixStore {
             )
         }
 
-        _ = await refreshSentencePhraseLinksForSettings(createSafetySnapshot: false)
         recordDatabaseOptimizationFingerprint(await databaseOptimizationFingerprintForSettings())
         dataEditAutoSaveStatus = "Normalized Chinese storage to Simplified."
         return ChineseStorageNormalizationResult(phraseCount: phraseCount, sentenceCount: sentenceCount)
@@ -670,15 +669,17 @@ extension RadixStore {
         databaseOptimizationTask = Task { @MainActor [weak self] in
             guard let self else { return }
             do {
-                let startingFingerprint = await self.databaseOptimizationFingerprintForSettings()
-                if !includeStorageCleanup, !self.isDatabaseOptimizationNeeded(for: startingFingerprint) {
-                    self.databaseOptimizationMessage = "Radix data is already optimized."
-                    self.databaseOptimizationInProgress = false
-                    self.databaseOptimizationTask = nil
-                    try? await Task.sleep(for: .seconds(5))
-                    guard !Task.isCancelled, !self.databaseOptimizationInProgress else { return }
-                    self.databaseOptimizationMessage = nil
-                    return
+                if !includeStorageCleanup {
+                    let startingFingerprint = await self.databaseOptimizationFingerprintForSettings()
+                    if !self.isDatabaseOptimizationNeeded(for: startingFingerprint) {
+                        self.databaseOptimizationMessage = "Radix data is already optimized."
+                        self.databaseOptimizationInProgress = false
+                        self.databaseOptimizationTask = nil
+                        try? await Task.sleep(for: .seconds(5))
+                        guard !Task.isCancelled, !self.databaseOptimizationInProgress else { return }
+                        self.databaseOptimizationMessage = nil
+                        return
+                    }
                 }
 
                 self.databaseOptimizationMessage = includeStorageCleanup
@@ -746,9 +747,8 @@ extension RadixStore {
         preferences.set(Date().timeIntervalSince1970, forKey: databaseOptimizationLastRunKey)
     }
 
-    private func databaseOptimizationFingerprint(phraseWords: [String]? = nil) -> String {
+    private func databaseOptimizationFingerprint() -> String {
         let sentenceStats = RadixStudyPreferences.sentenceOptimizationStats()
-        let phraseWords = (phraseWords ?? activeSentencePhraseLinkWords()).sorted()
         let pages = RadixStudyPreferences.aiCleanedPages.sorted {
             if $0.sourcePageID != $1.sourcePageID {
                 return $0.sourcePageID.uuidString < $1.sourcePageID.uuidString
@@ -769,14 +769,12 @@ extension RadixStore {
         return [
             "v\(databaseOptimizationAlgorithmVersion)",
             "sentences:\(sentenceStats.count):\(sentenceStats.latestCreatedAt):\(sentenceStats.latestUpdatedAt):\(sentenceStats.normalizedKeyHash)",
-            "phrases:\(phraseWords.count):\(stableOptimizationHash(phraseWords))",
             "pages:\(pages.count):\(pageSentenceCount):\(stableOptimizationHash(pageValues))"
         ].joined(separator: "|")
     }
 
     private func databaseOptimizationFingerprintForSettings() async -> String {
-        let phraseWords = await activeSentencePhraseLinkWordsForSettings()
-        return databaseOptimizationFingerprint(phraseWords: phraseWords)
+        databaseOptimizationFingerprint()
     }
 
     private func refreshSentencePhraseLinksAfterAddingPhrase(_ word: String) {
@@ -1271,7 +1269,7 @@ extension RadixStore {
             refreshSentenceLinks: false
         )
         markDatabaseOptimizationNeeded()
-        databaseOptimizationMessage = "Study data optimization is recommended. Run Optimize Study Data from Settings when convenient."
+        databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
     }
 
     func importSentenceLibraryPackage(_ package: SentenceLibraryExportPackage, mode: RestoreMode = .additive) async throws -> SentenceLibraryImportResult {
@@ -1288,7 +1286,7 @@ extension RadixStore {
         RadixStudyPreferences.applyImportedAICleanedPages(cleanedPages, mode: mode)
         favoriteSentenceRevision += 1
         markDatabaseOptimizationNeeded()
-        databaseOptimizationMessage = "Study data optimization is recommended. Run Optimize Study Data from Settings when convenient."
+        databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
         return SentenceLibraryImportResult(
             sentenceCount: importedSentenceKeys.count,
             extractedPageCount: cleanedPages.count
@@ -1308,7 +1306,7 @@ extension RadixStore {
         }.value
         favoriteSentenceRevision += 1
         markDatabaseOptimizationNeeded()
-        databaseOptimizationMessage = "Study data optimization is recommended. Run Optimize Study Data from Settings when convenient."
+        databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
         return importedCount
     }
 

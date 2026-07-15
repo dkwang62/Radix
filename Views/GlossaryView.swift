@@ -158,7 +158,7 @@ enum RadixGlossary {
             shortDefinition: "The shared place where Radix keeps sentences you can study.",
             significance: "Radix keeps favorite, page-derived, OCR-derived, and practice sentences together so the same sentence can appear in Study, Conversation Practice, and page work without becoming several unrelated copies. Because this library can grow large, it moves through Study > Sentences > Transfer instead of normal backup files.",
             contexts: ["Study > Sentences", "Favorite Sentences", "Extract Sentences", "Sentence Practice", "Conversation Practice", "Sentence Library"],
-            relatedTerms: ["Sentence", "Sentence Example", "Favorite Sentence", "Conversation Practice", "Practice Pack", "Optimize Study Data", "Sentence Library"]
+            relatedTerms: ["Sentence", "Sentence Example", "Favorite Sentence", "Conversation Practice", "Practice Pack", "Optimize Database", "Sentence Library"]
         ),
         GlossaryEntry(
             term: "Sentence Example",
@@ -291,7 +291,7 @@ enum RadixGlossary {
             shortDefinition: "Local safety copies Radix keeps before major data changes.",
             significance: "Recovery Copies help you undo a problem after import, restore, cleanup, or optimization on this device. They are not the same as a portable backup file for moving Radix to another device.",
             contexts: ["Settings > Storage", "Create Safety Copy Now", "Restore"],
-            relatedTerms: ["Safety Copy", "Backup", "Optimize Study Data", "Memory"]
+            relatedTerms: ["Safety Copy", "Backup", "Optimize Database", "Memory"]
         ),
         GlossaryEntry(
             term: "Safety Copy",
@@ -305,12 +305,12 @@ enum RadixGlossary {
             shortDefinition: "A quick check of how large your Radix study data has become.",
             significance: "Storage shows counts and file sizes without loading your whole library. It helps you see when backups or optimization may take longer, while keeping normal Study and Browse use fast.",
             contexts: ["Settings > Storage"],
-            relatedTerms: ["Optimize Study Data", "Recovery Copies", "Saved Sentences", "Added Phrase"]
+            relatedTerms: ["Optimize Database", "Recovery Copies", "Saved Sentences", "Added Phrase"]
         ),
         GlossaryEntry(
-            term: "Optimize Study Data",
+            term: "Optimize Database",
             shortDefinition: "A background cleanup that keeps Radix fast and consistent.",
-            significance: "Optimize Study Data prepares study data after large imports or cleanup. It keeps sentence search, phrase highlights, and saved-page sentence results working smoothly without asking you to manage technical storage details.",
+            significance: "Optimize Database cleans up local storage after large imports or restore. It keeps Radix responsive without asking you to manage technical storage details.",
             contexts: ["Settings > Storage", "After Restore", "After Import"],
             relatedTerms: ["Storage", "Recovery Copies", "Saved Sentences", "Phrase"]
         ),

@@ -148,14 +148,14 @@ struct SettingsView: View {
                     showRefreshSentencePhraseLinksConfirmation = true
                 } label: {
                     if store.databaseOptimizationInProgress {
-                        Label("Optimizing Study Data", systemImage: "hourglass")
+                        Label("Optimizing Database", systemImage: "hourglass")
                     } else {
-                        Label("Optimize Study Data", systemImage: "externaldrive.badge.timemachine")
+                        Label("Optimize Database", systemImage: "externaldrive.badge.timemachine")
                     }
                 }
                 .disabled(store.databaseOptimizationInProgress)
 
-                Text("Keeps Study fast, search accurate, and sentence phrase highlights up to date after large imports or cleanup.")
+                Text("Runs a background cleanup after large imports or restores.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
 
@@ -282,13 +282,13 @@ struct SettingsView: View {
         } message: {
             Text("This erases added characters, phrases, saved pages, favorites, recent items, and AI Link templates on this device. Device snapshots are kept so you can restore one from My Data.")
         }
-        .alert("Optimize Study Data?", isPresented: $showRefreshSentencePhraseLinksConfirmation) {
+        .alert("Optimize Database?", isPresented: $showRefreshSentencePhraseLinksConfirmation) {
             Button("Cancel", role: .cancel) {}
             Button("Optimize") {
                 refreshSentencePhraseLinks()
             }
         } message: {
-            Text("Radix will clean and prepare study data in the background so search, sentence lists, and phrase highlights stay fast and consistent. You can keep using the app while it works.")
+            Text("Radix will clean up storage in the background. You can keep using the app while it works.")
         }
         .alert(item: $pendingDatabaseSnapshotRestore) { snapshot in
             Alert(
