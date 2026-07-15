@@ -280,7 +280,6 @@ extension RadixStore {
         usesTraditionalScript: Bool,
         speak: Bool = true
     ) {
-        recordSentenceTermsInHistory(item)
         let phrase = sentencePreviewPhrase(
             for: item,
             usesTraditionalScript: usesTraditionalScript
@@ -297,24 +296,6 @@ extension RadixStore {
             sentencePhrases: sentencePhrases,
             practiceItem: item
         )
-    }
-
-    func recordSentenceTermsInHistory(_ item: ConversationPracticeItem) {
-        let characters = CaptureTextExtractor.uniqueCharacters(in: item.simplified)
-        let sentenceKey = phraseStorageWord(item.simplified)
-        var terms = characters
-
-        var seenPhraseKeys = Set<String>()
-        for phrase in item.phraseHints {
-            let key = phraseStorageWord(phrase)
-            guard key.count > 1,
-                  key != sentenceKey,
-                  seenPhraseKeys.insert(key).inserted
-            else { continue }
-            terms.append(key)
-        }
-
-        pushRootBreadcrumbItems(terms)
     }
 
     func sentenceExample(for item: ConversationPracticeItem) -> SentenceExampleRecord? {

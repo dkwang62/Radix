@@ -871,12 +871,12 @@ identify itself on hover and tap so the icon is not an unnamed mystery control;
 tap disclosure should stay inline with the strip, not in a popover that can
 collide with the navigation title.
 Opening a sentence in Study, extracted sentences, Conversation Practice, or
-Sentence Practice may feed History with the sentence's Chinese characters and
-stored phrase hints, but it must stay cheap: use the already-loaded
-`ConversationPracticeItem` fields, perform one capped batch History write, and
-do not scan the phrase or sentence database merely because a sentence row was
-tapped. The persisted History list is capped at 1,000 valid character/phrase
-items.
+Sentence Practice must not feed History by itself; long sentence lists would
+swamp the working-memory strip. History should update only when the user
+deliberately previews a character or phrase from that sentence. Keep those
+updates cheap and capped: do not scan the phrase or sentence database merely
+because a sentence row was tapped. The persisted History list is capped at
+1,000 valid character/phrase items.
 Navigation help presentation belongs at `RootView`; do not attach popover or
 context-menu presentation containers to the five equal-width tab buttons because
 those wrappers can collapse the SwiftUI HStack to one visible destination.

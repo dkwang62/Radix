@@ -551,7 +551,6 @@ extension RadixStore {
         sidebarSentenceReturnPhrase = nil
         sidebarSentenceReturnLookupOverride = nil
         sidebarSentenceReturnPracticeItem = nil
-        pushPhraseBreadcrumb(phrase)
     }
 
     func dismissSidebarPhrasePreview() {
