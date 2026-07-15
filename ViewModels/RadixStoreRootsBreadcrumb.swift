@@ -19,7 +19,7 @@ extension RadixStore {
     }
 
     func pushRootBreadcrumb(_ character: String) {
-        let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
+        let key = normalizedRootBreadcrumbItem(character)
         guard key.count == 1, componentRepo.hasCharacter(key) else { return }
         pushRootBreadcrumbItem(key)
     }
@@ -33,7 +33,7 @@ extension RadixStore {
         var incomingSet = Set<String>()
 
         for item in items {
-            let key = item.trimmingCharacters(in: .whitespacesAndNewlines)
+            let key = normalizedRootBreadcrumbItem(item)
             guard isValidRootBreadcrumbItem(key), incomingSet.insert(key).inserted else { continue }
             incoming.append(key)
         }
@@ -227,7 +227,7 @@ extension RadixStore {
         var remembered: [String] = []
         var seen = Set<String>()
         for item in characters {
-            let key = item.trimmingCharacters(in: .whitespacesAndNewlines)
+            let key = normalizedRootBreadcrumbItem(item)
             guard isValidRootBreadcrumbItem(key), !seen.contains(key) else { continue }
             seen.insert(key)
             remembered.append(key)
@@ -240,6 +240,16 @@ extension RadixStore {
         guard !item.isEmpty else { return false }
         if item.count == 1 { return componentRepo.hasCharacter(item) }
         return mergedPhrase(for: item) != nil
+    }
+
+    func normalizedRootBreadcrumbItem(_ item: String) -> String {
+        let key = item.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else { return "" }
+        if key.count == 1 {
+            let simplified = simplifiedText(key).trimmingCharacters(in: .whitespacesAndNewlines)
+            return simplified.count == 1 ? simplified : key
+        }
+        return phraseStorageWord(key)
     }
 
     var recentCharacterItems: [ComponentItem] {

@@ -876,7 +876,9 @@ swamp the working-memory strip. History should update only when the user
 deliberately previews a character or phrase from that sentence. Keep those
 updates cheap and capped: do not scan the phrase or sentence database merely
 because a sentence row was tapped. The persisted History list is capped at
-1,000 valid character/phrase items.
+1,000 valid character/phrase items. History persistence normalizes incoming
+display text to Simplified storage keys before validation, so Traditional
+practice displays can still record the intended character or phrase.
 Navigation help presentation belongs at `RootView`; do not attach popover or
 context-menu presentation containers to the five equal-width tab buttons because
 those wrappers can collapse the SwiftUI HStack to one visible destination.
