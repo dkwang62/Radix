@@ -19,15 +19,10 @@ extension PhraseInfoCard {
 
     var sentencePhraseLookupPhrases: [PhraseItem]? {
         guard let practiceSentenceItem else { return nil }
-        let hints = practiceSentenceItem.phraseHints
-        guard !hints.isEmpty else { return nil }
-
-        var seen: Set<String> = []
-        let phrases = hints.compactMap { hint -> PhraseItem? in
-            let key = store.normalizedPhraseWord(hint)
-            guard !key.isEmpty, seen.insert(key).inserted else { return nil }
-            return store.databasePhrase(for: key)
-        }
+        let phrases = store.sentencePreviewPhrases(
+            for: practiceSentenceItem,
+            usesTraditionalScript: sentenceUsesTraditionalScript
+        )
         return phrases.isEmpty ? nil : phrases
     }
 

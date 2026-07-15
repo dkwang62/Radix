@@ -120,9 +120,6 @@ extension PhraseInfoCard {
     var shouldShowPhraseLookupButton: Bool {
         guard phraseLookupDepth.allowsPhraseLookup else { return false }
         if isPracticeSentence {
-            if sentencePhraseLookupPhrases?.isEmpty == false {
-                return true
-            }
             return phraseCharacters.count > 1
         }
         if let phraseLookupOverride {

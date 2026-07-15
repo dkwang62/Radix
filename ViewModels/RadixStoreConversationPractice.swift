@@ -262,8 +262,7 @@ extension RadixStore {
         for item: ConversationPracticeItem,
         usesTraditionalScript: Bool
     ) -> [PhraseItem] {
-        let storedHints = storedPracticePhraseHints(for: item)
-        let phraseHints = storedHints.isEmpty ? verifiedPracticePhraseHints(for: item) : storedHints
+        let phraseHints = allPracticePhraseMatches(for: item)
         return phraseHints
             .filter { phraseStorageWord($0.word) != item.phraseKey }
             .map {
@@ -273,6 +272,44 @@ extension RadixStore {
                     store: self
                 )
             }
+    }
+
+    func allPracticePhraseMatches(for item: ConversationPracticeItem) -> [PhraseItem] {
+        let source = phraseStorageWord(item.simplified)
+        let sentenceKey = item.phraseKey
+        let discoveredCandidates = phraseDiscoverySubstrings(
+            in: source,
+            maxLength: phraseRepo.maxPhraseLength()
+        )
+        .map(phraseStorageWord(_:))
+
+        let candidates = item.phraseHints.map(phraseStorageWord(_:)) + discoveredCandidates
+        var seen = Set<String>()
+        var phrases: [PhraseItem] = []
+
+        for candidate in candidates {
+            guard candidate.count > 1,
+                  candidate != sentenceKey,
+                  source.contains(candidate),
+                  seen.insert(candidate).inserted,
+                  let phrase = databasePhrase(for: candidate)
+            else { continue }
+            phrases.append(phrase)
+        }
+
+        return phrases.sorted {
+            let lhsWord = phraseStorageWord($0.word)
+            let rhsWord = phraseStorageWord($1.word)
+            let lhsPosition = source.range(of: lhsWord)?.lowerBound
+            let rhsPosition = source.range(of: rhsWord)?.lowerBound
+            if lhsPosition != rhsPosition {
+                if lhsPosition == nil { return false }
+                if rhsPosition == nil { return true }
+                return lhsPosition! < rhsPosition!
+            }
+            if lhsWord.count != rhsWord.count { return lhsWord.count > rhsWord.count }
+            return lhsWord < rhsWord
+        }
     }
 
     func presentSentencePreviewInSidebar(
