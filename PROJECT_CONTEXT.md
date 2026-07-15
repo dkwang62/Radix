@@ -55,8 +55,8 @@ longest-phrase rule. Do not run discovery merely to render a sentence row, open
 a sentence card, or decide whether the button is visible. Tapping
 stroke-animation tiles inside a sentence should keep the sentence card open
 instead of replacing it with a nested character/phrase preview stack on iPhone.
-Their context menu may offer `Add to History`, which records the character
-without opening another preview layer.
+Tapping one records the character in History and may speak it, without opening
+another preview layer; their context menu may also offer `Add to History`.
 Phrase rows opened from a sentence-scoped Phrase Library must inspect the
 phrase inside that sheet on every device; do not send them to the sidebar
 character/phrase card route.
