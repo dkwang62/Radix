@@ -573,6 +573,10 @@ Character Breakdown. Keep it off Study, My Data, AI Link, Settings, and Camera
 unless a future workflow has a specific exploration need; Study already provides
 Recent for deliberate review. The History clock icon must expose the word
 `History` on hover and tap.
+Sentence-based practice screens can record the opened sentence's characters and
+known phrases into History, but the visible strip should not be added to focused
+sentence cards. Keep sentence details centered on the sentence, with History
+available from exploration surfaces and Study's own Recent views.
 
 Glossary rows should include a relevant icon beside the term so users can connect
 the written label to the symbols they see elsewhere in the app.

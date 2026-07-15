@@ -8,6 +8,8 @@ import Foundation
  their current position are owned by RadixUserLibraryState.
 */
 
+private let rootBreadcrumbLimit = 1_000
+
 extension RadixStore {
 
     // MARK: - Push / remove / toggle
@@ -23,11 +25,24 @@ extension RadixStore {
     }
 
     func pushRootBreadcrumbItem(_ item: String) {
-        let key = item.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard isValidRootBreadcrumbItem(key) else { return }
-        let next = MemoryStripState.inserting(key, into: rootBreadcrumb)
-        rootBreadcrumb = next.0
-        rootBreadcrumbIndex = next.1
+        pushRootBreadcrumbItems([item])
+    }
+
+    func pushRootBreadcrumbItems(_ items: [String]) {
+        var incoming: [String] = []
+        var incomingSet = Set<String>()
+
+        for item in items {
+            let key = item.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard isValidRootBreadcrumbItem(key), incomingSet.insert(key).inserted else { continue }
+            incoming.append(key)
+        }
+        guard !incoming.isEmpty else { return }
+
+        let incomingKeys = Set(incoming)
+        let retained = rootBreadcrumb.filter { !incomingKeys.contains($0) }
+        rootBreadcrumb = Array((incoming + retained).prefix(rootBreadcrumbLimit))
+        rootBreadcrumbIndex = 0
         persistRootBreadcrumb()
     }
 
@@ -216,6 +231,7 @@ extension RadixStore {
             guard isValidRootBreadcrumbItem(key), !seen.contains(key) else { continue }
             seen.insert(key)
             remembered.append(key)
+            if remembered.count >= rootBreadcrumbLimit { break }
         }
         return remembered
     }
