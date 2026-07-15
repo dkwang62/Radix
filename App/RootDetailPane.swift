@@ -37,6 +37,9 @@ extension RootView {
     @ViewBuilder
     var detailPane: some View {
         let content = VStack(spacing: 12) {
+            #if targetEnvironment(macCatalyst)
+            catalystDetailTitleBar
+            #endif
             crossTabReturnBar
             BreadcrumbStrip()
             if let error = store.loadingError {
@@ -110,6 +113,24 @@ extension RootView {
                 }
             }
         #endif
+    }
+
+    @ViewBuilder
+    var catalystDetailTitleBar: some View {
+        HStack {
+            Spacer(minLength: 0)
+
+            if showsTitleGuideMenu {
+                titleGuideMenu
+            } else {
+                navigationTitleMenuLabel(detailPaneTitle)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal)
+        .padding(.top, 8)
+        .accessibilityAddTraits(.isHeader)
     }
 
     @ViewBuilder
