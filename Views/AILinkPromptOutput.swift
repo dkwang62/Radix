@@ -145,7 +145,7 @@ extension AILinkView {
             do {
                 let summary = try await store.runGeminiPhraseExtraction(for: collection)
                 await MainActor.run {
-                    geminiPhraseAPIMessage = summary.message(defaultAIName: "Gemini API")
+                    geminiPhraseAPIMessage = summary.message(defaultAIName: "Gemini")
                     isRunningGeminiPhraseAPI = false
                 }
             } catch {
@@ -266,7 +266,7 @@ extension AILinkView {
                     Button {
                         store.openConversationPractice(topicID: aiImportedPracticePack.packID)
                     } label: {
-                        Label("Study Practice", systemImage: "arrow.forward.circle")
+                        Label("Open in Study", systemImage: "arrow.forward.circle")
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
@@ -293,7 +293,7 @@ extension AILinkView {
                 )
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("AI Result")
+                Text("Paste AI Answer")
                     .font(ResponsiveFont.subheadline.weight(.semibold))
                 Text(aiResultInstruction(for: task.id))
                     .font(ResponsiveFont.caption)
@@ -353,7 +353,7 @@ extension AILinkView {
         } label: {
             RadixChevronRow(
                 icon: "doc.text.magnifyingglass",
-                title: "Result Text Hidden",
+                title: "Answer Hidden",
                 subtitle: aiResultTextSummary,
                 minHeight: 54,
                 titleFont: ResponsiveFont.caption.weight(.semibold),
@@ -361,7 +361,7 @@ extension AILinkView {
             )
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Show AI result text")
+        .accessibilityLabel("Show AI answer text")
     }
 
     var aiResultTextSummary: String {
@@ -539,11 +539,11 @@ extension AILinkView {
         switch taskID {
         case AIResultTaskID.extractPhrases: return "Paste the extracted phrase list here to add the phrases to Radix."
         case AIResultTaskID.translatePage: return "Paste the translation here to save it with the selected page."
-        case AIResultTaskID.checkOCR: return "Paste the OCR review here to create a corrected saved page."
-        case AIResultTaskID.createAICleanedPage: return "Paste the extracted-sentences JSON here to save it with the selected page."
-        case AIResultTaskID.generatePracticePack: return "Paste the practice-pack JSON here to import it into Study."
-        case AIResultTaskID.extractSentences: return "Paste the sentence-practice JSON here to import it into Conversation Practice."
-        case AIResultTaskID.createPagePractice: return "Paste the page-practice JSON here to import it into Conversation Practice."
+        case AIResultTaskID.checkOCR: return "Paste the text review here to create a corrected saved page."
+        case AIResultTaskID.createAICleanedPage: return "Paste the extracted sentences here to save them with the selected page."
+        case AIResultTaskID.generatePracticePack: return "Paste the practice answer here to import it into Study."
+        case AIResultTaskID.extractSentences: return "Paste the sentence-practice answer here to import it into Conversation Practice."
+        case AIResultTaskID.createPagePractice: return "Paste the page-practice answer here to import it into Conversation Practice."
         case AIResultTaskID.createQuiz: return "This prompt runs the quiz inside the AI app, so there is no Radix paste step."
         default: return "Use the AI answer as a reference. This task does not import data back into Radix."
         }
@@ -553,7 +553,7 @@ extension AILinkView {
         switch taskID {
         case AIResultTaskID.extractPhrases: return "Add Phrases"
         case AIResultTaskID.translatePage: return "Save Translation"
-        case AIResultTaskID.checkOCR: return "Create Corrected Page"
+        case AIResultTaskID.checkOCR: return "Create Corrected Text"
         case AIResultTaskID.createAICleanedPage: return "Save Sentences"
         case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice: return "Import Practice"
         default: return "Apply"

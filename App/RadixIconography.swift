@@ -89,11 +89,11 @@ enum RadixGlossaryIcon {
         case "Sentence Practice", "Create Sentences", "Extract Page Sentences", "Extract Sentences": return "text.quote"
         case "Favorite": return RadixIcon.saved
         case "Favorite Sentence": return "star.circle"
-        case "Gemini API": return "sparkles.rectangle.stack"
+        case "Gemini API", "Run Automatically with Gemini": return "sparkles.rectangle.stack"
         case "Hidden": return "eye.slash"
         case RadixTerm.history: return history
         case "Make AI Text Page": return "doc.badge.plus"
-        case "Manual AI Link": return "arrow.up.forward.app"
+        case "Manual AI Link", "Copy to AI Chat": return "arrow.up.forward.app"
         case "Memory": return "archivebox"
         case RadixTerm.notes: return notes
         case "Origin": return "sparkle.magnifyingglass"
@@ -108,7 +108,7 @@ enum RadixGlossaryIcon {
         case "Rejected": return "xmark.circle"
         case RadixTerm.savedPage: return savedPage
         case "Sentence": return "quote.bubble"
-        case "Sentence Database", "Sentence Example": return "tray.full"
+        case "Sentence Database", "Saved Sentences", "Sentence Example": return "tray.full"
         case "Sentence Phrases": return "text.bubble.fill"
         case "Simplified": return "character.book.closed"
         case "Stroke Order": return "scribble"

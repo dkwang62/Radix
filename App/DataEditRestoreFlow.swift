@@ -104,7 +104,7 @@ extension DataEditTab {
                 let package = try dataExportService.decodeSentenceLibrary(data)
                 let result = try await store.importSentenceLibraryPackage(package, mode: .additive)
                 reuseExportInProgress = false
-                reuseExportMessage = "Imported \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.extractedPageCount) extracted page\(result.extractedPageCount == 1 ? "" : "s"). Optimize Database is recommended when convenient."
+                reuseExportMessage = "Imported \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.extractedPageCount) extracted page\(result.extractedPageCount == 1 ? "" : "s"). Optimize Study Data is recommended when convenient."
                 RadixHaptics.success()
             } catch {
                 reuseExportInProgress = false
@@ -186,7 +186,7 @@ extension DataEditTab {
 
         lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.recordBackup(at: url)
         recentBackupMetadata = RadixBackupMetadataStore.history
-        backupMessage = "Merged Radix memory with: \(url.lastPathComponent). Optimize Database is recommended when convenient."
+        backupMessage = "Merged this device with: \(url.lastPathComponent). Optimize Study Data is recommended when convenient."
         finishBackupRestore(operationID: operationID)
         showBackupAlert = true
         RadixHaptics.success()
@@ -203,8 +203,8 @@ extension DataEditTab {
     var restoreConfirmationMessage: String {
         guard let pending = pendingBackupRestore else { return "" }
         let action = pending.mode == .complete
-            ? "This will replace memory with the selected file. Radix will save a recovery checkpoint first, but Merge Backup is safer unless you need an exact file restore."
-            : "Radix will combine the file and memory so both contain the merged contents."
+            ? "This will replace this device with the selected backup. Radix will save a recovery checkpoint first, but Merge Backup is safer unless you need an exact restore."
+            : "Radix will combine the backup and this device so both contain the merged contents."
         return "Selected: \(pending.filename)\n\n\(pending.payload.contentsSummary)\n\n\(action)"
     }
 
@@ -225,8 +225,8 @@ extension DataEditTab {
                 guard isCurrentRestore(operationID) else { return }
 
                 backupMessage = pending.mode == .complete
-                    ? "Restored Radix memory from: \(pending.filename). Optimize Database is recommended when convenient."
-                    : "Merged backup data from: \(pending.filename). Optimize Database is recommended when convenient."
+                    ? "Restored this device from: \(pending.filename). Optimize Study Data is recommended when convenient."
+                    : "Merged backup data from: \(pending.filename). Optimize Study Data is recommended when convenient."
                 finishBackupRestore(operationID: operationID)
                 showBackupAlert = true
                 RadixHaptics.success()

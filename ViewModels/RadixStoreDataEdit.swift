@@ -1271,7 +1271,7 @@ extension RadixStore {
             refreshSentenceLinks: false
         )
         markDatabaseOptimizationNeeded()
-        databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
+        databaseOptimizationMessage = "Study data optimization is recommended. Run Optimize Study Data from Settings when convenient."
     }
 
     func importSentenceLibraryPackage(_ package: SentenceLibraryExportPackage, mode: RestoreMode = .additive) async throws -> SentenceLibraryImportResult {
@@ -1288,7 +1288,7 @@ extension RadixStore {
         RadixStudyPreferences.applyImportedAICleanedPages(cleanedPages, mode: mode)
         favoriteSentenceRevision += 1
         markDatabaseOptimizationNeeded()
-        databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
+        databaseOptimizationMessage = "Study data optimization is recommended. Run Optimize Study Data from Settings when convenient."
         return SentenceLibraryImportResult(
             sentenceCount: importedSentenceKeys.count,
             extractedPageCount: cleanedPages.count
@@ -1308,7 +1308,7 @@ extension RadixStore {
         }.value
         favoriteSentenceRevision += 1
         markDatabaseOptimizationNeeded()
-        databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
+        databaseOptimizationMessage = "Study data optimization is recommended. Run Optimize Study Data from Settings when convenient."
         return importedCount
     }
 

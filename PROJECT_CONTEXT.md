@@ -75,7 +75,9 @@ source metadata, so Study > Sentences and sentence cards reuse the same records.
 The live sentence-example store is SQLite-backed via `RadixStudyPreferences`;
 Study > Sentences > Transfer owns the fast sentence database `.db` export/import
 for Radix-to-Radix moves, including merge and replace modes with safety
-snapshots. The same Transfer menu owns the explicit `Clear Sentence Database`
+snapshots. User-facing Study copy should call these actions `Export Sentences`,
+`Import Sentences`, and `Clear Saved Sentences` rather than exposing `DB` or
+database terminology. The same Transfer menu owns the explicit clear-sentences
 destructive action; it creates a sentence database safety snapshot first and
 clears only the saved sentence library, leaving pages, phrases, and practice
 sets intact. `sentence_examples` JSON remains in Advanced `Sentence Library
@@ -84,7 +86,7 @@ migrated into the database on first read.
 Sentence examples are canonically stored as simplified Chinese, including phrase
 and character hints; traditional Chinese is a display mode exposed by sentence
 lists, example sheets, and sentence cards, not a second storage form.
-Settings exposes the only user-triggered `Optimize Database` maintenance
+Settings exposes the only user-triggered `Optimize Study Data` maintenance
 action. Keep technical cleanup details out of the main UI: the full Settings action may
 rewrite Radix-owned sentence, extracted-page, added-phrase, and phrase-favorite
 storage into Simplified Chinese, then refresh stored sentence phrase hints from
@@ -95,7 +97,7 @@ while rendering; they are read-only consumers of stored hints. Phrase
 adds/deletes/status changes perform targeted write-time hint updates. Bulk
 restore/import must not start optimization automatically; it should only mark
 optimization as recommended until the user explicitly runs Settings >
-Optimize Database.
+Optimize Study Data.
 The mutable SQLite stores for Study Sentences and added phrases keep quiet
 internal safety snapshots before bulk import/restore, optimization, phrase
 cleanup, sentence deletion, and phrase-link maintenance. Settings > Storage
@@ -762,11 +764,12 @@ Saved-page resume signals should remain selective: the collapsed Study list may
 show last-viewed context for the active Browse page or the top page in `Viewed`
 sort, but should not add date/status text to every row or simply mark row 1 in
 other sort modes.
-Page AI actions should consistently name the two methods as `Manual AI Link`
-for copy/paste handoff and `Gemini API` for in-app API execution. Avoid mixing
-older labels such as automatic AI, another AI app, or copy-and-paste method in
-user-facing page-action flows. The page-action AI orientation sheet uses
-`Manual AI Link`, `Gemini API`, and `your chosen AI chat` wording.
+Page AI actions should consistently name the two methods as `Copy to AI Chat`
+for copy/paste handoff and `Run Automatically with Gemini` for in-app Gemini
+execution. Avoid mixing older labels such as Manual AI Link, Gemini API,
+automatic AI, another AI app, or copy-and-paste method in user-facing
+page-action flows. The page-action AI orientation sheet uses `Copy to AI Chat`,
+`Run Automatically with Gemini`, and `your chosen AI chat` wording.
 Study Help should explain the page-first mental model directly:
 `Pages -> Artifacts -> Practice -> Memory -> Checkpoints`, with saved pages as
 the center, page-owned artifacts attached to the source, practice growing from
@@ -993,11 +996,11 @@ AI Link is the complete manual AI round trip: after opening/copying a prompt,
 task-specific result paste/apply controls live in AI Link for OCR correction,
 phrase extraction, translation reports, and Conversation Practice imports. The
 prompt template editor is collapsed by default so task, source, send, and result
-remain the primary workflow. The AI Result action row stays above the pasted
+remain the primary workflow. The `Paste AI Answer` action row stays above the pasted
 answer, pasted text is height-limited and collapsible, and successful imports
 auto-collapse long result text so follow-up actions remain visible.
 After AI Link imports a Conversation Practice pack, the success state offers a
-direct `Study Practice` action. It opens Study to the imported practice set and
+direct `Open in Study` action. It opens Study to the imported practice set and
 uses the existing contextual return path so the focused Practice screen shows
 `Back to AI Link`.
 Manual paste results and automatic Gemini results share store-level application
@@ -1335,9 +1338,10 @@ duplicating the checkpoint controls; this is a compact `Checkpoints` button,
 not explanatory checkpoint copy.
 Backup File actions keep the same three choices across iPhone, iPad, and Mac:
 Create Backup, Merge Backup, and Restore Backup. Create means create a new file
-from memory; Merge means combine the file and memory so both contain the merged
-contents; Restore means replace memory with the file. Checkpoint means save the
-current state as a memory checkpoint. All platforms stack the actions with
+from this device; Merge means combine the backup file and this device so both
+contain the merged contents; Restore means replace this device with the file.
+Checkpoint means save the current state as a same-device recovery checkpoint.
+All platforms stack the actions with
 Create Backup, then primary Merge Backup, then destructive Restore Backup.
 My Data content is width-capped inside its column so long explanations and
 action cards do not visually spill to the screen edge.

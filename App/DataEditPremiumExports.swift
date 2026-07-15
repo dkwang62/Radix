@@ -48,8 +48,8 @@ extension DataEditTab {
             )
 
             premiumExportOption(
-                title: "Full Dataset (JSON)",
-                subtitle: "One structured JSON file with merged data and lightweight Radix memory.",
+                title: "Full Radix Data for AI/Developers",
+                subtitle: "One structured file with merged data and lightweight Radix app data.",
                 toolsTip: AdvancedExportToolsTip(
                     title: "AI-friendly data",
                     message: "This is the easiest foundation to give an AI coding agent. It includes the merged dictionary and phrase data plus the same current saved pages, practice, progress, profile, and API-key backup metadata as a portable Radix backup. The large Sentence Library has its own export."
@@ -67,11 +67,11 @@ extension DataEditTab {
             )
 
             premiumExportOption(
-                title: "Sentence Library (JSON)",
+                title: "Sentence Library for AI/Developers",
                 subtitle: "Export saved sentences and extracted sentence pages separately.",
                 toolsTip: AdvancedExportToolsTip(
                     title: "Large sentence corpus",
-                    message: "Use this when you want to move or inspect your saved sentences. It is separate from normal backup and restore so large sentence libraries do not slow down core recovery."
+                    message: "Use this when you want to move or inspect your saved sentences. It is separate from normal backup and restore so large sentence libraries do not slow down everyday backup and restore."
                 ),
                 systemName: "text.quote",
                 color: .indigo,
@@ -87,7 +87,7 @@ extension DataEditTab {
 
             premiumExportOption(
                 title: "Import Sentence Library",
-                subtitle: "Merge a Sentence Library JSON into this device.",
+                subtitle: "Merge an exported Sentence Library into this device.",
                 toolsTip: AdvancedExportToolsTip(
                     title: "Sentence import",
                     message: "This imports only saved sentences and extracted sentence pages. It does not replace your normal Radix backup, saved pages, settings, or phrase library."

@@ -544,7 +544,7 @@ extension FavouritesTab {
         for corrected in correctedPages {
             artifacts.append(StudyPageArtifact(
                 id: "corrected-\(corrected.id)",
-                title: "Corrected Page",
+                title: "Corrected Text",
                 systemImage: "doc.badge.gearshape",
                 tint: .green,
                 kind: .correctedPage(corrected)

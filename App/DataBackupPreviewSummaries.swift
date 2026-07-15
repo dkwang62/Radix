@@ -8,7 +8,7 @@ extension DataBackupPreviewSection {
             BackupSummaryLine(title: "Selected topic", value: store.selectedConversationPracticeTopic.title)
             BackupSummaryLine(title: "Built-in topics", value: "\(ConversationPracticeTopic.defaults.count)")
             BackupSummaryLine(title: "Imported practice packs", value: "\(importedPacks.count)")
-            Text("Saved sentences use Study > Sentences > Transfer. They are kept out of normal backups so core recovery stays fast.")
+            Text("Saved sentences use Study > Sentences > Transfer. They are kept out of normal backups so backup and restore stay fast.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

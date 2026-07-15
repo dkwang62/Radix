@@ -652,14 +652,14 @@ extension FavouritesTab {
             Button {
                 exportSentenceDatabase()
             } label: {
-                Label("Export Sentence DB", systemImage: "square.and.arrow.up")
+                Label("Export Sentences", systemImage: "square.and.arrow.up")
             }
             .disabled(isRunningSentenceDatabaseTransfer)
 
             Button {
                 showSentenceDatabaseImporter = true
             } label: {
-                Label("Import Sentence DB", systemImage: "square.and.arrow.down")
+                Label("Import Sentences", systemImage: "square.and.arrow.down")
             }
             .disabled(isRunningSentenceDatabaseTransfer)
 
@@ -668,7 +668,7 @@ extension FavouritesTab {
             Button(role: .destructive) {
                 showClearSentenceDatabaseConfirmation = true
             } label: {
-                Label("Clear Sentence Database...", systemImage: "trash")
+                Label("Clear Saved Sentences...", systemImage: "trash")
             }
             .disabled(isRunningSentenceDatabaseTransfer)
         } label: {
@@ -680,7 +680,7 @@ extension FavouritesTab {
         .buttonStyle(.plain)
         .foregroundStyle(isRunningSentenceDatabaseTransfer ? .secondary : RadixAccent.primary)
         .disabled(isRunningSentenceDatabaseTransfer)
-        .help("Import or export the sentence database")
+        .help("Import, export, or clear saved sentences")
     }
 
     var sentenceExamplePageSize: Int {
@@ -871,7 +871,7 @@ extension FavouritesTab {
 
     func exportSentenceDatabase() {
         isRunningSentenceDatabaseTransfer = true
-        sentenceExampleStatusMessage = "Preparing sentence database..."
+        sentenceExampleStatusMessage = "Preparing saved sentences..."
         Task {
             do {
                 let data = try await store.exportSentenceDatabaseData()
@@ -937,8 +937,8 @@ extension FavouritesTab {
         pendingSentenceDatabaseImport = nil
         isRunningSentenceDatabaseTransfer = true
         sentenceExampleStatusMessage = mode == .complete
-            ? "Replacing sentence database..."
-            : "Merging sentence database..."
+            ? "Replacing saved sentences..."
+            : "Merging saved sentences..."
 
         Task {
             defer {
@@ -954,7 +954,7 @@ extension FavouritesTab {
                     refreshSentenceExampleResults()
                     isRunningSentenceDatabaseTransfer = false
                     sentenceExampleStatusMessage = mode == .complete
-                        ? "Replaced sentence database with \(count) sentence\(count == 1 ? "" : "s")."
+                        ? "Replaced saved sentences with \(count) sentence\(count == 1 ? "" : "s")."
                         : "Merged \(count) sentence\(count == 1 ? "" : "s")."
                 }
             } catch {
@@ -968,7 +968,7 @@ extension FavouritesTab {
 
     func clearSentenceDatabase() {
         isRunningSentenceDatabaseTransfer = true
-        sentenceExampleStatusMessage = "Clearing sentence database..."
+        sentenceExampleStatusMessage = "Clearing saved sentences..."
 
         Task {
             do {
@@ -984,7 +984,7 @@ extension FavouritesTab {
                     loadFavoriteSentences()
                     refreshSentenceExampleResults()
                     isRunningSentenceDatabaseTransfer = false
-                    sentenceExampleStatusMessage = "Cleared sentence database. A recovery copy was created first."
+                    sentenceExampleStatusMessage = "Cleared saved sentences. A recovery copy was created first."
                 }
             } catch {
                 await MainActor.run {

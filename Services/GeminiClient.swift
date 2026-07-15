@@ -43,7 +43,7 @@ struct GeminiClient {
     }
 
     static func userFacingErrorMessage(statusCode: Int, data: Data) -> String {
-        let fallback = "Gemini API request failed (\(statusCode)). Check your Gemini API key and model in Settings."
+        let fallback = "Gemini request failed (\(statusCode)). Check your Gemini API key and model in Settings."
         guard
             let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
             let error = object["error"] as? [String: Any]
@@ -68,16 +68,16 @@ struct GeminiClient {
             return "Gemini API key is not valid. Paste the full key from Google AI Studio, then try again."
         }
         if status == "PERMISSION_DENIED" || statusCode == 403 {
-            return "Gemini API access was denied. Check that the key is enabled for the Gemini API and not blocked by project restrictions."
+            return "Gemini access was denied. Check that the key is enabled for Gemini and not blocked by project restrictions."
         }
         if status == "RESOURCE_EXHAUSTED" || statusCode == 429 {
-            return "Gemini API quota was reached. Wait a bit or check billing/quota in Google AI Studio."
+            return "Gemini quota was reached. Wait a bit or check billing/quota in Google AI Studio."
         }
         if statusCode == 404 {
             return "Gemini model was not found. Check the Gemini model name in Settings."
         }
         if !message.isEmpty {
-            return "Gemini API request failed (\(statusCode)): \(message)"
+            return "Gemini request failed (\(statusCode)): \(message)"
         }
         return fallback
     }

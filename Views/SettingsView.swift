@@ -138,7 +138,7 @@ struct SettingsView: View {
                     .font(ResponsiveFont.subheadline.weight(.semibold))
                 }
             } footer: {
-                Text("For manual copy-and-paste AI Link workflows. These keys are not required for automatic Gemini features.")
+                Text("For copy-and-paste AI chat workflows. These keys are not required for automatic Gemini features.")
             }
 
             Section {
@@ -148,9 +148,9 @@ struct SettingsView: View {
                     showRefreshSentencePhraseLinksConfirmation = true
                 } label: {
                     if store.databaseOptimizationInProgress {
-                        Label("Optimizing Database", systemImage: "hourglass")
+                        Label("Optimizing Study Data", systemImage: "hourglass")
                     } else {
-                        Label("Optimize Database", systemImage: "externaldrive.badge.timemachine")
+                        Label("Optimize Study Data", systemImage: "externaldrive.badge.timemachine")
                     }
                 }
                 .disabled(store.databaseOptimizationInProgress)
@@ -167,7 +167,7 @@ struct SettingsView: View {
 
                 DisclosureGroup(isExpanded: $showDatabaseSafetyDetails) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Radix quietly keeps local recovery copies before import, restore, cleanup, and optimization. Portable backups protect core Radix memory; large sentence libraries are transferred separately from Study > Sentences.")
+                        Text("Radix quietly keeps local recovery copies before import, restore, cleanup, and optimization. Portable backups protect core Radix data; large sentence libraries are transferred separately from Study > Sentences.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
 
@@ -282,7 +282,7 @@ struct SettingsView: View {
         } message: {
             Text("This erases added characters, phrases, saved pages, favorites, recent items, and AI Link templates on this device. Device snapshots are kept so you can restore one from My Data.")
         }
-        .alert("Optimize Database?", isPresented: $showRefreshSentencePhraseLinksConfirmation) {
+        .alert("Optimize Study Data?", isPresented: $showRefreshSentencePhraseLinksConfirmation) {
             Button("Cancel", role: .cancel) {}
             Button("Optimize") {
                 refreshSentencePhraseLinks()
@@ -311,7 +311,7 @@ struct SettingsView: View {
     private var storageHealthSummary: some View {
         let health = store.storageHealth()
         return VStack(alignment: .leading, spacing: 10) {
-            Label("Storage Health", systemImage: health.hasWarnings ? "exclamationmark.triangle" : "checkmark.circle")
+            Label("Storage", systemImage: health.hasWarnings ? "exclamationmark.triangle" : "checkmark.circle")
                 .font(ResponsiveFont.subheadline.weight(.semibold))
                 .foregroundStyle(health.hasWarnings ? Color.orange : RadixAccent.primary)
 
@@ -319,7 +319,7 @@ struct SettingsView: View {
                 storageHealthRow("Sentences", "\(health.sentenceCount)", detail: fileSizeText(health.sentenceDatabaseByteCount))
                 storageHealthRow("Added phrases", "\(health.addedPhraseCount)", detail: fileSizeText(health.addedPhraseDatabaseByteCount))
                 storageHealthRow("Extracted pages", "\(health.extractedPageCount)", detail: largestPageText(health))
-                storageHealthRow("Optimization", optimizationStatusText(health), detail: lastOptimizedText(health))
+                storageHealthRow("Study data", optimizationStatusText(health), detail: lastOptimizedText(health))
             }
 
             ForEach(storageHealthWarnings(health), id: \.self) { warning in
@@ -353,16 +353,16 @@ struct SettingsView: View {
             warnings.append("Optimization is recommended after recent imports or cleanup.")
         }
         if health.hasLargeSentenceLibrary {
-            warnings.append("Large sentence library: keep using paged lists and avoid full exports during active study.")
+            warnings.append("Many saved sentences: keep using paged lists and avoid full exports during active study.")
         }
         if health.hasLargeAddedPhraseLibrary {
-            warnings.append("Large added-phrase library: phrase review and search should stay paged.")
+            warnings.append("Many added phrases: phrase review and search should stay paged.")
         }
         if health.hasLargeExtractedPage {
             warnings.append("One extracted page has many sentences; very large pages may take longer to import or back up.")
         }
         if health.hasLargeDatabaseFiles {
-            warnings.append("Database files are large; backups may take longer.")
+            warnings.append("Your saved study data is large, so transfers may take longer.")
         }
         return warnings
     }

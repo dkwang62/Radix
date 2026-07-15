@@ -8,7 +8,7 @@ extension FilterGridTab {
 
     func runAutomaticOCRReview(_ collection: CharacterCollection) {
         isRunningImageAction = true
-        imageActionMessage = "Checking OCR with Gemini API..."
+        imageActionMessage = "Checking captured text with Gemini..."
         Task {
             do {
                 let response = try await store.runGeminiOCRReview(for: collection)
@@ -29,7 +29,7 @@ extension FilterGridTab {
         do {
             let corrected = try store.createCorrectedOCRCollection(fromAIResponse: response, original: collection)
             store.selectBrowseCollection(id: corrected.id)
-            imageActionMessage = "Corrected page created and opened. The original OCR page remains available in Browse."
+            imageActionMessage = "Corrected text page created and opened. The original captured page remains available in Browse."
         } catch {
             imageActionMessage = error.localizedDescription
         }
@@ -47,7 +47,7 @@ extension FilterGridTab {
             return
         }
         isRunningImageAction = true
-        imageActionMessage = "Extracting sentences with Gemini API..."
+        imageActionMessage = "Extracting sentences with Gemini..."
         Task {
             do {
                 let pack = try await store.runGeminiPageSentenceExtraction(for: collection)
@@ -73,7 +73,7 @@ extension FilterGridTab {
             return
         }
         isRunningImageAction = true
-        imageActionMessage = "Creating page-inspired practice with Gemini API..."
+        imageActionMessage = "Creating page-inspired practice with Gemini..."
         Task {
             do {
                 let pack = try await store.runGeminiPagePracticeGeneration(for: collection)
@@ -99,7 +99,7 @@ extension FilterGridTab {
             return
         }
         isRunningImageAction = true
-        imageActionMessage = "Translating with Gemini API..."
+        imageActionMessage = "Translating with Gemini..."
         Task {
             do {
                 _ = try await store.runGeminiTranslationReport(for: collection)
@@ -141,14 +141,14 @@ extension FilterGridTab {
             return
         }
         isRunningImageAction = true
-        imageActionMessage = "Extracting phrases with Gemini API..."
+        imageActionMessage = "Extracting phrases with Gemini..."
         Task {
             do {
                 let summary = try await store.runGeminiPhraseExtraction(for: collection)
                 await MainActor.run {
                     store.goToBrowse()
                     store.selectBrowseCollection(id: collection.id)
-                    imageActionMessage = summary.message(defaultAIName: "Gemini API")
+                    imageActionMessage = summary.message(defaultAIName: "Gemini")
                     isRunningImageAction = false
                 }
             } catch {
@@ -162,7 +162,7 @@ extension FilterGridTab {
 
     func offerManualAIFallback(_ task: BrowseAIFallbackTask, error: Error) {
         automaticAIError = error.localizedDescription
-        imageActionMessage = "Gemini API is unavailable. You can still use Manual AI Link."
+        imageActionMessage = "Automatic Gemini is unavailable. You can still copy the prompt to an AI chat."
         aiFallbackTask = task
     }
 

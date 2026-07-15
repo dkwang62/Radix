@@ -1,11 +1,11 @@
 import SwiftUI
 
 enum PageAIMethodCopy {
-    static let manualTitle = "Manual AI Link"
-    static let apiTitle = "Gemini API"
-    static let fallbackTitle = "Use Manual AI Link"
-    static let unavailableTitle = "Gemini API Is Unavailable"
-    static let unavailableMessage = "Your API key may still be valid. Gemini can occasionally be unavailable, so Manual AI Link remains available."
+    static let manualTitle = "Copy to AI Chat"
+    static let apiTitle = "Run Automatically with Gemini"
+    static let fallbackTitle = "Copy to AI Chat"
+    static let unavailableTitle = "Automatic Gemini Is Unavailable"
+    static let unavailableMessage = "Your Gemini key may still be valid. Gemini can occasionally be unavailable, so copying to an AI chat remains available."
 }
 
 struct BrowseImageScriptToggle: View {
@@ -147,7 +147,7 @@ struct CollectionPageActionsMenu: View {
             chooseAIMethod(taskID: task.id, route: .automatic)
         } label: {
             Label(
-                hasGeminiAPIKey ? PageAIMethodCopy.apiTitle : "Set Up Gemini API Key…",
+                hasGeminiAPIKey ? PageAIMethodCopy.apiTitle : "Set Up Gemini Key…",
                 systemImage: hasGeminiAPIKey ? "sparkles" : "key"
             )
         }
@@ -198,7 +198,7 @@ private struct PageAIOrientationView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Radix can use AI to check OCR, extract useful phrases, translate a complete page in context, prepare an AI chat quiz, extract page sentences, or create Conversation Practice from a saved page theme.")
+                        Text("Radix can use AI to check captured text, extract useful phrases, translate a complete page in context, prepare an AI chat quiz, extract page sentences, or create Conversation Practice from a saved page theme.")
                             .font(ResponsiveFont.body)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -206,16 +206,16 @@ private struct PageAIOrientationView: View {
                         method(
                             icon: "doc.on.clipboard",
                             title: PageAIMethodCopy.manualTitle,
-                            detail: "Radix prepares the AI prompt and page evidence in AI Link so you can copy it into ChatGPT, Gemini, Claude, or your chosen AI chat. No API key is needed, and this option remains available even when Gemini API is configured."
+                            detail: "Radix prepares the prompt and page evidence in AI Link so you can copy it into ChatGPT, Gemini, Claude, or your chosen AI chat. No key is needed, and this option remains available even when automatic Gemini is set up."
                         )
 
                         method(
                             icon: "sparkles",
                             title: PageAIMethodCopy.apiTitle,
-                            detail: "Radix sends the task directly to Gemini and returns the result to the page workflow. This requires a private Gemini API key and depends on Gemini being available."
+                            detail: "Radix sends the task directly to Gemini and returns the result to the page workflow. This requires your private Gemini key and depends on Gemini being available."
                         )
 
-                        Text("You can edit the underlying OCR, phrase-extraction, translation, quiz, sentence-extraction, and page-practice AI prompts in AI Link.")
+                        Text("You can edit the saved prompts for text checking, phrase extraction, translation, quiz, sentence extraction, and page practice in AI Link.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)

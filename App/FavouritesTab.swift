@@ -362,7 +362,7 @@ struct FavouritesTab: View {
         } message: {
             Text("This permanently deletes only the selected sentences shown in Study.")
         }
-        .alert("Import Sentence Database?", isPresented: Binding(
+        .alert("Import Saved Sentences?", isPresented: Binding(
             get: { pendingSentenceDatabaseImport != nil },
             set: { _ in }
         )) {
@@ -376,11 +376,11 @@ struct FavouritesTab: View {
                 importPendingSentenceDatabase(mode: .complete)
             }
         } message: {
-            Text("Merge adds new sentences and updates matching ones. Replace swaps your sentence database with this file after creating a recovery copy.")
+            Text("Merge adds new sentences and updates matching ones. Replace swaps your saved sentences with this file after creating a recovery copy.")
         }
-        .alert("Clear Sentence Database?", isPresented: $showClearSentenceDatabaseConfirmation) {
+        .alert("Clear Saved Sentences?", isPresented: $showClearSentenceDatabaseConfirmation) {
             Button("Cancel", role: .cancel) {}
-            Button("Clear Sentence Database", role: .destructive) {
+            Button("Clear Saved Sentences", role: .destructive) {
                 clearSentenceDatabase()
             }
         } message: {
