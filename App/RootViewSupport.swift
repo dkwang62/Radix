@@ -52,7 +52,7 @@ struct SearchHomeView: View {
 
 extension RootView {
     var browseNavigationTitle: String {
-        store.selectedBrowseCollection.map { "Browse \($0.name)" } ?? "Browse Dictionary"
+        store.selectedBrowseCollection.map { "Browse - \($0.name)" } ?? "Browse - Dictionary"
     }
 
     var isBrowseDestinationActive: Bool {
@@ -100,21 +100,21 @@ extension RootView {
         if isBrowseDestinationActive {
             browseTitlePicker
         } else if let topic = activeTitleGuideTopic {
-            navigationTitleMenu(for: topic)
+            navigationTitleMenu(for: topic, title: detailPaneTitle)
         }
     }
 
-    func navigationTitleMenu(for topic: RadixNavigationGuideTopic) -> some View {
+    func navigationTitleMenu(for topic: RadixNavigationGuideTopic, title: String? = nil) -> some View {
         Menu {
             navigationHelpButton(for: topic)
         } label: {
-            navigationTitleMenuLabel(topic.title)
+            navigationTitleMenuLabel(title ?? topic.title)
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
-        .accessibilityLabel("\(topic.title) menu")
-        .accessibilityValue(topic.title)
-        .help("\(topic.title) menu")
+        .accessibilityLabel("\(title ?? topic.title) menu")
+        .accessibilityValue(title ?? topic.title)
+        .help("\(title ?? topic.title) menu")
     }
 
     var browseTitlePicker: some View {

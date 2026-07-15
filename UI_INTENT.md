@@ -290,7 +290,8 @@ persistent `Review | Practice` switch row on the Study main screen.
 
 Inside Review, the Study scope control is the section selector. Do not repeat
 Recent/Favorites as another segmented picker above the review grid; the grid
-heading should reflect the selected scope. Keep shortcut labels readable on
+context belongs in the root title as `Study - [section]`, so do not repeat the
+same section name again in the content area. Keep shortcut labels readable on
 compact and wider layouts; do not collapse important actions such as Checkpoints
 into an undiscoverable overflow. Keep the Study scope, shortcut, and local
 review-control rows pinned above the scrolling review content so long lists do

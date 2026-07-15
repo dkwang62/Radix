@@ -10,6 +10,7 @@ struct RadixNavigationState: Equatable {
     var rootsReturnContext: RootsReturnContext?
     var shouldRevealAPIKeys = false
     var pendingConversationPracticeTopicID: String?
+    var activeStudySectionTitle = "Saved Pages"
     var previewCharacter: String?
     var history: [String] = []
 }
@@ -46,6 +47,11 @@ extension RadixStore {
     var pendingConversationPracticeTopicID: String? {
         get { navigationState.pendingConversationPracticeTopicID }
         set { navigationState.pendingConversationPracticeTopicID = newValue }
+    }
+
+    var activeStudySectionTitle: String {
+        get { navigationState.activeStudySectionTitle }
+        set { navigationState.activeStudySectionTitle = newValue }
     }
 
     var previewCharacter: String? {

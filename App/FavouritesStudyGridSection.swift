@@ -135,18 +135,21 @@ extension FavouritesTab {
 
     @ViewBuilder
     var recentStudyHeader: some View {
-        if isNarrowStudyLayout {
+        if isShowingFocusedStudySection {
+            EmptyView()
+        } else if isNarrowStudyLayout {
             VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .center, spacing: 8) {
-                    sectionTitle(activeStudySectionTitle)
-                    Spacer(minLength: 8)
-                    if !isShowingFocusedStudySection && studyGridScope == .all {
+                if studyGridScope == .all || studyGridScope == .savedPages {
+                    HStack(alignment: .center, spacing: 8) {
+                        Spacer(minLength: 0)
+                        if studyGridScope == .all {
                         clearRecentButton
-                    } else if !isShowingFocusedStudySection && studyGridScope == .savedPages {
-                        studyPageSortMenu
+                        } else if studyGridScope == .savedPages {
+                            studyPageSortMenu
+                        }
                     }
                 }
-                if !isShowingFocusedStudySection && studyGridScope != .savedPages {
+                if studyGridScope != .savedPages {
                     HStack {
                         Spacer(minLength: 0)
                         studyScriptToggle
@@ -156,17 +159,14 @@ extension FavouritesTab {
         } else {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .center, spacing: 8) {
-                    sectionTitle(activeStudySectionTitle)
-                    Spacer(minLength: 8)
-                    if isShowingFocusedStudySection {
-                        EmptyView()
-                    } else if studyGridScope == .savedPages {
+                    Spacer(minLength: 0)
+                    if studyGridScope == .savedPages {
                         studyPageSortMenu
                     } else {
                         studyScriptToggle
                     }
                 }
-                if !isShowingFocusedStudySection && studyGridScope == .all {
+                if studyGridScope == .all {
                     HStack {
                         Spacer(minLength: 0)
                         clearRecentButton

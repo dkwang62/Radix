@@ -442,12 +442,17 @@ struct FavouritesTab: View {
             loadConversationPracticeLibrary()
             openPendingConversationPracticeIfNeeded()
             onRefreshCheckpoints()
+            syncActiveStudySectionTitle()
         }
         .onChange(of: studyGridUsesTraditionalScript) { _, newValue in
             RadixStudyPreferences.usesTraditionalScript = newValue
         }
         .onChange(of: studyGridScope) { _, newValue in
             RadixStudyPreferences.gridScope = newValue
+            syncActiveStudySectionTitle()
+        }
+        .onChange(of: activeStudySectionTitle) { _, _ in
+            syncActiveStudySectionTitle()
         }
         .onChange(of: studyPageSortOrder) { _, newValue in
             RadixStudyPreferences.pageSortOrder = newValue
@@ -474,6 +479,10 @@ struct FavouritesTab: View {
             loadConversationPracticeLibrary()
             refreshSentenceExampleResults()
         }
+    }
+
+    func syncActiveStudySectionTitle() {
+        store.activeStudySectionTitle = activeStudySectionTitle
     }
 
     func openAddedPhraseReviewIfRequested() {
@@ -837,7 +846,7 @@ enum StudyGridScope: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .all: return "Recent"
-        case .favorites: return "Favorite"
+        case .favorites: return "Favorites"
         case .savedPages: return "Saved Pages"
         }
     }

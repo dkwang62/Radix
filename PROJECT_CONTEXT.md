@@ -224,8 +224,9 @@ focused Study sections when one is selected.
 Mac Catalyst does not show the same native navigation title bar as phone/iPad,
 so the detail pane owns a visible root title row. Keep it driven by the shared
 `detailPaneTitle` / Browse title picker logic so Catalyst shows contextual
-titles such as `Browse Dictionary` or `Browse [page name]` instead of falling
-back to the app name.
+titles such as `Browse - Dictionary`, `Browse - [page name]`, and
+`Study - Sentences` instead of falling back to the app name. The content area
+should not immediately repeat the same section label shown in the root title.
 Study > Sentences search should not feel narrower than phrase-card Examples:
 typing a search resets the sentence filter to All, and searched results use a
 larger page size so phrase searches are not mistaken for missing examples.
