@@ -59,26 +59,28 @@ private enum StudyActionShortcut: String, Identifiable {
 extension FavouritesTab {
     var favouritesScrollContent: some View {
         Group {
-            if isShowingConversationPractice {
-                ScrollView {
-                    conversationPracticeStudyScreen
-                        .padding(.horizontal)
-                        .padding(.bottom, 20)
-                }
-            } else if isShowingAddedPhraseReview {
-                addedPhraseReviewStudyScreen
-            } else if isShowingSentenceExamples {
-                sentenceExamplesStudyScreen
-            } else if studyAICleanedPageCollectionID != nil {
+            if studyAICleanedPageCollectionID != nil {
                 aiCleanedPageStudyScreen
             } else {
                 VStack(alignment: .leading, spacing: 0) {
                     studyPinnedControls
 
-                    ScrollView {
-                        studyReviewScrollContent
-                            .padding(.horizontal)
-                            .padding(.bottom, 20)
+                    if isShowingConversationPractice {
+                        ScrollView {
+                            conversationPracticeStudyScreen
+                                .padding(.horizontal)
+                                .padding(.bottom, 20)
+                        }
+                    } else if isShowingAddedPhraseReview {
+                        addedPhraseReviewStudyScreen
+                    } else if isShowingSentenceExamples {
+                        sentenceExamplesStudyScreen
+                    } else {
+                        ScrollView {
+                            studyReviewScrollContent
+                                .padding(.horizontal)
+                                .padding(.bottom, 20)
+                        }
                     }
                 }
             }
@@ -117,7 +119,6 @@ extension FavouritesTab {
     @ViewBuilder
     var conversationPracticeStudyScreen: some View {
         if conversationPracticeTopics.isEmpty {
-            conversationPracticeBackButton
             ContentUnavailableView(
                 "No Practice Sets",
                 systemImage: "bubble.left.and.bubble.right",
@@ -125,7 +126,6 @@ extension FavouritesTab {
             )
             .frame(maxWidth: .infinity, minHeight: 220)
         } else {
-            conversationPracticeBackButton
             conversationPracticeSection
         }
     }
@@ -146,10 +146,7 @@ extension FavouritesTab {
     }
 
     var addedPhraseReviewStudyScreen: some View {
-        AddedPhraseReviewSheet(isWorkspace: true) {
-            withAnimation(.snappy(duration: 0.18)) {
-                isShowingAddedPhraseReview = false
-            }
+        AddedPhraseReviewSheet(isWorkspace: true, showsWorkspaceCloseButton: false) {
             store.refreshAddedPhrases()
         }
         .environmentObject(store)
@@ -157,12 +154,9 @@ extension FavouritesTab {
 
     var sentenceExamplesStudyScreen: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sentenceExamplesBackButton
-                .padding(.horizontal)
-                .padding(.top, 8)
-
             sentenceExamplesControls
                 .padding(.horizontal)
+                .padding(.top, 8)
 
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 8) {
@@ -1302,7 +1296,9 @@ extension FavouritesTab {
         let source = sentenceExamplePracticeSource(example)
         withAnimation(.snappy(duration: 0.18)) {
             isShowingSentenceExamples = false
+            isShowingAddedPhraseReview = false
             isShowingConversationPractice = true
+            studyAICleanedPageCollectionID = nil
         }
         selectConversationPracticeTopic(topic)
         selectPracticeItemForSentenceExample(example, source: source)
@@ -1391,9 +1387,10 @@ extension FavouritesTab {
     private var studyScopeSwitcher: some View {
         HStack(spacing: 3) {
             ForEach(studyScopeControls) { control in
-                let isSelected = studyGridScope == control.scope
+                let isSelected = !isShowingFocusedStudySection && studyGridScope == control.scope
                 Button {
                     withAnimation {
+                        clearFocusedStudySections()
                         studyGridScope = control.scope
                     }
                 } label: {
@@ -1484,7 +1481,16 @@ extension FavouritesTab {
     }
 
     private func isStudyActionShortcutSelected(_ shortcut: StudyActionShortcut) -> Bool {
-        shortcut == .checkpoints && showStudyCheckpoints
+        switch shortcut {
+        case .addedPhrases:
+            isShowingAddedPhraseReview
+        case .conversationPractice:
+            isShowingConversationPractice
+        case .sentences:
+            isShowingSentenceExamples
+        case .checkpoints:
+            showStudyCheckpoints
+        }
     }
 
     private func performStudyActionShortcut(_ shortcut: StudyActionShortcut) {
@@ -1498,6 +1504,12 @@ extension FavouritesTab {
         case .checkpoints:
             showStudyCheckpoints = true
         }
+    }
+
+    func clearFocusedStudySections() {
+        isShowingConversationPractice = false
+        isShowingAddedPhraseReview = false
+        isShowingSentenceExamples = false
     }
 
     var studyCheckpointsSection: some View {

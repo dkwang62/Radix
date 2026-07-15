@@ -5,6 +5,7 @@ struct AddedPhraseReviewSheet: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     let isWorkspace: Bool
+    let showsWorkspaceCloseButton: Bool
     let onDone: (() -> Void)?
     @State var filter: AddedPhraseReviewFilter = .all
     @State var selectedTool: PhraseReviewStatusTool?
@@ -24,8 +25,13 @@ struct AddedPhraseReviewSheet: View {
     let phraseTileHeight: CGFloat = 34
     let phraseGridSpacing: CGFloat = 5
 
-    init(isWorkspace: Bool = false, onDone: (() -> Void)? = nil) {
+    init(
+        isWorkspace: Bool = false,
+        showsWorkspaceCloseButton: Bool = true,
+        onDone: (() -> Void)? = nil
+    ) {
         self.isWorkspace = isWorkspace
+        self.showsWorkspaceCloseButton = showsWorkspaceCloseButton
         self.onDone = onDone
     }
 

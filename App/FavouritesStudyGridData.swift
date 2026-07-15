@@ -120,8 +120,10 @@ extension FavouritesTab {
         store.dismissSidebarPhrasePreview()
         store.previewCharacter = nil
         withAnimation(.snappy(duration: 0.18)) {
+            isShowingSentenceExamples = false
             isShowingConversationPractice = false
             isShowingAddedPhraseReview = true
+            studyAICleanedPageCollectionID = nil
         }
     }
 
@@ -513,7 +515,10 @@ extension FavouritesTab {
 
     func openStudyPracticePack(_ pack: ConversationPracticePack) {
         withAnimation(.snappy(duration: 0.18)) {
+            isShowingAddedPhraseReview = false
+            isShowingSentenceExamples = false
             isShowingConversationPractice = true
+            studyAICleanedPageCollectionID = nil
         }
         selectConversationPracticeTopic(conversationPracticeTopic(for: pack.practiceLibrary))
     }

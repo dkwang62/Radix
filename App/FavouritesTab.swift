@@ -152,7 +152,7 @@ struct FavouritesTab: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if !isShowingConversationPractice && !isShowingAddedPhraseReview && !isShowingSentenceExamples && studyAICleanedPageCollectionID == nil {
+            if studyAICleanedPageCollectionID == nil {
                 favouritesHeader
             }
 
@@ -492,7 +492,10 @@ struct FavouritesTab: View {
         }
         selectConversationPracticeTopic(topic)
         withAnimation(.snappy(duration: 0.18)) {
+            isShowingAddedPhraseReview = false
+            isShowingSentenceExamples = false
             isShowingConversationPractice = true
+            studyAICleanedPageCollectionID = nil
         }
         store.pendingConversationPracticeTopicID = nil
     }
@@ -508,6 +511,7 @@ struct FavouritesTab: View {
             isShowingAddedPhraseReview = false
             isShowingSentenceExamples = false
             isShowingConversationPractice = true
+            studyAICleanedPageCollectionID = nil
         }
     }
 
@@ -518,6 +522,7 @@ struct FavouritesTab: View {
             isShowingConversationPractice = false
             isShowingAddedPhraseReview = false
             isShowingSentenceExamples = true
+            studyAICleanedPageCollectionID = nil
         }
     }
 

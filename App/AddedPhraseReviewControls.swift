@@ -11,16 +11,18 @@ extension AddedPhraseReviewSheet {
 
             Spacer(minLength: 0)
 
-            Button { closeReview() } label: {
-                Label(isWorkspace ? "Back to Study" : "Done", systemImage: isWorkspace ? "chevron.left" : "xmark")
-                    .font(reviewControlFont)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: true, vertical: false)
+            if !isWorkspace || showsWorkspaceCloseButton {
+                Button { closeReview() } label: {
+                    Label(isWorkspace ? "Back to Study" : "Done", systemImage: isWorkspace ? "chevron.left" : "xmark")
+                        .font(reviewControlFont)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .keyboardShortcut(.cancelAction)
+                    .accessibilityLabel(isWorkspace ? "Back to Study" : "Close phrase classification")
             }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .keyboardShortcut(.cancelAction)
-                .accessibilityLabel(isWorkspace ? "Back to Study" : "Close phrase classification")
         }
         .frame(maxWidth: .infinity)
     }

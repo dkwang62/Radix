@@ -216,6 +216,11 @@ them before adding adjacent features.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.
+Study's lower section buttons (`Added Phrases`, `Conversation Practices`, and
+`Sentences`) are in-place Study section selectors, not separate drill-in
+screens. Keep the pinned Study controls visible when those sections are active,
+do not show a `Back to Study` button for normal switching, and clear the other
+focused Study sections when one is selected.
 Study > Sentences search should not feel narrower than phrase-card Examples:
 typing a search resets the sentence filter to All, and searched results use a
 larger page size so phrase searches are not mistaken for missing examples.

@@ -138,15 +138,15 @@ extension FavouritesTab {
         if isNarrowStudyLayout {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .center, spacing: 8) {
-                    sectionTitle(studyGridScope.title)
+                    sectionTitle(activeStudySectionTitle)
                     Spacer(minLength: 8)
-                    if studyGridScope == .all {
+                    if !isShowingFocusedStudySection && studyGridScope == .all {
                         clearRecentButton
-                    } else if studyGridScope == .savedPages {
+                    } else if !isShowingFocusedStudySection && studyGridScope == .savedPages {
                         studyPageSortMenu
                     }
                 }
-                if studyGridScope != .savedPages {
+                if !isShowingFocusedStudySection && studyGridScope != .savedPages {
                     HStack {
                         Spacer(minLength: 0)
                         studyScriptToggle
@@ -156,15 +156,17 @@ extension FavouritesTab {
         } else {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .center, spacing: 8) {
-                    sectionTitle(studyGridScope.title)
+                    sectionTitle(activeStudySectionTitle)
                     Spacer(minLength: 8)
-                    if studyGridScope == .savedPages {
+                    if isShowingFocusedStudySection {
+                        EmptyView()
+                    } else if studyGridScope == .savedPages {
                         studyPageSortMenu
                     } else {
                         studyScriptToggle
                     }
                 }
-                if studyGridScope == .all {
+                if !isShowingFocusedStudySection && studyGridScope == .all {
                     HStack {
                         Spacer(minLength: 0)
                         clearRecentButton
@@ -172,6 +174,17 @@ extension FavouritesTab {
                 }
             }
         }
+    }
+
+    var isShowingFocusedStudySection: Bool {
+        isShowingAddedPhraseReview || isShowingConversationPractice || isShowingSentenceExamples
+    }
+
+    var activeStudySectionTitle: String {
+        if isShowingAddedPhraseReview { return "Added Phrases" }
+        if isShowingConversationPractice { return "Conversation Practices" }
+        if isShowingSentenceExamples { return "Sentences" }
+        return studyGridScope.title
     }
 
     var clearRecentButton: some View {
