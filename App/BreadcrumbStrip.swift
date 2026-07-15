@@ -3,7 +3,6 @@ import SwiftUI
 struct BreadcrumbStrip: View {
     @EnvironmentObject private var store: RadixStore
     @State private var showsHistoryHelp = false
-    private let visibleHistoryLimit = 80
 
     private var activeMemoryItem: String? {
         if let phrase = store.activeSidebarPhrasePreview {
@@ -19,7 +18,7 @@ struct BreadcrumbStrip: View {
     }
 
     private var visibleHistoryItems: [String] {
-        Array(store.rootBreadcrumb.prefix(visibleHistoryLimit))
+        HistoryStripDisplayPolicy.visibleItems(from: store.rootBreadcrumb)
     }
 
     var body: some View {
@@ -81,21 +80,11 @@ struct BreadcrumbStrip: View {
     }
 
     private var shouldShowStrip: Bool {
-        guard !store.rootBreadcrumb.isEmpty else { return false }
-
-        switch store.route {
-        case .search:
-            switch store.homeTab {
-            case .smart, .filter:
-                return true
-            case .favourites, .dataEdit:
-                return false
-            }
-        case .lineage, .favourites:
-            return true
-        case .capture, .aiLink, .settings:
-            return false
-        }
+        HistoryStripDisplayPolicy.shouldShow(
+            route: store.route,
+            homeTab: store.homeTab,
+            hasItems: !store.rootBreadcrumb.isEmpty
+        )
     }
 }
 

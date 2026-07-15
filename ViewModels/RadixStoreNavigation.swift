@@ -16,6 +16,14 @@ extension RadixStore {
         pushRootBreadcrumbItem(phrase.word)
     }
 
+    func recordInspectedPhraseInHistory(_ phrase: PhraseItem) {
+        pushPhraseBreadcrumb(phrase)
+    }
+
+    func recordInspectedCharacterInHistory(_ character: String) {
+        pushRootBreadcrumb(character)
+    }
+
     func rememberLastPreviewedCharacter(_ character: String?) {
         guard let character else { return }
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)

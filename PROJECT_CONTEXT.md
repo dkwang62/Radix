@@ -893,7 +893,11 @@ display text to Simplified storage keys before validation, so Traditional
 practice displays can still record the intended character or phrase. Phrase
 Library sheets opened from a sentence record inspected phrases immediately even
 when the phrase detail stays inside the sheet; tapping a phrase-card character
-there records that character without opening another nested card.
+there records that character without opening another nested card. Keep History
+display decisions in `HistoryStripDisplayPolicy` rather than duplicating route
+checks inside SwiftUI views, and route deliberate phrase/character inspections
+through `recordInspectedPhraseInHistory` / `recordInspectedCharacterInHistory`
+so sentence-scoped sheets do not forget to update the strip.
 Navigation help presentation belongs at `RootView`; do not attach popover or
 context-menu presentation containers to the five equal-width tab buttons because
 those wrappers can collapse the SwiftUI HStack to one visible destination.

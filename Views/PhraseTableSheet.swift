@@ -72,7 +72,7 @@ struct PhraseTableSheet: View {
                     phrase: selectedPhrase,
                     phraseLookupDepth: .terminal,
                     onSelectCharacter: keepsPhraseInspectionInSheet ? { character in
-                        store.pushRootBreadcrumb(character)
+                        store.recordInspectedCharacterInHistory(character)
                     } : nil,
                     onDone: dismiss.callAsFunction
                 )
@@ -237,7 +237,7 @@ struct PhraseTableSheet: View {
         store.speakPhrase(phrase)
         withAnimation(.easeInOut(duration: 0.2)) {
             if inspectsPhraseInsideSheet {
-                store.pushPhraseBreadcrumb(phrase)
+                store.recordInspectedPhraseInHistory(phrase)
                 selectedPhrase = phrase
             } else if isPhone {
                 store.presentPhraseInSidebar(phrase, lookupDepth: .terminal)

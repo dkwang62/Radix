@@ -46,6 +46,31 @@ enum HomeTab: String, CaseIterable, Identifiable {
     }
 }
 
+enum HistoryStripDisplayPolicy {
+    static let visibleItemLimit = 80
+
+    static func shouldShow(route: AppRoute, homeTab: HomeTab, hasItems: Bool) -> Bool {
+        guard hasItems else { return false }
+        switch route {
+        case .search:
+            switch homeTab {
+            case .smart, .filter:
+                return true
+            case .favourites, .dataEdit:
+                return false
+            }
+        case .lineage, .favourites:
+            return true
+        case .capture, .aiLink, .settings:
+            return false
+        }
+    }
+
+    static func visibleItems(from items: [String]) -> [String] {
+        Array(items.prefix(visibleItemLimit))
+    }
+}
+
 enum SidebarNavigationStyle: String, CaseIterable, Identifiable, Codable {
     case descriptive = "Descriptive"
     case compact = "Compact"

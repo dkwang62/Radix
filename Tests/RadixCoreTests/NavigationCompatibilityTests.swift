@@ -32,4 +32,29 @@ struct NavigationCompatibilityTests {
         #expect(HomeTab.favourites.index == 3)
         #expect(HomeTab.dataEdit.index == 5)
     }
+
+    @Test("History strip appears only on exploratory surfaces")
+    func historyStripDisplayPolicy() {
+        #expect(HistoryStripDisplayPolicy.shouldShow(route: .search, homeTab: .smart, hasItems: true))
+        #expect(HistoryStripDisplayPolicy.shouldShow(route: .search, homeTab: .filter, hasItems: true))
+        #expect(HistoryStripDisplayPolicy.shouldShow(route: .lineage, homeTab: .smart, hasItems: true))
+        #expect(HistoryStripDisplayPolicy.shouldShow(route: .favourites, homeTab: .smart, hasItems: true))
+
+        #expect(!HistoryStripDisplayPolicy.shouldShow(route: .favourites, homeTab: .smart, hasItems: false))
+        #expect(!HistoryStripDisplayPolicy.shouldShow(route: .search, homeTab: .favourites, hasItems: true))
+        #expect(!HistoryStripDisplayPolicy.shouldShow(route: .search, homeTab: .dataEdit, hasItems: true))
+        #expect(!HistoryStripDisplayPolicy.shouldShow(route: .capture, homeTab: .smart, hasItems: true))
+        #expect(!HistoryStripDisplayPolicy.shouldShow(route: .aiLink, homeTab: .smart, hasItems: true))
+        #expect(!HistoryStripDisplayPolicy.shouldShow(route: .settings, homeTab: .smart, hasItems: true))
+    }
+
+    @Test("History strip renders a bounded prefix")
+    func historyStripVisibleItemsAreCapped() {
+        let items = (0..<120).map(String.init)
+        let visible = HistoryStripDisplayPolicy.visibleItems(from: items)
+
+        #expect(visible.count == HistoryStripDisplayPolicy.visibleItemLimit)
+        #expect(visible.first == "0")
+        #expect(visible.last == "79")
+    }
 }
