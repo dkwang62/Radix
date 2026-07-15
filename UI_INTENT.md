@@ -568,11 +568,13 @@ Keep roman text, pinyin, and helper labels legible. Avoid shrinking important
 learning text below the app's current minimum readability floor.
 
 History is the user-facing name for the working-memory strip used during
-exploration, not a global app breadcrumb. Show it on Search, Browse, and
-Character Breakdown. Keep it off Study, My Data, AI Link, Settings, and Camera
-unless a future workflow has a specific exploration need; Study already provides
-Recent for deliberate review. The History clock icon must expose the word
-`History` on hover and tap.
+exploration, not a global app breadcrumb. Show it on Search, Browse, Character
+Breakdown, and Study, where it helps users confirm that inspected sentence
+characters and phrases were remembered. Keep it off My Data, AI Link, Settings,
+and Camera unless a future workflow has a specific exploration need. Study
+still uses Recent for deliberate review; History is only the lightweight
+working-memory strip. The History clock icon must expose the word `History` on
+hover and tap.
 Sentence-based practice screens should not record a sentence in History merely
 because the sentence row was opened. Record only the character or phrase the
 user deliberately previews from that sentence. Keep the visible strip off

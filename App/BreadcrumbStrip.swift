@@ -3,6 +3,7 @@ import SwiftUI
 struct BreadcrumbStrip: View {
     @EnvironmentObject private var store: RadixStore
     @State private var showsHistoryHelp = false
+    private let visibleHistoryLimit = 80
 
     private var activeMemoryItem: String? {
         if let phrase = store.activeSidebarPhrasePreview {
@@ -15,6 +16,10 @@ struct BreadcrumbStrip: View {
             }
         }
         return store.previewCharacter
+    }
+
+    private var visibleHistoryItems: [String] {
+        Array(store.rootBreadcrumb.prefix(visibleHistoryLimit))
     }
 
     var body: some View {
@@ -45,7 +50,7 @@ struct BreadcrumbStrip: View {
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
-                        ForEach(Array(store.rootBreadcrumb.enumerated()), id: \.offset) { index, item in
+                        ForEach(Array(visibleHistoryItems.enumerated()), id: \.offset) { index, item in
                             let phrase = store.mergedPhrase(for: item)
                             let isPhrase = phrase != nil && item.count > 1
                             let isActive = item == activeMemoryItem || index == store.rootBreadcrumbIndex
@@ -86,9 +91,9 @@ struct BreadcrumbStrip: View {
             case .favourites, .dataEdit:
                 return false
             }
-        case .lineage:
+        case .lineage, .favourites:
             return true
-        case .capture, .favourites, .aiLink, .settings:
+        case .capture, .aiLink, .settings:
             return false
         }
     }

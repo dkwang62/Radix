@@ -71,7 +71,9 @@ struct PhraseTableSheet: View {
                 PhraseInfoCard(
                     phrase: selectedPhrase,
                     phraseLookupDepth: .terminal,
-                    onSelectCharacter: keepsPhraseInspectionInSheet ? { _ in } : nil,
+                    onSelectCharacter: keepsPhraseInspectionInSheet ? { character in
+                        store.pushRootBreadcrumb(character)
+                    } : nil,
                     onDone: dismiss.callAsFunction
                 )
                     .environmentObject(store)
@@ -235,6 +237,7 @@ struct PhraseTableSheet: View {
         store.speakPhrase(phrase)
         withAnimation(.easeInOut(duration: 0.2)) {
             if inspectsPhraseInsideSheet {
+                store.pushPhraseBreadcrumb(phrase)
                 selectedPhrase = phrase
             } else if isPhone {
                 store.presentPhraseInSidebar(phrase, lookupDepth: .terminal)

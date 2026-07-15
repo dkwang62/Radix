@@ -873,14 +873,15 @@ Gemini key to retain.
 History is the user-facing name for the app's working memory strip: it helps
 users recall recently inspected characters and phrases while searching, browsing
 saved pages, or following item details. Do not treat it as global navigation.
-Study uses Recent for deliberate review, My Data represents stored memory, and
-AI Link or Settings should avoid the strip by default unless a future workflow
-has an explicit exploration need. The shared `BreadcrumbStrip` follows this rule
-by appearing only on Search, Browse, and Character Breakdown, and staying hidden
-on Camera, Study, AI Link, My Data, and Settings. The leading History clock must
-identify itself on hover and tap so the icon is not an unnamed mystery control;
-tap disclosure should stay inline with the strip, not in a popover that can
-collide with the navigation title.
+Study shows the same strip so users can see sentence-origin phrase and character
+previews being recorded, while Recent remains the deliberate review surface. My
+Data represents stored memory, and AI Link or Settings should avoid the strip by
+default unless a future workflow has an explicit exploration need. The shared
+`BreadcrumbStrip` appears on Search, Browse, Character Breakdown, and Study, and
+stays hidden on Camera, AI Link, My Data, and Settings. The leading History
+clock must identify itself on hover and tap so the icon is not an unnamed
+mystery control; tap disclosure should stay inline with the strip, not in a
+popover that can collide with the navigation title.
 Opening a sentence in Study, extracted sentences, Conversation Practice, or
 Sentence Practice must not feed History by itself; long sentence lists would
 swamp the working-memory strip. History should update only when the user
@@ -889,7 +890,10 @@ updates cheap and capped: do not scan the phrase or sentence database merely
 because a sentence row was tapped. The persisted History list is capped at
 1,000 valid character/phrase items. History persistence normalizes incoming
 display text to Simplified storage keys before validation, so Traditional
-practice displays can still record the intended character or phrase.
+practice displays can still record the intended character or phrase. Phrase
+Library sheets opened from a sentence record inspected phrases immediately even
+when the phrase detail stays inside the sheet; tapping a phrase-card character
+there records that character without opening another nested card.
 Navigation help presentation belongs at `RootView`; do not attach popover or
 context-menu presentation containers to the five equal-width tab buttons because
 those wrappers can collapse the SwiftUI HStack to one visible destination.
