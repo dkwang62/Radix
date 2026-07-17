@@ -7,6 +7,10 @@ describes the present state and immediate direction.
 
 Last reviewed: 2026-07-13
 
+Current app version metadata starts at marketing version `1.0.3`, build `11`.
+Settings > About shows the bundle version and build so future release bumps are
+visible in the app.
+
 ## Version 1.1 Direction
 
 The pre-1.1 app is preserved at git tag `radix-v1.0-before-v1.1`.

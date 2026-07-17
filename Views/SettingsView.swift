@@ -236,6 +236,11 @@ struct SettingsView: View {
             }
 
             Section("About") {
+                LabeledContent("Version") {
+                    Text(appVersionDisplayText)
+                        .foregroundStyle(.secondary)
+                }
+
                 Button {
                     presentedReferenceSheet = .credits
                 } label: {
@@ -547,6 +552,23 @@ struct SettingsView: View {
         let sound = store.speechEnabled ? "sound on" : "sound off"
         let keys = store.currentAPIKeyBackup().savedCount
         return "\(store.defaultAIName) selected, \(keys) API keys saved, \(sound)."
+    }
+
+    private var appVersionDisplayText: String {
+        let infoDictionary = Bundle.main.infoDictionary
+        let version = infoDictionary?["CFBundleShortVersionString"] as? String
+        let build = infoDictionary?["CFBundleVersion"] as? String
+
+        switch (version?.isEmpty == false ? version : nil, build?.isEmpty == false ? build : nil) {
+        case let (version?, build?):
+            return "\(version) (Build \(build))"
+        case let (version?, nil):
+            return version
+        case let (nil, build?):
+            return "Build \(build)"
+        case (nil, nil):
+            return "Unavailable"
+        }
     }
 
     private var geminiKeyHealth: SettingsHealth {
