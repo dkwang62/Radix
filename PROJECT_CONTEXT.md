@@ -4,6 +4,8 @@ This is the concise engineering hand-off and current source of truth for ongoing
 Radix work. Read it before changing the project. Update it in the same commit as
 each completed work unit. Git remains the detailed historical record; this file
 describes the present state and immediate direction.
+`CODEX-HANDOFF.md` is the quick restart summary for future Codex sessions and
+should stay aligned with this file when the workstream meaningfully changes.
 
 Last reviewed: 2026-07-13
 
