@@ -136,6 +136,10 @@ Settings maintenance actions that scan or rewrite the sentence database must
 run as async background work from the UI. Do not call synchronous store paths
 directly from SwiftUI buttons, or Mac Catalyst can show the app as not
 responding while SQLite and phrase-link maintenance run.
+App scene transitions must also remain idle when there is no pending Character
+Studio edit. `flushPendingDataEditAutoSave()` is a pending-only operation;
+calling its persistence and cache-refresh path unconditionally while iOS takes
+a background snapshot causes `0x8BADF00D` shutdown watchdog terminations.
 File restore/merge flows must finish the user-visible restore and then stop.
 They may mark database optimization as recommended, but must not start the
 shared `Database Optimization` task automatically. Keep the user wording at

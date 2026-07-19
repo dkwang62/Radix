@@ -401,6 +401,9 @@ extension RadixStore {
     }
 
     func flushPendingDataEditAutoSave() {
+        // Scene transitions call this for both inactive and background. An idle
+        // editor must not start a full save during iOS's short snapshot window.
+        guard pendingDatasetAutosaveWorkItem != nil else { return }
         pendingDatasetAutosaveWorkItem?.cancel()
         pendingDatasetAutosaveWorkItem = nil
         guard !isApplyingDatasetEntry else { return }
