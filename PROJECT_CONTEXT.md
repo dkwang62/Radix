@@ -9,7 +9,7 @@ should stay aligned with this file when the workstream meaningfully changes.
 
 Last reviewed: 2026-07-13
 
-Current app version metadata starts at marketing version `1.0.3`, build `11`.
+Current app version metadata is marketing version `1.0.3`, build `12`.
 Settings > About shows the bundle version and build so future release bumps are
 visible in the app.
 
