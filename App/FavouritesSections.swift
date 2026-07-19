@@ -130,21 +130,6 @@ extension FavouritesTab {
         }
     }
 
-    var conversationPracticeBackButton: some View {
-        focusedStudyBackButton(title: conversationPracticeBackButtonTitle) {
-            withAnimation(.snappy(duration: 0.18)) {
-                focusedStudySection = nil
-            }
-            if store.rootsReturnContext != nil {
-                store.returnFromRoots()
-            }
-        }
-    }
-
-    var conversationPracticeBackButtonTitle: String {
-        store.rootsReturnContext == nil ? "Back to Study" : store.rootsReturnButtonTitle
-    }
-
     var addedPhraseReviewStudyScreen: some View {
         AddedPhraseReviewSheet(isWorkspace: true, showsWorkspaceCloseButton: false) {
             store.refreshAddedPhrases()
@@ -557,14 +542,6 @@ extension FavouritesTab {
             actionSystemImage: "sparkles"
         ) {
             beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createAICleanedPage)
-        }
-    }
-
-    var sentenceExamplesBackButton: some View {
-        focusedStudyBackButton(title: "Back to Study") {
-            withAnimation(.snappy(duration: 0.18)) {
-                focusedStudySection = nil
-            }
         }
     }
 

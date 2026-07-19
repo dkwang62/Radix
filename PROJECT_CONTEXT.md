@@ -222,7 +222,9 @@ them before adding adjacent features.
 2026-07-15 maintainability/performance pass: keep state machines single-valued
 where possible. The Study section selector uses one focused-section enum rather
 than three independent booleans, reducing impossible UI states and duplicate
-title sync. Remaining large-file refactor targets are
+title sync. Added Phrases, Conversation Practices, and Sentences are peer
+in-place sections and no longer retain obsolete section-specific back-button
+renderers. Remaining large-file refactor targets are
 `ConversationPracticeModels.swift`, `FavouritesSections.swift`,
 `RadixStoreDataEdit.swift`, `FavouritesTab.swift`, and `PromptModels.swift`.
 Sentence search and phrase-card Examples should share the same phrase-aware
