@@ -257,7 +257,10 @@ phrase chips, read-aloud, and favorites stay aligned.
 On iPhone, those shared sentence rows prioritize reading space: the row shows
 only the selected display language (Chinese or English), omits pinyin and row
 chevrons, and wraps long portrait sentences instead of squeezing them into one
-line. iPad and Mac keep the richer compact row with pinyin in Chinese mode.
+line. When iPhone Study is focused on `Sentences`, hide the broad Study
+shortcut panel so the sentence list becomes the primary screen; keep paging,
+the Chinese/English toggle, search/filter, and sentence tools compact above
+the list. iPad and Mac keep the richer compact row with pinyin in Chinese mode.
 The extracted-sentences reader must render from a page-scoped SQLite sentence
 query plus cheap page-sentence fallbacks; do not scan the whole sentence database
 or rebuild `SentenceExampleRecord.fromAICleanedPage` in the display path.

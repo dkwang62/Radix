@@ -63,7 +63,9 @@ extension FavouritesTab {
                 aiCleanedPageStudyScreen
             } else {
                 VStack(alignment: .leading, spacing: 0) {
-                    studyPinnedControls
+                    if !isPhoneSentenceExamplesReadingMode {
+                        studyPinnedControls
+                    }
 
                     if isShowingConversationPractice {
                         ScrollView {
@@ -140,8 +142,8 @@ extension FavouritesTab {
     var sentenceExamplesStudyScreen: some View {
         VStack(alignment: .leading, spacing: 10) {
             sentenceExamplesControls
-                .padding(.horizontal)
-                .padding(.top, 8)
+                .padding(.horizontal, isPhone ? 4 : 16)
+                .padding(.top, isPhone ? 4 : 8)
 
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 8) {
@@ -158,7 +160,7 @@ extension FavouritesTab {
                         }
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, isPhone ? 4 : 16)
                 .padding(.bottom, 20)
             }
         }
@@ -558,17 +560,30 @@ extension FavouritesTab {
 
     var sentenceExamplesControls: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                sentenceExamplePageNavigation
-                    .fixedSize(horizontal: true, vertical: false)
+            if isPhone {
+                HStack(spacing: 6) {
+                    sentenceExamplePageNavigation
+                        .fixedSize(horizontal: true, vertical: false)
 
-                Spacer(minLength: 8)
+                    Spacer(minLength: 4)
 
-                sentenceExampleSelectionControls
+                    practiceSentenceModeControls
 
-                sentenceExampleBulkDeleteButton
-                sentenceDatabaseTransferMenu
-                practiceSentenceModeControls
+                    sentenceExamplePhoneToolsMenu
+                }
+            } else {
+                HStack(spacing: 8) {
+                    sentenceExamplePageNavigation
+                        .fixedSize(horizontal: true, vertical: false)
+
+                    Spacer(minLength: 8)
+
+                    sentenceExampleSelectionControls
+
+                    sentenceExampleBulkDeleteButton
+                    sentenceDatabaseTransferMenu
+                    practiceSentenceModeControls
+                }
             }
 
             if let message = sentenceExampleStatusMessage {
@@ -616,6 +631,74 @@ extension FavouritesTab {
             }
             resetSentenceExampleResultsContext()
         }
+    }
+
+    var sentenceExamplePhoneToolsMenu: some View {
+        Menu {
+            if isSelectingSentenceExamples {
+                Button {
+                    stopSelectingSentenceExamples()
+                } label: {
+                    Label("Cancel Selection", systemImage: "xmark.circle")
+                }
+
+                Button(role: .destructive) {
+                    showDeleteSelectedSentenceExamplesConfirmation = true
+                } label: {
+                    Label("Delete \(selectedSentenceExampleCount)", systemImage: "trash")
+                }
+                .disabled(selectedSentenceExampleIDs.isEmpty)
+            } else if sentenceExampleResultCount > 0 {
+                Button {
+                    startSelectingSentenceExamples()
+                } label: {
+                    Label("Select Sentences", systemImage: "checklist")
+                }
+            }
+
+            if canBulkDeleteFilteredSentenceExamples {
+                Button(role: .destructive) {
+                    showDeleteFilteredSentenceExamplesConfirmation = true
+                } label: {
+                    Label("Delete Results", systemImage: "trash")
+                }
+            }
+
+            Divider()
+
+            Button {
+                exportSentenceDatabase()
+            } label: {
+                Label("Export Sentences", systemImage: "square.and.arrow.up")
+            }
+            .disabled(isRunningSentenceDatabaseTransfer)
+
+            Button {
+                showSentenceDatabaseImporter = true
+            } label: {
+                Label("Import Sentences", systemImage: "square.and.arrow.down")
+            }
+            .disabled(isRunningSentenceDatabaseTransfer)
+
+            Button(role: .destructive) {
+                showClearSentenceDatabaseConfirmation = true
+            } label: {
+                Label("Clear Saved Sentences...", systemImage: "trash")
+            }
+            .disabled(isRunningSentenceDatabaseTransfer)
+        } label: {
+            Image(systemName: "ellipsis.circle")
+                .font(.system(size: 18, weight: .semibold))
+                .radixIconButtonSurface(
+                    size: 34,
+                    background: RadixTheme.systemGray5,
+                    radius: 17
+                )
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(isRunningSentenceDatabaseTransfer ? .secondary : RadixAccent.primary)
+        .disabled(isRunningSentenceDatabaseTransfer)
+        .accessibilityLabel("Sentence tools")
     }
 
     var sentenceDatabaseTransferMenu: some View {

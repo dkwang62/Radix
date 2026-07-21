@@ -103,6 +103,7 @@ extension FavouritesTab {
         }
     }
 
+    @ViewBuilder
     func practiceSentenceRow<Trailing: View>(
         _ item: ConversationPracticeItem,
         isSelected: Bool,
@@ -111,20 +112,53 @@ extension FavouritesTab {
         onOpen: @escaping () -> Void,
         @ViewBuilder trailing: () -> Trailing
     ) -> some View {
-        HStack(alignment: isPhone ? .top : .center, spacing: isPhone ? 4 : 6) {
-            Button {
-                onOpen()
-            } label: {
-                HStack(alignment: isPhone ? .top : .center, spacing: isPhone ? 6 : 8) {
-                    Text("\(item.rank)")
-                        .font(ResponsiveFont.caption2.weight(.semibold))
-                        .foregroundStyle(isSelected ? Color.white : RadixAccent.primary)
-                        .frame(width: 28, height: 28)
-                        .radixSurface(isSelected ? RadixAccent.primary : RadixAccent.primary.opacity(0.1))
+        if isPhone {
+            VStack(alignment: .leading, spacing: 4) {
+                Button {
+                    onOpen()
+                } label: {
+                    HStack(alignment: .top, spacing: 6) {
+                        Text("\(item.rank)")
+                            .font(ResponsiveFont.caption2.weight(.semibold))
+                            .foregroundStyle(isSelected ? Color.white : RadixAccent.primary)
+                            .frame(width: 26, height: 26)
+                            .radixSurface(isSelected ? RadixAccent.primary : RadixAccent.primary.opacity(0.1))
 
-                    conversationPracticeSentenceRowText(item)
+                        conversationPracticeSentenceRowText(item)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(openAccessibilityLabel)
+                .accessibilityHint(openAccessibilityHint)
 
-                    if !isPhone {
+                HStack {
+                    Spacer(minLength: 0)
+                    trailing()
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .radixSurface(
+                conversationPracticeSentenceBackground(isSelected: isSelected),
+                border: conversationPracticeSentenceBorderColor(isSelected: isSelected),
+                borderWidth: 1.4
+            )
+        } else {
+            HStack(alignment: .center, spacing: 6) {
+                Button {
+                    onOpen()
+                } label: {
+                    HStack(alignment: .center, spacing: 8) {
+                        Text("\(item.rank)")
+                            .font(ResponsiveFont.caption2.weight(.semibold))
+                            .foregroundStyle(isSelected ? Color.white : RadixAccent.primary)
+                            .frame(width: 28, height: 28)
+                            .radixSurface(isSelected ? RadixAccent.primary : RadixAccent.primary.opacity(0.1))
+
+                        conversationPracticeSentenceRowText(item)
+
                         RadixCompactChevronLabel(
                             chevronSystemName: "chevron.right",
                             chevronFont: .system(size: RadixIconSize.small, weight: .semibold),
@@ -132,23 +166,23 @@ extension FavouritesTab {
                             chevronOpacity: 1
                         )
                     }
+                    .frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
                 }
-                .frame(maxWidth: .infinity, minHeight: 30, alignment: isPhone ? .topLeading : .leading)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(openAccessibilityLabel)
-            .accessibilityHint(openAccessibilityHint)
+                .buttonStyle(.plain)
+                .accessibilityLabel(openAccessibilityLabel)
+                .accessibilityHint(openAccessibilityHint)
 
-            trailing()
+                trailing()
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
+            .radixSurface(
+                conversationPracticeSentenceBackground(isSelected: isSelected),
+                border: conversationPracticeSentenceBorderColor(isSelected: isSelected),
+                borderWidth: 1.4
+            )
         }
-        .padding(.horizontal, isPhone ? 6 : 8)
-        .padding(.vertical, isPhone ? 5 : 6)
-        .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
-        .radixSurface(
-            conversationPracticeSentenceBackground(isSelected: isSelected),
-            border: conversationPracticeSentenceBorderColor(isSelected: isSelected),
-            borderWidth: 1.4
-        )
     }
 
     @ViewBuilder

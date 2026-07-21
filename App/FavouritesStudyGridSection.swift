@@ -192,6 +192,10 @@ extension FavouritesTab {
         focusedStudySection == .sentences
     }
 
+    var isPhoneSentenceExamplesReadingMode: Bool {
+        isPhone && isShowingSentenceExamples
+    }
+
     var activeStudySectionTitle: String {
         if let focusedStudySection { return focusedStudySection.title }
         return studyGridScope.title
