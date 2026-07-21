@@ -147,55 +147,61 @@ extension FavouritesTab {
             conversationPracticeDisplayControls(library)
             conversationPracticeSentenceList(library)
         }
-        .padding(10)
-        .background(RadixTheme.secondaryBackground.opacity(0.52))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-
-    var showsConversationPracticeFloatingControls: Bool {
-        isShowingConversationPractice && conversationPracticeLibrary != nil
+        .padding(isPhone ? 0 : 10)
+        .background(isPhone ? Color.clear : RadixTheme.secondaryBackground.opacity(0.52))
+        .clipShape(RoundedRectangle(cornerRadius: isPhone ? 0 : 10))
     }
 
     @ViewBuilder
     func conversationPracticeDisplayControls(_ library: ConversationPracticeLibrary) -> some View {
-        practiceSentenceDisplayControls {
-            conversationPracticePageNavigation(library)
+        if isPhone {
+            HStack(spacing: 6) {
+                conversationPracticePageNavigation(library)
+                    .fixedSize(horizontal: true, vertical: false)
+
+                Spacer(minLength: 4)
+
+                practiceSentenceModeControls
+                    .fixedSize(horizontal: true, vertical: false)
+
+                conversationPracticeToolsMenu(library)
+            }
+            .padding(.horizontal, 4)
+            .padding(.top, 4)
+            .padding(.bottom, 2)
+        } else {
+            practiceSentenceDisplayControls {
+                conversationPracticePageNavigation(library)
+                conversationPracticeToolsMenu(library)
+            }
         }
     }
 
-    func conversationPracticeFloatingBottomActions(_ library: ConversationPracticeLibrary) -> some View {
-        HStack(spacing: 8) {
+    func conversationPracticeToolsMenu(_ library: ConversationPracticeLibrary) -> some View {
+        Menu {
             Button {
                 presentConversationPracticeReview(library)
             } label: {
                 Label("Flashcards", systemImage: "rectangle.stack")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .frame(maxWidth: .infinity, minHeight: 38)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(RadixAccent.primary)
 
             Button {
                 presentConversationPracticeQuiz(library)
             } label: {
                 Label("Quick Quiz", systemImage: "checkmark.circle")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .frame(maxWidth: .infinity, minHeight: 38)
             }
-            .buttonStyle(.bordered)
-
-            Button {
-                presentConversationPracticeTranslationQuiz(library)
-            } label: {
-                RadixTermLabel("Translate", term: RadixTerm.translation)
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .frame(maxWidth: .infinity, minHeight: 38)
-            }
-            .buttonStyle(.bordered)
+        } label: {
+            Image(systemName: "ellipsis.circle")
+                .font(.system(size: 18, weight: .semibold))
+                .radixIconButtonSurface(
+                    size: 34,
+                    background: RadixTheme.systemGray5,
+                    radius: 17
+                )
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(.bar)
+        .buttonStyle(.plain)
+        .foregroundStyle(RadixAccent.primary)
+        .accessibilityLabel("Practice tools")
     }
 
     func conversationPracticeGenerateCard(_ topic: ConversationPracticeTopic) -> some View {

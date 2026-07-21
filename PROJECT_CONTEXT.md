@@ -8,7 +8,7 @@ describes the present state and immediate direction.
 sessions and should stay aligned with this file when the workstream meaningfully
 changes. Earlier handoff files remain historical snapshots.
 
-Last reviewed: 2026-07-13
+Last reviewed: 2026-07-22
 
 Current app version metadata is marketing version `1.0.3`, build `12`.
 Settings > About shows the bundle version and build so future release bumps are
@@ -267,6 +267,11 @@ workspaces such as Added Phrases must not hide the parent navigation bar.
 Conversation Practice and extracted sentence lists should reuse the same
 phone sentence control layout as Study Sentences: page navigation and
 Chinese/English display controls stay compact in one local row where possible.
+Conversation Practice must not reserve a bottom action bar on iPhone; the
+sentence list is the primary surface. Flashcards and Quick Quiz live in the
+compact top tools menu, while the local Translate Quiz feature has been removed.
+Future translation practice should route through AI-backed workflows instead of
+reintroducing local quiz code.
 Per-row favorite and overflow actions should not permanently consume phone
 sentence-row width; keep them in long-press context menus or compact tool menus
 except while selection mode needs a visible checkbox. iPad and Mac keep the
@@ -1234,7 +1239,9 @@ responses to portable Practice progress, and keep Phrase/Character inspection
 inside the active sheet. Quick Quiz is an offline single-character recognition
 sheet that blanks one character, uses script-aware confusable/component peers
 with dictionary fallbacks, records correct/incorrect attempts, and keeps
-feedback linked to Radix Phrase and Character cards. Sentence browsing is
+feedback linked to Radix Phrase and Character cards. Flashcards and Quick Quiz
+are compact tools, not persistent bottom buttons. The old local Translate Quiz
+has been removed because translation practice should be AI-backed. Sentence browsing is
 embedded directly in the Study Practice card with compact page controls, a
 Chinese/English display toggle, visible selected-row state, and the normal
 Study information-card path for richer inspection. Only Conversation Practice
@@ -1274,8 +1281,9 @@ previous/next page controls, the visible row range, script choice, and the
 Chinese/English display toggle, so users page through lesson rows instead of
 scrolling a 100-sentence list. On narrow phone layouts, that control area may
 split into two compact rows to avoid crowding the range label and language
-toggles. Flashcards and Quick Quiz remain pinned below the list. Imported topic
-deletion is an icon action beside the topic picker, not a full-width row.
+toggles. Flashcards and Quick Quiz belong in the compact tools menu instead of
+a pinned bottom bar. Imported topic deletion is an icon action beside the topic
+picker, not a full-width row.
 Practice sentence read-aloud uses the existing Radix speech infrastructure and
 the shared Chinese voice. Flashcards and Quick Quiz show compact speaker controls
 beside the active sentence; Flashcards also read the sentence, phrase, or
@@ -1289,15 +1297,10 @@ correct/incorrect attempts, and only Good/Easy/correct outcomes count an item
 complete. Progress is persisted under `RadixPreferenceKey.conversationPracticeProgress`
 and included in `UnifiedPackage` backup/checkpoint flows. The focused Practice
 topic subtitle shows per-topic completion and last-practiced state without
-adding a separate explanation row. Translate is a third lightweight Practice
-drill with an in-sheet direction toggle for English-to-Chinese and
-Chinese-to-English. It records correct/incorrect outcomes through the same
-portable progress model and keeps sentence/character inspection inside the drill
-sheet. The Translate drill is split by responsibility: the sheet owns lifecycle
-and state, `ConversationPracticeTranslationQuizComponents.swift` owns view
-sections, `ConversationPracticeTranslationQuizLogic.swift` owns session/progress
-behavior, and `ConversationPracticeTranslationQuizSupport.swift` owns small
-supporting types. Practice linked phrase/character hints are cached in
+adding a separate explanation row. Flashcards and Quick Quiz are the only local
+Practice drills; local Translate Quiz was removed so translation practice can
+return later through AI-backed workflows instead of another offline drill.
+Practice linked phrase/character hints are cached in
 `RadixStoreConversationPractice` per practice item and invalidated when Practice
 phrase libraries register or phrase-backed Study data refreshes, so drill sheets
 do not repeatedly rediscover the same hints during SwiftUI redraws.

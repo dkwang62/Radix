@@ -127,7 +127,6 @@ struct FavouritesTab: View {
     @State var conversationPracticeProgress = RadixStudyPreferences.conversationPracticeProgress
     @State var conversationPracticeReviewPresentation: ConversationPracticeReviewPresentation?
     @State var conversationPracticeQuizPresentation: ConversationPracticeQuizPresentation?
-    @State var conversationPracticeTranslationQuizPresentation: ConversationPracticeTranslationQuizPresentation?
     @State var studyTranslationReportCollection: CharacterCollection?
     @State var studyTranslationReportDraft = ""
     @State var pendingStudyDeleteCollection: CharacterCollection?
@@ -208,18 +207,6 @@ struct FavouritesTab: View {
             refreshConversationPracticeProgress()
         }) { presentation in
             ConversationPracticeQuizSheet(
-                library: presentation.library,
-                usesTraditionalScript: $studyGridUsesTraditionalScript
-            )
-            .environmentObject(store)
-            .environmentObject(entitlement)
-            .presentationDetents([.large])
-        }
-        .sheet(item: $conversationPracticeTranslationQuizPresentation, onDismiss: {
-            conversationPracticeTranslationQuizPresentation = nil
-            refreshConversationPracticeProgress()
-        }) { presentation in
-            ConversationPracticeTranslationQuizSheet(
                 library: presentation.library,
                 usesTraditionalScript: $studyGridUsesTraditionalScript
             )
@@ -795,11 +782,6 @@ struct FavouritesTab: View {
     func presentConversationPracticeQuiz(_ library: ConversationPracticeLibrary) {
         refreshConversationPracticeProgress()
         conversationPracticeQuizPresentation = ConversationPracticeQuizPresentation(library: library)
-    }
-
-    func presentConversationPracticeTranslationQuiz(_ library: ConversationPracticeLibrary) {
-        refreshConversationPracticeProgress()
-        conversationPracticeTranslationQuizPresentation = ConversationPracticeTranslationQuizPresentation(library: library)
     }
 
     func refreshConversationPracticeProgress() {

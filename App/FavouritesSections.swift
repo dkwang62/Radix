@@ -87,12 +87,6 @@ extension FavouritesTab {
                 }
             }
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if showsConversationPracticeFloatingControls,
-               let conversationPracticeLibrary {
-                conversationPracticeFloatingBottomActions(conversationPracticeLibrary)
-            }
-        }
     }
 
     var studyPinnedControls: some View {

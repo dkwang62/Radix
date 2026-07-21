@@ -45,6 +45,9 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   embedded Added Phrases and Conversation Practice.
   Phone row favorite/overflow actions live in context/tool menus unless
   selection mode needs checkboxes. iPad and Mac keep the richer pinyin row.
+- Conversation Practices should mirror Study Sentences on iPhone: no bottom
+  action bar, no local Translate Quiz, and Flashcards/Quick Quiz in the compact
+  tools menu above the sentence list.
 - Study lower buttons (`Added Phrases`, `Conversation Practices`, `Sentences`)
   are peer in-place sections. They share one `FocusedStudySection` enum, keep
   pinned Study controls visible, and do not show a normal `Back to Study`.
@@ -72,6 +75,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   controls, unified their state, and removed obsolete section back renderers.
 - Restored contextual root titles on Mac Catalyst and aligned title copy across
   Browse and Study.
+- Removed the local Conversation Practice Translate Quiz and moved remaining
+  practice drills out of the iPhone bottom bar.
 - Simplified user-facing database optimization wording and avoided automatic
   heavy phrase-link refresh work.
 - Added the app version/build to Settings > About.
