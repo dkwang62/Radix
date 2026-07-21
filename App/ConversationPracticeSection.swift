@@ -320,6 +320,7 @@ extension FavouritesTab {
         return practiceSentenceRow(
             item,
             isSelected: isSelected,
+            showsPhoneTrailing: !isPhone,
             openAccessibilityLabel: "Open phrase \(studyGridDisplayText(item.simplified))",
             openAccessibilityHint: "Opens and reads the practice sentence."
         ) {
@@ -335,6 +336,15 @@ extension FavouritesTab {
             .buttonStyle(.plain)
             .foregroundStyle(isFavorite ? Color.yellow : .secondary)
             .accessibilityLabel(isFavorite ? "Remove favorite sentence" : "Save favorite sentence")
+        }
+        .contextMenu {
+            if isPhone {
+                Button {
+                    toggleFavoriteSentence(item)
+                } label: {
+                    Label(isFavorite ? "Remove Favorite" : "Favorite", systemImage: RadixIcon.saved)
+                }
+            }
         }
     }
 

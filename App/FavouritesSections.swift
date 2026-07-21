@@ -146,7 +146,7 @@ extension FavouritesTab {
                 .padding(.top, isPhone ? 4 : 8)
 
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 8) {
+                LazyVStack(alignment: .leading, spacing: isPhone ? 2 : 8) {
                     if sentenceExampleResultCount == 0 {
                         ContentUnavailableView(
                             "No Sentences",
@@ -348,6 +348,7 @@ extension FavouritesTab {
         return practiceSentenceRow(
             item,
             isSelected: isSelected,
+            showsPhoneTrailing: false,
             openAccessibilityLabel: "Open sentence \(studyGridDisplayText(item.simplified))",
             openAccessibilityHint: "Opens the sentence card."
         ) {
@@ -1073,6 +1074,7 @@ extension FavouritesTab {
             practiceSentenceRow(
                 item,
                 isSelected: isSelected,
+                showsPhoneTrailing: !isPhone || isSelectingSentenceExamples,
                 openAccessibilityLabel: "Open sentence \(studyGridDisplayText(item.simplified))",
                 openAccessibilityHint: "Opens the sentence info card."
             ) {
@@ -1087,6 +1089,11 @@ extension FavouritesTab {
                 } else {
                     sentenceExampleFavoriteButton(example)
                     sentenceExampleActions(example)
+                }
+            }
+            .contextMenu {
+                if isPhone && !isSelectingSentenceExamples {
+                    sentenceExampleActionsMenuContent(example)
                 }
             }
 
@@ -1133,54 +1140,7 @@ extension FavouritesTab {
 
     func sentenceExampleActions(_ example: SentenceExampleRecord) -> some View {
         Menu {
-            Button {} label: {
-                Label(store.sentenceExampleSourceLabel(example), systemImage: sentenceExampleSourceIcon(example))
-            }
-            .disabled(true)
-
-            Divider()
-
-            Button {
-                toggleSentenceExampleFavorite(example)
-            } label: {
-                Label(example.isFavorited ? "Remove Favorite" : "Favorite", systemImage: RadixIcon.saved)
-            }
-
-            Button {
-                presentSentenceExamplePracticeAgain(example)
-            } label: {
-                Label("Practice Again", systemImage: "rectangle.stack")
-            }
-
-            Button {
-                presentSentenceExampleEditor(example)
-            } label: {
-                Label("Edit", systemImage: "pencil")
-            }
-
-            Button {
-                RadixPlatform.copyToPasteboard(example.chinese)
-                sentenceExampleStatusMessage = "Copied"
-            } label: {
-                Label("Copy Chinese", systemImage: RadixIcon.copy)
-            }
-
-            if let pageID = sentenceExampleSourcePageID(example),
-               store.collection(id: pageID) != nil {
-                Button {
-                    store.goToBrowseCollection(id: pageID, preservingOrigin: true)
-                } label: {
-                    Label("Open Source Page", systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
-                }
-            }
-
-            Divider()
-
-            Button(role: .destructive) {
-                deleteSentenceExamples([example], statusMessage: "Deleted")
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
+            sentenceExampleActionsMenuContent(example)
         } label: {
             Image(systemName: "ellipsis.circle")
                 .font(.system(size: 18, weight: .semibold))
@@ -1193,6 +1153,58 @@ extension FavouritesTab {
         .buttonStyle(.plain)
         .foregroundStyle(RadixAccent.primary)
         .accessibilityLabel("Sentence actions")
+    }
+
+    @ViewBuilder
+    func sentenceExampleActionsMenuContent(_ example: SentenceExampleRecord) -> some View {
+        Button {} label: {
+            Label(store.sentenceExampleSourceLabel(example), systemImage: sentenceExampleSourceIcon(example))
+        }
+        .disabled(true)
+
+        Divider()
+
+        Button {
+            toggleSentenceExampleFavorite(example)
+        } label: {
+            Label(example.isFavorited ? "Remove Favorite" : "Favorite", systemImage: RadixIcon.saved)
+        }
+
+        Button {
+            presentSentenceExamplePracticeAgain(example)
+        } label: {
+            Label("Practice Again", systemImage: "rectangle.stack")
+        }
+
+        Button {
+            presentSentenceExampleEditor(example)
+        } label: {
+            Label("Edit", systemImage: "pencil")
+        }
+
+        Button {
+            RadixPlatform.copyToPasteboard(example.chinese)
+            sentenceExampleStatusMessage = "Copied"
+        } label: {
+            Label("Copy Chinese", systemImage: RadixIcon.copy)
+        }
+
+        if let pageID = sentenceExampleSourcePageID(example),
+           store.collection(id: pageID) != nil {
+            Button {
+                store.goToBrowseCollection(id: pageID, preservingOrigin: true)
+            } label: {
+                Label("Open Source Page", systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
+            }
+        }
+
+        Divider()
+
+        Button(role: .destructive) {
+            deleteSentenceExamples([example], statusMessage: "Deleted")
+        } label: {
+            Label("Delete", systemImage: "trash")
+        }
     }
 
     func deleteFilteredSentenceExamples() {

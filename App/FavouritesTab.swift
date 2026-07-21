@@ -466,6 +466,9 @@ struct FavouritesTab: View {
         .onChange(of: focusedStudySection) { _, _ in
             syncActiveStudySectionTitle()
         }
+        .onChange(of: store.requestedStudyNavigationTarget) { _, target in
+            applyRequestedStudyNavigationTarget(target)
+        }
         .onChange(of: studyPageSortOrder) { _, newValue in
             RadixStudyPreferences.pageSortOrder = newValue
         }
@@ -495,6 +498,35 @@ struct FavouritesTab: View {
 
     func syncActiveStudySectionTitle() {
         store.activeStudySectionTitle = activeStudySectionTitle
+    }
+
+    func applyRequestedStudyNavigationTarget(_ target: StudyNavigationTarget?) {
+        guard let target else { return }
+        switch target {
+        case .recent:
+            clearFocusedStudySections()
+            studyGridScope = .all
+            showStudyCheckpoints = false
+        case .favorites:
+            clearFocusedStudySections()
+            studyGridScope = .favorites
+            showStudyCheckpoints = false
+        case .savedPages:
+            clearFocusedStudySections()
+            studyGridScope = .savedPages
+            showStudyCheckpoints = false
+        case .addedPhrases:
+            presentAddedPhraseReview()
+        case .conversationPractice:
+            presentConversationPractice()
+        case .sentences:
+            presentSentenceExamples()
+        case .checkpoints:
+            clearFocusedStudySections()
+            showStudyCheckpoints = true
+        }
+        store.requestedStudyNavigationTarget = nil
+        syncActiveStudySectionTitle()
     }
 
     func openAddedPhraseReviewIfRequested() {

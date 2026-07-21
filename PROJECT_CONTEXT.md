@@ -260,7 +260,13 @@ chevrons, and wraps long portrait sentences instead of squeezing them into one
 line. When iPhone Study is focused on `Sentences`, hide the broad Study
 shortcut panel so the sentence list becomes the primary screen; keep paging,
 the Chinese/English toggle, search/filter, and sentence tools compact above
-the list. iPad and Mac keep the richer compact row with pinyin in Chinese mode.
+the list. The `Study - [section]` title dropdown is the iPhone section switcher
+for Recent, Favorites, Saved Pages, Added Phrases, Conversation Practices,
+Sentences, and Checkpoints, so users can leave a focused reading section
+without a bulky in-content dashboard. Per-row favorite and overflow actions
+should not permanently consume phone sentence-row width; keep them in long-press
+context menus or compact tool menus except while selection mode needs a visible
+checkbox. iPad and Mac keep the richer compact row with pinyin in Chinese mode.
 The extracted-sentences reader must render from a page-scoped SQLite sentence
 query plus cheap page-sentence fallbacks; do not scan the whole sentence database
 or rebuild `SentenceExampleRecord.fromAICleanedPage` in the display path.

@@ -107,6 +107,7 @@ extension FavouritesTab {
     func practiceSentenceRow<Trailing: View>(
         _ item: ConversationPracticeItem,
         isSelected: Bool,
+        showsPhoneTrailing: Bool = true,
         openAccessibilityLabel: String,
         openAccessibilityHint: String,
         onOpen: @escaping () -> Void,
@@ -132,13 +133,15 @@ extension FavouritesTab {
                 .accessibilityLabel(openAccessibilityLabel)
                 .accessibilityHint(openAccessibilityHint)
 
-                HStack {
-                    Spacer(minLength: 0)
-                    trailing()
+                if showsPhoneTrailing {
+                    HStack {
+                        Spacer(minLength: 0)
+                        trailing()
+                    }
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
             .frame(maxWidth: .infinity, alignment: .leading)
             .radixSurface(
                 conversationPracticeSentenceBackground(isSelected: isSelected),

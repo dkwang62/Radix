@@ -59,6 +59,10 @@ extension RootView {
         store.route == .search && store.homeTab == .filter
     }
 
+    var isStudyDestinationActive: Bool {
+        store.route == .favourites || (store.route == .search && store.homeTab == .favourites)
+    }
+
     var browseTitleMenuPages: [CharacterCollection] {
         store.allCollections.sorted {
             let lhsDate = $0.lastViewedAt ?? $0.createdAt
@@ -99,6 +103,8 @@ extension RootView {
     var titleGuideMenu: some View {
         if isBrowseDestinationActive {
             browseTitlePicker
+        } else if isStudyDestinationActive {
+            studyTitlePicker
         } else if let topic = activeTitleGuideTopic {
             navigationTitleMenu(for: topic, title: detailPaneTitle)
         }
@@ -159,6 +165,53 @@ extension RootView {
         .accessibilityLabel("Browse menu")
         .accessibilityValue(browseNavigationTitle)
         .help("Browse menu")
+    }
+
+    var studyTitlePicker: some View {
+        Menu {
+            navigationHelpButton(for: .study)
+
+            Section("Study") {
+                ForEach(StudyNavigationTarget.allCases) { target in
+                    Button {
+                        store.requestedStudyNavigationTarget = target
+                    } label: {
+                        Label(
+                            target.title,
+                            systemImage: target.title == store.activeStudySectionTitle
+                                ? "checkmark"
+                                : studyTitleMenuSystemImage(for: target)
+                        )
+                    }
+                }
+            }
+        } label: {
+            navigationTitleMenuLabel("Study - \(store.activeStudySectionTitle)")
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .accessibilityLabel("Study menu")
+        .accessibilityValue("Study - \(store.activeStudySectionTitle)")
+        .help("Study menu")
+    }
+
+    func studyTitleMenuSystemImage(for target: StudyNavigationTarget) -> String {
+        switch target {
+        case .recent:
+            return RadixGlossaryIcon.systemImage(for: RadixTerm.recent)
+        case .favorites:
+            return RadixIcon.saved
+        case .savedPages:
+            return RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage)
+        case .addedPhrases:
+            return "text.quote"
+        case .conversationPractice:
+            return "bubble.left.and.bubble.right"
+        case .sentences:
+            return RadixGlossaryIcon.systemImage(for: "Sentence")
+        case .checkpoints:
+            return "clock.arrow.circlepath"
+        }
     }
 
     func navigationHelpButton(for topic: RadixNavigationGuideTopic) -> some View {

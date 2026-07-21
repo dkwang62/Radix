@@ -273,9 +273,13 @@ kept material and summary controls. Keep grid modes and one-way shortcuts
 visually distinct: `Recent`, `Favorites`, and `Saved Pages` are mutually
 exclusive views of the review grid, while Added Phrases, Conversation
 Practices, and Sentences are peer Study sections that show their content in
-place below the same pinned Study controls. Do not hide the Study section
-buttons or require a `Back to Study` return just to switch between these
-sections. iPhone Checkpoints may remain a shortcut to a sheet because it is a
+place below the same pinned Study controls on spacious layouts. On iPhone,
+focused reading sections such as `Sentences` may hide the broad Study dashboard
+to reclaim vertical space, but the root title menu must offer the same Study
+choices so switching to Saved Pages, Conversation Practices, Added Phrases,
+Recent, Favorites, or Checkpoints is still one obvious tap away. Do not require
+a `Back to Study` return just to switch between these sections. iPhone
+Checkpoints may remain a shortcut to a sheet because it is a
 snapshot tool rather than a primary study list.
 Favorite Sentences belongs inside Conversation Practices, so do not duplicate
 it as a dashboard shortcut; when favorite sentences exist, the Conversation
