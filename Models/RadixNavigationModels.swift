@@ -54,9 +54,9 @@ enum HistoryStripDisplayPolicy {
         switch route {
         case .search:
             switch homeTab {
-            case .smart, .filter:
+            case .smart, .filter, .favourites:
                 return true
-            case .favourites, .dataEdit:
+            case .dataEdit:
                 return false
             }
         case .lineage, .favourites:

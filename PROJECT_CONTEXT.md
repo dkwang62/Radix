@@ -262,6 +262,11 @@ switcher for Recent, Favorites, Saved Pages, Added Phrases, Conversation
 Practices, Sentences, and Checkpoints; do not duplicate those choices as broad
 in-content Study buttons. Keep only controls that affect the current Study
 section, such as Saved Pages sorting or Sentences paging/search/display tools.
+Every Study section should preserve the title menu and History strip; embedded
+workspaces such as Added Phrases must not hide the parent navigation bar.
+Conversation Practice and extracted sentence lists should reuse the same
+phone sentence control layout as Study Sentences: page navigation and
+Chinese/English display controls stay compact in one local row where possible.
 Per-row favorite and overflow actions should not permanently consume phone
 sentence-row width; keep them in long-press context menus or compact tool menus
 except while selection mode needs a visible checkbox. iPad and Mac keep the

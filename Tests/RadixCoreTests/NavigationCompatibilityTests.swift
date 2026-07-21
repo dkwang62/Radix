@@ -37,11 +37,11 @@ struct NavigationCompatibilityTests {
     func historyStripDisplayPolicy() {
         #expect(HistoryStripDisplayPolicy.shouldShow(route: .search, homeTab: .smart, hasItems: true))
         #expect(HistoryStripDisplayPolicy.shouldShow(route: .search, homeTab: .filter, hasItems: true))
+        #expect(HistoryStripDisplayPolicy.shouldShow(route: .search, homeTab: .favourites, hasItems: true))
         #expect(HistoryStripDisplayPolicy.shouldShow(route: .lineage, homeTab: .smart, hasItems: true))
         #expect(HistoryStripDisplayPolicy.shouldShow(route: .favourites, homeTab: .smart, hasItems: true))
 
         #expect(!HistoryStripDisplayPolicy.shouldShow(route: .favourites, homeTab: .smart, hasItems: false))
-        #expect(!HistoryStripDisplayPolicy.shouldShow(route: .search, homeTab: .favourites, hasItems: true))
         #expect(!HistoryStripDisplayPolicy.shouldShow(route: .search, homeTab: .dataEdit, hasItems: true))
         #expect(!HistoryStripDisplayPolicy.shouldShow(route: .capture, homeTab: .smart, hasItems: true))
         #expect(!HistoryStripDisplayPolicy.shouldShow(route: .aiLink, homeTab: .smart, hasItems: true))

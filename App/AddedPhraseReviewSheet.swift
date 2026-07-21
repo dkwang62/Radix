@@ -117,7 +117,7 @@ struct AddedPhraseReviewSheet: View {
         .padding(.bottom, 8)
         .padding(.top, isWorkspace ? 10 : reviewSheetTopPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .toolbar(.hidden, for: .navigationBar)
+        .modifier(AddedPhraseReviewNavigationBarVisibility(hidesNavigationBar: !isWorkspace))
         .onAppear {
             loadReviewPhrasesFromStore()
             let startingRevision = reviewInteractionRevision
@@ -161,6 +161,19 @@ struct AddedPhraseReviewSheet: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text(deleteNewConfirmationMessage)
+        }
+    }
+}
+
+private struct AddedPhraseReviewNavigationBarVisibility: ViewModifier {
+    let hidesNavigationBar: Bool
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if hidesNavigationBar {
+            content.toolbar(.hidden, for: .navigationBar)
+        } else {
+            content
         }
     }
 }

@@ -67,7 +67,18 @@ extension FavouritesTab {
     func practiceSentenceDisplayControls<Navigation: View>(
         @ViewBuilder navigation: () -> Navigation
     ) -> some View {
-        if isNarrowStudyLayout {
+        if isPhone {
+            HStack(spacing: 6) {
+                navigation()
+                    .fixedSize(horizontal: true, vertical: false)
+
+                Spacer(minLength: 4)
+
+                practiceSentenceModeControls
+                    .fixedSize(horizontal: true, vertical: false)
+            }
+            .padding(.bottom, 2)
+        } else if isNarrowStudyLayout {
             VStack(alignment: .leading, spacing: 6) {
                 navigation()
                     .fixedSize(horizontal: true, vertical: false)

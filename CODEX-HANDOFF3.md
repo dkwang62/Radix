@@ -41,6 +41,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   (Chinese or English), without pinyin or row chevrons, and wrap long portrait
   sentences. The `Study - [section]` title menu is the iPhone Study section
   switcher; do not duplicate those choices as in-content dashboard buttons.
+  Keep the title menu and History strip visible across Study sections, including
+  embedded Added Phrases and Conversation Practice.
   Phone row favorite/overflow actions live in context/tool menus unless
   selection mode needs checkboxes. iPad and Mac keep the richer pinyin row.
 - Study lower buttons (`Added Phrases`, `Conversation Practices`, `Sentences`)

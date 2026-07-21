@@ -277,9 +277,10 @@ place below the same pinned Study controls on spacious layouts. On iPhone, the
 root title menu is the Study section switcher; do not also show the broad Study
 dashboard buttons for Recent, Favorites, Saved Pages, Added Phrases,
 Conversation Practices, Sentences, or Checkpoints inside the content area. Keep
-only compact controls that affect the current section. Do not require a `Back to
-Study` return just to switch between these sections. iPhone Checkpoints may
-remain a shortcut to a sheet because it is a
+only compact controls that affect the current section. Keep the History strip
+and title menu visible across Study sections; embedded Study workspaces should
+not hide the shell. Do not require a `Back to Study` return just to switch
+between these sections. iPhone Checkpoints may remain a shortcut to a sheet because it is a
 snapshot tool rather than a primary study list.
 Favorite Sentences belongs inside Conversation Practices, so do not duplicate
 it as a dashboard shortcut; when favorite sentences exist, the Conversation
