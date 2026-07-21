@@ -63,7 +63,7 @@ extension FavouritesTab {
                 aiCleanedPageStudyScreen
             } else {
                 VStack(alignment: .leading, spacing: 0) {
-                    if !isPhoneSentenceExamplesReadingMode {
+                    if showsStudyPinnedControls {
                         studyPinnedControls
                     }
 
@@ -97,7 +97,9 @@ extension FavouritesTab {
 
     var studyPinnedControls: some View {
         VStack(alignment: .leading, spacing: 10) {
-            studyDashboardSummary
+            if !isPhone {
+                studyDashboardSummary
+            }
             recentStudyHeader
         }
         .padding(.horizontal)

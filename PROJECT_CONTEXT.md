@@ -257,16 +257,15 @@ phrase chips, read-aloud, and favorites stay aligned.
 On iPhone, those shared sentence rows prioritize reading space: the row shows
 only the selected display language (Chinese or English), omits pinyin and row
 chevrons, and wraps long portrait sentences instead of squeezing them into one
-line. When iPhone Study is focused on `Sentences`, hide the broad Study
-shortcut panel so the sentence list becomes the primary screen; keep paging,
-the Chinese/English toggle, search/filter, and sentence tools compact above
-the list. The `Study - [section]` title dropdown is the iPhone section switcher
-for Recent, Favorites, Saved Pages, Added Phrases, Conversation Practices,
-Sentences, and Checkpoints, so users can leave a focused reading section
-without a bulky in-content dashboard. Per-row favorite and overflow actions
-should not permanently consume phone sentence-row width; keep them in long-press
-context menus or compact tool menus except while selection mode needs a visible
-checkbox. iPad and Mac keep the richer compact row with pinyin in Chinese mode.
+line. On iPhone, the `Study - [section]` title dropdown is the Study section
+switcher for Recent, Favorites, Saved Pages, Added Phrases, Conversation
+Practices, Sentences, and Checkpoints; do not duplicate those choices as broad
+in-content Study buttons. Keep only controls that affect the current Study
+section, such as Saved Pages sorting or Sentences paging/search/display tools.
+Per-row favorite and overflow actions should not permanently consume phone
+sentence-row width; keep them in long-press context menus or compact tool menus
+except while selection mode needs a visible checkbox. iPad and Mac keep the
+richer compact row with pinyin in Chinese mode.
 The extracted-sentences reader must render from a page-scoped SQLite sentence
 query plus cheap page-sentence fallbacks; do not scan the whole sentence database
 or rebuild `SentenceExampleRecord.fromAICleanedPage` in the display path.

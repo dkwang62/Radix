@@ -196,6 +196,10 @@ extension FavouritesTab {
         isPhone && isShowingSentenceExamples
     }
 
+    var showsStudyPinnedControls: Bool {
+        !isPhone || !isShowingFocusedStudySection
+    }
+
     var activeStudySectionTitle: String {
         if let focusedStudySection { return focusedStudySection.title }
         return studyGridScope.title

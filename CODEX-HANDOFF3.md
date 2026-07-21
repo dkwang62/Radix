@@ -39,11 +39,10 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   opens. Never run it while rendering a row or merely opening a sentence card.
 - On iPhone, shared sentence-list rows show only the selected language
   (Chinese or English), without pinyin or row chevrons, and wrap long portrait
-  sentences. iPhone Study > Sentences hides the broad Study shortcut panel and
-  keeps only compact sentence controls above the list. The `Study - [section]`
-  title menu is the iPhone section switcher, and phone row favorite/overflow
-  actions live in context/tool menus unless selection mode needs checkboxes.
-  iPad and Mac keep the richer pinyin row.
+  sentences. The `Study - [section]` title menu is the iPhone Study section
+  switcher; do not duplicate those choices as in-content dashboard buttons.
+  Phone row favorite/overflow actions live in context/tool menus unless
+  selection mode needs checkboxes. iPad and Mac keep the richer pinyin row.
 - Study lower buttons (`Added Phrases`, `Conversation Practices`, `Sentences`)
   are peer in-place sections. They share one `FocusedStudySection` enum, keep
   pinned Study controls visible, and do not show a normal `Back to Study`.
