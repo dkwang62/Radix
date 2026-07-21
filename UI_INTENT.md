@@ -269,29 +269,22 @@ Study should not become a hodgepodge. Group it by intent:
 
 The Study tab should not create a separate main app tab for Practice unless the
 whole navigation model is reconsidered. The main Study screen holds the user's
-kept material and summary controls. Keep grid modes and one-way shortcuts
-visually distinct: `Recent`, `Favorites`, and `Saved Pages` are mutually
-exclusive views of the review grid, while Added Phrases, Conversation
-Practices, and Sentences are peer Study sections that show their content in
-place below the same pinned Study controls on spacious layouts. On iPhone, the
-root title menu is the Study section switcher; do not also show the broad Study
-dashboard buttons for Recent, Favorites, Saved Pages, Added Phrases,
-Conversation Practices, Sentences, or Checkpoints inside the content area. Keep
-only compact controls that affect the current section. Keep the History strip
-and title menu visible across Study sections; embedded Study workspaces should
-not hide the shell. Do not require a `Back to Study` return just to switch
-between these sections. iPhone Checkpoints may remain a shortcut to a sheet because it is a
-snapshot tool rather than a primary study list.
+kept material and local controls. The root title menu is the Study section
+switcher on every platform; do not also show broad Study dashboard buttons for
+Recent, Favorites, Saved Pages, Added Phrases, Conversation Practices,
+Sentences, or Checkpoints inside the content area. Keep only compact controls
+that affect the current section. Keep the History strip and title menu visible
+across Study sections; embedded Study workspaces should not hide the shell. Do
+not require a `Back to Study` return just to switch between these sections.
+iPhone Checkpoints may remain a shortcut to a sheet because it is a snapshot
+tool rather than a primary study list.
 Favorite Sentences belongs inside Conversation Practices, so do not duplicate
-it as a dashboard shortcut; when favorite sentences exist, the Conversation
-Practices shortcut should open to that topic by default. Saved Pages should be
-the default Study scope because page-linked work is the center of the page-first
-Study flow. The shortcut row should still look button-like, with filled
-actionable controls rather than washed-out status chips; distinct category
-colors are fine when they clarify the destinations. Conversation Practices
-should render as the focused Practice section under the same Study controls,
-not as a separate screen with its own `Back to Study` button. Do not show a
-persistent `Review | Practice` switch row on the Study main screen.
+it as a dashboard shortcut. Saved Pages should be the default Study scope
+because page-linked work is the center of the page-first Study flow.
+Conversation Practices should render as the focused Practice section under the
+same Study controls, not as a separate screen with its own `Back to Study`
+button. Do not show a persistent `Review | Practice` switch row on the Study
+main screen.
 Conversation Practice should look and behave like Study Sentences on every
 platform: the list owns the screen, page/navigation and Chinese/English
 controls stay in the compact local control row, and secondary drills live in a
@@ -299,14 +292,12 @@ small tools menu. Do not add a bottom Translate/Quiz bar or a separate framed
 practice card shell. Local Translate Quiz has been removed; translation
 practice should be AI-backed if it returns.
 
-Inside Review, the Study scope control is the section selector. Do not repeat
+Inside Review, the root title menu is the section selector. Do not repeat
 Recent/Favorites as another segmented picker above the review grid; the grid
 context belongs in the root title as `Study - [section]`, so do not repeat the
-same section name again in the content area. Keep shortcut labels readable on
-compact and wider layouts; do not collapse important actions such as Checkpoints
-into an undiscoverable overflow. Keep the Study scope, shortcut, and local
-review-control rows pinned above the scrolling review content so long lists do
-not hide the main navigation and controls.
+same section name again in the content area. Keep local review-control rows
+pinned above the scrolling review content so long lists do not hide the main
+navigation and controls.
 Empty states in Study should be short and action-oriented: no saved pages should
 point toward Camera, paste, or image import; no favorites should point toward
 starring items; no recent items should point toward searching, browsing, or

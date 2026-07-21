@@ -39,8 +39,9 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   opens. Never run it while rendering a row or merely opening a sentence card.
 - On iPhone, shared sentence-list rows show only the selected language
   (Chinese or English), without pinyin or row chevrons, and wrap long portrait
-  sentences. The `Study - [section]` title menu is the iPhone Study section
-  switcher; do not duplicate those choices as in-content dashboard buttons.
+  sentences. The `Study - [section]` title menu is the Study section switcher
+  on every platform; do not duplicate those choices as in-content dashboard
+  buttons.
   Keep the title menu and History strip visible across Study sections, including
   embedded Added Phrases and Conversation Practice.
   Phone row favorite/overflow actions live in context/tool menus unless
@@ -48,9 +49,10 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
 - Conversation Practices should mirror Study Sentences on every platform: no
   bottom action bar, no framed practice card shell, no local Translate Quiz, and
   Flashcards/Quick Quiz in the compact tools menu above the sentence list.
-- Study lower buttons (`Added Phrases`, `Conversation Practices`, `Sentences`)
-  are peer in-place sections. They share one `FocusedStudySection` enum, keep
-  pinned Study controls visible, and do not show a normal `Back to Study`.
+- `Added Phrases`, `Conversation Practices`, and `Sentences` are peer in-place
+  Study sections selected from the root title menu. They share one
+  `FocusedStudySection` enum, keep pinned Study controls visible, and do not
+  show a normal `Back to Study`.
 - Root titles carry context, including `Browse - Dictionary`,
   `Browse - [page name]`, and `Study - Sentences`. Do not immediately repeat
   the same title in the content area.

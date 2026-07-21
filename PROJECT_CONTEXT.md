@@ -235,12 +235,13 @@ renderers. Remaining large-file refactor targets are
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.
-Study's lower section buttons (`Added Phrases`, `Conversation Practices`, and
-`Sentences`) are in-place Study section selectors, not separate drill-in
-screens. Keep the pinned Study controls visible when those sections are active,
-do not show a `Back to Study` button for normal switching, and clear the other
-focused Study sections when one is selected. Do not reintroduce separate
-booleans for these mutually exclusive sections.
+The root `Study - [section]` title menu is the Study section selector on every
+platform. Do not duplicate it with broad in-content dashboard buttons for
+Recent, Favorites, Saved Pages, Added Phrases, Conversation Practices,
+Sentences, or Checkpoints. Keep the pinned Study controls visible when focused
+sections are active, do not show a `Back to Study` button for normal switching,
+and clear the other focused Study sections when one is selected. Do not
+reintroduce separate booleans for these mutually exclusive sections.
 Mac Catalyst does not show the same native navigation title bar as phone/iPad,
 so the detail pane owns a visible root title row. Keep it driven by the shared
 `detailPaneTitle` / Browse title picker logic so Catalyst shows contextual
