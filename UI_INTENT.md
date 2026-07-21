@@ -167,52 +167,39 @@ On iPad and Mac:
 
 Browse is for inspecting material.
 
-Browse should be simple and not force unnecessary mode choices:
-
-- Dictionary appears as the first browse item.
-- Text from Clipboard appears as an action and tells the user to copy Chinese
-  text first.
-- Image from Clipboard appears as an action when an image is already on the
-  clipboard and tells the user to copy an image first.
-- Image from Album appears as an action and tells the user to choose a photo.
-- Image from Files appears as an action and tells the user to choose an image
-  file.
-- Saved Pages appear as a list.
-
-When the Browse source list is open, it is the active Browse content. Do not
-show the dictionary or saved-page character grid behind or below it.
+Browse should be simple and not force unnecessary mode choices. The title
+dropdown selects Dictionary or a saved page. Camera/capture owns creating pages
+from camera, clipboard, album, files, or pasted text.
 
 Entering Browse opens the most recently viewed saved page, using its scan date
 when it has no separate viewing date. Dictionary remains available from the
-source chooser but is not the default when saved pages exist.
+title dropdown but is not the default when saved pages exist.
 
-Avoid a permanent Dictionary/Pages selector if a simple list can do the job.
-Avoid repeating Camera inside Browse when the global Camera action is
-already available.
+Avoid a permanent Dictionary/Pages selector if the title dropdown can do the
+job. Avoid repeating Camera, file, album, or clipboard source actions inside
+Browse when the global Camera/capture flow already owns them.
 
 When the user opens a saved page, returning to the page list should be obvious.
 Dictionary should behave like another browse item and should not break the
 navigation routine.
 
 In Dictionary Browse, the `Dictionary` label should be a real disclosure button
-with a visible chevron for help. Keep the full source/import chooser labeled as
-`Sources` rather than `Pages`, because it also includes Dictionary, clipboard,
-album, and file inputs. Dictionary grid tools such as Components, Simplified/
-Traditional, and Filters may use a second compact row when that keeps labels
-readable and avoids misleading icon-only controls.
+with a visible chevron for help. Dictionary grid tools such as Components,
+Simplified/Traditional, and Filters may use a second compact row when that keeps
+labels readable and avoids misleading icon-only controls.
 
 For an open saved page, keep navigation separate from page actions. The top
 `Browse [page name]` title is the quick page selector for Dictionary and saved
 pages, so the open-page card should not spend a separate header row repeating
-the page name, icon, or character count. The page-card source button remains the
-entry point to the full Browse source/import panel, and belongs in the local
-control row with a compact character count. Browse should own page-inspection
+the page name, icon, or character count. Do not add a separate in-content source
+button; the title dropdown owns Dictionary/saved-page switching, while other
+capture sources live under Camera/capture. Browse should own page-inspection
 controls that only make sense while looking at the page, such as Edit Page and
 Choose Page Phrases. Browse should not own saved-page artifact work such as
 translation, AI OCR review, phrase extraction, quiz generation, sentence
 extraction, page conversation generation, or deletion. Keep frequently adjusted
 Browse controls—Simplified/Traditional and Read Aloud—visible beside the
-source/count row.
+character count.
 Check OCR should use the saved page characters as the primary text to review.
 The AI is asked to find likely capture/OCR anomalies in those page characters;
 any source image or raw OCR provenance is supporting evidence only.

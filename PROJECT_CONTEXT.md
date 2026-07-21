@@ -248,6 +248,10 @@ so the detail pane owns a visible root title row. Keep it driven by the shared
 titles such as `Browse - Dictionary`, `Browse - [page name]`, and
 `Study - Sentences` instead of falling back to the app name. The content area
 should not immediately repeat the same section label shown in the root title.
+For Browse, the root title menu is the source selector for Dictionary and saved
+pages on every platform. Do not duplicate it with an in-content `Sources` button
+or source panel entry; Camera/capture owns album, file, clipboard, and camera
+intake.
 Study > Sentences search should not feel narrower than phrase-card Examples:
 typing a search resets the sentence filter to All, and searched results use a
 larger page size so phrase searches are not mistaken for missing examples.
@@ -687,18 +691,15 @@ remaining audit work, and crash lessons for handing the finishing pass to Claude
 - On iPhone, character or phrase previews opened from a saved Browse page show a
   contextual return button named for that page, not a generic Browse label.
 - In Browse, the top `Browse [page name]` navigation title is the quick
-  saved-page selector for Dictionary and saved pages. The open-page card still
-  keeps its source button because that opens the full source/import panel, but
-  it does not have a separate header row; its source button and compact
-  character count live in the local control row.
+  saved-page selector for Dictionary and saved pages. The open-page card does
+  not have a separate header row or source button; compact character count and
+  page-specific controls live in the local control row.
 - Browse saved-page selection is exposed through state adapters; keep selection
   changes explicitly published so the navigation title menu, page card, and grid
   do not drift out of sync.
-- If the full Browse source/import panel is open, choosing Dictionary or a saved
-  page from the top title selector closes that panel so the selected content is
-  immediately visible.
-- Dictionary Browse uses a visible help disclosure in its header and keeps the
-  source chooser labeled as `Sources`, because that panel includes Dictionary,
+- Dictionary Browse uses a visible help disclosure in its header. Capture/import
+  sources live under Camera/capture rather than inside Browse, because Browse is
+  now for choosing and inspecting Dictionary or saved pages.
   saved pages, clipboard, album, and file inputs. Dictionary grid controls
   such as components, script choice, and filters live on their own compact row
   instead of crowding the source/navigation row.
@@ -767,9 +768,8 @@ remaining audit work, and crash lessons for handing the finishing pass to Claude
   artifacts, AI workflows, and saved-page deletion. Browse owns page inspection
   controls that only make sense while looking at the page, including editing
   the page text and choosing visible page phrases. The explicit page-open icon
-  in Study opens that saved page's content directly in Browse, closes the
-  Browse source panel if it was open, and keeps a contextual return path back
-  to Study. Corrected OCR pages can be promoted from Study so
+  in Study opens that saved page's content directly in Browse and keeps a
+  contextual return path back to Study. Corrected OCR pages can be promoted from Study so
   the corrected text becomes the main page while preserving the main page ID and
   its linked learning artifacts; the old OCR can either be kept as a separate
   archived page or discarded during promotion.
@@ -818,7 +818,7 @@ method vocabulary; and check iPhone one-handed ergonomics.
 
 Study Help names the page-first mental model as
 `Pages -> Artifacts -> Practice -> Memory -> Checkpoints`. Empty Saved Pages in
-Study offers one `Create Saved Page` action that opens Browse Sources while
+Study offers one `Create Saved Page` action that opens Camera/capture while
 preserving a return path to Study.
 Page-derived Conversation Practice topics should surface their saved-page origin
 in Study topic summaries, and keep that source cue visible alongside practice
@@ -1335,16 +1335,12 @@ Content-driven cross-tab navigation uses the existing single-level return
 context. Destinations show a named return button (`Back to Study`, `Back to My
 Data`, and so on); manually choosing a primary tab clears that context.
 Saved Browse pages use one labelled `Actions` menu for editing, OCR review,
-phrase selection, translation, and AI workflows. The source chooser remains
-separate navigation; only the script toggle and Read Aloud remain permanently
-visible page controls.
-Browse source actions use parallel source labels: text from the clipboard,
-image from the clipboard, image from Album, image from Files, and saved-page
-selection. Clipboard actions tell the user to copy the source content first;
-Album and Files actions tell the user to choose the source image first.
-Clipboard images use the same OCR page creation path as camera, album, and file
-images. While the Browse source list is open, it is the active content; do not
-show the dictionary or saved-page character grid behind or below it.
+phrase selection, translation, and AI workflows. The title menu remains the
+separate Dictionary/saved-page navigation; only the character count, script
+toggle, page actions, and Read Aloud remain permanently visible page controls.
+Camera/capture owns source actions such as text from the clipboard, image from
+the clipboard, image from Album, and image from Files. Clipboard images use the
+same OCR page creation path as camera, album, and file images.
 Entering Browse selects the saved page with the newest viewed-or-created date;
 the same selection is established during startup because the app launches on
 Browse without invoking a tab transition. Dictionary is the fallback only when

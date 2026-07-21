@@ -298,7 +298,6 @@ extension RadixStore {
             selectBrowseCollection(id: collection.id)
         } else {
             selectedBrowseCollectionID = nil
-            shouldOpenBrowsePages = true
         }
     }
 
@@ -322,8 +321,8 @@ extension RadixStore {
         shouldOpenAddedPhraseReview = true
     }
 
-    func startBrowseCameraPage() {
-        goToBrowsePages(selectLatest: false)
+    func startBrowseCameraPage(preservingOrigin: Bool = false) {
+        goToBrowsePages(selectLatest: false, preservingOrigin: preservingOrigin)
         shouldStartBrowseCamera = true
     }
 

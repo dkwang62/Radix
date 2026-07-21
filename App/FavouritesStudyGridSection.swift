@@ -40,7 +40,7 @@ extension FavouritesTab {
                     actionTitle: "Create Saved Page",
                     actionSystemImage: "plus"
                 ) {
-                    store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
+                    store.startBrowseCameraPage(preservingOrigin: true)
                 }
             } else {
                 studySavedPagesList

@@ -14,6 +14,9 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   graph.
 - Browse owns source inspection: Dictionary, saved pages, Original OCR,
   Corrected OCR, page editing, and page phrase choosing.
+- `Browse - [page]` / `Browse - Dictionary` is the sole Browse selector for
+  Dictionary and saved pages; do not duplicate it with in-content source buttons.
+  Camera/capture owns album, file, clipboard, and camera intake.
 - Study owns kept learning material: Saved Pages, Sentences, Added Phrases,
   Conversation Practices, translations, quizzes, extracted-sentence artifacts,
   and deletion of saved pages/artifacts.

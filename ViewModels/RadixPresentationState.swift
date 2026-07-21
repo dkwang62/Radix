@@ -5,7 +5,6 @@ import SwiftUI
 struct RadixPresentationState {
     var showsPaywall = false
     var paywallFeatureName = "Pro Feature"
-    var shouldOpenBrowsePages = false
     var shouldCloseBrowsePages = false
     var shouldOpenAddedPhraseReview = false
     var shouldStartBrowseCamera = false
@@ -20,7 +19,6 @@ struct RadixPresentationState {
 extension RadixStore {
     var showPaywall: Bool { get { presentationState.showsPaywall } set { presentationState.showsPaywall = newValue } }
     var paywallFeatureName: String { get { presentationState.paywallFeatureName } set { presentationState.paywallFeatureName = newValue } }
-    var shouldOpenBrowsePages: Bool { get { presentationState.shouldOpenBrowsePages } set { presentationState.shouldOpenBrowsePages = newValue } }
     var shouldCloseBrowsePages: Bool { get { presentationState.shouldCloseBrowsePages } set { presentationState.shouldCloseBrowsePages = newValue } }
     var shouldOpenAddedPhraseReview: Bool { get { presentationState.shouldOpenAddedPhraseReview } set { presentationState.shouldOpenAddedPhraseReview = newValue } }
     var shouldStartBrowseCamera: Bool { get { presentationState.shouldStartBrowseCamera } set { presentationState.shouldStartBrowseCamera = newValue } }

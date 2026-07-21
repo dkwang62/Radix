@@ -149,13 +149,6 @@ extension RootView {
                 }
             }
 
-            Section {
-                Button {
-                    store.shouldOpenBrowsePages = true
-                } label: {
-                    Label("Browse Sources...", systemImage: RadixIcon.browse)
-                }
-            }
         } label: {
             navigationTitleMenuLabel(browseNavigationTitle)
         }

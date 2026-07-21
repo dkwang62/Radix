@@ -166,9 +166,6 @@ struct FilterGridTab: View {
                 consumeBrowsePageRequests()
                 scrollToPendingBrowseTarget(proxy: proxy)
             }
-            .onChange(of: store.shouldOpenBrowsePages) { _, _ in
-                consumeBrowsePageRequests()
-            }
             .onChange(of: store.shouldCloseBrowsePages) { _, _ in
                 consumeBrowsePageRequests()
             }

@@ -43,11 +43,7 @@ extension FilterGridTab {
 
     func dictionarySourceLabel(description: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                dictionaryHelpButton
-                Spacer(minLength: 0)
-                browseSourcePickerButton
-            }
+            dictionaryHelpButton
 
             smartGridControls
 
@@ -95,29 +91,8 @@ extension FilterGridTab {
         }
     }
 
-    var browseSourcePickerButton: some View {
-        Button {
-            withAnimation(.easeInOut(duration: 0.16)) {
-                showBrowseSource = true
-            }
-        } label: {
-            Label("Sources", systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
-                .frame(minHeight: 32)
-                .padding(.horizontal, 4)
-        }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-        .accessibilityLabel("Choose Browse Source")
-        .help("Choose Browse Source")
-    }
-
     func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
         return HStack(spacing: 6) {
-            browseSourcePickerButton
-
             Text("\(collection.characters.count) characters")
                 .font(ResponsiveFont.caption2.weight(.semibold))
                 .foregroundStyle(.secondary)

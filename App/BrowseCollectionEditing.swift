@@ -67,18 +67,10 @@ extension FilterGridTab {
             return
         }
         imageActionMessage = nil
-        showBrowseSource = true
         showBrowseCamera = true
     }
 
     func consumeBrowsePageRequests() {
-        if store.shouldOpenBrowsePages {
-            store.shouldOpenBrowsePages = false
-            withAnimation(.easeInOut(duration: 0.16)) {
-                showBrowseSource = true
-            }
-        }
-
         if store.shouldCloseBrowsePages {
             store.shouldCloseBrowsePages = false
             withAnimation(.easeInOut(duration: 0.16)) {
@@ -88,9 +80,6 @@ extension FilterGridTab {
 
         if store.shouldStartBrowseCamera {
             store.shouldStartBrowseCamera = false
-            withAnimation(.easeInOut(duration: 0.16)) {
-                showBrowseSource = true
-            }
             beginBrowseCameraScan()
         }
     }
