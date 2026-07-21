@@ -37,6 +37,9 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   sheet and return directly to the originating sentence.
 - Sentence phrase discovery is explicit and on demand when the Phrase sheet
   opens. Never run it while rendering a row or merely opening a sentence card.
+- On iPhone, shared sentence-list rows show only the selected language
+  (Chinese or English), without pinyin or row chevrons, and wrap long portrait
+  sentences. iPad and Mac keep the richer pinyin row.
 - Study lower buttons (`Added Phrases`, `Conversation Practices`, `Sentences`)
   are peer in-place sections. They share one `FocusedStudySection` enum, keep
   pinned Study controls visible, and do not show a normal `Back to Study`.

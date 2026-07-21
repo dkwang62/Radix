@@ -111,11 +111,11 @@ extension FavouritesTab {
         onOpen: @escaping () -> Void,
         @ViewBuilder trailing: () -> Trailing
     ) -> some View {
-        HStack(alignment: .center, spacing: 6) {
+        HStack(alignment: isPhone ? .top : .center, spacing: isPhone ? 4 : 6) {
             Button {
                 onOpen()
             } label: {
-                HStack(alignment: .center, spacing: 8) {
+                HStack(alignment: isPhone ? .top : .center, spacing: isPhone ? 6 : 8) {
                     Text("\(item.rank)")
                         .font(ResponsiveFont.caption2.weight(.semibold))
                         .foregroundStyle(isSelected ? Color.white : RadixAccent.primary)
@@ -124,14 +124,16 @@ extension FavouritesTab {
 
                     conversationPracticeSentenceRowText(item)
 
-                    RadixCompactChevronLabel(
-                        chevronSystemName: "chevron.right",
-                        chevronFont: .system(size: RadixIconSize.small, weight: .semibold),
-                        chevronForegroundStyle: isSelected ? RadixAccent.primary : .secondary,
-                        chevronOpacity: 1
-                    )
+                    if !isPhone {
+                        RadixCompactChevronLabel(
+                            chevronSystemName: "chevron.right",
+                            chevronFont: .system(size: RadixIconSize.small, weight: .semibold),
+                            chevronForegroundStyle: isSelected ? RadixAccent.primary : .secondary,
+                            chevronOpacity: 1
+                        )
+                    }
                 }
-                .frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
+                .frame(maxWidth: .infinity, minHeight: 30, alignment: isPhone ? .topLeading : .leading)
             }
             .buttonStyle(.plain)
             .accessibilityLabel(openAccessibilityLabel)
@@ -139,8 +141,8 @@ extension FavouritesTab {
 
             trailing()
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
+        .padding(.horizontal, isPhone ? 6 : 8)
+        .padding(.vertical, isPhone ? 5 : 6)
         .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
         .radixSurface(
             conversationPracticeSentenceBackground(isSelected: isSelected),
@@ -151,26 +153,44 @@ extension FavouritesTab {
 
     @ViewBuilder
     func conversationPracticeSentenceRowText(_ item: ConversationPracticeItem) -> some View {
-        VStack(alignment: .leading, spacing: 1) {
-            switch conversationPracticeSentenceDisplay {
-            case .chinese:
-                Text(practiceSentenceDisplayText(item.simplified))
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                Text(item.pinyin)
-                    .font(ResponsiveFont.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.85)
-            case .english:
-                Text(item.english)
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.85)
+        if isPhone {
+            practiceSentencePrimaryText(item)
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(2)
+        } else {
+            VStack(alignment: .leading, spacing: 1) {
+                switch conversationPracticeSentenceDisplay {
+                case .chinese:
+                    practiceSentencePrimaryText(item)
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Text(item.pinyin)
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                case .english:
+                    practiceSentencePrimaryText(item)
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.85)
+                }
             }
+            .layoutPriority(1)
         }
-        .layoutPriority(1)
+    }
+
+    func practiceSentencePrimaryText(_ item: ConversationPracticeItem) -> Text {
+        switch conversationPracticeSentenceDisplay {
+        case .chinese:
+            return Text(practiceSentenceDisplayText(item.simplified))
+        case .english:
+            return Text(item.english)
+        }
     }
 
     func practiceSentenceDisplayText(_ text: String) -> String {

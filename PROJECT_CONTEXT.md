@@ -254,6 +254,10 @@ Extracted sentence rows reuse the shared Conversation Practice sentence controls
 lazy list, row, and sentence card, resolving back to the canonical sentence
 database record so active selection, Chinese/English display, script switching,
 phrase chips, read-aloud, and favorites stay aligned.
+On iPhone, those shared sentence rows prioritize reading space: the row shows
+only the selected display language (Chinese or English), omits pinyin and row
+chevrons, and wraps long portrait sentences instead of squeezing them into one
+line. iPad and Mac keep the richer compact row with pinyin in Chinese mode.
 The extracted-sentences reader must render from a page-scoped SQLite sentence
 query plus cheap page-sentence fallbacks; do not scan the whole sentence database
 or rebuild `SentenceExampleRecord.fromAICleanedPage` in the display path.
