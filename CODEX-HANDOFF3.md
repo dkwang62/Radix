@@ -45,9 +45,9 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   embedded Added Phrases and Conversation Practice.
   Phone row favorite/overflow actions live in context/tool menus unless
   selection mode needs checkboxes. iPad and Mac keep the richer pinyin row.
-- Conversation Practices should mirror Study Sentences on iPhone: no bottom
-  action bar, no local Translate Quiz, and Flashcards/Quick Quiz in the compact
-  tools menu above the sentence list.
+- Conversation Practices should mirror Study Sentences on every platform: no
+  bottom action bar, no framed practice card shell, no local Translate Quiz, and
+  Flashcards/Quick Quiz in the compact tools menu above the sentence list.
 - Study lower buttons (`Added Phrases`, `Conversation Practices`, `Sentences`)
   are peer in-place sections. They share one `FocusedStudySection` enum, keep
   pinned Study controls visible, and do not show a normal `Back to Study`.

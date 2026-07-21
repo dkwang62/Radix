@@ -147,9 +147,6 @@ extension FavouritesTab {
             conversationPracticeDisplayControls(library)
             conversationPracticeSentenceList(library)
         }
-        .padding(isPhone ? 0 : 10)
-        .background(isPhone ? Color.clear : RadixTheme.secondaryBackground.opacity(0.52))
-        .clipShape(RoundedRectangle(cornerRadius: isPhone ? 0 : 10))
     }
 
     @ViewBuilder
@@ -171,8 +168,10 @@ extension FavouritesTab {
             .padding(.bottom, 2)
         } else {
             practiceSentenceDisplayControls {
-                conversationPracticePageNavigation(library)
-                conversationPracticeToolsMenu(library)
+                HStack(spacing: 8) {
+                    conversationPracticePageNavigation(library)
+                    conversationPracticeToolsMenu(library)
+                }
             }
         }
     }

@@ -292,11 +292,12 @@ colors are fine when they clarify the destinations. Conversation Practices
 should render as the focused Practice section under the same Study controls,
 not as a separate screen with its own `Back to Study` button. Do not show a
 persistent `Review | Practice` switch row on the Study main screen.
-Conversation Practice on iPhone should look and behave like Study Sentences:
-the list owns the screen, page/navigation and Chinese/English controls stay in
-the compact local control row, and secondary drills live in a small tools menu.
-Do not add a bottom Translate/Quiz bar. Local Translate Quiz has been removed;
-translation practice should be AI-backed if it returns.
+Conversation Practice should look and behave like Study Sentences on every
+platform: the list owns the screen, page/navigation and Chinese/English
+controls stay in the compact local control row, and secondary drills live in a
+small tools menu. Do not add a bottom Translate/Quiz bar or a separate framed
+practice card shell. Local Translate Quiz has been removed; translation
+practice should be AI-backed if it returns.
 
 Inside Review, the Study scope control is the section selector. Do not repeat
 Recent/Favorites as another segmented picker above the review grid; the grid

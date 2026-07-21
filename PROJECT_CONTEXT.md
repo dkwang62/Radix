@@ -267,11 +267,11 @@ workspaces such as Added Phrases must not hide the parent navigation bar.
 Conversation Practice and extracted sentence lists should reuse the same
 phone sentence control layout as Study Sentences: page navigation and
 Chinese/English display controls stay compact in one local row where possible.
-Conversation Practice must not reserve a bottom action bar on iPhone; the
-sentence list is the primary surface. Flashcards and Quick Quiz live in the
-compact top tools menu, while the local Translate Quiz feature has been removed.
-Future translation practice should route through AI-backed workflows instead of
-reintroducing local quiz code.
+Conversation Practice must not reserve a bottom action bar or framed card shell
+on any platform; the sentence list is the primary surface. Flashcards and Quick
+Quiz live in the compact top tools menu, while the local Translate Quiz feature
+has been removed. Future translation practice should route through AI-backed
+workflows instead of reintroducing local quiz code.
 Per-row favorite and overflow actions should not permanently consume phone
 sentence-row width; keep them in long-press context menus or compact tool menus
 except while selection mode needs a visible checkbox. iPad and Mac keep the
