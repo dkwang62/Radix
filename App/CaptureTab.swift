@@ -1,11 +1,6 @@
 import SwiftUI
 
 struct CaptureTab: View {
-    enum Presentation {
-        case standard
-        case directCamera
-    }
-
     @EnvironmentObject private var store: RadixStore
     @EnvironmentObject private var entitlement: EntitlementManager
     @Environment(\.openURL) private var openURL
@@ -22,15 +17,10 @@ struct CaptureTab: View {
     @State private var lastSavedCollectionID: UUID?
     @State private var freePageUseCount = RadixCaptureUsage.freeScanCount
 
-    private let presentation: Presentation
     private let freePageLimit = 100
 
-    init(
-        shouldOpenCamera: Binding<Bool> = .constant(false),
-        presentation: Presentation = .standard
-    ) {
+    init(shouldOpenCamera: Binding<Bool> = .constant(false)) {
         _shouldOpenCamera = shouldOpenCamera
-        self.presentation = presentation
     }
 
     private enum CaptureSource {
@@ -54,9 +44,7 @@ struct CaptureTab: View {
                     if isPhoneCapturePreviewActive {
                         phoneCapturePreview
                     } else if store.activeCaptureDraft.rawText.isEmpty {
-                        if showsSourceHeader {
-                            header
-                        }
+                        header
                         CaptureStatusMessages(errorMessage: errorMessage, statusMessage: statusMessage)
                         CaptureImagePreview(image: selectedImage)
                         if isProcessing {
@@ -67,9 +55,7 @@ struct CaptureTab: View {
                             emptyState
                         }
                     } else {
-                        if showsSourceHeader {
-                            header
-                        }
+                        header
                         CaptureStatusMessages(errorMessage: errorMessage, statusMessage: statusMessage)
                         CaptureImagePreview(image: selectedImage)
                         captureResults(scrollToTop: {
@@ -117,14 +103,6 @@ struct CaptureTab: View {
         .onChange(of: shouldOpenCamera) { _, _ in
             openRequestedCameraIfNeeded()
         }
-    }
-
-    private var showsSourceHeader: Bool {
-        presentation == .standard
-    }
-
-    private var showsSavedPagesList: Bool {
-        presentation == .standard
     }
 
     private var header: some View {
@@ -175,27 +153,8 @@ struct CaptureTab: View {
         ""
     }
 
-    @ViewBuilder
     private var emptyState: some View {
-        if showsSavedPagesList {
-            savedImagesList
-        } else {
-            directCameraEmptyState
-        }
-    }
-
-    private var directCameraEmptyState: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Ready to capture Chinese text", systemImage: RadixIcon.scan)
-                .font(ResponsiveFont.body.weight(.semibold))
-            Text("Use Camera above. New pages open in Browse after Radix reads the image.")
-                .font(ResponsiveFont.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .radixSurface(RadixTheme.secondaryBackground.opacity(0.55), radius: 8)
+        savedImagesList
     }
 
     private var isPhoneCapturePreviewActive: Bool {
@@ -256,9 +215,7 @@ struct CaptureTab: View {
     private func captureResults(scrollToTop: @escaping () -> Void) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             captureCharactersSection(scrollToTop: scrollToTop)
-            if showsSavedPagesList {
-                savedImagesList
-            }
+            savedImagesList
         }
     }
 
@@ -366,4 +323,5 @@ struct CaptureTab: View {
         shouldOpenCamera = false
         startCameraScan()
     }
+
 }

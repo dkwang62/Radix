@@ -88,10 +88,7 @@ extension RootView {
         case -1:
             ComponentsExplorerShell()
         case 0:
-            CaptureTab(
-                shouldOpenCamera: $shouldOpenPhoneCamera,
-                presentation: .directCamera
-            )
+            CaptureTab(shouldOpenCamera: $shouldOpenPhoneCamera)
         case 1:
             SmartSearchTab()
         case 2:

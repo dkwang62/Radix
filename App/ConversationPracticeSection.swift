@@ -280,7 +280,7 @@ extension FavouritesTab {
     }
 
     var conversationPracticePageSize: Int {
-        isNarrowStudyLayout ? 5 : 10
+        practiceSentenceDefaultPageSize
     }
 
     func conversationPracticePageCount(for library: ConversationPracticeLibrary) -> Int {

@@ -77,11 +77,6 @@ extension FilterGridTab {
                 showBrowseSource = false
             }
         }
-
-        if store.shouldStartBrowseCamera {
-            store.shouldStartBrowseCamera = false
-            beginBrowseCameraScan()
-        }
     }
 
     @MainActor

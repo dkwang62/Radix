@@ -1,6 +1,10 @@
 import SwiftUI
 
 extension FavouritesTab {
+    var practiceSentenceDefaultPageSize: Int {
+        10
+    }
+
     func practiceSentencePageNavigation(
         label: String,
         canMovePrevious: Bool,

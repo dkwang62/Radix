@@ -169,9 +169,6 @@ struct FilterGridTab: View {
             .onChange(of: store.shouldCloseBrowsePages) { _, _ in
                 consumeBrowsePageRequests()
             }
-            .onChange(of: store.shouldStartBrowseCamera) { _, _ in
-                consumeBrowsePageRequests()
-            }
             .sheet(isPresented: $showBrowseFilters) {
                 BrowseFiltersSheet(sizeClass: sizeClass) {
                     showBrowseFilters = false

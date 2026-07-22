@@ -536,28 +536,7 @@ extension FavouritesTab {
                 .textFieldStyle(.roundedBorder)
                 .font(ResponsiveFont.body)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
-                    ForEach(SentenceExampleStudyFilter.allCases) { filter in
-                        Button {
-                            sentenceExampleFilter = filter
-                            resetSentenceExampleResultsContext()
-                        } label: {
-                            Label(filter.rawValue, systemImage: filter.systemImage)
-                                .font(ResponsiveFont.caption.weight(.semibold))
-                                .labelStyle(.titleAndIcon)
-                                .radixPill(
-                                    horizontal: 9,
-                                    vertical: 6,
-                                    background: sentenceExampleFilter == filter ? RadixAccent.primary : RadixTheme.secondaryBackground
-                                )
-                                .foregroundStyle(sentenceExampleFilter == filter ? Color.white : Color.primary.opacity(0.72))
-                        }
-                        .buttonStyle(.plain)
-                        .help(filter.rawValue)
-                    }
-                }
-            }
+            sentenceExampleSourceFilterMenu
         }
         .padding(10)
         .background(.regularMaterial)
@@ -569,6 +548,36 @@ extension FavouritesTab {
             }
             resetSentenceExampleResultsContext()
         }
+    }
+
+    var sentenceExampleSourceFilterMenu: some View {
+        Menu {
+            ForEach(SentenceExampleStudyFilter.allCases) { filter in
+                Button {
+                    sentenceExampleFilter = filter
+                    resetSentenceExampleResultsContext()
+                } label: {
+                    Label(
+                        filter.rawValue,
+                        systemImage: sentenceExampleFilter == filter ? "checkmark" : filter.systemImage
+                    )
+                }
+            }
+        } label: {
+            Label(sentenceExampleFilter.rawValue, systemImage: sentenceExampleFilter.systemImage)
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .labelStyle(.titleAndIcon)
+                .radixPill(
+                    horizontal: 9,
+                    vertical: 6,
+                    background: RadixTheme.secondaryBackground
+                )
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(RadixAccent.primary)
+        .accessibilityLabel("Sentence source")
+        .accessibilityValue(sentenceExampleFilter.rawValue)
+        .help("Choose sentence source")
     }
 
     var sentenceExamplePhoneToolsMenu: some View {
@@ -676,7 +685,7 @@ extension FavouritesTab {
     }
 
     var sentenceExamplePageSize: Int {
-        sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 10 : 50
+        sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? practiceSentenceDefaultPageSize : 50
     }
 
     var canBulkDeleteFilteredSentenceExamples: Bool {

@@ -17,6 +17,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
 - `Browse - [page]` / `Browse - Dictionary` is the sole Browse selector for
   Dictionary and saved pages; do not duplicate it with in-content source buttons.
   Camera/capture owns album, file, clipboard, and camera intake.
+- Global Camera opens the full Camera/capture workbench first, with Camera,
+  Album, and Files choices visible; do not bypass it with a direct camera sheet.
 - Study owns kept learning material: Saved Pages, Sentences, Added Phrases,
   Conversation Practices, translations, quizzes, extracted-sentence artifacts,
   and deletion of saved pages/artifacts.
@@ -52,6 +54,9 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
 - Conversation Practices should mirror Study Sentences on every platform: no
   bottom action bar, no framed practice card shell, no local Translate Quiz, and
   Flashcards/Quick Quiz in the compact tools menu above the sentence list.
+- Sentence-based Study surfaces share a default 10-row page size. Study
+  Sentences uses one compact source menu for All/Favorites/From Pages/From
+  Practice instead of a row of source buttons.
 - `Added Phrases`, `Conversation Practices`, and `Sentences` are peer in-place
   Study sections selected from the root title menu. They share one
   `FocusedStudySection` enum, keep pinned Study controls visible, and do not

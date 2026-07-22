@@ -322,8 +322,14 @@ extension RadixStore {
     }
 
     func startBrowseCameraPage(preservingOrigin: Bool = false) {
-        goToBrowsePages(selectLatest: false, preservingOrigin: preservingOrigin)
-        shouldStartBrowseCamera = true
+        if preservingOrigin {
+            rememberCrossTabOrigin()
+        } else {
+            clearCrossTabOrigin()
+        }
+        route = .capture
+        activeFavouriteCharacter = nil
+        clearBrowsePreview()
     }
 
     func goToDataEdit(preservingOrigin: Bool = false) {

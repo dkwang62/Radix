@@ -274,9 +274,11 @@ button. Do not show a persistent `Review | Practice` switch row on the Study
 main screen.
 Conversation Practice should look and behave like Study Sentences on every
 platform: the list owns the screen, page/navigation and Chinese/English
-controls stay in the compact local control row, and secondary drills live in a
-small tools menu. Do not add a bottom Translate/Quiz bar or a separate framed
-practice card shell. Local Translate Quiz has been removed; translation
+controls stay in the compact local control row, default page sizes match across
+sentence-based Study surfaces, and secondary drills live in a small tools menu.
+Sentence source filtering should be one compact menu/toggle, not a row of
+separate source buttons. Do not add a bottom Translate/Quiz bar or a separate
+framed practice card shell. Local Translate Quiz has been removed; translation
 practice should be AI-backed if it returns.
 
 Inside Review, the root title menu is the section selector. Do not repeat
