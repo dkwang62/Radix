@@ -39,36 +39,10 @@ extension RootView {
     }
 
     var sidebarGlobalActionRow: some View {
-        HStack(spacing: 8) {
-            Button {
-                hasUsedSidebarNavigation = true
-                beginNewSearch()
-            } label: {
-                PrimaryActionTile(
-                    title: "Search",
-                    subtitle: "Anything",
-                    systemImage: RadixIcon.search,
-                    isPrimary: false
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Search in Radix")
-
-            Button {
-                hasUsedSidebarNavigation = true
-                store.clearInformationCardFocus()
-                store.startBrowseCameraPage()
-            } label: {
-                PrimaryActionTile(
-                    title: "Camera",
-                    subtitle: "Capture text",
-                    systemImage: RadixIcon.scan,
-                    isPrimary: true
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Camera")
-        }
+        GlobalSearchCameraActionRow(
+            onSearch: { openSearchFromGlobalAction(markSidebarUsed: true) },
+            onCamera: { openCameraFromGlobalAction(markSidebarUsed: true) }
+        )
     }
 
     var sidebarMainNavigation: some View {

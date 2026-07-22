@@ -382,6 +382,54 @@ struct PrimaryActionTile: View {
     }
 }
 
+struct GlobalSearchCameraActionRow: View {
+    var onSearch: () -> Void
+    var onCamera: () -> Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Button(action: onSearch) {
+                PrimaryActionTile(
+                    title: "Search",
+                    subtitle: "Anything",
+                    systemImage: RadixIcon.search,
+                    isPrimary: false
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Search in Radix")
+
+            Button(action: onCamera) {
+                PrimaryActionTile(
+                    title: "Camera",
+                    subtitle: "Capture text",
+                    systemImage: RadixIcon.scan,
+                    isPrimary: true
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Camera")
+        }
+    }
+}
+
+extension RootView {
+    func openSearchFromGlobalAction(markSidebarUsed: Bool = false) {
+        if markSidebarUsed {
+            hasUsedSidebarNavigation = true
+        }
+        beginNewSearch()
+    }
+
+    func openCameraFromGlobalAction(markSidebarUsed: Bool = false) {
+        if markSidebarUsed {
+            hasUsedSidebarNavigation = true
+        }
+        store.clearInformationCardFocus()
+        store.startBrowseCameraPage()
+    }
+}
+
 @MainActor
 func standardPhoneCharacterPreview(
     character: String,

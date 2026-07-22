@@ -30,7 +30,6 @@ struct RootView: View {
     @State var isQuickRestoringMemory = false
     @State var quickLocalSnapshots: [LocalDataSnapshot] = []
     @State var pendingSidebarCheckpointReturn: LocalDataSnapshot?
-    @State var shouldOpenPhoneCamera = false
     @State var navigationGuideTopic: RadixNavigationGuideTopic?
 
     var body: some View {

@@ -4,7 +4,6 @@ struct CaptureTab: View {
     @EnvironmentObject private var store: RadixStore
     @EnvironmentObject private var entitlement: EntitlementManager
     @Environment(\.openURL) private var openURL
-    @Binding private var shouldOpenCamera: Bool
     @State private var showImageFileImporter = false
     @State private var selectedImage: CapturedImage?
     @State private var isProcessing = false
@@ -18,10 +17,6 @@ struct CaptureTab: View {
     @State private var freePageUseCount = RadixCaptureUsage.freeScanCount
 
     private let freePageLimit = 100
-
-    init(shouldOpenCamera: Binding<Bool> = .constant(false)) {
-        _shouldOpenCamera = shouldOpenCamera
-    }
 
     private enum CaptureSource {
         case camera
@@ -99,13 +94,9 @@ struct CaptureTab: View {
         .onAppear {
             freePageUseCount = RadixCaptureUsage.freeScanCount
             openRequestedCameraIfNeeded()
-            openStoreRequestedCameraIfNeeded()
-        }
-        .onChange(of: shouldOpenCamera) { _, _ in
-            openRequestedCameraIfNeeded()
         }
         .onChange(of: store.shouldOpenCaptureCamera) { _, _ in
-            openStoreRequestedCameraIfNeeded()
+            openRequestedCameraIfNeeded()
         }
     }
 
@@ -323,12 +314,6 @@ struct CaptureTab: View {
     }
 
     private func openRequestedCameraIfNeeded() {
-        guard shouldOpenCamera else { return }
-        shouldOpenCamera = false
-        startCameraScan()
-    }
-
-    private func openStoreRequestedCameraIfNeeded() {
         guard store.shouldOpenCaptureCamera else { return }
         store.shouldOpenCaptureCamera = false
         startCameraScan()

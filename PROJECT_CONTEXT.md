@@ -1398,7 +1398,10 @@ The global capture action is labelled `Camera` across iPhone, iPad, and Mac;
 avoid reverting to `Take Photo` in visible navigation. That action should feel
 fast by opening the camera sheet immediately, but it must leave the normal
 capture workbench underneath so dismissing the sheet reveals the other capture
-sources instead of a Camera-only dead end.
+sources instead of a Camera-only dead end. The global Search/Camera tiles are
+shared through `GlobalSearchCameraActionRow` and RootView's
+`openSearchFromGlobalAction` / `openCameraFromGlobalAction`; do not clone those
+buttons separately for phone and sidebar layouts.
 Local snapshots are presented as `Checkpoints` to avoid colliding with backup
 language. On iPad and Mac, Checkpoints live in the sidebar when no
 character/phrase information card is displayed; the section disappears while an

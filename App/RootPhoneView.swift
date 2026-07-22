@@ -88,7 +88,7 @@ extension RootView {
         case -1:
             ComponentsExplorerShell()
         case 0:
-            CaptureTab(shouldOpenCamera: $shouldOpenPhoneCamera)
+            CaptureTab()
         case 1:
             SmartSearchTab()
         case 2:
@@ -128,34 +128,10 @@ extension RootView {
     }
 
     var phoneGlobalActionRow: some View {
-        HStack(spacing: 8) {
-            Button {
-                beginNewSearch()
-            } label: {
-                PrimaryActionTile(
-                    title: "Search",
-                    subtitle: "Anything",
-                    systemImage: RadixIcon.search,
-                    isPrimary: false
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Search in Radix")
-
-            Button {
-                store.clearInformationCardFocus()
-                store.startBrowseCameraPage()
-            } label: {
-                PrimaryActionTile(
-                    title: "Camera",
-                    subtitle: "Capture text",
-                    systemImage: RadixIcon.scan,
-                    isPrimary: true
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Camera")
-        }
+        GlobalSearchCameraActionRow(
+            onSearch: { openSearchFromGlobalAction() },
+            onCamera: { openCameraFromGlobalAction() }
+        )
         .padding(.horizontal, 10)
         .padding(.top, 8)
         .padding(.bottom, 6)
