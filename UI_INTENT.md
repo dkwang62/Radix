@@ -133,7 +133,10 @@ Search and Camera are global actions, not ordinary tab destinations.
   headline. Keep field actions such as clear and Recent Searches grouped at
   the trailing edge, while the leading magnifying glass remains decorative.
 - Camera is the fastest capture action. It should be globally visible on
-  primary screens and route into the existing OCR/page creation flow.
+  primary screens and route into the existing OCR/page creation flow. The
+  global Camera action should open the camera sheet immediately, with the full
+  capture workbench and other source options visible underneath after the sheet
+  is dismissed.
 - AI should remain first-class. It is a major product feature, not just a small
   Study subtool.
 - My Data should not become a review drawer. It should focus on data ownership,

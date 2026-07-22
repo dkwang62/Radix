@@ -250,8 +250,10 @@ titles such as `Browse - Dictionary`, `Browse - [page name]`, and
 should not immediately repeat the same section label shown in the root title.
 For Browse, the root title menu is the source selector for Dictionary and saved
 pages on every platform. Do not duplicate it with an in-content `Sources` button
-or source panel entry; Camera/capture owns album, file, clipboard, and camera
-intake.
+or source panel entry. The global `Camera` action routes to Camera/capture and
+opens the camera sheet once by default; after that sheet is dismissed, the full
+capture workbench remains visible with album, file, clipboard, and camera
+intake options.
 Study > Sentences search should not feel narrower than phrase-card Examples:
 typing a search resets the sentence filter to All, and searched results use a
 larger page size so phrase searches are not mistaken for missing examples.
@@ -1393,7 +1395,10 @@ Browse inspects the dictionary or captured pages; Study reviews what the user
 kept; AI understands or transforms material; My Data protects, transfers, or
 exports the user's work.
 The global capture action is labelled `Camera` across iPhone, iPad, and Mac;
-avoid reverting to `Take Photo` in visible navigation.
+avoid reverting to `Take Photo` in visible navigation. That action should feel
+fast by opening the camera sheet immediately, but it must leave the normal
+capture workbench underneath so dismissing the sheet reveals the other capture
+sources instead of a Camera-only dead end.
 Local snapshots are presented as `Checkpoints` to avoid colliding with backup
 language. On iPad and Mac, Checkpoints live in the sidebar when no
 character/phrase information card is displayed; the section disappears while an

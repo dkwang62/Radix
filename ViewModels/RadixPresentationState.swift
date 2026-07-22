@@ -7,6 +7,7 @@ struct RadixPresentationState {
     var paywallFeatureName = "Pro Feature"
     var shouldCloseBrowsePages = false
     var shouldOpenAddedPhraseReview = false
+    var shouldOpenCaptureCamera = false
     var activeFavouriteCharacter: String?
     var quickEditDestination: QuickEditDestination?
     var showsPhoneDetail = false
@@ -20,6 +21,7 @@ extension RadixStore {
     var paywallFeatureName: String { get { presentationState.paywallFeatureName } set { presentationState.paywallFeatureName = newValue } }
     var shouldCloseBrowsePages: Bool { get { presentationState.shouldCloseBrowsePages } set { presentationState.shouldCloseBrowsePages = newValue } }
     var shouldOpenAddedPhraseReview: Bool { get { presentationState.shouldOpenAddedPhraseReview } set { presentationState.shouldOpenAddedPhraseReview = newValue } }
+    var shouldOpenCaptureCamera: Bool { get { presentationState.shouldOpenCaptureCamera } set { presentationState.shouldOpenCaptureCamera = newValue } }
     var activeFavouriteCharacter: String? { get { presentationState.activeFavouriteCharacter } set { presentationState.activeFavouriteCharacter = newValue } }
     var quickEditDestination: QuickEditDestination? { get { presentationState.quickEditDestination } set { presentationState.quickEditDestination = newValue } }
     var showiPhoneDetail: Bool { get { presentationState.showsPhoneDetail } set { presentationState.showsPhoneDetail = newValue } }

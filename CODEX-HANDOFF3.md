@@ -17,8 +17,9 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
 - `Browse - [page]` / `Browse - Dictionary` is the sole Browse selector for
   Dictionary and saved pages; do not duplicate it with in-content source buttons.
   Camera/capture owns album, file, clipboard, and camera intake.
-- Global Camera opens the full Camera/capture workbench first, with Camera,
-  Album, and Files choices visible; do not bypass it with a direct camera sheet.
+- Global Camera routes to the full Camera/capture workbench and opens the
+  camera sheet once by default; after dismissal, Camera, Album, and Files
+  choices remain visible underneath. Do not reintroduce a Camera-only route.
 - Study owns kept learning material: Saved Pages, Sentences, Added Phrases,
   Conversation Practices, translations, quizzes, extracted-sentence artifacts,
   and deletion of saved pages/artifacts.

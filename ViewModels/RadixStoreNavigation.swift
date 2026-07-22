@@ -330,6 +330,7 @@ extension RadixStore {
         route = .capture
         activeFavouriteCharacter = nil
         clearBrowsePreview()
+        shouldOpenCaptureCamera = true
     }
 
     func goToDataEdit(preservingOrigin: Bool = false) {

@@ -99,9 +99,13 @@ struct CaptureTab: View {
         .onAppear {
             freePageUseCount = RadixCaptureUsage.freeScanCount
             openRequestedCameraIfNeeded()
+            openStoreRequestedCameraIfNeeded()
         }
         .onChange(of: shouldOpenCamera) { _, _ in
             openRequestedCameraIfNeeded()
+        }
+        .onChange(of: store.shouldOpenCaptureCamera) { _, _ in
+            openStoreRequestedCameraIfNeeded()
         }
     }
 
@@ -321,6 +325,12 @@ struct CaptureTab: View {
     private func openRequestedCameraIfNeeded() {
         guard shouldOpenCamera else { return }
         shouldOpenCamera = false
+        startCameraScan()
+    }
+
+    private func openStoreRequestedCameraIfNeeded() {
+        guard store.shouldOpenCaptureCamera else { return }
+        store.shouldOpenCaptureCamera = false
         startCameraScan()
     }
 
