@@ -121,7 +121,8 @@ extension PhraseInfoCard {
         } label: {
             InfoCardActionPill(
                 title: showsSentencePinyin ? "Hide Pinyin" : "Pinyin",
-                systemImage: showsSentencePinyin ? "eye.slash" : "textformat.abc",
+                systemImage: showsSentencePinyin ? "eye.slash" : nil,
+                textIcon: showsSentencePinyin ? nil : "拼",
                 verticalPadding: 8
             )
         }

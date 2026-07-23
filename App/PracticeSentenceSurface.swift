@@ -54,9 +54,12 @@ extension FavouritesTab {
         Button {
             conversationPracticeSentenceDisplay.toggle()
         } label: {
-            Label(conversationPracticeSentenceDisplay.rawValue, systemImage: conversationPracticeSentenceDisplay.systemImage)
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .labelStyle(.titleAndIcon)
+            HStack(spacing: 5) {
+                Text(conversationPracticeSentenceDisplay.textIcon)
+                    .font(ResponsiveFont.caption.weight(.bold))
+                Text(conversationPracticeSentenceDisplay.rawValue)
+                    .font(ResponsiveFont.caption.weight(.semibold))
+            }
                 .radixPill(
                     horizontal: 9,
                     vertical: 6,

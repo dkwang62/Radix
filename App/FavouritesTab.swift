@@ -929,10 +929,10 @@ enum ConversationPracticeSentenceDisplay: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var systemImage: String {
+    var textIcon: String {
         switch self {
-        case .chinese: return "textformat"
-        case .english: return "character.book.closed"
+        case .chinese: return "中"
+        case .english: return "英"
         }
     }
 

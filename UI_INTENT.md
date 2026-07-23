@@ -87,6 +87,10 @@ several alternatives just to choose one.
 For Study Sentences specifically, keep page navigation and display/script
 choice on the top row; put source filtering and management actions such as
 selection, transfer, and bulk delete on the lower source row.
+Language-learning controls should prefer meaningful text badges over generic
+typography icons: use labels such as `中 Chinese`, `英 English`, and `拼 Pinyin`
+instead of `Aa`/`textformat` symbols when the control changes language display
+or pinyin visibility.
 
 ### Balance with best-practice guardrails
 
