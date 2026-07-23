@@ -350,8 +350,9 @@ sections; embedded Study workspaces should not hide the shell. Do not require a
 iPhone Checkpoints may remain a shortcut to a sheet because it is a snapshot
 tool rather than a primary study list.
 Favorite Sentences belongs inside Conversation Practices, so do not duplicate
-it as a dashboard shortcut. `Pages` should be the default Study scope because
-page-linked work is the center of the page-first Study flow.
+it as a dashboard shortcut. `Sentences` is the default Study destination
+because Study should open directly into reading/practice material; `Pages`
+remains the page-centered artifact workspace inside Study.
 Conversation Practices should render as the focused Practice section under the
 same Study controls, not as a separate screen with its own `Back to Study`
 button. Do not show a persistent `Review | Practice` switch row on the Study

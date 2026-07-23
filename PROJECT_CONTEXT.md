@@ -264,10 +264,12 @@ platform. Do not duplicate it with broad in-content dashboard buttons for
 Recent, Favorites, Pages, Added Phrases, Conversation Practices, Sentences, or
 Checkpoints. The saved-page scope is labeled `Pages` in Study titles and menus,
 while persisted identifiers remain `savedPages` / `Saved Pages` for
-compatibility. Keep the pinned Study controls visible when focused sections are
-active, do not show a `Back to Study` button for normal switching, and clear
-the other focused Study sections when one is selected. Do not reintroduce
-separate booleans for these mutually exclusive sections.
+compatibility. Study defaults to the `Sentences` focused section; selecting the
+top-level Study item in the title menu also returns to `Study - Sentences`.
+Keep the pinned Study controls visible when focused sections are active, do not
+show a `Back to Study` button for normal switching, and clear the other focused
+Study sections when one is selected. Do not reintroduce separate booleans for
+these mutually exclusive sections.
 The root title dropdown is now also the complete high-level navigation menu on
 every platform. Its top section keeps `Browse`, `Study`, `AI Link`, `My Data`,
 `Checkpoints`, and `Settings` available. Browse appends Dictionary/saved pages,

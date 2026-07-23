@@ -190,6 +190,7 @@ extension RootView {
                     store.homeTab = .filter
                     store.returnToBrowseGrid()
                 case 3:
+                    store.requestedStudyNavigationTarget = .sentences
                     store.route = .search
                     store.homeTab = .favourites
                 case 5:

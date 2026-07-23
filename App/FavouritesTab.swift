@@ -441,7 +441,7 @@ struct FavouritesTab: View {
             loadConversationPracticeLibrary()
             openPendingConversationPracticeIfNeeded()
             onRefreshCheckpoints()
-            syncActiveStudySectionTitle()
+            applyInitialStudyNavigationTargetIfNeeded()
         }
         .onChange(of: studyGridUsesTraditionalScript) { _, newValue in
             RadixStudyPreferences.usesTraditionalScript = newValue
@@ -485,6 +485,18 @@ struct FavouritesTab: View {
 
     func syncActiveStudySectionTitle() {
         store.activeStudySectionTitle = activeStudySectionTitle
+    }
+
+    func applyInitialStudyNavigationTargetIfNeeded() {
+        if let target = store.requestedStudyNavigationTarget {
+            applyRequestedStudyNavigationTarget(target)
+        } else if store.activeStudySectionTitle == StudyNavigationTarget.sentences.title,
+                  focusedStudySection == nil {
+            presentSentenceExamples()
+            syncActiveStudySectionTitle()
+        } else {
+            syncActiveStudySectionTitle()
+        }
     }
 
     func applyRequestedStudyNavigationTarget(_ target: StudyNavigationTarget?) {

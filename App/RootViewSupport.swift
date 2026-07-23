@@ -179,6 +179,7 @@ extension RootView {
                 systemImage: RadixIcon.study,
                 isSelected: isStudyDestinationActive && !isCheckpointsDestinationActive
             ) {
+                store.requestedStudyNavigationTarget = .sentences
                 store.goToFavourites()
             }
 
@@ -203,8 +204,8 @@ extension RootView {
                 systemImage: "clock.arrow.circlepath",
                 isSelected: isCheckpointsDestinationActive
             ) {
-                store.goToFavourites()
                 store.requestedStudyNavigationTarget = .checkpoints
+                store.goToFavourites()
             }
 
             primaryNavigationButton(
