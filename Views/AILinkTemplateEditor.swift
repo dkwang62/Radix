@@ -43,7 +43,11 @@ extension AILinkView {
                 Spacer()
 
                 Button {
-                    store.addPromptTask()
+                    let id = store.cleanupBlankCustomPromptTasks() ?? store.addPromptTask()
+                    store.selectedPromptTaskID = id
+                    store.promptSelectedTaskIDs = [id]
+                    store.persistPromptSettings()
+                    loadPromptDraft(taskID: id)
                 } label: {
                     Label("AI Prompt", systemImage: "plus.circle")
                 }
@@ -96,14 +100,18 @@ extension AILinkView {
 
                 Spacer()
 
-                Button(role: .destructive) {
-                    store.removePromptTask(taskID: task.id)
-                } label: {
-                    Image(systemName: "trash")
-                        .font(ResponsiveFont.caption)
-                        .radixMinimumTapTarget()
+                if isCustomTemplateTask(task.id) {
+                    Button(role: .destructive) {
+                        store.removePromptTask(taskID: task.id)
+                        store.cleanupBlankCustomPromptTasks()
+                        ensureSelectedPromptTask()
+                    } label: {
+                        Image(systemName: "trash")
+                            .font(ResponsiveFont.caption)
+                            .radixMinimumTapTarget()
+                    }
+                    .accessibilityLabel("Delete AI prompt \(taskTitle(task.id))")
                 }
-                .accessibilityLabel("Delete AI prompt \(taskTitle(task.id))")
             }
 
             if isCustomTemplateTask(task.id) {

@@ -131,6 +131,17 @@ extension AILinkView {
             .buttonStyle(.bordered)
             .controlSize(.small)
             .font(ResponsiveFont.footnote.weight(.semibold))
+
+            if isCustomPromptTask {
+                Button(role: .destructive) {
+                    deleteSelectedCustomPromptTask()
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .font(ResponsiveFont.footnote.weight(.semibold))
+            }
         }
     }
 
@@ -167,6 +178,7 @@ extension AILinkView {
                 aiSelectedPracticeTopicRow
             } else if isSelectedTaskSentenceTask {
                 aiSelectedSentenceRow
+                aiSentenceSearchRow
             } else {
                 aiSelectedSubjectRow
             }
@@ -334,13 +346,86 @@ extension AILinkView {
     }
 
     var aiSelectedSentenceRow: some View {
-        sourceSelectorLabel(
-            icon: "quote.bubble",
-            title: activeSentenceTitle,
-            subtitle: activeSentenceSubtitle,
-            isMissing: activeSentenceItem == nil
-        )
-        .accessibilityLabel("AI sentence subject")
+        Menu {
+            if let activePracticeSentenceItem = store.activePracticeSentenceItem {
+                Section("Current Sentence") {
+                    Button {
+                        selectedAISentenceRecord = nil
+                    } label: {
+                        Label(
+                            sentenceMenuTitle(
+                                chinese: activePracticeSentenceItem.simplified,
+                                english: activePracticeSentenceItem.english
+                            ),
+                            systemImage: selectedAISentenceRecord == nil ? "checkmark" : "quote.bubble"
+                        )
+                    }
+                }
+            }
+
+            if aiSentencePickerRecords.isEmpty {
+                Text(aiSentenceSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                     ? "No saved sentences"
+                     : "No matches")
+            } else {
+                Section(sentencePickerSectionTitle) {
+                    ForEach(aiSentencePickerRecords) { record in
+                        Button {
+                            selectedAISentenceRecord = record
+                        } label: {
+                            Label(
+                                sentenceMenuTitle(
+                                    chinese: record.chinese,
+                                    english: record.english ?? ""
+                                ),
+                                systemImage: record.id == selectedAISentenceRecord?.id ? "checkmark" : "quote.bubble"
+                            )
+                        }
+                    }
+                }
+            }
+        } label: {
+            sourceSelectorLabel(
+                icon: "quote.bubble",
+                title: activeSentenceTitle,
+                subtitle: activeSentenceSubtitle,
+                isMissing: activeSentenceItem == nil
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Choose AI sentence subject")
+    }
+
+    var aiSentenceSearchRow: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+            TextField("Search saved sentences", text: $aiSentenceSearchText)
+                .textInputAutocapitalization(.never)
+                .disableAutocorrection(true)
+            if !aiSentenceSearchText.isEmpty {
+                Button {
+                    aiSentenceSearchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+                .accessibilityLabel("Clear sentence search")
+            }
+        }
+        .font(ResponsiveFont.subheadline)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(RadixTheme.tertiaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    var sentencePickerSectionTitle: String {
+        let count = aiSentencePickerResultCount
+        let visible = aiSentencePickerRecords.count
+        guard count > visible else { return "Saved Sentences" }
+        return "Saved Sentences (\(visible) of \(count))"
     }
 
     func aiPracticeTopicButton(_ topic: ConversationPracticeTopic) -> some View {
@@ -376,6 +461,15 @@ extension AILinkView {
         }
         let pinyin = store.item(for: subject)?.pinyinText.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return pinyin.isEmpty ? subject : "\(subject)  \(pinyin)"
+    }
+
+    func sentenceMenuTitle(chinese: String, english: String) -> String {
+        let cleanChinese = chinese.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanEnglish = english.trimmingCharacters(in: .whitespacesAndNewlines)
+        if cleanEnglish.isEmpty {
+            return cleanChinese
+        }
+        return "\(cleanChinese)  \(cleanEnglish)"
     }
 
 }

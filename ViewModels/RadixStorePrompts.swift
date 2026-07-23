@@ -51,6 +51,7 @@ extension RadixStore {
             geminiModelID = value
         }
         restoreRetainedGeminiAPIKeyIfNeeded()
+        cleanupBlankCustomPromptTasks()
     }
 
     func persistPromptSettings() {
@@ -188,6 +189,48 @@ extension RadixStore {
         promptSelectedTaskIDs = [id]
         persistPromptSettings()
         return id
+    }
+
+    func isBuiltInPromptTaskID(_ taskID: String) -> Bool {
+        PromptConfig.streamlitDefault.tasks.contains { $0.id == taskID }
+    }
+
+    func isBlankCustomPromptTask(_ task: PromptTask) -> Bool {
+        guard !isBuiltInPromptTaskID(task.id) else { return false }
+        let title = task.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let template = task.template.trimmingCharacters(in: .whitespacesAndNewlines)
+        return (title.isEmpty || title == "Custom Task") &&
+            (template.isEmpty || template == "Custom Task")
+    }
+
+    @discardableResult
+    func cleanupBlankCustomPromptTasks(keeping preferredID: String? = nil) -> String? {
+        let blankTasks = promptConfig.tasks.filter(isBlankCustomPromptTask)
+        guard !blankTasks.isEmpty else { return nil }
+
+        let keepID: String
+        if let preferredID,
+           blankTasks.contains(where: { $0.id == preferredID }) {
+            keepID = preferredID
+        } else if let selectedPromptTaskID,
+                  blankTasks.contains(where: { $0.id == selectedPromptTaskID }) {
+            keepID = selectedPromptTaskID
+        } else {
+            keepID = blankTasks[0].id
+        }
+
+        let taskIDsBefore = Set(promptConfig.tasks.map(\.id))
+        promptConfig.tasks.removeAll { isBlankCustomPromptTask($0) && $0.id != keepID }
+        let validTaskIDs = Set(promptConfig.tasks.map(\.id))
+        promptSelectedTaskIDs = promptSelectedTaskIDs.filter { validTaskIDs.contains($0) }
+        if !validTaskIDs.contains(selectedPromptTaskID ?? "") {
+            selectedPromptTaskID = keepID
+        }
+
+        if taskIDsBefore != validTaskIDs {
+            persistPromptSettings()
+        }
+        return keepID
     }
 
     func setPromptTask(

@@ -62,6 +62,13 @@ The sentence-card AI context action uses the built-in `Sentence` AI template,
 copies that prompt, and opens the selected/default AI provider directly; it
 should not stop at the AI Link workspace or fall back to a character, phrase,
 page, or generic starter template.
+Custom AI Link tasks carry an explicit subject type. Character/Phrase tasks use
+the recent subject chooser, Page tasks use the saved-page chooser, and Sentence
+tasks use a searchable saved-sentence chooser that queries only a small visible
+slice of the sentence database. Creating a new custom task must reuse an
+existing untouched blank custom draft instead of adding another empty task, and
+AI Link may clean up duplicate blank custom drafts automatically. Only custom
+tasks are deletable; built-in tasks should remain recoverable through defaults.
 Keep the crash guardrails: the Phrase
 button should show all exact phrase-library matches in the sentence by merging
 stored sentence phrase hints with on-demand phrase discovery when the phrase

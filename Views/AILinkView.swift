@@ -30,6 +30,10 @@ struct AILinkView: View {
     @State var aiImportedPracticePack: ConversationPracticePack?
     @State var isAIResultTextExpanded = true
     @State var isShowingTemplateManager = false
+    @State var selectedAISentenceRecord: SentenceExampleRecord?
+    @State var aiSentenceSearchText = ""
+    @State var aiSentencePickerRecords: [SentenceExampleRecord] = []
+    @State var aiSentencePickerResultCount = 0
 
     /// The character or phrase word that tasks 1-3 will act on.
     /// Phrase preview takes priority over single character preview.
@@ -198,7 +202,9 @@ struct AILinkView: View {
             if selectedAIPreset == nil {
                 selectedAIPreset = store.defaultAIPreset
             }
+            store.cleanupBlankCustomPromptTasks()
             ensureSelectedPromptTask()
+            refreshAISentencePickerResults()
             if store.shouldAutoOpenAILinkPrompt {
                 store.shouldAutoOpenAILinkPrompt = false
                 openPromptInDefaultAI()
@@ -210,6 +216,10 @@ struct AILinkView: View {
         }
         .onChange(of: selectedPromptTask?.id) { _, _ in
             resetAIResultWorkflow()
+            refreshAISentencePickerResults()
+        }
+        .onChange(of: aiSentenceSearchText) { _, _ in
+            refreshAISentencePickerResults()
         }
         .onChange(of: store.selectedPromptTaskID) { _, newValue in
             guard let newValue else { return }
@@ -254,7 +264,10 @@ struct AILinkView: View {
     }
 
     var activeSentenceItem: ConversationPracticeItem? {
-        store.activePracticeSentenceItem
+        if let selectedAISentenceRecord {
+            return ConversationPracticeItem(sentenceExample: selectedAISentenceRecord, rank: 1)
+        }
+        return store.activePracticeSentenceItem
     }
 
     var activeSentenceTitle: String {
@@ -269,6 +282,7 @@ struct AILinkView: View {
     }
 
     func ensureSelectedPromptTask() {
+        store.cleanupBlankCustomPromptTasks(keeping: store.selectedPromptTaskID)
         let normalizedTasks = store.promptConfig.normalized().tasks
         guard !normalizedTasks.isEmpty else {
             store.selectedPromptTaskID = nil
@@ -328,8 +342,32 @@ struct AILinkView: View {
     }
 
     func createCustomPromptTask() {
-        let id = store.addPromptTask()
+        let id = store.cleanupBlankCustomPromptTasks() ?? store.addPromptTask()
         store.selectedPromptTaskID = id
+        store.promptSelectedTaskIDs = [id]
+        store.persistPromptSettings()
         loadPromptDraft(taskID: id)
+        isPromptTemplateExpanded = true
+    }
+
+    func deleteSelectedCustomPromptTask() {
+        guard let selectedPromptTask, isCustomPromptTask else { return }
+        store.removePromptTask(taskID: selectedPromptTask.id)
+        store.cleanupBlankCustomPromptTasks()
+        store.selectedPromptTaskID = nil
+        ensureSelectedPromptTask()
+        promptSaveStatus = nil
+    }
+
+    func refreshAISentencePickerResults() {
+        let query = SentenceExampleQuery(
+            scope: .all,
+            searchText: aiSentenceSearchText,
+            offset: 0,
+            limit: 40
+        )
+        let result = RadixStudyPreferences.querySentenceExamples(query)
+        aiSentencePickerRecords = result.records
+        aiSentencePickerResultCount = result.totalCount
     }
 }
