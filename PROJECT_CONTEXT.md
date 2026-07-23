@@ -8,11 +8,15 @@ describes the present state and immediate direction.
 sessions and should stay aligned with this file when the workstream meaningfully
 changes. Earlier handoff files remain historical snapshots.
 
-Last reviewed: 2026-07-22
+Last reviewed: 2026-07-23
 
 Current app version metadata is marketing version `1.0.4`, build `14`.
 Settings > About shows the bundle version and build so future release bumps are
 visible in the app.
+
+`UI_INTENT.md` now includes the durable Radix UI preference guide. Future UI
+work should follow that guide before adding controls, screens, navigation paths,
+or parallel component implementations.
 
 ## Version 1.1 Direction
 

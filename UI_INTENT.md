@@ -29,6 +29,55 @@ These rules should shape every new screen before implementation starts. They
 capture the user's recurring preferences so new UI does not need to be corrected
 after the fact.
 
+### Radix UI preference guide
+
+Radix should feel like a focused Chinese learning workspace, not an admin
+dashboard. The screen should give the learning object the most space, keep
+direct controls close to that object, and hide explanation until the user asks
+for it.
+
+Use these preferences as defaults:
+
+- Preserve reading space, especially for sentence and practice lists. On phone,
+  show as many sentences as possible, allow long portrait sentences to wrap, and
+  avoid sidebars, permanent bottom bars, or wide per-row actions that steal text
+  width.
+- Keep Study section switching in the `Study - [section]` title menu. Do not
+  duplicate broad Study buttons in the content area when the header menu already
+  owns the same choices.
+- Keep Browse source switching in the `Browse - [source]` title menu. Do not add
+  a separate source button when Dictionary and saved pages are already available
+  from the title menu; camera/import sources belong under Camera/capture.
+- Prefer compact one-button toggles for binary display choices, such as
+  `中 Chinese` / `英 English` and `拼 Pinyin`, instead of wide segmented controls.
+- Use learning-specific labels and symbols. Chinese display controls should use
+  text badges such as `中`, `英`, `拼`, and `词`; avoid generic symbols such as
+  `Aa` when the control changes Chinese, English, or pinyin behavior.
+- Put secondary management actions such as Select, Transfer, Import, Export,
+  Clear, and bulk delete in a local tools menu unless the user needs the action
+  constantly while reading.
+- Distribute crowded controls across sensible rows instead of letting labels
+  wrap vertically or collapse into unclear icons. Compactness is good only when
+  the result remains readable.
+- Make visually similar controls use the same shared component. If two buttons,
+  sentence rows, phrase launchers, cards, sheets, or AI flows look alike but use
+  separate implementations, treat that as a maintainability bug.
+- Keep return behavior consistent and shallow. A callout from a sentence should
+  return to that sentence; a callout from a phrase should return to that phrase.
+  Avoid nested preview stacks such as sentence -> phrase -> phrase -> character.
+- Let the bottom tabs override contextual flows. Switching tabs should feel like
+  a clean change of workspace, not another nested return layer.
+- Prefer the Conversation Practice / Study Sentences look for sentence surfaces:
+  a calm list, simple language toggle, optional pinyin, and a full sentence card
+  only when the user opens a row.
+- Hide help, glossary, credits, recovery details, database details, and other
+  explanations behind header menus, sheets, or disclosure controls. They should
+  be available, but not permanent clutter.
+- Performance wins over non-essential UI richness. If an animation, preview
+  layer, database link, or convenience feature causes lag, hangs, crashes, or
+  visible scrolling cost, optimize it first; if it cannot be made instant enough
+  for normal use, simplify or remove it.
+
 ### Put the user in control
 
 Every exploratory, destructive, or cross-feature action needs a visible way back
