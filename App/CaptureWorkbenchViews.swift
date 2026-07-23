@@ -10,6 +10,7 @@ struct CaptureHeaderView: View {
     let onAlbumImage: @MainActor @Sendable (CapturedImage) -> Void
     let onAlbumError: @MainActor @Sendable (Error) -> Void
     let onFiles: () -> Void
+    let onText: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -38,12 +39,14 @@ struct CaptureHeaderView: View {
                 cameraButton
                 albumButton
                 filesButton
+                textButton
             }
 
             VStack(spacing: 10) {
                 cameraButton
                 albumButton
                 filesButton
+                textButton
             }
         }
     }
@@ -100,6 +103,19 @@ struct CaptureHeaderView: View {
         .buttonStyle(.plain)
         .disabled(isProcessing)
     }
+
+    private var textButton: some View {
+        Button(action: onText) {
+            CaptureSourceButton(
+                title: "Text to Page",
+                subtitle: freeScanStatusText,
+                systemName: "doc.text"
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Text to Page")
+        .disabled(isProcessing)
+    }
 }
 
 private struct CaptureSourceButton: View {
@@ -152,7 +168,7 @@ private struct CaptureSourceButton: View {
 
 private struct CaptureWorkflowHint: View {
     private let steps: [(String, String)] = [
-        ("1", "Choose image"),
+        ("1", "Choose source"),
         ("2", "Read text"),
         ("3", "Browse page")
     ]

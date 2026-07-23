@@ -11,6 +11,9 @@ struct CaptureTab: View {
     @State private var errorMessage: String?
     @State private var gridPage = 0
     @State private var showCamera = false
+    @State private var showManualCollectionSheet = false
+    @State private var manualCollectionName = ""
+    @State private var manualCollectionText = ""
     @State private var capturePreviewCharacter: String?
     @State private var captureDetailPreviewCharacter: String?
     @State private var lastSavedCollectionID: UUID?
@@ -91,6 +94,15 @@ struct CaptureTab: View {
             }
             .presentationDetents([.large])
         }
+        .sheet(isPresented: $showManualCollectionSheet) {
+            ManualBrowseCollectionSheet(
+                name: $manualCollectionName,
+                text: $manualCollectionText,
+                onCancel: { showManualCollectionSheet = false },
+                onSave: saveManualCollection
+            )
+            .presentationDetents([.medium, .large])
+        }
         .onAppear {
             freePageUseCount = RadixCaptureUsage.freeScanCount
             openRequestedCameraIfNeeded()
@@ -120,7 +132,8 @@ struct CaptureTab: View {
                     return
                 }
                 showImageFileImporter = true
-            }
+            },
+            onText: beginManualCollection
         )
     }
 
@@ -311,6 +324,37 @@ struct CaptureTab: View {
             return
         }
         showCamera = true
+    }
+
+    private func beginManualCollection() {
+        guard hasUnlimitedFreePages || freePagesRemaining > 0 else {
+            store.showPaywall(for: .datedCopies)
+            return
+        }
+        manualCollectionName = ""
+        manualCollectionText = RadixPlatform.pasteboardString
+        showManualCollectionSheet = true
+    }
+
+    private func saveManualCollection() {
+        guard let collection = store.createCollection(
+            name: manualCollectionName,
+            sourceText: manualCollectionText,
+            sourceType: .manual
+        ) else { return }
+
+        if !hasUnlimitedFreePages {
+            freePageUseCount = RadixCaptureUsage.incrementFreeScanCount(limit: freePageLimit)
+        }
+
+        lastSavedCollectionID = collection.id
+        manualCollectionName = ""
+        manualCollectionText = ""
+        showManualCollectionSheet = false
+        clearCaptureDraft()
+        store.goToBrowse()
+        store.selectBrowseCollection(id: collection.id)
+        clearPhoneBrowsePreviewAfterImageSave()
     }
 
     private func openRequestedCameraIfNeeded() {
