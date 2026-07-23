@@ -230,19 +230,6 @@ extension RootView {
             } label: {
                 Label("Dictionary", systemImage: store.selectedBrowseCollection == nil ? "checkmark" : "book")
             }
-
-            if !browseTitleMenuPages.isEmpty {
-                ForEach(browseTitleMenuPages) { collection in
-                    Button {
-                        store.selectBrowseCollection(id: collection.id)
-                        store.shouldCloseBrowsePages = true
-                    } label: {
-                        let title = collection.name.isEmpty ? RadixCopy.savedPage : collection.name
-                        let isSelected = store.selectedBrowseCollectionID == collection.id
-                        Label(title, systemImage: isSelected ? "checkmark" : RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
-                    }
-                }
-            }
         }
 
         Section("Create Page") {
@@ -262,6 +249,21 @@ extension RootView {
                 store.startCaptureFilePage()
             } label: {
                 Label("Image from Files", systemImage: "folder")
+            }
+        }
+
+        if !browseTitleMenuPages.isEmpty {
+            Section("Pages") {
+                ForEach(browseTitleMenuPages) { collection in
+                    Button {
+                        store.selectBrowseCollection(id: collection.id)
+                        store.shouldCloseBrowsePages = true
+                    } label: {
+                        let title = collection.name.isEmpty ? RadixCopy.savedPage : collection.name
+                        let isSelected = store.selectedBrowseCollectionID == collection.id
+                        Label(title, systemImage: isSelected ? "checkmark" : RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
+                    }
+                }
             }
         }
     }
