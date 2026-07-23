@@ -116,7 +116,8 @@ Study > Sentences keeps only page navigation and display/script controls in the
 top toolbar. Source filtering, compact sentence search, and one sentence tools
 menu belong on the lower source row on every device. The tools menu owns
 selection, bulk delete, and sentence transfer so iPad/Mac do not grow separate
-management buttons that crowd page navigation.
+management buttons that crowd page navigation. Do not keep parallel standalone
+Select, Delete Results, or Transfer button helpers for this screen.
 Shared language-learning buttons should use meaningful text badges instead of
 generic typography icons: `中 Chinese`, `英 English`, and `拼 Pinyin` are clearer
 than `Aa`/`textformat` symbols for sentence display and pinyin controls.

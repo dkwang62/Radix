@@ -498,20 +498,10 @@ extension FavouritesTab {
 
     var sentenceExamplesControls: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if isPhone {
-                practiceSentenceControlRow {
-                    sentenceExamplePageNavigation
-                } trailing: {
-                    practiceSentenceModeControls
-                }
-            } else {
-                practiceSentenceControlRow {
-                    sentenceExamplePageNavigation
-                } center: {
-                    EmptyView()
-                } trailing: {
-                    practiceSentenceModeControls
-                }
+            practiceSentenceControlRow {
+                sentenceExamplePageNavigation
+            } trailing: {
+                practiceSentenceModeControls
             }
 
             if let message = sentenceExampleStatusMessage {
@@ -649,42 +639,6 @@ extension FavouritesTab {
         .accessibilityLabel("Sentence tools")
     }
 
-    var sentenceDatabaseTransferMenu: some View {
-        Menu {
-            Button {
-                exportSentenceDatabase()
-            } label: {
-                Label("Export Sentences", systemImage: "square.and.arrow.up")
-            }
-            .disabled(isRunningSentenceDatabaseTransfer)
-
-            Button {
-                showSentenceDatabaseImporter = true
-            } label: {
-                Label("Import Sentences", systemImage: "square.and.arrow.down")
-            }
-            .disabled(isRunningSentenceDatabaseTransfer)
-
-            Divider()
-
-            Button(role: .destructive) {
-                showClearSentenceDatabaseConfirmation = true
-            } label: {
-                Label("Clear Saved Sentences...", systemImage: "trash")
-            }
-            .disabled(isRunningSentenceDatabaseTransfer)
-        } label: {
-            Label("Transfer", systemImage: "externaldrive")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .labelStyle(.titleAndIcon)
-                .radixPill(horizontal: 9, vertical: 6, background: RadixTheme.secondaryBackground)
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(isRunningSentenceDatabaseTransfer ? .secondary : RadixAccent.primary)
-        .disabled(isRunningSentenceDatabaseTransfer)
-        .help("Import, export, or clear saved sentences")
-    }
-
     var sentenceExamplePageSize: Int {
         sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? practiceSentenceDefaultPageSize : 50
     }
@@ -749,65 +703,6 @@ extension FavouritesTab {
         let startRank = clampedSentenceExamplePageIndex * sentenceExamplePageSize + 1
         let endRank = min(startRank + sentenceExamplePageRecords.count - 1, sentenceExampleResultCount)
         return "\(startRank)-\(endRank) of \(sentenceExampleResultCount)"
-    }
-
-    @ViewBuilder
-    var sentenceExampleBulkDeleteButton: some View {
-        if canBulkDeleteFilteredSentenceExamples {
-            Button(role: .destructive) {
-                showDeleteFilteredSentenceExamplesConfirmation = true
-            } label: {
-                Label("Delete Results", systemImage: "trash")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .labelStyle(.titleAndIcon)
-                    .radixPill(horizontal: 9, vertical: 6, background: Color.red.opacity(0.12))
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(Color.red)
-            .help("Delete all matching sentences")
-            .accessibilityHint("Deletes every sentence currently matching the search and filter after confirmation.")
-        }
-    }
-
-    @ViewBuilder
-    var sentenceExampleSelectionControls: some View {
-        if isSelectingSentenceExamples {
-            HStack(spacing: 6) {
-                Button {
-                    stopSelectingSentenceExamples()
-                } label: {
-                    Text("Cancel")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .radixPill(horizontal: 9, vertical: 6, background: RadixTheme.secondaryBackground)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
-
-                Button(role: .destructive) {
-                    showDeleteSelectedSentenceExamplesConfirmation = true
-                } label: {
-                    Label("Delete \(selectedSentenceExampleCount)", systemImage: "trash")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .labelStyle(.titleAndIcon)
-                        .radixPill(horizontal: 9, vertical: 6, background: Color.red.opacity(0.12))
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(Color.red)
-                .disabled(selectedSentenceExampleIDs.isEmpty)
-            }
-        } else if sentenceExampleResultCount > 0 {
-            Button {
-                startSelectingSentenceExamples()
-            } label: {
-                Label("Select", systemImage: "checklist")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .labelStyle(.titleAndIcon)
-                    .radixPill(horizontal: 9, vertical: 6, background: RadixTheme.secondaryBackground)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(RadixAccent.primary)
-            .help("Select sentences to delete")
-        }
     }
 
     func canMoveSentenceExamplePage(by offset: Int) -> Bool {
