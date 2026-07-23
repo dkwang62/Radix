@@ -867,7 +867,7 @@ enum StudyGridScope: String, CaseIterable, Identifiable {
         switch self {
         case .all: return "Recent"
         case .favorites: return "Favorites"
-        case .savedPages: return "Saved Pages"
+        case .savedPages: return "Pages"
         }
     }
 

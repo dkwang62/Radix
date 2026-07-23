@@ -342,16 +342,16 @@ The Study tab should not create a separate main app tab for Practice unless the
 whole navigation model is reconsidered. The main Study screen holds the user's
 kept material and local controls. The root title menu is the Study section
 switcher on every platform; do not also show broad Study dashboard buttons for
-Recent, Favorites, Saved Pages, Added Phrases, Conversation Practices,
-Sentences, or Checkpoints inside the content area. Keep only compact controls
-that affect the current section. Keep the History strip and title menu visible
-across Study sections; embedded Study workspaces should not hide the shell. Do
-not require a `Back to Study` return just to switch between these sections.
+Recent, Favorites, Pages, Added Phrases, Conversation Practices, Sentences, or
+Checkpoints inside the content area. Keep only compact controls that affect the
+current section. Keep the History strip and title menu visible across Study
+sections; embedded Study workspaces should not hide the shell. Do not require a
+`Back to Study` return just to switch between these sections.
 iPhone Checkpoints may remain a shortcut to a sheet because it is a snapshot
 tool rather than a primary study list.
 Favorite Sentences belongs inside Conversation Practices, so do not duplicate
-it as a dashboard shortcut. Saved Pages should be the default Study scope
-because page-linked work is the center of the page-first Study flow.
+it as a dashboard shortcut. `Pages` should be the default Study scope because
+page-linked work is the center of the page-first Study flow.
 Conversation Practices should render as the focused Practice section under the
 same Study controls, not as a separate screen with its own `Back to Study`
 button. Do not show a persistent `Review | Practice` switch row on the Study

@@ -15,7 +15,7 @@ enum StudyNavigationTarget: String, CaseIterable, Identifiable, Equatable {
         switch self {
         case .recent: return "Recent"
         case .favorites: return "Favorites"
-        case .savedPages: return "Saved Pages"
+        case .savedPages: return "Pages"
         case .addedPhrases: return "Added Phrases"
         case .conversationPractice: return "Conversation Practices"
         case .sentences: return "Sentences"
@@ -34,7 +34,7 @@ struct RadixNavigationState: Equatable {
     var rootsReturnContext: RootsReturnContext?
     var shouldRevealAPIKeys = false
     var pendingConversationPracticeTopicID: String?
-    var activeStudySectionTitle = "Saved Pages"
+    var activeStudySectionTitle = "Pages"
     var requestedStudyNavigationTarget: StudyNavigationTarget?
     var activeDataEditSection: DataEditSection = .myBackup
     var previewCharacter: String?

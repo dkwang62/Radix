@@ -261,11 +261,13 @@ matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.
 The root `Study - [section]` title menu is the Study section selector on every
 platform. Do not duplicate it with broad in-content dashboard buttons for
-Recent, Favorites, Saved Pages, Added Phrases, Conversation Practices,
-Sentences, or Checkpoints. Keep the pinned Study controls visible when focused
-sections are active, do not show a `Back to Study` button for normal switching,
-and clear the other focused Study sections when one is selected. Do not
-reintroduce separate booleans for these mutually exclusive sections.
+Recent, Favorites, Pages, Added Phrases, Conversation Practices, Sentences, or
+Checkpoints. The saved-page scope is labeled `Pages` in Study titles and menus,
+while persisted identifiers remain `savedPages` / `Saved Pages` for
+compatibility. Keep the pinned Study controls visible when focused sections are
+active, do not show a `Back to Study` button for normal switching, and clear
+the other focused Study sections when one is selected. Do not reintroduce
+separate booleans for these mutually exclusive sections.
 The root title dropdown is now also the complete high-level navigation menu on
 every platform. Its top section keeps `Browse`, `Study`, `AI Link`, `My Data`,
 `Checkpoints`, and `Settings` available. Browse appends Dictionary/saved pages,
