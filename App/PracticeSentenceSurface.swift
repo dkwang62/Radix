@@ -95,47 +95,37 @@ extension FavouritesTab {
         @ViewBuilder center: () -> Center,
         @ViewBuilder trailing: () -> Trailing
     ) -> some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 10) {
-                leading()
-                    .fixedSize(horizontal: true, vertical: false)
+        Group {
+            if isPhone || isNarrowStudyLayout {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 8) {
+                        leading()
+                            .fixedSize(horizontal: true, vertical: false)
 
-                Spacer(minLength: 8)
+                        Spacer(minLength: 0)
 
-                center()
-                    .fixedSize(horizontal: true, vertical: false)
+                        trailing()
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
 
-                Spacer(minLength: 8)
-
-                trailing()
-                    .fixedSize(horizontal: true, vertical: false)
-            }
-
-            HStack(spacing: 8) {
-                leading()
-                    .fixedSize(horizontal: true, vertical: false)
-
-                Spacer(minLength: 6)
-
-                trailing()
-                    .fixedSize(horizontal: true, vertical: false)
-
-                center()
-                    .fixedSize(horizontal: true, vertical: false)
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 8) {
+                    center()
+                        .fixedSize(horizontal: false, vertical: false)
+                }
+            } else {
+                HStack(spacing: 10) {
                     leading()
                         .fixedSize(horizontal: true, vertical: false)
 
-                    Spacer(minLength: 0)
+                    Spacer(minLength: 8)
+
+                    center()
+                        .fixedSize(horizontal: true, vertical: false)
+
+                    Spacer(minLength: 8)
 
                     trailing()
                         .fixedSize(horizontal: true, vertical: false)
                 }
-
-                center()
             }
         }
     }

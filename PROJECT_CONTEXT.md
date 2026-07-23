@@ -106,10 +106,12 @@ lists, example sheets, and sentence cards, not a second storage form.
 Study sentence-style screens, including Study > Sentences, Conversation
 Practice, and extracted sentence readers, share the `PracticeSentenceSurface`
 toolbar primitives. Keep the page navigation, selection/actions, and
-script/language display controls distributed through the shared
+script/language display controls arranged through the shared
 `practiceSentenceControlRow`, and keep Chinese/English as one compact toggle
-button rather than a fixed-width segmented picker so iPad split layouts do not
-compress labels into vertical fragments.
+button rather than a fixed-width segmented picker. This row must use
+deterministic phone/narrow versus wide layouts, not a measurement-based
+multi-candidate layout around interactive menus/buttons, so iPad split layouts
+do not hang or compress labels into vertical fragments.
 Settings exposes the only user-triggered `Optimize Database` maintenance
 action. Keep technical cleanup details out of the main UI: the Settings action
 may rewrite Radix-owned sentence, extracted-page, added-phrase, and

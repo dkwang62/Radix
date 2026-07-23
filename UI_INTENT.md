@@ -78,10 +78,12 @@ object they change over headers that merely restate the current screen. Combine
 related controls into one local cluster when they operate on the same object,
 such as page navigation, script choice, and display language for a sentence
 list.
-Sentence-list toolbars should use one shared, distributed control row. Avoid
+Sentence-list toolbars should use one shared, deterministic control row. Avoid
 fixed-width segmented controls inside mixed rows; use compact one-button
 toggles for binary modes such as Chinese/English so iPad split views do not
-wrap labels into unusable vertical text.
+wrap labels into unusable vertical text. Do not wrap interactive toolbar
+menus/buttons in a measurement-based multi-candidate layout that renders
+several alternatives just to choose one.
 
 ### Balance with best-practice guardrails
 
