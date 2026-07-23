@@ -57,7 +57,12 @@ possible.
 Sentence previews still use the shared `PhraseInfoCard` presentation route, and
 sentence mode must stay rich enough for learning: whole sentence, English
 meaning, optional pinyin, read aloud, Phrase button, four-character stroke
-animation pages, favorite, and delete. Keep the crash guardrails: the Phrase
+animation pages, favorite, a `Send to AI Link` context-menu item, and delete.
+The sentence-card AI context action uses the built-in `Sentence` AI template,
+copies that prompt, and opens the selected/default AI provider directly; it
+should not stop at the AI Link workspace or fall back to a character, phrase,
+page, or generic starter template.
+Keep the crash guardrails: the Phrase
 button should show all exact phrase-library matches in the sentence by merging
 stored sentence phrase hints with on-demand phrase discovery when the phrase
 sheet is opened. The full sheet lookup must use cached batch phrase discovery,

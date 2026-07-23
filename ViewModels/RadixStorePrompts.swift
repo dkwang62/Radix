@@ -171,7 +171,11 @@ extension RadixStore {
     }
 
     @discardableResult
-    func addPromptTask() -> String {
+    func addPromptTask(
+        title: String = "Custom Task",
+        template: String = "Custom Task\n\n",
+        subjectType: PromptTaskSubjectType = .characterPhrase
+    ) -> String {
         let next = (promptConfig.tasks.count + 1)
         var id = "task\(next)"
         var suffix = 1
@@ -179,7 +183,7 @@ extension RadixStore {
             suffix += 1
             id = "task\(next)_\(suffix)"
         }
-        let task = PromptTask(id: id, title: "Custom Task", template: "Custom Task\n\n")
+        let task = PromptTask(id: id, title: title, template: template, subjectType: subjectType)
         promptConfig.tasks.append(task)
         promptSelectedTaskIDs = [id]
         persistPromptSettings()

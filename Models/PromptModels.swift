@@ -550,6 +550,34 @@ Before returning, silently validate that the JSON is valid, every sentence conta
                 subjectType: .page
             ),
             PromptTask(
+                id: "task13",
+                title: "Sentence",
+                template: """
+Sentence
+
+Work with this Radix sentence as the subject.
+
+Chinese:
+{sentence_zh}
+
+Pinyin:
+{sentence_pinyin}
+
+English:
+{sentence_en}
+
+Useful phrases:
+{sentence_phrases}
+
+Characters:
+{sentence_characters}
+
+Explain the whole sentence naturally for a Chinese learner. Focus on meaning, grammar, word choice, useful phrases, and what sounds natural in real Mandarin. Do not analyze it as isolated characters unless that helps explain the sentence.
+
+""",
+                subjectType: .sentence
+            ),
+            PromptTask(
                 id: "task9",
                 title: "Generate Practice Pack",
                 template: """
@@ -624,11 +652,13 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
 
     static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7", "task8", "task10", "task11", "task12"]
     static let practiceTopicTaskIDs: Set<String> = ["task9"]
+    static let defaultSentenceTaskID = "task13"
     static let conversationEntryCountTaskIDs: Set<String> = ["task9", "task10", "task11"]
     static let conversationEntryCountOptions = [25, 50, 100]
     static let defaultConversationEntryCount = 25
 
     static func defaultSubjectType(forTaskID taskID: String) -> PromptTaskSubjectType {
+        if taskID == defaultSentenceTaskID { return .sentence }
         if collectionTaskIDs.contains(taskID) { return .page }
         if practiceTopicTaskIDs.contains(taskID) { return .practiceTopic }
         return .characterPhrase
@@ -640,7 +670,7 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
 
     static var defaultSelectedTaskIDs: [String] {
         streamlitDefault.tasks
-            .filter { !collectionTaskIDs.contains($0.id) && !practiceTopicTaskIDs.contains($0.id) }
+            .filter { $0.subjectType == .characterPhrase }
             .map(\.id)
     }
 
@@ -867,7 +897,9 @@ extension PromptConfig {
         let defaultsByID = Dictionary(uniqueKeysWithValues: PromptConfig.streamlitDefault.tasks.map { ($0.id, $0) })
         let missingDefaults = PromptConfig.streamlitDefault.tasks.filter { defaultTask in
             !seen.contains(defaultTask.id) &&
-                (PromptConfig.collectionTaskIDs.contains(defaultTask.id) || PromptConfig.practiceTopicTaskIDs.contains(defaultTask.id)) &&
+                (defaultTask.subjectType == .page ||
+                    defaultTask.subjectType == .practiceTopic ||
+                    defaultTask.subjectType == .sentence) &&
                 defaultsByID[defaultTask.id] != nil
         }
         return PromptConfig(

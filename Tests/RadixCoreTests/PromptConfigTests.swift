@@ -79,6 +79,37 @@ struct PromptConfigTests {
         #expect(prompt.contains("Phrases: 练习, 中文"))
     }
 
+    @Test("Sentence AI template is built in but not a default character task")
+    func sentenceTemplateAvailability() {
+        let normalized = PromptConfig.streamlitDefault.normalized()
+        let task = normalized.tasks.first { $0.id == PromptConfig.defaultSentenceTaskID }
+
+        #expect(task?.title == "Sentence")
+        #expect(task?.subjectType == .sentence)
+        #expect(task?.template.contains("{sentence_zh}") == true)
+        #expect(task?.template.contains("{sentence_en}") == true)
+        #expect(!PromptConfig.defaultSelectedTaskIDs.contains(PromptConfig.defaultSentenceTaskID))
+    }
+
+    @Test("Legacy prompt configs receive the built-in sentence template")
+    func legacyPromptConfigAddsSentenceTemplate() {
+        let legacyTasks = PromptConfig.streamlitDefault.tasks.filter { $0.id != PromptConfig.defaultSentenceTaskID }
+        let legacyConfig = PromptConfig(
+            version: 1,
+            preamble: "",
+            tasks: legacyTasks,
+            epilogue: "",
+            collectionPreamble: "",
+            collectionEpilogue: ""
+        )
+
+        let normalized = legacyConfig.normalized()
+        let sentenceTask = normalized.tasks.first { $0.id == PromptConfig.defaultSentenceTaskID }
+
+        #expect(sentenceTask?.title == "Sentence")
+        #expect(sentenceTask?.subjectType == .sentence)
+    }
+
     @Test("Legacy Check OCR templates normalize to page-character review")
     func legacyOCRTemplateNormalizes() {
         let legacy = PromptTask(

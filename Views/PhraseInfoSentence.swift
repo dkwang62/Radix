@@ -157,6 +157,13 @@ extension PhraseInfoCard {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(RadixTheme.secondaryBackground.opacity(0.45))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .contextMenu {
+            if let practiceSentenceItem {
+                Button("Send to AI Link") {
+                    store.triggerSentenceAI(practiceSentenceItem)
+                }
+            }
+        }
     }
 
     var sentenceHighlightedChineseText: some View {

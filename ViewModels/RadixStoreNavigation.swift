@@ -366,6 +366,35 @@ extension RadixStore {
         if RadixPlatform.isPhone { showiPhoneDetail = false }
     }
 
+    func sentenceAITaskID() -> String {
+        let normalizedTasks = promptConfig.normalized().tasks
+        let taskID = normalizedTasks.first { $0.id == PromptConfig.defaultSentenceTaskID }?.id ??
+            normalizedTasks.first { $0.subjectType == .sentence }?.id ??
+            PromptConfig.defaultSentenceTaskID
+        if promptConfig.tasks.allSatisfy({ $0.id != taskID }),
+           let defaultTask = PromptConfig.streamlitDefault.tasks.first(where: { $0.id == taskID }) {
+            promptConfig.tasks.append(defaultTask)
+        }
+        return taskID
+    }
+
+    @MainActor
+    func triggerSentenceAI(_ sentence: ConversationPracticeItem) {
+        let taskID = sentenceAITaskID()
+        let prompt = promptText(for: .sentence(sentence), selectedTaskIDs: [taskID])
+        guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        activePracticeSentenceItem = sentence
+        selectedPromptTaskID = taskID
+        promptSelectedTaskIDs = [taskID]
+        shouldAutoOpenAILinkPrompt = false
+        shouldAutoRunGeminiPhraseAPI = false
+        persistPromptSettings()
+        RadixPlatform.copyToPasteboard(prompt)
+        guard let url = defaultAIURL(prompt: prompt) else { return }
+        RadixPlatform.open(url, after: 0.1)
+        scheduleMacClipboardPasteIfPossible()
+    }
+
     func goBack() {
         if route == .aiLink { route = .lineage; return }
         if route == .favourites { route = .search; return }
