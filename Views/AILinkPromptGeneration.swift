@@ -3,7 +3,6 @@ import SwiftUI
 extension AILinkView {
     var promptGenerationSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            taskSelectionSection
             selectedTaskSourceSection
             promptBox
             aiResultWorkflowSection

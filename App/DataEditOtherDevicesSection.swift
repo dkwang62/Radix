@@ -16,25 +16,11 @@ extension DataEditTab {
         .radixSurface(RadixTheme.secondaryBackground.opacity(0.4))
     }
 
-    var studyCheckpointsNote: some View {
-        Button {
-            store.goToFavourites(preservingOrigin: true)
-        } label: {
-            Label("Checkpoints", systemImage: "clock.arrow.circlepath")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .labelStyle(.titleAndIcon)
-                .radixPill(background: RadixAccent.primary.opacity(0.1))
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(RadixAccent.primary)
-    }
-
     var portableBackupActionsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 plusBadge
                 Spacer()
-                studyCheckpointsNote
             }
 
             Text("Create a backup from this device, combine a backup with this device, or replace this device from a backup.")

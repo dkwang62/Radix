@@ -32,9 +32,12 @@ extension RootView {
         case 0: return "Camera"
         case 1: return "Search"
         case 2: return browseNavigationTitle
-        case 3: return "Study - \(store.activeStudySectionTitle)"
-        case 4: return "AI Link"
-        case 5: return "My Data"
+        case 3:
+            return store.activeStudySectionTitle == "Checkpoints"
+                ? "Checkpoints"
+                : "Study - \(store.activeStudySectionTitle)"
+        case 4: return selectedTitleMenuPromptTaskTitle.map { "AI Link - \($0)" } ?? "AI Link"
+        case 5: return "My Data - \(store.activeDataEditSection.rawValue)"
         case 6: return "Settings"
         default: return "Radix"
         }

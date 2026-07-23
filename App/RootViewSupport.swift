@@ -63,6 +63,10 @@ extension RootView {
         store.route == .favourites || (store.route == .search && store.homeTab == .favourites)
     }
 
+    var isCheckpointsDestinationActive: Bool {
+        isStudyDestinationActive && store.activeStudySectionTitle == "Checkpoints"
+    }
+
     var browseTitleMenuPages: [CharacterCollection] {
         store.allCollections.sorted {
             let lhsDate = $0.lastViewedAt ?? $0.createdAt
@@ -122,8 +126,16 @@ extension RootView {
                 browseTitleMenuSection
             }
 
-            if isStudyDestinationActive {
+            if isStudyDestinationActive && !isCheckpointsDestinationActive {
                 studyTitleMenuSection
+            }
+
+            if store.route == .aiLink {
+                aiLinkTitleMenuSection
+            }
+
+            if store.route == .search && store.homeTab == .dataEdit {
+                myDataTitleMenuSection
             }
 
             if let topic = activeTitleGuideTopic {
@@ -145,7 +157,9 @@ extension RootView {
             store.route.rawValue,
             store.homeTab.rawValue,
             store.selectedBrowseCollectionID?.uuidString ?? "dictionary",
-            store.activeStudySectionTitle
+            store.activeStudySectionTitle,
+            store.activeDataEditSection.rawValue,
+            selectedTitleMenuPromptTaskID ?? "no-task"
         ].joined(separator: "|")
     }
 
@@ -163,7 +177,7 @@ extension RootView {
             primaryNavigationButton(
                 title: RadixCopy.study,
                 systemImage: RadixIcon.study,
-                isSelected: isStudyDestinationActive
+                isSelected: isStudyDestinationActive && !isCheckpointsDestinationActive
             ) {
                 store.goToFavourites()
             }
@@ -182,6 +196,15 @@ extension RootView {
                 isSelected: store.route == .search && store.homeTab == .dataEdit
             ) {
                 store.goToDataEdit()
+            }
+
+            primaryNavigationButton(
+                title: "Checkpoints",
+                systemImage: "clock.arrow.circlepath",
+                isSelected: isCheckpointsDestinationActive
+            ) {
+                store.goToFavourites()
+                store.requestedStudyNavigationTarget = .checkpoints
             }
 
             primaryNavigationButton(
@@ -234,7 +257,7 @@ extension RootView {
     @ViewBuilder
     var studyTitleMenuSection: some View {
         Section("Study") {
-            ForEach(StudyNavigationTarget.allCases) { target in
+            ForEach(studyTitleMenuTargets) { target in
                 Button {
                     store.requestedStudyNavigationTarget = target
                 } label: {
@@ -246,6 +269,84 @@ extension RootView {
                     )
                 }
             }
+        }
+    }
+
+    var studyTitleMenuTargets: [StudyNavigationTarget] {
+        StudyNavigationTarget.allCases.filter { $0 != .checkpoints }
+    }
+
+    @ViewBuilder
+    var aiLinkTitleMenuSection: some View {
+        Section("AI Link") {
+            ForEach(store.promptConfig.normalized().tasks) { task in
+                Button {
+                    selectTitleMenuPromptTask(task.id)
+                } label: {
+                    Label(
+                        task.title,
+                        systemImage: task.id == selectedTitleMenuPromptTaskID ? "checkmark" : "sparkles"
+                    )
+                }
+            }
+
+            Button {
+                let id = store.addPromptTask()
+                selectTitleMenuPromptTask(id)
+            } label: {
+                Label("New AI Task...", systemImage: "plus.circle")
+            }
+        }
+    }
+
+    var selectedTitleMenuPromptTaskID: String? {
+        let normalizedTasks = store.promptConfig.normalized().tasks
+        if let selected = store.selectedPromptTaskID,
+           normalizedTasks.contains(where: { $0.id == selected }) {
+            return selected
+        }
+        if let saved = store.promptSelectedTaskIDs.first,
+           normalizedTasks.contains(where: { $0.id == saved }) {
+            return saved
+        }
+        return normalizedTasks.first?.id
+    }
+
+    var selectedTitleMenuPromptTaskTitle: String? {
+        guard let selectedTitleMenuPromptTaskID else { return nil }
+        return store.promptConfig.normalized().tasks.first { $0.id == selectedTitleMenuPromptTaskID }?.title
+    }
+
+    func selectTitleMenuPromptTask(_ taskID: String) {
+        store.selectedPromptTaskID = taskID
+        store.promptSelectedTaskIDs = [taskID]
+        store.persistPromptSettings()
+    }
+
+    @ViewBuilder
+    var myDataTitleMenuSection: some View {
+        Section("My Data") {
+            ForEach(DataEditSection.allCases) { section in
+                Button {
+                    store.activeDataEditSection = section
+                } label: {
+                    Label(
+                        section.rawValue,
+                        systemImage: section == store.activeDataEditSection
+                            ? "checkmark"
+                            : myDataTitleMenuSystemImage(for: section)
+                    )
+                }
+            }
+        }
+    }
+
+    func myDataTitleMenuSystemImage(for section: DataEditSection) -> String {
+        switch section {
+        case .myBackup:
+            return "externaldrive"
+        case .advanced:
+            return "hammer"
         }
     }
 

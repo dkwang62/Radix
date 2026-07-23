@@ -1,12 +1,5 @@
 import SwiftUI
 
-enum DataEditSection: String, CaseIterable, Identifiable {
-    case myBackup = "Backup File"
-    case advanced = "Advanced Exports"
-
-    var id: String { rawValue }
-}
-
 private extension DataEditTab {
     var dataEditContentMaxWidth: CGFloat {
         RadixPlatform.isDesktop ? 920 : 680
@@ -95,18 +88,11 @@ struct DataEditTab: View {
     @State var showAppStatePreview = false
     @State var showBackupContentsDetails = false
 
-    @State var activeDataEditSection: DataEditSection = .myBackup
     @State var dataEditScrollProxy: ScrollViewProxy?
 
     var body: some View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
-                myDataHeader
-                    .padding(.horizontal)
-                    .padding(.top, 12)
-                    .padding(.bottom, 8)
-                    .background(RadixTheme.background)
-
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         Color.clear.frame(height: 0).id("myDataTop")
@@ -115,7 +101,7 @@ struct DataEditTab: View {
                             databaseOptimizationStatusRow
                         }
 
-                        switch activeDataEditSection {
+                        switch store.activeDataEditSection {
                         case .myBackup:
                             backupAndRestoreSection
                         case .advanced:

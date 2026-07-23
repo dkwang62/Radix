@@ -183,7 +183,6 @@
 		86CD145A2F9822B300D7BDBD /* CameraCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD145B2F9822B300D7BDBD /* CameraCaptureView.swift */; };
 		86CD14612F9822B300D7BDBD /* CaptureWorkbenchViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14602F9822B300D7BDBD /* CaptureWorkbenchViews.swift */; };
 		86CD14632F9822B300D7BDBD /* DataBackupPreviewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14622F9822B300D7BDBD /* DataBackupPreviewSection.swift */; };
-		86CD14712FA2000100D7BDBD /* DataEditHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14702FA2000100D7BDBD /* DataEditHeader.swift */; };
 		86CD14732FA2000100D7BDBD /* DataEditBackupSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14722FA2000100D7BDBD /* DataEditBackupSection.swift */; };
 		86CD14752FA2000100D7BDBD /* DataEditPremiumExports.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14742FA2000100D7BDBD /* DataEditPremiumExports.swift */; };
 		86CD14772FA2000100D7BDBD /* DataEditBackupEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14762FA2000100D7BDBD /* DataEditBackupEntries.swift */; };
@@ -442,7 +441,6 @@
 		86CD145B2F9822B300D7BDBD /* CameraCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureView.swift; sourceTree = "<group>"; };
 		86CD14602F9822B300D7BDBD /* CaptureWorkbenchViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureWorkbenchViews.swift; sourceTree = "<group>"; };
 		86CD14622F9822B300D7BDBD /* DataBackupPreviewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBackupPreviewSection.swift; sourceTree = "<group>"; };
-		86CD14702FA2000100D7BDBD /* DataEditHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditHeader.swift; sourceTree = "<group>"; };
 		86CD14722FA2000100D7BDBD /* DataEditBackupSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditBackupSection.swift; sourceTree = "<group>"; };
 		86CD14742FA2000100D7BDBD /* DataEditPremiumExports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditPremiumExports.swift; sourceTree = "<group>"; };
 		86CD14762FA2000100D7BDBD /* DataEditBackupEntries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditBackupEntries.swift; sourceTree = "<group>"; };
@@ -540,7 +538,6 @@
 				86CD147B2FA8000100D7BDBD /* DataBackupPreviewActions.swift */,
 				850000172F9D0001001B9AA7 /* DataBackupPreviewRows.swift */,
 				86CD14372F9822B300D7BDBD /* DataEditTab.swift */,
-				86CD14702FA2000100D7BDBD /* DataEditHeader.swift */,
 				86CD14722FA2000100D7BDBD /* DataEditBackupSection.swift */,
 				C0DE00052FB10002001B9AA7 /* DataEditMemorySection.swift */,
 				C0DE000F2FC00001001B9AA7 /* AddedPhraseReviewSheet.swift */,
@@ -1034,7 +1031,6 @@
 				86CD147A2FA8000100D7BDBD /* DataBackupPreviewSummaries.swift in Sources */,
 				86CD147C2FA8000100D7BDBD /* DataBackupPreviewActions.swift in Sources */,
 				850000182F9D0001001B9AA7 /* DataBackupPreviewRows.swift in Sources */,
-				86CD14712FA2000100D7BDBD /* DataEditHeader.swift in Sources */,
 				86CD14732FA2000100D7BDBD /* DataEditBackupSection.swift in Sources */,
 				C0DE00062FB10002001B9AA7 /* DataEditMemorySection.swift in Sources */,
 				C0DE00102FC00001001B9AA7 /* AddedPhraseReviewSheet.swift in Sources */,

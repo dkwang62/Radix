@@ -46,6 +46,13 @@ enum HomeTab: String, CaseIterable, Identifiable {
     }
 }
 
+enum DataEditSection: String, CaseIterable, Identifiable, Equatable {
+    case myBackup = "Backup Files"
+    case advanced = "Advanced Pro"
+
+    var id: String { rawValue }
+}
+
 enum HistoryStripDisplayPolicy {
     static let visibleItemLimit = 80
 

@@ -16,7 +16,6 @@ struct AILinkView: View {
     let item: ComponentItem?
     @State var copied = false
     @State var openedDefaultAI = false
-    @State var selectedPromptTaskID: String?
     @State var draftPromptTitle = ""
     @State var draftPromptTemplate = ""
     @State var promptSaveStatus: String?
@@ -66,7 +65,7 @@ struct AILinkView: View {
 
     var selectedPromptTask: PromptTask? {
         let normalizedTasks = store.promptConfig.normalized().tasks
-        if let selectedPromptTaskID,
+        if let selectedPromptTaskID = store.selectedPromptTaskID,
            let task = normalizedTasks.first(where: { $0.id == selectedPromptTaskID }) {
             return task
         }
@@ -199,6 +198,10 @@ struct AILinkView: View {
         .onChange(of: selectedPromptTask?.id) { _, _ in
             resetAIResultWorkflow()
         }
+        .onChange(of: store.selectedPromptTaskID) { _, newValue in
+            guard let newValue else { return }
+            loadPromptDraft(taskID: newValue)
+        }
         .onChange(of: selectedCollection?.id) { _, _ in
             resetAIResultWorkflow()
         }
@@ -240,27 +243,27 @@ struct AILinkView: View {
     func ensureSelectedPromptTask() {
         let normalizedTasks = store.promptConfig.normalized().tasks
         guard !normalizedTasks.isEmpty else {
-            selectedPromptTaskID = nil
+            store.selectedPromptTaskID = nil
             return
         }
         if let savedID = store.promptSelectedTaskIDs.first,
            normalizedTasks.contains(where: { $0.id == savedID }) {
-            selectedPromptTaskID = savedID
+            store.selectedPromptTaskID = savedID
             loadPromptDraft(taskID: savedID)
             return
         }
-        if let selectedPromptTaskID,
+        if let selectedPromptTaskID = store.selectedPromptTaskID,
            normalizedTasks.contains(where: { $0.id == selectedPromptTaskID }) {
             loadPromptDraft(taskID: selectedPromptTaskID)
             return
         }
         let fallbackID = normalizedTasks[0].id
-        selectedPromptTaskID = fallbackID
+        store.selectedPromptTaskID = fallbackID
         loadPromptDraft(taskID: fallbackID)
     }
 
     func selectPromptTask(_ taskID: String) {
-        selectedPromptTaskID = taskID
+        store.selectedPromptTaskID = taskID
         store.promptSelectedTaskIDs = [taskID]
         store.persistPromptSettings()
         loadPromptDraft(taskID: taskID)
@@ -295,7 +298,7 @@ struct AILinkView: View {
 
     func createCustomPromptTask() {
         let id = store.addPromptTask()
-        selectedPromptTaskID = id
+        store.selectedPromptTaskID = id
         loadPromptDraft(taskID: id)
     }
 }

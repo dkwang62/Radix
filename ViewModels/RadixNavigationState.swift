@@ -36,6 +36,7 @@ struct RadixNavigationState: Equatable {
     var pendingConversationPracticeTopicID: String?
     var activeStudySectionTitle = "Saved Pages"
     var requestedStudyNavigationTarget: StudyNavigationTarget?
+    var activeDataEditSection: DataEditSection = .myBackup
     var previewCharacter: String?
     var history: [String] = []
 }
@@ -82,6 +83,11 @@ extension RadixStore {
     var requestedStudyNavigationTarget: StudyNavigationTarget? {
         get { navigationState.requestedStudyNavigationTarget }
         set { navigationState.requestedStudyNavigationTarget = newValue }
+    }
+
+    var activeDataEditSection: DataEditSection {
+        get { navigationState.activeDataEditSection }
+        set { navigationState.activeDataEditSection = newValue }
     }
 
     var previewCharacter: String? {

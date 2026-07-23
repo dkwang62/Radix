@@ -157,16 +157,20 @@ extension RootView {
             case .filter:
                 return browseNavigationTitle
             case .favourites:
-                return "Study - \(store.activeStudySectionTitle)"
+                return store.activeStudySectionTitle == "Checkpoints"
+                    ? "Checkpoints"
+                    : "Study - \(store.activeStudySectionTitle)"
             case .dataEdit:
-                return "My Data"
+                return "My Data - \(store.activeDataEditSection.rawValue)"
             }
         case .lineage:
             return "Character Breakdown"
         case .favourites:
-            return "Study - \(store.activeStudySectionTitle)"
+            return store.activeStudySectionTitle == "Checkpoints"
+                ? "Checkpoints"
+                : "Study - \(store.activeStudySectionTitle)"
         case .aiLink:
-            return "AI Link"
+            return selectedTitleMenuPromptTaskTitle.map { "AI Link - \($0)" } ?? "AI Link"
         case .settings:
             return "Settings"
         }

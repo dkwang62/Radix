@@ -1266,7 +1266,6 @@ extension FavouritesTab {
                 Text("\(checkpoints.count)/\(LocalDataSnapshotStore.maximumSnapshotCount)")
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
-                backupFilesLink
             }
 
             checkpointActionRow
@@ -1274,17 +1273,6 @@ extension FavouritesTab {
             latestCheckpointRows
         }
         .radixCard(padding: 10, background: RadixTheme.secondaryBackground.opacity(0.52))
-    }
-
-    var backupFilesLink: some View {
-        Button(action: onOpenProtectRecover) {
-            RadixTermLabel("Backup files", term: RadixTerm.backup)
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .labelStyle(.titleAndIcon)
-                .radixPill(horizontal: 8, vertical: 5, background: RadixAccent.primary.opacity(0.1))
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(RadixAccent.primary)
     }
 
     var checkpointActionRow: some View {

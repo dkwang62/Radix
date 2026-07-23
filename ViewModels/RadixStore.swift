@@ -330,6 +330,11 @@ final class RadixStore: ObservableObject {
         set { aiLinkState.selectedTaskIDs = newValue }
     }
 
+    var selectedPromptTaskID: String? {
+        get { aiLinkState.selectedPromptTaskID }
+        set { aiLinkState.selectedPromptTaskID = newValue }
+    }
+
     var selectedConversationPracticeTopicID: String {
         get { aiLinkState.selectedConversationPracticeTopicID }
         set {

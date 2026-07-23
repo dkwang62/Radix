@@ -9,6 +9,7 @@ struct RadixAILinkState {
     var autosaveStatus = "Changes save automatically."
     var shouldAutoOpenPrompt = false
     var shouldAutoRunGeminiPhraseAPI = false
+    var selectedPromptTaskID: String?
     var selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
     var conversationEntryCount = 25
     var sentenceExtractionDetail: SentenceExtractionDetail = .brief
