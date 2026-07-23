@@ -4,6 +4,25 @@ import Testing
 
 @Suite("AI prompt compatibility")
 struct PromptConfigTests {
+    @Test("AI image OCR parser accepts marked and fenced text")
+    func aiImageOCRParserAcceptsCommonResponses() {
+        let marked = """
+        [[OCR TEXT]]
+        短笺裙裙试跑道黑想意新楼矮蓝眼路零慢赚颜
+
+        [[NOTES]]
+        ignored
+        """
+        let fenced = """
+        ```text
+        一二七九了几人人人九九十又万三十个么
+        ```
+        """
+
+        #expect(AIImageOCRTextParser.parse(marked) == "短笺裙裙试跑道黑想意新楼矮蓝眼路零慢赚颜")
+        #expect(AIImageOCRTextParser.parse(fenced) == "一二七九了几人人人九九十又万三十个么")
+    }
+
     @Test("Custom prompt tasks preserve configurable subject type")
     func customPromptSubjectTypeCompatibility() throws {
         let legacyJSON = """

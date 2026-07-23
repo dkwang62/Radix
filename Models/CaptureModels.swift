@@ -45,6 +45,32 @@ enum OCRReviewParser {
     }
 }
 
+enum AIImageOCRTextParser {
+    static func parse(_ response: String) -> String {
+        let trimmed = response.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return "" }
+
+        if let section = markedSection("OCR TEXT", in: trimmed), !section.isEmpty {
+            return section
+        }
+
+        return trimmed
+            .replacingOccurrences(of: "```text", with: "")
+            .replacingOccurrences(of: "```markdown", with: "")
+            .replacingOccurrences(of: "```", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private static func markedSection(_ name: String, in response: String) -> String? {
+        let marker = "[[\(name)]]"
+        guard let start = response.range(of: marker) else { return nil }
+        let remaining = response[start.upperBound...]
+        let end = remaining.range(of: "[[")?.lowerBound ?? response.endIndex
+        return response[start.upperBound..<end]
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
 enum CaptureTextExtractor {
     static func uniqueCharacters(in text: String) -> [String] {
         var seen = Set<String>()

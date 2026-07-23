@@ -91,8 +91,8 @@ extension FilterGridTab {
         defer { isProcessingBrowseImageImport = false }
 
         do {
-            let text = try await CaptureOCRService().recognizeText(in: image)
-            let foundCharacters = CaptureTextExtractor.allCharactersInOrder(in: text)
+            let result = try await store.recognizeImageTextWithAIFallback(in: image)
+            let foundCharacters = CaptureTextExtractor.allCharactersInOrder(in: result.text)
             guard !foundCharacters.isEmpty else {
                 imageActionMessage = CaptureStatusText.noChineseCharactersFound
                 return
@@ -104,7 +104,7 @@ extension FilterGridTab {
                 sourceType: .ocr,
                 thumbnailJPEGData: CaptureImageThumbnailer.makeJPEGData(from: image),
                 sourceImageJPEGData: CaptureImageThumbnailer.makeJPEGData(from: image, maxDimension: 1600),
-                originalOCRText: text
+                originalOCRText: result.text
             ) else {
                 imageActionMessage = CaptureStatusText.noChineseCharactersFound
                 return
@@ -120,7 +120,7 @@ extension FilterGridTab {
             imageActionMessage = CaptureStatusText.savedCollection(
                 name: collection.name.isEmpty ? "page" : collection.name,
                 characterCount: collection.characters.count
-            )
+            ) + (result.usedAIFallback ? " AI read the image after Apple Vision found no Chinese." : "")
         } catch {
             imageActionMessage = error.localizedDescription
         }

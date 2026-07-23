@@ -14,11 +14,11 @@ extension RadixStore {
             do {
                 let data = try Data(contentsOf: url)
                 let image = try CapturedImage(data: data)
-                let recognizedText = try await CaptureOCRService().recognizeText(in: image)
-                let characters = CaptureTextExtractor.allCharactersInOrder(in: recognizedText)
-                let phrases = CaptureTextExtractor.uniquePhrases(in: recognizedText)
+                let result = try await recognizeImageTextWithAIFallback(in: image)
+                let characters = CaptureTextExtractor.allCharactersInOrder(in: result.text)
+                let phrases = CaptureTextExtractor.uniquePhrases(in: result.text)
                 activeCaptureDraft = CaptureDraft(
-                    rawText: recognizedText,
+                    rawText: result.text,
                     charactersText: characters.joined(separator: " "),
                     phrasesText: phrases.joined(separator: "\n")
                 )
@@ -29,7 +29,7 @@ extension RadixStore {
                     sourceType: .ocr,
                     thumbnailJPEGData: CaptureImageThumbnailer.makeJPEGData(from: image),
                     sourceImageJPEGData: CaptureImageThumbnailer.makeJPEGData(from: image, maxDimension: 1600),
-                    originalOCRText: recognizedText
+                    originalOCRText: result.text
                 ) {
                     lastImportedCollectionID = collection.id
                 }

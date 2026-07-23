@@ -14,13 +14,13 @@ let package = Package(
             exclude: [
                 "BackupSummaryBuilder.swift",
                 "BrowseGridLayout.swift",
-                "CaptureModels.swift",
                 "ImagePhraseMatcher.swift",
                 "RadixStoreExtractedHelpers.swift",
                 "ResponsiveFont.swift"
             ],
             sources: [
                 "ComponentModels.swift",
+                "CaptureModels.swift",
                 "ConversationPracticeModels.swift",
                 "PhraseModels.swift",
                 "PinyinSearchNormalizer.swift",

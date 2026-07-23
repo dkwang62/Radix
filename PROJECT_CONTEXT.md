@@ -28,6 +28,9 @@ directly when launched from the global Camera action, then expose Camera, Album,
 Files, Clipboard Image, and Text to Page source buttons after the camera sheet is
 dismissed. Browse may still offer page-source shortcuts, but page creation
 sources must not exist only in a hidden Browse panel.
+Image workflows use Apple Vision first for speed. If Vision returns no readable
+Chinese or errors, Radix may fall back to Gemini image OCR with the source image
+and then create the page from the AI-read text through the same saved-page flow.
 
 ## Version 1.1 Direction
 

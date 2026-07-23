@@ -291,11 +291,11 @@ struct CaptureTab: View {
 
         do {
             selectedImage = image
-            let text = try await CaptureOCRService().recognizeText(in: image)
-            let foundCharacters = CaptureTextExtractor.allCharactersInOrder(in: text)
-            let foundPhrases = CaptureTextExtractor.uniquePhrases(in: text)
+            let result = try await store.recognizeImageTextWithAIFallback(in: image)
+            let foundCharacters = CaptureTextExtractor.allCharactersInOrder(in: result.text)
+            let foundPhrases = CaptureTextExtractor.uniquePhrases(in: result.text)
             store.activeCaptureDraft = CaptureDraft(
-                rawText: text,
+                rawText: result.text,
                 charactersText: foundCharacters.joined(separator: " "),
                 phrasesText: foundPhrases.joined(separator: "\n")
             )
@@ -304,6 +304,9 @@ struct CaptureTab: View {
             if foundCharacters.isEmpty {
                 statusMessage = CaptureStatusText.noChineseCharactersFound
             } else {
+                if result.usedAIFallback {
+                    statusMessage = "Apple Vision could not read this image, so AI read it instead."
+                }
                 autoSaveAndBrowseRecognizedImage(image: image, source: source)
             }
         } catch {

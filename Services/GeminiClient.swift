@@ -252,3 +252,47 @@ struct GeminiTextGenerationService {
             .joined(separator: "\n\n")
     }
 }
+
+struct GeminiImageOCRService {
+    func recognizeChineseText(
+        apiKey: String,
+        modelID: String,
+        imageJPEGData: Data
+    ) async throws -> String {
+        let response = try await GeminiTextGenerationService().generateText(
+            apiKey: apiKey,
+            modelID: modelID,
+            prompt: """
+            Read the attached image as Chinese source text for Radix.
+
+            Return only the Chinese text you can read from the image.
+
+            Requirements:
+            1. Preserve the natural reading order.
+            2. For vertical Chinese, read columns from right to left and each column from top to bottom unless the image clearly uses another order.
+            3. Preserve Simplified or Traditional characters as shown in the image.
+            4. Keep meaningful punctuation when visible.
+            5. Do not translate, explain, add pinyin, summarize, or describe the image.
+            6. Do not include Markdown.
+            7. If some characters are uncertain, make the best faithful guess rather than returning an empty answer.
+
+            Preferred output:
+            [[OCR TEXT]]
+            Chinese text here
+            """,
+            systemInstruction: """
+            You are a careful Chinese OCR reader for a language-learning app. Your job is to transcribe Chinese text from images, including dense vertical Traditional Chinese. Return source text only.
+            """,
+            imageJPEGData: imageJPEGData
+        )
+        let parsed = AIImageOCRTextParser.parse(response)
+        guard !CaptureTextExtractor.allCharactersInOrder(in: parsed).isEmpty else {
+            throw NSError(
+                domain: "Radix",
+                code: 4010,
+                userInfo: [NSLocalizedDescriptionKey: "AI could not read Chinese text from this image."]
+            )
+        }
+        return parsed
+    }
+}
