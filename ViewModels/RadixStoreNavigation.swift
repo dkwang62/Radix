@@ -333,6 +333,28 @@ extension RadixStore {
         shouldOpenCaptureCamera = true
     }
 
+    func startCaptureTextPage() {
+        startCapturePageRequest()
+        shouldOpenCaptureTextPage = true
+    }
+
+    func startCaptureAlbumPage() {
+        startCapturePageRequest()
+        shouldOpenCaptureAlbum = true
+    }
+
+    func startCaptureFilePage() {
+        startCapturePageRequest()
+        shouldOpenCaptureFiles = true
+    }
+
+    private func startCapturePageRequest() {
+        clearCrossTabOrigin()
+        route = .capture
+        activeFavouriteCharacter = nil
+        clearBrowsePreview()
+    }
+
     func goToDataEdit(preservingOrigin: Bool = false) {
         if preservingOrigin {
             rememberCrossTabOrigin()

@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(PhotosUI)
+import PhotosUI
+#endif
 
 struct CaptureTab: View {
     @EnvironmentObject private var store: RadixStore
@@ -14,6 +17,10 @@ struct CaptureTab: View {
     @State private var showManualCollectionSheet = false
     @State private var manualCollectionName = ""
     @State private var manualCollectionText = ""
+    #if canImport(PhotosUI)
+    @State private var showAlbumImporter = false
+    @State private var selectedAlbumPhoto: PhotosPickerItem?
+    #endif
     @State private var capturePreviewCharacter: String?
     @State private var captureDetailPreviewCharacter: String?
     @State private var lastSavedCollectionID: UUID?
@@ -82,6 +89,26 @@ struct CaptureTab: View {
                 errorMessage = error.localizedDescription
             }
         ))
+        #if canImport(PhotosUI)
+        .photosPicker(isPresented: $showAlbumImporter, selection: $selectedAlbumPhoto, matching: .images)
+        .onChange(of: selectedAlbumPhoto) { _, item in
+            guard let item else { return }
+            Task {
+                do {
+                    let image = try await CaptureImageLoader.capturedImage(from: item)
+                    await MainActor.run {
+                        selectedAlbumPhoto = nil
+                    }
+                    await recognize(image, source: .importTool)
+                } catch {
+                    await MainActor.run {
+                        selectedAlbumPhoto = nil
+                        errorMessage = error.localizedDescription
+                    }
+                }
+            }
+        }
+        #endif
         .sheet(isPresented: $showCamera) {
             CameraCaptureView { image in
                 showCamera = false
@@ -105,10 +132,19 @@ struct CaptureTab: View {
         }
         .onAppear {
             freePageUseCount = RadixCaptureUsage.freeScanCount
-            openRequestedCameraIfNeeded()
+            openRequestedCaptureSourceIfNeeded()
         }
         .onChange(of: store.shouldOpenCaptureCamera) { _, _ in
-            openRequestedCameraIfNeeded()
+            openRequestedCaptureSourceIfNeeded()
+        }
+        .onChange(of: store.shouldOpenCaptureTextPage) { _, _ in
+            openRequestedCaptureSourceIfNeeded()
+        }
+        .onChange(of: store.shouldOpenCaptureAlbum) { _, _ in
+            openRequestedCaptureSourceIfNeeded()
+        }
+        .onChange(of: store.shouldOpenCaptureFiles) { _, _ in
+            openRequestedCaptureSourceIfNeeded()
         }
     }
 
@@ -127,11 +163,7 @@ struct CaptureTab: View {
                 errorMessage = error.localizedDescription
             },
             onFiles: {
-                guard !entitlement.requiresPro(.datedCopies) else {
-                    store.showPaywall(for: .datedCopies)
-                    return
-                }
-                showImageFileImporter = true
+                beginFileImport()
             },
             onText: beginManualCollection
         )
@@ -357,10 +389,46 @@ struct CaptureTab: View {
         clearPhoneBrowsePreviewAfterImageSave()
     }
 
-    private func openRequestedCameraIfNeeded() {
-        guard store.shouldOpenCaptureCamera else { return }
-        store.shouldOpenCaptureCamera = false
-        startCameraScan()
+    private func openRequestedCaptureSourceIfNeeded() {
+        if store.shouldOpenCaptureCamera {
+            store.shouldOpenCaptureCamera = false
+            startCameraScan()
+        }
+
+        if store.shouldOpenCaptureTextPage {
+            store.shouldOpenCaptureTextPage = false
+            beginManualCollection()
+        }
+
+        if store.shouldOpenCaptureAlbum {
+            store.shouldOpenCaptureAlbum = false
+            beginAlbumImport()
+        }
+
+        if store.shouldOpenCaptureFiles {
+            store.shouldOpenCaptureFiles = false
+            beginFileImport()
+        }
+    }
+
+    private func beginAlbumImport() {
+        guard !entitlement.requiresPro(.datedCopies) else {
+            store.showPaywall(for: .datedCopies)
+            return
+        }
+        #if canImport(PhotosUI)
+        showAlbumImporter = true
+        #else
+        errorMessage = CocoaError(.featureUnsupported).localizedDescription
+        #endif
+    }
+
+    private func beginFileImport() {
+        guard !entitlement.requiresPro(.datedCopies) else {
+            store.showPaywall(for: .datedCopies)
+            return
+        }
+        showImageFileImporter = true
     }
 
 }

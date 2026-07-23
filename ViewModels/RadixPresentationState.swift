@@ -8,6 +8,9 @@ struct RadixPresentationState {
     var shouldCloseBrowsePages = false
     var shouldOpenAddedPhraseReview = false
     var shouldOpenCaptureCamera = false
+    var shouldOpenCaptureTextPage = false
+    var shouldOpenCaptureAlbum = false
+    var shouldOpenCaptureFiles = false
     var activeFavouriteCharacter: String?
     var quickEditDestination: QuickEditDestination?
     var showsPhoneDetail = false
@@ -22,6 +25,9 @@ extension RadixStore {
     var shouldCloseBrowsePages: Bool { get { presentationState.shouldCloseBrowsePages } set { presentationState.shouldCloseBrowsePages = newValue } }
     var shouldOpenAddedPhraseReview: Bool { get { presentationState.shouldOpenAddedPhraseReview } set { presentationState.shouldOpenAddedPhraseReview = newValue } }
     var shouldOpenCaptureCamera: Bool { get { presentationState.shouldOpenCaptureCamera } set { presentationState.shouldOpenCaptureCamera = newValue } }
+    var shouldOpenCaptureTextPage: Bool { get { presentationState.shouldOpenCaptureTextPage } set { presentationState.shouldOpenCaptureTextPage = newValue } }
+    var shouldOpenCaptureAlbum: Bool { get { presentationState.shouldOpenCaptureAlbum } set { presentationState.shouldOpenCaptureAlbum = newValue } }
+    var shouldOpenCaptureFiles: Bool { get { presentationState.shouldOpenCaptureFiles } set { presentationState.shouldOpenCaptureFiles = newValue } }
     var activeFavouriteCharacter: String? { get { presentationState.activeFavouriteCharacter } set { presentationState.activeFavouriteCharacter = newValue } }
     var quickEditDestination: QuickEditDestination? { get { presentationState.quickEditDestination } set { presentationState.quickEditDestination = newValue } }
     var showiPhoneDetail: Bool { get { presentationState.showsPhoneDetail } set { presentationState.showsPhoneDetail = newValue } }

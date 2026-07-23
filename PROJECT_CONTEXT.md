@@ -292,10 +292,12 @@ show a `Back to Study` button for normal switching, and clear the other focused
 Study sections when one is selected. Do not reintroduce separate booleans for
 these mutually exclusive sections.
 The root title dropdown is now also the complete high-level navigation menu on
-every platform. Its top section keeps `Browse`, `Study`, `AI Link`, `My Data`,
-`Checkpoints`, and `Settings` available. Browse appends Dictionary/saved pages,
-Study appends study sections except Checkpoints, AI Link appends AI tasks, and
-My Data appends `Backup Files` / `Advanced Pro`. On iPhone this is the primary
+every platform. Its top section keeps the five broad workspaces available:
+`Browse`, `Study`, `AI`, `Data`, and `Settings`. Browse appends
+Dictionary/saved pages plus `Text to Page`, `Image from Album`, and
+`Image from Files`; the global Camera button remains the instant camera action.
+Study appends all study sections including Checkpoints, AI appends AI tasks, and
+Data appends `Backup Files` / `Advanced Pro`. On iPhone this is the primary
 navigation experiment and the bottom tab bar is hidden; on iPad and Mac the
 sidebar remains as a larger-screen parallel affordance for now.
 Mac Catalyst does not show the same native navigation title bar as phone/iPad,

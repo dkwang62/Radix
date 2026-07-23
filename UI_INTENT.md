@@ -47,16 +47,18 @@ Use these preferences as defaults:
   owns the same choices.
 - Keep Browse source switching in the `Browse - [source]` title menu. Do not add
   a separate source button when Dictionary and saved pages are already available
-  from the title menu; camera/import sources belong under Camera/capture.
+  from the title menu. Non-camera page creation belongs under Browse as
+  `Text to Page`, `Image from Album`, and `Image from Files`; the big Camera
+  button remains the instant camera action.
 - The title dropdown is allowed to become the complete navigation map. Its top
-  section should keep the main destinations visible: `Browse`, `Study`,
-  `AI Link`, `My Data`, and `Settings`. When the current destination is Browse
+  section should keep the main workspaces visible: `Browse`, `Study`,
+  `AI`, `Data`, and `Settings`. When the current destination is Browse
   or Study, show that destination's local choices beneath the main destination
   section instead of replacing the main navigation.
 - High-level destinations can also own second-level title-menu sections:
-  Browse owns Dictionary and saved pages, Study owns study sections,
-  AI Link owns AI tasks, and My Data owns `Backup Files` and `Advanced Pro`.
-  Checkpoints is a top-level destination rather than a Study subsection.
+  Browse owns Dictionary, saved pages, and non-camera page creation; Study owns
+  study sections including Checkpoints; AI owns AI tasks; and Data owns
+  `Backup Files` and `Advanced Pro`.
 - Prefer compact one-button toggles for binary display choices, such as
   `中 Chinese` / `英 English` and `拼 Pinyin`, instead of wide segmented controls.
 - Use learning-specific labels and symbols. Chinese display controls should use
@@ -198,7 +200,7 @@ Top global action row:
 [ Search anything... ] [ Camera ]
 
 Title menu:
-Browse | Study | AI Link | My Data | Checkpoints | Settings
+Browse | Study | AI | Data | Settings
 ```
 
 Search and Camera are global actions, not ordinary tab destinations.

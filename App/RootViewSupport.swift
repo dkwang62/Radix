@@ -126,7 +126,7 @@ extension RootView {
                 browseTitleMenuSection
             }
 
-            if isStudyDestinationActive && !isCheckpointsDestinationActive {
+            if isStudyDestinationActive {
                 studyTitleMenuSection
             }
 
@@ -177,14 +177,14 @@ extension RootView {
             primaryNavigationButton(
                 title: RadixCopy.study,
                 systemImage: RadixIcon.study,
-                isSelected: isStudyDestinationActive && !isCheckpointsDestinationActive
+                isSelected: isStudyDestinationActive
             ) {
                 store.requestedStudyNavigationTarget = .sentences
                 store.goToFavourites()
             }
 
             primaryNavigationButton(
-                title: RadixCopy.aiLink,
+                title: "AI",
                 systemImage: RadixIcon.aiLink,
                 isSelected: store.route == .aiLink
             ) {
@@ -192,20 +192,11 @@ extension RootView {
             }
 
             primaryNavigationButton(
-                title: RadixCopy.myData,
+                title: "Data",
                 systemImage: RadixIcon.myData,
                 isSelected: store.route == .search && store.homeTab == .dataEdit
             ) {
                 store.goToDataEdit()
-            }
-
-            primaryNavigationButton(
-                title: "Checkpoints",
-                systemImage: "clock.arrow.circlepath",
-                isSelected: isCheckpointsDestinationActive
-            ) {
-                store.requestedStudyNavigationTarget = .checkpoints
-                store.goToFavourites()
             }
 
             primaryNavigationButton(
@@ -253,6 +244,26 @@ extension RootView {
                 }
             }
         }
+
+        Section("Create Page") {
+            Button {
+                store.startCaptureTextPage()
+            } label: {
+                Label("Text to Page", systemImage: "doc.text")
+            }
+
+            Button {
+                store.startCaptureAlbumPage()
+            } label: {
+                Label("Image from Album", systemImage: "photo.on.rectangle")
+            }
+
+            Button {
+                store.startCaptureFilePage()
+            } label: {
+                Label("Image from Files", systemImage: "folder")
+            }
+        }
     }
 
     @ViewBuilder
@@ -274,12 +285,12 @@ extension RootView {
     }
 
     var studyTitleMenuTargets: [StudyNavigationTarget] {
-        StudyNavigationTarget.allCases.filter { $0 != .checkpoints }
+        StudyNavigationTarget.allCases
     }
 
     @ViewBuilder
     var aiLinkTitleMenuSection: some View {
-        Section("AI Link") {
+        Section("AI") {
             ForEach(store.promptConfig.normalized().tasks) { task in
                 Button {
                     selectTitleMenuPromptTask(task.id)
@@ -292,7 +303,7 @@ extension RootView {
             }
 
             Button {
-                let id = store.addPromptTask()
+                let id = store.cleanupBlankCustomPromptTasks() ?? store.addPromptTask()
                 selectTitleMenuPromptTask(id)
             } label: {
                 Label("New AI Task...", systemImage: "plus.circle")
@@ -326,7 +337,7 @@ extension RootView {
 
     @ViewBuilder
     var myDataTitleMenuSection: some View {
-        Section("My Data") {
+        Section("Data") {
             ForEach(DataEditSection.allCases) { section in
                 Button {
                     store.activeDataEditSection = section
