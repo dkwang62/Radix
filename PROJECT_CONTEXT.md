@@ -25,9 +25,9 @@ inside the root navigation shell; modal sheets may still own their focused
 sheet titles.
 Camera/Capture is the owner for page creation sources. It should open Camera
 directly when launched from the global Camera action, then expose Camera, Album,
-Files, and Text to Page source buttons after the camera sheet is dismissed.
-Browse may still offer page-source shortcuts, but text-to-page must not exist
-only in Browse.
+Files, Clipboard Image, and Text to Page source buttons after the camera sheet is
+dismissed. Browse may still offer page-source shortcuts, but page creation
+sources must not exist only in a hidden Browse panel.
 
 ## Version 1.1 Direction
 

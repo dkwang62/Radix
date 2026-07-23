@@ -338,6 +338,11 @@ extension RadixStore {
         shouldOpenCaptureTextPage = true
     }
 
+    func startCaptureClipboardImagePage() {
+        startCapturePageRequest()
+        shouldOpenCaptureClipboardImage = true
+    }
+
     func startCaptureAlbumPage() {
         startCapturePageRequest()
         shouldOpenCaptureAlbum = true

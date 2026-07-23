@@ -9,6 +9,7 @@ struct RadixPresentationState {
     var shouldOpenAddedPhraseReview = false
     var shouldOpenCaptureCamera = false
     var shouldOpenCaptureTextPage = false
+    var shouldOpenCaptureClipboardImage = false
     var shouldOpenCaptureAlbum = false
     var shouldOpenCaptureFiles = false
     var activeFavouriteCharacter: String?
@@ -26,6 +27,7 @@ extension RadixStore {
     var shouldOpenAddedPhraseReview: Bool { get { presentationState.shouldOpenAddedPhraseReview } set { presentationState.shouldOpenAddedPhraseReview = newValue } }
     var shouldOpenCaptureCamera: Bool { get { presentationState.shouldOpenCaptureCamera } set { presentationState.shouldOpenCaptureCamera = newValue } }
     var shouldOpenCaptureTextPage: Bool { get { presentationState.shouldOpenCaptureTextPage } set { presentationState.shouldOpenCaptureTextPage = newValue } }
+    var shouldOpenCaptureClipboardImage: Bool { get { presentationState.shouldOpenCaptureClipboardImage } set { presentationState.shouldOpenCaptureClipboardImage = newValue } }
     var shouldOpenCaptureAlbum: Bool { get { presentationState.shouldOpenCaptureAlbum } set { presentationState.shouldOpenCaptureAlbum = newValue } }
     var shouldOpenCaptureFiles: Bool { get { presentationState.shouldOpenCaptureFiles } set { presentationState.shouldOpenCaptureFiles = newValue } }
     var activeFavouriteCharacter: String? { get { presentationState.activeFavouriteCharacter } set { presentationState.activeFavouriteCharacter = newValue } }

@@ -140,6 +140,9 @@ struct CaptureTab: View {
         .onChange(of: store.shouldOpenCaptureTextPage) { _, _ in
             openRequestedCaptureSourceIfNeeded()
         }
+        .onChange(of: store.shouldOpenCaptureClipboardImage) { _, _ in
+            openRequestedCaptureSourceIfNeeded()
+        }
         .onChange(of: store.shouldOpenCaptureAlbum) { _, _ in
             openRequestedCaptureSourceIfNeeded()
         }
@@ -400,6 +403,11 @@ struct CaptureTab: View {
             beginManualCollection()
         }
 
+        if store.shouldOpenCaptureClipboardImage {
+            store.shouldOpenCaptureClipboardImage = false
+            beginClipboardImageImport()
+        }
+
         if store.shouldOpenCaptureAlbum {
             store.shouldOpenCaptureAlbum = false
             beginAlbumImport()
@@ -408,6 +416,23 @@ struct CaptureTab: View {
         if store.shouldOpenCaptureFiles {
             store.shouldOpenCaptureFiles = false
             beginFileImport()
+        }
+    }
+
+    private func beginClipboardImageImport() {
+        guard !entitlement.requiresPro(.datedCopies) else {
+            store.showPaywall(for: .datedCopies)
+            return
+        }
+
+        do {
+            guard let image = try RadixPlatform.pasteboardImage() else {
+                errorMessage = "Copy an image with Chinese text first, then choose Image from Clipboard."
+                return
+            }
+            Task { await recognize(image, source: .importTool) }
+        } catch {
+            errorMessage = error.localizedDescription
         }
     }
 

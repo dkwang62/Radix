@@ -237,6 +237,12 @@ extension RootView {
         }
 
         Button {
+            store.startCaptureClipboardImagePage()
+        } label: {
+            Label("Image from Clipboard", systemImage: "doc.on.clipboard")
+        }
+
+        Button {
             store.startCaptureAlbumPage()
         } label: {
             Label("Image from Album", systemImage: "photo.on.rectangle")

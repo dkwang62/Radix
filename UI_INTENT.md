@@ -48,8 +48,8 @@ Use these preferences as defaults:
 - Keep Browse source switching in the `Browse - [source]` title menu. Do not add
   a separate source button when Dictionary and saved pages are already available
   from the title menu. Non-camera page creation belongs under Browse as
-  `Text to Page`, `Image from Album`, and `Image from Files`; the big Camera
-  button remains the instant camera action.
+  `Text to Page`, `Image from Clipboard`, `Image from Album`, and
+  `Image from Files`; the big Camera button remains the instant camera action.
 - The title dropdown is allowed to become the complete navigation map. Its top
   section should keep the main workspaces visible: `Browse`, `Study`,
   `AI`, `Data`, and `Settings`. When the current destination is Browse
