@@ -86,6 +86,7 @@ enum PageCollectionSortOrder: String, CaseIterable, Identifiable {
 
 enum ActiveSubject: Equatable {
     case character(String)
+    case sentence(ConversationPracticeItem)
     case collection(CharacterCollection)
     case practiceTopic(ConversationPracticeTopic)
 }

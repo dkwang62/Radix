@@ -75,6 +75,14 @@ extension AILinkView {
                         ))
                         .font(ResponsiveFont.body.bold())
                         .textFieldStyle(.roundedBorder)
+
+                        promptSubjectTypePicker(selection: Binding(
+                            get: { draftPromptSubjectType },
+                            set: {
+                                draftPromptSubjectType = $0
+                                promptSaveStatus = nil
+                            }
+                        ))
                     }
 
                     TextEditor(text: Binding(
@@ -126,12 +134,39 @@ extension AILinkView {
         }
     }
 
+    func promptSubjectTypePicker(selection: Binding<PromptTaskSubjectType>) -> some View {
+        Menu {
+            ForEach(PromptTaskSubjectType.allCases.filter { $0 != .practiceTopic }) { type in
+                Button {
+                    selection.wrappedValue = type
+                } label: {
+                    Label(
+                        type.title,
+                        systemImage: selection.wrappedValue == type ? "checkmark" : type.systemImage
+                    )
+                }
+            }
+        } label: {
+            RadixMenuSelectorRow(
+                icon: selection.wrappedValue.systemImage,
+                title: "Subject",
+                subtitle: selection.wrappedValue.title,
+                minHeight: 44,
+                titleFont: ResponsiveFont.subheadline.weight(.semibold)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Choose AI task subject")
+    }
+
     var selectedTaskSourceSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             if isSelectedTaskPageTask {
                 aiSelectedPageRow
             } else if isSelectedTaskPracticeTopicTask {
                 aiSelectedPracticeTopicRow
+            } else if isSelectedTaskSentenceTask {
+                aiSelectedSentenceRow
             } else {
                 aiSelectedSubjectRow
             }
@@ -296,6 +331,16 @@ extension AILinkView {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Choose Conversation Practice Topic")
+    }
+
+    var aiSelectedSentenceRow: some View {
+        sourceSelectorLabel(
+            icon: "quote.bubble",
+            title: activeSentenceTitle,
+            subtitle: activeSentenceSubtitle,
+            isMissing: activeSentenceItem == nil
+        )
+        .accessibilityLabel("AI sentence subject")
     }
 
     func aiPracticeTopicButton(_ topic: ConversationPracticeTopic) -> some View {

@@ -164,6 +164,12 @@ extension RadixStore {
         persistPromptSettings()
     }
 
+    func setPromptTaskSubjectType(taskID: String, subjectType: PromptTaskSubjectType) {
+        guard let idx = promptConfig.tasks.firstIndex(where: { $0.id == taskID }) else { return }
+        promptConfig.tasks[idx].subjectType = subjectType
+        persistPromptSettings()
+    }
+
     @discardableResult
     func addPromptTask() -> String {
         let next = (promptConfig.tasks.count + 1)
@@ -180,10 +186,18 @@ extension RadixStore {
         return id
     }
 
-    func setPromptTask(taskID: String, title: String, template: String) {
+    func setPromptTask(
+        taskID: String,
+        title: String,
+        template: String,
+        subjectType: PromptTaskSubjectType? = nil
+    ) {
         guard let idx = promptConfig.tasks.firstIndex(where: { $0.id == taskID }) else { return }
         promptConfig.tasks[idx].title = title
         promptConfig.tasks[idx].template = template
+        if let subjectType {
+            promptConfig.tasks[idx].subjectType = subjectType
+        }
         persistPromptSettings()
     }
 
@@ -236,11 +250,8 @@ extension RadixStore {
     func promptText(character: String?, collection: CharacterCollection?) -> String {
         let selectedIDs = Set(promptSelectedTaskIDs)
         let selectedTasks = promptConfig.normalized().tasks.filter { selectedIDs.contains($0.id) }
-        let characterTaskIDs = selectedTasks.filter {
-            !PromptConfig.collectionTaskIDs.contains($0.id) &&
-                !PromptConfig.practiceTopicTaskIDs.contains($0.id)
-        }.map(\.id)
-        let collectionTaskIDs = selectedTasks.filter { PromptConfig.collectionTaskIDs.contains($0.id) }.map(\.id)
+        let characterTaskIDs = selectedTasks.filter { $0.subjectType == .characterPhrase }.map(\.id)
+        let collectionTaskIDs = selectedTasks.filter { $0.subjectType == .page }.map(\.id)
         var sections: [String] = []
 
         if !characterTaskIDs.isEmpty, let character {
@@ -282,6 +293,7 @@ extension RadixStore {
         let unrecognizedOCRCharacters: String
         let nearbyOCRPhrases: String
         let practiceTopic: ConversationPracticeTopic?
+        let sentenceItem: ConversationPracticeItem?
         switch subject {
         case .character(let character):
             char = character.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -293,6 +305,18 @@ extension RadixStore {
             unrecognizedOCRCharacters = ""
             nearbyOCRPhrases = ""
             practiceTopic = nil
+            sentenceItem = nil
+        case .sentence(let sentence):
+            char = sentence.simplified.first.map(String.init) ?? ""
+            collectionName = ""
+            collectionCharacters = ""
+            collectionCharacterSet = nil
+            originalOCRText = ""
+            recognizedOCRCharacters = ""
+            unrecognizedOCRCharacters = ""
+            nearbyOCRPhrases = ""
+            practiceTopic = nil
+            sentenceItem = sentence
         case .collection(let collection):
             char = collection.characters.first ?? ""
             collectionName = collection.name
@@ -307,6 +331,7 @@ extension RadixStore {
             let nearby = browsePagePhraseCandidates(in: collection).prefix(30).map(\.phrase.word)
             nearbyOCRPhrases = nearby.isEmpty ? "None detected" : nearby.joined(separator: ", ")
             practiceTopic = nil
+            sentenceItem = nil
         case .practiceTopic(let topic):
             char = ""
             collectionName = ""
@@ -317,6 +342,7 @@ extension RadixStore {
             unrecognizedOCRCharacters = ""
             nearbyOCRPhrases = ""
             practiceTopic = topic
+            sentenceItem = nil
         }
         let item = componentRepo.byCharacter[char]
         let analysis = componentRepo.analyzeStructure(for: char)
@@ -353,6 +379,11 @@ extension RadixStore {
             practiceTopicSummary: practiceTopic?.summary ?? "",
             practiceTopicBrief: practiceTopic?.generationBrief ?? "",
             practiceTopicSituations: practiceTopic?.situations.map { "- \($0)" }.joined(separator: "\n") ?? "",
+            sentenceChinese: sentenceItem?.simplified ?? "",
+            sentencePinyin: sentenceItem?.pinyin ?? "",
+            sentenceEnglish: sentenceItem?.english ?? "",
+            sentencePhrases: sentenceItem?.phraseHints.joined(separator: ", ") ?? "",
+            sentenceCharacters: sentenceItem?.characterHints.joined(separator: " ") ?? "",
             conversationEntryCount: "\(aiConversationEntryCount)",
             sentenceExtractionDetail: aiSentenceExtractionDetail.promptInstruction
         )

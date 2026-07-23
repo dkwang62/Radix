@@ -88,6 +88,9 @@ extension AILinkView {
         if hasCollectionTasks && selectedCollection == nil {
             return "Choose Page"
         }
+        if hasSentenceTasks && activeSentenceItem == nil {
+            return "Choose Sentence"
+        }
         return "Open \(currentAIName): \(sendTaskName)"
     }
 
@@ -167,11 +170,16 @@ extension AILinkView {
         if hasCharacterTasks && activeCharacter == nil {
             return "Choose a character or phrase first."
         }
+        if hasSentenceTasks && activeSentenceItem == nil {
+            return "Open a sentence card first."
+        }
         let text: String
-        if PromptConfig.practiceTopicTaskIDs.contains(task.id) {
+        if task.subjectType == .practiceTopic {
             text = store.promptForTask(task, subject: .practiceTopic(store.selectedConversationPracticeTopic))
-        } else if PromptConfig.collectionTaskIDs.contains(task.id), let selectedCollection {
+        } else if task.subjectType == .page, let selectedCollection {
             text = store.promptForTask(task, subject: .collection(selectedCollection))
+        } else if task.subjectType == .sentence, let activeSentenceItem {
+            text = store.promptForTask(task, subject: .sentence(activeSentenceItem))
         } else if let activeCharacter {
             text = store.promptForTask(task, subject: .character(activeCharacter))
         } else {

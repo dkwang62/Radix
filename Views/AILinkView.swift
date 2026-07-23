@@ -18,6 +18,7 @@ struct AILinkView: View {
     @State var openedDefaultAI = false
     @State var draftPromptTitle = ""
     @State var draftPromptTemplate = ""
+    @State var draftPromptSubjectType: PromptTaskSubjectType = .characterPhrase
     @State var promptSaveStatus: String?
     @State var selectedAIPreset: DefaultAIPreset?
     @State var isRunningGeminiPhraseAPI = false
@@ -78,12 +79,17 @@ struct AILinkView: View {
 
     var isSelectedTaskPageTask: Bool {
         guard let task = selectedPromptTask else { return false }
-        return PromptConfig.collectionTaskIDs.contains(task.id)
+        return task.subjectType == .page
     }
 
     var isSelectedTaskPracticeTopicTask: Bool {
         guard let task = selectedPromptTask else { return false }
-        return PromptConfig.practiceTopicTaskIDs.contains(task.id)
+        return task.subjectType == .practiceTopic
+    }
+
+    var isSelectedTaskSentenceTask: Bool {
+        guard let task = selectedPromptTask else { return false }
+        return task.subjectType == .sentence
     }
 
     var selectedTaskSupportsConversationEntryCount: Bool {
@@ -96,11 +102,15 @@ struct AILinkView: View {
     }
 
     var hasCharacterTasks: Bool {
-        selectedPromptTask != nil && !isSelectedTaskPageTask && !isSelectedTaskPracticeTopicTask
+        selectedPromptTask?.subjectType == .characterPhrase
     }
 
     var hasCollectionTasks: Bool {
         selectedPromptTask != nil && isSelectedTaskPageTask
+    }
+
+    var hasSentenceTasks: Bool {
+        selectedPromptTask != nil && isSelectedTaskSentenceTask
     }
 
     var hasPracticeTopicTasks: Bool {
@@ -110,7 +120,8 @@ struct AILinkView: View {
     var canGeneratePrompt: Bool {
         (!hasCharacterTasks || activeCharacter != nil) &&
         (!hasCollectionTasks || selectedCollection != nil) &&
-        (hasCharacterTasks || hasCollectionTasks || hasPracticeTopicTasks)
+        (!hasSentenceTasks || activeSentenceItem != nil) &&
+        (hasCharacterTasks || hasCollectionTasks || hasSentenceTasks || hasPracticeTopicTasks)
     }
 
     var canRunGeminiPhraseAPI: Bool {
@@ -124,14 +135,16 @@ struct AILinkView: View {
             title: draftPromptTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 ? selectedPromptTask.title
                 : draftPromptTitle,
-            template: draftPromptTemplate
+            template: draftPromptTemplate,
+            subjectType: draftPromptSubjectType
         )
     }
 
     var hasUnsavedPromptChanges: Bool {
         guard let selectedPromptTask else { return false }
         return draftPromptTitle != selectedPromptTask.title ||
-            draftPromptTemplate != selectedPromptTask.template
+            draftPromptTemplate != selectedPromptTask.template ||
+            draftPromptSubjectType != selectedPromptTask.subjectType
     }
 
     var isCustomPromptTask: Bool {
@@ -240,6 +253,21 @@ struct AILinkView: View {
         return name.isEmpty ? RadixCopy.savedPage : name
     }
 
+    var activeSentenceItem: ConversationPracticeItem? {
+        store.activePracticeSentenceItem
+    }
+
+    var activeSentenceTitle: String {
+        guard let sentence = activeSentenceItem else { return "No sentence selected" }
+        return sentence.simplified
+    }
+
+    var activeSentenceSubtitle: String {
+        guard let sentence = activeSentenceItem else { return "Open a sentence card first" }
+        let english = sentence.english.trimmingCharacters(in: .whitespacesAndNewlines)
+        return english.isEmpty ? "Sentence" : english
+    }
+
     func ensureSelectedPromptTask() {
         let normalizedTasks = store.promptConfig.normalized().tasks
         guard !normalizedTasks.isEmpty else {
@@ -273,6 +301,7 @@ struct AILinkView: View {
         let task = store.promptConfig.normalized().tasks.first(where: { $0.id == taskID })
         draftPromptTitle = task?.title ?? ""
         draftPromptTemplate = task?.template ?? ""
+        draftPromptSubjectType = task?.subjectType ?? .characterPhrase
         promptSaveStatus = nil
     }
 
@@ -281,7 +310,8 @@ struct AILinkView: View {
         store.setPromptTask(
             taskID: selectedPromptTask.id,
             title: draftPromptTitle,
-            template: draftPromptTemplate
+            template: draftPromptTemplate,
+            subjectType: draftPromptSubjectType
         )
         store.promptSelectedTaskIDs = [selectedPromptTask.id]
         store.persistPromptSettings()
@@ -293,6 +323,7 @@ struct AILinkView: View {
         let defaultTask = store.defaultPromptTask(for: selectedPromptTask.id)
         draftPromptTitle = defaultTask.title
         draftPromptTemplate = defaultTask.template
+        draftPromptSubjectType = defaultTask.subjectType
         promptSaveStatus = "Changes reverted. You can continue editing."
     }
 

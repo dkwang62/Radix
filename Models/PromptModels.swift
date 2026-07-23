@@ -1,9 +1,65 @@
 import Foundation
 
+enum PromptTaskSubjectType: String, Codable, CaseIterable, Identifiable {
+    case characterPhrase
+    case sentence
+    case page
+    case practiceTopic
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .characterPhrase: return "Character / Phrase"
+        case .sentence: return "Sentence"
+        case .page: return "Page"
+        case .practiceTopic: return "Practice Theme"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .characterPhrase: return "character"
+        case .sentence: return "quote.bubble"
+        case .page: return "photo.on.rectangle"
+        case .practiceTopic: return "bubble.left.and.bubble.right"
+        }
+    }
+}
+
 struct PromptTask: Codable, Hashable, Identifiable {
     let id: String
     var title: String
     var template: String
+    var subjectType: PromptTaskSubjectType = .characterPhrase
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case template
+        case subjectType
+    }
+
+    init(
+        id: String,
+        title: String,
+        template: String,
+        subjectType: PromptTaskSubjectType = .characterPhrase
+    ) {
+        self.id = id
+        self.title = title
+        self.template = template
+        self.subjectType = subjectType
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        title = try container.decode(String.self, forKey: .title)
+        template = try container.decode(String.self, forKey: .template)
+        subjectType = try container.decodeIfPresent(PromptTaskSubjectType.self, forKey: .subjectType) ??
+            PromptConfig.defaultSubjectType(forTaskID: id)
+    }
 }
 
 enum SentenceExtractionDetail: String, CaseIterable, Identifiable {
@@ -154,7 +210,8 @@ Write "None" if there are none.
 
 Never claim certainty when the image is unclear. Do not explain the corrections in Chinese. Do not include any text outside these three sections.
 
-"""
+""",
+                subjectType: .page
             ),
             PromptTask(
                 id: "task4",
@@ -179,7 +236,8 @@ Do not include markdown tables, markdown column formatting, numbered lists, bull
 Before answering, silently verify that every non-empty line has exactly this structure:
 Chinese phrase | pinyin | meaning
 
-"""
+""",
+                subjectType: .page
             ),
             PromptTask(
                 id: "task5",
@@ -236,7 +294,8 @@ Characters: {capture_chars}
 OCR Text/Context:
 {capture_text}
 
-"""
+""",
+                subjectType: .page
             ),
             PromptTask(
                 id: "task8",
@@ -315,7 +374,8 @@ Referenced Chinese characters: {capture_chars}
 OCR text/context:
 {capture_text}
 
-"""
+""",
+                subjectType: .page
             ),
             PromptTask(
                 id: "task10",
@@ -368,7 +428,8 @@ Rules:
 
 Before returning, silently validate that the JSON is valid, imports cleanly, and every entry contains only the required keys.
 
-"""
+""",
+                subjectType: .page
             ),
             PromptTask(
                 id: "task11",
@@ -428,7 +489,8 @@ Rules:
 
 Before returning, silently validate that the JSON is valid, imports cleanly, and every entry contains only the required keys.
 
-"""
+""",
+                subjectType: .page
             ),
             PromptTask(
                 id: "task12",
@@ -484,7 +546,8 @@ Rules:
 
 Before returning, silently validate that the JSON is valid, every sentence contains exactly these keys: "id", "chinese", "pinyin", "english", and "phrase_hints", and the sentence list covers the entire cleaned_chinese_text rather than a representative subset.
 
-"""
+""",
+                subjectType: .page
             ),
             PromptTask(
                 id: "task9",
@@ -542,7 +605,8 @@ Rules:
 
 Before returning, silently validate that the JSON is valid, imports cleanly, and every entry contains only the required keys.
 
-"""
+""",
+                subjectType: .practiceTopic
             )
         ],
         epilogue: """
@@ -563,6 +627,12 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
     static let conversationEntryCountTaskIDs: Set<String> = ["task9", "task10", "task11"]
     static let conversationEntryCountOptions = [25, 50, 100]
     static let defaultConversationEntryCount = 25
+
+    static func defaultSubjectType(forTaskID taskID: String) -> PromptTaskSubjectType {
+        if collectionTaskIDs.contains(taskID) { return .page }
+        if practiceTopicTaskIDs.contains(taskID) { return .practiceTopic }
+        return .characterPhrase
+    }
 
     static func normalizedConversationEntryCount(_ value: Int) -> Int {
         conversationEntryCountOptions.contains(value) ? value : defaultConversationEntryCount
@@ -631,8 +701,73 @@ struct PromptRenderContext {
     let practiceTopicSummary: String
     let practiceTopicBrief: String
     let practiceTopicSituations: String
+    let sentenceChinese: String
+    let sentencePinyin: String
+    let sentenceEnglish: String
+    let sentencePhrases: String
+    let sentenceCharacters: String
     let conversationEntryCount: String
     let sentenceExtractionDetail: String
+
+    init(
+        char: String,
+        definitionEN: String,
+        decomposition: String,
+        semantic: String,
+        phonetic: String,
+        phoneticPinyin: String,
+        isSoundMatch: String,
+        pronunciationFamily: String,
+        semanticFamily: String,
+        collectionName: String,
+        captureCharacters: String,
+        captureText: String,
+        originalOCRText: String,
+        recognizedOCRCharacters: String,
+        unrecognizedOCRCharacters: String,
+        nearbyOCRPhrases: String,
+        practiceTopicID: String,
+        practiceTopicTitle: String,
+        practiceTopicSummary: String,
+        practiceTopicBrief: String,
+        practiceTopicSituations: String,
+        sentenceChinese: String = "",
+        sentencePinyin: String = "",
+        sentenceEnglish: String = "",
+        sentencePhrases: String = "",
+        sentenceCharacters: String = "",
+        conversationEntryCount: String,
+        sentenceExtractionDetail: String
+    ) {
+        self.char = char
+        self.definitionEN = definitionEN
+        self.decomposition = decomposition
+        self.semantic = semantic
+        self.phonetic = phonetic
+        self.phoneticPinyin = phoneticPinyin
+        self.isSoundMatch = isSoundMatch
+        self.pronunciationFamily = pronunciationFamily
+        self.semanticFamily = semanticFamily
+        self.collectionName = collectionName
+        self.captureCharacters = captureCharacters
+        self.captureText = captureText
+        self.originalOCRText = originalOCRText
+        self.recognizedOCRCharacters = recognizedOCRCharacters
+        self.unrecognizedOCRCharacters = unrecognizedOCRCharacters
+        self.nearbyOCRPhrases = nearbyOCRPhrases
+        self.practiceTopicID = practiceTopicID
+        self.practiceTopicTitle = practiceTopicTitle
+        self.practiceTopicSummary = practiceTopicSummary
+        self.practiceTopicBrief = practiceTopicBrief
+        self.practiceTopicSituations = practiceTopicSituations
+        self.sentenceChinese = sentenceChinese
+        self.sentencePinyin = sentencePinyin
+        self.sentenceEnglish = sentenceEnglish
+        self.sentencePhrases = sentencePhrases
+        self.sentenceCharacters = sentenceCharacters
+        self.conversationEntryCount = conversationEntryCount
+        self.sentenceExtractionDetail = sentenceExtractionDetail
+    }
 }
 
 extension PromptConfig {
@@ -719,7 +854,12 @@ extension PromptConfig {
                 normalizedTemplate = task.template
             }
 
-            return PromptTask(id: task.id, title: normalizedTitle, template: normalizedTemplate)
+            return PromptTask(
+                id: task.id,
+                title: normalizedTitle,
+                template: normalizedTemplate,
+                subjectType: PromptConfig.defaultSubjectType(forTaskID: task.id)
+            )
         }
         if cleaned.isEmpty {
             return .streamlitDefault
@@ -757,7 +897,7 @@ extension PromptConfig {
             .joined()
         let full: String
         switch subject {
-        case .character:
+        case .character, .sentence:
             full = cfg.preamble + body + cfg.epilogue
         case .collection:
             if selected == ["task5"] || selected == ["task7"] || selected == ["task8"] || selected == ["task10"] || selected == ["task11"] || selected == ["task12"] {
@@ -790,6 +930,13 @@ extension PromptConfig {
             .replacingOccurrences(of: "{practice_topic_summary}", with: context.practiceTopicSummary)
             .replacingOccurrences(of: "{practice_topic_brief}", with: context.practiceTopicBrief)
             .replacingOccurrences(of: "{practice_topic_situations}", with: context.practiceTopicSituations)
+            .replacingOccurrences(of: "{sentence_zh}", with: context.sentenceChinese)
+            .replacingOccurrences(of: "{sentence_chinese}", with: context.sentenceChinese)
+            .replacingOccurrences(of: "{sentence_pinyin}", with: context.sentencePinyin)
+            .replacingOccurrences(of: "{sentence_en}", with: context.sentenceEnglish)
+            .replacingOccurrences(of: "{sentence_english}", with: context.sentenceEnglish)
+            .replacingOccurrences(of: "{sentence_phrases}", with: context.sentencePhrases)
+            .replacingOccurrences(of: "{sentence_characters}", with: context.sentenceCharacters)
             .replacingOccurrences(of: "{practice_topic_sentence_count}", with: context.conversationEntryCount)
             .replacingOccurrences(of: "{conversation_entry_count}", with: context.conversationEntryCount)
             .replacingOccurrences(of: "{sentence_extraction_detail}", with: context.sentenceExtractionDetail)

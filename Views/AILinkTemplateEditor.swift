@@ -106,6 +106,13 @@ extension AILinkView {
                 .accessibilityLabel("Delete AI prompt \(taskTitle(task.id))")
             }
 
+            if isCustomTemplateTask(task.id) {
+                promptSubjectTypePicker(selection: Binding(
+                    get: { taskSubjectType(task.id) },
+                    set: { store.setPromptTaskSubjectType(taskID: task.id, subjectType: $0) }
+                ))
+            }
+
             TextEditor(text: Binding(
                 get: { taskTemplate(task.id) },
                 set: { store.setPromptTaskTemplate(taskID: task.id, template: $0) }
@@ -127,5 +134,14 @@ extension AILinkView {
 
     func taskTemplate(_ id: String) -> String {
         store.promptConfig.tasks.first(where: { $0.id == id })?.template ?? ""
+    }
+
+    func taskSubjectType(_ id: String) -> PromptTaskSubjectType {
+        store.promptConfig.tasks.first(where: { $0.id == id })?.subjectType ??
+            PromptConfig.defaultSubjectType(forTaskID: id)
+    }
+
+    func isCustomTemplateTask(_ id: String) -> Bool {
+        !PromptConfig.streamlitDefault.tasks.contains { $0.id == id }
     }
 }

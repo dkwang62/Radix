@@ -4,6 +4,81 @@ import Testing
 
 @Suite("AI prompt compatibility")
 struct PromptConfigTests {
+    @Test("Custom prompt tasks preserve configurable subject type")
+    func customPromptSubjectTypeCompatibility() throws {
+        let legacyJSON = """
+        {
+          "id": "custom1",
+          "title": "Custom",
+          "template": "Explain {char}"
+        }
+        """.data(using: .utf8)!
+        let legacyTask = try JSONDecoder().decode(PromptTask.self, from: legacyJSON)
+        #expect(legacyTask.subjectType == .characterPhrase)
+
+        let sentenceTask = PromptTask(
+            id: "custom_sentence",
+            title: "Sentence Note",
+            template: "Sentence: {sentence_zh}\\nEnglish: {sentence_en}\\nPhrases: {sentence_phrases}",
+            subjectType: .sentence
+        )
+        let config = PromptConfig(
+            version: 1,
+            preamble: "",
+            tasks: [sentenceTask],
+            epilogue: "",
+            collectionPreamble: "",
+            collectionEpilogue: ""
+        )
+        let record = SentenceExampleRecord(
+            chinese: "我想练习中文。",
+            pinyin: "Wǒ xiǎng liànxí Zhōngwén.",
+            english: "I want to practice Chinese.",
+            targetCharacters: ["我", "想", "练", "习", "中", "文"],
+            targetPhrases: ["练习", "中文"]
+        )
+        let item = ConversationPracticeItem(sentenceExample: record, rank: 0)
+
+        let prompt = config.renderPrompt(
+            selectedTaskIDs: [sentenceTask.id],
+            context: PromptRenderContext(
+                char: "",
+                definitionEN: "",
+                decomposition: "",
+                semantic: "",
+                phonetic: "",
+                phoneticPinyin: "",
+                isSoundMatch: "",
+                pronunciationFamily: "",
+                semanticFamily: "",
+                collectionName: "",
+                captureCharacters: "",
+                captureText: "",
+                originalOCRText: "",
+                recognizedOCRCharacters: "",
+                unrecognizedOCRCharacters: "",
+                nearbyOCRPhrases: "",
+                practiceTopicID: "",
+                practiceTopicTitle: "",
+                practiceTopicSummary: "",
+                practiceTopicBrief: "",
+                practiceTopicSituations: "",
+                sentenceChinese: item.simplified,
+                sentencePinyin: item.pinyin,
+                sentenceEnglish: item.english,
+                sentencePhrases: item.phraseHints.joined(separator: ", "),
+                sentenceCharacters: item.characterHints.joined(separator: " "),
+                conversationEntryCount: "25",
+                sentenceExtractionDetail: ""
+            ),
+            subject: .sentence(item)
+        )
+
+        #expect(prompt.contains("Sentence: 我想练习中文。"))
+        #expect(prompt.contains("English: I want to practice Chinese."))
+        #expect(prompt.contains("Phrases: 练习, 中文"))
+    }
+
     @Test("Legacy Check OCR templates normalize to page-character review")
     func legacyOCRTemplateNormalizes() {
         let legacy = PromptTask(

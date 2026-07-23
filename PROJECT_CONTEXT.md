@@ -1141,7 +1141,13 @@ template without repeating the task title in a second title field; custom tasks
 also show a task-name field. Prompt edits are draft-only until the user taps
 `Save`; `Undo` restores the built-in default for shipped tasks or the starter
 prompt for custom tasks and shows a compact next-row confirmation that editing
-can continue. The task menu includes `New AI Task...`. AI Link does not show a
+can continue. Custom tasks carry an explicit subject type: `Character / Phrase`,
+`Sentence`, or `Page`. The selected subject type controls the source row, prompt
+validation, and rendering placeholders; built-in page/theme task subject types
+remain fixed so result import flows stay predictable. Sentence custom tasks use
+the active sentence card as their source and can render `{sentence_zh}`,
+`{sentence_en}`, `{sentence_pinyin}`, `{sentence_phrases}`, and
+`{sentence_characters}`. The task menu includes `New AI Task...`. AI Link does not show a
 full generated prompt preview or a separate
 ready-to-send summary; the selected task appears on the primary open button
 (`Open Gemini: Task 2`) instead. Do not reintroduce a separate prompt-context
