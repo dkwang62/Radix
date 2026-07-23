@@ -48,6 +48,11 @@ Use these preferences as defaults:
 - Keep Browse source switching in the `Browse - [source]` title menu. Do not add
   a separate source button when Dictionary and saved pages are already available
   from the title menu; camera/import sources belong under Camera/capture.
+- The title dropdown is allowed to become the complete navigation map. Its top
+  section should keep the main destinations visible: `Browse`, `Study`,
+  `AI Link`, `My Data`, and `Settings`. When the current destination is Browse
+  or Study, show that destination's local choices beneath the main destination
+  section instead of replacing the main navigation.
 - Prefer compact one-button toggles for binary display choices, such as
   `中 Chinese` / `英 English` and `拼 Pinyin`, instead of wide segmented controls.
 - Use learning-specific labels and symbols. Chinese display controls should use
@@ -176,14 +181,20 @@ everywhere they are introduced or explained:
 
 Search and Camera remain global actions outside this four-part vocabulary.
 
+The compact-screen iPhone navigation is experimenting with a title-menu-first
+model. The title dropdown is the main route picker and should expose the main
+destinations plus contextual Browse or Study choices. Search and Camera remain
+global actions below the title because they are fast-entry utilities, not
+ordinary destinations.
+
 The compact-screen iPhone navigation should feel like:
 
 ```text
 Top global action row:
 [ Search anything... ] [ Camera ]
 
-Bottom tabs:
-Browse | Study | AI | My Data
+Title menu:
+Browse | Study | AI Link | My Data | Settings
 ```
 
 Search and Camera are global actions, not ordinary tab destinations.
@@ -205,7 +216,8 @@ Search and Camera are global actions, not ordinary tab destinations.
 - My Data should not become a review drawer. It should focus on data ownership,
   backup, restore, export, import, and subscription-related data tools.
 
-Do not move tabs one at a time without preserving this overall structure.
+Do not move or hide navigation controls one at a time without preserving this
+overall structure.
 
 When an in-content action moves the user to another primary destination, show
 one temporary, named return action such as `Back to Study` or `Back to My Data`.
@@ -221,6 +233,8 @@ remains coherent.
 On iPad and Mac:
 
 - Preserve a more spacious sidebar/workspace layout.
+- Keep the title dropdown as a complete route map, but retain larger-screen
+  sidebar navigation unless a later decision explicitly removes it.
 - Search can be persistent or prominent in the sidebar/header.
 - Camera can remain a visible toolbar/sidebar action rather than replacing
   the layout around a single compact action row.

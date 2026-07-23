@@ -49,15 +49,12 @@ extension RootView {
                 phoneGlobalActionRow
                 phoneContent
                     .frame(maxHeight: .infinity, alignment: .top)
-                phoneTabBar
             }
             .navigationTitle(phoneTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                if showsTitleGuideMenu {
-                    ToolbarItem(placement: .principal) {
-                        titleGuideMenu
-                    }
+                ToolbarItem(placement: .principal) {
+                    titleGuideMenu
                 }
             }
             .navigationDestination(isPresented: phoneDetailNavigationBinding) {

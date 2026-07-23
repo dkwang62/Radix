@@ -95,23 +95,14 @@ extension RootView {
         }
     }
 
-    var showsTitleGuideMenu: Bool {
-        activeTitleGuideTopic != nil
-    }
-
     @ViewBuilder
     var titleGuideMenu: some View {
-        if isBrowseDestinationActive {
-            browseTitlePicker
-        } else if isStudyDestinationActive {
-            studyTitlePicker
-        } else if let topic = activeTitleGuideTopic {
-            navigationTitleMenu(for: topic, title: detailPaneTitle)
-        }
+        rootTitleNavigationMenu
     }
 
     func navigationTitleMenu(for topic: RadixNavigationGuideTopic, title: String? = nil) -> some View {
         Menu {
+            primaryNavigationMenuSection
             navigationHelpButton(for: topic)
         } label: {
             navigationTitleMenuLabel(title ?? topic.title)
@@ -123,10 +114,101 @@ extension RootView {
         .help("\(title ?? topic.title) menu")
     }
 
-    var browseTitlePicker: some View {
+    var rootTitleNavigationMenu: some View {
         Menu {
-            navigationHelpButton(for: .browse)
+            primaryNavigationMenuSection
 
+            if isBrowseDestinationActive {
+                browseTitleMenuSection
+            }
+
+            if isStudyDestinationActive {
+                studyTitleMenuSection
+            }
+
+            if let topic = activeTitleGuideTopic {
+                navigationHelpButton(for: topic)
+            }
+        } label: {
+            navigationTitleMenuLabel(detailPaneTitle)
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .id(titleNavigationIdentity)
+        .accessibilityLabel("Radix navigation menu")
+        .accessibilityValue(detailPaneTitle)
+        .help("Radix navigation menu")
+    }
+
+    var titleNavigationIdentity: String {
+        [
+            store.route.rawValue,
+            store.homeTab.rawValue,
+            store.selectedBrowseCollectionID?.uuidString ?? "dictionary",
+            store.activeStudySectionTitle
+        ].joined(separator: "|")
+    }
+
+    @ViewBuilder
+    var primaryNavigationMenuSection: some View {
+        Section("Go To") {
+            primaryNavigationButton(
+                title: RadixCopy.browse,
+                systemImage: RadixIcon.browse,
+                isSelected: isBrowseDestinationActive
+            ) {
+                store.goToBrowse()
+            }
+
+            primaryNavigationButton(
+                title: RadixCopy.study,
+                systemImage: RadixIcon.study,
+                isSelected: isStudyDestinationActive
+            ) {
+                store.goToFavourites()
+            }
+
+            primaryNavigationButton(
+                title: RadixCopy.aiLink,
+                systemImage: RadixIcon.aiLink,
+                isSelected: store.route == .aiLink
+            ) {
+                store.enterAILink()
+            }
+
+            primaryNavigationButton(
+                title: RadixCopy.myData,
+                systemImage: RadixIcon.myData,
+                isSelected: store.route == .search && store.homeTab == .dataEdit
+            ) {
+                store.goToDataEdit()
+            }
+
+            primaryNavigationButton(
+                title: "Settings",
+                systemImage: RadixIcon.settings,
+                isSelected: store.route == .settings
+            ) {
+                store.goToSettings()
+            }
+        }
+    }
+
+    @ViewBuilder
+    func primaryNavigationButton(
+        title: String,
+        systemImage: String,
+        isSelected: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: isSelected ? "checkmark" : systemImage)
+        }
+    }
+
+    @ViewBuilder
+    var browseTitleMenuSection: some View {
+        Section("Browse") {
             Button {
                 store.selectBrowseCollection(id: nil)
                 store.shouldCloseBrowsePages = true
@@ -135,57 +217,36 @@ extension RootView {
             }
 
             if !browseTitleMenuPages.isEmpty {
-                Section("Saved Pages") {
-                    ForEach(browseTitleMenuPages) { collection in
-                        Button {
-                            store.selectBrowseCollection(id: collection.id)
-                            store.shouldCloseBrowsePages = true
-                        } label: {
-                            let title = collection.name.isEmpty ? RadixCopy.savedPage : collection.name
-                            let isSelected = store.selectedBrowseCollectionID == collection.id
-                            Label(title, systemImage: isSelected ? "checkmark" : RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
-                        }
+                ForEach(browseTitleMenuPages) { collection in
+                    Button {
+                        store.selectBrowseCollection(id: collection.id)
+                        store.shouldCloseBrowsePages = true
+                    } label: {
+                        let title = collection.name.isEmpty ? RadixCopy.savedPage : collection.name
+                        let isSelected = store.selectedBrowseCollectionID == collection.id
+                        Label(title, systemImage: isSelected ? "checkmark" : RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
                     }
                 }
             }
-
-        } label: {
-            navigationTitleMenuLabel(browseNavigationTitle)
         }
-        .menuStyle(.button)
-        .buttonStyle(.plain)
-        .id(store.selectedBrowseCollectionID?.uuidString ?? "dictionary")
-        .accessibilityLabel("Browse menu")
-        .accessibilityValue(browseNavigationTitle)
-        .help("Browse menu")
     }
 
-    var studyTitlePicker: some View {
-        Menu {
-            navigationHelpButton(for: .study)
-
-            Section("Study") {
-                ForEach(StudyNavigationTarget.allCases) { target in
-                    Button {
-                        store.requestedStudyNavigationTarget = target
-                    } label: {
-                        Label(
-                            target.title,
-                            systemImage: target.title == store.activeStudySectionTitle
-                                ? "checkmark"
-                                : studyTitleMenuSystemImage(for: target)
-                        )
-                    }
+    @ViewBuilder
+    var studyTitleMenuSection: some View {
+        Section("Study") {
+            ForEach(StudyNavigationTarget.allCases) { target in
+                Button {
+                    store.requestedStudyNavigationTarget = target
+                } label: {
+                    Label(
+                        target.title,
+                        systemImage: target.title == store.activeStudySectionTitle
+                            ? "checkmark"
+                            : studyTitleMenuSystemImage(for: target)
+                    )
                 }
             }
-        } label: {
-            navigationTitleMenuLabel("Study - \(store.activeStudySectionTitle)")
         }
-        .menuStyle(.button)
-        .buttonStyle(.plain)
-        .accessibilityLabel("Study menu")
-        .accessibilityValue("Study - \(store.activeStudySectionTitle)")
-        .help("Study menu")
     }
 
     func studyTitleMenuSystemImage(for target: StudyNavigationTarget) -> String {

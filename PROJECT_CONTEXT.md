@@ -17,6 +17,8 @@ visible in the app.
 `UI_INTENT.md` now includes the durable Radix UI preference guide. Future UI
 work should follow that guide before adding controls, screens, navigation paths,
 or parallel component implementations.
+Build 16 is preserved at git tag `radix-build-16-before-title-navigation`
+before the title-dropdown navigation experiment.
 
 ## Version 1.1 Direction
 
@@ -264,6 +266,12 @@ Sentences, or Checkpoints. Keep the pinned Study controls visible when focused
 sections are active, do not show a `Back to Study` button for normal switching,
 and clear the other focused Study sections when one is selected. Do not
 reintroduce separate booleans for these mutually exclusive sections.
+The root title dropdown is now also the complete high-level navigation menu on
+every platform. Its top section keeps `Browse`, `Study`, `AI Link`, `My Data`,
+and `Settings` available, while Browse and Study append their local choices
+below that section. On iPhone this is the primary navigation experiment and the
+bottom tab bar is hidden; on iPad and Mac the sidebar remains as a larger-screen
+parallel affordance for now.
 Mac Catalyst does not show the same native navigation title bar as phone/iPad,
 so the detail pane owns a visible root title row. Keep it driven by the shared
 `detailPaneTitle` / Browse title picker logic so Catalyst shows contextual

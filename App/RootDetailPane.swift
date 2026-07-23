@@ -106,10 +106,8 @@ extension RootView {
             .navigationTitle(detailPaneTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                if showsTitleGuideMenu {
-                    ToolbarItem(placement: .principal) {
-                        titleGuideMenu
-                    }
+                ToolbarItem(placement: .principal) {
+                    titleGuideMenu
                 }
             }
         #endif
@@ -120,11 +118,7 @@ extension RootView {
         HStack {
             Spacer(minLength: 0)
 
-            if showsTitleGuideMenu {
-                titleGuideMenu
-            } else {
-                navigationTitleMenuLabel(detailPaneTitle)
-            }
+            titleGuideMenu
 
             Spacer(minLength: 0)
         }
