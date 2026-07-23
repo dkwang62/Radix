@@ -168,6 +168,7 @@ struct CaptureTab: View {
             onFiles: {
                 beginFileImport()
             },
+            onClipboard: beginClipboardImageImport,
             onText: beginManualCollection
         )
     }

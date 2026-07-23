@@ -10,6 +10,7 @@ struct CaptureHeaderView: View {
     let onAlbumImage: @MainActor @Sendable (CapturedImage) -> Void
     let onAlbumError: @MainActor @Sendable (Error) -> Void
     let onFiles: () -> Void
+    let onClipboard: () -> Void
     let onText: () -> Void
 
     var body: some View {
@@ -38,6 +39,7 @@ struct CaptureHeaderView: View {
             HStack(spacing: 10) {
                 cameraButton
                 albumButton
+                clipboardButton
                 filesButton
                 textButton
             }
@@ -45,6 +47,7 @@ struct CaptureHeaderView: View {
             VStack(spacing: 10) {
                 cameraButton
                 albumButton
+                clipboardButton
                 filesButton
                 textButton
             }
@@ -101,6 +104,20 @@ struct CaptureHeaderView: View {
             )
         }
         .buttonStyle(.plain)
+        .disabled(isProcessing)
+    }
+
+    private var clipboardButton: some View {
+        Button(action: onClipboard) {
+            CaptureSourceButton(
+                title: "Clipboard",
+                subtitle: isImportLocked ? "Radix Plus" : "Image",
+                systemName: "doc.on.clipboard",
+                lockBadge: isImportLocked ? "Plus" : nil
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Image from Clipboard")
         .disabled(isProcessing)
     }
 
