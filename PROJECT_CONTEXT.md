@@ -113,9 +113,10 @@ deterministic phone/narrow versus wide layouts, not a measurement-based
 multi-candidate layout around interactive menus/buttons, so iPad split layouts
 do not hang or compress labels into vertical fragments.
 Study > Sentences keeps only page navigation and display/script controls in the
-top toolbar. Source filtering, selection, bulk delete, and sentence transfer
-belong on the lower source-filter row so iPad layouts distribute controls
-without crowding the page navigation.
+top toolbar. Source filtering, compact sentence search, and one sentence tools
+menu belong on the lower source row on every device. The tools menu owns
+selection, bulk delete, and sentence transfer so iPad/Mac do not grow separate
+management buttons that crowd page navigation.
 Shared language-learning buttons should use meaningful text badges instead of
 generic typography icons: `中 Chinese`, `英 English`, and `拼 Pinyin` are clearer
 than `Aa`/`textformat` symbols for sentence display and pinyin controls.

@@ -85,8 +85,9 @@ wrap labels into unusable vertical text. Do not wrap interactive toolbar
 menus/buttons in a measurement-based multi-candidate layout that renders
 several alternatives just to choose one.
 For Study Sentences specifically, keep page navigation and display/script
-choice on the top row; put source filtering and management actions such as
-selection, transfer, and bulk delete on the lower source row.
+choice on the top row. Put source filtering, compact sentence search, and one
+tools dropdown on the lower source row on every device; the dropdown owns
+selection, transfer, and bulk delete.
 Language-learning controls should prefer meaningful text badges over generic
 typography icons: use labels such as `中 Chinese`, `英 English`, and `拼 Pinyin`
 instead of `Aa`/`textformat` symbols when the control changes language display

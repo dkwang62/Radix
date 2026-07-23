@@ -522,10 +522,6 @@ extension FavouritesTab {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            TextField("Search sentences", text: $sentenceExampleSearchText)
-                .textFieldStyle(.roundedBorder)
-                .font(ResponsiveFont.body)
-
             sentenceExampleFilterAndToolsRow
         }
         .padding(10)
@@ -543,16 +539,15 @@ extension FavouritesTab {
     var sentenceExampleFilterAndToolsRow: some View {
         HStack(spacing: 8) {
             sentenceExampleSourceFilterMenu
+                .fixedSize(horizontal: true, vertical: false)
 
-            Spacer(minLength: 8)
+            TextField("Search sentences", text: $sentenceExampleSearchText)
+                .textFieldStyle(.roundedBorder)
+                .font(ResponsiveFont.caption)
+                .frame(minWidth: isPhone ? 110 : 180, maxWidth: .infinity)
 
-            if isPhone {
-                sentenceExamplePhoneToolsMenu
-            } else {
-                sentenceExampleSelectionControls
-                sentenceExampleBulkDeleteButton
-                sentenceDatabaseTransferMenu
-            }
+            sentenceExampleToolsMenu
+                .fixedSize(horizontal: true, vertical: false)
         }
     }
 
@@ -586,7 +581,7 @@ extension FavouritesTab {
         .help("Choose sentence source")
     }
 
-    var sentenceExamplePhoneToolsMenu: some View {
+    var sentenceExampleToolsMenu: some View {
         Menu {
             if isSelectingSentenceExamples {
                 Button {
