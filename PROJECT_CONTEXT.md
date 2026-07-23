@@ -112,6 +112,10 @@ button rather than a fixed-width segmented picker. This row must use
 deterministic phone/narrow versus wide layouts, not a measurement-based
 multi-candidate layout around interactive menus/buttons, so iPad split layouts
 do not hang or compress labels into vertical fragments.
+Study > Sentences keeps only page navigation and display/script controls in the
+top toolbar. Source filtering, selection, bulk delete, and sentence transfer
+belong on the lower source-filter row so iPad layouts distribute controls
+without crowding the page navigation.
 Settings exposes the only user-triggered `Optimize Database` maintenance
 action. Keep technical cleanup details out of the main UI: the Settings action
 may rewrite Radix-owned sentence, extracted-page, added-phrase, and

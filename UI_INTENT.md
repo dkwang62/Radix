@@ -84,6 +84,9 @@ toggles for binary modes such as Chinese/English so iPad split views do not
 wrap labels into unusable vertical text. Do not wrap interactive toolbar
 menus/buttons in a measurement-based multi-candidate layout that renders
 several alternatives just to choose one.
+For Study Sentences specifically, keep page navigation and display/script
+choice on the top row; put source filtering and management actions such as
+selection, transfer, and bulk delete on the lower source row.
 
 ### Balance with best-practice guardrails
 

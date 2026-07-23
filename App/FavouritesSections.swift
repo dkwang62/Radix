@@ -503,16 +503,13 @@ extension FavouritesTab {
                     sentenceExamplePageNavigation
                 } trailing: {
                     practiceSentenceModeControls
-                    sentenceExamplePhoneToolsMenu
                 }
             } else {
                 practiceSentenceControlRow {
                     sentenceExamplePageNavigation
                 } center: {
-                    sentenceExampleSelectionControls
-                    sentenceExampleBulkDeleteButton
+                    EmptyView()
                 } trailing: {
-                    sentenceDatabaseTransferMenu
                     practiceSentenceModeControls
                 }
             }
@@ -529,7 +526,7 @@ extension FavouritesTab {
                 .textFieldStyle(.roundedBorder)
                 .font(ResponsiveFont.body)
 
-            sentenceExampleSourceFilterMenu
+            sentenceExampleFilterAndToolsRow
         }
         .padding(10)
         .background(.regularMaterial)
@@ -540,6 +537,22 @@ extension FavouritesTab {
                 sentenceExampleFilter = .all
             }
             resetSentenceExampleResultsContext()
+        }
+    }
+
+    var sentenceExampleFilterAndToolsRow: some View {
+        HStack(spacing: 8) {
+            sentenceExampleSourceFilterMenu
+
+            Spacer(minLength: 8)
+
+            if isPhone {
+                sentenceExamplePhoneToolsMenu
+            } else {
+                sentenceExampleSelectionControls
+                sentenceExampleBulkDeleteButton
+                sentenceDatabaseTransferMenu
+            }
         }
     }
 
