@@ -248,7 +248,6 @@ struct SettingsView: View {
                 }
             }
         }
-        .navigationTitle(RadixCopy.settings)
         .onAppear {
             revealRequestedAPIKeySettings()
         }

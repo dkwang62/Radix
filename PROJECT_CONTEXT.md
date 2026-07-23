@@ -19,6 +19,10 @@ work should follow that guide before adding controls, screens, navigation paths,
 or parallel component implementations.
 Build 16 is preserved at git tag `radix-build-16-before-title-navigation`
 before the title-dropdown navigation experiment.
+Root title dropdowns own visible primary screen titles. Child views such as AI
+Link and Settings should not add a second static `navigationTitle` when shown
+inside the root navigation shell; modal sheets may still own their focused
+sheet titles.
 
 ## Version 1.1 Direction
 

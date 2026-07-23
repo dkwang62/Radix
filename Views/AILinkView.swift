@@ -163,7 +163,6 @@ struct AILinkView: View {
             }
             .padding(20)
         }
-        .navigationTitle(RadixCopy.aiLink)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
