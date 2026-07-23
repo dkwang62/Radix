@@ -499,26 +499,19 @@ extension FavouritesTab {
     var sentenceExamplesControls: some View {
         VStack(alignment: .leading, spacing: 8) {
             if isPhone {
-                HStack(spacing: 6) {
+                practiceSentenceControlRow {
                     sentenceExamplePageNavigation
-                        .fixedSize(horizontal: true, vertical: false)
-
-                    Spacer(minLength: 4)
-
+                } trailing: {
                     practiceSentenceModeControls
-
                     sentenceExamplePhoneToolsMenu
                 }
             } else {
-                HStack(spacing: 8) {
+                practiceSentenceControlRow {
                     sentenceExamplePageNavigation
-                        .fixedSize(horizontal: true, vertical: false)
-
-                    Spacer(minLength: 8)
-
+                } center: {
                     sentenceExampleSelectionControls
-
                     sentenceExampleBulkDeleteButton
+                } trailing: {
                     sentenceDatabaseTransferMenu
                     practiceSentenceModeControls
                 }

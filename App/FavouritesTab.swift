@@ -928,6 +928,17 @@ enum ConversationPracticeSentenceDisplay: String, CaseIterable, Identifiable {
     case english = "English"
 
     var id: String { rawValue }
+
+    var systemImage: String {
+        switch self {
+        case .chinese: return "textformat"
+        case .english: return "character.book.closed"
+        }
+    }
+
+    mutating func toggle() {
+        self = self == .chinese ? .english : .chinese
+    }
 }
 
 struct ConversationPracticeReplacementReview: Identifiable {

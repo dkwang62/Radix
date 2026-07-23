@@ -51,13 +51,24 @@ extension FavouritesTab {
     }
 
     var conversationPracticeSentenceDisplayToggle: some View {
-        Picker("Sentence Display", selection: $conversationPracticeSentenceDisplay) {
-            ForEach(ConversationPracticeSentenceDisplay.allCases) { display in
-                Text(display.rawValue).tag(display)
-            }
+        Button {
+            conversationPracticeSentenceDisplay.toggle()
+        } label: {
+            Label(conversationPracticeSentenceDisplay.rawValue, systemImage: conversationPracticeSentenceDisplay.systemImage)
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .labelStyle(.titleAndIcon)
+                .radixPill(
+                    horizontal: 9,
+                    vertical: 6,
+                    background: RadixTheme.secondaryBackground
+                )
         }
-        .pickerStyle(.segmented)
-        .frame(width: 150)
+        .buttonStyle(.plain)
+        .foregroundStyle(RadixAccent.primary)
+        .fixedSize(horizontal: true, vertical: false)
+        .accessibilityLabel("Sentence language")
+        .accessibilityValue(conversationPracticeSentenceDisplay.rawValue)
+        .help("Switch between Chinese and English")
     }
 
     var practiceSentenceModeControls: some View {
@@ -71,38 +82,74 @@ extension FavouritesTab {
     func practiceSentenceDisplayControls<Navigation: View>(
         @ViewBuilder navigation: () -> Navigation
     ) -> some View {
-        if isPhone {
-            HStack(spacing: 6) {
-                navigation()
-                    .fixedSize(horizontal: true, vertical: false)
+        practiceSentenceControlRow {
+            navigation()
+        } trailing: {
+            practiceSentenceModeControls
+        }
+        .padding(.bottom, 2)
+    }
 
-                Spacer(minLength: 4)
-
-                practiceSentenceModeControls
-                    .fixedSize(horizontal: true, vertical: false)
-            }
-            .padding(.bottom, 2)
-        } else if isNarrowStudyLayout {
-            VStack(alignment: .leading, spacing: 6) {
-                navigation()
-                    .fixedSize(horizontal: true, vertical: false)
-
-                HStack(spacing: 8) {
-                    Spacer(minLength: 0)
-                    practiceSentenceModeControls
-                }
-            }
-            .padding(.bottom, 2)
-        } else {
-            HStack(spacing: 8) {
-                navigation()
+    func practiceSentenceControlRow<Leading: View, Center: View, Trailing: View>(
+        @ViewBuilder leading: () -> Leading,
+        @ViewBuilder center: () -> Center,
+        @ViewBuilder trailing: () -> Trailing
+    ) -> some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                leading()
                     .fixedSize(horizontal: true, vertical: false)
 
                 Spacer(minLength: 8)
 
-                practiceSentenceModeControls
+                center()
+                    .fixedSize(horizontal: true, vertical: false)
+
+                Spacer(minLength: 8)
+
+                trailing()
+                    .fixedSize(horizontal: true, vertical: false)
             }
-            .padding(.bottom, 2)
+
+            HStack(spacing: 8) {
+                leading()
+                    .fixedSize(horizontal: true, vertical: false)
+
+                Spacer(minLength: 6)
+
+                trailing()
+                    .fixedSize(horizontal: true, vertical: false)
+
+                center()
+                    .fixedSize(horizontal: true, vertical: false)
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 8) {
+                    leading()
+                        .fixedSize(horizontal: true, vertical: false)
+
+                    Spacer(minLength: 0)
+
+                    trailing()
+                        .fixedSize(horizontal: true, vertical: false)
+                }
+
+                center()
+            }
+        }
+    }
+
+    func practiceSentenceControlRow<Leading: View, Trailing: View>(
+        @ViewBuilder leading: () -> Leading,
+        @ViewBuilder trailing: () -> Trailing
+    ) -> some View {
+        practiceSentenceControlRow {
+            leading()
+        } center: {
+            EmptyView()
+        } trailing: {
+            trailing()
         }
     }
 

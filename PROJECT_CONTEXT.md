@@ -103,6 +103,13 @@ migrated into the database on first read.
 Sentence examples are canonically stored as simplified Chinese, including phrase
 and character hints; traditional Chinese is a display mode exposed by sentence
 lists, example sheets, and sentence cards, not a second storage form.
+Study sentence-style screens, including Study > Sentences, Conversation
+Practice, and extracted sentence readers, share the `PracticeSentenceSurface`
+toolbar primitives. Keep the page navigation, selection/actions, and
+script/language display controls distributed through the shared
+`practiceSentenceControlRow`, and keep Chinese/English as one compact toggle
+button rather than a fixed-width segmented picker so iPad split layouts do not
+compress labels into vertical fragments.
 Settings exposes the only user-triggered `Optimize Database` maintenance
 action. Keep technical cleanup details out of the main UI: the Settings action
 may rewrite Radix-owned sentence, extracted-page, added-phrase, and
