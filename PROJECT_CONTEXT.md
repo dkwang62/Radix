@@ -31,6 +31,9 @@ sources must not exist only in a hidden Browse panel.
 Image workflows use Apple Vision first for speed. If Vision returns no readable
 Chinese or errors, Radix may fall back to Gemini image OCR with the source image
 and then create the page from the AI-read text through the same saved-page flow.
+Original OCR is a page action, not a visible page artifact button. Keep it in
+the saved-page `Actions` menu so source inspection remains available without
+crowding Study or Browse artifact rows.
 
 ## Version 1.1 Direction
 

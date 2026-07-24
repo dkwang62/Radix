@@ -44,6 +44,7 @@ struct CollectionPageActionsMenu: View {
     var onEdit: (() -> Void)? = nil
     var hasGeminiAPIKey = false
     var onChoosePhrases: (() -> Void)? = nil
+    var onViewOriginalOCR: (() -> Void)? = nil
     var onViewTranslation: (() -> Void)? = nil
     var onDelete: (() -> Void)? = nil
     var aiTasks: [CollectionPageAITask] = []
@@ -67,6 +68,14 @@ struct CollectionPageActionsMenu: View {
                             onChoosePhrases()
                         } label: {
                             Label("Choose Page Phrases", systemImage: "text.quote")
+                        }
+                    }
+
+                    if let onViewOriginalOCR {
+                        Button {
+                            onViewOriginalOCR()
+                        } label: {
+                            Label("Original OCR", systemImage: "doc.text.viewfinder")
                         }
                     }
 
@@ -132,7 +141,7 @@ struct CollectionPageActionsMenu: View {
     }
 
     private var hasPageActions: Bool {
-        onEdit != nil || onChoosePhrases != nil || onViewTranslation != nil || onDelete != nil
+        onEdit != nil || onChoosePhrases != nil || onViewOriginalOCR != nil || onViewTranslation != nil || onDelete != nil
     }
 
     @ViewBuilder

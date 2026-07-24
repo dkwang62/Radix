@@ -487,6 +487,9 @@ extension FavouritesTab {
             collection: collection,
             hasGeminiAPIKey: !store.geminiAPIKey
                 .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            onViewOriginalOCR: collection.sourceType == .ocr ? {
+                openOriginalOCRPageFromStudy(collection)
+            } : nil,
             onViewTranslation: {
                 showStudyTranslationReport(collection)
             },
@@ -509,6 +512,15 @@ extension FavouritesTab {
         .controlSize(.small)
         .accessibilityLabel("Open \(collection.name) in Browse")
         .help("Browse Page and Return to Study")
+    }
+
+    private func openOriginalOCRPageFromStudy(_ collection: CharacterCollection) {
+        let originalID = collection.correctedFromCollectionID ?? collection.id
+        if let original = store.collection(id: originalID) {
+            openSavedPageInBrowse(original)
+        } else {
+            openSavedPageInBrowse(collection)
+        }
     }
 
     private func studyPageResumeText(_ collection: CharacterCollection) -> String {
