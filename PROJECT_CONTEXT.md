@@ -1402,8 +1402,8 @@ an `Actions` menu, and `Back to Study` when it is opened as the Study
 workspace; the reusable modal wrapper may still show `Done` where a sheet is
 explicitly needed. `Actions` includes `Create AI Review Page` for current
 unreviewed phrases, bulk status/deletion actions, and help. The AI Review
-action creates a saved Browse page from all current unreviewed, non-base added
-phrases, then opens that page in Browse with a `Back to Study` return path.
+action creates a saved page from all current unreviewed, non-base added
+phrases, then opens that page in Pages.
 This action does not mark, accept, reject, or delete the source phrases. Review
 phrases sort by pinyin, and pagination uses the visible pinyin letter range
 such as `b-c`; when more than one page exists, that range label opens a direct

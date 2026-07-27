@@ -343,7 +343,7 @@ struct AddedPhraseReviewHelpSheet: View {
                 }
 
                 Section("AI Review") {
-                    Label("Actions can create one Browse page from all unreviewed phrases without changing their statuses.", systemImage: "sparkles")
+                    Label("Actions can create one page from all unreviewed phrases without changing their statuses.", systemImage: "sparkles")
                 }
             }
             .navigationTitle("Added Phrases Help")
