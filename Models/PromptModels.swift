@@ -511,7 +511,7 @@ Your job is to turn the crude saved-page/OCR material into complete, studyable C
 
 Completeness requirement: process the entire source page. Do not summarize, sample, choose representative sentences, or omit source content merely because it feels repetitive, difficult, long, or less interesting. The "sentences" array must cover the full cleaned_chinese_text in reading order. If one source line contains multiple ideas, split it into multiple complete sentences. If a source fragment is too short or telegraphic, expand it only enough to preserve that fragment's meaning as a natural learning sentence.
 
-Use the source faithfully, but repair obvious OCR/capture errors when context makes the repair likely. Expand telegraphic media shorthand, headline compression, captions, list fragments, or social-media shorthand into natural complete Chinese sentences. Do not invent unrelated facts, people, dates, claims, or events. If a detail is uncertain, keep it modest and note the uncertainty in repair_notes.
+Use the source faithfully, but repair obvious OCR/capture errors when context makes the repair likely. Expand telegraphic media shorthand, abbreviations, compressed journalistic compounds, headline compression, captions, list fragments, or social-media shorthand into natural complete Chinese sentences. Replace concise headline-style compounds with normal phrases or clauses a learner could say, while preserving the original meaning. Do not invent unrelated facts, people, dates, claims, or events. If a detail is uncertain, keep it modest and note the uncertainty in repair_notes.
 
 Return JSON only. Do not wrap it in Markdown. Do not include explanations outside the JSON.
 
@@ -540,9 +540,10 @@ Rules:
 5. Add accurate tone-mark pinyin for the full sentence in each sentence item's "pinyin" value.
 6. phrase_hints should contain useful 2- to 6-character Chinese chunks that help explain the sentence. Do not include pinyin or English in phrase_hints.
 7. If the original source is only a headline, caption, menu, subtitle, or short fragment, expand only enough to make natural learning sentences while preserving the source's meaning.
-8. repair_notes should be in English and should mention only meaningful OCR repairs, inferred expansions, or uncertainty. Use an empty array if there are none.
-9. Do not drop difficult, repetitive, or low-interest content unless it is pure OCR noise; mention any omitted OCR noise in repair_notes.
-10. Do not include markdown, comments, extra keys, or analysis outside the JSON.
+8. Expand abbreviated or journalistic compound wording into ordinary Chinese phrasing; do not keep telegraphic headline style when it would be unnatural for sentence study.
+9. repair_notes should be in English and should mention only meaningful OCR repairs, inferred expansions, or uncertainty. Use an empty array if there are none.
+10. Do not drop difficult, repetitive, or low-interest content unless it is pure OCR noise; mention any omitted OCR noise in repair_notes.
+11. Do not include markdown, comments, extra keys, or analysis outside the JSON.
 
 Before returning, silently validate that the JSON is valid, every sentence contains exactly these keys: "id", "chinese", "pinyin", "english", and "phrase_hints", and the sentence list covers the entire cleaned_chinese_text rather than a representative subset.
 
