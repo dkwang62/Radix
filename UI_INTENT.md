@@ -160,6 +160,8 @@ Chinese character-count filtering, and one tools dropdown on the lower source
 row on every device; the dropdown owns selection, transfer, and bulk delete.
 The character-count filter is a minimum-length filter, not a sentence-shortening
 or maximum-length rule.
+Page-linked sentence actions should open the source in `Pages`; Browse is only
+for explicit source/OCR inspection from a page's `Source` action.
 Language-learning controls should prefer meaningful text badges over generic
 typography icons: use labels such as `中 Chinese`, `英 English`, and `拼 Pinyin`
 instead of `Aa`/`textformat` symbols when the control changes language display

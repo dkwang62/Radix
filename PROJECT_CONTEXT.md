@@ -162,6 +162,8 @@ page counts and visible rows stay aligned. The tools menu owns
 selection, bulk delete, and sentence transfer so iPad/Mac do not grow separate
 management buttons that crowd page navigation. Do not keep parallel standalone
 Select, Delete Results, or Transfer button helpers for this screen.
+Page-linked sentence actions should open the source in `Pages`; Browse is only
+for explicit source/OCR inspection from a page's `Source` action.
 Shared language-learning buttons should use meaningful text badges instead of
 generic typography icons: `中 Chinese`, `英 English`, and `拼 Pinyin` are clearer
 than `Aa`/`textformat` symbols for sentence display and pinyin controls.

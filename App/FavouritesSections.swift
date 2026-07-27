@@ -1093,9 +1093,9 @@ extension FavouritesTab {
         if let pageID = sentenceExampleSourcePageID(example),
            store.collection(id: pageID) != nil {
             Button {
-                store.goToBrowseCollection(id: pageID, preservingOrigin: true)
+                openSentenceExampleSourcePage(pageID)
             } label: {
-                Label("Open Source Page", systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
+                Label("Open Page", systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
             }
         }
 
@@ -1262,7 +1262,7 @@ extension FavouritesTab {
     }
 
     func openSentenceExampleSourcePage(_ pageID: UUID) {
-        store.goToBrowseCollection(id: pageID, preservingOrigin: true)
+        store.goToPagesWorkspace(id: pageID, preservingOrigin: true)
     }
 
     func openSentenceExamplePracticeSource(_ example: SentenceExampleRecord, topic: ConversationPracticeTopic) {
