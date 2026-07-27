@@ -110,7 +110,7 @@ extension FilterGridTab {
                     .padding(.horizontal, 8)
                     .frame(minHeight: 32)
                     .radixSurface(RadixAccent.primary.opacity(0.08))
-                    .help("Browse shows the original captured page. Extracted sentences appear in Study.")
+                    .help("Browse shows the original captured page. Extracted sentences appear in Pages.")
             }
 
             CollectionPageActionsMenu(

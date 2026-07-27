@@ -1143,8 +1143,8 @@ group counter and scroll the group chips to the selected group, so every
 four-character animation page remains reachable even when the chip row overflows
 in the sidebar.
 The page-sentence AI template instructs AI to set the import `theme` exactly to
-the source page title. Browse currently uses that same-name convention to show a
-page-row Practice shortcut. Do not add a full source-metadata schema yet; if
+the source page title. Pages uses that same-name convention to show a page-row
+Practice shortcut. Do not add a full source-metadata schema yet; if
 title matching becomes unreliable, revisit a `Practice Source Link` model with
 source kind, stable source ID when available, source title/date, and a content
 fingerprint fallback.
