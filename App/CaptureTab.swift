@@ -231,8 +231,7 @@ struct CaptureTab: View {
     }
 
     private func openSavedImage(_ collection: CharacterCollection) {
-        store.goToBrowse()
-        store.selectBrowseCollection(id: collection.id)
+        store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
     }
 
     private func deleteSavedImage(_ collection: CharacterCollection) {
@@ -307,14 +306,14 @@ struct CaptureTab: View {
                 if result.usedAIFallback {
                     statusMessage = "Apple Vision could not read this image, so AI read it instead."
                 }
-                autoSaveAndBrowseRecognizedImage(image: image, source: source)
+                autoSaveRecognizedImage(image: image, source: source)
             }
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
-    private func autoSaveAndBrowseRecognizedImage(image: CapturedImage, source: CaptureSource) {
+    private func autoSaveRecognizedImage(image: CapturedImage, source: CaptureSource) {
         guard let collection = store.createCollection(
             name: defaultOCRCollectionName,
             sourceText: store.activeCaptureDraft.charactersText,
@@ -333,12 +332,11 @@ struct CaptureTab: View {
 
         lastSavedCollectionID = collection.id
         clearCaptureDraft()
-        store.goToBrowse()
-        store.selectBrowseCollection(id: collection.id)
-        clearPhoneBrowsePreviewAfterImageSave()
+        store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
+        clearPhonePreviewAfterPageSave()
     }
 
-    private func clearPhoneBrowsePreviewAfterImageSave() {
+    private func clearPhonePreviewAfterPageSave() {
         if RadixPlatform.isPhone {
             store.clearBrowsePreview()
             store.showiPhoneDetail = false
@@ -391,9 +389,8 @@ struct CaptureTab: View {
         manualCollectionText = ""
         showManualCollectionSheet = false
         clearCaptureDraft()
-        store.goToBrowse()
-        store.selectBrowseCollection(id: collection.id)
-        clearPhoneBrowsePreviewAfterImageSave()
+        store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
+        clearPhonePreviewAfterPageSave()
     }
 
     private func openRequestedCaptureSourceIfNeeded() {

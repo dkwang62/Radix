@@ -37,8 +37,7 @@ extension DataBackupPreviewSection {
     }
 
     func openBackupSavedPage(_ collection: CharacterCollection) {
-        store.goToBrowse()
-        store.selectBrowseCollection(id: collection.id)
+        store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
     }
 
     func deleteBackupSavedPage(_ collection: CharacterCollection) {

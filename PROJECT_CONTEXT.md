@@ -55,9 +55,11 @@ owning saved page.
 Saved pages have one user-facing workspace, `Pages`, backed by the existing
 Study saved-page implementation. Browse page pickers and saved-page title-menu
 entries should open that workspace instead of creating a second Browse Pages
-destination. The same saved-page action menu can create or replace extracted
-sentence artifacts through Manual AI Link or Gemini API. Browse continues to
-own dictionary/source inspection, with OCR pages labeled as Original OCR or
+destination. Page creation and import completions from Capture, share-extension
+imports, Browse page-source shortcuts, and My Data inventory links should also
+land in Pages. The same saved-page action menu can create or replace extracted
+sentence artifacts through Manual AI Link or Gemini API. Browse continues to own
+dictionary/source inspection, with OCR pages labeled as Original OCR or
 Corrected OCR when the user opens a page source.
 The extracted-sentences reader uses the shared Study simplified/traditional display choice;
 the switch converts the visible cleaned title, page text, notes, sentence
@@ -318,14 +320,15 @@ navigation experiment and the bottom tab bar is hidden; on iPad and Mac the
 sidebar remains as a larger-screen parallel affordance for now.
 Mac Catalyst does not show the same native navigation title bar as phone/iPad,
 so the detail pane owns a visible root title row. Keep it driven by the shared
-`detailPaneTitle` / Browse title picker logic so Catalyst shows contextual
-titles such as `Browse - Dictionary`, `Browse - [page name]`, and
-`Study - Sentences` instead of falling back to the app name. The content area
+`detailPaneTitle` / title picker logic so Catalyst shows contextual titles such
+as `Browse - Dictionary`, `Pages`, and `Study - Sentences` instead of falling
+back to the app name. The content area
 should not immediately repeat the same section label shown in the root title.
-For Browse, the root title menu is the source selector for Dictionary and saved
-pages on every platform. Do not duplicate it with an in-content `Sources` button
-or source panel entry. The global `Camera` action routes to Camera/capture and
-opens the camera sheet once by default; after that sheet is dismissed, the full
+For Browse, the root title menu is the source selector for Dictionary and page
+creation on every platform. Saved-page entries route to Pages. Do not duplicate
+Browse with an in-content `Sources` button or source panel entry. The global
+`Camera` action routes to Camera/capture and opens the camera sheet once by
+default; after that sheet is dismissed, the full
 capture workbench remains visible with album, file, clipboard, and camera
 intake options.
 Study > Sentences search should not feel narrower than phrase-card Examples:
@@ -804,32 +807,25 @@ remaining audit work, and crash lessons for handing the finishing pass to Claude
   Practice progress are summarized as kept learning memory rather than silently
   deleted. The delete alert should always show both `Will remove with this page`
   and `Will keep as learning memory`, even when either list is currently `none`.
-- In Study, the `Saved Pages` summary tile opens a Saved Pages review scope
-  rather than jumping directly to Browse. Each saved-page row surfaces linked
-  page work in place: page phrase lists, Practice packs, translation, quiz
-  entry point, corrected pages, favorite sentences, and Practice progress.
-  The top-level Study controls separate grid modes from shortcuts: Recent,
-  Favorites, and Saved Pages are a compact segmented scope switcher, while
-  Added Phrases, Conversation Practices, and iPhone Checkpoints are filled
-  shortcut buttons below it. Favorite Sentences belongs inside Conversation
-  Practices rather than appearing as a duplicate shortcut; when favorite
-  sentences exist, opening Conversation Practices from Study should default to
-  that `Favorite Sentences` topic. Saved Pages is the default Study scope
-  because page-linked artifacts are the center of the Study review workflow.
-  Compact layouts keep the mode labels visible and show
-  shortcuts in an adaptive grid so Checkpoints does not disappear offscreen;
-  wider layouts use three shortcut columns.
-  These Study navigation and control rows stay pinned while the review content
-  scrolls so users can switch scope, use shortcuts, or sort saved pages from
-  deep in a long list.
+- Pages owns linked saved-page work in place: page phrase lists, Practice packs,
+  translation, quiz entry point, corrected pages, favorite sentences, and
+  Practice progress. Study no longer exposes Saved Pages as a local section menu
+  item; saved-page selections and page creation/import completions route to
+  Pages. Recent and Favorites remain Study review scopes, while Added Phrases,
+  Conversation Practices, Sentences, and Checkpoints remain Study sections.
+  Favorite Sentences belongs inside Conversation Practices rather than appearing
+  as a duplicate shortcut; when favorite sentences exist, opening Conversation
+  Practices from Study should default to that `Favorite Sentences` topic.
+  These Study navigation and control rows stay pinned while review content
+  scrolls so users can switch scope or use shortcuts from deep in a long list.
   Fuller guidance belongs in the guided title Help menu rather than persistent
   text rows.
-  Saved Pages in Study use a dense collapsed numbered list with no vertical gaps
-  between rows so large libraries remain scannable. Tapping a page row expands
-  that single page to reveal the Actions menu, Browse shortcut, status
-  feedback, and artifact buttons; the collapsed row itself is not a navigation
-  shortcut. The row matching Browse's currently selected saved page is
-  highlighted so returning from Browse makes the active page easy to identify.
+  Pages uses a dense collapsed numbered list with no vertical gaps between rows
+  so large libraries remain scannable. Tapping a page row expands that single
+  page to reveal the Actions menu, Source shortcut, status feedback, and
+  artifact buttons; the collapsed row itself is not a navigation shortcut. The
+  row matching the currently selected saved page is highlighted so returning
+  from Source makes the active page easy to identify.
   Keep this list lazy and avoid full per-page phrase scans during row drawing;
   row indicators may use recorded extraction links or existing caches, while
   full pinyin-sorted phrase lookup happens when the user opens `Phrases`.
@@ -891,16 +887,16 @@ connected for later. Lead with learner outcomes rather than raw feature names
 such as OCR or saved-page storage.
 
 Near-term work should be incremental rather than broad navigation reshuffling:
-make Saved Pages in Study feel like the center of the app; keep generated
-artifacts visibly tied to their source page; improve empty states with one clear
-next action; continue impact summaries for destructive actions; add lightweight
+make Pages feel like the center of saved-page work; keep generated artifacts
+visibly tied to their source page; improve empty states with one clear next
+action; continue impact summaries for destructive actions; add lightweight
 resume signals only where useful; keep AI manual/API workflows using the same
 method vocabulary; and check iPhone one-handed ergonomics.
 
 Study Help names the page-first mental model as
-`Pages -> Artifacts -> Practice -> Memory -> Checkpoints`. Empty Saved Pages in
-Study offers one `Create Saved Page` action that opens Camera/capture while
-preserving a return path to Study.
+`Pages -> Artifacts -> Practice -> Memory -> Checkpoints`. Empty Pages offers
+one `Create Saved Page` action that opens Camera/capture while preserving a
+return path.
 Page-derived Conversation Practice topics should surface their saved-page origin
 in Study topic summaries, and keep that source cue visible alongside practice
 progress when the user opens the practice section.
@@ -908,10 +904,10 @@ Saved-page deletion impact text must match actual ownership: corrected pages,
 translations, page phrase lists, and page-derived practice packs are removed
 with the page, while standalone learning memory such as added phrases, favorite
 sentences, and reusable practice progress is retained.
-Saved-page resume signals should remain selective: the collapsed Study list may
-show last-viewed context for the active Browse page or the top page in `Viewed`
-sort, but should not add date/status text to every row or simply mark row 1 in
-other sort modes.
+Saved-page resume signals should remain selective: the collapsed Pages list may
+show last-viewed context for the active page or the top page in `Viewed` sort,
+but should not add date/status text to every row or simply mark row 1 in other
+sort modes.
 Page AI actions should consistently name the two methods as `Copy to AI Chat`
 for copy/paste handoff and `Run Automatically with Gemini` for in-app Gemini
 execution. Avoid mixing older labels such as Manual AI Link, Gemini API,
@@ -923,11 +919,10 @@ Study Help should explain the page-first mental model directly:
 the center, page-owned artifacts attached to the source, practice growing from
 real text, learning memory retained, and checkpoints as the safety net.
 iPhone saved-page ergonomics should keep collapsed rows compact for scanning,
-but make expanded page controls, especially `Actions` and `Browse`, wider and
+but make expanded page controls, especially `Actions` and `Source`, wider and
 easier to tap once a row is opened.
-Saved Pages is the Study default through a one-time preference migration for
-older installs; after that migration, user-selected Study scopes should persist
-normally rather than being reset on every launch.
+Saved Pages remains a persisted compatibility scope internally, but it should be
+opened through Pages entry points rather than exposed as a normal Study section.
 Sentence architecture is converging on a canonical Sentence Example database:
 favorite sentences, page sentences, Conversation Practice items, and future
 practice packs should become flags, source links, ordered memberships, or

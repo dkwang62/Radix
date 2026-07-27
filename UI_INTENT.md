@@ -61,8 +61,9 @@ Use these preferences as defaults:
   or Study, show that destination's local choices beneath the main destination
   section instead of replacing the main navigation.
 - High-level destinations can also own second-level title-menu sections:
-  Browse owns Dictionary, saved pages, and non-camera page creation; Study owns
-  study sections including Checkpoints; AI owns AI tasks; and Data owns
+  Browse owns Dictionary and non-camera page creation; Pages owns saved-page
+  work after a page is created or selected; Study owns study sections including
+  Checkpoints; AI owns AI tasks; and Data owns
   `Backup Files` and `Advanced Pro`.
 - Prefer compact one-button toggles for binary display choices, such as
   `中 Chinese` / `英 English` and `拼 Pinyin`, instead of wide segmented controls.
@@ -400,10 +401,10 @@ sentence extraction, page conversation generation, and deleting the page with
 its impact summary. Show a compact `Phrases` artifact chip when Radix finds any
 base or added phrases on the page.
 On iPhone, expanded saved-page controls should be thumb-sized even though
-collapsed rows stay compact; prefer wider `Actions` and `Browse` controls once
+collapsed rows stay compact; prefer wider `Actions` and `Source` controls once
 the user has opened a row.
 Resume signals in the collapsed list should stay selective: show last-viewed
-context for the active Browse page or the top recently viewed page, but do not
+context for the active page/source or the top recently viewed page, but do not
 add date/status text to every saved-page row.
 The saved-page list must stay lazy and responsive: row drawing should not run
 full page-phrase scans for every saved page. Use recorded phrase-extraction

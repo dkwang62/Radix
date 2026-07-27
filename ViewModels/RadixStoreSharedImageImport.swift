@@ -5,7 +5,7 @@ extension RadixStore {
     func importPendingSharedImagesFromShareExtension() async {
         let pendingURLs = RadixSharedImageImport.pendingImageURLs()
         guard !pendingURLs.isEmpty else {
-            goToBrowsePages(selectLatest: false)
+            goToPagesWorkspace()
             return
         }
 
@@ -42,14 +42,9 @@ extension RadixStore {
 
         if let lastImportedCollectionID {
             activeCaptureDraft = CaptureDraft()
-            goToBrowse()
-            selectBrowseCollection(id: lastImportedCollectionID)
-            if RadixPlatform.isPhone {
-                clearBrowsePreview()
-                showiPhoneDetail = false
-            }
+            goToPagesWorkspace(id: lastImportedCollectionID)
         } else {
-            goToBrowsePages(selectLatest: false)
+            goToPagesWorkspace()
         }
     }
 
@@ -80,12 +75,7 @@ extension RadixStore {
         }
 
         if let lastImportedCollectionID {
-            goToBrowse()
-            selectBrowseCollection(id: lastImportedCollectionID)
-            if RadixPlatform.isPhone {
-                clearBrowsePreview()
-                showiPhoneDetail = false
-            }
+            goToPagesWorkspace(id: lastImportedCollectionID)
         }
     }
 }
