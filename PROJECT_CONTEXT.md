@@ -895,8 +895,8 @@ method vocabulary; and check iPhone one-handed ergonomics.
 
 Study Help names the page-first mental model as
 `Pages -> Artifacts -> Practice -> Memory -> Checkpoints`. Empty Pages offers
-one `Create Saved Page` action that opens Camera/capture while preserving a
-return path.
+one `Create Page` action that opens Camera/capture while preserving a return
+path.
 Page-derived Conversation Practice topics should surface their saved-page origin
 in Study topic summaries, and keep that source cue visible alongside practice
 progress when the user opens the practice section.
@@ -923,6 +923,9 @@ but make expanded page controls, especially `Actions` and `Source`, wider and
 easier to tap once a row is opened.
 Saved Pages remains a persisted compatibility scope internally, but it should be
 opened through Pages entry points rather than exposed as a normal Study section.
+Visible empty states and capture inventory labels should say `Pages` / `Create
+Page`; keep `Saved Pages` for compatibility identifiers, backup inventory, and
+places where the distinction from sentence/phrase memory is useful.
 Sentence architecture is converging on a canonical Sentence Example database:
 favorite sentences, page sentences, Conversation Practice items, and future
 practice packs should become flags, source links, ordered memberships, or

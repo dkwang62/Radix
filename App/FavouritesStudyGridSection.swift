@@ -7,7 +7,7 @@ private struct StudySavedPageRowData {
     let correctedPages: [CharacterCollection]
     let showsResumeSignal: Bool
     let isExpanded: Bool
-    let isActiveBrowsePage: Bool
+    let isActivePage: Bool
     let artifacts: [StudyPageArtifact]
 }
 
@@ -34,10 +34,10 @@ extension FavouritesTab {
         if studyGridScope == .savedPages {
             if store.allCollections.isEmpty {
                 studyEmptyState(
-                    title: "No Saved Pages Yet",
+                    title: "No Pages Yet",
                     message: "Use Camera, paste Chinese text, or import an image to create your first page.",
                     systemImage: "photo.on.rectangle",
-                    actionTitle: "Create Saved Page",
+                    actionTitle: "Create Page",
                     actionSystemImage: "plus"
                 ) {
                     store.startBrowseCameraPage(preservingOrigin: true)
@@ -299,8 +299,8 @@ extension FavouritesTab {
         let aiCleanedPage = RadixStudyPreferences.aiCleanedPage(for: collection.id)
         let hasPagePhrases = hasKnownPagePhrases(for: collection, hasRecordedPagePhrases: hasRecordedPagePhrases)
         let isExpanded = expandedStudySavedPageID == collection.id
-        let isActiveBrowsePage = store.selectedBrowseCollectionID == collection.id
-        let showsResumeSignal = isActiveBrowsePage || resumePageID == collection.id
+        let isActivePage = store.selectedBrowseCollectionID == collection.id
+        let showsResumeSignal = isActivePage || resumePageID == collection.id
         let artifacts = studyPageArtifacts(
             collection: collection,
             practices: practices,
@@ -316,7 +316,7 @@ extension FavouritesTab {
             correctedPages: correctedPages,
             showsResumeSignal: showsResumeSignal,
             isExpanded: isExpanded,
-            isActiveBrowsePage: isActiveBrowsePage,
+            isActivePage: isActivePage,
             artifacts: artifacts
         )
     }
@@ -334,8 +334,8 @@ extension FavouritesTab {
             .buttonStyle(.plain)
             .accessibilityLabel("\(collectionDisplayName(collection)) saved page")
             .accessibilityHint(
-                rowData.isActiveBrowsePage
-                    ? "Currently open in Browse. \(rowData.isExpanded ? "Collapse page actions" : "Expand page actions")"
+                rowData.isActivePage
+                    ? "Current page. \(rowData.isExpanded ? "Collapse page actions" : "Expand page actions")"
                     : (rowData.isExpanded ? "Collapse page actions" : "Expand page actions")
             )
 
@@ -376,9 +376,9 @@ extension FavouritesTab {
         }
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(rowData.isActiveBrowsePage ? RadixAccent.primary.opacity(0.11) : RadixTheme.secondaryBackground.opacity(0.58))
+        .background(rowData.isActivePage ? RadixAccent.primary.opacity(0.11) : RadixTheme.secondaryBackground.opacity(0.58))
         .overlay(alignment: .leading) {
-            if rowData.isActiveBrowsePage {
+            if rowData.isActivePage {
                 Rectangle()
                     .fill(RadixAccent.primary)
                     .frame(width: 3)
@@ -398,7 +398,7 @@ extension FavouritesTab {
         return HStack(alignment: .center, spacing: 10) {
             Text("\(rowData.rowNumber)")
                 .font(ResponsiveFont.caption2.weight(.semibold))
-                .foregroundStyle(rowData.isActiveBrowsePage ? RadixAccent.primary : Color.secondary)
+                .foregroundStyle(rowData.isActivePage ? RadixAccent.primary : Color.secondary)
                 .monospacedDigit()
                 .frame(width: 28, alignment: .trailing)
 
@@ -412,7 +412,7 @@ extension FavouritesTab {
 
             Text(collectionDisplayName(rowData.collection))
                 .font(ResponsiveFont.subheadline.weight(.semibold))
-                .foregroundStyle(rowData.isActiveBrowsePage ? RadixAccent.primary : Color.primary)
+                .foregroundStyle(rowData.isActivePage ? RadixAccent.primary : Color.primary)
                 .lineLimit(1)
                 .layoutPriority(1)
 
@@ -421,14 +421,14 @@ extension FavouritesTab {
             if rowData.showsResumeSignal {
                 Label(studyPageResumeText(rowData.collection), systemImage: "clock")
                     .font(ResponsiveFont.caption2.weight(.semibold))
-                    .foregroundStyle(rowData.isActiveBrowsePage ? RadixAccent.primary : Color.secondary)
+                    .foregroundStyle(rowData.isActivePage ? RadixAccent.primary : Color.secondary)
                     .labelStyle(.titleAndIcon)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                     .radixPill(
                         horizontal: 6,
                         vertical: 4,
-                        background: (rowData.isActiveBrowsePage ? RadixAccent.primary : Color.secondary).opacity(0.10),
+                        background: (rowData.isActivePage ? RadixAccent.primary : Color.secondary).opacity(0.10),
                         radius: 7
                     )
             }

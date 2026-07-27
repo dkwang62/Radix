@@ -899,7 +899,7 @@ enum StudyGridScope: String, CaseIterable, Identifiable {
         switch self {
         case .all: return "No Recent Items Yet"
         case .favorites: return "No Favorites Yet"
-        case .savedPages: return "No Saved Pages Yet"
+        case .savedPages: return "No Pages Yet"
         }
     }
 

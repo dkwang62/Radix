@@ -400,6 +400,10 @@ viewing or saving translation, AI OCR review, phrase extraction, quiz generation
 sentence extraction, page conversation generation, and deleting the page with
 its impact summary. Show a compact `Phrases` artifact chip when Radix finds any
 base or added phrases on the page.
+Visible empty states and capture inventory labels should say `Pages` and
+`Create Page`; reserve `Saved Pages` for compatibility identifiers, backup
+inventory, and places where saved pages must be distinguished from sentence or
+phrase memory.
 On iPhone, expanded saved-page controls should be thumb-sized even though
 collapsed rows stay compact; prefer wider `Actions` and `Source` controls once
 the user has opened a row.

@@ -18,6 +18,7 @@ enum RadixCopy {
 
     static let savedPage = String(localized: "Saved Page")
     static let savedPages = String(localized: "Saved Pages")
+    static let pages = String(localized: "Pages")
     static let createCheckpoint = String(localized: "Create Checkpoint")
     static let returnToCheckpoint = String(localized: "Return to Checkpoint")
 
