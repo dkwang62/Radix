@@ -505,13 +505,13 @@ extension FavouritesTab {
         Button {
             openSavedPageInBrowse(collection)
         } label: {
-            Label("Browse", systemImage: "arrow.up.right.square")
+            Label("Source", systemImage: "doc.viewfinder")
                 .font(ResponsiveFont.caption.weight(.semibold))
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
-        .accessibilityLabel("Open \(collection.name) in Browse")
-        .help("Browse Page and Return to Study")
+        .accessibilityLabel("Open source view for \(collection.name)")
+        .help("Inspect the page source")
     }
 
     private func openOriginalOCRPageFromStudy(_ collection: CharacterCollection) {

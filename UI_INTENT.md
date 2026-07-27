@@ -46,10 +46,15 @@ Use these preferences as defaults:
   duplicate broad Study buttons in the content area when the header menu already
   owns the same choices.
 - Keep Browse source switching in the `Browse - [source]` title menu. Do not add
-  a separate source button when Dictionary and saved pages are already available
-  from the title menu. Non-camera page creation belongs under Browse as
+  a separate source button when Dictionary and page creation are already
+  available from the title menu. Non-camera page creation belongs under Browse as
   `Text to Page`, `Image from Clipboard`, `Image from Album`, and
   `Image from Files`; the big Camera button remains the instant camera action.
+- Treat saved pages as one `Pages` workspace. Browse page lists and saved-page
+  title-menu entries should open that Pages workspace; Study should not also
+  expose a competing `Pages` section in its local section menu. Inside Pages,
+  `Source` is an action for inspecting OCR/source material, not a second page
+  destination.
 - The title dropdown is allowed to become the complete navigation map. Its top
   section should keep the main workspaces visible: `Browse`, `Study`,
   `AI`, `Data`, and `Settings`. When the current destination is Browse
@@ -182,7 +187,7 @@ counterweights before declaring a UI done:
 The four primary destinations use this plain-language division of responsibility
 everywhere they are introduced or explained:
 
-- `Browse` — inspect the dictionary or captured pages.
+- `Browse` — inspect the dictionary and create captured pages.
 - `Study` — review what you decided to keep.
 - `AI` — understand or transform material.
 - `My Data` — protect, transfer, or export your work.
@@ -383,12 +388,12 @@ point toward Camera, paste, or image import; no favorites should point toward
 starring items; no recent items should point toward searching, browsing, or
 inspecting Chinese. Avoid generic empty text that leaves the user with no next
 step.
-Saved Pages in Study owns page learning artifacts and deletion. Each saved-page
-row should be collapsed by default when browsing the list, with only the page
+Pages owns page learning artifacts and deletion. Each saved-page row should be
+collapsed by default when browsing the list, with only the page
 number, title, thumbnail, small artifact indicators, and expand affordance
 visible. Keep collapsed rows flush with zero vertical gap so large page
-libraries scan like a compact table. Highlight the row for Browse's currently
-selected saved page so returning from Browse preserves orientation. Tapping the
+libraries scan like a compact table. Highlight the row for the currently
+selected saved page so returning from Source preserves orientation. Tapping the
 row expands that page in place; the expanded state offers the `Actions` menu for
 viewing or saving translation, AI OCR review, phrase extraction, quiz generation,
 sentence extraction, page conversation generation, and deleting the page with
@@ -625,7 +630,7 @@ My Data is for data ownership and operational safety:
 - Account/subscription/data ownership tools.
 
 If My Data shows counts such as Saved Pages or Added Phrases, those rows should
-link to Browse or Study rather than becoming separate review screens inside
+link to Pages or Study rather than becoming separate review screens inside
 My Data.
 
 On iPhone, My Data should be action-first. Backup and restore choices should be

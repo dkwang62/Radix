@@ -515,6 +515,9 @@ struct FavouritesTab: View {
             clearFocusedStudySections()
             studyGridScope = .savedPages
             showStudyCheckpoints = false
+            if let selectedPageID = store.selectedBrowseCollectionID {
+                expandedStudySavedPageID = selectedPageID
+            }
         case .addedPhrases:
             presentAddedPhraseReview()
         case .conversationPractice:

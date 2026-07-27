@@ -11,7 +11,7 @@ extension DataEditTab {
             badges: ["Cross-Device", "Recoverable"],
             isCompactListOnly: true,
             onOpenSavedPages: {
-                store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
+                store.goToPagesWorkspace(preservingOrigin: true)
             },
             onOpenAddedPhrases: {
                 store.goToStudyAddedPhrases()

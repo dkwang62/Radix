@@ -157,14 +157,18 @@ extension RootView {
             case .filter:
                 return browseNavigationTitle
             case .favourites:
-                return "Study - \(store.activeStudySectionTitle)"
+                return store.activeStudySectionTitle == StudyNavigationTarget.savedPages.title
+                    ? "Pages"
+                    : "Study - \(store.activeStudySectionTitle)"
             case .dataEdit:
                 return "Data - \(store.activeDataEditSection.rawValue)"
             }
         case .lineage:
             return "Character Breakdown"
         case .favourites:
-            return "Study - \(store.activeStudySectionTitle)"
+            return store.activeStudySectionTitle == StudyNavigationTarget.savedPages.title
+                ? "Pages"
+                : "Study - \(store.activeStudySectionTitle)"
         case .aiLink:
             return selectedTitleMenuPromptTaskTitle.map { "AI - \($0)" } ?? "AI"
         case .settings:

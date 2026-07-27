@@ -11,7 +11,7 @@ enum RadixCopy {
     static let myData = String(localized: "My Data")
     static let settings = String(localized: "Settings")
 
-    static let browsePurpose = String(localized: "Inspect the dictionary or captured pages.")
+    static let browsePurpose = String(localized: "Inspect the dictionary and create captured pages.")
     static let studyPurpose = String(localized: "Review what you decided to keep.")
     static let aiPurpose = String(localized: "Understand or transform material.")
     static let myDataPurpose = String(localized: "Protect, transfer, or export your work.")
@@ -243,7 +243,7 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
     var summary: String {
         switch self {
         case .browse:
-            return "\(RadixCopy.browsePurpose) Browse connects dictionary detail with the original page, so you can move from a character to its structure, phrases, and real context."
+            return "\(RadixCopy.browsePurpose) Browse connects dictionary detail with source context, so you can move from a character to its structure, phrases, and real usage."
         case .study:
             return "\(RadixCopy.studyPurpose) Think of Study as Pages -> Artifacts -> Practice -> Memory -> Checkpoints: a captured page gathers its translation, phrases, quiz, sentences, Conversation practice, learning memory, and safety checkpoints."
         case .aiLink:
@@ -266,8 +266,8 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
                 ),
                 RadixNavigationGuideAction(
                     icon: "square.grid.2x2",
-                    title: "Open saved pages",
-                    detail: "Return to Chinese captured from a photo, imported file, or pasted text."
+                    title: "Create saved pages",
+                    detail: "Turn a photo, imported file, or pasted text into a page, then continue in Pages."
                 ),
                 RadixNavigationGuideAction(
                     icon: "character.book.closed",

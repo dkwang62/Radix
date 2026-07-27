@@ -256,8 +256,7 @@ extension RootView {
 
         ForEach(browseTitleMenuPages) { collection in
             Button {
-                store.selectBrowseCollection(id: collection.id)
-                store.shouldCloseBrowsePages = true
+                store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
             } label: {
                 let title = collection.name.isEmpty ? RadixCopy.savedPage : collection.name
                 let isSelected = store.selectedBrowseCollectionID == collection.id
@@ -285,7 +284,7 @@ extension RootView {
     }
 
     var studyTitleMenuTargets: [StudyNavigationTarget] {
-        StudyNavigationTarget.allCases
+        StudyNavigationTarget.allCases.filter { $0 != .savedPages }
     }
 
     @ViewBuilder

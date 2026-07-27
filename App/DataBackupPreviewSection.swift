@@ -264,7 +264,7 @@ struct DataBackupPreviewSection: View {
             backupPreviewNavigationRow(
                 title: "Saved Pages",
                 value: "\(store.allCollections.count)",
-                subtitle: "Open and manage pages in Browse.",
+                subtitle: "Open and manage pages.",
                 systemName: "photo.on.rectangle",
                 tint: RadixAccent.primary,
                 showsChevron: true

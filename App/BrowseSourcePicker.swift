@@ -218,10 +218,7 @@ extension FilterGridTab {
             thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData),
             dateMode: dateMode ?? .lastViewed,
             onSelect: {
-                store.selectBrowseCollection(id: collection.id)
-                withAnimation {
-                    showBrowseSource = false
-                }
+                store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
             },
             onOpenPractice: openPractice
         )

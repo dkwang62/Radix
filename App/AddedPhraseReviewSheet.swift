@@ -344,8 +344,7 @@ extension AddedPhraseReviewSheet {
 
         closeReview()
         DispatchQueue.main.async {
-            store.goToBrowsePages(selectLatest: false, preservingOrigin: true)
-            store.selectBrowseCollection(id: collection.id)
+            store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
         }
     }
 

@@ -312,6 +312,30 @@ extension RadixStore {
         shouldCloseBrowsePages = true
     }
 
+    func goToPagesWorkspace(id collectionID: UUID? = nil, preservingOrigin: Bool = false) {
+        let origin = preservingOrigin ? RootsReturnContext(
+            route: route,
+            homeTab: route == .search ? homeTab : nil
+        ) : nil
+        if preservingOrigin {
+            rootsReturnContext = origin
+        } else {
+            clearCrossTabOrigin()
+        }
+        route = .favourites
+        activeFavouriteCharacter = nil
+        activeStudySectionTitle = StudyNavigationTarget.savedPages.title
+        requestedStudyNavigationTarget = .savedPages
+        if let collectionID {
+            selectBrowseCollection(id: collectionID)
+        } else if selectedBrowseCollectionID == nil,
+                  let collection = sortedCollections(order: .lastViewed).first {
+            selectBrowseCollection(id: collection.id)
+        }
+        shouldCloseBrowsePages = true
+        showiPhoneDetail = false
+    }
+
     func goToStudyAddedPhrases() {
         rememberCrossTabOrigin()
         route = .search

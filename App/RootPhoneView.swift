@@ -32,7 +32,10 @@ extension RootView {
         case 0: return "Camera"
         case 1: return "Search"
         case 2: return browseNavigationTitle
-        case 3: return "Study - \(store.activeStudySectionTitle)"
+        case 3:
+            return store.activeStudySectionTitle == StudyNavigationTarget.savedPages.title
+                ? "Pages"
+                : "Study - \(store.activeStudySectionTitle)"
         case 4: return selectedTitleMenuPromptTaskTitle.map { "AI - \($0)" } ?? "AI"
         case 5: return "Data - \(store.activeDataEditSection.rawValue)"
         case 6: return "Settings"

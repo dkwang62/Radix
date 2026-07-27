@@ -52,11 +52,13 @@ Extracted sentence page records are stored in `RadixStudyPreferences.aiCleanedPa
 included in the separate sentence transfer surfaces,
 imported from fenced or raw AI JSON through AI Link, and removed with their
 owning saved page.
-Study saved pages expose imported extracted sentence pages through an
-`Extracted Sentences` artifact
-and focused reader. The same saved-page action menu can create or replace that
-artifact through Manual AI Link or Gemini API. Browse continues to show the
-source layer only, with OCR pages labeled as Original OCR or Corrected OCR.
+Saved pages have one user-facing workspace, `Pages`, backed by the existing
+Study saved-page implementation. Browse page pickers and saved-page title-menu
+entries should open that workspace instead of creating a second Browse Pages
+destination. The same saved-page action menu can create or replace extracted
+sentence artifacts through Manual AI Link or Gemini API. Browse continues to
+own dictionary/source inspection, with OCR pages labeled as Original OCR or
+Corrected OCR when the user opens a page source.
 The extracted-sentences reader uses the shared Study simplified/traditional display choice;
 the switch converts the visible cleaned title, page text, notes, sentence
 rows, and opened sentence card display without changing the stored record.
@@ -295,11 +297,11 @@ matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.
 The root `Study - [section]` title menu is the Study section selector on every
 platform. Do not duplicate it with broad in-content dashboard buttons for
-Recent, Favorites, Pages, Added Phrases, Conversation Practices, Sentences, or
-Checkpoints. The saved-page scope is labeled `Pages` in Study titles and menus,
-while persisted identifiers remain `savedPages` / `Saved Pages` for
-compatibility. Study defaults to the `Sentences` focused section; selecting the
-top-level Study item in the title menu also returns to `Study - Sentences`.
+Recent, Favorites, Added Phrases, Conversation Practices, Sentences, or
+Checkpoints. Pages is reached from saved-page entry points instead of the Study
+section menu, while persisted identifiers remain `savedPages` / `Saved Pages`
+for compatibility. Study defaults to the `Sentences` focused section; selecting
+the top-level Study item in the title menu also returns to `Study - Sentences`.
 Keep the pinned Study controls visible when focused sections are active, do not
 show a `Back to Study` button for normal switching, and clear the other focused
 Study sections when one is selected. Do not reintroduce separate booleans for
@@ -1238,16 +1240,14 @@ name and add a unique numeric suffix such as `1` or `2`.
 The corrected source remains Chinese, while change reasons, confidence, and
 uncertainty explanations are explicitly requested in English.
 The Study tab remains the user's main review surface. Its dashboard controls
-separate `Recent`, `Favorites`, and `Saved Pages` as mutually exclusive grid
-scopes from shortcut actions such as Added Phrases, Conversation Practices, and
-iPhone Checkpoints. Favorite Sentences is represented within Conversation
-Practices, not as a separate dashboard shortcut. The Conversation Practices
-shortcut defaults to the `Favorite Sentences` topic when favorite sentences
-exist. Saved Pages is the default scope for new Study sessions, and the shortcut
-actions below the scope switcher should look like real filled buttons rather
-than pale status chips; they may use distinct category colors instead of all
-sharing the main accent. Added Phrases opens as a full Study workspace rather
-than a pop-out sheet, with a visible `Back to Study` control and no global Study
+separate `Recent` and `Favorites` as mutually exclusive grid scopes from focused
+sections such as Added Phrases, Conversation Practices, Sentences, and iPhone
+Checkpoints. Favorite Sentences is represented within Conversation Practices,
+not as a separate dashboard shortcut. The Conversation Practices shortcut
+defaults to the `Favorite Sentences` topic when favorite sentences exist. Saved
+Pages now open through the unified Pages workspace instead of competing as a
+Study menu section. Added Phrases opens as a full Study workspace rather than a
+pop-out sheet, with a visible `Back to Study` control and no global Study
 header competing for space. Conversation Practices opens a focused Practice
 screen with a contextual return button. It says `Back to Study` from Study and
 `Back to Browse` when a Browse page shortcut opened the practice. There is no
