@@ -849,9 +849,9 @@ remaining audit work, and crash lessons for handing the finishing pass to Claude
   Study owns learning
   artifacts, AI workflows, and saved-page deletion. Browse owns page inspection
   controls that only make sense while looking at the page, including editing
-  the page text and choosing visible page phrases. The explicit page-open icon
-  in Study opens that saved page's content directly in Browse and keeps a
-  contextual return path back to Study. Corrected OCR pages can be promoted from Study so
+  the page text and choosing visible page phrases. The explicit `Source` action
+  in Pages opens that saved page's source content directly in Browse and keeps a
+  contextual return path back to Pages. Corrected OCR pages can be promoted from Study so
   the corrected text becomes the main page while preserving the main page ID and
   its linked learning artifacts; the old OCR can either be kept as a separate
   archived page or discarded during promotion.

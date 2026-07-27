@@ -187,14 +187,14 @@ private struct CaptureWorkflowHint: View {
     private let steps: [(String, String)] = [
         ("1", "Choose source"),
         ("2", "Read text"),
-        ("3", "Browse page")
+        ("3", "Open Pages")
     ]
 
     var body: some View {
         if RadixPlatform.isPhone {
             RadixInlineHelpDisclosure(
                 title: "Workflow",
-                message: "Choose an image, let Radix read the Chinese text, then browse the saved page.",
+                message: "Choose an image, let Radix read the Chinese text, then continue in Pages.",
                 systemImage: "list.number"
             )
         } else {

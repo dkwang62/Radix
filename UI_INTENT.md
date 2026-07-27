@@ -322,7 +322,7 @@ Study should contain learning review material, not admin backup tools:
 
 Items such as "Review Added Phrases" belong in Study, not My Data.
 From Added Phrases review, the user can create an `AI Review` saved page from
-all currently unreviewed added phrases. That page opens in Browse so the normal
+all currently unreviewed added phrases. That page opens in Pages so the normal
 saved-page AI workflows can be used, while the original phrase statuses remain
 unchanged. Keep the review surface phrase-first: no search field, no persistent
 instruction blocks, and no separate AI shortcut above the grid. Put `Create AI
