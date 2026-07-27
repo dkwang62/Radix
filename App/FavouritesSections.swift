@@ -524,21 +524,77 @@ extension FavouritesTab {
             }
             resetSentenceExampleResultsContext()
         }
+        .onChange(of: sentenceExampleMinimumCharacterCount) { _, _ in
+            resetSentenceExampleResultsContext()
+        }
     }
 
     var sentenceExampleFilterAndToolsRow: some View {
-        HStack(spacing: 8) {
-            sentenceExampleSourceFilterMenu
-                .fixedSize(horizontal: true, vertical: false)
+        Group {
+            if isPhone || isNarrowStudyLayout {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 8) {
+                        sentenceExampleSourceFilterMenu
+                            .fixedSize(horizontal: true, vertical: false)
 
-            TextField("Search sentences", text: $sentenceExampleSearchText)
-                .textFieldStyle(.roundedBorder)
-                .font(ResponsiveFont.caption)
-                .frame(minWidth: isPhone ? 110 : 180, maxWidth: .infinity)
+                        TextField("Search sentences", text: $sentenceExampleSearchText)
+                            .textFieldStyle(.roundedBorder)
+                            .font(ResponsiveFont.caption)
 
-            sentenceExampleToolsMenu
-                .fixedSize(horizontal: true, vertical: false)
+                        sentenceExampleToolsMenu
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+
+                    sentenceExampleMinimumCharactersSlider
+                }
+            } else {
+                HStack(spacing: 8) {
+                    sentenceExampleSourceFilterMenu
+                        .fixedSize(horizontal: true, vertical: false)
+
+                    TextField("Search sentences", text: $sentenceExampleSearchText)
+                        .textFieldStyle(.roundedBorder)
+                        .font(ResponsiveFont.caption)
+                        .frame(minWidth: 160, maxWidth: .infinity)
+
+                    sentenceExampleMinimumCharactersSlider
+                        .frame(width: 210)
+
+                    sentenceExampleToolsMenu
+                        .fixedSize(horizontal: true, vertical: false)
+                }
+            }
         }
+    }
+
+    var sentenceExampleMinimumCharacterFilter: Int {
+        Int(sentenceExampleMinimumCharacterCount.rounded())
+    }
+
+    var sentenceExampleMinimumCharactersSlider: some View {
+        HStack(spacing: 7) {
+            Label("Min", systemImage: "textformat.size")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .labelStyle(.titleAndIcon)
+                .foregroundStyle(RadixAccent.primary)
+                .fixedSize(horizontal: true, vertical: false)
+
+            Slider(value: $sentenceExampleMinimumCharacterCount, in: 0...40, step: 1)
+                .tint(RadixAccent.primary)
+
+            Text("\(sentenceExampleMinimumCharacterFilter)")
+                .font(ResponsiveFont.caption.monospacedDigit().weight(.semibold))
+                .foregroundStyle(.secondary)
+                .frame(width: 22, alignment: .trailing)
+        }
+        .padding(.horizontal, 9)
+        .padding(.vertical, 6)
+        .background(RadixTheme.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Minimum sentence characters")
+        .accessibilityValue("\(sentenceExampleMinimumCharacterFilter)")
+        .help("Filter to sentences with at least this many Chinese characters")
     }
 
     var sentenceExampleSourceFilterMenu: some View {
@@ -733,6 +789,7 @@ extension FavouritesTab {
         SentenceExampleQuery(
             scope: sentenceExampleFilter.queryScope,
             searchText: sentenceExampleSearchText,
+            minimumCharacterCount: sentenceExampleMinimumCharacterFilter,
             offset: clampedSentenceExamplePageIndex * sentenceExamplePageSize,
             limit: sentenceExamplePageSize
         )
@@ -742,6 +799,7 @@ extension FavouritesTab {
         SentenceExampleQuery(
             scope: sentenceExampleFilter.queryScope,
             searchText: sentenceExampleSearchText,
+            minimumCharacterCount: sentenceExampleMinimumCharacterFilter,
             offset: 0,
             limit: nil
         )
@@ -875,6 +933,7 @@ extension FavouritesTab {
                     stopSelectingSentenceExamples()
                     sentenceExampleSearchText = ""
                     sentenceExampleFilter = .all
+                    sentenceExampleMinimumCharacterCount = 0
                     sentenceExamplePageRecords = []
                     sentenceExampleResultCount = 0
                     sentenceExampleRevision += 1

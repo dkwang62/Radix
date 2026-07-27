@@ -89,6 +89,7 @@ struct FavouritesTab: View {
     @State var aiCleanedPageSentencePageCache: StudyAICleanedSentencePageCache?
     @State var sentenceExampleFilter: SentenceExampleStudyFilter = .all
     @State var sentenceExampleSearchText = ""
+    @State var sentenceExampleMinimumCharacterCount = 0.0
     @State var sentenceExamplePageIndex = 0
     @State var sentenceExamplePageRecords: [SentenceExampleRecord] = []
     @State var sentenceExampleResultCount = 0

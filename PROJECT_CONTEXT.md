@@ -146,8 +146,10 @@ deterministic phone/narrow versus wide layouts, not a measurement-based
 multi-candidate layout around interactive menus/buttons, so iPad split layouts
 do not hang or compress labels into vertical fragments.
 Study > Sentences keeps only page navigation and display/script controls in the
-top toolbar. Source filtering, compact sentence search, and one sentence tools
-menu belong on the lower source row on every device. The tools menu owns
+top toolbar. Source filtering, compact sentence search, the minimum Chinese
+character-count filter, and one sentence tools menu belong on the lower source
+row on every device. The minimum-count slider filters sentences by at least that
+many stored Chinese characters; it is not a maximum-length rule. The tools menu owns
 selection, bulk delete, and sentence transfer so iPad/Mac do not grow separate
 management buttons that crowd page navigation. Do not keep parallel standalone
 Select, Delete Results, or Transfer button helpers for this screen.
@@ -322,6 +324,8 @@ intake options.
 Study > Sentences search should not feel narrower than phrase-card Examples:
 typing a search resets the sentence filter to All, and searched results use a
 larger page size so phrase searches are not mistaken for missing examples.
+The minimum character-count slider is an additional filter and should leave the
+search field flexible rather than becoming another management screen.
 Extracted sentence rows reuse the shared Conversation Practice sentence controls,
 lazy list, row, and sentence card, resolving back to the canonical sentence
 database record so active selection, Chinese/English display, script switching,

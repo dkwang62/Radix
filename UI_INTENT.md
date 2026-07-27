@@ -145,9 +145,11 @@ wrap labels into unusable vertical text. Do not wrap interactive toolbar
 menus/buttons in a measurement-based multi-candidate layout that renders
 several alternatives just to choose one.
 For Study Sentences specifically, keep page navigation and display/script
-choice on the top row. Put source filtering, compact sentence search, and one
-tools dropdown on the lower source row on every device; the dropdown owns
-selection, transfer, and bulk delete.
+choice on the top row. Put source filtering, compact sentence search, minimum
+Chinese character-count filtering, and one tools dropdown on the lower source
+row on every device; the dropdown owns selection, transfer, and bulk delete.
+The character-count filter is a minimum-length filter, not a sentence-shortening
+or maximum-length rule.
 Language-learning controls should prefer meaningful text badges over generic
 typography icons: use labels such as `中 Chinese`, `英 English`, and `拼 Pinyin`
 instead of `Aa`/`textformat` symbols when the control changes language display
@@ -364,9 +366,11 @@ platform: the list owns the screen, page/navigation and Chinese/English
 controls stay in the compact local control row, default page sizes match across
 sentence-based Study surfaces, and secondary drills live in a small tools menu.
 Sentence source filtering should be one compact menu/toggle, not a row of
-separate source buttons. Do not add a bottom Translate/Quiz bar or a separate
-framed practice card shell. Local Translate Quiz has been removed; translation
-practice should be AI-backed if it returns.
+separate source buttons. Study Sentences may add a compact minimum-character
+slider beside search because it filters the reading list directly; do not turn
+it into another source mode row. Do not add a bottom Translate/Quiz bar or a
+separate framed practice card shell. Local Translate Quiz has been removed;
+translation practice should be AI-backed if it returns.
 
 Inside Review, the root title menu is the section selector. Do not repeat
 Recent/Favorites as another segmented picker above the review grid; the grid

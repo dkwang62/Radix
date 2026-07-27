@@ -15,6 +15,7 @@ enum SentenceExampleQueryScope: Equatable {
 struct SentenceExampleQuery: Equatable {
     var scope: SentenceExampleQueryScope = .all
     var searchText = ""
+    var minimumCharacterCount = 0
     var offset = 0
     var limit: Int? = nil
 }
@@ -1561,6 +1562,10 @@ private final class SentenceExampleRepository: @unchecked Sendable {
             clauses.append("(\(searchClauses))")
             bindings.append(contentsOf: searchBindings)
         }
+        if query.minimumCharacterCount > 0 {
+            clauses.append("length(normalized_key) >= ?")
+            bindings.append(String(query.minimumCharacterCount))
+        }
 
         return (clauses.isEmpty ? "" : "WHERE \(clauses.joined(separator: " AND "))", bindings)
     }
@@ -1598,6 +1603,7 @@ private final class SentenceExampleRepository: @unchecked Sendable {
                     return false
                 }
             }
+            guard record.normalizedChineseKey.count >= query.minimumCharacterCount else { return false }
             return RadixStudyPreferences.sentenceExample(record, matchesSearchText: query.searchText)
         }
         let totalCount = filtered.count
