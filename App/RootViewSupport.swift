@@ -60,7 +60,13 @@ extension RootView {
     }
 
     var isStudyDestinationActive: Bool {
-        store.route == .favourites || (store.route == .search && store.homeTab == .favourites)
+        let isStudyRoute = store.route == .favourites || (store.route == .search && store.homeTab == .favourites)
+        return isStudyRoute && !isPagesDestinationActive
+    }
+
+    var isPagesDestinationActive: Bool {
+        let isStudyRoute = store.route == .favourites || (store.route == .search && store.homeTab == .favourites)
+        return isStudyRoute && store.activeStudySectionTitle == StudyNavigationTarget.savedPages.title
     }
 
     var isCheckpointsDestinationActive: Bool {
@@ -126,6 +132,10 @@ extension RootView {
                 browseTitleMenuSection
             }
 
+            if isPagesDestinationActive {
+                pagesTitleMenuSection
+            }
+
             if isStudyDestinationActive {
                 studyTitleMenuSection
             }
@@ -175,10 +185,19 @@ extension RootView {
             }
 
             primaryNavigationButton(
+                title: RadixCopy.pages,
+                systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage),
+                isSelected: isPagesDestinationActive
+            ) {
+                store.goToPagesWorkspace()
+            }
+
+            primaryNavigationButton(
                 title: RadixCopy.study,
                 systemImage: RadixIcon.study,
                 isSelected: isStudyDestinationActive
             ) {
+                store.activeStudySectionTitle = StudyNavigationTarget.sentences.title
                 store.requestedStudyNavigationTarget = .sentences
                 store.goToFavourites()
             }
@@ -205,6 +224,21 @@ extension RootView {
                 isSelected: store.route == .settings
             ) {
                 store.goToSettings()
+            }
+        }
+    }
+
+    @ViewBuilder
+    var pagesTitleMenuSection: some View {
+        Section(RadixCopy.pages) {
+            ForEach(browseTitleMenuPages) { collection in
+                Button {
+                    store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
+                } label: {
+                    let title = collection.name.isEmpty ? RadixCopy.savedPage : collection.name
+                    let isSelected = store.selectedBrowseCollectionID == collection.id
+                    Label(title, systemImage: isSelected ? "checkmark" : RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
+                }
             }
         }
     }

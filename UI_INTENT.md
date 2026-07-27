@@ -56,9 +56,11 @@ Use these preferences as defaults:
   `Source` is an action for inspecting OCR/source material, not a second page
   destination.
 - The title dropdown is allowed to become the complete navigation map. Its top
-  section should keep the main workspaces visible: `Browse`, `Study`,
-  `AI`, `Data`, and `Settings`. When the current destination is Browse
-  or Study, show that destination's local choices beneath the main destination
+  section should keep the main workspaces visible: `Browse`, `Pages`, `Study`,
+  `AI`, `Data`, and `Settings`. `Pages` may reuse the existing saved-page Study
+  implementation internally, but it should be visible as its own page-centered
+  workspace rather than a hidden Study or Browse mode. When the current destination is Browse,
+  Pages, or Study, show that destination's local choices beneath the main destination
   section instead of replacing the main navigation.
 - High-level destinations can also own second-level title-menu sections:
   Browse owns Dictionary and non-camera page creation; Pages owns saved-page
@@ -362,7 +364,8 @@ tool rather than a primary study list.
 Favorite Sentences belongs inside Conversation Practices, so do not duplicate
 it as a dashboard shortcut. `Sentences` is the default Study destination
 because Study should open directly into reading/practice material; `Pages`
-remains the page-centered artifact workspace inside Study.
+is the page-centered artifact workspace reached as its own title-menu
+destination.
 Conversation Practices should render as the focused Practice section under the
 same Study controls, not as a separate screen with its own `Back to Study`
 button. Do not show a persistent `Review | Practice` switch row on the Study
