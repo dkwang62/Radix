@@ -59,8 +59,10 @@ Use these preferences as defaults:
   section should keep the main workspaces visible: `Browse`, `Pages`, `Study`,
   `AI`, `Data`, and `Settings`. `Pages` may reuse the existing saved-page Study
   implementation internally, but it should be visible as its own page-centered
-  workspace rather than a hidden Study or Browse mode. When the current destination is Browse,
-  Pages, or Study, show that destination's local choices beneath the main destination
+  workspace rather than a hidden Study or Browse mode. Larger-screen sidebars
+  may expose the same compact `Pages` peer when it prevents Study from being
+  highlighted for page work. When the current destination is Browse, Pages, or
+  Study, show that destination's local choices beneath the main destination
   section instead of replacing the main navigation.
 - High-level destinations can also own second-level title-menu sections:
   Browse owns Dictionary and non-camera page creation; Pages owns saved-page

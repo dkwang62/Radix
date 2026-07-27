@@ -148,6 +148,7 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
     case scan = 0
     case browse = 2
     case search = 1
+    case pages = 7
     case study = 3
     case aiLink = 4
     case myData = 5
@@ -159,6 +160,7 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
         case .scan: return RadixCopy.camera
         case .browse: return RadixCopy.browse
         case .search: return RadixCopy.search
+        case .pages: return RadixCopy.pages
         case .study: return RadixCopy.study
         case .aiLink: return RadixCopy.aiLink
         case .myData: return RadixCopy.myData
@@ -169,6 +171,7 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
         switch self {
         case .scan: return "Camera"
         case .aiLink: return "AI"
+        case .pages: return RadixCopy.pages
         default: return title
         }
     }
@@ -181,6 +184,8 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
             return "Find characters and phrases by Chinese, pinyin, or English meaning."
         case .browse:
             return RadixCopy.browsePurpose
+        case .pages:
+            return "Work with captured pages and everything created from them."
         case .study:
             return RadixCopy.studyPurpose
         case .aiLink:
@@ -195,6 +200,7 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
         case .scan: return RadixIcon.scan
         case .search: return RadixIcon.search
         case .browse: return RadixIcon.browse
+        case .pages: return RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage)
         case .study: return RadixIcon.study
         case .aiLink: return RadixIcon.aiLink
         case .myData: return RadixIcon.myData
@@ -204,6 +210,7 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
     var guideTopic: RadixNavigationGuideTopic? {
         switch self {
         case .browse: return .browse
+        case .pages: return .pages
         case .study: return .study
         case .aiLink: return .aiLink
         case .myData: return .myData
@@ -214,6 +221,7 @@ enum RadixNavigationItem: Int, CaseIterable, Identifiable {
 
 enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
     case browse
+    case pages
     case study
     case aiLink
     case myData
@@ -224,6 +232,7 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .browse: return RadixCopy.browse
+        case .pages: return RadixCopy.pages
         case .study: return RadixCopy.study
         case .aiLink: return RadixCopy.aiLink
         case .myData: return RadixCopy.myData
@@ -234,6 +243,7 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .browse: return RadixIcon.browse
+        case .pages: return RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage)
         case .study: return RadixIcon.study
         case .aiLink: return RadixIcon.aiLink
         case .myData: return RadixIcon.myData
@@ -245,8 +255,10 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
         switch self {
         case .browse:
             return "\(RadixCopy.browsePurpose) Browse connects dictionary detail with source context, so you can move from a character to its structure, phrases, and real usage."
+        case .pages:
+            return "Pages keeps captured Chinese and its generated artifacts together, so translation, phrases, sentences, practice, quiz, and deletion stay attached to the source."
         case .study:
-            return "\(RadixCopy.studyPurpose) Think of Study as Pages -> Artifacts -> Practice -> Memory -> Checkpoints: a captured page gathers its translation, phrases, quiz, sentences, Conversation practice, learning memory, and safety checkpoints."
+            return "\(RadixCopy.studyPurpose) Study focuses on the material you decided to keep: sentences, Conversation practice, favorites, recent items, added phrases, and checkpoints."
         case .aiLink:
             return "\(RadixCopy.aiPurpose) AI Link goes beyond fixed dictionary definitions with contextual translation, deeper explanation, phrase extraction, and newer language."
         case .myData:
@@ -281,18 +293,31 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
                     detail: "Choose a phrase to highlight every matching character in its original page context."
                 )
             ]
-        case .study:
+        case .pages:
             return [
                 RadixNavigationGuideAction(
                     icon: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage),
-                    title: "Pages",
-                    detail: "Saved Pages hold the original Chinese you captured and act as the home for work created from that source."
+                    title: "Start from the source",
+                    detail: "Open a captured page once, then manage its generated work from the same row."
                 ),
                 RadixNavigationGuideAction(
                     icon: "square.grid.2x2",
-                    title: "Artifacts",
+                    title: "Keep artifacts attached",
                     detail: "Translation, page phrases, corrected OCR, Sentences, Conversation, and Quiz actions remain attached to the saved page that produced them."
                 ),
+                RadixNavigationGuideAction(
+                    icon: "book.pages",
+                    title: "Inspect source when needed",
+                    detail: "Use Source only when you want original OCR or page-context inspection; normal learning work stays in Pages."
+                ),
+                RadixNavigationGuideAction(
+                    icon: "trash",
+                    title: "Delete with context",
+                    detail: "Page deletion belongs beside the page and should explain which page-owned artifacts will also be removed."
+                )
+            ]
+        case .study:
+            return [
                 RadixNavigationGuideAction(
                     icon: RadixGlossaryIcon.systemImage(for: "Practice Pack"),
                     title: "Practice",

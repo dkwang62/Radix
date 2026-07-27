@@ -48,6 +48,7 @@ extension RootView {
     var sidebarMainNavigation: some View {
         HStack(spacing: 6) {
             sidebarTabButton(.browse)
+            sidebarTabButton(.pages)
             sidebarTabButton(.study)
             sidebarTabButton(.aiLink)
             sidebarTabButton(.myData)
@@ -60,7 +61,8 @@ extension RootView {
         let guideTopic = item.guideTopic ?? .browse
         let showsTitle = store.sidebarNavigationStyle == .descriptive
         let isActive = {
-            if store.route == .favourites { return id == 3 }
+            if isPagesDestinationActive { return id == RadixNavigationItem.pages.rawValue }
+            if store.route == .favourites { return id == RadixNavigationItem.study.rawValue }
             if store.route == .aiLink { return id == 4 }
             if store.route == .lineage { return false }
             if store.route == .capture { return false }
@@ -68,7 +70,7 @@ extension RootView {
             switch store.homeTab {
             case .smart: return false
             case .filter: return id == 2
-            case .favourites: return id == 3
+            case .favourites: return id == RadixNavigationItem.study.rawValue
             case .dataEdit: return id == 5
             }
         }()
@@ -81,8 +83,12 @@ extension RootView {
                 case 2:
                     hasUsedSidebarNavigation = true
                     store.goToBrowse()
+                case RadixNavigationItem.pages.rawValue:
+                    hasUsedSidebarNavigation = true
+                    store.goToPagesWorkspace()
                 case 3:
                     hasUsedSidebarNavigation = true
+                    store.activeStudySectionTitle = StudyNavigationTarget.sentences.title
                     store.requestedStudyNavigationTarget = .sentences
                     store.goToFavourites()
                 case 4:

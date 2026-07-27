@@ -311,9 +311,9 @@ these mutually exclusive sections.
 The root title dropdown is now also the complete high-level navigation menu on
 every platform. Its top section keeps the broad workspaces available:
 `Browse`, `Pages`, `Study`, `AI`, `Data`, and `Settings`. `Pages` is a
-title-menu peer so saved-page work does not look like a hidden Study or Browse
-mode, but it still reuses the existing saved-page Study implementation and
-persisted identifiers. Browse appends a flat,
+title-menu and larger-screen sidebar peer so saved-page work does not look like
+a hidden Study or Browse mode, but it still reuses the existing saved-page Study
+implementation and persisted identifiers. Browse appends a flat,
 headerless list ordered as Dictionary, `Text to Page`, `Image from Album`,
 `Image from Files`, then saved pages; the global Camera button remains the
 instant camera action.

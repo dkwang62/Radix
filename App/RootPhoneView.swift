@@ -14,7 +14,11 @@ extension RootView {
 
     var phoneSelection: Int {
         if store.route == .capture { return 0 }
-        if store.route == .favourites { return 3 }
+        if store.route == .favourites {
+            return store.activeStudySectionTitle == StudyNavigationTarget.savedPages.title
+                ? RadixNavigationItem.pages.rawValue
+                : RadixNavigationItem.study.rawValue
+        }
         if store.route == .aiLink { return 4 }
         if store.route == .settings { return 6 }
         if store.route == .lineage { return -1 }
@@ -39,6 +43,7 @@ extension RootView {
         case 4: return selectedTitleMenuPromptTaskTitle.map { "AI - \($0)" } ?? "AI"
         case 5: return "Data - \(store.activeDataEditSection.rawValue)"
         case 6: return "Settings"
+        case RadixNavigationItem.pages.rawValue: return "Pages"
         default: return "Radix"
         }
     }
@@ -108,6 +113,21 @@ extension RootView {
                 isCreatingCheckpoint: isQuickSavingMemory,
                 isReturningToCheckpoint: isQuickRestoringMemory
             )
+        case RadixNavigationItem.pages.rawValue:
+            FavouritesTab(
+                onExportProfile: exportProfile,
+                onImportProfile: importProfile,
+                onRequirePro: { gate in store.showPaywall(for: gate) },
+                onOpenProtectRecover: {
+                    store.goToDataEdit(preservingOrigin: true)
+                },
+                onCreateCheckpoint: quickSaveMemory,
+                onReturnToCheckpoint: quickRestoreMemory(from:),
+                onRefreshCheckpoints: refreshQuickLocalSnapshots,
+                checkpoints: quickLocalSnapshots,
+                isCreatingCheckpoint: isQuickSavingMemory,
+                isReturningToCheckpoint: isQuickRestoringMemory
+            )
         case 4:
             aiLinkContent
         case 5:
@@ -142,6 +162,7 @@ extension RootView {
             Divider()
             HStack(spacing: 4) {
                 tabButton(.browse)
+                tabButton(.pages)
                 tabButton(.study)
                 tabButton(.aiLink)
                 tabButton(.myData)
@@ -161,14 +182,15 @@ extension RootView {
         let showsTitle = store.sidebarNavigationStyle == .descriptive
         let isActive = {
             if store.route == .capture { return id == 0 }
-            if store.route == .favourites { return id == 3 }
+            if isPagesDestinationActive { return id == RadixNavigationItem.pages.rawValue }
+            if store.route == .favourites { return id == RadixNavigationItem.study.rawValue }
             if store.route == .aiLink { return id == 4 }
             if store.route == .lineage { return false }
             if store.route == .settings { return false }
             switch store.homeTab {
             case .smart: return id == 1
             case .filter: return id == 2
-            case .favourites: return id == 3
+            case .favourites: return id == RadixNavigationItem.study.rawValue
             case .dataEdit: return id == 5
             }
         }()
@@ -189,7 +211,10 @@ extension RootView {
                     store.route = .search
                     store.homeTab = .filter
                     store.returnToBrowseGrid()
+                case RadixNavigationItem.pages.rawValue:
+                    store.goToPagesWorkspace()
                 case 3:
+                    store.activeStudySectionTitle = StudyNavigationTarget.sentences.title
                     store.requestedStudyNavigationTarget = .sentences
                     store.route = .search
                     store.homeTab = .favourites
