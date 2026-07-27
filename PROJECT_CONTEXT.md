@@ -1233,7 +1233,7 @@ The `Sentence Practice` Brief/Detailed selector is a profile preference saved
 with local AI Link settings and portable backups; restore falls back to Brief
 when importing older profiles.
 OCR correction no longer has a proposal-approval screen. Automatic Gemini
-review creates and opens the corrected Browse page immediately; copy/paste uses
+review creates and opens the corrected page in Pages; copy/paste uses
 one `Paste Answer and Create Corrected Page` action. The original OCR page is
 retained as the reversible source record until the user promotes a corrected
 page from Study, where the original can either be kept as an archived page or

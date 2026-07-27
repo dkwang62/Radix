@@ -28,8 +28,8 @@ extension FilterGridTab {
     private func createCorrectedOCRPage(from response: String, original collection: CharacterCollection) {
         do {
             let corrected = try store.createCorrectedOCRCollection(fromAIResponse: response, original: collection)
-            store.selectBrowseCollection(id: corrected.id)
-            imageActionMessage = "Corrected text page created and opened. The original captured page remains available in Browse."
+            store.goToPagesWorkspace(id: corrected.id, preservingOrigin: true)
+            imageActionMessage = "Corrected text page created in Pages. The original captured page remains available as Source."
         } catch {
             imageActionMessage = error.localizedDescription
         }
