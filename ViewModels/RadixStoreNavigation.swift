@@ -213,11 +213,22 @@ extension RadixStore {
 
     // MARK: - Route transitions
 
-    func rememberCrossTabOrigin() {
-        rootsReturnContext = RootsReturnContext(
+    func currentRootsReturnContext() -> RootsReturnContext {
+        RootsReturnContext(
             route: route,
-            homeTab: route == .search ? homeTab : nil
+            homeTab: route == .search ? homeTab : nil,
+            studyTarget: currentStudyNavigationTargetForReturn()
         )
+    }
+
+    func currentStudyNavigationTargetForReturn() -> StudyNavigationTarget? {
+        let isStudyRoute = route == .favourites || (route == .search && homeTab == .favourites)
+        guard isStudyRoute else { return nil }
+        return activeStudySectionTitle == StudyNavigationTarget.savedPages.title ? .savedPages : nil
+    }
+
+    func rememberCrossTabOrigin() {
+        rootsReturnContext = currentRootsReturnContext()
     }
 
     func clearCrossTabOrigin() {
@@ -287,10 +298,7 @@ extension RadixStore {
     }
 
     func goToBrowsePages(selectLatest: Bool = true, preservingOrigin: Bool = false) {
-        let origin = preservingOrigin ? RootsReturnContext(
-            route: route,
-            homeTab: route == .search ? homeTab : nil
-        ) : nil
+        let origin = preservingOrigin ? currentRootsReturnContext() : nil
         goToBrowse()
         rootsReturnContext = origin
         if selectLatest,
@@ -302,10 +310,7 @@ extension RadixStore {
     }
 
     func goToBrowseCollection(id collectionID: UUID, preservingOrigin: Bool = false) {
-        let origin = preservingOrigin ? RootsReturnContext(
-            route: route,
-            homeTab: route == .search ? homeTab : nil
-        ) : nil
+        let origin = preservingOrigin ? currentRootsReturnContext() : nil
         goToBrowse()
         rootsReturnContext = origin
         selectBrowseCollection(id: collectionID)
@@ -313,10 +318,7 @@ extension RadixStore {
     }
 
     func goToPagesWorkspace(id collectionID: UUID? = nil, preservingOrigin: Bool = false) {
-        let origin = preservingOrigin ? RootsReturnContext(
-            route: route,
-            homeTab: route == .search ? homeTab : nil
-        ) : nil
+        let origin = preservingOrigin ? currentRootsReturnContext() : nil
         if preservingOrigin {
             rootsReturnContext = origin
         } else {
@@ -397,10 +399,7 @@ extension RadixStore {
 
     func goToRoots(character: String) {
         if route != .lineage {
-            rootsReturnContext = RootsReturnContext(
-                route: route,
-                homeTab: route == .search ? homeTab : nil
-            )
+            rootsReturnContext = currentRootsReturnContext()
         }
         route = .lineage
         select(character: character, announce: false)
@@ -486,12 +485,12 @@ extension RadixStore {
             switch rootsReturnContext.homeTab ?? .smart {
             case .smart:      return "Back to Search"
             case .filter:     return "Back to Browse"
-            case .favourites: return "Back to Study"
+            case .favourites: return rootsReturnContext.studyTarget == .savedPages ? "Back to Pages" : "Back to Study"
             case .dataEdit:   return "Back to My Data"
             }
         case .lineage:    return "Back to Components"
         case .aiLink:     return "Back to AI Link"
-        case .favourites: return "Back to Study"
+        case .favourites: return rootsReturnContext.studyTarget == .savedPages ? "Back to Pages" : "Back to Study"
         case .settings:   return "Back to Settings"
         }
     }

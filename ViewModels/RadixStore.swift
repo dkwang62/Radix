@@ -21,6 +21,7 @@ import Combine
 struct RootsReturnContext: Equatable {
     let route: AppRoute
     let homeTab: HomeTab?
+    let studyTarget: StudyNavigationTarget?
 }
 
 enum ImagePhraseHighlightRole {

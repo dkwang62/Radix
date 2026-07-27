@@ -777,7 +777,7 @@ remaining audit work, and crash lessons for handing the finishing pass to Claude
 - Apple persistence uses `RadixPreferences`, backed by `UserDefaults`.
 - `RadixStore`, `EntitlementManager`, and the phrase database location manager
   accept an injected preference store.
-- On iPhone, character or phrase previews opened from a saved Browse page show a
+- On iPhone, character or phrase previews opened from a page Source view show a
   contextual return button named for that page, not a generic Browse label.
 - In Browse, the top `Browse [page name]` navigation title is the quick
   saved-page selector for Dictionary and saved pages. The open-page card does
@@ -1149,7 +1149,7 @@ Conversation Practice accepts AI-generated packs through `Paste Practice JSON`
 as the primary return path from ChatGPT/Gemini, while `Import JSON File` remains
 available for saved files and transfer. The paste route previews the theme,
 sentence count, sample sentences, and validation warnings before import.
-Browse page Actions exposes `Sentence Practice` as a page AI task. Manual use
+Pages `Actions` exposes `Sentence Practice` as a page AI task. Manual use
 copies/opens the saved-page sentence-practice prompt and returns through Study's
 Conversation Practice paste importer; automatic Gemini use imports the pack
 directly.
@@ -1253,7 +1253,7 @@ Study menu section. Added Phrases opens as a full Study workspace rather than a
 pop-out sheet, with a visible `Back to Study` control and no global Study
 header competing for space. Conversation Practices opens a focused Practice
 screen with a contextual return button. It says `Back to Study` from Study and
-`Back to Browse` when a Browse page shortcut opened the practice. There is no
+`Back to Pages` when a page shortcut opened the practice. There is no
 persistent `Review | Practice` switch row. Recent and Favorites must not be
 repeated as another segmented picker above the review grid.
 Conversation Practice is the next Study learning section. It presents curated
@@ -1421,8 +1421,10 @@ source text are portable `AddedPhraseReviewRules` behavior with compatibility
 tests so Android can share the same rule.
 Content-driven cross-tab navigation uses the existing single-level return
 context. Destinations show a named return button (`Back to Study`, `Back to My
-Data`, and so on); manually choosing a primary tab clears that context.
-Saved Browse pages use one labelled `Actions` menu for editing, OCR review,
+Data`, and so on); manually choosing a primary tab clears that context. The
+return context carries the focused Study target when needed so a page-origin
+flow can say `Back to Pages` instead of flattening Pages into Study.
+Pages uses one labelled `Actions` menu for editing, OCR review,
 phrase selection, translation, and AI workflows. The title menu remains the
 separate Dictionary/saved-page navigation; only the character count, script
 toggle, page actions, and Read Aloud remain permanently visible page controls.
