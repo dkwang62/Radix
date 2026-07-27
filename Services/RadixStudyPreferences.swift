@@ -1562,9 +1562,9 @@ private final class SentenceExampleRepository: @unchecked Sendable {
             clauses.append("(\(searchClauses))")
             bindings.append(contentsOf: searchBindings)
         }
-        if query.minimumCharacterCount > 0 {
-            clauses.append("length(normalized_key) >= ?")
-            bindings.append(String(query.minimumCharacterCount))
+        let minimumCharacterCount = max(0, query.minimumCharacterCount)
+        if minimumCharacterCount > 0 {
+            clauses.append("length(normalized_key) >= \(minimumCharacterCount)")
         }
 
         return (clauses.isEmpty ? "" : "WHERE \(clauses.joined(separator: " AND "))", bindings)

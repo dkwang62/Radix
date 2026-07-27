@@ -152,7 +152,9 @@ Study > Sentences keeps only page navigation and display/script controls in the
 top toolbar. Source filtering, compact sentence search, the minimum Chinese
 character-count filter, and one sentence tools menu belong on the lower source
 row on every device. The minimum-count slider filters sentences by at least that
-many stored Chinese characters; it is not a maximum-length rule. The tools menu owns
+many stored Chinese characters; it is not a maximum-length rule. The database
+query must compare this threshold as a number, not a text binding, so filtered
+page counts and visible rows stay aligned. The tools menu owns
 selection, bulk delete, and sentence transfer so iPad/Mac do not grow separate
 management buttons that crowd page navigation. Do not keep parallel standalone
 Select, Delete Results, or Transfer button helpers for this screen.
