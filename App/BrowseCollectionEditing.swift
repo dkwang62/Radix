@@ -70,9 +70,9 @@ extension FilterGridTab {
         showBrowseCamera = true
     }
 
-    func consumeBrowsePageRequests() {
-        if store.shouldCloseBrowsePages {
-            store.shouldCloseBrowsePages = false
+    func consumeBrowseSourceCloseRequests() {
+        if store.shouldCloseBrowseSource {
+            store.shouldCloseBrowseSource = false
             withAnimation(.easeInOut(duration: 0.16)) {
                 showBrowseSource = false
             }

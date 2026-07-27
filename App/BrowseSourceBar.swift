@@ -140,7 +140,7 @@ extension FilterGridTab {
     func openOriginalOCRPage(for collection: CharacterCollection) {
         let originalID = collection.correctedFromCollectionID ?? collection.id
         store.selectBrowseCollection(id: originalID)
-        store.shouldCloseBrowsePages = true
+        store.shouldCloseBrowseSource = true
     }
 
     func readBrowseSourceButton(_ collection: CharacterCollection) -> some View {

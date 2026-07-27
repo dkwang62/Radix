@@ -297,24 +297,12 @@ extension RadixStore {
         selectMostRecentBrowsePage()
     }
 
-    func goToBrowsePages(selectLatest: Bool = true, preservingOrigin: Bool = false) {
-        let origin = preservingOrigin ? currentRootsReturnContext() : nil
-        goToBrowse()
-        rootsReturnContext = origin
-        if selectLatest,
-           let collection = sortedCollections(order: .scanned).first {
-            selectBrowseCollection(id: collection.id)
-        } else {
-            selectedBrowseCollectionID = nil
-        }
-    }
-
     func goToBrowseCollection(id collectionID: UUID, preservingOrigin: Bool = false) {
         let origin = preservingOrigin ? currentRootsReturnContext() : nil
         goToBrowse()
         rootsReturnContext = origin
         selectBrowseCollection(id: collectionID)
-        shouldCloseBrowsePages = true
+        shouldCloseBrowseSource = true
     }
 
     func goToPagesWorkspace(id collectionID: UUID? = nil, preservingOrigin: Bool = false) {
@@ -334,7 +322,7 @@ extension RadixStore {
                   let collection = sortedCollections(order: .lastViewed).first {
             selectBrowseCollection(id: collection.id)
         }
-        shouldCloseBrowsePages = true
+        shouldCloseBrowseSource = true
         showiPhoneDetail = false
     }
 

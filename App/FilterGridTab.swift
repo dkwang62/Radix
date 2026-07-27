@@ -163,11 +163,11 @@ struct FilterGridTab: View {
                 browsePageSortOrder = RadixBrowsePreferences.pageSortOrder
                 freePageUseCount = RadixCaptureUsage.freeScanCount
                 prepareBrowseHintIfNeeded()
-                consumeBrowsePageRequests()
+                consumeBrowseSourceCloseRequests()
                 scrollToPendingBrowseTarget(proxy: proxy)
             }
-            .onChange(of: store.shouldCloseBrowsePages) { _, _ in
-                consumeBrowsePageRequests()
+            .onChange(of: store.shouldCloseBrowseSource) { _, _ in
+                consumeBrowseSourceCloseRequests()
             }
             .sheet(isPresented: $showBrowseFilters) {
                 BrowseFiltersSheet(sizeClass: sizeClass) {

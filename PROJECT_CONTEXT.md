@@ -818,6 +818,9 @@ remaining audit work, and crash lessons for handing the finishing pass to Claude
   item; saved-page selections and page creation/import completions route to
   Pages. Recent and Favorites remain Study review scopes, while Added Phrases,
   Conversation Practices, Sentences, and Checkpoints remain Study sections.
+  Browse source-inspection close requests use the `shouldCloseBrowseSource`
+  presentation flag; do not reintroduce Browse Pages state for normal page
+  navigation.
   Favorite Sentences belongs inside Conversation Practices rather than appearing
   as a duplicate shortcut; when favorite sentences exist, opening Conversation
   Practices from Study should default to that `Favorite Sentences` topic.

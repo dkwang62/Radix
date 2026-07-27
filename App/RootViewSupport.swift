@@ -259,7 +259,7 @@ extension RootView {
     var browseTitleMenuSection: some View {
         Button {
             store.selectBrowseCollection(id: nil)
-            store.shouldCloseBrowsePages = true
+            store.shouldCloseBrowseSource = true
         } label: {
             Label("Dictionary", systemImage: store.selectedBrowseCollection == nil ? "checkmark" : "book")
         }
