@@ -733,14 +733,14 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   and `Create Conversation`. Each task offers the same two methods: copy/paste with ChatGPT or
   automatic processing with Gemini. When no key is saved, the automatic choice
   becomes `Set Up Gemini API Key…`; it opens Settings where `Automatic AI`
-  exposes Gemini setup, with a contextual `Back to Browse` action.
+  exposes Gemini setup, with a contextual return action back to the page flow.
 - Check OCR, Extract Phrases, Translate Page, Create Quiz, Extract Sentences,
   Sentence Practice, and Create Conversation also exist as saved-page tasks in AI Link. Their
-  templates are editable as AI prompts in the selected task view, and Browse
-  must render those same templates rather than maintaining separate hidden
-  instructions. Manual `Use Another AI App` actions from Browse should route
-  into that same AI Link task/result workflow with the saved page selected and
-  a contextual `Back to Browse` return path.
+  templates are editable as AI prompts in the selected task view, and Pages or
+  Source actions must render those same templates rather than maintaining
+  separate hidden instructions. Manual `Use Another AI App` actions should
+  route into that same AI Link task/result workflow with the saved page selected
+  and a contextual return path to Pages or Source.
 - Conversation-generating AI tasks show one compact quantity selector beside
   the selected topic/page, defaulting to 25 entries with 50 and 100 as larger
   choices. Keep this as a shared control for future similar tasks rather than

@@ -52,8 +52,7 @@ extension FilterGridTab {
             do {
                 let pack = try await store.runGeminiPageSentenceExtraction(for: collection)
                 await MainActor.run {
-                    store.goToBrowse()
-                    store.selectBrowseCollection(id: collection.id)
+                    store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
                     imageActionMessage = "Loaded \(pack.title) · \(pack.entries.count) sentences"
                     isRunningImageAction = false
                 }
@@ -78,8 +77,7 @@ extension FilterGridTab {
             do {
                 let pack = try await store.runGeminiPagePracticeGeneration(for: collection)
                 await MainActor.run {
-                    store.goToBrowse()
-                    store.selectBrowseCollection(id: collection.id)
+                    store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
                     imageActionMessage = "Loaded \(pack.title) · \(pack.entries.count) sentences"
                     isRunningImageAction = false
                 }
@@ -146,8 +144,7 @@ extension FilterGridTab {
             do {
                 let summary = try await store.runGeminiPhraseExtraction(for: collection)
                 await MainActor.run {
-                    store.goToBrowse()
-                    store.selectBrowseCollection(id: collection.id)
+                    store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
                     imageActionMessage = summary.message(defaultAIName: "Gemini")
                     isRunningImageAction = false
                 }
