@@ -16,7 +16,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   Corrected OCR, page editing, and page phrase choosing.
 - `Browse - [page]` / `Browse - Dictionary` is the sole Browse selector for
   Dictionary and saved pages; do not duplicate it with in-content source buttons.
-  Camera/capture owns album, file, clipboard, and camera intake.
+  Camera/capture owns album, file, clipboard, and camera intake, then opens the
+  newly created page in Browse immediately.
 - Global Camera routes to the full Camera/capture workbench and opens the
   camera sheet once by default; after dismissal, Camera, Album, and Files
   choices remain visible underneath. Do not reintroduce a Camera-only route.

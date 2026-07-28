@@ -50,6 +50,8 @@ Use these preferences as defaults:
   available from the title menu. Non-camera page creation belongs under Browse as
   `Text to Page`, `Image from Clipboard`, `Image from Album`, and
   `Image from Files`; the big Camera button remains the instant camera action.
+  Successful capture opens its new page in Browse immediately so the user can
+  inspect the Chinese before choosing a later Pages or Study action.
 - Treat saved pages as one `Pages` workspace. Browse page lists and saved-page
   title-menu entries should open that Pages workspace; Study should not also
   expose a competing `Pages` section in its local section menu. Inside Pages,

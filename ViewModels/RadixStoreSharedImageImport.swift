@@ -42,7 +42,7 @@ extension RadixStore {
 
         if let lastImportedCollectionID {
             activeCaptureDraft = CaptureDraft()
-            goToPagesWorkspace(id: lastImportedCollectionID)
+            goToBrowseCollection(id: lastImportedCollectionID)
         } else {
             goToPagesWorkspace()
         }
@@ -75,7 +75,7 @@ extension RadixStore {
         }
 
         if let lastImportedCollectionID {
-            goToPagesWorkspace(id: lastImportedCollectionID)
+            goToBrowseCollection(id: lastImportedCollectionID)
         }
     }
 }

@@ -8,7 +8,7 @@ describes the present state and immediate direction.
 sessions and should stay aligned with this file when the workstream meaningfully
 changes. Earlier handoff files remain historical snapshots.
 
-Last reviewed: 2026-07-23
+Last reviewed: 2026-07-28
 
 Current app version metadata is marketing version `1.0.4`, build `21`.
 Settings > About shows the bundle version and build so future release bumps are
@@ -55,9 +55,9 @@ owning saved page.
 Saved pages have one user-facing workspace, `Pages`, backed by the existing
 Study saved-page implementation. Browse page pickers and saved-page title-menu
 entries should open that workspace instead of creating a second Browse Pages
-destination. Page creation and import completions from Capture, share-extension
-imports, Browse page-source shortcuts, and My Data inventory links should also
-land in Pages. The same saved-page action menu can create or replace extracted
+destination. Successful Capture, share-extension, and Browse page-creation
+flows should open their newly created page in Browse immediately; Pages and My
+Data inventory links remain the saved-page workspace. The same saved-page action menu can create or replace extracted
 sentence artifacts through Manual AI Link or Gemini API. Browse continues to own
 dictionary/source inspection, with OCR pages labeled as Original OCR or
 Corrected OCR when the user opens a page source.

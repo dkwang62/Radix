@@ -332,7 +332,7 @@ struct CaptureTab: View {
 
         lastSavedCollectionID = collection.id
         clearCaptureDraft()
-        store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
+        store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
         clearPhonePreviewAfterPageSave()
     }
 
@@ -389,7 +389,7 @@ struct CaptureTab: View {
         manualCollectionText = ""
         showManualCollectionSheet = false
         clearCaptureDraft()
-        store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
+        store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
         clearPhonePreviewAfterPageSave()
     }
 

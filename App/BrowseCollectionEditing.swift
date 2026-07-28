@@ -114,7 +114,7 @@ extension FilterGridTab {
                 freePageUseCount = RadixCaptureUsage.incrementFreeScanCount(limit: freePageLimit)
             }
 
-            store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
+            store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
             store.clearBrowsePreview()
             showBrowseSource = false
             imageActionMessage = CaptureStatusText.savedCollection(
@@ -135,7 +135,7 @@ extension FilterGridTab {
         if !hasUnlimitedFreePages {
             freePageUseCount = RadixCaptureUsage.incrementFreeScanCount(limit: freePageLimit)
         }
-        store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
+        store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
         manualCollectionName = ""
         manualCollectionText = ""
         showManualCollectionSheet = false
