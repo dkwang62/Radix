@@ -485,6 +485,12 @@ public struct SentenceExampleRecord: Codable, Equatable, Identifiable, Sendable 
         sources.contains { $0.matches(sourceType: sourceType) }
     }
 
+    mutating func removeSources(sourceType: SentenceExampleSourceType, pageID: UUID) {
+        sources.removeAll {
+            $0.sourceType == sourceType && $0.sourcePageID == pageID
+        }
+    }
+
     public mutating func merge(_ incoming: SentenceExampleRecord) {
         if pinyin == nil { pinyin = incoming.pinyin }
         if english == nil { english = incoming.english }

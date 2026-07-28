@@ -774,7 +774,34 @@ enum RadixStudyPreferences {
         records.removeAll { $0.sourcePageID == record.sourcePageID }
         records.append(record)
         aiCleanedPages = records
-        recordSentenceExamples(SentenceExampleRecord.fromAICleanedPage(record))
+
+        let replacementSentences = SentenceExampleRecord.fromAICleanedPage(record)
+        reconcileAICleanedPageSentenceExamples(
+            for: record.sourcePageID,
+            replacementSentences: replacementSentences
+        )
+    }
+
+    private static func reconcileAICleanedPageSentenceExamples(
+        for pageID: UUID,
+        replacementSentences: [SentenceExampleRecord]
+    ) {
+        let replacementKeys = Set(replacementSentences.map(\.normalizedChineseKey).filter { !$0.isEmpty })
+        let previousSentences = sentenceExamples(matching: SentenceExampleQuery(
+            scope: .page(pageID, .aiCleanedPage)
+        ))
+
+        for previous in previousSentences where !replacementKeys.contains(previous.normalizedChineseKey) {
+            var retained = previous
+            retained.removeSources(sourceType: .aiCleanedPage, pageID: pageID)
+            if retained.sources.isEmpty && !retained.isFavorited {
+                deleteSentenceExample(id: retained.id)
+            } else {
+                sentenceExampleRepository.replace([retained])
+            }
+        }
+
+        recordSentenceExamples(replacementSentences)
     }
 
     static func applyImportedAICleanedPages(_ records: [AICleanedPageRecord]?, mode: RestoreMode) {

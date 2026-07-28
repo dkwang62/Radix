@@ -129,6 +129,9 @@ sentence's phrase hints is terminal and must not expose another phrase lookup.
 Saving or restoring an extracted sentence page also upserts its sentence list into the
 shared `SentenceExampleRecord` database with `ai_cleaned_page` page-linked
 source metadata, so Study > Sentences and sentence cards reuse the same records.
+Re-extracting one page replaces that page's output: sentences absent from the
+replacement lose only that page's AI-extraction source and are deleted only when
+they have no other source and are not favorited.
 The live sentence-example store is SQLite-backed via `RadixStudyPreferences`;
 Study > Sentences > Transfer owns the fast sentence database `.db` export/import
 for Radix-to-Radix moves, including merge and replace modes with safety

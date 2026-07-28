@@ -208,6 +208,42 @@ struct ConversationPracticeTests {
         #expect(example.isLinked(toPageID: pageID))
     }
 
+    @Test("Replacing AI-cleaned page output removes only that page source")
+    func replacingAICleanedPageOutputRemovesOnlyThatPageSource() {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000617")!
+        let otherPageID = UUID(uuidString: "00000000-0000-0000-0000-000000000618")!
+        let cleanedSource = SentenceExampleSourceReference(
+            sourceType: .aiCleanedPage,
+            sourceID: pageID.uuidString,
+            sourceTitle: "First extraction",
+            sourcePageID: pageID,
+            practicePackID: nil,
+            practiceItemID: nil
+        )
+        let otherSource = SentenceExampleSourceReference(
+            sourceType: .ocrSource,
+            sourceID: otherPageID.uuidString,
+            sourceTitle: "Original OCR",
+            sourcePageID: otherPageID,
+            practicePackID: nil,
+            practiceItemID: nil
+        )
+        var sharedSentence = SentenceExampleRecord(
+            chinese: "这句话仍然有另一个来源。",
+            sources: [cleanedSource, otherSource]
+        )
+        var staleSentence = SentenceExampleRecord(
+            chinese: "这句话只来自旧提取。",
+            sources: [cleanedSource]
+        )
+
+        sharedSentence.removeSources(sourceType: .aiCleanedPage, pageID: pageID)
+        staleSentence.removeSources(sourceType: .aiCleanedPage, pageID: pageID)
+
+        #expect(sharedSentence.sources == [otherSource])
+        #expect(staleSentence.sources.isEmpty)
+    }
+
     @Test("Conversation practice items map into canonical sentence examples")
     func practiceItemsMapToSentenceExamples() throws {
         let pack = try loadConversationPackFixture()
