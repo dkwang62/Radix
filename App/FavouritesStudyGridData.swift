@@ -121,13 +121,76 @@ extension FavouritesTab {
         store.previewCharacter = nil
         withAnimation(.snappy(duration: 0.18)) {
             focusedStudySection = .addedPhrases
-            focusedStudySavedPageID = nil
             studyAICleanedPageCollectionID = nil
         }
     }
 
     func sortedStudySavedPages() -> [CharacterCollection] {
         store.sortedCollections(order: studyPageSortOrder)
+    }
+
+    var pageIDsWithRecordedPhraseExtractions: Set<UUID> {
+        Set(RadixStudyPreferences.pagePhraseExtractions.map(\.sourcePageID))
+    }
+
+    func correctedStudyPages(for collection: CharacterCollection) -> [CharacterCollection] {
+        store.allCollections
+            .filter { $0.correctedFromCollectionID == collection.id }
+            .sorted { $0.createdAt > $1.createdAt }
+    }
+
+    func pagePracticePacks(for collection: CharacterCollection) -> [ConversationPracticePack] {
+        RadixStudyPreferences.importedConversationPracticePacks
+            .filter { $0.sourceLink?.sourcePageID == collection.id }
+            .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+    }
+
+    func isPageSentencePractice(_ pack: ConversationPracticePack) -> Bool {
+        guard let sourceTitle = pack.sourceLink?.sourceTitle.trimmingCharacters(in: .whitespacesAndNewlines),
+              !sourceTitle.isEmpty
+        else {
+            return false
+        }
+
+        let packTitle = pack.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        return packTitle.compare(
+            sourceTitle,
+            options: [.caseInsensitive, .diacriticInsensitive]
+        ) == .orderedSame
+    }
+
+    func pagePracticeArtifactTitle(for pack: ConversationPracticePack) -> String {
+        isPageSentencePractice(pack) ? "Sentences" : "Conversation"
+    }
+
+    func pagePracticeArtifactIcon(for pack: ConversationPracticePack) -> String {
+        isPageSentencePractice(pack) ? "text.quote" : "bubble.left.and.bubble.right"
+    }
+
+    func pagePhrases(for collection: CharacterCollection) -> [PhraseItem] {
+        store.sortPhrasesByPinyin(store.browsePagePhraseCandidates(in: collection).map(\.phrase))
+    }
+
+    func hasKnownPagePhrases(for collection: CharacterCollection, hasRecordedPagePhrases: Bool) -> Bool {
+        if hasRecordedPagePhrases {
+            return true
+        }
+        if let cachedCandidates = store.browsePagePhraseCandidateCache[collection.id] {
+            return !cachedCandidates.isEmpty
+        }
+        return false
+    }
+
+    func showPagePhrases(_ collection: CharacterCollection) {
+        let phrases = pagePhrases(for: collection)
+        guard !phrases.isEmpty else {
+            setStudyPageActionMessage("No page phrases are available for this page.", for: collection)
+            return
+        }
+        studyPagePhrasesPresentation = StudyPagePhrasesPresentation(
+            collection: collection,
+            phrases: phrases
+        )
     }
 
     func favoriteSentenceCount(for packs: [ConversationPracticePack]) -> Int {
@@ -144,20 +207,9 @@ extension FavouritesTab {
         store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
     }
 
-    func openSavedPageWorkspace(_ collection: CharacterCollection) {
-        store.selectBrowseCollection(id: collection.id)
-        pageWorkspaceLastTappedOffset = nil
-        withAnimation(.snappy(duration: 0.18)) {
-            focusedStudySection = nil
-            studyAICleanedPageCollectionID = nil
-            focusedStudySavedPageID = collection.id
-        }
-    }
-
     func openAICleanedPage(_ collection: CharacterCollection) {
         withAnimation(.snappy(duration: 0.18)) {
             focusedStudySection = nil
-            focusedStudySavedPageID = collection.id
             aiCleanedPageSentencePageIndex = 0
             aiCleanedPageSentencePageCache = nil
             studyAICleanedPageCollectionID = collection.id
@@ -171,7 +223,7 @@ extension FavouritesTab {
         studyPageActionMessage = message
         studyPageActionMessageCollectionID = message == nil ? nil : collection.id
         if message != nil {
-            focusedStudySavedPageID = collection.id
+            expandedStudySavedPageID = collection.id
         }
     }
 

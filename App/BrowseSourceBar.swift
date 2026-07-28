@@ -137,10 +137,6 @@ extension FilterGridTab {
         return collection.correctedFromCollectionID == nil ? "Original OCR" : "Corrected OCR"
     }
 
-    func browseImageDisplayText(_ text: String) -> String {
-        useTraditionalBrowseImageScript ? store.traditionalText(text) : store.simplifiedText(text)
-    }
-
     func openOriginalOCRPage(for collection: CharacterCollection) {
         let originalID = collection.correctedFromCollectionID ?? collection.id
         store.selectBrowseCollection(id: originalID)

@@ -5,8 +5,6 @@ extension FavouritesTab {
         Group {
             if studyAICleanedPageCollectionID != nil {
                 aiCleanedPageStudyScreen
-            } else if focusedStudySavedPageID != nil {
-                studySavedPageWorkspace
             } else {
                 VStack(alignment: .leading, spacing: 0) {
                     if showsStudyPinnedControls {
@@ -32,182 +30,6 @@ extension FavouritesTab {
                     }
                 }
             }
-        }
-    }
-
-    @ViewBuilder
-    var studySavedPageWorkspace: some View {
-        if let collection = focusedStudySavedPage {
-            VStack(alignment: .leading, spacing: 10) {
-                pageWorkspaceControls(collection)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 12) {
-                        pageWorkspaceHeader(collection)
-                        pageWorkspaceSentencesAction(collection)
-                        pageWorkspaceActionMessage(collection)
-                        pageWorkspaceText(collection)
-                    }
-                    .padding(.horizontal)
-                    .padding(.bottom, 20)
-                }
-            }
-        } else {
-            VStack(alignment: .leading, spacing: 10) {
-                focusedStudyBackButton(title: "All Pages") {
-                    focusedStudySavedPageID = nil
-                }
-                .padding(.horizontal)
-                .padding(.top, 8)
-
-                ContentUnavailableView(
-                    "Page Not Found",
-                    systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage),
-                    description: Text("This saved page is no longer available.")
-                )
-                .frame(maxWidth: .infinity, minHeight: 260)
-            }
-        }
-    }
-
-    var focusedStudySavedPage: CharacterCollection? {
-        guard let focusedStudySavedPageID else { return nil }
-        return store.collection(id: focusedStudySavedPageID)
-    }
-
-    private func pageWorkspaceControls(_ collection: CharacterCollection) -> some View {
-        HStack(spacing: 8) {
-            focusedStudyBackButton(title: "All Pages") {
-                focusedStudySavedPageID = nil
-                pageWorkspaceLastTappedOffset = nil
-                store.dismissSidebarPhrasePreview()
-                store.previewCharacter = nil
-            }
-
-            Spacer(minLength: 0)
-
-            studySavedPageActionsMenu(collection)
-
-            Button {
-                openSavedPageInBrowse(collection)
-            } label: {
-                Label("Source", systemImage: "doc.viewfinder")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .accessibilityLabel("Inspect source for \(collectionDisplayName(collection))")
-            .help("Inspect original source")
-        }
-    }
-
-    private func pageWorkspaceHeader(_ collection: CharacterCollection) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(studyGridDisplayText(collectionDisplayName(collection)))
-                    .font(ResponsiveFont.title3.bold())
-                    .lineLimit(2)
-
-                Spacer(minLength: 8)
-
-                CompactScriptToggle(
-                    isTraditional: studyGridUsesTraditionalScript,
-                    accessibilityLabel: "Page Chinese script",
-                    minWidth: 34,
-                    height: 28
-                ) {
-                    studyGridUsesTraditionalScript.toggle()
-                }
-                .fixedSize(horizontal: true, vertical: false)
-
-                Button {
-                    _ = store.speakCharacters(in: studyGridDisplayText(collection.characters.joined()))
-                } label: {
-                    Image(systemName: "speaker.wave.2")
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .disabled(collection.characters.isEmpty)
-                .accessibilityLabel("Read page aloud")
-                .help("Read page aloud")
-            }
-
-            Text("\(collection.characters.count) characters")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .radixSurface(RadixTheme.secondaryBackground.opacity(0.48))
-    }
-
-    private func pageWorkspaceSentencesAction(_ collection: CharacterCollection) -> some View {
-        let record = RadixStudyPreferences.aiCleanedPage(for: collection.id)
-
-        return Button {
-            if record != nil {
-                openAICleanedPage(collection)
-            } else {
-                beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createAICleanedPage)
-            }
-        } label: {
-            HStack(spacing: 10) {
-                Image(systemName: record == nil ? "sparkles" : "text.quote")
-                    .font(ResponsiveFont.headline.weight(.semibold))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(record == nil ? "Create Sentences" : "Sentences \(record?.sentences.count ?? 0)")
-                        .font(ResponsiveFont.headline.weight(.semibold))
-                    Text(record == nil ? "Turn this page into study material" : "Open this page's study sentences")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer(minLength: 0)
-                Image(systemName: "chevron.right")
-                    .font(ResponsiveFont.caption.weight(.bold))
-                    .foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(12)
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(.primary)
-        .radixSurface(RadixAccent.primary.opacity(0.10), border: RadixAccent.primary.opacity(0.38))
-        .accessibilityLabel(record == nil ? "Create sentences from page" : "Open page sentences")
-    }
-
-    private func pageWorkspaceText(_ collection: CharacterCollection) -> some View {
-        PageTextGrid(
-            collection: collection,
-            usesTraditionalScript: studyGridUsesTraditionalScript,
-            layout: .current,
-            characterFontSize: isNarrowStudyLayout ? 23 : 26,
-            tappedOffset: $pageWorkspaceLastTappedOffset
-        )
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .radixSurface(RadixTheme.secondaryBackground.opacity(0.35))
-    }
-
-    @ViewBuilder
-    private func pageWorkspaceActionMessage(_ collection: CharacterCollection) -> some View {
-        if studyPageActionMessageCollectionID == collection.id, let studyPageActionMessage {
-            Label {
-                Text(studyPageActionMessage)
-                    .fixedSize(horizontal: false, vertical: true)
-            } icon: {
-                if isRunningStudyPageAction {
-                    ProgressView()
-                        .controlSize(.small)
-                } else {
-                    Image(systemName: "checkmark.circle")
-                }
-            }
-            .font(ResponsiveFont.caption.weight(.semibold))
-            .foregroundStyle(.secondary)
         }
     }
 
@@ -288,7 +110,7 @@ extension FavouritesTab {
     var aiCleanedPageStudyScreen: some View {
         if let context = studyAICleanedPageContext {
             VStack(alignment: .leading, spacing: 10) {
-                focusedStudyBackButton(title: aiCleanedPageReturnTitle(for: context.collection)) {
+                focusedStudyBackButton(title: "Back to Study") {
                     withAnimation(.snappy(duration: 0.18)) {
                         studyAICleanedPageCollectionID = nil
                     }
@@ -304,7 +126,7 @@ extension FavouritesTab {
             }
         } else {
             VStack(alignment: .leading, spacing: 10) {
-                focusedStudyBackButton(title: focusedStudySavedPageID == nil ? "Back to Pages" : "Back to Page") {
+                focusedStudyBackButton(title: "Back to Study") {
                     studyAICleanedPageCollectionID = nil
                 }
                 .padding(.horizontal)
@@ -318,10 +140,6 @@ extension FavouritesTab {
                 .frame(maxWidth: .infinity, minHeight: 260)
             }
         }
-    }
-
-    private func aiCleanedPageReturnTitle(for collection: CharacterCollection) -> String {
-        focusedStudySavedPageID == collection.id ? "Back to Page" : "Back to Pages"
     }
 
     var studyAICleanedPageContext: StudyAICleanedPageContext? {
@@ -1496,8 +1314,6 @@ extension FavouritesTab {
 
     func clearFocusedStudySections() {
         focusedStudySection = nil
-        focusedStudySavedPageID = nil
-        studyAICleanedPageCollectionID = nil
     }
 
     var studyCheckpointsSection: some View {

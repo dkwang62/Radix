@@ -3,20 +3,102 @@ import SwiftUI
 extension FilterGridTab {
     @ViewBuilder
     func imageGridContent(collection: CharacterCollection, proxy: ScrollViewProxy) -> some View {
+        let allItems = browseImageGridItems(for: collection)
+        let pageFontSize = max(13, fontSize - 1)
+
         if !isPhoneBrowseLayout {
             browseHintIfNeeded
                 .padding(.horizontal, 4)
                 .padding(.bottom, 4)
         }
 
-        PageTextGrid(
-            collection: collection,
-            usesTraditionalScript: useTraditionalBrowseImageScript,
-            layout: browseGridLayout,
-            characterFontSize: max(13, fontSize - 1),
-            tappedOffset: $lastTappedImageOffset
-        )
+        RadixTileFlowLayout(horizontalSpacing: RadixTileMetrics.compactSpacing, verticalSpacing: RadixTileMetrics.compactSpacing) {
+            ForEach(allItems) { item in
+                switch item.kind {
+                case .character(let character):
+                    let offset = item.offset
+                    let displayCharacter = browseImageDisplayCharacter(character)
+                    let highlightRole = store.imagePhraseHighlightRole(collectionID: collection.id, offset: offset)
+                    let isMemoryHighlighted = store.isBrowseMemoryHighlighted(collectionID: collection.id, offset: offset)
+                    let isActive = highlightRole == .target || lastTappedImageOffset == offset
+                    let pinyin = store.item(for: character)?.pinyinText ?? ""
+                    Button {
+                        lastTappedImageOffset = offset
+                        // Page phrases are now explicit tiles. Character tiles must preview only
+                        // the tapped character so the old neighboring-phrase inference cannot leak in.
+                        store.previewImageCharacter(character, offset: offset)
+                    } label: {
+                        BrowseGridTileLabel(
+                            displayCharacter: displayCharacter,
+                            pinyin: pinyin,
+                            fontSize: pageFontSize,
+                            isFavorite: store.isFavorite(character),
+                            background: BrowseImageTileStyle.background(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted),
+                            stroke: BrowseImageTileStyle.stroke(isActive: isActive, highlightRole: highlightRole, isMemoryHighlighted: isMemoryHighlighted),
+                            strokeWidth: highlightRole == nil ? 2 : 2.5
+                        ) {
+                            store.previewImageCharacter(character, offset: offset, announce: false)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                NotificationCenter.default.post(name: .radixShowPhraseTable, object: character)
+                            }
+                        }
+                        .frame(width: browseGridLayout.tileMaximumWidth)
+                    }
+                    .buttonStyle(.plain)
+                    .id(imageTileAnchorID(offset))
+
+                case .phrase(let phrase, let offsets):
+                    let isActive = offsets.contains(lastTappedImageOffset ?? -1)
+                    BrowseImagePhraseTile(
+                        phraseText: browseImageDisplayText(phrase.word),
+                        pinyin: phrase.pinyin,
+                        isActive: isActive,
+                        fontSize: pageFontSize,
+                        contextMenuPhrase: phrase
+                    ) {
+                        if let offset = offsets.first, collection.characters.indices.contains(offset) {
+                            lastTappedImageOffset = offset
+                        }
+                        store.presentPhraseFromBrowseImageTile(phrase, in: collection, offsets: Set(offsets))
+                    }
+                    .frame(maxWidth: phraseTileWidth(for: offsets.count))
+                    .id(imageTileAnchorID(item.offset))
+                }
+            }
+        }
         .padding(.top, 6)
+    }
+
+    func browseImageGridItems(for collection: CharacterCollection) -> [BrowseImageGridItem] {
+        let phraseTiles = store.browsePagePhraseTiles(in: collection)
+        var items: [BrowseImageGridItem] = []
+        var offset = 0
+
+        while offset < collection.characters.count {
+            if let phraseTile = phraseTiles[offset] {
+                items.append(BrowseImageGridItem(offset: offset, kind: .phrase(phraseTile.phrase, phraseTile.offsets)))
+                offset = phraseTile.end
+            } else {
+                items.append(BrowseImageGridItem(offset: offset, kind: .character(collection.characters[offset])))
+                offset += 1
+            }
+        }
+
+        return items
+    }
+
+    func browseImageDisplayCharacter(_ character: String) -> String {
+        browseImageDisplayText(character)
+    }
+
+    func browseImageDisplayText(_ text: String) -> String {
+        useTraditionalBrowseImageScript ? store.traditionalText(text) : store.simplifiedText(text)
+    }
+
+    func phraseTileWidth(for characterCount: Int) -> CGFloat {
+        let tileWidth = browseGridLayout.tileMaximumWidth
+        let spacing = RadixTileMetrics.compactSpacing
+        return min(RadixTileMetrics.browsePhraseWidth, tileWidth * CGFloat(max(2, characterCount)) + spacing * CGFloat(max(1, characterCount - 1)))
     }
 }
 
