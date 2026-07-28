@@ -3,29 +3,8 @@ import SwiftUI
 private struct StudySavedPageRowData {
     let collection: CharacterCollection
     let rowNumber: Int
-    let practices: [ConversationPracticePack]
-    let correctedPages: [CharacterCollection]
     let showsResumeSignal: Bool
-    let isExpanded: Bool
     let isActivePage: Bool
-    let artifacts: [StudyPageArtifact]
-}
-
-private struct StudyPageArtifact: Identifiable {
-    enum Kind {
-        case translation
-        case quiz
-        case phrases
-        case practice(ConversationPracticePack)
-        case correctedPage(CharacterCollection)
-        case aiCleanedPage
-    }
-
-    let id: String
-    let title: String
-    let systemImage: String
-    let tint: Color
-    let kind: Kind
 }
 
 extension FavouritesTab {
@@ -272,7 +251,6 @@ extension FavouritesTab {
 
     var studySavedPagesList: some View {
         let pages = sortedStudySavedPages()
-        let pageIDsWithRecordedPhrases = pageIDsWithRecordedPhraseExtractions
         let resumePageID = store.sortedCollections(order: .lastViewed).first?.id
 
         return LazyVStack(spacing: 0) {
@@ -280,7 +258,6 @@ extension FavouritesTab {
                 let rowData = studySavedPageRowData(
                     collection,
                     rowNumber: index + 1,
-                    hasRecordedPagePhrases: pageIDsWithRecordedPhrases.contains(collection.id),
                     resumePageID: resumePageID
                 )
                 studySavedPageRow(rowData)
@@ -291,89 +268,29 @@ extension FavouritesTab {
     private func studySavedPageRowData(
         _ collection: CharacterCollection,
         rowNumber: Int,
-        hasRecordedPagePhrases: Bool,
         resumePageID: UUID?
     ) -> StudySavedPageRowData {
-        let practices = pagePracticePacks(for: collection)
-        let correctedPages = correctedStudyPages(for: collection)
-        let aiCleanedPage = RadixStudyPreferences.aiCleanedPage(for: collection.id)
-        let hasPagePhrases = hasKnownPagePhrases(for: collection, hasRecordedPagePhrases: hasRecordedPagePhrases)
-        let isExpanded = expandedStudySavedPageID == collection.id
         let isActivePage = store.selectedBrowseCollectionID == collection.id
         let showsResumeSignal = isActivePage || resumePageID == collection.id
-        let artifacts = studyPageArtifacts(
-            collection: collection,
-            practices: practices,
-            correctedPages: correctedPages,
-            aiCleanedPage: aiCleanedPage,
-            hasPagePhrases: hasPagePhrases
-        )
 
         return StudySavedPageRowData(
             collection: collection,
             rowNumber: rowNumber,
-            practices: practices,
-            correctedPages: correctedPages,
             showsResumeSignal: showsResumeSignal,
-            isExpanded: isExpanded,
-            isActivePage: isActivePage,
-            artifacts: artifacts
+            isActivePage: isActivePage
         )
     }
 
     private func studySavedPageRow(_ rowData: StudySavedPageRowData) -> some View {
         let collection = rowData.collection
-        return VStack(alignment: .leading, spacing: 8) {
-            Button {
-                withAnimation(.easeInOut(duration: 0.18)) {
-                    expandedStudySavedPageID = rowData.isExpanded ? nil : collection.id
-                }
-            } label: {
-                studySavedPageCollapsedRow(rowData)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("\(collectionDisplayName(collection)) saved page")
-            .accessibilityHint(
-                rowData.isActivePage
-                    ? "Current page. \(rowData.isExpanded ? "Collapse page actions" : "Expand page actions")"
-                    : (rowData.isExpanded ? "Collapse page actions" : "Expand page actions")
-            )
-
-            if rowData.isExpanded {
-                VStack(alignment: .leading, spacing: 8) {
-                    studySavedPageExpandedControls(collection)
-
-                    if studyPageActionMessageCollectionID == collection.id, let studyPageActionMessage {
-                        Label {
-                            Text(studyPageActionMessage)
-                                .lineLimit(2)
-                                .fixedSize(horizontal: false, vertical: true)
-                        } icon: {
-                            if isRunningStudyPageAction {
-                                ProgressView()
-                                    .controlSize(.small)
-                            } else {
-                                Image(systemName: "checkmark.circle")
-                            }
-                        }
-                        .font(ResponsiveFont.caption2.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    }
-
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 6) {
-                            ForEach(rowData.artifacts) { artifact in
-                                studyPageArtifactChip(artifact, collection: collection)
-                            }
-                        }
-                        .padding(.vertical, 1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                }
-                .padding(.top, 2)
-                .transition(.opacity.combined(with: .move(edge: .top)))
-            }
+        return Button {
+            openSavedPageWorkspace(collection)
+        } label: {
+            studySavedPageCollapsedRow(rowData)
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(collectionDisplayName(collection)) saved page")
+        .accessibilityHint("Open page")
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(rowData.isActivePage ? RadixAccent.primary.opacity(0.11) : RadixTheme.secondaryBackground.opacity(0.58))
@@ -392,9 +309,6 @@ extension FavouritesTab {
     }
 
     private func studySavedPageCollapsedRow(_ rowData: StudySavedPageRowData) -> some View {
-        let visibleArtifacts = Array(rowData.artifacts.prefix(5))
-        let hiddenCount = rowData.artifacts.count - visibleArtifacts.count
-
         return HStack(alignment: .center, spacing: 10) {
             Text("\(rowData.rowNumber)")
                 .font(ResponsiveFont.caption2.weight(.semibold))
@@ -433,29 +347,8 @@ extension FavouritesTab {
                     )
             }
 
-            HStack(spacing: 4) {
-                ForEach(visibleArtifacts) { artifact in
-                    Image(systemName: artifact.systemImage)
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(artifact.tint)
-                        .radixIconButtonSurface(
-                            size: 22,
-                            background: artifact.tint.opacity(0.12),
-                            radius: 6
-                        )
-                        .accessibilityLabel(artifact.title)
-                }
-
-                if hiddenCount > 0 {
-                    Text("+\(hiddenCount)")
-                        .font(ResponsiveFont.caption2.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .frame(minWidth: 22, minHeight: 22)
-                }
-            }
-
             RadixCompactChevronLabel(
-                chevronSystemName: rowData.isExpanded ? "chevron.up" : "chevron.down",
+                chevronSystemName: "chevron.right",
                 chevronFont: .system(size: 12, weight: .bold),
                 chevronForegroundStyle: .secondary,
                 width: 22,
@@ -465,24 +358,7 @@ extension FavouritesTab {
         .frame(minHeight: 44)
     }
 
-    @ViewBuilder
-    private func studySavedPageExpandedControls(_ collection: CharacterCollection) -> some View {
-        if isNarrowStudyLayout {
-            HStack(alignment: .center, spacing: 8) {
-                studySavedPageActionsMenu(collection)
-                    .frame(maxWidth: .infinity, minHeight: 38)
-                studySavedPageBrowseButton(collection)
-                    .frame(maxWidth: .infinity, minHeight: 38)
-            }
-        } else {
-            HStack(alignment: .center, spacing: 8) {
-                studySavedPageActionsMenu(collection)
-                studySavedPageBrowseButton(collection)
-            }
-        }
-    }
-
-    private func studySavedPageActionsMenu(_ collection: CharacterCollection) -> some View {
+    func studySavedPageActionsMenu(_ collection: CharacterCollection) -> some View {
         CollectionPageActionsMenu(
             collection: collection,
             hasGeminiAPIKey: !store.geminiAPIKey
@@ -501,19 +377,6 @@ extension FavouritesTab {
         .disabled(isRunningStudyPageAction)
     }
 
-    private func studySavedPageBrowseButton(_ collection: CharacterCollection) -> some View {
-        Button {
-            openSavedPageInBrowse(collection)
-        } label: {
-            Label("Source", systemImage: "doc.viewfinder")
-                .font(ResponsiveFont.caption.weight(.semibold))
-        }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-        .accessibilityLabel("Open source view for \(collection.name)")
-        .help("Inspect the page source")
-    }
-
     private func openOriginalOCRPageFromStudy(_ collection: CharacterCollection) {
         let originalID = collection.correctedFromCollectionID ?? collection.id
         if let original = store.collection(id: originalID) {
@@ -526,111 +389,6 @@ extension FavouritesTab {
     private func studyPageResumeText(_ collection: CharacterCollection) -> String {
         let date = collection.lastViewedAt ?? collection.createdAt
         return "Viewed \(date.formatted(date: .abbreviated, time: .omitted))"
-    }
-
-    private func studyPageArtifacts(
-        collection: CharacterCollection,
-        practices: [ConversationPracticePack],
-        correctedPages: [CharacterCollection],
-        aiCleanedPage: AICleanedPageRecord?,
-        hasPagePhrases: Bool
-    ) -> [StudyPageArtifact] {
-        var artifacts: [StudyPageArtifact] = []
-
-        if aiCleanedPage != nil {
-            artifacts.append(StudyPageArtifact(
-                id: "ai-cleaned-page",
-                title: "Extracted Sentences",
-                systemImage: "doc.text.magnifyingglass",
-                tint: .indigo,
-                kind: .aiCleanedPage
-            ))
-        }
-
-        if collection.translationReport?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
-            artifacts.append(StudyPageArtifact(
-                id: "translation",
-                title: "Translation",
-                systemImage: "translate",
-                tint: .blue,
-                kind: .translation
-            ))
-        }
-
-        artifacts.append(StudyPageArtifact(
-            id: "quiz",
-            title: "Quiz",
-            systemImage: "checkmark.circle",
-            tint: .orange,
-            kind: .quiz
-        ))
-
-        if hasPagePhrases {
-            artifacts.append(StudyPageArtifact(
-                id: "phrases",
-                title: "Phrases",
-                systemImage: "text.bubble",
-                tint: .mint,
-                kind: .phrases
-            ))
-        }
-
-        for pack in practices {
-            artifacts.append(StudyPageArtifact(
-                id: "practice-\(pack.packID)",
-                title: pagePracticeArtifactTitle(for: pack),
-                systemImage: pagePracticeArtifactIcon(for: pack),
-                tint: .teal,
-                kind: .practice(pack)
-            ))
-        }
-
-        for corrected in correctedPages {
-            artifacts.append(StudyPageArtifact(
-                id: "corrected-\(corrected.id)",
-                title: "Corrected Text",
-                systemImage: "doc.badge.gearshape",
-                tint: .green,
-                kind: .correctedPage(corrected)
-            ))
-        }
-
-        return artifacts
-    }
-
-    private func studyPageArtifactChip(_ artifact: StudyPageArtifact, collection: CharacterCollection) -> some View {
-        Button {
-            performStudyPageArtifact(artifact, collection: collection)
-        } label: {
-            Text(artifact.title)
-                .font(ResponsiveFont.tinySystem(size: 11).weight(.semibold))
-                .lineLimit(1)
-                .radixPill(
-                    horizontal: 8,
-                    vertical: 6,
-                    background: artifact.tint.opacity(0.11),
-                    radius: 8
-                )
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(artifact.tint)
-    }
-
-    private func performStudyPageArtifact(_ artifact: StudyPageArtifact, collection: CharacterCollection) {
-        switch artifact.kind {
-        case .translation:
-            showStudyTranslationReport(collection)
-        case .quiz:
-            beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createQuiz)
-        case .phrases:
-            showPagePhrases(collection)
-        case .practice(let pack):
-            openStudyPracticePack(pack)
-        case .correctedPage(let corrected):
-            beginPromotingOCRCorrection(original: collection, corrected: corrected)
-        case .aiCleanedPage:
-            openAICleanedPage(collection)
-        }
     }
 
     func recentStudyButton(_ entry: StudyGridEntry) -> some View {

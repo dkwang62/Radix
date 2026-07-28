@@ -7,13 +7,6 @@ struct StudyOCRPromotion: Identifiable {
     var id: UUID { corrected.id }
 }
 
-struct StudyPagePhrasesPresentation: Identifiable {
-    let collection: CharacterCollection
-    let phrases: [PhraseItem]
-
-    var id: UUID { collection.id }
-}
-
 struct StudyAICleanedPageContext {
     let collection: CharacterCollection
     let record: AICleanedPageRecord?
@@ -84,6 +77,8 @@ struct FavouritesTab: View {
     let isReturningToCheckpoint: Bool
     @State var selectedPhrase: PhraseItem?
     @State var focusedStudySection: FocusedStudySection?
+    @State var focusedStudySavedPageID: UUID?
+    @State var pageWorkspaceLastTappedOffset: Int?
     @State var studyAICleanedPageCollectionID: UUID?
     @State var aiCleanedPageSentencePageIndex = 0
     @State var aiCleanedPageSentencePageCache: StudyAICleanedSentencePageCache?
@@ -137,8 +132,6 @@ struct FavouritesTab: View {
     @State var studyAIFallbackTask: BrowseAIFallbackTask?
     @State var studyAutomaticAIError = ""
     @State var isRunningStudyPageAction = false
-    @State var studyPagePhrasesPresentation: StudyPagePhrasesPresentation?
-    @State var expandedStudySavedPageID: UUID?
 
     private let conversationPracticeService = ConversationPracticeService()
 
@@ -164,7 +157,7 @@ struct FavouritesTab: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if studyAICleanedPageCollectionID == nil {
+            if studyAICleanedPageCollectionID == nil, focusedStudySavedPageID == nil {
                 favouritesHeader
             }
 
@@ -225,19 +218,6 @@ struct FavouritesTab: View {
                 onClear: { clearStudyTranslationReport(collection) },
                 onDone: { studyTranslationReportCollection = nil }
             )
-        }
-        .sheet(item: $studyPagePhrasesPresentation) { presentation in
-            PhraseTableSheet(
-                character: presentation.collection.characters.joined(),
-                isVertical: isPhone,
-                fixedPhrases: presentation.phrases,
-                fixedTitle: "Page Phrases",
-                fixedScopeLabel: presentation.collection.name,
-                fixedSort: .pinyin,
-                dismissesOnPhraseSelection: true,
-                returnTitle: "Back to Study"
-            )
-            .environmentObject(store)
         }
         .sheet(item: $sentenceExampleEditDraft) { draft in
             SentenceExampleEditSheet(record: draft.record) { updated in
@@ -393,6 +373,9 @@ struct FavouritesTab: View {
             Button("Delete", role: .destructive) {
                 if let collection = pendingStudyDeleteCollection {
                     store.deleteCollection(id: collection.id)
+                    if focusedStudySavedPageID == collection.id {
+                        focusedStudySavedPageID = nil
+                    }
                 }
                 pendingStudyDeleteCollection = nil
             }
@@ -516,7 +499,7 @@ struct FavouritesTab: View {
             studyGridScope = .savedPages
             showStudyCheckpoints = false
             if let selectedPageID = store.selectedBrowseCollectionID {
-                expandedStudySavedPageID = selectedPageID
+                focusedStudySavedPageID = selectedPageID
             }
         case .addedPhrases:
             presentAddedPhraseReview()
@@ -549,6 +532,7 @@ struct FavouritesTab: View {
         selectConversationPracticeTopic(topic)
         withAnimation(.snappy(duration: 0.18)) {
             focusedStudySection = .conversationPractice
+            focusedStudySavedPageID = nil
             studyAICleanedPageCollectionID = nil
         }
         store.pendingConversationPracticeTopicID = nil
@@ -563,6 +547,7 @@ struct FavouritesTab: View {
         }
         withAnimation(.snappy(duration: 0.18)) {
             focusedStudySection = .conversationPractice
+            focusedStudySavedPageID = nil
             studyAICleanedPageCollectionID = nil
         }
     }
@@ -572,6 +557,7 @@ struct FavouritesTab: View {
         resetSentenceExampleResultsContext()
         withAnimation(.snappy(duration: 0.18)) {
             focusedStudySection = .sentences
+            focusedStudySavedPageID = nil
             studyAICleanedPageCollectionID = nil
         }
     }
@@ -860,6 +846,7 @@ struct FavouritesTab: View {
     }
 
     var phoneStudyPreviewReturnTitle: String? {
+        if focusedStudySavedPageID != nil { return "Page" }
         guard store.sidebarPhraseLookupOverride != nil else { return nil }
         if let item = store.activePracticeSentenceItem,
            let title = store.sentencePreviewReturnTitle(for: item, topics: conversationPracticeTopics) {

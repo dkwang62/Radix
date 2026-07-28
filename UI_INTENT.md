@@ -54,7 +54,10 @@ Use these preferences as defaults:
   title-menu entries should open that Pages workspace; Study should not also
   expose a competing `Pages` section in its local section menu. Inside Pages,
   `Source` is an action for inspecting OCR/source material, not a second page
-  destination.
+  destination. Pages is the immediate reader for a captured page: show its
+  original Chinese first, make `Sentences` the one prominent next action, and
+  keep AI, translation, deletion, and source inspection compact and secondary.
+  The page list is a picker, not an expandable management dashboard.
 - The title dropdown is allowed to become the complete navigation map. Its top
   section should keep the main workspaces visible: `Browse`, `Pages`, `Study`,
   `AI`, `Data`, and `Settings`. `Pages` may reuse the existing saved-page Study

@@ -8,7 +8,7 @@ describes the present state and immediate direction.
 sessions and should stay aligned with this file when the workstream meaningfully
 changes. Earlier handoff files remain historical snapshots.
 
-Last reviewed: 2026-07-23
+Last reviewed: 2026-07-28
 
 Current app version metadata is marketing version `1.0.4`, build `21`.
 Settings > About shows the bundle version and build so future release bumps are
@@ -61,6 +61,12 @@ land in Pages. The same saved-page action menu can create or replace extracted
 sentence artifacts through Manual AI Link or Gemini API. Browse continues to own
 dictionary/source inspection, with OCR pages labeled as Original OCR or
 Corrected OCR when the user opens a page source.
+Pages is a source-led reader, not a page-management list: opening a saved page
+shows the original Chinese immediately through the same interactive page grid as
+Browse, while the page list is only a picker. `Sentences` is the one prominent
+next action; page AI, translation, deletion, and explicit source/OCR inspection
+stay in compact Actions or Source controls. Page sentences return visibly to
+their originating page.
 The extracted-sentences reader uses the shared Study simplified/traditional display choice;
 the switch converts the visible cleaned title, page text, notes, sentence
 rows, and opened sentence card display without changing the stored record.

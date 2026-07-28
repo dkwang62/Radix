@@ -9,22 +9,24 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
 
 - Branch: `codex/post-testflight-iteration`.
 - Workstream: post-TestFlight / Version 1.1 iteration.
-- Current version metadata: marketing version `1.0.4`, build `14`.
+- Current version metadata: marketing version `1.0.4`, build `21`.
 - Product direction: a linked Page -> Sentence -> Phrase -> Character learning
   graph.
-- Browse owns source inspection: Dictionary, saved pages, Original OCR,
-  Corrected OCR, page editing, and page phrase choosing.
-- `Browse - [page]` / `Browse - Dictionary` is the sole Browse selector for
-  Dictionary and saved pages; do not duplicate it with in-content source buttons.
-  Camera/capture owns album, file, clipboard, and camera intake.
+- Pages owns saved pages as a source-led reader. Camera and every other page
+  intake route open the selected page there; the shared interactive Chinese grid
+  is the immediate payoff, while `Sentences` is the one prominent next action.
+  The page list is only a picker, and Actions/Source hold secondary work.
+- Browse owns Dictionary and explicit source/OCR inspection. It is not a second
+  saved-page workspace. Camera/capture owns album, file, clipboard, and camera
+  intake.
 - Global Camera routes to the full Camera/capture workbench and opens the
   camera sheet once by default; after dismissal, Camera, Album, and Files
   choices remain visible underneath. Do not reintroduce a Camera-only route.
   Phone and sidebar Search/Camera tiles share `GlobalSearchCameraActionRow` and
   the RootView global action helpers.
-- Study owns kept learning material: Saved Pages, Sentences, Added Phrases,
-  Conversation Practices, translations, quizzes, extracted-sentence artifacts,
-  and deletion of saved pages/artifacts.
+- Study owns kept learning material: Sentences, Added Phrases, Conversation
+  Practices, review, and checkpoints. A page's extracted sentences return to
+  that page in Pages.
 - AI Link owns manual and direct Gemini workflows. Saved-page AI tasks should
   reuse the shared AI task flow.
 - Sentence examples are SQLite-backed through `RadixStudyPreferences`. Normal
@@ -64,9 +66,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   Study sections selected from the root title menu. They share one
   `FocusedStudySection` enum, keep pinned Study controls visible, and do not
   show a normal `Back to Study`.
-- Root titles carry context, including `Browse - Dictionary`,
-  `Browse - [page name]`, and `Study - Sentences`. Do not immediately repeat
-  the same title in the content area.
+- Root titles carry context, including `Browse - Dictionary`, `Pages`, and
+  `Study - Sentences`. Do not immediately repeat the same title in content.
 - Settings exposes one user-facing `Optimize Database` action. Imports and
   restores may recommend optimization but must not launch it automatically.
 - Radix-owned Chinese data is stored canonically in Simplified Chinese;
@@ -109,14 +110,9 @@ Recent commits, newest first:
 
 ## Dirty Worktree Warning
 
-The following files are currently dirty and predate this handoff work:
-
-- `Radix.xcodeproj/project.pbxproj`
-- `phrases_add.db`
-
-Treat both as user/external changes. Do not discard, normalize, stage, or commit
-them unless a later task explicitly establishes their intended changes. Note
-that the project-file diff is largely reordered Xcode project entries.
+`phrases_add.db` is user/external data and may be dirty. Do not discard,
+normalize, stage, or commit it unless a later task explicitly establishes its
+intended changes.
 
 ## Verification
 
