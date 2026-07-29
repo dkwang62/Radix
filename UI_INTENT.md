@@ -52,25 +52,23 @@ Use these preferences as defaults:
   `Image from Files`; the big Camera button remains the instant camera action.
   Selecting any page in a Browse-owned picker must open its Chinese tiles
   immediately. Successful capture does the same, before the user chooses a
-  later Pages or Study action.
-- Treat saved pages as one `Pages` workspace. Browse page lists and saved-page
-  title-menu entries in the Pages workspace should open that workspace; Study
-  should not also expose a competing `Pages` section in its local section menu.
-  Inside Pages, `Browse` is an action for inspecting the tiled Chinese page, not a second page
-  destination.
+  later Study action.
+- Treat saved pages as part of `Browse`, not a separate top-level destination.
+  Browse page lists and saved-page title-menu entries should open the selected
+  page's Chinese tiles immediately. Page learning remains available from an
+  explicit `Study` action on the selected page, using the existing saved-page
+  Study implementation internally.
 - The title dropdown is allowed to become the complete navigation map. Its top
-  section should keep the main workspaces visible: `Browse`, `Pages`, `Study`,
-  `AI`, `Data`, and `Settings`. `Pages` may reuse the existing saved-page Study
-  implementation internally, but it should be visible as its own page-centered
-  workspace rather than a hidden Study or Browse mode. Larger-screen sidebars
-  may expose the same compact `Pages` peer when it prevents Study from being
-  highlighted for page work. When the current destination is Browse, Pages, or
-  Study, show that destination's local choices beneath the main destination
-  section instead of replacing the main navigation.
+  section should keep the main workspaces visible: `Browse`, `Study`, `AI`,
+  `Data`, and `Settings`. Do not reintroduce `Pages` as a peer workspace unless
+  a future design decision deliberately reverses the Browse-first page model.
+  Larger-screen sidebars should follow the same top-level vocabulary. When the
+  current destination is Browse or Study, show that destination's local choices
+  beneath the main destination section instead of replacing the main navigation.
 - High-level destinations can also own second-level title-menu sections:
-  Browse owns Dictionary and non-camera page creation; Pages owns saved-page
-  work after a page is created or selected; Study owns study sections including
-  Checkpoints; AI owns AI tasks; and Data owns
+- Browse owns Dictionary, saved-page selection, tiled page inspection, and
+  non-camera page creation; Study owns page learning work and study sections
+  including Checkpoints; AI owns AI tasks; and Data owns
   `Backup Files` and `Advanced Pro`.
 - Prefer compact one-button toggles for binary display choices, such as
   `中 Chinese` / `英 English` and `拼 Pinyin`, instead of wide segmented controls.
@@ -197,7 +195,7 @@ counterweights before declaring a UI done:
 The four primary destinations use this plain-language division of responsibility
 everywhere they are introduced or explained:
 
-- `Browse` — inspect the dictionary and create captured pages.
+- `Browse` — inspect the dictionary and captured pages.
 - `Study` — review what you decided to keep.
 - `AI` — understand or transform material.
 - `My Data` — protect, transfer, or export your work.

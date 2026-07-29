@@ -52,16 +52,19 @@ Extracted sentence page records are stored in `RadixStudyPreferences.aiCleanedPa
 included in the separate sentence transfer surfaces,
 imported from fenced or raw AI JSON through AI Link, and removed with their
 owning saved page.
-Saved pages have one user-facing workspace, `Pages`, backed by the existing
-Study saved-page implementation. Browse page pickers and Browse title-menu page
-entries should open the selected page's tile reader directly; Pages and My Data
-inventory links remain the page-learning workspace. Successful Capture,
-share-extension, and Browse page-creation flows should also open their newly
-created page in Browse immediately. The Study page action that opens the tiled
-reader is labeled `Browse`, not `Source`. The same saved-page action menu can create or replace extracted
-sentence artifacts through Manual AI Link or Gemini API. Browse continues to own
-dictionary/source inspection, with OCR pages labeled as Original OCR or
-Corrected OCR when the user opens a page source.
+Saved pages are user-facing Browse content, not a separate top-level `Pages`
+destination. Browse page pickers and Browse title-menu page entries open the
+selected page's tile reader directly, and the selected Browse page toolbar
+exposes a compact `Study` action for page learning. The existing saved-page
+Study implementation remains the internal page-learning workspace and may be
+opened from explicit Study/page actions, including My Data inventory links.
+Successful Capture, share-extension, and Browse page-creation flows should also
+open their newly created page in Browse immediately. The Study page action that
+opens the tiled reader is labeled `Browse`, not `Source`. The same saved-page
+action menu can create or replace extracted sentence artifacts through Manual
+AI Link or Gemini API. Browse continues to own dictionary/source inspection,
+with OCR pages labeled as Original OCR or Corrected OCR when the user opens a
+page source.
 The extracted-sentences reader uses the shared Study simplified/traditional display choice;
 the switch converts the visible cleaned title, page text, notes, sentence
 rows, and opened sentence card display without changing the stored record.
@@ -816,15 +819,16 @@ remaining audit work, and crash lessons for handing the finishing pass to Claude
   Practice progress are summarized as kept learning memory rather than silently
   deleted. The delete alert should always show both `Will remove with this page`
   and `Will keep as learning memory`, even when either list is currently `none`.
-- Pages owns linked saved-page work in place: page phrase lists, Practice packs,
-  translation, quiz entry point, corrected pages, favorite sentences, and
-  Practice progress. Study no longer exposes Saved Pages as a local section menu
-  item; saved-page selections and page creation/import completions route to
-  Pages. Recent and Favorites remain Study review scopes, while Added Phrases,
-  Conversation Practices, Sentences, and Checkpoints remain Study sections.
-  Browse source-inspection close requests use the `shouldCloseBrowseSource`
-  presentation flag; do not reintroduce Browse Pages state for normal page
-  navigation.
+- Browse owns saved-page selection and tile inspection. Explicit page Study
+  actions open the internal saved-page learning workspace for page phrase
+  lists, Practice packs, translation, quiz entry point, corrected pages,
+  favorite sentences, and Practice progress. Study no longer exposes Saved
+  Pages as a local section menu item, and Pages is not a primary navigation
+  destination. Recent and Favorites remain Study review scopes, while Added
+  Phrases, Conversation Practices, Sentences, and Checkpoints remain Study
+  sections. Browse source-inspection close requests use the
+  `shouldCloseBrowseSource` presentation flag; do not reintroduce Browse Pages
+  state for normal page navigation.
   Favorite Sentences belongs inside Conversation Practices rather than appearing
   as a duplicate shortcut; when favorite sentences exist, opening Conversation
   Practices from Study should default to that `Favorite Sentences` topic.
@@ -1255,12 +1259,12 @@ sections such as Added Phrases, Conversation Practices, Sentences, and iPhone
 Checkpoints. Favorite Sentences is represented within Conversation Practices,
 not as a separate dashboard shortcut. The Conversation Practices shortcut
 defaults to the `Favorite Sentences` topic when favorite sentences exist. Saved
-Pages now open through the unified Pages workspace instead of competing as a
-Study menu section. Added Phrases opens as a full Study workspace rather than a
+pages open through Browse for tile inspection, with explicit page Study actions
+for page learning. Added Phrases opens as a full Study workspace rather than a
 pop-out sheet, with a visible `Back to Study` control and no global Study
 header competing for space. Conversation Practices opens a focused Practice
 screen with a contextual return button. It says `Back to Study` from Study and
-`Back to Pages` when a page shortcut opened the practice. There is no
+`Back to Browse` when a Browse-origin page shortcut opened the practice. There is no
 persistent `Review | Practice` switch row. Recent and Favorites must not be
 repeated as another segmented picker above the review grid.
 Conversation Practice is the next Study learning section. It presents curated
@@ -1427,14 +1431,13 @@ The eligibility, ordering, page name, page-range label, and newline-delimited
 source text are portable `AddedPhraseReviewRules` behavior with compatibility
 tests so Android can share the same rule.
 Content-driven cross-tab navigation uses the existing single-level return
-context. Destinations show a named return button (`Back to Study`, `Back to My
-Data`, and so on); manually choosing a primary tab clears that context. The
-return context carries the focused Study target when needed so a page-origin
-flow can say `Back to Pages` instead of flattening Pages into Study.
-Pages uses one labelled `Actions` menu for editing, OCR review,
+context. Destinations show a named return button (`Back to Browse`, `Back to
+Study`, `Back to My Data`, and so on); manually choosing a primary tab clears
+that context. Browse uses one labelled `Actions` menu for editing, OCR review,
 phrase selection, translation, and AI workflows. The title menu remains the
-separate Dictionary/saved-page navigation; only the character count, script
-toggle, page actions, and Read Aloud remain permanently visible page controls.
+Dictionary/saved-page navigation; only the character count, script toggle, page
+actions, explicit Study shortcut, and Read Aloud remain permanently visible
+page controls.
 Camera/capture owns source actions such as text from the clipboard, image from
 the clipboard, image from Album, and image from Files. Clipboard images use the
 same OCR page creation path as camera, album, and file images.

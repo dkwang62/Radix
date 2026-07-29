@@ -18,8 +18,10 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   Dictionary and saved pages; do not duplicate it with in-content source buttons.
   Selecting a page there opens its Chinese tiles immediately. Camera/capture
   owns album, file, clipboard, and camera intake, then opens the newly created
-  page in Browse immediately. The separate Pages workspace is for learning
-  artifacts; its tile-reader action is labeled `Browse`.
+  page in Browse immediately. There is no top-level Pages destination; the
+  selected Browse page toolbar exposes `Study` for page learning, and the
+  internal saved-page Study workspace keeps its tile-reader action labeled
+  `Browse`.
 - Re-running `Extract Sentences` replaces one page's extracted output. Stale
   sentences lose only that page's AI-extraction source; retain a sentence when
   it is favorited or has another source.
@@ -28,7 +30,7 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   choices remain visible underneath. Do not reintroduce a Camera-only route.
   Phone and sidebar Search/Camera tiles share `GlobalSearchCameraActionRow` and
   the RootView global action helpers.
-- Study owns kept learning material: Saved Pages, Sentences, Added Phrases,
+- Study owns kept learning material: page learning, Sentences, Added Phrases,
   Conversation Practices, translations, quizzes, extracted-sentence artifacts,
   and deletion of saved pages/artifacts.
 - AI Link owns manual and direct Gemini workflows. Saved-page AI tasks should

@@ -132,11 +132,7 @@ extension RootView {
                 browseTitleMenuSection
             }
 
-            if isPagesDestinationActive {
-                pagesTitleMenuSection
-            }
-
-            if isStudyDestinationActive {
+            if isStudyDestinationActive || isPagesDestinationActive {
                 studyTitleMenuSection
             }
 
@@ -185,17 +181,9 @@ extension RootView {
             }
 
             primaryNavigationButton(
-                title: RadixCopy.pages,
-                systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage),
-                isSelected: isPagesDestinationActive
-            ) {
-                store.goToPagesWorkspace()
-            }
-
-            primaryNavigationButton(
                 title: RadixCopy.study,
                 systemImage: RadixIcon.study,
-                isSelected: isStudyDestinationActive
+                isSelected: isStudyDestinationActive || isPagesDestinationActive
             ) {
                 store.activeStudySectionTitle = StudyNavigationTarget.sentences.title
                 store.requestedStudyNavigationTarget = .sentences
@@ -224,21 +212,6 @@ extension RootView {
                 isSelected: store.route == .settings
             ) {
                 store.goToSettings()
-            }
-        }
-    }
-
-    @ViewBuilder
-    var pagesTitleMenuSection: some View {
-        Section(RadixCopy.pages) {
-            ForEach(browseTitleMenuPages) { collection in
-                Button {
-                    store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
-                } label: {
-                    let title = collection.name.isEmpty ? RadixCopy.savedPage : collection.name
-                    let isSelected = store.selectedBrowseCollectionID == collection.id
-                    Label(title, systemImage: isSelected ? "checkmark" : RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
-                }
             }
         }
     }

@@ -473,12 +473,12 @@ extension RadixStore {
             switch rootsReturnContext.homeTab ?? .smart {
             case .smart:      return "Back to Search"
             case .filter:     return "Back to Browse"
-            case .favourites: return rootsReturnContext.studyTarget == .savedPages ? "Back to Pages" : "Back to Study"
+            case .favourites: return "Back to Study"
             case .dataEdit:   return "Back to My Data"
             }
         case .lineage:    return "Back to Components"
         case .aiLink:     return "Back to AI Link"
-        case .favourites: return rootsReturnContext.studyTarget == .savedPages ? "Back to Pages" : "Back to Study"
+        case .favourites: return "Back to Study"
         case .settings:   return "Back to Settings"
         }
     }

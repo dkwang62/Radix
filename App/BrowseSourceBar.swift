@@ -126,6 +126,8 @@ extension FilterGridTab {
                 } : nil
             )
 
+            studyBrowsePageButton(collection)
+
             BrowseImageScriptToggle(mode: $browseImageScriptMode)
 
             readBrowseSourceButton(collection)
@@ -141,6 +143,19 @@ extension FilterGridTab {
         let originalID = collection.correctedFromCollectionID ?? collection.id
         store.selectBrowseCollection(id: originalID)
         store.shouldCloseBrowseSource = true
+    }
+
+    func studyBrowsePageButton(_ collection: CharacterCollection) -> some View {
+        Button {
+            store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
+        } label: {
+            Label("Study", systemImage: RadixIcon.study)
+                .labelStyle(.titleAndIcon)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .accessibilityLabel("Study Page")
+        .help("Study Page")
     }
 
     func readBrowseSourceButton(_ collection: CharacterCollection) -> some View {
