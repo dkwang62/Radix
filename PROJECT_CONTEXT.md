@@ -8,7 +8,7 @@ describes the present state and immediate direction.
 sessions and should stay aligned with this file when the workstream meaningfully
 changes. Earlier handoff files remain historical snapshots.
 
-Last reviewed: 2026-07-28
+Last reviewed: 2026-07-30
 
 Current app version metadata is marketing version `1.0.4`, build `21`.
 Settings > About shows the bundle version and build so future release bumps are
@@ -53,11 +53,12 @@ included in the separate sentence transfer surfaces,
 imported from fenced or raw AI JSON through AI Link, and removed with their
 owning saved page.
 Saved pages have one user-facing workspace, `Pages`, backed by the existing
-Study saved-page implementation. Browse page pickers and saved-page title-menu
-entries should open that workspace instead of creating a second Browse Pages
-destination. Successful Capture, share-extension, and Browse page-creation
-flows should open their newly created page in Browse immediately; Pages and My
-Data inventory links remain the saved-page workspace. The same saved-page action menu can create or replace extracted
+Study saved-page implementation. Browse page pickers and Browse title-menu page
+entries should open the selected page's tile reader directly; Pages and My Data
+inventory links remain the page-learning workspace. Successful Capture,
+share-extension, and Browse page-creation flows should also open their newly
+created page in Browse immediately. The Study page action that opens the tiled
+reader is labeled `Browse`, not `Source`. The same saved-page action menu can create or replace extracted
 sentence artifacts through Manual AI Link or Gemini API. Browse continues to own
 dictionary/source inspection, with OCR pages labeled as Original OCR or
 Corrected OCR when the user opens a page source.
@@ -166,7 +167,7 @@ selection, bulk delete, and sentence transfer so iPad/Mac do not grow separate
 management buttons that crowd page navigation. Do not keep parallel standalone
 Select, Delete Results, or Transfer button helpers for this screen.
 Page-linked sentence actions should open the source in `Pages`; Browse is only
-for explicit source/OCR inspection from a page's `Source` action.
+for explicit source/OCR inspection from a page's `Browse` action.
 Shared language-learning buttons should use meaningful text badges instead of
 generic typography icons: `中 Chinese`, `英 English`, and `拼 Pinyin` are clearer
 than `Aa`/`textformat` symbols for sentence display and pinyin controls.

@@ -16,8 +16,10 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   Corrected OCR, page editing, and page phrase choosing.
 - `Browse - [page]` / `Browse - Dictionary` is the sole Browse selector for
   Dictionary and saved pages; do not duplicate it with in-content source buttons.
-  Camera/capture owns album, file, clipboard, and camera intake, then opens the
-  newly created page in Browse immediately.
+  Selecting a page there opens its Chinese tiles immediately. Camera/capture
+  owns album, file, clipboard, and camera intake, then opens the newly created
+  page in Browse immediately. The separate Pages workspace is for learning
+  artifacts; its tile-reader action is labeled `Browse`.
 - Re-running `Extract Sentences` replaces one page's extracted output. Stale
   sentences lose only that page's AI-extraction source; retain a sentence when
   it is favorited or has another source.

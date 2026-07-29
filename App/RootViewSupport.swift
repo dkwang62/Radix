@@ -290,7 +290,7 @@ extension RootView {
 
         ForEach(browseTitleMenuPages) { collection in
             Button {
-                store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
+                store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
             } label: {
                 let title = collection.name.isEmpty ? RadixCopy.savedPage : collection.name
                 let isSelected = store.selectedBrowseCollectionID == collection.id
