@@ -59,7 +59,8 @@ Use these preferences as defaults:
   explicit `Study` action on the selected page, using the existing saved-page
   Study implementation internally. Browse and page Study must share the same
   page `Actions` vocabulary; avoid separate Browse-only and Study-only buttons
-  for the same page operation.
+  for the same page operation. The Study title menu may expose this learning
+  workspace as `Study Pages`, but `Pages` should not return as a top-level peer.
 - The title dropdown is allowed to become the complete navigation map. Its top
   section should keep the main workspaces visible: `Browse`, `Study`, `AI`,
   `Data`, and `Settings`. Do not reintroduce `Pages` as a peer workspace unless

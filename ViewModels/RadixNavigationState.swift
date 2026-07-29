@@ -22,6 +22,13 @@ enum StudyNavigationTarget: String, CaseIterable, Identifiable, Equatable {
         case .checkpoints: return "Checkpoints"
         }
     }
+
+    var menuTitle: String {
+        switch self {
+        case .savedPages: return "Study Pages"
+        default: return title
+        }
+    }
 }
 
 /// The lightweight, platform-independent state that describes where the user is

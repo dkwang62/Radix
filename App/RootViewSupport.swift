@@ -280,7 +280,7 @@ extension RootView {
                     store.requestedStudyNavigationTarget = target
                 } label: {
                     Label(
-                        target.title,
+                        target.menuTitle,
                         systemImage: target.title == store.activeStudySectionTitle
                             ? "checkmark"
                             : studyTitleMenuSystemImage(for: target)
@@ -291,7 +291,7 @@ extension RootView {
     }
 
     var studyTitleMenuTargets: [StudyNavigationTarget] {
-        StudyNavigationTarget.allCases.filter { $0 != .savedPages }
+        StudyNavigationTarget.allCases
     }
 
     @ViewBuilder

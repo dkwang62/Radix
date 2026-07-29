@@ -61,7 +61,8 @@ editing, OCR/source review, phrase selection, translation, AI tasks, and
 delete; do not reintroduce separate Browse-only or Study-only page action rows.
 The existing saved-page Study implementation remains the internal page-learning
 workspace and may be opened from explicit Study/page actions, including My Data
-inventory links.
+inventory links. The Study title menu exposes this route as `Study Pages`; it
+must not be promoted back into a top-level `Pages` destination.
 Successful Capture, share-extension, and Browse page-creation flows should also
 open their newly created page in Browse immediately. Page AI tasks run from the
 shared saved-page action menu and should not move the user away from Browse just

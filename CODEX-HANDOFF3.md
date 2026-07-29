@@ -21,7 +21,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   page in Browse immediately. There is no top-level Pages destination; the
   selected Browse page toolbar exposes `Study` for page learning, and the
   internal saved-page Study workspace shares the same page `Actions` vocabulary
-  instead of exposing a separate `Browse` button.
+  instead of exposing a separate `Browse` button. The Study title menu exposes
+  this internal route as `Study Pages`.
 - Re-running `Extract Sentences` replaces one page's extracted output. Stale
   sentences lose only that page's AI-extraction source; retain a sentence when
   it is favorited or has another source.
