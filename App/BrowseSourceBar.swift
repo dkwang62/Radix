@@ -93,14 +93,6 @@ extension FilterGridTab {
 
     func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
         return HStack(spacing: 6) {
-            Text("\(collection.characters.count) characters")
-                .font(ResponsiveFont.caption2.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .padding(.horizontal, 8)
-                .frame(minHeight: 32)
-                .radixSurface(RadixTheme.secondaryBackground.opacity(0.55))
-
             if let sourceOCRLabel = browseSourceOCRLayerLabel(for: collection),
                sourceOCRLabel != "Original OCR" {
                 Text(sourceOCRLabel)

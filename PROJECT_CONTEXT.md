@@ -68,7 +68,8 @@ open their newly created page in Browse immediately. Page AI tasks run from the
 shared saved-page action menu and should not move the user away from Browse just
 because an artifact was created. Browse continues to own dictionary/source
 inspection, with OCR pages labeled as Original OCR or Corrected OCR when the
-user opens a page source.
+user opens a page source. The Browse page toolbar should not show a permanent
+character-count pill; the title and tiles already establish the selected page.
 The extracted-sentences reader uses the shared Study simplified/traditional display choice;
 the switch converts the visible cleaned title, page text, notes, sentence
 rows, and opened sentence card display without changing the stored record.
