@@ -44,6 +44,7 @@ struct FilterGridTab: View {
     @State var translationReportCollection: CharacterCollection?
     @State var translationReportDraft = ""
     @State var pagePhraseListCollection: CharacterCollection?
+    @State var pendingBrowseDeleteCollection: CharacterCollection?
     @State var imageActionMessage: String?
     @State var aiFallbackTask: BrowseAIFallbackTask?
     @State var automaticAIError = ""
@@ -216,6 +217,24 @@ struct FilterGridTab: View {
                 BrowsePagePhraseListSheet(collectionID: collection.id)
                     .environmentObject(store)
                     .presentationDetents([.medium, .large])
+            }
+            .alert("Delete Saved Page?", isPresented: Binding(
+                get: { pendingBrowseDeleteCollection != nil },
+                set: { if !$0 { pendingBrowseDeleteCollection = nil } }
+            )) {
+                Button("Delete", role: .destructive) {
+                    if let collection = pendingBrowseDeleteCollection {
+                        store.deleteCollection(id: collection.id)
+                    }
+                    pendingBrowseDeleteCollection = nil
+                }
+                Button("Cancel", role: .cancel) {
+                    pendingBrowseDeleteCollection = nil
+                }
+            } message: {
+                if let collection = pendingBrowseDeleteCollection {
+                    Text(store.deletionImpact(for: collection).alertMessage)
+                }
             }
             .sheet(isPresented: $showBrowseCamera) {
                 CameraCaptureView { image in

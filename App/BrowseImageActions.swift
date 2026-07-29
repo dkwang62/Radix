@@ -1,6 +1,75 @@
 import SwiftUI
 
 extension FilterGridTab {
+    func browsePageAITasks(for collection: CharacterCollection) -> [CollectionPageAITask] {
+        var tasks: [CollectionPageAITask] = []
+
+        if collection.sourceType == .ocr && collection.correctedFromCollectionID == nil {
+            tasks.append(CollectionPageAITask(
+                id: AIResultTaskID.checkOCR,
+                title: "Check OCR",
+                systemImage: "text.viewfinder",
+                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.checkOCR) },
+                automaticAction: { runAutomaticBrowsePageAIAction { runAutomaticOCRReview(collection) } }
+            ))
+        }
+
+        tasks.append(contentsOf: [
+            CollectionPageAITask(
+                id: AIResultTaskID.createAICleanedPage,
+                title: "Extract Sentences",
+                systemImage: "doc.text.magnifyingglass",
+                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.createAICleanedPage) },
+                automaticAction: { runAutomaticBrowsePageAIAction { runBrowseGeminiAICleanedPage(collection) } }
+            ),
+            CollectionPageAITask(
+                id: AIResultTaskID.extractPhrases,
+                title: "Extract Phrases",
+                systemImage: "text.badge.plus",
+                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.extractPhrases) },
+                automaticAction: { runAutomaticBrowsePageAIAction { runBrowseGeminiPhraseExtraction(collection) } }
+            ),
+            CollectionPageAITask(
+                id: AIResultTaskID.translatePage,
+                title: "Translate Page",
+                systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.translation),
+                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.translatePage) },
+                automaticAction: { runAutomaticBrowsePageAIAction { runBrowseGeminiTranslationAndSave(collection) } }
+            ),
+            CollectionPageAITask(
+                id: AIResultTaskID.createQuiz,
+                title: "Create Quiz",
+                systemImage: "questionmark.circle",
+                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.createQuiz) },
+                automaticAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.createQuiz) }
+            ),
+            CollectionPageAITask(
+                id: AIResultTaskID.extractSentences,
+                title: "Sentence Practice",
+                systemImage: "bubble.left.and.bubble.right",
+                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences) },
+                automaticAction: { runAutomaticBrowsePageAIAction { runBrowseGeminiSentenceExtraction(collection) } }
+            ),
+            CollectionPageAITask(
+                id: AIResultTaskID.createPagePractice,
+                title: "Create Conversation",
+                systemImage: "sparkles",
+                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice) },
+                automaticAction: { runAutomaticBrowsePageAIAction { runBrowseGeminiPagePracticeGeneration(collection) } }
+            )
+        ])
+
+        return tasks
+    }
+
+    func runAutomaticBrowsePageAIAction(_ action: () -> Void) {
+        guard !store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            store.goToSettingsForAPIKeySetup()
+            return
+        }
+        action()
+    }
+
     func beginAILinkPageTask(_ collection: CharacterCollection, taskID: String) {
         imageActionMessage = nil
         store.goToAILinkCollectionTask(collection: collection, taskID: taskID)
@@ -28,8 +97,8 @@ extension FilterGridTab {
     private func createCorrectedOCRPage(from response: String, original collection: CharacterCollection) {
         do {
             let corrected = try store.createCorrectedOCRCollection(fromAIResponse: response, original: collection)
-            store.goToPagesWorkspace(id: corrected.id, preservingOrigin: true)
-            imageActionMessage = "Corrected text page created in Pages. The original captured page remains available as Source."
+            store.goToBrowseCollection(id: corrected.id, preservingOrigin: true)
+            imageActionMessage = "Corrected text page created. The original captured page remains available from Actions."
         } catch {
             imageActionMessage = error.localizedDescription
         }
@@ -41,18 +110,12 @@ extension FilterGridTab {
     }
 
     func runBrowseGeminiSentenceExtraction(_ collection: CharacterCollection) {
-        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !key.isEmpty else {
-            imageActionMessage = "Add a Gemini API key in Settings first."
-            return
-        }
         isRunningImageAction = true
         imageActionMessage = "Extracting sentences with Gemini..."
         Task {
             do {
                 let pack = try await store.runGeminiPageSentenceExtraction(for: collection)
                 await MainActor.run {
-                    store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
                     imageActionMessage = "Loaded \(pack.title) · \(pack.entries.count) sentences"
                     isRunningImageAction = false
                 }
@@ -66,18 +129,12 @@ extension FilterGridTab {
     }
 
     func runBrowseGeminiPagePracticeGeneration(_ collection: CharacterCollection) {
-        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !key.isEmpty else {
-            imageActionMessage = "Add a Gemini API key in Settings first."
-            return
-        }
         isRunningImageAction = true
         imageActionMessage = "Creating page-inspired practice with Gemini..."
         Task {
             do {
                 let pack = try await store.runGeminiPagePracticeGeneration(for: collection)
                 await MainActor.run {
-                    store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
                     imageActionMessage = "Loaded \(pack.title) · \(pack.entries.count) sentences"
                     isRunningImageAction = false
                 }
@@ -91,11 +148,6 @@ extension FilterGridTab {
     }
 
     func runBrowseGeminiTranslationAndSave(_ collection: CharacterCollection) {
-        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !key.isEmpty else {
-            imageActionMessage = "Add a Gemini API key in Settings first."
-            return
-        }
         isRunningImageAction = true
         imageActionMessage = "Translating with Gemini..."
         Task {
@@ -133,24 +185,37 @@ extension FilterGridTab {
     }
 
     func runBrowseGeminiPhraseExtraction(_ collection: CharacterCollection) {
-        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !key.isEmpty else {
-            imageActionMessage = "Add a Gemini API key in Settings first."
-            return
-        }
         isRunningImageAction = true
         imageActionMessage = "Extracting phrases with Gemini..."
         Task {
             do {
                 let summary = try await store.runGeminiPhraseExtraction(for: collection)
                 await MainActor.run {
-                    store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
                     imageActionMessage = summary.message(defaultAIName: "Gemini")
                     isRunningImageAction = false
                 }
             } catch {
                 await MainActor.run {
                     offerManualAIFallback(.extractPhrases(collection), error: error)
+                    isRunningImageAction = false
+                }
+            }
+        }
+    }
+
+    func runBrowseGeminiAICleanedPage(_ collection: CharacterCollection) {
+        isRunningImageAction = true
+        imageActionMessage = "Extracting sentences with Gemini..."
+        Task {
+            do {
+                let record = try await store.runGeminiAICleanedPage(for: collection)
+                await MainActor.run {
+                    imageActionMessage = "AI page saved: \(record.cleanedTitle.isEmpty ? collection.name : record.cleanedTitle)."
+                    isRunningImageAction = false
+                }
+            } catch {
+                await MainActor.run {
+                    offerManualAIFallback(.createAICleanedPage(collection), error: error)
                     isRunningImageAction = false
                 }
             }

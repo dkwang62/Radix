@@ -57,7 +57,9 @@ Use these preferences as defaults:
   Browse page lists and saved-page title-menu entries should open the selected
   page's Chinese tiles immediately. Page learning remains available from an
   explicit `Study` action on the selected page, using the existing saved-page
-  Study implementation internally.
+  Study implementation internally. Browse and page Study must share the same
+  page `Actions` vocabulary; avoid separate Browse-only and Study-only buttons
+  for the same page operation.
 - The title dropdown is allowed to become the complete navigation map. Its top
   section should keep the main workspaces visible: `Browse`, `Study`, `AI`,
   `Data`, and `Settings`. Do not reintroduce `Pages` as a peer workspace unless
@@ -66,7 +68,7 @@ Use these preferences as defaults:
   current destination is Browse or Study, show that destination's local choices
   beneath the main destination section instead of replacing the main navigation.
 - High-level destinations can also own second-level title-menu sections:
-- Browse owns Dictionary, saved-page selection, tiled page inspection, and
+  Browse owns Dictionary, saved-page selection, tiled page inspection, and
   non-camera page creation; Study owns page learning work and study sections
   including Checkpoints; AI owns AI tasks; and Data owns
   `Backup Files` and `Advanced Pro`.

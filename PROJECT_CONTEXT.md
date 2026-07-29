@@ -55,16 +55,19 @@ owning saved page.
 Saved pages are user-facing Browse content, not a separate top-level `Pages`
 destination. Browse page pickers and Browse title-menu page entries open the
 selected page's tile reader directly, and the selected Browse page toolbar
-exposes a compact `Study` action for page learning. The existing saved-page
-Study implementation remains the internal page-learning workspace and may be
-opened from explicit Study/page actions, including My Data inventory links.
+exposes a compact `Study` action for page learning. Browse and the internal
+saved-page Study workspace share the same `Actions` menu vocabulary for page
+editing, OCR/source review, phrase selection, translation, AI tasks, and
+delete; do not reintroduce separate Browse-only or Study-only page action rows.
+The existing saved-page Study implementation remains the internal page-learning
+workspace and may be opened from explicit Study/page actions, including My Data
+inventory links.
 Successful Capture, share-extension, and Browse page-creation flows should also
-open their newly created page in Browse immediately. The Study page action that
-opens the tiled reader is labeled `Browse`, not `Source`. The same saved-page
-action menu can create or replace extracted sentence artifacts through Manual
-AI Link or Gemini API. Browse continues to own dictionary/source inspection,
-with OCR pages labeled as Original OCR or Corrected OCR when the user opens a
-page source.
+open their newly created page in Browse immediately. Page AI tasks run from the
+shared saved-page action menu and should not move the user away from Browse just
+because an artifact was created. Browse continues to own dictionary/source
+inspection, with OCR pages labeled as Original OCR or Corrected OCR when the
+user opens a page source.
 The extracted-sentences reader uses the shared Study simplified/traditional display choice;
 the switch converts the visible cleaned title, page text, notes, sentence
 rows, and opened sentence card display without changing the stored record.
@@ -884,7 +887,7 @@ compatibility contracts. Current portable contracts include:
   page-derived practice packs
 - search query parsing, pinyin/chinese text classification, phrase result
   sorting, phrase-length rules, added-phrase review rules, Study review rules,
-  Browse page phrase matching, and component search indexing
+Browse page phrase matching, shared page actions, and component search indexing
 
 The portable test suite currently contains 67 tests across eight suites.
 If a function can be tested without SwiftUI, UIKit, AppKit, file pickers,

@@ -471,13 +471,10 @@ extension FavouritesTab {
             HStack(alignment: .center, spacing: 8) {
                 studySavedPageActionsMenu(collection)
                     .frame(maxWidth: .infinity, minHeight: 38)
-                studySavedPageBrowseButton(collection)
-                    .frame(maxWidth: .infinity, minHeight: 38)
             }
         } else {
             HStack(alignment: .center, spacing: 8) {
                 studySavedPageActionsMenu(collection)
-                studySavedPageBrowseButton(collection)
             }
         }
     }
@@ -499,19 +496,6 @@ extension FavouritesTab {
             aiTasks: studyPageAITasks(for: collection)
         )
         .disabled(isRunningStudyPageAction)
-    }
-
-    private func studySavedPageBrowseButton(_ collection: CharacterCollection) -> some View {
-        Button {
-            openSavedPageInBrowse(collection)
-        } label: {
-            Label("Browse", systemImage: "doc.viewfinder")
-                .font(ResponsiveFont.caption.weight(.semibold))
-        }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-        .accessibilityLabel("Browse \(collection.name)")
-        .help("Open this page in Browse")
     }
 
     private func openOriginalOCRPageFromStudy(_ collection: CharacterCollection) {

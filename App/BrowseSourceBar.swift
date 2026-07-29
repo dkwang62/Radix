@@ -110,7 +110,7 @@ extension FilterGridTab {
                     .padding(.horizontal, 8)
                     .frame(minHeight: 32)
                     .radixSurface(RadixAccent.primary.opacity(0.08))
-                    .help("Browse shows the original captured page. Extracted sentences appear in Pages.")
+                    .help("Browse shows captured page tiles. Study opens page learning.")
             }
 
             CollectionPageActionsMenu(
@@ -118,12 +118,21 @@ extension FilterGridTab {
                 onEdit: {
                     beginEditing(collection)
                 },
+                hasGeminiAPIKey: !store.geminiAPIKey
+                    .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                 onChoosePhrases: {
                     pagePhraseListCollection = collection
                 },
                 onViewOriginalOCR: collection.sourceType == .ocr ? {
                     openOriginalOCRPage(for: collection)
-                } : nil
+                } : nil,
+                onViewTranslation: {
+                    beginTranslationReport(collection)
+                },
+                onDelete: {
+                    pendingBrowseDeleteCollection = collection
+                },
+                aiTasks: browsePageAITasks(for: collection)
             )
 
             studyBrowsePageButton(collection)
