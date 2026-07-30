@@ -189,6 +189,9 @@ code in `FavouritesSentenceControls.swift`, query/paging data flow in
 `FavouritesSentenceDeletion.swift`, and sentence editing in
 `FavouritesSentenceEdit.swift` rather than growing `FavouritesSections.swift` or
 `FavouritesTab.swift`.
+Keep Study sheets, file importers/exporters, and confirmation alerts in
+`FavouritesPresentations.swift` so `FavouritesTab.swift` can focus on state,
+main content, lifecycle, and navigation handling.
 Page-linked sentence actions should open the source in `Pages`; Browse is only
 for explicit source/OCR inspection from a page's `Browse` action.
 Shared language-learning buttons should use meaningful text badges instead of
