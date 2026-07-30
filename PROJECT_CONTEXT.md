@@ -110,6 +110,10 @@ no translation, notes, pinyin, or explanation. Its `Paste AI Answer` workflow
 updates the selected saved sentence record in the sentence database, preserving
 sources, favorites, English meaning, and notes while clearing stale pinyin and
 refreshing character/phrase hints from the improved sentence.
+Prompt model data and prompt rendering are split deliberately:
+`PromptModels.swift` owns prompt subjects, task defaults, IDs, configuration,
+and render context, while `PromptConfigRendering.swift` owns normalization,
+legacy task repair, and placeholder substitution.
 Custom AI Link tasks carry an explicit subject type. Character/Phrase tasks use
 the recent subject chooser, Page tasks use the saved-page chooser, and Sentence
 tasks use a searchable saved-sentence chooser that queries only a small visible

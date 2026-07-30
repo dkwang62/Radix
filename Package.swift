@@ -24,6 +24,7 @@ let package = Package(
                 "ConversationPracticeModels.swift",
                 "PhraseModels.swift",
                 "PinyinSearchNormalizer.swift",
+                "PromptConfigRendering.swift",
                 "PromptModels.swift",
                 "RadixDataCompatibilityModels.swift",
                 "RadixNavigationModels.swift",

@@ -38,6 +38,9 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   reuse the shared AI task flow.
 - AI Link's built-in `Sentence Improvement` task can paste/apply an AI answer
   back into the selected saved sentence record.
+- Prompt model data stays in `PromptModels.swift`; prompt normalization,
+  legacy task repair, and placeholder rendering live in
+  `PromptConfigRendering.swift`.
 - Sentence examples are SQLite-backed through `RadixStudyPreferences`. Normal
   backup/restore excludes the heavy sentence database; Study > Sentences owns
   fast sentence transfer.
