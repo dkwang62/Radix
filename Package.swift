@@ -26,6 +26,7 @@ let package = Package(
                 "ConversationPracticeQuizRules.swift",
                 "FavoriteSentenceModels.swift",
                 "RadixCaptureModels.swift",
+                "SentenceExampleModels.swift",
                 "PhraseModels.swift",
                 "PinyinSearchNormalizer.swift",
                 "PromptConfigRendering.swift",

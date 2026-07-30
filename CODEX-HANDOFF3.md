@@ -80,6 +80,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   keep favorite sentence identity and dedupe behavior there.
 - Radix capture JSON payload and parser types live in `RadixCaptureModels.swift`;
   keep AI/import-boundary tolerance there.
+- Shared sentence-example storage models live in `SentenceExampleModels.swift`;
+  keep sentence identity, ranking, source links, and conversion helpers there.
 - Sentence-based Study surfaces share a default 10-row page size. Study
   Sentences uses one compact source menu for All/Favorites/From Pages/From
   Practice instead of a row of source buttons. Its tools menu keeps destructive
