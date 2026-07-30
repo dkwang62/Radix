@@ -160,6 +160,47 @@ struct PromptConfigTests {
         #expect(!template.contains("ORIGINAL OCR:"))
     }
 
+    @Test("Extract phrases template rejects noisy groupings and labels names")
+    func extractPhrasesTemplateRequiresDictionaryQualityBoundaries() {
+        let task = PromptConfig.streamlitDefault.tasks.first { $0.id == "task4" }
+        let template = task?.template ?? ""
+
+        #expect(template.contains("Boundary Quality"))
+        #expect(template.contains("never output \"进青瓦屋\""))
+        #expect(template.contains("Proper Names"))
+        #expect(template.contains("Dictionary-quality Meanings"))
+        #expect(template.contains("Fewer high-quality phrases are better than many noisy groupings."))
+    }
+
+    @Test("Legacy extract phrases templates normalize to stricter quality rules")
+    func legacyExtractPhrasesTemplateNormalizesToQualityRules() {
+        let legacy = PromptTask(
+            id: "task4",
+            title: "Extract Phrases",
+            template: """
+            Extract Phrases
+
+            [CRITICAL RULES]
+            Phrase | Pinyin | Concise English meaning
+            """,
+            subjectType: .page
+        )
+        let config = PromptConfig(
+            version: 1,
+            preamble: "",
+            tasks: [legacy],
+            epilogue: "",
+            collectionPreamble: "",
+            collectionEpilogue: ""
+        )
+
+        let template = config.normalized().tasks.first { $0.id == "task4" }?.template ?? ""
+
+        #expect(template.contains("Boundary Quality"))
+        #expect(template.contains("Dictionary-quality Meanings"))
+        #expect(template.contains("never output \"进青瓦屋\""))
+    }
+
     @Test("Conversation practice generator task is built in but not a default character task")
     func practiceGeneratorTaskAvailability() {
         let normalized = PromptConfig.streamlitDefault.normalized()

@@ -219,15 +219,17 @@ Never claim certainty when the image is unclear. Do not explain the corrections 
                 template: """
 Extract Phrases
 
-Extract useful 2-character, 3-character, and 4-character Chinese phrases found within the characters provided that serve as standard dictionary headwords.
+Extract useful 2-character, 3-character, and 4-character Chinese phrases found within the provided page text that serve as clean dictionary headwords.
 
 [CRITICAL RULES]
 1. Reading Order: Scan and extract candidates in natural reading order sequence from the character pool.
 2. Dictionary Attestation: Only include a phrase if it is an established entry in a reputable dictionary (e.g., CC-CEDICT, Pleco, MDBG, Wiktionary, or standard contemporary Chinese dictionaries).
-3. No Arbitrary N-grams: Do NOT combine adjacent characters into a phrase unless they genuinely form a standalone dictionary word. Avoid partial grammar patterns, sentence fragments, or accidental OCR groupings.
-4. No Exclusions: Do not include proper nouns, individual person names, specific dates, or titles unless they double as standard cultural vocabulary items.
-5. Absolute Fidelity: Do not invent words or use characters not explicitly present in the provided text.
-6. Output Format: You must output the results strictly in the following plain text format, one per line:
+3. No Arbitrary N-grams: Do NOT combine adjacent characters into a phrase unless they genuinely form a standalone dictionary word or proper name. Avoid partial grammar patterns, sentence fragments, accidental OCR groupings, and spans that include an unrelated leading/trailing character.
+4. Boundary Quality: Prefer the shortest complete dictionary headword or name. If a candidate contains an extra verb, preposition, particle, classifier, punctuation fragment, or OCR-adjacent character, trim it or skip it. For example, from "进青瓦屋" extract "青瓦屋" only if it is a meaningful place/object name; never output "进青瓦屋".
+5. Proper Names: Include person names, place names, organization names, works, brands, and culturally important titles only when the text clearly uses them as names. The English meaning must identify the name type, e.g. "Qingwa House, a place/building name", "Li Bai, a Tang dynasty poet", or "Shanghai, a city in China".
+6. Dictionary-quality Meanings: Write concise dictionary-style meanings, not vague summaries. Prefer "electric vehicle industry" over "about electric vehicles"; prefer "a place name" or "a person's name" when the phrase is a proper noun.
+7. Absolute Fidelity: Do not invent words or use characters not explicitly present in the provided text.
+8. Output Format: You must output the results strictly in the following plain text format, one per line:
 Phrase | Pinyin | Concise English meaning
 
 [OUTPUT CONSTRAINT]
@@ -235,6 +237,8 @@ Do not include markdown tables, markdown column formatting, numbered lists, bull
 
 Before answering, silently verify that every non-empty line has exactly this structure:
 Chinese phrase | pinyin | meaning
+
+Silently discard any candidate whose boundaries or meaning are uncertain. Fewer high-quality phrases are better than many noisy groupings.
 
 """,
                 subjectType: .page
@@ -846,6 +850,7 @@ extension PromptConfig {
                 task.template.contains("Task 4 – Extract Phrases from Image") ||
                 task.template.contains("Task 4 – Extract Phrases from Page (image)") ||
                 (task.id == "task4" && !task.template.contains("[CRITICAL RULES]")) ||
+                (task.id == "task4" && !task.template.contains("Dictionary-quality Meanings")) ||
                 task.template.contains("Task 5 – Universal Content Architect") ||
                 (task.id == "task5" && !task.template.contains("Bilingual Chinese Dictionary Editor")) ||
                 (task.id == "task7" && (

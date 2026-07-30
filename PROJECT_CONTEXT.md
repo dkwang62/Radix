@@ -1195,6 +1195,12 @@ Conversation Practice theme.
 AI Link exposes one task per user goal. The former API-only phrase task is
 removed; `Extract Phrases` supports both copy/paste and automatic Gemini
 execution without appearing twice.
+`Extract Phrases` should optimize for dictionary-quality results over count:
+reject noisy adjacent-character groupings, trim unrelated leading/trailing
+characters such as the leading `进` in `进青瓦屋`, and label proper names as
+person/place/organization/work names in the English meaning instead of giving
+vague glosses. Older saved phrase-extraction templates normalize to this stricter
+boundary/meaning wording.
 AI Link is the complete manual AI round trip: after opening/copying a prompt,
 task-specific result paste/apply controls live in AI Link for OCR correction,
 phrase extraction, translation reports, and Conversation Practice imports. The
