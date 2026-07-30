@@ -85,7 +85,10 @@ process the entire source/OCR text into cleaned prose and sentence records in
 reading order, not choose a representative subset of study sentences. It should
 expand abbreviations, telegraphic headline style, and compressed journalistic
 compound wording into ordinary Chinese phrases or clauses suitable for sentence
-study while preserving the source meaning.
+study while preserving the source meaning. It should also filter pure OCR noise,
+duplicated lines, unrepairable nonsense, and isolated fragments that cannot
+become coherent sentences without inventing facts; the output sentence array
+should contain distinct, fully formed, grammatically correct sentences.
 The importer remains tolerant at the boundary: exact Radix JSON is preferred,
 but common AI variants such as camelCase keys, nested page/result/data objects,
 cleaned-page wrapper keys, `zh`/`en` sentence fields, string phrase lists,
@@ -100,6 +103,10 @@ The sentence-card AI context action uses the built-in `Sentence` AI template,
 copies that prompt, and opens the selected/default AI provider directly; it
 should not stop at the AI Link workspace or fall back to a character, phrase,
 page, or generic starter template.
+AI Link also includes a built-in sentence-subject `Sentence Improvement` task.
+It takes an existing sentence or messy input string, keeps the original language
+and core intent, and returns only one cleaned, complete, coherent sentence with
+no translation, notes, pinyin, or explanation.
 Custom AI Link tasks carry an explicit subject type. Character/Phrase tasks use
 the recent subject chooser, Page tasks use the saved-page chooser, and Sentence
 tasks use a searchable saved-sentence chooser that queries only a small visible

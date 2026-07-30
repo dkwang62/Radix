@@ -502,7 +502,7 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
                 template: """
 Extract Sentences
 
-Convert the full content of one Radix saved page into clean, studyable sentences.
+Extract the meaningful content of one Radix saved page into a clean list of distinct, studyable sentences.
 
 Page: {collection_name}
 Saved page characters in reading order:
@@ -511,9 +511,9 @@ Saved page characters in reading order:
 Original OCR/source context:
 {capture_text}
 
-Your job is to turn the crude saved-page/OCR material into complete, studyable Chinese prose and sentence records for Radix Study.
+Your job is to scrape/extract the usable saved-page/OCR material, filter out noise and nonsensical fragments, and return complete, grammatically correct Chinese prose plus sentence records for Radix Study.
 
-Completeness requirement: process the entire source page. Do not summarize, sample, choose representative sentences, or omit source content merely because it feels repetitive, difficult, long, or less interesting. The "sentences" array must cover the full cleaned_chinese_text in reading order. If one source line contains multiple ideas, split it into multiple complete sentences. If a source fragment is too short or telegraphic, expand it only enough to preserve that fragment's meaning as a natural learning sentence.
+Completeness requirement: process the entire meaningful source page. Do not summarize, sample, choose representative sentences, or omit usable source content merely because it feels difficult, long, or less interesting. Filter out pure OCR noise, broken character runs, duplicated lines, isolated labels with no study value, nonsensical fragments that cannot be repaired, and repeated content. The "sentences" array must cover the full cleaned_chinese_text in reading order. If one source line contains multiple ideas, split it into multiple complete sentences. If a source fragment is too short or telegraphic, expand it only enough to preserve that fragment's meaning as a natural learning sentence. If a fragment cannot be made coherent without inventing facts, skip it and mention the omission in repair_notes.
 
 Use the source faithfully, but repair obvious OCR/capture errors when context makes the repair likely. Expand telegraphic media shorthand, abbreviations, compressed journalistic compounds, headline compression, captions, list fragments, or social-media shorthand into natural complete Chinese sentences. Replace concise headline-style compounds with normal phrases or clauses a learner could say, while preserving the original meaning. Do not invent unrelated facts, people, dates, claims, or events. If a detail is uncertain, keep it modest and note the uncertainty in repair_notes.
 
@@ -538,18 +538,19 @@ The JSON must match this exact top-level shape:
 
 Rules:
 1. Use Simplified Chinese in cleaned_chinese_text and sentences unless the source is clearly Traditional-only.
-2. cleaned_chinese_text must be the joined, readable cleaned page prose, not a list of isolated characters.
-3. The sentences array must represent the entire cleaned page, not a sample. Every meaningful source clause, caption, subtitle, headline fragment, menu item, or list item should appear in cleaned_chinese_text and be represented by one or more sentence records.
+2. cleaned_chinese_text must be the joined, readable cleaned page prose, not a list of isolated characters or unrepaired OCR fragments.
+3. The sentences array must be a list of distinct, fully formed, grammatically correct sentences that represents the entire cleaned page, not a sample. Every meaningful source clause, caption, subtitle, headline fragment, menu item, or list item should appear in cleaned_chinese_text and be represented by one or more sentence records.
 4. IDs must be stable and lowercase, using ai_page_sentence plus a zero-padded sequence number, for example "ai_page_sentence_001".
 5. Add accurate tone-mark pinyin for the full sentence in each sentence item's "pinyin" value.
 6. phrase_hints should contain useful 2- to 6-character Chinese chunks that help explain the sentence. Do not include pinyin or English in phrase_hints.
 7. If the original source is only a headline, caption, menu, subtitle, or short fragment, expand only enough to make natural learning sentences while preserving the source's meaning.
 8. Expand abbreviated or journalistic compound wording into ordinary Chinese phrasing; do not keep telegraphic headline style when it would be unnatural for sentence study.
 9. repair_notes should be in English and should mention only meaningful OCR repairs, inferred expansions, or uncertainty. Use an empty array if there are none.
-10. Do not drop difficult, repetitive, or low-interest content unless it is pure OCR noise; mention any omitted OCR noise in repair_notes.
-11. Do not include markdown, comments, extra keys, or analysis outside the JSON.
+10. Do not keep duplicated sentences, nonsense, partial character strings, or unrepairable fragments just to preserve volume. Mention meaningful omissions in repair_notes.
+11. Do not drop difficult or low-interest content if it can be repaired into a coherent sentence without invention.
+12. Do not include markdown, comments, extra keys, or analysis outside the JSON.
 
-Before returning, silently validate that the JSON is valid, every sentence contains exactly these keys: "id", "chinese", "pinyin", "english", and "phrase_hints", and the sentence list covers the entire cleaned_chinese_text rather than a representative subset.
+Before returning, silently validate that the JSON is valid, every sentence contains exactly these keys: "id", "chinese", "pinyin", "english", and "phrase_hints", every sentence is distinct and fully formed, and the sentence list covers the entire cleaned_chinese_text rather than a representative subset.
 
 """,
                 subjectType: .page
@@ -578,6 +579,42 @@ Characters:
 {sentence_characters}
 
 Explain the whole sentence naturally for a Chinese learner. Focus on meaning, grammar, word choice, useful phrases, and what sounds natural in real Mandarin. Do not analyze it as isolated characters unless that helps explain the sentence.
+
+""",
+                subjectType: .sentence
+            ),
+            PromptTask(
+                id: "task14",
+                title: "Sentence Improvement",
+                template: """
+Sentence Improvement
+
+Improve this Radix sentence or messy input string without translating it into another language.
+
+Input sentence:
+{sentence_zh}
+
+Pinyin if available:
+{sentence_pinyin}
+
+Current English meaning if available:
+{sentence_en}
+
+Useful phrases if available:
+{sentence_phrases}
+
+Task:
+Rewrite the input into one clean, complete, coherent sentence in the same language as the original input. Preserve the original core intent, topic, people, places, time, tone, and factual claims as much as possible.
+
+Rules:
+1. Maintain the original language. If the input is Chinese, output Chinese. If the input is English, output English. Do not translate.
+2. Repair awkward wording, broken grammar, OCR/copy-paste damage, telegraphic phrasing, missing connectors, and nonsensical wording when the intended meaning is reasonably clear.
+3. If the input contains several unrelated ideas, choose the main intended idea and rewrite it as one complete sentence.
+4. Do not invent new facts, names, dates, opinions, locations, or claims.
+5. If part of the input is unrecoverable noise, omit only that noise while preserving the coherent intent.
+6. Return only the improved sentence. Do not include pinyin, English translation, markdown, notes, explanations, labels, alternatives, or quotes around the answer.
+
+Before answering, silently verify that the result is grammatical, complete, coherent, and in the same language as the input.
 
 """,
                 subjectType: .sentence
@@ -658,12 +695,13 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
     static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7", "task8", "task10", "task11", "task12"]
     static let practiceTopicTaskIDs: Set<String> = ["task9"]
     static let defaultSentenceTaskID = "task13"
+    static let sentenceImprovementTaskID = "task14"
     static let conversationEntryCountTaskIDs: Set<String> = ["task9", "task10", "task11"]
     static let conversationEntryCountOptions = [25, 50, 100]
     static let defaultConversationEntryCount = 25
 
     static func defaultSubjectType(forTaskID taskID: String) -> PromptTaskSubjectType {
-        if taskID == defaultSentenceTaskID { return .sentence }
+        if taskID == defaultSentenceTaskID || taskID == sentenceImprovementTaskID { return .sentence }
         if collectionTaskIDs.contains(taskID) { return .page }
         if practiceTopicTaskIDs.contains(taskID) { return .practiceTopic }
         return .characterPhrase
@@ -863,7 +901,8 @@ extension PromptConfig {
                 (task.id == "task10" && !task.template.contains("{sentence_extraction_detail}")) ||
                 (task.id == "task12" && (
                     !task.template.contains("cleaned_chinese_text") ||
-                    !task.template.contains("\"pinyin\"")
+                    !task.template.contains("\"pinyin\"") ||
+                    !task.template.contains("distinct, fully formed, grammatically correct sentences")
                 )) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {

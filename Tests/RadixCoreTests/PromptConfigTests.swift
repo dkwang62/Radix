@@ -110,9 +110,26 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains(PromptConfig.defaultSentenceTaskID))
     }
 
+    @Test("Sentence improvement template is a sentence task")
+    func sentenceImprovementTemplateAvailability() {
+        let normalized = PromptConfig.streamlitDefault.normalized()
+        let task = normalized.tasks.first { $0.id == PromptConfig.sentenceImprovementTaskID }
+
+        #expect(task?.title == "Sentence Improvement")
+        #expect(task?.subjectType == .sentence)
+        #expect(task?.template.contains("messy input string") == true)
+        #expect(task?.template.contains("Maintain the original language") == true)
+        #expect(task?.template.contains("Do not translate") == true)
+        #expect(task?.template.contains("Return only the improved sentence") == true)
+        #expect(!PromptConfig.defaultSelectedTaskIDs.contains(PromptConfig.sentenceImprovementTaskID))
+    }
+
     @Test("Legacy prompt configs receive the built-in sentence template")
     func legacyPromptConfigAddsSentenceTemplate() {
-        let legacyTasks = PromptConfig.streamlitDefault.tasks.filter { $0.id != PromptConfig.defaultSentenceTaskID }
+        let legacyTasks = PromptConfig.streamlitDefault.tasks.filter {
+            $0.id != PromptConfig.defaultSentenceTaskID &&
+                $0.id != PromptConfig.sentenceImprovementTaskID
+        }
         let legacyConfig = PromptConfig(
             version: 1,
             preamble: "",
@@ -127,6 +144,10 @@ struct PromptConfigTests {
 
         #expect(sentenceTask?.title == "Sentence")
         #expect(sentenceTask?.subjectType == .sentence)
+
+        let improvementTask = normalized.tasks.first { $0.id == PromptConfig.sentenceImprovementTaskID }
+        #expect(improvementTask?.title == "Sentence Improvement")
+        #expect(improvementTask?.subjectType == .sentence)
     }
 
     @Test("Legacy Check OCR templates normalize to page-character review")
@@ -278,9 +299,13 @@ struct PromptConfigTests {
         #expect(generator?.template.contains("Replace concise headline-style compounds with normal phrases or clauses") == true)
         #expect(generator?.template.contains("do not keep telegraphic headline style") == true)
         #expect(generator?.template.contains("Do not invent unrelated facts") == true)
-        #expect(generator?.template.contains("process the entire source page") == true)
+        #expect(generator?.template.contains("process the entire meaningful source page") == true)
         #expect(generator?.template.contains("Do not summarize, sample, choose representative sentences") == true)
-        #expect(generator?.template.contains("sentences array must represent the entire cleaned page") == true)
+        #expect(generator?.template.contains("filter out noise and nonsensical fragments") == true)
+        #expect(generator?.template.contains("distinct, fully formed, grammatically correct sentences") == true)
+        #expect(generator?.template.contains("unrepairable fragments") == true)
+        #expect(generator?.template.contains("sentences array must be a list") == true)
+        #expect(generator?.template.contains("every sentence is distinct and fully formed") == true)
         #expect(generator?.template.contains("covers the entire cleaned_chinese_text rather than a representative subset") == true)
         #expect(generator?.template.contains("Return JSON only") == true)
         #expect(PromptConfig.collectionTaskIDs.contains("task12"))
@@ -416,6 +441,36 @@ struct PromptConfigTests {
         #expect(normalized.tasks.filter { $0.id == "task11" }.count == 1)
         #expect(normalized.tasks.contains { $0.id == "task12" })
         #expect(normalized.tasks.filter { $0.id == "task12" }.count == 1)
+    }
+
+    @Test("Legacy extract sentence templates normalize to noise-filtering rules")
+    func legacyExtractSentencesTemplateNormalizesToNoiseFilteringRules() {
+        let legacy = PromptTask(
+            id: "task12",
+            title: "Extract Sentences",
+            template: """
+            Extract Sentences
+
+            Return JSON only.
+            cleaned_chinese_text
+            "pinyin"
+            """,
+            subjectType: .page
+        )
+        let config = PromptConfig(
+            version: 1,
+            preamble: "",
+            tasks: [legacy],
+            epilogue: "",
+            collectionPreamble: "",
+            collectionEpilogue: ""
+        )
+
+        let template = config.normalized().tasks.first { $0.id == "task12" }?.template ?? ""
+
+        #expect(template.contains("filter out noise and nonsensical fragments"))
+        #expect(template.contains("distinct, fully formed, grammatically correct sentences"))
+        #expect(template.contains("every sentence is distinct and fully formed"))
     }
 
     @Test("Legacy conversation generators normalize to shared quantity placeholder")
