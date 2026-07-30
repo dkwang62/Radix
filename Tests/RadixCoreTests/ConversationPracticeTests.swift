@@ -244,6 +244,49 @@ struct ConversationPracticeTests {
         #expect(staleSentence.sources.isEmpty)
     }
 
+    @Test("Sentence improvement replaces AI-cleaned page sentence text")
+    func sentenceImprovementReplacesAICleanedPageSentenceText() throws {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000619")!
+        var page = AICleanedPageRecord(
+            sourcePageID: pageID,
+            sourceTitle: "Original OCR",
+            cleanedTitle: "Cleaned Page",
+            cleanedChineseText: "旧句子不够自然。第二句保持不变。",
+            sentences: [
+                AICleanedPageSentence(
+                    id: "sentence-1",
+                    chinese: "旧句子不够自然。",
+                    pinyin: "Jiù jùzi bùgòu zìrán.",
+                    english: "The old sentence is not natural enough.",
+                    phraseHints: ["旧句子"]
+                ),
+                AICleanedPageSentence(
+                    id: "sentence-2",
+                    chinese: "第二句保持不变。"
+                )
+            ],
+            createdAt: Date(timeIntervalSince1970: 619)
+        )
+        let previous = try #require(SentenceExampleRecord.fromAICleanedPage(page).first {
+            $0.normalizedChineseKey == SentenceExampleRecord.normalizedChineseKey("旧句子不够自然。")
+        })
+        var updated = previous
+        updated.chinese = "这个句子现在更自然。"
+        updated.pinyin = nil
+        updated.targetCharacters = SentenceExampleRecord.detectChineseCharacters(in: updated.chinese)
+        updated.detectedCharacters = updated.targetCharacters
+        updated.targetPhrases = []
+        updated.detectedPhrases = []
+
+        let didReplace = page.replaceSentence(previous: previous, updated: updated)
+
+        #expect(didReplace)
+        #expect(page.sentences.first?.chinese == "这个句子现在更自然。")
+        #expect(page.sentences.first?.pinyin == nil)
+        #expect(page.cleanedChineseText.contains("这个句子现在更自然。"))
+        #expect(!page.cleanedChineseText.contains("旧句子不够自然。"))
+    }
+
     @Test("Conversation practice items map into canonical sentence examples")
     func practiceItemsMapToSentenceExamples() throws {
         let pack = try loadConversationPackFixture()

@@ -110,7 +110,10 @@ and core intent, and returns only one cleaned, complete, coherent sentence with
 no translation, notes, pinyin, or explanation. Its `Paste AI Answer` workflow
 updates the selected saved sentence record in the sentence database, preserving
 sources, favorites, English meaning, and notes while clearing stale pinyin and
-refreshing character/phrase hints from the improved sentence.
+refreshing character/phrase hints from the improved sentence. When the saved
+sentence came from an extracted-page artifact, the same edit must also replace
+that sentence inside the owning `AICleanedPageRecord`; otherwise page sentence
+readers will keep showing the old page-owned text.
 Prompt model data and prompt rendering are split deliberately:
 `PromptModels.swift` owns prompt subjects, task defaults, IDs, configuration,
 and render context, while `PromptConfigRendering.swift` owns normalization,

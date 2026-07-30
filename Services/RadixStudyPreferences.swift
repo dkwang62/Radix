@@ -413,16 +413,44 @@ enum RadixStudyPreferences {
             return
         }
 
-        recordSentenceExamples([updated])
-
         if previous.normalizedChineseKey != updated.normalizedChineseKey {
+            sentenceExampleRepository.delete(normalizedKey: previous.normalizedChineseKey)
             removeCompatibilityFavoriteRecord(matchingChinese: previous.chinese)
         }
+
+        replaceAICleanedPageSentence(previous: previous, updated: updated)
+        sentenceExampleRepository.replace([updated])
 
         if updated.isFavorited {
             setCompatibilityFavoriteRecord(FavoriteSentenceRecord(sentenceExample: updated), isFavorited: true)
         } else {
             removeCompatibilityFavoriteRecord(matchingChinese: updated.chinese)
+        }
+    }
+
+    private static func replaceAICleanedPageSentence(
+        previous: SentenceExampleRecord,
+        updated: SentenceExampleRecord
+    ) {
+        let pageIDs = previous.sources.compactMap { source -> UUID? in
+            guard source.sourceType == .aiCleanedPage else { return nil }
+            return source.sourcePageID
+        }
+        guard !pageIDs.isEmpty else { return }
+
+        var records = aiCleanedPages
+        var didChange = false
+
+        for index in records.indices where pageIDs.contains(records[index].sourcePageID) {
+            var record = records[index]
+            if record.replaceSentence(previous: previous, updated: updated) {
+                records[index] = record
+                didChange = true
+            }
+        }
+
+        if didChange {
+            aiCleanedPages = records
         }
     }
 
@@ -1048,11 +1076,18 @@ private final class SentenceExampleRepository: @unchecked Sendable {
 
         let records = RadixStudyPreferences.canonicalizedSentenceExamples(records)
         if let fallbackRecords {
-            var updatedByKey = Dictionary(uniqueKeysWithValues: fallbackRecords.map { ($0.normalizedChineseKey, $0) })
+            var updatedByID = Dictionary(uniqueKeysWithValues: fallbackRecords.map { ($0.id, $0) })
             for record in records {
-                updatedByKey[record.normalizedChineseKey] = record
+                updatedByID[record.id] = record
             }
-            self.fallbackRecords = fallbackRecords.map { updatedByKey[$0.normalizedChineseKey] ?? $0 }
+            var seenIDs = Set<UUID>()
+            let replaced = fallbackRecords.compactMap { record -> SentenceExampleRecord? in
+                guard let updated = updatedByID[record.id] else { return record }
+                seenIDs.insert(record.id)
+                return updated
+            }
+            let appended = records.filter { !seenIDs.contains($0.id) }
+            self.fallbackRecords = RadixStudyPreferences.canonicalizedSentenceExamples(replaced + appended)
             return
         }
 

@@ -322,9 +322,18 @@ extension FavouritesTab {
             "\(record.createdAt.timeIntervalSinceReferenceDate)",
             "\(record.sentences.count)",
             "\(record.cleanedChineseText.count)",
+            "\(aiCleanedPageSentenceTextSignature(record.sentences))",
             record.sentences.first?.id ?? "",
             record.sentences.last?.id ?? ""
         ].joined(separator: ":")
+    }
+
+    func aiCleanedPageSentenceTextSignature(_ sentences: [AICleanedPageSentence]) -> Int {
+        sentences.reduce(0) { partial, sentence in
+            sentence.chinese.unicodeScalars.reduce(partial &* 31 &+ sentence.id.count) {
+                ($0 &* 31) &+ Int($1.value)
+            }
+        }
     }
 
     func aiCleanedPageVisibleSentences(

@@ -140,6 +140,47 @@ struct AICleanedPageRecord: Codable, Equatable, Hashable, Identifiable {
             createdAt: createdAt
         )
     }
+
+    mutating func replaceSentence(previous: SentenceExampleRecord, updated: SentenceExampleRecord) -> Bool {
+        let previousKey = previous.normalizedChineseKey
+        var didUpdateSentence = false
+
+        for sentenceIndex in sentences.indices {
+            let sentenceKey = SentenceExampleRecord.normalizedChineseKey(sentences[sentenceIndex].chinese)
+            guard sentenceKey == previousKey else { continue }
+            sentences[sentenceIndex].chinese = updated.chinese
+            sentences[sentenceIndex].pinyin = updated.pinyin
+            sentences[sentenceIndex].english = updated.english
+            sentences[sentenceIndex].phraseHints = updated.targetPhrases.isEmpty
+                ? updated.detectedPhrases
+                : updated.targetPhrases
+            didUpdateSentence = true
+        }
+
+        guard didUpdateSentence else { return false }
+        cleanedChineseText = Self.replacingSentenceText(
+            in: cleanedChineseText,
+            previous: previous.chinese,
+            updated: updated.chinese,
+            fallbackSentences: sentences
+        )
+        return true
+    }
+
+    private static func replacingSentenceText(
+        in text: String,
+        previous: String,
+        updated: String,
+        fallbackSentences: [AICleanedPageSentence]
+    ) -> String {
+        let cleanPrevious = previous.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanUpdated = updated.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanUpdated.isEmpty else { return text }
+        if !cleanPrevious.isEmpty, text.contains(cleanPrevious) {
+            return text.replacingOccurrences(of: cleanPrevious, with: cleanUpdated)
+        }
+        return fallbackSentences.map(\.chinese).joined(separator: " ")
+    }
 }
 
 struct AICleanedPageSentence: Codable, Equatable, Hashable, Identifiable {
