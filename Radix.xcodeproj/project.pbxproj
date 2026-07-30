@@ -195,6 +195,7 @@
 		86CD14882FAB000100D7BDBD /* FavouritesSentenceDeletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14872FAB000100D7BDBD /* FavouritesSentenceDeletion.swift */; };
 		86CD148A2FAB000100D7BDBD /* FavouritesSentenceTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14892FAB000100D7BDBD /* FavouritesSentenceTransfer.swift */; };
 		86CD148C2FAB000100D7BDBD /* FavouritesSentenceRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD148B2FAB000100D7BDBD /* FavouritesSentenceRows.swift */; };
+		86CD148E2FAB000100D7BDBD /* FavouritesSentenceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD148D2FAB000100D7BDBD /* FavouritesSentenceData.swift */; };
 		86CD14842FAB000100D7BDBD /* FavouritesPhrasePresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14832FAB000100D7BDBD /* FavouritesPhrasePresentation.swift */; };
 		8975910A558159AE028C2B42 /* RadixChevronRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97C43CA65287B742747F7B4 /* RadixChevronRow.swift */; };
 		8E3EED6392EDAA005A43CA48 /* RadixAIProviderState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08E7E9F178BFB154DACB768F /* RadixAIProviderState.swift */; };
@@ -458,6 +459,7 @@
 		86CD14872FAB000100D7BDBD /* FavouritesSentenceDeletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesSentenceDeletion.swift; sourceTree = "<group>"; };
 		86CD14892FAB000100D7BDBD /* FavouritesSentenceTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesSentenceTransfer.swift; sourceTree = "<group>"; };
 		86CD148B2FAB000100D7BDBD /* FavouritesSentenceRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesSentenceRows.swift; sourceTree = "<group>"; };
+		86CD148D2FAB000100D7BDBD /* FavouritesSentenceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesSentenceData.swift; sourceTree = "<group>"; };
 		86CD14832FAB000100D7BDBD /* FavouritesPhrasePresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesPhrasePresentation.swift; sourceTree = "<group>"; };
 		86D6ED7EC1FDB4446E5D9168 /* PracticeSentenceSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeSentenceSurface.swift; sourceTree = "<group>"; };
 		8B6F797D7EDB2BFDCA216440 /* RadixDataWorkspaceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixDataWorkspaceState.swift; sourceTree = "<group>"; };
@@ -566,6 +568,7 @@
 				86CD14872FAB000100D7BDBD /* FavouritesSentenceDeletion.swift */,
 				86CD14892FAB000100D7BDBD /* FavouritesSentenceTransfer.swift */,
 				86CD148B2FAB000100D7BDBD /* FavouritesSentenceRows.swift */,
+				86CD148D2FAB000100D7BDBD /* FavouritesSentenceData.swift */,
 				C0DE00012FB10001001B9AA7 /* FavouritesStudyGridSection.swift */,
 				C0DE000B2FBE0001001B9AA7 /* FavouritesStudyGridData.swift */,
 				C0DE000D2FBE0001001B9AA7 /* StudyGridComponents.swift */,
@@ -1009,6 +1012,7 @@
 				86CD14882FAB000100D7BDBD /* FavouritesSentenceDeletion.swift in Sources */,
 				86CD148A2FAB000100D7BDBD /* FavouritesSentenceTransfer.swift in Sources */,
 				86CD148C2FAB000100D7BDBD /* FavouritesSentenceRows.swift in Sources */,
+				86CD148E2FAB000100D7BDBD /* FavouritesSentenceData.swift in Sources */,
 				C0DE00022FB10001001B9AA7 /* FavouritesStudyGridSection.swift in Sources */,
 				C0DE000C2FBE0001001B9AA7 /* FavouritesStudyGridData.swift in Sources */,
 				C0DE000E2FBE0001001B9AA7 /* StudyGridComponents.swift in Sources */,

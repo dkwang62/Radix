@@ -179,8 +179,9 @@ selection, sentence transfer, and a nested `Delete...` submenu so destructive
 sentence actions are separated from normal tools. Single-sentence deletes also
 require confirmation. Do not keep parallel standalone Select, Delete Results,
 or Transfer button helpers for this screen. Keep Study Sentences toolbar/menu
-code in `FavouritesSentenceControls.swift`, sentence row actions/source routing
-in `FavouritesSentenceRows.swift`, sentence database transfer actions in
+code in `FavouritesSentenceControls.swift`, query/paging data flow in
+`FavouritesSentenceData.swift`, sentence row actions/source routing in
+`FavouritesSentenceRows.swift`, sentence database transfer actions in
 `FavouritesSentenceTransfer.swift`, and single-sentence delete confirmation in
 `FavouritesSentenceDeletion.swift` rather than growing `FavouritesSections.swift`
 or `FavouritesTab.swift`.
