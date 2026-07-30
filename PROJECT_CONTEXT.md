@@ -77,6 +77,9 @@ define separate page AI task arrays or manual fallback task-id switches.
 The extracted-sentences reader uses the shared Study simplified/traditional display choice;
 the switch converts the visible cleaned title, page text, notes, sentence
 rows, and opened sentence card display without changing the stored record.
+Keep the extracted-sentences reader, paging/cache helpers, fallback sentence
+record construction, and its focused `Back to Study` button in
+`FavouritesAICleanedPage.swift` rather than growing `FavouritesSections.swift`.
 The `Extract Sentences` prompt is a whole-page conversion task: the AI must
 process the entire source/OCR text into cleaned prose and sentence records in
 reading order, not choose a representative subset of study sentences. It should
