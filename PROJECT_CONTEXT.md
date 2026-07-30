@@ -177,6 +177,10 @@ migrated into the database on first read.
 Sentence examples are canonically stored as simplified Chinese, including phrase
 and character hints; traditional Chinese is a display mode exposed by sentence
 lists, example sheets, and sentence cards, not a second storage form.
+Conversation practice model files are split by concern: core pack, sentence,
+topic, library, validation, and quiz rules remain in
+`ConversationPracticeModels.swift`, while progress outcome/item/snapshot/summary
+types live in `ConversationPracticeProgressModels.swift`.
 Study sentence-style screens, including Study > Sentences, Conversation
 Practice, and extracted sentence readers, share the `PracticeSentenceSurface`
 toolbar primitives. Keep the page navigation, selection/actions, and

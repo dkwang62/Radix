@@ -72,6 +72,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
 - Conversation Practices should mirror Study Sentences on every platform: no
   bottom action bar, no framed practice card shell, no local Translate Quiz, and
   Flashcards/Quick Quiz in the compact tools menu above the sentence list.
+- Conversation practice progress models live in
+  `ConversationPracticeProgressModels.swift`; keep progress serialization there.
 - Sentence-based Study surfaces share a default 10-row page size. Study
   Sentences uses one compact source menu for All/Favorites/From Pages/From
   Practice instead of a row of source buttons. Its tools menu keeps destructive

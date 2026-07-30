@@ -50,6 +50,7 @@
 		69A3650B056CC75C6679411E /* ConversationPracticeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20DC69CEF5C5C282F5386F8B /* ConversationPracticeModels.swift */; };
 		69B3910852D12AACE6818DC9 /* RadixBrowseHighlightState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70207AB638D1AE9BAEC52981 /* RadixBrowseHighlightState.swift */; };
 		6AFC0DE12FE00001001B9AA7 /* PromptConfigRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFC0DE02FE00001001B9AA7 /* PromptConfigRendering.swift */; };
+		6AFC0DE32FE00003001B9AA7 /* ConversationPracticeProgressModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFC0DE22FE00003001B9AA7 /* ConversationPracticeProgressModels.swift */; };
 		6ABB3E4EB6475449496F9C71 /* ResponsiveFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E1E5265391156C8C615A28 /* ResponsiveFont.swift */; };
 		7723773E9AB28B1DDA4F86C0 /* RadixBrowseFilterState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539960D6FBF5F61433F72BBF /* RadixBrowseFilterState.swift */; };
 		7D4B9955F84B9C520D7702E8 /* EntitlementManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4559296FCA5B2061336BA302 /* EntitlementManager.swift */; };
@@ -314,6 +315,7 @@
 		5EACE5A1991601A0C41917DC /* DataEditRestoreFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditRestoreFlow.swift; sourceTree = "<group>"; };
 		5FB0197D42D52FA9A72F4B24 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6AFF92F2BA13EBA1A3A64D44 /* PromptModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptModels.swift; sourceTree = "<group>"; };
+		6AFC0DE22FE00003001B9AA7 /* ConversationPracticeProgressModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeProgressModels.swift; sourceTree = "<group>"; };
 		6AFC0DE02FE00001001B9AA7 /* PromptConfigRendering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptConfigRendering.swift; sourceTree = "<group>"; };
 		6C168A03A00D507535219249 /* JSONFileDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONFileDocument.swift; sourceTree = "<group>"; };
 		6C8EA1AAC376266D445DC85F /* phrases.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = phrases.db; sourceTree = "<group>"; };
@@ -700,6 +702,7 @@
 			isa = PBXGroup;
 			children = (
 				20DC69CEF5C5C282F5386F8B /* ConversationPracticeModels.swift */,
+				6AFC0DE22FE00003001B9AA7 /* ConversationPracticeProgressModels.swift */,
 				3F6413E96D450A71BBA8A1EF /* RadixDataCompatibilityModels.swift */,
 				961A09FC176BE72BF88F5FCD /* RadixNavigationModels.swift */,
 				179D5E4ACB253F63E0A676FA /* RadixPreferenceKey.swift */,
@@ -950,6 +953,7 @@
 			files = (
 				0AF2866F87B852AAD9104ECE /* ConversationPracticeInlineInspection.swift in Sources */,
 				69A3650B056CC75C6679411E /* ConversationPracticeModels.swift in Sources */,
+				6AFC0DE32FE00003001B9AA7 /* ConversationPracticeProgressModels.swift in Sources */,
 				6AFC0DE12FE00001001B9AA7 /* PromptConfigRendering.swift in Sources */,
 				04BAFF2AD364035CA808AF94 /* ConversationPracticeQuizSheet.swift in Sources */,
 				353E7086AF59135C0E4ACF1A /* ConversationPracticeReviewSheet.swift in Sources */,
