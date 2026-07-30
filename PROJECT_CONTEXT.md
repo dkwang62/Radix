@@ -177,8 +177,9 @@ migrated into the database on first read.
 Sentence examples are canonically stored as simplified Chinese, including phrase
 and character hints; traditional Chinese is a display mode exposed by sentence
 lists, example sheets, and sentence cards, not a second storage form.
-Conversation practice model files are split by concern: core pack, topic,
-library, and validation remain in `ConversationPracticeModels.swift`, shared
+Conversation practice model files are split by concern: core pack, library, and
+validation remain in `ConversationPracticeModels.swift`, topic catalog and
+generation-brief models live in `ConversationPracticeTopicModels.swift`, shared
 sentence-example storage models live in `SentenceExampleModels.swift`, favorite
 sentence serialization lives in `FavoriteSentenceModels.swift`, Radix capture
 JSON payload/import parsing lives in `RadixCaptureModels.swift`, progress

@@ -76,6 +76,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   `ConversationPracticeProgressModels.swift`; keep progress serialization there.
 - Conversation practice character quiz rules live in
   `ConversationPracticeQuizRules.swift`; keep quiz choice/question logic there.
+- Conversation practice topic catalog and generation briefs live in
+  `ConversationPracticeTopicModels.swift`; keep default topic ordering there.
 - Favorite sentence serialization lives in `FavoriteSentenceModels.swift`;
   keep favorite sentence identity and dedupe behavior there.
 - Radix capture JSON payload and parser types live in `RadixCaptureModels.swift`;
