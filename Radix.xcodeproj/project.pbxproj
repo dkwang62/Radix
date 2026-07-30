@@ -191,6 +191,8 @@
 		86CD147C2FA8000100D7BDBD /* DataBackupPreviewActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD147B2FA8000100D7BDBD /* DataBackupPreviewActions.swift */; };
 		86CD147E2FAB000100D7BDBD /* FavouritesHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD147D2FAB000100D7BDBD /* FavouritesHeader.swift */; };
 		86CD14802FAB000100D7BDBD /* FavouritesSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD147F2FAB000100D7BDBD /* FavouritesSections.swift */; };
+		86CD14862FAB000100D7BDBD /* FavouritesSentenceControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14852FAB000100D7BDBD /* FavouritesSentenceControls.swift */; };
+		86CD14882FAB000100D7BDBD /* FavouritesSentenceDeletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14872FAB000100D7BDBD /* FavouritesSentenceDeletion.swift */; };
 		86CD14842FAB000100D7BDBD /* FavouritesPhrasePresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CD14832FAB000100D7BDBD /* FavouritesPhrasePresentation.swift */; };
 		8975910A558159AE028C2B42 /* RadixChevronRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97C43CA65287B742747F7B4 /* RadixChevronRow.swift */; };
 		8E3EED6392EDAA005A43CA48 /* RadixAIProviderState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08E7E9F178BFB154DACB768F /* RadixAIProviderState.swift */; };
@@ -450,6 +452,8 @@
 		86CD147B2FA8000100D7BDBD /* DataBackupPreviewActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBackupPreviewActions.swift; sourceTree = "<group>"; };
 		86CD147D2FAB000100D7BDBD /* FavouritesHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesHeader.swift; sourceTree = "<group>"; };
 		86CD147F2FAB000100D7BDBD /* FavouritesSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesSections.swift; sourceTree = "<group>"; };
+		86CD14852FAB000100D7BDBD /* FavouritesSentenceControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesSentenceControls.swift; sourceTree = "<group>"; };
+		86CD14872FAB000100D7BDBD /* FavouritesSentenceDeletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesSentenceDeletion.swift; sourceTree = "<group>"; };
 		86CD14832FAB000100D7BDBD /* FavouritesPhrasePresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesPhrasePresentation.swift; sourceTree = "<group>"; };
 		86D6ED7EC1FDB4446E5D9168 /* PracticeSentenceSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeSentenceSurface.swift; sourceTree = "<group>"; };
 		8B6F797D7EDB2BFDCA216440 /* RadixDataWorkspaceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixDataWorkspaceState.swift; sourceTree = "<group>"; };
@@ -554,6 +558,8 @@
 				86CD14382F9822B300D7BDBD /* FavouritesTab.swift */,
 				86CD147D2FAB000100D7BDBD /* FavouritesHeader.swift */,
 				86CD147F2FAB000100D7BDBD /* FavouritesSections.swift */,
+				86CD14852FAB000100D7BDBD /* FavouritesSentenceControls.swift */,
+				86CD14872FAB000100D7BDBD /* FavouritesSentenceDeletion.swift */,
 				C0DE00012FB10001001B9AA7 /* FavouritesStudyGridSection.swift */,
 				C0DE000B2FBE0001001B9AA7 /* FavouritesStudyGridData.swift */,
 				C0DE000D2FBE0001001B9AA7 /* StudyGridComponents.swift */,
@@ -993,6 +999,8 @@
 				86CD14452F9822B300D7BDBD /* FavouritesTab.swift in Sources */,
 				86CD147E2FAB000100D7BDBD /* FavouritesHeader.swift in Sources */,
 				86CD14802FAB000100D7BDBD /* FavouritesSections.swift in Sources */,
+				86CD14862FAB000100D7BDBD /* FavouritesSentenceControls.swift in Sources */,
+				86CD14882FAB000100D7BDBD /* FavouritesSentenceDeletion.swift in Sources */,
 				C0DE00022FB10001001B9AA7 /* FavouritesStudyGridSection.swift in Sources */,
 				C0DE000C2FBE0001001B9AA7 /* FavouritesStudyGridData.swift in Sources */,
 				C0DE000E2FBE0001001B9AA7 /* StudyGridComponents.swift in Sources */,

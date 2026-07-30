@@ -174,7 +174,10 @@ page counts and visible rows stay aligned. The tools menu owns
 selection, sentence transfer, and a nested `Delete...` submenu so destructive
 sentence actions are separated from normal tools. Single-sentence deletes also
 require confirmation. Do not keep parallel standalone Select, Delete Results,
-or Transfer button helpers for this screen.
+or Transfer button helpers for this screen. Keep Study Sentences toolbar/menu
+code in `FavouritesSentenceControls.swift` and single-sentence delete
+confirmation in `FavouritesSentenceDeletion.swift` rather than growing
+`FavouritesSections.swift` or `FavouritesTab.swift`.
 Page-linked sentence actions should open the source in `Pages`; Browse is only
 for explicit source/OCR inspection from a page's `Browse` action.
 Shared language-learning buttons should use meaningful text badges instead of
