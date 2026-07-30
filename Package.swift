@@ -21,6 +21,7 @@ let package = Package(
             sources: [
                 "ComponentModels.swift",
                 "CaptureModels.swift",
+                "ConversationPracticeLibraryModels.swift",
                 "ConversationPracticeModels.swift",
                 "ConversationPracticeProgressModels.swift",
                 "ConversationPracticeQuizRules.swift",
