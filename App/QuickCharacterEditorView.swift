@@ -2,6 +2,7 @@ import SwiftUI
 
 struct QuickCharacterEditorView: View {
     enum FocusedCharacterField: Hashable {
+        case notes
         case etymology
         case hints
     }
@@ -88,6 +89,18 @@ struct QuickCharacterEditorView: View {
                     dismiss()
                 }
                 .buttonStyle(.bordered)
+            } else {
+                Button("Cancel") {
+                    dismiss()
+                }
+                .buttonStyle(.bordered)
+
+                Button {
+                    saveCharacter()
+                } label: {
+                    Label("Save", systemImage: "checkmark")
+                }
+                .buttonStyle(.borderedProminent)
             }
         }
         .padding()

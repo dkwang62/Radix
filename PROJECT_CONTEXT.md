@@ -567,6 +567,10 @@ shared AI task flow. A follow-up single-reference view sweep across `App/` and
 Character and phrase info-card action pills share `InfoCardActionPill`; keep
 notes, phrase lookup, and related small info-card actions on that component so
 their spacing, radius, borders, and accessibility affordance do not drift.
+Quick phrase and character edit sheets keep `Save` in the top header because
+the keyboard can cover bottom controls; bottom rows are reserved for management
+actions such as `Delete` or `Revert`. Phrase editing exposes English meaning
+before notes so the info-card editor is not notes-only.
 `InfoCardActionPill`, character info tiles, and the regular Character Detail
 header/action controls use the shared Radix surface/pill primitives; keep new
 info-card chips on those helpers rather than hand-copying rounded backgrounds.

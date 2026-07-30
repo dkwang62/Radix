@@ -19,9 +19,11 @@ extension QuickCharacterEditorView {
 
             dictionaryDetailsSection
 
-            Divider()
+            if hasCharacterManagementAction {
+                Divider()
 
-            actionRow
+                actionRow
+            }
         }
         .padding(.horizontal, 12)
         .padding(.top, 8)
@@ -58,11 +60,13 @@ extension QuickCharacterEditorView {
                 }
             }
 
-            Divider()
+            if hasCharacterManagementAction {
+                Divider()
 
-            actionRow
-                .padding(.horizontal, 12)
-                .padding(.bottom, 8)
+                actionRow
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 8)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }

@@ -47,13 +47,7 @@ struct QuickPhraseEditorView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Text(sheetTitle)
-                    .font(ResponsiveFont.title3.bold())
-                Spacer()
-            }
-            .padding()
-            .background(RadixTheme.background)
+            header
 
             Divider()
 
@@ -70,19 +64,15 @@ struct QuickPhraseEditorView: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    phraseNotesSection
-
                     phraseFieldsSection
+
+                    phraseNotesSection
                 }
                 .padding()
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }
 
-            Divider()
-
-            phraseActionRow
-                .padding()
-                .background(RadixTheme.background)
+            phraseManagementFooter
         }
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
@@ -121,7 +111,33 @@ struct QuickPhraseEditorView: View {
 
     private var sheetTitle: String {
         if isNew { return "Add New Phrase" }
-        return "\(store.phraseNotesActionTitle(for: initialWord)): \(initialWord)"
+        return "Edit Phrase: \(initialWord)"
+    }
+
+    private var header: some View {
+        HStack(alignment: .center, spacing: 10) {
+            Text(sheetTitle)
+                .font(ResponsiveFont.title3.bold())
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+
+            Spacer()
+
+            Button("Cancel") {
+                dismiss()
+            }
+            .buttonStyle(.bordered)
+
+            Button {
+                savePhrase()
+            } label: {
+                Label("Save", systemImage: "checkmark")
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(!canSavePhrase)
+        }
+        .padding()
+        .background(RadixTheme.background)
     }
 
     @ViewBuilder
@@ -222,29 +238,26 @@ struct QuickPhraseEditorView: View {
         .controlSize(.small)
     }
 
-    private var phraseActionRow: some View {
-        HStack(spacing: 10) {
-            if !isNew && store.isPhraseInAdd(phraseEditorWord) {
+    @ViewBuilder
+    private var phraseManagementFooter: some View {
+        if hasPhraseManagementAction {
+            Divider()
+
+            HStack(spacing: 10) {
                 let isBuiltIn = store.isPhraseInBase(phraseEditorWord)
                 Button(isBuiltIn ? "Revert" : "Delete", role: isBuiltIn ? nil : .destructive) {
                     deletePhrase()
                 }
                 .buttonStyle(.bordered)
+                Spacer()
             }
-
-            Spacer()
-
-            Button("Cancel") {
-                dismiss()
-            }
-            .buttonStyle(.bordered)
-
-            Button("Save") {
-                savePhrase()
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(!canSavePhrase)
+            .padding()
+            .background(RadixTheme.background)
         }
+    }
+
+    private var hasPhraseManagementAction: Bool {
+        !isNew && store.isPhraseInAdd(phraseEditorWord)
     }
 
     private func savePhrase() {

@@ -24,6 +24,7 @@ extension QuickCharacterEditorView {
                 .font(ResponsiveFont.body)
                 .scrollContentBackground(.hidden)
                 .padding(8)
+                .focused($focusedField, equals: .notes)
 
             if store.dataEditNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 Text("Type sentences, examples, and phrases you want to practise.")
