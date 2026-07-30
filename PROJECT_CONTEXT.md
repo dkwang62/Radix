@@ -105,15 +105,16 @@ uses `Sentence Improvement`. They copy the selected sentence prompt and open the
 selected/default AI provider directly; they should not fall back to a character,
 phrase, page, or generic starter template.
 AI Link also includes a built-in sentence-subject `Sentence Improvement` task.
-It takes an existing sentence or messy input string, keeps the original language
-and core intent, and returns only one cleaned, complete, coherent sentence with
-no translation, notes, pinyin, or explanation. Its `Paste AI Answer` workflow
-updates the selected saved sentence record in the sentence database, preserving
-sources, favorites, English meaning, and notes while clearing stale pinyin and
-refreshing character/phrase hints from the improved sentence. When the saved
-sentence came from an extracted-page artifact, the same edit must also replace
-that sentence inside the owning `AICleanedPageRecord`; otherwise page sentence
-readers will keep showing the old page-owned text.
+It takes an existing sentence or messy input string and must return one JSON
+payload containing the improved Chinese sentence, pinyin generated from that
+final sentence, and the English meaning of that final sentence. Its `Paste AI
+Answer` workflow treats those three fields as one synced update: it replaces
+the selected saved sentence text, pinyin, and English meaning in the sentence
+database, preserving sources, favorites, and notes while refreshing
+character/phrase hints from the improved sentence. When the saved sentence came
+from an extracted-page artifact, the same edit must also replace the sentence,
+pinyin, and English meaning inside the owning `AICleanedPageRecord`; otherwise
+page sentence readers will keep showing stale page-owned data.
 Prompt model data and prompt rendering are split deliberately:
 `PromptModels.swift` owns prompt subjects, task defaults, IDs, configuration,
 and render context, while `PromptConfigRendering.swift` owns normalization,

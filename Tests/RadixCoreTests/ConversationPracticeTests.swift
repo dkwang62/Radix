@@ -272,7 +272,8 @@ struct ConversationPracticeTests {
         })
         var updated = previous
         updated.chinese = "这个句子现在更自然。"
-        updated.pinyin = nil
+        updated.pinyin = "Zhège jùzi xiànzài gèng zìrán."
+        updated.english = "This sentence is now more natural."
         updated.targetCharacters = SentenceExampleRecord.detectChineseCharacters(in: updated.chinese)
         updated.detectedCharacters = updated.targetCharacters
         updated.targetPhrases = []
@@ -282,7 +283,8 @@ struct ConversationPracticeTests {
 
         #expect(didReplace)
         #expect(page.sentences.first?.chinese == "这个句子现在更自然。")
-        #expect(page.sentences.first?.pinyin == nil)
+        #expect(page.sentences.first?.pinyin == "Zhège jùzi xiànzài gèng zìrán.")
+        #expect(page.sentences.first?.english == "This sentence is now more natural.")
         #expect(page.cleanedChineseText.contains("这个句子现在更自然。"))
         #expect(!page.cleanedChineseText.contains("旧句子不够自然。"))
     }

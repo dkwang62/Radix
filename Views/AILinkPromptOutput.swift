@@ -562,7 +562,7 @@ extension AILinkView {
         case AIResultTaskID.generatePracticePack: return "Paste the practice answer here to import it into Study."
         case AIResultTaskID.extractSentences: return "Paste the sentence-practice answer here to import it into Conversation Practice."
         case AIResultTaskID.createPagePractice: return "Paste the page-practice answer here to import it into Conversation Practice."
-        case AIResultTaskID.sentenceImprovement: return "Paste the improved sentence here to update the selected saved sentence."
+        case AIResultTaskID.sentenceImprovement: return "Paste the improved sentence JSON here to update the sentence, pinyin, and English meaning."
         case AIResultTaskID.createQuiz: return "This prompt runs the quiz inside the AI app, so there is no Radix paste step."
         default: return "Use the AI answer as a reference. This task does not import data back into Radix."
         }

@@ -38,6 +38,7 @@ enum AIResultApplicationError: LocalizedError {
     case emptyCorrectedOCR
     case missingSentence
     case emptyImprovedSentence
+    case incompleteSentenceImprovement
     case unsupportedTask
 
     var errorDescription: String? {
@@ -52,6 +53,8 @@ enum AIResultApplicationError: LocalizedError {
             return "Choose a sentence first."
         case .emptyImprovedSentence:
             return "Paste the improved sentence first."
+        case .incompleteSentenceImprovement:
+            return "Paste the full sentence improvement answer with sentence, pinyin, and English meaning."
         case .unsupportedTask:
             return "This AI task does not import data back into Radix."
         }
@@ -175,14 +178,18 @@ extension RadixStore {
         fromAIResponse responseText: String,
         to item: ConversationPracticeItem
     ) throws -> SentenceExampleRecord {
-        let improvedSentence = cleanedImprovedSentenceResponse(responseText)
-        guard !improvedSentence.isEmpty else {
+        let improvement = try parsedSentenceImprovementResponse(responseText)
+        guard !improvement.sentence.isEmpty else {
             throw AIResultApplicationError.emptyImprovedSentence
+        }
+        guard !improvement.pinyin.isEmpty, !improvement.english.isEmpty else {
+            throw AIResultApplicationError.incompleteSentenceImprovement
         }
 
         var record = sentenceExample(for: item) ?? SentenceExampleRecord.fromPracticeItem(item, pack: nil)
-        record.chinese = ScriptTextConverter.simplified(improvedSentence)
-        record.pinyin = nil
+        record.chinese = ScriptTextConverter.simplified(improvement.sentence)
+        record.pinyin = improvement.pinyin
+        record.english = improvement.english
         record.targetCharacters = SentenceExampleRecord.detectChineseCharacters(in: record.chinese)
         record.detectedCharacters = record.targetCharacters
         record.targetPhrases = retainedPhraseHints(record.targetPhrases, in: record.chinese)
@@ -192,7 +199,27 @@ extension RadixStore {
         return record
     }
 
-    private func cleanedImprovedSentenceResponse(_ responseText: String) -> String {
+    private struct SentenceImprovementPayload {
+        var sentence: String
+        var pinyin: String
+        var english: String
+    }
+
+    private func parsedSentenceImprovementResponse(_ responseText: String) throws -> SentenceImprovementPayload {
+        let cleaned = cleanedAIResponseText(responseText)
+        guard !cleaned.isEmpty else {
+            throw AIResultApplicationError.emptyImprovedSentence
+        }
+        if let payload = decodedSentenceImprovementPayload(from: cleaned) {
+            return payload
+        }
+        if let payload = labeledSentenceImprovementPayload(from: cleaned) {
+            return payload
+        }
+        throw AIResultApplicationError.incompleteSentenceImprovement
+    }
+
+    private func cleanedAIResponseText(_ responseText: String) -> String {
         var cleaned = responseText.trimmingCharacters(in: .whitespacesAndNewlines)
         if cleaned.hasPrefix("```") {
             var lines = cleaned.split(whereSeparator: \.isNewline).map(String.init)
@@ -205,18 +232,93 @@ extension RadixStore {
             }
             cleaned = lines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
         }
-        for prefix in ["Improved sentence:", "Improved Sentence:", "改进后的句子：", "改进后的句子:"] {
-            if cleaned.hasPrefix(prefix) {
-                cleaned = String(cleaned.dropFirst(prefix.count)).trimmingCharacters(in: .whitespacesAndNewlines)
+        return cleaned
+    }
+
+    private func decodedSentenceImprovementPayload(from responseText: String) -> SentenceImprovementPayload? {
+        guard
+            let jsonText = jsonObjectSubstring(in: responseText),
+            let data = jsonText.data(using: .utf8),
+            let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return nil }
+        return sentenceImprovementPayload(from: object)
+    }
+
+    private func jsonObjectSubstring(in text: String) -> String? {
+        guard let firstBrace = text.firstIndex(of: "{"),
+              let lastBrace = text.lastIndex(of: "}"),
+              firstBrace <= lastBrace else { return nil }
+        return String(text[firstBrace...lastBrace])
+    }
+
+    private func sentenceImprovementPayload(from object: [String: Any]) -> SentenceImprovementPayload? {
+        let sentence = firstString(
+            in: object,
+            keys: ["sentence", "improved_sentence", "improvedSentence", "chinese", "zh", "text"]
+        )
+        let pinyin = firstString(in: object, keys: ["pinyin", "pin_yin", "romanization"])
+        let english = firstString(in: object, keys: ["english", "en", "meaning", "translation"])
+        return normalizedSentenceImprovementPayload(sentence: sentence, pinyin: pinyin, english: english)
+    }
+
+    private func firstString(in object: [String: Any], keys: [String]) -> String {
+        for key in keys {
+            if let value = object[key] as? String {
+                return value.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            if let nested = object[key] as? [String: Any] {
+                let nestedValue = firstString(in: nested, keys: keys)
+                if !nestedValue.isEmpty { return nestedValue }
             }
         }
-        if cleaned.hasPrefix("\""), cleaned.hasSuffix("\""), cleaned.count >= 2 {
-            cleaned = String(cleaned.dropFirst().dropLast()).trimmingCharacters(in: .whitespacesAndNewlines)
+        return ""
+    }
+
+    private func labeledSentenceImprovementPayload(from responseText: String) -> SentenceImprovementPayload? {
+        let labels: [(field: String, keys: [String])] = [
+            ("sentence", ["sentence", "improved sentence", "chinese", "zh", "句子", "中文"]),
+            ("pinyin", ["pinyin", "pin yin", "拼音"]),
+            ("english", ["english", "meaning", "translation", "英文", "意思"])
+        ]
+        var values: [String: String] = [:]
+        for line in responseText.split(whereSeparator: \.isNewline) {
+            let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard let separatorIndex = trimmedLine.firstIndex(where: { $0 == ":" || $0 == "：" }) else {
+                continue
+            }
+            let rawLabel = String(trimmedLine[..<separatorIndex])
+                .lowercased()
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let value = String(trimmedLine[trimmedLine.index(after: separatorIndex)...])
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !value.isEmpty else { continue }
+            for label in labels where label.keys.contains(rawLabel) {
+                values[label.field] = value
+            }
         }
-        if cleaned.hasPrefix("“"), cleaned.hasSuffix("”"), cleaned.count >= 2 {
-            cleaned = String(cleaned.dropFirst().dropLast()).trimmingCharacters(in: .whitespacesAndNewlines)
+        return normalizedSentenceImprovementPayload(
+            sentence: values["sentence"] ?? "",
+            pinyin: values["pinyin"] ?? "",
+            english: values["english"] ?? ""
+        )
+    }
+
+    private func normalizedSentenceImprovementPayload(
+        sentence: String,
+        pinyin: String,
+        english: String
+    ) -> SentenceImprovementPayload? {
+        let trimmedSentence = sentence.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedPinyin = pinyin.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedEnglish = english.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedSentence.isEmpty || !trimmedPinyin.isEmpty || !trimmedEnglish.isEmpty else {
+            return nil
         }
-        return cleaned
+        return SentenceImprovementPayload(
+            sentence: trimmedSentence,
+            pinyin: trimmedPinyin,
+            english: trimmedEnglish
+        )
     }
 
     private func retainedPhraseHints(_ hints: [String], in sentence: String) -> [String] {

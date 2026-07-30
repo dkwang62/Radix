@@ -589,7 +589,7 @@ Explain the whole sentence naturally for a Chinese learner. Focus on meaning, gr
                 template: """
 Sentence Improvement
 
-Improve this Radix sentence or messy input string without translating it into another language.
+Improve this Radix Chinese sentence or messy input string and return the full synced Radix sentence payload.
 
 Input sentence:
 {sentence_zh}
@@ -604,17 +604,26 @@ Useful phrases if available:
 {sentence_phrases}
 
 Task:
-Rewrite the input into one clean, complete, coherent sentence in the same language as the original input. Preserve the original core intent, topic, people, places, time, tone, and factual claims as much as possible.
+Rewrite the input into one clean, complete, coherent Chinese sentence. Preserve the original core intent, topic, people, places, time, tone, and factual claims as much as possible.
 
 Rules:
-1. Maintain the original language. If the input is Chinese, output Chinese. If the input is English, output English. Do not translate.
+1. Output Chinese in `sentence`. Do not translate the sentence into another language.
 2. Repair awkward wording, broken grammar, OCR/copy-paste damage, telegraphic phrasing, missing connectors, and nonsensical wording when the intended meaning is reasonably clear.
 3. If the input contains several unrelated ideas, choose the main intended idea and rewrite it as one complete sentence.
 4. Do not invent new facts, names, dates, opinions, locations, or claims.
 5. If part of the input is unrecoverable noise, omit only that noise while preserving the coherent intent.
-6. Return only the improved sentence. Do not include pinyin, English translation, markdown, notes, explanations, labels, alternatives, or quotes around the answer.
+6. Generate `pinyin` from the final `sentence`, not from the original input.
+7. Generate `english` as the natural English meaning of the final `sentence`, not the old sentence.
+8. The three fields must match each other exactly: `sentence`, `pinyin`, and `english` must describe the same final sentence.
 
-Before answering, silently verify that the result is grammatical, complete, coherent, and in the same language as the input.
+Return JSON only, with exactly these keys:
+{
+  "sentence": "clean improved Chinese sentence",
+  "pinyin": "pinyin for the final sentence",
+  "english": "natural English meaning of the final sentence"
+}
+
+Before answering, silently verify that the sentence is grammatical, complete, coherent, and that pinyin and English match the final sentence.
 
 """,
                 subjectType: .sentence

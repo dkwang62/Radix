@@ -118,9 +118,11 @@ struct PromptConfigTests {
         #expect(task?.title == "Sentence Improvement")
         #expect(task?.subjectType == .sentence)
         #expect(task?.template.contains("messy input string") == true)
-        #expect(task?.template.contains("Maintain the original language") == true)
-        #expect(task?.template.contains("Do not translate") == true)
-        #expect(task?.template.contains("Return only the improved sentence") == true)
+        #expect(task?.template.contains("Return JSON only") == true)
+        #expect(task?.template.contains("\"sentence\"") == true)
+        #expect(task?.template.contains("\"pinyin\"") == true)
+        #expect(task?.template.contains("\"english\"") == true)
+        #expect(task?.template.contains("The three fields must match each other exactly") == true)
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains(PromptConfig.sentenceImprovementTaskID))
     }
 
