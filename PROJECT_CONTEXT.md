@@ -70,6 +70,10 @@ because an artifact was created. Browse continues to own dictionary/source
 inspection, with OCR pages labeled as Original OCR or Corrected OCR when the
 user opens a page source. The Browse page toolbar should not show a permanent
 character-count pill; the title and tiles already establish the selected page.
+Saved-page AI action labels, icons, visibility, and task IDs are centralized in
+`CollectionPageAITaskKind` near `CollectionPageActionsMenu`. Browse and Study
+may keep different success navigation/status handling, but they should not
+define separate page AI task arrays or manual fallback task-id switches.
 The extracted-sentences reader uses the shared Study simplified/traditional display choice;
 the switch converts the visible cleaned title, page text, notes, sentence
 rows, and opened sentence card display without changing the stored record.

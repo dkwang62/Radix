@@ -2,64 +2,11 @@ import SwiftUI
 
 extension FilterGridTab {
     func browsePageAITasks(for collection: CharacterCollection) -> [CollectionPageAITask] {
-        var tasks: [CollectionPageAITask] = []
-
-        if collection.sourceType == .ocr && collection.correctedFromCollectionID == nil {
-            tasks.append(CollectionPageAITask(
-                id: AIResultTaskID.checkOCR,
-                title: "Check OCR",
-                systemImage: "text.viewfinder",
-                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.checkOCR) },
-                automaticAction: { runAutomaticBrowsePageAIAction { runAutomaticOCRReview(collection) } }
-            ))
-        }
-
-        tasks.append(contentsOf: [
-            CollectionPageAITask(
-                id: AIResultTaskID.createAICleanedPage,
-                title: "Extract Sentences",
-                systemImage: "doc.text.magnifyingglass",
-                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.createAICleanedPage) },
-                automaticAction: { runAutomaticBrowsePageAIAction { runBrowseGeminiAICleanedPage(collection) } }
-            ),
-            CollectionPageAITask(
-                id: AIResultTaskID.extractPhrases,
-                title: "Extract Phrases",
-                systemImage: "text.badge.plus",
-                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.extractPhrases) },
-                automaticAction: { runAutomaticBrowsePageAIAction { runBrowseGeminiPhraseExtraction(collection) } }
-            ),
-            CollectionPageAITask(
-                id: AIResultTaskID.translatePage,
-                title: "Translate Page",
-                systemImage: RadixGlossaryIcon.systemImage(for: RadixTerm.translation),
-                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.translatePage) },
-                automaticAction: { runAutomaticBrowsePageAIAction { runBrowseGeminiTranslationAndSave(collection) } }
-            ),
-            CollectionPageAITask(
-                id: AIResultTaskID.createQuiz,
-                title: "Create Quiz",
-                systemImage: "questionmark.circle",
-                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.createQuiz) },
-                automaticAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.createQuiz) }
-            ),
-            CollectionPageAITask(
-                id: AIResultTaskID.extractSentences,
-                title: "Sentence Practice",
-                systemImage: "bubble.left.and.bubble.right",
-                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences) },
-                automaticAction: { runAutomaticBrowsePageAIAction { runBrowseGeminiSentenceExtraction(collection) } }
-            ),
-            CollectionPageAITask(
-                id: AIResultTaskID.createPagePractice,
-                title: "Create Conversation",
-                systemImage: "sparkles",
-                manualAction: { beginAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice) },
-                automaticAction: { runAutomaticBrowsePageAIAction { runBrowseGeminiPagePracticeGeneration(collection) } }
-            )
-        ])
-
-        return tasks
+        CollectionPageAITaskKind.pageTasks(
+            for: collection,
+            manualAction: { taskID in beginAILinkPageTask(collection, taskID: taskID) },
+            automaticAction: { kind in runBrowsePageAIAction(kind, for: collection) }
+        )
     }
 
     func runAutomaticBrowsePageAIAction(_ action: () -> Void) {
@@ -73,6 +20,31 @@ extension FilterGridTab {
     func beginAILinkPageTask(_ collection: CharacterCollection, taskID: String) {
         imageActionMessage = nil
         store.goToAILinkCollectionTask(collection: collection, taskID: taskID)
+    }
+
+    func runBrowsePageAIAction(_ kind: CollectionPageAITaskKind, for collection: CharacterCollection) {
+        if kind == .createQuiz {
+            beginAILinkPageTask(collection, taskID: kind.id)
+            return
+        }
+        runAutomaticBrowsePageAIAction {
+            switch kind {
+            case .checkOCR:
+                runAutomaticOCRReview(collection)
+            case .createAICleanedPage:
+                runBrowseGeminiAICleanedPage(collection)
+            case .extractPhrases:
+                runBrowseGeminiPhraseExtraction(collection)
+            case .translate:
+                runBrowseGeminiTranslationAndSave(collection)
+            case .extractSentences:
+                runBrowseGeminiSentenceExtraction(collection)
+            case .createPagePractice:
+                runBrowseGeminiPagePracticeGeneration(collection)
+            case .createQuiz:
+                break
+            }
+        }
     }
 
     func runAutomaticOCRReview(_ collection: CharacterCollection) {
@@ -229,20 +201,7 @@ extension FilterGridTab {
     }
 
     func useManualFallback(_ task: BrowseAIFallbackTask) {
-        switch task {
-        case .checkOCR(let collection):
-            beginAILinkPageTask(collection, taskID: AIResultTaskID.checkOCR)
-        case .extractPhrases(let collection):
-            beginAILinkPageTask(collection, taskID: AIResultTaskID.extractPhrases)
-        case .translate(let collection):
-            beginAILinkPageTask(collection, taskID: AIResultTaskID.translatePage)
-        case .extractSentences(let collection):
-            beginAILinkPageTask(collection, taskID: AIResultTaskID.extractSentences)
-        case .createPagePractice(let collection):
-            beginAILinkPageTask(collection, taskID: AIResultTaskID.createPagePractice)
-        case .createAICleanedPage(let collection):
-            beginAILinkPageTask(collection, taskID: AIResultTaskID.createAICleanedPage)
-        }
+        beginAILinkPageTask(task.collection, taskID: task.taskID)
     }
 
 }

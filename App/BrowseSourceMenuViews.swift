@@ -34,6 +34,110 @@ struct CollectionPageAITask: Identifiable {
     let automaticAction: () -> Void
 }
 
+enum CollectionPageAITaskKind: CaseIterable, Equatable {
+    case checkOCR
+    case createAICleanedPage
+    case extractPhrases
+    case translate
+    case createQuiz
+    case extractSentences
+    case createPagePractice
+
+    var id: String {
+        switch self {
+        case .checkOCR: return AIResultTaskID.checkOCR
+        case .createAICleanedPage: return AIResultTaskID.createAICleanedPage
+        case .extractPhrases: return AIResultTaskID.extractPhrases
+        case .translate: return AIResultTaskID.translatePage
+        case .createQuiz: return AIResultTaskID.createQuiz
+        case .extractSentences: return AIResultTaskID.extractSentences
+        case .createPagePractice: return AIResultTaskID.createPagePractice
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .checkOCR: return "Check OCR"
+        case .createAICleanedPage: return "Extract Sentences"
+        case .extractPhrases: return "Extract Phrases"
+        case .translate: return "Translate Page"
+        case .createQuiz: return "Create Quiz"
+        case .extractSentences: return "Sentence Practice"
+        case .createPagePractice: return "Create Conversation"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .checkOCR: return "text.viewfinder"
+        case .createAICleanedPage: return "doc.text.magnifyingglass"
+        case .extractPhrases: return "text.badge.plus"
+        case .translate: return RadixGlossaryIcon.systemImage(for: RadixTerm.translation)
+        case .createQuiz: return "questionmark.circle"
+        case .extractSentences: return "bubble.left.and.bubble.right"
+        case .createPagePractice: return "sparkles"
+        }
+    }
+
+    static func pageTasks(
+        for collection: CharacterCollection,
+        manualAction: @escaping (String) -> Void,
+        automaticAction: @escaping (CollectionPageAITaskKind) -> Void
+    ) -> [CollectionPageAITask] {
+        let kinds = Self.visibleKinds(for: collection)
+        return kinds.map { kind in
+            CollectionPageAITask(
+                id: kind.id,
+                title: kind.title,
+                systemImage: kind.systemImage,
+                manualAction: { manualAction(kind.id) },
+                automaticAction: { automaticAction(kind) }
+            )
+        }
+    }
+
+    private static func visibleKinds(for collection: CharacterCollection) -> [CollectionPageAITaskKind] {
+        var kinds: [CollectionPageAITaskKind] = []
+        if collection.sourceType == .ocr && collection.correctedFromCollectionID == nil {
+            kinds.append(.checkOCR)
+        }
+        kinds.append(contentsOf: [
+            .createAICleanedPage,
+            .extractPhrases,
+            .translate,
+            .createQuiz,
+            .extractSentences,
+            .createPagePractice
+        ])
+        return kinds
+    }
+}
+
+extension BrowseAIFallbackTask {
+    var collection: CharacterCollection {
+        switch self {
+        case .checkOCR(let collection),
+             .extractPhrases(let collection),
+             .translate(let collection),
+             .extractSentences(let collection),
+             .createPagePractice(let collection),
+             .createAICleanedPage(let collection):
+            return collection
+        }
+    }
+
+    var taskID: String {
+        switch self {
+        case .checkOCR: return AIResultTaskID.checkOCR
+        case .extractPhrases: return AIResultTaskID.extractPhrases
+        case .translate: return AIResultTaskID.translatePage
+        case .extractSentences: return AIResultTaskID.extractSentences
+        case .createPagePractice: return AIResultTaskID.createPagePractice
+        case .createAICleanedPage: return AIResultTaskID.createAICleanedPage
+        }
+    }
+}
+
 struct CollectionPageActionsMenu: View {
     private struct PendingAISelection {
         let taskID: String
