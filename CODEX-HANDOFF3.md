@@ -52,7 +52,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
 
 - Sentence cards use `PhraseInfoCard` in sentence mode and retain the whole
   sentence, English, optional pinyin, read aloud, Phrase button,
-  four-character animation pages, favorite, and delete.
+  four-character animation pages, favorite, sentence-level AI context-menu
+  actions, and delete.
 - Sentence animation character taps record History and may speak, but do not
   open a nested character/phrase preview stack.
 - Phrase rows opened from a sentence-scoped Phrase Library inspect inside that

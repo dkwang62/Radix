@@ -404,9 +404,10 @@ extension RadixStore {
         if RadixPlatform.isPhone { showiPhoneDetail = false }
     }
 
-    func sentenceAITaskID() -> String {
+    func sentenceAITaskID(preferredTaskID: String = PromptConfig.defaultSentenceTaskID) -> String {
         let normalizedTasks = promptConfig.normalized().tasks
-        let taskID = normalizedTasks.first { $0.id == PromptConfig.defaultSentenceTaskID }?.id ??
+        let taskID = normalizedTasks.first { $0.id == preferredTaskID }?.id ??
+            normalizedTasks.first { $0.id == PromptConfig.defaultSentenceTaskID }?.id ??
             normalizedTasks.first { $0.subjectType == .sentence }?.id ??
             PromptConfig.defaultSentenceTaskID
         if promptConfig.tasks.allSatisfy({ $0.id != taskID }),
@@ -418,7 +419,12 @@ extension RadixStore {
 
     @MainActor
     func triggerSentenceAI(_ sentence: ConversationPracticeItem) {
-        let taskID = sentenceAITaskID()
+        triggerSentenceAI(sentence, taskID: sentenceAITaskID())
+    }
+
+    @MainActor
+    func triggerSentenceAI(_ sentence: ConversationPracticeItem, taskID preferredTaskID: String) {
+        let taskID = sentenceAITaskID(preferredTaskID: preferredTaskID)
         let prompt = promptText(for: .sentence(sentence), selectedTaskIDs: [taskID])
         guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         activePracticeSentenceItem = sentence

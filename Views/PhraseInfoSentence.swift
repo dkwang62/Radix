@@ -159,8 +159,14 @@ extension PhraseInfoCard {
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .contextMenu {
             if let practiceSentenceItem {
-                Button("Send to AI Link") {
+                Button("Explain with AI") {
                     store.triggerSentenceAI(practiceSentenceItem)
+                }
+                Button("Improve Sentence with AI") {
+                    store.triggerSentenceAI(
+                        practiceSentenceItem,
+                        taskID: PromptConfig.sentenceImprovementTaskID
+                    )
                 }
             }
         }

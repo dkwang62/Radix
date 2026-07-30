@@ -98,11 +98,12 @@ possible.
 Sentence previews still use the shared `PhraseInfoCard` presentation route, and
 sentence mode must stay rich enough for learning: whole sentence, English
 meaning, optional pinyin, read aloud, Phrase button, four-character stroke
-animation pages, favorite, a `Send to AI Link` context-menu item, and delete.
-The sentence-card AI context action uses the built-in `Sentence` AI template,
-copies that prompt, and opens the selected/default AI provider directly; it
-should not stop at the AI Link workspace or fall back to a character, phrase,
-page, or generic starter template.
+animation pages, favorite, sentence-level AI context-menu actions, and delete.
+The sentence-card AI context actions use sentence-subject templates: `Explain
+with AI` uses the built-in `Sentence` template, while `Improve Sentence with AI`
+uses `Sentence Improvement`. They copy the selected sentence prompt and open the
+selected/default AI provider directly; they should not fall back to a character,
+phrase, page, or generic starter template.
 AI Link also includes a built-in sentence-subject `Sentence Improvement` task.
 It takes an existing sentence or messy input string, keeps the original language
 and core intent, and returns only one cleaned, complete, coherent sentence with
