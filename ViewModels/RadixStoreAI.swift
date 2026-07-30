@@ -18,6 +18,7 @@ enum AIResultTaskID {
     static let extractSentences = "task10"
     static let createPagePractice = "task11"
     static let createAICleanedPage = "task12"
+    static let sentenceImprovement = "task14"
 
     static let importableTasks: Set<String> = [
         extractPhrases,
@@ -26,7 +27,8 @@ enum AIResultTaskID {
         generatePracticePack,
         extractSentences,
         createPagePractice,
-        createAICleanedPage
+        createAICleanedPage,
+        sentenceImprovement
     ]
 }
 
@@ -34,6 +36,8 @@ enum AIResultApplicationError: LocalizedError {
     case missingCollection
     case invalidOCRReview
     case emptyCorrectedOCR
+    case missingSentence
+    case emptyImprovedSentence
     case unsupportedTask
 
     var errorDescription: String? {
@@ -44,6 +48,10 @@ enum AIResultApplicationError: LocalizedError {
             return "Radix could not read the AI answer. Ask it to keep the required [[CORRECTED TEXT]], [[CHANGES]], and [[UNCERTAIN]] headings."
         case .emptyCorrectedOCR:
             return "The corrected text does not contain a Chinese character recognized by Radix."
+        case .missingSentence:
+            return "Choose a sentence first."
+        case .emptyImprovedSentence:
+            return "Paste the improved sentence first."
         case .unsupportedTask:
             return "This AI task does not import data back into Radix."
         }
@@ -56,6 +64,7 @@ enum AIResultApplicationOutcome {
     case correctedOCR(CharacterCollection)
     case conversationPractice(ConversationPracticePack)
     case aiCleanedPage(AICleanedPageRecord)
+    case sentenceImprovement(SentenceExampleRecord)
 
     func message(defaultAIName: String) -> String {
         switch self {
@@ -69,6 +78,8 @@ enum AIResultApplicationOutcome {
             return "Imported \(pack.title) - \(pack.entries.count) sentences."
         case .aiCleanedPage(let record):
             return "Extracted sentences saved: \(record.cleanedTitle.isEmpty ? record.sourceTitle : record.cleanedTitle)."
+        case .sentenceImprovement:
+            return "Sentence updated."
         }
     }
 }
@@ -157,6 +168,63 @@ extension RadixStore {
 
     func supportsAIResultImport(taskID: String) -> Bool {
         AIResultTaskID.importableTasks.contains(taskID)
+    }
+
+    @discardableResult
+    func applySentenceImprovement(
+        fromAIResponse responseText: String,
+        to item: ConversationPracticeItem
+    ) throws -> SentenceExampleRecord {
+        let improvedSentence = cleanedImprovedSentenceResponse(responseText)
+        guard !improvedSentence.isEmpty else {
+            throw AIResultApplicationError.emptyImprovedSentence
+        }
+
+        var record = sentenceExample(for: item) ?? SentenceExampleRecord.fromPracticeItem(item, pack: nil)
+        record.chinese = ScriptTextConverter.simplified(improvedSentence)
+        record.pinyin = nil
+        record.targetCharacters = SentenceExampleRecord.detectChineseCharacters(in: record.chinese)
+        record.detectedCharacters = record.targetCharacters
+        record.targetPhrases = retainedPhraseHints(record.targetPhrases, in: record.chinese)
+        record.detectedPhrases = retainedPhraseHints(record.detectedPhrases, in: record.chinese)
+        RadixStudyPreferences.replaceSentenceExample(record)
+        favoriteSentenceRevision += 1
+        return record
+    }
+
+    private func cleanedImprovedSentenceResponse(_ responseText: String) -> String {
+        var cleaned = responseText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if cleaned.hasPrefix("```") {
+            var lines = cleaned.split(whereSeparator: \.isNewline).map(String.init)
+            if !lines.isEmpty {
+                lines.removeFirst()
+            }
+            if let last = lines.last,
+               last.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("```") {
+                lines.removeLast()
+            }
+            cleaned = lines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        for prefix in ["Improved sentence:", "Improved Sentence:", "改进后的句子：", "改进后的句子:"] {
+            if cleaned.hasPrefix(prefix) {
+                cleaned = String(cleaned.dropFirst(prefix.count)).trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+        }
+        if cleaned.hasPrefix("\""), cleaned.hasSuffix("\""), cleaned.count >= 2 {
+            cleaned = String(cleaned.dropFirst().dropLast()).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        if cleaned.hasPrefix("“"), cleaned.hasSuffix("”"), cleaned.count >= 2 {
+            cleaned = String(cleaned.dropFirst().dropLast()).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return cleaned
+    }
+
+    private func retainedPhraseHints(_ hints: [String], in sentence: String) -> [String] {
+        let sentenceKey = SentenceExampleRecord.normalizedChineseKey(sentence)
+        return hints.filter {
+            let key = SentenceExampleRecord.normalizedChineseKey(ScriptTextConverter.simplified($0))
+            return !key.isEmpty && sentenceKey.contains(key)
+        }
     }
 
     func createCorrectedOCRCollection(fromAIResponse responseText: String, original collection: CharacterCollection) throws -> CharacterCollection {
@@ -251,7 +319,13 @@ extension RadixStore {
         return result
     }
 
-    func applyAIResult(taskID: String, responseText: String, collection: CharacterCollection?, sourceName: String) throws -> AIResultApplicationOutcome {
+    func applyAIResult(
+        taskID: String,
+        responseText: String,
+        collection: CharacterCollection?,
+        sentence: ConversationPracticeItem?,
+        sourceName: String
+    ) throws -> AIResultApplicationOutcome {
         switch taskID {
         case AIResultTaskID.extractPhrases:
             return .phraseExtraction(importPhraseDiscoveryResponse(responseText, sourceCollection: collection))
@@ -273,6 +347,9 @@ extension RadixStore {
         case AIResultTaskID.createAICleanedPage:
             guard let collection else { throw AIResultApplicationError.missingCollection }
             return .aiCleanedPage(try importAICleanedPage(fromAIResponse: responseText, for: collection))
+        case AIResultTaskID.sentenceImprovement:
+            guard let sentence else { throw AIResultApplicationError.missingSentence }
+            return .sentenceImprovement(try applySentenceImprovement(fromAIResponse: responseText, to: sentence))
         default:
             throw AIResultApplicationError.unsupportedTask
         }

@@ -9,7 +9,7 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
 
 - Branch: `codex/post-testflight-iteration`.
 - Workstream: post-TestFlight / Version 1.1 iteration.
-- Current version metadata: marketing version `1.0.4`, build `14`.
+- Current version metadata: marketing version `1.0.4`, build `21`.
 - Product direction: a linked Page -> Sentence -> Phrase -> Character learning
   graph.
 - Browse owns source inspection: Dictionary, saved pages, Original OCR,
@@ -36,6 +36,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   and deletion of saved pages/artifacts.
 - AI Link owns manual and direct Gemini workflows. Saved-page AI tasks should
   reuse the shared AI task flow.
+- AI Link's built-in `Sentence Improvement` task can paste/apply an AI answer
+  back into the selected saved sentence record.
 - Sentence examples are SQLite-backed through `RadixStudyPreferences`. Normal
   backup/restore excludes the heavy sentence database; Study > Sentences owns
   fast sentence transfer.
@@ -122,12 +124,10 @@ Recent commits, newest first:
 
 The following files are currently dirty and predate this handoff work:
 
-- `Radix.xcodeproj/project.pbxproj`
 - `phrases_add.db`
 
-Treat both as user/external changes. Do not discard, normalize, stage, or commit
-them unless a later task explicitly establishes their intended changes. Note
-that the project-file diff is largely reordered Xcode project entries.
+Treat this as a user/external change. Do not discard, normalize, stage, or
+commit it unless a later task explicitly establishes its intended changes.
 
 ## Verification
 
@@ -145,8 +145,8 @@ For release work and platform-sensitive UI/data changes, also run:
 xcodebuild -quiet -project Radix.xcodeproj -scheme Radix -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 ```
 
-The latest completed UI cleanup passed `git diff --check`, all 82 portable Swift
-tests, Mac Catalyst compilation, and generic iOS Simulator compilation.
+The latest completed AI Link update passed `git diff --check`, all 91 portable
+Swift tests, Mac Catalyst compilation, and generic iOS Simulator compilation.
 
 ## Next Steps
 

@@ -482,6 +482,9 @@ extension AILinkView {
         if PromptConfig.collectionTaskIDs.contains(task.id), selectedCollection == nil {
             return false
         }
+        if task.id == AIResultTaskID.sentenceImprovement, activeSentenceItem == nil {
+            return false
+        }
         return aiResultWorkflowSupportsPaste(task.id)
     }
 
@@ -490,12 +493,14 @@ extension AILinkView {
         aiResultError = nil
         let result = aiResultText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !result.isEmpty else { return }
+        let activeSentenceRank = activeSentenceItem?.rank ?? 1
 
         do {
             let outcome = try store.applyAIResult(
                 taskID: task.id,
                 responseText: result,
                 collection: selectedCollection,
+                sentence: activeSentenceItem,
                 sourceName: aiResultSourceName(for: task.id)
             )
 
@@ -506,6 +511,10 @@ extension AILinkView {
                 aiImportedPracticePack = pack
             } else {
                 aiImportedPracticePack = nil
+            }
+            if case .sentenceImprovement(let record) = outcome {
+                selectedAISentenceRecord = record
+                store.activePracticeSentenceItem = ConversationPracticeItem(sentenceExample: record, rank: activeSentenceRank)
             }
             aiResultMessage = outcome.message(defaultAIName: store.defaultAIName)
             isAIResultTextExpanded = false
@@ -539,6 +548,7 @@ extension AILinkView {
         case AIResultTaskID.checkOCR: return "text.viewfinder"
         case AIResultTaskID.createAICleanedPage: return "text.page.badge.magnifyingglass"
         case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice: return "bubble.left.and.bubble.right"
+        case AIResultTaskID.sentenceImprovement: return "wand.and.stars"
         default: return "doc.text"
         }
     }
@@ -552,6 +562,7 @@ extension AILinkView {
         case AIResultTaskID.generatePracticePack: return "Paste the practice answer here to import it into Study."
         case AIResultTaskID.extractSentences: return "Paste the sentence-practice answer here to import it into Conversation Practice."
         case AIResultTaskID.createPagePractice: return "Paste the page-practice answer here to import it into Conversation Practice."
+        case AIResultTaskID.sentenceImprovement: return "Paste the improved sentence here to update the selected saved sentence."
         case AIResultTaskID.createQuiz: return "This prompt runs the quiz inside the AI app, so there is no Radix paste step."
         default: return "Use the AI answer as a reference. This task does not import data back into Radix."
         }
@@ -564,6 +575,7 @@ extension AILinkView {
         case AIResultTaskID.checkOCR: return "Create Corrected Text"
         case AIResultTaskID.createAICleanedPage: return "Save Sentences"
         case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice: return "Import Practice"
+        case AIResultTaskID.sentenceImprovement: return "Update Sentence"
         default: return "Apply"
         }
     }

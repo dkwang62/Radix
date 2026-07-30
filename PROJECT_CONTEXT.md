@@ -106,7 +106,10 @@ page, or generic starter template.
 AI Link also includes a built-in sentence-subject `Sentence Improvement` task.
 It takes an existing sentence or messy input string, keeps the original language
 and core intent, and returns only one cleaned, complete, coherent sentence with
-no translation, notes, pinyin, or explanation.
+no translation, notes, pinyin, or explanation. Its `Paste AI Answer` workflow
+updates the selected saved sentence record in the sentence database, preserving
+sources, favorites, English meaning, and notes while clearing stale pinyin and
+refreshing character/phrase hints from the improved sentence.
 Custom AI Link tasks carry an explicit subject type. Character/Phrase tasks use
 the recent subject chooser, Page tasks use the saved-page chooser, and Sentence
 tasks use a searchable saved-sentence chooser that queries only a small visible
