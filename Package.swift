@@ -23,6 +23,7 @@ let package = Package(
                 "CaptureModels.swift",
                 "ConversationPracticeModels.swift",
                 "ConversationPracticeProgressModels.swift",
+                "ConversationPracticeQuizRules.swift",
                 "PhraseModels.swift",
                 "PinyinSearchNormalizer.swift",
                 "PromptConfigRendering.swift",
