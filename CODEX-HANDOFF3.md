@@ -76,6 +76,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   `ConversationPracticeProgressModels.swift`; keep progress serialization there.
 - Conversation practice character quiz rules live in
   `ConversationPracticeQuizRules.swift`; keep quiz choice/question logic there.
+- Favorite sentence serialization lives in `FavoriteSentenceModels.swift`;
+  keep favorite sentence identity and dedupe behavior there.
 - Sentence-based Study surfaces share a default 10-row page size. Study
   Sentences uses one compact source menu for All/Favorites/From Pages/From
   Practice instead of a row of source buttons. Its tools menu keeps destructive
