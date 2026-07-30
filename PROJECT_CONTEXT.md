@@ -171,9 +171,10 @@ row on every device. The minimum-count slider filters sentences by at least that
 many stored Chinese characters; it is not a maximum-length rule. The database
 query must compare this threshold as a number, not a text binding, so filtered
 page counts and visible rows stay aligned. The tools menu owns
-selection, bulk delete, and sentence transfer so iPad/Mac do not grow separate
-management buttons that crowd page navigation. Do not keep parallel standalone
-Select, Delete Results, or Transfer button helpers for this screen.
+selection, sentence transfer, and a nested `Delete...` submenu so destructive
+sentence actions are separated from normal tools. Single-sentence deletes also
+require confirmation. Do not keep parallel standalone Select, Delete Results,
+or Transfer button helpers for this screen.
 Page-linked sentence actions should open the source in `Pages`; Browse is only
 for explicit source/OCR inspection from a page's `Browse` action.
 Shared language-learning buttons should use meaningful text badges instead of

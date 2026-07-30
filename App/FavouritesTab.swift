@@ -48,6 +48,47 @@ struct SentenceExampleEditDraft: Identifiable {
     var id: UUID { record.id }
 }
 
+struct PendingSentenceExampleDeletion: Identifiable {
+    let record: SentenceExampleRecord
+
+    var id: UUID { record.id }
+}
+
+private struct SentenceExampleDeletionAlert: ViewModifier {
+    @Binding var pendingDeletion: PendingSentenceExampleDeletion?
+    let onDelete: (SentenceExampleRecord) -> Void
+
+    func body(content: Content) -> some View {
+        content.alert("Delete Sentence?", isPresented: isPresented) {
+            Button("Cancel", role: .cancel) {
+                pendingDeletion = nil
+            }
+            Button("Delete Sentence", role: .destructive) {
+                if let record = pendingDeletion?.record {
+                    onDelete(record)
+                }
+                pendingDeletion = nil
+            }
+        } message: {
+            Text(message)
+        }
+    }
+
+    private var isPresented: Binding<Bool> {
+        Binding(
+            get: { pendingDeletion != nil },
+            set: { if !$0 { pendingDeletion = nil } }
+        )
+    }
+
+    private var message: String {
+        guard let pendingDeletion else {
+            return "This permanently deletes this saved sentence from Study."
+        }
+        return "This permanently deletes this saved sentence from Study.\n\n\(pendingDeletion.record.chinese)"
+    }
+}
+
 struct PendingSentenceDatabaseImport: Identifiable {
     let url: URL
 
@@ -98,6 +139,7 @@ struct FavouritesTab: View {
     @State var sentenceExampleRevision = 0
     @State var sentenceExampleStatusMessage: String?
     @State var sentenceExampleEditDraft: SentenceExampleEditDraft?
+    @State var pendingSentenceExampleDeletion: PendingSentenceExampleDeletion?
     @State var showDeleteFilteredSentenceExamplesConfirmation = false
     @State var showDeleteSelectedSentenceExamplesConfirmation = false
     @State var sentenceDatabaseExportDocument = BinaryFileDocument(data: Data())
@@ -346,6 +388,12 @@ struct FavouritesTab: View {
         } message: {
             Text(pendingConversationPracticeReplacement?.message ?? "")
         }
+        .modifier(SentenceExampleDeletionAlert(
+            pendingDeletion: $pendingSentenceExampleDeletion,
+            onDelete: { record in
+                deleteSentenceExamples([record], statusMessage: "Deleted")
+            }
+        ))
         .alert("Delete Matching Sentences?", isPresented: $showDeleteFilteredSentenceExamplesConfirmation) {
             Button("Cancel", role: .cancel) {}
             Button(sentenceExampleBulkDeleteConfirmationTitle, role: .destructive) {

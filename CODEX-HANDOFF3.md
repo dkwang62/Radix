@@ -68,7 +68,9 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   Flashcards/Quick Quiz in the compact tools menu above the sentence list.
 - Sentence-based Study surfaces share a default 10-row page size. Study
   Sentences uses one compact source menu for All/Favorites/From Pages/From
-  Practice instead of a row of source buttons.
+  Practice instead of a row of source buttons. Its tools menu keeps destructive
+  sentence actions inside a nested `Delete...` menu, and single-sentence delete
+  requires confirmation.
 - `Added Phrases`, `Conversation Practices`, and `Sentences` are peer in-place
   Study sections selected from the root title menu. They share one
   `FocusedStudySection` enum, keep pinned Study controls visible, and do not

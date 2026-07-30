@@ -635,13 +635,6 @@ extension FavouritesTab {
                 } label: {
                     Label("Cancel Selection", systemImage: "xmark.circle")
                 }
-
-                Button(role: .destructive) {
-                    showDeleteSelectedSentenceExamplesConfirmation = true
-                } label: {
-                    Label("Delete \(selectedSentenceExampleCount)", systemImage: "trash")
-                }
-                .disabled(selectedSentenceExampleIDs.isEmpty)
             } else if sentenceExampleResultCount > 0 {
                 Button {
                     startSelectingSentenceExamples()
@@ -649,16 +642,6 @@ extension FavouritesTab {
                     Label("Select Sentences", systemImage: "checklist")
                 }
             }
-
-            if canBulkDeleteFilteredSentenceExamples {
-                Button(role: .destructive) {
-                    showDeleteFilteredSentenceExamplesConfirmation = true
-                } label: {
-                    Label("Delete Results", systemImage: "trash")
-                }
-            }
-
-            Divider()
 
             Button {
                 exportSentenceDatabase()
@@ -674,12 +657,7 @@ extension FavouritesTab {
             }
             .disabled(isRunningSentenceDatabaseTransfer)
 
-            Button(role: .destructive) {
-                showClearSentenceDatabaseConfirmation = true
-            } label: {
-                Label("Clear Saved Sentences...", systemImage: "trash")
-            }
-            .disabled(isRunningSentenceDatabaseTransfer)
+            sentenceExampleDeleteMenu
         } label: {
             Image(systemName: "ellipsis.circle")
                 .font(.system(size: 18, weight: .semibold))
@@ -693,6 +671,40 @@ extension FavouritesTab {
         .foregroundStyle(isRunningSentenceDatabaseTransfer ? .secondary : RadixAccent.primary)
         .disabled(isRunningSentenceDatabaseTransfer)
         .accessibilityLabel("Sentence tools")
+    }
+
+    @ViewBuilder
+    var sentenceExampleDeleteMenu: some View {
+        Divider()
+
+        Menu {
+            if isSelectingSentenceExamples {
+                Button(role: .destructive) {
+                    showDeleteSelectedSentenceExamplesConfirmation = true
+                } label: {
+                    Label("Delete Selected", systemImage: "trash")
+                }
+                .disabled(selectedSentenceExampleIDs.isEmpty)
+            }
+
+            if canBulkDeleteFilteredSentenceExamples {
+                Button(role: .destructive) {
+                    showDeleteFilteredSentenceExamplesConfirmation = true
+                } label: {
+                    Label("Delete Results", systemImage: "trash")
+                }
+            }
+
+            Button(role: .destructive) {
+                showClearSentenceDatabaseConfirmation = true
+            } label: {
+                Label("Clear Saved Sentences...", systemImage: "trash")
+            }
+            .disabled(isRunningSentenceDatabaseTransfer)
+        } label: {
+            Label("Delete...", systemImage: "trash")
+        }
+        .disabled(isRunningSentenceDatabaseTransfer)
     }
 
     var sentenceExamplePageSize: Int {
@@ -1102,7 +1114,7 @@ extension FavouritesTab {
         Divider()
 
         Button(role: .destructive) {
-            deleteSentenceExamples([example], statusMessage: "Deleted")
+            pendingSentenceExampleDeletion = PendingSentenceExampleDeletion(record: example)
         } label: {
             Label("Delete", systemImage: "trash")
         }

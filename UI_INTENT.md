@@ -163,7 +163,9 @@ choice on the top row. Put source filtering, compact sentence search, minimum
 Chinese character-count filtering, and one tools dropdown on the lower source
 row on every device; the dropdown owns selection, transfer, and bulk delete.
 The character-count filter is a minimum-length filter, not a sentence-shortening
-or maximum-length rule.
+or maximum-length rule. Keep destructive sentence actions inside a nested
+`Delete...` menu with confirmation, separated from normal tools such as Select,
+Import, and Export.
 Page-linked sentence actions should open the source in `Pages`; Browse is only
 for explicit source/OCR inspection from a page's `Source` action.
 Language-learning controls should prefer meaningful text badges over generic
