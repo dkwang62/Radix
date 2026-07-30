@@ -353,9 +353,12 @@ where possible. The Study section selector uses one focused-section enum rather
 than three independent booleans, reducing impossible UI states and duplicate
 title sync. Added Phrases, Conversation Practices, and Sentences are peer
 in-place sections and no longer retain obsolete section-specific back-button
-renderers. Remaining large-file refactor targets are
-`ConversationPracticeModels.swift`, `FavouritesSections.swift`,
-`RadixStoreDataEdit.swift`, `FavouritesTab.swift`, and `PromptModels.swift`.
+renderers. The high-priority `ConversationPracticeModels.swift` split is now
+complete: pack decoding, validation, library mapping, topics, sentence
+examples, favorite sentences, capture import, progress, and quiz rules have
+separate model files. Remaining large-file refactor targets are
+`RadixStoreDataEdit.swift`, `PromptModels.swift`, `FavouritesTab.swift`, and
+`ComponentRepository.swift`.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.
@@ -570,14 +573,18 @@ Do not move domain behavior back into `RadixStore.swift`.
 
 Keep future refactors opportunistic and behavior-preserving:
 
-- Split `Models/ConversationPracticeModels.swift` by sub-domain when editing
-  nearby code: core pack/sentence records, quiz rules, progress snapshots, and
-  capture/import payloads should not keep accumulating in one model file.
-- Treat large SwiftUI/model/service files such as `FavouritesSections.swift`,
-  `FavouritesTab.swift`, `PromptModels.swift`, `RadixStoreDataEdit.swift`, and
-  `ComponentRepository.swift` as candidates for the same focused extraction
-  pattern already used elsewhere. Avoid adding unrelated responsibilities to
-  those files while making feature changes.
+- Keep the completed conversation-practice model split intact. Add new
+  conversation-practice behavior to the narrow file that owns that concern
+  rather than growing `ConversationPracticeModels.swift` again.
+- Treat `RadixStoreDataEdit.swift`, `PromptModels.swift`, `FavouritesTab.swift`,
+  and `ComponentRepository.swift` as the next large-file candidates for the
+  same focused extraction pattern already used elsewhere. Avoid adding
+  unrelated responsibilities to those files while making feature changes.
+- Suggested future split order: move import/restore orchestration out of
+  `RadixStoreDataEdit.swift`, split built-in prompt templates from prompt task
+  metadata in `PromptModels.swift`, continue moving focused Study state and
+  lifecycle helpers out of `FavouritesTab.swift`, then extract
+  `ComponentRepository.swift` query/index helpers by responsibility.
 
 ### Reuse-first rule
 

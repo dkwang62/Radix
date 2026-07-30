@@ -167,8 +167,9 @@ For release work and platform-sensitive UI/data changes, also run:
 xcodebuild -quiet -project Radix.xcodeproj -scheme Radix -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 ```
 
-The latest completed AI Link update passed `git diff --check`, all 91 portable
-Swift tests, Mac Catalyst compilation, and generic iOS Simulator compilation.
+The high-priority conversation-practice model split is complete. The final
+validation split passed `git diff --check`, all 91 portable Swift tests, Mac
+Catalyst compilation, and generic iOS Simulator compilation.
 
 ## Next Steps
 
@@ -176,11 +177,10 @@ Swift tests, Mac Catalyst compilation, and generic iOS Simulator compilation.
 2. Prefer changes that eliminate duplicated state/renderers or remove
    full-library work from display paths without changing user behavior.
 3. Large-file pressure points remain:
-   - `Models/ConversationPracticeModels.swift`
-   - `App/FavouritesSections.swift`
    - `ViewModels/RadixStoreDataEdit.swift`
-   - `App/FavouritesTab.swift`
    - `Models/PromptModels.swift`
+   - `App/FavouritesTab.swift`
+   - `Services/ComponentRepository.swift`
 4. Watch performance-sensitive paths:
    - Study Sentences search, paging, selection, and batch deletion.
    - Phrase-card Examples and phrase-aware sentence matching.
