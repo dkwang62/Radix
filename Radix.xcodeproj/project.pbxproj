@@ -75,6 +75,7 @@
 		850000142F9D0006001B9AA7 /* RadixStorePhraseFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000132F9D0006001B9AA7 /* RadixStorePhraseFile.swift */; };
 		850000162F9D0001001B9AA7 /* BrowseSourceMenuViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000152F9D0001001B9AA7 /* BrowseSourceMenuViews.swift */; };
 		850000162F9D0007001B9AA7 /* RadixStoreDataEdit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000152F9D0007001B9AA7 /* RadixStoreDataEdit.swift */; };
+		850000562F9D0016001B9AA7 /* RadixStoreDataMaintenance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000552F9D0016001B9AA7 /* RadixStoreDataMaintenance.swift */; };
 		850000182F9D0001001B9AA7 /* DataBackupPreviewRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000172F9D0001001B9AA7 /* DataBackupPreviewRows.swift */; };
 		850000182F9D0008001B9AA7 /* RadixStoreSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000172F9D0008001B9AA7 /* RadixStoreSearch.swift */; };
 		8500001A2F9D0001001B9AA7 /* QuickEditFieldRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000192F9D0001001B9AA7 /* QuickEditFieldRows.swift */; };
@@ -343,6 +344,7 @@
 		850000132F9D0006001B9AA7 /* RadixStorePhraseFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStorePhraseFile.swift; sourceTree = "<group>"; };
 		850000152F9D0001001B9AA7 /* BrowseSourceMenuViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseSourceMenuViews.swift; sourceTree = "<group>"; };
 		850000152F9D0007001B9AA7 /* RadixStoreDataEdit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreDataEdit.swift; sourceTree = "<group>"; };
+		850000552F9D0016001B9AA7 /* RadixStoreDataMaintenance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreDataMaintenance.swift; sourceTree = "<group>"; };
 		850000172F9D0001001B9AA7 /* DataBackupPreviewRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBackupPreviewRows.swift; sourceTree = "<group>"; };
 		850000172F9D0008001B9AA7 /* RadixStoreSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreSearch.swift; sourceTree = "<group>"; };
 		850000192F9D0001001B9AA7 /* QuickEditFieldRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEditFieldRows.swift; sourceTree = "<group>"; };
@@ -855,6 +857,7 @@
 				850000112F9D0005001B9AA7 /* RadixStoreFavorites.swift */,
 				850000132F9D0006001B9AA7 /* RadixStorePhraseFile.swift */,
 				850000152F9D0007001B9AA7 /* RadixStoreDataEdit.swift */,
+				850000552F9D0016001B9AA7 /* RadixStoreDataMaintenance.swift */,
 				850000172F9D0008001B9AA7 /* RadixStoreSearch.swift */,
 				850000192F9D0009001B9AA7 /* RadixStoreNavigation.swift */,
 				8500001B2F9D000A001B9AA7 /* RadixStoreImagePhrase.swift */,
@@ -1097,6 +1100,7 @@
 				850000122F9D0005001B9AA7 /* RadixStoreFavorites.swift in Sources */,
 				850000142F9D0006001B9AA7 /* RadixStorePhraseFile.swift in Sources */,
 				850000162F9D0007001B9AA7 /* RadixStoreDataEdit.swift in Sources */,
+				850000562F9D0016001B9AA7 /* RadixStoreDataMaintenance.swift in Sources */,
 				850000182F9D0008001B9AA7 /* RadixStoreSearch.swift in Sources */,
 				8500001A2F9D0009001B9AA7 /* RadixStoreNavigation.swift in Sources */,
 				8500001C2F9D000A001B9AA7 /* RadixStoreImagePhrase.swift in Sources */,

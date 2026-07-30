@@ -223,6 +223,9 @@ full matches on demand. Traditional remains display-only. Normal Study
 Sentences, practice, phrase-card Examples, sentence-card, and
 extracted-sentence reader access must never repair or rediscover phrase links
 while rendering; they are read-only consumers of stored hints. Bulk
+optimization, sentence phrase-link refresh, storage health, and database
+optimization fingerprints live in `RadixStoreDataMaintenance.swift`; Character
+Studio edit/import operations remain in `RadixStoreDataEdit.swift`.
 restore/import must not start optimization automatically; it should only mark
 optimization as recommended until the user explicitly runs Settings >
 Optimize Database.

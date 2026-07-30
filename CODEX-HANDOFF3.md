@@ -86,6 +86,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   the same title in the content area.
 - Settings exposes one user-facing `Optimize Database` action. Imports and
   restores may recommend optimization but must not launch it automatically.
+- Data maintenance code lives in `RadixStoreDataMaintenance.swift`; keep
+  Character Studio edit/import behavior in `RadixStoreDataEdit.swift`.
 - Radix-owned Chinese data is stored canonically in Simplified Chinese;
   Traditional Chinese is a display mode.
 - `flushPendingDataEditAutoSave()` must remain pending-only. Scene transitions
