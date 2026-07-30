@@ -1525,6 +1525,8 @@ return to the sidebar once that contextual focus is no longer active. On iPhone,
 where there is no persistent sidebar, Checkpoints are the seventh icon in the
 top Study scope row and open a sheet with one Create Checkpoint action and the
 full retained checkpoint list, up to `LocalDataSnapshotStore.maximumSnapshotCount`.
+Keep the Study Checkpoints section rendering in `FavouritesCheckpoints.swift`
+rather than growing `FavouritesSections.swift`.
 The iPad/Mac sidebar remains a compact recent-checkpoint preview and should
 label that subset when more checkpoints exist. Tapping a row is the return
 action after confirmation, so there is no separate restore menu competing with
