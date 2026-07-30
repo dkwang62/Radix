@@ -163,7 +163,7 @@ extension PhraseInfoCard {
                     store.triggerSentenceAI(practiceSentenceItem)
                 }
                 Button("Improve Sentence with AI") {
-                    store.triggerSentenceAI(
+                    store.goToAILinkSentenceTask(
                         practiceSentenceItem,
                         taskID: PromptConfig.sentenceImprovementTaskID
                     )

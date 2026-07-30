@@ -7,7 +7,9 @@ extension PromptConfig {
             seen.insert($0.id)
             return true
         }.map { task in
-            guard (PromptConfig.collectionTaskIDs.contains(task.id) || PromptConfig.practiceTopicTaskIDs.contains(task.id)),
+            guard (PromptConfig.collectionTaskIDs.contains(task.id) ||
+                   PromptConfig.practiceTopicTaskIDs.contains(task.id) ||
+                   task.id == PromptConfig.sentenceImprovementTaskID),
                   let defaultTask = PromptConfig.streamlitDefault.tasks.first(where: { $0.id == task.id }) else {
                 return task
             }
@@ -34,6 +36,10 @@ extension PromptConfig {
                       task.title == "Create AI-Cleaned Page" ||
                         task.title == "Create AI Page" {
                 normalizedTitle = defaultTask.title
+            } else if task.id == PromptConfig.sentenceImprovementTaskID,
+                      task.title == "Improve Sentence" ||
+                        task.title == "Sentence Improvement" {
+                normalizedTitle = defaultTask.title
             } else {
                 normalizedTitle = task.title
             }
@@ -58,6 +64,13 @@ extension PromptConfig {
                     !task.template.contains("cleaned_chinese_text") ||
                     !task.template.contains("\"pinyin\"") ||
                     !task.template.contains("distinct, fully formed, grammatically correct sentences")
+                )) ||
+                (task.id == PromptConfig.sentenceImprovementTaskID && (
+                    !task.template.contains("Return JSON only") ||
+                    !task.template.contains("\"sentence\"") ||
+                    !task.template.contains("\"pinyin\"") ||
+                    !task.template.contains("\"english\"") ||
+                    !task.template.contains("The three fields must match each other exactly")
                 )) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {

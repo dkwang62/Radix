@@ -126,6 +126,37 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains(PromptConfig.sentenceImprovementTaskID))
     }
 
+    @Test("Legacy sentence improvement templates normalize to synced JSON payload")
+    func legacySentenceImprovementTemplateNormalizesToSyncedPayload() {
+        let legacy = PromptTask(
+            id: PromptConfig.sentenceImprovementTaskID,
+            title: "Sentence Improvement",
+            template: """
+            Sentence Improvement
+
+            Rewrite this messy input string.
+            Return only the improved sentence. Do not include pinyin or English.
+            """,
+            subjectType: .sentence
+        )
+        let config = PromptConfig(
+            version: 1,
+            preamble: "",
+            tasks: [legacy],
+            epilogue: "",
+            collectionPreamble: "",
+            collectionEpilogue: ""
+        )
+
+        let task = config.normalized().tasks.first { $0.id == PromptConfig.sentenceImprovementTaskID }
+
+        #expect(task?.template.contains("Return JSON only") == true)
+        #expect(task?.template.contains("\"sentence\"") == true)
+        #expect(task?.template.contains("\"pinyin\"") == true)
+        #expect(task?.template.contains("\"english\"") == true)
+        #expect(task?.template.contains("The three fields must match each other exactly") == true)
+    }
+
     @Test("Legacy prompt configs receive the built-in sentence template")
     func legacyPromptConfigAddsSentenceTemplate() {
         let legacyTasks = PromptConfig.streamlitDefault.tasks.filter {

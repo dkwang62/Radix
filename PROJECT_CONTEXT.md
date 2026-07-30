@@ -114,7 +114,13 @@ database, preserving sources, favorites, and notes while refreshing
 character/phrase hints from the improved sentence. When the saved sentence came
 from an extracted-page artifact, the same edit must also replace the sentence,
 pinyin, and English meaning inside the owning `AICleanedPageRecord`; otherwise
-page sentence readers will keep showing stale page-owned data.
+page sentence readers will keep showing stale page-owned data. Older persisted
+copies of the built-in `Sentence Improvement` prompt must normalize to the
+current JSON contract so users see the updated template without manually
+resetting AI settings. Sentence-card `Improve Sentence with AI` should route to
+AI Link with the sentence and task selected so the normal prompt, paste, and
+apply workflow remains visible; non-importing `Explain with AI` may still use
+the quick external AI launch path.
 Prompt model data and prompt rendering are split deliberately:
 `PromptModels.swift` owns prompt subjects, task defaults, IDs, configuration,
 and render context, while `PromptConfigRendering.swift` owns normalization,

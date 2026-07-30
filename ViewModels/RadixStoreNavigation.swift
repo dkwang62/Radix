@@ -439,6 +439,22 @@ extension RadixStore {
         scheduleMacClipboardPasteIfPossible()
     }
 
+    @MainActor
+    func goToAILinkSentenceTask(_ sentence: ConversationPracticeItem, taskID preferredTaskID: String) {
+        if route != .aiLink {
+            rememberCrossTabOrigin()
+        }
+        let taskID = sentenceAITaskID(preferredTaskID: preferredTaskID)
+        activePracticeSentenceItem = sentence
+        selectedPromptTaskID = taskID
+        promptSelectedTaskIDs = [taskID]
+        shouldAutoOpenAILinkPrompt = true
+        shouldAutoRunGeminiPhraseAPI = false
+        route = .aiLink
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
+        persistPromptSettings()
+    }
+
     func goBack() {
         if route == .aiLink { route = .lineage; return }
         if route == .favourites { route = .search; return }
