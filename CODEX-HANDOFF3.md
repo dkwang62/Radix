@@ -78,6 +78,8 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   `ConversationPracticeQuizRules.swift`; keep quiz choice/question logic there.
 - Conversation practice library set/item/membership mapping lives in
   `ConversationPracticeLibraryModels.swift`; keep library derivation there.
+- Conversation practice validation issue/result types and pack validation live
+  in `ConversationPracticeValidationModels.swift`.
 - Conversation practice topic catalog and generation briefs live in
   `ConversationPracticeTopicModels.swift`; keep default topic ordering there.
 - Favorite sentence serialization lives in `FavoriteSentenceModels.swift`;

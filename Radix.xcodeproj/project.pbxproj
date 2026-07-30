@@ -54,6 +54,7 @@
 		6AFC0DE32FE00003001B9AA7 /* ConversationPracticeProgressModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFC0DE22FE00003001B9AA7 /* ConversationPracticeProgressModels.swift */; };
 		6AFC0DE52FE00005001B9AA7 /* ConversationPracticeQuizRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFC0DE42FE00005001B9AA7 /* ConversationPracticeQuizRules.swift */; };
 		6AFC0DED2FE0000D001B9AA7 /* ConversationPracticeTopicModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFC0DEC2FE0000D001B9AA7 /* ConversationPracticeTopicModels.swift */; };
+		6AFC0DF12FE00011001B9AA7 /* ConversationPracticeValidationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFC0DF02FE00011001B9AA7 /* ConversationPracticeValidationModels.swift */; };
 		6AFC0DE72FE00007001B9AA7 /* FavoriteSentenceModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFC0DE62FE00007001B9AA7 /* FavoriteSentenceModels.swift */; };
 		6AFC0DE92FE00009001B9AA7 /* RadixCaptureModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFC0DE82FE00009001B9AA7 /* RadixCaptureModels.swift */; };
 		6AFC0DEB2FE0000B001B9AA7 /* SentenceExampleModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFC0DEA2FE0000B001B9AA7 /* SentenceExampleModels.swift */; };
@@ -325,6 +326,7 @@
 		6AFC0DE22FE00003001B9AA7 /* ConversationPracticeProgressModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeProgressModels.swift; sourceTree = "<group>"; };
 		6AFC0DE42FE00005001B9AA7 /* ConversationPracticeQuizRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeQuizRules.swift; sourceTree = "<group>"; };
 		6AFC0DEC2FE0000D001B9AA7 /* ConversationPracticeTopicModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeTopicModels.swift; sourceTree = "<group>"; };
+		6AFC0DF02FE00011001B9AA7 /* ConversationPracticeValidationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeValidationModels.swift; sourceTree = "<group>"; };
 		6AFC0DE62FE00007001B9AA7 /* FavoriteSentenceModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteSentenceModels.swift; sourceTree = "<group>"; };
 		6AFC0DE82FE00009001B9AA7 /* RadixCaptureModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixCaptureModels.swift; sourceTree = "<group>"; };
 		6AFC0DEA2FE0000B001B9AA7 /* SentenceExampleModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentenceExampleModels.swift; sourceTree = "<group>"; };
@@ -718,6 +720,7 @@
 				6AFC0DE22FE00003001B9AA7 /* ConversationPracticeProgressModels.swift */,
 				6AFC0DE42FE00005001B9AA7 /* ConversationPracticeQuizRules.swift */,
 				6AFC0DEC2FE0000D001B9AA7 /* ConversationPracticeTopicModels.swift */,
+				6AFC0DF02FE00011001B9AA7 /* ConversationPracticeValidationModels.swift */,
 				6AFC0DE62FE00007001B9AA7 /* FavoriteSentenceModels.swift */,
 				6AFC0DE82FE00009001B9AA7 /* RadixCaptureModels.swift */,
 				6AFC0DEA2FE0000B001B9AA7 /* SentenceExampleModels.swift */,
@@ -975,6 +978,7 @@
 				6AFC0DE32FE00003001B9AA7 /* ConversationPracticeProgressModels.swift in Sources */,
 				6AFC0DE52FE00005001B9AA7 /* ConversationPracticeQuizRules.swift in Sources */,
 				6AFC0DED2FE0000D001B9AA7 /* ConversationPracticeTopicModels.swift in Sources */,
+				6AFC0DF12FE00011001B9AA7 /* ConversationPracticeValidationModels.swift in Sources */,
 				6AFC0DE72FE00007001B9AA7 /* FavoriteSentenceModels.swift in Sources */,
 				6AFC0DE92FE00009001B9AA7 /* RadixCaptureModels.swift in Sources */,
 				6AFC0DEB2FE0000B001B9AA7 /* SentenceExampleModels.swift in Sources */,
