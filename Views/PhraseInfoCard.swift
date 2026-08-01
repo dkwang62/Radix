@@ -33,6 +33,9 @@ struct PhraseInfoCard: View {
     @State var showDeleteSentenceConfirmation = false
     @State var selectedAnimationPage = 0
     @State var showsSentencePinyin = false
+    @State var isRunningSentenceImprovement = false
+    @State var sentenceImprovementStatus: String?
+    @State var locallyImprovedSentenceItem: ConversationPracticeItem?
 
     var phraseCharacters: [String] {
         phrase.word.map(String.init).filter { character in
@@ -107,6 +110,9 @@ struct PhraseInfoCard: View {
                 showDeleteSentenceConfirmation = false
                 selectedAnimationPage = 0
                 showsSentencePinyin = false
+                isRunningSentenceImprovement = false
+                sentenceImprovementStatus = nil
+                locallyImprovedSentenceItem = nil
             }
             .onAppear {
                 animationScript = RadixPhrasePreferences.animationScript

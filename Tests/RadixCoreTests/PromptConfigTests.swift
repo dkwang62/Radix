@@ -334,10 +334,13 @@ struct PromptConfigTests {
         #expect(generator?.template.contains("Do not invent unrelated facts") == true)
         #expect(generator?.template.contains("process the entire meaningful source page") == true)
         #expect(generator?.template.contains("Do not summarize, sample, choose representative sentences") == true)
-        #expect(generator?.template.contains("filter out noise and nonsensical fragments") == true)
+        #expect(generator?.template.contains("filtering out noise and nonsensical fragments") == true)
         #expect(generator?.template.contains("distinct, fully formed, grammatically correct sentences") == true)
+        #expect(generator?.template.contains("Pass 2 - Improve every extracted candidate") == true)
+        #expect(generator?.template.contains("Do not output rough extracted text") == true)
+        #expect(generator?.template.contains("silently run the Sentence Improvement task") == true)
         #expect(generator?.template.contains("same quality bar as Sentence Improvement") == true)
-        #expect(generator?.template.contains("Generate pinyin from the final \"chinese\" sentence") == true)
+        #expect(generator?.template.contains("Generate pinyin from the final improved \"chinese\" sentence") == true)
         #expect(generator?.template.contains("Generate english as the natural English meaning") == true)
         #expect(generator?.template.contains("The three fields must match each other exactly") == true)
         #expect(generator?.template.contains("unrepairable fragments") == true)
@@ -505,8 +508,10 @@ struct PromptConfigTests {
 
         let template = config.normalized().tasks.first { $0.id == "task12" }?.template ?? ""
 
-        #expect(template.contains("filter out noise and nonsensical fragments"))
+        #expect(template.contains("filtering out noise and nonsensical fragments"))
         #expect(template.contains("distinct, fully formed, grammatically correct sentences"))
+        #expect(template.contains("Pass 2 - Improve every extracted candidate"))
+        #expect(template.contains("Do not output rough extracted text"))
         #expect(template.contains("same quality bar as Sentence Improvement"))
         #expect(template.contains("The three fields must match each other exactly"))
         #expect(template.contains("every sentence is distinct and fully formed"))

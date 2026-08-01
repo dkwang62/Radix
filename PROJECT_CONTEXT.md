@@ -92,7 +92,10 @@ should contain distinct, fully formed, grammatically correct sentences. Each
 sentence record must meet the same quality bar as `Sentence Improvement`: clean
 final Chinese, pinyin generated from that final Chinese, and English meaning
 generated from that final Chinese, with all three fields describing the same
-final sentence.
+final sentence. The prompt must require a two-pass process: extract every usable
+source idea first, then silently apply Sentence Improvement-style rewriting to
+each candidate before producing JSON. Do not allow rough extracted text into
+the final sentence records.
 The importer remains tolerant at the boundary: exact Radix JSON is preferred,
 but common AI variants such as camelCase keys, nested page/result/data objects,
 cleaned-page wrapper keys, `zh`/`en` sentence fields, string phrase lists,
@@ -123,8 +126,12 @@ copies of the built-in `Sentence Improvement` prompt must normalize to the
 current JSON contract so users see the updated template without manually
 resetting AI settings. Sentence-card `Improve Sentence with AI` should route to
 AI Link with the sentence and task selected so the normal prompt, paste, and
-apply workflow remains visible; non-importing `Explain with AI` may still use
-the quick external AI launch path.
+apply workflow remains visible. Sentence-card `Improve Automatically with
+Gemini` should use the saved Gemini API key, call the same built-in
+`Sentence Improvement` prompt, then feed the AI response through the same
+`applySentenceImprovement` parser/replacement path as manual paste so sentence,
+pinyin, English, page-owned artifacts, and the sentence database stay synced.
+Non-importing `Explain with AI` may still use the quick external AI launch path.
 Prompt model data and prompt rendering are split deliberately:
 `PromptModels.swift` owns prompt subjects, task defaults, IDs, configuration,
 and render context, while `PromptConfigRendering.swift` owns normalization,

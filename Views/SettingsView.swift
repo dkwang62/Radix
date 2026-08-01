@@ -118,7 +118,7 @@ struct SettingsView: View {
             } header: {
                 Text("Automatic AI")
             } footer: {
-                Text("Optional. Uses Gemini to let Radix check OCR, extract phrases, translate pages, create quizzes, extract sentences, and create page-inspired practice automatically.")
+                Text("Optional. Uses Gemini to let Radix check OCR, extract phrases, translate pages, create quizzes, extract sentences, improve sentences, and create page-inspired practice automatically.")
             }
 
             Section {
@@ -575,7 +575,7 @@ struct SettingsView: View {
         if trimmed.isEmpty {
             return SettingsHealth(
                 title: "Gemini key not saved",
-                detail: "Add one for automatic OCR checking, phrase extraction, translation, quizzes, sentence extraction, and page-inspired practice.",
+                detail: "Add one for automatic OCR checking, phrase extraction, translation, quizzes, sentence extraction, sentence improvement, and page-inspired practice.",
                 systemImage: "key.slash",
                 color: .orange
             )
@@ -590,7 +590,7 @@ struct SettingsView: View {
         }
         return SettingsHealth(
             title: "Gemini key saved",
-            detail: "Ready for automatic OCR checking, phrase extraction, translation, quizzes, sentence extraction, and page-inspired practice.",
+            detail: "Ready for automatic OCR checking, phrase extraction, translation, quizzes, sentence extraction, sentence improvement, and page-inspired practice.",
             systemImage: "checkmark.circle",
             color: .green
         )

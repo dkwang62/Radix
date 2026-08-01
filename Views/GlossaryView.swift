@@ -352,16 +352,16 @@ enum RadixGlossary {
         GlossaryEntry(
             term: "Run Automatically with Gemini",
             shortDefinition: "The direct in-app AI method Radix can run with a saved Gemini key.",
-            significance: "Run Automatically with Gemini can run supported page AI tasks inside Radix, while Copy to AI Chat remains available for copy-and-paste workflows and for other AI chats.",
-            contexts: ["Study page actions", "Browse page actions", "Settings > Automatic AI"],
-            relatedTerms: ["Gemini API Key", "Copy to AI Chat", "API Key", "Page AI Task"]
+            significance: "Run Automatically with Gemini can run supported page and sentence AI tasks inside Radix, while Copy to AI Chat remains available for copy-and-paste workflows and for other AI chats.",
+            contexts: ["Study page actions", "Browse page actions", "Sentence cards", "Settings > Automatic AI"],
+            relatedTerms: ["Gemini API Key", "Copy to AI Chat", "API Key", "Page AI Task", "Sentence Improvement"]
         ),
         GlossaryEntry(
             term: "Gemini API Key",
             shortDefinition: "The private Google Gemini key Radix can use for automatic AI actions.",
-            significance: "A Gemini API key lets Radix run supported AI workflows directly, such as captured-text checking, phrase extraction, translation, quiz prompt preparation, sentence extraction, and page-inspired practice. Copy-and-paste AI workflows still work without a key.",
-            contexts: ["Settings > Automatic AI", "Browse page actions", "AI Link"],
-            relatedTerms: ["API Key", "Run Automatically with Gemini", "AI Link", "Extract Sentences", "Sentence Practice", "Create Conversation"]
+            significance: "A Gemini API key lets Radix run supported AI workflows directly, such as captured-text checking, phrase extraction, translation, quiz prompt preparation, sentence extraction, sentence improvement, and page-inspired practice. Copy-and-paste AI workflows still work without a key.",
+            contexts: ["Settings > Automatic AI", "Browse page actions", "Sentence cards", "AI Link"],
+            relatedTerms: ["API Key", "Run Automatically with Gemini", "AI Link", "Extract Sentences", "Sentence Improvement", "Sentence Practice", "Create Conversation"]
         ),
         GlossaryEntry(
             term: "Page AI Task",

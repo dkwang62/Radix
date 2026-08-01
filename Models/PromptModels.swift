@@ -511,11 +511,15 @@ Saved page characters in reading order:
 Original OCR/source context:
 {capture_text}
 
-Your job is to scrape/extract the usable saved-page/OCR material, filter out noise and nonsensical fragments, and return complete, grammatically correct Chinese prose plus sentence records for Radix Study. Each sentence record must meet the same quality bar as Sentence Improvement: clean final Chinese, pinyin generated from that final Chinese, and English meaning generated from that final Chinese.
+Your job has two mandatory passes:
+Pass 1 - Extract every usable idea from the saved-page/OCR material, filtering out noise and nonsensical fragments.
+Pass 2 - Improve every extracted candidate with the same standard as Sentence Improvement before writing it into JSON.
+
+Do not output rough extracted text. The final JSON must contain only improved, complete, grammatically correct Chinese prose plus sentence records for Radix Study. Each sentence record must meet the same quality bar as Sentence Improvement: clean final Chinese, pinyin generated from that final Chinese, and English meaning generated from that final Chinese.
 
 Completeness requirement: process the entire meaningful source page. Do not summarize, sample, choose representative sentences, or omit usable source content merely because it feels difficult, long, or less interesting. Filter out pure OCR noise, broken character runs, duplicated lines, isolated labels with no study value, nonsensical fragments that cannot be repaired, and repeated content. The "sentences" array must cover the full cleaned_chinese_text in reading order. If one source line contains multiple ideas, split it into multiple complete sentences. If a source fragment is too short or telegraphic, expand it only enough to preserve that fragment's meaning as a natural learning sentence. If a fragment cannot be made coherent without inventing facts, skip it and mention the omission in repair_notes.
 
-Use the source faithfully, but repair obvious OCR/capture errors when context makes the repair likely. For every usable idea, rewrite awkward wording, broken grammar, missing connectors, OCR/copy-paste damage, and nonsensical wording into one clean, complete, coherent Chinese sentence when the intended meaning is reasonably clear. Expand telegraphic media shorthand, abbreviations, compressed journalistic compounds, headline compression, captions, list fragments, or social-media shorthand into natural complete Chinese sentences. Replace concise headline-style compounds with normal phrases or clauses a learner could say, while preserving the original meaning. Do not invent unrelated facts, people, dates, claims, or events. If a detail is uncertain, keep it modest and note the uncertainty in repair_notes.
+Use the source faithfully, but repair obvious OCR/capture errors when context makes the repair likely. For every usable idea, explicitly apply this improvement rule before output: rewrite awkward wording, broken grammar, missing connectors, OCR/copy-paste damage, and nonsensical wording into one clean, complete, coherent Chinese sentence when the intended meaning is reasonably clear. Expand telegraphic media shorthand, abbreviations, compressed journalistic compounds, headline compression, captions, list fragments, or social-media shorthand into natural complete Chinese sentences. Replace concise headline-style compounds with normal phrases or clauses a learner could say, while preserving the original meaning. Do not invent unrelated facts, people, dates, claims, or events. If a detail is uncertain, keep it modest and note the uncertainty in repair_notes.
 
 Return JSON only. Do not wrap it in Markdown. Do not include explanations outside the JSON.
 
@@ -541,16 +545,17 @@ Rules:
 2. cleaned_chinese_text must be the joined, readable cleaned page prose, not a list of isolated characters or unrepaired OCR fragments.
 3. The sentences array must be a list of distinct, fully formed, grammatically correct sentences that represents the entire cleaned page, not a sample. Every meaningful source clause, caption, subtitle, headline fragment, menu item, or list item should appear in cleaned_chinese_text and be represented by one or more sentence records.
 4. IDs must be stable and lowercase, using ai_page_sentence plus a zero-padded sequence number, for example "ai_page_sentence_001".
-5. Generate pinyin from the final "chinese" sentence, not from the original OCR fragment.
-6. Generate english as the natural English meaning of the final "chinese" sentence, not the old or broken source fragment.
-7. The three fields must match each other exactly: "chinese", "pinyin", and "english" must describe the same final sentence.
-8. phrase_hints should contain useful 2- to 6-character Chinese chunks that help explain the final sentence. Do not include pinyin or English in phrase_hints.
-9. If the original source is only a headline, caption, menu, subtitle, or short fragment, expand only enough to make natural learning sentences while preserving the source's meaning.
-10. Expand abbreviated or journalistic compound wording into ordinary Chinese phrasing; do not keep telegraphic headline style when it would be unnatural for sentence study.
-11. repair_notes should be in English and should mention only meaningful OCR repairs, inferred expansions, or uncertainty. Use an empty array if there are none.
-12. Do not keep duplicated sentences, nonsense, partial character strings, or unrepairable fragments just to preserve volume. Mention meaningful omissions in repair_notes.
-13. Do not drop difficult or low-interest content if it can be repaired into a coherent sentence without invention.
-14. Do not include markdown, comments, extra keys, or analysis outside the JSON.
+5. Before finalizing each sentence item, silently run the Sentence Improvement task on its Chinese text and use the improved result as the item's "chinese" value.
+6. Generate pinyin from the final improved "chinese" sentence, not from the original OCR fragment or pre-improvement draft.
+7. Generate english as the natural English meaning of the final improved "chinese" sentence, not the old or broken source fragment.
+8. The three fields must match each other exactly: "chinese", "pinyin", and "english" must describe the same final improved sentence.
+9. phrase_hints should contain useful 2- to 6-character Chinese chunks that help explain the final improved sentence. Do not include pinyin or English in phrase_hints.
+10. If the original source is only a headline, caption, menu, subtitle, or short fragment, expand only enough to make natural learning sentences while preserving the source's meaning.
+11. Expand abbreviated or journalistic compound wording into ordinary Chinese phrasing; do not keep telegraphic headline style when it would be unnatural for sentence study.
+12. repair_notes should be in English and should mention only meaningful OCR repairs, inferred expansions, or uncertainty. Use an empty array if there are none.
+13. Do not keep duplicated sentences, nonsense, partial character strings, or unrepairable fragments just to preserve volume. Mention meaningful omissions in repair_notes.
+14. Do not drop difficult or low-interest content if it can be repaired into a coherent sentence without invention.
+15. Do not include markdown, comments, extra keys, or analysis outside the JSON.
 
 Before returning, silently validate that the JSON is valid, every sentence contains exactly these keys: "id", "chinese", "pinyin", "english", and "phrase_hints", every sentence is distinct and fully formed, every sentence is grammatical, complete, and coherent, every sentence's pinyin and English match its final Chinese, and the sentence list covers the entire cleaned_chinese_text rather than a representative subset.
 

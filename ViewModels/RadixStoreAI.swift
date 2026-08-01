@@ -505,6 +505,21 @@ extension RadixStore {
         )
     }
 
+    func runGeminiSentenceImprovement(to sentence: ConversationPracticeItem) async throws -> SentenceExampleRecord {
+        let prompt = promptText(for: .sentence(sentence), selectedTaskIDs: [AIResultTaskID.sentenceImprovement])
+        let response = try await GeminiTextGenerationService().generateText(
+            apiKey: geminiAPIKey,
+            modelID: geminiModelID,
+            prompt: prompt,
+            systemInstruction: """
+            You improve Chinese learning sentences for Radix. Return valid JSON only, without Markdown fences or commentary. The JSON must contain sentence, pinyin, and english fields that describe the same final improved sentence.
+            """
+        )
+        let record = try applySentenceImprovement(fromAIResponse: response, to: sentence)
+        activePracticeSentenceItem = ConversationPracticeItem(sentenceExample: record, rank: sentence.rank)
+        return record
+    }
+
     func runGeminiAICleanedPage(for collection: CharacterCollection) async throws -> AICleanedPageRecord {
         let prompt = promptText(for: .collection(collection), selectedTaskIDs: [AIResultTaskID.createAICleanedPage])
         let response = try await GeminiTextGenerationService().generateText(

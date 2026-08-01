@@ -5,12 +5,16 @@ extension PhraseInfoCard {
         VStack(alignment: .leading, spacing: 14) {
             sentenceStudyToolbar
             sentenceMeaningBlock
+            sentenceImprovementStatusLine
             phraseAnimationPicker
             sentenceStudyNotes
         }
     }
 
     var practiceSentenceItem: ConversationPracticeItem? {
+        if let locallyImprovedSentenceItem {
+            return locallyImprovedSentenceItem
+        }
         if case .sentence(let item) = favoriteTarget {
             return item
         }
@@ -167,6 +171,54 @@ extension PhraseInfoCard {
                         practiceSentenceItem,
                         taskID: PromptConfig.sentenceImprovementTaskID
                     )
+                }
+                if store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Button("Set Up Gemini for Automatic Improvement") {
+                        store.goToSettingsForAPIKeySetup()
+                    }
+                } else {
+                    Button("Improve Automatically with Gemini") {
+                        runAutomaticSentenceImprovement(practiceSentenceItem)
+                    }
+                    .disabled(isRunningSentenceImprovement)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    var sentenceImprovementStatusLine: some View {
+        if let sentenceImprovementStatus {
+            Text(sentenceImprovementStatus)
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .foregroundStyle(isRunningSentenceImprovement ? .secondary : RadixAccent.primary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    func runAutomaticSentenceImprovement(_ item: ConversationPracticeItem) {
+        guard !isRunningSentenceImprovement else { return }
+        guard !store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            store.goToSettingsForAPIKeySetup()
+            return
+        }
+
+        isRunningSentenceImprovement = true
+        sentenceImprovementStatus = "Improving sentence with Gemini..."
+        Task {
+            do {
+                let record = try await store.runGeminiSentenceImprovement(to: item)
+                await MainActor.run {
+                    locallyImprovedSentenceItem = ConversationPracticeItem(sentenceExample: record, rank: item.rank)
+                    sentenceImprovementStatus = "Sentence updated."
+                    isRunningSentenceImprovement = false
+                    RadixHaptics.success()
+                }
+            } catch {
+                await MainActor.run {
+                    sentenceImprovementStatus = "Automatic improvement failed: \(error.localizedDescription)"
+                    isRunningSentenceImprovement = false
+                    RadixHaptics.error()
                 }
             }
         }
