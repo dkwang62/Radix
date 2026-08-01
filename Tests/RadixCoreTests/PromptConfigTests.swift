@@ -336,6 +336,10 @@ struct PromptConfigTests {
         #expect(generator?.template.contains("Do not summarize, sample, choose representative sentences") == true)
         #expect(generator?.template.contains("filter out noise and nonsensical fragments") == true)
         #expect(generator?.template.contains("distinct, fully formed, grammatically correct sentences") == true)
+        #expect(generator?.template.contains("same quality bar as Sentence Improvement") == true)
+        #expect(generator?.template.contains("Generate pinyin from the final \"chinese\" sentence") == true)
+        #expect(generator?.template.contains("Generate english as the natural English meaning") == true)
+        #expect(generator?.template.contains("The three fields must match each other exactly") == true)
         #expect(generator?.template.contains("unrepairable fragments") == true)
         #expect(generator?.template.contains("sentences array must be a list") == true)
         #expect(generator?.template.contains("every sentence is distinct and fully formed") == true)
@@ -503,6 +507,8 @@ struct PromptConfigTests {
 
         #expect(template.contains("filter out noise and nonsensical fragments"))
         #expect(template.contains("distinct, fully formed, grammatically correct sentences"))
+        #expect(template.contains("same quality bar as Sentence Improvement"))
+        #expect(template.contains("The three fields must match each other exactly"))
         #expect(template.contains("every sentence is distinct and fully formed"))
     }
 

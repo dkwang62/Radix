@@ -88,7 +88,11 @@ compound wording into ordinary Chinese phrases or clauses suitable for sentence
 study while preserving the source meaning. It should also filter pure OCR noise,
 duplicated lines, unrepairable nonsense, and isolated fragments that cannot
 become coherent sentences without inventing facts; the output sentence array
-should contain distinct, fully formed, grammatically correct sentences.
+should contain distinct, fully formed, grammatically correct sentences. Each
+sentence record must meet the same quality bar as `Sentence Improvement`: clean
+final Chinese, pinyin generated from that final Chinese, and English meaning
+generated from that final Chinese, with all three fields describing the same
+final sentence.
 The importer remains tolerant at the boundary: exact Radix JSON is preferred,
 but common AI variants such as camelCase keys, nested page/result/data objects,
 cleaned-page wrapper keys, `zh`/`en` sentence fields, string phrase lists,

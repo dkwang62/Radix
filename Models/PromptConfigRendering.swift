@@ -63,7 +63,9 @@ extension PromptConfig {
                 (task.id == "task12" && (
                     !task.template.contains("cleaned_chinese_text") ||
                     !task.template.contains("\"pinyin\"") ||
-                    !task.template.contains("distinct, fully formed, grammatically correct sentences")
+                    !task.template.contains("distinct, fully formed, grammatically correct sentences") ||
+                    !task.template.contains("same quality bar as Sentence Improvement") ||
+                    !task.template.contains("The three fields must match each other exactly")
                 )) ||
                 (task.id == PromptConfig.sentenceImprovementTaskID && (
                     !task.template.contains("Return JSON only") ||
