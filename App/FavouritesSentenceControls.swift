@@ -78,13 +78,7 @@ extension FavouritesTab {
 
     var sentenceExampleMinimumCharactersSlider: some View {
         HStack(spacing: 7) {
-            Label("Min", systemImage: "textformat.size")
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .labelStyle(.titleAndIcon)
-                .foregroundStyle(RadixAccent.primary)
-                .fixedSize(horizontal: true, vertical: false)
-
-            Slider(value: $sentenceExampleMinimumCharacterCount, in: 0...40, step: 1)
+            Slider(value: $sentenceExampleMinimumCharacterCount, in: 2...40, step: 1)
                 .tint(RadixAccent.primary)
 
             Text("\(sentenceExampleMinimumCharacterFilter)")

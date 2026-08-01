@@ -110,7 +110,7 @@ extension FavouritesTab {
                     stopSelectingSentenceExamples()
                     sentenceExampleSearchText = ""
                     sentenceExampleFilter = .all
-                    sentenceExampleMinimumCharacterCount = 0
+                    sentenceExampleMinimumCharacterCount = 2
                     sentenceExamplePageRecords = []
                     sentenceExampleResultCount = 0
                     sentenceExampleRevision += 1
