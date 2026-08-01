@@ -1,7 +1,7 @@
 import SwiftUI
 
 extension FavouritesTab {
-    func sentenceExampleRow(_ example: SentenceExampleRecord) -> some View {
+    func sentenceExampleRow(_ example: SentenceExampleRecord, usesCompactLayout: Bool = false) -> some View {
         let item = sentenceExamplePracticeItem(example)
         let isSelected = selectedConversationPracticeItemID == item.id
         return VStack(alignment: .leading, spacing: 4) {
@@ -9,6 +9,7 @@ extension FavouritesTab {
                 item,
                 isSelected: isSelected,
                 showsPhoneTrailing: !isPhone || isSelectingSentenceExamples,
+                showsTrailing: !usesCompactLayout || isSelectingSentenceExamples,
                 openAccessibilityLabel: "Open sentence \(studyGridDisplayText(item.simplified))",
                 openAccessibilityHint: "Opens the sentence info card."
             ) {
@@ -26,7 +27,7 @@ extension FavouritesTab {
                 }
             }
             .contextMenu {
-                if isPhone && !isSelectingSentenceExamples {
+                if (isPhone || usesCompactLayout) && !isSelectingSentenceExamples {
                     sentenceExampleActionsMenuContent(example)
                 }
             }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 extension FavouritesTab {
-    var sentenceExamplesControls: some View {
+    func sentenceExamplesControls(usesCompactLayout: Bool? = nil) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             practiceSentenceControlRow {
                 sentenceExamplePageNavigation
@@ -17,7 +17,7 @@ extension FavouritesTab {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            sentenceExampleFilterAndToolsRow
+            sentenceExampleFilterAndToolsRow(usesCompactLayout: usesCompactLayout)
         }
         .padding(10)
         .background(.regularMaterial)
@@ -34,9 +34,10 @@ extension FavouritesTab {
         }
     }
 
-    var sentenceExampleFilterAndToolsRow: some View {
-        Group {
-            if isPhone || isNarrowStudyLayout {
+    func sentenceExampleFilterAndToolsRow(usesCompactLayout: Bool? = nil) -> some View {
+        let compactLayout = usesCompactLayout ?? (isPhone || isNarrowStudyLayout)
+        return Group {
+            if compactLayout {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 8) {
                         sentenceExampleSourceFilterMenu
@@ -45,12 +46,14 @@ extension FavouritesTab {
                         TextField("Search sentences", text: $sentenceExampleSearchText)
                             .textFieldStyle(.roundedBorder)
                             .font(ResponsiveFont.caption)
+                            .frame(minWidth: 0, maxWidth: .infinity)
 
                         sentenceExampleToolsMenu
                             .fixedSize(horizontal: true, vertical: false)
                     }
 
                     sentenceExampleMinimumCharactersSlider
+                        .frame(maxWidth: .infinity)
                 }
             } else {
                 HStack(spacing: 8) {

@@ -222,10 +222,12 @@ do not hang or compress labels into vertical fragments.
 Study > Sentences keeps only page navigation and display/script controls in the
 top toolbar. Source filtering, compact sentence search, the minimum Chinese
 character-count filter, and one sentence tools menu belong on the lower source
-row on every device. The minimum-count slider starts at 2 and filters sentences
-by at least that many stored Chinese characters; it is not a maximum-length
-rule. Do not spend toolbar width on a generic typography icon or `min` label
-beside this slider. The database
+row on every device. In iPad split view, choose this compact sentence-toolbar
+layout from the actual pane width, not only from device idiom, so controls and
+row actions never breach the left or right border. The minimum-count slider
+starts at 2 and filters sentences by at least that many stored Chinese
+characters; it is not a maximum-length rule. Do not spend toolbar width on a
+generic typography icon or `min` label beside this slider. The database
 query must compare this threshold as a number, not a text binding, so filtered
 page counts and visible rows stay aligned. The tools menu owns
 selection, sentence transfer, and a nested `Delete...` submenu so destructive

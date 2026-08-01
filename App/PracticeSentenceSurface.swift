@@ -163,6 +163,7 @@ extension FavouritesTab {
         _ item: ConversationPracticeItem,
         isSelected: Bool,
         showsPhoneTrailing: Bool = true,
+        showsTrailing: Bool = true,
         openAccessibilityLabel: String,
         openAccessibilityHint: String,
         onOpen: @escaping () -> Void,
@@ -188,7 +189,7 @@ extension FavouritesTab {
                 .accessibilityLabel(openAccessibilityLabel)
                 .accessibilityHint(openAccessibilityHint)
 
-                if showsPhoneTrailing {
+                if showsPhoneTrailing && showsTrailing {
                     HStack {
                         Spacer(minLength: 0)
                         trailing()
@@ -230,7 +231,10 @@ extension FavouritesTab {
                 .accessibilityLabel(openAccessibilityLabel)
                 .accessibilityHint(openAccessibilityHint)
 
-                trailing()
+                if showsTrailing {
+                    trailing()
+                        .fixedSize(horizontal: true, vertical: false)
+                }
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
@@ -272,6 +276,7 @@ extension FavouritesTab {
                         .minimumScaleFactor(0.85)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .layoutPriority(1)
         }
     }

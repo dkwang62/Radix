@@ -77,33 +77,49 @@ extension FavouritesTab {
     }
 
     var sentenceExamplesStudyScreen: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            sentenceExamplesControls
-                .padding(.horizontal, isPhone ? 4 : 16)
-                .padding(.top, isPhone ? 4 : 8)
+        GeometryReader { proxy in
+            let usesCompactLayout = usesCompactSentenceExamplesLayout(width: proxy.size.width)
+            let horizontalPadding = sentenceExamplesHorizontalPadding(usesCompactLayout: usesCompactLayout)
 
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: isPhone ? 2 : 8) {
-                    if sentenceExampleResultCount == 0 {
-                        ContentUnavailableView(
-                            "No Sentences",
-                            systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"),
-                            description: Text("Import page sentences or practice packs to create saved sentences.")
-                        )
-                        .frame(maxWidth: .infinity, minHeight: 240)
-                    } else {
-                        ForEach(pagedSentenceExamples) { example in
-                            sentenceExampleRow(example)
+            VStack(alignment: .leading, spacing: 10) {
+                sentenceExamplesControls(usesCompactLayout: usesCompactLayout)
+                    .padding(.horizontal, horizontalPadding)
+                    .padding(.top, isPhone ? 4 : 8)
+
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: isPhone ? 2 : 8) {
+                        if sentenceExampleResultCount == 0 {
+                            ContentUnavailableView(
+                                "No Sentences",
+                                systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"),
+                                description: Text("Import page sentences or practice packs to create saved sentences.")
+                            )
+                            .frame(maxWidth: .infinity, minHeight: 240)
+                        } else {
+                            ForEach(pagedSentenceExamples) { example in
+                                sentenceExampleRow(example, usesCompactLayout: usesCompactLayout)
+                            }
                         }
                     }
+                    .padding(.horizontal, horizontalPadding)
+                    .padding(.bottom, 20)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .padding(.horizontal, isPhone ? 4 : 16)
-                .padding(.bottom, 20)
             }
+            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
         }
         .onAppear {
             refreshSentenceExampleResults()
         }
+    }
+
+    func usesCompactSentenceExamplesLayout(width: CGFloat) -> Bool {
+        isPhone || isNarrowStudyLayout || width < 900
+    }
+
+    func sentenceExamplesHorizontalPadding(usesCompactLayout: Bool) -> CGFloat {
+        if isPhone { return 4 }
+        return usesCompactLayout ? 12 : 16
     }
 
     func clearFocusedStudySections() {
