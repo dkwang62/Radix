@@ -276,8 +276,6 @@ extension FavouritesTab {
         let resumePageID = store.selectedBrowseCollectionID ?? store.sortedCollections(order: .lastViewed).first?.id
 
         return LazyVStack(spacing: 0) {
-            studySavedPagesReturnRow
-
             ForEach(Array(pages.enumerated()), id: \.element.id) { index, collection in
                 let rowData = studySavedPageRowData(
                     collection,
@@ -287,22 +285,6 @@ extension FavouritesTab {
                 )
                 studySavedPageRow(rowData)
             }
-        }
-    }
-
-    @ViewBuilder
-    private var studySavedPagesReturnRow: some View {
-        if store.rootsReturnButtonTitle == "Back to Browse",
-           store.rootsReturnContext != nil {
-            HStack(spacing: 8) {
-                focusedStudyBackButton(title: "Back to Browse") {
-                    store.returnFromRoots()
-                }
-
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, 8)
-            .padding(.bottom, 8)
         }
     }
 

@@ -56,12 +56,13 @@ Saved pages are user-facing Browse content, not a separate top-level `Pages`
 destination. Browse page pickers and Browse title-menu page entries open the
 selected page's tile reader directly, and the selected Browse page toolbar
 exposes a compact `Study` action for page learning. That action must open the
-same selected page in Study Pages, expand it, and preserve a visible `Back to
-Browse` return that restores the same Browse page; Study Pages also exposes a
-compact `Browse` action for the current page. Browse and the internal saved-page
-Study workspace share the same `Actions` menu vocabulary for page editing,
-OCR/source review, phrase selection, translation, AI tasks, and delete; do not
-reintroduce separate Browse-only or Study-only page action rows.
+same selected page in Study Pages and expand it. Study Pages exposes a compact
+`Browse` action for the current page; that explicit `Study`/`Browse` pair is
+the page back-and-forth model, so do not add a separate `Back to Browse`
+navigation layer for this flow. Browse and the internal saved-page Study
+workspace share the same `Actions` menu vocabulary for page editing, OCR/source
+review, phrase selection, translation, AI tasks, and delete; do not reintroduce
+separate Browse-only or Study-only page action rows.
 The existing saved-page Study implementation remains the internal page-learning
 workspace and may be opened from explicit Study/page actions, including My Data
 inventory links. The Study title menu exposes this route as `Study Pages`; it

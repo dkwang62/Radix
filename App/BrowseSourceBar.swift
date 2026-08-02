@@ -148,7 +148,7 @@ extension FilterGridTab {
 
     func studyBrowsePageButton(_ collection: CharacterCollection) -> some View {
         Button {
-            store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
+            store.goToPagesWorkspace(id: collection.id)
         } label: {
             Label("Study", systemImage: RadixIcon.study)
                 .labelStyle(.titleAndIcon)
