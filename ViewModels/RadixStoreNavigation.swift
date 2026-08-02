@@ -484,7 +484,24 @@ extension RadixStore {
 
     var showsCrossTabReturn: Bool {
         guard rootsReturnContext != nil else { return false }
+        if isPageStudyBrowsePairReturn { return false }
         return route != .lineage
+    }
+
+    private var isPageStudyBrowsePairReturn: Bool {
+        guard let rootsReturnContext else { return false }
+        let isStudyPages = route == .favourites
+            && activeStudySectionTitle == StudyNavigationTarget.savedPages.title
+        let isBrowsePage = route == .search
+            && homeTab == .filter
+            && selectedBrowseCollectionID != nil
+        let originIsBrowsePage = rootsReturnContext.route == .search
+            && rootsReturnContext.homeTab == .filter
+        let originIsStudyPages = rootsReturnContext.studyTarget == .savedPages
+            || rootsReturnContext.route == .favourites
+
+        return (isStudyPages && originIsBrowsePage)
+            || (isBrowsePage && originIsStudyPages)
     }
 
     func returnToBrowseGrid() {
