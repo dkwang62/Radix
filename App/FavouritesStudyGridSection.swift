@@ -273,9 +273,11 @@ extension FavouritesTab {
     var studySavedPagesList: some View {
         let pages = sortedStudySavedPages()
         let pageIDsWithRecordedPhrases = pageIDsWithRecordedPhraseExtractions
-        let resumePageID = store.sortedCollections(order: .lastViewed).first?.id
+        let resumePageID = store.selectedBrowseCollectionID ?? store.sortedCollections(order: .lastViewed).first?.id
 
         return LazyVStack(spacing: 0) {
+            studySavedPagesReturnRow
+
             ForEach(Array(pages.enumerated()), id: \.element.id) { index, collection in
                 let rowData = studySavedPageRowData(
                     collection,
@@ -285,6 +287,22 @@ extension FavouritesTab {
                 )
                 studySavedPageRow(rowData)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var studySavedPagesReturnRow: some View {
+        if store.rootsReturnButtonTitle == "Back to Browse",
+           store.rootsReturnContext != nil {
+            HStack(spacing: 8) {
+                focusedStudyBackButton(title: "Back to Browse") {
+                    store.returnFromRoots()
+                }
+
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 8)
+            .padding(.bottom, 8)
         }
     }
 
@@ -471,10 +489,12 @@ extension FavouritesTab {
             HStack(alignment: .center, spacing: 8) {
                 studySavedPageActionsMenu(collection)
                     .frame(maxWidth: .infinity, minHeight: 38)
+                studySavedPageBrowseButton(collection)
             }
         } else {
             HStack(alignment: .center, spacing: 8) {
                 studySavedPageActionsMenu(collection)
+                studySavedPageBrowseButton(collection)
             }
         }
     }
@@ -496,6 +516,26 @@ extension FavouritesTab {
             aiTasks: studyPageAITasks(for: collection)
         )
         .disabled(isRunningStudyPageAction)
+    }
+
+    private func studySavedPageBrowseButton(_ collection: CharacterCollection) -> some View {
+        Button {
+            openSavedPageInBrowse(collection)
+        } label: {
+            Label("Browse", systemImage: RadixIcon.browse)
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .labelStyle(.titleAndIcon)
+                .radixPill(
+                    horizontal: 9,
+                    vertical: 7,
+                    background: RadixAccent.primary.opacity(0.1),
+                    radius: 8
+                )
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(RadixAccent.primary)
+        .accessibilityLabel("Browse Page")
+        .help("Open this page in Browse")
     }
 
     private func openOriginalOCRPageFromStudy(_ collection: CharacterCollection) {

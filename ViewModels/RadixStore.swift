@@ -22,6 +22,7 @@ struct RootsReturnContext: Equatable {
     let route: AppRoute
     let homeTab: HomeTab?
     let studyTarget: StudyNavigationTarget?
+    let browseCollectionID: UUID?
 }
 
 enum ImagePhraseHighlightRole {

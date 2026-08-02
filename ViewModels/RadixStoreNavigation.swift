@@ -217,7 +217,8 @@ extension RadixStore {
         RootsReturnContext(
             route: route,
             homeTab: route == .search ? homeTab : nil,
-            studyTarget: currentStudyNavigationTargetForReturn()
+            studyTarget: currentStudyNavigationTargetForReturn(),
+            browseCollectionID: route == .search && homeTab == .filter ? selectedBrowseCollectionID : nil
         )
     }
 
@@ -314,14 +315,14 @@ extension RadixStore {
         }
         route = .favourites
         activeFavouriteCharacter = nil
-        activeStudySectionTitle = StudyNavigationTarget.savedPages.title
-        requestedStudyNavigationTarget = .savedPages
         if let collectionID {
             selectBrowseCollection(id: collectionID)
         } else if selectedBrowseCollectionID == nil,
                   let collection = sortedCollections(order: .lastViewed).first {
             selectBrowseCollection(id: collection.id)
         }
+        activeStudySectionTitle = StudyNavigationTarget.savedPages.title
+        requestedStudyNavigationTarget = .savedPages
         shouldCloseBrowseSource = true
         showiPhoneDetail = false
     }
@@ -471,6 +472,12 @@ extension RadixStore {
         guard let rootsReturnContext else { return }
         route = rootsReturnContext.route
         if let homeTab = rootsReturnContext.homeTab { self.homeTab = homeTab }
+        if rootsReturnContext.route == .search,
+           rootsReturnContext.homeTab == .filter,
+           let browseCollectionID = rootsReturnContext.browseCollectionID {
+            selectBrowseCollection(id: browseCollectionID)
+            shouldCloseBrowseSource = true
+        }
         self.rootsReturnContext = nil
         if RadixPlatform.isPhone { showiPhoneDetail = false }
     }
