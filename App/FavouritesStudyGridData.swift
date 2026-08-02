@@ -204,7 +204,7 @@ extension FavouritesTab {
     }
 
     func openSavedPageInBrowse(_ collection: CharacterCollection) {
-        store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
+        store.goToBrowseCollection(id: collection.id)
     }
 
     func openAICleanedPage(_ collection: CharacterCollection) {
