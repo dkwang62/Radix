@@ -391,9 +391,11 @@ complete: pack decoding, validation, library mapping, topics, sentence
 examples, favorite sentences, capture import, progress, and quiz rules have
 separate model files. Remaining large-file refactor targets are
 `RadixStoreDataEdit.swift`, `FavouritesTab.swift`, and
-`ComponentRepository.swift`. The medium-priority prompt split is complete:
-built-in prompt templates now live in `PromptTaskDefaults.swift`, leaving
-`PromptModels.swift` focused on prompt data types, IDs, and render context.
+`ComponentRepository.swift`. Medium-priority splits completed so far:
+`PromptTaskDefaults.swift` owns built-in prompt templates, and
+`RadixStoreDataImport.swift` owns portable data import/restore plus sentence
+library transfer methods. `PromptModels.swift` is now focused on prompt data
+types, IDs, and render context.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.
@@ -615,10 +617,11 @@ Keep future refactors opportunistic and behavior-preserving:
   `ComponentRepository.swift` as the next large-file candidates for the same
   focused extraction pattern already used elsewhere. Avoid adding unrelated
   responsibilities to those files while making feature changes.
-- Suggested future split order: move import/restore orchestration out of
-  `RadixStoreDataEdit.swift`, continue moving focused Study state and lifecycle
-  helpers out of `FavouritesTab.swift`, then extract `ComponentRepository.swift`
-  query/index helpers by responsibility.
+- Suggested future split order: continue moving focused Study state and
+  lifecycle helpers out of `FavouritesTab.swift`, then extract
+  `ComponentRepository.swift` query/index helpers by responsibility. Remaining
+  `RadixStoreDataEdit.swift` candidates are export/snapshot and variance-check
+  helpers.
 
 ### Reuse-first rule
 

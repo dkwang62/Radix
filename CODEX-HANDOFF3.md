@@ -183,6 +183,9 @@ Catalyst compilation, and generic iOS Simulator compilation.
    The prompt default-template split is complete:
    `Models/PromptTaskDefaults.swift` owns the built-in prompt templates, while
    `Models/PromptModels.swift` stays focused on prompt data types and IDs.
+   The data import split is complete:
+   `ViewModels/RadixStoreDataImport.swift` owns portable data import/restore
+   and sentence-library transfer methods.
 4. Watch performance-sensitive paths:
    - Study Sentences search, paging, selection, and batch deletion.
    - Phrase-card Examples and phrase-aware sentence matching.
