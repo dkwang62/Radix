@@ -189,6 +189,10 @@ Catalyst compilation, and generic iOS Simulator compilation.
    The Study lifecycle split is complete:
    `App/FavouritesTabLifecycle.swift` owns Study tab appear/change handlers and
    cross-section navigation request handling.
+   The component query split is complete:
+   `Services/ComponentRepositoryQueries.swift` owns dictionary search,
+   related-character, script-filter, variant, radical, and confusable-peer
+   query helpers.
 4. Watch performance-sensitive paths:
    - Study Sentences search, paging, selection, and batch deletion.
    - Phrase-card Examples and phrase-aware sentence matching.

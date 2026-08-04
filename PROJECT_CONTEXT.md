@@ -396,6 +396,8 @@ separate model files. Remaining large-file refactor targets are
 `RadixStoreDataImport.swift` owns portable data import/restore plus sentence
 library transfer methods. `FavouritesTabLifecycle.swift` owns the Study tab
 appear/change handlers and cross-section navigation request handling.
+`ComponentRepositoryQueries.swift` owns dictionary search, related-character,
+script-filter, variant, radical, and confusable-peer query helpers.
 `PromptModels.swift` is now focused on prompt data types, IDs, and render
 context.
 Sentence search and phrase-card Examples should share the same phrase-aware
@@ -619,10 +621,9 @@ Keep future refactors opportunistic and behavior-preserving:
   `ComponentRepository.swift` as the next large-file candidates for the same
   focused extraction pattern already used elsewhere. Avoid adding unrelated
   responsibilities to those files while making feature changes.
-- Suggested future split order: extract `ComponentRepository.swift` query/index
-  helpers by responsibility, then continue moving focused Study state helpers
-  out of `FavouritesTab.swift`. Remaining `RadixStoreDataEdit.swift` candidates
-  are export/snapshot and variance-check helpers.
+- Suggested future split order: continue moving focused Study state helpers out
+  of `FavouritesTab.swift`, then extract remaining `RadixStoreDataEdit.swift`
+  export/snapshot and variance-check helpers by responsibility.
 
 ### Reuse-first rule
 
