@@ -17,6 +17,7 @@ struct RadixPresentationState {
     var showsPhoneDetail = false
     var showsBrowseHelp = true
     var showsComponentHelp = true
+    var showsLatestAIResult = false
     var activeCaptureDraft = CaptureDraft()
 }
 
@@ -35,6 +36,7 @@ extension RadixStore {
     var showiPhoneDetail: Bool { get { presentationState.showsPhoneDetail } set { presentationState.showsPhoneDetail = newValue } }
     var showBrowseHelp: Bool { get { presentationState.showsBrowseHelp } set { presentationState.showsBrowseHelp = newValue } }
     var showComponentHelp: Bool { get { presentationState.showsComponentHelp } set { presentationState.showsComponentHelp = newValue } }
+    var showLatestAIResult: Bool { get { presentationState.showsLatestAIResult } set { presentationState.showsLatestAIResult = newValue } }
     var activeCaptureDraft: CaptureDraft { get { presentationState.activeCaptureDraft } set { presentationState.activeCaptureDraft = newValue } }
 
     func presentationBinding<Value>(_ keyPath: ReferenceWritableKeyPath<RadixStore, Value>) -> Binding<Value> {

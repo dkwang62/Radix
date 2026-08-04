@@ -34,6 +34,7 @@ enum RadixPreferenceKey {
     static let deepSeekAPIKey = "radix.deepSeekAPIKey"
     static let customAIAPIKey = "radix.customAIAPIKey"
     static let geminiModelID = "radix.geminiModelID"
+    static let latestAIResult = "radix.latestAIResult"
 
     static let collections = "radix.characterCollections"
     static let selectedAICollection = "radix.selectedAICollectionID"

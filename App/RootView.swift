@@ -61,6 +61,11 @@ struct RootView: View {
                 .environmentObject(store)
                 .presentationDetents([.medium, .large])
         }
+        .sheet(isPresented: store.presentationBinding(\.showLatestAIResult)) {
+            LatestAIResultReader()
+                .environmentObject(store)
+                .presentationDetents([.large])
+        }
         .alert("Return to Checkpoint?", isPresented: Binding(
             get: { pendingSidebarCheckpointReturn != nil },
             set: { if !$0 { pendingSidebarCheckpointReturn = nil } }

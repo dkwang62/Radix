@@ -260,8 +260,13 @@ extension PhraseInfoCard {
             do {
                 let explanation = try await store.runGeminiSentenceExplanation(for: item)
                 await MainActor.run {
-                    RadixPlatform.copyToPasteboard(explanation)
-                    sentenceImprovementStatus = "Explanation copied to clipboard."
+                    store.publishLatestAIResult(
+                        taskTitle: "Explain Sentence",
+                        subject: item.simplified,
+                        body: explanation
+                    )
+                    store.showLatestAIResult = true
+                    sentenceImprovementStatus = "Explanation ready."
                     isRunningSentenceImprovement = false
                     RadixHaptics.success()
                 }

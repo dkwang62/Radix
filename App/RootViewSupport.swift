@@ -297,6 +297,14 @@ extension RootView {
     @ViewBuilder
     var aiLinkTitleMenuSection: some View {
         Section("AI Templates") {
+            if store.latestAIResult != nil {
+                Button {
+                    store.showLatestAIResult = true
+                } label: {
+                    Label("Latest AI Result", systemImage: "sparkles.rectangle.stack")
+                }
+            }
+
             ForEach(store.promptConfig.normalized().tasks) { task in
                 Button {
                     selectTitleMenuPromptTask(task.id)

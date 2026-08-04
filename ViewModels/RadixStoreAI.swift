@@ -88,6 +88,18 @@ enum AIResultApplicationOutcome {
 }
 
 extension RadixStore {
+    func publishLatestAIResult(taskTitle: String, subject: String, body: String) {
+        let trimmedBody = body.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedBody.isEmpty else { return }
+        let result = LatestAIResult(
+            taskTitle: taskTitle,
+            subject: subject.trimmingCharacters(in: .whitespacesAndNewlines),
+            body: trimmedBody
+        )
+        latestAIResult = result
+        preferences.set(try? JSONEncoder().encode(result), forKey: RadixPreferenceKey.latestAIResult)
+    }
+
 
     // MARK: - Task selection
 

@@ -65,6 +65,9 @@ final class RadixStore: ObservableObject {
 
     init(preferences: any RadixPreferenceStore = RadixPreferences.standard) {
         self.preferences = preferences
+        if let data = preferences.data(forKey: RadixPreferenceKey.latestAIResult) {
+            latestAIResult = try? JSONDecoder().decode(LatestAIResult.self, from: data)
+        }
     }
 
     // MARK: - Navigation State
@@ -79,6 +82,7 @@ final class RadixStore: ObservableObject {
     @Published var dataImportRevision = 0
     @Published var databaseOptimizationInProgress = false
     @Published var databaseOptimizationMessage: String?
+    @Published var latestAIResult: LatestAIResult?
 
     var dataEditLoadTask: Task<Void, Never>?
     var databaseOptimizationTask: Task<Void, Never>?

@@ -145,6 +145,12 @@ Gemini` should use the saved Gemini API key, call the same built-in
 `applySentenceImprovement` parser/replacement path as manual paste so sentence,
 pinyin, English, page-owned artifacts, and the sentence database stay synced.
 Non-importing `Explain with AI` may still use the quick external AI launch path.
+Automatic Gemini sentence explanations publish to one persisted `LatestAIResult`
+reader instead of being discarded after a clipboard copy. The reader opens when
+the result completes, supports scrolling, selection, and copying, and remains
+reachable from AI until another unstructured explanatory result replaces it.
+Structured automatic results continue to use their existing saved page,
+sentence, phrase, or practice destinations.
 Prompt model data and prompt rendering are split deliberately:
 `PromptModels.swift` owns prompt subjects, IDs, configuration, and render
 context; `PromptTaskDefaults.swift` owns built-in prompt task templates and the

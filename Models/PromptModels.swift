@@ -1,5 +1,27 @@
 import Foundation
 
+struct LatestAIResult: Codable, Equatable, Identifiable {
+    let id: UUID
+    let taskTitle: String
+    let subject: String
+    let body: String
+    let createdAt: Date
+
+    init(
+        id: UUID = UUID(),
+        taskTitle: String,
+        subject: String,
+        body: String,
+        createdAt: Date = Date()
+    ) {
+        self.id = id
+        self.taskTitle = taskTitle
+        self.subject = subject
+        self.body = body
+        self.createdAt = createdAt
+    }
+}
+
 enum PromptTaskSubjectType: String, Codable, CaseIterable, Identifiable {
     case characterPhrase
     case sentence

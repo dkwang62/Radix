@@ -243,6 +243,12 @@ Search and Camera are global actions, not ordinary tab destinations.
   is dismissed.
 - AI should remain first-class. It is a major product feature, not just a small
   Study subtool.
+- Automatic AI prose must publish into Radix rather than exist only on the
+  clipboard. Keep one persisted, scrollable Latest AI Result with its task and
+  subject context; open it when an automatic explanatory task completes and
+  keep it reachable from AI until a later explanatory result replaces it.
+  Structured tasks should continue publishing to their page, sentence, phrase,
+  or practice destination rather than duplicating their data in this reader.
 - My Data should not become a review drawer. It should focus on data ownership,
   backup, restore, export, import, and subscription-related data tools.
 

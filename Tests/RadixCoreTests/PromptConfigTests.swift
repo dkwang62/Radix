@@ -2,6 +2,22 @@ import Foundation
 import Testing
 @testable import RadixCore
 
+@Test("Latest AI result preserves its reader context")
+func latestAIResultRoundTrip() throws {
+    let result = LatestAIResult(
+        taskTitle: "Explain Sentence",
+        subject: "今天天气很好。",
+        body: "This sentence describes today's pleasant weather."
+    )
+
+    let decoded = try JSONDecoder().decode(
+        LatestAIResult.self,
+        from: JSONEncoder().encode(result)
+    )
+
+    #expect(decoded == result)
+}
+
 @Suite("AI prompt compatibility")
 struct PromptConfigTests {
     @Test("AI image OCR parser accepts marked and fenced text")

@@ -1,5 +1,61 @@
 import SwiftUI
 
+struct LatestAIResultReader: View {
+    @EnvironmentObject private var store: RadixStore
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if let result = store.latestAIResult {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 14) {
+                            Text(result.taskTitle)
+                                .font(ResponsiveFont.title2.weight(.bold))
+
+                            if !result.subject.isEmpty {
+                                Text(result.subject)
+                                    .font(ResponsiveFont.title3.weight(.semibold))
+                                    .foregroundStyle(RadixAccent.primary)
+                                    .textSelection(.enabled)
+                            }
+
+                            Text(result.body)
+                                .font(ResponsiveFont.body)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .textSelection(.enabled)
+                        }
+                        .padding()
+                    }
+                } else {
+                    ContentUnavailableView(
+                        "No AI Result Yet",
+                        systemImage: "sparkles.rectangle.stack",
+                        description: Text("Automatic explanatory AI tasks will publish their latest result here.")
+                    )
+                }
+            }
+            .background(RadixTheme.groupedBackground)
+            .navigationTitle("Latest AI Result")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") { dismiss() }
+                }
+                if let result = store.latestAIResult {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button {
+                            RadixPlatform.copyToPasteboard(result.body)
+                        } label: {
+                            Label("Copy", systemImage: "doc.on.doc")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 extension AILinkView {
     var promptBox: some View {
         VStack(alignment: .leading, spacing: 8) {

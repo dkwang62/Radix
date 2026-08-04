@@ -11,11 +11,41 @@ extension AILinkView {
 
     var aiTemplateDashboardSection: some View {
         VStack(alignment: .leading, spacing: 12) {
+            if store.latestAIResult != nil {
+                latestAIResultButton
+            }
             aiTemplateDashboardHeader
             taskSelectionSection
             selectedTaskTemplateSection
             promptTestSection
         }
+    }
+
+    var latestAIResultButton: some View {
+        Button {
+            store.showLatestAIResult = true
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "sparkles.rectangle.stack")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Latest AI Result")
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                    Text(store.latestAIResult?.taskTitle ?? "AI Result")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(12)
+            .background(RadixAccent.primary.opacity(0.09))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint("Opens the most recent automatic AI explanation")
     }
 
     var aiTemplateDashboardHeader: some View {
