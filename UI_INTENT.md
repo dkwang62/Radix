@@ -247,6 +247,8 @@ Search and Camera are global actions, not ordinary tab destinations.
   clipboard. Keep one persisted, scrollable Latest AI Result with its task and
   subject context; open it when an automatic explanatory task completes and
   keep it reachable from AI until a later explanatory result replaces it.
+  When the source learning object remains visible, keep a direct read-again
+  action there as well so dismissing the reader does not hide the return path.
   Structured tasks should continue publishing to their page, sentence, phrase,
   or practice destination rather than duplicating their data in this reader.
 - My Data should not become a review drawer. It should focus on data ownership,

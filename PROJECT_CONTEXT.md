@@ -149,6 +149,8 @@ Automatic Gemini sentence explanations publish to one persisted `LatestAIResult`
 reader instead of being discarded after a clipboard copy. The reader opens when
 the result completes, supports scrolling, selection, and copying, and remains
 reachable from AI until another unstructured explanatory result replaces it.
+The matching sentence card also shows `Read Explanation` so dismissing the
+reader never removes the local return path.
 Structured automatic results continue to use their existing saved page,
 sentence, phrase, or practice destinations.
 Prompt model data and prompt rendering are split deliberately:

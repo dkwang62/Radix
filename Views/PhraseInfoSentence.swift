@@ -211,12 +211,35 @@ extension PhraseInfoCard {
 
     @ViewBuilder
     var sentenceImprovementStatusLine: some View {
-        if let sentenceImprovementStatus {
-            Text(sentenceImprovementStatus)
-                .font(ResponsiveFont.caption2.weight(.semibold))
-                .foregroundStyle(isRunningSentenceImprovement ? .secondary : RadixAccent.primary)
-                .fixedSize(horizontal: false, vertical: true)
+        if sentenceImprovementStatus != nil || hasLatestSentenceExplanation {
+            HStack(alignment: .center, spacing: 10) {
+                if let sentenceImprovementStatus {
+                    Text(sentenceImprovementStatus)
+                        .font(ResponsiveFont.caption2.weight(.semibold))
+                        .foregroundStyle(isRunningSentenceImprovement ? .secondary : RadixAccent.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 0)
+
+                if hasLatestSentenceExplanation {
+                    Button {
+                        store.showLatestAIResult = true
+                    } label: {
+                        Label("Read Explanation", systemImage: "doc.text.magnifyingglass")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+            }
         }
+    }
+
+    var hasLatestSentenceExplanation: Bool {
+        guard let result = store.latestAIResult,
+              result.taskTitle == "Explain Sentence",
+              let practiceSentenceItem else { return false }
+        return result.subject == practiceSentenceItem.simplified
     }
 
     func runAutomaticSentenceImprovement(_ item: ConversationPracticeItem) {
