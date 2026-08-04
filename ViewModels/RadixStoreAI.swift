@@ -91,6 +91,10 @@ extension RadixStore {
 
     // MARK: - Task selection
 
+    func characterPhrasePromptTasks() -> [PromptTask] {
+        promptConfig.normalized().tasks.filter { $0.subjectType == .characterPhrase }
+    }
+
     func selectedPromptTaskIDsForCharacterLaunch() -> [String] {
         let normalizedTasks = promptConfig.normalized().tasks
         let availableTaskIDs = Set(normalizedTasks.map(\.id))

@@ -37,8 +37,10 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
 - AI tasks launch from their source objects: page action menus, sentence cards,
   phrase cards, and character cards. Direct AI tab entry is a template/setup
   workbench; object-launched AI Link keeps the shared copy/open and paste/apply
-  run workflow. The AI tab `Test AI` section runs the current draft prompt and
-  shows the answer without importing or applying it.
+  run workflow. Character and phrase menus expose named Character/Phrase AI
+  tasks inside one compact `AI` submenu instead of one generic send action. The
+  AI tab `Test AI` section runs the current draft prompt and shows the answer
+  without importing or applying it.
 - AI Link's built-in `Sentence Improvement` task can paste/apply an AI answer
   back into the selected saved sentence record.
 - Prompt model data stays in `PromptModels.swift`; prompt normalization,

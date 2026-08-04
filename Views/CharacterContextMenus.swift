@@ -1,5 +1,17 @@
 import SwiftUI
 
+private func aiTaskMenuTitle(_ task: PromptTask) -> String {
+    let trimmedTitle = task.title.trimmingCharacters(in: .whitespacesAndNewlines)
+    for separator in [" – ", " - "] {
+        let parts = trimmedTitle.components(separatedBy: separator)
+        if parts.count > 1,
+           parts[0].range(of: "Task ", options: [.anchored, .caseInsensitive]) != nil {
+            return parts.dropFirst().joined(separator: separator)
+        }
+    }
+    return trimmedTitle.isEmpty ? "AI Task" : trimmedTitle
+}
+
 private struct CopyCharacterContextMenuModifier: ViewModifier {
     @EnvironmentObject private var store: RadixStore
     let character: String
@@ -72,8 +84,19 @@ private struct CharacterActionMenuContent: View {
         Button("Components") {
             store.goToRoots(character: character)
         }
-        Button("Send to AI Link") {
-            store.triggerSelectedAITasks(for: character)
+        let aiTasks = store.characterPhrasePromptTasks()
+        if !aiTasks.isEmpty {
+            Menu {
+                ForEach(aiTasks) { task in
+                    Button {
+                        store.goToAILinkCharacterPhraseTask(character, taskID: task.id)
+                    } label: {
+                        Label(aiTaskMenuTitle(task), systemImage: task.id == store.selectedPromptTaskID ? "checkmark" : RadixIcon.aiLink)
+                    }
+                }
+            } label: {
+                Label("AI", systemImage: RadixIcon.aiLink)
+            }
         }
         Divider()
         Button("Copy \"\(character)\"") {
@@ -192,10 +215,22 @@ private struct PhraseActionMenuContent: View {
                 store.openQuickPhraseEditor(word: trimmedWord)
             }
         }
-        Button("Send to AI Link") {
-            dismiss()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                store.triggerSelectedAITasks(for: trimmedWord)
+        let aiTasks = store.characterPhrasePromptTasks()
+        if !aiTasks.isEmpty {
+            Menu {
+                ForEach(aiTasks) { task in
+                    Button {
+                        let taskID = task.id
+                        dismiss()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                            store.goToAILinkCharacterPhraseTask(trimmedWord, taskID: taskID)
+                        }
+                    } label: {
+                        Label(aiTaskMenuTitle(task), systemImage: task.id == store.selectedPromptTaskID ? "checkmark" : RadixIcon.aiLink)
+                    }
+                }
+            } label: {
+                Label("AI", systemImage: RadixIcon.aiLink)
             }
         }
         Divider()

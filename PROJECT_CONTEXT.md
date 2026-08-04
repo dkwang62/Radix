@@ -147,7 +147,10 @@ task repair, and placeholder substitution.
 Custom AI Link tasks carry an explicit subject type. Character/Phrase tasks use
 the recent subject chooser, Page tasks use the saved-page chooser, and Sentence
 tasks use a searchable saved-sentence chooser that queries only a small visible
-slice of the sentence database. Creating a new custom task must reuse an
+slice of the sentence database. Character and phrase context menus must expose
+every Character/Phrase AI task by name inside an `AI` submenu rather than a
+single generic send action, and each menu item should open AI Link with that
+object and task already selected. Creating a new custom task must reuse an
 existing untouched blank custom draft instead of adding another empty task, and
 AI Link may clean up duplicate blank custom drafts automatically. Only custom
 tasks are deletable; built-in tasks should remain recoverable through defaults.
@@ -1324,8 +1327,10 @@ current draft prompt with the selected source through Gemini, displaying and
 copying the answer without importing, saving, or applying it back to Radix data.
 Page, sentence, phrase, and character AI work should be launched from the
 relevant object menu or info card so the source remains visible and the user can
-get back without losing context. When AI Link is opened from one of those object
-actions, it keeps the focused run workflow: source row, copy/open controls,
+get back without losing context. Character and phrase menus expose their
+available AI tasks by name inside one compact `AI` submenu. When AI Link is
+opened from one of those object actions, it keeps the focused run workflow:
+source row, copy/open controls,
 paste/apply result controls when supported, and no inline template editor. The
 bulk AI Templates manager remains available from the toolbar or dashboard for
 global character/page prompt closings, adding or deleting custom prompt tasks,

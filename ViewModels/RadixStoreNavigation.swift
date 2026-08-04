@@ -405,6 +405,44 @@ extension RadixStore {
         if RadixPlatform.isPhone { showiPhoneDetail = false }
     }
 
+    func characterPhraseAITaskID(preferredTaskID: String = "task1") -> String {
+        let normalizedTasks = promptConfig.normalized().tasks
+        let taskID = normalizedTasks.first {
+            $0.id == preferredTaskID && $0.subjectType == .characterPhrase
+        }?.id ??
+            normalizedTasks.first {
+                $0.id == "task1" && $0.subjectType == .characterPhrase
+            }?.id ??
+            normalizedTasks.first { $0.subjectType == .characterPhrase }?.id ??
+            "task1"
+        if promptConfig.tasks.allSatisfy({ $0.id != taskID }),
+           let defaultTask = PromptConfig.streamlitDefault.tasks.first(where: { $0.id == taskID }) {
+            promptConfig.tasks.append(defaultTask)
+        }
+        return taskID
+    }
+
+    @MainActor
+    func goToAILinkCharacterPhraseTask(_ subject: String, taskID preferredTaskID: String) {
+        let trimmed = subject.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        if route != .aiLink {
+            rememberCrossTabOrigin()
+        }
+        let taskID = characterPhraseAITaskID(preferredTaskID: preferredTaskID)
+        if let firstCharacter = trimmed.first {
+            select(character: String(firstCharacter), announce: false)
+        }
+        activeSubject = .character(trimmed)
+        selectedPromptTaskID = taskID
+        promptSelectedTaskIDs = [taskID]
+        shouldAutoOpenAILinkPrompt = true
+        shouldAutoRunGeminiPhraseAPI = false
+        route = .aiLink
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
+        persistPromptSettings()
+    }
+
     func sentenceAITaskID(preferredTaskID: String = PromptConfig.defaultSentenceTaskID) -> String {
         let normalizedTasks = promptConfig.normalized().tasks
         let taskID = normalizedTasks.first { $0.id == preferredTaskID }?.id ??
@@ -553,10 +591,12 @@ extension RadixStore {
     func triggerSelectedAITasks(for character: String) {
         let trimmed = character.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        let prompt = promptText(for: .character(trimmed), selectedTaskIDs: selectedPromptTaskIDsForCharacterLaunch())
+        let selectedTaskIDs = selectedPromptTaskIDsForCharacterLaunch()
+        let prompt = promptText(for: .character(trimmed), selectedTaskIDs: selectedTaskIDs)
         guard !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         RadixPlatform.copyToPasteboard(prompt)
         activeSubject = .character(trimmed)
+        selectedPromptTaskID = selectedTaskIDs.first
         guard let url = defaultAIURL(prompt: prompt) else { return }
         RadixPlatform.open(url, after: 0.1)
         scheduleMacClipboardPasteIfPossible()
