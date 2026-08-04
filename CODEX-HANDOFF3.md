@@ -186,6 +186,9 @@ Catalyst compilation, and generic iOS Simulator compilation.
    The data import split is complete:
    `ViewModels/RadixStoreDataImport.swift` owns portable data import/restore
    and sentence-library transfer methods.
+   The Study lifecycle split is complete:
+   `App/FavouritesTabLifecycle.swift` owns Study tab appear/change handlers and
+   cross-section navigation request handling.
 4. Watch performance-sensitive paths:
    - Study Sentences search, paging, selection, and batch deletion.
    - Phrase-card Examples and phrase-aware sentence matching.
