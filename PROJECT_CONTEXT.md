@@ -60,10 +60,12 @@ same selected page in Study Pages and expand it. Study Pages exposes a compact
 `Browse` action for the current page; that explicit `Study`/`Browse` pair is
 the page back-and-forth model, so do not add a separate `Back to Browse`
 or `Back to Study` navigation layer for this flow, including through the shared
-cross-tab return bar. Browse and the internal saved-page Study workspace share
-the same `Actions` menu vocabulary for page editing, OCR/source review, phrase
-selection, translation, AI tasks, and delete; do not reintroduce separate
-Browse-only or Study-only page action rows.
+cross-tab return bar. `CrossTabReturnVisibilityPolicy` owns that return-bar
+exception in the core navigation models so Browse/Study page navigation does
+not grow scattered special cases. Browse and the internal saved-page Study
+workspace share the same `Actions` menu vocabulary for page editing, OCR/source
+review, phrase selection, translation, AI tasks, and delete; do not reintroduce
+separate Browse-only or Study-only page action rows.
 The existing saved-page Study implementation remains the internal page-learning
 workspace and may be opened from explicit Study/page actions, including My Data
 inventory links. The Study title menu exposes this route as `Study Pages`; it

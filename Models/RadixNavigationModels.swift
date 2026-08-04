@@ -78,6 +78,40 @@ enum HistoryStripDisplayPolicy {
     }
 }
 
+struct CrossTabReturnVisibilityContext: Equatable {
+    let route: AppRoute
+    let homeTab: HomeTab?
+    let isStudyPages: Bool
+    let hasSelectedBrowsePage: Bool
+
+    var isBrowsePage: Bool {
+        route == .search && homeTab == .filter && hasSelectedBrowsePage
+    }
+
+    var isStudyWorkspace: Bool {
+        isStudyPages || route == .favourites
+    }
+}
+
+enum CrossTabReturnVisibilityPolicy {
+    static func shouldShow(
+        current: CrossTabReturnVisibilityContext,
+        origin: CrossTabReturnVisibilityContext?
+    ) -> Bool {
+        guard let origin else { return false }
+        guard current.route != .lineage else { return false }
+        return !isExplicitBrowseStudyPagePair(current: current, origin: origin)
+    }
+
+    private static func isExplicitBrowseStudyPagePair(
+        current: CrossTabReturnVisibilityContext,
+        origin: CrossTabReturnVisibilityContext
+    ) -> Bool {
+        (current.isStudyPages && origin.isBrowsePage)
+            || (current.isBrowsePage && origin.isStudyWorkspace)
+    }
+}
+
 enum SidebarNavigationStyle: String, CaseIterable, Identifiable, Codable {
     case descriptive = "Descriptive"
     case compact = "Compact"

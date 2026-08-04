@@ -57,4 +57,68 @@ struct NavigationCompatibilityTests {
         #expect(visible.first == "0")
         #expect(visible.last == "79")
     }
+
+    @Test("Browse page and Study Pages use explicit buttons instead of return bars")
+    func browseStudyPagePairSuppressesCrossTabReturn() {
+        let browsePageOrigin = CrossTabReturnVisibilityContext(
+            route: .search,
+            homeTab: .filter,
+            isStudyPages: false,
+            hasSelectedBrowsePage: true
+        )
+        let studyPagesOrigin = CrossTabReturnVisibilityContext(
+            route: .favourites,
+            homeTab: nil,
+            isStudyPages: true,
+            hasSelectedBrowsePage: false
+        )
+
+        #expect(!CrossTabReturnVisibilityPolicy.shouldShow(
+            current: CrossTabReturnVisibilityContext(
+                route: .favourites,
+                homeTab: nil,
+                isStudyPages: true,
+                hasSelectedBrowsePage: true
+            ),
+            origin: browsePageOrigin
+        ))
+        #expect(!CrossTabReturnVisibilityPolicy.shouldShow(
+            current: CrossTabReturnVisibilityContext(
+                route: .search,
+                homeTab: .filter,
+                isStudyPages: false,
+                hasSelectedBrowsePage: true
+            ),
+            origin: studyPagesOrigin
+        ))
+    }
+
+    @Test("Cross-tab return remains available outside Browse page Study Pages pair")
+    func ordinaryCrossTabReturnStillShows() {
+        let searchOrigin = CrossTabReturnVisibilityContext(
+            route: .search,
+            homeTab: .smart,
+            isStudyPages: false,
+            hasSelectedBrowsePage: false
+        )
+
+        #expect(CrossTabReturnVisibilityPolicy.shouldShow(
+            current: CrossTabReturnVisibilityContext(
+                route: .settings,
+                homeTab: nil,
+                isStudyPages: false,
+                hasSelectedBrowsePage: false
+            ),
+            origin: searchOrigin
+        ))
+        #expect(!CrossTabReturnVisibilityPolicy.shouldShow(
+            current: CrossTabReturnVisibilityContext(
+                route: .lineage,
+                homeTab: nil,
+                isStudyPages: false,
+                hasSelectedBrowsePage: false
+            ),
+            origin: searchOrigin
+        ))
+    }
 }

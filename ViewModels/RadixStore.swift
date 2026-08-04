@@ -23,6 +23,15 @@ struct RootsReturnContext: Equatable {
     let homeTab: HomeTab?
     let studyTarget: StudyNavigationTarget?
     let browseCollectionID: UUID?
+
+    var returnVisibilityContext: CrossTabReturnVisibilityContext {
+        CrossTabReturnVisibilityContext(
+            route: route,
+            homeTab: homeTab,
+            isStudyPages: studyTarget == .savedPages,
+            hasSelectedBrowsePage: browseCollectionID != nil
+        )
+    }
 }
 
 enum ImagePhraseHighlightRole {
