@@ -543,9 +543,11 @@ from the object being studied: page actions, sentence cards, phrase cards, or
 character cards. The top-level AI tab should be a template/setup workbench, not
 a second place to choose sources. Direct AI tab entry shows `AI Templates`, an
 `AI Task` dropdown, the selected task's draft template, `Save`, `Undo`, and
-`Revise Template with AI`. Object-launched AI Link keeps the focused run
-workflow: source row, copy/open controls, paste/apply result controls when
-supported, and no inline template editor.
+`Revise Template with AI`, followed by `Test AI`. Testing runs the current draft
+prompt against the selected source and displays the answer without any paste/apply
+path back into Radix. Object-launched AI Link keeps the focused run workflow:
+source row, copy/open controls, paste/apply result controls when supported, and
+no inline template editor.
 Prompt editing should use an explicit draft with `Save` and `Undo`, not
 invisible autosave. Built-in tasks should not repeat the task title in a second
 title field; custom tasks may show a task-name field and a subject selector for

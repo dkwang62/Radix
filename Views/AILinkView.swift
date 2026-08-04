@@ -38,6 +38,10 @@ struct AILinkView: View {
     @State var promptTemplateChangeRequest = ""
     @State var promptTemplateRevisionText = ""
     @State var promptTemplateRevisionMessage: String?
+    @State var isRunningPromptTest = false
+    @State var promptTestOutput = ""
+    @State var promptTestMessage: String?
+    @State var promptTestError: String?
 
     /// The character or phrase word that tasks 1-3 will act on.
     /// Phrase preview takes priority over single character preview.
@@ -234,6 +238,7 @@ struct AILinkView: View {
         }
         .onChange(of: selectedPromptTask?.id) { _, _ in
             resetAIResultWorkflow()
+            resetPromptTest()
             refreshAISentencePickerResults()
         }
         .onChange(of: aiSentenceSearchText) { _, _ in
@@ -245,6 +250,7 @@ struct AILinkView: View {
         }
         .onChange(of: selectedCollection?.id) { _, _ in
             resetAIResultWorkflow()
+            resetPromptTest()
         }
     }
 
@@ -336,6 +342,7 @@ struct AILinkView: View {
         draftPromptSubjectType = task?.subjectType ?? .characterPhrase
         promptSaveStatus = nil
         resetPromptTemplateRevision()
+        resetPromptTest()
     }
 
     func savePromptDraft() {
@@ -395,5 +402,12 @@ struct AILinkView: View {
         promptTemplateRevisionText = ""
         promptTemplateRevisionMessage = nil
         isPromptTemplateRevisionExpanded = false
+    }
+
+    func resetPromptTest() {
+        promptTestOutput = ""
+        promptTestMessage = nil
+        promptTestError = nil
+        isRunningPromptTest = false
     }
 }

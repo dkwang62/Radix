@@ -14,6 +14,7 @@ extension AILinkView {
             aiTemplateDashboardHeader
             taskSelectionSection
             selectedTaskTemplateSection
+            promptTestSection
         }
     }
 
@@ -49,6 +50,167 @@ extension AILinkView {
         .padding()
         .background(RadixTheme.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    @ViewBuilder
+    var promptTestSection: some View {
+        if selectedPromptTask != nil {
+            VStack(alignment: .leading, spacing: 12) {
+                Label("Test AI", systemImage: "play.circle")
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+
+                selectedTaskSourceSection
+
+                VStack(alignment: .leading, spacing: 10) {
+                    promptTestActions
+                    promptTestStatus
+                    promptTestOutputSection
+                }
+                .padding(12)
+                .background(RadixTheme.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+        }
+    }
+
+    var promptTestActions: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                promptTestRunButton
+                promptTestCopyPromptButton
+                promptTestCopyAnswerButton
+                promptTestClearButton
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                promptTestRunButton
+                promptTestCopyPromptButton
+                promptTestCopyAnswerButton
+                promptTestClearButton
+            }
+        }
+    }
+
+    var promptTestRunButton: some View {
+        Button {
+            runPromptTest()
+        } label: {
+            if isRunningPromptTest {
+                Label("Running", systemImage: "hourglass")
+            } else if store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Label("Set Up Gemini Key", systemImage: "key")
+            } else {
+                Label("Run Test", systemImage: "sparkles")
+            }
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.small)
+        .disabled(isRunningPromptTest || (!canGeneratePrompt && !store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty))
+    }
+
+    var promptTestCopyPromptButton: some View {
+        Button {
+            RadixPlatform.copyToPasteboard(generatedPromptText)
+            promptTestMessage = "Prompt copied."
+            promptTestError = nil
+        } label: {
+            Label("Copy Prompt", systemImage: "doc.on.doc")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .disabled(!canGeneratePrompt)
+    }
+
+    var promptTestCopyAnswerButton: some View {
+        Button {
+            RadixPlatform.copyToPasteboard(promptTestOutput)
+            promptTestMessage = "Answer copied."
+            promptTestError = nil
+        } label: {
+            Label("Copy Answer", systemImage: "doc.on.doc")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .disabled(promptTestOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+    }
+
+    var promptTestClearButton: some View {
+        Button(role: .destructive) {
+            resetPromptTest()
+        } label: {
+            Label("Clear", systemImage: "xmark.circle")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .disabled(promptTestOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+                  promptTestMessage == nil &&
+                  promptTestError == nil)
+    }
+
+    @ViewBuilder
+    var promptTestStatus: some View {
+        if let promptTestMessage {
+            Label(promptTestMessage, systemImage: "checkmark.circle")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(RadixAccent.primary)
+                .fixedSize(horizontal: false, vertical: true)
+        } else if let promptTestError {
+            Label(promptTestError, systemImage: "exclamationmark.triangle")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.red)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    @ViewBuilder
+    var promptTestOutputSection: some View {
+        if !promptTestOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            ScrollView {
+                Text(promptTestOutput)
+                    .font(.system(size: 14, design: .monospaced))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .textSelection(.enabled)
+                    .padding(8)
+            }
+            .frame(minHeight: 150, maxHeight: sizeClass == .compact ? 220 : 300)
+            .background(RadixTheme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+
+    func runPromptTest() {
+        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else {
+            store.goToSettingsForAPIKeySetup()
+            return
+        }
+        guard canGeneratePrompt else {
+            promptTestError = "Choose a test source first."
+            promptTestMessage = nil
+            return
+        }
+
+        isRunningPromptTest = true
+        promptTestMessage = "Testing with Gemini..."
+        promptTestError = nil
+        promptTestOutput = ""
+        let prompt = generatedPromptText
+        Task {
+            do {
+                let output = try await store.runGeminiPromptTest(prompt: prompt)
+                await MainActor.run {
+                    promptTestOutput = output
+                    promptTestMessage = "Test complete. Nothing was saved."
+                    isRunningPromptTest = false
+                }
+            } catch {
+                await MainActor.run {
+                    promptTestError = error.localizedDescription
+                    promptTestMessage = nil
+                    isRunningPromptTest = false
+                }
+            }
+        }
     }
 
     var aiTemplateSettingsButton: some View {
@@ -156,6 +318,7 @@ extension AILinkView {
                             set: {
                                 draftPromptTitle = $0
                                 promptSaveStatus = nil
+                                resetPromptTest()
                             }
                         ))
                         .font(ResponsiveFont.body.bold())
@@ -166,6 +329,7 @@ extension AILinkView {
                             set: {
                                 draftPromptSubjectType = $0
                                 promptSaveStatus = nil
+                                resetPromptTest()
                             }
                         ))
                     }
@@ -175,6 +339,7 @@ extension AILinkView {
                         set: {
                             draftPromptTemplate = $0
                             promptSaveStatus = nil
+                            resetPromptTest()
                         }
                     ))
                     .font(.system(size: 14, design: .monospaced))
@@ -384,6 +549,7 @@ extension AILinkView {
         promptSaveStatus = "Revised template applied to draft. Save when ready."
         promptTemplateRevisionMessage = "Applied to draft."
         promptTemplateRevisionText = ""
+        resetPromptTest()
     }
 
     func promptSubjectTypePicker(selection: Binding<PromptTaskSubjectType>) -> some View {

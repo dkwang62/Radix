@@ -1319,14 +1319,17 @@ Top-level AI Link is now a template/setup workbench, not the main place to
 start everyday AI tasks. Directly opening the AI tab shows `AI Templates`, an
 `AI Task` dropdown, the selected task's editable draft template, `Save`, `Undo`,
 and `Revise Template with AI`; it also exposes compact `AI Setup` and `All
-Templates` actions. Page, sentence, phrase, and character AI work should be
-launched from the relevant object menu or info card so the source remains
-visible and the user can get back without losing context. When AI Link is opened
-from one of those object actions, it keeps the focused run workflow: source row,
-copy/open controls, paste/apply result controls when supported, and no inline
-template editor. The bulk AI Templates manager remains available from the
-toolbar or dashboard for global character/page prompt closings, adding or
-deleting custom prompt tasks, and editing all templates in one place.
+Templates` actions. `Test AI` sits after the template editor and runs the
+current draft prompt with the selected source through Gemini, displaying and
+copying the answer without importing, saving, or applying it back to Radix data.
+Page, sentence, phrase, and character AI work should be launched from the
+relevant object menu or info card so the source remains visible and the user can
+get back without losing context. When AI Link is opened from one of those object
+actions, it keeps the focused run workflow: source row, copy/open controls,
+paste/apply result controls when supported, and no inline template editor. The
+bulk AI Templates manager remains available from the toolbar or dashboard for
+global character/page prompt closings, adding or deleting custom prompt tasks,
+and editing all templates in one place.
 Custom tasks carry an explicit subject type: `Character / Phrase`, `Sentence`,
 or `Page`. The selected subject type controls source rows, prompt validation,
 and rendering placeholders; built-in page/theme task subject types remain fixed

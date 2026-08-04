@@ -532,6 +532,17 @@ extension RadixStore {
         )
     }
 
+    func runGeminiPromptTest(prompt: String) async throws -> String {
+        try await GeminiTextGenerationService().generateText(
+            apiKey: geminiAPIKey,
+            modelID: geminiModelID,
+            prompt: prompt,
+            systemInstruction: """
+            You are testing a Radix AI prompt template. Follow the user's prompt exactly and return the task result only. Do not mention that this is a test.
+            """
+        )
+    }
+
     func runGeminiAICleanedPage(for collection: CharacterCollection) async throws -> AICleanedPageRecord {
         let prompt = promptText(for: .collection(collection), selectedTaskIDs: [AIResultTaskID.createAICleanedPage])
         let response = try await GeminiTextGenerationService().generateText(
