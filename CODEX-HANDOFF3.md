@@ -193,6 +193,10 @@ Catalyst compilation, and generic iOS Simulator compilation.
    `Services/ComponentRepositoryQueries.swift` owns dictionary search,
    related-character, script-filter, variant, radical, and confusable-peer
    query helpers.
+   The data export split is complete:
+   `ViewModels/RadixStoreDataExport.swift` owns data-edit snapshot JSON,
+   portable/full dataset exports, database snapshot helpers,
+   restore-from-snapshot, and dictionary/phrase variance checks.
 4. Watch performance-sensitive paths:
    - Study Sentences search, paging, selection, and batch deletion.
    - Phrase-card Examples and phrase-aware sentence matching.

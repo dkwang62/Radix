@@ -398,6 +398,9 @@ library transfer methods. `FavouritesTabLifecycle.swift` owns the Study tab
 appear/change handlers and cross-section navigation request handling.
 `ComponentRepositoryQueries.swift` owns dictionary search, related-character,
 script-filter, variant, radical, and confusable-peer query helpers.
+`RadixStoreDataExport.swift` owns data-edit snapshot JSON, portable/full
+dataset exports, database snapshot helpers, restore-from-snapshot, and
+dictionary/phrase variance checks.
 `PromptModels.swift` is now focused on prompt data types, IDs, and render
 context.
 Sentence search and phrase-card Examples should share the same phrase-aware
@@ -622,8 +625,8 @@ Keep future refactors opportunistic and behavior-preserving:
   focused extraction pattern already used elsewhere. Avoid adding unrelated
   responsibilities to those files while making feature changes.
 - Suggested future split order: continue moving focused Study state helpers out
-  of `FavouritesTab.swift`, then extract remaining `RadixStoreDataEdit.swift`
-  export/snapshot and variance-check helpers by responsibility.
+  of `FavouritesTab.swift`, then revisit any remaining `RadixStoreDataEdit.swift`
+  phrase-editing helpers that can move without changing behavior.
 
 ### Reuse-first rule
 
