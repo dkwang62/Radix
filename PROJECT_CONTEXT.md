@@ -133,7 +133,9 @@ copies of the built-in `Sentence Improvement` prompt must normalize to the
 current JSON contract so users see the updated template without manually
 resetting AI settings. Sentence-card `Improve Sentence with AI` should route to
 AI Link with the sentence and task selected so the normal prompt, paste, and
-apply workflow remains visible. Sentence-card `Improve Automatically with
+apply workflow remains visible; after `Update Sentence`, AI Link must show a
+compact preview of the updated Chinese sentence, pinyin, and English meaning so
+the replacement is visible. Sentence-card `Improve Automatically with
 Gemini` should use the saved Gemini API key, call the same built-in
 `Sentence Improvement` prompt, then feed the AI response through the same
 `applySentenceImprovement` parser/replacement path as manual paste so sentence,

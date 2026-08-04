@@ -281,6 +281,10 @@ extension AILinkView {
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .accessibilityLabel("Open imported practice in Study")
                 }
+
+                if let selectedAISentenceRecord {
+                    aiUpdatedSentencePreview(selectedAISentenceRecord)
+                }
             }
         } else if let aiResultError {
             Label(aiResultError, systemImage: "exclamationmark.triangle")
@@ -288,6 +292,38 @@ extension AILinkView {
                 .foregroundStyle(.red)
                 .fixedSize(horizontal: false, vertical: true)
         }
+    }
+
+    func aiUpdatedSentencePreview(_ record: SentenceExampleRecord) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text("Updated sentence")
+                .font(ResponsiveFont.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            Text(record.chinese)
+                .font(ResponsiveFont.body.weight(.semibold))
+                .fixedSize(horizontal: false, vertical: true)
+
+            let pinyin = record.pinyin?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if !pinyin.isEmpty {
+                Text(pinyin)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            let english = record.english?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if !english.isEmpty {
+                Text(english)
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RadixAccent.primary.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     func resultWorkflowHeader(for task: PromptTask) -> some View {
@@ -386,6 +422,7 @@ extension AILinkView {
                 aiResultMessage = nil
                 aiResultError = nil
                 aiImportedPracticePack = nil
+                selectedAISentenceRecord = nil
                 isAIResultTextExpanded = true
             }
         ))
@@ -428,6 +465,7 @@ extension AILinkView {
             aiResultMessage = nil
             aiResultError = nil
             aiImportedPracticePack = nil
+            selectedAISentenceRecord = nil
             isAIResultTextExpanded = true
         } label: {
             Label("Paste", systemImage: "doc.on.clipboard")
@@ -453,6 +491,7 @@ extension AILinkView {
             aiResultMessage = nil
             aiResultError = nil
             aiImportedPracticePack = nil
+            selectedAISentenceRecord = nil
             isAIResultTextExpanded = true
         } label: {
             Label("Clear", systemImage: "xmark.circle")
@@ -538,6 +577,7 @@ extension AILinkView {
         aiResultMessage = nil
         aiResultError = nil
         aiImportedPracticePack = nil
+        selectedAISentenceRecord = nil
         isAIResultTextExpanded = true
     }
 

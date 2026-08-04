@@ -549,7 +549,9 @@ path back into Radix. Object-launched AI Link keeps the focused run workflow:
 source row, copy/open controls, paste/apply result controls when supported, and
 no inline template editor. Character and phrase menus should show one compact
 `AI` submenu with each available Character/Phrase task named directly; avoid a
-generic `Send to AI` action when multiple AI tasks are available.
+generic `Send to AI` action when multiple AI tasks are available. Replacement
+actions such as Sentence Improvement should show the updated object after apply,
+not only a generic success line.
 Prompt editing should use an explicit draft with `Save` and `Undo`, not
 invisible autosave. Built-in tasks should not repeat the task title in a second
 title field; custom tasks may show a task-name field and a subject selector for

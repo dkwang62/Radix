@@ -42,7 +42,9 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   AI tab `Test AI` section runs the current draft prompt and shows the answer
   without importing or applying it.
 - AI Link's built-in `Sentence Improvement` task can paste/apply an AI answer
-  back into the selected saved sentence record.
+  back into the selected saved sentence record. After manual `Update Sentence`,
+  AI Link shows the updated Chinese, pinyin, and English so replacement is
+  visible instead of feeling like a silent database write.
 - Prompt model data stays in `PromptModels.swift`; prompt normalization,
   legacy task repair, and placeholder rendering live in
   `PromptConfigRendering.swift`.
