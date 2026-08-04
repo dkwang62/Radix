@@ -1030,12 +1030,14 @@ Saved-page resume signals should remain selective: the collapsed Pages list may
 show last-viewed context for the active page or the top page in `Viewed` sort,
 but should not add date/status text to every row or simply mark row 1 in other
 sort modes.
-Page AI actions should consistently name the two methods as `Copy to AI Chat`
-for copy/paste handoff and `Run Automatically with Gemini` for in-app Gemini
-execution. Avoid mixing older labels such as Manual AI Link, Gemini API,
-automatic AI, another AI app, or copy-and-paste method in user-facing
-page-action flows. The page-action AI orientation sheet uses `Copy to AI Chat`,
-`Run Automatically with Gemini`, and `your chosen AI chat` wording.
+Page and sentence AI actions should consistently show a task submenu first
+(`Extract Sentences`, `Explain Sentence`, `Improve Sentence`) and name the two
+methods as `Copy to AI Chat` for copy/paste handoff and
+`Run Automatically with Gemini` for in-app Gemini execution. Avoid mixing older
+labels such as Manual AI Link, Gemini API, automatic AI, another AI app, or
+copy-and-paste method in user-facing AI task flows. The page-action AI
+orientation sheet uses `Copy to AI Chat`, `Run Automatically with Gemini`, and
+`your chosen AI chat` wording.
 Study Help should explain the page-first mental model directly:
 `Pages -> Artifacts -> Practice -> Memory -> Checkpoints`, with saved pages as
 the center, page-owned artifacts attached to the source, practice growing from

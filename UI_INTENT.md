@@ -752,14 +752,15 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   the selected topic/page, defaulting to 25 entries with 50 and 100 as larger
   choices. Keep this as a shared control for future similar tasks rather than
   adding per-template count fields or hardcoded prompt sizes.
-- Their Browse submenus use the same two method labels: `Use Another AI App`
-  copies a prepared instruction for ChatGPT, Gemini, or another service, while
-  `Run Automatically in Radix` uses the saved Gemini API key. A one-time,
+- Their Browse and sentence-card submenus use the same two method labels:
+  `Copy to AI Chat` copies a prepared instruction for ChatGPT, Gemini, or
+  another service, while `Run Automatically with Gemini` uses the saved Gemini
+  API key. A one-time,
   dismissible explanation appears on the first method choice, continues that
   choice after dismissal, and remains available from `How Radix Uses AI`. It
   uses a full sheet rather than a menu-attached popover so iPad always shows the
   complete explanation and its action buttons.
-- `Use Another AI App` is always shown, even when an API key is configured.
+- `Copy to AI Chat` is always shown, even when an API key is configured.
   API authorization does not guarantee service availability. If an automatic
   request fails, offer the matching copy-and-paste workflow immediately rather
   than leaving the user at an error message.

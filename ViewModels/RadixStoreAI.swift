@@ -520,6 +520,18 @@ extension RadixStore {
         return record
     }
 
+    func runGeminiSentenceExplanation(for sentence: ConversationPracticeItem) async throws -> String {
+        let prompt = promptText(for: .sentence(sentence), selectedTaskIDs: [PromptConfig.defaultSentenceTaskID])
+        return try await GeminiTextGenerationService().generateText(
+            apiKey: geminiAPIKey,
+            modelID: geminiModelID,
+            prompt: prompt,
+            systemInstruction: """
+            You explain Chinese sentences for Radix learners. Explain meaning, grammar, useful phrases, and natural Mandarin usage clearly. Return plain text without Markdown fences.
+            """
+        )
+    }
+
     func runGeminiAICleanedPage(for collection: CharacterCollection) async throws -> AICleanedPageRecord {
         let prompt = promptText(for: .collection(collection), selectedTaskIDs: [AIResultTaskID.createAICleanedPage])
         let response = try await GeminiTextGenerationService().generateText(

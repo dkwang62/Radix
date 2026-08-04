@@ -163,26 +163,49 @@ extension PhraseInfoCard {
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .contextMenu {
             if let practiceSentenceItem {
-                Button("Explain with AI") {
-                    store.triggerSentenceAI(practiceSentenceItem)
-                }
-                Button("Improve Sentence with AI") {
-                    store.goToAILinkSentenceTask(
-                        practiceSentenceItem,
-                        taskID: PromptConfig.sentenceImprovementTaskID
-                    )
-                }
-                if store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Button("Set Up Gemini for Automatic Improvement") {
-                        store.goToSettingsForAPIKeySetup()
+                Menu("Explain Sentence") {
+                    Button(PageAIMethodCopy.manualTitle) {
+                        store.triggerSentenceAI(practiceSentenceItem)
                     }
-                } else {
-                    Button("Improve Automatically with Gemini") {
+                    sentenceAutomaticAIButton(
+                        title: PageAIMethodCopy.apiTitle,
+                        isDisabled: isRunningSentenceImprovement
+                    ) {
+                        runAutomaticSentenceExplanation(practiceSentenceItem)
+                    }
+                }
+
+                Menu("Improve Sentence") {
+                    Button(PageAIMethodCopy.manualTitle) {
+                        store.goToAILinkSentenceTask(
+                            practiceSentenceItem,
+                            taskID: PromptConfig.sentenceImprovementTaskID
+                        )
+                    }
+                    sentenceAutomaticAIButton(
+                        title: PageAIMethodCopy.apiTitle,
+                        isDisabled: isRunningSentenceImprovement
+                    ) {
                         runAutomaticSentenceImprovement(practiceSentenceItem)
                     }
-                    .disabled(isRunningSentenceImprovement)
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    func sentenceAutomaticAIButton(
+        title: String,
+        isDisabled: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        if store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            Button("Set Up Gemini Key…") {
+                store.goToSettingsForAPIKeySetup()
+            }
+        } else {
+            Button(title, action: action)
+                .disabled(isDisabled)
         }
     }
 
@@ -217,6 +240,34 @@ extension PhraseInfoCard {
             } catch {
                 await MainActor.run {
                     sentenceImprovementStatus = "Automatic improvement failed: \(error.localizedDescription)"
+                    isRunningSentenceImprovement = false
+                    RadixHaptics.error()
+                }
+            }
+        }
+    }
+
+    func runAutomaticSentenceExplanation(_ item: ConversationPracticeItem) {
+        guard !isRunningSentenceImprovement else { return }
+        guard !store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            store.goToSettingsForAPIKeySetup()
+            return
+        }
+
+        isRunningSentenceImprovement = true
+        sentenceImprovementStatus = "Explaining sentence with Gemini..."
+        Task {
+            do {
+                let explanation = try await store.runGeminiSentenceExplanation(for: item)
+                await MainActor.run {
+                    RadixPlatform.copyToPasteboard(explanation)
+                    sentenceImprovementStatus = "Explanation copied to clipboard."
+                    isRunningSentenceImprovement = false
+                    RadixHaptics.success()
+                }
+            } catch {
+                await MainActor.run {
+                    sentenceImprovementStatus = "Automatic explanation failed: \(error.localizedDescription)"
                     isRunningSentenceImprovement = false
                     RadixHaptics.error()
                 }
