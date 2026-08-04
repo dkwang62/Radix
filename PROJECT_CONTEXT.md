@@ -1210,7 +1210,7 @@ When a Gemini API key is configured, `Check OCR` additionally offers an
 automatic multimodal review using the same prompt and saved image. Its response
 creates and opens a corrected saved page immediately.
 Study saved-page AI actions are grouped by task—Check OCR, Extract Phrases,
-Translate Page, Create Quiz, Extract Sentences, Sentence Practice, and Create
+Explain Page, Create Quiz, Extract Sentences, Sentence Practice, and Create
 Conversation.
 Current UI copy uses `Create Conversation`; older labels such as `Create
 Practice from Page` are compatibility aliases only.
@@ -1287,7 +1287,7 @@ vague glosses. Older saved phrase-extraction templates normalize to this stricte
 boundary/meaning wording.
 AI Link is the complete manual AI round trip: after opening/copying a prompt,
 task-specific result paste/apply controls live in AI Link for OCR correction,
-phrase extraction, translation reports, and Conversation Practice imports. The
+phrase extraction, page explanations, and Conversation Practice imports. The
 prompt template editor is collapsed by default so task, source, send, and result
 remain the primary workflow. The `Paste AI Answer` action row stays above the pasted
 answer, pasted text is height-limited and collapsible, and successful imports
@@ -1298,16 +1298,17 @@ writes a change request, copies or opens a template-revision prompt, pastes the
 replacement template returned by AI, and applies it to the draft before saving.
 The revision helper tells AI to preserve Radix placeholders exactly and return a
 complete replacement template rather than a diff.
-Translate Page should return a concise bilingual report: complete natural
-English translation first, then only essential learner notes and tone. Do not
-reintroduce heavy analytical-report sections, broad thematic essays, or padded
-word-by-word buffers unless the user explicitly asks for deep analysis.
+Explain Page should return a bilingual page explanation: complete natural
+English translation first, then meaning and character analysis, learner notes,
+and tone/context. Keep the response useful for studying the whole source page,
+but do not reintroduce broad thematic essays or padded word buffers unless the
+user explicitly asks for deep analysis.
 After AI Link imports a Conversation Practice pack, the success state offers a
 direct `Open in Study` action. It opens Study to the imported practice set and
 uses the existing contextual return path so the focused Practice screen shows
 `Back to AI Link`.
 Manual paste results and automatic Gemini results share store-level application
-helpers for phrase imports, OCR correction, translation reports, and Conversation
+helpers for phrase imports, OCR correction, page explanations, and Conversation
 Practice imports; UI layers should only choose presentation, source selection,
 and follow-up navigation. When phrase extraction runs from a saved page, Radix
 records all extracted non-base phrase words against that page, not just newly

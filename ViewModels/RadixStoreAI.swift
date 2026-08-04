@@ -74,7 +74,7 @@ enum AIResultApplicationOutcome {
         case .phraseExtraction(let summary):
             return summary.message(defaultAIName: defaultAIName)
         case .translation(let collection):
-            return "Translation saved to \(collection.name)."
+            return "Page explanation saved to \(collection.name)."
         case .correctedOCR(let collection):
             return "Corrected page created: \(collection.name)."
         case .conversationPractice(let pack):
@@ -464,7 +464,7 @@ extension RadixStore {
             modelID: geminiModelID,
             prompt: prompt,
             systemInstruction: """
-            You are an expert bilingual Chinese editor and translator. Return a concise polished translation report with only useful learner explanations. No preface about being an AI, no follow-up questions, and no padded analysis.
+            You are an expert bilingual Chinese editor, linguist, and translator. Return a polished page explanation with a natural translation, useful character/phrase analysis, learner notes, and tone/context. No preface about being an AI and no follow-up questions.
             """
         )
         saveTranslationReport(fromAIResponse: report, for: collection)

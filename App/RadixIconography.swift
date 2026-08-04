@@ -54,7 +54,7 @@ enum RadixTerm {
     static let notes = "Notes"
     static let recent = "Recent"
     static let savedPage = "Saved Page"
-    static let translation = "Translation"
+    static let translation = "Page Explanation"
 }
 
 enum RadixGlossaryIcon {
@@ -303,7 +303,7 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
                 RadixNavigationGuideAction(
                     icon: "square.grid.2x2",
                     title: "Keep artifacts attached",
-                    detail: "Translation, page phrases, corrected OCR, Sentences, Conversation, and Quiz actions remain attached to the saved page that produced them."
+                    detail: "Page Explanation, page phrases, corrected OCR, Sentences, Conversation, and Quiz actions remain attached to the saved page that produced them."
                 ),
                 RadixNavigationGuideAction(
                     icon: "book.pages",

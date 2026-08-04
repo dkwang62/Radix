@@ -142,39 +142,39 @@ Silently discard any candidate whose boundaries or meaning are uncertain. Fewer 
             ),
             PromptTask(
                 id: "task5",
-                title: "Translate",
+                title: "Explain Page",
                 template: """
-Translate
+Bilingual Page Translation & Character Analysis
 
-Master Prompt: Concise Bilingual Page Translation
+Role: Act as an expert bilingual Chinese editor, linguist, and translator for a Chinese learner.
 
-Role: Act as an expert bilingual Chinese editor and translator for a Chinese learner.
-
-Task: Translate the provided Chinese page into concise, natural English and add only the explanations needed to understand the source. Keep the reply short and readable, like a sentence explanation scaled up to a page.
+Task: Translate the provided Chinese page into natural English, deconstruct key language elements, and analyze the full collection of characters to infer and explain what the text actually means as a whole.
 
 Output Style:
 
 - Use plain headings.
-- Do not write a long analytical essay.
-- Do not pad with repeated commentary, word buffers, or generic observations.
-- Preserve all important meaning, claims, names, relationships, tone, and ambiguity.
+- Preserve all key meaning, nuances, claims, names, tone, and ambiguity.
 - Translate idioms, slang, shorthand, and compressed headline language into natural English.
-- Explain only phrases or context that a learner would likely miss.
+- Provide a clear analysis connecting individual characters and expressions to the broader overall meaning.
 
 Required Output:
 
 ## Translation
-Give a complete natural English translation of the page. Use short paragraphs or bullets if that is clearer.
+Give a complete, natural English translation of the page. Use short paragraphs or bullet points if clearer.
 
-## Notes
-List only the important learner notes. For each note, quote the relevant Chinese phrase in parentheses and explain it briefly in English.
+## Meaning & Character Analysis
 
-## Tone
-State the overall tone in 1-3 sentences.
+Analyze the provided text and character set. Deconstruct key characters, combinations, or shorthand, and provide a reasoned assessment/guess of what the full collection of characters actually means in context, including underlying message or intent.
 
-If the page contains hashtags, timestamps, channel promotions, captions, or obvious noise, mention them only if they affect meaning. Otherwise omit them.
+## Learner Notes
 
-Before answering, silently remove repetition and keep the final reply concise without losing the translation or useful explanations.
+List important vocabulary and phrase notes. For each note, quote the relevant Chinese phrase in parentheses and explain its meaning and usage in English.
+
+## Tone & Context
+
+Describe the overall tone, perspective, and social/cultural context in 1-3 sentences.
+
+If the page contains hashtags, timestamps, channel promotions, captions, or visual noise, address them only if they affect the core meaning; otherwise omit them.
 
 Source Material:
 

@@ -25,7 +25,7 @@ struct BrowseTranslationReportSheet: View {
                     .radixSurface(RadixTheme.secondaryBackground, radius: 10)
                     .overlay(alignment: .topLeading) {
                         if report.isEmpty {
-                            Text("Paste the AI translation here, then tap Save.")
+                            Text("Paste the AI page explanation here, then tap Save.")
                                 .foregroundStyle(.tertiary)
                                 .padding(.top, 18)
                                 .padding(.leading, 16)
@@ -56,7 +56,7 @@ struct BrowseTranslationReportSheet: View {
             Text(collectionName)
                 .font(ResponsiveFont.headline.weight(.semibold))
                 .lineLimit(1)
-            Text("Keep a contextual translation with this page so you can revisit its meaning, tone, shorthand, and newer expressions alongside the original Chinese.")
+            Text("Keep a contextual page explanation so you can revisit its translation, meaning, tone, shorthand, and newer expressions alongside the original Chinese.")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -65,7 +65,7 @@ struct BrowseTranslationReportSheet: View {
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             } else {
-                Text("No saved translation yet.")
+                Text("No saved explanation yet.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
             }

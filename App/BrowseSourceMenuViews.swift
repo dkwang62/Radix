@@ -60,7 +60,7 @@ enum CollectionPageAITaskKind: CaseIterable, Equatable {
         case .checkOCR: return "Check OCR"
         case .createAICleanedPage: return "Extract Sentences"
         case .extractPhrases: return "Extract Phrases"
-        case .translate: return "Translate Page"
+        case .translate: return "Explain Page"
         case .createQuiz: return "Create Quiz"
         case .extractSentences: return "Sentence Practice"
         case .createPagePractice: return "Create Conversation"
@@ -188,7 +188,7 @@ struct CollectionPageActionsMenu: View {
                             onViewTranslation()
                         } label: {
                             Label(
-                                collection.translationReport == nil ? "Save Translation" : "View Translation",
+                                collection.translationReport == nil ? "Save Explanation" : "View Explanation",
                                 systemImage: collection.translationReport == nil ? "doc.badge.plus" : "doc.text"
                             )
                         }

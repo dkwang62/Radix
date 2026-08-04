@@ -556,7 +556,7 @@ extension AILinkView {
     func aiResultInstruction(for taskID: String) -> String {
         switch taskID {
         case AIResultTaskID.extractPhrases: return "Paste the extracted phrase list here to add the phrases to Radix."
-        case AIResultTaskID.translatePage: return "Paste the translation here to save it with the selected page."
+        case AIResultTaskID.translatePage: return "Paste the page explanation here to save it with the selected page."
         case AIResultTaskID.checkOCR: return "Paste the text review here to create a corrected saved page."
         case AIResultTaskID.createAICleanedPage: return "Paste the extracted sentences here to save them with the selected page."
         case AIResultTaskID.generatePracticePack: return "Paste the practice answer here to import it into Study."
@@ -571,7 +571,7 @@ extension AILinkView {
     func aiResultApplyTitle(for taskID: String) -> String {
         switch taskID {
         case AIResultTaskID.extractPhrases: return "Add Phrases"
-        case AIResultTaskID.translatePage: return "Save Translation"
+        case AIResultTaskID.translatePage: return "Save Explanation"
         case AIResultTaskID.checkOCR: return "Create Corrected Text"
         case AIResultTaskID.createAICleanedPage: return "Save Sentences"
         case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice: return "Import Practice"

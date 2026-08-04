@@ -21,7 +21,9 @@ extension PromptConfig {
                 task.title == "Task 4 – Extract Phrases from Page (image)" {
                 normalizedTitle = defaultTask.title
             } else if task.id == "task5",
-                      task.title == "Task 5 – Universal Content Architect" {
+                      task.title == "Task 5 – Universal Content Architect" ||
+                        task.title == "Translate" ||
+                        task.title == "Translate Page" {
                 normalizedTitle = defaultTask.title
             } else if task.id == "task10",
                       task.title == "Extract Sentences" ||
@@ -51,7 +53,7 @@ extension PromptConfig {
                 (task.id == "task4" && !task.template.contains("[CRITICAL RULES]")) ||
                 (task.id == "task4" && !task.template.contains("Dictionary-quality Meanings")) ||
                 task.template.contains("Task 5 – Universal Content Architect") ||
-                (task.id == "task5" && !task.template.contains("Concise Bilingual Page Translation")) ||
+                (task.id == "task5" && !task.template.contains("Bilingual Page Translation & Character Analysis")) ||
                 (task.id == "task7" && (
                     task.template.contains("ORIGINAL OCR:") ||
                     task.template.contains("attached source image and dictionary evidence") ||

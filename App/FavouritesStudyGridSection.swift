@@ -556,7 +556,7 @@ extension FavouritesTab {
         if collection.translationReport?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
             artifacts.append(StudyPageArtifact(
                 id: "translation",
-                title: "Translation",
+                title: "Explanation",
                 systemImage: "translate",
                 tint: .blue,
                 kind: .translation

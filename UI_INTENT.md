@@ -736,12 +736,12 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   using the same evidence and saved image.
 - API-key setup belongs with all automatic AI actions, not under one task.
   Organize page AI actions by the user's task: `Check OCR`, `Extract Phrases`,
-  `Translate Page`, `Create Quiz`, `Extract Sentences`, `Sentence Practice`,
+  `Explain Page`, `Create Quiz`, `Extract Sentences`, `Sentence Practice`,
   and `Create Conversation`. Each task offers the same two methods: copy/paste with ChatGPT or
   automatic processing with Gemini. When no key is saved, the automatic choice
   becomes `Set Up Gemini API Key…`; it opens Settings where `Automatic AI`
   exposes Gemini setup, with a contextual return action back to the page flow.
-- Check OCR, Extract Phrases, Translate Page, Create Quiz, Extract Sentences,
+- Check OCR, Extract Phrases, Explain Page, Create Quiz, Extract Sentences,
   Sentence Practice, and Create Conversation also exist as saved-page tasks in AI Link. Their
   templates are editable as AI prompts in the selected task view, and Pages or
   Source actions must render those same templates rather than maintaining
@@ -766,7 +766,7 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   than leaving the user at an error message.
 - Do not expose API-specific variants as additional AI Link tasks. `Extract
   Phrases` is one task; copy/paste and automatic Gemini execution are methods
-  for running it, just as with Check OCR and Translate Page.
+  for running it, just as with Check OCR and Explain Page.
 - Create Quiz is page-only and belongs to AI Link, not a local Radix quiz
   screen. Pressing a page `Quiz` chip opens the saved-page `Create Quiz`
   template in AI Link so ChatGPT, Gemini, or another AI chat can quiz the user

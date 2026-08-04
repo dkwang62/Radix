@@ -370,7 +370,7 @@ extension FavouritesTab {
 
     func runStudyGeminiTranslationAndSave(_ collection: CharacterCollection) {
         isRunningStudyPageAction = true
-        setStudyPageActionMessage("Translating with Gemini...", for: collection)
+        setStudyPageActionMessage("Explaining page with Gemini...", for: collection)
         Task {
             do {
                 let report = try await store.runGeminiTranslationReport(for: collection)
@@ -378,7 +378,7 @@ extension FavouritesTab {
                     let updated = store.collection(id: collection.id) ?? collection
                     studyTranslationReportCollection = updated
                     studyTranslationReportDraft = updated.translationReport ?? report
-                    setStudyPageActionMessage("Translation report saved.", for: collection)
+                    setStudyPageActionMessage("Page explanation saved.", for: collection)
                     isRunningStudyPageAction = false
                 }
             } catch {

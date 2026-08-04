@@ -126,18 +126,19 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains(PromptConfig.sentenceImprovementTaskID))
     }
 
-    @Test("Translate page template stays concise")
-    func translatePageTemplateStaysConcise() {
+    @Test("Explain page template includes translation and character analysis")
+    func explainPageTemplateIncludesTranslationAndCharacterAnalysis() {
         let normalized = PromptConfig.streamlitDefault.normalized()
         let task = normalized.tasks.first { $0.id == "task5" }
 
-        #expect(task?.title == "Translate")
+        #expect(task?.title == "Explain Page")
         #expect(task?.subjectType == .page)
-        #expect(task?.template.contains("Concise Bilingual Page Translation") == true)
+        #expect(task?.template.contains("Bilingual Page Translation & Character Analysis") == true)
         #expect(task?.template.contains("## Translation") == true)
-        #expect(task?.template.contains("## Notes") == true)
-        #expect(task?.template.contains("Do not write a long analytical essay") == true)
-        #expect(task?.template.contains("word buffers") == true)
+        #expect(task?.template.contains("## Meaning & Character Analysis") == true)
+        #expect(task?.template.contains("## Learner Notes") == true)
+        #expect(task?.template.contains("## Tone & Context") == true)
+        #expect(task?.template.contains("Analyze the provided text and character set") == true)
         #expect(task?.template.contains("Linguistic Deconstruction") == false)
         #expect(task?.template.contains("Thematic Analysis") == false)
     }
@@ -169,8 +170,8 @@ struct PromptConfigTests {
         let normalized = config.normalized()
         let task = normalized.tasks.first { $0.id == "task5" }
 
-        #expect(task?.title == "Translate")
-        #expect(task?.template.contains("Concise Bilingual Page Translation") == true)
+        #expect(task?.title == "Explain Page")
+        #expect(task?.template.contains("Bilingual Page Translation & Character Analysis") == true)
         #expect(task?.template.contains("Linguistic Deconstruction") == false)
         #expect(task?.template.contains("Thematic Analysis") == false)
     }
@@ -178,7 +179,7 @@ struct PromptConfigTests {
     @Test("Prompt template revision prompt preserves placeholders")
     func promptTemplateRevisionPromptPreservesPlaceholders() {
         let prompt = PromptTemplateRevision.revisionPrompt(
-            taskTitle: "Translate",
+            taskTitle: "Explain Page",
             subjectType: .page,
             currentTemplate: "Translate {collection_name}\\n{capture_text}\\n{capture_chars}",
             changeRequest: "Make it shorter."

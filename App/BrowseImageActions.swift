@@ -121,12 +121,12 @@ extension FilterGridTab {
 
     func runBrowseGeminiTranslationAndSave(_ collection: CharacterCollection) {
         isRunningImageAction = true
-        imageActionMessage = "Translating with Gemini..."
+        imageActionMessage = "Explaining page with Gemini..."
         Task {
             do {
                 _ = try await store.runGeminiTranslationReport(for: collection)
                 await MainActor.run {
-                    imageActionMessage = "Translation report saved."
+                    imageActionMessage = "Page explanation saved."
                     isRunningImageAction = false
                 }
             } catch {
