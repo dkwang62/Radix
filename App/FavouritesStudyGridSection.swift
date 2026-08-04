@@ -2,7 +2,6 @@ import SwiftUI
 
 private struct StudySavedPageRowData {
     let collection: CharacterCollection
-    let rowNumber: Int
     let practices: [ConversationPracticePack]
     let correctedPages: [CharacterCollection]
     let showsResumeSignal: Bool
@@ -273,15 +272,46 @@ extension FavouritesTab {
     var studySavedPagesList: some View {
         let pages = sortedStudySavedPages()
         let pageIDsWithRecordedPhrases = pageIDsWithRecordedPhraseExtractions
-        let resumePageID = store.selectedBrowseCollectionID ?? store.sortedCollections(order: .lastViewed).first?.id
+        let selectedCollection = store.selectedBrowseCollection ?? pages.first
 
-        return LazyVStack(spacing: 0) {
-            ForEach(Array(pages.enumerated()), id: \.element.id) { index, collection in
+        return VStack(alignment: .leading, spacing: 10) {
+            Menu {
+                ForEach(pages) { collection in
+                    Button {
+                        store.selectBrowseCollection(id: collection.id)
+                        expandedStudySavedPageID = collection.id
+                    } label: {
+                        Label(
+                            collectionDisplayName(collection),
+                            systemImage: collection.id == selectedCollection?.id ? "checkmark" : "doc.text"
+                        )
+                    }
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "doc.text")
+                    Text(selectedCollection.map(collectionDisplayName) ?? "Choose Page")
+                        .lineLimit(1)
+                    Spacer(minLength: 8)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption.weight(.semibold))
+                }
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .foregroundStyle(RadixAccent.primary)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
+                .background(RadixAccent.primary.opacity(0.09))
+                .clipShape(RoundedRectangle(cornerRadius: 9))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Study page")
+            .accessibilityValue(selectedCollection.map(collectionDisplayName) ?? "No page selected")
+
+            if let collection = selectedCollection {
                 let rowData = studySavedPageRowData(
                     collection,
-                    rowNumber: index + 1,
                     hasRecordedPagePhrases: pageIDsWithRecordedPhrases.contains(collection.id),
-                    resumePageID: resumePageID
+                    resumePageID: collection.id
                 )
                 studySavedPageRow(rowData)
             }
@@ -290,7 +320,6 @@ extension FavouritesTab {
 
     private func studySavedPageRowData(
         _ collection: CharacterCollection,
-        rowNumber: Int,
         hasRecordedPagePhrases: Bool,
         resumePageID: UUID?
     ) -> StudySavedPageRowData {
@@ -311,7 +340,6 @@ extension FavouritesTab {
 
         return StudySavedPageRowData(
             collection: collection,
-            rowNumber: rowNumber,
             practices: practices,
             correctedPages: correctedPages,
             showsResumeSignal: showsResumeSignal,
@@ -396,12 +424,6 @@ extension FavouritesTab {
         let hiddenCount = rowData.artifacts.count - visibleArtifacts.count
 
         return HStack(alignment: .center, spacing: 10) {
-            Text("\(rowData.rowNumber)")
-                .font(ResponsiveFont.caption2.weight(.semibold))
-                .foregroundStyle(rowData.isActivePage ? RadixAccent.primary : Color.secondary)
-                .monospacedDigit()
-                .frame(width: 28, alignment: .trailing)
-
             RadixThumbnailView(
                 thumbnail: RadixThumbnail(jpegData: rowData.collection.thumbnailJPEGData),
                 size: 34,

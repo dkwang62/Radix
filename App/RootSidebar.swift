@@ -83,8 +83,8 @@ extension RootView {
                     store.goToBrowse()
                 case 3:
                     hasUsedSidebarNavigation = true
-                    store.activeStudySectionTitle = StudyNavigationTarget.sentences.title
-                    store.requestedStudyNavigationTarget = .sentences
+                    store.activeStudySectionTitle = StudyNavigationTarget.savedPages.title
+                    store.requestedStudyNavigationTarget = .savedPages
                     store.goToFavourites()
                 case 4:
                     hasUsedSidebarNavigation = true

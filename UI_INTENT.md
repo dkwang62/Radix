@@ -57,7 +57,10 @@ Use these preferences as defaults:
   Browse page lists and saved-page title-menu entries should open the selected
   page's Chinese tiles immediately. Page learning remains available from an
   explicit `Study` action on the selected page, using the existing saved-page
-  Study implementation internally. Browse and page Study must share the same
+  Study implementation internally. Study opens on the same page selected in
+  Browse and shows only that page, with a compact page dropdown rather than a
+  second list of every saved page. Choosing a page in that Study dropdown also
+  changes the selected Browse page. Browse and page Study must share the same
   page `Actions` vocabulary; avoid separate Browse-only and Study-only buttons
   for the same page operation. The Study title menu may expose this learning
   workspace as `Study Pages`, but `Pages` should not return as a top-level peer.

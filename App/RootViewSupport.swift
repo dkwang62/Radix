@@ -185,8 +185,8 @@ extension RootView {
                 systemImage: RadixIcon.study,
                 isSelected: isStudyDestinationActive || isPagesDestinationActive
             ) {
-                store.activeStudySectionTitle = StudyNavigationTarget.sentences.title
-                store.requestedStudyNavigationTarget = .sentences
+                store.activeStudySectionTitle = StudyNavigationTarget.savedPages.title
+                store.requestedStudyNavigationTarget = .savedPages
                 store.goToFavourites()
             }
 

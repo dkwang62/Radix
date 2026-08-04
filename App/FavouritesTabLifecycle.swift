@@ -28,6 +28,10 @@ extension FavouritesTab {
             .onChange(of: store.requestedStudyNavigationTarget) { _, target in
                 applyRequestedStudyNavigationTarget(target)
             }
+            .onChange(of: store.selectedBrowseCollectionID) { _, selectedPageID in
+                guard studyGridScope == .savedPages else { return }
+                expandedStudySavedPageID = selectedPageID
+            }
             .onChange(of: studyPageSortOrder) { _, newValue in
                 RadixStudyPreferences.pageSortOrder = newValue
             }
@@ -86,6 +90,10 @@ extension FavouritesTab {
             clearFocusedStudySections()
             studyGridScope = .savedPages
             showStudyCheckpoints = false
+            if store.selectedBrowseCollectionID == nil,
+               let firstPage = store.sortedCollections(order: .lastViewed).first {
+                store.selectBrowseCollection(id: firstPage.id)
+            }
             if let selectedPageID = store.selectedBrowseCollectionID {
                 expandedStudySavedPageID = selectedPageID
             }

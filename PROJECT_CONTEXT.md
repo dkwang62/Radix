@@ -56,7 +56,11 @@ Saved pages are user-facing Browse content, not a separate top-level `Pages`
 destination. Browse page pickers and Browse title-menu page entries open the
 selected page's tile reader directly, and the selected Browse page toolbar
 exposes a compact `Study` action for page learning. That action must open the
-same selected page in Study Pages and expand it. Study Pages exposes a compact
+same selected page in Study Pages and expand it. Opening Study itself defaults
+to Study Pages rather than Sentences. Study Pages shows only the shared current
+Browse page and uses a compact page dropdown to change it; selecting a different
+page there also changes the current page in Browse, and Study must not render a
+second all-pages list. Study Pages exposes a compact
 `Browse` action for the current page; that explicit `Study`/`Browse` pair is
 the page back-and-forth model, so do not add a separate `Back to Browse`
 or `Back to Study` navigation layer for this flow, including through the shared
