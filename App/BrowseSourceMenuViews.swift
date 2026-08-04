@@ -328,7 +328,7 @@ private struct PageAIOrientationView: View {
                             detail: "Radix sends the task directly to Gemini and returns the result to the page workflow. This requires your private Gemini key and depends on Gemini being available."
                         )
 
-                        Text("You can edit the saved prompts for text checking, phrase extraction, translation, quiz, sentence extraction, and page practice in AI Link.")
+                        Text("You can edit the saved prompts for text checking, phrase extraction, page explanation, quiz, sentence extraction, and page practice in AI Link.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)

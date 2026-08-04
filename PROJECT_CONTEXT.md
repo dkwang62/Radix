@@ -42,7 +42,7 @@ Version 1.1 work follows `VERSION_1_1_PLAN.md`: Radix should become a linked
 Page -> Sentence -> Phrase -> Character learning graph. Browse remains the
 source-inspection home for Original OCR, while Study becomes the page-centered
 learning workspace for extracted sentence pages, sentence study, phrases,
-translation, quiz, conversation practice, and notes.
+page explanation, quiz, conversation practice, and notes.
 Extracted sentence pages are modeled as page-owned `AICleanedPageRecord` artifacts, not
 as replacements for `CharacterCollection.originalOCRText` or corrected OCR
 pages. The saved-page AI task `task12` / `Extract Sentences` generates
@@ -927,7 +927,7 @@ remaining audit work, and crash lessons for handing the finishing pass to Claude
   and `Will keep as learning memory`, even when either list is currently `none`.
 - Browse owns saved-page selection and tile inspection. Explicit page Study
   actions open the internal saved-page learning workspace for page phrase
-  lists, Practice packs, translation, quiz entry point, corrected pages,
+  lists, Practice packs, page explanation, quiz entry point, corrected pages,
   favorite sentences, and Practice progress. Study no longer exposes Saved
   Pages as a local section menu item, and Pages is not a primary navigation
   destination. Recent and Favorites remain Study review scopes, while Added
@@ -1285,13 +1285,14 @@ characters such as the leading `进` in `进青瓦屋`, and label proper names a
 person/place/organization/work names in the English meaning instead of giving
 vague glosses. Older saved phrase-extraction templates normalize to this stricter
 boundary/meaning wording.
-AI Link is the complete manual AI round trip: after opening/copying a prompt,
-task-specific result paste/apply controls live in AI Link for OCR correction,
-phrase extraction, page explanations, and Conversation Practice imports. The
-prompt template editor is collapsed by default so task, source, send, and result
-remain the primary workflow. The `Paste AI Answer` action row stays above the pasted
-answer, pasted text is height-limited and collapsible, and successful imports
-auto-collapse long result text so follow-up actions remain visible.
+Object-launched AI Link is the complete manual AI round trip: after
+opening/copying a prompt, task-specific result paste/apply controls live in AI
+Link for OCR correction, phrase extraction, page explanations, and Conversation
+Practice imports. The inline prompt template editor is intentionally absent from
+this run workflow so task, source, send, and result remain the primary controls.
+The `Paste AI Answer` action row stays above the pasted answer, pasted text is
+height-limited and collapsible, and successful imports auto-collapse long result
+text so follow-up actions remain visible.
 Prompt templates can also be revised through AI without hand-editing: the
 selected template editor includes `Revise Template with AI`, where the user
 writes a change request, copies or opens a template-revision prompt, pastes the
@@ -1314,35 +1315,26 @@ and follow-up navigation. When phrase extraction runs from a saved page, Radix
 records all extracted non-base phrase words against that page, not just newly
 inserted phrases, so the Study saved page row can show a `Phrases` artifact chip
 and list the page-derived user phrase set later.
-The AI Link tab presents one task at a time through an `AI Task` dropdown. The
-old `Instructions`/`Customize` split is collapsed into a single editable
-`AI Prompt` template for the selected task. Built-in tasks edit the prompt
-template without repeating the task title in a second title field; custom tasks
-also show a task-name field. Prompt edits are draft-only until the user taps
-`Save`; `Undo` restores the built-in default for shipped tasks or the starter
-prompt for custom tasks and shows a compact next-row confirmation that editing
-can continue. Custom tasks carry an explicit subject type: `Character / Phrase`,
-`Sentence`, or `Page`. The selected subject type controls the source row, prompt
-validation, and rendering placeholders; built-in page/theme task subject types
-remain fixed so result import flows stay predictable. Sentence custom tasks use
-the active sentence card as their source and can render `{sentence_zh}`,
-`{sentence_en}`, `{sentence_pinyin}`, `{sentence_phrases}`, and
-`{sentence_characters}`. The task menu includes `New AI Task...`. AI Link does not show a
-full generated prompt preview or a separate
-ready-to-send summary; the selected task appears on the primary open button
-(`Open Gemini: Task 2`) instead. Do not reintroduce a separate prompt-context
-line because the task row and source selector already own subject/page/topic
-context. The active task selector and source selector rows share compact
-menu-card styling. The source selector and open controls appear immediately
-after the AI task menu, before the editable prompt, so the user can confirm the
-page/subject and send without scrolling through the template first.
-Opening the selected AI copies the prompt first, then opens the AI provider;
-copy-only remains available from the provider menu. Launch/copy status notices
-sit on their own row below the open controls rather than sharing the button row.
-The live prompt editor edits the selected task inline. The bulk AI Templates
-manager is reachable from the AI Link toolbar and remains out of the primary
-workflow; use it for global character/page prompt closings, adding or deleting
-custom prompt tasks, and editing all templates in one place.
+Top-level AI Link is now a template/setup workbench, not the main place to
+start everyday AI tasks. Directly opening the AI tab shows `AI Templates`, an
+`AI Task` dropdown, the selected task's editable draft template, `Save`, `Undo`,
+and `Revise Template with AI`; it also exposes compact `AI Setup` and `All
+Templates` actions. Page, sentence, phrase, and character AI work should be
+launched from the relevant object menu or info card so the source remains
+visible and the user can get back without losing context. When AI Link is opened
+from one of those object actions, it keeps the focused run workflow: source row,
+copy/open controls, paste/apply result controls when supported, and no inline
+template editor. The bulk AI Templates manager remains available from the
+toolbar or dashboard for global character/page prompt closings, adding or
+deleting custom prompt tasks, and editing all templates in one place.
+Custom tasks carry an explicit subject type: `Character / Phrase`, `Sentence`,
+or `Page`. The selected subject type controls source rows, prompt validation,
+and rendering placeholders; built-in page/theme task subject types remain fixed
+so result import flows stay predictable. Sentence custom tasks use the active
+sentence card as their source and can render `{sentence_zh}`, `{sentence_en}`,
+`{sentence_pinyin}`, `{sentence_phrases}`, and `{sentence_characters}`.
+Do not reintroduce a full generated prompt preview or a separate ready-to-send
+summary on AI Link; the AI chat shows the prompt after copy/open.
 Character and phrase tasks default to the most recent memory-strip subject, and
 the subject row itself is a dropdown of recent memory-strip items rather than a
 Search shortcut. Page tasks default to the last viewed saved page while still

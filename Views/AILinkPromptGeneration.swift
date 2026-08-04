@@ -6,8 +6,93 @@ extension AILinkView {
             selectedTaskSourceSection
             promptBox
             aiResultWorkflowSection
+        }
+    }
+
+    var aiTemplateDashboardSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            aiTemplateDashboardHeader
+            taskSelectionSection
             selectedTaskTemplateSection
         }
+    }
+
+    var aiTemplateDashboardHeader: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                Label("AI Templates", systemImage: "slider.horizontal.3")
+                    .font(ResponsiveFont.title3.weight(.bold))
+
+                Spacer()
+
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 8) {
+                        aiTemplateSettingsButton
+                        aiTemplateManagerButton
+                    }
+
+                    HStack(spacing: 6) {
+                        aiTemplateSettingsIconButton
+                        aiTemplateManagerIconButton
+                    }
+                }
+            }
+
+            HStack(spacing: 8) {
+                Label("Edit", systemImage: "pencil")
+                Label("Revise with AI", systemImage: "wand.and.stars")
+                Label("Restore", systemImage: "arrow.uturn.backward")
+            }
+            .font(ResponsiveFont.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+        }
+        .padding()
+        .background(RadixTheme.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    var aiTemplateSettingsButton: some View {
+        Button {
+            store.goToSettingsForAPIKeySetup()
+        } label: {
+            Label("AI Setup", systemImage: "key")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+    }
+
+    var aiTemplateManagerButton: some View {
+        Button {
+            isShowingTemplateManager = true
+        } label: {
+            Label("All Templates", systemImage: "list.bullet.rectangle")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+    }
+
+    var aiTemplateSettingsIconButton: some View {
+        Button {
+            store.goToSettingsForAPIKeySetup()
+        } label: {
+            Image(systemName: "key")
+                .radixIconButtonSurface(size: 34)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("AI Setup")
+        .help("AI Setup")
+    }
+
+    var aiTemplateManagerIconButton: some View {
+        Button {
+            isShowingTemplateManager = true
+        } label: {
+            Image(systemName: "list.bullet.rectangle")
+                .radixIconButtonSurface(size: 34)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("All Templates")
+        .help("All Templates")
     }
 
     var taskSelectionSection: some View {

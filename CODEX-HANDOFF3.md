@@ -34,8 +34,10 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
 - Study owns kept learning material: page learning, Sentences, Added Phrases,
   Conversation Practices, translations, quizzes, extracted-sentence artifacts,
   and deletion of saved pages/artifacts.
-- AI Link owns manual and direct Gemini workflows. Saved-page AI tasks should
-  reuse the shared AI task flow.
+- AI tasks launch from their source objects: page action menus, sentence cards,
+  phrase cards, and character cards. Direct AI tab entry is a template/setup
+  workbench; object-launched AI Link keeps the shared copy/open and paste/apply
+  run workflow.
 - AI Link's built-in `Sentence Improvement` task can paste/apply an AI answer
   back into the selected saved sentence record.
 - Prompt model data stays in `PromptModels.swift`; prompt normalization,

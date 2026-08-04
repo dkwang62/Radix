@@ -538,35 +538,23 @@ AI should focus on understanding and transforming material:
 - Work with the current page, current selection, or current study snapshot.
 - Manage AI Link actions and templates.
 
-AI can be connected from Browse and Study, but it should not be hidden so deeply
-that users miss it as a major Radix feature.
-AI Link should start from the user's goal, not configuration. Show one compact
-AI task menu with an obvious dropdown affordance and a `New AI Task...` option,
-then the compact source confirmation row and open controls, then the editable
-AI prompt template for that task only. Prompt editing should use an explicit
-draft with `Save` and `Undo`, not invisible autosave. Built-in tasks should not
-repeat the task title in a second title field; custom tasks may show a task-name
-field and a subject selector for `Character / Phrase`, `Sentence`, or `Page`.
-The subject selector should change the source row and prompt context, not create
-duplicate task lists. `Undo` restores the current task's default or starter prompt and shows a
-compact next-row confirmation that editing can continue. Do not show a full
-generated prompt preview on the AI Link screen; the AI chat will show the
-prompt after copy/open. The source
-selector should be obvious and come before action status; for saved-page tasks,
-the page row itself is the dropdown and uses the same page icon grammar as
-Browse. Do not repeat the selected page, subject, or task in a separate
-ready-to-send label. The task selector and source selector should read as the
-same family of compact menu-card controls. Opening the current AI should copy
-the prompt first and then open the provider, with the button naming the selected
-task, such as
-`Open Gemini: Task 2`; alternate providers and copy-only are menu choices, not
-competing primary buttons. Put launch/copy notices on the row below those
-buttons so they never squeeze the open controls. Character and phrase tasks
-default to the most recent subject in the memory strip. The subject row should
-be the selector, with recent memory-strip items in its dropdown; do not add a
-separate Search button there. Saved-page tasks default to the last viewed page.
-Always show the chosen source before sending so the smart default remains
-reversible and understandable.
+AI can be connected from Browse and Study, but everyday AI work should start
+from the object being studied: page actions, sentence cards, phrase cards, or
+character cards. The top-level AI tab should be a template/setup workbench, not
+a second place to choose sources. Direct AI tab entry shows `AI Templates`, an
+`AI Task` dropdown, the selected task's draft template, `Save`, `Undo`, and
+`Revise Template with AI`. Object-launched AI Link keeps the focused run
+workflow: source row, copy/open controls, paste/apply result controls when
+supported, and no inline template editor.
+Prompt editing should use an explicit draft with `Save` and `Undo`, not
+invisible autosave. Built-in tasks should not repeat the task title in a second
+title field; custom tasks may show a task-name field and a subject selector for
+`Character / Phrase`, `Sentence`, or `Page`. The subject selector should change
+the source row and prompt context, not create duplicate task lists. `Undo`
+restores the current task's default or starter prompt and shows a compact
+next-row confirmation that editing can continue. Do not show a full generated
+prompt preview on the AI Link screen; the AI chat will show the prompt after
+copy/open.
 Settings should not make AI configuration feel like one large key vault. Keep
 `AI Link` settings about where manual prompts open, keep `Automatic AI` for
 Gemini key/model setup used by direct Radix actions, and keep `Manual AI Keys`

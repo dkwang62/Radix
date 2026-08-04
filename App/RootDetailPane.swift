@@ -166,6 +166,9 @@ extension RootView {
         case .favourites:
             return "Study - \(store.activeStudySectionTitle)"
         case .aiLink:
+            if store.rootsReturnContext == nil {
+                return "AI - Templates"
+            }
             return selectedTitleMenuPromptTaskTitle.map { "AI - \($0)" } ?? "AI"
         case .settings:
             return "Settings"
@@ -174,17 +177,7 @@ extension RootView {
 
     @ViewBuilder
     var aiLinkContent: some View {
-        if let current = store.previewCharacter,
-           let item = store.item(for: current) {
-            AILinkView(item: item)
-        } else if store.activeSidebarPhrasePreview != nil || store.selectedAICollection != nil {
-            AILinkView(item: nil)
-        } else {
-            emptyStateCard(
-                systemImage: RadixIcon.aiLink,
-                title: "No Subject",
-                message: "Choose a character, phrase, or page first."
-            )
-        }
+        let item = store.previewCharacter.flatMap { store.item(for: $0) }
+        AILinkView(item: item)
     }
 }

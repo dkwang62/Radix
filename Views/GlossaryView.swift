@@ -323,8 +323,8 @@ enum RadixGlossary {
         ),
         GlossaryEntry(
             term: "AI Link",
-            shortDefinition: "A bridge from Radix to AI for understanding Chinese beyond fixed dictionary definitions.",
-            significance: "Use AI Link to investigate nuance and current usage, understand language in context, explain complete pages naturally, and explore phrases or concepts that traditional dictionaries may not yet cover.",
+            shortDefinition: "The place to edit and revise Radix AI task templates.",
+            significance: "AI tasks are launched from the character, phrase, sentence, or page they act on. AI Link keeps the reusable prompts, template revision workflow, and setup controls together.",
             contexts: ["AI Link tab", "Browse page actions", "Study page actions", "Settings"],
             relatedTerms: ["AI Prompt", "Copy to AI Chat", "Run Automatically with Gemini", "API Key", "Extract Phrases", "Page Explanation"]
         ),

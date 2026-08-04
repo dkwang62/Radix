@@ -296,7 +296,7 @@ extension RootView {
 
     @ViewBuilder
     var aiLinkTitleMenuSection: some View {
-        Section("AI") {
+        Section("AI Templates") {
             ForEach(store.promptConfig.normalized().tasks) { task in
                 Button {
                     selectTitleMenuPromptTask(task.id)

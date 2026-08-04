@@ -575,7 +575,7 @@ struct SettingsView: View {
         if trimmed.isEmpty {
             return SettingsHealth(
                 title: "Gemini key not saved",
-                detail: "Add one for automatic OCR checking, phrase extraction, translation, quizzes, sentence extraction, sentence improvement, and page-inspired practice.",
+                detail: "Add one for automatic OCR checking, phrase extraction, page explanation, quizzes, sentence extraction, sentence improvement, and page-inspired practice.",
                 systemImage: "key.slash",
                 color: .orange
             )
@@ -590,7 +590,7 @@ struct SettingsView: View {
         }
         return SettingsHealth(
             title: "Gemini key saved",
-            detail: "Ready for automatic OCR checking, phrase extraction, translation, quizzes, sentence extraction, sentence improvement, and page-inspired practice.",
+            detail: "Ready for automatic OCR checking, phrase extraction, page explanation, quizzes, sentence extraction, sentence improvement, and page-inspired practice.",
             systemImage: "checkmark.circle",
             color: .green
         )

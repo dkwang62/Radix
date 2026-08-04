@@ -160,22 +160,34 @@ struct AILinkView: View {
         return !PromptConfig.streamlitDefault.tasks.contains { $0.id == selectedPromptTask.id }
     }
 
+    var isObjectLaunchedAIWorkflow: Bool {
+        store.rootsReturnContext != nil ||
+            store.shouldAutoOpenAILinkPrompt ||
+            store.shouldAutoRunGeminiPhraseAPI
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                promptGenerationSection
+                if isObjectLaunchedAIWorkflow {
+                    promptGenerationSection
+                } else {
+                    aiTemplateDashboardSection
+                }
             }
             .padding(20)
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    isShowingTemplateManager = true
-                } label: {
-                    Label("AI Templates", systemImage: "slider.horizontal.3")
+                if isObjectLaunchedAIWorkflow {
+                    Button {
+                        isShowingTemplateManager = true
+                    } label: {
+                        Label("AI Templates", systemImage: "slider.horizontal.3")
+                    }
+                    .accessibilityLabel("AI Templates")
+                    .help("AI Templates")
                 }
-                .accessibilityLabel("AI Templates")
-                .help("AI Templates")
             }
         }
         .background(RadixTheme.groupedBackground)
@@ -207,6 +219,9 @@ struct AILinkView: View {
             }
             store.cleanupBlankCustomPromptTasks()
             ensureSelectedPromptTask()
+            if !isObjectLaunchedAIWorkflow {
+                isPromptTemplateExpanded = true
+            }
             refreshAISentencePickerResults()
             if store.shouldAutoOpenAILinkPrompt {
                 store.shouldAutoOpenAILinkPrompt = false
