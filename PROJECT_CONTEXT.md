@@ -210,7 +210,10 @@ sets intact. `sentence_examples` JSON remains in Advanced `Sentence Library
 migrated into the database on first read.
 Sentence examples are canonically stored as simplified Chinese, including phrase
 and character hints; traditional Chinese is a display mode exposed by sentence
-lists, example sheets, and sentence cards, not a second storage form.
+lists, example sheets, and sentence cards, not a second storage form. Sentence
+rows must explicitly convert in both directions for display: Traditional mode
+uses `traditionalText`, and Simplified mode uses `simplifiedText`, so legacy or
+imported Traditional records still obey the `简` toggle.
 Conversation practice model files are split by concern: core pack/import
 decoding and general key/text rules remain in `ConversationPracticeModels.swift`,
 pack validation lives in `ConversationPracticeValidationModels.swift`, practice

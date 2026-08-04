@@ -291,7 +291,7 @@ extension FavouritesTab {
     }
 
     func practiceSentenceDisplayText(_ text: String) -> String {
-        studyGridUsesTraditionalScript ? store.traditionalText(text) : text
+        studyGridUsesTraditionalScript ? store.traditionalText(text) : store.simplifiedText(text)
     }
 
     func conversationPracticeSentenceBackground(isSelected: Bool) -> Color {
