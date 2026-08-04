@@ -175,6 +175,55 @@ struct PromptConfigTests {
         #expect(task?.template.contains("Thematic Analysis") == false)
     }
 
+    @Test("Prompt template revision prompt preserves placeholders")
+    func promptTemplateRevisionPromptPreservesPlaceholders() {
+        let prompt = PromptTemplateRevision.revisionPrompt(
+            taskTitle: "Translate",
+            subjectType: .page,
+            currentTemplate: "Translate {collection_name}\\n{capture_text}\\n{capture_chars}",
+            changeRequest: "Make it shorter."
+        )
+
+        #expect(prompt.contains("Revise this Radix AI prompt template."))
+        #expect(prompt.contains("Make it shorter."))
+        #expect(prompt.contains("{collection_name}"))
+        #expect(prompt.contains("{capture_text}"))
+        #expect(prompt.contains("{capture_chars}"))
+        #expect(prompt.contains("Preserve Radix placeholders exactly"))
+        #expect(prompt.contains("Return only the revised prompt template."))
+    }
+
+    @Test("Prompt template revision extracts fenced template")
+    func promptTemplateRevisionExtractsFencedTemplate() {
+        let response = """
+        Here is the revised template:
+
+        ```text
+        Translate
+
+        Use {capture_text}.
+        ```
+        """
+
+        let revised = PromptTemplateRevision.revisedTemplate(from: response)
+
+        #expect(revised == "Translate\n\nUse {capture_text}.")
+    }
+
+    @Test("Prompt template revision extracts labeled template")
+    func promptTemplateRevisionExtractsLabeledTemplate() {
+        let response = """
+        Revised template:
+        Sentence
+
+        Explain {sentence_zh}.
+        """
+
+        let revised = PromptTemplateRevision.revisedTemplate(from: response)
+
+        #expect(revised == "Sentence\n\nExplain {sentence_zh}.")
+    }
+
     @Test("Legacy sentence improvement templates normalize to synced JSON payload")
     func legacySentenceImprovementTemplateNormalizesToSyncedPayload() {
         let legacy = PromptTask(

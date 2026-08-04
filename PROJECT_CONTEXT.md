@@ -1292,6 +1292,12 @@ prompt template editor is collapsed by default so task, source, send, and result
 remain the primary workflow. The `Paste AI Answer` action row stays above the pasted
 answer, pasted text is height-limited and collapsible, and successful imports
 auto-collapse long result text so follow-up actions remain visible.
+Prompt templates can also be revised through AI without hand-editing: the
+selected template editor includes `Revise Template with AI`, where the user
+writes a change request, copies or opens a template-revision prompt, pastes the
+replacement template returned by AI, and applies it to the draft before saving.
+The revision helper tells AI to preserve Radix placeholders exactly and return a
+complete replacement template rather than a diff.
 Translate Page should return a concise bilingual report: complete natural
 English translation first, then only essential learner notes and tone. Do not
 reintroduce heavy analytical-report sections, broad thematic essays, or padded

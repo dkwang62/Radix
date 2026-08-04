@@ -98,6 +98,7 @@ extension AILinkView {
                     .background(RadixTheme.tertiaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
 
+                    promptTemplateRevisionSection
                     promptEditorActions
                 }
                 .padding(.top, 10)
@@ -143,6 +144,161 @@ extension AILinkView {
                 .font(ResponsiveFont.footnote.weight(.semibold))
             }
         }
+    }
+
+    var promptTemplateRevisionSection: some View {
+        DisclosureGroup(isExpanded: $isPromptTemplateRevisionExpanded) {
+            VStack(alignment: .leading, spacing: 8) {
+                TextEditor(text: Binding(
+                    get: { promptTemplateChangeRequest },
+                    set: {
+                        promptTemplateChangeRequest = $0
+                        promptTemplateRevisionMessage = nil
+                    }
+                ))
+                .font(ResponsiveFont.footnote)
+                .frame(minHeight: 76)
+                .padding(8)
+                .background(RadixTheme.tertiaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(alignment: .topLeading) {
+                    if promptTemplateChangeRequest.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text("Describe the change you want.")
+                            .font(ResponsiveFont.caption)
+                            .foregroundStyle(.tertiary)
+                            .padding(.top, 16)
+                            .padding(.leading, 14)
+                            .allowsHitTesting(false)
+                    }
+                }
+
+                promptTemplateRevisionActions
+
+                if !promptTemplateRevisionText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    TextEditor(text: Binding(
+                        get: { promptTemplateRevisionText },
+                        set: {
+                            promptTemplateRevisionText = $0
+                            promptTemplateRevisionMessage = nil
+                        }
+                    ))
+                    .font(.system(size: 13, design: .monospaced))
+                    .frame(minHeight: 130)
+                    .padding(8)
+                    .background(RadixTheme.background)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+
+                if let promptTemplateRevisionMessage {
+                    Text(promptTemplateRevisionMessage)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(.top, 8)
+        } label: {
+            Label("Revise Template with AI", systemImage: "wand.and.stars")
+                .font(ResponsiveFont.caption.weight(.semibold))
+        }
+        .padding(10)
+        .background(RadixAccent.primary.opacity(0.05))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    var promptTemplateRevisionActions: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                promptTemplateCopyRevisionPromptButton
+                promptTemplateOpenRevisionPromptButton
+                promptTemplatePasteRevisionButton
+                promptTemplateApplyRevisionButton
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                promptTemplateCopyRevisionPromptButton
+                promptTemplateOpenRevisionPromptButton
+                promptTemplatePasteRevisionButton
+                promptTemplateApplyRevisionButton
+            }
+        }
+    }
+
+    var promptTemplateCopyRevisionPromptButton: some View {
+        Button {
+            copyPromptTemplateRevisionPrompt(openInAI: false)
+        } label: {
+            Label("Copy to AI Chat", systemImage: "doc.on.doc")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .disabled(!canCopyPromptTemplateRevisionPrompt)
+    }
+
+    var promptTemplateOpenRevisionPromptButton: some View {
+        Button {
+            copyPromptTemplateRevisionPrompt(openInAI: true)
+        } label: {
+            Label("Open AI Chat", systemImage: "arrow.up.forward.app")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .disabled(!canCopyPromptTemplateRevisionPrompt)
+    }
+
+    var promptTemplatePasteRevisionButton: some View {
+        Button {
+            promptTemplateRevisionText = RadixPlatform.pasteboardString
+            promptTemplateRevisionMessage = nil
+        } label: {
+            Label("Paste", systemImage: "doc.on.clipboard")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+    }
+
+    var promptTemplateApplyRevisionButton: some View {
+        Button {
+            applyPromptTemplateRevision()
+        } label: {
+            Label("Apply to Draft", systemImage: "checkmark.circle")
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.small)
+        .disabled(promptTemplateRevisionText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+    }
+
+    var canCopyPromptTemplateRevisionPrompt: Bool {
+        !draftPromptTemplate.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            !promptTemplateChangeRequest.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    func copyPromptTemplateRevisionPrompt(openInAI: Bool) {
+        guard canCopyPromptTemplateRevisionPrompt else { return }
+        let prompt = PromptTemplateRevision.revisionPrompt(
+            taskTitle: draftPromptTitle,
+            subjectType: draftPromptSubjectType,
+            currentTemplate: draftPromptTemplate,
+            changeRequest: promptTemplateChangeRequest
+        )
+        RadixPlatform.copyToPasteboard(prompt)
+        promptTemplateRevisionMessage = "Template revision prompt copied."
+
+        guard openInAI else { return }
+        let preset = selectedAIPreset ?? store.defaultAIPreset
+        if let url = store.aiURL(for: preset, prompt: prompt) {
+            openURL(url)
+            promptTemplateRevisionMessage = "Template revision prompt copied. Opening \(store.aiName(for: preset))."
+        }
+    }
+
+    func applyPromptTemplateRevision() {
+        let revised = PromptTemplateRevision.revisedTemplate(from: promptTemplateRevisionText)
+        guard !revised.isEmpty else { return }
+        draftPromptTemplate = revised
+        promptSaveStatus = "Revised template applied to draft. Save when ready."
+        promptTemplateRevisionMessage = "Applied to draft."
+        promptTemplateRevisionText = ""
     }
 
     func promptSubjectTypePicker(selection: Binding<PromptTaskSubjectType>) -> some View {

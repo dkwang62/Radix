@@ -34,6 +34,10 @@ struct AILinkView: View {
     @State var aiSentenceSearchText = ""
     @State var aiSentencePickerRecords: [SentenceExampleRecord] = []
     @State var aiSentencePickerResultCount = 0
+    @State var isPromptTemplateRevisionExpanded = false
+    @State var promptTemplateChangeRequest = ""
+    @State var promptTemplateRevisionText = ""
+    @State var promptTemplateRevisionMessage: String?
 
     /// The character or phrase word that tasks 1-3 will act on.
     /// Phrase preview takes priority over single character preview.
@@ -316,6 +320,7 @@ struct AILinkView: View {
         draftPromptTemplate = task?.template ?? ""
         draftPromptSubjectType = task?.subjectType ?? .characterPhrase
         promptSaveStatus = nil
+        resetPromptTemplateRevision()
     }
 
     func savePromptDraft() {
@@ -368,5 +373,12 @@ struct AILinkView: View {
         let result = RadixStudyPreferences.querySentenceExamples(query)
         aiSentencePickerRecords = result.records
         aiSentencePickerResultCount = result.totalCount
+    }
+
+    func resetPromptTemplateRevision() {
+        promptTemplateChangeRequest = ""
+        promptTemplateRevisionText = ""
+        promptTemplateRevisionMessage = nil
+        isPromptTemplateRevisionExpanded = false
     }
 }
