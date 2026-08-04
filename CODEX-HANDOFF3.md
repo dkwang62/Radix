@@ -178,9 +178,11 @@ Catalyst compilation, and generic iOS Simulator compilation.
    full-library work from display paths without changing user behavior.
 3. Large-file pressure points remain:
    - `ViewModels/RadixStoreDataEdit.swift`
-   - `Models/PromptModels.swift`
    - `App/FavouritesTab.swift`
    - `Services/ComponentRepository.swift`
+   The prompt default-template split is complete:
+   `Models/PromptTaskDefaults.swift` owns the built-in prompt templates, while
+   `Models/PromptModels.swift` stays focused on prompt data types and IDs.
 4. Watch performance-sensitive paths:
    - Study Sentences search, paging, selection, and batch deletion.
    - Phrase-card Examples and phrase-aware sentence matching.

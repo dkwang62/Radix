@@ -34,6 +34,7 @@ let package = Package(
                 "PinyinSearchNormalizer.swift",
                 "PromptConfigRendering.swift",
                 "PromptModels.swift",
+                "PromptTaskDefaults.swift",
                 "RadixDataCompatibilityModels.swift",
                 "RadixNavigationModels.swift",
                 "RadixPreferenceKey.swift",

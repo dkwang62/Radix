@@ -221,6 +221,7 @@
 		9D149A172FAC0001001B9AA7 /* PaywallFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D149A162FAC0001001B9AA7 /* PaywallFooter.swift */; };
 		9D7AF752F6083FC689726598 /* subtlex_freq.json in Resources */ = {isa = PBXBuildFile; fileRef = E9C3F33A9386C399BF9BA6BD /* subtlex_freq.json */; };
 		A05EBFC59DC951C9EFDB9FF9 /* PromptModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFF92F2BA13EBA1A3A64D44 /* PromptModels.swift */; };
+		A05EBFC72FC20001001B9AA7 /* PromptTaskDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = A05EBFC62FC20001001B9AA7 /* PromptTaskDefaults.swift */; };
 		A2A5920563DDE95E066515ED /* StrokeOrderWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59B2335DD9219C0F7B96DE43 /* StrokeOrderWebView.swift */; };
 		A2A5B68B93AF45E484EEF814 /* RadixDataCompatibilityModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6413E96D450A71BBA8A1EF /* RadixDataCompatibilityModels.swift */; };
 		AB674F9317A0D00B5EFE5ED2 /* CharacterInfoCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C7DBD97423A0CB1563CC5D /* CharacterInfoCard.swift */; };
@@ -323,6 +324,7 @@
 		5EACE5A1991601A0C41917DC /* DataEditRestoreFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataEditRestoreFlow.swift; sourceTree = "<group>"; };
 		5FB0197D42D52FA9A72F4B24 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6AFF92F2BA13EBA1A3A64D44 /* PromptModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptModels.swift; sourceTree = "<group>"; };
+		A05EBFC62FC20001001B9AA7 /* PromptTaskDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTaskDefaults.swift; sourceTree = "<group>"; };
 		6AFC0DE22FE00003001B9AA7 /* ConversationPracticeProgressModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeProgressModels.swift; sourceTree = "<group>"; };
 		6AFC0DE42FE00005001B9AA7 /* ConversationPracticeQuizRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeQuizRules.swift; sourceTree = "<group>"; };
 		6AFC0DEC2FE0000D001B9AA7 /* ConversationPracticeTopicModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationPracticeTopicModels.swift; sourceTree = "<group>"; };
@@ -739,6 +741,7 @@
 				8500003D2F9D0001001B9AA7 /* PinyinSearchNormalizer.swift */,
 				6AFC0DE02FE00001001B9AA7 /* PromptConfigRendering.swift */,
 				6AFF92F2BA13EBA1A3A64D44 /* PromptModels.swift */,
+				A05EBFC62FC20001001B9AA7 /* PromptTaskDefaults.swift */,
 				B3E1E5265391156C8C615A28 /* ResponsiveFont.swift */,
 				AB37C9B2A3908035B4225770 /* UnifiedPackage.swift */,
 				F62C2C812BDCE5C4161C8606 /* UserProfile.swift */,
@@ -1204,6 +1207,7 @@
 				C0DE00542FC10014001B9AA7 /* RadixInteractionPreferences.swift in Sources */,
 				8500001A2F9D0001001B9AA7 /* QuickEditFieldRows.swift in Sources */,
 				A05EBFC59DC951C9EFDB9FF9 /* PromptModels.swift in Sources */,
+				A05EBFC72FC20001001B9AA7 /* PromptTaskDefaults.swift in Sources */,
 				CB360F3972D55FBFD1555152 /* RadixApp.swift in Sources */,
 				864DAB8A2F93B722001B9AA7 /* PhraseRepository.swift in Sources */,
 				6ABB3E4EB6475449496F9C71 /* ResponsiveFont.swift in Sources */,

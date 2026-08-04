@@ -140,9 +140,10 @@ Gemini` should use the saved Gemini API key, call the same built-in
 pinyin, English, page-owned artifacts, and the sentence database stay synced.
 Non-importing `Explain with AI` may still use the quick external AI launch path.
 Prompt model data and prompt rendering are split deliberately:
-`PromptModels.swift` owns prompt subjects, task defaults, IDs, configuration,
-and render context, while `PromptConfigRendering.swift` owns normalization,
-legacy task repair, and placeholder substitution.
+`PromptModels.swift` owns prompt subjects, IDs, configuration, and render
+context; `PromptTaskDefaults.swift` owns built-in prompt task templates and the
+default prompt config; `PromptConfigRendering.swift` owns normalization, legacy
+task repair, and placeholder substitution.
 Custom AI Link tasks carry an explicit subject type. Character/Phrase tasks use
 the recent subject chooser, Page tasks use the saved-page chooser, and Sentence
 tasks use a searchable saved-sentence chooser that queries only a small visible
@@ -389,8 +390,10 @@ renderers. The high-priority `ConversationPracticeModels.swift` split is now
 complete: pack decoding, validation, library mapping, topics, sentence
 examples, favorite sentences, capture import, progress, and quiz rules have
 separate model files. Remaining large-file refactor targets are
-`RadixStoreDataEdit.swift`, `PromptModels.swift`, `FavouritesTab.swift`, and
-`ComponentRepository.swift`.
+`RadixStoreDataEdit.swift`, `FavouritesTab.swift`, and
+`ComponentRepository.swift`. The medium-priority prompt split is complete:
+built-in prompt templates now live in `PromptTaskDefaults.swift`, leaving
+`PromptModels.swift` focused on prompt data types, IDs, and render context.
 Sentence search and phrase-card Examples should share the same phrase-aware
 matcher in `RadixStudyPreferences` so target/detected phrase hints and
 simplified/traditional query conversion behave consistently.
@@ -608,15 +611,14 @@ Keep future refactors opportunistic and behavior-preserving:
 - Keep the completed conversation-practice model split intact. Add new
   conversation-practice behavior to the narrow file that owns that concern
   rather than growing `ConversationPracticeModels.swift` again.
-- Treat `RadixStoreDataEdit.swift`, `PromptModels.swift`, `FavouritesTab.swift`,
-  and `ComponentRepository.swift` as the next large-file candidates for the
-  same focused extraction pattern already used elsewhere. Avoid adding
-  unrelated responsibilities to those files while making feature changes.
+- Treat `RadixStoreDataEdit.swift`, `FavouritesTab.swift`, and
+  `ComponentRepository.swift` as the next large-file candidates for the same
+  focused extraction pattern already used elsewhere. Avoid adding unrelated
+  responsibilities to those files while making feature changes.
 - Suggested future split order: move import/restore orchestration out of
-  `RadixStoreDataEdit.swift`, split built-in prompt templates from prompt task
-  metadata in `PromptModels.swift`, continue moving focused Study state and
-  lifecycle helpers out of `FavouritesTab.swift`, then extract
-  `ComponentRepository.swift` query/index helpers by responsibility.
+  `RadixStoreDataEdit.swift`, continue moving focused Study state and lifecycle
+  helpers out of `FavouritesTab.swift`, then extract `ComponentRepository.swift`
+  query/index helpers by responsibility.
 
 ### Reuse-first rule
 
