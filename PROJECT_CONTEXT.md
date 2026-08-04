@@ -1292,6 +1292,10 @@ prompt template editor is collapsed by default so task, source, send, and result
 remain the primary workflow. The `Paste AI Answer` action row stays above the pasted
 answer, pasted text is height-limited and collapsible, and successful imports
 auto-collapse long result text so follow-up actions remain visible.
+Translate Page should return a concise bilingual report: complete natural
+English translation first, then only essential learner notes and tone. Do not
+reintroduce heavy analytical-report sections, broad thematic essays, or padded
+word-by-word buffers unless the user explicitly asks for deep analysis.
 After AI Link imports a Conversation Practice pack, the success state offers a
 direct `Open in Study` action. It opens Study to the imported practice set and
 uses the existing contextual return path so the focused Practice screen shows

@@ -126,6 +126,55 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains(PromptConfig.sentenceImprovementTaskID))
     }
 
+    @Test("Translate page template stays concise")
+    func translatePageTemplateStaysConcise() {
+        let normalized = PromptConfig.streamlitDefault.normalized()
+        let task = normalized.tasks.first { $0.id == "task5" }
+
+        #expect(task?.title == "Translate")
+        #expect(task?.subjectType == .page)
+        #expect(task?.template.contains("Concise Bilingual Page Translation") == true)
+        #expect(task?.template.contains("## Translation") == true)
+        #expect(task?.template.contains("## Notes") == true)
+        #expect(task?.template.contains("Do not write a long analytical essay") == true)
+        #expect(task?.template.contains("word buffers") == true)
+        #expect(task?.template.contains("Linguistic Deconstruction") == false)
+        #expect(task?.template.contains("Thematic Analysis") == false)
+    }
+
+    @Test("Legacy heavy translate templates normalize to concise report")
+    func legacyHeavyTranslateTemplateNormalizes() {
+        let legacy = PromptTask(
+            id: "task5",
+            title: "Task 5 – Universal Content Architect",
+            template: """
+            Translate
+
+            Master Prompt: The Bilingual Editor's Analytical Report
+
+            Section 1: ## Linguistic Deconstruction (Shorthand Analysis).
+            Section 2: ## Thematic Analysis (Grouped by Subject Matter).
+            """,
+            subjectType: .page
+        )
+        let config = PromptConfig(
+            version: 1,
+            preamble: "",
+            tasks: [legacy],
+            epilogue: "",
+            collectionPreamble: "",
+            collectionEpilogue: ""
+        )
+
+        let normalized = config.normalized()
+        let task = normalized.tasks.first { $0.id == "task5" }
+
+        #expect(task?.title == "Translate")
+        #expect(task?.template.contains("Concise Bilingual Page Translation") == true)
+        #expect(task?.template.contains("Linguistic Deconstruction") == false)
+        #expect(task?.template.contains("Thematic Analysis") == false)
+    }
+
     @Test("Legacy sentence improvement templates normalize to synced JSON payload")
     func legacySentenceImprovementTemplateNormalizesToSyncedPayload() {
         let legacy = PromptTask(

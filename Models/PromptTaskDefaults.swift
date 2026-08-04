@@ -146,45 +146,35 @@ Silently discard any candidate whose boundaries or meaning are uncertain. Fewer 
                 template: """
 Translate
 
-Master Prompt: The Bilingual Editor's Analytical Report
+Master Prompt: Concise Bilingual Page Translation
 
-Role: Act as an expert Bilingual Chinese Dictionary Editor, Translator, and Content Strategist. Your specialty is deconstructing high-impact media language, "clickbait" shorthand, and neologisms.
+Role: Act as an expert bilingual Chinese editor and translator for a Chinese learner.
 
-Task: Translate the provided Chinese text into a structured English report. Do not provide a literal word-for-word translation. Instead, decode the underlying logic, emotional subtext, and editorial techniques.
+Task: Translate the provided Chinese page into concise, natural English and add only the explanations needed to understand the source. Keep the reply short and readable, like a sentence explanation scaled up to a page.
 
-Instructions for Processing:
+Output Style:
 
-Identify Content Type: Briefly state the nature of the text (e.g., Tabloid Headlines, Viral Social Media Post, Technical Manual).
+- Use plain headings.
+- Do not write a long analytical essay.
+- Do not pad with repeated commentary, word buffers, or generic observations.
+- Preserve all important meaning, claims, names, relationships, tone, and ambiguity.
+- Translate idioms, slang, shorthand, and compressed headline language into natural English.
+- Explain only phrases or context that a learner would likely miss.
 
-Linguistic Spotlight (Shorthand & Contractions):
+Required Output:
 
-Identify "Telegraphic Shorthand" (e.g., 2-character mashups like 恐害, 驚爆, 疑遭).
+## Translation
+Give a complete natural English translation of the page. Use short paragraphs or bullets if that is clearer.
 
-Create a table to deconstruct these: Contraction | Grammatical Expansion (the full phrase) | Nuance/Effect.
+## Notes
+List only the important learner notes. For each note, quote the relevant Chinese phrase in parentheses and explain it briefly in English.
 
-Structural Grouping: Group related ideas under descriptive headings (##).
+## Tone
+State the overall tone in 1-3 sentences.
 
-Linguistic Mapping: For each key point, include the original Chinese characters in parentheses—e.g., Key Concept (中文版本)—to show how the source was interpreted.
+If the page contains hashtags, timestamps, channel promotions, captions, or obvious noise, mention them only if they affect meaning. Otherwise omit them.
 
-Clarity & Nuance:
-
-Translate idioms into natural English equivalents.
-
-Use Bold for high-impact phrases or central themes.
-
-Meta-Data & Noise: Separate hashtags, timestamps, and channel promotions into a dedicated section at the bottom.
-
-Report Structure Requirements:
-
-Header: Brief Content Overview.
-
-Section 1: ## Linguistic Deconstruction (Shorthand Analysis).
-
-Section 2: ## Thematic Analysis (Grouped by Subject Matter).
-
-Section 3: ## Emotional Tone & Impact.
-
-Section 4: --- (Horizontal Rule) Meta-Data & System Noise.
+Before answering, silently remove repetition and keep the final reply concise without losing the translation or useful explanations.
 
 Source Material:
 

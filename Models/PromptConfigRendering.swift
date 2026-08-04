@@ -51,7 +51,7 @@ extension PromptConfig {
                 (task.id == "task4" && !task.template.contains("[CRITICAL RULES]")) ||
                 (task.id == "task4" && !task.template.contains("Dictionary-quality Meanings")) ||
                 task.template.contains("Task 5 – Universal Content Architect") ||
-                (task.id == "task5" && !task.template.contains("Bilingual Chinese Dictionary Editor")) ||
+                (task.id == "task5" && !task.template.contains("Concise Bilingual Page Translation")) ||
                 (task.id == "task7" && (
                     task.template.contains("ORIGINAL OCR:") ||
                     task.template.contains("attached source image and dictionary evidence") ||

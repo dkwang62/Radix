@@ -464,7 +464,7 @@ extension RadixStore {
             modelID: geminiModelID,
             prompt: prompt,
             systemInstruction: """
-            You are an expert bilingual Chinese editor and translator. Return a polished translation only, with no preface about being an AI and no follow-up questions.
+            You are an expert bilingual Chinese editor and translator. Return a concise polished translation report with only useful learner explanations. No preface about being an AI, no follow-up questions, and no padded analysis.
             """
         )
         saveTranslationReport(fromAIResponse: report, for: collection)
