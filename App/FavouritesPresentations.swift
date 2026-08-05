@@ -57,8 +57,8 @@ extension FavouritesTab {
                     fixedTitle: "Page Phrases",
                     fixedScopeLabel: presentation.collection.name,
                     fixedSort: .pinyin,
-                    dismissesOnPhraseSelection: true,
-                    returnTitle: "Back to Study"
+                    keepsPhraseInspectionInSheet: true,
+                    returnTitle: "Back to Study Page"
                 )
                 .environmentObject(store)
             }

@@ -463,11 +463,25 @@ extension FavouritesTab {
         beginStudyAILinkPageTask(task.collection, taskID: task.taskID)
     }
 
-    func openStudyPracticePack(_ pack: ConversationPracticePack) {
+    func openStudyPracticePack(_ pack: ConversationPracticePack, from collection: CharacterCollection) {
         withAnimation(.snappy(duration: 0.18)) {
+            studyPageReturnCollectionID = collection.id
             focusedStudySection = .conversationPractice
             studyAICleanedPageCollectionID = nil
         }
         selectConversationPracticeTopic(conversationPracticeTopic(for: pack.practiceLibrary))
+    }
+
+    func returnToOriginatingStudyPage() {
+        guard let collectionID = studyPageReturnCollectionID else { return }
+        withAnimation(.snappy(duration: 0.18)) {
+            studyPageReturnCollectionID = nil
+            focusedStudySection = nil
+            studyAICleanedPageCollectionID = nil
+            studyGridScope = .savedPages
+            expandedStudySavedPageID = collectionID
+        }
+        store.selectBrowseCollection(id: collectionID)
+        syncActiveStudySectionTitle()
     }
 }

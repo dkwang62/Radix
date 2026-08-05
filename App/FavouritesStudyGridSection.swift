@@ -653,7 +653,7 @@ extension FavouritesTab {
         case .phrases:
             showPagePhrases(collection)
         case .practice(let pack):
-            openStudyPracticePack(pack)
+            openStudyPracticePack(pack, from: collection)
         case .correctedPage(let corrected):
             beginPromotingOCRCorrection(original: collection, corrected: corrected)
         case .aiCleanedPage:

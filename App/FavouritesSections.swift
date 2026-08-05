@@ -57,15 +57,23 @@ extension FavouritesTab {
 
     @ViewBuilder
     var conversationPracticeStudyScreen: some View {
-        if conversationPracticeTopics.isEmpty {
-            ContentUnavailableView(
-                "No Practice Sets",
-                systemImage: "bubble.left.and.bubble.right",
-                description: Text("Conversation practice sets will appear here when they are available.")
-            )
-            .frame(maxWidth: .infinity, minHeight: 220)
-        } else {
-            conversationPracticeSection
+        VStack(alignment: .leading, spacing: 10) {
+            if studyPageReturnCollectionID != nil {
+                focusedStudyBackButton(title: "Back to Study Page") {
+                    returnToOriginatingStudyPage()
+                }
+            }
+
+            if conversationPracticeTopics.isEmpty {
+                ContentUnavailableView(
+                    "No Practice Sets",
+                    systemImage: "bubble.left.and.bubble.right",
+                    description: Text("Conversation practice sets will appear here when they are available.")
+                )
+                .frame(maxWidth: .infinity, minHeight: 220)
+            } else {
+                conversationPracticeSection
+            }
         }
     }
 
@@ -124,6 +132,7 @@ extension FavouritesTab {
 
     func clearFocusedStudySections() {
         focusedStudySection = nil
+        studyPageReturnCollectionID = nil
     }
 
     func sectionTitle(_ title: String) -> some View {

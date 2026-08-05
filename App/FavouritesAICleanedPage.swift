@@ -5,7 +5,7 @@ extension FavouritesTab {
     var aiCleanedPageStudyScreen: some View {
         if let context = studyAICleanedPageContext {
             VStack(alignment: .leading, spacing: 10) {
-                focusedStudyBackButton(title: "Back to Study") {
+                focusedStudyBackButton(title: "Back to Study Page") {
                     withAnimation(.snappy(duration: 0.18)) {
                         studyAICleanedPageCollectionID = nil
                     }
@@ -21,7 +21,7 @@ extension FavouritesTab {
             }
         } else {
             VStack(alignment: .leading, spacing: 10) {
-                focusedStudyBackButton(title: "Back to Study") {
+                focusedStudyBackButton(title: "Back to Study Page") {
                     studyAICleanedPageCollectionID = nil
                 }
                 .padding(.horizontal)

@@ -93,6 +93,11 @@ Use these preferences as defaults:
 - Keep return behavior consistent and shallow. A callout from a sentence should
   return to that sentence; a callout from a phrase should return to that phrase.
   Avoid nested preview stacks such as sentence -> phrase -> phrase -> character.
+- Study Page artifacts must retain the originating page. Page Phrases inspects
+  phrases inside its sheet and dismisses directly with `Back to Study Page`;
+  page-owned extracted sentences and Conversation Practice use the same visible
+  return wording. Do not route a page phrase into the global sidebar and dismiss
+  its sheet, because that strands the user away from the page workspace.
 - Let the bottom tabs override contextual flows. Switching tabs should feel like
   a clean change of workspace, not another nested return layer.
 - Prefer the Conversation Practice / Study Sentences look for sentence surfaces:

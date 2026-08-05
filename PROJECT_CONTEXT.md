@@ -70,6 +70,11 @@ not grow scattered special cases. Browse and the internal saved-page Study
 workspace share the same `Actions` menu vocabulary for page editing, OCR/source
 review, phrase selection, translation, AI tasks, and delete; do not reintroduce
 separate Browse-only or Study-only page action rows.
+Study Page artifacts preserve their page origin. Page Phrases must inspect a
+selected phrase inside its sheet on every device and dismiss through `Back to
+Study Page`, never dismiss into the global phrase sidebar. Page-owned extracted
+sentences and Conversation Practice also expose `Back to Study Page`; returning
+restores and expands the originating shared Browse/Study page selection.
 The existing saved-page Study implementation remains the internal page-learning
 workspace and may be opened from explicit Study/page actions, including My Data
 inventory links. The Study title menu exposes this route as `Study Pages`; it

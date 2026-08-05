@@ -146,6 +146,7 @@ struct FavouritesTab: View {
     @State var isRunningStudyPageAction = false
     @State var studyPagePhrasesPresentation: StudyPagePhrasesPresentation?
     @State var expandedStudySavedPageID: UUID?
+    @State var studyPageReturnCollectionID: UUID?
 
     private let conversationPracticeService = ConversationPracticeService()
 
