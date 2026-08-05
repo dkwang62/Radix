@@ -85,9 +85,10 @@ Use these preferences as defaults:
   Clear, and bulk delete in a local tools menu unless the user needs the action
   constantly while reading.
 - Added Phrases keeps a stable `Batch` menu. Always show its supported mass
-  operations with counts—Accept Unreviewed, Remove Rejected, and Remove
-  Unreviewed—and disable unavailable operations instead of hiding them. Keep AI
-  Review and Help in separate menu sections so bulk operations remain obvious.
+  operations with counts: Accept Unreviewed, Reject Unreviewed, Remove
+  Rejected, and Remove Unreviewed. Disable unavailable operations instead of
+  hiding them. Keep AI Review and Help in separate menu sections so bulk
+  operations remain obvious.
 - Distribute crowded controls across sensible rows instead of letting labels
   wrap vertically or collapse into unclear icons. Compactness is good only when
   the result remains readable.

@@ -16,6 +16,7 @@ struct AddedPhraseReviewSheet: View {
     @State var showsFilterPicker = false
     @State var showsReviewHelp = false
     @State var phrasePendingDeletion: PhraseItem?
+    @State var showsRejectNewConfirmation = false
     @State var showsDeleteRejectedConfirmation = false
     @State var showsDeleteNewConfirmation = false
     @State var reviewPhrases: [PhraseItem] = []
@@ -153,6 +154,14 @@ struct AddedPhraseReviewSheet: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text(deleteRejectedConfirmationMessage)
+        }
+        .alert("Reject Unreviewed Phrases?", isPresented: $showsRejectNewConfirmation) {
+            Button("Reject", role: .destructive) {
+                rejectNewPhrases()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text(rejectNewConfirmationMessage)
         }
         .alert("Remove Unreviewed Phrases?", isPresented: $showsDeleteNewConfirmation) {
             Button("Remove", role: .destructive) {
@@ -334,6 +343,32 @@ extension AddedPhraseReviewSheet {
         reviewCycle.resetPreview()
         clampPage()
         message = "Accepted \(checkedCount) unreviewed phrase\(checkedCount == 1 ? "" : "s")."
+    }
+
+    var rejectNewConfirmationMessage: String {
+        let count = newPhrases.count
+        return "Mark \(count) unreviewed phrase\(count == 1 ? "" : "s") as rejected?"
+    }
+
+    func rejectNewPhrases() {
+        let phrasesToReject = newPhrases
+        guard !phrasesToReject.isEmpty else { return }
+
+        var rejectedCount = 0
+        for phrase in phrasesToReject {
+            do {
+                try store.updateAddedPhraseReviewStatus(word: phrase.word, status: .removed)
+                rejectedCount += 1
+            } catch {
+                message = "Could not reject \(phrase.word): \(error.localizedDescription)"
+                break
+            }
+        }
+
+        selectedPhrase = nil
+        reviewCycle.resetPreview()
+        clampPage()
+        message = "Rejected \(rejectedCount) unreviewed phrase\(rejectedCount == 1 ? "" : "s")."
     }
 
     func createAIReviewPage() {

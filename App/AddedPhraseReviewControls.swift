@@ -196,6 +196,13 @@ extension AddedPhraseReviewSheet {
                 .disabled(newPhrases.isEmpty)
 
                 Button(role: .destructive) {
+                    showsRejectNewConfirmation = true
+                } label: {
+                    Label("Reject Unreviewed (\(newPhrases.count))", systemImage: "xmark.circle.fill")
+                }
+                .disabled(newPhrases.isEmpty)
+
+                Button(role: .destructive) {
                     showsDeleteRejectedConfirmation = true
                 } label: {
                     Label("Remove Rejected (\(rejectedPhrases.count))", systemImage: "trash.fill")
@@ -329,6 +336,7 @@ struct AddedPhraseReviewHelpSheet: View {
 
                 Section("Batch Actions") {
                     Label("Accept all Unreviewed phrases at once.", systemImage: "checkmark.circle.fill")
+                    Label("Reject all Unreviewed phrases at once so they can be removed with Rejected phrases.", systemImage: "xmark.circle.fill")
                     Label("Remove all Rejected or all Unreviewed phrases with confirmation.", systemImage: "trash")
                 }
 

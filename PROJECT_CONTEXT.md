@@ -175,9 +175,10 @@ AI Link may clean up duplicate blank custom drafts automatically. Only custom
 tasks are deletable; built-in tasks should remain recoverable through defaults.
 Study > Added Phrases uses paint-style status tools for individual phrases and
 a stable `Batch` menu for mass operations. The menu always lists Accept
-Unreviewed, Remove Rejected, and Remove Unreviewed with live counts, disabling
-zero-count actions rather than hiding them; AI Review and Help occupy separate
-sections so the bulk controls do not disappear into a generic Actions menu.
+Unreviewed, Reject Unreviewed, Remove Rejected, and Remove Unreviewed with live
+counts, disabling zero-count actions rather than hiding them; AI Review and Help
+occupy separate sections so the bulk controls do not disappear into a generic
+Actions menu.
 Keep the crash guardrails: the Phrase
 button should show all exact phrase-library matches in the sentence by merging
 stored sentence phrase hints with on-demand phrase discovery when the phrase
