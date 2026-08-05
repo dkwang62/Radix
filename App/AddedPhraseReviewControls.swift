@@ -187,52 +187,48 @@ extension AddedPhraseReviewSheet {
 
     var actionsMenu: some View {
         Menu {
-            if !newPhrases.isEmpty {
-                Button {
-                    createAIReviewPage()
-                } label: {
-                    Label("Create AI Review Page (\(newPhrases.count))", systemImage: "sparkles")
-                }
-
-                Divider()
-            }
-
-            if !newPhrases.isEmpty {
+            Section("Batch Actions") {
                 Button {
                     checkNewPhrases()
                 } label: {
                     Label("Accept Unreviewed (\(newPhrases.count))", systemImage: "checkmark.circle.fill")
                 }
-            }
+                .disabled(newPhrases.isEmpty)
 
-            if !rejectedPhrases.isEmpty {
                 Button(role: .destructive) {
                     showsDeleteRejectedConfirmation = true
                 } label: {
                     Label("Remove Rejected (\(rejectedPhrases.count))", systemImage: "trash.fill")
                 }
-            }
+                .disabled(rejectedPhrases.isEmpty)
 
-            if !newPhrases.isEmpty {
                 Button(role: .destructive) {
                     showsDeleteNewConfirmation = true
                 } label: {
                     Label("Remove Unreviewed (\(newPhrases.count))", systemImage: "trash")
                 }
+                .disabled(newPhrases.isEmpty)
             }
 
-            if !newPhrases.isEmpty || !rejectedPhrases.isEmpty {
-                Divider()
+            Section("AI Review") {
+                Button {
+                    createAIReviewPage()
+                } label: {
+                    Label("Create AI Review Page (\(newPhrases.count))", systemImage: "sparkles")
+                }
+                .disabled(newPhrases.isEmpty)
             }
 
-            Button {
-                showsReviewHelp = true
-            } label: {
-                RadixHelpLabel()
+            Section {
+                Button {
+                    showsReviewHelp = true
+                } label: {
+                    RadixHelpLabel()
+                }
             }
         } label: {
             RadixCompactChevronLabel(
-                title: actionsMenuTitle,
+                title: "Batch",
                 systemImage: "ellipsis.circle",
                 font: reviewControlFont,
                 chevronFont: .system(size: 8, weight: .bold),
@@ -243,11 +239,7 @@ extension AddedPhraseReviewSheet {
         .controlSize(.small)
         .tint(RadixTheme.systemGray5)
         .foregroundStyle(Color.primary)
-        .help("Actions and help for added phrase review.")
-    }
-
-    var actionsMenuTitle: String {
-        newPhrases.isEmpty ? "Actions" : "Actions (\(newPhrases.count))"
+        .help("Batch actions, AI review, and help for added phrases.")
     }
 
     var pageFooter: some View {
@@ -333,6 +325,11 @@ struct AddedPhraseReviewHelpSheet: View {
                     Label("Choose a status tool, then tap phrases to mark them quickly.", systemImage: "hand.tap")
                     Label("Tap a phrase once without a status tool to preview details.", systemImage: "text.magnifyingglass")
                     Label("Tap the same phrase again to cycle through statuses.", systemImage: "arrow.triangle.2.circlepath")
+                }
+
+                Section("Batch Actions") {
+                    Label("Accept all Unreviewed phrases at once.", systemImage: "checkmark.circle.fill")
+                    Label("Remove all Rejected or all Unreviewed phrases with confirmation.", systemImage: "trash")
                 }
 
                 Section("Statuses") {
