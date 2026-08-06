@@ -142,6 +142,69 @@ struct PromptConfigTests {
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains(PromptConfig.sentenceImprovementTaskID))
     }
 
+    @Test("Format vocabulary template is a free text phrase import task")
+    func vocabularyFormatterTemplateAvailability() {
+        let normalized = PromptConfig.streamlitDefault.normalized()
+        let task = normalized.tasks.first { $0.id == PromptConfig.vocabularyFormatterTaskID }
+
+        #expect(task?.title == "Format Vocabulary")
+        #expect(task?.subjectType == .freeText)
+        #expect(task?.template.contains("{free_text_input}") == true)
+        #expect(task?.template.contains("Chinese Phrase | Pinyin | Concise English meaning") == true)
+        #expect(!PromptConfig.defaultSelectedTaskIDs.contains(PromptConfig.vocabularyFormatterTaskID))
+    }
+
+    @Test("Format vocabulary prompt renders pasted source text")
+    func vocabularyFormatterRendersFreeTextInput() {
+        let task = PromptTask(
+            id: PromptConfig.vocabularyFormatterTaskID,
+            title: "Format Vocabulary",
+            template: "Format:\n{free_text_input}",
+            subjectType: .freeText
+        )
+        let config = PromptConfig(
+            version: 1,
+            preamble: "ignored",
+            tasks: [task],
+            epilogue: "ignored",
+            collectionPreamble: "ignored",
+            collectionEpilogue: "ignored"
+        )
+        let prompt = config.renderPrompt(
+            selectedTaskIDs: [PromptConfig.vocabularyFormatterTaskID],
+            context: PromptRenderContext(
+                char: "",
+                definitionEN: "",
+                decomposition: "",
+                semantic: "",
+                phonetic: "",
+                phoneticPinyin: "",
+                isSoundMatch: "",
+                pronunciationFamily: "",
+                semanticFamily: "",
+                collectionName: "",
+                captureCharacters: "",
+                captureText: "",
+                originalOCRText: "",
+                recognizedOCRCharacters: "",
+                unrecognizedOCRCharacters: "",
+                nearbyOCRPhrases: "",
+                practiceTopicID: "",
+                practiceTopicTitle: "",
+                practiceTopicSummary: "",
+                practiceTopicBrief: "",
+                practiceTopicSituations: "",
+                conversationEntryCount: "25",
+                sentenceExtractionDetail: "",
+                freeTextInput: "咖啡 coffee\n学习 study"
+            ),
+            subject: .freeText("咖啡 coffee\n学习 study")
+        )
+
+        #expect(prompt.contains("Vocabulary list / source text:\n咖啡 coffee\n学习 study"))
+        #expect(!prompt.contains("{free_text_input}"))
+    }
+
     @Test("Explain page template includes translation and character analysis")
     func explainPageTemplateIncludesTranslationAndCharacterAnalysis() {
         let normalized = PromptConfig.streamlitDefault.normalized()
@@ -276,7 +339,8 @@ struct PromptConfigTests {
     func legacyPromptConfigAddsSentenceTemplate() {
         let legacyTasks = PromptConfig.streamlitDefault.tasks.filter {
             $0.id != PromptConfig.defaultSentenceTaskID &&
-                $0.id != PromptConfig.sentenceImprovementTaskID
+                $0.id != PromptConfig.sentenceImprovementTaskID &&
+                $0.id != PromptConfig.vocabularyFormatterTaskID
         }
         let legacyConfig = PromptConfig(
             version: 1,
@@ -296,6 +360,10 @@ struct PromptConfigTests {
         let improvementTask = normalized.tasks.first { $0.id == PromptConfig.sentenceImprovementTaskID }
         #expect(improvementTask?.title == "Sentence Improvement")
         #expect(improvementTask?.subjectType == .sentence)
+
+        let vocabularyTask = normalized.tasks.first { $0.id == PromptConfig.vocabularyFormatterTaskID }
+        #expect(vocabularyTask?.title == "Format Vocabulary")
+        #expect(vocabularyTask?.subjectType == .freeText)
     }
 
     @Test("Legacy Check OCR templates normalize to page-character review")

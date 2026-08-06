@@ -147,6 +147,9 @@ extension AILinkView {
         if hasSentenceTasks && activeSentenceItem == nil {
             return "Choose Sentence"
         }
+        if hasFreeTextTasks && store.aiFreeTextInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return "Add Text"
+        }
         return "Open \(currentAIName): \(sendTaskName)"
     }
 
@@ -229,6 +232,9 @@ extension AILinkView {
         if hasSentenceTasks && activeSentenceItem == nil {
             return "Open a sentence card first."
         }
+        if hasFreeTextTasks && store.aiFreeTextInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return "Paste source text for this AI prompt."
+        }
         let text: String
         if task.subjectType == .practiceTopic {
             text = store.promptForTask(task, subject: .practiceTopic(store.selectedConversationPracticeTopic))
@@ -236,6 +242,8 @@ extension AILinkView {
             text = store.promptForTask(task, subject: .collection(selectedCollection))
         } else if task.subjectType == .sentence, let activeSentenceItem {
             text = store.promptForTask(task, subject: .sentence(activeSentenceItem))
+        } else if task.subjectType == .freeText {
+            text = store.promptForTask(task, subject: .freeText(store.aiFreeTextInput))
         } else if let activeCharacter {
             text = store.promptForTask(task, subject: .character(activeCharacter))
         } else {
@@ -639,7 +647,7 @@ extension AILinkView {
 
     func aiResultIcon(for taskID: String) -> String {
         switch taskID {
-        case AIResultTaskID.extractPhrases: return "text.badge.plus"
+        case AIResultTaskID.extractPhrases, AIResultTaskID.formatVocabulary: return "text.badge.plus"
         case AIResultTaskID.translatePage: return "translate"
         case AIResultTaskID.checkOCR: return "text.viewfinder"
         case AIResultTaskID.createAICleanedPage: return "text.page.badge.magnifyingglass"
@@ -652,6 +660,7 @@ extension AILinkView {
     func aiResultInstruction(for taskID: String) -> String {
         switch taskID {
         case AIResultTaskID.extractPhrases: return "Paste the extracted phrase list here to add the phrases to Radix."
+        case AIResultTaskID.formatVocabulary: return "Paste the formatted vocabulary list here to add the phrases to Radix."
         case AIResultTaskID.translatePage: return "Paste the page explanation here to save it with the selected page."
         case AIResultTaskID.checkOCR: return "Paste the text review here to create a corrected saved page."
         case AIResultTaskID.createAICleanedPage: return "Paste the extracted sentences here to save them with the selected page."
@@ -666,7 +675,7 @@ extension AILinkView {
 
     func aiResultApplyTitle(for taskID: String) -> String {
         switch taskID {
-        case AIResultTaskID.extractPhrases: return "Add Phrases"
+        case AIResultTaskID.extractPhrases, AIResultTaskID.formatVocabulary: return "Add Phrases"
         case AIResultTaskID.translatePage: return "Save Explanation"
         case AIResultTaskID.checkOCR: return "Create Corrected Text"
         case AIResultTaskID.createAICleanedPage: return "Save Sentences"

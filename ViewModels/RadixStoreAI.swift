@@ -19,9 +19,11 @@ enum AIResultTaskID {
     static let createPagePractice = "task11"
     static let createAICleanedPage = "task12"
     static let sentenceImprovement = "task14"
+    static let formatVocabulary = "task15"
 
     static let importableTasks: Set<String> = [
         extractPhrases,
+        formatVocabulary,
         translatePage,
         checkOCR,
         generatePracticePack,
@@ -445,7 +447,7 @@ extension RadixStore {
         sourceName: String
     ) throws -> AIResultApplicationOutcome {
         switch taskID {
-        case AIResultTaskID.extractPhrases:
+        case AIResultTaskID.extractPhrases, AIResultTaskID.formatVocabulary:
             return .phraseExtraction(importPhraseDiscoveryResponse(responseText, sourceCollection: collection))
         case AIResultTaskID.translatePage:
             guard let collection else { throw AIResultApplicationError.missingCollection }

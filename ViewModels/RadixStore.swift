@@ -376,6 +376,11 @@ final class RadixStore: ObservableObject {
         set { aiLinkState.sentenceExtractionDetail = newValue }
     }
 
+    var aiFreeTextInput: String {
+        get { aiLinkState.freeTextInput }
+        set { aiLinkState.freeTextInput = newValue }
+    }
+
     var shouldAutoOpenAILinkPrompt: Bool {
         get { aiLinkState.shouldAutoOpenPrompt }
         set { aiLinkState.shouldAutoOpenPrompt = newValue }

@@ -27,6 +27,7 @@ enum PromptTaskSubjectType: String, Codable, CaseIterable, Identifiable {
     case sentence
     case page
     case practiceTopic
+    case freeText
 
     var id: String { rawValue }
 
@@ -36,6 +37,7 @@ enum PromptTaskSubjectType: String, Codable, CaseIterable, Identifiable {
         case .sentence: return "Sentence"
         case .page: return "Page"
         case .practiceTopic: return "Practice Theme"
+        case .freeText: return "Free Text"
         }
     }
 
@@ -45,6 +47,7 @@ enum PromptTaskSubjectType: String, Codable, CaseIterable, Identifiable {
         case .sentence: return "quote.bubble"
         case .page: return "photo.on.rectangle"
         case .practiceTopic: return "bubble.left.and.bubble.right"
+        case .freeText: return "text.badge.plus"
         }
     }
 }
@@ -130,12 +133,14 @@ struct PromptConfig: Codable, Hashable {
     static let practiceTopicTaskIDs: Set<String> = ["task9"]
     static let defaultSentenceTaskID = "task13"
     static let sentenceImprovementTaskID = "task14"
+    static let vocabularyFormatterTaskID = "task15"
     static let conversationEntryCountTaskIDs: Set<String> = ["task9", "task10", "task11"]
     static let conversationEntryCountOptions = [25, 50, 100]
     static let defaultConversationEntryCount = 25
 
     static func defaultSubjectType(forTaskID taskID: String) -> PromptTaskSubjectType {
         if taskID == defaultSentenceTaskID || taskID == sentenceImprovementTaskID { return .sentence }
+        if taskID == vocabularyFormatterTaskID { return .freeText }
         if collectionTaskIDs.contains(taskID) { return .page }
         if practiceTopicTaskIDs.contains(taskID) { return .practiceTopic }
         return .characterPhrase
@@ -212,6 +217,7 @@ struct PromptRenderContext {
     let sentenceCharacters: String
     let conversationEntryCount: String
     let sentenceExtractionDetail: String
+    let freeTextInput: String
 
     init(
         char: String,
@@ -241,7 +247,8 @@ struct PromptRenderContext {
         sentencePhrases: String = "",
         sentenceCharacters: String = "",
         conversationEntryCount: String,
-        sentenceExtractionDetail: String
+        sentenceExtractionDetail: String,
+        freeTextInput: String = ""
     ) {
         self.char = char
         self.definitionEN = definitionEN
@@ -271,5 +278,6 @@ struct PromptRenderContext {
         self.sentenceCharacters = sentenceCharacters
         self.conversationEntryCount = conversationEntryCount
         self.sentenceExtractionDetail = sentenceExtractionDetail
+        self.freeTextInput = freeTextInput
     }
 }

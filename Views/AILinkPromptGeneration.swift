@@ -3,6 +3,9 @@ import SwiftUI
 extension AILinkView {
     var promptGenerationSection: some View {
         VStack(alignment: .leading, spacing: 12) {
+            if isSelectedTaskFreeTextTask && !isObjectLaunchedAIWorkflow {
+                taskSelectionSection
+            }
             selectedTaskSourceSection
             promptBox
             aiResultWorkflowSection
@@ -616,6 +619,8 @@ extension AILinkView {
             } else if isSelectedTaskSentenceTask {
                 aiSelectedSentenceRow
                 aiSentenceSearchRow
+            } else if isSelectedTaskFreeTextTask {
+                aiFreeTextInputSection
             } else {
                 aiSelectedSubjectRow
             }
@@ -679,6 +684,32 @@ extension AILinkView {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Choose sentence extraction detail")
+    }
+
+    var aiFreeTextInputSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label("Source Text", systemImage: "text.badge.plus")
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+
+            TextEditor(text: Binding(
+                get: { store.aiFreeTextInput },
+                set: {
+                    store.aiFreeTextInput = $0
+                    resetAIResultWorkflow()
+                    resetPromptTest()
+                }
+            ))
+            .font(ResponsiveFont.body)
+            .frame(minHeight: 140)
+            .padding(8)
+            .scrollContentBackground(.hidden)
+            .background(RadixTheme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(RadixTheme.separator, lineWidth: 1)
+            )
+        }
     }
 
     var aiSelectedSubjectRow: some View {

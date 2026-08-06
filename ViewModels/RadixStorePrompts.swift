@@ -341,6 +341,7 @@ extension RadixStore {
         let nearbyOCRPhrases: String
         let practiceTopic: ConversationPracticeTopic?
         let sentenceItem: ConversationPracticeItem?
+        let freeTextInput: String
         switch subject {
         case .character(let character):
             char = character.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -353,6 +354,7 @@ extension RadixStore {
             nearbyOCRPhrases = ""
             practiceTopic = nil
             sentenceItem = nil
+            freeTextInput = ""
         case .sentence(let sentence):
             char = sentence.simplified.first.map(String.init) ?? ""
             collectionName = ""
@@ -364,6 +366,7 @@ extension RadixStore {
             nearbyOCRPhrases = ""
             practiceTopic = nil
             sentenceItem = sentence
+            freeTextInput = ""
         case .collection(let collection):
             char = collection.characters.first ?? ""
             collectionName = collection.name
@@ -379,6 +382,7 @@ extension RadixStore {
             nearbyOCRPhrases = nearby.isEmpty ? "None detected" : nearby.joined(separator: ", ")
             practiceTopic = nil
             sentenceItem = nil
+            freeTextInput = ""
         case .practiceTopic(let topic):
             char = ""
             collectionName = ""
@@ -390,6 +394,19 @@ extension RadixStore {
             nearbyOCRPhrases = ""
             practiceTopic = topic
             sentenceItem = nil
+            freeTextInput = ""
+        case .freeText(let text):
+            char = ""
+            collectionName = ""
+            collectionCharacters = ""
+            collectionCharacterSet = nil
+            originalOCRText = ""
+            recognizedOCRCharacters = ""
+            unrecognizedOCRCharacters = ""
+            nearbyOCRPhrases = ""
+            practiceTopic = nil
+            sentenceItem = nil
+            freeTextInput = text.trimmingCharacters(in: .whitespacesAndNewlines)
         }
         let item = componentRepo.byCharacter[char]
         let analysis = componentRepo.analyzeStructure(for: char)
@@ -432,7 +449,8 @@ extension RadixStore {
             sentencePhrases: sentenceItem?.phraseHints.joined(separator: ", ") ?? "",
             sentenceCharacters: sentenceItem?.characterHints.joined(separator: " ") ?? "",
             conversationEntryCount: "\(aiConversationEntryCount)",
-            sentenceExtractionDetail: aiSentenceExtractionDetail.promptInstruction
+            sentenceExtractionDetail: aiSentenceExtractionDetail.promptInstruction,
+            freeTextInput: freeTextInput
         )
     }
 }

@@ -9,7 +9,8 @@ extension PromptConfig {
         }.map { task in
             guard (PromptConfig.collectionTaskIDs.contains(task.id) ||
                    PromptConfig.practiceTopicTaskIDs.contains(task.id) ||
-                   task.id == PromptConfig.sentenceImprovementTaskID),
+                   task.id == PromptConfig.sentenceImprovementTaskID ||
+                   task.id == PromptConfig.vocabularyFormatterTaskID),
                   let defaultTask = PromptConfig.streamlitDefault.tasks.first(where: { $0.id == task.id }) else {
                 return task
             }
@@ -77,6 +78,10 @@ extension PromptConfig {
                     !task.template.contains("\"pinyin\"") ||
                     !task.template.contains("\"english\"") ||
                     !task.template.contains("The three fields must match each other exactly")
+                )) ||
+                (task.id == PromptConfig.vocabularyFormatterTaskID && (
+                    !task.template.contains("{free_text_input}") ||
+                    !task.template.contains("Chinese Phrase | Pinyin | Concise English meaning")
                 )) {
                 normalizedTemplate = defaultTask.template
             } else if task.template.contains("Task 4 – Isolate Phrases from Apple Vision") {
@@ -118,7 +123,8 @@ extension PromptConfig {
             !seen.contains(defaultTask.id) &&
                 (defaultTask.subjectType == .page ||
                     defaultTask.subjectType == .practiceTopic ||
-                    defaultTask.subjectType == .sentence) &&
+                    defaultTask.subjectType == .sentence ||
+                    defaultTask.subjectType == .freeText) &&
                 defaultsByID[defaultTask.id] != nil
         }
         return PromptConfig(
@@ -158,6 +164,8 @@ extension PromptConfig {
             }
         case .practiceTopic:
             full = body
+        case .freeText:
+            full = body
         }
         return full
             .replacingOccurrences(of: "{char}", with: context.char)
@@ -188,6 +196,7 @@ extension PromptConfig {
             .replacingOccurrences(of: "{sentence_english}", with: context.sentenceEnglish)
             .replacingOccurrences(of: "{sentence_phrases}", with: context.sentencePhrases)
             .replacingOccurrences(of: "{sentence_characters}", with: context.sentenceCharacters)
+            .replacingOccurrences(of: "{free_text_input}", with: context.freeTextInput)
             .replacingOccurrences(of: "{practice_topic_sentence_count}", with: context.conversationEntryCount)
             .replacingOccurrences(of: "{conversation_entry_count}", with: context.conversationEntryCount)
             .replacingOccurrences(of: "{sentence_extraction_detail}", with: context.sentenceExtractionDetail)

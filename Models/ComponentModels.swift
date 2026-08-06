@@ -89,6 +89,7 @@ enum ActiveSubject: Equatable {
     case sentence(ConversationPracticeItem)
     case collection(CharacterCollection)
     case practiceTopic(ConversationPracticeTopic)
+    case freeText(String)
 }
 
 struct RawComponentEntry: Codable, Equatable {

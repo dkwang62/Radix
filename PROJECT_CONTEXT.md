@@ -1357,20 +1357,26 @@ current draft prompt with the selected source through Gemini, displaying and
 copying the answer without importing, saving, or applying it back to Radix data.
 Page, sentence, phrase, and character AI work should be launched from the
 relevant object menu or info card so the source remains visible and the user can
-get back without losing context. Character and phrase menus expose their
-available AI tasks by name inside one compact `AI` submenu. When AI Link is
-opened from one of those object actions, it keeps the focused run workflow:
-source row, copy/open controls,
+get back without losing context. The exception is the built-in free-text
+`Format Vocabulary` task, which starts in AI Link because it has no source
+object: the user pastes rough vocabulary/source text, opens or copies the
+prompt, then pastes the AI's `Chinese Phrase | Pinyin | Concise English
+meaning` answer back through the shared `Add Phrases` importer. Character and
+phrase menus expose their available AI tasks by name inside one compact `AI`
+submenu. When AI Link is opened from one of those object actions, it keeps the
+focused run workflow: source row, copy/open controls,
 paste/apply result controls when supported, and no inline template editor. The
 bulk AI Templates manager remains available from the toolbar or dashboard for
 global character/page prompt closings, adding or deleting custom prompt tasks,
 and editing all templates in one place.
 Custom tasks carry an explicit subject type: `Character / Phrase`, `Sentence`,
-or `Page`. The selected subject type controls source rows, prompt validation,
-and rendering placeholders; built-in page/theme task subject types remain fixed
-so result import flows stay predictable. Sentence custom tasks use the active
-sentence card as their source and can render `{sentence_zh}`, `{sentence_en}`,
-`{sentence_pinyin}`, `{sentence_phrases}`, and `{sentence_characters}`.
+`Page`, or `Free Text`. The selected subject type controls source rows, prompt
+validation, and rendering placeholders; built-in page/theme task subject types
+remain fixed so result import flows stay predictable. Sentence custom tasks use
+the active sentence card as their source and can render `{sentence_zh}`,
+`{sentence_en}`, `{sentence_pinyin}`, `{sentence_phrases}`, and
+`{sentence_characters}`. Free Text tasks render `{free_text_input}` without a
+global prompt preamble or epilogue.
 Do not reintroduce a full generated prompt preview or a separate ready-to-send
 summary on AI Link; the AI chat shows the prompt after copy/open.
 Character and phrase tasks default to the most recent memory-strip subject, and

@@ -13,4 +13,5 @@ struct RadixAILinkState {
     var selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
     var conversationEntryCount = 25
     var sentenceExtractionDetail: SentenceExtractionDetail = .brief
+    var freeTextInput = ""
 }

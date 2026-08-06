@@ -564,13 +564,16 @@ AI should focus on understanding and transforming material:
 AI can be connected from Browse and Study, but everyday AI work should start
 from the object being studied: page actions, sentence cards, phrase cards, or
 character cards. The top-level AI tab should be a template/setup workbench, not
-a second place to choose sources. Direct AI tab entry shows `AI Templates`, an
-`AI Task` dropdown, the selected task's draft template, `Save`, `Undo`, and
-`Revise Template with AI`, followed by `Test AI`. Testing runs the current draft
-prompt against the selected source and displays the answer without any paste/apply
-path back into Radix. Object-launched AI Link keeps the focused run workflow:
-source row, copy/open controls, paste/apply result controls when supported, and
-no inline template editor. Character and phrase menus should show one compact
+a second place to choose sources, except for deliberately source-free Free Text
+tasks such as `Format Vocabulary`. That task may show a direct source text box
+and return through the same `Add Phrases` paste/apply path as phrase extraction.
+Direct AI tab entry shows `AI Templates`, an `AI Task` dropdown, the selected
+task's draft template, `Save`, `Undo`, and `Revise Template with AI`, followed
+by `Test AI`. Testing runs the current draft prompt against the selected source
+and displays the answer without any paste/apply path back into Radix.
+Object-launched AI Link keeps the focused run workflow: source row, copy/open
+controls, paste/apply result controls when supported, and no inline template
+editor. Character and phrase menus should show one compact
 `AI` submenu with each available Character/Phrase task named directly; avoid a
 generic `Send to AI` action when multiple AI tasks are available. Replacement
 actions such as Sentence Improvement should show the updated object after apply,
@@ -578,10 +581,10 @@ not only a generic success line.
 Prompt editing should use an explicit draft with `Save` and `Undo`, not
 invisible autosave. Built-in tasks should not repeat the task title in a second
 title field; custom tasks may show a task-name field and a subject selector for
-`Character / Phrase`, `Sentence`, or `Page`. The subject selector should change
-the source row and prompt context, not create duplicate task lists. `Undo`
-restores the current task's default or starter prompt and shows a compact
-next-row confirmation that editing can continue. Do not show a full generated
+`Character / Phrase`, `Sentence`, `Page`, or `Free Text`. The subject selector
+should change the source row and prompt context, not create duplicate task
+lists. `Undo` restores the current task's default or starter prompt and shows a
+compact next-row confirmation that editing can continue. Do not show a full generated
 prompt preview on the AI Link screen; the AI chat will show the prompt after
 copy/open.
 Settings should not make AI configuration feel like one large key vault. Keep

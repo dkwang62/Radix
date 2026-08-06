@@ -523,6 +523,32 @@ Before answering, silently verify that the sentence is grammatical, complete, co
                 subjectType: .sentence
             ),
             PromptTask(
+                id: "task15",
+                title: "Format Vocabulary",
+                template: """
+Format Vocabulary
+
+Reformat the provided vocabulary list, rough notes, or topic/source text into a clean phrase import list for Radix.
+
+Please output the vocabulary list strictly in plain text, one item per line, using the following format:
+
+Chinese Phrase | Pinyin | Concise English meaning
+
+Rules:
+1. Chinese Phrase MUST come first, followed by Pinyin, then the concise English definition.
+2. Separate each section with a vertical bar (|) surrounded by spaces.
+3. Keep English definitions concise (1-3 words or brief phrases).
+4. Do not include any conversational filler, markdown headings, or introductory/closing text.
+5. Include only useful Chinese words or phrases suitable for a learner's phrase library.
+6. Skip non-Chinese entries, duplicates, sentence fragments, malformed items, or anything whose Chinese phrase is uncertain.
+
+Vocabulary list / source text:
+{free_text_input}
+
+""",
+                subjectType: .freeText
+            ),
+            PromptTask(
                 id: "task9",
                 title: "Generate Practice Pack",
                 template: """

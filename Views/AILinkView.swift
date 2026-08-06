@@ -107,6 +107,11 @@ struct AILinkView: View {
         return task.subjectType == .sentence
     }
 
+    var isSelectedTaskFreeTextTask: Bool {
+        guard let task = selectedPromptTask else { return false }
+        return task.subjectType == .freeText
+    }
+
     var selectedTaskSupportsConversationEntryCount: Bool {
         guard let task = selectedPromptTask else { return false }
         return PromptConfig.conversationEntryCountTaskIDs.contains(task.id)
@@ -132,11 +137,17 @@ struct AILinkView: View {
         selectedPromptTask != nil && isSelectedTaskPracticeTopicTask
     }
 
+    var hasFreeTextTasks: Bool {
+        selectedPromptTask != nil && isSelectedTaskFreeTextTask
+    }
+
     var canGeneratePrompt: Bool {
-        (!hasCharacterTasks || activeCharacter != nil) &&
+        let freeText = store.aiFreeTextInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        return (!hasCharacterTasks || activeCharacter != nil) &&
         (!hasCollectionTasks || selectedCollection != nil) &&
         (!hasSentenceTasks || activeSentenceItem != nil) &&
-        (hasCharacterTasks || hasCollectionTasks || hasSentenceTasks || hasPracticeTopicTasks)
+        (!hasFreeTextTasks || !freeText.isEmpty) &&
+        (hasCharacterTasks || hasCollectionTasks || hasSentenceTasks || hasPracticeTopicTasks || hasFreeTextTasks)
     }
 
     var canRunGeminiPhraseAPI: Bool {
@@ -176,7 +187,7 @@ struct AILinkView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                if isObjectLaunchedAIWorkflow {
+                if isObjectLaunchedAIWorkflow || isSelectedTaskFreeTextTask {
                     promptGenerationSection
                 } else {
                     aiTemplateDashboardSection
@@ -186,7 +197,7 @@ struct AILinkView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                if isObjectLaunchedAIWorkflow {
+                if isObjectLaunchedAIWorkflow || isSelectedTaskFreeTextTask {
                     Button {
                         isShowingTemplateManager = true
                     } label: {
