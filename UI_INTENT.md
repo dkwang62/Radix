@@ -88,7 +88,9 @@ Use these preferences as defaults:
   operations with counts: Accept Unreviewed, Reject Unreviewed, Remove
   Rejected, and Remove Unreviewed. Disable unavailable operations instead of
   hiding them. Keep AI Review and Help in separate menu sections so bulk
-  operations remain obvious.
+  operations remain obvious. On iPad and Mac, tapping an added phrase should
+  inspect it in the sidebar and add it to the History/memory strip, even when
+  the tap also applies the active status tool.
 - Distribute crowded controls across sensible rows instead of letting labels
   wrap vertically or collapse into unclear icons. Compactness is good only when
   the result remains readable.

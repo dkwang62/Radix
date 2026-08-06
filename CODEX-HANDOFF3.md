@@ -34,6 +34,10 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
 - Study owns kept learning material: page learning, Sentences, Added Phrases,
   Conversation Practices, translations, quizzes, extracted-sentence artifacts,
   and deletion of saved pages/artifacts.
+- Study > Added Phrases uses paint-style status tools plus a stable `Batch`
+  menu. On iPad and Mac, tapping an added phrase opens it in the sidebar and
+  records it in the History/memory strip, even when that tap applies a status
+  tool.
 - AI tasks launch from their source objects: page action menus, sentence cards,
   phrase cards, and character cards. Direct AI tab entry is a template/setup
   workbench; object-launched AI Link keeps the shared copy/open and paste/apply

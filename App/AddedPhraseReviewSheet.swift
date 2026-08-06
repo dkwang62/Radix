@@ -226,6 +226,7 @@ extension AddedPhraseReviewSheet {
         ) ?? phrase
         replaceReviewPhrase(updatedPhrase)
         selectedPhrase = closeSelection || !filter.includes(updatedPhrase) ? nil : updatedPhrase
+        presentClickedPhrase(updatedPhrase)
         selectedTool = PhraseReviewStatusTool.tool(for: status)
         reviewCycle.setActiveTool(selectedTool)
         if filter != .all, !preservesFilter {
@@ -256,12 +257,7 @@ extension AddedPhraseReviewSheet {
 
         guard case let .apply(status) = action else {
             selectedPhrase = phrase
-            if usesRegularReviewLayout {
-                store.presentPhraseInSidebar(phrase)
-            } else if store.activeSidebarPhrasePreview != nil || store.previewCharacter != nil {
-                store.dismissSidebarPhrasePreview()
-                store.previewCharacter = nil
-            }
+            presentClickedPhrase(phrase)
             message = nil
             Task { @MainActor in
                 try? await Task.sleep(nanoseconds: 80_000_000)
@@ -275,6 +271,15 @@ extension AddedPhraseReviewSheet {
         }
         store.speakPhrase(phrase)
         setStatus(status, for: phrase, preservesFilter: selectedTool != nil)
+    }
+
+    func presentClickedPhrase(_ phrase: PhraseItem) {
+        if usesRegularReviewLayout {
+            store.presentPhraseInSidebar(phrase)
+        } else if store.activeSidebarPhrasePreview != nil || store.previewCharacter != nil {
+            store.dismissSidebarPhrasePreview()
+            store.previewCharacter = nil
+        }
     }
 
     func loadReviewPhrasesFromStore() {

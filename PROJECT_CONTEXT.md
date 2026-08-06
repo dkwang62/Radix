@@ -178,7 +178,9 @@ a stable `Batch` menu for mass operations. The menu always lists Accept
 Unreviewed, Reject Unreviewed, Remove Rejected, and Remove Unreviewed with live
 counts, disabling zero-count actions rather than hiding them; AI Review and Help
 occupy separate sections so the bulk controls do not disappear into a generic
-Actions menu.
+Actions menu. On iPad and Mac, tapping any added-phrase tile should also open
+that phrase in the global phrase sidebar and add it to the History/memory strip,
+including taps that apply the current paint-style status tool.
 Keep the crash guardrails: the Phrase
 button should show all exact phrase-library matches in the sentence by merging
 stored sentence phrase hints with on-demand phrase discovery when the phrase
