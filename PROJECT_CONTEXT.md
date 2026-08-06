@@ -313,6 +313,10 @@ cleanup, sentence deletion, and phrase-link maintenance. Settings > Storage
 exposes these snapshots under `Recovery Copies` for transparent inspection,
 manual safety-copy creation, and explicit restore without turning recovery into
 a distracting primary workflow.
+The main phrase source `phrases.db` is committed as source data. Added phrases
+that are promoted into `phrases.db` should be removed from `phrases_add.db` so
+the mutable added-phrase store remains only for new, user-added phrases that are
+not already in the main phrase database.
 Advanced `Full Dataset (JSON)` is schema 2 and includes both the merged coding
 foundation (`dictionary` and `phrases`) and a nested lightweight
 `portable_backup` payload with the latest saved pages, Conversation practice,

@@ -156,14 +156,11 @@ Recent commits, newest first:
 - `f2fe829` Show Study section in root title
 - `ceeb73d` Show contextual title on Catalyst
 
-## Dirty Worktree Warning
+## Phrase Database Baseline
 
-The following files are currently dirty and predate this handoff work:
-
-- `phrases_add.db`
-
-Treat this as a user/external change. Do not discard, normalize, stage, or
-commit it unless a later task explicitly establishes its intended changes.
+`phrases.db` is committed source data and now includes the promoted added
+phrases. `phrases_add.db` should contain only phrases that are not already in
+the main phrase database; after the 2026-08-06 merge it is intentionally empty.
 
 ## Verification
 
