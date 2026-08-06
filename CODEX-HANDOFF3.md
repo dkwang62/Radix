@@ -44,10 +44,10 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
   run workflow. Character and phrase menus expose named Character/Phrase AI
   tasks inside one compact `AI` submenu instead of one generic send action. The
   AI tab `Test AI` section runs the current draft prompt and shows the answer
-  without importing or applying it. The built-in `Format Vocabulary` task is the
-  source-free exception: it starts from AI Link with a text box, renders
-  `{free_text_input}`, and pastes the AI's formatted result through the shared
-  `Add Phrases` importer.
+  without importing or applying it. The built-in `Structure Phrase for Input`
+  task is the source-free exception: it starts from AI Link with a text box and
+  replacement-style clipboard paste button, renders `{free_text_input}`, and
+  pastes the AI's formatted result through the shared `Add Phrases` importer.
 - AI Link's built-in `Sentence Improvement` task can paste/apply an AI answer
   back into the selected saved sentence record. After manual `Update Sentence`,
   AI Link shows the updated Chinese, pinyin, and English so replacement is

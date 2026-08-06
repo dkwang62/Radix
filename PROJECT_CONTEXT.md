@@ -1362,8 +1362,9 @@ copying the answer without importing, saving, or applying it back to Radix data.
 Page, sentence, phrase, and character AI work should be launched from the
 relevant object menu or info card so the source remains visible and the user can
 get back without losing context. The exception is the built-in free-text
-`Format Vocabulary` task, which starts in AI Link because it has no source
-object: the user pastes rough vocabulary/source text, opens or copies the
+`Structure Phrase for Input` task, which starts in AI Link because it has no source
+object: the user pastes rough vocabulary/source text with a replacement-style
+clipboard button, opens or copies the
 prompt, then pastes the AI's `Chinese Phrase | Pinyin | Concise English
 meaning` answer back through the shared `Add Phrases` importer. Character and
 phrase menus expose their available AI tasks by name inside one compact `AI`

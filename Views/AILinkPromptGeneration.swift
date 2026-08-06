@@ -688,8 +688,22 @@ extension AILinkView {
 
     var aiFreeTextInputSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Source Text", systemImage: "text.badge.plus")
-                .font(ResponsiveFont.subheadline.weight(.semibold))
+            HStack(spacing: 8) {
+                Label("Source Text", systemImage: "text.badge.plus")
+                    .font(ResponsiveFont.subheadline.weight(.semibold))
+
+                Spacer()
+
+                Button {
+                    store.aiFreeTextInput = RadixPlatform.pasteboardString
+                    resetAIResultWorkflow()
+                    resetPromptTest()
+                } label: {
+                    Label("Paste", systemImage: "doc.on.clipboard")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
 
             TextEditor(text: Binding(
                 get: { store.aiFreeTextInput },

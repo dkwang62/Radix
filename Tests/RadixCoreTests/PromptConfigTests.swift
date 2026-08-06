@@ -147,7 +147,7 @@ struct PromptConfigTests {
         let normalized = PromptConfig.streamlitDefault.normalized()
         let task = normalized.tasks.first { $0.id == PromptConfig.vocabularyFormatterTaskID }
 
-        #expect(task?.title == "Format Vocabulary")
+        #expect(task?.title == "Structure Phrase for Input")
         #expect(task?.subjectType == .freeText)
         #expect(task?.template.contains("{free_text_input}") == true)
         #expect(task?.template.contains("Chinese Phrase | Pinyin | Concise English meaning") == true)
@@ -158,7 +158,7 @@ struct PromptConfigTests {
     func vocabularyFormatterRendersFreeTextInput() {
         let task = PromptTask(
             id: PromptConfig.vocabularyFormatterTaskID,
-            title: "Format Vocabulary",
+            title: "Structure Phrase for Input",
             template: "Format:\n{free_text_input}",
             subjectType: .freeText
         )
@@ -362,7 +362,7 @@ struct PromptConfigTests {
         #expect(improvementTask?.subjectType == .sentence)
 
         let vocabularyTask = normalized.tasks.first { $0.id == PromptConfig.vocabularyFormatterTaskID }
-        #expect(vocabularyTask?.title == "Format Vocabulary")
+        #expect(vocabularyTask?.title == "Structure Phrase for Input")
         #expect(vocabularyTask?.subjectType == .freeText)
     }
 

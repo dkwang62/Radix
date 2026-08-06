@@ -565,8 +565,9 @@ AI can be connected from Browse and Study, but everyday AI work should start
 from the object being studied: page actions, sentence cards, phrase cards, or
 character cards. The top-level AI tab should be a template/setup workbench, not
 a second place to choose sources, except for deliberately source-free Free Text
-tasks such as `Format Vocabulary`. That task may show a direct source text box
-and return through the same `Add Phrases` paste/apply path as phrase extraction.
+tasks such as `Structure Phrase for Input`. That task may show a direct source
+text box with a replacement-style clipboard paste button and return through the
+same `Add Phrases` paste/apply path as phrase extraction.
 Direct AI tab entry shows `AI Templates`, an `AI Task` dropdown, the selected
 task's draft template, `Save`, `Undo`, and `Revise Template with AI`, followed
 by `Test AI`. Testing runs the current draft prompt against the selected source

@@ -524,9 +524,9 @@ Before answering, silently verify that the sentence is grammatical, complete, co
             ),
             PromptTask(
                 id: "task15",
-                title: "Format Vocabulary",
+                title: "Structure Phrase for Input",
                 template: """
-Format Vocabulary
+Structure Phrase for Input
 
 Reformat the provided vocabulary list, rough notes, or topic/source text into a clean phrase import list for Radix.
 

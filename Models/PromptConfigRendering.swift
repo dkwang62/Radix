@@ -43,6 +43,9 @@ extension PromptConfig {
                       task.title == "Improve Sentence" ||
                         task.title == "Sentence Improvement" {
                 normalizedTitle = defaultTask.title
+            } else if task.id == PromptConfig.vocabularyFormatterTaskID,
+                      task.title == "Format Vocabulary" {
+                normalizedTitle = defaultTask.title
             } else {
                 normalizedTitle = task.title
             }
