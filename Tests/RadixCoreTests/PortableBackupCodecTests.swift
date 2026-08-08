@@ -6,7 +6,7 @@ import Testing
 struct PortableBackupCodecTests {
     private let codec = PortableBackupCodec()
 
-    @Test("Schema 5 round-trips dates and user data")
+    @Test("Schema 6 round-trips dates, user data, and extracted sentence pointers")
     func roundTripCurrentSchema() throws {
         let exportedAt = Date(timeIntervalSince1970: 1_750_000_000)
         let phrase = PhraseItem(
@@ -79,6 +79,30 @@ struct PortableBackupCodecTests {
             repairNotes: ["None"],
             createdAt: exportedAt
         )
+        let extractedSentenceReferences = ExtractedSentenceReferencePackage(
+            sentenceDatabaseFingerprint: SentenceDatabasePointerFingerprint(
+                sentenceCount: 1,
+                latestCreatedAt: exportedAt.timeIntervalSince1970,
+                latestUpdatedAt: exportedAt.timeIntervalSince1970,
+                normalizedKeyHash: "abc123"
+            ),
+            pages: [
+                ExtractedSentencePageReference(
+                    sourcePageID: aiCleanedPage.sourcePageID,
+                    sourceTitle: aiCleanedPage.sourceTitle,
+                    cleanedTitle: aiCleanedPage.cleanedTitle,
+                    sentenceReferences: [
+                        ExtractedSentencePointer(
+                            pageSentenceID: "ai_page_sentence_001",
+                            sentenceExampleID: UUID(uuidString: "00000000-0000-0000-0000-000000000405")!,
+                            sentenceKey: "你好",
+                            ordinal: 0
+                        )
+                    ],
+                    createdAt: exportedAt
+                )
+            ]
+        )
         let package = UnifiedPackage(
             schemaVersion: PortableBackupCodec.currentSchemaVersion,
             exportedAt: exportedAt,
@@ -93,7 +117,8 @@ struct PortableBackupCodecTests {
             conversationPracticeProgress: practiceProgress,
             favoriteSentences: [favoriteSentence],
             pagePhraseExtractions: [pagePhraseExtraction],
-            aiCleanedPages: [aiCleanedPage]
+            aiCleanedPages: [aiCleanedPage],
+            extractedSentencePageReferences: extractedSentenceReferences
         )
 
         let data = try codec.encode(package)
@@ -102,7 +127,7 @@ struct PortableBackupCodecTests {
             return
         }
 
-        #expect(decoded.schemaVersion == 5)
+        #expect(decoded.schemaVersion == 6)
         #expect(decoded.exportedAt == exportedAt)
         #expect(decoded.phrases == [phrase])
         #expect(decoded.profile.favouritesList == ["学"])
@@ -112,6 +137,7 @@ struct PortableBackupCodecTests {
         #expect(decoded.favoriteSentences == [favoriteSentence])
         #expect(decoded.pagePhraseExtractions == [pagePhraseExtraction])
         #expect(decoded.aiCleanedPages == [aiCleanedPage])
+        #expect(decoded.extractedSentencePageReferences == extractedSentenceReferences)
     }
 
     @Test("Legacy Apple reference dates still decode")
@@ -135,6 +161,7 @@ struct PortableBackupCodecTests {
         #expect(decoded.conversationPracticeProgress == nil)
         #expect(decoded.favoriteSentences == nil)
         #expect(decoded.aiCleanedPages == nil)
+        #expect(decoded.extractedSentencePageReferences == nil)
     }
 
     @Test("Empty and future backups fail safely")

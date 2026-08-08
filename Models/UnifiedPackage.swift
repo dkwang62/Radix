@@ -112,6 +112,74 @@ struct APIKeyBackup: Codable, Equatable {
     }
 }
 
+struct ExtractedSentenceReferencePackage: Codable, Equatable {
+    let schemaVersion: Int
+    let sentenceDatabaseFingerprint: SentenceDatabasePointerFingerprint?
+    let pages: [ExtractedSentencePageReference]
+
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "schema_version"
+        case sentenceDatabaseFingerprint = "sentence_database_fingerprint"
+        case pages
+    }
+
+    init(
+        schemaVersion: Int = 1,
+        sentenceDatabaseFingerprint: SentenceDatabasePointerFingerprint?,
+        pages: [ExtractedSentencePageReference]
+    ) {
+        self.schemaVersion = schemaVersion
+        self.sentenceDatabaseFingerprint = sentenceDatabaseFingerprint
+        self.pages = pages
+    }
+}
+
+struct SentenceDatabasePointerFingerprint: Codable, Equatable {
+    let sentenceCount: Int
+    let latestCreatedAt: TimeInterval
+    let latestUpdatedAt: TimeInterval
+    let normalizedKeyHash: String
+
+    enum CodingKeys: String, CodingKey {
+        case sentenceCount = "sentence_count"
+        case latestCreatedAt = "latest_created_at"
+        case latestUpdatedAt = "latest_updated_at"
+        case normalizedKeyHash = "normalized_key_hash"
+    }
+}
+
+struct ExtractedSentencePageReference: Codable, Equatable, Identifiable {
+    let sourcePageID: UUID
+    let sourceTitle: String
+    let cleanedTitle: String
+    let sentenceReferences: [ExtractedSentencePointer]
+    let createdAt: Date
+
+    var id: UUID { sourcePageID }
+
+    enum CodingKeys: String, CodingKey {
+        case sourcePageID = "source_page_id"
+        case sourceTitle = "source_title"
+        case cleanedTitle = "cleaned_title"
+        case sentenceReferences = "sentence_references"
+        case createdAt = "created_at"
+    }
+}
+
+struct ExtractedSentencePointer: Codable, Equatable {
+    let pageSentenceID: String
+    let sentenceExampleID: UUID
+    let sentenceKey: String
+    let ordinal: Int
+
+    enum CodingKeys: String, CodingKey {
+        case pageSentenceID = "page_sentence_id"
+        case sentenceExampleID = "sentence_example_id"
+        case sentenceKey = "sentence_key"
+        case ordinal
+    }
+}
+
 enum APIKeyRetentionPolicy {
     static func resolvedGeminiKey(
         current: String,
@@ -147,6 +215,7 @@ struct UnifiedPackage: Codable {
     let sentenceExamples: [SentenceExampleRecord]?
     let pagePhraseExtractions: [PagePhraseExtractionRecord]?
     let aiCleanedPages: [AICleanedPageRecord]?
+    let extractedSentencePageReferences: ExtractedSentenceReferencePackage?
     let apiKeys: APIKeyBackup?
 
     enum CodingKeys: String, CodingKey {
@@ -167,6 +236,7 @@ struct UnifiedPackage: Codable {
         case sentenceExamples = "sentence_examples"
         case pagePhraseExtractions = "page_phrase_extractions"
         case aiCleanedPages = "ai_cleaned_pages"
+        case extractedSentencePageReferences = "extracted_sentence_page_references"
         case apiKeys = "api_keys"
     }
 
@@ -188,6 +258,7 @@ struct UnifiedPackage: Codable {
         sentenceExamples: [SentenceExampleRecord]? = nil,
         pagePhraseExtractions: [PagePhraseExtractionRecord]? = nil,
         aiCleanedPages: [AICleanedPageRecord]? = nil,
+        extractedSentencePageReferences: ExtractedSentenceReferencePackage? = nil,
         apiKeys: APIKeyBackup? = nil
     ) {
         self.schemaVersion = schemaVersion
@@ -207,6 +278,7 @@ struct UnifiedPackage: Codable {
         self.sentenceExamples = sentenceExamples
         self.pagePhraseExtractions = pagePhraseExtractions
         self.aiCleanedPages = aiCleanedPages
+        self.extractedSentencePageReferences = extractedSentencePageReferences
         self.apiKeys = apiKeys
     }
 }
@@ -262,8 +334,11 @@ struct SentenceLibraryImportResult {
 /// Schema 5 writes ISO-8601 dates so an Android implementation does not need
 /// to understand Apple's 2001 reference-date epoch. The decoder deliberately
 /// retains support for schema 1–4 backups that used numeric Apple timestamps.
+///
+/// Schema 6 adds pointer-only extracted-sentence page references. Full sentence
+/// rows continue to live in the sentence database export/snapshot.
 struct PortableBackupCodec {
-    static let currentSchemaVersion = 5
+    static let currentSchemaVersion = 6
     static let maximumBackupBytes = 250 * 1_024 * 1_024
 
     func encode(_ package: UnifiedPackage) throws -> Data {

@@ -144,20 +144,20 @@ extension DataEditTab {
 
             do {
                 let data = try await Task.detached(priority: .userInitiated) {
-                    try DataExportService().readPortableBackup(at: url)
+                    try DataExportService().readPortableBackupDocument(at: url)
                 }.value
                 guard isCurrentRestore(operationID) else { return }
 
                 restorePhase = .validating
-                let payload = try PortableBackupCodec().decode(data)
+                let document = data
                 guard isCurrentRestore(operationID) else { return }
                 if pendingRestoreMode == .additive {
-                    try await mergeBackupFile(url: url, payload: payload, operationID: operationID)
+                    try await mergeBackupFile(url: url, document: document, operationID: operationID)
                     return
                 }
                 finishBackupRestore(operationID: operationID)
                 pendingBackupRestore = PendingBackupRestore(
-                    payload: payload,
+                    document: document,
                     filename: url.lastPathComponent,
                     mode: pendingRestoreMode
                 )
@@ -171,14 +171,14 @@ extension DataEditTab {
 
     private func mergeBackupFile(
         url: URL,
-        payload: PortableBackupPayload,
+        document: PortableBackupDocument,
         operationID: UUID
     ) async throws {
         restorePhase = .restoring
-        try await store.importDataEditPayloadForRestore(payload, mode: .additive)
+        try await store.importPortableBackupDocumentForRestore(document, mode: .additive)
         guard isCurrentRestore(operationID) else { return }
 
-        let mergedData = try dataExportService.exportPortableBackup(store.portableBackupPackage())
+        let mergedData = try await bundledBackupData()
         try await Task.detached(priority: .userInitiated) {
             try DataExportService().writePortableBackup(mergedData, to: url)
         }.value
@@ -205,7 +205,7 @@ extension DataEditTab {
         let action = pending.mode == .complete
             ? "This will replace this device with the selected backup. Radix will save a recovery checkpoint first, but Merge Backup is safer unless you need an exact restore."
             : "Radix will combine the backup and this device so both contain the merged contents."
-        return "Selected: \(pending.filename)\n\n\(pending.payload.contentsSummary)\n\n\(action)"
+        return "Selected: \(pending.filename)\n\n\(pending.document.contentsSummary)\n\n\(action)"
     }
 
     func confirmPendingBackupRestore() {
@@ -221,7 +221,7 @@ extension DataEditTab {
                 if pending.mode == .complete {
                     try createRecoverySnapshotIfNeeded(for: pending.mode)
                 }
-                try await store.importDataEditPayloadForRestore(pending.payload, mode: pending.mode)
+                try await store.importPortableBackupDocumentForRestore(pending.document, mode: pending.mode)
                 guard isCurrentRestore(operationID) else { return }
 
                 backupMessage = pending.mode == .complete
@@ -243,6 +243,16 @@ extension DataEditTab {
         guard mode == .complete else { return }
         let recoveryData = try dataExportService.exportPortableBackup(store.portableBackupPackage())
         _ = try localSnapshotStore.save(recoveryData)
+    }
+
+    private func bundledBackupData() async throws -> Data {
+        let sentenceData = try await store.exportSentenceDatabaseData()
+        let addedPhrasesData = try store.exportAddPhrasesDB()
+        return try dataExportService.exportPortableBackupBundle(
+            package: store.portableBackupPackage(),
+            sentenceDatabaseData: sentenceData,
+            addedPhrasesDatabaseData: addedPhrasesData
+        )
     }
 
     private func scheduleBackupAcquisitionTimeout(operationID: UUID) {
@@ -275,21 +285,5 @@ extension DataEditTab {
     private func presentBackupError(_ message: String) {
         backupError = message
         showBackupAlert = true
-    }
-}
-
-private extension PortableBackupPayload {
-    var contentsSummary: String {
-        switch self {
-        case .unified(let package):
-            let pageCount = package.collections?.count ?? 0
-            let characterCount = package.dictionaryPatchOverlay.map { $0.customEntries.count + $0.patches.count + $0.deletions.count }
-                ?? package.dictionaryOverlay?.upserts.count
-                ?? package.dictionary?.count
-                ?? 0
-            return "Contains \(characterCount) character changes, \(package.phrases.count) phrases, and \(pageCount) saved pages."
-        case .legacyDictionary(let dictionary):
-            return "Contains \(dictionary.count) dictionary characters from an older Radix backup."
-        }
     }
 }

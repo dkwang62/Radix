@@ -24,7 +24,21 @@ extension RadixStore {
     }
 
     func exportAddPhrasesDB() throws -> Data {
-        let url = phraseRepo.currentAddDBURL
-        return try Data(contentsOf: url)
+        try phraseRepo.exportAddDatabaseData()
+    }
+
+    @discardableResult
+    func importAddPhrasesDatabase(from sourceURL: URL, mode: RestoreMode) throws -> Int {
+        let importedCount = try phraseRepo.importAddDatabase(from: sourceURL, mode: mode)
+        refreshAddedPhrases()
+        syncDataEditPhraseCaches()
+        dataEditPhrases = addedPhrases
+        refreshAddedPhraseReviewPhrases()
+        phraseCache.removeAll()
+        browsePagePhraseTileCache.removeAll()
+        browsePagePhraseCandidateCache.removeAll()
+        invalidateConversationPracticeHintCache()
+        favoriteSentenceRevision += 1
+        return importedCount
     }
 }

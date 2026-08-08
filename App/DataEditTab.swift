@@ -8,7 +8,7 @@ private extension DataEditTab {
 
 struct PendingBackupRestore: Identifiable {
     let id = UUID()
-    let payload: PortableBackupPayload
+    let document: PortableBackupDocument
     let filename: String
     let mode: RestoreMode
 }
@@ -204,7 +204,7 @@ struct DataEditTab: View {
 
     func handleReuseExportSuccess(_ url: URL) {
         let base = url.deletingPathExtension().lastPathComponent
-        if RadixFileTypes.isJSON(reuseExportContentType) && reuseExportFilename == "radix_icloud_backup" {
+        if reuseExportFilename == "radix_icloud_backup" {
             lastOtherDeviceBackupMetadata = RadixBackupMetadataStore.recordBackup(at: url)
             recentBackupMetadata = RadixBackupMetadataStore.history
             backupMessage = "Created backup: \(url.lastPathComponent)"

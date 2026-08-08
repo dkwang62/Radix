@@ -41,9 +41,98 @@ private struct BundledProjectArchiveManifest: Decodable {
     let sha256: String?
 }
 
+struct PortableBackupDocument: @unchecked Sendable {
+    let payload: PortableBackupPayload
+    let sentenceDatabaseData: Data?
+    let addedPhrasesDatabaseData: Data?
+
+    var contentsSummary: String {
+        let databaseSummary: String
+        switch (sentenceDatabaseData, addedPhrasesDatabaseData) {
+        case (.some, .some): databaseSummary = " Includes sentence and added-phrase databases."
+        case (.some, .none): databaseSummary = " Includes the sentence database."
+        case (.none, .some): databaseSummary = " Includes the added-phrase database."
+        case (.none, .none): databaseSummary = ""
+        }
+        return payload.contentsSummary + databaseSummary
+    }
+}
+
+private struct PortableBackupBundleManifest: Codable {
+    struct FileEntry: Codable {
+        let path: String
+        let byteCount: Int
+        let sha256: String
+
+        enum CodingKeys: String, CodingKey {
+            case path
+            case byteCount = "byte_count"
+            case sha256
+        }
+    }
+
+    let schemaVersion: Int
+    let generatedAt: Date
+    let backupJSON: FileEntry
+    let sentenceDatabase: FileEntry?
+    let addedPhrasesDatabase: FileEntry?
+
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "schema_version"
+        case generatedAt = "generated_at"
+        case backupJSON = "backup_json"
+        case sentenceDatabase = "sentence_database"
+        case addedPhrasesDatabase = "added_phrases_database"
+    }
+}
+
 struct DataExportService {
+    private static let maximumBackupBundleBytes = 750 * 1_024 * 1_024
+    private static let bundleManifestPath = "manifest.json"
+    private static let backupJSONPath = "backup.json"
+    private static let sentenceDatabasePath = "sentence_examples.sqlite"
+    private static let addedPhrasesDatabasePath = "phrases_add.sqlite"
+
     func exportPortableBackup(_ package: UnifiedPackage) throws -> Data {
         try PortableBackupCodec().encode(package)
+    }
+
+    func exportPortableBackupBundle(
+        package: UnifiedPackage,
+        sentenceDatabaseData: Data?,
+        addedPhrasesDatabaseData: Data?,
+        generatedAt: Date = Date()
+    ) throws -> Data {
+        let backupData = try exportPortableBackup(package)
+        var entries = [
+            DataExportZipEntry(path: Self.backupJSONPath, data: backupData)
+        ]
+
+        if let sentenceDatabaseData, !sentenceDatabaseData.isEmpty {
+            entries.append(DataExportZipEntry(path: Self.sentenceDatabasePath, data: sentenceDatabaseData))
+        }
+        if let addedPhrasesDatabaseData, !addedPhrasesDatabaseData.isEmpty {
+            entries.append(DataExportZipEntry(path: Self.addedPhrasesDatabasePath, data: addedPhrasesDatabaseData))
+        }
+
+        let manifest = PortableBackupBundleManifest(
+            schemaVersion: 1,
+            generatedAt: generatedAt,
+            backupJSON: manifestEntry(path: Self.backupJSONPath, data: backupData),
+            sentenceDatabase: sentenceDatabaseData.map { manifestEntry(path: Self.sentenceDatabasePath, data: $0) },
+            addedPhrasesDatabase: addedPhrasesDatabaseData.map { manifestEntry(path: Self.addedPhrasesDatabasePath, data: $0) }
+        )
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        encoder.dateEncodingStrategy = .iso8601
+        let manifestData = try encoder.encode(manifest)
+        entries.insert(DataExportZipEntry(path: Self.bundleManifestPath, data: manifestData), at: 0)
+
+        let bundleData = try StoredZipArchive.makeData(entries: entries, timestamp: generatedAt)
+        guard bundleData.count <= Self.maximumBackupBundleBytes else {
+            throw PortableBackupCodecError.tooLarge
+        }
+        return bundleData
     }
 
     /// Reads a document-provider file through `NSFileCoordinator`. A direct
@@ -71,6 +160,18 @@ struct DataExportService {
             throw coordinationError
         }
         throw NSError(domain: "RadixBackup", code: 2054, userInfo: [NSLocalizedDescriptionKey: "The selected iCloud file could not be opened."])
+    }
+
+    func readPortableBackupDocument(at url: URL) throws -> PortableBackupDocument {
+        let data = try readBackupDocumentData(at: url)
+        if let document = try? decodePortableBackupBundle(data) {
+            return document
+        }
+        return PortableBackupDocument(
+            payload: try PortableBackupCodec().decode(data),
+            sentenceDatabaseData: nil,
+            addedPhrasesDatabaseData: nil
+        )
     }
 
     func writePortableBackup(_ data: Data, to url: URL) throws {
@@ -231,6 +332,106 @@ struct DataExportService {
                 code: 2043,
                 userInfo: [NSLocalizedDescriptionKey: "The bundled Radix project ZIP checksum does not match its release manifest. Refresh the project source ZIP before release."]
             )
+        }
+    }
+
+    private func readBackupDocumentData(at url: URL) throws -> Data {
+        let coordinator = NSFileCoordinator()
+        var coordinationError: NSError?
+        var readResult: Result<Data, Error>?
+
+        coordinator.coordinate(readingItemAt: url, options: [], error: &coordinationError) { coordinatedURL in
+            readResult = Result {
+                let values = try coordinatedURL.resourceValues(forKeys: [.fileSizeKey])
+                if let fileSize = values.fileSize, fileSize > Self.maximumBackupBundleBytes {
+                    throw PortableBackupCodecError.tooLarge
+                }
+                return try Data(contentsOf: coordinatedURL, options: .mappedIfSafe)
+            }
+        }
+
+        if let readResult {
+            return try readResult.get()
+        }
+        if let coordinationError {
+            throw coordinationError
+        }
+        throw NSError(domain: "RadixBackup", code: 2054, userInfo: [NSLocalizedDescriptionKey: "The selected iCloud file could not be opened."])
+    }
+
+    private func decodePortableBackupBundle(_ data: Data) throws -> PortableBackupDocument {
+        let entries = try StoredZipArchive.entriesByPath(in: data)
+        guard let manifestData = entries[Self.bundleManifestPath],
+              let backupData = entries[Self.backupJSONPath]
+        else {
+            throw PortableBackupCodecError.invalidDocument
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let manifest = try decoder.decode(PortableBackupBundleManifest.self, from: manifestData)
+        try validate(backupData, against: manifest.backupJSON)
+        let sentenceData = try dataIfPresent(
+            entries: entries,
+            manifestEntry: manifest.sentenceDatabase
+        )
+        let addedPhrasesData = try dataIfPresent(
+            entries: entries,
+            manifestEntry: manifest.addedPhrasesDatabase
+        )
+
+        return PortableBackupDocument(
+            payload: try PortableBackupCodec().decode(backupData),
+            sentenceDatabaseData: sentenceData,
+            addedPhrasesDatabaseData: addedPhrasesData
+        )
+    }
+
+    private func dataIfPresent(
+        entries: [String: Data],
+        manifestEntry: PortableBackupBundleManifest.FileEntry?
+    ) throws -> Data? {
+        guard let manifestEntry else { return nil }
+        guard let data = entries[manifestEntry.path] else {
+            throw PortableBackupCodecError.invalidDocument
+        }
+        try validate(data, against: manifestEntry)
+        return data
+    }
+
+    private func validate(_ data: Data, against entry: PortableBackupBundleManifest.FileEntry) throws {
+        guard data.count == entry.byteCount, sha256Hex(data) == entry.sha256.lowercased() else {
+            throw NSError(domain: "RadixBackup", code: 2056, userInfo: [NSLocalizedDescriptionKey: "The backup package failed its integrity check."])
+        }
+    }
+
+    private func manifestEntry(path: String, data: Data) -> PortableBackupBundleManifest.FileEntry {
+        PortableBackupBundleManifest.FileEntry(
+            path: path,
+            byteCount: data.count,
+            sha256: sha256Hex(data)
+        )
+    }
+
+    private func sha256Hex(_ data: Data) -> String {
+        SHA256.hash(data: data)
+            .map { String(format: "%02x", $0) }
+            .joined()
+    }
+}
+
+private extension PortableBackupPayload {
+    var contentsSummary: String {
+        switch self {
+        case .unified(let package):
+            let pageCount = package.collections?.count ?? 0
+            let characterCount = package.dictionaryPatchOverlay.map { $0.customEntries.count + $0.patches.count + $0.deletions.count }
+                ?? package.dictionaryOverlay?.upserts.count
+                ?? package.dictionary?.count
+                ?? 0
+            return "Contains \(characterCount) character changes, \(package.phrases.count) phrases, and \(pageCount) saved pages."
+        case .legacyDictionary(let dictionary):
+            return "Contains \(dictionary.count) dictionary characters from an older Radix backup."
         }
     }
 }

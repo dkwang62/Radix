@@ -112,6 +112,29 @@ final class PhraseRepository {
         return RadixDatabaseSnapshotStore.record(kind: .addedPhrases, reason: reason, at: destinationURL, date: date)
     }
 
+    func exportAddDatabaseData() throws -> Data {
+        guard let addDb else {
+            throw NSError(domain: "Radix", code: 120, userInfo: [NSLocalizedDescriptionKey: "Add phrases database is not open"])
+        }
+        let exportURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("radix_added_phrases_export_\(UUID().uuidString)")
+            .appendingPathExtension("sqlite")
+        defer { try? FileManager.default.removeItem(at: exportURL) }
+        try backup(database: addDb, to: exportURL)
+        return try Data(contentsOf: exportURL)
+    }
+
+    func importAddDatabase(from sourceURL: URL, mode: RestoreMode) throws -> Int {
+        let sourcePhrases = try Self.addedPhrases(in: sourceURL)
+        switch mode {
+        case .additive:
+            try addPhrasesAdditively(sourcePhrases)
+        case .complete:
+            try restoreAddDatabase(from: sourceURL)
+        }
+        return sourcePhrases.count
+    }
+
     func restoreAddDatabaseSnapshot(_ snapshot: RadixDatabaseSnapshotMetadata) throws {
         guard snapshot.kind == .addedPhrases else {
             throw NSError(domain: "Radix", code: 121, userInfo: [NSLocalizedDescriptionKey: "This snapshot is not an added-phrases database snapshot."])
@@ -758,6 +781,78 @@ final class PhraseRepository {
         guard stepResult == SQLITE_DONE, finishResult == SQLITE_OK else {
             throw NSError(domain: "Radix", code: 128, userInfo: [NSLocalizedDescriptionKey: "Failed to finish added-phrases snapshot: \(String(cString: sqlite3_errmsg(destinationDB)))"])
         }
+    }
+
+    private func restoreAddDatabase(from sourceURL: URL) throws {
+        guard let addDb else {
+            throw NSError(domain: "Radix", code: 120, userInfo: [NSLocalizedDescriptionKey: "Add phrases database is not open"])
+        }
+        var sourceDB: OpaquePointer?
+        guard sqlite3_open_v2(sourceURL.path, &sourceDB, SQLITE_OPEN_READONLY, nil) == SQLITE_OK,
+              let sourceDB
+        else {
+            let message = sourceDB.map { String(cString: sqlite3_errmsg($0)) } ?? "unknown"
+            if let sourceDB { sqlite3_close(sourceDB) }
+            throw NSError(domain: "Radix", code: 123, userInfo: [NSLocalizedDescriptionKey: "Failed to open added-phrases database: \(message)"])
+        }
+        defer { sqlite3_close(sourceDB) }
+
+        guard let backup = sqlite3_backup_init(addDb, "main", sourceDB, "main") else {
+            throw queryRunner.phraseWriteError(code: 124, prefix: "Added-phrases restore failed", db: addDb, currentAddDBPath: currentAddDBPath)
+        }
+        let stepResult = sqlite3_backup_step(backup, -1)
+        let finishResult = sqlite3_backup_finish(backup)
+        guard stepResult == SQLITE_DONE, finishResult == SQLITE_OK else {
+            throw queryRunner.phraseWriteError(code: 125, prefix: "Added-phrases restore failed", db: addDb, currentAddDBPath: currentAddDBPath)
+        }
+        try ensureAddTable()
+        try addDBLocationManager.syncWorkingAddDBToCustomSourceIfNeeded()
+        invalidateReadCaches()
+    }
+
+    private static func addedPhrases(in sourceURL: URL) throws -> [PhraseItem] {
+        var db: OpaquePointer?
+        guard sqlite3_open_v2(sourceURL.path, &db, SQLITE_OPEN_READONLY, nil) == SQLITE_OK,
+              let db
+        else {
+            let message = db.map { String(cString: sqlite3_errmsg($0)) } ?? "unknown"
+            if let db { sqlite3_close(db) }
+            throw NSError(domain: "Radix", code: 129, userInfo: [NSLocalizedDescriptionKey: "Failed to open added-phrases database: \(message)"])
+        }
+        defer { sqlite3_close(db) }
+
+        let sql = "SELECT word, pinyin, meanings, notes, added_at, review_status, last_reviewed_at FROM phrases ORDER BY added_at DESC"
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw NSError(domain: "Radix", code: 130, userInfo: [NSLocalizedDescriptionKey: "Failed to read added-phrases database."])
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        var phrases: [PhraseItem] = []
+        while sqlite3_step(stmt) == SQLITE_ROW {
+            let statusText = stringColumn(stmt, 5)
+            phrases.append(PhraseItem(
+                word: stringColumn(stmt, 0),
+                pinyin: stringColumn(stmt, 1),
+                meanings: stringColumn(stmt, 2),
+                notes: stringColumn(stmt, 3),
+                addedAt: dateColumn(stmt, 4),
+                reviewStatus: statusText.isEmpty ? nil : PhraseReviewStatus(rawValue: statusText),
+                lastReviewedAt: dateColumn(stmt, 6)
+            ))
+        }
+        return phrases
+    }
+
+    private static func stringColumn(_ stmt: OpaquePointer?, _ index: Int32) -> String {
+        guard let ptr = sqlite3_column_text(stmt, index) else { return "" }
+        return String(cString: ptr)
+    }
+
+    private static func dateColumn(_ stmt: OpaquePointer?, _ index: Int32) -> Date? {
+        guard sqlite3_column_type(stmt, index) != SQLITE_NULL else { return nil }
+        let timestamp = sqlite3_column_double(stmt, index)
+        return timestamp > 0 ? Date(timeIntervalSince1970: timestamp) : nil
     }
 
     func restoreDefaultAddDB() throws {

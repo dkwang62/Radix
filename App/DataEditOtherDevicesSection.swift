@@ -229,10 +229,16 @@ extension DataEditTab {
         reuseExportMessage = nil
         Task { @MainActor in
             do {
-                let data = try dataExportService.exportPortableBackup(store.portableBackupPackage())
+                let sentenceData = try await store.exportSentenceDatabaseData()
+                let addedPhrasesData = try store.exportAddPhrasesDB()
+                let data = try dataExportService.exportPortableBackupBundle(
+                    package: store.portableBackupPackage(),
+                    sentenceDatabaseData: sentenceData,
+                    addedPhrasesDatabaseData: addedPhrasesData
+                )
                 reuseExportDocument = BinaryFileDocument(data: data)
                 reuseExportFilename = "radix_icloud_backup"
-                reuseExportContentType = RadixFileTypes.json
+                reuseExportContentType = .zipArchive
                 reuseExportInProgress = false
                 showReuseExporter = true
             } catch {

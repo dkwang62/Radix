@@ -161,7 +161,7 @@ enum RadixStudyPreferences {
     }
 
     static func exportSentenceDatabaseData() throws -> Data {
-        prepareSentenceExamplesForBackup()
+        prepareExtractedPageSentenceExamplesForBackup()
         let exportURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("radix_sentence_database_export_\(UUID().uuidString)")
             .appendingPathExtension("db")
@@ -363,6 +363,12 @@ enum RadixStudyPreferences {
     static func prepareSentenceExamplesForBackup() {
         migrateImportedConversationPracticePacksIntoSentenceExamples()
         migrateLegacyFavoriteSentencesIntoSentenceExamples()
+    }
+
+    static func prepareExtractedPageSentenceExamplesForBackup() {
+        prepareSentenceExamplesForBackup()
+        let extractedPageSentences = aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
+        recordSentenceExamples(extractedPageSentences)
     }
 
     static func refreshConversationPracticePackSentenceReferences() {

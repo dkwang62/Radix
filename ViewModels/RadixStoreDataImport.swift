@@ -12,7 +12,8 @@ extension RadixStore {
         _ payload: PortableBackupPayload,
         mode: RestoreMode = .additive,
         createSafetySnapshots: Bool = true,
-        refreshSentenceLinks: Bool = false
+        refreshSentenceLinks: Bool = false,
+        importPhrases: Bool = true
     ) throws {
         pendingDatasetAutosaveWorkItem?.cancel()
         pendingDatasetAutosaveWorkItem = nil
@@ -64,12 +65,15 @@ extension RadixStore {
                     deletions: mergedDeletions.sorted()
                 ))
                 persistOverlayAddedDates()
-                try phraseRepo.addPhrasesAdditively(uniquePhrases(package.phrases))
+                if importPhrases {
+                    try phraseRepo.addPhrasesAdditively(uniquePhrases(package.phrases))
+                }
                 mergeImportedCollections(package.collections, selectedAICollectionID: package.selectedAICollectionID)
                 applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .additive)
                 RadixStudyPreferences.conversationPracticeProgress =
                     RadixStudyPreferences.conversationPracticeProgress.merging(package.conversationPracticeProgress)
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .additive)
+                applyImportedExtractedSentenceReferences(package.extractedSentencePageReferences, mode: .additive)
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .additive)
                 if refreshSentenceLinks {
@@ -87,12 +91,15 @@ extension RadixStore {
                     overlayAddedDates[char] = now
                 }
                 persistOverlayAddedDates()
-                try phraseRepo.replaceAllPhrases(uniquePhrases(package.phrases))
+                if importPhrases {
+                    try phraseRepo.replaceAllPhrases(uniquePhrases(package.phrases))
+                }
                 replaceCollections(with: package.collections, selectedAICollectionID: package.selectedAICollectionID)
                 applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .complete)
                 RadixStudyPreferences.conversationPracticeProgress =
                     package.conversationPracticeProgress ?? ConversationPracticeProgressSnapshot()
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .complete)
+                applyImportedExtractedSentenceReferences(package.extractedSentencePageReferences, mode: .complete)
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .complete)
                 if refreshSentenceLinks {
@@ -149,6 +156,32 @@ extension RadixStore {
         databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
     }
 
+    func importPortableBackupDocumentForRestore(_ document: PortableBackupDocument, mode: RestoreMode = .additive) async throws {
+        try await createDatabaseSafetySnapshotsForSettings(reason: "Before importing data")
+        if let sentenceDatabaseData = document.sentenceDatabaseData {
+            let sentenceURL = try temporaryDatabaseURL(prefix: "radix_sentence_restore", data: sentenceDatabaseData)
+            defer { try? FileManager.default.removeItem(at: sentenceURL) }
+            _ = try await Task.detached(priority: .userInitiated) {
+                try RadixStudyPreferences.importSentenceDatabase(from: sentenceURL, mode: mode)
+            }.value
+            favoriteSentenceRevision += 1
+        }
+        if let addedPhrasesDatabaseData = document.addedPhrasesDatabaseData {
+            let phrasesURL = try temporaryDatabaseURL(prefix: "radix_added_phrases_restore", data: addedPhrasesDatabaseData)
+            defer { try? FileManager.default.removeItem(at: phrasesURL) }
+            try importAddPhrasesDatabase(from: phrasesURL, mode: mode)
+        }
+        try importDataEditPayload(
+            document.payload,
+            mode: mode,
+            createSafetySnapshots: false,
+            refreshSentenceLinks: false,
+            importPhrases: document.addedPhrasesDatabaseData == nil
+        )
+        markDatabaseOptimizationNeeded()
+        databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
+    }
+
     func importSentenceLibraryPackage(_ package: SentenceLibraryExportPackage, mode: RestoreMode = .additive) async throws -> SentenceLibraryImportResult {
         _ = try? await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before importing sentence library")
         let sentenceExamples = package.sentenceExamples
@@ -167,6 +200,56 @@ extension RadixStore {
         return SentenceLibraryImportResult(
             sentenceCount: importedSentenceKeys.count,
             extractedPageCount: cleanedPages.count
+        )
+    }
+
+    private func temporaryDatabaseURL(prefix: String, data: Data) throws -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("\(prefix)_\(UUID().uuidString)")
+            .appendingPathExtension("sqlite")
+        try data.write(to: url, options: .atomic)
+        return url
+    }
+
+    private func applyImportedExtractedSentenceReferences(
+        _ package: ExtractedSentenceReferencePackage?,
+        mode: RestoreMode
+    ) {
+        guard let package, !package.pages.isEmpty else { return }
+        let pages = package.pages.compactMap(extractedPageRecord(from:))
+        guard !pages.isEmpty else { return }
+        RadixStudyPreferences.applyImportedAICleanedPages(pages, mode: mode)
+        favoriteSentenceRevision += 1
+    }
+
+    private func extractedPageRecord(from reference: ExtractedSentencePageReference) -> AICleanedPageRecord? {
+        let pointers = reference.sentenceReferences.sorted { lhs, rhs in
+            if lhs.ordinal != rhs.ordinal { return lhs.ordinal < rhs.ordinal }
+            return lhs.pageSentenceID < rhs.pageSentenceID
+        }
+
+        let sentences = pointers.compactMap { pointer -> AICleanedPageSentence? in
+            guard let record = RadixStudyPreferences.sentenceExample(id: pointer.sentenceExampleID)
+                    ?? RadixStudyPreferences.sentenceExample(normalizedKey: pointer.sentenceKey)
+            else { return nil }
+            let phraseHints = record.targetPhrases.isEmpty ? record.detectedPhrases : record.targetPhrases
+            return AICleanedPageSentence(
+                id: pointer.pageSentenceID,
+                chinese: record.chinese,
+                pinyin: record.pinyin,
+                english: record.english,
+                phraseHints: phraseHints
+            )
+        }
+
+        guard !sentences.isEmpty else { return nil }
+        return AICleanedPageRecord(
+            sourcePageID: reference.sourcePageID,
+            sourceTitle: reference.sourceTitle,
+            cleanedTitle: reference.cleanedTitle,
+            cleanedChineseText: sentences.map(\.chinese).joined(separator: " "),
+            sentences: sentences,
+            createdAt: reference.createdAt
         )
     }
 

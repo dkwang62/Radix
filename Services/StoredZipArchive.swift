@@ -66,6 +66,56 @@ enum StoredZipArchive {
         return archive
     }
 
+    static func entriesByPath(in data: Data) throws -> [String: Data] {
+        var entries: [String: Data] = [:]
+        var offset = 0
+
+        while offset + 4 <= data.count {
+            let signature = try data.littleEndianUInt32(at: offset)
+            if signature == 0x02014b50 || signature == 0x06054b50 {
+                break
+            }
+            guard signature == 0x04034b50 else {
+                throw NSError(domain: "RadixZip", code: 2101, userInfo: [NSLocalizedDescriptionKey: "This ZIP archive is not in a supported backup format."])
+            }
+            guard offset + 30 <= data.count else {
+                throw NSError(domain: "RadixZip", code: 2102, userInfo: [NSLocalizedDescriptionKey: "This ZIP archive is incomplete."])
+            }
+
+            let flags = try data.littleEndianUInt16(at: offset + 6)
+            let compressionMethod = try data.littleEndianUInt16(at: offset + 8)
+            let compressedSize = Int(try data.littleEndianUInt32(at: offset + 18))
+            let uncompressedSize = Int(try data.littleEndianUInt32(at: offset + 22))
+            let nameLength = Int(try data.littleEndianUInt16(at: offset + 26))
+            let extraLength = Int(try data.littleEndianUInt16(at: offset + 28))
+
+            guard compressionMethod == 0 else {
+                throw NSError(domain: "RadixZip", code: 2103, userInfo: [NSLocalizedDescriptionKey: "This backup ZIP uses compression Radix cannot restore yet."])
+            }
+            guard flags & 0x0008 == 0 else {
+                throw NSError(domain: "RadixZip", code: 2104, userInfo: [NSLocalizedDescriptionKey: "This backup ZIP uses streaming descriptors Radix cannot restore yet."])
+            }
+            guard compressedSize == uncompressedSize else {
+                throw NSError(domain: "RadixZip", code: 2105, userInfo: [NSLocalizedDescriptionKey: "This backup ZIP entry has inconsistent sizes."])
+            }
+
+            let nameStart = offset + 30
+            let dataStart = nameStart + nameLength + extraLength
+            let dataEnd = dataStart + compressedSize
+            guard nameStart <= data.count, dataStart <= data.count, dataEnd <= data.count else {
+                throw NSError(domain: "RadixZip", code: 2106, userInfo: [NSLocalizedDescriptionKey: "This backup ZIP entry is incomplete."])
+            }
+            guard let path = String(data: data[nameStart..<nameStart + nameLength], encoding: .utf8) else {
+                throw NSError(domain: "RadixZip", code: 2107, userInfo: [NSLocalizedDescriptionKey: "This backup ZIP contains an invalid filename."])
+            }
+
+            entries[path] = Data(data[dataStart..<dataEnd])
+            offset = dataEnd
+        }
+
+        return entries
+    }
+
     private static func dosTimeDate(for date: Date) -> (time: UInt16, date: UInt16) {
         let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: date)
         let year = max((components.year ?? 1980), 1980) - 1980
@@ -113,5 +163,23 @@ private extension Data {
     mutating func appendLittleEndian(_ value: UInt32) {
         var littleEndian = value.littleEndian
         Swift.withUnsafeBytes(of: &littleEndian) { append(contentsOf: $0) }
+    }
+
+    func littleEndianUInt16(at offset: Int) throws -> UInt16 {
+        guard offset >= 0, offset + 2 <= count else {
+            throw NSError(domain: "RadixZip", code: 2110, userInfo: [NSLocalizedDescriptionKey: "This ZIP archive is truncated."])
+        }
+        return self[offset..<offset + 2].enumerated().reduce(UInt16(0)) { value, pair in
+            value | (UInt16(pair.element) << UInt16(pair.offset * 8))
+        }
+    }
+
+    func littleEndianUInt32(at offset: Int) throws -> UInt32 {
+        guard offset >= 0, offset + 4 <= count else {
+            throw NSError(domain: "RadixZip", code: 2111, userInfo: [NSLocalizedDescriptionKey: "This ZIP archive is truncated."])
+        }
+        return self[offset..<offset + 4].enumerated().reduce(UInt32(0)) { value, pair in
+            value | (UInt32(pair.element) << UInt32(pair.offset * 8))
+        }
     }
 }

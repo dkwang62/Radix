@@ -13,6 +13,7 @@ extension RadixStore {
     }
 
     func portableBackupPackage(exportedAt: Date = Date(), backupID: UUID = UUID()) -> UnifiedPackage {
+        RadixStudyPreferences.prepareExtractedPageSentenceExamplesForBackup()
         return UnifiedPackage(
             schemaVersion: PortableBackupCodec.currentSchemaVersion,
             exportedAt: exportedAt,
@@ -31,6 +32,7 @@ extension RadixStore {
             sentenceExamples: nil,
             pagePhraseExtractions: RadixStudyPreferences.pagePhraseExtractions,
             aiCleanedPages: nil,
+            extractedSentencePageReferences: extractedSentenceReferencePackage(),
             apiKeys: currentAPIKeyBackup()
         )
     }
@@ -204,5 +206,52 @@ extension RadixStore {
         let baseline = masterPhraseRepo.phraseWordSet()
         varianceMasterPhraseWords = baseline
         return baseline
+    }
+
+    private func extractedSentenceReferencePackage() -> ExtractedSentenceReferencePackage? {
+        let pages = RadixStudyPreferences.aiCleanedPages
+        guard !pages.isEmpty else { return nil }
+
+        let sentenceKeys = pages.flatMap { page in
+            page.sentences.enumerated().compactMap { _, sentence in
+                let key = SentenceExampleRecord.normalizedChineseKey(sentence.chinese)
+                return key.isEmpty ? nil : key
+            }
+        }
+        guard !sentenceKeys.isEmpty else { return nil }
+
+        let recordsByKey = RadixStudyPreferences.sentenceExamples(normalizedKeys: Array(Set(sentenceKeys)))
+        let referencedPages = pages.compactMap { page -> ExtractedSentencePageReference? in
+            let pointers = page.sentences.enumerated().compactMap { index, sentence -> ExtractedSentencePointer? in
+                let key = SentenceExampleRecord.normalizedChineseKey(sentence.chinese)
+                guard !key.isEmpty, let record = recordsByKey[key] else { return nil }
+                return ExtractedSentencePointer(
+                    pageSentenceID: sentence.id,
+                    sentenceExampleID: record.id,
+                    sentenceKey: key,
+                    ordinal: index
+                )
+            }
+            guard !pointers.isEmpty else { return nil }
+            return ExtractedSentencePageReference(
+                sourcePageID: page.sourcePageID,
+                sourceTitle: page.sourceTitle,
+                cleanedTitle: page.cleanedTitle,
+                sentenceReferences: pointers,
+                createdAt: page.createdAt
+            )
+        }
+        guard !referencedPages.isEmpty else { return nil }
+
+        let stats = RadixStudyPreferences.sentenceOptimizationStats()
+        return ExtractedSentenceReferencePackage(
+            sentenceDatabaseFingerprint: SentenceDatabasePointerFingerprint(
+                sentenceCount: stats.count,
+                latestCreatedAt: stats.latestCreatedAt,
+                latestUpdatedAt: stats.latestUpdatedAt,
+                normalizedKeyHash: stats.normalizedKeyHash
+            ),
+            pages: referencedPages
+        )
     }
 }
