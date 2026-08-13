@@ -127,6 +127,7 @@
 		850000522F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000512F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift */; };
 		850000542F9D0001001B9AA7 /* ComponentScriptClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000532F9D0001001B9AA7 /* ComponentScriptClassifier.swift */; };
 		850000542F9D0002001B9AA7 /* PhraseQueryRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000532F9D0002001B9AA7 /* PhraseQueryRunner.swift */; };
+		850000542F9D0003001B9AA7 /* PhraseNoteOverlayStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000532F9D0003001B9AA7 /* PhraseNoteOverlayStore.swift */; };
 		850000562F9D0001001B9AA7 /* ComponentDecompositionParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000552F9D0001001B9AA7 /* ComponentDecompositionParser.swift */; };
 		850000582F9D0001001B9AA7 /* ComponentOverlayBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000572F9D0001001B9AA7 /* ComponentOverlayBuilder.swift */; };
 		8500005A2F9D0001001B9AA7 /* ComponentFrequencyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850000592F9D0001001B9AA7 /* ComponentFrequencyProvider.swift */; };
@@ -411,6 +412,7 @@
 		850000512F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhrasePinyinSearchIndex.swift; sourceTree = "<group>"; };
 		850000532F9D0001001B9AA7 /* ComponentScriptClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentScriptClassifier.swift; sourceTree = "<group>"; };
 		850000532F9D0002001B9AA7 /* PhraseQueryRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseQueryRunner.swift; sourceTree = "<group>"; };
+		850000532F9D0003001B9AA7 /* PhraseNoteOverlayStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseNoteOverlayStore.swift; sourceTree = "<group>"; };
 		850000552F9D0001001B9AA7 /* ComponentDecompositionParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentDecompositionParser.swift; sourceTree = "<group>"; };
 		850000572F9D0001001B9AA7 /* ComponentOverlayBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentOverlayBuilder.swift; sourceTree = "<group>"; };
 		850000592F9D0001001B9AA7 /* ComponentFrequencyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentFrequencyProvider.swift; sourceTree = "<group>"; };
@@ -676,6 +678,7 @@
 				8500004F2F9D0001001B9AA7 /* PhraseAddDatabaseSchema.swift */,
 				850000512F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift */,
 				850000532F9D0002001B9AA7 /* PhraseQueryRunner.swift */,
+				850000532F9D0003001B9AA7 /* PhraseNoteOverlayStore.swift */,
 				864DAB752F93ADA3001B9AA7 /* ComponentRepository.swift */,
 				864DAB772FC40002001B9AA7 /* ComponentRepositoryQueries.swift */,
 				850000532F9D0001001B9AA7 /* ComponentScriptClassifier.swift */,
@@ -1245,6 +1248,7 @@
 				850000502F9D0001001B9AA7 /* PhraseAddDatabaseSchema.swift in Sources */,
 				850000522F9D0001001B9AA7 /* PhrasePinyinSearchIndex.swift in Sources */,
 				850000542F9D0002001B9AA7 /* PhraseQueryRunner.swift in Sources */,
+				850000542F9D0003001B9AA7 /* PhraseNoteOverlayStore.swift in Sources */,
 				850000542F9D0001001B9AA7 /* ComponentScriptClassifier.swift in Sources */,
 				850000562F9D0001001B9AA7 /* ComponentDecompositionParser.swift in Sources */,
 				850000582F9D0001001B9AA7 /* ComponentOverlayBuilder.swift in Sources */,

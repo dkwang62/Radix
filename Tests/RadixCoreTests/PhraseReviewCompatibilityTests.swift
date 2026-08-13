@@ -30,6 +30,15 @@ struct PhraseReviewCompatibilityTests {
         #expect(PhraseReviewStatusTool.nextStatus(after: .removed) == nil)
     }
 
+    @Test("Phrase note overlays merge without duplicating notes")
+    func phraseNoteOverlayMerge() {
+        #expect(PhraseNoteOverlayRules.tableName == "phrase_note_overlays")
+        #expect(PhraseNoteOverlayRules.mergeNotes("", "Book note") == "Book note")
+        #expect(PhraseNoteOverlayRules.mergeNotes("Dictionary note", "") == "Dictionary note")
+        #expect(PhraseNoteOverlayRules.mergeNotes("Dictionary note", "Book note") == "Dictionary note\n\nBook note")
+        #expect(PhraseNoteOverlayRules.mergeNotes("Dictionary note\n\nBook note", "Book note") == "Dictionary note\n\nBook note")
+    }
+
     @Test("AI review page includes only unreviewed non-base multi-character phrases")
     func aiReviewPageWords() {
         let phrases = [

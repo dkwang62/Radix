@@ -47,6 +47,10 @@ final class PhraseRepository {
         PhraseQueryRunner(baseDb: baseDb, addDb: addDb)
     }
 
+    private var noteOverlayStore: PhraseNoteOverlayStore {
+        PhraseNoteOverlayStore(db: addDb)
+    }
+
     deinit { close() }
 
     // MARK: - Lifecycle
@@ -266,9 +270,10 @@ final class PhraseRepository {
             baseSQL: "SELECT word, pinyin, meanings FROM phrases",
             addSQL: "SELECT \(addPhraseColumns) FROM phrases WHERE \(visibleAddPhraseClause)"
         )
-        mergedPhrasesCache = merged
-        mergedPhraseLookup = Dictionary(uniqueKeysWithValues: merged.map { ($0.word, $0) })
-        return merged
+        let withNotes = noteOverlayStore.apply(to: merged)
+        mergedPhrasesCache = withNotes
+        mergedPhraseLookup = Dictionary(uniqueKeysWithValues: withNotes.map { ($0.word, $0) })
+        return withNotes
     }
 
     func fetchAddedPhrases() -> [PhraseItem] {
@@ -309,8 +314,8 @@ final class PhraseRepository {
         }
         // Check add DB first, then base
         let fromAdd = queryRunner.runQuery(db: addDb, sql: addSQL, binder: binder).first
-        if let p = fromAdd { return p }
-        return queryRunner.runQuery(db: baseDb, sql: baseSQL, binder: binder).first
+        if let p = fromAdd { return noteOverlayStore.apply(to: p) }
+        return queryRunner.runQuery(db: baseDb, sql: baseSQL, binder: binder).first.map(noteOverlayStore.apply)
     }
 
     func fetchAddedPhrase(for word: String) -> PhraseItem? {
@@ -353,7 +358,7 @@ final class PhraseRepository {
             }
         }
 
-        return words.compactMap { phraseByWord[$0] }
+        return noteOverlayStore.apply(to: words.compactMap { phraseByWord[$0] })
     }
 
     private func phraseQueryChunks(from words: Set<String>, size: Int = 400) -> [[String]] {

@@ -322,6 +322,13 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 6) {
                 storageHealthRow("Sentences", "\(health.sentenceCount)", detail: fileSizeText(health.sentenceDatabaseByteCount))
                 storageHealthRow("Added phrases", "\(health.addedPhraseCount)", detail: fileSizeText(health.addedPhraseDatabaseByteCount))
+                if !store.addPhrasesPath.isEmpty {
+                    Text("Phrase DB: \(store.addPhrasesPath)")
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                        .textSelection(.enabled)
+                }
                 storageHealthRow("Extracted pages", "\(health.extractedPageCount)", detail: largestPageText(health))
                 storageHealthRow("Study data", optimizationStatusText(health), detail: lastOptimizedText(health))
             }

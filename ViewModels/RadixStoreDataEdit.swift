@@ -447,8 +447,7 @@ extension RadixStore {
         if let updatedPhrase {
             addedPhraseReviewPhrases = addedPhraseReviewPhrases.map(updated(_:))
             if !addedPhraseReviewPhrases.contains(where: { phraseStorageWord($0.word) == storedWord }),
-               updatedPhrase.word.count >= 2,
-               !isPhraseInBase(updatedPhrase.word) {
+               updatedPhrase.word.count >= 2 {
                 addedPhraseReviewPhrases = AddedPhraseReviewRules.sortedByPinyin(
                     addedPhraseReviewPhrases + [updatedPhrase]
                 )

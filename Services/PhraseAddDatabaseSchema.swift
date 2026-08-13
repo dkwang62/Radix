@@ -29,6 +29,18 @@ enum PhraseAddDatabaseSchema {
                 throw NSError(domain: "Radix", code: 11, userInfo: [NSLocalizedDescriptionKey: "Failed to migrate phrases_add review date schema"])
             }
         }
+
+        let notesSQL = """
+            CREATE TABLE IF NOT EXISTS \(PhraseNoteOverlayStore.tableName) (
+                word TEXT PRIMARY KEY,
+                notes TEXT NOT NULL DEFAULT '',
+                updated_at REAL,
+                source TEXT
+            )
+        """
+        if sqlite3_exec(db, notesSQL, nil, nil, nil) != SQLITE_OK {
+            throw NSError(domain: "Radix", code: 10, userInfo: [NSLocalizedDescriptionKey: "Failed to create phrase notes overlay table"])
+        }
     }
 
     private static func tableHasColumn(db: OpaquePointer?, table: String, column: String) -> Bool {

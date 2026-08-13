@@ -76,7 +76,7 @@ enum AddedPhraseReviewFilter: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    static let menuCases: [AddedPhraseReviewFilter] = [.checked, .hidden, .new, .removed, .all]
+    static let menuCases: [AddedPhraseReviewFilter] = [.new, .checked, .hidden, .removed, .all]
 
     var title: String {
         switch self {
@@ -261,6 +261,18 @@ struct PhraseItem: Identifiable, Hashable, Equatable, Codable {
         self.lastReviewedAt = lastReviewedAt
     }
 
+    func withNotes(_ notes: String) -> PhraseItem {
+        PhraseItem(
+            word: word,
+            pinyin: pinyin,
+            meanings: meanings,
+            notes: notes,
+            addedAt: addedAt,
+            reviewStatus: reviewStatus,
+            lastReviewedAt: lastReviewedAt
+        )
+    }
+
     enum CodingKeys: String, CodingKey {
         case word, pinyin, meanings, notes
         case addedAt = "added_at"
@@ -280,6 +292,19 @@ struct PhraseItem: Identifiable, Hashable, Equatable, Codable {
         id = word
     }
 
+}
+
+enum PhraseNoteOverlayRules {
+    static let tableName = "phrase_note_overlays"
+
+    static func mergeNotes(_ primary: String, _ overlay: String) -> String {
+        let trimmedPrimary = primary.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedOverlay = overlay.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedOverlay.isEmpty else { return trimmedPrimary }
+        guard !trimmedPrimary.isEmpty else { return trimmedOverlay }
+        guard !trimmedPrimary.contains(trimmedOverlay) else { return trimmedPrimary }
+        return "\(trimmedPrimary)\n\n\(trimmedOverlay)"
+    }
 }
 
 enum PhraseLengthRule {

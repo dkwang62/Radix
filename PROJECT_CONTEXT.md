@@ -317,6 +317,13 @@ The main phrase source `phrases.db` is committed as source data. Added phrases
 that are promoted into `phrases.db` should be removed from `phrases_add.db` so
 the mutable added-phrase store remains only for new, user-added phrases that are
 not already in the main phrase database.
+Book-specific phrase explanations belong in the `phrase_note_overlays` table in
+`phrases_add.db`, not as duplicate rows in the mutable `phrases` table. Phrase
+lookups merge these overlay notes onto the authoritative base or added phrase at
+read time, so `phrases.db` remains the source of truth for pinyin and meanings
+while book notes remain portable user data.
+`PhraseNoteOverlayStore` owns the SQLite overlay reads and batching; keep overlay
+SQL there rather than growing `PhraseRepository` with another storage concern.
 Advanced `Full Dataset (JSON)` is schema 2 and includes both the merged coding
 foundation (`dictionary` and `phrases`) and a nested lightweight
 `portable_backup` payload with the latest saved pages, Conversation practice,

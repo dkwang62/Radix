@@ -7,7 +7,7 @@ struct AddedPhraseReviewSheet: View {
     let isWorkspace: Bool
     let showsWorkspaceCloseButton: Bool
     let onDone: (() -> Void)?
-    @State var filter: AddedPhraseReviewFilter = .all
+    @State var filter: AddedPhraseReviewFilter = .new
     @State var selectedTool: PhraseReviewStatusTool?
     @State var reviewCycle = PhraseReviewStatusCycleState()
     @State var selectedPhrase: PhraseItem?
@@ -87,7 +87,7 @@ struct AddedPhraseReviewSheet: View {
     // - Keep the filter row, status tool row, Done button, and page controls fully inside the sheet.
     // - Classification is a paint-style flow: choose a status tool, then tap tiles to apply it.
     // - Keep the selected phrase preview compact so the grid stays useful for fast classification.
-    // - Default to All so review can begin from the complete set before switching to a status filter.
+    // - Default to Unreviewed so fresh imports are immediately visible before switching to all statuses.
     var body: some View {
         Group {
             if isWorkspace {

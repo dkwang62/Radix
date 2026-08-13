@@ -74,7 +74,7 @@ extension RadixStore {
 
     func refreshAddedPhraseReviewPhrases() {
         addedPhraseReviewPhrases = AddedPhraseReviewRules.sortedByPinyin(
-            addedPhrases.filter { $0.word.count >= 2 && !isPhraseInBase($0.word) }
+            addedPhrases.filter { $0.word.count >= 2 }
         )
     }
 
