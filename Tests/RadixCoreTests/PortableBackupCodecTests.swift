@@ -6,6 +6,23 @@ import Testing
 struct PortableBackupCodecTests {
     private let codec = PortableBackupCodec()
 
+    @Test("Rolling save history keeps three extension-preserving filenames")
+    func rollingSaveHistoryNamesAreStable() {
+        let zipURL = URL(fileURLWithPath: "/tmp/RadixData.zip")
+        #expect(RollingSaveHistoryRules.retainedVersionURLs(for: zipURL).map(\.lastPathComponent) == [
+            "RadixData.bk1.zip",
+            "RadixData.bk2.zip",
+            "RadixData.bk3.zip"
+        ])
+
+        let bareURL = URL(fileURLWithPath: "/tmp/RadixData")
+        #expect(RollingSaveHistoryRules.retainedVersionURLs(for: bareURL).map(\.lastPathComponent) == [
+            "RadixData.bk1",
+            "RadixData.bk2",
+            "RadixData.bk3"
+        ])
+    }
+
     @Test("Schema 6 round-trips dates, user data, and extracted sentence pointers")
     func roundTripCurrentSchema() throws {
         let exportedAt = Date(timeIntervalSince1970: 1_750_000_000)

@@ -739,7 +739,9 @@ My Data backup actions use explicit rows/stacks instead of lazy grids.
 My Data file handling uses `Create Backup` to create a new file from memory,
 `Merge Backup` to combine the file and memory so both contain the merged
 contents, and `Restore Backup` as the advanced destructive path that replaces
-memory with the file.
+memory with the file. When Radix updates an existing portable file, it keeps
+the previous three versions beside it as `name.bk1.ext`, `name.bk2.ext`, and
+`name.bk3.ext`.
 Backup preview headers and Study checkpoint action icons use the shared icon
 surface helper.
 Backup-content disclosures and backup-preview character tiles are part of that
@@ -1698,7 +1700,8 @@ not explanatory checkpoint copy.
 Backup File actions keep the same three choices across iPhone, iPad, and Mac:
 Create Backup, Merge Backup, and Restore Backup. Create means create a new file
 from this device; Merge means combine the backup file and this device so both
-contain the merged contents; Restore means replace this device with the file.
+contain the merged contents while keeping a rolling three-file save history;
+Restore means replace this device with the file.
 Checkpoint means save the current state as a same-device recovery checkpoint.
 All platforms stack the actions with
 Create Backup, then primary Merge Backup, then destructive Restore Backup.

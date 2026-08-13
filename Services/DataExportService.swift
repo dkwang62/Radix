@@ -181,6 +181,7 @@ struct DataExportService {
 
         coordinator.coordinate(writingItemAt: url, options: .forReplacing, error: &coordinationError) { coordinatedURL in
             writeResult = Result {
+                try rotateExistingSaveHistory(at: coordinatedURL)
                 try data.write(to: coordinatedURL, options: .atomic)
             }
         }
@@ -193,6 +194,28 @@ struct DataExportService {
             throw coordinationError
         }
         throw NSError(domain: "RadixBackup", code: 2055, userInfo: [NSLocalizedDescriptionKey: "The selected backup file could not be updated."])
+    }
+
+    private func rotateExistingSaveHistory(at url: URL, fileManager: FileManager = .default) throws {
+        guard fileManager.fileExists(atPath: url.path) else { return }
+
+        var isDirectory: ObjCBool = false
+        guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory), !isDirectory.boolValue else {
+            throw NSError(domain: "RadixBackup", code: 2057, userInfo: [NSLocalizedDescriptionKey: "The selected Radix file could not be updated."])
+        }
+
+        for slot in stride(from: RollingSaveHistoryRules.retainedVersionCount, through: 1, by: -1) {
+            let destination = RollingSaveHistoryRules.retainedVersionURL(for: url, slot: slot)
+            if fileManager.fileExists(atPath: destination.path) {
+                try fileManager.removeItem(at: destination)
+            }
+
+            let source = slot == 1
+                ? url
+                : RollingSaveHistoryRules.retainedVersionURL(for: url, slot: slot - 1)
+            guard fileManager.fileExists(atPath: source.path) else { continue }
+            try fileManager.moveItem(at: source, to: destination)
+        }
     }
 
     func exportFullDataset(_ package: FullDatasetExportPackage) throws -> Data {
