@@ -9,7 +9,7 @@ Also read `UI_INTENT.md` before navigation or UI-structure work and follow
 
 - Branch: `codex/post-testflight-iteration`.
 - Workstream: post-TestFlight / Version 1.1 iteration.
-- Current version metadata: marketing version `1.0.5`, build `1`.
+- Current version metadata: marketing version `1.0.6`, build `2`.
 - Product direction: a linked Page -> Sentence -> Phrase -> Character learning
   graph.
 - Browse owns source inspection: Dictionary, saved pages, Original OCR,

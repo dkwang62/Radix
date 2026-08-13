@@ -1,8 +1,31 @@
 # Repository Instructions for Coding Agents
 
-Before making changes, read `PROJECT_CONTEXT.md` and use it as the current
-architecture and workstream source of truth. Also read `UI_INTENT.md` before
-navigation or UI-structure work.
+## Context discipline
+
+Use `PROJECT_CONTEXT.md` as the current architecture and workstream source of
+truth, but do not read the whole file by default. First use targeted `rg`
+searches and read only the relevant sections. Read more of it only when the task
+touches architecture, persistence, navigation, release state, or a cross-cutting
+feature.
+
+Read `UI_INTENT.md` before navigation, layout, iPad/iPhone adaptation, or
+UI-structure work. For small non-UI fixes, do not load it unnecessarily.
+
+## Token discipline
+
+- Inspect only the files needed for the current task. Prefer `rg` and targeted
+  reads over opening whole folders or large JSON/database-derived files.
+- Summarize long command output. Do not paste full build logs unless the exact
+  error text matters.
+- Avoid broad refactors unless the user explicitly asks for them. Preserve
+  working behavior and make the smallest coherent change.
+- When diagnosing, explain the cause before implementing a fix unless the user
+  has clearly asked for the fix.
+- Avoid recreating Radix features with weak substitutes. Real stroke-order
+  animation, character cards, phrase cards, and sentence data should come from
+  the app’s existing data and UI paths where possible.
+
+## Radix app expectations
 
 For every completed work unit:
 

@@ -10,7 +10,7 @@ changes. Earlier handoff files remain historical snapshots.
 
 Last reviewed: 2026-07-30
 
-Current app version metadata is marketing version `1.0.5`, build `1`.
+Current app version metadata is marketing version `1.0.6`, build `2`.
 Settings > About shows the bundle version and build so future release bumps are
 visible in the app.
 
