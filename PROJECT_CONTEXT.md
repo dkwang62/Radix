@@ -710,6 +710,11 @@ grid, avoiding SwiftUI composition crashes while preserving the same controls.
 Phrase-card animation page chips intentionally use a plain horizontal scroll,
 not an embedded `ScrollViewReader`, because crash logs have shown SwiftUI retain
 failures while rebuilding phrase cards during Browse/page-phrase workflows.
+Smart Search's three fixed example buttons intentionally stay as explicit view
+children in both `ViewThatFits` branches. Do not deduplicate them into a dynamic
+`ForEach`: an archived iPad crash shows SwiftUI evaluating that closure from its
+async render executor and trapping on main-actor state. Source regression tests
+enforce both crash guardrails.
 Small square info-card icon buttons use `radixIconButtonSurface` so favorite,
 edit, and read-aloud buttons keep one radius, background, and tap shape.
 Phrase-library actions follow one rule: the normal Phrase Info Card already

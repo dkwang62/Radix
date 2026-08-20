@@ -80,26 +80,15 @@ extension PhraseInfoCard {
     func phraseAnimationPageButtons(_ characters: [String]) -> some View {
         let pageCount = phraseAnimationPageCount(for: characters)
         if pageCount > 1 {
-            ScrollViewReader { proxy in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        ForEach(0..<pageCount, id: \.self) { page in
-                            phraseAnimationPageButton(page: page, characters: characters)
-                                .id(page)
-                        }
-                    }
-                    .padding(.vertical, 1)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .onAppear {
-                    proxy.scrollTo(phraseAnimationSafePage(for: characters), anchor: .center)
-                }
-                .onChange(of: selectedAnimationPage) { _, _ in
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        proxy.scrollTo(phraseAnimationSafePage(for: characters), anchor: .center)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(0..<pageCount, id: \.self) { page in
+                        phraseAnimationPageButton(page: page, characters: characters)
                     }
                 }
+                .padding(.vertical, 1)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
