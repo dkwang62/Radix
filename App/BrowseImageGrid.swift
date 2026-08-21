@@ -79,7 +79,7 @@ extension FilterGridTab {
             )
         }
         return BrowsePageGridVisibilityRules.visibleItems(
-            characterCount: collection.characters.count,
+            characterKeys: collection.characters.map { store.phraseLookupTarget(for: $0) },
             phraseSpans: phraseSpans,
             filter: browsePageGridFilter
         ).compactMap { visibleItem in

@@ -86,7 +86,7 @@ enum PageCollectionSortOrder: String, CaseIterable, Identifiable {
 
 enum BrowsePageGridFilter: String, CaseIterable, Identifiable {
     case all
-    case uniquePhrases
+    case unique = "uniquePhrases"
 
     var id: String { rawValue }
 }
@@ -104,28 +104,32 @@ enum BrowsePageGridVisibleItem: Equatable {
 
 enum BrowsePageGridVisibilityRules {
     static func visibleItems(
-        characterCount: Int,
+        characterKeys: [String],
         phraseSpans: [Int: BrowsePageGridPhraseSpan],
         filter: BrowsePageGridFilter
     ) -> [BrowsePageGridVisibleItem] {
-        guard characterCount > 0 else { return [] }
+        guard !characterKeys.isEmpty else { return [] }
 
         var items: [BrowsePageGridVisibleItem] = []
         var seenPhraseKeys = Set<String>()
+        var seenCharacterKeys = Set<String>()
         var offset = 0
 
-        while offset < characterCount {
+        while offset < characterKeys.count {
             if let span = phraseSpans[offset],
                span.start == offset,
                span.end > offset,
-               span.end <= characterCount {
+               span.end <= characterKeys.count {
                 let shouldShowPhrase = filter == .all || seenPhraseKeys.insert(span.phraseKey).inserted
                 if shouldShowPhrase {
                     items.append(.phrase(offset: offset))
                 }
                 offset = span.end
             } else {
-                items.append(.character(offset: offset))
+                let shouldShowCharacter = filter == .all || seenCharacterKeys.insert(characterKeys[offset]).inserted
+                if shouldShowCharacter {
+                    items.append(.character(offset: offset))
+                }
                 offset += 1
             }
         }

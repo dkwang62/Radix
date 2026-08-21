@@ -138,13 +138,13 @@ extension FilterGridTab {
     }
 
     var browsePageGridFilterButton: some View {
-        let showsUniquePhrases = browsePageGridFilter == .uniquePhrases
+        let showsUniqueItems = browsePageGridFilter == .unique
         return Button {
-            browsePageGridFilter = showsUniquePhrases ? .all : .uniquePhrases
+            browsePageGridFilter = showsUniqueItems ? .all : .unique
         } label: {
             Label(
-                showsUniquePhrases ? "Unique" : "All",
-                systemImage: showsUniquePhrases
+                showsUniqueItems ? "Unique" : "All",
+                systemImage: showsUniqueItems
                     ? "line.3.horizontal.decrease.circle.fill"
                     : "line.3.horizontal.decrease.circle"
             )
@@ -152,13 +152,13 @@ extension FilterGridTab {
             .lineLimit(1)
             .padding(.horizontal, 9)
             .padding(.vertical, 6)
-            .foregroundStyle(showsUniquePhrases ? Color.white : Color.primary)
-            .radixSurface(showsUniquePhrases ? RadixAccent.primary : RadixTheme.secondaryBackground)
+            .foregroundStyle(showsUniqueItems ? Color.white : Color.primary)
+            .radixSurface(showsUniqueItems ? RadixAccent.primary : RadixTheme.secondaryBackground)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Browse page grid filter")
-        .accessibilityValue(showsUniquePhrases ? "Unique phrases and non-phrase characters" : "All page content")
-        .help(showsUniquePhrases ? "Show all page content" : "Show each phrase once and keep non-phrase characters")
+        .accessibilityValue(showsUniqueItems ? "Unique phrases and unique non-phrase characters" : "All page content")
+        .help(showsUniqueItems ? "Show all page content" : "Show each phrase and non-phrase character once")
     }
 
     func browseSourceOCRLayerLabel(for collection: CharacterCollection) -> String? {

@@ -79,8 +79,8 @@ Use these preferences as defaults:
 - Prefer compact one-button toggles for binary display choices, such as
   `中 Chinese` / `英 English` and `拼 Pinyin`, instead of wide segmented controls.
 - Saved-page Browse grids use a compact `All` / `Unique` filter. The condensed
-  view shows each detected phrase once while retaining characters that do not
-  belong to a detected phrase; it does not alter or delete the saved page.
+  view shows each detected phrase once and each character outside detected
+  phrases once; it does not alter or delete the saved page.
 - Use learning-specific labels and symbols. Chinese display controls should use
   text badges such as `中`, `英`, `拼`, and `词`; avoid generic symbols such as
   `Aa` when the control changes Chinese, English, or pinyin behavior.
