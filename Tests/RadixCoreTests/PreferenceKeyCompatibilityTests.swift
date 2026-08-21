@@ -11,6 +11,7 @@ struct PreferenceKeyCompatibilityTests {
         #expect(RadixPreferenceKey.favoriteSentences == "radix.favoriteSentences")
         #expect(RadixPreferenceKey.pagePhraseExtractions == "radix.pagePhraseExtractions")
         #expect(RadixPreferenceKey.aiCleanedPages == "radix.aiCleanedPages")
+        #expect(RadixPreferenceKey.browsePageGridFilter == "radix.browsePageGridFilter")
         #expect(RadixPreferenceKey.collections == "radix.characterCollections")
         #expect(RadixPreferenceKey.selectedAICollection == "radix.selectedAICollectionID")
         #expect(RadixPreferenceKey.searchHistory == "radix.searchHistory")

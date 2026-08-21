@@ -131,8 +131,34 @@ extension FilterGridTab {
 
             BrowseImageScriptToggle(mode: $browseImageScriptMode)
 
+            browsePageGridFilterButton
+
             readBrowseSourceButton(collection)
         }
+    }
+
+    var browsePageGridFilterButton: some View {
+        let showsUniquePhrases = browsePageGridFilter == .uniquePhrases
+        return Button {
+            browsePageGridFilter = showsUniquePhrases ? .all : .uniquePhrases
+        } label: {
+            Label(
+                showsUniquePhrases ? "Unique" : "All",
+                systemImage: showsUniquePhrases
+                    ? "line.3.horizontal.decrease.circle.fill"
+                    : "line.3.horizontal.decrease.circle"
+            )
+            .font(ResponsiveFont.caption.weight(.semibold))
+            .lineLimit(1)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 6)
+            .foregroundStyle(showsUniquePhrases ? Color.white : Color.primary)
+            .radixSurface(showsUniquePhrases ? RadixAccent.primary : RadixTheme.secondaryBackground)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Browse page grid filter")
+        .accessibilityValue(showsUniquePhrases ? "Unique phrases and non-phrase characters" : "All page content")
+        .help(showsUniquePhrases ? "Show all page content" : "Show each phrase once and keep non-phrase characters")
     }
 
     func browseSourceOCRLayerLabel(for collection: CharacterCollection) -> String? {

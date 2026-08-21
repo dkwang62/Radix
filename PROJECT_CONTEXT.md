@@ -852,6 +852,12 @@ Browse filter menu chips use `radixPill` while preserving picker-owned height.
 Browse page-phrase taps should own phrase preview state without also setting a
 character preview; on iPhone, the page-phrase sheet dismisses after opening a
 phrase so Browse can show one stable preview surface.
+Saved-page Browse grids provide one compact `All` / `Unique` filter beside the
+script control. `All` preserves the complete phrase-and-character reading
+stream. `Unique` keeps the first occurrence of each detected phrase, omits later
+occurrences as whole phrase spans, and preserves characters outside detected
+phrases in reading order. The choice persists across launches and reuses the
+existing cached page-phrase tiles without another phrase-database scan.
 Smart Search result headers use `radixCard` for their compact summary surface.
 Smart Search example buttons are a fixed descriptor-driven three-action set and
 use explicit `ViewThatFits` rows/stacks rather than a lazy grid.

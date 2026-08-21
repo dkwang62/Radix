@@ -27,6 +27,7 @@ struct FilterGridTab: View {
     @State var hasShownBrowseInteractionHintRow = RadixBrowsePreferences.hasShownInteractionHint
     @State var browseImageScriptMode = RadixBrowsePreferences.imageScriptMode
     @State var browsePageSortOrder = RadixBrowsePreferences.pageSortOrder
+    @State var browsePageGridFilter = RadixBrowsePreferences.pageGridFilter
     @State var freePageUseCount = RadixCaptureUsage.freeScanCount
     @State var showBrowseFilters = false
     @State var showManualCollectionSheet = false
@@ -158,10 +159,15 @@ struct FilterGridTab: View {
             .onChange(of: browseImageScriptMode) { _, newValue in
                 RadixBrowsePreferences.imageScriptMode = newValue
             }
+            .onChange(of: browsePageGridFilter) { _, newValue in
+                RadixBrowsePreferences.pageGridFilter = newValue
+                lastTappedImageOffset = nil
+            }
             .onAppear {
                 hasShownBrowseInteractionHintRow = RadixBrowsePreferences.hasShownInteractionHint
                 browseImageScriptMode = RadixBrowsePreferences.imageScriptMode
                 browsePageSortOrder = RadixBrowsePreferences.pageSortOrder
+                browsePageGridFilter = RadixBrowsePreferences.pageGridFilter
                 freePageUseCount = RadixCaptureUsage.freeScanCount
                 prepareBrowseHintIfNeeded()
                 consumeBrowseSourceCloseRequests()

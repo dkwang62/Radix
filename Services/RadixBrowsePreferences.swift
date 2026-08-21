@@ -25,4 +25,14 @@ enum RadixBrowsePreferences {
         }
         set { preferences.set(newValue.rawValue, forKey: pageSortOrderKey) }
     }
+
+    static var pageGridFilter: BrowsePageGridFilter {
+        get {
+            guard let rawValue = preferences.string(forKey: RadixPreferenceKey.browsePageGridFilter) else {
+                return .all
+            }
+            return BrowsePageGridFilter(rawValue: rawValue) ?? .all
+        }
+        set { preferences.set(newValue.rawValue, forKey: RadixPreferenceKey.browsePageGridFilter) }
+    }
 }

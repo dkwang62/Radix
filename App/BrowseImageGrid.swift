@@ -71,20 +71,30 @@ extension FilterGridTab {
 
     func browseImageGridItems(for collection: CharacterCollection) -> [BrowseImageGridItem] {
         let phraseTiles = store.browsePagePhraseTiles(in: collection)
-        var items: [BrowseImageGridItem] = []
-        var offset = 0
-
-        while offset < collection.characters.count {
-            if let phraseTile = phraseTiles[offset] {
-                items.append(BrowseImageGridItem(offset: offset, kind: .phrase(phraseTile.phrase, phraseTile.offsets)))
-                offset = phraseTile.end
-            } else {
-                items.append(BrowseImageGridItem(offset: offset, kind: .character(collection.characters[offset])))
-                offset += 1
+        let phraseSpans = phraseTiles.mapValues { tile in
+            BrowsePageGridPhraseSpan(
+                start: tile.start,
+                end: tile.end,
+                phraseKey: store.normalizedPhraseWord(tile.phrase.word)
+            )
+        }
+        return BrowsePageGridVisibilityRules.visibleItems(
+            characterCount: collection.characters.count,
+            phraseSpans: phraseSpans,
+            filter: browsePageGridFilter
+        ).compactMap { visibleItem in
+            switch visibleItem {
+            case .character(let offset):
+                guard collection.characters.indices.contains(offset) else { return nil }
+                return BrowseImageGridItem(offset: offset, kind: .character(collection.characters[offset]))
+            case .phrase(let offset):
+                guard let phraseTile = phraseTiles[offset] else { return nil }
+                return BrowseImageGridItem(
+                    offset: offset,
+                    kind: .phrase(phraseTile.phrase, phraseTile.offsets)
+                )
             }
         }
-
-        return items
     }
 
     func browseImageDisplayCharacter(_ character: String) -> String {

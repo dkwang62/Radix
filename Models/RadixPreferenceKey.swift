@@ -37,6 +37,7 @@ enum RadixPreferenceKey {
     static let latestAIResult = "radix.latestAIResult"
 
     static let collections = "radix.characterCollections"
+    static let browsePageGridFilter = "radix.browsePageGridFilter"
     static let selectedAICollection = "radix.selectedAICollectionID"
     static let lastPreviewCharacter = "radix.lastPreviewCharacter"
     static let searchHistory = "radix.searchHistory"
