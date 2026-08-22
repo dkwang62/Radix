@@ -915,6 +915,12 @@ remaining audit work, and crash lessons for handing the finishing pass to Claude
 
 - Character dictionary: JSON base data plus `component_map_changes.json` overlay.
 - Phrases: bundled SQLite plus the user-added phrase database.
+- The 22 Aug 2026 one-time variant-meaning migration enriched 1,171 pure
+  `variant of ...` phrase definitions from their directly referenced records and
+  recorded four character-definition corrections through the tracked overlay.
+  Mixed definitions, unresolved/self references, and variant chains were
+  intentionally left unchanged. Do not rerun this as a broad startup migration;
+  see `VARIANT_MEANING_MIGRATION_2026-08-22.md` for the audit.
 - Dictionary variance audits derive added/missing characters from the in-memory
   overlay and cache the immutable bundled phrase word set; do not reparse the
   bundled dictionary or reopen/scan the master phrase database on every

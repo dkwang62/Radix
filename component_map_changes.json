@@ -418,6 +418,88 @@
         "龟"
       ]
     },
+    "㐱" : {
+      "meta" : {
+        "IDC" : "⿱",
+        "compounds" : [
+
+        ],
+        "decomposition" : "⿱人彡",
+        "definition" : "bushy, black hair; variant of 鬒; meaning of 鬒: glossy black hair",
+        "etymology" : {
+          "hint" : "hair",
+          "type" : "pictophonetic"
+        },
+        "pinyin" : [
+          "zhěn"
+        ],
+        "radical" : "彡",
+        "strokes" : 5
+      },
+      "related_characters" : [
+        "㐱",
+        "殄",
+        "畛",
+        "疹",
+        "胗",
+        "診",
+        "诊",
+        "趁",
+        "軫",
+        "轸",
+        "餮"
+      ]
+    },
+    "丂" : {
+      "meta" : {
+        "IDC" : "⿱",
+        "compounds" : [
+
+        ],
+        "decomposition" : "⿱一",
+        "definition" : "obstruction of breath (qi); variant of 考; meaning of 考: to test, to investigate, to examine",
+        "etymology" : {
+
+        },
+        "pinyin" : [
+          "kǎo"
+        ],
+        "radical" : "一",
+        "strokes" : 2
+      },
+      "related_characters" : [
+        "㿽",
+        "丂",
+        "俜",
+        "兮",
+        "号",
+        "娉",
+        "巧",
+        "拷",
+        "曦",
+        "朽",
+        "枵",
+        "栲",
+        "烤",
+        "犧",
+        "甹",
+        "窍",
+        "粤",
+        "粵",
+        "羲",
+        "考",
+        "聘",
+        "號",
+        "諡",
+        "銬",
+        "铐",
+        "饕",
+        "騁",
+        "骋",
+        "鴞",
+        "鸮"
+      ]
+    },
     "个" : {
       "meta" : {
         "IDC" : "⿱人丨",
@@ -7425,6 +7507,31 @@
         "魘"
       ]
     },
+    "歨" : {
+      "meta" : {
+        "IDC" : "⿱",
+        "compounds" : [
+
+        ],
+        "decomposition" : "⿱止止",
+        "definition" : "Old variant of 步; meaning of 步: walk, stroll, pace, march; to make progress",
+        "etymology" : {
+          "hint" : "Putting one foot 止 in front of the other",
+          "type" : "ideographic"
+        },
+        "pinyin" : [
+          "bù"
+        ],
+        "radical" : "止",
+        "strokes" : 8
+      },
+      "related_characters" : [
+        "屣",
+        "徙",
+        "歨",
+        "蓰"
+      ]
+    },
     "潦" : {
       "meta" : {
         "IDC" : "⿰氵尞",
@@ -7450,6 +7557,32 @@
       },
       "related_characters" : [
         "潦"
+      ]
+    },
+    "玨" : {
+      "meta" : {
+        "IDC" : "⿰",
+        "compounds" : [
+
+        ],
+        "decomposition" : "⿰王王",
+        "definition" : "guitar strings; variant of 珏; meaning of 珏: two gems mounted together",
+        "etymology" : {
+          "hint" : "Two guitar strings bound across frets",
+          "type" : "pictographic"
+        },
+        "pinyin" : [
+          "jué"
+        ],
+        "radical" : "王",
+        "strokes" : 8
+      },
+      "related_characters" : [
+        "玨",
+        "琴",
+        "琵",
+        "琶",
+        "瑟"
       ]
     },
     "瞭" : {
