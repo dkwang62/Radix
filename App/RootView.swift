@@ -14,7 +14,6 @@ struct RootView: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
     @Environment(\.horizontalSizeClass) var sizeClass
-    @Environment(\.scenePhase) var scenePhase
     @State var hasSeenWelcome = RadixRootPreferences.hasSeenWelcome
     @State var hasUsedSidebarNavigation = RadixRootPreferences.hasUsedSidebarNavigation
     @State var profileExportDocument = JSONFileDocument(data: Data())
@@ -34,6 +33,16 @@ struct RootView: View {
 
     var body: some View {
         rootContent
+        .background {
+            RadixSceneLifecycleObserver(
+                onResignActive: {
+                    store.flushPendingDataEditAutoSave()
+                },
+                onBecomeActive: {
+                    importPendingSharedInputsIfNeeded()
+                }
+            )
+        }
         .modifier(FileTransferModifier(
             profileExportDocument: $profileExportDocument,
             addPhrasesExportDocument: $addPhrasesExportDocument,
@@ -96,13 +105,6 @@ struct RootView: View {
                 hasSeenWelcome = true
             }
             .presentationDetents([.large])
-        }
-        .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .inactive || newPhase == .background {
-                store.flushPendingDataEditAutoSave()
-            } else if newPhase == .active {
-                importPendingSharedInputsIfNeeded()
-            }
         }
         .onOpenURL { url in
             if let query = searchQuery(from: url) {
@@ -176,4 +178,23 @@ struct RootView: View {
         return true
     }
 
+}
+
+private struct RadixSceneLifecycleObserver: View {
+    @Environment(\.scenePhase) private var scenePhase
+    let onResignActive: () -> Void
+    let onBecomeActive: () -> Void
+
+    var body: some View {
+        Color.clear
+            .frame(width: 0, height: 0)
+            .accessibilityHidden(true)
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .inactive || newPhase == .background {
+                    onResignActive()
+                } else if newPhase == .active {
+                    onBecomeActive()
+                }
+            }
+    }
 }

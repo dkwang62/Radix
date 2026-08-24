@@ -342,6 +342,12 @@ App scene transitions must also remain idle when there is no pending Character
 Studio edit. `flushPendingDataEditAutoSave()` is a pending-only operation;
 calling its persistence and cache-refresh path unconditionally while iOS takes
 a background snapshot causes `0x8BADF00D` shutdown watchdog terminations.
+Keep `scenePhase` observation inside the zero-size
+`RadixSceneLifecycleObserver`, not on `RootView`: observing it on the root
+invalidates the complete iPad navigation/menu graph while the app backgrounds.
+An iPadOS 26.5.2 build 6 crash showed that graph stuck in `Menu.body` until the
+process-exit watchdog killed Radix. The isolated observer may flush a genuinely
+pending edit and import shared input on activation without rebuilding the root.
 File restore/merge flows must finish the user-visible restore and then stop.
 They may mark database optimization as recommended, but must not start the
 shared `Database Optimization` task automatically. Keep the user wording at

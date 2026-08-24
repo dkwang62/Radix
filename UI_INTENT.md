@@ -822,4 +822,5 @@ OCR review is an explicit, reversible workflow on saved OCR pages:
   same pattern to iPad and Mac.
 - Preserve documented SwiftUI crash guardrails even when they leave a small
   fixed view list duplicated. In particular, keep Smart Search's three example
-  buttons explicit and keep phrase-card page chips free of `ScrollViewReader`.
+  buttons explicit, keep phrase-card page chips free of `ScrollViewReader`, and
+  keep scene-phase observation out of the root navigation/menu view.
