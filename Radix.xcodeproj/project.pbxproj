@@ -268,6 +268,7 @@
 		C0DE00562FC10015001B9AA7 /* RadixStoreImageOCR.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00552FC10015001B9AA7 /* RadixStoreImageOCR.swift */; };
 		C0DE00582FC10016001B9AA7 /* StudyPersistenceStores.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00572FC10016001B9AA7 /* StudyPersistenceStores.swift */; };
 		C0DE005A2FC10017001B9AA7 /* FavouritesStudyScreenState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00592FC10017001B9AA7 /* FavouritesStudyScreenState.swift */; };
+		C0DE00622FC10018001B9AA7 /* RadixThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00612FC10018001B9AA7 /* RadixThumbnail.swift */; };
 		C0DE00AB2FB20001001B9AA7 /* RadixIconography.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00AA2FB20001001B9AA7 /* RadixIconography.swift */; };
 		C0DE01012FC80001001B9AA7 /* PhraseInfoSentence.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE01002FC80001001B9AA7 /* PhraseInfoSentence.swift */; };
 		C0E52DFB3BB4B3CDE7E768D8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5FB0197D42D52FA9A72F4B24 /* Assets.xcassets */; };
@@ -556,6 +557,7 @@
 		C0DE00552FC10015001B9AA7 /* RadixStoreImageOCR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreImageOCR.swift; sourceTree = "<group>"; };
 		C0DE00572FC10016001B9AA7 /* StudyPersistenceStores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyPersistenceStores.swift; sourceTree = "<group>"; };
 		C0DE00592FC10017001B9AA7 /* FavouritesStudyScreenState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesStudyScreenState.swift; sourceTree = "<group>"; };
+		C0DE00612FC10018001B9AA7 /* RadixThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixThumbnail.swift; sourceTree = "<group>"; };
 		C0DE00AA2FB20001001B9AA7 /* RadixIconography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixIconography.swift; sourceTree = "<group>"; };
 		C0DE01002FC80001001B9AA7 /* PhraseInfoSentence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseInfoSentence.swift; sourceTree = "<group>"; };
 		C94D867F618771FE33C19738 /* enhanced_component_map_with_etymology.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = enhanced_component_map_with_etymology.json; sourceTree = "<group>"; };
@@ -717,6 +719,7 @@
 				C0DE002F2FC10001001B9AA7 /* RadixPlatform.swift */,
 				C0DE00352FC10004001B9AA7 /* RadixPreferences.swift */,
 				C0DE00372FC10005001B9AA7 /* SavedPageImageStore.swift */,
+				C0DE00612FC10018001B9AA7 /* RadixThumbnail.swift */,
 				C0DE003D2FC10009001B9AA7 /* RadixTheme.swift */,
 				C0DE003F2FC1000A001B9AA7 /* RadixFileTypes.swift */,
 				C0DE00472FC1000E001B9AA7 /* RadixCaptureUsage.swift */,
@@ -1224,6 +1227,7 @@
 				C0DE00342FC10003001B9AA7 /* CaptureImageIO.swift in Sources */,
 				C0DE00362FC10004001B9AA7 /* RadixPreferences.swift in Sources */,
 				C0DE00382FC10005001B9AA7 /* SavedPageImageStore.swift in Sources */,
+				C0DE00622FC10018001B9AA7 /* RadixThumbnail.swift in Sources */,
 				C0DE003E2FC10009001B9AA7 /* RadixTheme.swift in Sources */,
 				C0DE00402FC1000A001B9AA7 /* RadixFileTypes.swift in Sources */,
 				C0DE00422FC1000B001B9AA7 /* CapturePhotoImportButton.swift in Sources */,

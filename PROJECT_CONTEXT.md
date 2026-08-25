@@ -138,6 +138,9 @@ as orchestration, not a second business-rule implementation.
 - `SavedPageImageStore` owns captured source images in Application Support.
   Saved-page metadata and ordinary page selection must not load or rewrite those
   image bytes.
+- `RadixThumbnail` is the shared UIKit/AppKit adapter for rendering encoded
+  thumbnail data in SwiftUI; it and the persistence/state helper files remain
+  explicit members of the Radix Xcode target.
 - `BuiltInPromptTaskID` is the sole built-in AI task identity and capability
   registry. Its persisted `task1`...`task15` raw values must not change.
   `PromptTask` intentionally retains a string ID so custom tasks remain valid.
