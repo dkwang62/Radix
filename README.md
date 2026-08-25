@@ -85,7 +85,7 @@ were folded into the canonical docs. Git history remains the audit trail.
 Current project defaults now include:
 
 - `MARKETING_VERSION = 1.0.6`
-- `CURRENT_PROJECT_VERSION = 2`
+- `CURRENT_PROJECT_VERSION = 9`
 - `ITSAppUsesNonExemptEncryption = NO`
 - Universal target family (`TARGETED_DEVICE_FAMILY = 1,2`)
 
