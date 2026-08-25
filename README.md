@@ -22,6 +22,8 @@ AI, My Data, or other user-facing workflow structure.
   workstream posture, and required verification.
 - `UI_INTENT.md` — UI/product intent and design decision rules.
 - `PORTABLE_BACKUP_FORMAT.md` — portable backup JSON contract.
+- `VARIANT_MEANING_MIGRATION_2026-08-22.md` — audit for the completed one-time
+  dictionary meaning migration.
 - `APP_STORE_COPY.md` — App Store and marketing copy draft.
 - `THIRD_PARTY_LICENSES.md` — bundled data/source license summary.
 
@@ -82,8 +84,8 @@ were folded into the canonical docs. Git history remains the audit trail.
 
 Current project defaults now include:
 
-- `MARKETING_VERSION = 1.0.0`
-- `CURRENT_PROJECT_VERSION = 1`
+- `MARKETING_VERSION = 1.0.6`
+- `CURRENT_PROJECT_VERSION = 2`
 - `ITSAppUsesNonExemptEncryption = NO`
 - Universal target family (`TARGETED_DEVICE_FAMILY = 1,2`)
 
