@@ -124,8 +124,11 @@ as orchestration, not a second business-rule implementation.
   dictionary loading, search, variants, radicals, and related-character queries.
 - `PhraseRepository` owns the authoritative phrase lookup and user-added phrase
   database access.
-- `RadixStudyPreferences` owns sentence database queries, paging, sentence
-  upserts, and sentence-library transfer.
+- `RadixStudyPreferences` is the stable compatibility facade for Study callers;
+  do not add new persisted state directly to it. `SentenceLibraryStore` owns the
+  SQLite sentence corpus, `ConversationPracticeStore` owns imported packs and
+  progress, and `PageStudyArtifactStore` owns phrase extractions and AI-cleaned
+  pages. Cross-store reconciliation remains in the facade.
 - `SavedPageImageStore` owns captured source images in Application Support.
   Saved-page metadata and ordinary page selection must not load or rewrite those
   image bytes.

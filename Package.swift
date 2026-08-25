@@ -30,6 +30,7 @@ let package = Package(
                 "FavoriteSentenceModels.swift",
                 "RadixCaptureModels.swift",
                 "SentenceExampleModels.swift",
+                "StudyPersistenceStores.swift",
                 "PhraseModels.swift",
                 "PinyinSearchNormalizer.swift",
                 "PromptConfigRendering.swift",

@@ -266,6 +266,7 @@
 		C0DE00522FC10013001B9AA7 /* RadixPhrasePreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00512FC10013001B9AA7 /* RadixPhrasePreferences.swift */; };
 		C0DE00542FC10014001B9AA7 /* RadixInteractionPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00532FC10014001B9AA7 /* RadixInteractionPreferences.swift */; };
 		C0DE00562FC10015001B9AA7 /* RadixStoreImageOCR.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00552FC10015001B9AA7 /* RadixStoreImageOCR.swift */; };
+		C0DE00582FC10016001B9AA7 /* StudyPersistenceStores.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00572FC10016001B9AA7 /* StudyPersistenceStores.swift */; };
 		C0DE00AB2FB20001001B9AA7 /* RadixIconography.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00AA2FB20001001B9AA7 /* RadixIconography.swift */; };
 		C0DE01012FC80001001B9AA7 /* PhraseInfoSentence.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE01002FC80001001B9AA7 /* PhraseInfoSentence.swift */; };
 		C0E52DFB3BB4B3CDE7E768D8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5FB0197D42D52FA9A72F4B24 /* Assets.xcassets */; };
@@ -552,6 +553,7 @@
 		C0DE00512FC10013001B9AA7 /* RadixPhrasePreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixPhrasePreferences.swift; sourceTree = "<group>"; };
 		C0DE00532FC10014001B9AA7 /* RadixInteractionPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixInteractionPreferences.swift; sourceTree = "<group>"; };
 		C0DE00552FC10015001B9AA7 /* RadixStoreImageOCR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreImageOCR.swift; sourceTree = "<group>"; };
+		C0DE00572FC10016001B9AA7 /* StudyPersistenceStores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyPersistenceStores.swift; sourceTree = "<group>"; };
 		C0DE00AA2FB20001001B9AA7 /* RadixIconography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixIconography.swift; sourceTree = "<group>"; };
 		C0DE01002FC80001001B9AA7 /* PhraseInfoSentence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseInfoSentence.swift; sourceTree = "<group>"; };
 		C94D867F618771FE33C19738 /* enhanced_component_map_with_etymology.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = enhanced_component_map_with_etymology.json; sourceTree = "<group>"; };
@@ -741,6 +743,7 @@
 				6AFC0DE62FE00007001B9AA7 /* FavoriteSentenceModels.swift */,
 				6AFC0DE82FE00009001B9AA7 /* RadixCaptureModels.swift */,
 				6AFC0DEA2FE0000B001B9AA7 /* SentenceExampleModels.swift */,
+				C0DE00572FC10016001B9AA7 /* StudyPersistenceStores.swift */,
 				3F6413E96D450A71BBA8A1EF /* RadixDataCompatibilityModels.swift */,
 				961A09FC176BE72BF88F5FCD /* RadixNavigationModels.swift */,
 				179D5E4ACB253F63E0A676FA /* RadixPreferenceKey.swift */,
@@ -1003,6 +1006,7 @@
 				6AFC0DE72FE00007001B9AA7 /* FavoriteSentenceModels.swift in Sources */,
 				6AFC0DE92FE00009001B9AA7 /* RadixCaptureModels.swift in Sources */,
 				6AFC0DEB2FE0000B001B9AA7 /* SentenceExampleModels.swift in Sources */,
+				C0DE00582FC10016001B9AA7 /* StudyPersistenceStores.swift in Sources */,
 				6AFC0DE12FE00001001B9AA7 /* PromptConfigRendering.swift in Sources */,
 				6AFC0DF32FE00013001B9AA7 /* PromptTemplateRevision.swift in Sources */,
 				04BAFF2AD364035CA808AF94 /* ConversationPracticeQuizSheet.swift in Sources */,
