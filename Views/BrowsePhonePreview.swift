@@ -11,7 +11,7 @@ struct BrowsePhonePreview: View {
         PhoneContextPreview(
             phrase: phrase,
             character: character,
-            listReturnTitle: pageReturnTitle,
+            listReturnTitle: pageReturnTitle ?? "Browse Dictionary",
             onReturn: onReturn
         )
         .environmentObject(store)

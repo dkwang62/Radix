@@ -740,6 +740,26 @@ extension RadixStore {
         showiPhoneDetail = false
     }
 
+    /// Title-menu navigation is global navigation. Clear transient card and
+    /// deferred-launch state before applying the destination selected there so
+    /// an unfinished contextual flow cannot cover or reopen over that choice.
+    func overrideIncompleteActionsForTitleSelection() {
+        clearInformationCardFocus()
+        activeFavouriteCharacter = nil
+        requestedStudyNavigationTarget = nil
+        pendingConversationPracticeTopicID = nil
+        shouldOpenAddedPhraseReview = false
+        shouldOpenCaptureCamera = false
+        shouldOpenCaptureTextPage = false
+        shouldOpenCaptureClipboardImage = false
+        shouldOpenCaptureAlbum = false
+        shouldOpenCaptureFiles = false
+        quickEditDestination = nil
+        showLatestAIResult = false
+        shouldAutoOpenAILinkPrompt = false
+        shouldAutoRunGeminiPhraseAPI = false
+    }
+
     // MARK: - Highlight helpers
 
     func highlightBrowseDictionaryCharacter(_ character: String?) {

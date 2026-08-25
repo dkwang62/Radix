@@ -177,7 +177,9 @@ extension RootView {
                 systemImage: RadixIcon.browse,
                 isSelected: isBrowseDestinationActive
             ) {
-                store.goToBrowse()
+                performTitleMenuSelection {
+                    store.goToBrowse()
+                }
             }
 
             primaryNavigationButton(
@@ -185,9 +187,11 @@ extension RootView {
                 systemImage: RadixIcon.study,
                 isSelected: isStudyDestinationActive || isPagesDestinationActive
             ) {
-                store.activeStudySectionTitle = StudyNavigationTarget.savedPages.title
-                store.requestedStudyNavigationTarget = .savedPages
-                store.goToFavourites()
+                performTitleMenuSelection {
+                    store.activeStudySectionTitle = StudyNavigationTarget.savedPages.title
+                    store.requestedStudyNavigationTarget = .savedPages
+                    store.goToFavourites()
+                }
             }
 
             primaryNavigationButton(
@@ -195,7 +199,9 @@ extension RootView {
                 systemImage: RadixIcon.aiLink,
                 isSelected: store.route == .aiLink
             ) {
-                store.enterAILink()
+                performTitleMenuSelection {
+                    store.enterAILink()
+                }
             }
 
             primaryNavigationButton(
@@ -203,7 +209,9 @@ extension RootView {
                 systemImage: RadixIcon.myData,
                 isSelected: store.route == .search && store.homeTab == .dataEdit
             ) {
-                store.goToDataEdit()
+                performTitleMenuSelection {
+                    store.goToDataEdit()
+                }
             }
 
             primaryNavigationButton(
@@ -211,7 +219,9 @@ extension RootView {
                 systemImage: RadixIcon.settings,
                 isSelected: store.route == .settings
             ) {
-                store.goToSettings()
+                performTitleMenuSelection {
+                    store.goToSettings()
+                }
             }
         }
     }
@@ -228,42 +238,59 @@ extension RootView {
         }
     }
 
+    func performTitleMenuSelection(_ action: () -> Void) {
+        store.overrideIncompleteActionsForTitleSelection()
+        action()
+    }
+
     @ViewBuilder
     var browseTitleMenuSection: some View {
         Button {
-            store.selectBrowseCollection(id: nil)
-            store.shouldCloseBrowseSource = true
+            performTitleMenuSelection {
+                store.selectBrowseCollection(id: nil)
+                store.shouldCloseBrowseSource = true
+            }
         } label: {
             Label("Dictionary", systemImage: store.selectedBrowseCollection == nil ? "checkmark" : "book")
         }
 
         Button {
-            store.startCaptureTextPage()
+            performTitleMenuSelection {
+                store.startCaptureTextPage()
+            }
         } label: {
             Label("Text to Page", systemImage: "doc.text")
         }
 
         Button {
-            store.startCaptureClipboardImagePage()
+            performTitleMenuSelection {
+                store.startCaptureClipboardImagePage()
+            }
         } label: {
             Label("Image from Clipboard", systemImage: "doc.on.clipboard")
         }
 
         Button {
-            store.startCaptureAlbumPage()
+            performTitleMenuSelection {
+                store.startCaptureAlbumPage()
+            }
         } label: {
             Label("Image from Album", systemImage: "photo.on.rectangle")
         }
 
         Button {
-            store.startCaptureFilePage()
+            performTitleMenuSelection {
+                store.startCaptureFilePage()
+            }
         } label: {
             Label("Image from Files", systemImage: "folder")
         }
 
         ForEach(browseTitleMenuPages) { collection in
             Button {
-                store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
+                performTitleMenuSelection {
+                    store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
+                }
             } label: {
                 let title = collection.name.isEmpty ? RadixCopy.savedPage : collection.name
                 let isSelected = store.selectedBrowseCollectionID == collection.id
@@ -277,7 +304,9 @@ extension RootView {
         Section("Study") {
             ForEach(studyTitleMenuTargets) { target in
                 Button {
-                    store.requestedStudyNavigationTarget = target
+                    performTitleMenuSelection {
+                        store.requestedStudyNavigationTarget = target
+                    }
                 } label: {
                     Label(
                         target.menuTitle,
@@ -299,7 +328,9 @@ extension RootView {
         Section("AI Templates") {
             if store.latestAIResult != nil {
                 Button {
-                    store.showLatestAIResult = true
+                    performTitleMenuSelection {
+                        store.showLatestAIResult = true
+                    }
                 } label: {
                     Label("Latest AI Result", systemImage: "sparkles.rectangle.stack")
                 }
@@ -307,7 +338,9 @@ extension RootView {
 
             ForEach(store.promptConfig.normalized().tasks) { task in
                 Button {
-                    selectTitleMenuPromptTask(task.id)
+                    performTitleMenuSelection {
+                        selectTitleMenuPromptTask(task.id)
+                    }
                 } label: {
                     Label(
                         task.title,
@@ -317,8 +350,10 @@ extension RootView {
             }
 
             Button {
-                let id = store.cleanupBlankCustomPromptTasks() ?? store.addPromptTask()
-                selectTitleMenuPromptTask(id)
+                performTitleMenuSelection {
+                    let id = store.cleanupBlankCustomPromptTasks() ?? store.addPromptTask()
+                    selectTitleMenuPromptTask(id)
+                }
             } label: {
                 Label("New AI Task...", systemImage: "plus.circle")
             }
@@ -354,7 +389,9 @@ extension RootView {
         Section("Data") {
             ForEach(DataEditSection.allCases) { section in
                 Button {
-                    store.activeDataEditSection = section
+                    performTitleMenuSelection {
+                        store.activeDataEditSection = section
+                    }
                 } label: {
                     Label(
                         section.rawValue,

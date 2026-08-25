@@ -9,7 +9,7 @@ Read this before work. Read `UI_INTENT.md` before any navigation, layout, or
 user-workflow change. `AGENTS.md` contains the repository rules for coding
 agents.
 
-Last consolidated: 2026-08-25
+Last consolidated: 2026-08-26
 
 ## Current State
 
@@ -65,6 +65,12 @@ stay linked to their page rather than becoming disconnected parallel features.
   explicit pair replaces generic `Back to Browse` or `Back to Study` bars.
 - A primary navigation choice clears transient return context. Contextual drill
   flows must always expose one visible, named route back to their origin.
+- On iPhone, Browse Dictionary character and phrase cards expose an explicit
+  return action named `Back to Browse Dictionary`. Every root title-menu
+  navigation choice first clears active
+  information cards and deferred launch requests so Browse, Study (including
+  Study Pages), AI, Data, or Settings immediately overrides an unfinished
+  contextual flow.
 - Root titles carry context, for example `Browse - Dictionary`,
   `Browse - [page]`, and `Study - Sentences`; do not repeat the same title in
   page content.

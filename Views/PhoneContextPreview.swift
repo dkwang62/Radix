@@ -91,7 +91,7 @@ struct PhoneContextPreview: View {
                 onReturn()
             }
         } label: {
-            Label(title, systemImage: "chevron.backward")
+            Label("Back to \(title)", systemImage: "chevron.backward")
                 .font(ResponsiveFont.subheadline.weight(.semibold))
                 .foregroundStyle(RadixAccent.primary)
                 .padding(.horizontal, 12)
