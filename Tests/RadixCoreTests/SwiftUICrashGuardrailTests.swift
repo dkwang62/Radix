@@ -30,6 +30,24 @@ struct SwiftUICrashGuardrailTests {
         #expect(source.components(separatedBy: "@Environment(\\.scenePhase)").count - 1 == 1)
     }
 
+    @Test("Study root delegates section state and navigation transitions")
+    func studyRootUsesSectionStateCoordinator() throws {
+        let rootSource = try sourceText(at: "App/FavouritesTab.swift")
+        let stateSource = try sourceText(at: "App/FavouritesStudyScreenState.swift")
+        let lifecycleSource = try sourceText(at: "App/FavouritesTabLifecycle.swift")
+
+        #expect(rootSource.components(separatedBy: "@State var").count - 1 == 1)
+        #expect(rootSource.contains("@State var screenState = StudyScreenState()"))
+        #expect(stateSource.contains("struct StudyNavigationScreenState"))
+        #expect(stateSource.contains("struct StudySentenceScreenState"))
+        #expect(stateSource.contains("struct StudyConversationPracticeScreenState"))
+        #expect(stateSource.contains("struct StudyPageScreenState"))
+        #expect(stateSource.contains("mutating func presentReview("))
+        #expect(stateSource.contains("mutating func returnToOriginatingPage()"))
+        #expect(lifecycleSource.contains("screenState.presentReview(scope: .all)"))
+        #expect(lifecycleSource.contains("screenState.presentCheckpoints()"))
+    }
+
     private func sourceText(at relativePath: String) throws -> String {
         let testFileURL = URL(fileURLWithPath: #filePath)
         let repositoryURL = testFileURL

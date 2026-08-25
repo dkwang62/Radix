@@ -79,24 +79,18 @@ extension FavouritesTab {
         guard let target else { return }
         switch target {
         case .recent:
-            clearFocusedStudySections()
-            studyGridScope = .all
-            showStudyCheckpoints = false
+            screenState.presentReview(scope: .all)
         case .favorites:
-            clearFocusedStudySections()
-            studyGridScope = .favorites
-            showStudyCheckpoints = false
+            screenState.presentReview(scope: .favorites)
         case .savedPages:
-            clearFocusedStudySections()
-            studyGridScope = .savedPages
-            showStudyCheckpoints = false
             if store.selectedBrowseCollectionID == nil,
                let firstPage = store.sortedCollections(order: .lastViewed).first {
                 store.selectBrowseCollection(id: firstPage.id)
             }
-            if let selectedPageID = store.selectedBrowseCollectionID {
-                expandedStudySavedPageID = selectedPageID
-            }
+            screenState.presentReview(
+                scope: .savedPages,
+                expandedSavedPageID: store.selectedBrowseCollectionID
+            )
         case .addedPhrases:
             presentAddedPhraseReview()
         case .conversationPractice:
@@ -104,8 +98,7 @@ extension FavouritesTab {
         case .sentences:
             presentSentenceExamples()
         case .checkpoints:
-            clearFocusedStudySections()
-            showStudyCheckpoints = true
+            screenState.presentCheckpoints()
         }
         store.requestedStudyNavigationTarget = nil
         syncActiveStudySectionTitle()
@@ -127,8 +120,7 @@ extension FavouritesTab {
         }
         selectConversationPracticeTopic(topic)
         withAnimation(.snappy(duration: 0.18)) {
-            focusedStudySection = .conversationPractice
-            studyAICleanedPageCollectionID = nil
+            screenState.presentFocusedSection(.conversationPractice)
         }
         store.pendingConversationPracticeTopicID = nil
     }

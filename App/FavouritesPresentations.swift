@@ -14,34 +14,34 @@ extension FavouritesTab {
                 }
                 .presentationDetents([.medium, .large])
             }
-            .sheet(item: $conversationPracticeReviewPresentation, onDismiss: {
+            .sheet(item: $screenState.conversationPractice.reviewPresentation, onDismiss: {
                 conversationPracticeReviewPresentation = nil
                 refreshConversationPracticeProgress()
             }) { presentation in
                 ConversationPracticeReviewSheet(
                     library: presentation.library,
-                    usesTraditionalScript: $studyGridUsesTraditionalScript
+                    usesTraditionalScript: $screenState.navigation.usesTraditionalScript
                 )
                 .environmentObject(store)
                 .environmentObject(entitlement)
                 .presentationDetents([.large])
             }
-            .sheet(item: $conversationPracticeQuizPresentation, onDismiss: {
+            .sheet(item: $screenState.conversationPractice.quizPresentation, onDismiss: {
                 conversationPracticeQuizPresentation = nil
                 refreshConversationPracticeProgress()
             }) { presentation in
                 ConversationPracticeQuizSheet(
                     library: presentation.library,
-                    usesTraditionalScript: $studyGridUsesTraditionalScript
+                    usesTraditionalScript: $screenState.navigation.usesTraditionalScript
                 )
                 .environmentObject(store)
                 .environmentObject(entitlement)
                 .presentationDetents([.large])
             }
-            .sheet(item: $studyTranslationReportCollection) { collection in
+            .sheet(item: $screenState.pages.translationReportCollection) { collection in
                 BrowseTranslationReportSheet(
                     collectionName: collection.name,
-                    report: $studyTranslationReportDraft,
+                    report: $screenState.pages.translationReportDraft,
                     updatedAt: collection.translationReportUpdatedAt,
                     onPaste: pasteStudyTranslationReport,
                     onSave: { saveStudyTranslationReport(collection) },
@@ -49,7 +49,7 @@ extension FavouritesTab {
                     onDone: { studyTranslationReportCollection = nil }
                 )
             }
-            .sheet(item: $studyPagePhrasesPresentation) { presentation in
+            .sheet(item: $screenState.pages.phrasesPresentation) { presentation in
                 PhraseTableSheet(
                     character: presentation.collection.characters.joined(),
                     isVertical: isPhone,
@@ -62,7 +62,7 @@ extension FavouritesTab {
                 )
                 .environmentObject(store)
             }
-            .sheet(item: $sentenceExampleEditDraft) { draft in
+            .sheet(item: $screenState.sentences.editDraft) { draft in
                 SentenceExampleEditSheet(record: draft.record) { updated in
                     RadixStudyPreferences.replaceSentenceExample(updated)
                     sentenceExampleRevision += 1
@@ -72,7 +72,7 @@ extension FavouritesTab {
                     sentenceExampleEditDraft = nil
                 }
             }
-            .sheet(isPresented: $showStudyCheckpoints) {
+            .sheet(isPresented: $screenState.navigation.showsCheckpoints) {
                 NavigationStack {
                     ScrollView {
                         studyCheckpointsSection
@@ -90,21 +90,21 @@ extension FavouritesTab {
                 }
                 .presentationDetents([.medium, .large])
             }
-            .sheet(isPresented: $showConversationPracticePasteImporter) {
+            .sheet(isPresented: $screenState.conversationPractice.showsPasteImporter) {
                 ConversationPracticePasteImportSheet { pack in
                     importPastedConversationPracticePack(pack)
                 }
                 .presentationDetents([.medium, .large])
             }
             .fileImporter(
-                isPresented: $showConversationPracticeImporter,
+                isPresented: $screenState.conversationPractice.showsImporter,
                 allowedContentTypes: [RadixFileTypes.json],
                 allowsMultipleSelection: false
             ) { result in
                 importConversationPracticePack(result)
             }
             .fileExporter(
-                isPresented: $showSentenceDatabaseExporter,
+                isPresented: $screenState.sentences.showsExporter,
                 document: sentenceDatabaseExportDocument,
                 contentType: RadixFileTypes.database,
                 defaultFilename: sentenceDatabaseExportFilename
@@ -118,7 +118,7 @@ extension FavouritesTab {
                 }
             }
             .fileImporter(
-                isPresented: $showSentenceDatabaseImporter,
+                isPresented: $screenState.sentences.showsImporter,
                 allowedContentTypes: RadixFileTypes.sentenceDatabaseImports,
                 allowsMultipleSelection: false
             ) { result in
@@ -170,12 +170,12 @@ extension FavouritesTab {
                 Text(pendingConversationPracticeReplacement?.message ?? "")
             }
             .modifier(SentenceExampleDeletionAlert(
-                pendingDeletion: $pendingSentenceExampleDeletion,
+                pendingDeletion: $screenState.sentences.pendingDeletion,
                 onDelete: { record in
                     deleteSentenceExamples([record], statusMessage: "Deleted")
                 }
             ))
-            .alert("Delete Matching Sentences?", isPresented: $showDeleteFilteredSentenceExamplesConfirmation) {
+            .alert("Delete Matching Sentences?", isPresented: $screenState.sentences.showsDeleteFilteredConfirmation) {
                 Button("Cancel", role: .cancel) {}
                 Button(sentenceExampleBulkDeleteConfirmationTitle, role: .destructive) {
                     deleteFilteredSentenceExamples()
@@ -183,7 +183,7 @@ extension FavouritesTab {
             } message: {
                 Text(sentenceExampleBulkDeleteMessage)
             }
-            .alert("Delete Selected Sentences?", isPresented: $showDeleteSelectedSentenceExamplesConfirmation) {
+            .alert("Delete Selected Sentences?", isPresented: $screenState.sentences.showsDeleteSelectedConfirmation) {
                 Button("Cancel", role: .cancel) {}
                 Button(sentenceExampleSelectedDeleteConfirmationTitle, role: .destructive) {
                     deleteSelectedSentenceExamples()
@@ -207,7 +207,7 @@ extension FavouritesTab {
             } message: {
                 Text("Merge adds new sentences and updates matching ones. Replace swaps your saved sentences with this file after creating a recovery copy.")
             }
-            .alert("Clear Saved Sentences?", isPresented: $showClearSentenceDatabaseConfirmation) {
+            .alert("Clear Saved Sentences?", isPresented: $screenState.sentences.showsClearConfirmation) {
                 Button("Cancel", role: .cancel) {}
                 Button("Clear Saved Sentences", role: .destructive) {
                     clearSentenceDatabase()
@@ -251,7 +251,7 @@ extension FavouritesTab {
                     Text("Use \"\(promotion.corrected.name)\" as the main page for \"\(promotion.original.name)\". Existing page-linked practice, translation, favorites, and progress stay with the main page.")
                 }
             }
-            .alert(item: $studyAIFallbackTask) { task in
+            .alert(item: $screenState.pages.aiFallbackTask) { task in
                 Alert(
                     title: Text(PageAIMethodCopy.unavailableTitle),
                     message: Text("\(studyAutomaticAIError)\n\n\(PageAIMethodCopy.unavailableMessage)"),

@@ -140,6 +140,11 @@ as orchestration, not a second business-rule implementation.
   must use `BuiltInPromptTaskID`, not parallel task-ID constants or literals.
 - Conversation Practice is deliberately split into model, validation, library,
   topic, progress, sentence, favorite, capture-import, and quiz-rule files.
+- `FavouritesTab` is the Study shell, not the owner of every Study feature's
+  transient state. `StudyScreenState` groups Navigation, Sentences,
+  Conversation Practice, and Saved Page state and owns multi-field transitions.
+  Keep new section state in its matching group and preserve the single root
+  `@State` guardrail.
 - Shared visual primitives live in `Services/RadixTheme.swift`. Reuse them for
   simple surfaces instead of creating local versions.
 

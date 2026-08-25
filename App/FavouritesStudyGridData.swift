@@ -120,8 +120,7 @@ extension FavouritesTab {
         store.dismissSidebarPhrasePreview()
         store.previewCharacter = nil
         withAnimation(.snappy(duration: 0.18)) {
-            focusedStudySection = .addedPhrases
-            studyAICleanedPageCollectionID = nil
+            screenState.presentFocusedSection(.addedPhrases)
         }
     }
 
@@ -209,10 +208,7 @@ extension FavouritesTab {
 
     func openAICleanedPage(_ collection: CharacterCollection) {
         withAnimation(.snappy(duration: 0.18)) {
-            focusedStudySection = nil
-            aiCleanedPageSentencePageIndex = 0
-            aiCleanedPageSentencePageCache = nil
-            studyAICleanedPageCollectionID = collection.id
+            screenState.openAICleanedPage(collectionID: collection.id)
         }
         if let record = RadixStudyPreferences.aiCleanedPage(for: collection.id) {
             refreshAICleanedPageSentenceCache(for: record)
@@ -465,21 +461,15 @@ extension FavouritesTab {
 
     func openStudyPracticePack(_ pack: ConversationPracticePack, from collection: CharacterCollection) {
         withAnimation(.snappy(duration: 0.18)) {
-            studyPageReturnCollectionID = collection.id
-            focusedStudySection = .conversationPractice
-            studyAICleanedPageCollectionID = nil
+            screenState.openConversationPractice(fromPageID: collection.id)
         }
         selectConversationPracticeTopic(conversationPracticeTopic(for: pack.practiceLibrary))
     }
 
     func returnToOriginatingStudyPage() {
-        guard let collectionID = studyPageReturnCollectionID else { return }
+        guard let collectionID = screenState.navigation.pageReturnCollectionID else { return }
         withAnimation(.snappy(duration: 0.18)) {
-            studyPageReturnCollectionID = nil
-            focusedStudySection = nil
-            studyAICleanedPageCollectionID = nil
-            studyGridScope = .savedPages
-            expandedStudySavedPageID = collectionID
+            _ = screenState.returnToOriginatingPage()
         }
         store.selectBrowseCollection(id: collectionID)
         syncActiveStudySectionTitle()

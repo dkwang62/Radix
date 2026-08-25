@@ -302,8 +302,7 @@ extension FavouritesTab {
     func openSentenceExamplePracticeSource(_ example: SentenceExampleRecord, topic: ConversationPracticeTopic) {
         let source = sentenceExamplePracticeSource(example)
         withAnimation(.snappy(duration: 0.18)) {
-            focusedStudySection = .conversationPractice
-            studyAICleanedPageCollectionID = nil
+            screenState.presentFocusedSection(.conversationPractice)
         }
         selectConversationPracticeTopic(topic)
         selectPracticeItemForSentenceExample(example, source: source)

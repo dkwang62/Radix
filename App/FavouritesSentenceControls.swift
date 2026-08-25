@@ -43,7 +43,7 @@ extension FavouritesTab {
                         sentenceExampleSourceFilterMenu
                             .fixedSize(horizontal: true, vertical: false)
 
-                        TextField("Search sentences", text: $sentenceExampleSearchText)
+                        TextField("Search sentences", text: $screenState.sentences.searchText)
                             .textFieldStyle(.roundedBorder)
                             .font(ResponsiveFont.caption)
                             .frame(minWidth: 0, maxWidth: .infinity)
@@ -60,7 +60,7 @@ extension FavouritesTab {
                     sentenceExampleSourceFilterMenu
                         .fixedSize(horizontal: true, vertical: false)
 
-                    TextField("Search sentences", text: $sentenceExampleSearchText)
+                    TextField("Search sentences", text: $screenState.sentences.searchText)
                         .textFieldStyle(.roundedBorder)
                         .font(ResponsiveFont.caption)
                         .frame(minWidth: 160, maxWidth: .infinity)
@@ -81,7 +81,7 @@ extension FavouritesTab {
 
     var sentenceExampleMinimumCharactersSlider: some View {
         HStack(spacing: 7) {
-            Slider(value: $sentenceExampleMinimumCharacterCount, in: 2...40, step: 1)
+            Slider(value: $screenState.sentences.minimumCharacterCount, in: 2...40, step: 1)
                 .tint(RadixAccent.primary)
 
             Text("\(sentenceExampleMinimumCharacterFilter)")

@@ -131,8 +131,7 @@ extension FavouritesTab {
     }
 
     func clearFocusedStudySections() {
-        focusedStudySection = nil
-        studyPageReturnCollectionID = nil
+        screenState.clearFocusedSections()
     }
 
     func sectionTitle(_ title: String) -> some View {

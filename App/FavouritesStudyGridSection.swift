@@ -200,9 +200,7 @@ extension FavouritesTab {
     }
 
     var activeStudySectionTitle: String {
-        if showStudyCheckpoints { return "Checkpoints" }
-        if let focusedStudySection { return focusedStudySection.title }
-        return studyGridScope.title
+        screenState.activeSectionTitle
     }
 
     var clearRecentButton: some View {

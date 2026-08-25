@@ -88,65 +88,7 @@ struct FavouritesTab: View {
     let checkpoints: [LocalDataSnapshot]
     let isCreatingCheckpoint: Bool
     let isReturningToCheckpoint: Bool
-    @State var selectedPhrase: PhraseItem?
-    @State var focusedStudySection: FocusedStudySection?
-    @State var studyAICleanedPageCollectionID: UUID?
-    @State var aiCleanedPageSentencePageIndex = 0
-    @State var aiCleanedPageSentencePageCache: StudyAICleanedSentencePageCache?
-    @State var sentenceExampleFilter: SentenceExampleStudyFilter = .all
-    @State var sentenceExampleSearchText = ""
-    @State var sentenceExampleMinimumCharacterCount = 2.0
-    @State var sentenceExamplePageIndex = 0
-    @State var sentenceExamplePageRecords: [SentenceExampleRecord] = []
-    @State var sentenceExampleResultCount = 0
-    @State var isSelectingSentenceExamples = false
-    @State var selectedSentenceExampleIDs = Set<UUID>()
-    @State var sentenceExampleRevision = 0
-    @State var sentenceExampleStatusMessage: String?
-    @State var sentenceExampleEditDraft: SentenceExampleEditDraft?
-    @State var pendingSentenceExampleDeletion: PendingSentenceExampleDeletion?
-    @State var showDeleteFilteredSentenceExamplesConfirmation = false
-    @State var showDeleteSelectedSentenceExamplesConfirmation = false
-    @State var sentenceDatabaseExportDocument = BinaryFileDocument(data: Data())
-    @State var sentenceDatabaseExportFilename = "radix_sentence_database"
-    @State var showSentenceDatabaseExporter = false
-    @State var showSentenceDatabaseImporter = false
-    @State var pendingSentenceDatabaseImport: PendingSentenceDatabaseImport?
-    @State var isRunningSentenceDatabaseTransfer = false
-    @State var showClearSentenceDatabaseConfirmation = false
-    @State var studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
-    @State var studyGridScope = RadixStudyPreferences.initialGridScope
-    @State var studyPageSortOrder = RadixStudyPreferences.pageSortOrder
-    @State var showStudyCheckpoints = false
-    @State var pendingCheckpointReturn: LocalDataSnapshot?
-    @State var conversationPracticeTopics = ConversationPracticeTopic.defaults
-    @State var conversationPracticeLibrary: ConversationPracticeLibrary? = try? ConversationPracticeService().loadLibrary(for: .generalGreetings)
-    @State var importedConversationPracticeLibraries: [String: ConversationPracticeLibrary] = [:]
-    @State var favoriteSentenceRecords = RadixStudyPreferences.favoriteSentences
-    @State var showConversationPracticeImporter = false
-    @State var showConversationPracticePasteImporter = false
-    @State var conversationPracticeImportMessage: String?
-    @State var conversationPracticeImportError: String?
-    @State var pendingConversationPracticeDeletion: ConversationPracticeTopic?
-    @State var pendingConversationPracticeReplacement: ConversationPracticeReplacementReview?
-    @State var conversationPracticeSentenceDisplay: ConversationPracticeSentenceDisplay = .chinese
-    @State var conversationPracticePageIndex = 0
-    @State var selectedConversationPracticeItemID: String?
-    @State var conversationPracticeProgress = RadixStudyPreferences.conversationPracticeProgress
-    @State var conversationPracticeReviewPresentation: ConversationPracticeReviewPresentation?
-    @State var conversationPracticeQuizPresentation: ConversationPracticeQuizPresentation?
-    @State var studyTranslationReportCollection: CharacterCollection?
-    @State var studyTranslationReportDraft = ""
-    @State var pendingStudyDeleteCollection: CharacterCollection?
-    @State var pendingStudyOCRPromotion: StudyOCRPromotion?
-    @State var studyPageActionMessage: String?
-    @State var studyPageActionMessageCollectionID: UUID?
-    @State var studyAIFallbackTask: BrowseAIFallbackTask?
-    @State var studyAutomaticAIError = ""
-    @State var isRunningStudyPageAction = false
-    @State var studyPagePhrasesPresentation: StudyPagePhrasesPresentation?
-    @State var expandedStudySavedPageID: UUID?
-    @State var studyPageReturnCollectionID: UUID?
+    @State var screenState = StudyScreenState()
 
     private let conversationPracticeService = ConversationPracticeService()
 
@@ -202,8 +144,7 @@ struct FavouritesTab: View {
             loadConversationPracticeLibrary()
         }
         withAnimation(.snappy(duration: 0.18)) {
-            focusedStudySection = .conversationPractice
-            studyAICleanedPageCollectionID = nil
+            screenState.presentFocusedSection(.conversationPractice)
         }
     }
 
@@ -211,8 +152,7 @@ struct FavouritesTab: View {
         sentenceExampleStatusMessage = nil
         resetSentenceExampleResultsContext()
         withAnimation(.snappy(duration: 0.18)) {
-            focusedStudySection = .sentences
-            studyAICleanedPageCollectionID = nil
+            screenState.presentFocusedSection(.sentences)
         }
     }
 
