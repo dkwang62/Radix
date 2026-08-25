@@ -273,6 +273,11 @@ them even when a more abstract implementation looks tidier.
 Source regression checks live in `SwiftUICrashGuardrailTests`. Extend them when
 a production crash reveals a specific unsafe SwiftUI pattern.
 
+Automated checks cannot prove menu, sheet, rotation, backgrounding, and
+dismissal safety on a real device. Every TestFlight candidate must complete a
+fresh `TESTFLIGHT_RELEASE_CHECKLIST.md` for its exact version, build, and commit.
+Do not carry a physical-device sign-off forward to another build.
+
 ## Cross-Platform Behavior
 
 Phone behavior is the cross-platform default unless screen size clearly needs a
@@ -318,6 +323,10 @@ xcodebuild -quiet -project Radix.xcodeproj -scheme Radix -destination 'generic/p
 xcodebuild -quiet -project Radix.xcodeproj -scheme Radix -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
 ```
 
+Before describing a TestFlight candidate as release-ready, complete and record
+the build-specific physical-iPad gate in `TESTFLIGHT_RELEASE_CHECKLIST.md`.
+Codex can verify compilation but cannot substitute for that device sign-off.
+
 Simulator launch failures caused by CoreSimulatorService are environmental;
 report them separately from compilation failures. For a screen with prior crash
 history, also exercise that workflow on iPhone, iPad, and Catalyst before
@@ -328,6 +337,8 @@ release.
 - `PROJECT_CONTEXT.md`: current architecture, ownership, workstream, and checks.
 - `UI_INTENT.md`: durable UI and product decisions.
 - `AGENTS.md`: instructions for coding agents.
+- `TESTFLIGHT_RELEASE_CHECKLIST.md`: mandatory build-specific automated and
+  physical-iPad release gate.
 - `PORTABLE_BACKUP_FORMAT.md`: portable backup format contract.
 - `VARIANT_MEANING_MIGRATION_2026-08-22.md`: completed one-time dictionary audit.
 - `APP_STORE_COPY.md` and `THIRD_PARTY_LICENSES.md`: publication material.

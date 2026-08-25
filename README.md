@@ -91,7 +91,10 @@ Current project defaults now include:
 
 Before shipping to TestFlight:
 
-1. Set your real bundle ID in `project.yml` (`PRODUCT_BUNDLE_IDENTIFIER`).
-2. Set your Apple Team in Xcode Signing & Capabilities.
-3. Add real AppIcon image files in `Resources/Assets.xcassets/AppIcon.appiconset`.
-4. Archive from Xcode (`Product > Archive`) and validate/upload.
+1. Complete a fresh [TestFlight release checklist](TESTFLIGHT_RELEASE_CHECKLIST.md)
+   for the exact version, build, and commit being uploaded.
+2. Set your real bundle ID in `project.yml` (`PRODUCT_BUNDLE_IDENTIFIER`).
+3. Set your Apple Team in Xcode Signing & Capabilities.
+4. Add real AppIcon image files in `Resources/Assets.xcassets/AppIcon.appiconset`.
+5. Archive from Xcode (`Product > Archive`) and validate/upload only after the
+   automated and physical-iPad gates pass.

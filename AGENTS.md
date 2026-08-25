@@ -36,4 +36,8 @@ For every completed work unit:
   includes an explicit migration;
 - commit each coherent, verified unit separately.
 
+For a TestFlight or release candidate, follow `TESTFLIGHT_RELEASE_CHECKLIST.md`.
+Do not describe a candidate as release-ready until a person has completed the
+physical-iPad gate for that exact version, build, and commit.
+
 Git history is the detailed audit trail. `PROJECT_CONTEXT.md` is the hand-off.
