@@ -325,7 +325,7 @@ extension RadixStore {
     }
 
     func ocrReviewPrompt(for collection: CharacterCollection) -> String {
-        promptText(for: .collection(collection), selectedTaskIDs: ["task7"])
+        promptText(for: .collection(collection), selectedTaskIDs: [BuiltInPromptTaskID.checkOCR.rawValue])
     }
 
     // MARK: - Render context

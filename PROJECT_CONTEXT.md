@@ -129,8 +129,12 @@ as orchestration, not a second business-rule implementation.
 - `SavedPageImageStore` owns captured source images in Application Support.
   Saved-page metadata and ordinary page selection must not load or rewrite those
   image bytes.
-- `PromptModels`, `PromptTaskDefaults`, and `PromptConfigRendering` own AI task
-  data, built-in templates, legacy-template repair, and placeholder rendering.
+- `BuiltInPromptTaskID` is the sole built-in AI task identity and capability
+  registry. Its persisted `task1`...`task15` raw values must not change.
+  `PromptTask` intentionally retains a string ID so custom tasks remain valid.
+- `PromptTaskDefaults` and `PromptConfigRendering` own built-in templates,
+  legacy-template repair, and placeholder rendering. Menus and result importers
+  must use `BuiltInPromptTaskID`, not parallel task-ID constants or literals.
 - Conversation Practice is deliberately split into model, validation, library,
   topic, progress, sentence, favorite, capture-import, and quiz-rule files.
 - Shared visual primitives live in `Services/RadixTheme.swift`. Reuse them for
@@ -218,7 +222,8 @@ AI is a shared workflow, not a collection of separate mini-features.
 - `Structure Phrase for Input` is the source-free exception: it formats pasted
   vocabulary, then feeds the result through the shared Add Phrases importer.
 - Page AI tasks use `CollectionPageAITaskKind` and shared page action menus.
-  Do not create duplicate task arrays or task-ID switches in Browse and Study.
+  Do not create duplicate task arrays or task-ID capability switches in Browse
+  and Study.
 
 ## Performance and Stability
 

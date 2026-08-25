@@ -648,7 +648,7 @@ extension FavouritesTab {
         case .translation:
             showStudyTranslationReport(collection)
         case .quiz:
-            beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createQuiz)
+            beginStudyAILinkPageTask(collection, taskID: BuiltInPromptTaskID.createQuiz.rawValue)
         case .phrases:
             showPagePhrases(collection)
         case .practice(let pack):

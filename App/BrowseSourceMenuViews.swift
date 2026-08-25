@@ -43,17 +43,19 @@ enum CollectionPageAITaskKind: CaseIterable, Equatable {
     case extractSentences
     case createPagePractice
 
-    var id: String {
+    var taskID: BuiltInPromptTaskID {
         switch self {
-        case .checkOCR: return AIResultTaskID.checkOCR
-        case .createAICleanedPage: return AIResultTaskID.createAICleanedPage
-        case .extractPhrases: return AIResultTaskID.extractPhrases
-        case .translate: return AIResultTaskID.translatePage
-        case .createQuiz: return AIResultTaskID.createQuiz
-        case .extractSentences: return AIResultTaskID.extractSentences
-        case .createPagePractice: return AIResultTaskID.createPagePractice
+        case .checkOCR: return .checkOCR
+        case .createAICleanedPage: return .extractSentences
+        case .extractPhrases: return .extractPhrases
+        case .translate: return .explainPage
+        case .createQuiz: return .createQuiz
+        case .extractSentences: return .sentencePractice
+        case .createPagePractice: return .createConversation
         }
     }
+
+    var id: String { taskID.rawValue }
 
     var title: String {
         switch self {
@@ -128,12 +130,12 @@ extension BrowseAIFallbackTask {
 
     var taskID: String {
         switch self {
-        case .checkOCR: return AIResultTaskID.checkOCR
-        case .extractPhrases: return AIResultTaskID.extractPhrases
-        case .translate: return AIResultTaskID.translatePage
-        case .extractSentences: return AIResultTaskID.extractSentences
-        case .createPagePractice: return AIResultTaskID.createPagePractice
-        case .createAICleanedPage: return AIResultTaskID.createAICleanedPage
+        case .checkOCR: return BuiltInPromptTaskID.checkOCR.rawValue
+        case .extractPhrases: return BuiltInPromptTaskID.extractPhrases.rawValue
+        case .translate: return BuiltInPromptTaskID.explainPage.rawValue
+        case .extractSentences: return BuiltInPromptTaskID.sentencePractice.rawValue
+        case .createPagePractice: return BuiltInPromptTaskID.createConversation.rawValue
+        case .createAICleanedPage: return BuiltInPromptTaskID.extractSentences.rawValue
         }
     }
 }

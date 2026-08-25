@@ -2,48 +2,46 @@ extension PromptConfig {
     func normalized() -> PromptConfig {
         var seen = Set<String>()
         let cleaned = tasks.filter {
-            guard $0.id != "task6" else { return false }
+            guard $0.id != BuiltInPromptTaskID.retiredLegacyTask.rawValue else { return false }
             guard !$0.id.isEmpty, !seen.contains($0.id) else { return false }
             seen.insert($0.id)
             return true
         }.map { task in
-            guard (PromptConfig.collectionTaskIDs.contains(task.id) ||
-                   PromptConfig.practiceTopicTaskIDs.contains(task.id) ||
-                   task.id == PromptConfig.sentenceImprovementTaskID ||
-                   task.id == PromptConfig.vocabularyFormatterTaskID),
+            let builtInID = BuiltInPromptTaskID(rawValue: task.id)
+            guard builtInID?.repairsLegacyTemplate == true,
                   let defaultTask = PromptConfig.streamlitDefault.tasks.first(where: { $0.id == task.id }) else {
                 return task
             }
 
             let normalizedTitle: String
-            if task.id == "task4",
+            if builtInID == .extractPhrases,
                task.title == "Task 4 – Isolate Phrases from Apple Vision" ||
                 task.title == "Task 4 – Extract Phrases from Image" ||
                 task.title == "Task 4 – Extract Phrases from Page (image)" {
                 normalizedTitle = defaultTask.title
-            } else if task.id == "task5",
+            } else if builtInID == .explainPage,
                       task.title == "Task 5 – Universal Content Architect" ||
                         task.title == "Translate" ||
                         task.title == "Translate Page" {
                 normalizedTitle = defaultTask.title
-            } else if task.id == "task10",
+            } else if builtInID == .sentencePractice,
                       task.title == "Extract Sentences" ||
                         task.title == "Extract Page Sentences" ||
                         task.title == "Create Sentences" {
                 normalizedTitle = defaultTask.title
-            } else if task.id == "task11",
+            } else if builtInID == .createConversation,
                       task.title == "Create Practice from Page" ||
                       task.title == "Create Theme Practice" {
                 normalizedTitle = defaultTask.title
-            } else if task.id == "task12",
+            } else if builtInID == .extractSentences,
                       task.title == "Create AI-Cleaned Page" ||
                         task.title == "Create AI Page" {
                 normalizedTitle = defaultTask.title
-            } else if task.id == PromptConfig.sentenceImprovementTaskID,
+            } else if builtInID == .improveSentence,
                       task.title == "Improve Sentence" ||
                         task.title == "Sentence Improvement" {
                 normalizedTitle = defaultTask.title
-            } else if task.id == PromptConfig.vocabularyFormatterTaskID,
+            } else if builtInID == .structurePhraseInput,
                       task.title == "Format Vocabulary" {
                 normalizedTitle = defaultTask.title
             } else {
@@ -54,19 +52,19 @@ extension PromptConfig {
             if task.template.contains("{capture_chars}") || task.template.contains("{capture_text}") || task.template.contains("{collection_name}") ||
                 task.template.contains("Task 4 – Extract Phrases from Image") ||
                 task.template.contains("Task 4 – Extract Phrases from Page (image)") ||
-                (task.id == "task4" && !task.template.contains("[CRITICAL RULES]")) ||
-                (task.id == "task4" && !task.template.contains("Dictionary-quality Meanings")) ||
+                (builtInID == .extractPhrases && !task.template.contains("[CRITICAL RULES]")) ||
+                (builtInID == .extractPhrases && !task.template.contains("Dictionary-quality Meanings")) ||
                 task.template.contains("Task 5 – Universal Content Architect") ||
-                (task.id == "task5" && !task.template.contains("Bilingual Page Translation & Character Analysis")) ||
-                (task.id == "task7" && (
+                (builtInID == .explainPage && !task.template.contains("Bilingual Page Translation & Character Analysis")) ||
+                (builtInID == .checkOCR && (
                     task.template.contains("ORIGINAL OCR:") ||
                     task.template.contains("attached source image and dictionary evidence") ||
                     !task.template.contains("SAVED PAGE CHARACTERS:")
                 )) ||
-                (task.id == "task8" && !task.template.contains("English translations will not reveal the answer")) ||
-                (task.id == "task9" && !task.template.contains("{practice_topic_title}")) ||
-                (task.id == "task10" && !task.template.contains("{sentence_extraction_detail}")) ||
-                (task.id == "task12" && (
+                (builtInID == .createQuiz && !task.template.contains("English translations will not reveal the answer")) ||
+                (builtInID == .generatePracticePack && !task.template.contains("{practice_topic_title}")) ||
+                (builtInID == .sentencePractice && !task.template.contains("{sentence_extraction_detail}")) ||
+                (builtInID == .extractSentences && (
                     !task.template.contains("cleaned_chinese_text") ||
                     !task.template.contains("\"pinyin\"") ||
                     !task.template.contains("distinct, fully formed, grammatically correct sentences") ||
@@ -75,14 +73,14 @@ extension PromptConfig {
                     !task.template.contains("Do not output rough extracted text") ||
                     !task.template.contains("The three fields must match each other exactly")
                 )) ||
-                (task.id == PromptConfig.sentenceImprovementTaskID && (
+                (builtInID == .improveSentence && (
                     !task.template.contains("Return JSON only") ||
                     !task.template.contains("\"sentence\"") ||
                     !task.template.contains("\"pinyin\"") ||
                     !task.template.contains("\"english\"") ||
                     !task.template.contains("The three fields must match each other exactly")
                 )) ||
-                (task.id == PromptConfig.vocabularyFormatterTaskID && (
+                (builtInID == .structurePhraseInput && (
                     !task.template.contains("{free_text_input}") ||
                     !task.template.contains("Chinese Phrase | Pinyin | Concise English meaning")
                 )) {
@@ -92,17 +90,17 @@ extension PromptConfig {
                     of: "Task 4 – Isolate Phrases from Apple Vision",
                     with: defaultTask.title
                 )
-            } else if task.id == "task9", task.template.contains("{practice_topic_sentence_count}") {
+            } else if builtInID == .generatePracticePack, task.template.contains("{practice_topic_sentence_count}") {
                 normalizedTemplate = task.template.replacingOccurrences(
                     of: "{practice_topic_sentence_count}",
                     with: "{conversation_entry_count}"
                 )
-            } else if task.id == "task10", task.template.contains("Aim for 10 to 30 entries.") {
+            } else if builtInID == .sentencePractice, task.template.contains("Aim for 10 to 30 entries.") {
                 normalizedTemplate = task.template.replacingOccurrences(
                     of: "Aim for 10 to 30 entries.",
                     with: "Aim for up to {conversation_entry_count} entries."
                 )
-            } else if task.id == "task11", task.template.contains("Create 100 entries in the \"entries\" array.") {
+            } else if builtInID == .createConversation, task.template.contains("Create 100 entries in the \"entries\" array.") {
                 normalizedTemplate = task.template.replacingOccurrences(
                     of: "Create 100 entries in the \"entries\" array.",
                     with: "Create exactly {conversation_entry_count} entries in the \"entries\" array."
@@ -160,7 +158,9 @@ extension PromptConfig {
         case .character, .sentence:
             full = cfg.preamble + body + cfg.epilogue
         case .collection:
-            if selected == ["task5"] || selected == ["task7"] || selected == ["task8"] || selected == ["task10"] || selected == ["task11"] || selected == ["task12"] {
+            if selected.count == 1,
+               let selectedID = selected.first.flatMap(BuiltInPromptTaskID.init(rawValue:)),
+               selectedID.usesStandalonePagePrompt {
                 full = cfg.collectionPreamble + body
             } else {
                 full = cfg.collectionPreamble + body + cfg.collectionEpilogue

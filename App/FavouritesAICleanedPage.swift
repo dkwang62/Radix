@@ -385,7 +385,7 @@ extension FavouritesTab {
             actionTitle: "Extract Sentences",
             actionSystemImage: "sparkles"
         ) {
-            beginStudyAILinkPageTask(collection, taskID: AIResultTaskID.createAICleanedPage)
+            beginStudyAILinkPageTask(collection, taskID: BuiltInPromptTaskID.extractSentences.rawValue)
         }
     }
 

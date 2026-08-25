@@ -585,7 +585,7 @@ extension AILinkView {
         if PromptConfig.collectionTaskIDs.contains(task.id), selectedCollection == nil {
             return false
         }
-        if task.id == AIResultTaskID.sentenceImprovement, activeSentenceItem == nil {
+        if task.id == BuiltInPromptTaskID.improveSentence.rawValue, activeSentenceItem == nil {
             return false
         }
         return aiResultWorkflowSupportsPaste(task.id)
@@ -628,8 +628,8 @@ extension AILinkView {
     }
 
     func aiResultSourceName(for taskID: String) -> String {
-        switch taskID {
-        case AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice:
+        switch BuiltInPromptTaskID(rawValue: taskID) {
+        case .sentencePractice, .createConversation:
             return selectedCollection?.name ?? "AI Link"
         default:
             return "AI Link"
@@ -646,48 +646,48 @@ extension AILinkView {
     }
 
     func aiResultIcon(for taskID: String) -> String {
-        switch taskID {
-        case AIResultTaskID.extractPhrases, AIResultTaskID.formatVocabulary: return "text.badge.plus"
-        case AIResultTaskID.translatePage: return "translate"
-        case AIResultTaskID.checkOCR: return "text.viewfinder"
-        case AIResultTaskID.createAICleanedPage: return "text.page.badge.magnifyingglass"
-        case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice: return "bubble.left.and.bubble.right"
-        case AIResultTaskID.sentenceImprovement: return "wand.and.stars"
+        switch BuiltInPromptTaskID(rawValue: taskID) {
+        case .extractPhrases, .structurePhraseInput: return "text.badge.plus"
+        case .explainPage: return "translate"
+        case .checkOCR: return "text.viewfinder"
+        case .extractSentences: return "text.page.badge.magnifyingglass"
+        case .generatePracticePack, .sentencePractice, .createConversation: return "bubble.left.and.bubble.right"
+        case .improveSentence: return "wand.and.stars"
         default: return "doc.text"
         }
     }
 
     func aiResultInstruction(for taskID: String) -> String {
-        switch taskID {
-        case AIResultTaskID.extractPhrases: return "Paste the extracted phrase list here to add the phrases to Radix."
-        case AIResultTaskID.formatVocabulary: return "Paste the formatted vocabulary list here to add the phrases to Radix."
-        case AIResultTaskID.translatePage: return "Paste the page explanation here to save it with the selected page."
-        case AIResultTaskID.checkOCR: return "Paste the text review here to create a corrected saved page."
-        case AIResultTaskID.createAICleanedPage: return "Paste the extracted sentences here to save them with the selected page."
-        case AIResultTaskID.generatePracticePack: return "Paste the practice answer here to import it into Study."
-        case AIResultTaskID.extractSentences: return "Paste the sentence-practice answer here to import it into Conversation Practice."
-        case AIResultTaskID.createPagePractice: return "Paste the page-practice answer here to import it into Conversation Practice."
-        case AIResultTaskID.sentenceImprovement: return "Paste the improved sentence JSON here to update the sentence, pinyin, and English meaning."
-        case AIResultTaskID.createQuiz: return "This prompt runs the quiz inside the AI app, so there is no Radix paste step."
+        switch BuiltInPromptTaskID(rawValue: taskID) {
+        case .extractPhrases: return "Paste the extracted phrase list here to add the phrases to Radix."
+        case .structurePhraseInput: return "Paste the formatted vocabulary list here to add the phrases to Radix."
+        case .explainPage: return "Paste the page explanation here to save it with the selected page."
+        case .checkOCR: return "Paste the text review here to create a corrected saved page."
+        case .extractSentences: return "Paste the extracted sentences here to save them with the selected page."
+        case .generatePracticePack: return "Paste the practice answer here to import it into Study."
+        case .sentencePractice: return "Paste the sentence-practice answer here to import it into Conversation Practice."
+        case .createConversation: return "Paste the page-practice answer here to import it into Conversation Practice."
+        case .improveSentence: return "Paste the improved sentence JSON here to update the sentence, pinyin, and English meaning."
+        case .createQuiz: return "This prompt runs the quiz inside the AI app, so there is no Radix paste step."
         default: return "Use the AI answer as a reference. This task does not import data back into Radix."
         }
     }
 
     func aiResultApplyTitle(for taskID: String) -> String {
-        switch taskID {
-        case AIResultTaskID.extractPhrases, AIResultTaskID.formatVocabulary: return "Add Phrases"
-        case AIResultTaskID.translatePage: return "Save Explanation"
-        case AIResultTaskID.checkOCR: return "Create Corrected Text"
-        case AIResultTaskID.createAICleanedPage: return "Save Sentences"
-        case AIResultTaskID.generatePracticePack, AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice: return "Import Practice"
-        case AIResultTaskID.sentenceImprovement: return "Update Sentence"
+        switch BuiltInPromptTaskID(rawValue: taskID) {
+        case .extractPhrases, .structurePhraseInput: return "Add Phrases"
+        case .explainPage: return "Save Explanation"
+        case .checkOCR: return "Create Corrected Text"
+        case .extractSentences: return "Save Sentences"
+        case .generatePracticePack, .sentencePractice, .createConversation: return "Import Practice"
+        case .improveSentence: return "Update Sentence"
         default: return "Apply"
         }
     }
 
     func aiResultNoPasteText(for taskID: String) -> String {
-        switch taskID {
-        case AIResultTaskID.createQuiz:
+        switch BuiltInPromptTaskID(rawValue: taskID) {
+        case .createQuiz:
             return "After opening the prompt, continue the quiz in the AI app. Radix has no separate result to import for this task."
         default:
             return "After opening the prompt, read or save the AI answer where it is useful. Radix has no structured import step for this task."

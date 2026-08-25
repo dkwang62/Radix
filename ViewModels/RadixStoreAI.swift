@@ -9,31 +9,6 @@ import CoreGraphics
  Extracted from RadixStore Private Utilities.
 */
 
-enum AIResultTaskID {
-    static let extractPhrases = "task4"
-    static let translatePage = "task5"
-    static let checkOCR = "task7"
-    static let createQuiz = "task8"
-    static let generatePracticePack = "task9"
-    static let extractSentences = "task10"
-    static let createPagePractice = "task11"
-    static let createAICleanedPage = "task12"
-    static let sentenceImprovement = "task14"
-    static let formatVocabulary = "task15"
-
-    static let importableTasks: Set<String> = [
-        extractPhrases,
-        formatVocabulary,
-        translatePage,
-        checkOCR,
-        generatePracticePack,
-        extractSentences,
-        createPagePractice,
-        createAICleanedPage,
-        sentenceImprovement
-    ]
-}
-
 enum AIResultApplicationError: LocalizedError {
     case missingCollection
     case invalidOCRReview
@@ -117,7 +92,8 @@ extension RadixStore {
             tasksByID[$0]?.subjectType == .characterPhrase
         }
         if !characterTaskIDs.isEmpty { return characterTaskIDs }
-        if availableTaskIDs.contains("task1") { return ["task1"] }
+        let fallbackID = BuiltInPromptTaskID.characterAnalysis.rawValue
+        if availableTaskIDs.contains(fallbackID) { return [fallbackID] }
         return normalizedTasks
             .map(\.id)
             .filter { tasksByID[$0]?.subjectType == .characterPhrase }
@@ -188,7 +164,7 @@ extension RadixStore {
     }
 
     func supportsAIResultImport(taskID: String) -> Bool {
-        AIResultTaskID.importableTasks.contains(taskID)
+        BuiltInPromptTaskID(rawValue: taskID)?.supportsResultImport == true
     }
 
     @discardableResult
@@ -446,28 +422,31 @@ extension RadixStore {
         sentence: ConversationPracticeItem?,
         sourceName: String
     ) throws -> AIResultApplicationOutcome {
-        switch taskID {
-        case AIResultTaskID.extractPhrases, AIResultTaskID.formatVocabulary:
+        guard let builtInTaskID = BuiltInPromptTaskID(rawValue: taskID) else {
+            throw AIResultApplicationError.unsupportedTask
+        }
+        switch builtInTaskID {
+        case .extractPhrases, .structurePhraseInput:
             return .phraseExtraction(importPhraseDiscoveryResponse(responseText, sourceCollection: collection))
-        case AIResultTaskID.translatePage:
+        case .explainPage:
             guard let collection else { throw AIResultApplicationError.missingCollection }
             return .translation(saveTranslationReport(fromAIResponse: responseText, for: collection))
-        case AIResultTaskID.checkOCR:
+        case .checkOCR:
             guard let collection else { throw AIResultApplicationError.missingCollection }
             return .correctedOCR(try createCorrectedOCRCollection(fromAIResponse: responseText, original: collection))
-        case AIResultTaskID.generatePracticePack:
+        case .generatePracticePack:
             return .conversationPractice(try importConversationPracticePack(fromAIResponse: responseText, sourceName: sourceName))
-        case AIResultTaskID.extractSentences, AIResultTaskID.createPagePractice:
+        case .sentencePractice, .createConversation:
             guard let collection else { throw AIResultApplicationError.missingCollection }
             return .conversationPractice(try importConversationPracticePack(
                 fromAIResponse: responseText,
                 sourceName: sourceName,
                 sourceCollection: collection
             ))
-        case AIResultTaskID.createAICleanedPage:
+        case .extractSentences:
             guard let collection else { throw AIResultApplicationError.missingCollection }
             return .aiCleanedPage(try importAICleanedPage(fromAIResponse: responseText, for: collection))
-        case AIResultTaskID.sentenceImprovement:
+        case .improveSentence:
             guard let sentence else { throw AIResultApplicationError.missingSentence }
             return .sentenceImprovement(try applySentenceImprovement(fromAIResponse: responseText, to: sentence))
         default:
@@ -476,7 +455,7 @@ extension RadixStore {
     }
 
     func runGeminiTranslationReport(for collection: CharacterCollection) async throws -> String {
-        let prompt = promptText(for: .collection(collection), selectedTaskIDs: ["task5"])
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: [BuiltInPromptTaskID.explainPage.rawValue])
         let report = try await GeminiTextGenerationService().generateText(
             apiKey: geminiAPIKey,
             modelID: geminiModelID,
@@ -490,7 +469,7 @@ extension RadixStore {
     }
 
     func runGeminiPageSentenceExtraction(for collection: CharacterCollection) async throws -> ConversationPracticePack {
-        let prompt = promptText(for: .collection(collection), selectedTaskIDs: ["task10"])
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: [BuiltInPromptTaskID.sentencePractice.rawValue])
         let response = try await GeminiTextGenerationService().generateText(
             apiKey: geminiAPIKey,
             modelID: geminiModelID,
@@ -507,7 +486,7 @@ extension RadixStore {
     }
 
     func runGeminiPagePracticeGeneration(for collection: CharacterCollection) async throws -> ConversationPracticePack {
-        let prompt = promptText(for: .collection(collection), selectedTaskIDs: [AIResultTaskID.createPagePractice])
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: [BuiltInPromptTaskID.createConversation.rawValue])
         let response = try await GeminiTextGenerationService().generateText(
             apiKey: geminiAPIKey,
             modelID: geminiModelID,
@@ -524,7 +503,7 @@ extension RadixStore {
     }
 
     func runGeminiSentenceImprovement(to sentence: ConversationPracticeItem) async throws -> SentenceExampleRecord {
-        let prompt = promptText(for: .sentence(sentence), selectedTaskIDs: [AIResultTaskID.sentenceImprovement])
+        let prompt = promptText(for: .sentence(sentence), selectedTaskIDs: [BuiltInPromptTaskID.improveSentence.rawValue])
         let response = try await GeminiTextGenerationService().generateText(
             apiKey: geminiAPIKey,
             modelID: geminiModelID,
@@ -562,7 +541,7 @@ extension RadixStore {
     }
 
     func runGeminiAICleanedPage(for collection: CharacterCollection) async throws -> AICleanedPageRecord {
-        let prompt = promptText(for: .collection(collection), selectedTaskIDs: [AIResultTaskID.createAICleanedPage])
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: [BuiltInPromptTaskID.extractSentences.rawValue])
         let response = try await GeminiTextGenerationService().generateText(
             apiKey: geminiAPIKey,
             modelID: geminiModelID,

@@ -20,6 +20,24 @@ func latestAIResultRoundTrip() throws {
 
 @Suite("AI prompt compatibility")
 struct PromptConfigTests {
+    @Test("Built-in task registry preserves persisted IDs and capabilities")
+    func builtInTaskRegistryPreservesContract() {
+        #expect(BuiltInPromptTaskID.allCases.map(\.rawValue) == [
+            "task1", "task2", "task3", "task4", "task5",
+            "task6", "task7", "task8", "task9", "task10",
+            "task11", "task12", "task13", "task14", "task15"
+        ])
+        #expect(BuiltInPromptTaskID.activeCases.contains(.retiredLegacyTask) == false)
+        #expect(BuiltInPromptTaskID.extractPhrases.subjectType == .page)
+        #expect(BuiltInPromptTaskID.improveSentence.subjectType == .sentence)
+        #expect(BuiltInPromptTaskID.structurePhraseInput.subjectType == .freeText)
+        #expect(BuiltInPromptTaskID.improveSentence.supportsResultImport)
+        #expect(BuiltInPromptTaskID.createQuiz.supportsResultImport == false)
+        #expect(PromptConfig.collectionTaskIDs == BuiltInPromptTaskID.rawValues { $0.subjectType == .page })
+        #expect(PromptConfig.conversationEntryCountTaskIDs == BuiltInPromptTaskID.rawValues(where: \.usesConversationEntryCount))
+        #expect(PromptConfig.defaultSubjectType(forTaskID: "custom-task") == .characterPhrase)
+    }
+
     @Test("AI image OCR parser accepts marked and fenced text")
     func aiImageOCRParserAcceptsCommonResponses() {
         let marked = """

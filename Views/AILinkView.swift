@@ -118,7 +118,7 @@ struct AILinkView: View {
     }
 
     var selectedTaskSupportsSentenceExtractionDetail: Bool {
-        selectedPromptTask?.id == AIResultTaskID.extractSentences
+        selectedPromptTask?.id == BuiltInPromptTaskID.sentencePractice.rawValue
     }
 
     var hasCharacterTasks: Bool {
@@ -151,7 +151,7 @@ struct AILinkView: View {
     }
 
     var canRunGeminiPhraseAPI: Bool {
-        selectedPromptTask?.id == "task4" && selectedCollection != nil
+        selectedPromptTask?.id == BuiltInPromptTaskID.extractPhrases.rawValue && selectedCollection != nil
     }
 
     var draftPromptTask: PromptTask? {

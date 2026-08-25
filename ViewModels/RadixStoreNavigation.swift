@@ -405,16 +405,18 @@ extension RadixStore {
         if RadixPlatform.isPhone { showiPhoneDetail = false }
     }
 
-    func characterPhraseAITaskID(preferredTaskID: String = "task1") -> String {
+    func characterPhraseAITaskID(
+        preferredTaskID: String = BuiltInPromptTaskID.characterAnalysis.rawValue
+    ) -> String {
         let normalizedTasks = promptConfig.normalized().tasks
         let taskID = normalizedTasks.first {
             $0.id == preferredTaskID && $0.subjectType == .characterPhrase
         }?.id ??
             normalizedTasks.first {
-                $0.id == "task1" && $0.subjectType == .characterPhrase
+                $0.id == BuiltInPromptTaskID.characterAnalysis.rawValue && $0.subjectType == .characterPhrase
             }?.id ??
             normalizedTasks.first { $0.subjectType == .characterPhrase }?.id ??
-            "task1"
+            BuiltInPromptTaskID.characterAnalysis.rawValue
         if promptConfig.tasks.allSatisfy({ $0.id != taskID }),
            let defaultTask = PromptConfig.streamlitDefault.tasks.first(where: { $0.id == taskID }) {
             promptConfig.tasks.append(defaultTask)
@@ -614,7 +616,7 @@ extension RadixStore {
             return
         }
         if let target = characters.first ?? previewCharacter { select(character: target, announce: false) }
-        promptSelectedTaskIDs = ["task4"]
+        promptSelectedTaskIDs = [BuiltInPromptTaskID.extractPhrases.rawValue]
         shouldAutoOpenAILinkPrompt = true
         route = .aiLink
         if RadixPlatform.isPhone { showiPhoneDetail = false }
@@ -622,7 +624,7 @@ extension RadixStore {
     }
 
     func goToAILinkTask4(collection: CharacterCollection) {
-        goToAILinkCollectionTask(collection: collection, taskID: "task4")
+        goToAILinkCollectionTask(collection: collection, taskID: BuiltInPromptTaskID.extractPhrases.rawValue)
     }
 
     func goToAILinkCollectionTask(collection: CharacterCollection, taskID: String) {
@@ -645,7 +647,7 @@ extension RadixStore {
             rememberCrossTabOrigin()
         }
         selectedConversationPracticeTopicID = topic.id
-        promptSelectedTaskIDs = ["task9"]
+        promptSelectedTaskIDs = [BuiltInPromptTaskID.generatePracticePack.rawValue]
         shouldAutoOpenAILinkPrompt = false
         shouldAutoRunGeminiPhraseAPI = false
         route = .aiLink

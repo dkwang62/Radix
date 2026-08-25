@@ -6,7 +6,7 @@ extension PromptConfig {
         preamble: "",
         tasks: [
             PromptTask(
-                id: "task1",
+                id: BuiltInPromptTaskID.characterAnalysis.rawValue,
                 title: "Task 1 – Character Analysis",
                 template: """
 You are a bilingual Chinese dictionary editor and teacher.
@@ -29,7 +29,7 @@ For the Hanzi below, provide:
 """
             ),
             PromptTask(
-                id: "task2",
+                id: BuiltInPromptTaskID.exampleSentencesAndImages.rawValue,
                 title: "Task 2 – Example Sentences and Images",
                 template: """
 Task 2 – Example Sentences and Images
@@ -52,7 +52,7 @@ Note: Only generate images in Task 2 to avoid overlap with analysis or conceptua
 """
             ),
             PromptTask(
-                id: "task3",
+                id: BuiltInPromptTaskID.conceptualContrast.rawValue,
                 title: "Task 3 – Conceptual Contrast",
                 template: """
 Task 3 – Conceptual Contrast
@@ -67,7 +67,7 @@ Compare this character with 2–3 other characters of similar meaning or usage, 
 """
             ),
             PromptTask(
-                id: "task7",
+                id: BuiltInPromptTaskID.checkOCR.rawValue,
                 title: "Check OCR",
                 template: """
 Check OCR
@@ -111,7 +111,7 @@ Never claim certainty when the image is unclear. Do not explain the corrections 
                 subjectType: .page
             ),
             PromptTask(
-                id: "task4",
+                id: BuiltInPromptTaskID.extractPhrases.rawValue,
                 title: "Extract Phrases",
                 template: """
 Extract Phrases
@@ -141,7 +141,7 @@ Silently discard any candidate whose boundaries or meaning are uncertain. Fewer 
                 subjectType: .page
             ),
             PromptTask(
-                id: "task5",
+                id: BuiltInPromptTaskID.explainPage.rawValue,
                 title: "Explain Page",
                 template: """
 Bilingual Page Translation & Character Analysis
@@ -189,7 +189,7 @@ OCR Text/Context:
                 subjectType: .page
             ),
             PromptTask(
-                id: "task8",
+                id: BuiltInPromptTaskID.createQuiz.rawValue,
                 title: "Create Quiz",
                 template: """
 Create Quiz
@@ -269,7 +269,7 @@ OCR text/context:
                 subjectType: .page
             ),
             PromptTask(
-                id: "task10",
+                id: BuiltInPromptTaskID.sentencePractice.rawValue,
                 title: "Sentence Practice",
                 template: """
 Sentence Practice
@@ -323,7 +323,7 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
                 subjectType: .page
             ),
             PromptTask(
-                id: "task11",
+                id: BuiltInPromptTaskID.createConversation.rawValue,
                 title: "Create Conversation",
                 template: """
 Create Conversation
@@ -384,7 +384,7 @@ Before returning, silently validate that the JSON is valid, imports cleanly, and
                 subjectType: .page
             ),
             PromptTask(
-                id: "task12",
+                id: BuiltInPromptTaskID.extractSentences.rawValue,
                 title: "Extract Sentences",
                 template: """
 Extract Sentences
@@ -450,7 +450,7 @@ Before returning, silently validate that the JSON is valid, every sentence conta
                 subjectType: .page
             ),
             PromptTask(
-                id: "task13",
+                id: BuiltInPromptTaskID.explainSentence.rawValue,
                 title: "Sentence",
                 template: """
 Sentence
@@ -478,7 +478,7 @@ Explain the whole sentence naturally for a Chinese learner. Focus on meaning, gr
                 subjectType: .sentence
             ),
             PromptTask(
-                id: "task14",
+                id: BuiltInPromptTaskID.improveSentence.rawValue,
                 title: "Sentence Improvement",
                 template: """
 Sentence Improvement
@@ -523,7 +523,7 @@ Before answering, silently verify that the sentence is grammatical, complete, co
                 subjectType: .sentence
             ),
             PromptTask(
-                id: "task15",
+                id: BuiltInPromptTaskID.structurePhraseInput.rawValue,
                 title: "Structure Phrase for Input",
                 template: """
 Structure Phrase for Input
@@ -549,7 +549,7 @@ Vocabulary list / source text:
                 subjectType: .freeText
             ),
             PromptTask(
-                id: "task9",
+                id: BuiltInPromptTaskID.generatePracticePack.rawValue,
                 title: "Generate Practice Pack",
                 template: """
 Generate Conversation Practice Pack

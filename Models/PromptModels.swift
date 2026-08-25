@@ -52,6 +52,93 @@ enum PromptTaskSubjectType: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+enum BuiltInPromptTaskID: String, Codable, CaseIterable, Hashable {
+    case characterAnalysis = "task1"
+    case exampleSentencesAndImages = "task2"
+    case conceptualContrast = "task3"
+    case extractPhrases = "task4"
+    case explainPage = "task5"
+    case retiredLegacyTask = "task6"
+    case checkOCR = "task7"
+    case createQuiz = "task8"
+    case generatePracticePack = "task9"
+    case sentencePractice = "task10"
+    case createConversation = "task11"
+    case extractSentences = "task12"
+    case explainSentence = "task13"
+    case improveSentence = "task14"
+    case structurePhraseInput = "task15"
+
+    var subjectType: PromptTaskSubjectType {
+        switch self {
+        case .extractPhrases, .explainPage, .checkOCR, .createQuiz,
+             .sentencePractice, .createConversation, .extractSentences:
+            return .page
+        case .generatePracticePack:
+            return .practiceTopic
+        case .explainSentence, .improveSentence:
+            return .sentence
+        case .structurePhraseInput:
+            return .freeText
+        case .characterAnalysis, .exampleSentencesAndImages, .conceptualContrast, .retiredLegacyTask:
+            return .characterPhrase
+        }
+    }
+
+    var isRetired: Bool {
+        self == .retiredLegacyTask
+    }
+
+    var repairsLegacyTemplate: Bool {
+        switch self {
+        case .extractPhrases, .explainPage, .checkOCR, .createQuiz,
+             .generatePracticePack, .sentencePractice, .createConversation,
+             .extractSentences, .improveSentence, .structurePhraseInput:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var supportsResultImport: Bool {
+        switch self {
+        case .extractPhrases, .explainPage, .checkOCR, .generatePracticePack,
+             .sentencePractice, .createConversation, .extractSentences,
+             .improveSentence, .structurePhraseInput:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var usesConversationEntryCount: Bool {
+        switch self {
+        case .generatePracticePack, .sentencePractice, .createConversation:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var usesStandalonePagePrompt: Bool {
+        switch self {
+        case .explainPage, .checkOCR, .createQuiz, .sentencePractice,
+             .createConversation, .extractSentences:
+            return true
+        default:
+            return false
+        }
+    }
+
+    static var activeCases: [BuiltInPromptTaskID] {
+        allCases.filter { !$0.isRetired }
+    }
+
+    static func rawValues(where predicate: (BuiltInPromptTaskID) -> Bool) -> Set<String> {
+        Set(activeCases.filter(predicate).map(\.rawValue))
+    }
+}
+
 struct PromptTask: Codable, Hashable, Identifiable {
     let id: String
     var title: String
@@ -129,21 +216,17 @@ struct PromptConfig: Codable, Hashable {
     var collectionPreamble: String
     var collectionEpilogue: String
 
-    static let collectionTaskIDs: Set<String> = ["task4", "task5", "task7", "task8", "task10", "task11", "task12"]
-    static let practiceTopicTaskIDs: Set<String> = ["task9"]
-    static let defaultSentenceTaskID = "task13"
-    static let sentenceImprovementTaskID = "task14"
-    static let vocabularyFormatterTaskID = "task15"
-    static let conversationEntryCountTaskIDs: Set<String> = ["task9", "task10", "task11"]
+    static let collectionTaskIDs = BuiltInPromptTaskID.rawValues { $0.subjectType == .page }
+    static let practiceTopicTaskIDs = BuiltInPromptTaskID.rawValues { $0.subjectType == .practiceTopic }
+    static let defaultSentenceTaskID = BuiltInPromptTaskID.explainSentence.rawValue
+    static let sentenceImprovementTaskID = BuiltInPromptTaskID.improveSentence.rawValue
+    static let vocabularyFormatterTaskID = BuiltInPromptTaskID.structurePhraseInput.rawValue
+    static let conversationEntryCountTaskIDs = BuiltInPromptTaskID.rawValues(where: \.usesConversationEntryCount)
     static let conversationEntryCountOptions = [25, 50, 100]
     static let defaultConversationEntryCount = 25
 
     static func defaultSubjectType(forTaskID taskID: String) -> PromptTaskSubjectType {
-        if taskID == defaultSentenceTaskID || taskID == sentenceImprovementTaskID { return .sentence }
-        if taskID == vocabularyFormatterTaskID { return .freeText }
-        if collectionTaskIDs.contains(taskID) { return .page }
-        if practiceTopicTaskIDs.contains(taskID) { return .practiceTopic }
-        return .characterPhrase
+        BuiltInPromptTaskID(rawValue: taskID)?.subjectType ?? .characterPhrase
     }
 
     static func normalizedConversationEntryCount(_ value: Int) -> Int {
