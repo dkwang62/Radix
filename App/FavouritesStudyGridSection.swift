@@ -424,12 +424,11 @@ extension FavouritesTab {
         let hiddenCount = rowData.artifacts.count - visibleArtifacts.count
 
         return HStack(alignment: .center, spacing: 10) {
-            RadixThumbnailView(
-                thumbnail: RadixThumbnail(jpegData: rowData.collection.thumbnailJPEGData),
+            RadixPageIconView(
                 size: 34,
                 cornerRadius: 8,
-                placeholderSystemImage: rowData.collection.isFavorite ? "star.fill" : "photo",
-                placeholderColor: rowData.collection.isFavorite ? Color.yellow : Color.secondary
+                systemImage: rowData.collection.isFavorite ? "star.fill" : "photo",
+                color: rowData.collection.isFavorite ? Color.yellow : Color.secondary
             )
 
             Text(collectionDisplayName(rowData.collection))

@@ -24,7 +24,7 @@ extension RadixStore {
             dictionaryPatchOverlay: componentRepo.overlayPatchPackage(),
             phrases: phraseRepo.fetchAddedPhrases(),
             profile: currentUserProfile(),
-            collections: allCollections,
+            collections: allCollections.map(collectionForPortableBackup),
             selectedAICollectionID: selectedAICollectionID,
             conversationPracticePacks: RadixStudyPreferences.importedConversationPracticePacks,
             conversationPracticeProgress: RadixStudyPreferences.conversationPracticeProgress,

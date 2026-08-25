@@ -207,6 +207,7 @@ extension RadixStore {
         persistFavoritePhrases()
 
         allCollections = []
+        savedPageImageStore.removeAllImages()
         selectedBrowseCollectionID = nil
         selectedBrowseCollectionCharacters = nil
         selectedAICollectionID = nil

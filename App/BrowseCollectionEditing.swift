@@ -102,7 +102,6 @@ extension FilterGridTab {
                 name: "",
                 sourceText: foundCharacters.joined(separator: " "),
                 sourceType: .ocr,
-                thumbnailJPEGData: CaptureImageThumbnailer.makeJPEGData(from: image),
                 sourceImageJPEGData: CaptureImageThumbnailer.makeJPEGData(from: image, maxDimension: 1600),
                 originalOCRText: result.text
             ) else {

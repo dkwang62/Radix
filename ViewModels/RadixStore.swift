@@ -62,9 +62,14 @@ enum QuickEditDestination: Identifiable, Equatable {
 @MainActor
 final class RadixStore: ObservableObject {
     let preferences: any RadixPreferenceStore
+    let savedPageImageStore: SavedPageImageStore
 
-    init(preferences: any RadixPreferenceStore = RadixPreferences.standard) {
+    init(
+        preferences: any RadixPreferenceStore = RadixPreferences.standard,
+        savedPageImageStore: SavedPageImageStore = SavedPageImageStore()
+    ) {
         self.preferences = preferences
+        self.savedPageImageStore = savedPageImageStore
         if let data = preferences.data(forKey: RadixPreferenceKey.latestAIResult) {
             latestAIResult = try? JSONDecoder().decode(LatestAIResult.self, from: data)
         }

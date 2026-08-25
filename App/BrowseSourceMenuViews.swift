@@ -389,7 +389,6 @@ struct SourceCollectionRow: View {
 
     let collection: CharacterCollection
     let isSelected: Bool
-    let thumbnail: RadixThumbnail?
     var dateMode: PageCollectionSortOrder = .lastViewed
     let onSelect: () -> Void
     var onOpenPractice: (() -> Void)? = nil
@@ -467,12 +466,11 @@ struct SourceCollectionRow: View {
 
     @ViewBuilder
     private var sourceThumbnail: some View {
-        RadixThumbnailView(
-            thumbnail: thumbnail,
+        RadixPageIconView(
             size: 34,
             cornerRadius: 6,
-            placeholderSystemImage: collection.isFavorite ? "star.fill" : "photo",
-            placeholderColor: collection.isFavorite ? Color.yellow : Color.secondary
+            systemImage: collection.isFavorite ? "star.fill" : "photo",
+            color: collection.isFavorite ? Color.yellow : Color.secondary
         )
     }
 }

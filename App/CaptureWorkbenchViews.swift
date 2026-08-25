@@ -399,8 +399,7 @@ struct SavedImageRow: View {
 
     @ViewBuilder
     private var thumbnail: some View {
-        RadixThumbnailView(
-            thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData),
+        RadixPageIconView(
             size: 34,
             cornerRadius: 6
         )

@@ -103,6 +103,7 @@ RadixApp
             -> ComponentRepository (character dictionary)
             -> PhraseRepository (phrase databases)
             -> RadixStudyPreferences (Study/sentence persistence)
+            -> SavedPageImageStore (source-image files)
             -> AI, capture, export, and practice services
 ```
 
@@ -125,6 +126,9 @@ as orchestration, not a second business-rule implementation.
   database access.
 - `RadixStudyPreferences` owns sentence database queries, paging, sentence
   upserts, and sentence-library transfer.
+- `SavedPageImageStore` owns captured source images in Application Support.
+  Saved-page metadata and ordinary page selection must not load or rewrite those
+  image bytes.
 - `PromptModels`, `PromptTaskDefaults`, and `PromptConfigRendering` own AI task
   data, built-in templates, legacy-template repair, and placeholder rendering.
 - Conversation Practice is deliberately split into model, validation, library,
@@ -142,7 +146,7 @@ statuses. Any change requires an explicit migration and a compatibility test.
 | Character dictionary | Bundled JSON plus `component_map_changes.json` overlay | The overlay is the tracked editable layer. |
 | Main phrases | Bundled `phrases.db` | Read-only in the app and authoritative for bundled phrase meaning/pinyin. |
 | Added phrases and notes | `phrases_add.db` | Do not duplicate a phrase already in the main database. Phrase notes remain an overlay here. |
-| Saved pages | Preferences-backed `CharacterCollection` records | Original OCR remains recoverable after correction. |
+| Saved pages | Preferences-backed `CharacterCollection` metadata plus source-image files | Source images live under Application Support; thumbnails are not retained. Existing embedded images migrate on load. |
 | AI-cleaned pages | Preferences-backed `AICleanedPageRecord` artifacts | Page-owned; do not overwrite the source OCR. |
 | Sentences | Separate SQLite Sentence Library | Paged/query-based access only; normal backup does not carry this heavy database. |
 | Favorites and practice progress | Preferences/portable backup models | They remain learning memory when a linked page is removed. |
@@ -152,6 +156,12 @@ statuses. Any change requires an explicit migration and a compatibility test.
 `RadixPreferenceKey` is the canonical stable-key list. `RadixPreferences` is
 the Apple storage implementation behind the platform-neutral preference-store
 boundary.
+
+Live `CharacterCollection` records are metadata-only. Portable backup and
+checkpoint creation reattach each available source image to the collection's
+legacy-compatible image field; restore writes it back to `SavedPageImageStore`
+and removes the bytes from live preferences. If file storage fails, Radix keeps
+one inline source-image copy rather than losing user data.
 
 Backup vocabulary is deliberate:
 

@@ -51,8 +51,9 @@ struct CharacterCollection: Identifiable, Codable, Equatable, Hashable {
     var lastViewedAt: Date? = nil
     var sourceType: CollectionSourceType
     var isFavorite: Bool
-    var thumbnailJPEGData: Data?
-    /// Review-sized source image used for OCR verification; optional for legacy pages.
+    /// Legacy backup field. Live storage migrates this data to the saved-page image store.
+    var thumbnailJPEGData: Data? = nil
+    /// Portable-backup field. Live storage keeps source images in separate files.
     var sourceImageJPEGData: Data? = nil
     /// Original Vision OCR output, preserved after any user-approved correction.
     var originalOCRText: String? = nil

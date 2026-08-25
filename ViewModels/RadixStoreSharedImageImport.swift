@@ -27,7 +27,6 @@ extension RadixStore {
                     name: "",
                     sourceText: activeCaptureDraft.charactersText,
                     sourceType: .ocr,
-                    thumbnailJPEGData: CaptureImageThumbnailer.makeJPEGData(from: image),
                     sourceImageJPEGData: CaptureImageThumbnailer.makeJPEGData(from: image, maxDimension: 1600),
                     originalOCRText: result.text
                 ) {

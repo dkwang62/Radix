@@ -215,7 +215,6 @@ extension FilterGridTab {
         return SourceCollectionRow(
             collection: collection,
             isSelected: isSelected,
-            thumbnail: RadixThumbnail(jpegData: collection.thumbnailJPEGData),
             dateMode: dateMode ?? .lastViewed,
             onSelect: {
                 store.goToBrowseCollection(id: collection.id, preservingOrigin: true)

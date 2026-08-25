@@ -37,7 +37,7 @@ extension RadixStore {
     func mergeImportedCollections(_ importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
         guard let importedCollections else { return }
         var mergedByID = Dictionary(uniqueKeysWithValues: allCollections.map { ($0.id, $0) })
-        for collection in sanitizeCollections(importedCollections) {
+        for collection in sanitizeCollections(importedCollections).map(prepareCollectionForLiveStorage) {
             mergedByID[collection.id] = collection
         }
         allCollections = Array(mergedByID.values)
@@ -53,7 +53,8 @@ extension RadixStore {
     }
 
     func replaceCollections(with importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
-        allCollections = sanitizeCollections(importedCollections ?? [])
+        savedPageImageStore.removeAllImages()
+        allCollections = sanitizeCollections(importedCollections ?? []).map(prepareCollectionForLiveStorage)
         sortCollections()
         persistCollections()
         selectedAICollectionID = importedSelectedID.flatMap { collection(id: $0) == nil ? nil : $0 }
@@ -99,7 +100,6 @@ extension RadixStore {
         name: String,
         sourceText: String,
         sourceType: CollectionSourceType,
-        thumbnailJPEGData: Data? = nil,
         sourceImageJPEGData: Data? = nil,
         originalOCRText: String? = nil
     ) -> CharacterCollection? {
@@ -123,15 +123,15 @@ extension RadixStore {
             lastViewedAt: Date(),
             sourceType: sourceType,
             isFavorite: false,
-            thumbnailJPEGData: thumbnailJPEGData,
             sourceImageJPEGData: sourceImageJPEGData,
             originalOCRText: originalOCRText?.trimmingCharacters(in: .whitespacesAndNewlines)
         )
         saveCollection(collection)
-        return collection
+        return self.collection(id: collection.id) ?? collection
     }
 
     func saveCollection(_ collection: CharacterCollection) {
+        let collection = prepareCollectionForLiveStorage(collection)
         browsePagePhraseTileCache.removeValue(forKey: collection.id)
         browsePagePhraseCandidateCache.removeValue(forKey: collection.id)
         if let index = allCollections.firstIndex(where: { $0.id == collection.id }) {
@@ -250,6 +250,7 @@ extension RadixStore {
 
         allCollections.removeAll { removedCollectionIDs.contains($0.id) }
         for removedID in removedCollectionIDs {
+            savedPageImageStore.removeImage(for: removedID)
             browsePagePhraseTileCache.removeValue(forKey: removedID)
             browsePagePhraseCandidateCache.removeValue(forKey: removedID)
         }
@@ -296,8 +297,8 @@ extension RadixStore {
         promoted.name = original.name
         promoted.characters = corrected.characters
         promoted.sourceType = corrected.sourceType
-        promoted.thumbnailJPEGData = corrected.thumbnailJPEGData ?? original.thumbnailJPEGData
-        promoted.sourceImageJPEGData = corrected.sourceImageJPEGData ?? original.sourceImageJPEGData
+        promoted.thumbnailJPEGData = nil
+        promoted.sourceImageJPEGData = sourceImageJPEGData(for: corrected) ?? sourceImageJPEGData(for: original)
         promoted.originalOCRText = original.originalOCRText ?? corrected.originalOCRText ?? original.characters.joined()
         promoted.reviewedOCRText = corrected.reviewedOCRText ?? corrected.characters.joined()
         promoted.ocrReviewedAt = corrected.ocrReviewedAt ?? now
@@ -322,7 +323,8 @@ extension RadixStore {
             return copy
         }
 
-        allCollections = replacementCollections
+        allCollections = replacementCollections.map(prepareCollectionForLiveStorage)
+        savedPageImageStore.removeImage(for: correctedID)
         sortCollections()
         browsePagePhraseTileCache.removeValue(forKey: originalID)
         browsePagePhraseCandidateCache.removeValue(forKey: originalID)
@@ -335,12 +337,13 @@ extension RadixStore {
         if selectedAICollectionID == correctedID {
             selectedAICollectionID = originalID
         }
+        let storedPromoted = collection(id: originalID) ?? promoted
         if selectedBrowseCollectionID == originalID {
-            selectedBrowseCollectionCharacters = Set(promoted.characters)
-            activeSubject = .collection(promoted)
+            selectedBrowseCollectionCharacters = Set(storedPromoted.characters)
+            activeSubject = .collection(storedPromoted)
         }
         persistCollections()
-        return promoted
+        return storedPromoted
     }
 
     func renameCollection(id: UUID, newName: String) {
@@ -379,15 +382,14 @@ extension RadixStore {
             lastViewedAt: Date(),
             sourceType: .ocr,
             isFavorite: false,
-            thumbnailJPEGData: original.thumbnailJPEGData,
-            sourceImageJPEGData: original.sourceImageJPEGData,
+            sourceImageJPEGData: sourceImageJPEGData(for: original),
             originalOCRText: original.originalOCRText ?? original.characters.joined(),
             reviewedOCRText: cleanText,
             ocrReviewedAt: Date(),
             correctedFromCollectionID: original.id
         )
         saveCollection(corrected)
-        return corrected
+        return collection(id: corrected.id) ?? corrected
     }
 
     @discardableResult
@@ -477,11 +479,16 @@ extension RadixStore {
             allCollections = []
             return
         }
-        allCollections = decoded.map { collection in
+        let sanitized = decoded.map { collection in
             var copy = collection
             copy.characters = collection.characters.filter { componentRepo.hasCharacter($0) }
             return copy
         }.filter { !$0.characters.isEmpty }
+        allCollections = sanitized.map(prepareCollectionForLiveStorage)
+        savedPageImageStore.pruneImages(keeping: Set(allCollections.map(\.id)))
+        if allCollections != sanitized {
+            persistCollections()
+        }
         sortCollections()
         if let saved = preferences.string(forKey: RadixPreferenceKey.selectedAICollection),
            let id = UUID(uuidString: saved),
@@ -496,6 +503,19 @@ extension RadixStore {
         if let data = try? JSONEncoder().encode(allCollections) {
             preferences.set(data, forKey: RadixPreferenceKey.collections)
         }
+    }
+
+    func sourceImageJPEGData(for collection: CharacterCollection) -> Data? {
+        collection.sourceImageJPEGData
+            ?? collection.thumbnailJPEGData
+            ?? savedPageImageStore.imageData(for: collection.id)
+    }
+
+    func collectionForPortableBackup(_ collection: CharacterCollection) -> CharacterCollection {
+        var copy = collection
+        copy.thumbnailJPEGData = nil
+        copy.sourceImageJPEGData = sourceImageJPEGData(for: collection)
+        return copy
     }
 
     func persistSelectedAICollection() {
@@ -548,8 +568,7 @@ extension RadixStore {
             lastViewedAt: nil,
             sourceType: collection.sourceType,
             isFavorite: false,
-            thumbnailJPEGData: collection.thumbnailJPEGData,
-            sourceImageJPEGData: collection.sourceImageJPEGData,
+            sourceImageJPEGData: sourceImageJPEGData(for: collection),
             originalOCRText: collection.originalOCRText,
             reviewedOCRText: collection.reviewedOCRText,
             ocrReviewedAt: collection.ocrReviewedAt,
@@ -558,6 +577,25 @@ extension RadixStore {
             translationReportUpdatedAt: nil,
             hiddenPhraseWords: collection.hiddenPhraseWords
         )
+    }
+
+    private func prepareCollectionForLiveStorage(_ collection: CharacterCollection) -> CharacterCollection {
+        var copy = collection
+        guard let embeddedImage = collection.sourceImageJPEGData ?? collection.thumbnailJPEGData else {
+            copy.thumbnailJPEGData = nil
+            return copy
+        }
+
+        do {
+            try savedPageImageStore.store(embeddedImage, for: collection.id)
+            copy.thumbnailJPEGData = nil
+            copy.sourceImageJPEGData = nil
+        } catch {
+            // Retain one inline copy if file persistence fails so the user's source is not lost.
+            copy.thumbnailJPEGData = nil
+            copy.sourceImageJPEGData = embeddedImage
+        }
+        return copy
     }
 
     private func archivedOriginalName(for name: String) -> String {

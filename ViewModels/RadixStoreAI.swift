@@ -582,7 +582,7 @@ extension RadixStore {
             systemInstruction: """
             You are a meticulous Chinese OCR editor. Follow the requested output headings exactly. Preserve Chinese source text, write all explanations in English, and clearly mark uncertainty.
             """,
-            imageJPEGData: collection.sourceImageJPEGData ?? collection.thumbnailJPEGData
+            imageJPEGData: sourceImageJPEGData(for: collection)
         )
     }
 

@@ -233,7 +233,8 @@ struct PortableBackupCodecTests {
             characters: ["学", "习"],
             createdAt: exportedAt,
             sourceType: .manual,
-            isFavorite: false
+            isFavorite: false,
+            sourceImageJPEGData: Data([0xFF, 0xD8, 0xFF, 0xD9])
         )
         let portableBackup = UnifiedPackage(
             schemaVersion: PortableBackupCodec.currentSchemaVersion,
@@ -291,6 +292,8 @@ struct PortableBackupCodecTests {
         #expect(decoded.phrases == [phrase])
         #expect(decoded.portableBackup.schemaVersion == PortableBackupCodec.currentSchemaVersion)
         #expect(decoded.portableBackup.collections == [page])
+        #expect(decoded.portableBackup.collections?.first?.thumbnailJPEGData == nil)
+        #expect(decoded.portableBackup.collections?.first?.sourceImageJPEGData == page.sourceImageJPEGData)
         #expect(decoded.portableBackup.favoriteSentences == nil)
         #expect(decoded.portableBackup.sentenceExamples == nil)
         #expect(decoded.portableBackup.aiCleanedPages == nil)
