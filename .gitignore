@@ -28,6 +28,11 @@ Temporary Items
 
 # Project Specific
 # ---------
+# Recovery material and numbered Xcode duplicates remain local-only. The
+# authoritative project is Radix.xcodeproj.
+Backups/
+Radix [0-9]*.xcodeproj/
+
 # We keep these ignored to avoid bloating the Git repo with binary data.
 # You will still move these manually or via USB as needed.
 phrases.db

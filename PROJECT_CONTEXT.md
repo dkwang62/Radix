@@ -32,6 +32,10 @@ upload, deliberately set and verify the next build number in both app and share
 extension targets; do not assume the repository's current build setting matches
 the installed TestFlight build.
 
+The authoritative Xcode project is `Radix.xcodeproj`. Numbered duplicate
+projects and the local `Backups/` directory are deliberately excluded from Git
+so cross-Mac handoff cannot mistake stale recovery material for current source.
+
 Recovery points:
 
 - `radix-v1.0-before-v1.1` preserves the pre-page/sentence graph product.
