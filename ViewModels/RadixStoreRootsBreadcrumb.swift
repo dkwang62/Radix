@@ -83,7 +83,7 @@ extension RadixStore {
 
     func activateBreadcrumbCharacter(_ character: String) {
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        if let phrase = phraseRepo.fetchPhrase(for: key), key.count > 1 {
+        if let phrase = mergedPhrase(for: key), key.count > 1 {
             activateBreadcrumbPhrase(phrase)
             return
         }
@@ -107,12 +107,9 @@ extension RadixStore {
                 performSearch(customQuery: searchText)
                 refreshPhrases(for: key)
             case .filter:
-                let shouldHighlightOnly = shouldHighlightBrowseImageMemoryOnly
-                if !shouldHighlightOnly { previewCharacter = key }
+                previewCharacter = key
                 let didHighlight = highlightMemoryMatchesInCurrentBrowseSource(key)
-                if shouldHighlightOnly, didHighlight {
-                    previewCharacter = nil
-                } else if !didHighlight {
+                if !didHighlight {
                     _ = focusGridCharacter(key)
                 }
                 refreshPhrases(for: key)
@@ -142,19 +139,6 @@ extension RadixStore {
     }
 
     func activateBreadcrumbPhrase(_ phrase: PhraseItem) {
-        let shouldHighlightOnly = shouldHighlightBrowseImageMemoryOnly
-        if shouldHighlightOnly {
-            let didHighlight = highlightMemoryMatchesInCurrentBrowseSource(phrase.word)
-            if didHighlight {
-                sidebarPhrasePreview = nil
-                imageBrowsePhrasePreview = nil
-                previewCharacter = nil
-                pushPhraseBreadcrumb(phrase)
-                if speechEnabled { speechService.speak(phrase.word) }
-                return
-            }
-        }
-
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         previewCharacter = nil
@@ -195,15 +179,6 @@ extension RadixStore {
         }
 
         if speechEnabled { speechService.speak(phrase.word) }
-    }
-
-    // MARK: - Platform highlight mode
-
-    var shouldHighlightBrowseImageMemoryOnly: Bool {
-        RadixPlatform.isPhone
-            && route == .search
-            && homeTab == .filter
-            && selectedBrowseCollection != nil
     }
 
     // MARK: - Persistence
