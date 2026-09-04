@@ -110,6 +110,10 @@ Use these preferences as defaults:
   its sheet, because that strands the user away from the page workspace.
 - Let the bottom tabs override contextual flows. Switching tabs should feel like
   a clean change of workspace, not another nested return layer.
+- On iPhone, the History/memory strip opens character and phrase cards inline
+  within the current Browse or Study surface. It should not push the old
+  character-only detail destination or leave stale character state behind when a
+  phrase is selected.
 - Prefer the Conversation Practice / Study Sentences look for sentence surfaces:
   a calm list, simple language toggle, optional pinyin, and a full sentence card
   only when the user opens a row.

@@ -92,6 +92,7 @@ extension RadixStore {
         pushRootBreadcrumb(key)
         sidebarPhrasePreview = nil
         imageBrowsePhrasePreview = nil
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
 
         switch route {
         case .capture:
@@ -156,7 +157,9 @@ extension RadixStore {
 
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
+        previewCharacter = nil
         sidebarPhraseLookupOverride = nil
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
         pushPhraseBreadcrumb(phrase)
 
         switch route {
