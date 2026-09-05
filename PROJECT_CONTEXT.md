@@ -319,7 +319,9 @@ paths, data behavior, and learning workflow.
    before broad changes.
 3. Continue only focused usability, correctness, performance, or maintainability
    work. Before adding a feature, search for an existing page, sentence, phrase,
-   practice, AI, or info-card flow to extend.
+   practice, AI, or info-card flow to extend. Prioritize the read-only findings in
+   `RADIX_UI_AUDIT.md`: restore atomicity/cancellation, sentence write failures,
+   checkpoint coverage, and identity/reference reconciliation before broad refactors.
 4. Schedule a documentation audit after a release or substantial refactor. Do
    not recreate parallel restart/handoff files; update this document instead.
 
@@ -351,6 +353,8 @@ release.
 
 - `PROJECT_CONTEXT.md`: current architecture, ownership, workstream, and checks.
 - `UI_INTENT.md`: durable UI and product decisions.
+- `RADIX_UI_AUDIT.md`: prioritized 2026-09-06 hostile QA findings, reproduced
+  disposable persistence probes, source traces, and remaining device-test matrix.
 - `AGENTS.md`: instructions for coding agents.
 - `TESTFLIGHT_RELEASE_CHECKLIST.md`: mandatory build-specific automated and
   physical-iPad release gate.
