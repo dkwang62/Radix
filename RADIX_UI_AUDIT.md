@@ -891,18 +891,21 @@ The source review identifies failures above, but the following runtime coverage 
 | Layout | Full classification page with preview, long Chinese/pinyin/English labels, supported landscape, safe areas, iPad regular-width split/Stage Manager windows and transitions to compact |
 | Commerce | Product-load failure/retry, pending/cancelled/failed/restored purchases, expired subscription, legacy entitlement migration, quota enforcement across Camera/Text/clipboard/share routes; StoreKit test environment only |
 | Media/reference | Missing source-image file, unavailable stroke data, WebKit termination, speech interruption/audio-session recovery, animation sharing cancellation, glossary/help/credits close and return |
+| Repeated-control parity | Capture/Browse/Study page-delete cancellation and impact; backup-preview reversion scope; translation Clear versus keyboard deletion/Done; simultaneous sentence row/card stars; source plus search combinations; filtered-empty reset; page-local bulk selection versus inspection highlight |
 
 Two particularly important unresolved risks are the regular iPad sidebar's minimum 320-point width before the shell switches to compact, and whether every source-creation entry point applies the same cumulative free-page policy. Both need a policy/device-specific check rather than an invented failure claim. Legacy dated-copy purchase recognition also needs a real historical-entitlement fixture before declaring a regression.
 
 ## Fix Order And Maintainability Recommendation
 
-1. **Restore and persistence contract:** UI-01 through UI-07 and UI-09. Introduce staged validation, atomic/recoverable mutation, throwing results and honest progress/cancellation. Lock these guarantees down before further sentence-store restructuring.
-2. **Identity and concurrency:** UI-08, UI-10 and UI-12 through UI-20. Centralize mutation/revision publication and reconcile references. Tie asynchronous work to operation and subject identity.
-3. **Workflow correctness:** UI-21 through UI-27, UI-30 and UI-31. Unify input validation, image preparation, drafts and asynchronous result presentation.
+1. **Restore and persistence contract:** UI-01 through UI-07 and UI-09, plus the high-impact unconfirmed page cascade in UI-41. Introduce staged validation, atomic/recoverable mutation, throwing results and honest progress/cancellation. Lock these guarantees down before further sentence-store restructuring.
+2. **Identity and concurrency:** UI-08, UI-10 and UI-12 through UI-20, plus UI-44's cross-view favorite invalidation. Centralize mutation/revision publication and reconcile references. Tie asynchronous work to operation and subject identity.
+3. **Workflow correctness:** UI-21 through UI-27, UI-30/UI-31 and UI-42/UI-43/UI-45. Unify input validation, image preparation, drafts, destructive batch scope and asynchronous result presentation; preserve filters during search.
 4. **First-use interaction:** UI-35 through UI-37. Make editing commands reachable, preserve phrase-result navigation, and make clipboard access intentional.
-5. **Accessibility and scale:** UI-28, UI-29 and UI-32, followed by the complete physical-device matrix. Then resolve UI-33/UI-34 and UI-38 through UI-40 labeling, dismissal and validation inconsistencies.
+5. **Accessibility and scale:** UI-28, UI-29 and UI-32, followed by the complete physical-device matrix. Then resolve UI-33/UI-34, UI-38 through UI-40 and UI-46 labeling, dismissal, validation and empty-state inconsistencies.
 
 A wholesale UI rewrite or broad "defrag" is not supported by this evidence. Existing screen/component boundaries are usable. Focused consolidation is warranted around sentence mutations, backup/restore coordination, source-reference cleanup, shared import ownership and AI request lifecycle. Moving methods into smaller files without strengthening those contracts will not fix these bugs.
+
+The repeated-implementation pass adds two specific consolidation targets: a shared saved-page deletion coordinator and one draft/commit contract for page explanations. Extend the existing sentence-store facade so view-local writes cannot skip invalidation. Preserve intentional Browse-versus-Study destinations and already-delegating wrappers. Treat dormant source-picker/import helpers as a separate reachability cleanup after active-path regression tests, not evidence that a major refactor is a prerequisite.
 
 ## Verification
 
@@ -912,6 +915,8 @@ A wholesale UI rewrite or broad "defrag" is not supported by this evidence. Exis
 - Catalyst build with `CODE_SIGNING_ALLOWED=NO`: passed; destination-selection warnings only.
 - Generic iOS Simulator build: passed.
 - Six UI-first additions were observed in the isolated SE simulator, compared against the initial report, and traced to Swift code. Application implementation remained unchanged.
-- All 40 findings contain the seven requested fields; all local file/line references were checked for existence and bounds.
+- Six additional source-comparison findings (UI-41 through UI-46) and a 16-row parity matrix were added without application changes. UI-44 remains a runtime-dependent invalidation risk; the other five additions have concrete control-to-store or presentation traces. No new simulator reproduction is claimed for this pass.
+- The repeated-implementation pass reran `swift test` (117 tests in 12 suites) and the Catalyst build successfully. The generic iOS Simulator result above is from the earlier pass; it was not rerun for documentation-only changes.
+- All 46 findings contain the seven requested fields; all 188 local file/line references were checked for existence and bounds. The comparison matrix has 16 data rows.
 - `git diff --check`: passed for the documentation changes.
 - No physical-iPad gate, live-cloud-AI test, real purchase, exhaustive accessibility pass, or large-library UI performance certification was completed.

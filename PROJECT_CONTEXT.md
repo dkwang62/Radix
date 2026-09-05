@@ -322,6 +322,9 @@ paths, data behavior, and learning workflow.
    practice, AI, or info-card flow to extend. Prioritize the read-only findings in
    `RADIX_UI_AUDIT.md`: restore atomicity/cancellation, sentence write failures,
    checkpoint coverage, and identity/reference reconciliation before broad refactors.
+   Its repeated-control matrix also identifies page-delete confirmation, editor
+   commit semantics, and shared sentence revision publication as focused targets;
+   dormant source-picker helpers are not confirmed live UI failures.
 4. Schedule a documentation audit after a release or substantial refactor. Do
    not recreate parallel restart/handoff files; update this document instead.
 
@@ -338,8 +341,12 @@ and the generic iOS Simulator build.
 Five disposable core probes reproduced failures documented in `RADIX_UI_AUDIT.md`.
 A subsequent UI-first SE walkthrough added six distinct findings (UI-35 to UI-40),
 including clipped Notes actions, missing phrase-result return, and unsolicited
-clipboard access. The report now has 40 findings; the physical-device/accessibility
-matrix remains open. No application fixes were made in either pass.
+clipboard access. A repeated-implementation comparison added six source-derived
+findings (UI-41 to UI-46) and a 16-row parity matrix, bringing the report to 46
+findings. Shared-card favorite invalidation still needs runtime reproduction;
+the physical-device/accessibility matrix remains open. No application fixes were
+made in these audit passes. The comparison pass reran `swift test` (117 tests),
+the Catalyst build, and documentation checks successfully.
 
 For release work or platform-sensitive UI/data changes, also run:
 
