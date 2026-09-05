@@ -2,6 +2,7 @@
 
 Initial audit completed: 2026-09-06. Source baseline: `a1ab08325272cd317d5379eaeadd84b54cfb5710`.
 UI-first follow-up: 2026-09-06, on the same application code, after documentation commit `c56a396`.
+Repeated-implementation comparison: 2026-09-06, on unchanged application code after documentation commit `62367c9`.
 
 ## Executive Assessment
 
@@ -9,7 +10,7 @@ The highest-impact holes are in recovery and mutation semantics, not cosmetic la
 
 This is a read-only application audit. No Swift, database schema, persisted identifiers, entitlement policy, or UI implementation was changed. The only repository changes are this report and its link/workstream entry in PROJECT_CONTEXT.md.
 
-**40 findings: 11 High, 24 Medium, 5 Low; no Critical finding established.** Findings are grouped by severity. Original IDs are preserved; the six UI-first additions, UI-35 through UI-40, appear within their respective severity sections. High means loss of saved work, misleading recovery, or loss of access to essential recovery UI. Medium means incorrect results, stranded workflows, accessibility limitations, or conditional reliability failures. Low means lower-impact consistency or validation defects. None of the conditional findings should be described as an observed crash or measured performance regression.
+**46 findings: 12 High, 28 Medium, 6 Low; no Critical finding established.** Findings are grouped by severity. Original IDs are preserved; UI-35 through UI-40 came from the UI-first pass and UI-41 through UI-46 from the repeated-implementation comparison. High means loss of saved work, misleading recovery, or loss of access to essential recovery UI. Medium means incorrect results, stranded workflows, accessibility limitations, or conditional reliability failures. Low means lower-impact consistency or validation defects. None of the conditional findings should be described as an observed crash or measured performance regression.
 
 Evidence labels:
 
@@ -81,6 +82,31 @@ Only six distinct issues were retained. In particular:
 - UI-40 concerns discovering the empty text-entry field, not UI-21's Unicode/Save validation or UI-33's page-name limit.
 
 The Dictionary chevron initially resembled source selection but behaved as an ordinary disclosure, so it was not added as a defect. Active filters visibly showed a count and Reset; Favorites was reachable from the Study menu. These were also excluded. Unicode entry through the simulator automation did not complete reliably, and the Simulator window later became unavailable to the UI tool; neither limitation is attributed to Radix. No page was saved in that attempt. No external AI request or purchase was made.
+
+## Repeated UI Concept Comparison
+
+This pass searched repeated controls and mutation/navigation helpers, followed their callers, and compared active implementations before checking the existing findings. It is a source comparison, not a new simulator walkthrough. Similar names do not establish equivalent semantics, and uncalled helpers are not counted as live UI defects.
+
+| Concept | Implementations compared | Divergence and disposition |
+| --- | --- | --- |
+| Delete saved page | [Capture callback](/Users/desmondkwang/Developer/Radix/App/CaptureTab.swift:237), [Browse alert](/Users/desmondkwang/Developer/Radix/App/FilterGridTab.swift:227), [Study alert](/Users/desmondkwang/Developer/Radix/App/FavouritesPresentations.swift:218) | Same store deletion, but only Browse/Study request confirmation and show collateral impact. **New UI-41.** |
+| Single-entry delete/revert | [Quick Phrase Editor](/Users/desmondkwang/Developer/Radix/App/QuickPhraseEditorView.swift:243), [phrase card](/Users/desmondkwang/Developer/Radix/Views/PhraseInfoCard.swift:86), [review](/Users/desmondkwang/Developer/Radix/App/AddedPhraseReviewSheet.swift:140) | Immediate mutation/dismissal versus an explicit alert. Already **UI-17/UI-18**; not counted again. |
+| Bulk destructive action | [backup preview Revert All](/Users/desmondkwang/Developer/Radix/App/DataBackupPreviewActions.swift:4), [review bulk alerts](/Users/desmondkwang/Developer/Radix/App/AddedPhraseReviewSheet.swift:150), [sentence bulk menu](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceControls.swift:178) | Informational backup preview contains immediate live-library reversion, whereas review/sentence tools confirm destructive batches. **New UI-42.** |
+| Editor draft versus saved value | [translation sheet](/Users/desmondkwang/Developer/Radix/Views/BrowseTranslationReportSheet.swift:38), [Browse handlers](/Users/desmondkwang/Developer/Radix/App/BrowseImageActions.swift:141), [Study handlers](/Users/desmondkwang/Developer/Radix/App/FavouritesStudyGridData.swift:231), [Notes actions](/Users/desmondkwang/Developer/Radix/Views/PhraseInfoNotes.swift:55) | Both translation entry points share UI but duplicate the same mixed semantics: typing/Paste need Save; Clear persists immediately. Notes uses a draft/Save/Cancel contract. **New UI-43**; stale note reopening remains **UI-16**. |
+| Sentence favorite/edit propagation | [list favorite](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceRows.swift:252), [list edit](/Users/desmondkwang/Developer/Radix/App/FavouritesPresentations.swift:65), [card favorite](/Users/desmondkwang/Developer/Radix/Views/PhraseInfoHeader.swift:85), [store favorite](/Users/desmondkwang/Developer/Radix/ViewModels/RadixStoreConversationPractice.swift:422) | List writes go straight to preferences and refresh local screen state; card writes publish the shared revision. **New UI-44** covers favorite parity; edit uses the same bypass and needs the same live-preview regression coverage. |
+| Search/filter composition | [sentence search](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceControls.swift:25), [sentence query](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceData.swift:94), [dictionary search](/Users/desmondkwang/Developer/Radix/App/SmartSearchTab.swift:94) | Sentence typing resets source to All even though the query supports source plus text; changing minimum length preserves source. Dictionary search preserves its script filter. **New UI-45.** Submit-based dictionary search versus live sentence filtering is otherwise a reasonable difference. |
+| Empty versus no matches | [sentence list](/Users/desmondkwang/Developer/Radix/App/FavouritesSections.swift:99), [Search no-results](/Users/desmondkwang/Developer/Radix/App/SmartSearchResults.swift:29), [Examples sheet](/Users/desmondkwang/Developer/Radix/Views/SentenceExampleListSheet.swift:12) | Sentences says to import data for both an empty corpus and zero filtered matches; Search names the query. **New UI-46.** The static/possibly blank Examples sheet is already **UI-32**. |
+| Inspection selection versus bulk selection | [sentence row](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceRows.swift:4), [selection buttons](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceRows.swift:62), [pagination/query refresh](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceData.swift:75) | Highlight uses the inspected practice-item ID, while checkmarks use a UUID set. Changing page clears the set; refresh intersects it with visible IDs. Bulk selection is page-local. No additional proven defect; test whether users mistake the retained inspection highlight for a selected deletion target or expect cross-page selection. |
+| Page-opening navigation | [Capture open](/Users/desmondkwang/Developer/Radix/App/CaptureTab.swift:233), [sentence Open Page](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceRows.swift:298), [Browse title menu](/Users/desmondkwang/Developer/Radix/App/RootViewSupport.swift:292), [shared destinations](/Users/desmondkwang/Developer/Radix/ViewModels/RadixStoreNavigation.swift:301) | Capture/Open Page go to page Study; explicit Browse goes to source inspection. Both select the same page ID and can preserve origin. **Intentional per UI_INTENT**, not a reason to merge the destinations. Phrase-result return remains **UI-36**. |
+| Page creation and quota | [Capture gates/count](/Users/desmondkwang/Developer/Radix/App/CaptureTab.swift:357), [shared-image/text import](/Users/desmondkwang/Developer/Radix/ViewModels/RadixStoreSharedImageImport.swift:5) | Capture checks/increments the cumulative free allowance; share ingestion has no equivalent check/count. This is a concrete policy divergence, but whether Share is intentionally exempt remains unresolved. **Policy decision/test required; not a new entitlement-bypass finding.** |
+| Image/OCR errors and cancellation | [Capture](/Users/desmondkwang/Developer/Radix/App/CaptureTab.swift:285), [share ingestion](/Users/desmondkwang/Developer/Radix/ViewModels/RadixStoreSharedImageImport.swift:13) | Capture displays errors/status; share ingestion catches and continues without per-item feedback. Shared OCR service does not imply equivalent task ownership. Already **UI-19/UI-20/UI-22 through UI-24**. |
+| Restore progress and interaction blocking | [My Data overlay](/Users/desmondkwang/Developer/Radix/App/DataEditRestoreFlow.swift:24), [sentence transfer](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceTransfer.swift:67), [sentence tools disablement](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceControls.swift:132) | My Data uses a local blocking overlay and Cancel; sentence import uses status plus disabled tools, without equivalent cancellation or whole-surface blocking. False cancellation is already **UI-03**. Concurrent row mutations/navigation during transfer need runtime testing; no newly observed race is claimed. |
+| Recovery payloads | [quick checkpoint](/Users/desmondkwang/Developer/Radix/App/RootViewDataTransfer.swift:68), [portable package](/Users/desmondkwang/Developer/Radix/ViewModels/RadixStoreDataExport.swift:15), [sentence-library package](/Users/desmondkwang/Developer/Radix/ViewModels/RadixStoreDataExport.swift:40), [database snapshot restore](/Users/desmondkwang/Developer/Radix/ViewModels/RadixStoreDataExport.swift:146) | Checkpoint JSON contains sentence references; dedicated sentence export includes bodies; database snapshots restore one store. Already **UI-01/UI-02/UI-06/UI-34**. Names and UI guarantees must state the payload, not treat these as interchangeable recovery actions. |
+| Source/reference cleanup | [page deletion](/Users/desmondkwang/Developer/Radix/ViewModels/RadixStoreCollections.swift:244), [sentence deletion](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceRows.swift:187) | Page deletion cascades some artifacts but does not use the sentence-level reconciliation path. Already **UI-12/UI-13**; cross-source query matching remains **UI-14**. |
+| Repeated-looking wrappers | [practice save wrapper](/Users/desmondkwang/Developer/Radix/App/FavouritesTab.swift:294), [store implementation](/Users/desmondkwang/Developer/Radix/ViewModels/RadixStoreConversationPractice.swift:79) | The view delegates to the store. This is an aligned wrapper, not independent persistence logic needing another extraction. |
+| Dormant duplicate source UI | [source-picker branch](/Users/desmondkwang/Developer/Radix/App/BrowseSourceBar.swift:9), [initial flag](/Users/desmondkwang/Developer/Radix/App/FilterGridTab.swift:36), [legacy camera entry](/Users/desmondkwang/Developer/Radix/App/BrowseCollectionEditing.swift:64), [backup delete helper](/Users/desmondkwang/Developer/Radix/App/DataBackupPreviewActions.swift:43) | Repository search found no path setting `showBrowseSource` true and no callers of `beginBrowseCameraScan` or `deleteBackupSavedPage`. The legacy camera/free-page gates and title-based practice fallback disagree with active ID/policy paths, but these are **dormant drift candidates**, not additional user-facing findings. Verify reachability before deleting or reconnecting them. |
+
+Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's single-entry editor. UI-42 concerns bulk mutation from an informational backup preview, with a batch predicate separate from the displayed list. UI-43 concerns premature persistence, not stale reopening. UI-44 concerns cross-view invalidation, not UI-15's pagination clamp. UI-45 concerns source-filter reset, not UI-14's SQL source correlation or the previously excluded Search query mismatch. UI-46 concerns filtered-empty messaging, not UI-32's static Examples sheet.
 
 ## High-Priority Findings
 
@@ -259,6 +285,22 @@ The Dictionary chevron initially resembled source selection but behaved as an or
 **Why it happens:** Error rendering globally replaces detail content; initialization has no user-facing retry/recovery state. The compact shell applies a different policy.
 
 **Recommended fix:** Introduce an explicit startup state and a recovery shell independent of loaded content. Keep Settings, diagnostics and safe recovery accessible on every platform.
+
+### UI-41: Capture bypasses the saved-page deletion impact confirmation
+
+**Severity:** High. **Evidence:** Source. **Likelihood:** Ordinary use; a single mistaken tap can remove a page and its descendants.
+
+**Location:** Capture > saved pages list. [CaptureWorkbenchViews.swift:387](/Users/desmondkwang/Developer/Radix/App/CaptureWorkbenchViews.swift:387), [CaptureTab.swift:225](/Users/desmondkwang/Developer/Radix/App/CaptureTab.swift:225), [RadixStoreCollections.swift:244](/Users/desmondkwang/Developer/Radix/ViewModels/RadixStoreCollections.swift:244). Compare [FavouritesPresentations.swift:218](/Users/desmondkwang/Developer/Radix/App/FavouritesPresentations.swift:218) and [FilterGridTab.swift:227](/Users/desmondkwang/Developer/Radix/App/FilterGridTab.swift:227).
+
+**How to reproduce:** In a disposable library, create a saved page, a corrected OCR child and a practice pack linked to the original. Open Capture, locate the original in its saved-pages list and tap its trash button once. Repeat with another fixture through Browse or Study for comparison.
+
+**Expected behaviour:** All entry points show the same page name and deletion-impact confirmation, including descendants and linked material, before committing; Cancel leaves everything intact.
+
+**Likely current behaviour:** Capture immediately deletes the original, corrected descendants, source images and linked artifacts handled by the store, then reports Deleted. No confirmation or visible Undo is offered. Browse/Study instead present the impact alert.
+
+**Why it happens:** `SavedImageRow` invokes `onDelete` directly, and Capture's callback calls `deleteCollection` without pending-confirmation state. The store intentionally implements a cascade, so a small row-level trash control has greater impact than its placement suggests. This is separate from UI-12's incomplete cleanup of the remaining references.
+
+**Recommended fix:** Route every saved-page deletion entry point through one pending-deletion/impact-confirmation contract and shared commit path. Add parity tests for Capture, Browse and Study with corrected descendants, cancellation and deleted-current-page state.
 
 ## Medium-Priority Findings
 
@@ -646,6 +688,70 @@ The Dictionary chevron initially resembled source selection but behaved as an or
 
 **Recommended fix:** Initialize the draft empty and provide an explicit system Paste control or standard text-edit paste action. Keep clipboard-image import and manual text entry clearly separate.
 
+### UI-42: Revert All in the backup preview immediately changes the live phrase library
+
+**Severity:** Medium. **Evidence:** Source. **Likelihood:** Conditional on inspecting backup contents with edited base phrases.
+
+**Location:** My Data > backup contents > What is included? > Phrases You Changed. [DataEditMemorySection.swift:31](/Users/desmondkwang/Developer/Radix/App/DataEditMemorySection.swift:31), [DataBackupPreviewSection.swift:162](/Users/desmondkwang/Developer/Radix/App/DataBackupPreviewSection.swift:162), [DataBackupPreviewActions.swift:13](/Users/desmondkwang/Developer/Radix/App/DataBackupPreviewActions.swift:13), [RadixStoreDataEdit.swift:485](/Users/desmondkwang/Developer/Radix/ViewModels/RadixStoreDataEdit.swift:485), [PhraseEditService.swift:19](/Users/desmondkwang/Developer/Radix/Services/PhraseEditService.swift:19).
+
+**How to reproduce:** Edit the meanings of two built-in phrases, leave their notes empty and save. Open My Data, expand What is included? and Phrases You Changed, then tap Revert All once. Return to those phrases without creating or restoring any backup.
+
+**Expected behaviour:** A destructive batch affecting the live library identifies that scope, previews the exact affected entries/count and asks for confirmation, as bulk phrase review does. It should not resemble an adjustment to an export preview alone.
+
+**Likely current behaviour:** Both live edits are reverted immediately. Only a post-operation count appears. There is a database safety snapshot, but no preflight confirmation or inline Undo/recovery action.
+
+**Why it happens:** The preview's button directly calls `removeAllUnnotedAddedPhrases`. Its predicate scans all added-DB overlays for base phrases without notes, while the visible Phrases You Changed list filters only changed pinyin/meanings via `isBasePhraseCoreEdited`. Thus the action is not even strictly scoped to the displayed rows; status-only or otherwise unchanged overlays can also be removed. Normal review batch actions use explicit alerts.
+
+**Recommended fix:** Move bulk reversion to live-library maintenance, or label and confirm it explicitly in the preview. Compute one immutable affected set for preview, confirmation and commit; preserve the safety snapshot and offer a direct recovery action. Cover notes-protected and non-displayed overlays in tests.
+
+### UI-43: Clear in the translation editor deletes the saved report before Save
+
+**Severity:** Medium. **Evidence:** Source. **Likelihood:** Ordinary editing of an existing page explanation.
+
+**Location:** Browse/Study page translation-report editor. [BrowseTranslationReportSheet.swift:38](/Users/desmondkwang/Developer/Radix/Views/BrowseTranslationReportSheet.swift:38), [BrowseImageActions.swift:151](/Users/desmondkwang/Developer/Radix/App/BrowseImageActions.swift:151), [FavouritesStudyGridData.swift:241](/Users/desmondkwang/Developer/Radix/App/FavouritesStudyGridData.swift:241), [RadixStoreCollections.swift:357](/Users/desmondkwang/Developer/Radix/ViewModels/RadixStoreCollections.swift:357). Compare [PhraseInfoNotes.swift:55](/Users/desmondkwang/Developer/Radix/Views/PhraseInfoNotes.swift:55).
+
+**How to reproduce:** Save a page explanation. Reopen its editor, tap Clear to start replacing the text, then tap Done without Save. Reopen the explanation. Compare with deleting text manually and leaving without Save, or cancelling a Notes draft.
+
+**Expected behaviour:** Clear changes the draft until Save, just like text deletion/Paste. Alternatively, an explicitly named Delete Saved Explanation action confirms immediate removal and provides recovery.
+
+**Likely current behaviour:** The previous explanation is already deleted even though Save was never tapped. Clearing the same text with the keyboard and leaving does not have that persistence effect. Save becomes disabled after Clear, reinforcing uncertainty about whether anything was committed.
+
+**Why it happens:** Both duplicated Clear handlers call `updateCollectionTranslationReport(... report: nil)`, which saves the collection immediately. Typing and Paste only change local drafts. Sharing the sheet has not unified the mutation contract.
+
+**Recommended fix:** Make all editing actions draft-only and commit an empty report deliberately on Save, or separate destructive persisted deletion from draft clearing with an impact confirmation. Test both entry points with Clear/Done, Clear/Paste/Done, manual deletion/Done and Save.
+
+### UI-44: Sentence list stars do not publish the revision used by the open card
+
+**Severity:** Medium. **Evidence:** Risk. **Likelihood:** Conditional on simultaneous list/card presentation on regular-width layouts.
+
+**Location:** Study Sentences row favorite versus sentence sidebar card. [FavouritesSentenceRows.swift:252](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceRows.swift:252), [FavouritesSentenceData.swift:126](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceData.swift:126), [RadixStoreConversationPractice.swift:422](/Users/desmondkwang/Developer/Radix/ViewModels/RadixStoreConversationPractice.swift:422), [PhraseInfoHeader.swift:85](/Users/desmondkwang/Developer/Radix/Views/PhraseInfoHeader.swift:85), [RootSidebar.swift:318](/Users/desmondkwang/Developer/Radix/App/RootSidebar.swift:318).
+
+**How to reproduce:** On a regular-width iPad/Catalyst layout, keep at least two saved sentences and use the All filter. Open one sentence in the sidebar. Toggle its favorite using the list's star/action menu without reopening the card. Compare the two stars, then toggle using the card and compare again. Avoid relying on removal of the last favorite, which can incidentally change the selected practice topic and invalidate more UI.
+
+**Expected behaviour:** The same favorite operation updates every visible representation in either direction immediately; accessibility labels agree with the stored state.
+
+**Likely current behaviour:** The row updates after its local query refresh while the already-open card can retain the old star/label until another observed-store change causes rendering. Tapping the stale card may perform the opposite action from the one its icon suggests because the action rereads persistence. This is a source-established invalidation gap, not a simulator-reproduced stale star.
+
+**Why it happens:** Row actions write directly to `RadixStudyPreferences` and bump only local `sentenceExampleRevision`. Card actions call `store.toggleFavoriteSentence`, which increments the published `favoriteSentenceRevision`. `FavouritesTabLifecycle` listens to that shared revision, while the sidebar reads favorites through the store rather than observing the preference write. The row path skips that notification contract.
+
+**Recommended fix:** Use a single store mutation for favorites by stable sentence ID, publish the shared revision after successful persistence, and have list/card consumers refresh from it. Test both directions while both views remain mounted; include the analogous list-edit path that currently also bypasses shared mutation publication.
+
+### UI-45: Typing a sentence search silently broadens its source filter to All
+
+**Severity:** Medium. **Evidence:** Source. **Likelihood:** Ordinary use of Favorites/From Pages/From Practice with search.
+
+**Location:** Study Sentences source/search controls. [FavouritesSentenceControls.swift:25](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceControls.swift:25), [FavouritesSentenceData.swift:94](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceData.swift:94), [FavouritesSentenceRows.swift:145](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceRows.swift:145). Compare [SmartSearchTab.swift:94](/Users/desmondkwang/Developer/Radix/App/SmartSearchTab.swift:94).
+
+**How to reproduce:** Have both favorited and unfavorited sentences containing the same word. Choose Favorites in Study Sentences, then type that word. Re-select Favorites while keeping the query, then append another non-whitespace character. Repeat with From Pages or From Practice. Inspect Delete Results without confirming it.
+
+**Expected behaviour:** Search narrows the selected source, as the minimum-character filter does. Searching all sources should require an explicit scope change, particularly when the resulting set can be bulk deleted.
+
+**Likely current behaviour:** Every meaningful nonempty text change resets the source to All and includes matching records outside the chosen source. The pill updates, but no explicit scope-change action was requested. Delete Results operates on this broadened query; its existing confirmation is a mitigating protection, not a guarantee the user's intended scope was preserved.
+
+**Why it happens:** The search field's `onChange` assigns `sentenceExampleFilter = .all`. The underlying query already accepts source, text and minimum count together. Changing minimum length and running dictionary search do not similarly discard their selected source/script filters.
+
+**Recommended fix:** Preserve the selected source on text edits. Provide an explicit Search All action for expanding an empty result set if needed. Test every source with typing, query refinement, clearing, length changes and the exact bulk-delete target set.
+
 ## Low-Priority Findings
 
 ### UI-33: New page names are silently truncated although the creation field accepts more
@@ -727,6 +833,22 @@ The Dictionary chevron initially resembled source selection but behaved as an or
 **Why it happens:** `TextEditor(text: $text)` has a minimum height but no label, placeholder or accessibility label, unlike the existing character-notes editor's explicit empty-state prompt.
 
 **Recommended fix:** Add a Chinese Text field label and accessible name, with a concise empty-editor prompt if needed. Reuse the app's existing labeled-editor pattern without introducing a tutorial or additional navigation.
+
+### UI-46: A filtered-out sentence library is described as having no imported data
+
+**Severity:** Low. **Evidence:** Source. **Likelihood:** Ordinary search or minimum-length filtering.
+
+**Location:** Study Sentences empty state versus Search no-results state. [FavouritesSections.swift:99](/Users/desmondkwang/Developer/Radix/App/FavouritesSections.swift:99), [FavouritesSentenceData.swift:112](/Users/desmondkwang/Developer/Radix/App/FavouritesSentenceData.swift:112), [SmartSearchResults.swift:29](/Users/desmondkwang/Developer/Radix/App/SmartSearchResults.swift:29).
+
+**How to reproduce:** With saved short sentences visible, raise minimum characters above every sentence's length, or enter a query that matches none. Observe the empty message, then lower the minimum/clear the query and see the existing sentences return.
+
+**Expected behaviour:** Distinguish an empty library from no matching sentences. Show the active scope/query and offer a relevant clear/reset action; reserve import instructions for a genuinely empty corpus.
+
+**Likely current behaviour:** Both cases show No Sentences with instructions to import page sentences or practice packs. The user can infer that their existing corpus was lost or not imported successfully, although controls remain available to recover the view.
+
+**Why it happens:** Presentation branches only on filtered `sentenceExampleResultCount == 0`; it does not distinguish corpus emptiness from a query miss. Dictionary Search already uses a query-specific `ContentUnavailableView.search` instead.
+
+**Recommended fix:** Use separate empty-library and no-results states, with a source/search/minimum-filter reset for the latter. Test a nonempty corpus excluded independently by each filter, not just a fresh installation.
 
 ## Reproduced Probe Evidence
 
