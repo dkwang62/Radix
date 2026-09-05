@@ -333,6 +333,12 @@ For a normal model/store refactor:
 2. `swift test`
 3. `xcodebuild -quiet -project Radix.xcodeproj -scheme Radix -destination 'platform=macOS,variant=Mac Catalyst' CODE_SIGNING_ALLOWED=NO build`
 
+The read-only 2026-09-06 UI audit passed these checks (117 tests in 12 suites)
+and the generic iOS Simulator build.
+Five disposable core probes reproduced failures documented in `RADIX_UI_AUDIT.md`;
+targeted SE simulator navigation passed, but the physical-device/accessibility
+matrix remains open. No application fixes were made in that audit.
+
 For release work or platform-sensitive UI/data changes, also run:
 
 ```sh

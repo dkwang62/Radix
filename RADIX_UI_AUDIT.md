@@ -672,5 +672,9 @@ A wholesale UI rewrite or broad "defrag" is not supported by this evidence. Exis
 
 - Five focused disposable RadixCore probes executed; results are recorded above.
 - Fresh SE simulator launch and the targeted navigation/cancellation/Upgrade flows described above executed.
-- Baseline package tests and Catalyst build: see the completion result recorded in PROJECT_CONTEXT.md for this audit work unit.
+- `swift test`: passed, 117 tests in 12 suites.
+- Catalyst build with `CODE_SIGNING_ALLOWED=NO`: passed; destination-selection warnings only.
+- Generic iOS Simulator build: passed.
+- All 34 findings contain the seven requested fields; all local file/line references were checked for existence and bounds.
+- `git diff --check`: passed for the documentation changes.
 - No physical-iPad gate, live-cloud-AI test, real purchase, exhaustive accessibility pass, or large-library UI performance certification was completed.
