@@ -1,6 +1,7 @@
 # Radix UI Audit
 
-Audit completed: 2026-09-06. Source baseline: `a1ab08325272cd317d5379eaeadd84b54cfb5710`.
+Initial audit completed: 2026-09-06. Source baseline: `a1ab08325272cd317d5379eaeadd84b54cfb5710`.
+UI-first follow-up: 2026-09-06, on the same application code, after documentation commit `c56a396`.
 
 ## Executive Assessment
 
@@ -8,13 +9,14 @@ The highest-impact holes are in recovery and mutation semantics, not cosmetic la
 
 This is a read-only application audit. No Swift, database schema, persisted identifiers, entitlement policy, or UI implementation was changed. The only repository changes are this report and its link/workstream entry in PROJECT_CONTEXT.md.
 
-**34 findings: 11 High, 21 Medium, 2 Low; no Critical finding established.** Findings are ordered by impact, then likely exposure within each severity. High means loss of saved work, misleading recovery, or loss of access to essential recovery UI. Medium means incorrect results, stranded workflows, accessibility limitations, or conditional reliability failures. Low means lower-impact consistency or validation defects. None of the conditional findings should be described as an observed crash or measured performance regression.
+**40 findings: 11 High, 24 Medium, 5 Low; no Critical finding established.** Findings are grouped by severity. Original IDs are preserved; the six UI-first additions, UI-35 through UI-40, appear within their respective severity sections. High means loss of saved work, misleading recovery, or loss of access to essential recovery UI. Medium means incorrect results, stranded workflows, accessibility limitations, or conditional reliability failures. Low means lower-impact consistency or validation defects. None of the conditional findings should be described as an observed crash or measured performance regression.
 
 Evidence labels:
 
 - **Probe:** reproduced against the actual compiled RadixCore implementation using disposable SQLite databases and synthetic text. Not a full end-to-end UI reproduction.
 - **Source:** a concrete control-to-store trace establishes the faulty behavior; the described UI reproduction still needs execution.
 - **Risk:** code establishes a missing protection, but device behavior, timing, or scale determines whether the visible failure occurs.
+- **UI-observed:** the stated interaction or visual ambiguity was observed in the isolated simulator and subsequently traced to source; this is not physical-device or full VoiceOver certification.
 
 Simulator work used a fresh iPhone SE (3rd generation), iOS 26.5, named `Radix-UI-Audit-SE`. The user's live library, credentials, purchases, and external AI services were not used. Runtime coverage was targeted, not an exhaustive execution of every control or every possible state. Physical iPad, full VoiceOver, Dynamic Type, background interruption, and large-data UI runs remain required. This report is not release sign-off.
 
@@ -64,6 +66,21 @@ This inventory records source-level coverage and the controls/transitions examin
 - On the camera-less simulator, Camera opened the photo-library fallback. This is not evidence that a physical device's camera or permission-denied flow works.
 - Album opened Upgrade; plans and a Close control were available. No purchase, Restore Purchases, credential entry, or AI call was performed. Offline/pending payment behavior below is source-derived.
 - Several important protections already exist: destructive alerts in normal phrase/sentence review, security-scoped file access, backup size/version/hash checks, safety-copy creation, normalized restored filters, local stroke-data fallback messages, and WebKit bootstrap retry/process-termination handling. These do not remove the narrower failures below.
+
+### UI-First Follow-Up Method And Deduplication
+
+The follow-up started from the interface, collecting first-use expectations before reopening this report or tracing implementation details. The same isolated SE simulator was reused with no user library or credentials; it was not a freshly reset installation. The walkthrough covered dictionary controls, filtering, a character card, Notes, the learning-tier guide, phrase lookup, starring a character and finding Favorites, the empty Conversation Practices flow, its Generate Practice Pack handoff, and Text to Page. It does not establish that every remaining screen/control was exercised.
+
+Only six distinct issues were retained. In particular:
+
+- UI-35 is normal-size character-editor layout at the default sheet detent, not UI-28's Dynamic Type behavior or UI-29's classification-grid overflow.
+- UI-36 is a missing return to phrase results, not UI-16's stale phrase-note value or the deliberate top-level title-menu navigation model.
+- UI-37 is an unsolicited local clipboard read, not UI-24's automatic cloud OCR fallback.
+- UI-38 concerns an unlabeled quantity/action; UI-34 concerns inconsistent names for the same object. The observed `6 strokes` and `7` do **not** establish conflicting stroke data.
+- UI-39 is compact adaptation of a specific help popover without a visible dismissal control, not a general inaccessible-font claim.
+- UI-40 concerns discovering the empty text-entry field, not UI-21's Unicode/Save validation or UI-33's page-name limit.
+
+The Dictionary chevron initially resembled source selection but behaved as an ordinary disclosure, so it was not added as a defect. Active filters visibly showed a count and Reset; Favorites was reachable from the Study menu. These were also excluded. Unicode entry through the simulator automation did not complete reliably, and the Simulator window later became unavailable to the UI tool; neither limitation is attributed to Radix. No page was saved in that attempt. No external AI request or purchase was made.
 
 ## High-Priority Findings
 
@@ -581,6 +598,54 @@ This inventory records source-level coverage and the controls/transitions examin
 
 **Recommended fix:** Reuse paged sentence-query state, load off the presentation path, refresh on corpus revisions and show a meaningful no-examples state.
 
+### UI-35: Character Notes opens with Save and Cancel outside the visible sheet
+
+**Severity:** Medium. **Evidence:** UI-observed plus source. **Likelihood:** High on SE-size iPhones using the default sheet height.
+
+**Location:** Browse Dictionary > character > Notes. [RootView.swift:68](/Users/desmondkwang/Developer/Radix/App/RootView.swift:68), [QuickCharacterEditorView.swift:66](/Users/desmondkwang/Developer/Radix/App/QuickCharacterEditorView.swift:66), [QuickCharacterEditorForm.swift:5](/Users/desmondkwang/Developer/Radix/App/QuickCharacterEditorForm.swift:5), [QuickCharacterEditorNotes.swift:42](/Users/desmondkwang/Developer/Radix/App/QuickCharacterEditorNotes.swift:42).
+
+**How to reproduce:** At normal text size on an iPhone SE (3rd generation), open Browse Dictionary, select a character such as 危, and tap Notes. Leave the sheet at its initial medium height. Then expand it using the grabber.
+
+**Expected behaviour:** The initial editor visibly identifies itself and exposes Save/Cancel. Expanding should reveal more editing space, not rescue essential commands. Button labels should remain readable.
+
+**Likely current behaviour:** Observed: the medium sheet showed the notes body while its header and Save/Cancel were clipped above the visible sheet. Expanding exposed a header in which Cancel wrapped as `Ca` / `nc` / `el`, alongside an abnormally tall save button. The expanded Cancel action worked.
+
+**Why it happens:** The root presents the editor at medium/large detents. Its initial compact form is non-scrolling and gives the notes editor a 360-point minimum before adding header, padding and dictionary controls. The header is one HStack whose title/subtitle has layout priority over the action buttons; it has no compact arrangement for the remaining width.
+
+**Recommended fix:** Keep Save/Cancel in a stable navigation toolbar or otherwise protected header, make the initial form fit/scroll within its detent, and use a compact header arrangement. Verify both detents at normal text size before extending the Dynamic Type matrix.
+
+### UI-36: Inspecting a phrase removes the result list without a way back to it
+
+**Severity:** Medium. **Evidence:** UI-observed plus source. **Likelihood:** High when comparing several dictionary phrases.
+
+**Location:** Character card > Phrases > Phrase Library > phrase detail. [PhraseTableSheet.swift:65](/Users/desmondkwang/Developer/Radix/Views/PhraseTableSheet.swift:65), [PhraseTableSheet.swift:150](/Users/desmondkwang/Developer/Radix/Views/PhraseTableSheet.swift:150), [PhraseTableSheet.swift:158](/Users/desmondkwang/Developer/Radix/Views/PhraseTableSheet.swift:158), [PhraseTableSheet.swift:236](/Users/desmondkwang/Developer/Radix/Views/PhraseTableSheet.swift:236).
+
+**How to reproduce:** Open 危, tap Phrases, then select 安危 from the 73-match list. Try to return to that list to inspect the next match. Tap the available Back to Character control.
+
+**Expected behaviour:** Phrase inspection has a visible Back to Phrases/results action preserving the list/filter/position, while a separate close/return-to-character action can end the lookup.
+
+**Likely current behaviour:** Observed: the phrase card replaced the entire list and its length controls. The only visible return action was Back to Character, which dismissed the sheet to the character. Comparing another match required opening Phrases again. This is a missing return step, not an incorrectly labeled existing button.
+
+**Why it happens:** `selectedPhrase` switches the body from list to card. The common return button always calls `dismiss()`, and the card's Done also dismisses. The only other reset is tied to phrase-length changes, but that selector is no longer visible in the selected-phrase branch.
+
+**Recommended fix:** Add an explicit in-sheet return that clears `selectedPhrase` and retains result context, or use a normal list/detail NavigationStack within the sheet. Preserve the existing direct return to the originating character as a separate exit.
+
+### UI-37: Text to Page reads the clipboard before the user chooses Paste
+
+**Severity:** Medium. **Evidence:** UI-observed plus source. **Likelihood:** High when the clipboard contains content from another app and iOS requires paste approval.
+
+**Location:** Browse title menu > Text to Page and Capture > Text to Page. [CaptureTab.swift:365](/Users/desmondkwang/Developer/Radix/App/CaptureTab.swift:365).
+
+**How to reproduce:** Copy text in another app, return to Radix, and choose Text to Page intending to type new material. Do not press any Paste command. Test with iOS paste access set to ask.
+
+**Expected behaviour:** Open an empty manual-entry form. Read the clipboard only after an explicit Paste action, or offer a clearly named Paste Text to Page action distinct from manual creation.
+
+**Likely current behaviour:** Observed: iOS asked whether Radix could paste from CoreSimulatorBridge immediately on choosing Text to Page. Declining then opened the form. With allowed access, the current clipboard is automatically used as the draft, potentially surprising a user who wanted to type unrelated text. No clipboard contents were inspected during this test.
+
+**Why it happens:** `beginManualCollection()` assigns `RadixPlatform.pasteboardString` to the draft before presenting the sheet, rather than waiting for a paste gesture.
+
+**Recommended fix:** Initialize the draft empty and provide an explicit system Paste control or standard text-edit paste action. Keep clipboard-image import and manual text entry clearly separate.
+
 ## Low-Priority Findings
 
 ### UI-33: New page names are silently truncated although the creation field accepts more
@@ -614,6 +679,54 @@ This inventory records source-level coverage and the controls/transitions examin
 **Why it happens:** View-local strings remain alongside shared glossary/copy types; historical persistence terminology leaks into UI.
 
 **Recommended fix:** Use the product model's canonical terms centrally and explicitly distinguish full checkpoints, per-database safety copies and portable backups. Review destructive verbs and success messages against their actual storage guarantees.
+
+### UI-38: The character's component-usage number has no label or discoverable action meaning
+
+**Severity:** Low. **Evidence:** UI-observed plus source. **Likelihood:** High for beginners inspecting their first character.
+
+**Location:** Character information card's large character tile. [CharacterInfoCardHeader.swift:51](/Users/desmondkwang/Developer/Radix/Views/CharacterInfoCardHeader.swift:51), [CharacterInfoCardStyle.swift:16](/Users/desmondkwang/Developer/Radix/Views/CharacterInfoCardStyle.swift:16), [CharacterInfoCardSupport.swift:10](/Users/desmondkwang/Developer/Radix/Views/CharacterInfoCardSupport.swift:10).
+
+**How to reproduce:** Open 危 from Browse Dictionary. Compare the animation header `6 strokes` with the bare `7` under the character tile, then try to infer what tapping that tile will do.
+
+**Expected behaviour:** The number communicates that it counts characters using this component, and the tile communicates that it opens those related characters. It should not resemble a second stroke count, rank or quiz score.
+
+**Likely current behaviour:** Observed: the screen showed `6 strokes` and a bare `7`; the accessibility tree named the button only `危, 7`. Source inspection established that 7 is `usageCount`, not an incorrect stroke value. The meaning and action are not available from the visible label.
+
+**Why it happens:** `usageCountSubtitle` returns only the integer, and `usageCharactersButton` adds no semantic accessibility label/hint. Counts above one open the components popover directly rather than the usage explanation.
+
+**Recommended fix:** Give the quantity and action a compact, explicit meaning, such as a labeled component-usage count, and add an accessibility label/hint describing the related-character action. Do not change valid stroke or usage data to make the numbers agree.
+
+### UI-39: The learning-tier guide becomes a phone sheet with no visible close control
+
+**Severity:** Low. **Evidence:** UI-observed plus source. **Likelihood:** High when a new iPhone user taps a Tier badge.
+
+**Location:** Character information card > Tier 1 (or another Tier badge). [CharacterInfoCardHeader.swift:39](/Users/desmondkwang/Developer/Radix/Views/CharacterInfoCardHeader.swift:39), [CharacterInfoCardGuides.swift:17](/Users/desmondkwang/Developer/Radix/Views/CharacterInfoCardGuides.swift:17), [CharacterInfoCardSupport.swift:34](/Users/desmondkwang/Developer/Radix/Views/CharacterInfoCardSupport.swift:34).
+
+**How to reproduce:** On a compact iPhone, open a character card and tap its Tier badge. Look for a visible Done, Close, back action or grabber before attempting a dismissal gesture.
+
+**Expected behaviour:** Explanatory content remains a clearly dismissible popover, or its adapted sheet supplies an obvious close action consistent with Radix's other reference screens.
+
+**Likely current behaviour:** Observed: a tall sheet containing only guide text appeared, with no visible close button or grabber. Escape dismissed it in the simulator; this is therefore a discoverability problem, not a claim that the application is permanently trapped. Touch/VoiceOver dismissal should still be verified on a device.
+
+**Why it happens:** The Tier button uses a popover that adapts to a sheet in compact width. Its content is only a padded VStack, without a dismissal control, and it does not apply the compact-popover treatment used by some other card explanations.
+
+**Recommended fix:** Specify compact presentation deliberately. Keep a true popover where appropriate, or give the sheet a visible Done/Close action with accessible focus and return behavior.
+
+### UI-40: The empty Text to Page form does not identify its Chinese text field
+
+**Severity:** Low. **Evidence:** UI-observed plus source. **Likelihood:** High for manual entry with an empty or denied clipboard.
+
+**Location:** New Saved Page form. [BrowseCollectionSheets.swift:11](/Users/desmondkwang/Developer/Radix/Views/BrowseCollectionSheets.swift:11).
+
+**How to reproduce:** Choose Text to Page with an empty clipboard or decline paste access, then expand the sheet. Try to determine where the required Chinese content belongs before tapping around.
+
+**Expected behaviour:** The form clearly distinguishes the optional page name from the Chinese text editor, with a field label and an accessible name. Save's requirements should be inferable from the form.
+
+**Likely current behaviour:** Observed: Name was labeled, but the editor appeared as a large blank area inside the same Saved Page section. Only a separate `0 unique Chinese characters detected` footer hinted at its purpose. The UI tool exposed that region as an unnamed Group; this alone is not proof of full VoiceOver behavior.
+
+**Why it happens:** `TextEditor(text: $text)` has a minimum height but no label, placeholder or accessibility label, unlike the existing character-notes editor's explicit empty-state prompt.
+
+**Recommended fix:** Add a Chinese Text field label and accessible name, with a concise empty-editor prompt if needed. Reuse the app's existing labeled-editor pattern without introducing a tutorial or additional navigation.
 
 ## Reproduced Probe Evidence
 
@@ -664,7 +777,8 @@ Two particularly important unresolved risks are the regular iPad sidebar's minim
 1. **Restore and persistence contract:** UI-01 through UI-07 and UI-09. Introduce staged validation, atomic/recoverable mutation, throwing results and honest progress/cancellation. Lock these guarantees down before further sentence-store restructuring.
 2. **Identity and concurrency:** UI-08, UI-10 and UI-12 through UI-20. Centralize mutation/revision publication and reconcile references. Tie asynchronous work to operation and subject identity.
 3. **Workflow correctness:** UI-21 through UI-27, UI-30 and UI-31. Unify input validation, image preparation, drafts and asynchronous result presentation.
-4. **Accessibility and scale:** UI-28, UI-29 and UI-32, followed by the complete physical-device matrix. Then resolve UI-33/UI-34 copy and validation inconsistencies.
+4. **First-use interaction:** UI-35 through UI-37. Make editing commands reachable, preserve phrase-result navigation, and make clipboard access intentional.
+5. **Accessibility and scale:** UI-28, UI-29 and UI-32, followed by the complete physical-device matrix. Then resolve UI-33/UI-34 and UI-38 through UI-40 labeling, dismissal and validation inconsistencies.
 
 A wholesale UI rewrite or broad "defrag" is not supported by this evidence. Existing screen/component boundaries are usable. Focused consolidation is warranted around sentence mutations, backup/restore coordination, source-reference cleanup, shared import ownership and AI request lifecycle. Moving methods into smaller files without strengthening those contracts will not fix these bugs.
 
@@ -675,6 +789,7 @@ A wholesale UI rewrite or broad "defrag" is not supported by this evidence. Exis
 - `swift test`: passed, 117 tests in 12 suites.
 - Catalyst build with `CODE_SIGNING_ALLOWED=NO`: passed; destination-selection warnings only.
 - Generic iOS Simulator build: passed.
-- All 34 findings contain the seven requested fields; all local file/line references were checked for existence and bounds.
+- Six UI-first additions were observed in the isolated SE simulator, compared against the initial report, and traced to Swift code. Application implementation remained unchanged.
+- All 40 findings contain the seven requested fields; all local file/line references were checked for existence and bounds.
 - `git diff --check`: passed for the documentation changes.
 - No physical-iPad gate, live-cloud-AI test, real purchase, exhaustive accessibility pass, or large-library UI performance certification was completed.

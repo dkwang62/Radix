@@ -335,9 +335,11 @@ For a normal model/store refactor:
 
 The read-only 2026-09-06 UI audit passed these checks (117 tests in 12 suites)
 and the generic iOS Simulator build.
-Five disposable core probes reproduced failures documented in `RADIX_UI_AUDIT.md`;
-targeted SE simulator navigation passed, but the physical-device/accessibility
-matrix remains open. No application fixes were made in that audit.
+Five disposable core probes reproduced failures documented in `RADIX_UI_AUDIT.md`.
+A subsequent UI-first SE walkthrough added six distinct findings (UI-35 to UI-40),
+including clipped Notes actions, missing phrase-result return, and unsolicited
+clipboard access. The report now has 40 findings; the physical-device/accessibility
+matrix remains open. No application fixes were made in either pass.
 
 For release work or platform-sensitive UI/data changes, also run:
 
