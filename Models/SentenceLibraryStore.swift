@@ -213,105 +213,84 @@ final class SentenceLibraryStore: @unchecked Sendable {
         }
     }
 
-    func replaceAll(_ records: [SentenceExampleRecord]) {
+    func replaceAll(_ records: [SentenceExampleRecord]) throws {
         lock.lock()
         defer { lock.unlock() }
 
         let records = canonicalize(records)
         if fallbackRecords != nil {
-            fallbackRecords = records
-            return
+            throw storageUnavailableError()
         }
 
-        do {
-            try openIfNeeded()
-            try replaceAllUnlocked(records)
-        } catch {
-            fallbackRecords = records
-        }
+        try openIfNeeded()
+        try replaceAllUnlocked(records)
     }
 
-    func upsert(_ records: [SentenceExampleRecord]) {
+    func upsert(_ records: [SentenceExampleRecord]) throws {
         guard !records.isEmpty else { return }
         lock.lock()
         defer { lock.unlock() }
 
-        if let fallbackRecords {
-            self.fallbackRecords = canonicalize(
-                fallbackRecords + records
-            )
-            return
+        if fallbackRecords != nil {
+            throw storageUnavailableError()
         }
 
+        try openIfNeeded()
+        let records = canonicalize(records)
+        guard sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) == SQLITE_OK else {
+            throw sqliteError(code: 3112, message: "Failed to begin sentence upsert")
+        }
         do {
-            try openIfNeeded()
-            let records = canonicalize(records)
-            guard sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) == SQLITE_OK else {
-                throw sqliteError(code: 3112, message: "Failed to begin sentence upsert")
+            for incoming in records {
+                var merged = incoming
+                if var existing = try fetchOneUnlocked(whereSQL: "normalized_key = ?", bindings: [incoming.normalizedChineseKey]) {
+                    existing.merge(incoming)
+                    merged = existing
+                }
+                try insertUnlocked([merged])
             }
-            do {
-                for incoming in records {
-                    var merged = incoming
-                    if var existing = try fetchOneUnlocked(whereSQL: "normalized_key = ?", bindings: [incoming.normalizedChineseKey]) {
-                        existing.merge(incoming)
-                        merged = existing
-                    }
-                    try insertUnlocked([merged])
-                }
-                guard sqlite3_exec(db, "COMMIT", nil, nil, nil) == SQLITE_OK else {
-                    throw sqliteError(code: 3113, message: "Failed to commit sentence upsert")
-                }
-            } catch {
-                sqlite3_exec(db, "ROLLBACK", nil, nil, nil)
-                throw error
+            guard sqlite3_exec(db, "COMMIT", nil, nil, nil) == SQLITE_OK else {
+                throw sqliteError(code: 3113, message: "Failed to commit sentence upsert")
             }
         } catch {
-            fallbackRecords = canonicalize(records)
+            sqlite3_exec(db, "ROLLBACK", nil, nil, nil)
+            throw error
         }
     }
 
-    func replace(_ records: [SentenceExampleRecord]) {
+    func replace(_ records: [SentenceExampleRecord]) throws {
         guard !records.isEmpty else { return }
         lock.lock()
         defer { lock.unlock() }
 
         let records = canonicalize(records)
-        if let fallbackRecords {
-            var updatedByID = Dictionary(uniqueKeysWithValues: fallbackRecords.map { ($0.id, $0) })
-            for record in records {
-                updatedByID[record.id] = record
-            }
-            var seenIDs = Set<UUID>()
-            let replaced = fallbackRecords.compactMap { record -> SentenceExampleRecord? in
-                guard let updated = updatedByID[record.id] else { return record }
-                seenIDs.insert(record.id)
-                return updated
-            }
-            let appended = records.filter { !seenIDs.contains($0.id) }
-            self.fallbackRecords = canonicalize(replaced + appended)
-            return
+        if fallbackRecords != nil {
+            throw storageUnavailableError()
         }
 
+        try openIfNeeded()
+        guard sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) == SQLITE_OK else {
+            throw sqliteError(code: 3145, message: "Failed to begin sentence update")
+        }
         do {
-            try openIfNeeded()
             try insertUnlocked(records)
+            guard sqlite3_exec(db, "COMMIT", nil, nil, nil) == SQLITE_OK else {
+                throw sqliteError(code: 3146, message: "Failed to commit sentence update")
+            }
         } catch {
-            return
+            sqlite3_exec(db, "ROLLBACK", nil, nil, nil)
+            throw error
         }
     }
 
-    func delete(id: UUID) {
-        delete(whereSQL: "id = ?", bindings: [id.uuidString]) { record in
-            record.id != id
-        }
+    func delete(id: UUID) throws {
+        try delete(whereSQL: "id = ?", bindings: [id.uuidString])
     }
 
-    func delete(normalizedKey: String) {
+    func delete(normalizedKey: String) throws {
         let key = normalizedKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !key.isEmpty else { return }
-        delete(whereSQL: "normalized_key = ?", bindings: [key]) { record in
-            record.normalizedChineseKey != key
-        }
+        try delete(whereSQL: "normalized_key = ?", bindings: [key])
     }
 
     func backupDatabase(to destinationURL: URL) throws {
@@ -323,6 +302,10 @@ final class SentenceLibraryStore: @unchecked Sendable {
         }
 
         try openIfNeeded()
+        try backupDatabaseUnlocked(to: destinationURL)
+    }
+
+    private func backupDatabaseUnlocked(to destinationURL: URL) throws {
         guard let db else {
             throw NSError(domain: "Radix", code: 3138, userInfo: [NSLocalizedDescriptionKey: "Sentence database is not open."])
         }
@@ -354,48 +337,7 @@ final class SentenceLibraryStore: @unchecked Sendable {
         }
     }
 
-    static func validateSentenceDatabase(at sourceURL: URL) throws {
-        guard FileManager.default.isReadableFile(atPath: sourceURL.path) else {
-            throw NSError(domain: "Radix", code: 3141, userInfo: [NSLocalizedDescriptionKey: "Sentence database file is not readable."])
-        }
-
-        var sourceDB: OpaquePointer?
-        guard sqlite3_open_v2(sourceURL.path, &sourceDB, SQLITE_OPEN_READONLY, nil) == SQLITE_OK,
-              let sourceDB
-        else {
-            let message = sourceDB.map { String(cString: sqlite3_errmsg($0)) } ?? "unknown"
-            if let sourceDB { sqlite3_close(sourceDB) }
-            throw NSError(domain: "Radix", code: 3142, userInfo: [NSLocalizedDescriptionKey: "Failed to open sentence database: \(message)"])
-        }
-        defer { sqlite3_close(sourceDB) }
-
-        var statement: OpaquePointer?
-        guard sqlite3_prepare_v2(sourceDB, "PRAGMA table_info(sentence_examples)", -1, &statement, nil) == SQLITE_OK else {
-            throw NSError(domain: "Radix", code: 3143, userInfo: [NSLocalizedDescriptionKey: "Failed to inspect sentence database."])
-        }
-        defer { sqlite3_finalize(statement) }
-
-        var columns = Set<String>()
-        while sqlite3_step(statement) == SQLITE_ROW {
-            if let nameText = sqlite3_column_text(statement, 1) {
-                columns.insert(String(cString: nameText))
-            }
-        }
-        let requiredColumns: Set<String> = ["id", "normalized_key", "record_json"]
-        guard requiredColumns.isSubset(of: columns) else {
-            throw NSError(domain: "Radix", code: 3144, userInfo: [NSLocalizedDescriptionKey: "This is not a Radix sentence database."])
-        }
-    }
-
-    func restoreDatabase(from sourceURL: URL) throws {
-        lock.lock()
-        defer { lock.unlock() }
-
-        guard FileManager.default.isReadableFile(atPath: sourceURL.path) else {
-            throw NSError(domain: "Radix", code: 3134, userInfo: [NSLocalizedDescriptionKey: "Sentence snapshot is not readable."])
-        }
-
-        try openIfNeeded()
+    private func restoreDatabaseUnlocked(from sourceURL: URL) throws {
         guard let db else {
             throw NSError(domain: "Radix", code: 3138, userInfo: [NSLocalizedDescriptionKey: "Sentence database is not open."])
         }
@@ -417,39 +359,141 @@ final class SentenceLibraryStore: @unchecked Sendable {
         guard stepResult == SQLITE_DONE, finishResult == SQLITE_OK else {
             throw sqliteError(code: 3137, message: "Failed to finish sentence restore")
         }
-        fallbackRecords = nil
-        try ensureSchema()
+    }
+
+    private static func validateIntegrity(of database: OpaquePointer) throws {
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(database, "PRAGMA quick_check", -1, &statement, nil) == SQLITE_OK else {
+            throw NSError(domain: "Radix", code: 3151, userInfo: [NSLocalizedDescriptionKey: "Failed to check sentence database integrity."])
+        }
+        defer { sqlite3_finalize(statement) }
+        guard sqlite3_step(statement) == SQLITE_ROW,
+              let result = sqlite3_column_text(statement, 0),
+              String(cString: result).lowercased() == "ok"
+        else {
+            throw NSError(domain: "Radix", code: 3152, userInfo: [NSLocalizedDescriptionKey: "The sentence database is damaged."])
+        }
+    }
+
+    static func validateSentenceDatabase(at sourceURL: URL) throws {
+        guard FileManager.default.isReadableFile(atPath: sourceURL.path) else {
+            throw NSError(domain: "Radix", code: 3141, userInfo: [NSLocalizedDescriptionKey: "Sentence database file is not readable."])
+        }
+
+        var sourceDB: OpaquePointer?
+        guard sqlite3_open_v2(sourceURL.path, &sourceDB, SQLITE_OPEN_READONLY, nil) == SQLITE_OK,
+              let sourceDB
+        else {
+            let message = sourceDB.map { String(cString: sqlite3_errmsg($0)) } ?? "unknown"
+            if let sourceDB { sqlite3_close(sourceDB) }
+            throw NSError(domain: "Radix", code: 3142, userInfo: [NSLocalizedDescriptionKey: "Failed to open sentence database: \(message)"])
+        }
+        defer { sqlite3_close(sourceDB) }
+
+        try validateIntegrity(of: sourceDB)
+
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(sourceDB, "PRAGMA table_info(sentence_examples)", -1, &statement, nil) == SQLITE_OK else {
+            throw NSError(domain: "Radix", code: 3143, userInfo: [NSLocalizedDescriptionKey: "Failed to inspect sentence database."])
+        }
+        defer { sqlite3_finalize(statement) }
+
+        var columns = Set<String>()
+        while sqlite3_step(statement) == SQLITE_ROW {
+            if let nameText = sqlite3_column_text(statement, 1) {
+                columns.insert(String(cString: nameText))
+            }
+        }
+        let requiredColumns: Set<String> = [
+            "id", "normalized_key", "chinese", "pinyin", "english",
+            "is_favorited", "is_hidden", "quality_score", "created_at",
+            "updated_at", "record_json"
+        ]
+        guard requiredColumns.isSubset(of: columns) else {
+            throw NSError(domain: "Radix", code: 3144, userInfo: [NSLocalizedDescriptionKey: "This is not a Radix sentence database."])
+        }
+
+        let decoder = JSONDecoder()
+        var rowStatement: OpaquePointer?
+        guard sqlite3_prepare_v2(sourceDB, "SELECT id, normalized_key, record_json FROM sentence_examples", -1, &rowStatement, nil) == SQLITE_OK else {
+            throw NSError(domain: "Radix", code: 3147, userInfo: [NSLocalizedDescriptionKey: "Failed to inspect sentence records."])
+        }
+        defer { sqlite3_finalize(rowStatement) }
+        while sqlite3_step(rowStatement) == SQLITE_ROW {
+            guard let idText = sqlite3_column_text(rowStatement, 0),
+                  let keyText = sqlite3_column_text(rowStatement, 1),
+                  let bytes = sqlite3_column_blob(rowStatement, 2)
+            else {
+                throw NSError(domain: "Radix", code: 3148, userInfo: [NSLocalizedDescriptionKey: "The sentence database contains an incomplete record."])
+            }
+            let count = Int(sqlite3_column_bytes(rowStatement, 2))
+            let data = Data(bytes: bytes, count: count)
+            guard let record = try? decoder.decode(SentenceExampleRecord.self, from: data),
+                  record.id.uuidString.caseInsensitiveCompare(String(cString: idText)) == .orderedSame,
+                  record.normalizedChineseKey == String(cString: keyText),
+                  !record.normalizedChineseKey.isEmpty
+            else {
+                throw NSError(domain: "Radix", code: 3149, userInfo: [NSLocalizedDescriptionKey: "The sentence database contains an invalid record."])
+            }
+        }
+    }
+
+    func restoreDatabase(from sourceURL: URL) throws {
+        lock.lock()
+        defer { lock.unlock() }
+
+        try Self.validateSentenceDatabase(at: sourceURL)
+
+        try openIfNeeded()
+        let rollbackURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("radix_sentence_restore_rollback_\(UUID().uuidString)")
+            .appendingPathExtension("sqlite")
+        defer { try? FileManager.default.removeItem(at: rollbackURL) }
+        try backupDatabaseUnlocked(to: rollbackURL)
+
+        do {
+            try restoreDatabaseUnlocked(from: sourceURL)
+            fallbackRecords = nil
+            try ensureSchema()
+        } catch {
+            do {
+                try restoreDatabaseUnlocked(from: rollbackURL)
+                fallbackRecords = nil
+                try ensureSchema()
+            } catch let rollbackError {
+                throw NSError(
+                    domain: "Radix",
+                    code: 3150,
+                    userInfo: [NSLocalizedDescriptionKey: "Sentence restore failed and the previous library could not be recovered: \(rollbackError.localizedDescription)"]
+                )
+            }
+            throw error
+        }
     }
 
     private func delete(
         whereSQL: String,
-        bindings: [String],
-        fallbackFilter: (SentenceExampleRecord) -> Bool
-    ) {
+        bindings: [String]
+    ) throws {
         lock.lock()
         defer { lock.unlock() }
 
-        if let fallbackRecords {
-            self.fallbackRecords = fallbackRecords.filter(fallbackFilter)
-            return
+        if fallbackRecords != nil {
+            throw storageUnavailableError()
         }
 
-        do {
-            try openIfNeeded()
-            let sql = "DELETE FROM sentence_examples WHERE \(whereSQL)"
-            var statement: OpaquePointer?
-            guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else {
-                throw sqliteError(code: 3114, message: "Failed to prepare sentence delete")
-            }
-            defer { sqlite3_finalize(statement) }
-            for (index, value) in bindings.enumerated() {
-                bind(value, to: Int32(index + 1), in: statement)
-            }
-            guard sqlite3_step(statement) == SQLITE_DONE else {
-                throw sqliteError(code: 3115, message: "Failed to delete sentence")
-            }
-        } catch {
-            fallbackRecords = fallbackRecords?.filter(fallbackFilter) ?? []
+        try openIfNeeded()
+        let sql = "DELETE FROM sentence_examples WHERE \(whereSQL)"
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else {
+            throw sqliteError(code: 3114, message: "Failed to prepare sentence delete")
+        }
+        defer { sqlite3_finalize(statement) }
+        for (index, value) in bindings.enumerated() {
+            bind(value, to: Int32(index + 1), in: statement)
+        }
+        guard sqlite3_step(statement) == SQLITE_DONE else {
+            throw sqliteError(code: 3115, message: "Failed to delete sentence")
         }
     }
 
@@ -911,7 +955,7 @@ final class SentenceLibraryStore: @unchecked Sendable {
     private func insertUnlocked(_ records: [SentenceExampleRecord]) throws {
         guard let db else { return }
         let sql = """
-        INSERT OR REPLACE INTO sentence_examples (
+        INSERT INTO sentence_examples (
           id,
           normalized_key,
           chinese,
@@ -931,6 +975,24 @@ final class SentenceLibraryStore: @unchecked Sendable {
           updated_at,
           record_json
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          normalized_key = excluded.normalized_key,
+          chinese = excluded.chinese,
+          pinyin = excluded.pinyin,
+          english = excluded.english,
+          search_text = excluded.search_text,
+          source_text = excluded.source_text,
+          source_page_ids = excluded.source_page_ids,
+          has_page_source = excluded.has_page_source,
+          has_conversation_practice_source = excluded.has_conversation_practice_source,
+          has_sentence_practice_source = excluded.has_sentence_practice_source,
+          has_ai_cleaned_page_source = excluded.has_ai_cleaned_page_source,
+          is_favorited = excluded.is_favorited,
+          is_hidden = excluded.is_hidden,
+          quality_score = excluded.quality_score,
+          created_at = excluded.created_at,
+          updated_at = excluded.updated_at,
+          record_json = excluded.record_json
         """
         var statement: OpaquePointer?
         guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else {
@@ -984,6 +1046,14 @@ final class SentenceLibraryStore: @unchecked Sendable {
         let count = Int(sqlite3_column_bytes(statement, column))
         let data = Data(bytes: bytes, count: count)
         return try? decoder.decode(SentenceExampleRecord.self, from: data)
+    }
+
+    private func storageUnavailableError() -> Error {
+        NSError(
+            domain: "Radix",
+            code: 3153,
+            userInfo: [NSLocalizedDescriptionKey: "The sentence database is unavailable. Your existing library was kept unchanged."]
+        )
     }
 
     private func bind(_ values: [String], in statement: OpaquePointer?) {

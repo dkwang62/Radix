@@ -93,7 +93,7 @@ enum RadixStudyPreferences {
         }
         set {
             let records = canonicalizedSentenceExamples(newValue)
-            sentenceLibrary.replaceAll(records)
+            try? sentenceLibrary.replaceAll(records)
         }
     }
 
@@ -134,7 +134,7 @@ enum RadixStudyPreferences {
                 matchesSearchText: sentenceExample(_:matchesSearchText:)
             )
             let importedRecords = sourceRepository.fetchAll(migratingLegacy: { [] })
-            recordSentenceExamples(importedRecords)
+            try sentenceLibrary.upsert(canonicalizedSentenceExamples(importedRecords))
             refreshConversationPracticePackSentenceReferences()
             return importedRecords.count
         case .complete:
@@ -144,8 +144,8 @@ enum RadixStudyPreferences {
         }
     }
 
-    static func clearSentenceDatabase() {
-        sentenceLibrary.replaceAll([])
+    static func clearSentenceDatabase() throws {
+        try sentenceLibrary.replaceAll([])
         preferences.removeObject(forKey: RadixPreferenceKey.sentenceExamples)
         favoriteSentences = []
     }
@@ -193,9 +193,9 @@ enum RadixStudyPreferences {
         )
     }
 
-    static func recordSentenceExamples(_ records: [SentenceExampleRecord]) {
+    static func recordSentenceExamples(_ records: [SentenceExampleRecord]) throws {
         guard !records.isEmpty else { return }
-        sentenceLibrary.upsert(canonicalizedSentenceExamples(records))
+        try sentenceLibrary.upsert(canonicalizedSentenceExamples(records))
     }
 
     static func sentenceOptimizationStats() -> SentenceExampleOptimizationStats {
@@ -220,7 +220,7 @@ enum RadixStudyPreferences {
         let changedRecords = zip(records, updatedRecords).compactMap { original, updated in
             original == updated ? nil : updated
         }
-        sentenceLibrary.replace(changedRecords)
+        try? sentenceLibrary.replace(changedRecords)
         return changedRecords.count
     }
 
@@ -233,7 +233,7 @@ enum RadixStudyPreferences {
             let updated = sentenceExample(record, refreshingPhraseLinksFrom: phraseWords)
             return updated == record ? nil : updated
         }
-        sentenceLibrary.replace(updatedRecords)
+        try? sentenceLibrary.replace(updatedRecords)
         return updatedRecords.count
     }
 
@@ -257,7 +257,7 @@ enum RadixStudyPreferences {
             }
             return updated == record ? nil : updated
         }
-        sentenceLibrary.replace(updatedRecords)
+        try? sentenceLibrary.replace(updatedRecords)
         return updatedRecords.count
     }
 
@@ -269,7 +269,7 @@ enum RadixStudyPreferences {
             return 0
         }
         let converted = canonicalizedSentenceExamples(records)
-        sentenceLibrary.replaceAll(converted)
+        try? sentenceLibrary.replaceAll(converted)
         favoriteSentences = canonicalizedFavoriteSentences(favoriteSentences)
         return converted.count
     }
@@ -284,7 +284,7 @@ enum RadixStudyPreferences {
                 createdAt: createdAt
             )
         }
-        recordSentenceExamples(records)
+        try? recordSentenceExamples(records)
     }
 
     @discardableResult
@@ -292,7 +292,7 @@ enum RadixStudyPreferences {
         let records = canonicalizedSentenceExamples(
             RadixCaptureJSONParser.sentenceExamples(from: text, createdAt: createdAt)
         )
-        recordSentenceExamples(records)
+        try? recordSentenceExamples(records)
         return records
     }
 
@@ -325,7 +325,7 @@ enum RadixStudyPreferences {
     static func prepareExtractedPageSentenceExamplesForBackup() {
         prepareSentenceExamplesForBackup()
         let extractedPageSentences = aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
-        recordSentenceExamples(extractedPageSentences)
+        try? recordSentenceExamples(extractedPageSentences)
     }
 
     static func refreshConversationPracticePackSentenceReferences() {
@@ -336,22 +336,22 @@ enum RadixStudyPreferences {
         }
     }
 
-    static func setSentenceExampleFavorite(_ item: ConversationPracticeItem, isFavorited: Bool) {
+    static func setSentenceExampleFavorite(_ item: ConversationPracticeItem, isFavorited: Bool) throws {
         let incoming = SentenceExampleRecord.fromPracticeItem(item, pack: nil, isFavorited: isFavorited)
         let key = incoming.normalizedChineseKey
         if var existing = sentenceLibrary.fetch(normalizedKey: key, migratingLegacy: legacySentenceExamplesFromPreferences) {
             existing.isFavorited = isFavorited
             existing.qualityScore = max(0, existing.qualityScore + (isFavorited ? 2 : -2))
-            recordSentenceExamples([existing])
+            try recordSentenceExamples([existing])
         } else {
-            recordSentenceExamples([incoming])
+            try recordSentenceExamples([incoming])
         }
         setCompatibilityFavoriteRecord(FavoriteSentenceRecord(item: item), isFavorited: isFavorited)
     }
 
-    static func setSentenceExampleFavorite(id: UUID, isFavorited: Bool) {
+    static func setSentenceExampleFavorite(id: UUID, isFavorited: Bool) throws {
         var updatedRecord: SentenceExampleRecord?
-        updateSentenceExample(id: id) { record in
+        try updateSentenceExample(id: id) { record in
             record.isFavorited = isFavorited
             record.qualityScore = max(0, record.qualityScore + (isFavorited ? 2 : -2))
             updatedRecord = record
@@ -361,28 +361,35 @@ enum RadixStudyPreferences {
         }
     }
 
-    static func setSentenceExampleHidden(id: UUID, isHidden: Bool) {
-        updateSentenceExample(id: id) { record in
+    static func setSentenceExampleHidden(id: UUID, isHidden: Bool) throws {
+        try updateSentenceExample(id: id) { record in
             record.isHidden = isHidden
         }
     }
 
-    static func replaceSentenceExample(_ updated: SentenceExampleRecord) {
+    static func replaceSentenceExample(_ updated: SentenceExampleRecord) throws {
         guard let previous = sentenceLibrary.fetch(id: updated.id, migratingLegacy: legacySentenceExamplesFromPreferences) else {
-            recordSentenceExamples([updated])
+            if let conflict = sentenceLibrary.fetch(normalizedKey: updated.normalizedChineseKey, migratingLegacy: legacySentenceExamplesFromPreferences),
+               conflict.id != updated.id {
+                throw sentenceIdentityConflictError()
+            }
+            try recordSentenceExamples([updated])
             if updated.isFavorited {
                 setCompatibilityFavoriteRecord(FavoriteSentenceRecord(sentenceExample: updated), isFavorited: true)
             }
             return
         }
 
-        if previous.normalizedChineseKey != updated.normalizedChineseKey {
-            sentenceLibrary.delete(normalizedKey: previous.normalizedChineseKey)
-            removeCompatibilityFavoriteRecord(matchingChinese: previous.chinese)
+        if let conflict = sentenceLibrary.fetch(normalizedKey: updated.normalizedChineseKey, migratingLegacy: legacySentenceExamplesFromPreferences),
+           conflict.id != updated.id {
+            throw sentenceIdentityConflictError()
         }
 
+        try sentenceLibrary.replace([updated])
         replaceAICleanedPageSentence(previous: previous, updated: updated)
-        sentenceLibrary.replace([updated])
+        if previous.normalizedChineseKey != updated.normalizedChineseKey {
+            removeCompatibilityFavoriteRecord(matchingChinese: previous.chinese)
+        }
 
         if updated.isFavorited {
             setCompatibilityFavoriteRecord(FavoriteSentenceRecord(sentenceExample: updated), isFavorited: true)
@@ -417,19 +424,19 @@ enum RadixStudyPreferences {
         }
     }
 
-    static func deleteSentenceExample(id: UUID) {
+    static func deleteSentenceExample(id: UUID) throws {
         let deleted = sentenceLibrary.fetch(id: id, migratingLegacy: legacySentenceExamplesFromPreferences)
-        sentenceLibrary.delete(id: id)
+        try sentenceLibrary.delete(id: id)
         if let deleted {
             removeCompatibilityFavoriteRecord(matchingChinese: deleted.chinese)
         }
     }
 
-    static func deleteSentenceExample(matchingChinese chinese: String) {
+    static func deleteSentenceExample(matchingChinese chinese: String) throws {
         let key = SentenceExampleRecord.normalizedChineseKey(chinese)
         guard !key.isEmpty else { return }
         let deleted = sentenceLibrary.fetch(normalizedKey: key, migratingLegacy: legacySentenceExamplesFromPreferences)
-        sentenceLibrary.delete(normalizedKey: key)
+        try sentenceLibrary.delete(normalizedKey: key)
         if let deleted {
             removeCompatibilityFavoriteRecord(matchingChinese: deleted.chinese)
         } else {
@@ -437,10 +444,10 @@ enum RadixStudyPreferences {
         }
     }
 
-    private static func updateSentenceExample(id: UUID, mutate: (inout SentenceExampleRecord) -> Void) {
+    private static func updateSentenceExample(id: UUID, mutate: (inout SentenceExampleRecord) -> Void) throws {
         guard var record = sentenceLibrary.fetch(id: id, migratingLegacy: legacySentenceExamplesFromPreferences) else { return }
         mutate(&record)
-        recordSentenceExamples([record])
+        try recordSentenceExamples([record])
     }
 
     static func migrateLegacyFavoriteSentencesIntoSentenceExamples() {
