@@ -267,6 +267,7 @@
 		C0DE00542FC10014001B9AA7 /* RadixInteractionPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00532FC10014001B9AA7 /* RadixInteractionPreferences.swift */; };
 		C0DE00562FC10015001B9AA7 /* RadixStoreImageOCR.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00552FC10015001B9AA7 /* RadixStoreImageOCR.swift */; };
 		C0DE00582FC10016001B9AA7 /* StudyPersistenceStores.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00572FC10016001B9AA7 /* StudyPersistenceStores.swift */; };
+		C0DE00642FC10019001B9AA7 /* SentenceLibraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00632FC10019001B9AA7 /* SentenceLibraryStore.swift */; };
 		C0DE005A2FC10017001B9AA7 /* FavouritesStudyScreenState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00592FC10017001B9AA7 /* FavouritesStudyScreenState.swift */; };
 		C0DE00622FC10018001B9AA7 /* RadixThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00612FC10018001B9AA7 /* RadixThumbnail.swift */; };
 		C0DE00AB2FB20001001B9AA7 /* RadixIconography.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00AA2FB20001001B9AA7 /* RadixIconography.swift */; };
@@ -556,6 +557,7 @@
 		C0DE00532FC10014001B9AA7 /* RadixInteractionPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixInteractionPreferences.swift; sourceTree = "<group>"; };
 		C0DE00552FC10015001B9AA7 /* RadixStoreImageOCR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreImageOCR.swift; sourceTree = "<group>"; };
 		C0DE00572FC10016001B9AA7 /* StudyPersistenceStores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyPersistenceStores.swift; sourceTree = "<group>"; };
+		C0DE00632FC10019001B9AA7 /* SentenceLibraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentenceLibraryStore.swift; sourceTree = "<group>"; };
 		C0DE00592FC10017001B9AA7 /* FavouritesStudyScreenState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesStudyScreenState.swift; sourceTree = "<group>"; };
 		C0DE00612FC10018001B9AA7 /* RadixThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixThumbnail.swift; sourceTree = "<group>"; };
 		C0DE00AA2FB20001001B9AA7 /* RadixIconography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixIconography.swift; sourceTree = "<group>"; };
@@ -749,6 +751,7 @@
 				6AFC0DE62FE00007001B9AA7 /* FavoriteSentenceModels.swift */,
 				6AFC0DE82FE00009001B9AA7 /* RadixCaptureModels.swift */,
 				6AFC0DEA2FE0000B001B9AA7 /* SentenceExampleModels.swift */,
+				C0DE00632FC10019001B9AA7 /* SentenceLibraryStore.swift */,
 				C0DE00572FC10016001B9AA7 /* StudyPersistenceStores.swift */,
 				3F6413E96D450A71BBA8A1EF /* RadixDataCompatibilityModels.swift */,
 				961A09FC176BE72BF88F5FCD /* RadixNavigationModels.swift */,
@@ -1012,6 +1015,7 @@
 				6AFC0DE72FE00007001B9AA7 /* FavoriteSentenceModels.swift in Sources */,
 				6AFC0DE92FE00009001B9AA7 /* RadixCaptureModels.swift in Sources */,
 				6AFC0DEB2FE0000B001B9AA7 /* SentenceExampleModels.swift in Sources */,
+				C0DE00642FC10019001B9AA7 /* SentenceLibraryStore.swift in Sources */,
 				C0DE00582FC10016001B9AA7 /* StudyPersistenceStores.swift in Sources */,
 				6AFC0DE12FE00001001B9AA7 /* PromptConfigRendering.swift in Sources */,
 				6AFC0DF32FE00013001B9AA7 /* PromptTemplateRevision.swift in Sources */,

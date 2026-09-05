@@ -9,7 +9,7 @@ Read this before work. Read `UI_INTENT.md` before any navigation, layout, or
 user-workflow change. `AGENTS.md` contains the repository rules for coding
 agents.
 
-Last consolidated: 2026-08-26
+Last consolidated: 2026-09-05
 
 ## Current State
 
@@ -138,7 +138,9 @@ as orchestration, not a second business-rule implementation.
   do not add new persisted state directly to it. `SentenceLibraryStore` owns the
   SQLite sentence corpus, `ConversationPracticeStore` owns imported packs and
   progress, and `PageStudyArtifactStore` owns phrase extractions and AI-cleaned
-  pages. Cross-store reconciliation remains in the facade.
+  pages. `SentenceLibraryStore` lives in `RadixCore` and receives app-specific
+  canonicalization and search policies from the facade, keeping SQLite behavior
+  directly testable. Cross-store reconciliation remains in the facade.
 - `SavedPageImageStore` owns captured source images in Application Support.
   Saved-page metadata and ordinary page selection must not load or rewrite those
   image bytes.

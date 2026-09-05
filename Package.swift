@@ -29,6 +29,7 @@ let package = Package(
                 "ConversationPracticeValidationModels.swift",
                 "FavoriteSentenceModels.swift",
                 "RadixCaptureModels.swift",
+                "SentenceLibraryStore.swift",
                 "SentenceExampleModels.swift",
                 "StudyPersistenceStores.swift",
                 "PhraseModels.swift",
@@ -44,7 +45,8 @@ let package = Package(
                 "SavedPageRules.swift",
                 "UnifiedPackage.swift",
                 "UserProfile.swift"
-            ]
+            ],
+            linkerSettings: [.linkedLibrary("sqlite3")]
         ),
         .testTarget(
             name: "RadixCoreTests",
