@@ -20,6 +20,24 @@ enum BrowseAIFallbackTask: Identifiable {
     }
 }
 
+struct PendingBrowseCloudOCR: Identifiable {
+    let id = UUID()
+    let image: CapturedImage
+    let localResult: CaptureLocalOCRResult
+}
+
+enum BrowsePresentedAlert: Identifiable {
+    case automaticAIFailure(BrowseAIFallbackTask)
+    case cloudOCR(PendingBrowseCloudOCR)
+
+    var id: String {
+        switch self {
+        case .automaticAIFailure(let task): "automatic-\(task.id)"
+        case .cloudOCR(let request): "cloud-ocr-\(request.id)"
+        }
+    }
+}
+
 struct FilterGridTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
@@ -47,7 +65,7 @@ struct FilterGridTab: View {
     @State var pagePhraseListCollection: CharacterCollection?
     @State var pendingBrowseDeleteCollection: CharacterCollection?
     @State var imageActionMessage: String?
-    @State var aiFallbackTask: BrowseAIFallbackTask?
+    @State var presentedBrowseAlert: BrowsePresentedAlert?
     @State var automaticAIError = ""
     @State var isRunningImageAction = false
     @State var isProcessingBrowseImageImport = false
@@ -230,7 +248,11 @@ struct FilterGridTab: View {
             )) {
                 Button("Delete", role: .destructive) {
                     if let collection = pendingBrowseDeleteCollection {
-                        store.deleteCollection(id: collection.id)
+                        do {
+                            try store.deleteCollection(id: collection.id)
+                        } catch {
+                            imageActionMessage = "Delete failed: \(error.localizedDescription)"
+                        }
                     }
                     pendingBrowseDeleteCollection = nil
                 }
@@ -252,16 +274,7 @@ struct FilterGridTab: View {
                 }
                 .presentationDetents([.large])
             }
-            .alert(item: $aiFallbackTask) { task in
-                Alert(
-                    title: Text(PageAIMethodCopy.unavailableTitle),
-                    message: Text("\(automaticAIError)\n\n\(PageAIMethodCopy.unavailableMessage)"),
-                    primaryButton: .default(Text(PageAIMethodCopy.fallbackTitle)) {
-                        useManualFallback(task)
-                    },
-                    secondaryButton: .cancel(Text("Not Now"))
-                )
-            }
+            .alert(item: $presentedBrowseAlert, content: browseAlert)
             .modifier(CaptureFileImportModifier(
                 isPresented: $showBrowseImageFileImporter,
                 onImage: { image in

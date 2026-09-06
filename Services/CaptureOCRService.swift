@@ -3,7 +3,8 @@ import Foundation
 
 final class CaptureOCRService {
     func recognizeText(in image: CapturedImage) async throws -> String {
-        try await withCheckedThrowingContinuation { continuation in
+        try Task.checkCancellation()
+        return try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
                 let request = VNRecognizeTextRequest { request, error in
                     if let error {

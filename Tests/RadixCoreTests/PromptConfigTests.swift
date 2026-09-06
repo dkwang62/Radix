@@ -20,6 +20,51 @@ func latestAIResultRoundTrip() throws {
 
 @Suite("AI prompt compatibility")
 struct PromptConfigTests {
+    @Test("Prompt test completion requires the active request and unchanged selection")
+    func promptTestCompletionUsesRequestOwnership() {
+        let requestID = UUID()
+        let selection = PromptTestSelectionIdentity(
+            taskID: "task-a",
+            sourceID: "page-a",
+            prompt: "Prompt A"
+        )
+        let request = PromptTestRequestContext(
+            id: requestID,
+            selection: selection,
+            taskTitle: "Task A",
+            sourceTitle: "Page A"
+        )
+
+        #expect(PromptTestCompletionPolicy.accepts(
+            request,
+            activeRequestID: requestID,
+            currentSelection: selection
+        ))
+        #expect(!PromptTestCompletionPolicy.accepts(
+            request,
+            activeRequestID: UUID(),
+            currentSelection: selection
+        ))
+        #expect(!PromptTestCompletionPolicy.accepts(
+            request,
+            activeRequestID: requestID,
+            currentSelection: PromptTestSelectionIdentity(
+                taskID: "task-b",
+                sourceID: "page-a",
+                prompt: "Prompt B"
+            )
+        ))
+        #expect(!PromptTestCompletionPolicy.accepts(
+            request,
+            activeRequestID: requestID,
+            currentSelection: PromptTestSelectionIdentity(
+                taskID: "task-a",
+                sourceID: "page-b",
+                prompt: "Prompt A"
+            )
+        ))
+    }
+
     @Test("Built-in task registry preserves persisted IDs and capabilities")
     func builtInTaskRegistryPreservesContract() {
         #expect(BuiltInPromptTaskID.allCases.map(\.rawValue) == [

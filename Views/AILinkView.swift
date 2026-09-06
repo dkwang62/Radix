@@ -42,6 +42,9 @@ struct AILinkView: View {
     @State var promptTestOutput = ""
     @State var promptTestMessage: String?
     @State var promptTestError: String?
+    @State var promptTestTask: Task<Void, Never>?
+    @State var activePromptTestRequestID: UUID?
+    @State var promptTestOutputContext: PromptTestRequestContext?
 
     /// The character or phrase word that character/phrase tasks act on.
     /// Explicit object launches take priority over preview-derived subjects.
@@ -266,6 +269,9 @@ struct AILinkView: View {
             resetAIResultWorkflow()
             resetPromptTest()
         }
+        .onChange(of: promptTestSelectionIdentity) { _, _ in
+            resetPromptTest()
+        }
     }
 
     var aiSubjectTitle: String {
@@ -419,6 +425,10 @@ struct AILinkView: View {
     }
 
     func resetPromptTest() {
+        promptTestTask?.cancel()
+        promptTestTask = nil
+        activePromptTestRequestID = nil
+        promptTestOutputContext = nil
         promptTestOutput = ""
         promptTestMessage = nil
         promptTestError = nil

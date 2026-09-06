@@ -198,16 +198,25 @@ extension AILinkView {
     @ViewBuilder
     var promptTestOutputSection: some View {
         if !promptTestOutput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            ScrollView {
-                Text(promptTestOutput)
-                    .font(.system(size: 14, design: .monospaced))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .textSelection(.enabled)
-                    .padding(8)
+            VStack(alignment: .leading, spacing: 6) {
+                if let promptTestOutputContext {
+                    Text("Result: \(promptTestOutputContext.taskTitle) | Source: \(promptTestOutputContext.sourceTitle)")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                ScrollView {
+                    Text(promptTestOutput)
+                        .font(.system(size: 14, design: .monospaced))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .textSelection(.enabled)
+                        .padding(8)
+                }
+                .frame(minHeight: 150, maxHeight: sizeClass == .compact ? 220 : 300)
+                .background(RadixTheme.background)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
-            .frame(minHeight: 150, maxHeight: sizeClass == .compact ? 220 : 300)
-            .background(RadixTheme.background)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
 
@@ -222,28 +231,99 @@ extension AILinkView {
             promptTestMessage = nil
             return
         }
+        guard let request = makePromptTestRequest() else {
+            promptTestError = "Choose a test source first."
+            promptTestMessage = nil
+            return
+        }
 
+        promptTestTask?.cancel()
+        activePromptTestRequestID = request.id
         isRunningPromptTest = true
         promptTestMessage = "Testing with Gemini..."
         promptTestError = nil
         promptTestOutput = ""
-        let prompt = generatedPromptText
-        Task {
+        promptTestOutputContext = nil
+        promptTestTask = Task { @MainActor in
             do {
-                let output = try await store.runGeminiPromptTest(prompt: prompt)
-                await MainActor.run {
-                    promptTestOutput = output
-                    promptTestMessage = "Test complete. Nothing was saved."
-                    isRunningPromptTest = false
-                }
+                let output = try await store.runGeminiPromptTest(prompt: request.selection.prompt)
+                guard acceptsPromptTestCompletion(request), !Task.isCancelled else { return }
+                promptTestOutput = output
+                promptTestOutputContext = request
+                promptTestMessage = "Test complete. Nothing was saved."
+                finishPromptTest(request)
             } catch {
-                await MainActor.run {
-                    promptTestError = error.localizedDescription
-                    promptTestMessage = nil
-                    isRunningPromptTest = false
-                }
+                guard acceptsPromptTestCompletion(request), !Task.isCancelled else { return }
+                promptTestError = error.localizedDescription
+                promptTestMessage = nil
+                finishPromptTest(request)
             }
         }
+    }
+
+    var promptTestSelectionIdentity: PromptTestSelectionIdentity? {
+        guard let task = draftPromptTask,
+              let sourceID = promptTestSourceID else { return nil }
+        return PromptTestSelectionIdentity(
+            taskID: task.id,
+            sourceID: sourceID,
+            prompt: generatedPromptText
+        )
+    }
+
+    var promptTestSourceID: String? {
+        if taskSubjectTypeForPromptTest == .page {
+            return selectedCollection.map { "page:\($0.id.uuidString)" }
+        }
+        if taskSubjectTypeForPromptTest == .practiceTopic {
+            return "topic:\(store.selectedConversationPracticeTopic.id)"
+        }
+        if taskSubjectTypeForPromptTest == .sentence {
+            return activeSentenceItem.map { "sentence:\($0.id)" }
+        }
+        if taskSubjectTypeForPromptTest == .freeText {
+            let text = store.aiFreeTextInput.trimmingCharacters(in: .whitespacesAndNewlines)
+            return text.isEmpty ? nil : "free-text"
+        }
+        return activeCharacter.map { "character:\($0)" }
+    }
+
+    var promptTestSourceTitle: String? {
+        if taskSubjectTypeForPromptTest == .page { return selectedCollectionName }
+        if taskSubjectTypeForPromptTest == .practiceTopic { return store.selectedConversationPracticeTopic.title }
+        if taskSubjectTypeForPromptTest == .sentence { return activeSentenceTitle }
+        if taskSubjectTypeForPromptTest == .freeText { return "Source Text" }
+        return activeCharacter
+    }
+
+    var taskSubjectTypeForPromptTest: PromptTaskSubjectType? {
+        draftPromptTask?.subjectType
+    }
+
+    func makePromptTestRequest() -> PromptTestRequestContext? {
+        guard let selection = promptTestSelectionIdentity,
+              let task = draftPromptTask,
+              let sourceTitle = promptTestSourceTitle else { return nil }
+        return PromptTestRequestContext(
+            selection: selection,
+            taskTitle: task.title,
+            sourceTitle: sourceTitle
+        )
+    }
+
+    func acceptsPromptTestCompletion(_ request: PromptTestRequestContext) -> Bool {
+        PromptTestCompletionPolicy.accepts(
+            request,
+            activeRequestID: activePromptTestRequestID,
+            currentSelection: promptTestSelectionIdentity
+        )
+    }
+
+    func finishPromptTest(_ request: PromptTestRequestContext) {
+        guard activePromptTestRequestID == request.id else { return }
+        isRunningPromptTest = false
+        activePromptTestRequestID = nil
+        promptTestTask = nil
     }
 
     var aiTemplateSettingsButton: some View {

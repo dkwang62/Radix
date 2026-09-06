@@ -15,6 +15,10 @@ extension RadixStore {
         refreshSentenceLinks: Bool = false,
         importPhrases: Bool = true
     ) throws {
+        try PortableBackupCodec().validate(payload)
+        if mode == .additive, case .unified(let package) = payload {
+            try validateImportedCollectionMerge(package.collections)
+        }
         pendingDatasetAutosaveWorkItem?.cancel()
         pendingDatasetAutosaveWorkItem = nil
         if createSafetySnapshots {
@@ -23,6 +27,14 @@ extension RadixStore {
 
         switch payload {
         case .unified(let package):
+            let importedExtractedPages = try ExtractedSentenceRestoreRules.resolvedPages(
+                from: package.extractedSentencePageReferences,
+                sourceSchemaVersion: package.schemaVersion,
+                mode: mode
+            ) { pointer in
+                RadixStudyPreferences.sentenceExample(id: pointer.sentenceExampleID)
+                    ?? RadixStudyPreferences.sentenceExample(normalizedKey: pointer.sentenceKey)
+            }
             let backupOverlay: DictionaryOverlayPackage
             if let patchOverlay = package.dictionaryPatchOverlay {
                 backupOverlay = componentRepo.overlayPackage(from: patchOverlay)
@@ -68,12 +80,12 @@ extension RadixStore {
                 if importPhrases {
                     try phraseRepo.addPhrasesAdditively(uniquePhrases(package.phrases))
                 }
-                mergeImportedCollections(package.collections, selectedAICollectionID: package.selectedAICollectionID)
+                try mergeImportedCollections(package.collections, selectedAICollectionID: package.selectedAICollectionID)
                 try applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .additive)
                 RadixStudyPreferences.conversationPracticeProgress =
                     RadixStudyPreferences.conversationPracticeProgress.merging(package.conversationPracticeProgress)
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .additive)
-                try applyImportedExtractedSentenceReferences(package.extractedSentencePageReferences, mode: .additive)
+                try applyImportedExtractedSentencePages(importedExtractedPages, mode: .additive)
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .additive)
                 if refreshSentenceLinks {
@@ -99,7 +111,7 @@ extension RadixStore {
                 RadixStudyPreferences.conversationPracticeProgress =
                     package.conversationPracticeProgress ?? ConversationPracticeProgressSnapshot()
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .complete)
-                try applyImportedExtractedSentenceReferences(package.extractedSentencePageReferences, mode: .complete)
+                try applyImportedExtractedSentencePages(importedExtractedPages, mode: .complete)
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .complete)
                 if refreshSentenceLinks {
@@ -157,6 +169,10 @@ extension RadixStore {
     }
 
     func importPortableBackupDocumentForRestore(_ document: PortableBackupDocument, mode: RestoreMode = .additive) async throws {
+        try PortableBackupCodec().validate(document.payload)
+        if mode == .additive, case .unified(let package) = document.payload {
+            try validateImportedCollectionMerge(package.collections)
+        }
         try validatePortableBackupDocumentDatabases(document)
         try await createDatabaseSafetySnapshotsForSettings(reason: "Before importing data")
         let rollbackDocument = PortableBackupDocument(
@@ -268,46 +284,13 @@ extension RadixStore {
         return url
     }
 
-    private func applyImportedExtractedSentenceReferences(
-        _ package: ExtractedSentenceReferencePackage?,
+    private func applyImportedExtractedSentencePages(
+        _ pages: [AICleanedPageRecord]?,
         mode: RestoreMode
     ) throws {
-        guard let package, !package.pages.isEmpty else { return }
-        let pages = package.pages.compactMap(extractedPageRecord(from:))
-        guard !pages.isEmpty else { return }
+        guard let pages else { return }
         try RadixStudyPreferences.applyImportedAICleanedPages(pages, mode: mode)
         favoriteSentenceRevision += 1
-    }
-
-    private func extractedPageRecord(from reference: ExtractedSentencePageReference) -> AICleanedPageRecord? {
-        let pointers = reference.sentenceReferences.sorted { lhs, rhs in
-            if lhs.ordinal != rhs.ordinal { return lhs.ordinal < rhs.ordinal }
-            return lhs.pageSentenceID < rhs.pageSentenceID
-        }
-
-        let sentences = pointers.compactMap { pointer -> AICleanedPageSentence? in
-            guard let record = RadixStudyPreferences.sentenceExample(id: pointer.sentenceExampleID)
-                    ?? RadixStudyPreferences.sentenceExample(normalizedKey: pointer.sentenceKey)
-            else { return nil }
-            let phraseHints = record.targetPhrases.isEmpty ? record.detectedPhrases : record.targetPhrases
-            return AICleanedPageSentence(
-                id: pointer.pageSentenceID,
-                chinese: record.chinese,
-                pinyin: record.pinyin,
-                english: record.english,
-                phraseHints: phraseHints
-            )
-        }
-
-        guard !sentences.isEmpty else { return nil }
-        return AICleanedPageRecord(
-            sourcePageID: reference.sourcePageID,
-            sourceTitle: reference.sourceTitle,
-            cleanedTitle: reference.cleanedTitle,
-            cleanedChineseText: sentences.map(\.chinese).joined(separator: " "),
-            sentences: sentences,
-            createdAt: reference.createdAt
-        )
     }
 
     func exportSentenceDatabaseData() async throws -> Data {

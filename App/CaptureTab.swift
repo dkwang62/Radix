@@ -10,6 +10,10 @@ struct CaptureTab: View {
     @State private var showImageFileImporter = false
     @State private var selectedImage: CapturedImage?
     @State private var isProcessing = false
+    @State private var recognitionTask: Task<Void, Never>?
+    @State private var activeRecognitionID: UUID?
+    @State private var captureContextAllowsAutoOpen = false
+    @State private var pendingCloudOCR: PendingCloudOCR?
     @State private var statusMessage: String?
     @State private var errorMessage: String?
     @State private var gridPage = 0
@@ -24,6 +28,7 @@ struct CaptureTab: View {
     @State private var capturePreviewCharacter: String?
     @State private var captureDetailPreviewCharacter: String?
     @State private var lastSavedCollectionID: UUID?
+    @State private var pendingDeleteCollection: CharacterCollection?
     @State private var freePageUseCount = RadixCaptureUsage.freeScanCount
 
     private let freePageLimit = 100
@@ -31,6 +36,13 @@ struct CaptureTab: View {
     private enum CaptureSource {
         case camera
         case importTool
+    }
+
+    private struct PendingCloudOCR: Identifiable {
+        let id = UUID()
+        let image: CapturedImage
+        let source: CaptureSource
+        let localResult: CaptureLocalOCRResult
     }
 
     private var characters: [String] {
@@ -83,7 +95,7 @@ struct CaptureTab: View {
         .modifier(CaptureFileImportModifier(
             isPresented: $showImageFileImporter,
             onImage: { image in
-                Task { await recognize(image, source: .importTool) }
+                beginRecognition(image, source: .importTool)
             },
             onError: { error in
                 errorMessage = error.localizedDescription
@@ -98,8 +110,8 @@ struct CaptureTab: View {
                     let image = try await CaptureImageLoader.capturedImage(from: item)
                     await MainActor.run {
                         selectedAlbumPhoto = nil
+                        beginRecognition(image, source: .importTool)
                     }
-                    await recognize(image, source: .importTool)
                 } catch {
                     await MainActor.run {
                         selectedAlbumPhoto = nil
@@ -112,9 +124,7 @@ struct CaptureTab: View {
         .sheet(isPresented: $showCamera) {
             CameraCaptureView { image in
                 showCamera = false
-                Task {
-                    await recognize(image, source: .camera)
-                }
+                beginRecognition(image, source: .camera)
             } onError: { error in
                 showCamera = false
                 errorMessage = error.localizedDescription
@@ -129,6 +139,31 @@ struct CaptureTab: View {
                 onSave: saveManualCollection
             )
             .presentationDetents([.medium, .large])
+        }
+        .alert("Delete Saved Page?", isPresented: Binding(
+            get: { pendingDeleteCollection != nil },
+            set: { if !$0 { pendingDeleteCollection = nil } }
+        )) {
+            Button("Delete", role: .destructive) {
+                confirmDeleteSavedImage()
+            }
+            Button("Cancel", role: .cancel) {
+                pendingDeleteCollection = nil
+            }
+        } message: {
+            if let collection = pendingDeleteCollection {
+                Text(store.deletionImpact(for: collection).alertMessage)
+            }
+        }
+        .alert(item: $pendingCloudOCR) { request in
+            Alert(
+                title: Text("Try Cloud OCR?"),
+                message: Text("\(request.localResult.userMessage)\n\nTrying Gemini sends this image to Google's Gemini service. It requires a Gemini key in Settings."),
+                primaryButton: .default(Text("Try Gemini")) {
+                    beginRecognition(request.image, source: request.source, method: .gemini)
+                },
+                secondaryButton: .cancel(Text("Not Now"))
+            )
         }
         .onAppear {
             freePageUseCount = RadixCaptureUsage.freeScanCount
@@ -149,6 +184,14 @@ struct CaptureTab: View {
         .onChange(of: store.shouldOpenCaptureFiles) { _, _ in
             openRequestedCaptureSourceIfNeeded()
         }
+        .onChange(of: store.route) { _, route in
+            if route != .capture {
+                captureContextAllowsAutoOpen = false
+            }
+        }
+        .onDisappear {
+            captureContextAllowsAutoOpen = false
+        }
     }
 
     private var header: some View {
@@ -160,7 +203,7 @@ struct CaptureTab: View {
             onCamera: startCameraScan,
             onLockedImport: { store.showPaywall(for: .datedCopies) },
             onAlbumImage: { image in
-                Task { await recognize(image, source: .importTool) }
+                beginRecognition(image, source: .importTool)
             },
             onAlbumError: { error in
                 errorMessage = error.localizedDescription
@@ -226,7 +269,7 @@ struct CaptureTab: View {
         SavedImageList(
             collections: store.allCollections,
             onOpen: openSavedImage,
-            onDelete: deleteSavedImage
+            onDelete: requestDeleteSavedImage
         )
     }
 
@@ -234,12 +277,24 @@ struct CaptureTab: View {
         store.goToPagesWorkspace(id: collection.id, preservingOrigin: true)
     }
 
-    private func deleteSavedImage(_ collection: CharacterCollection) {
-        store.deleteCollection(id: collection.id)
+    private func requestDeleteSavedImage(_ collection: CharacterCollection) {
+        pendingDeleteCollection = collection
+    }
+
+    private func confirmDeleteSavedImage() {
+        guard let collection = pendingDeleteCollection else { return }
+        do {
+            try store.deleteCollection(id: collection.id)
+        } catch {
+            errorMessage = "Delete failed: \(error.localizedDescription)"
+            pendingDeleteCollection = nil
+            return
+        }
         if lastSavedCollectionID == collection.id {
             lastSavedCollectionID = nil
         }
         statusMessage = "Deleted \(collection.name)."
+        pendingDeleteCollection = nil
     }
 
     private func readCaptureCharactersAloud() {
@@ -282,44 +337,113 @@ struct CaptureTab: View {
     }
 
     @MainActor
-    private func recognize(_ image: CapturedImage, source: CaptureSource) async {
+    private func beginRecognition(
+        _ image: CapturedImage,
+        source: CaptureSource,
+        method: CaptureImageRecognitionMethod = .appleVision
+    ) {
+        recognitionTask?.cancel()
+        pendingCloudOCR = nil
+        let operationID = UUID()
+        activeRecognitionID = operationID
+        captureContextAllowsAutoOpen = store.route == .capture
+        recognitionTask = Task { @MainActor in
+            await recognize(image, source: source, method: method, operationID: operationID)
+        }
+    }
+
+    @MainActor
+    private func recognize(
+        _ image: CapturedImage,
+        source: CaptureSource,
+        method: CaptureImageRecognitionMethod,
+        operationID: UUID
+    ) async {
         isProcessing = true
         errorMessage = nil
         statusMessage = nil
-        defer { isProcessing = false }
+        selectedImage = image
+        defer {
+            if activeRecognitionID == operationID {
+                isProcessing = false
+                activeRecognitionID = nil
+                recognitionTask = nil
+            }
+        }
 
         do {
-            selectedImage = image
-            let result = try await store.recognizeImageTextWithAIFallback(in: image)
+            let result: CaptureImageRecognitionResult
+            switch method {
+            case .appleVision:
+                let localResult = try await store.recognizeImageTextLocally(in: image)
+                guard activeRecognitionID == operationID, !Task.isCancelled else { return }
+                switch localResult {
+                case .recognized(let text):
+                    result = CaptureImageRecognitionResult(text: text, method: .appleVision)
+                case .noText, .nonChineseText, .failed:
+                    statusMessage = localResult.userMessage
+                    if store.route == .capture {
+                        pendingCloudOCR = PendingCloudOCR(
+                            image: image,
+                            source: source,
+                            localResult: localResult
+                        )
+                    }
+                    return
+                }
+            case .gemini:
+                result = try await store.recognizeImageTextWithGemini(in: image)
+            }
+            guard activeRecognitionID == operationID, !Task.isCancelled else { return }
             let foundCharacters = CaptureTextExtractor.allCharactersInOrder(in: result.text)
             let foundPhrases = CaptureTextExtractor.uniquePhrases(in: result.text)
-            store.activeCaptureDraft = CaptureDraft(
+            let recognizedDraft = CaptureDraft(
                 rawText: result.text,
                 charactersText: foundCharacters.joined(separator: " "),
                 phrasesText: foundPhrases.joined(separator: "\n")
             )
+            if captureContextAllowsAutoOpen && store.route == .capture {
+                store.activeCaptureDraft = recognizedDraft
+            }
             gridPage = 0
             clearCapturePreview()
             if foundCharacters.isEmpty {
                 statusMessage = CaptureStatusText.noChineseCharactersFound
             } else {
                 if result.usedAIFallback {
-                    statusMessage = "Apple Vision could not read this image, so AI read it instead."
+                    statusMessage = "Gemini read this image after you requested cloud OCR."
                 }
-                autoSaveRecognizedImage(image: image, source: source)
+                let shouldAutoOpen = CaptureCompletionNavigationPolicy.shouldAutoOpen(
+                    operationID: operationID,
+                    activeOperationID: activeRecognitionID,
+                    captureContextIsActive: captureContextAllowsAutoOpen,
+                    currentRoute: store.route
+                )
+                autoSaveRecognizedImage(
+                    image: image,
+                    source: source,
+                    draft: recognizedDraft,
+                    shouldAutoOpen: shouldAutoOpen
+                )
             }
         } catch {
+            guard activeRecognitionID == operationID, !Task.isCancelled else { return }
             errorMessage = error.localizedDescription
         }
     }
 
-    private func autoSaveRecognizedImage(image: CapturedImage, source: CaptureSource) {
+    private func autoSaveRecognizedImage(
+        image: CapturedImage,
+        source: CaptureSource,
+        draft: CaptureDraft,
+        shouldAutoOpen: Bool
+    ) {
         guard let collection = store.createCollection(
             name: defaultOCRCollectionName,
-            sourceText: store.activeCaptureDraft.charactersText,
+            sourceText: draft.charactersText,
             sourceType: .ocr,
             sourceImageJPEGData: CaptureImageThumbnailer.makeJPEGData(from: image, maxDimension: 1600),
-            originalOCRText: store.activeCaptureDraft.rawText
+            originalOCRText: draft.rawText
         ) else {
             statusMessage = CaptureStatusText.noChineseCharactersFound
             return
@@ -331,8 +455,12 @@ struct CaptureTab: View {
 
         lastSavedCollectionID = collection.id
         clearCaptureDraft()
-        store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
-        clearPhonePreviewAfterPageSave()
+        if shouldAutoOpen {
+            store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
+            clearPhonePreviewAfterPageSave()
+        } else {
+            statusMessage = "Page saved. Open it from Pages below."
+        }
     }
 
     private func clearPhonePreviewAfterPageSave() {
@@ -430,7 +558,7 @@ struct CaptureTab: View {
                 errorMessage = "Copy an image with Chinese text first, then choose Image from Clipboard."
                 return
             }
-            Task { await recognize(image, source: .importTool) }
+            beginRecognition(image, source: .importTool)
         } catch {
             errorMessage = error.localizedDescription
         }

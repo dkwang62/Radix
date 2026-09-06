@@ -13,6 +13,37 @@ struct SavedPageRulesTests {
         #expect(SavedPageRules.mostRecentID(in: [olderViewed, newerCreated, newestViewed]) == newestViewed.id)
     }
 
+    @Test("Saved page merge uses content dates and rejects ambiguous conflicts")
+    func savedPageMergeConflictRules() {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000008")!
+        let createdAt = Date(timeIntervalSince1970: 100)
+        let olderBackup = CharacterCollection(
+            id: pageID,
+            name: "Original",
+            characters: ["学"],
+            createdAt: createdAt,
+            sourceType: .imported,
+            isFavorite: false
+        )
+        var newerLocal = olderBackup
+        newerLocal.name = "Local edit"
+        newerLocal.contentModifiedAt = Date(timeIntervalSince1970: 200)
+        var newestIncoming = olderBackup
+        newestIncoming.name = "Incoming edit"
+        newestIncoming.contentModifiedAt = Date(timeIntervalSince1970: 300)
+        var ambiguousIncoming = olderBackup
+        ambiguousIncoming.name = "Legacy incoming edit"
+
+        #expect(SavedPageMergeRules.decision(local: newerLocal, incoming: olderBackup) == .keepLocal)
+        #expect(SavedPageMergeRules.decision(local: newerLocal, incoming: newestIncoming) == .useIncoming)
+        #expect(SavedPageMergeRules.decision(local: olderBackup, incoming: ambiguousIncoming) == .conflict)
+
+        var transportCopy = olderBackup
+        transportCopy.lastViewedAt = Date(timeIntervalSince1970: 400)
+        transportCopy.sourceImageJPEGData = Data([1, 2, 3])
+        #expect(SavedPageMergeRules.decision(local: olderBackup, incoming: transportCopy) == .keepLocal)
+    }
+
     @Test("Corrected names preserve the prefix and advance a numeric suffix")
     func correctedNames() {
         let original = "调配能量产品精油喷雾等"
@@ -103,6 +134,41 @@ struct SavedPageRulesTests {
         #expect(descriptor.id == "00000000-0000-0000-0000-000000000303:aiCleanedPage:00000000-0000-0000-0000-000000000303")
         #expect(descriptor.ownership == .pageOwned)
         #expect(SavedPageRules.isDeletedWithPage(descriptor))
+    }
+
+    @Test("Page optimization rejects a stale snapshot")
+    func pageOptimizationRejectsStaleSnapshot() {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000310")!
+        let snapshot = AICleanedPageRecord(
+            sourcePageID: pageID,
+            sourceTitle: "Original Page",
+            cleanedTitle: "Cleaned Page",
+            cleanedChineseText: "我学习中文。",
+            sentences: [
+                AICleanedPageSentence(id: "s1", chinese: "我学习中文。")
+            ],
+            createdAt: Date(timeIntervalSince1970: 310)
+        )
+        var refreshed = snapshot
+        refreshed.sentences[0].phraseHints = ["学习", "中文"]
+        var editedWhileOptimizing = snapshot
+        editedWhileOptimizing.sentences[0].chinese = "我每天学习中文。"
+
+        #expect(AICleanedPageOptimizationRules.recordsToPersist(
+            snapshot: [snapshot],
+            refreshed: [refreshed],
+            current: [snapshot]
+        ) == [refreshed])
+        #expect(AICleanedPageOptimizationRules.recordsToPersist(
+            snapshot: [snapshot],
+            refreshed: [refreshed],
+            current: [editedWhileOptimizing]
+        ) == nil)
+        #expect(AICleanedPageOptimizationRules.recordsToPersist(
+            snapshot: [snapshot],
+            refreshed: [refreshed],
+            current: []
+        ) == nil)
     }
 
     @Test("AI-cleaned page import parser accepts fenced JSON")

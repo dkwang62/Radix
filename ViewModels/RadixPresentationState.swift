@@ -19,6 +19,7 @@ struct RadixPresentationState {
     var showsComponentHelp = true
     var showsLatestAIResult = false
     var activeCaptureDraft = CaptureDraft()
+    var sharedImportFailure: RadixSharedImportFailure?
 }
 
 extension RadixStore {
@@ -38,6 +39,7 @@ extension RadixStore {
     var showComponentHelp: Bool { get { presentationState.showsComponentHelp } set { presentationState.showsComponentHelp = newValue } }
     var showLatestAIResult: Bool { get { presentationState.showsLatestAIResult } set { presentationState.showsLatestAIResult = newValue } }
     var activeCaptureDraft: CaptureDraft { get { presentationState.activeCaptureDraft } set { presentationState.activeCaptureDraft = newValue } }
+    var sharedImportFailure: RadixSharedImportFailure? { get { presentationState.sharedImportFailure } set { presentationState.sharedImportFailure = newValue } }
 
     func presentationBinding<Value>(_ keyPath: ReferenceWritableKeyPath<RadixStore, Value>) -> Binding<Value> {
         Binding(

@@ -65,7 +65,7 @@ extension PhraseInfoCard {
 
     var editNotesButton: some View {
         Button {
-            editableNotes = phrase.notes
+            editableNotes = committedNotes
             editStatus = nil
             withAnimation(.easeInOut(duration: 0.2)) {
                 isEditingNotes = true

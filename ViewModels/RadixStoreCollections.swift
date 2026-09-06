@@ -34,11 +34,40 @@ struct PageDeletionImpact {
 
 extension RadixStore {
 
-    func mergeImportedCollections(_ importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
+    func validateImportedCollectionMerge(_ importedCollections: [CharacterCollection]?) throws {
         guard let importedCollections else { return }
-        var mergedByID = Dictionary(uniqueKeysWithValues: allCollections.map { ($0.id, $0) })
-        for collection in sanitizeCollections(importedCollections).map(prepareCollectionForLiveStorage) {
+        var localByID: [UUID: CharacterCollection] = [:]
+        for collection in allCollections where localByID[collection.id] == nil {
+            localByID[collection.id] = collection
+        }
+        for incoming in sanitizeCollections(importedCollections) {
+            guard let local = localByID[incoming.id],
+                  SavedPageMergeRules.decision(local: local, incoming: incoming) == .conflict
+            else { continue }
+            throw NSError(
+                domain: "Radix",
+                code: 3157,
+                userInfo: [NSLocalizedDescriptionKey: "Merge stopped because saved page \"\(local.name)\" has conflicting edits that cannot be ordered safely. This device and the backup were left unchanged."]
+            )
+        }
+    }
+
+    func mergeImportedCollections(_ importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) throws {
+        guard let importedCollections else { return }
+        var mergedByID: [UUID: CharacterCollection] = [:]
+        for collection in allCollections where mergedByID[collection.id] == nil {
             mergedByID[collection.id] = collection
+        }
+        for incoming in sanitizeCollections(importedCollections) {
+            if let local = mergedByID[incoming.id] {
+                switch SavedPageMergeRules.decision(local: local, incoming: incoming) {
+                case .keepLocal, .conflict:
+                    continue
+                case .useIncoming:
+                    break
+                }
+            }
+            mergedByID[incoming.id] = prepareCollectionForLiveStorage(incoming)
         }
         allCollections = Array(mergedByID.values)
         sortCollections()
@@ -64,11 +93,12 @@ extension RadixStore {
     }
 
     func sanitizeCollections(_ collections: [CharacterCollection]) -> [CharacterCollection] {
-        collections.compactMap { collection in
+        let validCollections = collections.compactMap { collection in
             var copy = collection
-            copy.characters = collection.characters.filter { componentRepo.hasCharacter($0) }
+            copy.characters = CaptureTextExtractor.allCharactersInOrder(in: collection.characters.joined())
             return copy.characters.isEmpty ? nil : copy
         }
+        return CharacterCollectionIdentityRules.keepingFirstUniqueID(in: validCollections)
     }
 
     // MARK: - Computed accessors
@@ -97,14 +127,19 @@ extension RadixStore {
 
     @discardableResult
     func createCollection(
+        id: UUID = UUID(),
         name: String,
         sourceText: String,
         sourceType: CollectionSourceType,
         sourceImageJPEGData: Data? = nil,
         originalOCRText: String? = nil
     ) -> CharacterCollection? {
-        let characters = CaptureTextExtractor.allCharactersInOrder(in: sourceText).filter { componentRepo.hasCharacter($0) }
-        guard !characters.isEmpty else { return nil }
+        if let existing = collection(id: id) {
+            return existing
+        }
+        let validation = collectionCharacterValidation(for: sourceText)
+        guard validation.hasChineseCharacters else { return nil }
+        let characters = validation.charactersInReadingOrder
         let fallbackName: String = {
             switch sourceType {
             case .ocr: return "OCR Image"
@@ -116,7 +151,7 @@ extension RadixStore {
         let cleanName = collectionDisplayName(name)
         let sourceName = collectionNameFromSourceCharacters(characters)
         let collection = CharacterCollection(
-            id: UUID(),
+            id: id,
             name: cleanName.isEmpty ? (sourceName.isEmpty ? fallbackName : sourceName) : cleanName,
             characters: characters,
             createdAt: Date(),
@@ -131,7 +166,8 @@ extension RadixStore {
     }
 
     func saveCollection(_ collection: CharacterCollection) {
-        let collection = prepareCollectionForLiveStorage(collection)
+        var collection = prepareCollectionForLiveStorage(collection)
+        collection.contentModifiedAt = Date()
         browsePagePhraseTileCache.removeValue(forKey: collection.id)
         browsePagePhraseCandidateCache.removeValue(forKey: collection.id)
         if let index = allCollections.firstIndex(where: { $0.id == collection.id }) {
@@ -147,10 +183,15 @@ extension RadixStore {
         persistCollections()
     }
 
+    func collectionCharacterValidation(for sourceText: String) -> CaptureCharacterValidation {
+        CaptureTextExtractor.characterValidation(in: sourceText, dictionaryContains: componentRepo.hasCharacter)
+    }
+
     func deletionImpact(for collection: CharacterCollection) -> PageDeletionImpact {
         let correctedPages = correctedCollectionDescendants(of: collection.id)
+        let removedCollectionIDs = Set(correctedPages.map(\.id)).union([collection.id])
         let linkedPracticePacks = RadixStudyPreferences.importedConversationPracticePacks
-            .filter { $0.sourceLink?.sourcePageID == collection.id }
+            .filter { $0.sourceLink?.isLinked(toAnyPageID: removedCollectionIDs) == true }
         let linkedPracticePackIDs = Set(linkedPracticePacks.map(\.packID))
         let favoriteSentences = RadixStudyPreferences.favoriteSentences
             .filter { linkedPracticePackIDs.contains($0.sourceSetID) }
@@ -241,11 +282,12 @@ extension RadixStore {
         )
     }
 
-    func deleteCollection(id: UUID) {
+    func deleteCollection(id: UUID) throws {
         let descendantIDs = Set(correctedCollectionDescendants(of: id).map(\.id))
         let removedCollectionIDs = descendantIDs.union([id])
+        _ = try RadixStudyPreferences.reconcileSentenceSourcesAfterDeletingPages(removedCollectionIDs)
         let removedPracticePackIDs = Set(RadixStudyPreferences.importedConversationPracticePacks
-            .filter { $0.sourceLink?.sourcePageID == id }
+            .filter { $0.sourceLink?.isLinked(toAnyPageID: removedCollectionIDs) == true }
             .map(\.packID))
 
         allCollections.removeAll { removedCollectionIDs.contains($0.id) }
@@ -267,6 +309,9 @@ extension RadixStore {
             RadixStudyPreferences.importedConversationPracticePacks = packs
             if removedPracticePackIDs.contains(selectedConversationPracticeTopicID) {
                 selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
+                activePracticeSentenceItem = nil
+                pendingConversationPracticeTopicID = nil
+                dismissSidebarPhrasePreview()
                 persistPromptSettings()
             }
         }
@@ -277,6 +322,8 @@ extension RadixStore {
         cleanedPages.removeAll { removedCollectionIDs.contains($0.sourcePageID) }
         RadixStudyPreferences.aiCleanedPages = cleanedPages
         persistCollections()
+        favoriteSentenceRevision += 1
+        dataImportRevision += 1
     }
 
     @discardableResult
@@ -305,6 +352,7 @@ extension RadixStore {
         promoted.correctedFromCollectionID = nil
         promoted.hiddenPhraseWords = corrected.hiddenPhraseWords ?? original.hiddenPhraseWords
         promoted.lastViewedAt = now
+        promoted.contentModifiedAt = now
 
         var replacementCollections = allCollections.filter { $0.id != correctedID }
         if let index = replacementCollections.firstIndex(where: { $0.id == originalID }) {
@@ -320,6 +368,7 @@ extension RadixStore {
             guard collection.correctedFromCollectionID == correctedID else { return collection }
             var copy = collection
             copy.correctedFromCollectionID = originalID
+            copy.contentModifiedAt = now
             return copy
         }
 
@@ -367,7 +416,6 @@ extension RadixStore {
         guard let original = allCollections.first(where: { $0.id == id }) else { return nil }
         let cleanText = correctedText.trimmingCharacters(in: .whitespacesAndNewlines)
         let characters = CaptureTextExtractor.allCharactersInOrder(in: cleanText)
-            .filter { componentRepo.hasCharacter($0) }
         guard !characters.isEmpty else { return nil }
 
         let correctedName = SavedPageRules.correctedName(
@@ -412,7 +460,7 @@ extension RadixStore {
         let cleanName = collectionDisplayName(newName)
         guard !cleanName.isEmpty else { return nil }
 
-        let characters = CaptureTextExtractor.allCharactersInOrder(in: sourceText).filter { componentRepo.hasCharacter($0) }
+        let characters = CaptureTextExtractor.allCharactersInOrder(in: sourceText)
         guard !characters.isEmpty else { return nil }
 
         var updated = allCollections[index]
@@ -479,14 +527,10 @@ extension RadixStore {
             allCollections = []
             return
         }
-        let sanitized = decoded.map { collection in
-            var copy = collection
-            copy.characters = collection.characters.filter { componentRepo.hasCharacter($0) }
-            return copy
-        }.filter { !$0.characters.isEmpty }
+        let sanitized = sanitizeCollections(decoded)
         allCollections = sanitized.map(prepareCollectionForLiveStorage)
         savedPageImageStore.pruneImages(keeping: Set(allCollections.map(\.id)))
-        if allCollections != sanitized {
+        if allCollections != decoded {
             persistCollections()
         }
         sortCollections()
@@ -566,6 +610,7 @@ extension RadixStore {
             characters: collection.characters,
             createdAt: promotedAt,
             lastViewedAt: nil,
+            contentModifiedAt: promotedAt,
             sourceType: collection.sourceType,
             isFavorite: false,
             sourceImageJPEGData: sourceImageJPEGData(for: collection),

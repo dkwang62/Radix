@@ -368,23 +368,28 @@ extension RadixStore {
 
     // MARK: - Phrase editing
 
-    func removeDataEditPhrase(word: String) {
+    func removeDataEditPhrase(word: String) throws {
         let storedWord = phraseStorageWord(word)
         guard phraseRepo.isInAdd(word: storedWord) else {
             dataEditAutoSaveStatus = "Only custom phrases can be edited here."
-            return
+            throw NSError(
+                domain: "Radix",
+                code: 14,
+                userInfo: [NSLocalizedDescriptionKey: "The phrase is no longer in your added phrases."]
+            )
+        }
+        do {
+            try phraseRepo.deletePhrase(word: storedWord)
+        } catch {
+            dataEditAutoSaveStatus = "Delete failed: \(error.localizedDescription)"
+            throw error
         }
         dataEditPhrases.removeAll(where: { phraseStorageWord($0.word) == storedWord })
         addedPhrases.removeAll(where: { phraseStorageWord($0.word) == storedWord })
         refreshAddedPhraseReviewPhrases()
-        do {
-            try phraseRepo.deletePhrase(word: storedWord)
-            refreshSentencePhraseLinksAfterRemovingPhrases([storedWord])
-            refreshPhraseBackedViews(for: dataEditCharacter)
-            dataEditAutoSaveStatus = "Phrase removed from your custom list."
-        } catch {
-            dataEditAutoSaveStatus = "Delete failed: \(error.localizedDescription)"
-        }
+        refreshSentencePhraseLinksAfterRemovingPhrases([storedWord])
+        refreshPhraseBackedViews(for: dataEditCharacter)
+        dataEditAutoSaveStatus = "Phrase removed from your custom list."
     }
 
     @discardableResult

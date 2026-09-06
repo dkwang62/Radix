@@ -104,7 +104,7 @@ extension RadixStore {
             _ = try await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before refreshing sentence phrase links")
         }
         let phraseWords = await activeSentencePhraseLinkWordsForSettings()
-        let extractedPageCount = await refreshAICleanedPagePhraseLinksForOptimization(availablePhraseWords: phraseWords)
+        let extractedPageCount = try await refreshAICleanedPagePhraseLinksForOptimization(availablePhraseWords: phraseWords)
         if extractedPageCount > 0 {
             try RadixStudyPreferences.recordSentenceExamples(
                 RadixStudyPreferences.aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
@@ -297,15 +297,26 @@ extension RadixStore {
         return changedPageCount
     }
 
-    private func refreshAICleanedPagePhraseLinksForOptimization(availablePhraseWords words: [String]) async -> Int {
+    private func refreshAICleanedPagePhraseLinksForOptimization(availablePhraseWords words: [String]) async throws -> Int {
         let records = RadixStudyPreferences.aiCleanedPages
         guard !records.isEmpty else { return 0 }
         let candidates = sentencePhraseLinkCandidates(from: words)
         let result = await Task.detached(priority: .utility) {
             refreshingAICleanedPagePhraseLinks(in: records, candidates: candidates)
         }.value
+        guard let recordsToPersist = AICleanedPageOptimizationRules.recordsToPersist(
+            snapshot: records,
+            refreshed: result.records,
+            current: RadixStudyPreferences.aiCleanedPages
+        ) else {
+            throw NSError(
+                domain: "Radix",
+                code: 3156,
+                userInfo: [NSLocalizedDescriptionKey: "Saved-page study data changed during optimization. Your changes were kept; run Optimize Database again."]
+            )
+        }
         if result.changedPageCount > 0 {
-            RadixStudyPreferences.aiCleanedPages = result.records
+            RadixStudyPreferences.aiCleanedPages = recordsToPersist
         }
         return result.changedPageCount
     }

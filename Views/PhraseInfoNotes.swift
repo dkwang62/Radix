@@ -64,7 +64,7 @@ extension PhraseInfoCard {
 
     var cancelNotesButton: some View {
         Button {
-            editableNotes = phrase.notes
+            editableNotes = committedNotes
             editStatus = nil
             withAnimation(.easeInOut(duration: 0.2)) {
                 isEditingNotes = false
@@ -106,6 +106,7 @@ extension PhraseInfoCard {
                 meanings: phrase.meanings,
                 notes: editableNotes
             )
+            committedNotes = editableNotes
             hasLocalNotes = true
             editStatus = "Notes saved."
             RadixHaptics.success()

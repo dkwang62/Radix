@@ -41,7 +41,11 @@ extension DataBackupPreviewSection {
     }
 
     func deleteBackupSavedPage(_ collection: CharacterCollection) {
-        store.deleteCollection(id: collection.id)
+        do {
+            try store.deleteCollection(id: collection.id)
+        } catch {
+            revertBasePhraseMessage = "Delete failed: \(error.localizedDescription)"
+        }
     }
 
     var isPhone: Bool {

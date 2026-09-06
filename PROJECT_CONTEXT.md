@@ -209,6 +209,25 @@ automatically restores it after any caught commit failure. Acquisition and
 validation can be cancelled; the verified commit phase is explicitly
 non-cancellable. An interrupted process during commit remains a recovery test
 case and must not be treated as covered by in-process rollback.
+Schema-6 complete restore treats a missing or empty extracted-page reference
+section as an authoritative empty category. Schema-1 through schema-5 absence
+remains unsupported data and does not clear current extracted pages. Every
+schema-6 pointer must resolve during preflight or the restore fails before the
+portable payload mutates live stores.
+Portable payloads reject duplicate saved-page UUIDs before mutation. Startup
+reconciliation keeps the first record for a duplicate UUID from legacy local
+preferences and persists the repaired collection list.
+Saved-page content mutations record `contentModifiedAt`. Additive backup merge
+uses it to choose newer content for a matching UUID; older content cannot replace
+newer local edits. Differing records without an orderable timestamp fail
+preflight before mutation instead of guessing. Viewing dates and backup image
+transport fields are not content revisions.
+Capture, Browse, and Study must all show the saved-page deletion impact before
+calling the shared cascade deletion. Capture stages its pending page and commits
+only from the destructive confirmation action. The cascade uses the complete
+root-and-corrected-descendant ID set for page-owned artifacts, practice packs,
+and sentence provenance. A sentence source link may navigate only to a page that
+still exists.
 
 ### Page and Sentence Ownership
 
@@ -218,6 +237,12 @@ case and must not be treated as covered by in-process rollback.
   linked learning memory. Deleting a page must not silently delete them.
 - Re-extracting sentences for a page replaces that page's extraction source.
   A sentence is removed only when it has no other source and is not favorited.
+- Page-and-source-type sentence queries are relational: the same source entry
+  must contain both the requested page ID and source type. Independent matches
+  from different sources on one sentence must never satisfy a page-scoped query.
+- Sentence pagination returns count, clamped page index, and that page's records
+  from one store operation. Mutations or filter changes that remove the current
+  last page must display the preceding valid page immediately.
 - Sentence Improvement updates Chinese, pinyin, and English together. If the
   sentence belongs to an AI-cleaned page, it must update both the Sentence
   Library and the owning page artifact.
@@ -272,6 +297,9 @@ maintenance operation, or intentional background cache rebuild.
   scene transitions, restore, or dismissal.
 - `Optimize Database` is the only user-facing maintenance action for costly
   storage work. It needs visible progress and must remain opt-in.
+- Detached cleaned-page maintenance may persist only when its live input still
+  matches the captured snapshot. Concurrent edits or deletion abort that pass,
+  preserve the newer state, and leave optimization available for retry.
 
 ### SwiftUI Crash Guardrails
 
@@ -296,6 +324,49 @@ them even when a more abstract implementation looks tidier.
 
 Source regression checks live in `SwiftUICrashGuardrailTests`. Extend them when
 a production crash reveals a specific unsafe SwiftUI pattern.
+
+Phrase-card note editing keeps the latest successful save as its local committed
+value. Reopening or cancelling the editor must restore that value rather than
+the possibly stale `PhraseItem` snapshot supplied by a parent sheet.
+Quick character and phrase editors stage Delete and Revert actions behind a
+shared destructive confirmation contract. Confirmation copy must identify both
+saved and unsaved edits that will be discarded; character Revert keeps saved
+notes and says so explicitly.
+Single-phrase Delete/Revert persists before removing phrase rows from published
+UI state and propagates storage errors to the active caller. Editors and review
+flows must remain visible with their candidate intact when deletion fails.
+Capture image recognition owns a supersedable operation ID and task. Completion
+may save its page after Capture loses focus, but it may auto-open Browse only
+while the same operation retains an uninterrupted active Capture context.
+Share-extension text and image imports use one store-owned consumer. Queue files
+are atomically claimed before asynchronous work, reuse their stable UUID for
+idempotent page creation, recover abandoned claims on restart, and retain failed
+items until the user retries or discards them from the visible failure alert.
+Sentence-list favorite and edit mutations must publish
+`favoriteSentenceRevision` only after persistence succeeds. Mounted Study lists
+observe that revision, and open sentence cards derive their star and accessibility
+label from the store so either surface immediately reflects the other.
+Saved-page character validity is Unicode-based, not dictionary-based. Capture,
+manual creation, editing, OCR correction, share import and restore preserve all
+ideographic characters in reading order. Dictionary coverage is a separate
+validation result used to explain which characters lack Radix details.
+Data-backed capture reads EXIF orientation at the `CapturedImage` boundary.
+Album, Files and shared images pass that orientation to Vision while ImageIO
+applies the corresponding thumbnail transform; Camera and Clipboard preserve
+UIImage orientation semantics through direct mapping or upright normalization.
+Capture image inputs are limited to 64 MB encoded and 64 megapixels. Metadata is
+read without image caching before preview decode; accepted inputs above a
+3072-pixel edge are downsampled before preview and OCR. Album, Files and Share
+preflight file-backed transfers, while Camera and Clipboard apply the same pixel
+budget to UIImage input. Rejections remain visible and retryable.
+Image OCR is local-first. Apple Vision distinguishes Chinese text, no text,
+non-Chinese text and processing failure without automatically invoking Gemini.
+Capture and Browse require a per-operation disclosure and explicit `Try Gemini`
+choice before sending an image to Google; shared-image ingestion stays local-only.
+AI template tests own one cancellable request UUID and immutable task/source/prompt
+snapshot. Selection or prompt changes cancel the run, and completion may publish
+only while both request identity and snapshot still match. Stored test output
+shows its originating task and source.
 
 Automated checks cannot prove menu, sheet, rotation, backgrounding, and
 dismissal safety on a real device. Every TestFlight candidate must complete a
@@ -365,6 +436,66 @@ signing disabled. A generic universal Simulator build first stopped because the
 build volume ran out of space; after removing only generated Radix products,
 the device-specific build passed. Physical-device restore interruption,
 disk-full UI execution, and launch/reopen reset checks remain open.
+The UI-09 saved-page identity fix raised the suite to 122 tests and passed the
+Mac Catalyst build. Duplicate page UUIDs are rejected at portable import
+boundaries and legacy local duplicates are reconciled during startup.
+The UI-41 Capture deletion parity guard raised the suite to 123 tests and passed
+the Mac Catalyst build. Capture now requires the same impact confirmation as
+Browse and Study before the shared page cascade runs.
+The UI-10 stale-optimization guard raised the suite to 124 tests and passed the
+Mac Catalyst build. Focused coverage verifies apply, concurrent edit, and
+concurrent deletion behavior.
+The UI-08 page-merge revision guard raised the suite to 125 tests and passed the
+Mac Catalyst build. Focused coverage verifies older/newer selection, transport
+equivalence, and ambiguous legacy conflict rejection.
+The UI-12 page-deletion reconciliation raised the suite to 126 tests and passed
+the Mac Catalyst build. Focused coverage verifies descendant source cleanup,
+surviving-source navigation, favorite retention, and descendant practice-pack
+matching.
+The UI-13 extracted-page restore semantics raised the suite to 128 tests and
+passed the Mac Catalyst build. Focused coverage verifies modern empty-category
+replacement, legacy absence preservation, additive no-op behavior, and failure
+on unresolved sentence pointers.
+The UI-14 correlated source-query fix raised the suite to 129 tests and passed
+the Mac Catalyst build. Focused coverage verifies every page/type pairing for a
+sentence with sources split across two pages.
+The UI-15 coherent sentence-pagination fix raised the suite to 130 tests and
+passed the Mac Catalyst build. Focused coverage verifies totals 0, 1, 10, 11 and
+20 plus unfavorite, deletion and filter-scope boundary changes.
+The UI-16 committed-note-state fix raised the suite to 131 tests and passed the
+Mac Catalyst build. Focused coverage guards save, reopen and cancel against a
+stale parent phrase snapshot.
+The UI-17 quick-editor confirmation fix raised the suite to 132 tests and passed
+the Mac Catalyst build. Focused coverage guards destructive staging for both
+character and phrase Delete/Revert actions.
+The UI-18 single-phrase deletion fix raised the suite to 133 tests and passed the
+Mac Catalyst build. Focused coverage guards persistence-before-publication and
+visible caller errors without advancing or dismissing failed review flows.
+The UI-19 capture-operation ownership fix raised the suite to 135 tests and
+passed the Mac Catalyst build. Focused coverage verifies that only the current,
+uninterrupted Capture operation may auto-open its saved page.
+The UI-20 shared-import ownership fix raised the suite to 136 tests and passed
+the Mac Catalyst build. Focused coverage guards atomic claiming, one store-owned
+consumer, stable page identity, and visible Retry/Discard recovery.
+UI-44 was already resolved in production code; its added regression guard raised
+the suite to 137 tests and verifies persistence-before-publication plus shared
+list/card invalidation. The Mac Catalyst build passed unchanged production code.
+The UI-21 Unicode saved-page fix raised the suite to 140 tests and passed the Mac
+Catalyst build. Focused coverage verifies CJK extension extraction, dictionary
+coverage reporting, and persistence independent of dictionary membership.
+The UI-22 EXIF-orientation fix raised the suite to 142 tests in 14 suites and
+passed the Mac Catalyst build. Generated fixtures cover all eight EXIF values,
+with source coverage guarding consistent preview, Vision and thumbnail use.
+The UI-23 capture-image budget raised the suite to 144 tests in 14 suites and
+passed the Mac Catalyst build. Focused coverage verifies byte, pixel and
+downsampling boundaries plus Album, Files, Share, Camera, Clipboard, Vision and
+orientation integration.
+The UI-24 local-first OCR fix raised the suite to 146 tests in 14 suites and
+passed the Mac Catalyst build. Focused coverage verifies all local outcomes,
+explicit cloud disclosure on Capture and Browse, and local-only shared imports.
+The UI-25 prompt-test ownership fix raised the suite to 148 tests in 14 suites
+and passed the Mac Catalyst build. Focused coverage verifies request, task and
+source mismatch rejection plus cancellable UI ownership and output attribution.
 
 For release work or platform-sensitive UI/data changes, also run:
 

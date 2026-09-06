@@ -39,7 +39,7 @@ struct RootView: View {
                     store.flushPendingDataEditAutoSave()
                 },
                 onBecomeActive: {
-                    importPendingSharedInputsIfNeeded()
+                    store.startPendingSharedImportsFromShareExtension()
                 }
             )
         }
@@ -90,6 +90,22 @@ struct RootView: View {
         } message: {
             Text(pendingSidebarCheckpointReturn?.restoreScopeMessage ?? "The selected checkpoint is unavailable.")
         }
+        .alert("Shared Import Failed", isPresented: Binding(
+            get: { store.sharedImportFailure != nil },
+            set: { if !$0 { store.sharedImportFailure = nil } }
+        )) {
+            Button("Retry") {
+                store.retryFailedSharedImport()
+            }
+            Button("Discard", role: .destructive) {
+                store.discardFailedSharedImport()
+            }
+            Button("Later", role: .cancel) {
+                store.sharedImportFailure = nil
+            }
+        } message: {
+            Text(store.sharedImportFailure?.message ?? "Radix could not import this shared item.")
+        }
         .popover(item: $navigationGuideTopic, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) { topic in
             NavigationGuidePopover(topic: topic) {
                 dismissNavigationGuide(topic)
@@ -109,10 +125,8 @@ struct RootView: View {
         .onOpenURL { url in
             if let query = searchQuery(from: url) {
                 openSearch(query: query)
-            } else if RadixSharedImageImport.isImportURL(url) {
-                importPendingSharedImagesIfNeeded()
-            } else if RadixSharedImageImport.isTextImportURL(url) {
-                importPendingSharedTextIfNeeded()
+            } else if RadixSharedImageImport.isImportURL(url) || RadixSharedImageImport.isTextImportURL(url) {
+                store.startPendingSharedImportsFromShareExtension()
             }
         }
         .onChange(of: hasSeenWelcome) { _, newValue in
@@ -126,7 +140,7 @@ struct RootView: View {
             hasUsedSidebarNavigation = RadixRootPreferences.hasUsedSidebarNavigation
             store.prepareFirstInteractionWarmup()
             refreshQuickLocalSnapshots()
-            importPendingSharedInputsIfNeeded()
+            store.startPendingSharedImportsFromShareExtension()
         }
     }
 
@@ -156,26 +170,6 @@ struct RootView: View {
         let query = components?.queryItems?.first { $0.name == "q" }?.value ?? ""
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
-    }
-
-    private func importPendingSharedImagesIfNeeded() {
-        guard !RadixSharedImageImport.pendingImageURLs().isEmpty else { return }
-        Task {
-            await store.importPendingSharedImagesFromShareExtension()
-        }
-    }
-
-    private func importPendingSharedInputsIfNeeded() {
-        if !importPendingSharedTextIfNeeded() {
-            importPendingSharedImagesIfNeeded()
-        }
-    }
-
-    @discardableResult
-    private func importPendingSharedTextIfNeeded() -> Bool {
-        guard !RadixSharedImageImport.pendingTextURLs().isEmpty else { return false }
-        store.importPendingSharedTextFromShareExtension()
-        return true
     }
 
 }

@@ -2,26 +2,31 @@ import Foundation
 
 struct CaptureImageRecognitionResult {
     let text: String
-    let usedAIFallback: Bool
+    let method: CaptureImageRecognitionMethod
+
+    var usedAIFallback: Bool { method == .gemini }
 }
 
 extension RadixStore {
-    func recognizeImageTextWithAIFallback(in image: CapturedImage) async throws -> CaptureImageRecognitionResult {
+    func recognizeImageTextLocally(in image: CapturedImage) async throws -> CaptureLocalOCRResult {
         do {
             let visionText = try await CaptureOCRService().recognizeText(in: image)
-            if !CaptureTextExtractor.allCharactersInOrder(in: visionText).isEmpty {
-                return CaptureImageRecognitionResult(text: visionText, usedAIFallback: false)
-            }
+            return CaptureLocalOCRClassifier.classify(visionText)
         } catch {
-            // Fall through to AI OCR. If AI also fails, the AI error tells the user what to fix.
+            if Task.isCancelled {
+                throw CancellationError()
+            }
+            return .failed(error.localizedDescription)
         }
+    }
 
+    func recognizeImageTextWithGemini(in image: CapturedImage) async throws -> CaptureImageRecognitionResult {
         let imageData = CaptureImageThumbnailer.makeJPEGData(from: image, maxDimension: 2200) ?? image.data
         let aiText = try await GeminiImageOCRService().recognizeChineseText(
             apiKey: geminiAPIKey,
             modelID: geminiModelID,
             imageJPEGData: imageData
         )
-        return CaptureImageRecognitionResult(text: aiText, usedAIFallback: true)
+        return CaptureImageRecognitionResult(text: aiText, method: .gemini)
     }
 }

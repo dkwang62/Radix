@@ -37,17 +37,45 @@ extension QuickCharacterEditorView {
     var destructiveOrRevertAction: some View {
         if store.addedDictionaryCharacters.contains(store.dataEditCharacter) {
             Button("Delete", role: .destructive) {
-                deleteCurrentCharacter()
+                pendingManagementAction = .delete
             }
             .buttonStyle(.bordered)
         } else if store.changedDictionaryCharacters.contains(store.dataEditCharacter) {
-            Button("Revert") {
-                store.restoreFromLibrary()
-                RadixHaptics.light()
-                dismiss()
+            Button("Revert", role: .destructive) {
+                pendingManagementAction = .revert
             }
             .buttonStyle(.bordered)
-            .tint(.blue)
+        }
+    }
+
+    var managementConfirmationBinding: Binding<Bool> {
+        Binding(
+            get: { pendingManagementAction != nil },
+            set: { if !$0 { pendingManagementAction = nil } }
+        )
+    }
+
+    var managementConfirmationMessage: String {
+        let character = store.dataEditCharacter.trimmingCharacters(in: .whitespacesAndNewlines)
+        switch pendingManagementAction {
+        case .delete:
+            return "Delete \(character)? This removes the custom character and discards any unsaved changes in this editor."
+        case .revert:
+            return "Revert \(character) to Radix's built-in dictionary values? Saved notes are kept. Other saved custom fields and any unsaved changes in this editor are discarded."
+        case nil:
+            return "This action discards saved or unsaved changes."
+        }
+    }
+
+    func confirmManagementAction(_ action: QuickEditorManagementAction) {
+        pendingManagementAction = nil
+        switch action {
+        case .delete:
+            deleteCurrentCharacter()
+        case .revert:
+            store.restoreFromLibrary()
+            RadixHaptics.light()
+            dismiss()
         }
     }
 

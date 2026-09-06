@@ -1,10 +1,15 @@
 import SwiftUI
 
 struct ManualBrowseCollectionSheet: View {
+    @EnvironmentObject private var store: RadixStore
     @Binding var name: String
     @Binding var text: String
     let onCancel: () -> Void
     let onSave: () -> Void
+
+    private var characterValidation: CaptureCharacterValidation {
+        store.collectionCharacterValidation(for: text)
+    }
 
     var body: some View {
         NavigationStack {
@@ -16,9 +21,7 @@ struct ManualBrowseCollectionSheet: View {
                 }
 
                 Section {
-                    Text("\(CaptureTextExtractor.uniqueCharacters(in: text).count) unique Chinese characters detected.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
+                    PageCharacterValidationSummary(validation: characterValidation)
                 }
             }
             .navigationTitle("New Saved Page")
@@ -29,7 +32,7 @@ struct ManualBrowseCollectionSheet: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save", action: onSave)
-                        .disabled(CaptureTextExtractor.uniqueCharacters(in: text).isEmpty)
+                        .disabled(!characterValidation.hasChineseCharacters)
                 }
             }
         }
@@ -37,6 +40,7 @@ struct ManualBrowseCollectionSheet: View {
 }
 
 struct EditBrowseCollectionSheet: View {
+    @EnvironmentObject private var store: RadixStore
     let collection: CharacterCollection
     @Binding var name: String
     @Binding var text: String
@@ -45,6 +49,10 @@ struct EditBrowseCollectionSheet: View {
     let onSave: () -> Void
 
     @FocusState private var charactersFocused: Bool
+
+    private var characterValidation: CaptureCharacterValidation {
+        store.collectionCharacterValidation(for: text)
+    }
 
     private var limitedName: Binding<String> {
         Binding(
@@ -70,6 +78,7 @@ struct EditBrowseCollectionSheet: View {
                     Text("Paste or type Chinese text here. Radix will keep the recognized characters for this saved page.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
+                    PageCharacterValidationSummary(validation: characterValidation)
                 }
 
                 if let error {
@@ -91,5 +100,20 @@ struct EditBrowseCollectionSheet: View {
                 }
             }
         }
+    }
+}
+
+private struct PageCharacterValidationSummary: View {
+    let validation: CaptureCharacterValidation
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("\(validation.uniqueCharacters.count) unique Chinese characters detected.")
+            if !validation.dictionaryUnsupportedCharacters.isEmpty {
+                Text("\(validation.dictionaryUnsupportedCharacters.count) do not have Radix dictionary details. They will still be kept on this saved page.")
+            }
+        }
+        .font(ResponsiveFont.caption)
+        .foregroundStyle(.secondary)
     }
 }

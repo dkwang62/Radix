@@ -135,10 +135,16 @@ struct AddPhraseExtractForm: View {
     }
 
     private func deleteAddedPhrase(_ candidate: PhraseDiscoveryCandidate) {
-        store.removeDataEditPhrase(word: candidate.phrase)
-        addedPhrases.removeAll { $0.phrase == candidate.phrase }
-        message = CaptureStatusText.removedPhrase(candidate.phrase)
-        resultMessage = message
-        RadixHaptics.light()
+        do {
+            try store.removeDataEditPhrase(word: candidate.phrase)
+            addedPhrases.removeAll { $0.phrase == candidate.phrase }
+            message = CaptureStatusText.removedPhrase(candidate.phrase)
+            resultMessage = message
+            RadixHaptics.light()
+        } catch {
+            message = "Delete failed: \(error.localizedDescription)"
+            resultMessage = message
+            RadixHaptics.error()
+        }
     }
 }

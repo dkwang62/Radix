@@ -16,6 +16,7 @@ struct QuickCharacterEditorView: View {
     @State var characterInput: String = ""
     @State var isLoaded: Bool = false
     @State var detailsExpanded: Bool = false
+    @State var pendingManagementAction: QuickEditorManagementAction?
     @FocusState var focusedField: FocusedCharacterField?
 
     init(character: String, isNew: Bool) {
@@ -59,6 +60,21 @@ struct QuickCharacterEditorView: View {
                     saveCharacter()
                 }
             }
+        }
+        .alert(
+            pendingManagementAction?.title(for: "Character") ?? "Confirm Change",
+            isPresented: managementConfirmationBinding
+        ) {
+            if let pendingManagementAction {
+                Button(pendingManagementAction.confirmationTitle, role: .destructive) {
+                    confirmManagementAction(pendingManagementAction)
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                pendingManagementAction = nil
+            }
+        } message: {
+            Text(managementConfirmationMessage)
         }
     }
 

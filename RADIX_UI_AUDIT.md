@@ -251,6 +251,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Add content revisions and explicit conflict rules. Preserve both versions when ordering cannot be established, show conflicts before commit, and do not overwrite the backup until the user understands the resolution.
 
+**Remediation status (2026-09-06):** Addressed with an explicit non-destructive merge policy. Saved-page content mutations now record an optional `contentModifiedAt` timestamp. A matching incoming page replaces local content only when its timestamp is newer; an older backup keeps the newer local page. Viewing dates and transport-only embedded image bytes do not create content conflicts. Differing legacy/equal-timestamp records are rejected during preflight before databases, payload state or the selected backup file are changed, with an error identifying the conflicting page. Focused coverage verifies older-local preservation, newer-incoming adoption, transport equivalence and ambiguous-conflict rejection.
+
 ### UI-09: Duplicate page UUIDs survive restore and can crash a later merge
 
 **Severity:** High. **Evidence:** Source. **Likelihood:** Low normally; credible with malformed or externally edited backups.
@@ -267,6 +269,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Validate unique identities and reference integrity at import boundaries and startup. Reject ambiguous records or reconcile them with a documented policy; never use a trapping uniqueness initializer on unvalidated persisted input.
 
+**Remediation status (2026-09-06):** Addressed. Portable payload validation now rejects duplicate saved-page UUIDs before restore mutation. Startup sanitization deterministically keeps the first record for any duplicate UUID already present in legacy local preferences and persists the repaired array. Merge also builds its local lookup without a trapping uniqueness initializer. The focused regression verifies both backup rejection and the legacy first-record reconciliation rule.
+
 ### UI-10: Optimize Database can overwrite edits made while it is running
 
 **Severity:** High. **Evidence:** Source race. **Likelihood:** Conditional on overlap with a sufficiently large optimization.
@@ -282,6 +286,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** Records are captured before `await Task.detached`, then the complete result replaces preference state with no revision comparison or per-record merge.
 
 **Recommended fix:** Serialize maintenance with mutations, or apply an ID/revision-checked patch to the current records. Do not replace a mutable store from a stale snapshot.
+
+**Remediation status (2026-09-06):** Addressed. The detached cleaned-page phrase-link pass now commits only when the live records still exactly match its input snapshot. A concurrent edit or deletion aborts before persistence, preserves the newer state, leaves optimization eligible for retry, and reports that the user's changes were kept. The focused regression covers an unchanged snapshot, a concurrent edit and a concurrent deletion.
 
 ### UI-11: A startup load error can block the very screens needed to recover
 
@@ -315,6 +321,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Route every saved-page deletion entry point through one pending-deletion/impact-confirmation contract and shared commit path. Add parity tests for Capture, Browse and Study with corrected descendants, cancellation and deleted-current-page state.
 
+**Remediation status (2026-09-06):** Addressed for the Capture parity hole. Capture now stages the selected page, presents the same `deletionImpact` message and destructive/cancel choices as Browse and Study, and calls the shared store deletion only after confirmation. A focused source-level regression guards the request/alert/impact/commit wiring. Full interactive cascade and cancellation coverage remains part of the simulator/device matrix.
+
 ## Medium-Priority Findings
 
 ### UI-12: Page deletion leaves dangling sentence provenance and descendant practice packs
@@ -333,6 +341,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Reconcile the full removed-ID set across all stores, distinguish historical provenance from live links, choose surviving sources for navigation, and publish study revisions.
 
+**Remediation status (2026-09-06):** Addressed. The shared page cascade now uses the root plus every corrected descendant when removing page-owned practice packs, phrase extractions, cleaned-page artifacts, images and cached page data. Before mutating page state, it atomically removes those page references from the Sentence Library; source-less non-favorites are deleted, while favorites and records with independent sources remain. Sentence navigation chooses the first source whose page still exists, and the cascade publishes sentence and data revisions. Delete callers surface a storage failure without deleting the page. Focused tests cover descendant/source reconciliation, surviving navigation, favorite retention and full-set practice-link matching. Interactive multi-store fault injection remains open.
+
 ### UI-13: An empty extracted-page section in a full restore does not clear current records
 
 **Severity:** Medium. **Evidence:** Source. **Likelihood:** Common when restoring an earlier, smaller library.
@@ -348,6 +358,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** The early guards do not distinguish additive import from complete replacement.
 
 **Recommended fix:** Give absent, empty and invalid fields explicit version-aware semantics. Complete mode must clear an explicitly empty category; unresolved references should produce a report, not silently retain unrelated current data.
+
+**Remediation status (2026-09-06):** Addressed. Extracted-page references are now resolved as preflight work before portable payload mutation. For schema 6, complete restore maps a missing or explicitly empty reference section to an empty replacement, which clears current cleaned-page records and publishes the sentence revision. Schema 1–5 absence remains non-authoritative and preserves current records; additive import still ignores missing or empty input. Empty page definitions or any unresolved sentence pointer now throw a user-facing restore error instead of silently retaining stale pages or applying a partial page. The portable-document restore path retains its rollback behavior if failure occurs after its sentence database has been staged.
 
 ### UI-14: Page-specific sentence queries mix unrelated source relationships
 
@@ -365,6 +377,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Store/query a normalized source relation or correlated source tuples. Test every combination of page ID and source type across multi-source records.
 
+**Remediation status (2026-09-06):** Addressed without a storage migration. Typed page queries now match the existing serialized `source_type`/`source_page`/`page` tuple emitted for one source entry instead of combining independent page and global-type columns. The in-memory fallback applies the same same-source predicate. Untyped page queries and global source-type queries retain their existing paths. A focused SQLite matrix verifies page A/OCR and page B/AI-cleaned matches plus both crossed non-matches in record and count queries.
+
 ### UI-15: Unfavoriting the last row of the last sentence page can strand pagination
 
 **Severity:** Medium. **Evidence:** Source. **Likelihood:** Ordinary boundary case.
@@ -380,6 +394,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** Count and records are loaded before index correction. The favorite action only refreshes local sentence state; there is no page-index observer that guarantees another query.
 
 **Recommended fix:** Requery whenever clamping changes the offset, preferably returning a valid page/count pair atomically. Cover totals 0, 1, 10, 11 and 20, with deletion, unstar and filter changes.
+
+**Remediation status (2026-09-06):** Addressed. The Sentence Library now has a paged query operation that computes the filtered count, clamps the requested page index and fetches records for that resolved page while holding the same store lock. Its fallback path returns the same coherent page/count/index contract. Study Sentences consumes that result directly, so removing the only row on the last Favorites page immediately displays the preceding page and cannot produce an empty `1-0` range. Focused tests cover totals 0, 1, 10, 11 and 20, the exact 11-to-10 unfavorite transition, boundary deletion and a filter-scope change.
 
 ### UI-16: Reopening the phrase notes editor can replace recently saved notes with old text
 
@@ -397,6 +413,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Maintain one committed local note value or resolve the current phrase by identity. Edit/Cancel should use that committed value, not an older presentation snapshot.
 
+**Remediation status (2026-09-06):** Addressed. Phrase cards now keep the latest successfully saved note as a separate committed local value. Reopening the editor and cancelling an edit both restore that value instead of the immutable phrase snapshot held by the presenting sheet. Failed saves leave the previous committed value intact and keep the editor open.
+
 ### UI-17: Quick editors delete or revert immediately, unlike equivalent review screens
 
 **Severity:** Medium. **Evidence:** Source. **Likelihood:** Ordinary accidental-tap case.
@@ -412,6 +430,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** Quick-editor management buttons call deletion/revert directly; Revert is also visually styled as an ordinary action although it discards edits.
 
 **Recommended fix:** Share a destructive-action contract across editors/review, with appropriate impact text and undo/recovery behavior.
+
+**Remediation status (2026-09-06):** Addressed. Quick character and phrase editors now use the same pending Delete/Revert contract and require an explicit destructive confirmation before mutating or dismissing. Alert text names the affected item and explains the saved and unsaved edits that will be discarded; character Revert also states that saved notes are retained. Revert controls use destructive styling instead of appearing as ordinary actions.
 
 ### UI-18: Failed phrase deletion disappears from the UI and can be reported as removed
 
@@ -429,6 +449,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Persist first, return a throwing/typed result, update lists after success, and keep the active editor open on failure.
 
+**Remediation status (2026-09-06):** Addressed. Single-phrase removal now throws and performs the SQLite deletion before publishing any in-memory list or review changes. Quick Phrase Editor dismisses only after success and otherwise remains open with a visible Delete/Revert error. Add Phrase review and extraction keep the candidate visible and replace the success message with the storage error. Other direct callers were updated for the throwing contract without changing their surrounding behavior.
+
 ### UI-19: OCR completion can take over navigation after the user has left Capture
 
 **Severity:** Medium. **Evidence:** Source race. **Likelihood:** Plausible with slow recognition or network fallback.
@@ -444,6 +466,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** Recognition completion and `autoSaveRecognizedImage` do not verify that the same capture operation/context is still active.
 
 **Recommended fix:** Use an operation ID and owned Task; separate durable result delivery from navigation. Only auto-open while the originating capture context remains active.
+
+**Remediation status (2026-09-06):** Addressed. Capture now owns one recognition task, assigns each scan an operation ID and ignores superseded or cancelled completion. Recognized data is assembled locally and a valid page is still saved after the user leaves Capture. Auto-opening Browse additionally requires the same operation, an uninterrupted originating Capture context and the current Capture route; otherwise the newer navigation remains untouched. The saved page remains available through Capture's existing Pages rows, and a retained Capture view also shows an inline saved-page status.
 
 ### UI-20: Share-extension imports have no single-consumer ownership or usable failure state
 
@@ -461,6 +485,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Use an import queue with stable item IDs, atomic claiming, idempotent creation, explicit completion/error states, and a user-visible retry/discard workflow.
 
+**Remediation status (2026-09-06):** Addressed. Root activation and both share URLs now enter one store-owned import task. Incoming text and image files are atomically moved into process-owned directories before any asynchronous work; abandoned claims return to the queue after an app restart. The share file UUID is reused as the saved-page UUID, making replay idempotent. Successful imports are acknowledged, while unreadable, empty, unsupported, or OCR-failed items persist with their error and present Retry, Discard, and Later actions. Text and image imports now follow the same lifecycle.
+
 ### UI-21: Valid uncommon Chinese is discarded, and some manual pages cannot be saved without explanation
 
 **Severity:** Medium. **Evidence:** Probe plus source validation trace. **Likelihood:** High for names, historical text and uncommon characters.
@@ -476,6 +502,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** Chinese detection accepts only U+4E00-U+9FFF. The UI's Save test differs from the store's additional dictionary-membership filter.
 
 **Recommended fix:** Centralize Unicode-aware validation, preserve original text even when lookup is unavailable, and return a structured supported/unsupported-character result to the editor.
+
+**Remediation status (2026-09-06):** Addressed. Capture extraction now uses Unicode's ideographic property instead of the Basic CJK block, covering extension characters such as `㐀`, `𠮷`, and `𰻞`. A shared validation result preserves every detected Han character in reading order while separately reporting unique characters with and without Radix dictionary entries. Page creation, OCR correction, editing, startup sanitization, restore and share imports no longer discard valid ideographs solely because dictionary details are unavailable. New-page and edit sheets use that same result to enable Save consistently and explain before saving how many characters will remain without dictionary details.
 
 ### UI-22: Album/File/Share image orientation is not propagated consistently to OCR
 
@@ -493,6 +521,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Read EXIF orientation or normalize pixels once at the input boundary. Test all eight orientations and preserve consistent thumbnail/OCR semantics.
 
+**Remediation status (2026-09-06):** Addressed. `CapturedImage(data:)` now reads `kCGImagePropertyOrientation` from ImageIO metadata when no explicit orientation is supplied, falling back to `.up` only when metadata is absent or invalid. Album, Files and share-extension data therefore pass the same orientation to Vision that UIKit uses for preview display; Camera and Clipboard preserve UIImage orientation semantics through direct mapping or upright normalization when UI-23 downsampling is required. Thumbnail generation continues applying ImageIO's source transform. Generated-image tests cover all eight EXIF orientation values plus missing and invalid data fallbacks, and an integration guard preserves the preview/OCR/thumbnail contract.
+
 ### UI-23: Very large images have no pre-decode resource budget
 
 **Severity:** Medium. **Evidence:** Risk; no memory termination was induced. **Likelihood:** Conditional on large scans/panoramas and device memory.
@@ -508,6 +538,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** Thumbnailing limits saved/AI images but does not bound the earlier loading and local OCR pipeline. There is no explicit byte/pixel budget.
 
 **Recommended fix:** Inspect image metadata before decode, cap bytes/pixels, downsample with ImageIO, and make loading cancellable. Measure with real maximum-size fixtures instead of assuming saved thumbnail size bounds peak memory.
+
+**Remediation status (2026-09-06):** Addressed with a shared capture-image resource budget. Album transfers and Files/Share URLs preflight encoded size before reading, and every data-backed image inspects uncached ImageIO metadata before creating a UIKit preview. Inputs above 64 MB or 64 megapixels are rejected with a retryable, size-specific explanation; accepted images above a 3072-pixel edge are downsampled before preview, Vision or AI fallback while retaining explicit EXIF orientation. Camera and Clipboard UIImage inputs use the same pixel gate and produce a bounded upright thumbnail instead of first re-encoding the full image. Picker loading and OCR include cancellation checkpoints. Focused tests cover exact size/pixel/downsampling boundaries and source integration across Album, Files, Share, Camera, Clipboard, Vision and the UI-22 orientation contract.
 
 ### UI-24: No-Chinese OCR is treated as an AI setup/failure problem
 
@@ -525,6 +557,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Model recognition outcomes separately, retain the local result/error, and offer an explicit cloud retry or a clearly disclosed persisted opt-in with local-only mode.
 
+**Remediation status (2026-09-06):** Addressed with explicit local OCR outcomes and per-operation cloud consent. Apple Vision now reports Chinese text, no readable text, non-Chinese text and processing failure as distinct results; none automatically invokes Gemini. Capture and Browse retain the selected image, show the specific local outcome, and offer a `Try Gemini` alert that states the image will be sent to Google's Gemini service before any cloud request begins. Declining leaves the local result visible. Shared-image imports remain local-only and surface the specific Vision outcome through their existing Retry/Discard failure flow. Focused coverage verifies all four outcome classes, removal of the unconditional fallback, disclosure on both interactive surfaces and absence of cloud OCR in shared ingestion.
+
 ### UI-25: AI template tests can display a previous task's response under a new task
 
 **Severity:** Medium. **Evidence:** Source race. **Likelihood:** Plausible with slow responses and task/source switching.
@@ -540,6 +574,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** Reset clears local flags/output but does not cancel the Task. Completion writes state without comparing the request ID, task or source snapshot.
 
 **Recommended fix:** Own a cancellable request and immutable request context; gate completion by identity and show which task/source produced stored output.
+
+**Remediation status (2026-09-06):** Addressed. The AI template test panel now owns one cancellable Task and active request UUID. Each run captures an immutable task ID, source ID, rendered prompt, task title and source title. Task, source, template or prompt-input changes cancel and clear the active run; success and failure handlers update UI only when both the request UUID and current selection snapshot still match. Starting a second test cancels and supersedes the first, and accepted output is labeled with its originating task and source. Focused policy tests reject stale request, task and source combinations, while a source integration guard verifies cancellation, completion gating and output attribution.
 
 ### UI-26: Changing AI templates silently discards unsaved draft changes
 
@@ -749,6 +785,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Use a single store mutation for favorites by stable sentence ID, publish the shared revision after successful persistence, and have list/card consumers refresh from it. Test both directions while both views remain mounted; include the analogous list-edit path that currently also bypasses shared mutation publication.
 
+**Remediation status (2026-09-06):** Verified resolved by the current implementation; no production change required. The sentence-row favorite action and sentence editor both increment the published `favoriteSentenceRevision` only after their throwing persistence calls succeed. The mounted Study lifecycle observes that revision and reloads sentence rows, favorite libraries and practice data, while the open sentence card reads its star and accessibility label through the store. Card-originated toggles already use the store mutation that publishes the same revision. Focused source regression coverage now preserves both list-to-card and card-to-list invalidation contracts.
+
 ### UI-45: Typing a sentence search silently broadens its source filter to All
 
 **Severity:** Medium. **Evidence:** Source. **Likelihood:** Ordinary use of Favorites/From Pages/From Practice with search.
@@ -932,6 +970,18 @@ The repeated-implementation pass adds two specific consolidation targets: a shar
 - The repeated-implementation pass reran `swift test` (117 tests in 12 suites) and the Catalyst build successfully. The generic iOS Simulator result above is from the earlier pass; it was not rerun for documentation-only changes.
 - The UI-01 through UI-07 remediation passed `swift test` with 121 tests in 12 suites. Permanent regressions cover malformed sentence-database restore without live-data loss, write-lock failure without corpus replacement, normalized-key edit collision without record loss, and removal of all practice/artifact owner keys during user-data reset.
 - The remediated tree passed an arm64 iOS Simulator build for the disposable SE destination and a Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`. An initial generic universal Simulator build stopped at `lipo` because the build volume had no free space; after deleting only generated Radix Simulator products, the device-specific build passed.
+- The UI-09 regression passed in the focused portable-backup suite and in the full `swift test` run (122 tests in 12 suites). The updated import and startup-reconciliation paths compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
+- The UI-41 Capture deletion confirmation regression passed in the focused SwiftUI guardrail suite and in the full `swift test` run (123 tests in 12 suites). The Capture alert wiring compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
+- The UI-10 stale-optimization regression passed in the focused saved-page rules suite and in the full `swift test` run (124 tests in 12 suites). The guarded maintenance path compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
+- The UI-08 saved-page merge regression passed in the focused saved-page rules suite and in the full `swift test` run (125 tests in 12 suites). The content timestamp, preflight and merge paths compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
+- The UI-12 page-deletion reconciliation passed the focused sentence-library and conversation-practice suites and the full `swift test` run (126 tests in 12 suites). The throwing cascade and all deletion entry points compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
+- The UI-13 extracted-page restore regressions passed all 10 focused portable-backup tests and the full `swift test` run (128 tests in 12 suites). The version-aware preflight and empty replacement path compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
+- The UI-14 correlated page/source regression passed all 7 focused sentence-library tests and the full `swift test` run (129 tests in 12 suites). The tuple query and matching fallback compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
+- The UI-15 coherent-pagination regression passed all 8 focused sentence-library tests and the full `swift test` run (130 tests in 12 suites). The paged store query and Study integration compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
+- The UI-16 committed-note regression passed all 6 focused SwiftUI guardrail tests and the full `swift test` run (131 tests in 12 suites). The phrase-card state changes compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
+- The UI-17 quick-editor confirmation regression passed all 7 focused SwiftUI guardrail tests and the full `swift test` run (132 tests in 12 suites). The shared action contract and both editor alerts compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
+- The UI-18 persistence-first phrase deletion regression passed all 8 focused SwiftUI guardrail tests and the full `swift test` run (133 tests in 12 suites). The throwing store API and every direct caller compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
+- The UI-19 navigation-ownership regressions passed all 8 focused navigation tests, all 9 focused SwiftUI guardrail tests and the full `swift test` run (135 tests in 12 suites). The owned recognition task and Capture completion path compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
 - All 46 findings contain the seven requested fields; all 188 local file/line references were checked for existence and bounds. The comparison matrix has 16 data rows.
 - `git diff --check`: passed for the documentation changes.
 - No physical-iPad gate, abrupt-termination restore fault injection, disk-full UI execution, launch/reopen reset check, live-cloud-AI test, real purchase, exhaustive accessibility pass, or large-library UI performance certification was completed.

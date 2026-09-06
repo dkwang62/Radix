@@ -96,7 +96,7 @@ extension FavouritesTab {
             scope: sentenceExampleFilter.queryScope,
             searchText: sentenceExampleSearchText,
             minimumCharacterCount: sentenceExampleMinimumCharacterFilter,
-            offset: clampedSentenceExamplePageIndex * sentenceExamplePageSize,
+            offset: 0,
             limit: sentenceExamplePageSize
         )
     }
@@ -113,14 +113,16 @@ extension FavouritesTab {
 
     func refreshSentenceExampleResults() {
         _ = sentenceExampleRevision
-        let result = RadixStudyPreferences.querySentenceExamples(sentenceExampleQuery)
+        let result = RadixStudyPreferences.querySentenceExamplePage(
+            sentenceExampleQuery,
+            requestedPageIndex: sentenceExamplePageIndex,
+            pageSize: sentenceExamplePageSize
+        )
+        sentenceExamplePageIndex = result.pageIndex
         sentenceExampleResultCount = result.totalCount
         sentenceExamplePageRecords = result.records
         let visibleIDs = Set(result.records.map(\.id))
         selectedSentenceExampleIDs = selectedSentenceExampleIDs.intersection(visibleIDs)
-        if sentenceExamplePageIndex != clampedSentenceExamplePageIndex {
-            sentenceExamplePageIndex = clampedSentenceExamplePageIndex
-        }
     }
 
     func refreshSentenceExamplesAfterMutation(statusMessage: String) {

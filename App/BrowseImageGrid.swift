@@ -284,9 +284,14 @@ struct BrowsePagePhraseListSheet: View {
             .help("Delete phrase")
         } else {
             Button {
-                store.removeDataEditPhrase(word: phrase.word)
-                pagePhraseActionMessage = "\(phrase.word) reverted."
-                RadixHaptics.success()
+                do {
+                    try store.removeDataEditPhrase(word: phrase.word)
+                    pagePhraseActionMessage = "\(phrase.word) reverted."
+                    RadixHaptics.success()
+                } catch {
+                    pagePhraseActionMessage = "Revert failed: \(error.localizedDescription)"
+                    RadixHaptics.error()
+                }
             } label: {
                 Image(systemName: "arrow.uturn.backward")
                     .font(ResponsiveFont.subheadline.weight(.semibold))

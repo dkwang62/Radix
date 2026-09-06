@@ -197,7 +197,7 @@ extension FilterGridTab {
     func offerManualAIFallback(_ task: BrowseAIFallbackTask, error: Error) {
         automaticAIError = error.localizedDescription
         imageActionMessage = "Automatic Gemini is unavailable. You can still copy the prompt to an AI chat."
-        aiFallbackTask = task
+        presentedBrowseAlert = .automaticAIFailure(task)
     }
 
     func useManualFallback(_ task: BrowseAIFallbackTask) {

@@ -170,6 +170,8 @@ extension View {
 }
 
 private struct PhraseContextMenuModifier: ViewModifier {
+    @EnvironmentObject private var store: RadixStore
+    @State private var deletionError: String?
     let phrase: PhraseItem
 
     func body(content: Content) -> some View {
@@ -178,7 +180,21 @@ private struct PhraseContextMenuModifier: ViewModifier {
             content
         } else {
             content.contextMenu {
-                PhraseActionMenuContent(phrase: phrase)
+                PhraseActionMenuContent(phrase: phrase) {
+                    do {
+                        try store.removeDataEditPhrase(word: trimmedWord)
+                    } catch {
+                        deletionError = error.localizedDescription
+                    }
+                }
+            }
+            .alert("Delete Failed", isPresented: Binding(
+                get: { deletionError != nil },
+                set: { if !$0 { deletionError = nil } }
+            )) {
+                Button("OK") { deletionError = nil }
+            } message: {
+                Text(deletionError ?? "The phrase could not be deleted.")
             }
         }
     }
@@ -188,6 +204,7 @@ private struct PhraseActionMenuContent: View {
     @EnvironmentObject private var store: RadixStore
     @Environment(\.dismiss) private var dismiss
     let phrase: PhraseItem
+    let onDelete: () -> Void
 
     private var trimmedWord: String {
         phrase.word.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -252,7 +269,7 @@ private struct PhraseActionMenuContent: View {
         let isBuiltIn = store.isPhraseInBase(trimmedWord)
         if isAdded && !isBuiltIn {
             Button("Delete Phrase", role: .destructive) {
-                store.removeDataEditPhrase(word: trimmedWord)
+                onDelete()
             }
         }
         Divider()

@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import RadixCore
 
@@ -13,6 +14,36 @@ struct NavigationCompatibilityTests {
         #expect(HomeTab.smart.rawValue == "Smart Search")
         #expect(HomeTab.filter.rawValue == "Filter")
         #expect(HomeTab.dataEdit.rawValue == "DataEdit")
+    }
+
+    @Test("Capture completion auto-opens only for its active Capture context")
+    func captureCompletionNavigationOwnership() {
+        let operationID = UUID()
+
+        #expect(CaptureCompletionNavigationPolicy.shouldAutoOpen(
+            operationID: operationID,
+            activeOperationID: operationID,
+            captureContextIsActive: true,
+            currentRoute: .capture
+        ))
+        #expect(!CaptureCompletionNavigationPolicy.shouldAutoOpen(
+            operationID: operationID,
+            activeOperationID: UUID(),
+            captureContextIsActive: true,
+            currentRoute: .capture
+        ))
+        #expect(!CaptureCompletionNavigationPolicy.shouldAutoOpen(
+            operationID: operationID,
+            activeOperationID: operationID,
+            captureContextIsActive: false,
+            currentRoute: .capture
+        ))
+        #expect(!CaptureCompletionNavigationPolicy.shouldAutoOpen(
+            operationID: operationID,
+            activeOperationID: operationID,
+            captureContextIsActive: true,
+            currentRoute: .aiLink
+        ))
     }
 
     @Test("Legacy sidebar style still migrates")

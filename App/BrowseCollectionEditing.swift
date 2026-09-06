@@ -1,6 +1,29 @@
 import SwiftUI
 
 extension FilterGridTab {
+    func browseAlert(_ presentedAlert: BrowsePresentedAlert) -> Alert {
+        switch presentedAlert {
+        case .automaticAIFailure(let task):
+            Alert(
+                title: Text(PageAIMethodCopy.unavailableTitle),
+                message: Text("\(automaticAIError)\n\n\(PageAIMethodCopy.unavailableMessage)"),
+                primaryButton: .default(Text(PageAIMethodCopy.fallbackTitle)) {
+                    useManualFallback(task)
+                },
+                secondaryButton: .cancel(Text("Not Now"))
+            )
+        case .cloudOCR(let request):
+            Alert(
+                title: Text("Try Cloud OCR?"),
+                message: Text("\(request.localResult.userMessage)\n\nTrying Gemini sends this image to Google's Gemini service. It requires a Gemini key in Settings."),
+                primaryButton: .default(Text("Try Gemini")) {
+                    Task { await recognizeBrowseImage(request.image, method: .gemini) }
+                },
+                secondaryButton: .cancel(Text("Not Now"))
+            )
+        }
+    }
+
     func beginEditing(_ collection: CharacterCollection) {
         editingCollectionName = collection.name
         editingCollectionText = collection.characters.joined(separator: " ")
@@ -14,7 +37,7 @@ extension FilterGridTab {
             newName: editingCollectionName,
             sourceText: editingCollectionText
         ) else {
-            collectionEditorError = "Enter a name and at least one Chinese character that exists in Radix."
+            collectionEditorError = "Enter a name and at least one Chinese character."
             return
         }
 
@@ -80,7 +103,10 @@ extension FilterGridTab {
     }
 
     @MainActor
-    func recognizeBrowseImage(_ image: CapturedImage) async {
+    func recognizeBrowseImage(
+        _ image: CapturedImage,
+        method: CaptureImageRecognitionMethod = .appleVision
+    ) async {
         guard !entitlement.requiresPro(.datedCopies) else {
             store.showPaywall(for: .datedCopies)
             return
@@ -88,10 +114,28 @@ extension FilterGridTab {
 
         isProcessingBrowseImageImport = true
         imageActionMessage = nil
+        presentedBrowseAlert = nil
         defer { isProcessingBrowseImageImport = false }
 
         do {
-            let result = try await store.recognizeImageTextWithAIFallback(in: image)
+            let result: CaptureImageRecognitionResult
+            switch method {
+            case .appleVision:
+                let localResult = try await store.recognizeImageTextLocally(in: image)
+                switch localResult {
+                case .recognized(let text):
+                    result = CaptureImageRecognitionResult(text: text, method: .appleVision)
+                case .noText, .nonChineseText, .failed:
+                    imageActionMessage = localResult.userMessage
+                    presentedBrowseAlert = .cloudOCR(PendingBrowseCloudOCR(
+                        image: image,
+                        localResult: localResult
+                    ))
+                    return
+                }
+            case .gemini:
+                result = try await store.recognizeImageTextWithGemini(in: image)
+            }
             let foundCharacters = CaptureTextExtractor.allCharactersInOrder(in: result.text)
             guard !foundCharacters.isEmpty else {
                 imageActionMessage = CaptureStatusText.noChineseCharactersFound
@@ -119,7 +163,7 @@ extension FilterGridTab {
             imageActionMessage = CaptureStatusText.savedCollection(
                 name: collection.name.isEmpty ? "page" : collection.name,
                 characterCount: collection.characters.count
-            ) + (result.usedAIFallback ? " AI read the image after Apple Vision found no Chinese." : "")
+            ) + (result.usedAIFallback ? " Gemini read the image after you requested cloud OCR." : "")
         } catch {
             imageActionMessage = error.localizedDescription
         }

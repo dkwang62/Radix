@@ -25,6 +25,7 @@ struct PhraseInfoCard: View {
     @State var animationScript = RadixPhrasePreferences.animationScript
     @State var isEditingNotes = false
     @State var editableNotes = ""
+    @State var committedNotes = ""
     @State var hasLocalNotes = false
     @State var editStatus: String?
     @State var showPhraseTableSheet = false
@@ -101,6 +102,7 @@ struct PhraseInfoCard: View {
             }
             .onChange(of: phrase.word) { _, _ in
                 editableNotes = phrase.notes
+                committedNotes = phrase.notes
                 hasLocalNotes = false
                 editStatus = nil
                 isEditingNotes = false
@@ -118,6 +120,7 @@ struct PhraseInfoCard: View {
                 animationScript = RadixPhrasePreferences.animationScript
                 if !hasLocalNotes {
                     editableNotes = phrase.notes
+                    committedNotes = phrase.notes
                 }
             }
             .onChange(of: animationScript) { _, newValue in

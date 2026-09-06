@@ -183,6 +183,16 @@ struct AICleanedPageRecord: Codable, Equatable, Hashable, Identifiable {
     }
 }
 
+enum AICleanedPageOptimizationRules {
+    static func recordsToPersist(
+        snapshot: [AICleanedPageRecord],
+        refreshed: [AICleanedPageRecord],
+        current: [AICleanedPageRecord]
+    ) -> [AICleanedPageRecord]? {
+        current == snapshot ? refreshed : nil
+    }
+}
+
 struct AICleanedPageSentence: Codable, Equatable, Hashable, Identifiable {
     var id: String
     var chinese: String

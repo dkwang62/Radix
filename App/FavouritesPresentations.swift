@@ -222,7 +222,11 @@ extension FavouritesTab {
             )) {
                 Button("Delete", role: .destructive) {
                     if let collection = pendingStudyDeleteCollection {
-                        store.deleteCollection(id: collection.id)
+                        do {
+                            try store.deleteCollection(id: collection.id)
+                        } catch {
+                            setStudyPageActionMessage("Delete failed: \(error.localizedDescription)", for: collection)
+                        }
                     }
                     pendingStudyDeleteCollection = nil
                 }

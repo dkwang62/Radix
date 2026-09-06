@@ -25,6 +25,12 @@ struct SentenceExampleQueryResult: Equatable {
     var totalCount: Int
 }
 
+struct SentenceExamplePageQueryResult: Equatable {
+    var records: [SentenceExampleRecord]
+    var totalCount: Int
+    var pageIndex: Int
+}
+
 struct SentenceExampleOptimizationStats: Equatable, Sendable {
     var count: Int
     var latestCreatedAt: TimeInterval
@@ -35,6 +41,11 @@ struct SentenceExampleOptimizationStats: Equatable, Sendable {
 struct SentenceExampleStorageStats: Equatable, Sendable {
     var count: Int
     var byteCount: Int64
+}
+
+struct SentencePageSourceReconciliationResult: Equatable, Sendable {
+    var updatedCount: Int
+    var deletedCount: Int
 }
 
 final class SentenceLibraryStore: @unchecked Sendable {
@@ -144,6 +155,54 @@ final class SentenceLibraryStore: @unchecked Sendable {
             fallbackRecords = legacy
             let records = queryFallbackRecords(legacy, query: query)
             return SentenceExampleQueryResult(records: records.page, totalCount: records.totalCount)
+        }
+    }
+
+    func queryPage(
+        _ query: SentenceExampleQuery,
+        requestedPageIndex: Int,
+        pageSize: Int,
+        migratingLegacy legacyProvider: () -> [SentenceExampleRecord]
+    ) -> SentenceExamplePageQueryResult {
+        let pageSize = max(1, pageSize)
+        lock.lock()
+        defer { lock.unlock() }
+
+        if let fallbackRecords {
+            return queryFallbackPage(
+                fallbackRecords,
+                query: query,
+                requestedPageIndex: requestedPageIndex,
+                pageSize: pageSize
+            )
+        }
+
+        do {
+            try openIfNeeded()
+            try migrateLegacyIfNeededUnlocked(legacyProvider)
+            let totalCount = try countUnlocked(query)
+            let pageIndex = Self.clampedPageIndex(
+                requestedPageIndex,
+                totalCount: totalCount,
+                pageSize: pageSize
+            )
+            var pageQuery = query
+            pageQuery.offset = pageIndex * pageSize
+            pageQuery.limit = pageSize
+            return SentenceExamplePageQueryResult(
+                records: try fetchUnlocked(pageQuery),
+                totalCount: totalCount,
+                pageIndex: pageIndex
+            )
+        } catch {
+            let legacy = canonicalize(legacyProvider())
+            fallbackRecords = legacy
+            return queryFallbackPage(
+                legacy,
+                query: query,
+                requestedPageIndex: requestedPageIndex,
+                pageSize: pageSize
+            )
         }
     }
 
@@ -276,6 +335,122 @@ final class SentenceLibraryStore: @unchecked Sendable {
             try insertUnlocked(records)
             guard sqlite3_exec(db, "COMMIT", nil, nil, nil) == SQLITE_OK else {
                 throw sqliteError(code: 3146, message: "Failed to commit sentence update")
+            }
+        } catch {
+            sqlite3_exec(db, "ROLLBACK", nil, nil, nil)
+            throw error
+        }
+    }
+
+    func reconcileSources(
+        removingPageIDs pageIDs: Set<UUID>,
+        migratingLegacy legacyProvider: () -> [SentenceExampleRecord]
+    ) throws -> SentencePageSourceReconciliationResult {
+        guard !pageIDs.isEmpty else {
+            return SentencePageSourceReconciliationResult(updatedCount: 0, deletedCount: 0)
+        }
+
+        lock.lock()
+        defer { lock.unlock() }
+
+        if fallbackRecords != nil {
+            throw storageUnavailableError()
+        }
+
+        try openIfNeeded()
+        try migrateLegacyIfNeededUnlocked(legacyProvider)
+        let affectedRecords = try fetchAllUnlocked().filter { record in
+            record.sources.contains { source in
+                source.sourcePageID.map(pageIDs.contains) == true
+            }
+        }
+        guard !affectedRecords.isEmpty else {
+            return SentencePageSourceReconciliationResult(updatedCount: 0, deletedCount: 0)
+        }
+
+        var updatedRecords: [SentenceExampleRecord] = []
+        var deletedIDs: [UUID] = []
+        for var record in affectedRecords {
+            record.removeSources(linkedToPageIDs: pageIDs)
+            if record.sources.isEmpty && !record.isFavorited {
+                deletedIDs.append(record.id)
+            } else {
+                updatedRecords.append(record)
+            }
+        }
+
+        guard sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) == SQLITE_OK else {
+            throw sqliteError(code: 3158, message: "Failed to begin sentence source reconciliation")
+        }
+        do {
+            try insertUnlocked(updatedRecords)
+            try deleteIDsUnlocked(deletedIDs)
+            guard sqlite3_exec(db, "COMMIT", nil, nil, nil) == SQLITE_OK else {
+                throw sqliteError(code: 3159, message: "Failed to commit sentence source reconciliation")
+            }
+        } catch {
+            sqlite3_exec(db, "ROLLBACK", nil, nil, nil)
+            throw error
+        }
+
+        return SentencePageSourceReconciliationResult(
+            updatedCount: updatedRecords.count,
+            deletedCount: deletedIDs.count
+        )
+    }
+
+    func replaceAICleanedPageSources(
+        with replacementRecords: [SentenceExampleRecord],
+        migratingLegacy legacyProvider: () -> [SentenceExampleRecord]
+    ) throws {
+        lock.lock()
+        defer { lock.unlock() }
+
+        if fallbackRecords != nil {
+            throw storageUnavailableError()
+        }
+
+        try openIfNeeded()
+        try migrateLegacyIfNeededUnlocked(legacyProvider)
+
+        let existingRecords = try fetchAllUnlocked()
+        var recordsByKey = Dictionary(
+            uniqueKeysWithValues: existingRecords.map { ($0.normalizedChineseKey, $0) }
+        )
+        var deletedIDs = Set<UUID>()
+
+        for var record in existingRecords where record.hasSourceType(.aiCleanedPage) {
+            record.removeSources(sourceType: .aiCleanedPage)
+            if record.sources.isEmpty && !record.isFavorited {
+                recordsByKey.removeValue(forKey: record.normalizedChineseKey)
+                deletedIDs.insert(record.id)
+            } else {
+                recordsByKey[record.normalizedChineseKey] = record
+            }
+        }
+
+        for incoming in canonicalize(replacementRecords) {
+            var merged = incoming
+            if var existing = recordsByKey[incoming.normalizedChineseKey] {
+                existing.merge(incoming)
+                merged = existing
+            }
+            recordsByKey[incoming.normalizedChineseKey] = merged
+            deletedIDs.remove(merged.id)
+        }
+
+        let changedIDs = Set(existingRecords.filter { $0.hasSourceType(.aiCleanedPage) }.map(\.id))
+            .union(replacementRecords.map(\.id))
+        let recordsToWrite = recordsByKey.values.filter { changedIDs.contains($0.id) || $0.hasSourceType(.aiCleanedPage) }
+
+        guard sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) == SQLITE_OK else {
+            throw sqliteError(code: 3162, message: "Failed to begin AI-cleaned sentence replacement")
+        }
+        do {
+            try deleteIDsUnlocked(Array(deletedIDs))
+            try insertUnlocked(Array(recordsToWrite))
+            guard sqlite3_exec(db, "COMMIT", nil, nil, nil) == SQLITE_OK else {
+                throw sqliteError(code: 3163, message: "Failed to commit AI-cleaned sentence replacement")
             }
         } catch {
             sqlite3_exec(db, "ROLLBACK", nil, nil, nil)
@@ -506,6 +681,25 @@ final class SentenceLibraryStore: @unchecked Sendable {
         }
         guard sqlite3_step(statement) == SQLITE_DONE else {
             throw sqliteError(code: 3115, message: "Failed to delete sentence")
+        }
+    }
+
+    private func deleteIDsUnlocked(_ ids: [UUID]) throws {
+        guard !ids.isEmpty else { return }
+        let sql = "DELETE FROM sentence_examples WHERE id = ?"
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else {
+            throw sqliteError(code: 3160, message: "Failed to prepare reconciled sentence delete")
+        }
+        defer { sqlite3_finalize(statement) }
+
+        for id in ids {
+            sqlite3_reset(statement)
+            sqlite3_clear_bindings(statement)
+            bind(id.uuidString, to: 1, in: statement)
+            guard sqlite3_step(statement) == SQLITE_DONE else {
+                throw sqliteError(code: 3161, message: "Failed to delete reconciled sentence")
+            }
         }
     }
 
@@ -858,20 +1052,14 @@ final class SentenceLibraryStore: @unchecked Sendable {
             }
         case .page(let pageID, let sourceType):
             clauses.append("is_hidden = 0")
-            clauses.append("source_page_ids LIKE ?")
-            bindings.append("%\(pageID.uuidString.lowercased())%")
             if let sourceType {
-                switch sourceType {
-                case .conversationPractice:
-                    clauses.append("has_conversation_practice_source = 1")
-                case .sentencePractice:
-                    clauses.append("has_sentence_practice_source = 1")
-                case .aiCleanedPage:
-                    clauses.append("has_ai_cleaned_page_source = 1")
-                default:
-                    clauses.append("source_text LIKE ?")
-                    bindings.append("% source_type:\(sourceType.rawValue) %")
-                }
+                clauses.append("source_text LIKE ?")
+                bindings.append(
+                    "% source_type:\(sourceType.rawValue) source_page page:\(pageID.uuidString.lowercased()) %"
+                )
+            } else {
+                clauses.append("source_page_ids LIKE ?")
+                bindings.append("%\(pageID.uuidString.lowercased())%")
             }
         }
 
@@ -917,8 +1105,7 @@ final class SentenceLibraryStore: @unchecked Sendable {
             case .sourceType(let sourceType):
                 guard record.hasSourceType(sourceType) else { return false }
             case .page(let pageID, let sourceType):
-                guard record.isLinked(toPageID: pageID) else { return false }
-                if let sourceType, !record.hasSourceType(sourceType) {
+                guard record.sources.contains(where: { $0.matches(pageID: pageID, sourceType: sourceType) }) else {
                     return false
                 }
             }
@@ -930,6 +1117,36 @@ final class SentenceLibraryStore: @unchecked Sendable {
         let start = min(max(0, query.offset), totalCount)
         let end = min(start + max(0, limit), totalCount)
         return (Array(filtered[start..<end]), totalCount)
+    }
+
+    private func queryFallbackPage(
+        _ records: [SentenceExampleRecord],
+        query: SentenceExampleQuery,
+        requestedPageIndex: Int,
+        pageSize: Int
+    ) -> SentenceExamplePageQueryResult {
+        var countQuery = query
+        countQuery.offset = 0
+        countQuery.limit = nil
+        let totalCount = queryFallbackRecords(records, query: countQuery).totalCount
+        let pageIndex = Self.clampedPageIndex(
+            requestedPageIndex,
+            totalCount: totalCount,
+            pageSize: pageSize
+        )
+        var pageQuery = query
+        pageQuery.offset = pageIndex * pageSize
+        pageQuery.limit = pageSize
+        return SentenceExamplePageQueryResult(
+            records: queryFallbackRecords(records, query: pageQuery).page,
+            totalCount: totalCount,
+            pageIndex: pageIndex
+        )
+    }
+
+    private static func clampedPageIndex(_ requested: Int, totalCount: Int, pageSize: Int) -> Int {
+        let pageCount = max(1, (max(0, totalCount) + pageSize - 1) / pageSize)
+        return min(max(0, requested), pageCount - 1)
     }
 
     private func recordsByNormalizedKey(

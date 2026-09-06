@@ -49,6 +49,7 @@ struct CharacterCollection: Identifiable, Codable, Equatable, Hashable {
     var characters: [String]
     var createdAt: Date
     var lastViewedAt: Date? = nil
+    var contentModifiedAt: Date? = nil
     var sourceType: CollectionSourceType
     var isFavorite: Bool
     /// Legacy backup field. Live storage migrates this data to the saved-page image store.
@@ -69,6 +70,57 @@ struct CharacterCollection: Identifiable, Codable, Equatable, Hashable {
 
     /// Unique characters, computed on demand (e.g. for Browse tab filtering).
     var uniqueCharacters: Set<String> { Set(characters) }
+}
+
+enum CharacterCollectionIdentityRules {
+    static func firstDuplicateID(in collections: [CharacterCollection]) -> UUID? {
+        var seen = Set<UUID>()
+        return collections.first { !seen.insert($0.id).inserted }?.id
+    }
+
+    static func keepingFirstUniqueID(in collections: [CharacterCollection]) -> [CharacterCollection] {
+        var seen = Set<UUID>()
+        return collections.filter { seen.insert($0.id).inserted }
+    }
+}
+
+enum SavedPageMergeDecision: Equatable {
+    case keepLocal
+    case useIncoming
+    case conflict
+}
+
+enum SavedPageMergeRules {
+    static func decision(local: CharacterCollection, incoming: CharacterCollection) -> SavedPageMergeDecision {
+        guard local.id == incoming.id else { return .useIncoming }
+        if hasSameContent(local, incoming) { return .keepLocal }
+
+        switch (local.contentModifiedAt, incoming.contentModifiedAt) {
+        case let (localDate?, incomingDate?) where localDate != incomingDate:
+            return incomingDate > localDate ? .useIncoming : .keepLocal
+        case (_?, nil):
+            return .keepLocal
+        case (nil, _?):
+            return .useIncoming
+        default:
+            return .conflict
+        }
+    }
+
+    private static func hasSameContent(_ lhs: CharacterCollection, _ rhs: CharacterCollection) -> Bool {
+        lhs.name == rhs.name
+            && lhs.characters == rhs.characters
+            && lhs.createdAt == rhs.createdAt
+            && lhs.sourceType == rhs.sourceType
+            && lhs.isFavorite == rhs.isFavorite
+            && lhs.originalOCRText == rhs.originalOCRText
+            && lhs.reviewedOCRText == rhs.reviewedOCRText
+            && lhs.ocrReviewedAt == rhs.ocrReviewedAt
+            && lhs.correctedFromCollectionID == rhs.correctedFromCollectionID
+            && lhs.translationReport == rhs.translationReport
+            && lhs.translationReportUpdatedAt == rhs.translationReportUpdatedAt
+            && lhs.hiddenPhraseWords == rhs.hiddenPhraseWords
+    }
 }
 
 enum CollectionSourceType: String, Codable, Hashable {

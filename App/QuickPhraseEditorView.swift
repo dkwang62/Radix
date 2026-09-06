@@ -11,6 +11,7 @@ struct QuickPhraseEditorView: View {
     @State private var phraseEditorMeanings: String = ""
     @State private var phraseEditorNotes: String = ""
     @State private var editorError: String?
+    @State private var pendingManagementAction: QuickEditorManagementAction?
     @FocusState private var focusedPhraseField: PhraseField?
 
     private enum PhraseField: Hashable {
@@ -106,6 +107,21 @@ struct QuickPhraseEditorView: View {
                     phraseEditorNotes = ""
                 }
             }
+        }
+        .alert(
+            pendingManagementAction?.title(for: "Phrase") ?? "Confirm Change",
+            isPresented: managementConfirmationBinding
+        ) {
+            if let pendingManagementAction {
+                Button(pendingManagementAction.confirmationTitle, role: .destructive) {
+                    confirmManagementAction(pendingManagementAction)
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                pendingManagementAction = nil
+            }
+        } message: {
+            Text(managementConfirmationMessage)
         }
     }
 
@@ -245,8 +261,8 @@ struct QuickPhraseEditorView: View {
 
             HStack(spacing: 10) {
                 let isBuiltIn = store.isPhraseInBase(phraseEditorWord)
-                Button(isBuiltIn ? "Revert" : "Delete", role: isBuiltIn ? nil : .destructive) {
-                    deletePhrase()
+                Button(isBuiltIn ? "Revert" : "Delete", role: .destructive) {
+                    pendingManagementAction = isBuiltIn ? .revert : .delete
                 }
                 .buttonStyle(.bordered)
                 Spacer()
@@ -286,9 +302,35 @@ struct QuickPhraseEditorView: View {
         }
     }
 
-    private func deletePhrase() {
-        store.removeDataEditPhrase(word: phraseEditorWord)
-        dismiss()
+    private var managementConfirmationBinding: Binding<Bool> {
+        Binding(
+            get: { pendingManagementAction != nil },
+            set: { if !$0 { pendingManagementAction = nil } }
+        )
+    }
+
+    private var managementConfirmationMessage: String {
+        let word = store.normalizedPhraseWord(phraseEditorWord)
+        switch pendingManagementAction {
+        case .delete:
+            return "Delete \(word)? This removes it from your added phrases and discards any unsaved changes in this editor."
+        case .revert:
+            return "Revert \(word) to Radix's built-in phrase? Saved custom pinyin, meanings, notes, and any unsaved changes in this editor are discarded."
+        case nil:
+            return "This action discards saved or unsaved changes."
+        }
+    }
+
+    private func confirmManagementAction(_ action: QuickEditorManagementAction) {
+        pendingManagementAction = nil
+        do {
+            try store.removeDataEditPhrase(word: phraseEditorWord)
+            editorError = nil
+            dismiss()
+        } catch {
+            editorError = "\(action.confirmationTitle) failed: \(error.localizedDescription)"
+            RadixHaptics.error()
+        }
     }
 
     private func phraseField<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {

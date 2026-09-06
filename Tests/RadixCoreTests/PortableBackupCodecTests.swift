@@ -181,6 +181,72 @@ struct PortableBackupCodecTests {
         #expect(decoded.extractedSentencePageReferences == nil)
     }
 
+    @Test("Complete restore clears modern empty extracted pages and preserves legacy absence")
+    func extractedPageRestoreHonorsVersionedEmptySemantics() throws {
+        let modernMissing = try ExtractedSentenceRestoreRules.resolvedPages(
+            from: nil,
+            sourceSchemaVersion: 6,
+            mode: .complete,
+            sentenceForPointer: { _ in nil }
+        )
+        let legacyMissing = try ExtractedSentenceRestoreRules.resolvedPages(
+            from: nil,
+            sourceSchemaVersion: 5,
+            mode: .complete,
+            sentenceForPointer: { _ in nil }
+        )
+        let explicitlyEmpty = try ExtractedSentenceRestoreRules.resolvedPages(
+            from: ExtractedSentenceReferencePackage(sentenceDatabaseFingerprint: nil, pages: []),
+            sourceSchemaVersion: 6,
+            mode: .complete,
+            sentenceForPointer: { _ in nil }
+        )
+        let additiveMissing = try ExtractedSentenceRestoreRules.resolvedPages(
+            from: nil,
+            sourceSchemaVersion: 6,
+            mode: .additive,
+            sentenceForPointer: { _ in nil }
+        )
+
+        #expect(modernMissing == [])
+        #expect(legacyMissing == nil)
+        #expect(explicitlyEmpty == [])
+        #expect(additiveMissing == nil)
+    }
+
+    @Test("Unresolved extracted-page references fail instead of retaining stale pages")
+    func unresolvedExtractedPageReferencesFailRestore() {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000406")!
+        let package = ExtractedSentenceReferencePackage(
+            sentenceDatabaseFingerprint: nil,
+            pages: [
+                ExtractedSentencePageReference(
+                    sourcePageID: pageID,
+                    sourceTitle: "Missing Page",
+                    cleanedTitle: "Missing Sentences",
+                    sentenceReferences: [
+                        ExtractedSentencePointer(
+                            pageSentenceID: "missing_sentence",
+                            sentenceExampleID: UUID(),
+                            sentenceKey: "不存在",
+                            ordinal: 0
+                        )
+                    ],
+                    createdAt: Date(timeIntervalSince1970: 1_800_000_000)
+                )
+            ]
+        )
+
+        #expect(throws: ExtractedSentenceRestoreError.self) {
+            try ExtractedSentenceRestoreRules.resolvedPages(
+                from: package,
+                sourceSchemaVersion: 6,
+                mode: .complete,
+                sentenceForPointer: { _ in nil }
+            )
+        }
+    }
+
     @Test("Empty and future backups fail safely")
     func rejectsInvalidVersions() throws {
         #expect(throws: PortableBackupCodecError.self) {
@@ -220,6 +286,38 @@ struct PortableBackupCodecTests {
             return
         }
         #expect(decoded == legacy)
+    }
+
+    @Test("Backups reject duplicate saved page identifiers")
+    func rejectsDuplicateSavedPageIdentifiers() throws {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000909")!
+        let first = CharacterCollection(
+            id: pageID,
+            name: "First page",
+            characters: ["学"],
+            createdAt: Date(timeIntervalSince1970: 1_800_000_000),
+            sourceType: .imported,
+            isFavorite: false
+        )
+        let duplicate = CharacterCollection(
+            id: pageID,
+            name: "Conflicting page",
+            characters: ["习"],
+            createdAt: Date(timeIntervalSince1970: 1_800_000_001),
+            sourceType: .imported,
+            isFavorite: true
+        )
+        let package = UnifiedPackage(
+            schemaVersion: PortableBackupCodec.currentSchemaVersion,
+            phrases: [],
+            profile: UserProfile(schemaVersion: 1, favouritesList: []),
+            collections: [first, duplicate]
+        )
+
+        #expect(throws: PortableBackupCodecError.self) {
+            try codec.decode(try codec.encode(package))
+        }
+        #expect(CharacterCollectionIdentityRules.keepingFirstUniqueID(in: [first, duplicate]) == [first])
     }
 
     @Test("Advanced full dataset includes latest portable memory")

@@ -27,6 +27,19 @@ enum AppRoute: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+enum CaptureCompletionNavigationPolicy {
+    static func shouldAutoOpen(
+        operationID: UUID,
+        activeOperationID: UUID?,
+        captureContextIsActive: Bool,
+        currentRoute: AppRoute
+    ) -> Bool {
+        activeOperationID == operationID
+            && captureContextIsActive
+            && currentRoute == .capture
+    }
+}
+
 /// Browse workspace tabs persisted in portable profiles.
 enum HomeTab: String, CaseIterable, Identifiable {
     case smart = "Smart Search"

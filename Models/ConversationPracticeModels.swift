@@ -277,6 +277,10 @@ public struct ConversationPracticeSourceLink: Codable, Equatable, Hashable, Send
         guard kind == .savedPage, let sourceID else { return nil }
         return UUID(uuidString: sourceID)
     }
+
+    public func isLinked(toAnyPageID pageIDs: Set<UUID>) -> Bool {
+        sourcePageID.map(pageIDs.contains) == true
+    }
 }
 
 public struct ConversationPracticeSentenceReference: Codable, Equatable, Hashable, Identifiable, Sendable {

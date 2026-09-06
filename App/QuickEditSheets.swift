@@ -1,5 +1,21 @@
 import SwiftUI
 
+enum QuickEditorManagementAction {
+    case delete
+    case revert
+
+    func title(for subject: String) -> String {
+        "\(confirmationTitle) \(subject)?"
+    }
+
+    var confirmationTitle: String {
+        switch self {
+        case .delete: "Delete"
+        case .revert: "Revert"
+        }
+    }
+}
+
 struct QuickEditSheet: View {
     let destination: QuickEditDestination
 

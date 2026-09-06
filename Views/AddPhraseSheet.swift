@@ -126,9 +126,15 @@ struct AddPhraseSheet: View {
     }
 
     private func deleteAddedPhrase(_ candidate: PhraseDiscoveryCandidate) {
-        store.removeDataEditPhrase(word: candidate.phrase)
-        addedPhrases.removeAll { $0.phrase == candidate.phrase }
-        resultMessage = CaptureStatusText.removedPhrase(candidate.phrase)
+        do {
+            try store.removeDataEditPhrase(word: candidate.phrase)
+            addedPhrases.removeAll { $0.phrase == candidate.phrase }
+            resultMessage = CaptureStatusText.removedPhrase(candidate.phrase)
+            RadixHaptics.light()
+        } catch {
+            resultMessage = "Delete failed: \(error.localizedDescription)"
+            RadixHaptics.error()
+        }
     }
 }
 

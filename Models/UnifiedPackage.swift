@@ -134,6 +134,75 @@ struct ExtractedSentenceReferencePackage: Codable, Equatable {
     }
 }
 
+enum ExtractedSentenceRestoreError: LocalizedError, Equatable {
+    case unresolvedSentence(pageID: UUID, sentenceID: String)
+    case emptyPage(pageID: UUID)
+
+    var errorDescription: String? {
+        switch self {
+        case .unresolvedSentence:
+            return "The backup contains an extracted-page sentence that is missing from its sentence database. Nothing was restored."
+        case .emptyPage:
+            return "The backup contains an extracted page with no sentence references. Nothing was restored."
+        }
+    }
+}
+
+enum ExtractedSentenceRestoreRules {
+    static let pointerSchemaVersion = 6
+
+    static func resolvedPages(
+        from package: ExtractedSentenceReferencePackage?,
+        sourceSchemaVersion: Int,
+        mode: RestoreMode,
+        sentenceForPointer: (ExtractedSentencePointer) -> SentenceExampleRecord?
+    ) throws -> [AICleanedPageRecord]? {
+        let shouldApply: Bool
+        if let package, !package.pages.isEmpty {
+            shouldApply = true
+        } else {
+            shouldApply = mode == .complete && (package != nil || sourceSchemaVersion >= pointerSchemaVersion)
+        }
+        guard shouldApply else { return nil }
+
+        return try (package?.pages ?? []).map { reference in
+            let pointers = reference.sentenceReferences.sorted { lhs, rhs in
+                if lhs.ordinal != rhs.ordinal { return lhs.ordinal < rhs.ordinal }
+                return lhs.pageSentenceID < rhs.pageSentenceID
+            }
+            guard !pointers.isEmpty else {
+                throw ExtractedSentenceRestoreError.emptyPage(pageID: reference.sourcePageID)
+            }
+
+            let sentences = try pointers.map { pointer -> AICleanedPageSentence in
+                guard let record = sentenceForPointer(pointer) else {
+                    throw ExtractedSentenceRestoreError.unresolvedSentence(
+                        pageID: reference.sourcePageID,
+                        sentenceID: pointer.pageSentenceID
+                    )
+                }
+                let phraseHints = record.targetPhrases.isEmpty ? record.detectedPhrases : record.targetPhrases
+                return AICleanedPageSentence(
+                    id: pointer.pageSentenceID,
+                    chinese: record.chinese,
+                    pinyin: record.pinyin,
+                    english: record.english,
+                    phraseHints: phraseHints
+                )
+            }
+
+            return AICleanedPageRecord(
+                sourcePageID: reference.sourcePageID,
+                sourceTitle: reference.sourceTitle,
+                cleanedTitle: reference.cleanedTitle,
+                cleanedChineseText: sentences.map(\.chinese).joined(separator: " "),
+                sentences: sentences,
+                createdAt: reference.createdAt
+            )
+        }
+    }
+}
+
 struct SentenceDatabasePointerFingerprint: Codable, Equatable {
     let sentenceCount: Int
     let latestCreatedAt: TimeInterval
@@ -356,6 +425,7 @@ struct PortableBackupCodec {
             guard (1...Self.currentSchemaVersion).contains(package.schemaVersion) else {
                 throw PortableBackupCodecError.unsupportedVersion(package.schemaVersion)
             }
+            try validate(.unified(package))
             return .unified(package)
         }
 
@@ -364,6 +434,13 @@ struct PortableBackupCodec {
         }
 
         throw PortableBackupCodecError.invalidDocument
+    }
+
+    func validate(_ payload: PortableBackupPayload) throws {
+        guard case .unified(let package) = payload,
+              let duplicateID = CharacterCollectionIdentityRules.firstDuplicateID(in: package.collections ?? [])
+        else { return }
+        throw PortableBackupCodecError.duplicateCollectionID(duplicateID)
     }
 
     private func decodeUnifiedPackage(_ data: Data) -> UnifiedPackage? {
@@ -388,6 +465,7 @@ enum PortableBackupCodecError: LocalizedError {
     case empty
     case tooLarge
     case unsupportedVersion(Int)
+    case duplicateCollectionID(UUID)
     case invalidDocument
 
     var errorDescription: String? {
@@ -398,6 +476,8 @@ enum PortableBackupCodecError: LocalizedError {
             return "This backup is too large to restore safely."
         case .unsupportedVersion(let version):
             return "This backup uses format version \(version). Update Radix on this device before restoring it."
+        case .duplicateCollectionID(let id):
+            return "This backup contains more than one saved page with the identifier \(id.uuidString). It was not restored because those pages cannot be matched safely."
         case .invalidDocument:
             return "This file is not a compatible Radix backup. Choose a JSON backup created by Radix on iPhone, iPad, or Mac."
         }

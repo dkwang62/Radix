@@ -65,6 +65,11 @@ public struct SentenceExampleSourceReference: Codable, Equatable, Hashable, Send
     public func matches(sourceType: SentenceExampleSourceType) -> Bool {
         self.sourceType == sourceType
     }
+
+    public func matches(pageID: UUID, sourceType: SentenceExampleSourceType?) -> Bool {
+        guard sourcePageID == pageID else { return false }
+        return sourceType == nil || self.sourceType == sourceType
+    }
 }
 
 public struct SentenceExampleRecord: Codable, Equatable, Identifiable, Sendable {
@@ -180,6 +185,20 @@ public struct SentenceExampleRecord: Codable, Equatable, Identifiable, Sendable 
         sources.removeAll {
             $0.sourceType == sourceType && $0.sourcePageID == pageID
         }
+    }
+
+    mutating func removeSources(sourceType: SentenceExampleSourceType) {
+        sources.removeAll { $0.sourceType == sourceType }
+    }
+
+    mutating func removeSources(linkedToPageIDs pageIDs: Set<UUID>) {
+        sources.removeAll { source in
+            source.sourcePageID.map(pageIDs.contains) == true
+        }
+    }
+
+    func firstAvailableSourcePageID(in availablePageIDs: Set<UUID>) -> UUID? {
+        sources.compactMap(\.sourcePageID).first(where: availablePageIDs.contains)
     }
 
     public mutating func merge(_ incoming: SentenceExampleRecord) {

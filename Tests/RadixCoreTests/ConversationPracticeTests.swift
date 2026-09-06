@@ -816,6 +816,8 @@ struct ConversationPracticeTests {
         #expect(pack.sourceLink?.kind == .savedPage)
         #expect(pack.sourceLink?.sourcePageID == sourceID)
         #expect(pack.sourceLink?.sourceTitle == "China US News")
+        #expect(pack.sourceLink?.isLinked(toAnyPageID: [sourceID]) == true)
+        #expect(pack.sourceLink?.isLinked(toAnyPageID: [UUID()]) == false)
         #expect(roundTrip.sourceLink?.sourcePageID == sourceID)
         #expect(roundTrip.sourceLink?.sourceTitle == "China US News")
         #expect(roundTrip.practiceItems.first?.phraseKey == "这条新闻很重要")

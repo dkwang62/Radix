@@ -150,6 +150,15 @@ enum RadixStudyPreferences {
         pageArtifactStore.clearUserData()
     }
 
+    static func reconcileSentenceSourcesAfterDeletingPages(
+        _ pageIDs: Set<UUID>
+    ) throws -> SentencePageSourceReconciliationResult {
+        try sentenceLibrary.reconcileSources(
+            removingPageIDs: pageIDs,
+            migratingLegacy: legacySentenceExamplesFromPreferences
+        )
+    }
+
     static var currentSentenceExamples: [SentenceExampleRecord] {
         migrateLegacyFavoriteSentencesIntoSentenceExamples()
         return sentenceExamples
@@ -158,6 +167,20 @@ enum RadixStudyPreferences {
     static func querySentenceExamples(_ query: SentenceExampleQuery) -> SentenceExampleQueryResult {
         migrateLegacyFavoriteSentencesIntoSentenceExamples()
         return sentenceLibrary.query(query, migratingLegacy: legacySentenceExamplesFromPreferences)
+    }
+
+    static func querySentenceExamplePage(
+        _ query: SentenceExampleQuery,
+        requestedPageIndex: Int,
+        pageSize: Int
+    ) -> SentenceExamplePageQueryResult {
+        migrateLegacyFavoriteSentencesIntoSentenceExamples()
+        return sentenceLibrary.queryPage(
+            query,
+            requestedPageIndex: requestedPageIndex,
+            pageSize: pageSize,
+            migratingLegacy: legacySentenceExamplesFromPreferences
+        )
     }
 
     static func sentenceExampleCount(scope: SentenceExampleQueryScope = .all, searchText: String = "") -> Int {
@@ -782,7 +805,10 @@ enum RadixStudyPreferences {
             }
         case .complete:
             let records = records ?? []
-            try recordSentenceExamples(records.flatMap(SentenceExampleRecord.fromAICleanedPage(_:)))
+            try sentenceLibrary.replaceAICleanedPageSources(
+                with: canonicalizedSentenceExamples(records.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))),
+                migratingLegacy: legacySentenceExamplesFromPreferences
+            )
             aiCleanedPages = records
         }
     }

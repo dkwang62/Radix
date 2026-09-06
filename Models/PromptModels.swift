@@ -22,6 +22,41 @@ struct LatestAIResult: Codable, Equatable, Identifiable {
     }
 }
 
+struct PromptTestSelectionIdentity: Equatable, Sendable {
+    let taskID: String
+    let sourceID: String
+    let prompt: String
+}
+
+struct PromptTestRequestContext: Equatable, Identifiable, Sendable {
+    let id: UUID
+    let selection: PromptTestSelectionIdentity
+    let taskTitle: String
+    let sourceTitle: String
+
+    init(
+        id: UUID = UUID(),
+        selection: PromptTestSelectionIdentity,
+        taskTitle: String,
+        sourceTitle: String
+    ) {
+        self.id = id
+        self.selection = selection
+        self.taskTitle = taskTitle
+        self.sourceTitle = sourceTitle
+    }
+}
+
+enum PromptTestCompletionPolicy {
+    static func accepts(
+        _ request: PromptTestRequestContext,
+        activeRequestID: UUID?,
+        currentSelection: PromptTestSelectionIdentity?
+    ) -> Bool {
+        request.id == activeRequestID && request.selection == currentSelection
+    }
+}
+
 enum PromptTaskSubjectType: String, Codable, CaseIterable, Identifiable {
     case characterPhrase
     case sentence

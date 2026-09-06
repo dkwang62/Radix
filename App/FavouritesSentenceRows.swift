@@ -279,7 +279,7 @@ extension FavouritesTab {
     }
 
     func sentenceExampleSourcePageID(_ example: SentenceExampleRecord) -> UUID? {
-        example.sources.first(where: { $0.sourcePageID != nil })?.sourcePageID
+        example.firstAvailableSourcePageID(in: Set(store.allCollections.map(\.id)))
     }
 
     func sentenceExamplePracticeSource(_ example: SentenceExampleRecord) -> SentenceExampleSourceReference? {
