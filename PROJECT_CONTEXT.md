@@ -175,9 +175,9 @@ statuses. Any change requires an explicit migration and a compatibility test.
 | Added phrases and notes | `phrases_add.db` | Do not duplicate a phrase already in the main database. Phrase notes remain an overlay here. |
 | Saved pages | Preferences-backed `CharacterCollection` metadata plus source-image files | Source images live under Application Support; thumbnails are not retained. Existing embedded images migrate on load. |
 | AI-cleaned pages | Preferences-backed `AICleanedPageRecord` artifacts | Page-owned; do not overwrite the source OCR. |
-| Sentences | Separate SQLite Sentence Library | Paged/query-based access only; normal backup does not carry this heavy database. |
+| Sentences | Separate SQLite Sentence Library | Paged/query-based access only; excluded from the JSON payload, but carried by full backup and new checkpoint bundles. |
 | Favorites and practice progress | Preferences/portable backup models | They remain learning memory when a linked page is removed. |
-| Checkpoints | Local snapshots | Same-device recovery, not a portable backup file. |
+| Checkpoints | Local backup bundles | Same-device recovery with sentence and phrase databases. Legacy JSON checkpoints remain readable with an explicit limited-scope warning. |
 
 `UnifiedPackage` is the portable backup contract and retains legacy decoding.
 `RadixPreferenceKey` is the canonical stable-key list. `RadixPreferences` is
@@ -200,6 +200,15 @@ Backup vocabulary is deliberate:
 Backup restore must validate before mutation and preserve existing data when it
 cannot complete. Imports/restores may recommend database optimization, but must
 never launch expensive optimization automatically.
+
+Sentence database imports validate integrity, required schema, record decoding,
+and stored identity before replacing live data. Sentence mutations throw on
+storage failure and key-changing edits reject normalized-key collisions. Full
+restore preflights both databases, captures an in-memory rollback document, and
+automatically restores it after any caught commit failure. Acquisition and
+validation can be cancelled; the verified commit phase is explicitly
+non-cancellable. An interrupted process during commit remains a recovery test
+case and must not be treated as covered by in-process rollback.
 
 ### Page and Sentence Ownership
 
@@ -347,6 +356,15 @@ findings. Shared-card favorite invalidation still needs runtime reproduction;
 the physical-device/accessibility matrix remains open. No application fixes were
 made in these audit passes. The comparison pass reran `swift test` (117 tests),
 the Catalyst build, and documentation checks successfully.
+
+The focused UI-01 through UI-07 persistence remediation passed `swift test`
+(121 tests in 12 suites), including malformed sentence-database restore,
+write-lock preservation, normalized-key collision, and practice/artifact reset
+regressions. The arm64 iOS Simulator and Mac Catalyst builds passed with code
+signing disabled. A generic universal Simulator build first stopped because the
+build volume ran out of space; after removing only generated Radix products,
+the device-specific build passed. Physical-device restore interruption,
+disk-full UI execution, and launch/reopen reset checks remain open.
 
 For release work or platform-sensitive UI/data changes, also run:
 

@@ -3,12 +3,13 @@
 Initial audit completed: 2026-09-06. Source baseline: `a1ab08325272cd317d5379eaeadd84b54cfb5710`.
 UI-first follow-up: 2026-09-06, on the same application code, after documentation commit `c56a396`.
 Repeated-implementation comparison: 2026-09-06, on unchanged application code after documentation commit `62367c9`.
+Persistence remediation pass: 2026-09-06, addressing UI-01 through UI-07.
 
 ## Executive Assessment
 
 The highest-impact holes are in recovery and mutation semantics, not cosmetic layout. Several screens report success, cancellation, or an exact restore without those guarantees being provided by the underlying stores. A user who encounters one of these failures can lose work while following the application's own recovery instructions.
 
-This is a read-only application audit. No Swift, database schema, persisted identifiers, entitlement policy, or UI implementation was changed. The only repository changes are this report and its link/workstream entry in PROJECT_CONTEXT.md.
+The audit itself was read-only. A subsequent focused remediation pass changed persistence and recovery implementation for UI-01 through UI-07; no persisted identifier, backup field, entitlement policy, or unrelated feature was changed.
 
 **46 findings: 12 High, 28 Medium, 6 Low; no Critical finding established.** Findings are grouped by severity. Original IDs are preserved; UI-35 through UI-40 came from the UI-first pass and UI-41 through UI-46 from the repeated-implementation comparison. High means loss of saved work, misleading recovery, or loss of access to essential recovery UI. Medium means incorrect results, stranded workflows, accessibility limitations, or conditional reliability failures. Low means lower-impact consistency or validation defects. None of the conditional findings should be described as an observed crash or measured performance regression.
 
@@ -18,6 +19,18 @@ Evidence labels:
 - **Source:** a concrete control-to-store trace establishes the faulty behavior; the described UI reproduction still needs execution.
 - **Risk:** code establishes a missing protection, but device behavior, timing, or scale determines whether the visible failure occurs.
 - **UI-observed:** the stated interaction or visual ambiguity was observed in the isolated simulator and subsequently traced to source; this is not physical-device or full VoiceOver certification.
+
+## Persistence Remediation Status
+
+| Finding | Status after focused fix | Verification/residual boundary |
+| --- | --- | --- |
+| UI-01 | Addressed. Sentence imports now require SQLite integrity, the complete migratable base schema, decodable records and matching stored IDs/keys before live replacement. Restore also keeps a rollback database until post-copy schema setup succeeds. | A malformed three-column database is rejected and a two-record destination remains unchanged in a permanent test. |
+| UI-02 | Addressed for caught failures. Full restore validates both embedded databases before mutation, captures the current full document, and automatically applies it on any subsequent failure. | Abrupt process termination during commit still requires lifecycle/fault-injection testing; there is not yet an on-launch transaction journal. |
+| UI-03 | Addressed. Cancel is available only during acquisition/validation, before mutation. The commit overlay states that verified commit cannot safely be cancelled and provides no false cancellation action. | Large real-device restore timing remains in the adversarial matrix. |
+| UI-04 | Addressed for active mutation paths. Sentence writes throw without replacing the readable corpus with incoming-only fallback data. Edit, favorite, delete, practice import, AI import and restore paths publish failure instead of success; maintenance records a retry/optimization need. | Read-only SQLite failure behavior and disk-full UI execution still need device/fault-injection coverage. |
+| UI-05 | Addressed. Updates use conflict-safe SQL, normalized-key collisions are rejected before dependent artifacts/favorites change, and the edit sheet stays open with the error. | The permanent collision test preserves both IDs and the existing favorite. A future explicit merge UI is optional, not required for data safety. |
+| UI-06 | Addressed for newly created checkpoints. Checkpoints now bundle sentence and added-phrase databases and restore through the full-document path. Existing JSON checkpoints remain discoverable and show a limited-scope warning before restore. | New-bundle end-to-end restore needs device execution; old checkpoints cannot retroactively contain missing sentence bodies. |
+| UI-07 | Addressed. Erase My Data clears sentence/favorite-sentence data, practice packs/progress, page phrase extractions, cleaned pages and the latest AI result, resets their live selections/revisions, and retains snapshots/API keys as stated. | Store-owner tests verify all practice/artifact preference keys are removed; Settings reset still needs a launch/reopen UI test. |
 
 Simulator work used a fresh iPhone SE (3rd generation), iOS 26.5, named `Radix-UI-Audit-SE`. The user's live library, credentials, purchases, and external AI services were not used. Runtime coverage was targeted, not an exhaustive execution of every control or every possible state. Physical iPad, full VoiceOver, Dynamic Type, background interruption, and large-data UI runs remain required. This report is not release sign-off.
 
@@ -917,6 +930,8 @@ The repeated-implementation pass adds two specific consolidation targets: a shar
 - Six UI-first additions were observed in the isolated SE simulator, compared against the initial report, and traced to Swift code. Application implementation remained unchanged.
 - Six additional source-comparison findings (UI-41 through UI-46) and a 16-row parity matrix were added without application changes. UI-44 remains a runtime-dependent invalidation risk; the other five additions have concrete control-to-store or presentation traces. No new simulator reproduction is claimed for this pass.
 - The repeated-implementation pass reran `swift test` (117 tests in 12 suites) and the Catalyst build successfully. The generic iOS Simulator result above is from the earlier pass; it was not rerun for documentation-only changes.
+- The UI-01 through UI-07 remediation passed `swift test` with 121 tests in 12 suites. Permanent regressions cover malformed sentence-database restore without live-data loss, write-lock failure without corpus replacement, normalized-key edit collision without record loss, and removal of all practice/artifact owner keys during user-data reset.
+- The remediated tree passed an arm64 iOS Simulator build for the disposable SE destination and a Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`. An initial generic universal Simulator build stopped at `lipo` because the build volume had no free space; after deleting only generated Radix Simulator products, the device-specific build passed.
 - All 46 findings contain the seven requested fields; all 188 local file/line references were checked for existence and bounds. The comparison matrix has 16 data rows.
 - `git diff --check`: passed for the documentation changes.
-- No physical-iPad gate, live-cloud-AI test, real purchase, exhaustive accessibility pass, or large-library UI performance certification was completed.
+- No physical-iPad gate, abrupt-termination restore fault injection, disk-full UI execution, launch/reopen reset check, live-cloud-AI test, real purchase, exhaustive accessibility pass, or large-library UI performance certification was completed.
