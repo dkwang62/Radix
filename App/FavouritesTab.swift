@@ -281,18 +281,24 @@ struct FavouritesTab: View {
         _ pack: ConversationPracticePack,
         replacing: Bool
     ) {
-        saveImportedConversationPracticePack(pack)
-        loadImportedConversationPracticePacks()
-        if let topic = conversationPracticeTopics.first(where: { $0.id == pack.packID }) {
-            selectConversationPracticeTopic(topic)
+        do {
+            try saveImportedConversationPracticePack(pack)
+            loadImportedConversationPracticePacks()
+            if let topic = conversationPracticeTopics.first(where: { $0.id == pack.packID }) {
+                selectConversationPracticeTopic(topic)
+            }
+            conversationPracticeImportMessage = "\(replacing ? "Replaced" : "Loaded") \(pack.title) · \(pack.entries.count) sentences"
+            conversationPracticeImportError = nil
+            RadixHaptics.success()
+        } catch {
+            conversationPracticeImportMessage = nil
+            conversationPracticeImportError = "Import failed: \(error.localizedDescription)"
+            RadixHaptics.error()
         }
-        conversationPracticeImportMessage = "\(replacing ? "Replaced" : "Loaded") \(pack.title) · \(pack.entries.count) sentences"
-        conversationPracticeImportError = nil
-        RadixHaptics.success()
     }
 
-    func saveImportedConversationPracticePack(_ pack: ConversationPracticePack) {
-        store.saveImportedConversationPracticePack(pack)
+    func saveImportedConversationPracticePack(_ pack: ConversationPracticePack) throws {
+        try store.saveImportedConversationPracticePack(pack)
     }
 
     var selectedConversationPracticeTopic: ConversationPracticeTopic {

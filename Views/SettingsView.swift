@@ -284,7 +284,7 @@ struct SettingsView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This erases added characters, phrases, saved pages, favorites, recent items, and AI Link templates on this device. Device snapshots are kept so you can restore one from My Data.")
+            Text("This erases added characters, phrases, saved pages, saved sentences, favorites, practice data, page study results, recent items, and AI Link templates on this device. Device snapshots and API keys are kept.")
         }
         .alert("Optimize Database?", isPresented: $showRefreshSentencePhraseLinksConfirmation) {
             Button("Cancel", role: .cancel) {}

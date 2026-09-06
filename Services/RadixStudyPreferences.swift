@@ -88,13 +88,7 @@ enum RadixStudyPreferences {
     }
 
     static var sentenceExamples: [SentenceExampleRecord] {
-        get {
-            sentenceLibrary.fetchAll(migratingLegacy: legacySentenceExamplesFromPreferences)
-        }
-        set {
-            let records = canonicalizedSentenceExamples(newValue)
-            try? sentenceLibrary.replaceAll(records)
-        }
+        sentenceLibrary.fetchAll(migratingLegacy: legacySentenceExamplesFromPreferences)
     }
 
     @discardableResult
@@ -152,10 +146,8 @@ enum RadixStudyPreferences {
 
     static func clearUserLearningData() throws {
         try clearSentenceDatabase()
-        importedConversationPracticePacks = []
-        conversationPracticeProgress = ConversationPracticeProgressSnapshot()
-        pagePhraseExtractions = []
-        aiCleanedPages = []
+        conversationPracticeStore.clearUserData()
+        pageArtifactStore.clearUserData()
     }
 
     static var currentSentenceExamples: [SentenceExampleRecord] {
@@ -218,7 +210,7 @@ enum RadixStudyPreferences {
     }
 
     @discardableResult
-    static func refreshSentencePhraseLinks(availablePhraseWords words: [String]) -> Int {
+    static func refreshSentencePhraseLinks(availablePhraseWords words: [String]) throws -> Int {
         let records = currentSentenceExamples
         guard !records.isEmpty else { return 0 }
         let phraseWords = canonicalizedPhraseLinkWords(words)
@@ -228,12 +220,12 @@ enum RadixStudyPreferences {
         let changedRecords = zip(records, updatedRecords).compactMap { original, updated in
             original == updated ? nil : updated
         }
-        try? sentenceLibrary.replace(changedRecords)
+        try sentenceLibrary.replace(changedRecords)
         return changedRecords.count
     }
 
     @discardableResult
-    static func addSentencePhraseLink(_ phrase: String) -> Int {
+    static func addSentencePhraseLink(_ phrase: String) throws -> Int {
         let phraseWords = canonicalizedPhraseLinkWords([phrase])
         guard let phraseWord = phraseWords.first else { return 0 }
         let matchingRecords = sentenceExamplesContainingChineseText(phraseWord)
@@ -241,12 +233,12 @@ enum RadixStudyPreferences {
             let updated = sentenceExample(record, refreshingPhraseLinksFrom: phraseWords)
             return updated == record ? nil : updated
         }
-        try? sentenceLibrary.replace(updatedRecords)
+        try sentenceLibrary.replace(updatedRecords)
         return updatedRecords.count
     }
 
     @discardableResult
-    static func removeSentencePhraseLinks(_ phrases: [String]) -> Int {
+    static func removeSentencePhraseLinks(_ phrases: [String]) throws -> Int {
         let phraseKeys = Set(canonicalizedPhraseLinkWords(phrases))
         guard !phraseKeys.isEmpty else { return 0 }
         var recordsByID: [UUID: SentenceExampleRecord] = [:]
@@ -265,24 +257,24 @@ enum RadixStudyPreferences {
             }
             return updated == record ? nil : updated
         }
-        try? sentenceLibrary.replace(updatedRecords)
+        try sentenceLibrary.replace(updatedRecords)
         return updatedRecords.count
     }
 
     @discardableResult
-    static func convertStoredSentenceExamplesToSimplified() -> Int {
+    static func convertStoredSentenceExamplesToSimplified() throws -> Int {
         let records = currentSentenceExamples
         guard !records.isEmpty else {
             favoriteSentences = canonicalizedFavoriteSentences(favoriteSentences)
             return 0
         }
         let converted = canonicalizedSentenceExamples(records)
-        try? sentenceLibrary.replaceAll(converted)
+        try sentenceLibrary.replaceAll(converted)
         favoriteSentences = canonicalizedFavoriteSentences(favoriteSentences)
         return converted.count
     }
 
-    static func recordSentenceExamples(from pack: ConversationPracticePack, createdAt: Date = Date()) {
+    static func recordSentenceExamples(from pack: ConversationPracticePack, createdAt: Date = Date()) throws {
         let favoriteIDs = Set(favoriteSentences.map(\.sourceItemID))
         let records = pack.practiceItems.map { item in
             SentenceExampleRecord.fromPracticeItem(
@@ -292,20 +284,20 @@ enum RadixStudyPreferences {
                 createdAt: createdAt
             )
         }
-        try? recordSentenceExamples(records)
+        try recordSentenceExamples(records)
     }
 
     @discardableResult
-    static func recordSentenceExamples(fromCaptureText text: String, createdAt: Date = Date()) -> [SentenceExampleRecord] {
+    static func recordSentenceExamples(fromCaptureText text: String, createdAt: Date = Date()) throws -> [SentenceExampleRecord] {
         let records = canonicalizedSentenceExamples(
             RadixCaptureJSONParser.sentenceExamples(from: text, createdAt: createdAt)
         )
-        try? recordSentenceExamples(records)
+        try recordSentenceExamples(records)
         return records
     }
 
-    static func canonicalizedConversationPracticePack(_ pack: ConversationPracticePack) -> ConversationPracticePack {
-        recordSentenceExamples(from: pack)
+    static func canonicalizedConversationPracticePack(_ pack: ConversationPracticePack) throws -> ConversationPracticePack {
+        try recordSentenceExamples(from: pack)
         return pack.withCanonicalSentenceReferences(from: sentenceExamples)
     }
 
@@ -317,7 +309,7 @@ enum RadixStudyPreferences {
         let migrated = packs.map { pack -> ConversationPracticePack in
             guard pack.needsCanonicalSentenceReferences else { return pack }
             didMigrate = true
-            return canonicalizedConversationPracticePack(pack)
+            return (try? canonicalizedConversationPracticePack(pack)) ?? pack
         }
         if didMigrate {
             importedConversationPracticePacks = migrated

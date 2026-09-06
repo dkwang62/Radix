@@ -88,7 +88,7 @@ struct RootView: View {
                 quickRestoreMemory(from: checkpoint)
             }
         } message: {
-            Text("Current study data on this device will be replaced by the selected checkpoint. Backup files are not affected.")
+            Text(pendingSidebarCheckpointReturn?.restoreScopeMessage ?? "The selected checkpoint is unavailable.")
         }
         .popover(item: $navigationGuideTopic, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) { topic in
             NavigationGuidePopover(topic: topic) {

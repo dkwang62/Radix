@@ -84,34 +84,34 @@ extension RadixStore {
     private var databaseOptimizationLastRunKey: String { "radix.databaseOptimization.lastRun.v1" }
 
     @discardableResult
-    func refreshSentencePhraseLinks() -> SentencePhraseLinkRefreshResult {
-        _ = try? createSentenceDatabaseSafetySnapshot(reason: "Before refreshing sentence phrase links")
+    func refreshSentencePhraseLinks() throws -> SentencePhraseLinkRefreshResult {
+        _ = try createSentenceDatabaseSafetySnapshot(reason: "Before refreshing sentence phrase links")
         let phraseWords = activeSentencePhraseLinkWords()
         let extractedPageCount = refreshAICleanedPagePhraseLinks(availablePhraseWords: phraseWords)
         if extractedPageCount > 0 {
-            try? RadixStudyPreferences.recordSentenceExamples(
+            try RadixStudyPreferences.recordSentenceExamples(
                 RadixStudyPreferences.aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
             )
         }
-        let sentenceCount = RadixStudyPreferences.refreshSentencePhraseLinks(availablePhraseWords: phraseWords)
+        let sentenceCount = try RadixStudyPreferences.refreshSentencePhraseLinks(availablePhraseWords: phraseWords)
         favoriteSentenceRevision += 1
         return SentencePhraseLinkRefreshResult(sentenceCount: sentenceCount, extractedPageCount: extractedPageCount)
     }
 
     @discardableResult
-    func refreshSentencePhraseLinksForSettings(createSafetySnapshot: Bool = true) async -> SentencePhraseLinkRefreshResult {
+    func refreshSentencePhraseLinksForSettings(createSafetySnapshot: Bool = true) async throws -> SentencePhraseLinkRefreshResult {
         if createSafetySnapshot {
-            _ = try? await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before refreshing sentence phrase links")
+            _ = try await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before refreshing sentence phrase links")
         }
         let phraseWords = await activeSentencePhraseLinkWordsForSettings()
         let extractedPageCount = await refreshAICleanedPagePhraseLinksForOptimization(availablePhraseWords: phraseWords)
         if extractedPageCount > 0 {
-            try? RadixStudyPreferences.recordSentenceExamples(
+            try RadixStudyPreferences.recordSentenceExamples(
                 RadixStudyPreferences.aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
             )
         }
-        let sentenceCount = await Task.detached(priority: .userInitiated) {
-            RadixStudyPreferences.refreshSentencePhraseLinks(availablePhraseWords: phraseWords)
+        let sentenceCount = try await Task.detached(priority: .userInitiated) {
+            try RadixStudyPreferences.refreshSentencePhraseLinks(availablePhraseWords: phraseWords)
         }.value
         favoriteSentenceRevision += 1
         return SentencePhraseLinkRefreshResult(sentenceCount: sentenceCount, extractedPageCount: extractedPageCount)
@@ -154,7 +154,7 @@ extension RadixStore {
                     let result = try await self.normalizeChineseStorageToSimplifiedForSettings()
                     status = "\(reason) complete: prepared \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.phraseCount) added phrase\(result.phraseCount == 1 ? "" : "s")."
                 } else {
-                    let result = await self.refreshSentencePhraseLinksForSettings(createSafetySnapshot: false)
+                    let result = try await self.refreshSentencePhraseLinksForSettings(createSafetySnapshot: false)
                     self.recordDatabaseOptimizationFingerprint(await self.databaseOptimizationFingerprintForSettings())
                     status = "\(reason) complete: optimized \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s")."
                 }
@@ -243,7 +243,12 @@ extension RadixStore {
     func refreshSentencePhraseLinksAfterAddingPhrase(_ word: String) {
         let storedWord = phraseStorageWord(word)
         guard !storedWord.isEmpty, phraseRepo.fetchPhrase(for: storedWord) != nil else { return }
-        _ = RadixStudyPreferences.addSentencePhraseLink(storedWord)
+        do {
+            _ = try RadixStudyPreferences.addSentencePhraseLink(storedWord)
+        } catch {
+            markDatabaseOptimizationNeeded()
+            dataEditAutoSaveStatus = "Phrase saved, but sentence links need optimization: \(error.localizedDescription)"
+        }
         _ = addAICleanedPagePhraseLink(storedWord)
         favoriteSentenceRevision += 1
     }
@@ -251,7 +256,12 @@ extension RadixStore {
     func refreshSentencePhraseLinksAfterRemovingPhrases(_ words: [String]) {
         let storedWords = words.map(phraseStorageWord(_:)).filter { !$0.isEmpty }
         guard !storedWords.isEmpty else { return }
-        _ = RadixStudyPreferences.removeSentencePhraseLinks(storedWords)
+        do {
+            _ = try RadixStudyPreferences.removeSentencePhraseLinks(storedWords)
+        } catch {
+            markDatabaseOptimizationNeeded()
+            dataEditAutoSaveStatus = "Phrase change saved, but sentence links need optimization: \(error.localizedDescription)"
+        }
         _ = removeAICleanedPagePhraseLinks(storedWords)
         favoriteSentenceRevision += 1
     }

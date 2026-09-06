@@ -521,8 +521,8 @@ extension RadixStore {
     func normalizeChineseStorageToSimplified() throws -> ChineseStorageNormalizationResult {
         try createDatabaseSafetySnapshots(reason: "Before normalizing Chinese storage")
         let phraseCount = try convertAddedPhrasesToSimplified()
-        let sentenceCount = convertStudySentencesToSimplified()
-        _ = refreshSentencePhraseLinks()
+        let sentenceCount = try convertStudySentencesToSimplified()
+        _ = try refreshSentencePhraseLinks()
         dataEditAutoSaveStatus = "Normalized Chinese storage to Simplified."
         return ChineseStorageNormalizationResult(phraseCount: phraseCount, sentenceCount: sentenceCount)
     }
@@ -531,8 +531,8 @@ extension RadixStore {
     func normalizeChineseStorageToSimplifiedForSettings() async throws -> ChineseStorageNormalizationResult {
         try await createDatabaseSafetySnapshotsForSettings(reason: "Before normalizing Chinese storage")
         let phraseCount = try convertAddedPhrasesToSimplified()
-        let sentenceCount = await Task.detached(priority: .userInitiated) {
-            RadixStudyPreferences.convertStoredSentenceExamplesToSimplified()
+        let sentenceCount = try await Task.detached(priority: .userInitiated) {
+            try RadixStudyPreferences.convertStoredSentenceExamplesToSimplified()
         }.value
 
         let convertedPageCount = convertAICleanedPagesToSimplified()

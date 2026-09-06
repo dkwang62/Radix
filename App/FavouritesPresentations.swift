@@ -138,7 +138,7 @@ extension FavouritesTab {
                     onReturnToCheckpoint(checkpoint)
                 }
             } message: {
-                Text("Current study data on this device will be replaced by the selected checkpoint. Backup files are not affected.")
+                Text(pendingCheckpointReturn?.restoreScopeMessage ?? "The selected checkpoint is unavailable.")
             }
             .alert("Delete Practice?", isPresented: Binding(
                 get: { pendingConversationPracticeDeletion != nil },

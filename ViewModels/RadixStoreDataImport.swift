@@ -69,7 +69,7 @@ extension RadixStore {
                     try phraseRepo.addPhrasesAdditively(uniquePhrases(package.phrases))
                 }
                 mergeImportedCollections(package.collections, selectedAICollectionID: package.selectedAICollectionID)
-                applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .additive)
+                try applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .additive)
                 RadixStudyPreferences.conversationPracticeProgress =
                     RadixStudyPreferences.conversationPracticeProgress.merging(package.conversationPracticeProgress)
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .additive)
@@ -77,7 +77,7 @@ extension RadixStore {
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .additive)
                 if refreshSentenceLinks {
-                    _ = refreshSentencePhraseLinks()
+                    _ = try refreshSentencePhraseLinks()
                     recordDatabaseOptimizationFingerprint(databaseOptimizationFingerprint())
                 } else {
                     markDatabaseOptimizationNeeded()
@@ -95,7 +95,7 @@ extension RadixStore {
                     try phraseRepo.replaceAllPhrases(uniquePhrases(package.phrases))
                 }
                 replaceCollections(with: package.collections, selectedAICollectionID: package.selectedAICollectionID)
-                applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .complete)
+                try applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .complete)
                 RadixStudyPreferences.conversationPracticeProgress =
                     package.conversationPracticeProgress ?? ConversationPracticeProgressSnapshot()
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .complete)
@@ -103,7 +103,7 @@ extension RadixStore {
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .complete)
                 if refreshSentenceLinks {
-                    _ = refreshSentencePhraseLinks()
+                    _ = try refreshSentencePhraseLinks()
                     recordDatabaseOptimizationFingerprint(databaseOptimizationFingerprint())
                 } else {
                     markDatabaseOptimizationNeeded()
@@ -157,6 +157,7 @@ extension RadixStore {
     }
 
     func importPortableBackupDocumentForRestore(_ document: PortableBackupDocument, mode: RestoreMode = .additive) async throws {
+        try validatePortableBackupDocumentDatabases(document)
         try await createDatabaseSafetySnapshotsForSettings(reason: "Before importing data")
         let rollbackDocument = PortableBackupDocument(
             payload: .unified(portableBackupPackage()),
@@ -180,6 +181,25 @@ extension RadixStore {
         }
         markDatabaseOptimizationNeeded()
         databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
+    }
+
+    private func validatePortableBackupDocumentDatabases(_ document: PortableBackupDocument) throws {
+        var temporaryURLs: [URL] = []
+        defer {
+            for url in temporaryURLs {
+                try? FileManager.default.removeItem(at: url)
+            }
+        }
+        if let data = document.sentenceDatabaseData {
+            let url = try temporaryDatabaseURL(prefix: "radix_sentence_validation", data: data)
+            temporaryURLs.append(url)
+            try SentenceLibraryStore.validateSentenceDatabase(at: url)
+        }
+        if let data = document.addedPhrasesDatabaseData {
+            let url = try temporaryDatabaseURL(prefix: "radix_added_phrases_validation", data: data)
+            temporaryURLs.append(url)
+            try PhraseRepository.validateAddDatabase(at: url)
+        }
     }
 
     private func applyPortableBackupDocument(_ document: PortableBackupDocument, mode: RestoreMode) async throws {

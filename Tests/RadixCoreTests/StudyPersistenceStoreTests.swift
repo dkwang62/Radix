@@ -94,6 +94,53 @@ struct StudyPersistenceStoreTests {
         #expect(ConversationPracticeStore(preferences: preferences).progress.records.isEmpty)
         #expect(PageStudyArtifactStore(preferences: preferences).cleanedPages.isEmpty)
     }
+
+    @Test("Study stores clear every owned user-data key")
+    func clearUserData() {
+        let preferences = InMemoryStudyPreferenceStore()
+        let practiceStore = ConversationPracticeStore(preferences: preferences)
+        let artifactStore = PageStudyArtifactStore(preferences: preferences)
+        practiceStore.importedPacks = [ConversationPracticePack(
+            packID: "practice-1",
+            version: "1",
+            title: "Practice",
+            description: "",
+            language: "zh-CN",
+            sourceType: "test",
+            createdFor: "Radix",
+            sourceLink: nil,
+            entries: []
+        )]
+        var progress = ConversationPracticeProgressSnapshot()
+        progress.record(packID: "practice-1", itemID: "item-1", outcome: .good)
+        practiceStore.progress = progress
+        artifactStore.phraseExtractions = [PagePhraseExtractionRecord(
+            sourcePageID: UUID(),
+            sourceTitle: "Page",
+            phraseWords: ["学习"],
+            extractedAt: Date()
+        )]
+        artifactStore.cleanedPages = [AICleanedPageRecord(
+            sourcePageID: UUID(),
+            sourceTitle: "Page",
+            cleanedTitle: "Page",
+            cleanedChineseText: "你好。",
+            sentences: [],
+            createdAt: Date()
+        )]
+
+        practiceStore.clearUserData()
+        artifactStore.clearUserData()
+
+        #expect(practiceStore.importedPacks.isEmpty)
+        #expect(practiceStore.progress.records.isEmpty)
+        #expect(artifactStore.phraseExtractions.isEmpty)
+        #expect(artifactStore.cleanedPages.isEmpty)
+        #expect(preferences.object(forKey: RadixPreferenceKey.importedConversationPracticePacks) == nil)
+        #expect(preferences.object(forKey: RadixPreferenceKey.conversationPracticeProgress) == nil)
+        #expect(preferences.object(forKey: RadixPreferenceKey.pagePhraseExtractions) == nil)
+        #expect(preferences.object(forKey: RadixPreferenceKey.aiCleanedPages) == nil)
+    }
 }
 
 private final class InMemoryStudyPreferenceStore: RadixPreferenceStore, @unchecked Sendable {

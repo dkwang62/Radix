@@ -26,6 +26,11 @@ struct ConversationPracticeStore: @unchecked Sendable {
         }
     }
 
+    func clearUserData() {
+        preferences.removeObject(forKey: RadixPreferenceKey.importedConversationPracticePacks)
+        preferences.removeObject(forKey: RadixPreferenceKey.conversationPracticeProgress)
+    }
+
     private func decode<Value: Decodable>(_ type: Value.Type, forKey key: String) -> Value? {
         guard let data = preferences.data(forKey: key) else { return nil }
         return try? JSONDecoder().decode(type, from: data)
@@ -103,6 +108,11 @@ struct PageStudyArtifactStore: @unchecked Sendable {
         records.removeAll { $0.sourcePageID == record.sourcePageID }
         records.append(record)
         cleanedPages = records
+    }
+
+    func clearUserData() {
+        preferences.removeObject(forKey: RadixPreferenceKey.pagePhraseExtractions)
+        preferences.removeObject(forKey: RadixPreferenceKey.aiCleanedPages)
     }
 
     private func decode<Value: Decodable>(_ type: Value.Type, forKey key: String) -> Value? {

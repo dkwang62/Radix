@@ -140,6 +140,25 @@ final class PhraseRepository {
     }
 
     static func validateAddDatabase(at sourceURL: URL) throws {
+        var database: OpaquePointer?
+        guard sqlite3_open_v2(sourceURL.path, &database, SQLITE_OPEN_READONLY, nil) == SQLITE_OK,
+              let database
+        else {
+            if let database { sqlite3_close(database) }
+            throw NSError(domain: "Radix", code: 129, userInfo: [NSLocalizedDescriptionKey: "Failed to open added-phrases database."])
+        }
+        defer { sqlite3_close(database) }
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(database, "PRAGMA quick_check", -1, &statement, nil) == SQLITE_OK else {
+            throw NSError(domain: "Radix", code: 131, userInfo: [NSLocalizedDescriptionKey: "Failed to check added-phrases database integrity."])
+        }
+        defer { sqlite3_finalize(statement) }
+        guard sqlite3_step(statement) == SQLITE_ROW,
+              let result = sqlite3_column_text(statement, 0),
+              String(cString: result).lowercased() == "ok"
+        else {
+            throw NSError(domain: "Radix", code: 132, userInfo: [NSLocalizedDescriptionKey: "The added-phrases database is damaged."])
+        }
         _ = try addedPhrases(in: sourceURL)
     }
 
@@ -838,7 +857,8 @@ final class PhraseRepository {
         defer { sqlite3_finalize(stmt) }
 
         var phrases: [PhraseItem] = []
-        while sqlite3_step(stmt) == SQLITE_ROW {
+        var step = sqlite3_step(stmt)
+        while step == SQLITE_ROW {
             let statusText = stringColumn(stmt, 5)
             phrases.append(PhraseItem(
                 word: stringColumn(stmt, 0),
@@ -849,6 +869,10 @@ final class PhraseRepository {
                 reviewStatus: statusText.isEmpty ? nil : PhraseReviewStatus(rawValue: statusText),
                 lastReviewedAt: dateColumn(stmt, 6)
             ))
+            step = sqlite3_step(stmt)
+        }
+        guard step == SQLITE_DONE else {
+            throw NSError(domain: "Radix", code: 133, userInfo: [NSLocalizedDescriptionKey: "The added-phrases database could not be read completely."])
         }
         return phrases
     }

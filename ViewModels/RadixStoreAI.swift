@@ -355,7 +355,7 @@ extension RadixStore {
         if let sourceCollection {
             pack = pack.withSourceLink(conversationPracticeSourceLink(for: sourceCollection))
         }
-        saveImportedConversationPracticePack(pack)
+        try saveImportedConversationPracticePack(pack)
         selectedConversationPracticeTopicID = pack.packID
         persistPromptSettings()
         return pack
@@ -392,7 +392,12 @@ extension RadixStore {
         let updated = records.map(preprocessedAICleanedPage(_:))
         guard updated != records else { return }
         RadixStudyPreferences.aiCleanedPages = updated
-        try? RadixStudyPreferences.recordSentenceExamples(updated.flatMap(SentenceExampleRecord.fromAICleanedPage(_:)))
+        do {
+            try RadixStudyPreferences.recordSentenceExamples(updated.flatMap(SentenceExampleRecord.fromAICleanedPage(_:)))
+        } catch {
+            markDatabaseOptimizationNeeded()
+            databaseOptimizationMessage = "Sentence indexing needs optimization: \(error.localizedDescription)"
+        }
     }
 
     private func preprocessedAICleanedPageSentence(_ sentence: AICleanedPageSentence) -> AICleanedPageSentence {

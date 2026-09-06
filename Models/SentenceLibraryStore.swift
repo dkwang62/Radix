@@ -426,7 +426,8 @@ final class SentenceLibraryStore: @unchecked Sendable {
             throw NSError(domain: "Radix", code: 3147, userInfo: [NSLocalizedDescriptionKey: "Failed to inspect sentence records."])
         }
         defer { sqlite3_finalize(rowStatement) }
-        while sqlite3_step(rowStatement) == SQLITE_ROW {
+        var rowStep = sqlite3_step(rowStatement)
+        while rowStep == SQLITE_ROW {
             guard let idText = sqlite3_column_text(rowStatement, 0),
                   let keyText = sqlite3_column_text(rowStatement, 1),
                   let bytes = sqlite3_column_blob(rowStatement, 2)
@@ -442,6 +443,10 @@ final class SentenceLibraryStore: @unchecked Sendable {
             else {
                 throw NSError(domain: "Radix", code: 3149, userInfo: [NSLocalizedDescriptionKey: "The sentence database contains an invalid record."])
             }
+            rowStep = sqlite3_step(rowStatement)
+        }
+        guard rowStep == SQLITE_DONE else {
+            throw NSError(domain: "Radix", code: 3156, userInfo: [NSLocalizedDescriptionKey: "The sentence database could not be read completely."])
         }
     }
 

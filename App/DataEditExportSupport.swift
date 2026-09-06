@@ -41,6 +41,17 @@ struct LocalDataSnapshot: Identifiable, Hashable {
         Self.relativeText(for: createdAt)
     }
 
+    var includesDatabases: Bool {
+        url.pathExtension.lowercased() == "radixbackup"
+    }
+
+    var restoreScopeMessage: String {
+        if includesDatabases {
+            return "Current study data on this device will be replaced by the selected checkpoint. Backup files are not affected."
+        }
+        return "This older checkpoint does not contain saved sentence or added-phrase databases. Other study data will be replaced, but those databases cannot be returned to this checkpoint. Backup files are not affected."
+    }
+
     static func relativeText(for date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full

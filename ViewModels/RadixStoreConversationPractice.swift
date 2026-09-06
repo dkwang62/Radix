@@ -76,8 +76,8 @@ extension RadixStore {
         }
     }
 
-    func saveImportedConversationPracticePack(_ pack: ConversationPracticePack) {
-        let pack = RadixStudyPreferences.canonicalizedConversationPracticePack(pack)
+    func saveImportedConversationPracticePack(_ pack: ConversationPracticePack) throws {
+        let pack = try RadixStudyPreferences.canonicalizedConversationPracticePack(pack)
         var packs = RadixStudyPreferences.importedConversationPracticePacks
         packs.removeAll { $0.packID == pack.packID }
         packs.append(pack)
@@ -88,13 +88,13 @@ extension RadixStore {
     func applyImportedConversationPracticePacks(
         _ packs: [ConversationPracticePack]?,
         mode: RestoreMode
-    ) {
+    ) throws {
         switch mode {
         case .additive:
             guard let packs, !packs.isEmpty else { return }
             var merged = RadixStudyPreferences.importedConversationPracticePacks
             for pack in packs {
-                let pack = RadixStudyPreferences.canonicalizedConversationPracticePack(pack)
+                let pack = try RadixStudyPreferences.canonicalizedConversationPracticePack(pack)
                 merged.removeAll { $0.packID == pack.packID }
                 merged.append(pack)
                 registerConversationPracticeLibrary(pack.practiceLibrary)
@@ -102,8 +102,8 @@ extension RadixStore {
             RadixStudyPreferences.importedConversationPracticePacks = merged
 
         case .complete:
-            let restored = (packs ?? []).map {
-                RadixStudyPreferences.canonicalizedConversationPracticePack($0)
+            let restored = try (packs ?? []).map {
+                try RadixStudyPreferences.canonicalizedConversationPracticePack($0)
             }
             RadixStudyPreferences.importedConversationPracticePacks = restored
             for pack in restored {
@@ -458,12 +458,12 @@ extension RadixStore {
     }
 
     @discardableResult
-    func convertStudySentencesToSimplified() -> Int {
-        let convertedSentenceCount = RadixStudyPreferences.convertStoredSentenceExamplesToSimplified()
+    func convertStudySentencesToSimplified() throws -> Int {
+        let convertedSentenceCount = try RadixStudyPreferences.convertStoredSentenceExamplesToSimplified()
         let convertedPageCount = convertAICleanedPagesToSimplified()
         favoriteSentenceRevision += 1
         if convertedPageCount > 0 {
-            try? RadixStudyPreferences.recordSentenceExamples(
+            try RadixStudyPreferences.recordSentenceExamples(
                 RadixStudyPreferences.aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
             )
         }
