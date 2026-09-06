@@ -83,23 +83,25 @@ extension PhraseInfoCard {
     @ViewBuilder
     var favoriteTargetButton: some View {
         switch favoriteTarget {
-        case .sentence(let practiceItem):
-            Button {
-                do {
-                    try store.toggleFavoriteSentence(practiceItem)
-                    editStatus = store.isFavoriteSentence(practiceItem) ? "Favorited." : "Removed favorite."
-                } catch {
-                    editStatus = "Favorite failed: \(error.localizedDescription)"
+        case .sentence:
+            if let practiceItem = practiceSentenceItem {
+                Button {
+                    do {
+                        try store.toggleFavoriteSentence(practiceItem)
+                        editStatus = store.isFavoriteSentence(practiceItem) ? "Favorited." : "Removed favorite."
+                    } catch {
+                        editStatus = "Favorite failed: \(error.localizedDescription)"
+                    }
+                } label: {
+                    Image(systemName: store.isFavoriteSentence(practiceItem) ? "star.fill" : "star")
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+                        .foregroundStyle(store.isFavoriteSentence(practiceItem) ? .yellow : .secondary)
+                        .radixIconButtonSurface()
                 }
-            } label: {
-                Image(systemName: store.isFavoriteSentence(practiceItem) ? "star.fill" : "star")
-                    .font(ResponsiveFont.subheadline.weight(.semibold))
-                    .foregroundStyle(store.isFavoriteSentence(practiceItem) ? .yellow : .secondary)
-                    .radixIconButtonSurface()
+                .buttonStyle(.plain)
+                .accessibilityLabel(store.isFavoriteSentence(practiceItem) ? "Remove sentence from favorites" : "Add sentence to favorites")
+                .help(store.isFavoriteSentence(practiceItem) ? "Remove sentence from favorites" : "Add sentence to favorites")
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(store.isFavoriteSentence(practiceItem) ? "Remove sentence from favorites" : "Add sentence to favorites")
-            .help(store.isFavoriteSentence(practiceItem) ? "Remove sentence from favorites" : "Add sentence to favorites")
         case .phrase:
             Button {
                 store.togglePhraseFavorite(phrase.word)

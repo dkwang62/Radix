@@ -37,6 +37,8 @@ struct PhraseInfoCard: View {
     @State var isRunningSentenceImprovement = false
     @State var sentenceImprovementStatus: String?
     @State var locallyImprovedSentenceItem: ConversationPracticeItem?
+    @State var sentenceAITask: Task<Void, Never>?
+    @State var activeSentenceAIRequestID: UUID?
 
     var phraseCharacters: [String] {
         phrase.word.map(String.init).filter { character in
@@ -101,6 +103,7 @@ struct PhraseInfoCard: View {
                 Text("Delete this sentence from your saved sentences?")
             }
             .onChange(of: phrase.word) { _, _ in
+                cancelSentenceAIWork()
                 editableNotes = phrase.notes
                 committedNotes = phrase.notes
                 hasLocalNotes = false
@@ -115,6 +118,14 @@ struct PhraseInfoCard: View {
                 isRunningSentenceImprovement = false
                 sentenceImprovementStatus = nil
                 locallyImprovedSentenceItem = nil
+            }
+            .onChange(of: sentenceSourceID) { _, _ in
+                cancelSentenceAIWork()
+                sentenceImprovementStatus = nil
+                locallyImprovedSentenceItem = nil
+            }
+            .onDisappear {
+                cancelSentenceAIWork()
             }
             .onAppear {
                 animationScript = RadixPhrasePreferences.animationScript

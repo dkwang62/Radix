@@ -84,6 +84,15 @@ extension RootView {
 
     @ViewBuilder
     var phoneContent: some View {
+        if let error = store.loadingError, !isStartupRecoveryDestination {
+            startupRecoveryView(error: error)
+        } else {
+            phoneDestinationContent
+        }
+    }
+
+    @ViewBuilder
+    private var phoneDestinationContent: some View {
         switch phoneSelection {
         case -1:
             ComponentsExplorerShell()

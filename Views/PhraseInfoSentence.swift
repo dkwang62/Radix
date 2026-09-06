@@ -1,6 +1,11 @@
 import SwiftUI
 
 extension PhraseInfoCard {
+    var sentenceSourceID: String? {
+        guard case .sentence(let item) = favoriteTarget else { return nil }
+        return item.id
+    }
+
     var sentenceStudyContent: some View {
         VStack(alignment: .leading, spacing: 14) {
             sentenceStudyToolbar
@@ -249,23 +254,23 @@ extension PhraseInfoCard {
             return
         }
 
+        let requestID = UUID()
+        activeSentenceAIRequestID = requestID
         isRunningSentenceImprovement = true
         sentenceImprovementStatus = "Improving sentence with Gemini..."
-        Task {
+        sentenceAITask = Task { @MainActor in
             do {
                 let record = try await store.runGeminiSentenceImprovement(to: item)
-                await MainActor.run {
-                    locallyImprovedSentenceItem = ConversationPracticeItem(sentenceExample: record, rank: item.rank)
-                    sentenceImprovementStatus = "Sentence updated."
-                    isRunningSentenceImprovement = false
-                    RadixHaptics.success()
-                }
+                guard acceptsSentenceAICompletion(requestID: requestID, sentenceID: item.id) else { return }
+                locallyImprovedSentenceItem = ConversationPracticeItem(sentenceExample: record, rank: item.rank)
+                sentenceImprovementStatus = "Sentence updated."
+                finishSentenceAIWork(requestID: requestID)
+                RadixHaptics.success()
             } catch {
-                await MainActor.run {
-                    sentenceImprovementStatus = "Automatic improvement failed: \(error.localizedDescription)"
-                    isRunningSentenceImprovement = false
-                    RadixHaptics.error()
-                }
+                guard acceptsSentenceAICompletion(requestID: requestID, sentenceID: item.id) else { return }
+                sentenceImprovementStatus = "Automatic improvement failed: \(error.localizedDescription)"
+                finishSentenceAIWork(requestID: requestID)
+                RadixHaptics.error()
             }
         }
     }
@@ -277,30 +282,48 @@ extension PhraseInfoCard {
             return
         }
 
+        let requestID = UUID()
+        activeSentenceAIRequestID = requestID
         isRunningSentenceImprovement = true
         sentenceImprovementStatus = "Explaining sentence with Gemini..."
-        Task {
+        sentenceAITask = Task { @MainActor in
             do {
                 let explanation = try await store.runGeminiSentenceExplanation(for: item)
-                await MainActor.run {
-                    store.publishLatestAIResult(
-                        taskTitle: "Explain Sentence",
-                        subject: item.simplified,
-                        body: explanation
-                    )
-                    store.showLatestAIResult = true
-                    sentenceImprovementStatus = "Explanation ready."
-                    isRunningSentenceImprovement = false
-                    RadixHaptics.success()
-                }
+                guard acceptsSentenceAICompletion(requestID: requestID, sentenceID: item.id) else { return }
+                store.publishLatestAIResult(
+                    taskTitle: "Explain Sentence",
+                    subject: item.simplified,
+                    body: explanation
+                )
+                store.showLatestAIResult = true
+                sentenceImprovementStatus = "Explanation ready."
+                finishSentenceAIWork(requestID: requestID)
+                RadixHaptics.success()
             } catch {
-                await MainActor.run {
-                    sentenceImprovementStatus = "Automatic explanation failed: \(error.localizedDescription)"
-                    isRunningSentenceImprovement = false
-                    RadixHaptics.error()
-                }
+                guard acceptsSentenceAICompletion(requestID: requestID, sentenceID: item.id) else { return }
+                sentenceImprovementStatus = "Automatic explanation failed: \(error.localizedDescription)"
+                finishSentenceAIWork(requestID: requestID)
+                RadixHaptics.error()
             }
         }
+    }
+
+    func acceptsSentenceAICompletion(requestID: UUID, sentenceID: String) -> Bool {
+        !Task.isCancelled && activeSentenceAIRequestID == requestID && sentenceSourceID == sentenceID
+    }
+
+    func finishSentenceAIWork(requestID: UUID) {
+        guard activeSentenceAIRequestID == requestID else { return }
+        activeSentenceAIRequestID = nil
+        sentenceAITask = nil
+        isRunningSentenceImprovement = false
+    }
+
+    func cancelSentenceAIWork() {
+        sentenceAITask?.cancel()
+        sentenceAITask = nil
+        activeSentenceAIRequestID = nil
+        isRunningSentenceImprovement = false
     }
 
     var sentenceHighlightedChineseText: some View {

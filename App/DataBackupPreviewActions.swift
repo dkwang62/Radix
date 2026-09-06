@@ -10,7 +10,7 @@ extension DataBackupPreviewSection {
 
                 Spacer()
 
-                Button("Revert All", role: .destructive, action: revertAllUnnotedBasePhraseEdits)
+                Button("Revert All", role: .destructive, action: requestRevertAllUnnotedBasePhraseEdits)
                     .buttonStyle(.bordered)
                     .controlSize(.small)
             }
@@ -24,9 +24,20 @@ extension DataBackupPreviewSection {
         .padding(.top, 8)
     }
 
-    func revertAllUnnotedBasePhraseEdits() {
+    func requestRevertAllUnnotedBasePhraseEdits() {
+        pendingBasePhraseRevertWords = basePhraseCoreEditEntries
+            .filter { $0.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .map(\.word)
+        if pendingBasePhraseRevertWords.isEmpty {
+            revertBasePhraseMessage = "No displayed edited base phrases without notes to revert."
+        }
+    }
+
+    func confirmRevertBasePhraseEdits() {
+        let words = pendingBasePhraseRevertWords
+        pendingBasePhraseRevertWords = []
         do {
-            let revertedWords = try store.removeAllUnnotedAddedPhrases()
+            let revertedWords = try store.removeUnnotedBasePhraseEdits(words: words)
             let phraseWord = revertedWords.count == 1 ? "phrase" : "phrases"
             revertBasePhraseMessage = revertedWords.isEmpty
                 ? "No edited base phrases without notes to revert."

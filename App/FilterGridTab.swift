@@ -232,7 +232,7 @@ struct FilterGridTab: View {
                     updatedAt: collection.translationReportUpdatedAt,
                     onPaste: pasteTranslationReport,
                     onSave: { saveTranslationReport(collection) },
-                    onClear: { clearTranslationReport(collection) },
+                    onClear: clearTranslationReport,
                     onDone: { translationReportCollection = nil }
                 )
                 .presentationDetents([.large])

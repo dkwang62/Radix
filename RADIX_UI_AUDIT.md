@@ -305,6 +305,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Introduce an explicit startup state and a recovery shell independent of loaded content. Keep Settings, diagnostics and safe recovery accessible on every platform.
 
+**Remediation status (2026-09-07):** Addressed. Startup failures now present Retry, My Data and Settings actions consistently in regular and compact layouts; recovery destinations remain accessible while the load error is active, and retry clears the stale error before reinitializing. A focused guard covers both root layouts and lifecycle reset behavior.
+
 ### UI-41: Capture bypasses the saved-page deletion impact confirmation
 
 **Severity:** High. **Evidence:** Source. **Likelihood:** Ordinary use; a single mistaken tap can remove a page and its descendants.
@@ -609,6 +611,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Key the request and every action to one effective sentence identity, cancel/invalidate work on selection change, and refresh from the committed store record.
 
+**Remediation status (2026-09-07):** Addressed. Sentence AI work now has cancellable task and request ownership, rejects completion after the source sentence changes, and uses the effective improved sentence for favorite/delete actions. A focused guard covers cancellation, identity checks and action targeting.
+
 ### UI-28: Core study text and compact controls do not follow Dynamic Type consistently
 
 **Severity:** Medium. **Evidence:** Source; full accessibility-device validation pending. **Likelihood:** High for users of larger text or reduced dexterity.
@@ -672,6 +676,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** Script changes reset local round/selection without reconciling attempt identity or prior score.
 
 **Recommended fix:** Key scoring by stable session-question ID, keep answer state across script changes, or explicitly restart the attempt with a clear score/progress policy.
+
+**Remediation status (2026-09-07):** Addressed. Quiz answer and score ownership now use the stable practice-item ID, and changing script no longer clears the answer lock. One logical item can publish at most one practice result per quiz session. A focused guard covers stable identity and script-switch locking.
 
 ### UI-32: Examples sheets eagerly load all matches and do not track later mutations
 
@@ -759,6 +765,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Move bulk reversion to live-library maintenance, or label and confirm it explicitly in the preview. Compute one immutable affected set for preview, confirmation and commit; preserve the safety snapshot and offer a direct recovery action. Cover notes-protected and non-displayed overlays in tests.
 
+**Remediation status (2026-09-07):** Addressed for the identified destructive-scope hole. Revert All now captures the displayed, unnoted core-edit set, presents its exact count for confirmation and commits only that set after revalidating eligibility. Existing safety snapshots and note protection remain intact; non-displayed overlays are excluded. A focused guard covers preview, confirmation, commit and snapshot wiring.
+
 ### UI-43: Clear in the translation editor deletes the saved report before Save
 
 **Severity:** Medium. **Evidence:** Source. **Likelihood:** Ordinary editing of an existing page explanation.
@@ -774,6 +782,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** Both duplicated Clear handlers call `updateCollectionTranslationReport(... report: nil)`, which saves the collection immediately. Typing and Paste only change local drafts. Sharing the sheet has not unified the mutation contract.
 
 **Recommended fix:** Make all editing actions draft-only and commit an empty report deliberately on Save, or separate destructive persisted deletion from draft clearing with an impact confirmation. Test both entry points with Clear/Done, Clear/Paste/Done, manual deletion/Done and Save.
+
+**Remediation status (2026-09-07):** Addressed. Clear is now draft-only in both Browse and Study, matching typing and Paste; leaving without Save preserves the stored report. A focused guard verifies neither Clear handler invokes persistence.
 
 ### UI-44: Sentence list stars do not publish the revision used by the open card
 

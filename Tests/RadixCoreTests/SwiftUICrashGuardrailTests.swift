@@ -302,6 +302,90 @@ struct SwiftUICrashGuardrailTests {
         #expect(generationSource.contains("Result: \\(promptTestOutputContext.taskTitle) | Source: \\(promptTestOutputContext.sourceTitle)"))
     }
 
+    @Test("Startup failures preserve retry and recovery destinations")
+    func startupFailuresKeepRecoveryAccessible() throws {
+        let lifecycleSource = try sourceText(at: "ViewModels/RadixStoreLifecycle.swift")
+        let detailSource = try sourceText(at: "App/RootDetailPane.swift")
+        let phoneSource = try sourceText(at: "App/RootPhoneView.swift")
+
+        #expect(lifecycleSource.components(separatedBy: "loadingError = nil").count - 1 >= 2)
+        #expect(detailSource.contains("if let error = store.loadingError, !isStartupRecoveryDestination"))
+        #expect(detailSource.contains("store.route == .settings || (store.route == .search && store.homeTab == .dataEdit)"))
+        #expect(detailSource.contains("Button(\"Retry\")"))
+        #expect(detailSource.contains("Button(\"My Data\")"))
+        #expect(detailSource.contains("Button(\"Settings\")"))
+        #expect(phoneSource.contains("if let error = store.loadingError, !isStartupRecoveryDestination"))
+    }
+
+    @Test("Sentence AI completion remains owned by its source sentence")
+    func sentenceAICompletionUsesSourceIdentity() throws {
+        let cardSource = try sourceText(at: "Views/PhraseInfoCard.swift")
+        let sentenceSource = try sourceText(at: "Views/PhraseInfoSentence.swift")
+        let headerSource = try sourceText(at: "Views/PhraseInfoHeader.swift")
+        let controlsSource = try sourceText(at: "Views/PhraseInfoControls.swift")
+
+        #expect(cardSource.contains("@State var sentenceAITask: Task<Void, Never>?"))
+        #expect(cardSource.contains(".onChange(of: sentenceSourceID)"))
+        #expect(cardSource.contains("cancelSentenceAIWork()"))
+        #expect(sentenceSource.components(separatedBy: "guard acceptsSentenceAICompletion(requestID: requestID, sentenceID: item.id) else { return }").count - 1 == 4)
+        #expect(sentenceSource.contains("activeSentenceAIRequestID == requestID && sentenceSourceID == sentenceID"))
+        #expect(headerSource.contains("if let practiceItem = practiceSentenceItem"))
+        #expect(controlsSource.contains("for: practiceSentenceItem"))
+        #expect(controlsSource.contains("usesTraditionalScript: sentenceUsesTraditionalScript"))
+    }
+
+    @Test("Quiz script changes cannot score one item twice")
+    func quizScoringUsesStableItemIdentity() throws {
+        let source = try sourceText(at: "App/ConversationPracticeQuizSheet.swift")
+        let chooseSource = source
+            .components(separatedBy: "func choose(_ choice: String)")[1]
+            .components(separatedBy: "func advance()")[0]
+        let scriptSource = source
+            .components(separatedBy: "func changeQuizScript(_ scriptFilter: ScriptFilter)")[1]
+            .components(separatedBy: "private func makeRound")[0]
+
+        #expect(source.contains("answered[currentItem.id] != nil"))
+        #expect(chooseSource.contains("guard answered[currentItem.id] == nil else { return }"))
+        #expect(chooseSource.contains("answered[currentItem.id] = choice == quizCharacter"))
+        #expect(!chooseSource.contains("quizCharacter]"))
+        #expect(!scriptSource.contains("selectedAnswerID = nil"))
+    }
+
+    @Test("Backup phrase reversion confirms the exact displayed set")
+    func backupPhraseReversionUsesConfirmedDisplayedSet() throws {
+        let sectionSource = try sourceText(at: "App/DataBackupPreviewSection.swift")
+        let actionSource = try sourceText(at: "App/DataBackupPreviewActions.swift")
+        let storeSource = try sourceText(at: "ViewModels/RadixStoreDataEdit.swift")
+
+        #expect(sectionSource.contains(".alert(\"Revert Edited Phrases?\""))
+        #expect(sectionSource.contains("pendingBasePhraseRevertWords.count"))
+        #expect(actionSource.contains("pendingBasePhraseRevertWords = basePhraseCoreEditEntries"))
+        #expect(actionSource.contains("store.removeUnnotedBasePhraseEdits(words: words)"))
+        #expect(storeSource.contains("func removeUnnotedBasePhraseEdits(words: [String]) throws"))
+        #expect(storeSource.contains("try createDatabaseSafetySnapshots(reason: \"Before reverting edited phrases\")"))
+        #expect(storeSource.contains("eligibleWords.contains($0) && seenWords.insert($0).inserted"))
+    }
+
+    @Test("Translation Clear remains a draft-only edit")
+    func translationClearDoesNotPersistBeforeSave() throws {
+        let browseSource = try sourceText(at: "App/BrowseImageActions.swift")
+        let studySource = try sourceText(at: "App/FavouritesStudyGridData.swift")
+        let sheetSource = try sourceText(at: "Views/BrowseTranslationReportSheet.swift")
+        let browseClearSource = browseSource
+            .components(separatedBy: "func clearTranslationReport()")[1]
+            .components(separatedBy: "func runBrowseGeminiPhraseExtraction")[0]
+        let studyClearSource = studySource
+            .components(separatedBy: "func clearStudyTranslationReport()")[1]
+            .components(separatedBy: "func beginPromotingOCRCorrection")[0]
+
+        #expect(browseClearSource.contains("translationReportDraft = \"\""))
+        #expect(!browseClearSource.contains("updateCollectionTranslationReport"))
+        #expect(studyClearSource.contains("studyTranslationReportDraft = \"\""))
+        #expect(!studyClearSource.contains("updateCollectionTranslationReport"))
+        #expect(sheetSource.contains("Button(\"Save\", action: onSave)"))
+        #expect(sheetSource.components(separatedBy: ".disabled(trimmedReport.isEmpty)").count - 1 == 1)
+    }
+
     private func sourceText(at relativePath: String) throws -> String {
         let testFileURL = URL(fileURLWithPath: #filePath)
         let repositoryURL = testFileURL

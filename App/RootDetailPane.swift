@@ -42,8 +42,8 @@ extension RootView {
             #endif
             crossTabReturnBar
             BreadcrumbStrip()
-            if let error = store.loadingError {
-                ContentUnavailableView("Failed to Load", systemImage: "exclamationmark.triangle", description: Text(error))
+            if let error = store.loadingError, !isStartupRecoveryDestination {
+                startupRecoveryView(error: error)
             } else {
                 switch store.route {
                 case .capture:
@@ -111,6 +111,38 @@ extension RootView {
                 }
             }
         #endif
+    }
+
+    var isStartupRecoveryDestination: Bool {
+        store.route == .settings || (store.route == .search && store.homeTab == .dataEdit)
+    }
+
+    func startupRecoveryView(error: String) -> some View {
+        VStack(spacing: 16) {
+            ContentUnavailableView(
+                "Failed to Load",
+                systemImage: "exclamationmark.triangle",
+                description: Text(error)
+            )
+
+            HStack(spacing: 12) {
+                Button("Retry") {
+                    Task { await store.initialize() }
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button("My Data") {
+                    store.goToDataEdit()
+                }
+                .buttonStyle(.bordered)
+
+                Button("Settings") {
+                    store.goToSettings()
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+        .padding()
     }
 
     @ViewBuilder

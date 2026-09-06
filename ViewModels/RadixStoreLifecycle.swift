@@ -9,6 +9,7 @@ import Foundation
 
 extension RadixStore {
     func initialize() async {
+        loadingError = nil
         do {
             try loadDictionaryRepository()
             try phraseRepo.openFromBundle()
@@ -21,6 +22,7 @@ extension RadixStore {
     }
 
     func initializeForTesting() async {
+        loadingError = nil
         do {
             try componentRepo.loadFromBundle()
             try phraseRepo.openForTesting()

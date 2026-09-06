@@ -500,6 +500,11 @@ UI-35 through UI-37 keep character-editor actions visible on compact phones,
 preserve phrase-result navigation during detail inspection, and prevent Text to
 Page from reading the clipboard before an explicit paste action. Three focused
 guards raised the suite to 153 tests, and the Mac Catalyst build passed.
+UI-11, UI-27, UI-31, UI-42 and UI-43 now preserve startup recovery access,
+sentence-AI request identity, one-score-per-quiz-item behavior, confirmed
+display-scoped phrase reversion and draft-only translation clearing. Five
+focused guards raised the suite to 158 tests in 14 suites; the Mac Catalyst
+build passed with signing disabled.
 
 For release work or platform-sensitive UI/data changes, also run:
 

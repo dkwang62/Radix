@@ -44,7 +44,6 @@ struct BrowseTranslationReportSheet: View {
                     Button("Clear", role: .destructive, action: onClear)
                         .disabled(trimmedReport.isEmpty)
                     Button("Save", action: onSave)
-                        .disabled(trimmedReport.isEmpty)
                 }
             }
         }

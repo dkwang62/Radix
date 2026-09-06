@@ -67,7 +67,15 @@ extension PhraseInfoCard {
 
     var sentenceReadButton: some View {
         Button {
-            store.readPhraseAloud(phrase)
+            if let practiceSentenceItem {
+                store.readPhraseAloud(ConversationPracticeScriptSupport.phraseItem(
+                    for: practiceSentenceItem,
+                    usesTraditionalScript: sentenceUsesTraditionalScript,
+                    store: store
+                ))
+            } else {
+                store.readPhraseAloud(phrase)
+            }
         } label: {
             Image(systemName: "speaker.wave.2")
                 .font(ResponsiveFont.subheadline.weight(.semibold))

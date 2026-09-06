@@ -66,11 +66,11 @@ struct ConversationPracticeQuizSheet: View {
     }
 
     var hasAnsweredCurrent: Bool {
-        selectedAnswerID != nil
+        answered[currentItem.id] != nil
     }
 
     var selectedIsCorrect: Bool {
-        selectedAnswerID == quizCharacter
+        answered[currentItem.id] == true
     }
 
     var body: some View {
@@ -296,8 +296,9 @@ struct ConversationPracticeQuizSheet: View {
     }
 
     func choose(_ choice: String) {
+        guard answered[currentItem.id] == nil else { return }
         selectedAnswerID = choice
-        answered["\(currentItem.id)#\(quizCharacter)"] = choice == quizCharacter
+        answered[currentItem.id] = choice == quizCharacter
         var snapshot = RadixStudyPreferences.conversationPracticeProgress
         snapshot.record(
             item: currentItem,
@@ -360,7 +361,6 @@ struct ConversationPracticeQuizSheet: View {
         guard scriptFilter == .simplified || scriptFilter == .traditional else { return }
         selectedQuizScriptFilter = scriptFilter
         usesTraditionalScript = scriptFilter == .traditional
-        selectedAnswerID = nil
         currentRound = nil
         candidateCache.removeAll()
         peerCache.removeAll()

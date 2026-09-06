@@ -148,12 +148,8 @@ extension FilterGridTab {
         translationReportDraft = updated.translationReport ?? ""
     }
 
-    func clearTranslationReport(_ collection: CharacterCollection) {
+    func clearTranslationReport() {
         translationReportDraft = ""
-        store.updateCollectionTranslationReport(id: collection.id, report: nil)
-        if let updated = store.collection(id: collection.id) {
-            translationReportCollection = updated
-        }
     }
 
     func runBrowseGeminiPhraseExtraction(_ collection: CharacterCollection) {

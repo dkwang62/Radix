@@ -5,6 +5,7 @@ struct DataBackupPreviewSection: View {
     @State var selectedPhrase: PhraseItem?
     @State var addedPhraseReviewCycle = PhraseReviewStatusCycleState()
     @State var revertBasePhraseMessage: String?
+    @State var pendingBasePhraseRevertWords: [String] = []
 
     let addedPhraseEntries: [PhraseItem]
     let basePhraseCoreEditEntries: [PhraseItem]
@@ -44,6 +45,19 @@ struct DataBackupPreviewSection: View {
                     .navigationBarTitleDisplayMode(.inline)
             }
             .presentationDetents([.medium, .large])
+        }
+        .alert("Revert Edited Phrases?", isPresented: Binding(
+            get: { !pendingBasePhraseRevertWords.isEmpty },
+            set: { if !$0 { pendingBasePhraseRevertWords = [] } }
+        )) {
+            Button("Cancel", role: .cancel) {
+                pendingBasePhraseRevertWords = []
+            }
+            Button("Revert", role: .destructive) {
+                confirmRevertBasePhraseEdits()
+            }
+        } message: {
+            Text("Revert \(pendingBasePhraseRevertWords.count) edited base phrase\(pendingBasePhraseRevertWords.count == 1 ? "" : "s") shown here? Saved notes are protected. A safety snapshot is created first.")
         }
     }
 

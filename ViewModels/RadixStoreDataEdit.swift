@@ -491,6 +491,19 @@ extension RadixStore {
         let removableWords = PhraseEditService(repository: phraseRepo, normalizeWord: phraseStorageWord(_:))
             .unnotedBasePhraseEditWords()
 
+        return try removeUnnotedBasePhraseEdits(words: removableWords)
+    }
+
+    @discardableResult
+    func removeUnnotedBasePhraseEdits(words: [String]) throws -> [String] {
+        let eligibleWords = Set(PhraseEditService(repository: phraseRepo, normalizeWord: phraseStorageWord(_:))
+            .unnotedBasePhraseEditWords()
+            .map(phraseStorageWord(_:)))
+        var seenWords = Set<String>()
+        let removableWords = words
+            .map(phraseStorageWord(_:))
+            .filter { eligibleWords.contains($0) && seenWords.insert($0).inserted }
+
         guard !removableWords.isEmpty else {
             dataEditAutoSaveStatus = "No edited phrases without notes to revert."
             return []

@@ -238,12 +238,8 @@ extension FavouritesTab {
         studyTranslationReportDraft = updated.translationReport ?? ""
     }
 
-    func clearStudyTranslationReport(_ collection: CharacterCollection) {
+    func clearStudyTranslationReport() {
         studyTranslationReportDraft = ""
-        store.updateCollectionTranslationReport(id: collection.id, report: nil)
-        if let updated = store.collection(id: collection.id) {
-            studyTranslationReportCollection = updated
-        }
     }
 
     func beginPromotingOCRCorrection(original: CharacterCollection, corrected: CharacterCollection) {

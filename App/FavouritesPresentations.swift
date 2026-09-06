@@ -45,7 +45,7 @@ extension FavouritesTab {
                     updatedAt: collection.translationReportUpdatedAt,
                     onPaste: pasteStudyTranslationReport,
                     onSave: { saveStudyTranslationReport(collection) },
-                    onClear: { clearStudyTranslationReport(collection) },
+                    onClear: clearStudyTranslationReport,
                     onDone: { studyTranslationReportCollection = nil }
                 )
             }
