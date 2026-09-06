@@ -188,7 +188,7 @@ extension RadixStore {
         record.detectedCharacters = record.targetCharacters
         record.targetPhrases = retainedPhraseHints(record.targetPhrases, in: record.chinese)
         record.detectedPhrases = retainedPhraseHints(record.detectedPhrases, in: record.chinese)
-        RadixStudyPreferences.replaceSentenceExample(record)
+        try RadixStudyPreferences.replaceSentenceExample(record)
         favoriteSentenceRevision += 1
         return record
     }
@@ -372,7 +372,7 @@ extension RadixStore {
             sourceTitle: collection.name
         )
         let preprocessed = preprocessedAICleanedPage(record)
-        RadixStudyPreferences.recordAICleanedPage(preprocessed)
+        try RadixStudyPreferences.recordAICleanedPage(preprocessed)
         return preprocessed
     }
 
@@ -392,7 +392,7 @@ extension RadixStore {
         let updated = records.map(preprocessedAICleanedPage(_:))
         guard updated != records else { return }
         RadixStudyPreferences.aiCleanedPages = updated
-        RadixStudyPreferences.recordSentenceExamples(updated.flatMap(SentenceExampleRecord.fromAICleanedPage(_:)))
+        try? RadixStudyPreferences.recordSentenceExamples(updated.flatMap(SentenceExampleRecord.fromAICleanedPage(_:)))
     }
 
     private func preprocessedAICleanedPageSentence(_ sentence: AICleanedPageSentence) -> AICleanedPageSentence {

@@ -164,6 +164,10 @@ struct DataExportService {
 
     func readPortableBackupDocument(at url: URL) throws -> PortableBackupDocument {
         let data = try readBackupDocumentData(at: url)
+        return try decodePortableBackupDocument(data)
+    }
+
+    func decodePortableBackupDocument(_ data: Data) throws -> PortableBackupDocument {
         if let document = try? decodePortableBackupBundle(data) {
             return document
         }

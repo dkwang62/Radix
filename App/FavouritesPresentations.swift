@@ -64,7 +64,8 @@ extension FavouritesTab {
             }
             .sheet(item: $screenState.sentences.editDraft) { draft in
                 SentenceExampleEditSheet(record: draft.record) { updated in
-                    RadixStudyPreferences.replaceSentenceExample(updated)
+                    try RadixStudyPreferences.replaceSentenceExample(updated)
+                    store.favoriteSentenceRevision += 1
                     sentenceExampleRevision += 1
                     sentenceExampleStatusMessage = "Updated"
                     loadFavoriteSentences()

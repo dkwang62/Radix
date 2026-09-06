@@ -389,12 +389,17 @@ struct FavouritesTab: View {
     }
 
     func toggleFavoriteSentence(_ item: ConversationPracticeItem) {
-        store.toggleFavoriteSentence(item)
-        loadFavoriteSentences()
-        if let library = ConversationPracticeLibrary.favoriteSentencesLibrary(from: favoriteSentenceRecords) {
-            store.registerConversationPracticeLibrary(library)
+        do {
+            try store.toggleFavoriteSentence(item)
+            sentenceExampleStatusMessage = store.isFavoriteSentence(item) ? "Favorited" : "Removed favorite"
+            loadFavoriteSentences()
+            if let library = ConversationPracticeLibrary.favoriteSentencesLibrary(from: favoriteSentenceRecords) {
+                store.registerConversationPracticeLibrary(library)
+            }
+            loadConversationPracticeLibrary()
+        } catch {
+            sentenceExampleStatusMessage = "Favorite failed: \(error.localizedDescription)"
         }
-        loadConversationPracticeLibrary()
     }
 
     func migratePhraseFavoritesToFavoriteSentences() {

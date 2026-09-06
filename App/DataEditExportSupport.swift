@@ -66,14 +66,14 @@ struct LocalDataSnapshotStore {
             options: [.skipsHiddenFiles]
         )
         return urls
-            .filter { $0.pathExtension == "json" }
+            .filter { ["json", "radixbackup"].contains($0.pathExtension.lowercased()) }
             .compactMap(snapshot(from:))
             .sorted { $0.createdAt > $1.createdAt }
     }
 
     func save(_ data: Data, createdAt: Date = Date()) throws -> [LocalDataSnapshot] {
         let directory = try snapshotsDirectory()
-        let filename = "radix-local-\(Self.filenameFormatter.string(from: createdAt)).json"
+        let filename = "radix-local-\(Self.filenameFormatter.string(from: createdAt)).radixbackup"
         let url = directory.appendingPathComponent(filename)
         try data.write(to: url, options: .atomic)
         try pruneSnapshots()

@@ -287,6 +287,13 @@ final class SentenceLibraryStore: @unchecked Sendable {
         try delete(whereSQL: "id = ?", bindings: [id.uuidString])
     }
 
+    func delete(ids: [UUID]) throws {
+        let values = Array(Set(ids)).map(\.uuidString)
+        guard !values.isEmpty else { return }
+        let placeholders = Array(repeating: "?", count: values.count).joined(separator: ",")
+        try delete(whereSQL: "id IN (\(placeholders))", bindings: values)
+    }
+
     func delete(normalizedKey: String) throws {
         let key = normalizedKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !key.isEmpty else { return }

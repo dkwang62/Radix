@@ -3,7 +3,7 @@ import SwiftUI
 struct SentenceExampleEditSheet: View {
     @Environment(\.dismiss) private var dismiss
     let record: SentenceExampleRecord
-    let onSave: (SentenceExampleRecord) -> Void
+    let onSave: (SentenceExampleRecord) throws -> Void
 
     @State private var chinese: String
     @State private var pinyin: String
@@ -12,8 +12,9 @@ struct SentenceExampleEditSheet: View {
     @State private var targetPhrases: String
     @State private var tags: String
     @State private var notes: String
+    @State private var saveError: String?
 
-    init(record: SentenceExampleRecord, onSave: @escaping (SentenceExampleRecord) -> Void) {
+    init(record: SentenceExampleRecord, onSave: @escaping (SentenceExampleRecord) throws -> Void) {
         self.record = record
         self.onSave = onSave
         _chinese = State(initialValue: record.chinese)
@@ -62,6 +63,14 @@ struct SentenceExampleEditSheet: View {
                 }
             }
         }
+        .alert("Couldn’t Save Sentence", isPresented: Binding(
+            get: { saveError != nil },
+            set: { if !$0 { saveError = nil } }
+        )) {
+            Button("OK", role: .cancel) { saveError = nil }
+        } message: {
+            Text(saveError ?? "The sentence was not saved.")
+        }
     }
 
     private var canSave: Bool {
@@ -78,8 +87,12 @@ struct SentenceExampleEditSheet: View {
         updated.detectedCharacters = SentenceExampleRecord.detectChineseCharacters(in: updated.chinese)
         updated.tags = splitList(tags)
         updated.notes = trimmed(notes)
-        onSave(updated)
-        dismiss()
+        do {
+            try onSave(updated)
+            dismiss()
+        } catch {
+            saveError = error.localizedDescription
+        }
     }
 
     private func splitList(_ value: String) -> [String] {

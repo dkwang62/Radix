@@ -419,37 +419,35 @@ extension RadixStore {
             .contains { $0.normalizedChineseKey == key }
     }
 
-    func toggleFavoriteSentence(_ item: ConversationPracticeItem) {
+    func toggleFavoriteSentence(_ item: ConversationPracticeItem) throws {
         if isFavoriteSentence(item) {
-            RadixStudyPreferences.setSentenceExampleFavorite(item, isFavorited: false)
+            try RadixStudyPreferences.setSentenceExampleFavorite(item, isFavorited: false)
         } else {
-            RadixStudyPreferences.setSentenceExampleFavorite(item, isFavorited: true)
+            try RadixStudyPreferences.setSentenceExampleFavorite(item, isFavorited: true)
         }
         favoriteSentenceRevision += 1
     }
 
-    func deleteSentenceExample(_ item: ConversationPracticeItem) {
+    func deleteSentenceExample(_ item: ConversationPracticeItem) throws {
         let example = sentenceExample(for: item)
         if let example {
-            deleteSentenceExamples([example], dismissActivePreview: true)
+            try deleteSentenceExamples([example], dismissActivePreview: true)
         } else {
             let sentenceKey = SentenceExampleRecord.normalizedChineseKey(item.simplified)
-            RadixStudyPreferences.deleteSentenceExample(matchingChinese: item.simplified)
+            try RadixStudyPreferences.deleteSentenceExample(matchingChinese: item.simplified)
             removeSentencesFromOwningAICleanedPages(sentenceKeys: [sentenceKey])
             dismissSidebarPhrasePreview()
             favoriteSentenceRevision += 1
         }
     }
 
-    func deleteSentenceExamples(_ examples: [SentenceExampleRecord], dismissActivePreview: Bool = false) {
+    func deleteSentenceExamples(_ examples: [SentenceExampleRecord], dismissActivePreview: Bool = false) throws {
         let uniqueExamples = Dictionary(grouping: examples, by: \.id).compactMap { $0.value.first }
         guard !uniqueExamples.isEmpty else { return }
 
-        _ = try? createSentenceDatabaseSafetySnapshot(reason: "Before deleting sentences")
+        _ = try createSentenceDatabaseSafetySnapshot(reason: "Before deleting sentences")
         let sentenceKeys = Set(uniqueExamples.map(\.normalizedChineseKey).filter { !$0.isEmpty })
-        for example in uniqueExamples {
-            RadixStudyPreferences.deleteSentenceExample(id: example.id)
-        }
+        try RadixStudyPreferences.deleteSentenceExamples(ids: uniqueExamples.map(\.id))
         removeSentencesFromOwningAICleanedPages(sentenceKeys: sentenceKeys)
         if dismissActivePreview,
            let activePracticeSentenceItem,
@@ -465,7 +463,7 @@ extension RadixStore {
         let convertedPageCount = convertAICleanedPagesToSimplified()
         favoriteSentenceRevision += 1
         if convertedPageCount > 0 {
-            RadixStudyPreferences.recordSentenceExamples(
+            try? RadixStudyPreferences.recordSentenceExamples(
                 RadixStudyPreferences.aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
             )
         }

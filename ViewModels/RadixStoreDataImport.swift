@@ -73,7 +73,7 @@ extension RadixStore {
                 RadixStudyPreferences.conversationPracticeProgress =
                     RadixStudyPreferences.conversationPracticeProgress.merging(package.conversationPracticeProgress)
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .additive)
-                applyImportedExtractedSentenceReferences(package.extractedSentencePageReferences, mode: .additive)
+                try applyImportedExtractedSentenceReferences(package.extractedSentencePageReferences, mode: .additive)
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .additive)
                 if refreshSentenceLinks {
@@ -99,7 +99,7 @@ extension RadixStore {
                 RadixStudyPreferences.conversationPracticeProgress =
                     package.conversationPracticeProgress ?? ConversationPracticeProgressSnapshot()
                 applyImportedPagePhraseExtractions(package.pagePhraseExtractions, mode: .complete)
-                applyImportedExtractedSentenceReferences(package.extractedSentencePageReferences, mode: .complete)
+                try applyImportedExtractedSentenceReferences(package.extractedSentencePageReferences, mode: .complete)
                 applyImportedAPIKeys(package.apiKeys)
                 applyImportedProfile(package.profile, mode: .complete)
                 if refreshSentenceLinks {
@@ -158,17 +158,56 @@ extension RadixStore {
 
     func importPortableBackupDocumentForRestore(_ document: PortableBackupDocument, mode: RestoreMode = .additive) async throws {
         try await createDatabaseSafetySnapshotsForSettings(reason: "Before importing data")
+        let rollbackDocument = PortableBackupDocument(
+            payload: .unified(portableBackupPackage()),
+            sentenceDatabaseData: try await exportSentenceDatabaseData(),
+            addedPhrasesDatabaseData: try exportAddPhrasesDB()
+        )
+
+        do {
+            try await applyPortableBackupDocument(document, mode: mode)
+        } catch {
+            do {
+                try await applyPortableBackupDocument(rollbackDocument, mode: .complete)
+            } catch let rollbackError {
+                throw NSError(
+                    domain: "Radix",
+                    code: 3155,
+                    userInfo: [NSLocalizedDescriptionKey: "Restore failed and Radix could not recover the previous data automatically: \(rollbackError.localizedDescription)"]
+                )
+            }
+            throw error
+        }
+        markDatabaseOptimizationNeeded()
+        databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
+    }
+
+    private func applyPortableBackupDocument(_ document: PortableBackupDocument, mode: RestoreMode) async throws {
+        var sentenceURL: URL?
+        var phrasesURL: URL?
+        defer {
+            if let sentenceURL { try? FileManager.default.removeItem(at: sentenceURL) }
+            if let phrasesURL { try? FileManager.default.removeItem(at: phrasesURL) }
+        }
+
         if let sentenceDatabaseData = document.sentenceDatabaseData {
-            let sentenceURL = try temporaryDatabaseURL(prefix: "radix_sentence_restore", data: sentenceDatabaseData)
-            defer { try? FileManager.default.removeItem(at: sentenceURL) }
+            let url = try temporaryDatabaseURL(prefix: "radix_sentence_restore", data: sentenceDatabaseData)
+            try SentenceLibraryStore.validateSentenceDatabase(at: url)
+            sentenceURL = url
+        }
+        if let addedPhrasesDatabaseData = document.addedPhrasesDatabaseData {
+            let url = try temporaryDatabaseURL(prefix: "radix_added_phrases_restore", data: addedPhrasesDatabaseData)
+            try PhraseRepository.validateAddDatabase(at: url)
+            phrasesURL = url
+        }
+
+        if let sentenceURL {
             _ = try await Task.detached(priority: .userInitiated) {
                 try RadixStudyPreferences.importSentenceDatabase(from: sentenceURL, mode: mode)
             }.value
             favoriteSentenceRevision += 1
         }
-        if let addedPhrasesDatabaseData = document.addedPhrasesDatabaseData {
-            let phrasesURL = try temporaryDatabaseURL(prefix: "radix_added_phrases_restore", data: addedPhrasesDatabaseData)
-            defer { try? FileManager.default.removeItem(at: phrasesURL) }
+        if let phrasesURL {
             try importAddPhrasesDatabase(from: phrasesURL, mode: mode)
         }
         try importDataEditPayload(
@@ -178,8 +217,6 @@ extension RadixStore {
             refreshSentenceLinks: false,
             importPhrases: document.addedPhrasesDatabaseData == nil
         )
-        markDatabaseOptimizationNeeded()
-        databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
     }
 
     func importSentenceLibraryPackage(_ package: SentenceLibraryExportPackage, mode: RestoreMode = .additive) async throws -> SentenceLibraryImportResult {
@@ -191,9 +228,9 @@ extension RadixStore {
             sentenceExamples.map(\.normalizedChineseKey) +
             favoriteSentences.map { SentenceExampleRecord.normalizedChineseKey($0.simplified) }
         ).filter { !$0.isEmpty }
-        RadixStudyPreferences.applyImportedSentenceExamples(sentenceExamples, mode: mode)
+        try RadixStudyPreferences.applyImportedSentenceExamples(sentenceExamples, mode: mode)
         applyImportedFavoriteSentences(favoriteSentences, mode: mode)
-        RadixStudyPreferences.applyImportedAICleanedPages(cleanedPages, mode: mode)
+        try RadixStudyPreferences.applyImportedAICleanedPages(cleanedPages, mode: mode)
         favoriteSentenceRevision += 1
         markDatabaseOptimizationNeeded()
         databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
@@ -214,11 +251,11 @@ extension RadixStore {
     private func applyImportedExtractedSentenceReferences(
         _ package: ExtractedSentenceReferencePackage?,
         mode: RestoreMode
-    ) {
+    ) throws {
         guard let package, !package.pages.isEmpty else { return }
         let pages = package.pages.compactMap(extractedPageRecord(from:))
         guard !pages.isEmpty else { return }
-        RadixStudyPreferences.applyImportedAICleanedPages(pages, mode: mode)
+        try RadixStudyPreferences.applyImportedAICleanedPages(pages, mode: mode)
         favoriteSentenceRevision += 1
     }
 
@@ -272,8 +309,8 @@ extension RadixStore {
 
     func clearSentenceDatabase() async throws {
         _ = try await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before clearing sentence database")
-        await Task.detached(priority: .userInitiated) {
-            RadixStudyPreferences.clearSentenceDatabase()
+        try await Task.detached(priority: .userInitiated) {
+            try RadixStudyPreferences.clearSentenceDatabase()
         }.value
         favoriteSentenceRevision += 1
         dismissSidebarPhrasePreview()

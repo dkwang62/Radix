@@ -31,12 +31,16 @@ extension DataEditTab {
                     ProgressView()
                     Text(restorePhase.message)
                         .font(ResponsiveFont.body.weight(.semibold))
-                    Text("Radix will stop waiting automatically if the file cannot be read.")
+                    Text(restorePhase.isCancellable
+                         ? "Radix will stop waiting automatically if the file cannot be read."
+                         : "Keep Radix open while the verified backup is committed. This step cannot be cancelled safely.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                    Button("Cancel Restore", role: .cancel) {
-                        cancelBackupRestore(message: "Restore cancelled. Your existing data was not replaced.")
+                    if restorePhase.isCancellable {
+                        Button("Cancel Restore", role: .cancel) {
+                            cancelBackupRestore(message: "Restore cancelled before any data was changed.")
+                        }
                     }
                 }
                 .padding(24)
@@ -219,7 +223,7 @@ extension DataEditTab {
         Task { @MainActor in
             do {
                 if pending.mode == .complete {
-                    try createRecoverySnapshotIfNeeded(for: pending.mode)
+                    try await createRecoverySnapshotIfNeeded(for: pending.mode)
                 }
                 try await store.importPortableBackupDocumentForRestore(pending.document, mode: pending.mode)
                 guard isCurrentRestore(operationID) else { return }
@@ -239,9 +243,9 @@ extension DataEditTab {
         }
     }
 
-    private func createRecoverySnapshotIfNeeded(for mode: RestoreMode) throws {
+    private func createRecoverySnapshotIfNeeded(for mode: RestoreMode) async throws {
         guard mode == .complete else { return }
-        let recoveryData = try dataExportService.exportPortableBackup(store.portableBackupPackage())
+        let recoveryData = try await bundledBackupData()
         _ = try localSnapshotStore.save(recoveryData)
     }
 
@@ -276,7 +280,7 @@ extension DataEditTab {
     }
 
     func cancelBackupRestore(message: String) {
-        guard restoreOperationID != nil else { return }
+        guard restoreOperationID != nil, restorePhase.isCancellable else { return }
         restoreOperationID = nil
         restorePhase = .idle
         presentBackupError(message)

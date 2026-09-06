@@ -89,7 +89,7 @@ extension RadixStore {
         let phraseWords = activeSentencePhraseLinkWords()
         let extractedPageCount = refreshAICleanedPagePhraseLinks(availablePhraseWords: phraseWords)
         if extractedPageCount > 0 {
-            RadixStudyPreferences.recordSentenceExamples(
+            try? RadixStudyPreferences.recordSentenceExamples(
                 RadixStudyPreferences.aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
             )
         }
@@ -106,7 +106,7 @@ extension RadixStore {
         let phraseWords = await activeSentencePhraseLinkWordsForSettings()
         let extractedPageCount = await refreshAICleanedPagePhraseLinksForOptimization(availablePhraseWords: phraseWords)
         if extractedPageCount > 0 {
-            RadixStudyPreferences.recordSentenceExamples(
+            try? RadixStudyPreferences.recordSentenceExamples(
                 RadixStudyPreferences.aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
             )
         }

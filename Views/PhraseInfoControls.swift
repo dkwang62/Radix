@@ -23,9 +23,14 @@ extension PhraseInfoCard {
 
     func deletePracticeSentence() {
         guard let practiceSentenceItem else { return }
-        store.deleteSentenceExample(practiceSentenceItem)
-        RadixHaptics.success()
-        onDone?()
+        do {
+            try store.deleteSentenceExample(practiceSentenceItem)
+            RadixHaptics.success()
+            onDone?()
+        } catch {
+            editStatus = "Delete failed: \(error.localizedDescription)"
+            RadixHaptics.error()
+        }
     }
 
     var practiceSentenceToolbar: some View {

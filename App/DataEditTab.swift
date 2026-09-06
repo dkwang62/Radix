@@ -29,6 +29,7 @@ enum BackupRestorePhase: Equatable {
     }
 
     var isActive: Bool { self != .idle }
+    var isCancellable: Bool { self == .acquiringFile || self == .validating }
 }
 
 enum DataEditImportKind {

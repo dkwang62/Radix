@@ -191,6 +191,7 @@ extension RadixStore {
         persistOverlayAddedDates()
 
         try phraseRepo.replaceAllPhrases([])
+        try RadixStudyPreferences.clearUserLearningData()
         addedPhrases = []
         addedPhraseReviewPhrases = []
         dataEditPhrases = []
@@ -225,10 +226,17 @@ extension RadixStore {
         imagePhraseContext = nil
         imagePhraseHighlightOffsets = []
         imagePhraseHighlightRevision += 1
+        activePracticeSentenceItem = nil
+        pendingConversationPracticeTopicID = nil
+        selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
+        favoriteSentenceRevision += 1
+        dataImportRevision += 1
 
         promptConfig = .streamlitDefault
         promptSelectedTaskIDs = PromptConfig.defaultSelectedTaskIDs
         persistPromptSettings()
+        latestAIResult = nil
+        preferences.removeObject(forKey: RadixPreferenceKey.latestAIResult)
 
         clearDataEditForm()
         dataEditCache.removeAll()

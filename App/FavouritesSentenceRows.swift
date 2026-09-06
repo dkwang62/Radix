@@ -191,7 +191,12 @@ extension FavouritesTab {
         exitSelection: Bool = false
     ) {
         guard !examples.isEmpty else { return }
-        store.deleteSentenceExamples(examples)
+        do {
+            try store.deleteSentenceExamples(examples)
+        } catch {
+            sentenceExampleStatusMessage = "Delete failed: \(error.localizedDescription)"
+            return
+        }
         if resetPage {
             resetSentenceExamplePage()
         }
@@ -250,10 +255,15 @@ extension FavouritesTab {
     }
 
     func toggleSentenceExampleFavorite(_ example: SentenceExampleRecord) {
-        RadixStudyPreferences.setSentenceExampleFavorite(id: example.id, isFavorited: !example.isFavorited)
-        refreshSentenceExamplesAfterMutation(
-            statusMessage: example.isFavorited ? "Removed favorite" : "Favorited"
-        )
+        do {
+            try RadixStudyPreferences.setSentenceExampleFavorite(id: example.id, isFavorited: !example.isFavorited)
+            store.favoriteSentenceRevision += 1
+            refreshSentenceExamplesAfterMutation(
+                statusMessage: example.isFavorited ? "Removed favorite" : "Favorited"
+            )
+        } catch {
+            sentenceExampleStatusMessage = "Favorite failed: \(error.localizedDescription)"
+        }
     }
 
     func presentSentenceExamplePracticeAgain(_ example: SentenceExampleRecord) {

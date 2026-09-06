@@ -150,6 +150,14 @@ enum RadixStudyPreferences {
         favoriteSentences = []
     }
 
+    static func clearUserLearningData() throws {
+        try clearSentenceDatabase()
+        importedConversationPracticePacks = []
+        conversationPracticeProgress = ConversationPracticeProgressSnapshot()
+        pagePhraseExtractions = []
+        aiCleanedPages = []
+    }
+
     static var currentSentenceExamples: [SentenceExampleRecord] {
         migrateLegacyFavoriteSentencesIntoSentenceExamples()
         return sentenceExamples
@@ -432,6 +440,16 @@ enum RadixStudyPreferences {
         }
     }
 
+    static func deleteSentenceExamples(ids: [UUID]) throws {
+        let records = ids.compactMap {
+            sentenceLibrary.fetch(id: $0, migratingLegacy: legacySentenceExamplesFromPreferences)
+        }
+        try sentenceLibrary.delete(ids: ids)
+        for record in records {
+            removeCompatibilityFavoriteRecord(matchingChinese: record.chinese)
+        }
+    }
+
     static func deleteSentenceExample(matchingChinese chinese: String) throws {
         let key = SentenceExampleRecord.normalizedChineseKey(chinese)
         guard !key.isEmpty else { return }
@@ -463,7 +481,7 @@ enum RadixStudyPreferences {
             }
             return incoming
         }
-        recordSentenceExamples(missingRecords)
+        try? recordSentenceExamples(missingRecords)
     }
 
     static func setCompatibilityFavoriteRecord(_ record: FavoriteSentenceRecord, isFavorited: Bool) {
@@ -515,12 +533,12 @@ enum RadixStudyPreferences {
         sentenceExamples(matching: SentenceExampleQuery(scope: .sourceType(sourceType), offset: 0, limit: limit))
     }
 
-    static func applyImportedSentenceExamples(_ records: [SentenceExampleRecord]?, mode: RestoreMode) {
+    static func applyImportedSentenceExamples(_ records: [SentenceExampleRecord]?, mode: RestoreMode) throws {
         switch mode {
         case .additive:
-            recordSentenceExamples(records ?? [])
+            try recordSentenceExamples(records ?? [])
         case .complete:
-            sentenceExamples = records ?? []
+            try sentenceLibrary.replaceAll(canonicalizedSentenceExamples(records ?? []))
         }
         refreshConversationPracticePackSentenceReferences()
     }
@@ -732,20 +750,19 @@ enum RadixStudyPreferences {
         pageArtifactStore.cleanedPage(for: pageID)
     }
 
-    static func recordAICleanedPage(_ record: AICleanedPageRecord) {
-        pageArtifactStore.replaceCleanedPage(record)
-
+    static func recordAICleanedPage(_ record: AICleanedPageRecord) throws {
         let replacementSentences = SentenceExampleRecord.fromAICleanedPage(record)
-        reconcileAICleanedPageSentenceExamples(
+        try reconcileAICleanedPageSentenceExamples(
             for: record.sourcePageID,
             replacementSentences: replacementSentences
         )
+        pageArtifactStore.replaceCleanedPage(record)
     }
 
     private static func reconcileAICleanedPageSentenceExamples(
         for pageID: UUID,
         replacementSentences: [SentenceExampleRecord]
-    ) {
+    ) throws {
         let replacementKeys = Set(replacementSentences.map(\.normalizedChineseKey).filter { !$0.isEmpty })
         let previousSentences = sentenceExamples(matching: SentenceExampleQuery(
             scope: .page(pageID, .aiCleanedPage)
@@ -755,26 +772,34 @@ enum RadixStudyPreferences {
             var retained = previous
             retained.removeSources(sourceType: .aiCleanedPage, pageID: pageID)
             if retained.sources.isEmpty && !retained.isFavorited {
-                deleteSentenceExample(id: retained.id)
+                try deleteSentenceExample(id: retained.id)
             } else {
-                sentenceLibrary.replace([retained])
+                try sentenceLibrary.replace([retained])
             }
         }
 
-        recordSentenceExamples(replacementSentences)
+        try recordSentenceExamples(replacementSentences)
     }
 
-    static func applyImportedAICleanedPages(_ records: [AICleanedPageRecord]?, mode: RestoreMode) {
+    static func applyImportedAICleanedPages(_ records: [AICleanedPageRecord]?, mode: RestoreMode) throws {
         switch mode {
         case .additive:
             guard let records, !records.isEmpty else { return }
             for record in records {
-                recordAICleanedPage(record)
+                try recordAICleanedPage(record)
             }
         case .complete:
             let records = records ?? []
+            try recordSentenceExamples(records.flatMap(SentenceExampleRecord.fromAICleanedPage(_:)))
             aiCleanedPages = records
-            recordSentenceExamples(records.flatMap(SentenceExampleRecord.fromAICleanedPage(_:)))
         }
+    }
+
+    private static func sentenceIdentityConflictError() -> Error {
+        NSError(
+            domain: "Radix",
+            code: 3154,
+            userInfo: [NSLocalizedDescriptionKey: "Another saved sentence already uses that Chinese text. Keep the sentences distinct or delete the duplicate first."]
+        )
     }
 }

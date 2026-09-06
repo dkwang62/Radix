@@ -75,7 +75,13 @@ extension RootView {
 
         Task { @MainActor in
             do {
-                let data = try dataExportService.exportPortableBackup(store.portableBackupPackage())
+                let sentenceData = try await store.exportSentenceDatabaseData()
+                let addedPhrasesData = try store.exportAddPhrasesDB()
+                let data = try dataExportService.exportPortableBackupBundle(
+                    package: store.portableBackupPackage(),
+                    sentenceDatabaseData: sentenceData,
+                    addedPhrasesDatabaseData: addedPhrasesData
+                )
                 let snapshots = try localSnapshotStore.save(data)
                 quickLocalSnapshots = snapshots
                 let latestSnapshotTitle = snapshots.first?.title ?? "now"
@@ -100,7 +106,8 @@ extension RootView {
         Task { @MainActor in
             do {
                 let source = try quickRestoreMemorySource(snapshot: snapshot)
-                try store.importDataEditData(source.data, mode: .complete)
+                let document = try dataExportService.decodePortableBackupDocument(source.data)
+                try await store.importPortableBackupDocumentForRestore(document, mode: .complete)
                 store.goToFavourites()
                 refreshQuickLocalSnapshots()
                 importExportMessage = "Returned to checkpoint: \(source.name)"

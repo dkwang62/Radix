@@ -85,7 +85,12 @@ extension PhraseInfoCard {
         switch favoriteTarget {
         case .sentence(let practiceItem):
             Button {
-                store.toggleFavoriteSentence(practiceItem)
+                do {
+                    try store.toggleFavoriteSentence(practiceItem)
+                    editStatus = store.isFavoriteSentence(practiceItem) ? "Favorited." : "Removed favorite."
+                } catch {
+                    editStatus = "Favorite failed: \(error.localizedDescription)"
+                }
             } label: {
                 Image(systemName: store.isFavoriteSentence(practiceItem) ? "star.fill" : "star")
                     .font(ResponsiveFont.subheadline.weight(.semibold))

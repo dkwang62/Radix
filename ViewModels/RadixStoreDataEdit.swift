@@ -538,7 +538,7 @@ extension RadixStore {
         let convertedPageCount = convertAICleanedPagesToSimplified()
         favoriteSentenceRevision += 1
         if convertedPageCount > 0 {
-            RadixStudyPreferences.recordSentenceExamples(
+            try RadixStudyPreferences.recordSentenceExamples(
                 RadixStudyPreferences.aiCleanedPages.flatMap(SentenceExampleRecord.fromAICleanedPage(_:))
             )
         }

@@ -139,6 +139,10 @@ final class PhraseRepository {
         return sourcePhrases.count
     }
 
+    static func validateAddDatabase(at sourceURL: URL) throws {
+        _ = try addedPhrases(in: sourceURL)
+    }
+
     func restoreAddDatabaseSnapshot(_ snapshot: RadixDatabaseSnapshotMetadata) throws {
         guard snapshot.kind == .addedPhrases else {
             throw NSError(domain: "Radix", code: 121, userInfo: [NSLocalizedDescriptionKey: "This snapshot is not an added-phrases database snapshot."])
