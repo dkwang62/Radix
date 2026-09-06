@@ -16,6 +16,7 @@ struct PhraseTableSheet: View {
     let returnTitle: String
     private let visiblePhraseRows = 6
     @State private var selectedPhrase: PhraseItem?
+    @State private var phraseScrollPosition: PhraseItem.ID?
     @State private var showAddPhraseSheet = false
 
     init(
@@ -65,7 +66,7 @@ struct PhraseTableSheet: View {
     var body: some View {
         let displayedPhrases = matchingPhrases
         VStack(alignment: .leading, spacing: 12) {
-            phraseTableReturnButton
+            phraseTableNavigationRow
 
             if let selectedPhrase {
                 PhraseInfoCard(
@@ -127,7 +128,9 @@ struct PhraseTableSheet: View {
                                 Divider()
                             }
                         }
+                        .scrollTargetLayout()
                     }
+                    .scrollPosition(id: $phraseScrollPosition)
                     .frame(height: phraseViewportHeight)
                     .radixSurface(RadixTheme.secondaryBackground.opacity(0.7))
 
@@ -155,16 +158,39 @@ struct PhraseTableSheet: View {
         }
     }
 
-    private var phraseTableReturnButton: some View {
+    private var phraseTableNavigationRow: some View {
+        HStack(spacing: 12) {
+            if selectedPhrase != nil {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        selectedPhrase = nil
+                    }
+                } label: {
+                    Label("Back to Phrases", systemImage: "chevron.backward")
+                }
+                .accessibilityLabel("Back to Phrases")
+            } else {
+                phraseTableExitButton
+            }
+
+            Spacer(minLength: 0)
+
+            if selectedPhrase != nil {
+                phraseTableExitButton
+            }
+        }
+        .font(ResponsiveFont.subheadline.weight(.semibold))
+        .foregroundStyle(RadixAccent.primary)
+        .buttonStyle(.plain)
+    }
+
+    private var phraseTableExitButton: some View {
         Button {
             dismiss()
         } label: {
-            Label(returnTitle, systemImage: "chevron.backward")
-                .font(ResponsiveFont.subheadline.weight(.semibold))
-                .foregroundStyle(RadixAccent.primary)
+            Label(returnTitle, systemImage: "xmark")
                 .radixMinimumTapTarget()
         }
-        .buttonStyle(.plain)
         .accessibilityLabel(returnTitle)
     }
 

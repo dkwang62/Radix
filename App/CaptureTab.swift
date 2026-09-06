@@ -496,7 +496,7 @@ struct CaptureTab: View {
             return
         }
         manualCollectionName = ""
-        manualCollectionText = RadixPlatform.pasteboardString
+        manualCollectionText = ""
         showManualCollectionSheet = true
     }
 

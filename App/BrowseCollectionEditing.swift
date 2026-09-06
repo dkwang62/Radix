@@ -53,7 +53,7 @@ extension FilterGridTab {
             return
         }
         manualCollectionName = ""
-        manualCollectionText = clipboardText()
+        manualCollectionText = ""
         showBrowseSource = false
         showManualCollectionSheet = true
     }

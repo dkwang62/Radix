@@ -122,6 +122,40 @@ struct SwiftUICrashGuardrailTests {
         #expect(source.contains(".alert(\"Delete Failed\""))
     }
 
+    @Test("Character quick editors keep essential actions visible")
+    func characterQuickEditorsUseProtectedLargePresentation() throws {
+        let sheetSource = try sourceText(at: "App/QuickEditSheets.swift")
+        let editorSource = try sourceText(at: "App/QuickCharacterEditorView.swift")
+
+        #expect(sheetSource.components(separatedBy: ".presentationDetents([.large])").count - 1 == 2)
+        #expect(sheetSource.components(separatedBy: ".presentationDetents([.medium, .large])").count - 1 == 2)
+        #expect(editorSource.components(separatedBy: ".fixedSize(horizontal: true, vertical: false)").count - 1 == 3)
+    }
+
+    @Test("Phrase inspection can return to the existing results")
+    func phraseInspectionPreservesResultsNavigation() throws {
+        let source = try sourceText(at: "Views/PhraseTableSheet.swift")
+
+        #expect(source.contains("Label(\"Back to Phrases\", systemImage: \"chevron.backward\")"))
+        #expect(source.contains("phraseTableExitButton"))
+        #expect(source.contains(".scrollPosition(id: $phraseScrollPosition)"))
+    }
+
+    @Test("Text to Page does not read the clipboard on entry")
+    func manualPageEntryStartsEmpty() throws {
+        let captureSource = try sourceText(at: "App/CaptureTab.swift")
+            .components(separatedBy: "private func beginManualCollection()")[1]
+            .components(separatedBy: "private func saveManualCollection()")[0]
+        let browseSource = try sourceText(at: "App/BrowseCollectionEditing.swift")
+            .components(separatedBy: "func beginManualCollection()")[1]
+            .components(separatedBy: "func beginBrowseImageFileImport()")[0]
+
+        #expect(captureSource.contains("manualCollectionText = \"\""))
+        #expect(browseSource.contains("manualCollectionText = \"\""))
+        #expect(!captureSource.contains("pasteboard"))
+        #expect(!browseSource.contains("clipboardText()"))
+    }
+
     @Test("Capture recognition owns its task without owning later navigation")
     func captureRecognitionUsesOperationOwnership() throws {
         let source = try sourceText(at: "App/CaptureTab.swift")

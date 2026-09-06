@@ -705,6 +705,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Keep Save/Cancel in a stable navigation toolbar or otherwise protected header, make the initial form fit/scroll within its detent, and use a compact header arrangement. Verify both detents at normal text size before extending the Dynamic Type matrix.
 
+**Remediation status (2026-09-07):** Addressed. Character quick editors now open directly at the large detent instead of first presenting a medium layout that cannot contain the editor. Cancel and Save retain their intrinsic horizontal size so the compact header yields title space rather than wrapping either essential action. Phrase quick editors retain their existing medium/large presentation.
+
 ### UI-36: Inspecting a phrase removes the result list without a way back to it
 
 **Severity:** Medium. **Evidence:** UI-observed plus source. **Likelihood:** High when comparing several dictionary phrases.
@@ -721,6 +723,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Add an explicit in-sheet return that clears `selectedPhrase` and retains result context, or use a normal list/detail NavigationStack within the sheet. Preserve the existing direct return to the originating character as a separate exit.
 
+**Remediation status (2026-09-07):** Addressed. In-sheet phrase detail now presents a distinct `Back to Phrases` action that clears only the selected phrase, alongside the existing return-to-origin action. The result filter and tracked scroll position remain owned by the sheet, allowing successive phrase comparisons without rebuilding the lookup flow.
+
 ### UI-37: Text to Page reads the clipboard before the user chooses Paste
 
 **Severity:** Medium. **Evidence:** UI-observed plus source. **Likelihood:** High when the clipboard contains content from another app and iOS requires paste approval.
@@ -736,6 +740,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** `beginManualCollection()` assigns `RadixPlatform.pasteboardString` to the draft before presenting the sheet, rather than waiting for a paste gesture.
 
 **Recommended fix:** Initialize the draft empty and provide an explicit system Paste control or standard text-edit paste action. Keep clipboard-image import and manual text entry clearly separate.
+
+**Remediation status (2026-09-07):** Addressed. Both Browse and Capture now initialize Text to Page with an empty draft and do not access the pasteboard while opening the form. Users can still paste deliberately through the standard TextEditor editing controls; clipboard-image import remains a separate explicit action.
 
 ### UI-42: Revert All in the backup preview immediately changes the live phrase library
 

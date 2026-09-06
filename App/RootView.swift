@@ -68,7 +68,6 @@ struct RootView: View {
         .sheet(item: store.presentationBinding(\.quickEditDestination)) { destination in
             QuickEditSheet(destination: destination)
                 .environmentObject(store)
-                .presentationDetents([.medium, .large])
         }
         .sheet(isPresented: store.presentationBinding(\.showLatestAIResult)) {
             LatestAIResultReader()

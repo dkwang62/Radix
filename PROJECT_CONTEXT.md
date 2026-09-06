@@ -496,6 +496,10 @@ explicit cloud disclosure on Capture and Browse, and local-only shared imports.
 The UI-25 prompt-test ownership fix raised the suite to 148 tests in 14 suites
 and passed the Mac Catalyst build. Focused coverage verifies request, task and
 source mismatch rejection plus cancellable UI ownership and output attribution.
+UI-35 through UI-37 keep character-editor actions visible on compact phones,
+preserve phrase-result navigation during detail inspection, and prevent Text to
+Page from reading the clipboard before an explicit paste action. Three focused
+guards raised the suite to 153 tests, and the Mac Catalyst build passed.
 
 For release work or platform-sensitive UI/data changes, also run:
 

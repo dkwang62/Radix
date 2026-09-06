@@ -105,11 +105,13 @@ struct QuickCharacterEditorView: View {
                     dismiss()
                 }
                 .buttonStyle(.bordered)
+                .fixedSize(horizontal: true, vertical: false)
             } else {
                 Button("Cancel") {
                     dismiss()
                 }
                 .buttonStyle(.bordered)
+                .fixedSize(horizontal: true, vertical: false)
 
                 Button {
                     saveCharacter()
@@ -117,6 +119,7 @@ struct QuickCharacterEditorView: View {
                     Label("Save", systemImage: "checkmark")
                 }
                 .buttonStyle(.borderedProminent)
+                .fixedSize(horizontal: true, vertical: false)
             }
         }
         .padding()
