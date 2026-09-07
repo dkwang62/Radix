@@ -819,6 +819,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Preserve the selected source on text edits. Provide an explicit Search All action for expanding an empty result set if needed. Test every source with typing, query refinement, clearing, length changes and the exact bulk-delete target set.
 
+**Remediation status (2026-09-07):** Addressed. Typing, refining or clearing a sentence query now preserves the selected Favorites, From Pages or From Practice source. The existing combined source/search/minimum query remains authoritative, so selection and bulk-delete targets stay within the visible scope. A focused guard prevents the search observer from restoring All.
+
 ## Low-Priority Findings
 
 ### UI-33: New page names are silently truncated although the creation field accepts more
@@ -916,6 +918,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** Presentation branches only on filtered `sentenceExampleResultCount == 0`; it does not distinguish corpus emptiness from a query miss. Dictionary Search already uses a query-specific `ContentUnavailableView.search` instead.
 
 **Recommended fix:** Use separate empty-library and no-results states, with a source/search/minimum-filter reset for the latter. Test a nonempty corpus excluded independently by each filter, not just a fresh installation.
+
+**Remediation status (2026-09-07):** Addressed. Study Sentences now tracks the unfiltered library count separately from the current query result. A genuinely empty corpus retains import guidance; a nonempty corpus with no matches names the active source, query and minimum-length constraints and offers Reset Filters. Focused coverage guards the independent count, truthful branches and reset action.
 
 ## Reproduced Probe Evidence
 

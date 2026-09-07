@@ -386,6 +386,26 @@ struct SwiftUICrashGuardrailTests {
         #expect(sheetSource.components(separatedBy: ".disabled(trimmedReport.isEmpty)").count - 1 == 1)
     }
 
+    @Test("Sentence search preserves source scope and distinguishes filtered emptiness")
+    func sentenceSearchKeepsScopeAndTruthfulEmptyState() throws {
+        let controlsSource = try sourceText(at: "App/FavouritesSentenceControls.swift")
+        let searchObserver = controlsSource
+            .components(separatedBy: ".onChange(of: sentenceExampleSearchText)")[1]
+            .components(separatedBy: ".onChange(of: sentenceExampleMinimumCharacterCount)")[0]
+        let dataSource = try sourceText(at: "App/FavouritesSentenceData.swift")
+        let sectionSource = try sourceText(at: "App/FavouritesSections.swift")
+        let stateSource = try sourceText(at: "App/FavouritesStudyScreenState.swift")
+
+        #expect(!searchObserver.contains("sentenceExampleFilter = .all"))
+        #expect(searchObserver.contains("resetSentenceExampleResultsContext()"))
+        #expect(stateSource.contains("var libraryCount = 0"))
+        #expect(dataSource.contains("sentenceExampleLibraryCount = RadixStudyPreferences.sentenceExampleCount()"))
+        #expect(dataSource.contains("func resetSentenceExampleFilters()"))
+        #expect(sectionSource.contains("if sentenceExampleLibraryCount == 0"))
+        #expect(sectionSource.contains("Label(\"No Matching Sentences\""))
+        #expect(sectionSource.contains("Button(\"Reset Filters\", action: resetSentenceExampleFilters)"))
+    }
+
     private func sourceText(at relativePath: String) throws -> String {
         let testFileURL = URL(fileURLWithPath: #filePath)
         let repositoryURL = testFileURL

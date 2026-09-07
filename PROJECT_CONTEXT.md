@@ -505,6 +505,10 @@ sentence-AI request identity, one-score-per-quiz-item behavior, confirmed
 display-scoped phrase reversion and draft-only translation clearing. Five
 focused guards raised the suite to 158 tests in 14 suites; the Mac Catalyst
 build passed with signing disabled.
+UI-45 and UI-46 preserve sentence source scope while searching and distinguish
+an empty sentence library from a filtered no-match result with an explicit
+filter reset. One focused guard raised the suite to 159 tests in 14 suites; the
+Mac Catalyst build passed with signing disabled.
 
 For release work or platform-sensitive UI/data changes, also run:
 

@@ -97,11 +97,24 @@ extension FavouritesTab {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: isPhone ? 2 : 8) {
                         if sentenceExampleResultCount == 0 {
-                            ContentUnavailableView(
-                                "No Sentences",
-                                systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"),
-                                description: Text("Import page sentences or practice packs to create saved sentences.")
-                            )
+                            Group {
+                                if sentenceExampleLibraryCount == 0 {
+                                    ContentUnavailableView(
+                                        "No Sentences",
+                                        systemImage: RadixGlossaryIcon.systemImage(for: "Sentence"),
+                                        description: Text("Import page sentences or practice packs to create saved sentences.")
+                                    )
+                                } else {
+                                    ContentUnavailableView {
+                                        Label("No Matching Sentences", systemImage: "line.3.horizontal.decrease.circle")
+                                    } description: {
+                                        Text(sentenceExampleNoResultsDescription)
+                                    } actions: {
+                                        Button("Reset Filters", action: resetSentenceExampleFilters)
+                                            .buttonStyle(.borderedProminent)
+                                    }
+                                }
+                            }
                             .frame(maxWidth: .infinity, minHeight: 240)
                         } else {
                             ForEach(pagedSentenceExamples) { example in

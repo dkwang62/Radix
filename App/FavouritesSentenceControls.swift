@@ -22,11 +22,7 @@ extension FavouritesTab {
         .padding(10)
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: RadixRadius.medium))
-        .onChange(of: sentenceExampleSearchText) { oldValue, newValue in
-            if oldValue.trimmingCharacters(in: .whitespacesAndNewlines) != newValue.trimmingCharacters(in: .whitespacesAndNewlines),
-               !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                sentenceExampleFilter = .all
-            }
+        .onChange(of: sentenceExampleSearchText) { _, _ in
             resetSentenceExampleResultsContext()
         }
         .onChange(of: sentenceExampleMinimumCharacterCount) { _, _ in

@@ -91,6 +91,31 @@ extension FavouritesTab {
         refreshSentenceExampleResults()
     }
 
+    func resetSentenceExampleFilters() {
+        sentenceExampleFilter = .all
+        sentenceExampleSearchText = ""
+        sentenceExampleMinimumCharacterCount = 2
+        resetSentenceExampleResultsContext()
+    }
+
+    var sentenceExampleNoResultsDescription: String {
+        let query = sentenceExampleSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        var filters: [String] = []
+        if sentenceExampleFilter != .all {
+            filters.append(sentenceExampleFilter.rawValue)
+        }
+        if !query.isEmpty {
+            filters.append("\"\(query)\"")
+        }
+        if sentenceExampleMinimumCharacterFilter > 2 {
+            filters.append("at least \(sentenceExampleMinimumCharacterFilter) Chinese characters")
+        }
+        guard !filters.isEmpty else {
+            return "No saved sentences match the current filters."
+        }
+        return "No saved sentences match \(filters.joined(separator: ", "))."
+    }
+
     var sentenceExampleQuery: SentenceExampleQuery {
         SentenceExampleQuery(
             scope: sentenceExampleFilter.queryScope,
@@ -120,6 +145,7 @@ extension FavouritesTab {
         )
         sentenceExamplePageIndex = result.pageIndex
         sentenceExampleResultCount = result.totalCount
+        sentenceExampleLibraryCount = RadixStudyPreferences.sentenceExampleCount()
         sentenceExamplePageRecords = result.records
         let visibleIDs = Set(result.records.map(\.id))
         selectedSentenceExampleIDs = selectedSentenceExampleIDs.intersection(visibleIDs)

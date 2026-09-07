@@ -19,6 +19,7 @@ struct StudySentenceScreenState {
     var pageIndex = 0
     var pageRecords: [SentenceExampleRecord] = []
     var resultCount = 0
+    var libraryCount = 0
     var isSelecting = false
     var selectedIDs = Set<UUID>()
     var revision = 0
@@ -222,6 +223,11 @@ extension FavouritesTab {
     var sentenceExampleResultCount: Int {
         get { screenState.sentences.resultCount }
         nonmutating set { screenState.sentences.resultCount = newValue }
+    }
+
+    var sentenceExampleLibraryCount: Int {
+        get { screenState.sentences.libraryCount }
+        nonmutating set { screenState.sentences.libraryCount = newValue }
     }
 
     var isSelectingSentenceExamples: Bool {
