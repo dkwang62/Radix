@@ -423,6 +423,23 @@ struct SwiftUICrashGuardrailTests {
         #expect(generationSource.contains("requestCreateCustomPromptTask()"))
     }
 
+    @Test("Phrase classification keeps controls fixed around a scrolling grid")
+    func phraseClassificationHasVerticalOverflowEscape() throws {
+        let source = try sourceText(at: "App/AddedPhraseReviewGrid.swift")
+        let gridContainerSource = source
+            .components(separatedBy: "var phraseGrid: some View")[1]
+            .components(separatedBy: "@ViewBuilder")[0]
+        let pageGridSource = source
+            .components(separatedBy: "var phrasePageGrid: some View")[1]
+            .components(separatedBy: "var phrasePageGridContent: some View")[0]
+
+        #expect(gridContainerSource.contains("phrasePageGrid"))
+        #expect(gridContainerSource.contains("pageFooter"))
+        #expect(pageGridSource.contains("ScrollView(.vertical)"))
+        #expect(pageGridSource.contains(".scrollBounceBehavior(.basedOnSize)"))
+        #expect(pageGridSource.contains(".frame(maxWidth: .infinity, maxHeight: .infinity)"))
+    }
+
     private func sourceText(at relativePath: String) throws -> String {
         let testFileURL = URL(fileURLWithPath: #filePath)
         let repositoryURL = testFileURL

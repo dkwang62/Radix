@@ -513,6 +513,10 @@ UI-26 now requires an explicit Save, Discard or Cancel decision before an
 unsaved main-editor AI template draft can be left through task selection,
 task creation or All Templates. One focused guard raised the suite to 160 tests
 in 14 suites; the Mac Catalyst build passed with signing disabled.
+UI-29 keeps phrase-classification controls and page navigation fixed while the
+tile grid scrolls within its remaining height. One focused guard raised the
+suite to 161 tests in 14 suites; the Mac Catalyst build passed with signing
+disabled. Compact-device and largest-Dynamic-Type interaction remain open.
 
 For release work or platform-sensitive UI/data changes, also run:
 

@@ -647,6 +647,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Keep essential commands reachable and put the grid in a bounded scroll region, or derive page capacity from available height without measurement/layout feedback loops. Test full pages, not only empty/few-row screenshots.
 
+**Remediation status (2026-09-07):** Addressed with a bounded vertical tile viewport. The phrase rows now scroll within the grid's flexible remaining height while filter controls, status tools, selected-phrase detail, Done/Back and page navigation remain outside that scroll region. Paging and classification behavior are unchanged. A focused guard preserves the fixed-controls/scrolling-grid structure; compact-device and largest-Dynamic-Type interaction remain part of the physical test matrix.
+
 ### UI-30: Upgrade has no in-session recovery for unavailable products or pending purchases
 
 **Severity:** Medium. **Evidence:** Source. **Likelihood:** Conditional on network/StoreKit states.

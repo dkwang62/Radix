@@ -11,7 +11,11 @@ extension AddedPhraseReviewSheet {
 
     @ViewBuilder
     var phrasePageGrid: some View {
-        phrasePageGridContent
+        ScrollView(.vertical) {
+            phrasePageGridContent
+                .padding(.vertical, 2)
+        }
+        .scrollBounceBehavior(.basedOnSize)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
@@ -42,7 +46,7 @@ extension AddedPhraseReviewSheet {
             }
         }
         .padding(.horizontal, usesRegularReviewLayout ? 6 : 0)
-        .frame(maxWidth: usesRegularReviewLayout ? 920 : 520, maxHeight: .infinity, alignment: .top)
+        .frame(maxWidth: usesRegularReviewLayout ? 920 : 520, alignment: .top)
         .frame(maxWidth: .infinity)
     }
 
