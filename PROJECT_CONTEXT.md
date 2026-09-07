@@ -509,6 +509,10 @@ UI-45 and UI-46 preserve sentence source scope while searching and distinguish
 an empty sentence library from a filtered no-match result with an explicit
 filter reset. One focused guard raised the suite to 159 tests in 14 suites; the
 Mac Catalyst build passed with signing disabled.
+UI-26 now requires an explicit Save, Discard or Cancel decision before an
+unsaved main-editor AI template draft can be left through task selection,
+task creation or All Templates. One focused guard raised the suite to 160 tests
+in 14 suites; the Mac Catalyst build passed with signing disabled.
 
 For release work or platform-sensitive UI/data changes, also run:
 

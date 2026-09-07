@@ -595,6 +595,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Share one draft/commit model for both editors, preserve drafts by task ID, and handle dismissal/switching explicitly.
 
+**Remediation status (2026-09-07):** Addressed with an explicit draft-exit contract. When the main editor has unsaved changes, selecting another task, creating a task or opening the autosaving All Templates editor now requires Save and Continue, Discard Changes or Cancel. Save persists before the requested transition, Discard leaves stored data unchanged, and Cancel keeps the current task and draft. A focused guard covers every transition entry point and all three decisions.
+
 ### UI-27: Late sentence improvement can populate a different sentence card
 
 **Severity:** Medium. **Evidence:** Source race. **Likelihood:** Conditional on reusing a card while an AI request is active.

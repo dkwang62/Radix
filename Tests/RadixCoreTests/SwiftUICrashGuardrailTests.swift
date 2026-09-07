@@ -406,6 +406,23 @@ struct SwiftUICrashGuardrailTests {
         #expect(sectionSource.contains("Button(\"Reset Filters\", action: resetSentenceExampleFilters)"))
     }
 
+    @Test("AI task changes require an explicit unsaved-draft decision")
+    func aiTemplateDraftChangesAreGuarded() throws {
+        let viewSource = try sourceText(at: "Views/AILinkView.swift")
+        let generationSource = try sourceText(at: "Views/AILinkPromptGeneration.swift")
+
+        #expect(viewSource.contains("enum PendingPromptDraftAction"))
+        #expect(viewSource.contains(".alert(\"Unsaved AI Template Changes\""))
+        #expect(viewSource.contains("Button(\"Save and Continue\")"))
+        #expect(viewSource.contains("Button(\"Discard Changes\", role: .destructive)"))
+        #expect(viewSource.contains("Button(\"Cancel\", role: .cancel)"))
+        #expect(viewSource.contains("guard hasUnsavedPromptChanges else"))
+        #expect(viewSource.contains("requestPromptDraftAction(.openTemplateManager)"))
+        #expect(generationSource.components(separatedBy: "requestPromptDraftAction(.openTemplateManager)").count - 1 == 2)
+        #expect(generationSource.contains("requestSelectPromptTask(task.id)"))
+        #expect(generationSource.contains("requestCreateCustomPromptTask()"))
+    }
+
     private func sourceText(at relativePath: String) throws -> String {
         let testFileURL = URL(fileURLWithPath: #filePath)
         let repositoryURL = testFileURL

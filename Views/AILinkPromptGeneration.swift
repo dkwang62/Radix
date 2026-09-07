@@ -338,7 +338,7 @@ extension AILinkView {
 
     var aiTemplateManagerButton: some View {
         Button {
-            isShowingTemplateManager = true
+            requestPromptDraftAction(.openTemplateManager)
         } label: {
             Label("All Templates", systemImage: "list.bullet.rectangle")
         }
@@ -360,7 +360,7 @@ extension AILinkView {
 
     var aiTemplateManagerIconButton: some View {
         Button {
-            isShowingTemplateManager = true
+            requestPromptDraftAction(.openTemplateManager)
         } label: {
             Image(systemName: "list.bullet.rectangle")
                 .radixIconButtonSurface(size: 34)
@@ -379,7 +379,7 @@ extension AILinkView {
             Menu {
                 ForEach(store.promptConfig.normalized().tasks) { task in
                     Button {
-                        selectPromptTask(task.id)
+                        requestSelectPromptTask(task.id)
                     } label: {
                         Label(
                             task.title,
@@ -391,7 +391,7 @@ extension AILinkView {
                 Divider()
 
                 Button {
-                    createCustomPromptTask()
+                    requestCreateCustomPromptTask()
                 } label: {
                     Label("New AI Task...", systemImage: "plus.circle")
                 }

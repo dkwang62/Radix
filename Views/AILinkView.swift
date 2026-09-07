@@ -1,5 +1,11 @@
 import SwiftUI
 
+enum PendingPromptDraftAction: Equatable {
+    case selectTask(String)
+    case createTask
+    case openTemplateManager
+}
+
 /*
  AI LINK VIEW
  ============
@@ -45,6 +51,7 @@ struct AILinkView: View {
     @State var promptTestTask: Task<Void, Never>?
     @State var activePromptTestRequestID: UUID?
     @State var promptTestOutputContext: PromptTestRequestContext?
+    @State var pendingPromptDraftAction: PendingPromptDraftAction?
 
     /// The character or phrase word that character/phrase tasks act on.
     /// Explicit object launches take priority over preview-derived subjects.
@@ -202,7 +209,7 @@ struct AILinkView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 if isObjectLaunchedAIWorkflow || isSelectedTaskFreeTextTask {
                     Button {
-                        isShowingTemplateManager = true
+                        requestPromptDraftAction(.openTemplateManager)
                     } label: {
                         Label("AI Templates", systemImage: "slider.horizontal.3")
                     }
@@ -232,6 +239,22 @@ struct AILinkView: View {
                 }
             }
             .presentationDetents([.large])
+        }
+        .alert("Unsaved AI Template Changes", isPresented: Binding(
+            get: { pendingPromptDraftAction != nil },
+            set: { if !$0 { pendingPromptDraftAction = nil } }
+        )) {
+            Button("Save and Continue") {
+                completePendingPromptDraftAction(savingChanges: true)
+            }
+            Button("Discard Changes", role: .destructive) {
+                completePendingPromptDraftAction(savingChanges: false)
+            }
+            Button("Cancel", role: .cancel) {
+                pendingPromptDraftAction = nil
+            }
+        } message: {
+            Text("Save or discard your changes before leaving this AI template.")
         }
         .onAppear {
             store.refreshPhrases()
@@ -348,6 +371,11 @@ struct AILinkView: View {
         loadPromptDraft(taskID: fallbackID)
     }
 
+    func requestSelectPromptTask(_ taskID: String) {
+        guard taskID != selectedPromptTask?.id else { return }
+        requestPromptDraftAction(.selectTask(taskID))
+    }
+
     func selectPromptTask(_ taskID: String) {
         store.selectedPromptTaskID = taskID
         store.promptSelectedTaskIDs = [taskID]
@@ -387,6 +415,10 @@ struct AILinkView: View {
         promptSaveStatus = "Changes reverted. You can continue editing."
     }
 
+    func requestCreateCustomPromptTask() {
+        requestPromptDraftAction(.createTask)
+    }
+
     func createCustomPromptTask() {
         let id = store.cleanupBlankCustomPromptTasks() ?? store.addPromptTask()
         store.selectedPromptTaskID = id
@@ -394,6 +426,34 @@ struct AILinkView: View {
         store.persistPromptSettings()
         loadPromptDraft(taskID: id)
         isPromptTemplateExpanded = true
+    }
+
+    func requestPromptDraftAction(_ action: PendingPromptDraftAction) {
+        guard hasUnsavedPromptChanges else {
+            performPromptDraftAction(action)
+            return
+        }
+        pendingPromptDraftAction = action
+    }
+
+    func completePendingPromptDraftAction(savingChanges: Bool) {
+        guard let action = pendingPromptDraftAction else { return }
+        pendingPromptDraftAction = nil
+        if savingChanges {
+            savePromptDraft()
+        }
+        performPromptDraftAction(action)
+    }
+
+    func performPromptDraftAction(_ action: PendingPromptDraftAction) {
+        switch action {
+        case .selectTask(let taskID):
+            selectPromptTask(taskID)
+        case .createTask:
+            createCustomPromptTask()
+        case .openTemplateManager:
+            isShowingTemplateManager = true
+        }
     }
 
     func deleteSelectedCustomPromptTask() {
