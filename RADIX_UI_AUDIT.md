@@ -343,7 +343,7 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Reconcile the full removed-ID set across all stores, distinguish historical provenance from live links, choose surviving sources for navigation, and publish study revisions.
 
-**Remediation status (2026-09-08):** Addressed, including the deferred cross-store deletion recovery. The shared cascade uses the root plus every corrected descendant for owned artifacts, practice packs, images and sentence provenance. `PageDeletionJournal` durably records page/pack IDs before mutation and retires them only after SQLite reconciliation, acknowledged preference persistence and throwing image removal. UI publication follows completion. Interrupted confirmed deletions replay before startup loads page data; failures retain the journal and show Retry. Recovery finishes deletion rather than undoing it. Source-less non-favorites are deleted, while favorites, independent sources, global notes and reusable progress survive. Pending intent blocks restore/reset; active asynchronous imports and optimization defer deletion. Integration tests reopen SQLite, preferences and image files after interruption at each phase, including write/lock failures, partially durable preferences, corrupt journals and restore of previously deleted IDs after completion. Isolated physical iPhone/iPad SIGKILL/relaunch tests passed, but measured large-library deletion pauses need a performance fix; actual Radix UI checks still require human verification. See the remaining test matrix and probe results. Full-backup restore crash recovery is a separate boundary and is not covered by this journal.
+**Remediation status (2026-09-08):** Addressed, including the deferred cross-store deletion recovery. The shared cascade uses the root plus every corrected descendant for owned artifacts, practice packs, images and sentence provenance. `PageDeletionJournal` durably records page/pack IDs before mutation and retires them only after SQLite reconciliation, acknowledged preference persistence and throwing image removal. UI publication follows completion. Interrupted confirmed deletions replay before startup loads page data; failures retain the journal and show Retry. Recovery finishes deletion rather than undoing it. Source-less non-favorites are deleted, while favorites, independent sources, global notes and reusable progress survive. Pending intent blocks restore/reset; active asynchronous imports and optimization defer deletion. Integration tests reopen SQLite, preferences and image files after interruption at each phase, including write/lock failures, partially durable preferences, corrupt journals and restore of previously deleted IDs after completion. The performance follow-up moves immutable preparation off the main actor, rejects stale snapshots before intent and scans a narrow source-page index before decoding matched sentences. Updated physical iPhone/iPad SIGKILL/relaunch tests passed. At 5,000 pages/50,000 sentences, median synchronous commit is now 43/132 ms versus the previous 1,663/2,388 ms wholly synchronous deletion. A brief iPad hitch remains possible; actual Radix UI checks still require human verification. See the remaining test matrix and probe results. Full-backup restore crash recovery is a separate boundary and is not covered by this journal.
 
 ### UI-13: An empty extracted-page section in a full restore does not clear current records
 
@@ -952,15 +952,16 @@ These should become permanent regression tests during the fix pass. They are aud
 
 ## Remaining Adversarial Test Matrix
 
-Page-deletion follow-up (2026-09-08): the standalone production-code probe passed
-seven real process-kill/relaunch cases, including partial preference/image work.
-Release M4 timing exposed a main-thread performance concern: a three-page cascade
-took median 27 ms at 100 pages/1,000 sentences, 242 ms at 1,000/10,000, and 1,207 ms
-at 5,000/50,000. The isolated probe then passed all seven SIGKILL/relaunch cases
-on iPhone 13 mini and iPad 9th generation. At 5,000/50,000, median deletion took
-1,663 ms and 2,388 ms respectively, confirming the performance concern. See
-`Tests/PageDeletionProbe/RESULTS.md`; actual Radix UI interaction still needs
-human verification. This does not cover full-backup restore crash recovery.
+Page-deletion follow-up (2026-09-08): after the targeted performance fix, the
+standalone production-code probe again passed seven real process-kill/relaunch
+cases and nine timing runs on M4, iPhone 13 mini and iPad 9th generation.
+At 5,000 pages/50,000 sentences, median synchronous commit is now 29/43/132 ms
+respectively; preparation is off-main, with total elapsed 323/438/770 ms.
+Previous wholly synchronous deletion took 1,207/1,663/2,388 ms. A brief iPad
+hitch remains possible. These warm three-page cascades do not measure first-open
+index creation, worst-case bulk deletion or actual Radix UI frame pacing. See
+`Tests/PageDeletionProbe/RESULTS.md`; shipping UI interaction still needs human
+verification. This does not cover full-backup restore crash recovery.
 
 The source review identifies failures above, but the following runtime coverage remains open. No unexecuted row should be reported as passed.
 
