@@ -452,8 +452,8 @@ Full-backup restore rollback verification (2026-09-09): four journal tests and
 one startup/UI wiring test passed. The isolated `Tests/RestoreRollbackProbe`
 passed five real SIGKILL boundaries while incoming synthetic SQLite/preferences/
 images were being replaced and four more while rollback was replaying. Full
-`swift test`: 178 tests in 16 suites passed. Signing-disabled Mac Catalyst build
-and `git diff --check` passed. The probe validates durable journal/replay ordering;
+`swift test`: 178 tests in 16 suites passed. Signing-disabled Mac Catalyst and
+generic iOS builds plus `git diff --check` passed. The probe validates durable journal/replay ordering;
 physical-device interruption of the shipping restore flow, disk-full faults and
 large-backup timing remain required before release sign-off.
 

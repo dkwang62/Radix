@@ -963,7 +963,8 @@ Previous wholly synchronous deletion took 1,207/1,663/2,388 ms. A brief iPad
 hitch remains possible. These warm three-page cascades do not measure first-open
 index creation, worst-case bulk deletion or actual Radix UI frame pacing. See
 `Tests/PageDeletionProbe/RESULTS.md`; shipping UI interaction still needs human
-verification. This does not cover full-backup restore crash recovery.
+verification. That probe does not cover restore; UI-02's separate rollback
+journal and interruption probe now cover the storage-ordering boundary.
 
 The source review identifies failures above, but the following runtime coverage remains open. No unexecuted row should be reported as passed.
 
