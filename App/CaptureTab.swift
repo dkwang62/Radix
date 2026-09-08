@@ -283,18 +283,19 @@ struct CaptureTab: View {
 
     private func confirmDeleteSavedImage() {
         guard let collection = pendingDeleteCollection else { return }
-        do {
-            try store.deleteCollection(id: collection.id)
-        } catch {
-            errorMessage = "Delete failed: \(error.localizedDescription)"
-            pendingDeleteCollection = nil
-            return
-        }
-        if lastSavedCollectionID == collection.id {
-            lastSavedCollectionID = nil
-        }
-        statusMessage = "Deleted \(collection.name)."
         pendingDeleteCollection = nil
+        Task {
+            do {
+                try await store.deleteCollection(id: collection.id)
+            } catch {
+                errorMessage = "Delete failed: \(error.localizedDescription)"
+                return
+            }
+            if lastSavedCollectionID == collection.id {
+                lastSavedCollectionID = nil
+            }
+            statusMessage = "Deleted \(collection.name)."
+        }
     }
 
     private func readCaptureCharactersAloud() {

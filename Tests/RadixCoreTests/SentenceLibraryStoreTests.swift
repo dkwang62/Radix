@@ -281,6 +281,37 @@ struct SentenceLibraryStoreTests {
         }
     }
 
+    @Test("Page-source cleanup batches IDs, includes hidden sentences and deduplicates shared matches")
+    func deletingManyPagesIncludesHiddenRecords() throws {
+        try withTemporaryDirectory { directory in
+            let store = makeStore(at: directory.appendingPathComponent("sentences.sqlite"))
+            let ids = (0..<121).map { _ in UUID() }
+            let survivor = UUID()
+            func source(_ id: UUID) -> SentenceExampleSourceReference {
+                SentenceExampleSourceReference(sourceType: .aiCleanedPage, sourceID: id.uuidString,
+                    sourceTitle: nil, sourcePageID: id, practicePackID: nil, practiceItemID: nil)
+            }
+            let singles = ids.enumerated().map { index, id in
+                SentenceExampleRecord(chinese: "Sentence \(index)", sources: [source(id)],
+                    isFavorited: index == 0, isHidden: index < 2)
+            }
+            let shared = SentenceExampleRecord(chinese: "Shared", sources: ids.map(source) + [source(survivor)])
+            let unrelated = SentenceExampleRecord(chinese: "Unrelated", sources: [source(survivor)])
+            try store.replaceAll(singles + [shared, unrelated])
+            let result = try store.reconcileSources(removingPageIDs: Set(ids), migratingLegacy: { [] })
+            #expect(result == SentencePageSourceReconciliationResult(updatedCount: 2, deletedCount: 120))
+            #expect(store.fetchAll(migratingLegacy: { [] }).count == 3)
+            #expect(store.fetch(id: singles[0].id, migratingLegacy: { [] })?.isHidden == true)
+            #expect(store.fetch(id: singles[0].id, migratingLegacy: { [] })?.isFavorited == true)
+            #expect(store.fetch(id: singles[0].id, migratingLegacy: { [] })?.sources.isEmpty == true)
+            #expect(store.fetch(id: singles[1].id, migratingLegacy: { [] }) == nil)
+            #expect(store.fetch(id: shared.id, migratingLegacy: { [] })?.sources == [source(survivor)])
+            #expect(store.fetch(id: unrelated.id, migratingLegacy: { [] }) == unrelated)
+            #expect(try store.reconcileSources(removingPageIDs: Set(ids), migratingLegacy: { [] }) ==
+                SentencePageSourceReconciliationResult(updatedCount: 0, deletedCount: 0))
+        }
+    }
+
     @Test("Complete AI-cleaned replacement removes obsolete sources and preserves retained sentences")
     func completeAICleanedReplacementReconcilesSentenceSources() throws {
         try withTemporaryDirectory { directory in

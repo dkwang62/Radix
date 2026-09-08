@@ -42,6 +42,14 @@ struct RootView: View {
             }
         } else {
             normalBody
+                .overlay {
+                    if store.isPreparingPageDeletion {
+                        ProgressView("Preparing deletion...")
+                            .padding()
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                            .allowsHitTesting(false)
+                    }
+                }
         }
     }
 

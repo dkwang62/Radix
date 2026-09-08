@@ -248,10 +248,12 @@ struct FilterGridTab: View {
             )) {
                 Button("Delete", role: .destructive) {
                     if let collection = pendingBrowseDeleteCollection {
-                        do {
-                            try store.deleteCollection(id: collection.id)
-                        } catch {
-                            imageActionMessage = "Delete failed: \(error.localizedDescription)"
+                        Task {
+                            do {
+                                try await store.deleteCollection(id: collection.id)
+                            } catch {
+                                imageActionMessage = "Delete failed: \(error.localizedDescription)"
+                            }
                         }
                     }
                     pendingBrowseDeleteCollection = nil

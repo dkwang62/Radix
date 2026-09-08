@@ -1,12 +1,29 @@
 import Foundation
 
-/// A confirmed deletion is replayed to completion before normal work resumes.
-/// Store only identities: replay must not overwrite unrelated, newer learning data.
+/// Confirmed deletion replays to completion; preparation never mutates stores.
 struct PageDeletionJournal {
-    struct Entry: Codable {
+    struct Entry: Codable, Sendable {
         var version = 1
         let pageIDs: Set<UUID>
         let practicePackIDs: Set<String>
+    }
+
+    struct Value: Equatable, Sendable {
+        let key: String
+        let data: Data?
+    }
+
+    struct Snapshot: Equatable, Sendable {
+        let app: [Value]
+        let study: [Value]
+    }
+
+    struct PreparedDeletion: Sendable {
+        fileprivate let entry: Entry
+        fileprivate let snapshot: Snapshot
+        fileprivate let appChanges: [Value]
+        fileprivate let studyChanges: [Value]
+        var removedPracticePackIDs: Set<String> { entry.practicePackIDs }
     }
 
     enum Stage: CaseIterable, Sendable {
@@ -24,36 +41,95 @@ struct PageDeletionJournal {
 
     func requireNoPendingDeletion() throws {
         guard !isPending else {
-            throw failure("Finish the interrupted page deletion using Retry before importing or restoring data.")
+            throw Self.failure("Finish the interrupted page deletion using Retry before importing or restoring data.")
         }
+    }
+
+    func captureSnapshot() throws -> Snapshot {
+        func values(_ store: any RadixPreferenceStore, keys: [String]) throws -> [Value] {
+            try keys.map { key in
+                let object = store.object(forKey: key)
+                guard object == nil || object is Data else {
+                    throw Self.failure("Saved page data could not be read (\(key)).")
+                }
+                return Value(key: key, data: object as? Data)
+            }
+        }
+        return try Snapshot(
+            app: values(preferences, keys: [RadixPreferenceKey.collections]),
+            study: values(studyPreferences, keys: [RadixPreferenceKey.importedConversationPracticePacks,
+                RadixPreferenceKey.pagePhraseExtractions, RadixPreferenceKey.aiCleanedPages])
+        )
+    }
+
+    /// Only immutable data crosses to a worker; UserDefaults and commit stay with the owner.
+    static func prepare(pageIDs: Set<UUID>, snapshot: Snapshot, previousPackIDs: Set<String> = []) throws -> PreparedDeletion {
+        var appChanges: [Value] = []
+        var studyChanges: [Value] = []
+        var packIDs = previousPackIDs
+        func filter<T: Codable>(_ type: T.Type, values: [Value], key: String,
+                                removing shouldRemove: (T) -> Bool) throws -> Value? {
+            guard let data = values.first(where: { $0.key == key })?.data else { return nil }
+            let existing = try JSONDecoder().decode([T].self, from: data)
+            let retained = existing.filter { !shouldRemove($0) }
+            guard retained.count != existing.count else { return nil }
+            return Value(key: key, data: try JSONEncoder().encode(retained))
+        }
+        if let change = try filter(CharacterCollection.self, values: snapshot.app, key: RadixPreferenceKey.collections,
+                                   removing: { pageIDs.contains($0.id) }) { appChanges.append(change) }
+        if let change = try filter(ConversationPracticePack.self, values: snapshot.study,
+                                   key: RadixPreferenceKey.importedConversationPracticePacks, removing: {
+            let removed = $0.sourceLink?.isLinked(toAnyPageID: pageIDs) == true
+            if removed { packIDs.insert($0.packID) }
+            return removed
+        }) { studyChanges.append(change) }
+        if let change = try filter(PagePhraseExtractionRecord.self, values: snapshot.study,
+                                   key: RadixPreferenceKey.pagePhraseExtractions,
+                                   removing: { pageIDs.contains($0.sourcePageID) }) { studyChanges.append(change) }
+        if let change = try filter(AICleanedPageRecord.self, values: snapshot.study,
+                                   key: RadixPreferenceKey.aiCleanedPages,
+                                   removing: { pageIDs.contains($0.sourcePageID) }) { studyChanges.append(change) }
+        return PreparedDeletion(entry: Entry(pageIDs: pageIDs, practicePackIDs: packIDs), snapshot: snapshot,
+                                appChanges: appChanges, studyChanges: studyChanges)
     }
 
     func delete(pageIDs: Set<UUID>, afterStage: (Stage) throws -> Void = { _ in }) throws {
         try requireNoPendingDeletion()
         guard !pageIDs.isEmpty else { return }
-        // Decode/encode every affected preference before committing the intent.
-        _ = try preferenceChanges(removing: pageIDs)
-        let packs = ConversationPracticeStore(preferences: studyPreferences).importedPacks
-        let packIDs = Set(packs.filter { $0.sourceLink?.isLinked(toAnyPageID: pageIDs) == true }.map(\.packID))
+        try commit(Self.prepare(pageIDs: pageIDs, snapshot: captureSnapshot()), afterStage: afterStage)
+    }
+
+    func commit(_ prepared: PreparedDeletion, afterStage: (Stage) throws -> Void = { _ in }) throws {
+        try requireNoPendingDeletion()
+        guard !prepared.entry.pageIDs.isEmpty else { return }
+        guard try captureSnapshot() == prepared.snapshot else {
+            throw Self.failure("Page data changed while preparing deletion. Your changes were kept. Please retry.")
+        }
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try JSONEncoder().encode(Entry(pageIDs: pageIDs, practicePackIDs: packIDs)).write(to: url, options: .atomic)
+        try JSONEncoder().encode(prepared.entry).write(to: url, options: .atomic)
         let handle = try FileHandle(forWritingTo: url)
         defer { try? handle.close() }
         try handle.synchronize()
         try afterStage(.journal)
-        try recover(afterStage: afterStage)
+        try complete(prepared, afterStage: afterStage)
     }
 
     func recover(afterStage: (Stage) throws -> Void = { _ in }) throws {
         guard isPending else { return }
         let entry = try JSONDecoder().decode(Entry.self, from: Data(contentsOf: url))
         guard entry.version == 1, !entry.pageIDs.isEmpty else {
-            throw failure("The pending page deletion record is invalid. Your remaining data has not been cleared.")
+            throw Self.failure("The pending page deletion record is invalid. Your remaining data has not been cleared.")
         }
-        let changes = try preferenceChanges(removing: entry.pageIDs)
+        let prepared = try Self.prepare(pageIDs: entry.pageIDs, snapshot: captureSnapshot(), previousPackIDs: entry.practicePackIDs)
+        try complete(prepared, afterStage: afterStage)
+    }
+
+    private func complete(_ prepared: PreparedDeletion, afterStage: (Stage) throws -> Void) throws {
+        let entry = prepared.entry
         try reconcileSentences(entry.pageIDs)
         try afterStage(.sentences)
-        for (store, key, data) in changes { store.set(data, forKey: key) }
+        for change in prepared.appChanges { preferences.set(change.data, forKey: change.key) }
+        for change in prepared.studyChanges { studyPreferences.set(change.data, forKey: change.key) }
         if let value = preferences.string(forKey: RadixPreferenceKey.selectedAICollection),
            let id = UUID(uuidString: value), entry.pageIDs.contains(id) {
             preferences.removeObject(forKey: RadixPreferenceKey.selectedAICollection)
@@ -62,7 +138,7 @@ struct PageDeletionJournal {
            entry.practicePackIDs.contains(topic) {
             preferences.set(ConversationPracticeTopic.generalGreetings.id, forKey: RadixPreferenceKey.conversationPracticeTopic)
         }
-        // UserDefaults writes asynchronously. Never retire intent before its flush.
+        // Retire intent only after both stores acknowledge persistence.
         try flushPreferences()
         try afterStage(.preferences)
         for id in entry.pageIDs { try removeImage(id) }
@@ -70,30 +146,7 @@ struct PageDeletionJournal {
         try FileManager.default.removeItem(at: url)
     }
 
-    private func preferenceChanges(removing ids: Set<UUID>) throws -> [(any RadixPreferenceStore, String, Data)] {
-        var changes: [(any RadixPreferenceStore, String, Data)] = []
-        func filter<T: Codable>(_ type: T.Type, store: any RadixPreferenceStore, key: String,
-                                removing shouldRemove: (T) -> Bool) throws {
-            guard let value = store.object(forKey: key) else { return }
-            guard let data = value as? Data else { throw failure("Saved page data could not be read (\(key)).") }
-            let existing = try JSONDecoder().decode([T].self, from: data)
-            let retained = existing.filter { !shouldRemove($0) }
-            changes.append((store, key, try JSONEncoder().encode(retained)))
-        }
-        try filter(CharacterCollection.self, store: preferences, key: RadixPreferenceKey.collections) { ids.contains($0.id) }
-        try filter(ConversationPracticePack.self, store: studyPreferences, key: RadixPreferenceKey.importedConversationPracticePacks) {
-            $0.sourceLink?.isLinked(toAnyPageID: ids) == true
-        }
-        try filter(PagePhraseExtractionRecord.self, store: studyPreferences, key: RadixPreferenceKey.pagePhraseExtractions) {
-            ids.contains($0.sourcePageID)
-        }
-        try filter(AICleanedPageRecord.self, store: studyPreferences, key: RadixPreferenceKey.aiCleanedPages) {
-            ids.contains($0.sourcePageID)
-        }
-        return changes
-    }
-
-    private func failure(_ message: String) -> NSError {
+    private static func failure(_ message: String) -> NSError {
         NSError(domain: "Radix.PageDeletion", code: 1, userInfo: [NSLocalizedDescriptionKey: message])
     }
 }

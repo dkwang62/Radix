@@ -7,6 +7,40 @@ import Testing
 struct PageDeletionJournalTests {
     enum Interruption: Error { case stopped }
 
+    @Test("Prepared deletion rejects concurrent preference changes before durable intent", arguments: [
+        RadixPreferenceKey.collections, RadixPreferenceKey.aiCleanedPages,
+        RadixPreferenceKey.pagePhraseExtractions, RadixPreferenceKey.importedConversationPracticePacks
+    ])
+    func stalePreparation(key: String) async throws {
+        let fixture = try Fixture()
+        defer { fixture.cleanup() }
+        let journal = fixture.journal()
+        let snapshot = try journal.captureSnapshot()
+        let ids = fixture.deletedIDs
+        let prepared = try await Task.detached {
+            try PageDeletionJournal.prepare(pageIDs: ids, snapshot: snapshot)
+        }.value
+        // A restore or edit may finish while the worker is encoding its snapshot.
+        fixture.preferences.set(Data("[]".utf8), forKey: key)
+        #expect(throws: (any Error).self) { try journal.commit(prepared) }
+        #expect(!journal.isPending)
+        #expect(fixture.preferences.data(forKey: key) == Data("[]".utf8))
+        #expect(fixture.sentences().fetchAll(migratingLegacy: { [] }).count == 4)
+        #expect(FileManager.default.fileExists(atPath: fixture.imageURL(fixture.root.id).path))
+    }
+
+    @Test("Prepared deletion does not mutate stores until commit")
+    func preparedCommit() throws {
+        let fixture = try Fixture()
+        defer { fixture.cleanup() }
+        let journal = fixture.journal()
+        let prepared = try PageDeletionJournal.prepare(pageIDs: fixture.deletedIDs, snapshot: journal.captureSnapshot())
+        #expect(!journal.isPending)
+        #expect(try fixture.preferences.read([CharacterCollection].self, key: RadixPreferenceKey.collections).count == 3)
+        try journal.commit(prepared)
+        try fixture.verifyDeletion()
+    }
+
     @Test("Restart finishes deletion after every durable boundary", arguments: PageDeletionJournal.Stage.allCases)
     func restart(stage: PageDeletionJournal.Stage) throws {
         let fixture = try Fixture()

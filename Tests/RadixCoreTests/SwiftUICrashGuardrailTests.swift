@@ -10,12 +10,17 @@ struct SwiftUICrashGuardrailTests {
         let preprocessing = try #require(lifecycle.range(of: "preprocessStoredAICleanedPagesIfNeeded()"))
         #expect(recovery.lowerBound < preprocessing.lowerBound)
         let collections = try sourceText(at: "ViewModels/RadixStoreCollections.swift")
-        let deletion = collections.components(separatedBy: "func deleteCollection(id: UUID) throws {")[1]
+        let deletion = collections.components(separatedBy: "func deleteCollection(id: UUID) async throws {")[1]
             .components(separatedBy: "var pageDeletionJournal:")[0]
-        let commit = try #require(deletion.range(of: "try pageDeletionJournal.delete(pageIDs:"))
+        let commit = try #require(deletion.range(of: "try journal.commit(prepared)"))
         let publication = try #require(deletion.range(of: "allCollections.removeAll"))
         #expect(commit.lowerBound < publication.lowerBound)
-        #expect(deletion.contains("pageDeletionDeferralCount == 0"))
+        #expect(collections.contains("pageDeletionDeferralCount == 0"))
+        #expect(deletion.components(separatedBy: "try requirePageDeletionAvailable()").count == 3)
+        #expect(deletion.contains("try await Task.detached(priority: .userInitiated)"))
+        #expect(deletion.contains("try Task.checkCancellation()"))
+        #expect(deletion.contains("dataImportRevision == importRevision"))
+        #expect(deletion.contains("defer { isPreparingPageDeletion = false }"))
         let root = try sourceText(at: "App/RootView.swift")
         #expect(root.contains("if let error = store.pageDeletionRecoveryError"))
         #expect(root.contains("Button(\"Retry\") { Task { await store.initialize() } }"))

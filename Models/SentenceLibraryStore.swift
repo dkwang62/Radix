@@ -359,7 +359,7 @@ final class SentenceLibraryStore: @unchecked Sendable {
 
         try openIfNeeded()
         try migrateLegacyIfNeededUnlocked(legacyProvider)
-        let affectedRecords = try fetchAllUnlocked().filter { record in
+        let affectedRecords = try fetchPageLinkedRecordsUnlocked(pageIDs: pageIDs).filter { record in
             record.sources.contains { source in
                 source.sourcePageID.map(pageIDs.contains) == true
             }
@@ -906,6 +906,36 @@ final class SentenceLibraryStore: @unchecked Sendable {
 
     private static func stableHash(_ seed: UInt64, _ value: String) -> UInt64 {
         value.utf8.reduce(seed) { ($0 ^ UInt64($1)) &* 1_099_511_628_211 }
+    }
+
+    private func fetchPageLinkedRecordsUnlocked(pageIDs: Set<UUID>) throws -> [SentenceExampleRecord] {
+        // Batch below SQLite's binding/expression limits; include hidden records.
+        let ids = pageIDs.map { $0.uuidString.lowercased() }
+        var records: [UUID: SentenceExampleRecord] = [:]
+        for offset in stride(from: 0, to: ids.count, by: 100) {
+            let batch = ids[offset..<min(offset + 100, ids.count)]
+            let predicate = Array(repeating: "source_page_ids LIKE ?", count: batch.count).joined(separator: " OR ")
+            var statement: OpaquePointer?
+            guard sqlite3_prepare_v2(db, "SELECT record_json FROM sentence_examples WHERE \(predicate)", -1, &statement, nil) == SQLITE_OK else {
+                throw sqliteError(code: 3158, message: "Failed to find page-linked sentences")
+            }
+            defer { sqlite3_finalize(statement) }
+            bind(batch.map { "% \($0) %" }, in: statement)
+            var result = sqlite3_step(statement)
+            while result == SQLITE_ROW {
+                guard let bytes = sqlite3_column_blob(statement, 0) else {
+                    throw sqliteError(code: 3158, message: "Page-linked sentence data is missing")
+                }
+                let data = Data(bytes: bytes, count: Int(sqlite3_column_bytes(statement, 0)))
+                let record = try decoder.decode(SentenceExampleRecord.self, from: data)
+                records[record.id] = record
+                result = sqlite3_step(statement)
+            }
+            guard result == SQLITE_DONE else {
+                throw sqliteError(code: 3158, message: "Failed to read page-linked sentences")
+            }
+        }
+        return Array(records.values)
     }
 
     private func fetchAllUnlocked() throws -> [SentenceExampleRecord] {

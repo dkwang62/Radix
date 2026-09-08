@@ -282,22 +282,43 @@ extension RadixStore {
         )
     }
 
-    func deleteCollection(id: UUID) throws {
+    private func requirePageDeletionAvailable() throws {
         guard pageDeletionDeferralCount == 0, !databaseOptimizationInProgress else {
             throw NSError(domain: "Radix.PageDeletion", code: 3, userInfo: [
                 NSLocalizedDescriptionKey: "Wait for the current data operation to finish before deleting a page."
             ])
         }
         try pageDeletionJournal.requireNoPendingDeletion()
+    }
+
+    func deleteCollection(id: UUID) async throws {
+        guard !isPreparingPageDeletion else {
+            throw NSError(domain: "Radix.PageDeletion", code: 3, userInfo: [
+                NSLocalizedDescriptionKey: "A page deletion is already being prepared."
+            ])
+        }
+        try requirePageDeletionAvailable()
         guard collection(id: id) != nil else { return }
+        isPreparingPageDeletion = true
+        defer { isPreparingPageDeletion = false }
         let descendantIDs = Set(correctedCollectionDescendants(of: id).map(\.id))
         let removedCollectionIDs = descendantIDs.union([id])
-        let removedPracticePackIDs = Set(RadixStudyPreferences.importedConversationPracticePacks
-            .filter { $0.sourceLink?.isLinked(toAnyPageID: removedCollectionIDs) == true }
-            .map(\.packID))
+        let journal = pageDeletionJournal
+        let snapshot = try journal.captureSnapshot()
+        let importRevision = dataImportRevision
+        let prepared = try await Task.detached(priority: .userInitiated) {
+            try PageDeletionJournal.prepare(pageIDs: removedCollectionIDs, snapshot: snapshot)
+        }.value
+        try Task.checkCancellation()
+        try requirePageDeletionAvailable()
+        guard dataImportRevision == importRevision else {
+            throw NSError(domain: "Radix.PageDeletion", code: 3, userInfo: [
+                NSLocalizedDescriptionKey: "Data changed while preparing deletion. Your changes were kept. Please retry."
+            ])
+        }
 
         do {
-            try pageDeletionJournal.delete(pageIDs: removedCollectionIDs)
+            try journal.commit(prepared)
         } catch {
             if pageDeletionJournal.isPending {
                 pageDeletionRecoveryError = error.localizedDescription
@@ -317,14 +338,12 @@ extension RadixStore {
         if selectedAICollectionID.map(removedCollectionIDs.contains) == true {
             selectedAICollectionID = nil
         }
-        if !removedPracticePackIDs.isEmpty {
-            if removedPracticePackIDs.contains(selectedConversationPracticeTopicID) {
-                selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
-                activePracticeSentenceItem = nil
-                pendingConversationPracticeTopicID = nil
-                dismissSidebarPhrasePreview()
-                persistPromptSettings()
-            }
+        if prepared.removedPracticePackIDs.contains(selectedConversationPracticeTopicID) {
+            selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
+            activePracticeSentenceItem = nil
+            pendingConversationPracticeTopicID = nil
+            dismissSidebarPhrasePreview()
+            persistPromptSettings()
         }
         favoriteSentenceRevision += 1
         dataImportRevision += 1

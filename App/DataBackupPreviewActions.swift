@@ -52,10 +52,12 @@ extension DataBackupPreviewSection {
     }
 
     func deleteBackupSavedPage(_ collection: CharacterCollection) {
-        do {
-            try store.deleteCollection(id: collection.id)
-        } catch {
-            revertBasePhraseMessage = "Delete failed: \(error.localizedDescription)"
+        Task {
+            do {
+                try await store.deleteCollection(id: collection.id)
+            } catch {
+                revertBasePhraseMessage = "Delete failed: \(error.localizedDescription)"
+            }
         }
     }
 
