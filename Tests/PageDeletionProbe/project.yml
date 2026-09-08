@@ -29,6 +29,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.desmond.radix.deletionqa
         INFOPLIST_KEY_CFBundleDisplayName: Radix Deletion QA
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         TARGETED_DEVICE_FAMILY: "1,2"
         DEVELOPMENT_TEAM: 7PSNWRPJ5B
         CODE_SIGN_STYLE: Automatic
