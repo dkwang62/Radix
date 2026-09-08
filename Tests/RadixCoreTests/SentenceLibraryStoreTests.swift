@@ -281,6 +281,33 @@ struct SentenceLibraryStoreTests {
         }
     }
 
+    @Test("Existing databases gain the page-source index before deletion")
+    func upgradesPageSourceIndex() throws {
+        try withTemporaryDirectory { directory in
+            let url = directory.appendingPathComponent("sentences.sqlite")
+            let pageID = UUID()
+            let record = sentence(chinese: "Indexed sentence", english: "Index upgrade", source:
+                SentenceExampleSourceReference(sourceType: .aiCleanedPage, sourceID: nil,
+                    sourceTitle: nil, sourcePageID: pageID, practicePackID: nil, practiceItemID: nil))
+            try makeStore(at: url).replaceAll([record])
+            var database: OpaquePointer?
+            #expect(sqlite3_open_v2(url.path, &database, SQLITE_OPEN_READWRITE, nil) == SQLITE_OK)
+            defer { sqlite3_close(database) }
+            #expect(sqlite3_exec(database, "DROP INDEX idx_sentence_examples_source_page_ids", nil, nil, nil) == SQLITE_OK)
+
+            let reopened = makeStore(at: url)
+            #expect(try reopened.reconcileSources(removingPageIDs: [pageID], migratingLegacy: { [] }).deletedCount == 1)
+            var statement: OpaquePointer?
+            #expect(sqlite3_prepare_v2(database,
+                "EXPLAIN QUERY PLAN SELECT rowid FROM sentence_examples INDEXED BY idx_sentence_examples_source_page_ids WHERE source_page_ids LIKE ?",
+                -1, &statement, nil) == SQLITE_OK)
+            defer { sqlite3_finalize(statement) }
+            #expect(sqlite3_step(statement) == SQLITE_ROW)
+            let detail = try #require(sqlite3_column_text(statement, 3))
+            #expect(String(cString: detail).contains("COVERING INDEX idx_sentence_examples_source_page_ids"))
+        }
+    }
+
     @Test("Page-source cleanup batches IDs, includes hidden sentences and deduplicates shared matches")
     func deletingManyPagesIncludesHiddenRecords() throws {
         try withTemporaryDirectory { directory in

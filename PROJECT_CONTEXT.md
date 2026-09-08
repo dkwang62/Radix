@@ -237,6 +237,12 @@ pending deletion before loading/preprocessing page data; failures show a blockin
 Retry screen. Replay is idempotent and preserves favourites, independent sources,
 global notes and reusable practice progress. Restore/reset cannot run with pending
 intent, and deletion waits for active asynchronous database imports or optimization.
+Deletion prepares immutable preference snapshots on a worker with non-blocking
+progress, then rechecks import revision, operation availability and persisted
+bytes before writing intent. Concurrent edits abort without mutation. Commit has
+no suspension points; sentence cleanup scans a narrow source-page index and
+decodes only matched rows, including hidden records. Existing databases build
+the additive index on first open. Startup recovery remains synchronous.
 This provides recovery by finishing a confirmed deletion, not rollback or Undo.
 Full-backup restore still has its separate, previously documented crash boundary.
 
@@ -421,22 +427,22 @@ paths, data behavior, and learning workflow.
 
 ## Required Verification
 
-Page-deletion journal verification (2026-09-08): 8 focused tests passed, including
-four interruption boundaries, SQLite lock failure, partial preference/image
-writes, invalid intent and restored-ID reuse. Full `swift test`: 169 tests in
-15 suites passed. Signing-disabled Mac Catalyst build and `git diff --check`
-passed. The standalone `Tests/PageDeletionProbe` additionally passed seven real
-SIGKILL/relaunch cases with production UserDefaults and SQLite. Release M4 median
-deletion times were 27 ms / 242 ms / 1,207 ms for 100 / 1,000 / 5,000 pages with
-ten sentences per page. Full-corpus reconciliation and preference serialization
-cause a large-library main-thread pause that needs a focused performance fix.
-The isolated signed probe subsequently passed all seven SIGKILL/relaunch cases
-on iPhone 13 mini and iPad 9th generation. Median deletion for the same sizes:
-iPhone 35 / 313 / 1,663 ms; iPad 56 / 475 / 2,388 ms. These storage timings confirm
-the performance concern; actual shipping Radix touch/navigation/Retry checks
-still need human sign-off. QA apps were removed without touching Radix data.
-Reproduction/results are in the probe README and RESULTS files. Full-backup
-restore journaling remains separate.
+Page-deletion performance verification (2026-09-08): 21 focused tests passed,
+including journal recovery, stale-snapshot rejection and hidden/shared sentence
+cleanup across batches, plus existing-database index upgrade. Full `swift test`:
+173 tests in 15 suites passed. Signing-disabled Mac Catalyst, both Release probe
+builds and `git diff --check` passed. The updated M4, iPhone and iPad probes each
+passed seven SIGKILL/relaunch cases and nine timing runs. M4 median commit
+times: 3 / 9 / 29 ms for 100 / 1,000 / 5,000 pages (ten sentences per page),
+with total preparation plus commit 9 / 66 / 323 ms. The previous wholly
+synchronous 5K deletion took 1,207 ms on M4, 1,663 ms on iPhone 13 mini and
+2,388 ms on iPad 9th generation. Updated 5K device median commits are 43 ms on
+iPhone and 132 ms on iPad (total elapsed 438 / 770 ms). The long pause is reduced,
+not eliminated: iPad can still briefly hitch, and first-open index creation and
+worst-case bulk cascades are not timed by this warm three-page fixture.
+Actual shipping Radix touch/navigation/Retry/frame-pacing checks still need human
+sign-off. Reproduction/results are in `Tests/PageDeletionProbe`. Full-backup
+restore journaling remains separate; startup deletion recovery is synchronous.
 
 For a normal model/store refactor:
 

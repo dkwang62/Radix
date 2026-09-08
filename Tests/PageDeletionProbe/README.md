@@ -34,8 +34,12 @@ image must survive. These files exercise unlinking, not JPEG decoding.
 Setup and verification are outside the timer; SQLite is warm from fixture
 creation. The real app's navigation, rendering, script conversion and disk-full
 behavior are not measured. `sqlite` is a subset of the `sentences` stage;
-the `journal` stage includes preflight preference processing and durable intent.
-Do not add those overlapping timings together.
+`preparation_ms` measures immutable snapshot capture and preference preparation
+on the probe worker. `commit_ms` measures snapshot validation, durable intent,
+SQLite cleanup, preference flushes and image removal; the iOS probe explicitly
+runs that segment on the main queue. `deletion_ms` includes both segments.
+The `journal` stage includes snapshot validation and durable intent, not
+preparation. Do not add overlapping timings together.
 
 ## Physical Device
 

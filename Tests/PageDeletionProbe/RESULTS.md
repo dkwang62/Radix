@@ -21,7 +21,7 @@ favorite/shared sentence retention, provenance, selected page/topic, independent
 notes/progress and image presence. A second recovery must leave that state intact.
 The probe uses actual UserDefaults suites and the production flush adapter.
 
-## Timing
+## Baseline Timing
 
 Final run, three fresh fixtures per size; setup and verification excluded:
 
@@ -47,7 +47,7 @@ Recommendation: address the measured full-corpus scan and repeated preference
 processing before expanding to backup-restore journaling. Preserve journal
 ordering, failure behavior and mutation serialization while doing so.
 
-## Physical Device And Build Status
+## Baseline Physical Device And Build Status
 
 The later unlocked-device run completed on both devices. Each passed all seven
 SIGKILL/relaunch cases and all nine timing runs using the isolated QA app:
@@ -85,3 +85,58 @@ sign-off is claimed. Temporary QA apps were removed; Radix data was untouched.
 
 Full-backup restore crash recovery and hardware power-loss guarantees remain
 outside this validation. Successful probe fixtures clean up their own data.
+
+## Performance Fix Verification
+
+Updated production/probe source: `de7dd9c` plus the source-page covering-index
+fix in this work unit, tested on the same M4 on 2026-09-08.
+Sentence reconciliation scans the narrow index and decodes only matched rows.
+Immutable preference preparation runs off the app main actor; commit validates
+the snapshot before writing intent and preserves the existing durable ordering.
+
+All seven real SIGKILL/relaunch cases and nine timing runs passed again:
+
+| Pages / sentences | Median preparation | Median synchronous commit | Median total |
+| --- | --- | --- | --- |
+| 100 / 1,000 | 6.0 ms | 3.1 ms | 9.2 ms |
+| 1,000 / 10,000 | 57.7 ms | 8.5 ms | 66.0 ms |
+| 5,000 / 50,000 | 294.8 ms | 28.8 ms | 322.7 ms |
+
+At 5K pages the commit range was 27.9-32.6 ms, compared with the baseline
+1,206.8 ms wholly synchronous deletion. Preparation is still proportional to
+the preference collection size, but the app awaits it without blocking the
+main actor. Existing databases build the additive index on first open; that
+one-time upgrade cost is not included in these warm timings. SQLite matching
+still scans source-page metadata; this is not a
+constant-time or worst-case bulk-cascade guarantee. Recovery after durable intent
+remains synchronous. The probe excludes actual Radix view publication/layout.
+
+- Focused tests: 21 passed, including stale-snapshot rejection, hidden/shared
+  sentence retention, multi-batch page matching and existing-database index upgrade.
+- Full `swift test`: 173 tests in 15 suites passed.
+- Signing-disabled Mac Catalyst, Release Mac probe and signed iOS probe: built.
+- `git diff --check`: passed.
+
+Final signed iOS executable SHA-256:
+`c4788e1e09b4bef29d02ea3e0139c00e31911ee24ea8d0fc6b658a08d712d609`.
+Both physical devices passed all seven SIGKILL/relaunch cases and nine benchmark
+runs again with this binary. The commit runs explicitly on the iOS main queue.
+
+| Device | Pages | Median preparation | Median commit | Median total |
+| --- | --- | --- | --- | --- |
+| iPhone 13 mini | 100 | 8.0 ms | 7.1 ms | 15.2 ms |
+| iPhone 13 mini | 1,000 | 75.1 ms | 15.0 ms | 90.1 ms |
+| iPhone 13 mini | 5,000 | 394.1 ms | 43.3 ms | 437.6 ms |
+| iPad 9th generation | 100 | 12.6 ms | 10.4 ms | 23.0 ms |
+| iPad 9th generation | 1,000 | 120.7 ms | 28.1 ms | 149.0 ms |
+| iPad 9th generation | 5,000 | 621.4 ms | 132.4 ms | 770.3 ms |
+
+At 5K pages, commit ranges were 43.0-45.3 ms on iPhone and 127.1-153.3 ms
+on iPad. Compared with the baseline wholly synchronous deletion, the critical
+segment is approximately 97% shorter on iPhone and 94% shorter on iPad.
+The iPad can still briefly hitch; this is not a frame-budget guarantee.
+The intermediate implementation without the covering index had a 308.5 ms
+median iPad commit, which prompted the final index change.
+
+Actual shipping Radix interaction/frame pacing still needs human verification.
+Full-backup restore crash recovery remains separate and unresolved by this work.

@@ -801,6 +801,8 @@ final class SentenceLibraryStore: @unchecked Sendable {
         let indexSQL = """
         CREATE INDEX IF NOT EXISTS idx_sentence_examples_source_text
           ON sentence_examples(source_text);
+        CREATE INDEX IF NOT EXISTS idx_sentence_examples_source_page_ids
+          ON sentence_examples(source_page_ids);
         CREATE INDEX IF NOT EXISTS idx_sentence_examples_page_source
           ON sentence_examples(has_page_source, is_hidden);
         CREATE INDEX IF NOT EXISTS idx_sentence_examples_practice_source
@@ -915,8 +917,15 @@ final class SentenceLibraryStore: @unchecked Sendable {
         for offset in stride(from: 0, to: ids.count, by: 100) {
             let batch = ids[offset..<min(offset + 100, ids.count)]
             let predicate = Array(repeating: "source_page_ids LIKE ?", count: batch.count).joined(separator: " OR ")
+            // Scan only source metadata, then load matching rows by rowid.
+            let sql = """
+            SELECT record_json FROM sentence_examples WHERE rowid IN (
+              SELECT rowid FROM sentence_examples INDEXED BY idx_sentence_examples_source_page_ids
+              WHERE \(predicate)
+            )
+            """
             var statement: OpaquePointer?
-            guard sqlite3_prepare_v2(db, "SELECT record_json FROM sentence_examples WHERE \(predicate)", -1, &statement, nil) == SQLITE_OK else {
+            guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else {
                 throw sqliteError(code: 3158, message: "Failed to find page-linked sentences")
             }
             defer { sqlite3_finalize(statement) }
