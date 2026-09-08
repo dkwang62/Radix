@@ -4,6 +4,7 @@ extension RadixStore {
     // MARK: - Import
 
     func importDataEditData(_ data: Data, mode: RestoreMode = .additive) throws {
+        try requireNoRestoreTransaction()
         let payload = try PortableBackupCodec().decode(data)
         try importDataEditPayload(payload, mode: mode)
     }
@@ -159,6 +160,7 @@ extension RadixStore {
 
     func importDataEditPayloadForRestore(_ payload: PortableBackupPayload, mode: RestoreMode = .additive) async throws {
         try pageDeletionJournal.requireNoPendingDeletion()
+        try requireNoRestoreTransaction()
         pageDeletionDeferralCount += 1
         defer { pageDeletionDeferralCount -= 1 }
         try await createDatabaseSafetySnapshotsForSettings(reason: "Before importing data")
@@ -175,9 +177,13 @@ extension RadixStore {
     func importPortableBackupDocumentForRestore(_ document: PortableBackupDocument, mode: RestoreMode = .additive) async throws {
         try pageDeletionJournal.requireNoPendingDeletion()
         try restoreRollbackJournal.requireNoPendingRestore()
-        guard !databaseOptimizationInProgress, sharedImportTask == nil else {
+        guard !isRestoreTransactionActive, !databaseOptimizationInProgress, sharedImportTask == nil else {
             throw restoreFailure("Wait for the current data operation to finish before restoring a backup.")
         }
+        pendingDatasetAutosaveWorkItem?.cancel()
+        pendingDatasetAutosaveWorkItem = nil
+        dataEditLoadTask?.cancel()
+        dataEditLoadTask = nil
         isRestoreTransactionActive = true
         defer { isRestoreTransactionActive = false }
         pageDeletionDeferralCount += 1
@@ -249,6 +255,13 @@ extension RadixStore {
                 userInfo: [NSLocalizedDescriptionKey: message])
     }
 
+    private func requireNoRestoreTransaction() throws {
+        try restoreRollbackJournal.requireNoPendingRestore()
+        guard !isRestoreTransactionActive else {
+            throw restoreFailure("Wait for the current backup restore to finish before changing data.")
+        }
+    }
+
     private func validatePortableBackupDocumentDatabases(_ document: PortableBackupDocument) throws {
         var temporaryURLs: [URL] = []
         defer {
@@ -307,6 +320,7 @@ extension RadixStore {
 
     func importSentenceLibraryPackage(_ package: SentenceLibraryExportPackage, mode: RestoreMode = .additive) async throws -> SentenceLibraryImportResult {
         try pageDeletionJournal.requireNoPendingDeletion()
+        try requireNoRestoreTransaction()
         pageDeletionDeferralCount += 1
         defer { pageDeletionDeferralCount -= 1 }
         _ = try? await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before importing sentence library")
@@ -354,6 +368,7 @@ extension RadixStore {
 
     func importSentenceDatabase(from sourceURL: URL, mode: RestoreMode) async throws -> Int {
         try pageDeletionJournal.requireNoPendingDeletion()
+        try requireNoRestoreTransaction()
         pageDeletionDeferralCount += 1
         defer { pageDeletionDeferralCount -= 1 }
         _ = try? await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before importing sentence database")
@@ -368,6 +383,7 @@ extension RadixStore {
 
     func clearSentenceDatabase() async throws {
         try pageDeletionJournal.requireNoPendingDeletion()
+        try requireNoRestoreTransaction()
         pageDeletionDeferralCount += 1
         defer { pageDeletionDeferralCount -= 1 }
         _ = try await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before clearing sentence database")

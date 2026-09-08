@@ -146,6 +146,11 @@ extension RadixStore {
 
     func restoreDatabaseSnapshot(_ snapshot: RadixDatabaseSnapshotMetadata) throws {
         try pageDeletionJournal.requireNoPendingDeletion()
+        try restoreRollbackJournal.requireNoPendingRestore()
+        guard !isRestoreTransactionActive else {
+            throw NSError(domain: "Radix.RestoreRollback", code: 2,
+                          userInfo: [NSLocalizedDescriptionKey: "Wait for the current backup restore to finish."])
+        }
         switch snapshot.kind {
         case .sentenceExamples:
             _ = try createSentenceDatabaseSafetySnapshot(reason: "Before restoring sentence snapshot")

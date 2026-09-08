@@ -49,6 +49,22 @@ struct RestoreRollbackJournalTests {
         }
     }
 
+    @Test("Interruption after intent preserves the rollback document")
+    func interruptionAfterIntent() throws {
+        try withRestoreJournalDirectory { directory in
+            let journal = RestoreRollbackJournal(directoryURL: directory.appendingPathComponent("restore"))
+            let original = Data("original-state".utf8)
+            #expect(throws: Interruption.self) {
+                try journal.begin(snapshotData: original, validate: { _ in }) {
+                    if $0 == .intent { throw Interruption.stopped }
+                }
+            }
+            #expect(journal.isPending)
+            let recovered = try journal.rollbackData()
+            #expect(recovered == original)
+        }
+    }
+
     @Test("Corrupt intent or missing snapshot fails closed")
     func corruptState() throws {
         try withRestoreJournalDirectory { directory in

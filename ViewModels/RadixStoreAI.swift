@@ -427,6 +427,10 @@ extension RadixStore {
         sentence: ConversationPracticeItem?,
         sourceName: String
     ) throws -> AIResultApplicationOutcome {
+        guard !isRestoreTransactionActive, !restoreRollbackJournal.isPending else {
+            throw NSError(domain: "Radix.RestoreRollback", code: 2,
+                          userInfo: [NSLocalizedDescriptionKey: "Finish backup recovery before applying AI results."])
+        }
         guard let builtInTaskID = BuiltInPromptTaskID(rawValue: taskID) else {
             throw AIResultApplicationError.unsupportedTask
         }

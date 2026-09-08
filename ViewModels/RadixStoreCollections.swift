@@ -134,6 +134,7 @@ extension RadixStore {
         sourceImageJPEGData: Data? = nil,
         originalOCRText: String? = nil
     ) -> CharacterCollection? {
+        guard !isRestoreTransactionActive, !restoreRollbackJournal.isPending else { return nil }
         if let existing = collection(id: id) {
             return existing
         }

@@ -469,6 +469,26 @@ struct SwiftUICrashGuardrailTests {
         #expect(pageGridSource.contains(".frame(maxWidth: .infinity, maxHeight: .infinity)"))
     }
 
+    @Test("Full backup restore persists rollback intent and recovers before startup publication")
+    func fullRestoreRollbackWiring() throws {
+        let restore = try sourceText(at: "ViewModels/RadixStoreDataImport.swift")
+        let lifecycle = try sourceText(at: "ViewModels/RadixStoreLifecycle.swift")
+        let root = try sourceText(at: "App/RootView.swift")
+        let begin = try #require(restore.range(of: "restoreRollbackJournal.begin"))
+        let apply = try #require(restore.range(of: "try await applyPortableBackupDocument(document, mode: mode)"))
+        let finish = try #require(restore.range(of: "try restoreRollbackJournal.finish()"))
+        #expect(begin.lowerBound < apply.lowerBound)
+        #expect(apply.lowerBound < finish.lowerBound)
+        #expect(restore.contains("try await recoverPendingRestoreRollback()"))
+        #expect(restore.contains("try flushRestorePersistence()"))
+
+        let recovery = try #require(lifecycle.range(of: "try await recoverPendingRestoreRollback()"))
+        let preprocessing = try #require(lifecycle.range(of: "preprocessStoredAICleanedPagesIfNeeded()"))
+        #expect(recovery.lowerBound < preprocessing.lowerBound)
+        #expect(root.contains("Recover Interrupted Restore"))
+        #expect(root.contains("store.restoreRollbackRecoveryError"))
+    }
+
     private func sourceText(at relativePath: String) throws -> String {
         let testFileURL = URL(fileURLWithPath: #filePath)
         let repositoryURL = testFileURL
