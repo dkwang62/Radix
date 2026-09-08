@@ -425,8 +425,15 @@ Page-deletion journal verification (2026-09-08): 8 focused tests passed, includi
 four interruption boundaries, SQLite lock failure, partial preference/image
 writes, invalid intent and restored-ID reuse. Full `swift test`: 169 tests in
 15 suites passed. Signing-disabled Mac Catalyst build and `git diff --check`
-passed. Physical-device force-quit/relaunch and large-library latency checks
-remain required before release; tests simulate restart by reopening stores.
+passed. The standalone `Tests/PageDeletionProbe` additionally passed seven real
+SIGKILL/relaunch cases with production UserDefaults and SQLite. Release M4 median
+deletion times were 27 ms / 242 ms / 1,207 ms for 100 / 1,000 / 5,000 pages with
+ten sentences per page. Full-corpus reconciliation and preference serialization
+cause a large-library main-thread pause that needs a focused performance fix.
+The isolated signed device probe is installed, but the iPhone rejected launch
+while locked and the iPad is unavailable. Physical force-quit, device timing and
+actual Radix UI checks remain pending. Reproduction/results are in the probe
+README and RESULTS files. Full-backup restore journaling remains separate.
 
 For a normal model/store refactor:
 

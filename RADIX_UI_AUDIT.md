@@ -952,6 +952,14 @@ These should become permanent regression tests during the fix pass. They are aud
 
 ## Remaining Adversarial Test Matrix
 
+Page-deletion follow-up (2026-09-08): the standalone production-code probe passed
+seven real process-kill/relaunch cases, including partial preference/image work.
+Release M4 timing exposed a main-thread performance concern: a three-page cascade
+took median 27 ms at 100 pages/1,000 sentences, 242 ms at 1,000/10,000, and 1,207 ms
+at 5,000/50,000. Physical-device execution is pending an unlocked iPhone/available
+iPad. See `Tests/PageDeletionProbe/RESULTS.md`; do not treat process recovery
+success as a device responsiveness sign-off or full-backup restore recovery.
+
 The source review identifies failures above, but the following runtime coverage remains open. No unexecuted row should be reported as passed.
 
 | Area | Required device/fixture execution |
