@@ -50,6 +50,11 @@ final class SavedPageImageStore {
         try? fileManager.removeItem(at: directoryURL)
     }
 
+    func removeAllImagesForRestore() throws {
+        guard fileManager.fileExists(atPath: directoryURL.path) else { return }
+        try fileManager.removeItem(at: directoryURL)
+    }
+
     func pruneImages(keeping pageIDs: Set<UUID>) {
         guard let urls = try? fileManager.contentsOfDirectory(
             at: directoryURL,

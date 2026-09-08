@@ -3,7 +3,8 @@ import Foundation
 extension RadixStore {
     @MainActor
     func startPendingSharedImportsFromShareExtension() {
-        guard !pageDeletionJournal.isPending else { return }
+        guard !pageDeletionJournal.isPending, !restoreRollbackJournal.isPending,
+              !isRestoreTransactionActive else { return }
         if sharedImportFailure == nil {
             sharedImportFailure = RadixSharedImageImport.firstFailure()
         }

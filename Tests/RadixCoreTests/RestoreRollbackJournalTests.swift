@@ -8,7 +8,7 @@ struct RestoreRollbackJournalTests {
 
     @Test("Intent becomes pending only after a validated durable snapshot")
     func beginOrdering() throws {
-        try withTemporaryDirectory { directory in
+        try withRestoreJournalDirectory { directory in
             let journal = RestoreRollbackJournal(directoryURL: directory.appendingPathComponent("restore"))
             #expect(throws: Interruption.self) {
                 try journal.begin(snapshotData: Data("valid".utf8), validate: { data in
@@ -28,7 +28,7 @@ struct RestoreRollbackJournalTests {
 
     @Test("Interrupted rollback remains retryable until durable restore finishes")
     func rollbackRetry() throws {
-        try withTemporaryDirectory { directory in
+        try withRestoreJournalDirectory { directory in
             let journal = RestoreRollbackJournal(directoryURL: directory.appendingPathComponent("restore"))
             let original = Data("original-state".utf8)
             try journal.begin(snapshotData: original, validate: { _ in })
@@ -51,7 +51,7 @@ struct RestoreRollbackJournalTests {
 
     @Test("Corrupt intent or missing snapshot fails closed")
     func corruptState() throws {
-        try withTemporaryDirectory { directory in
+        try withRestoreJournalDirectory { directory in
             let journalDirectory = directory.appendingPathComponent("restore")
             let journal = RestoreRollbackJournal(directoryURL: journalDirectory)
             try journal.begin(snapshotData: Data("snapshot".utf8), validate: { _ in })
@@ -60,4 +60,12 @@ struct RestoreRollbackJournalTests {
             #expect(journal.isPending)
         }
     }
+}
+
+private func withRestoreJournalDirectory<T>(_ body: (URL) throws -> T) throws -> T {
+    let url = FileManager.default.temporaryDirectory
+        .appendingPathComponent("radix_restore_journal_tests_\(UUID().uuidString)", isDirectory: true)
+    try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: url) }
+    return try body(url)
 }

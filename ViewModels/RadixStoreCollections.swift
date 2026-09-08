@@ -81,11 +81,11 @@ extension RadixStore {
         }
     }
 
-    func replaceCollections(with importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) {
-        savedPageImageStore.removeAllImages()
+    func replaceCollections(with importedCollections: [CharacterCollection]?, selectedAICollectionID importedSelectedID: UUID?) throws {
+        try savedPageImageStore.removeAllImagesForRestore()
         allCollections = sanitizeCollections(importedCollections ?? []).map(prepareCollectionForLiveStorage)
         sortCollections()
-        persistCollections()
+        try persistCollectionsForRestore()
         selectedAICollectionID = importedSelectedID.flatMap { collection(id: $0) == nil ? nil : $0 }
         if let selectedBrowseCollectionID, collection(id: selectedBrowseCollectionID) == nil {
             self.selectedBrowseCollectionID = nil
@@ -289,6 +289,7 @@ extension RadixStore {
             ])
         }
         try pageDeletionJournal.requireNoPendingDeletion()
+        try restoreRollbackJournal.requireNoPendingRestore()
     }
 
     func deleteCollection(id: UUID) async throws {
@@ -605,6 +606,10 @@ extension RadixStore {
         if let data = try? JSONEncoder().encode(allCollections) {
             preferences.set(data, forKey: RadixPreferenceKey.collections)
         }
+    }
+
+    private func persistCollectionsForRestore() throws {
+        preferences.set(try JSONEncoder().encode(allCollections), forKey: RadixPreferenceKey.collections)
     }
 
     func sourceImageJPEGData(for collection: CharacterCollection) -> Data? {

@@ -118,8 +118,9 @@ extension RadixStore {
     }
 
     func startDatabaseOptimization(reason: String = "Optimizing database", includeStorageCleanup: Bool = false) {
-        guard !pageDeletionJournal.isPending else {
-            databaseOptimizationMessage = "Finish the interrupted page deletion using Retry first."
+        guard !pageDeletionJournal.isPending, !restoreRollbackJournal.isPending,
+              !isRestoreTransactionActive else {
+            databaseOptimizationMessage = "Finish the current data recovery first."
             return
         }
         if databaseOptimizationInProgress {

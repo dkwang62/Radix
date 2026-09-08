@@ -58,6 +58,15 @@ struct PortableBackupDocument: @unchecked Sendable {
     }
 }
 
+extension PortableBackupDocument {
+    func unifiedPackage() throws -> UnifiedPackage {
+        guard case .unified(let package) = payload else {
+            throw PortableBackupCodecError.invalidDocument
+        }
+        return package
+    }
+}
+
 private struct PortableBackupBundleManifest: Codable {
     struct FileEntry: Codable {
         let path: String

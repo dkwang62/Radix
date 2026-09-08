@@ -15,10 +15,15 @@ extension RadixStore {
             pageDeletionRecoveryError = nil
             try loadDictionaryRepository()
             try phraseRepo.openFromBundle()
+            try await recoverPendingRestoreRollback()
+            restoreRollbackRecoveryError = nil
             loadConversationPracticePhraseCache()
             preprocessStoredAICleanedPagesIfNeeded()
             setupInitialState()
         } catch {
+            if restoreRollbackJournal.isPending {
+                restoreRollbackRecoveryError = error.localizedDescription
+            }
             loadingError = error.localizedDescription
         }
     }
@@ -30,10 +35,15 @@ extension RadixStore {
             pageDeletionRecoveryError = nil
             try componentRepo.loadFromBundle()
             try phraseRepo.openForTesting()
+            try await recoverPendingRestoreRollback()
+            restoreRollbackRecoveryError = nil
             loadConversationPracticePhraseCache()
             preprocessStoredAICleanedPagesIfNeeded()
             setupInitialState()
         } catch {
+            if restoreRollbackJournal.isPending {
+                restoreRollbackRecoveryError = error.localizedDescription
+            }
             loadingError = error.localizedDescription
         }
     }

@@ -40,14 +40,27 @@ struct RootView: View {
             } actions: {
                 Button("Retry") { Task { await store.initialize() } }
             }
+        } else if let error = store.restoreRollbackRecoveryError {
+            ContentUnavailableView {
+                Label("Recover Interrupted Restore", systemImage: "exclamationmark.triangle")
+            } description: {
+                Text("Radix must restore your previous data before continuing. \(error)")
+            } actions: {
+                Button("Retry") { Task { await store.initialize() } }
+            }
         } else {
             normalBody
                 .overlay {
-                    if store.isPreparingPageDeletion {
-                        ProgressView("Preparing deletion...")
-                            .padding()
-                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
-                            .allowsHitTesting(false)
+                    if store.isRestoreTransactionActive || store.isPreparingPageDeletion {
+                        ZStack {
+                            if store.isRestoreTransactionActive {
+                                Color.clear.contentShape(Rectangle())
+                            }
+                            ProgressView(store.isRestoreTransactionActive ? "Securing backup restore..." : "Preparing deletion...")
+                                .padding()
+                                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                        }
+                        .allowsHitTesting(store.isRestoreTransactionActive)
                     }
                 }
         }

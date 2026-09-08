@@ -64,7 +64,9 @@ final class RadixStore: ObservableObject {
     let preferences: any RadixPreferenceStore
     let savedPageImageStore: SavedPageImageStore
     @Published var pageDeletionRecoveryError: String?
+    @Published var restoreRollbackRecoveryError: String?
     @Published var isPreparingPageDeletion = false
+    @Published var isRestoreTransactionActive = false
     var pageDeletionDeferralCount = 0
 
     init(

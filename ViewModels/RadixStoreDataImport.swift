@@ -107,7 +107,7 @@ extension RadixStore {
                 if importPhrases {
                     try phraseRepo.replaceAllPhrases(uniquePhrases(package.phrases))
                 }
-                replaceCollections(with: package.collections, selectedAICollectionID: package.selectedAICollectionID)
+                try replaceCollections(with: package.collections, selectedAICollectionID: package.selectedAICollectionID)
                 try applyImportedConversationPracticePacks(package.conversationPracticePacks, mode: .complete)
                 RadixStudyPreferences.conversationPracticeProgress =
                     package.conversationPracticeProgress ?? ConversationPracticeProgressSnapshot()
@@ -174,6 +174,12 @@ extension RadixStore {
 
     func importPortableBackupDocumentForRestore(_ document: PortableBackupDocument, mode: RestoreMode = .additive) async throws {
         try pageDeletionJournal.requireNoPendingDeletion()
+        try restoreRollbackJournal.requireNoPendingRestore()
+        guard !databaseOptimizationInProgress, sharedImportTask == nil else {
+            throw restoreFailure("Wait for the current data operation to finish before restoring a backup.")
+        }
+        isRestoreTransactionActive = true
+        defer { isRestoreTransactionActive = false }
         pageDeletionDeferralCount += 1
         defer { pageDeletionDeferralCount -= 1 }
         try PortableBackupCodec().validate(document.payload)
@@ -187,12 +193,23 @@ extension RadixStore {
             sentenceDatabaseData: try await exportSentenceDatabaseData(),
             addedPhrasesDatabaseData: try exportAddPhrasesDB()
         )
+        let rollbackData = try DataExportService().exportPortableBackupBundle(
+            package: try rollbackDocument.unifiedPackage(),
+            sentenceDatabaseData: rollbackDocument.sentenceDatabaseData,
+            addedPhrasesDatabaseData: rollbackDocument.addedPhrasesDatabaseData
+        )
+        try restoreRollbackJournal.begin(snapshotData: rollbackData) { data in
+            let decoded = try DataExportService().decodePortableBackupDocument(data)
+            try validatePortableBackupDocumentDatabases(decoded)
+        }
 
         do {
             try await applyPortableBackupDocument(document, mode: mode)
+            try flushRestorePersistence()
+            try restoreRollbackJournal.finish()
         } catch {
             do {
-                try await applyPortableBackupDocument(rollbackDocument, mode: .complete)
+                try await recoverPendingRestoreRollback()
             } catch let rollbackError {
                 throw NSError(
                     domain: "Radix",
@@ -204,6 +221,32 @@ extension RadixStore {
         }
         markDatabaseOptimizationNeeded()
         databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
+    }
+
+    var restoreRollbackJournal: RestoreRollbackJournal {
+        RestoreRollbackJournal(directoryURL: savedPageImageStore.restoreRollbackDirectoryURL)
+    }
+
+    func recoverPendingRestoreRollback() async throws {
+        guard restoreRollbackJournal.isPending else { return }
+        isRestoreTransactionActive = true
+        defer { isRestoreTransactionActive = false }
+        let data = try restoreRollbackJournal.rollbackData()
+        let document = try DataExportService().decodePortableBackupDocument(data)
+        try validatePortableBackupDocumentDatabases(document)
+        try await applyPortableBackupDocument(document, mode: .complete)
+        try flushRestorePersistence()
+        try restoreRollbackJournal.finish()
+    }
+
+    private func flushRestorePersistence() throws {
+        try preferences.flushPageDeletion()
+        try RadixPreferences.standard.flushPageDeletion()
+    }
+
+    private func restoreFailure(_ message: String) -> NSError {
+        NSError(domain: "Radix.RestoreRollback", code: 1,
+                userInfo: [NSLocalizedDescriptionKey: message])
     }
 
     private func validatePortableBackupDocumentDatabases(_ document: PortableBackupDocument) throws {
