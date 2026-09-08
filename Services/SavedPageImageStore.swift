@@ -35,6 +35,10 @@ final class SavedPageImageStore {
         directoryURL.deletingLastPathComponent().appendingPathComponent("pending-page-deletion.json")
     }
 
+    var restoreRollbackDirectoryURL: URL {
+        directoryURL.deletingLastPathComponent().appendingPathComponent("Pending Restore Rollback", isDirectory: true)
+    }
+
     func removeImageForConfirmedDeletion(for pageID: UUID) throws {
         let url = imageURL(for: pageID)
         guard fileManager.fileExists(atPath: url.path) else { return }

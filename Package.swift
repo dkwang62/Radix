@@ -44,6 +44,7 @@ let package = Package(
                 "RadixPreferenceStore.swift",
                 "SavedPageRules.swift",
                 "PageDeletionJournal.swift",
+                "RestoreRollbackJournal.swift",
                 "UnifiedPackage.swift",
                 "UserProfile.swift"
             ],

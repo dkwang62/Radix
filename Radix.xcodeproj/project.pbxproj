@@ -277,6 +277,7 @@
 		C6065C998F6469F25F2E16BD /* RadixStoreConversationPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6AE1E44BD404B2155FFE7F /* RadixStoreConversationPractice.swift */; };
 		C822EBB2ACED174DCD449DDA /* SavedPageRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54EAB0A07FD2034E2E17006 /* SavedPageRules.swift */; };
 		AE236E98BA9C490F873F1001 /* PageDeletionJournal.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE236E98BA9C490F873F1002 /* PageDeletionJournal.swift */; };
+		AE236E98BA9C490F873F1003 /* RestoreRollbackJournal.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE236E98BA9C490F873F1004 /* RestoreRollbackJournal.swift */; };
 		C8C14FA80D3B7D69A60FAFD1 /* DataEditRestoreFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EACE5A1991601A0C41917DC /* DataEditRestoreFlow.swift */; };
 		CB360F3972D55FBFD1555152 /* RadixApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD6667A0050D42F3CEC06E1 /* RadixApp.swift */; };
 		CDE58FC9C241B89DA2A18538 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62C2C812BDCE5C4161C8606 /* UserProfile.swift */; };
@@ -570,6 +571,7 @@
 		D355D0DC4BFD564CD930A664 /* SUBTLEX-CH-CHR.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SUBTLEX-CH-CHR.txt"; sourceTree = "<group>"; };
 		D54EAB0A07FD2034E2E17006 /* SavedPageRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPageRules.swift; sourceTree = "<group>"; };
 		AE236E98BA9C490F873F1002 /* PageDeletionJournal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageDeletionJournal.swift; sourceTree = "<group>"; };
+		AE236E98BA9C490F873F1004 /* RestoreRollbackJournal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreRollbackJournal.swift; sourceTree = "<group>"; };
 		E97C43CA65287B742747F7B4 /* RadixChevronRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixChevronRow.swift; sourceTree = "<group>"; };
 		E9C3F33A9386C399BF9BA6BD /* subtlex_freq.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = subtlex_freq.json; sourceTree = "<group>"; };
 		F62C2C812BDCE5C4161C8606 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
@@ -761,6 +763,7 @@
 				A41FA44872CC37DC4CB16688 /* RadixPreferenceStore.swift */,
 				D54EAB0A07FD2034E2E17006 /* SavedPageRules.swift */,
 				AE236E98BA9C490F873F1002 /* PageDeletionJournal.swift */,
+				AE236E98BA9C490F873F1004 /* RestoreRollbackJournal.swift */,
 				BF7695C55BB9AFAA1CDFEB58 /* ComponentModels.swift */,
 				167CA0002F9C0001001B9AA7 /* CaptureModels.swift */,
 				911F85BE195D61BDA4442400 /* PhraseModels.swift */,
@@ -1057,6 +1060,7 @@
 				D1DA4946E25594ACA87F4F15 /* RadixUserLibraryState.swift in Sources */,
 				C822EBB2ACED174DCD449DDA /* SavedPageRules.swift in Sources */,
 				AE236E98BA9C490F873F1001 /* PageDeletionJournal.swift in Sources */,
+				AE236E98BA9C490F873F1003 /* RestoreRollbackJournal.swift in Sources */,
 				54AEA36E2B501297AEFF8B62 /* SentenceExampleListSheet.swift in Sources */,
 				864DAB762F93ADA3001B9AA7 /* ComponentRepository.swift in Sources */,
 				864DAB782FC40002001B9AA7 /* ComponentRepositoryQueries.swift in Sources */,
