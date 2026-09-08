@@ -43,21 +43,24 @@ enum DeletionProbe {
                 let pageCount = arguments.count == 3 ? Int(arguments[2]) ?? 100 : 100
                 guard (100...5000).contains(pageCount) else { throw error("Page count must be 100...5000") }
                 try fixture.seed(pageCount: pageCount)
-                var measurements: [String: Double] = [:]
                 let start = CFAbsoluteTimeGetCurrent()
-                var previous = start
-                try fixture.journal(onReconciliation: { measurements["sqlite"] = $0 }).delete(pageIDs: fixture.deletedIDs()) { stage in
-                    let now = CFAbsoluteTimeGetCurrent()
-                    measurements[String(describing: stage)] = (now - previous) * 1000
-                    previous = now
+                let prepared = try PageDeletionJournal.prepare(pageIDs: fixture.deletedIDs(), snapshot: fixture.journal().captureSnapshot())
+                let preparation = (CFAbsoluteTimeGetCurrent() - start) * 1000
+                #if canImport(UIKit)
+                let (commitTime, measurements) = try DispatchQueue.main.sync {
+                    try timedCommit(prepared, fixture: fixture)
                 }
+                #else
+                let (commitTime, measurements) = try timedCommit(prepared, fixture: fixture)
+                #endif
                 let total = (CFAbsoluteTimeGetCurrent() - start) * 1000
                 try fixture.verify(deleted: true)
                 let emptyStart = CFAbsoluteTimeGetCurrent()
                 for _ in 0..<1000 { try fixture.journal().recover() }
                 let emptyAverage = CFAbsoluteTimeGetCurrent() - emptyStart
                 try emit(["result": "passed", "pages": pageCount, "sentences": pageCount * 10,
-                          "deletion_ms": total, "stages_ms": measurements, "empty_recovery_ms": emptyAverage])
+                          "deletion_ms": total, "preparation_ms": preparation, "commit_ms": commitTime,
+                          "stages_ms": measurements, "empty_recovery_ms": emptyAverage])
                 try fixture.cleanup()
             default:
                 throw error("Unknown command")
@@ -74,11 +77,25 @@ enum DeletionProbe {
         try FileHandle.standardOutput.write(contentsOf: data + Data([10]))
     }
 
+    static func timedCommit(_ prepared: PageDeletionJournal.PreparedDeletion, fixture: Fixture) throws -> (Double, [String: Double]) {
+        var measurements: [String: Double] = [:]
+        let start = CFAbsoluteTimeGetCurrent()
+        var previous = start
+        try fixture.journal(onReconciliation: { measurements["sqlite"] = $0 }).commit(prepared) { stage in
+            let now = CFAbsoluteTimeGetCurrent()
+            measurements[String(describing: stage)] = (now - previous) * 1000
+            previous = now
+        }
+        return ((CFAbsoluteTimeGetCurrent() - start) * 1000, measurements)
+    }
+
     static func error(_ message: String) -> NSError {
         NSError(domain: "Radix.DeletionProbe", code: 1, userInfo: [NSLocalizedDescriptionKey: message])
     }
 
-    final class Fixture {
+    // The worker hands the fixture to a synchronous main-queue commit, then resumes.
+    // No fixture operations overlap across these queues.
+    final class Fixture: @unchecked Sendable {
         let directory: URL
         let appDefaults: UserDefaults
         let studyDefaults: UserDefaults

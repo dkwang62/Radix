@@ -47,4 +47,7 @@ end
 medians = results.select { |r| r.key?('pages') }.group_by { |r| r['pages'] }.transform_values do |runs|
   runs.map { |r| r['deletion_ms'] }.sort[1]
 end
-puts JSON.generate('result' => 'passed', 'interruption_cases' => 7, 'benchmark_runs' => 9, 'median_deletion_ms' => medians)
+commits = results.select { |r| r.key?('pages') }.group_by { |r| r['pages'] }.transform_values do |runs|
+  runs.map { |r| r['commit_ms'] }.sort[1]
+end
+puts JSON.generate('result' => 'passed', 'interruption_cases' => 7, 'benchmark_runs' => 9, 'median_deletion_ms' => medians, 'median_commit_ms' => commits)
