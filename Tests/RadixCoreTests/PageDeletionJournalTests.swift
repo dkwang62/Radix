@@ -64,6 +64,26 @@ struct PageDeletionJournalTests {
         try fixture.verifyDeletion()
     }
 
+    @Test("Replay repairs partially durable preferences without losing the selected pack identity")
+    func partialPreferences() throws {
+        let fixture = try Fixture()
+        defer { fixture.cleanup() }
+        let originalPages = fixture.preferences.data(forKey: RadixPreferenceKey.aiCleanedPages)
+        let journal = fixture.journal(flush: {
+            // Model a kill after the pack list reaches disk but before other keys.
+            fixture.preferences.set(originalPages, forKey: RadixPreferenceKey.aiCleanedPages)
+            fixture.preferences.set(fixture.child.id.uuidString, forKey: RadixPreferenceKey.conversationPracticeTopic)
+            try fixture.preferences.flushPageDeletion()
+            throw Interruption.stopped
+        })
+        #expect(throws: Interruption.self) { try journal.delete(pageIDs: fixture.deletedIDs) }
+        try fixture.preferences.reload()
+        #expect(ConversationPracticeStore(preferences: fixture.preferences).importedPacks.count == 1)
+        #expect(PageStudyArtifactStore(preferences: fixture.preferences).cleanedPages.count == 3)
+        try fixture.journal().recover()
+        try fixture.verifyDeletion()
+    }
+
     @Test("SQLite lock leaves preferences and images unchanged and permits recovery")
     func sqliteFailure() throws {
         let fixture = try Fixture()

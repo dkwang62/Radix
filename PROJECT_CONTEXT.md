@@ -229,6 +229,17 @@ root-and-corrected-descendant ID set for page-owned artifacts, practice packs,
 and sentence provenance. A sentence source link may navigate only to a page that
 still exists.
 
+Confirmed page deletion uses `PageDeletionJournal`: an atomically written,
+flushed identity record precedes SQLite reconciliation, preference filtering
+and acknowledged preference flushes, then throwing image removal. Only after
+all steps succeed is the journal retired and UI state published. Startup replays
+pending deletion before loading/preprocessing page data; failures show a blocking
+Retry screen. Replay is idempotent and preserves favourites, independent sources,
+global notes and reusable practice progress. Restore/reset cannot run with pending
+intent, and deletion waits for active asynchronous database imports or optimization.
+This provides recovery by finishing a confirmed deletion, not rollback or Undo.
+Full-backup restore still has its separate, previously documented crash boundary.
+
 ### Page and Sentence Ownership
 
 - Corrected OCR pages, translations, extracted sentence pages, page-created
@@ -409,6 +420,13 @@ paths, data behavior, and learning workflow.
    not recreate parallel restart/handoff files; update this document instead.
 
 ## Required Verification
+
+Page-deletion journal verification (2026-09-08): 8 focused tests passed, including
+four interruption boundaries, SQLite lock failure, partial preference/image
+writes, invalid intent and restored-ID reuse. Full `swift test`: 169 tests in
+15 suites passed. Signing-disabled Mac Catalyst build and `git diff --check`
+passed. Physical-device force-quit/relaunch and large-library latency checks
+remain required before release; tests simulate restart by reopening stores.
 
 For a normal model/store refactor:
 
