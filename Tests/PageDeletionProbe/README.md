@@ -56,6 +56,17 @@ names are `before`, `journal`, `sentences`, `first-preference-store`,
 the subsequent process must print `"result":"passed"`. The app exits after each
 command. An ordinary launch with no arguments exits with a usage error.
 
+With the QA app installed and the device unlocked, the complete device matrix is:
+
+```sh
+ruby Tests/PageDeletionProbe/run_device.rb DEVICE
+```
+
+The runner checks `terminationResult.terminatingSignal == 9` in devicectl's
+structured JSON output. The probe waits after sending SIGKILL so delayed signal
+delivery cannot accidentally become a normal process exit. It verifies all
+seven recovery cases and collects three timing samples at each library size.
+
 Device probe success does not sign off the actual Radix UI. A person must still
 test the exact installed Radix build: cancel/confirm deletion in Capture, Browse
 and Study; force-quit/relaunch; verify remaining favourites and pages; and check

@@ -430,10 +430,13 @@ SIGKILL/relaunch cases with production UserDefaults and SQLite. Release M4 media
 deletion times were 27 ms / 242 ms / 1,207 ms for 100 / 1,000 / 5,000 pages with
 ten sentences per page. Full-corpus reconciliation and preference serialization
 cause a large-library main-thread pause that needs a focused performance fix.
-The isolated signed device probe is installed, but the iPhone rejected launch
-while locked and the iPad is unavailable. Physical force-quit, device timing and
-actual Radix UI checks remain pending. Reproduction/results are in the probe
-README and RESULTS files. Full-backup restore journaling remains separate.
+The isolated signed probe subsequently passed all seven SIGKILL/relaunch cases
+on iPhone 13 mini and iPad 9th generation. Median deletion for the same sizes:
+iPhone 35 / 313 / 1,663 ms; iPad 56 / 475 / 2,388 ms. These storage timings confirm
+the performance concern; actual shipping Radix touch/navigation/Retry checks
+still need human sign-off. QA apps were removed without touching Radix data.
+Reproduction/results are in the probe README and RESULTS files. Full-backup
+restore journaling remains separate.
 
 For a normal model/store refactor:
 
