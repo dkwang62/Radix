@@ -14,4 +14,13 @@ protocol RadixPreferenceStore {
     func object(forKey key: String) -> Any?
     func set(_ value: Any?, forKey key: String)
     func removeObject(forKey key: String)
+    func flushPageDeletion() throws
+}
+
+extension RadixPreferenceStore {
+    func flushPageDeletion() throws {
+        throw NSError(domain: "Radix.PageDeletion", code: 2, userInfo: [
+            NSLocalizedDescriptionKey: "This preference store cannot confirm a durable page deletion."
+        ])
+    }
 }

@@ -283,16 +283,30 @@ extension RadixStore {
     }
 
     func deleteCollection(id: UUID) throws {
+        guard pageDeletionDeferralCount == 0, !databaseOptimizationInProgress else {
+            throw NSError(domain: "Radix.PageDeletion", code: 3, userInfo: [
+                NSLocalizedDescriptionKey: "Wait for the current data operation to finish before deleting a page."
+            ])
+        }
+        try pageDeletionJournal.requireNoPendingDeletion()
+        guard collection(id: id) != nil else { return }
         let descendantIDs = Set(correctedCollectionDescendants(of: id).map(\.id))
         let removedCollectionIDs = descendantIDs.union([id])
-        _ = try RadixStudyPreferences.reconcileSentenceSourcesAfterDeletingPages(removedCollectionIDs)
         let removedPracticePackIDs = Set(RadixStudyPreferences.importedConversationPracticePacks
             .filter { $0.sourceLink?.isLinked(toAnyPageID: removedCollectionIDs) == true }
             .map(\.packID))
 
+        do {
+            try pageDeletionJournal.delete(pageIDs: removedCollectionIDs)
+        } catch {
+            if pageDeletionJournal.isPending {
+                pageDeletionRecoveryError = error.localizedDescription
+            }
+            throw error
+        }
+
         allCollections.removeAll { removedCollectionIDs.contains($0.id) }
         for removedID in removedCollectionIDs {
-            savedPageImageStore.removeImage(for: removedID)
             browsePagePhraseTileCache.removeValue(forKey: removedID)
             browsePagePhraseCandidateCache.removeValue(forKey: removedID)
         }
@@ -304,9 +318,6 @@ extension RadixStore {
             selectedAICollectionID = nil
         }
         if !removedPracticePackIDs.isEmpty {
-            var packs = RadixStudyPreferences.importedConversationPracticePacks
-            packs.removeAll { removedPracticePackIDs.contains($0.packID) }
-            RadixStudyPreferences.importedConversationPracticePacks = packs
             if removedPracticePackIDs.contains(selectedConversationPracticeTopicID) {
                 selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
                 activePracticeSentenceItem = nil
@@ -315,15 +326,33 @@ extension RadixStore {
                 persistPromptSettings()
             }
         }
-        var phraseExtractions = RadixStudyPreferences.pagePhraseExtractions
-        phraseExtractions.removeAll { removedCollectionIDs.contains($0.sourcePageID) }
-        RadixStudyPreferences.pagePhraseExtractions = phraseExtractions
-        var cleanedPages = RadixStudyPreferences.aiCleanedPages
-        cleanedPages.removeAll { removedCollectionIDs.contains($0.sourcePageID) }
-        RadixStudyPreferences.aiCleanedPages = cleanedPages
-        persistCollections()
         favoriteSentenceRevision += 1
         dataImportRevision += 1
+    }
+
+    var pageDeletionJournal: PageDeletionJournal {
+        PageDeletionJournal(
+            url: savedPageImageStore.deletionJournalURL,
+            preferences: preferences,
+            studyPreferences: RadixPreferences.standard,
+            reconcileSentences: { ids in
+                _ = try RadixStudyPreferences.reconcileSentenceSourcesAfterDeletingPages(ids)
+            },
+            flushPreferences: {
+                try self.preferences.flushPageDeletion()
+                try RadixPreferences.standard.flushPageDeletion()
+            },
+            removeImage: { try self.savedPageImageStore.removeImageForConfirmedDeletion(for: $0) }
+        )
+    }
+
+    func recoverPendingPageDeletion() throws {
+        do {
+            try pageDeletionJournal.recover()
+        } catch {
+            pageDeletionRecoveryError = error.localizedDescription
+            throw error
+        }
     }
 
     @discardableResult

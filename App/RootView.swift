@@ -32,6 +32,20 @@ struct RootView: View {
     @State var navigationGuideTopic: RadixNavigationGuideTopic?
 
     var body: some View {
+        if let error = store.pageDeletionRecoveryError {
+            ContentUnavailableView {
+                Label("Finish Page Deletion", systemImage: "exclamationmark.triangle")
+            } description: {
+                Text("The confirmed deletion was interrupted. Retry to finish it before continuing. \(error)")
+            } actions: {
+                Button("Retry") { Task { await store.initialize() } }
+            }
+        } else {
+            normalBody
+        }
+    }
+
+    private var normalBody: some View {
         rootContent
         .background {
             RadixSceneLifecycleObserver(

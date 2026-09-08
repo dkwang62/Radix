@@ -31,6 +31,16 @@ final class SavedPageImageStore {
         try? fileManager.removeItem(at: url)
     }
 
+    var deletionJournalURL: URL {
+        directoryURL.deletingLastPathComponent().appendingPathComponent("pending-page-deletion.json")
+    }
+
+    func removeImageForConfirmedDeletion(for pageID: UUID) throws {
+        let url = imageURL(for: pageID)
+        guard fileManager.fileExists(atPath: url.path) else { return }
+        try fileManager.removeItem(at: url)
+    }
+
     func removeAllImages() {
         guard fileManager.fileExists(atPath: directoryURL.path) else { return }
         try? fileManager.removeItem(at: directoryURL)

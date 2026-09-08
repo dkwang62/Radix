@@ -11,11 +11,13 @@ extension RadixStore {
     func initialize() async {
         loadingError = nil
         do {
+            try recoverPendingPageDeletion()
             try loadDictionaryRepository()
             try phraseRepo.openFromBundle()
             loadConversationPracticePhraseCache()
             preprocessStoredAICleanedPagesIfNeeded()
             setupInitialState()
+            pageDeletionRecoveryError = nil
         } catch {
             loadingError = error.localizedDescription
         }
@@ -24,11 +26,13 @@ extension RadixStore {
     func initializeForTesting() async {
         loadingError = nil
         do {
+            try recoverPendingPageDeletion()
             try componentRepo.loadFromBundle()
             try phraseRepo.openForTesting()
             loadConversationPracticePhraseCache()
             preprocessStoredAICleanedPagesIfNeeded()
             setupInitialState()
+            pageDeletionRecoveryError = nil
         } catch {
             loadingError = error.localizedDescription
         }

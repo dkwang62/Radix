@@ -43,6 +43,7 @@ let package = Package(
                 "RadixPreferenceKey.swift",
                 "RadixPreferenceStore.swift",
                 "SavedPageRules.swift",
+                "PageDeletionJournal.swift",
                 "UnifiedPackage.swift",
                 "UserProfile.swift"
             ],

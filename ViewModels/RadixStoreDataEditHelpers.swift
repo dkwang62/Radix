@@ -180,6 +180,7 @@ extension RadixStore {
     /// This keeps reset recoverable through Restore Snapshot, and avoids surprising
     /// users by deleting credentials that live in Settings rather than learning memory.
     func resetRadixMemory() throws {
+        try pageDeletionJournal.requireNoPendingDeletion()
         pendingDatasetAutosaveWorkItem?.cancel()
         pendingDatasetAutosaveWorkItem = nil
         dataEditLoadTask?.cancel()

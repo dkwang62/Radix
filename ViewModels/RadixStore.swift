@@ -63,6 +63,8 @@ enum QuickEditDestination: Identifiable, Equatable {
 final class RadixStore: ObservableObject {
     let preferences: any RadixPreferenceStore
     let savedPageImageStore: SavedPageImageStore
+    @Published var pageDeletionRecoveryError: String?
+    var pageDeletionDeferralCount = 0
 
     init(
         preferences: any RadixPreferenceStore = RadixPreferences.standard,

@@ -48,4 +48,12 @@ struct RadixPreferences: RadixPreferenceStore, @unchecked Sendable {
     func removeObject(forKey key: String) {
         defaults.removeObject(forKey: key)
     }
+
+    func flushPageDeletion() throws {
+        guard defaults.synchronize() else {
+            throw NSError(domain: "Radix.PageDeletion", code: 2, userInfo: [
+                NSLocalizedDescriptionKey: "Page deletion could not be saved. Free up storage and retry."
+            ])
+        }
+    }
 }

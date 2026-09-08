@@ -15,6 +15,7 @@ extension RadixStore {
         refreshSentenceLinks: Bool = false,
         importPhrases: Bool = true
     ) throws {
+        try pageDeletionJournal.requireNoPendingDeletion()
         try PortableBackupCodec().validate(payload)
         if mode == .additive, case .unified(let package) = payload {
             try validateImportedCollectionMerge(package.collections)
@@ -157,6 +158,9 @@ extension RadixStore {
     }
 
     func importDataEditPayloadForRestore(_ payload: PortableBackupPayload, mode: RestoreMode = .additive) async throws {
+        try pageDeletionJournal.requireNoPendingDeletion()
+        pageDeletionDeferralCount += 1
+        defer { pageDeletionDeferralCount -= 1 }
         try await createDatabaseSafetySnapshotsForSettings(reason: "Before importing data")
         try importDataEditPayload(
             payload,
@@ -169,6 +173,9 @@ extension RadixStore {
     }
 
     func importPortableBackupDocumentForRestore(_ document: PortableBackupDocument, mode: RestoreMode = .additive) async throws {
+        try pageDeletionJournal.requireNoPendingDeletion()
+        pageDeletionDeferralCount += 1
+        defer { pageDeletionDeferralCount -= 1 }
         try PortableBackupCodec().validate(document.payload)
         if mode == .additive, case .unified(let package) = document.payload {
             try validateImportedCollectionMerge(package.collections)
@@ -256,6 +263,9 @@ extension RadixStore {
     }
 
     func importSentenceLibraryPackage(_ package: SentenceLibraryExportPackage, mode: RestoreMode = .additive) async throws -> SentenceLibraryImportResult {
+        try pageDeletionJournal.requireNoPendingDeletion()
+        pageDeletionDeferralCount += 1
+        defer { pageDeletionDeferralCount -= 1 }
         _ = try? await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before importing sentence library")
         let sentenceExamples = package.sentenceExamples
         let favoriteSentences = package.favoriteSentences
@@ -300,6 +310,9 @@ extension RadixStore {
     }
 
     func importSentenceDatabase(from sourceURL: URL, mode: RestoreMode) async throws -> Int {
+        try pageDeletionJournal.requireNoPendingDeletion()
+        pageDeletionDeferralCount += 1
+        defer { pageDeletionDeferralCount -= 1 }
         _ = try? await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before importing sentence database")
         let importedCount = try await Task.detached(priority: .userInitiated) {
             try RadixStudyPreferences.importSentenceDatabase(from: sourceURL, mode: mode)
