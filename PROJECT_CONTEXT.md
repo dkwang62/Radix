@@ -204,11 +204,15 @@ never launch expensive optimization automatically.
 Sentence database imports validate integrity, required schema, record decoding,
 and stored identity before replacing live data. Sentence mutations throw on
 storage failure and key-changing edits reject normalized-key collisions. Full
-restore preflights both databases, captures an in-memory rollback document, and
-automatically restores it after any caught commit failure. Acquisition and
-validation can be cancelled; the verified commit phase is explicitly
-non-cancellable. An interrupted process during commit remains a recovery test
-case and must not be treated as covered by in-process rollback.
+restore preflights both databases, captures a complete rollback document and
+flushes it before writing durable restore intent. Caught failures replay rollback
+immediately; startup replays pending rollback after repositories open but before
+caches, extracted pages or normal UI load. The intent remains until SQLite,
+dictionary, page-image and preference persistence is acknowledged. Recovery is
+idempotent and blocks normal data work with a Retry-only screen on failure.
+Acquisition and validation can be cancelled; commit and rollback are explicitly
+non-cancellable. The recovery policy restores the pre-operation state rather
+than finishing an interrupted incoming restore.
 Schema-6 complete restore treats a missing or empty extracted-page reference
 section as an authoritative empty category. Schema-1 through schema-5 absence
 remains unsupported data and does not clear current extracted pages. Every
@@ -441,8 +445,17 @@ iPhone and 132 ms on iPad (total elapsed 438 / 770 ms). The long pause is reduce
 not eliminated: iPad can still briefly hitch, and first-open index creation and
 worst-case bulk cascades are not timed by this warm three-page fixture.
 Actual shipping Radix touch/navigation/Retry/frame-pacing checks still need human
-sign-off. Reproduction/results are in `Tests/PageDeletionProbe`. Full-backup
-restore journaling remains separate; startup deletion recovery is synchronous.
+sign-off. Reproduction/results are in `Tests/PageDeletionProbe`. Startup deletion
+recovery is synchronous.
+
+Full-backup restore rollback verification (2026-09-09): four journal tests and
+one startup/UI wiring test passed. The isolated `Tests/RestoreRollbackProbe`
+passed five real SIGKILL boundaries while incoming synthetic SQLite/preferences/
+images were being replaced and four more while rollback was replaying. Full
+`swift test`: 178 tests in 16 suites passed. Signing-disabled Mac Catalyst build
+and `git diff --check` passed. The probe validates durable journal/replay ordering;
+physical-device interruption of the shipping restore flow, disk-full faults and
+large-backup timing remain required before release sign-off.
 
 For a normal model/store refactor:
 
