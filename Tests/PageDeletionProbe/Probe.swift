@@ -185,8 +185,9 @@ enum DeletionProbe {
             try handle.synchronize()
             try handle.close()
             try emit(["result": "interrupting", "phase": phase])
-            kill(getpid(), SIGKILL)
-            _exit(99)
+            guard kill(getpid(), SIGKILL) == 0 else { throw error("SIGKILL could not be sent") }
+            // Signal delivery can lag the syscall on device; never exit normally.
+            while true { pause() }
         }
 
         func verify(deleted: Bool) throws {
