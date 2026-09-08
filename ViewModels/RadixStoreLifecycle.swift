@@ -12,12 +12,12 @@ extension RadixStore {
         loadingError = nil
         do {
             try recoverPendingPageDeletion()
+            pageDeletionRecoveryError = nil
             try loadDictionaryRepository()
             try phraseRepo.openFromBundle()
             loadConversationPracticePhraseCache()
             preprocessStoredAICleanedPagesIfNeeded()
             setupInitialState()
-            pageDeletionRecoveryError = nil
         } catch {
             loadingError = error.localizedDescription
         }
@@ -27,12 +27,12 @@ extension RadixStore {
         loadingError = nil
         do {
             try recoverPendingPageDeletion()
+            pageDeletionRecoveryError = nil
             try componentRepo.loadFromBundle()
             try phraseRepo.openForTesting()
             loadConversationPracticePhraseCache()
             preprocessStoredAICleanedPagesIfNeeded()
             setupInitialState()
-            pageDeletionRecoveryError = nil
         } catch {
             loadingError = error.localizedDescription
         }

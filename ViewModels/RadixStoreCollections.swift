@@ -348,7 +348,17 @@ extension RadixStore {
 
     func recoverPendingPageDeletion() throws {
         do {
+            let wasPending = pageDeletionJournal.isPending
             try pageDeletionJournal.recover()
+            if wasPending {
+                activePracticeSentenceItem = nil
+                pendingConversationPracticeTopicID = nil
+                dismissSidebarPhrasePreview()
+                browsePagePhraseTileCache.removeAll()
+                browsePagePhraseCandidateCache.removeAll()
+                favoriteSentenceRevision += 1
+                dataImportRevision += 1
+            }
         } catch {
             pageDeletionRecoveryError = error.localizedDescription
             throw error

@@ -6,9 +6,10 @@ struct PageDeletionJournal {
     struct Entry: Codable {
         var version = 1
         let pageIDs: Set<UUID>
+        let practicePackIDs: Set<String>
     }
 
-    enum Stage: CaseIterable {
+    enum Stage: CaseIterable, Sendable {
         case journal, sentences, preferences, images
     }
 
@@ -32,8 +33,10 @@ struct PageDeletionJournal {
         guard !pageIDs.isEmpty else { return }
         // Decode/encode every affected preference before committing the intent.
         _ = try preferenceChanges(removing: pageIDs)
+        let packs = ConversationPracticeStore(preferences: studyPreferences).importedPacks
+        let packIDs = Set(packs.filter { $0.sourceLink?.isLinked(toAnyPageID: pageIDs) == true }.map(\.packID))
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try JSONEncoder().encode(Entry(pageIDs: pageIDs)).write(to: url, options: .atomic)
+        try JSONEncoder().encode(Entry(pageIDs: pageIDs, practicePackIDs: packIDs)).write(to: url, options: .atomic)
         let handle = try FileHandle(forWritingTo: url)
         defer { try? handle.close() }
         try handle.synchronize()
@@ -54,6 +57,10 @@ struct PageDeletionJournal {
         if let value = preferences.string(forKey: RadixPreferenceKey.selectedAICollection),
            let id = UUID(uuidString: value), entry.pageIDs.contains(id) {
             preferences.removeObject(forKey: RadixPreferenceKey.selectedAICollection)
+        }
+        if let topic = preferences.string(forKey: RadixPreferenceKey.conversationPracticeTopic),
+           entry.practicePackIDs.contains(topic) {
+            preferences.set(ConversationPracticeTopic.generalGreetings.id, forKey: RadixPreferenceKey.conversationPracticeTopic)
         }
         // UserDefaults writes asynchronously. Never retire intent before its flush.
         try flushPreferences()

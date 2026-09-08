@@ -3,6 +3,30 @@ import Testing
 
 @Suite("SwiftUI crash guardrails")
 struct SwiftUICrashGuardrailTests {
+    @Test("Page deletion recovers before startup and publishes only after the journal completes")
+    func pageDeletionRecoveryWiring() throws {
+        let lifecycle = try sourceText(at: "ViewModels/RadixStoreLifecycle.swift")
+        let recovery = try #require(lifecycle.range(of: "try recoverPendingPageDeletion()"))
+        let preprocessing = try #require(lifecycle.range(of: "preprocessStoredAICleanedPagesIfNeeded()"))
+        #expect(recovery.lowerBound < preprocessing.lowerBound)
+        let collections = try sourceText(at: "ViewModels/RadixStoreCollections.swift")
+        let deletion = collections.components(separatedBy: "func deleteCollection(id: UUID) throws {")[1]
+            .components(separatedBy: "var pageDeletionJournal:")[0]
+        let commit = try #require(deletion.range(of: "try pageDeletionJournal.delete(pageIDs:"))
+        let publication = try #require(deletion.range(of: "allCollections.removeAll"))
+        #expect(commit.lowerBound < publication.lowerBound)
+        #expect(deletion.contains("pageDeletionDeferralCount == 0"))
+        let root = try sourceText(at: "App/RootView.swift")
+        #expect(root.contains("if let error = store.pageDeletionRecoveryError"))
+        #expect(root.contains("Button(\"Retry\") { Task { await store.initialize() } }"))
+        let imports = try sourceText(at: "ViewModels/RadixStoreDataImport.swift")
+        for signature in ["func importPortableBackupDocumentForRestore", "func importSentenceLibraryPackage", "func importSentenceDatabase"] {
+            let body = imports.components(separatedBy: signature)[1].components(separatedBy: "\n    }")[0]
+            #expect(body.contains("try pageDeletionJournal.requireNoPendingDeletion()"))
+            #expect(body.contains("defer { pageDeletionDeferralCount -= 1 }"))
+        }
+    }
+
     @Test("Smart Search examples remain fixed explicit children")
     func smartSearchExamplesAvoidDynamicForEach() throws {
         let source = try sourceText(at: "App/SmartSearchExamples.swift")

@@ -145,6 +145,7 @@ extension RadixStore {
     }
 
     func restoreDatabaseSnapshot(_ snapshot: RadixDatabaseSnapshotMetadata) throws {
+        try pageDeletionJournal.requireNoPendingDeletion()
         switch snapshot.kind {
         case .sentenceExamples:
             _ = try createSentenceDatabaseSafetySnapshot(reason: "Before restoring sentence snapshot")

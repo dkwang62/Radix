@@ -324,6 +324,9 @@ extension RadixStore {
     }
 
     func clearSentenceDatabase() async throws {
+        try pageDeletionJournal.requireNoPendingDeletion()
+        pageDeletionDeferralCount += 1
+        defer { pageDeletionDeferralCount -= 1 }
         _ = try await createSentenceDatabaseSafetySnapshotForSettings(reason: "Before clearing sentence database")
         try await Task.detached(priority: .userInitiated) {
             try RadixStudyPreferences.clearSentenceDatabase()
