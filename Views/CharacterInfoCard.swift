@@ -71,7 +71,7 @@ struct CharacterInfoCard: View {
             .sheet(isPresented: $showSentenceExampleSheet) {
                 SentenceExampleListSheet(
                     title: "Examples",
-                    examples: SentenceExampleDisplayRules.examples(containingCharacter: item.character, limit: nil)
+                    lookup: .character(item.character)
                 )
                 .environmentObject(store)
             }

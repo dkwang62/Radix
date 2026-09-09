@@ -564,6 +564,10 @@ UI-29 keeps phrase-classification controls and page navigation fixed while the
 tile grid scrolls within its remaining height. One focused guard raised the
 suite to 161 tests in 14 suites; the Mac Catalyst build passed with signing
 disabled. Compact-device and largest-Dynamic-Type interaction remain open.
+UI-32 moves character/phrase example lookup off sheet presentation, pages exact
+matches progressively, refreshes on sentence mutations, and provides explicit
+loading and empty states. Its focused guard and all 179 tests in 16 suites
+passed; the signing-disabled Mac Catalyst build passed.
 
 For release work or platform-sensitive UI/data changes, also run:
 

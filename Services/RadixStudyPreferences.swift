@@ -1,9 +1,22 @@
 import Foundation
 
-struct SentenceExampleExactQuery {
-    var searchText: String
-    var limit: Int?
-    var matches: (SentenceExampleRecord) -> Bool
+enum SentenceExampleLookup: Equatable, Sendable {
+    case character(String)
+    case phrase(String)
+
+    var searchText: String {
+        switch self {
+        case .character(let character):
+            return character
+        case .phrase(let phrase):
+            return phrase
+        }
+    }
+}
+
+struct SentenceExampleLookupPage: Equatable, Sendable {
+    var records: [SentenceExampleRecord]
+    var nextOffset: Int?
 }
 
 enum RadixStudyPreferences {
@@ -521,23 +534,53 @@ enum RadixStudyPreferences {
     }
 
     static func sentenceExamples(containingCharacter character: String, limit: Int? = nil) -> [SentenceExampleRecord] {
-        exactSentenceExamples(
-            SentenceExampleExactQuery(
-                searchText: character,
-                limit: limit,
-                matches: { $0.containsCharacter(character) }
-            )
-        )
+        exactSentenceExamples(matching: .character(character), limit: limit)
     }
 
     static func sentenceExamples(containingPhrase phrase: String, limit: Int? = nil) -> [SentenceExampleRecord] {
-        exactSentenceExamples(
-            SentenceExampleExactQuery(
-                searchText: phrase,
-                limit: limit,
-                matches: { sentenceExample($0, containsPhrase: phrase) }
+        exactSentenceExamples(matching: .phrase(phrase), limit: limit)
+    }
+
+    static func sentenceExamplePage(
+        matching lookup: SentenceExampleLookup,
+        offset: Int,
+        limit: Int
+    ) -> SentenceExampleLookupPage {
+        let resultLimit = max(1, limit)
+        let queryPageSize = max(24, min(120, resultLimit * 4))
+        var queryOffset = max(0, offset)
+        var matches: [SentenceExampleRecord] = []
+
+        while matches.count < resultLimit {
+            let result = querySentenceExamples(
+                SentenceExampleQuery(
+                    searchText: lookup.searchText,
+                    offset: queryOffset,
+                    limit: queryPageSize
+                )
             )
-        )
+            guard !result.records.isEmpty else {
+                return SentenceExampleLookupPage(records: matches, nextOffset: nil)
+            }
+
+            for (index, record) in result.records.enumerated() where sentenceExample(record, matches: lookup) {
+                matches.append(record)
+                if matches.count == resultLimit {
+                    let nextOffset = queryOffset + index + 1
+                    return SentenceExampleLookupPage(
+                        records: matches,
+                        nextOffset: nextOffset < result.totalCount ? nextOffset : nil
+                    )
+                }
+            }
+
+            queryOffset += result.records.count
+            if queryOffset >= result.totalCount {
+                return SentenceExampleLookupPage(records: matches, nextOffset: nil)
+            }
+        }
+
+        return SentenceExampleLookupPage(records: matches, nextOffset: nil)
     }
 
     static func sentenceExamples(linkedToPageID pageID: UUID, limit: Int? = nil) -> [SentenceExampleRecord] {
@@ -592,27 +635,35 @@ enum RadixStudyPreferences {
         return haystack.contains(foldedQuery) || haystack.contains(foldedSimplifiedQuery)
     }
 
-    private static func exactSentenceExamples(_ exactQuery: SentenceExampleExactQuery) -> [SentenceExampleRecord] {
-        let pageSize = max(24, min(120, (exactQuery.limit ?? 24) * 4))
-        var offset = 0
+    private static func exactSentenceExamples(
+        matching lookup: SentenceExampleLookup,
+        limit: Int?
+    ) -> [SentenceExampleRecord] {
+        let pageSize = max(1, min(120, limit ?? 24))
+        var nextOffset: Int? = 0
         var matches: [SentenceExampleRecord] = []
 
-        while true {
-            let result = querySentenceExamples(
-                SentenceExampleQuery(
-                    searchText: exactQuery.searchText,
-                    offset: offset,
-                    limit: pageSize
-                )
-            )
-            matches.append(contentsOf: result.records.filter(exactQuery.matches))
-            if let limit = exactQuery.limit, matches.count >= limit {
+        while let offset = nextOffset {
+            let page = sentenceExamplePage(matching: lookup, offset: offset, limit: pageSize)
+            matches.append(contentsOf: page.records)
+            if let limit, matches.count >= limit {
                 return Array(matches.prefix(limit))
             }
-            offset += result.records.count
-            if result.records.isEmpty || offset >= result.totalCount {
-                return matches
-            }
+            nextOffset = page.nextOffset
+        }
+
+        return matches
+    }
+
+    private static func sentenceExample(
+        _ record: SentenceExampleRecord,
+        matches lookup: SentenceExampleLookup
+    ) -> Bool {
+        switch lookup {
+        case .character(let character):
+            return record.containsCharacter(character)
+        case .phrase(let phrase):
+            return sentenceExample(record, containsPhrase: phrase)
         }
     }
 

@@ -699,6 +699,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Why it happens:** Callers request `limit: nil`; exact lookup loops through all query pages before returning. The sheet has no query/revision ownership or empty-state branch.
 
+**Remediation status (2026-09-09):** Addressed. Character and phrase cards now present the sheet with an exact lookup descriptor instead of synchronously resolving an unbounded array. The sheet asynchronously loads exact matches in cursor-based pages, progressively fetches more rows, refreshes on the shared sentence revision, and presents explicit loading and empty states.
+
 **Recommended fix:** Reuse paged sentence-query state, load off the presentation path, refresh on corpus revisions and show a meaningful no-examples state.
 
 ### UI-35: Character Notes opens with Save and Cancel outside the visible sheet

@@ -82,7 +82,7 @@ struct PhraseInfoCard: View {
             .sheet(isPresented: $showSentenceExampleSheet) {
                 SentenceExampleListSheet(
                     title: "Examples",
-                    examples: SentenceExampleDisplayRules.examples(containingPhrase: phrase.word, limit: nil)
+                    lookup: .phrase(phrase.word)
                 )
                 .environmentObject(store)
             }

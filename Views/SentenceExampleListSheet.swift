@@ -5,19 +5,48 @@ struct SentenceExampleListSheet: View {
     @EnvironmentObject private var store: RadixStore
 
     let title: String
-    let examples: [SentenceExampleRecord]
+    let lookup: SentenceExampleLookup
     @State private var usesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
+    @State private var examples: [SentenceExampleRecord] = []
+    @State private var nextOffset: Int?
+    @State private var isInitialLoading = true
+    @State private var isLoadingMore = false
+    @State private var loadGeneration = UUID()
+
+    private let pageSize = 24
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(Array(examples.enumerated()), id: \.element.id) { index, example in
-                        sentenceRow(example, rank: index + 1)
+            Group {
+                if isInitialLoading {
+                    ProgressView("Loading examples...")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if examples.isEmpty {
+                    ContentUnavailableView {
+                        Label("No Examples", systemImage: "text.page.slash")
+                    } description: {
+                        Text(emptyStateMessage)
+                    }
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEach(Array(examples.enumerated()), id: \.element.id) { index, example in
+                                sentenceRow(example, rank: index + 1)
+                            }
+
+                            if let nextOffset {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 16)
+                                    .task(id: nextOffset) {
+                                        await loadMore(from: nextOffset)
+                                    }
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
                     }
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
             }
             .background(RadixTheme.secondaryBackground.opacity(0.3))
             .navigationTitle(title)
@@ -43,6 +72,18 @@ struct SentenceExampleListSheet: View {
             }
         }
         .presentationDetents([.medium, .large])
+        .task(id: SentenceExampleLoadID(lookup: lookup, revision: store.favoriteSentenceRevision)) {
+            await reloadExamples()
+        }
+    }
+
+    private var emptyStateMessage: String {
+        switch lookup {
+        case .character(let character):
+            return "No saved sentence examples contain \(character)."
+        case .phrase(let phrase):
+            return "No saved sentence examples contain \(phrase)."
+        }
     }
 
     private func displayText(_ value: String) -> String {
@@ -108,4 +149,49 @@ struct SentenceExampleListSheet: View {
         )
         dismiss()
     }
+
+    @MainActor
+    private func reloadExamples() async {
+        let generation = UUID()
+        loadGeneration = generation
+        isInitialLoading = true
+        isLoadingMore = false
+        examples = []
+        nextOffset = nil
+
+        let page = await loadPage(offset: 0)
+        guard !Task.isCancelled, loadGeneration == generation else { return }
+        examples = page.records
+        nextOffset = page.nextOffset
+        isInitialLoading = false
+    }
+
+    @MainActor
+    private func loadMore(from offset: Int) async {
+        guard !isLoadingMore, nextOffset == offset else { return }
+        let generation = loadGeneration
+        isLoadingMore = true
+        let page = await loadPage(offset: offset)
+        guard !Task.isCancelled, loadGeneration == generation else { return }
+        examples.append(contentsOf: page.records)
+        nextOffset = page.nextOffset
+        isLoadingMore = false
+    }
+
+    private func loadPage(offset: Int) async -> SentenceExampleLookupPage {
+        let lookup = lookup
+        let pageSize = pageSize
+        return await Task.detached(priority: .userInitiated) {
+            RadixStudyPreferences.sentenceExamplePage(
+                matching: lookup,
+                offset: offset,
+                limit: pageSize
+            )
+        }.value
+    }
+}
+
+private struct SentenceExampleLoadID: Equatable {
+    let lookup: SentenceExampleLookup
+    let revision: Int
 }

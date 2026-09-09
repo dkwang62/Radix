@@ -469,6 +469,25 @@ struct SwiftUICrashGuardrailTests {
         #expect(pageGridSource.contains(".frame(maxWidth: .infinity, maxHeight: .infinity)"))
     }
 
+    @Test("Example sheets page exact matches off the presentation path and refresh after mutations")
+    func sentenceExampleSheetsOwnPagedRefreshableQueries() throws {
+        let sheetSource = try sourceText(at: "Views/SentenceExampleListSheet.swift")
+        let characterSource = try sourceText(at: "Views/CharacterInfoCard.swift")
+        let phraseSource = try sourceText(at: "Views/PhraseInfoCard.swift")
+        let preferencesSource = try sourceText(at: "Services/RadixStudyPreferences.swift")
+
+        #expect(characterSource.contains("lookup: .character(item.character)"))
+        #expect(phraseSource.contains("lookup: .phrase(phrase.word)"))
+        #expect(!characterSource.contains("limit: nil"))
+        #expect(!phraseSource.contains("limit: nil"))
+        #expect(sheetSource.contains("Task.detached(priority: .userInitiated)"))
+        #expect(sheetSource.contains("store.favoriteSentenceRevision"))
+        #expect(sheetSource.contains("ContentUnavailableView"))
+        #expect(sheetSource.contains(".task(id: nextOffset)"))
+        #expect(preferencesSource.contains("static func sentenceExamplePage("))
+        #expect(preferencesSource.contains("let nextOffset = queryOffset + index + 1"))
+    }
+
     @Test("Full backup restore persists rollback intent and recovers before startup publication")
     func fullRestoreRollbackWiring() throws {
         let restore = try sourceText(at: "ViewModels/RadixStoreDataImport.swift")
