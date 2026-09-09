@@ -37,6 +37,7 @@ Excluded from this package:
 - xcuserdata
 - .DS_Store
 - Resources/RadixProjectSource.zip
+- Resources/RadixProjectSourceManifest.json
 EOF
 
 zip -qr "${tmp_zip}" . \
@@ -59,6 +60,7 @@ zip -qr "${tmp_zip}" . \
   -x '*/.DS_Store' \
   -x 'Resources/RadixProjectSource.zip' \
   -x 'Resources/RadixProjectSource.zip.tmp' \
+  -x 'Resources/RadixProjectSourceManifest.json' \
   -x 'RadixProjectSource.zip'
 
 (

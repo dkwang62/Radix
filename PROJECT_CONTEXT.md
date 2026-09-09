@@ -39,6 +39,9 @@ Keep the repository limited to application/Xcode inputs, tests, release assets,
 and Codex operating material. Generated `.build` state remains ignored and may
 be recreated; completed one-off utilities and unrelated machine files belong in
 an external archive. `Scripts/` contains only active release or asset tooling.
+The Advanced Pro source ZIP excludes itself, its generated manifest, build
+products, and machine-local state so every archived project file can match the
+committed source tree exactly.
 
 Recovery points:
 
