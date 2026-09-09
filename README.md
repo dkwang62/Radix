@@ -21,7 +21,12 @@ AI, My Data, or other user-facing workflow structure.
 - `PROJECT_CONTEXT.md` — current architecture, product direction, data rules,
   workstream posture, and required verification.
 - `UI_INTENT.md` — UI/product intent and design decision rules.
-- `PORTABLE_BACKUP_FORMAT.md` — portable backup JSON contract.
+- `PORTABLE_BACKUP_FORMAT.md` — portable backup bundle and JSON payload
+  contract.
+- `RADIX_UI_AUDIT.md` — completed hostile-QA findings, remediation status, and
+  remaining adversarial test matrix.
+- `TESTFLIGHT_RELEASE_CHECKLIST.md` — build-specific automated and physical-iPad
+  release gate.
 - `VARIANT_MEANING_MIGRATION_2026-08-22.md` — audit for the completed one-time
   dictionary meaning migration.
 - `APP_STORE_COPY.md` — App Store and marketing copy draft.
@@ -93,8 +98,8 @@ Before shipping to TestFlight:
 
 1. Complete a fresh [TestFlight release checklist](TESTFLIGHT_RELEASE_CHECKLIST.md)
    for the exact version, build, and commit being uploaded.
-2. Set your real bundle ID in `project.yml` (`PRODUCT_BUNDLE_IDENTIFIER`).
+2. Verify bundle identifiers and signing ownership in `project.yml` and Xcode.
 3. Set your Apple Team in Xcode Signing & Capabilities.
-4. Add real AppIcon image files in `Resources/Assets.xcassets/AppIcon.appiconset`.
+4. Verify the production AppIcon set in `Resources/Assets.xcassets/AppIcon.appiconset`.
 5. Archive from Xcode (`Product > Archive`) and validate/upload only after the
    automated and physical-iPad gates pass.

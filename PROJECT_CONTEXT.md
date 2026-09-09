@@ -9,7 +9,7 @@ Read this before work. Read `UI_INTENT.md` before any navigation, layout, or
 user-workflow change. `AGENTS.md` contains the repository rules for coding
 agents.
 
-Last consolidated: 2026-09-05
+Last consolidated: 2026-09-09
 
 ## Current State
 
@@ -73,7 +73,7 @@ stay linked to their page rather than becoming disconnected parallel features.
   return action named `Back to Browse Dictionary`. Every root title-menu
   navigation choice first clears active
   information cards and deferred launch requests so Browse, Study (including
-  Study Pages), AI, Data, or Settings immediately overrides an unfinished
+  Study Pages), AI, My Data, or Settings immediately overrides an unfinished
   contextual flow.
 - Root titles carry context, for example `Browse - Dictionary`,
   `Browse - [page]`, and `Study - Sentences`; do not repeat the same title in
@@ -413,221 +413,75 @@ paths, data behavior, and learning workflow.
 
 ## Current Workstream
 
-1. Upload the lifecycle-isolation fix in commit `44a0d45` as a new TestFlight
-   build after confirming release version/build metadata.
-2. Test physical iPad backgrounding, re-opening, rotation, Browse pages, Study
-   Sentences, AI menus, and phrase/sentence cards. Collect any new crash log
-   before broad changes.
-3. Continue only focused usability, correctness, performance, or maintainability
-   work. Before adding a feature, search for an existing page, sentence, phrase,
-   practice, AI, or info-card flow to extend. Prioritize the read-only findings in
-   `RADIX_UI_AUDIT.md`: restore atomicity/cancellation, sentence write failures,
-   checkpoint coverage, and identity/reference reconciliation before broad refactors.
-   Its repeated-control matrix also identifies page-delete confirmation, editor
-   commit semantics, and shared sentence revision publication as focused targets;
-   dormant source-picker helpers are not confirmed live UI failures.
-4. Schedule a documentation audit after a release or substantial refactor. Do
-   not recreate parallel restart/handoff files; update this document instead.
+The 46 findings in `RADIX_UI_AUDIT.md` have focused remediations and regression
+coverage. Do not reopen an item without a new reproduction or evidence that its
+documented contract has regressed.
+
+1. Complete the exact-build physical-iPad gate in
+   `TESTFLIGHT_RELEASE_CHECKLIST.md`, including background/foreground, rotation,
+   navigation, menus, cards, and restore/recovery access.
+2. Complete remaining physical accessibility checks: VoiceOver focus,
+   activation and focus return; largest Dynamic Type on compact and split
+   layouts; and keyboard/safe-area behavior.
+3. Exercise StoreKit Ask to Buy, delayed transactions, restore with no purchase,
+   and subscription lapse in Apple's test environment.
+4. Fault-test complete restore for disk exhaustion and interrupt the shipping
+   app on a disposable physical-device library. Record large-backup timing.
+5. Continue only focused correctness, usability, performance, or maintainability
+   work. Keep this file current and use Git history for completed work details.
 
 ## Required Verification
 
-Page-deletion performance verification (2026-09-08): 21 focused tests passed,
-including journal recovery, stale-snapshot rejection and hidden/shared sentence
-cleanup across batches, plus existing-database index upgrade. Full `swift test`:
-173 tests in 15 suites passed. Signing-disabled Mac Catalyst, both Release probe
-builds and `git diff --check` passed. The updated M4, iPhone and iPad probes each
-passed seven SIGKILL/relaunch cases and nine timing runs. M4 median commit
-times: 3 / 9 / 29 ms for 100 / 1,000 / 5,000 pages (ten sentences per page),
-with total preparation plus commit 9 / 66 / 323 ms. The previous wholly
-synchronous 5K deletion took 1,207 ms on M4, 1,663 ms on iPhone 13 mini and
-2,388 ms on iPad 9th generation. Updated 5K device median commits are 43 ms on
-iPhone and 132 ms on iPad (total elapsed 438 / 770 ms). The long pause is reduced,
-not eliminated: iPad can still briefly hitch, and first-open index creation and
-worst-case bulk cascades are not timed by this warm three-page fixture.
-Actual shipping Radix touch/navigation/Retry/frame-pacing checks still need human
-sign-off. Reproduction/results are in `Tests/PageDeletionProbe`. Startup deletion
-recovery is synchronous.
+Latest application baseline (2026-09-09): `swift test` passed 186 tests in
+16 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds
+passed, as did `git diff --check`. Focused audit-item counts belong in
+`RADIX_UI_AUDIT.md` and Git history, not in this handoff.
 
-Full-backup restore rollback verification (2026-09-09): four journal tests and
-one startup/UI wiring test passed. The isolated `Tests/RestoreRollbackProbe`
-passed five real SIGKILL boundaries while incoming synthetic SQLite/preferences/
-images were being replaced and four more while rollback was replaying. Full
-`swift test`: 178 tests in 16 suites passed. Signing-disabled Mac Catalyst and
-generic iOS builds plus `git diff --check` passed. The probe validates durable journal/replay ordering;
-physical-device interruption of the shipping restore flow, disk-full faults and
-large-backup timing remain required before release sign-off.
+Specialized validation:
 
-For a normal model/store refactor:
+- Page deletion: the Mac, iPhone 13 mini, and iPad 9th-generation probe passed
+  all seven SIGKILL/relaunch boundaries. At 5,000 pages and 50,000 sentences,
+  median synchronous commit was 29/43/132 ms respectively. See
+  `Tests/PageDeletionProbe/RESULTS.md`. Human shipping-UI checks, first-open
+  index timing, and worst-case bulk cascades remain open.
+- Full restore: `Tests/RestoreRollbackProbe` passed five interrupted incoming
+  writes and four interrupted rollback writes. Physical-device interruption of
+  the shipping flow, disk exhaustion, and large-backup timing remain open.
+- Sentence examples: the physical-iPhone release probe passed 12 cold-process
+  runs at 10,000 and 50,000 sentences without a query-caused main-thread stall.
+  See `Tests/SentenceExamplesPerformanceProbe/RESULTS.md`.
 
-1. `git diff --check`
-2. `swift test`
-3. `xcodebuild -quiet -project Radix.xcodeproj -scheme Radix -destination 'platform=macOS,variant=Mac Catalyst' CODE_SIGNING_ALLOWED=NO build`
+For a normal model or store change, run:
 
-The read-only 2026-09-06 UI audit passed these checks (117 tests in 12 suites)
-and the generic iOS Simulator build.
-Five disposable core probes reproduced failures documented in `RADIX_UI_AUDIT.md`.
-A subsequent UI-first SE walkthrough added six distinct findings (UI-35 to UI-40),
-including clipped Notes actions, missing phrase-result return, and unsolicited
-clipboard access. A repeated-implementation comparison added six source-derived
-findings (UI-41 to UI-46) and a 16-row parity matrix, bringing the report to 46
-findings. Shared-card favorite invalidation still needs runtime reproduction;
-the physical-device/accessibility matrix remains open. No application fixes were
-made in these audit passes. The comparison pass reran `swift test` (117 tests),
-the Catalyst build, and documentation checks successfully.
-
-The focused UI-01 through UI-07 persistence remediation passed `swift test`
-(121 tests in 12 suites), including malformed sentence-database restore,
-write-lock preservation, normalized-key collision, and practice/artifact reset
-regressions. The arm64 iOS Simulator and Mac Catalyst builds passed with code
-signing disabled. A generic universal Simulator build first stopped because the
-build volume ran out of space; after removing only generated Radix products,
-the device-specific build passed. Physical-device restore interruption,
-disk-full UI execution, and launch/reopen reset checks remain open.
-The UI-09 saved-page identity fix raised the suite to 122 tests and passed the
-Mac Catalyst build. Duplicate page UUIDs are rejected at portable import
-boundaries and legacy local duplicates are reconciled during startup.
-The UI-41 Capture deletion parity guard raised the suite to 123 tests and passed
-the Mac Catalyst build. Capture now requires the same impact confirmation as
-Browse and Study before the shared page cascade runs.
-The UI-10 stale-optimization guard raised the suite to 124 tests and passed the
-Mac Catalyst build. Focused coverage verifies apply, concurrent edit, and
-concurrent deletion behavior.
-The UI-08 page-merge revision guard raised the suite to 125 tests and passed the
-Mac Catalyst build. Focused coverage verifies older/newer selection, transport
-equivalence, and ambiguous legacy conflict rejection.
-The UI-12 page-deletion reconciliation raised the suite to 126 tests and passed
-the Mac Catalyst build. Focused coverage verifies descendant source cleanup,
-surviving-source navigation, favorite retention, and descendant practice-pack
-matching.
-The UI-13 extracted-page restore semantics raised the suite to 128 tests and
-passed the Mac Catalyst build. Focused coverage verifies modern empty-category
-replacement, legacy absence preservation, additive no-op behavior, and failure
-on unresolved sentence pointers.
-The UI-14 correlated source-query fix raised the suite to 129 tests and passed
-the Mac Catalyst build. Focused coverage verifies every page/type pairing for a
-sentence with sources split across two pages.
-The UI-15 coherent sentence-pagination fix raised the suite to 130 tests and
-passed the Mac Catalyst build. Focused coverage verifies totals 0, 1, 10, 11 and
-20 plus unfavorite, deletion and filter-scope boundary changes.
-The UI-16 committed-note-state fix raised the suite to 131 tests and passed the
-Mac Catalyst build. Focused coverage guards save, reopen and cancel against a
-stale parent phrase snapshot.
-The UI-17 quick-editor confirmation fix raised the suite to 132 tests and passed
-the Mac Catalyst build. Focused coverage guards destructive staging for both
-character and phrase Delete/Revert actions.
-The UI-18 single-phrase deletion fix raised the suite to 133 tests and passed the
-Mac Catalyst build. Focused coverage guards persistence-before-publication and
-visible caller errors without advancing or dismissing failed review flows.
-The UI-19 capture-operation ownership fix raised the suite to 135 tests and
-passed the Mac Catalyst build. Focused coverage verifies that only the current,
-uninterrupted Capture operation may auto-open its saved page.
-The UI-20 shared-import ownership fix raised the suite to 136 tests and passed
-the Mac Catalyst build. Focused coverage guards atomic claiming, one store-owned
-consumer, stable page identity, and visible Retry/Discard recovery.
-UI-44 was already resolved in production code; its added regression guard raised
-the suite to 137 tests and verifies persistence-before-publication plus shared
-list/card invalidation. The Mac Catalyst build passed unchanged production code.
-The UI-21 Unicode saved-page fix raised the suite to 140 tests and passed the Mac
-Catalyst build. Focused coverage verifies CJK extension extraction, dictionary
-coverage reporting, and persistence independent of dictionary membership.
-The UI-22 EXIF-orientation fix raised the suite to 142 tests in 14 suites and
-passed the Mac Catalyst build. Generated fixtures cover all eight EXIF values,
-with source coverage guarding consistent preview, Vision and thumbnail use.
-The UI-23 capture-image budget raised the suite to 144 tests in 14 suites and
-passed the Mac Catalyst build. Focused coverage verifies byte, pixel and
-downsampling boundaries plus Album, Files, Share, Camera, Clipboard, Vision and
-orientation integration.
-The UI-24 local-first OCR fix raised the suite to 146 tests in 14 suites and
-passed the Mac Catalyst build. Focused coverage verifies all local outcomes,
-explicit cloud disclosure on Capture and Browse, and local-only shared imports.
-The UI-25 prompt-test ownership fix raised the suite to 148 tests in 14 suites
-and passed the Mac Catalyst build. Focused coverage verifies request, task and
-source mismatch rejection plus cancellable UI ownership and output attribution.
-UI-35 through UI-37 keep character-editor actions visible on compact phones,
-preserve phrase-result navigation during detail inspection, and prevent Text to
-Page from reading the clipboard before an explicit paste action. Three focused
-guards raised the suite to 153 tests, and the Mac Catalyst build passed.
-UI-11, UI-27, UI-31, UI-42 and UI-43 now preserve startup recovery access,
-sentence-AI request identity, one-score-per-quiz-item behavior, confirmed
-display-scoped phrase reversion and draft-only translation clearing. Five
-focused guards raised the suite to 158 tests in 14 suites; the Mac Catalyst
-build passed with signing disabled.
-UI-45 and UI-46 preserve sentence source scope while searching and distinguish
-an empty sentence library from a filtered no-match result with an explicit
-filter reset. One focused guard raised the suite to 159 tests in 14 suites; the
-Mac Catalyst build passed with signing disabled.
-UI-26 now requires an explicit Save, Discard or Cancel decision before an
-unsaved main-editor AI template draft can be left through task selection,
-task creation or All Templates. One focused guard raised the suite to 160 tests
-in 14 suites; the Mac Catalyst build passed with signing disabled.
-UI-28 gives the identified phrase, sentence, Examples and classification
-surfaces semantic Dynamic Type, reflow at accessibility sizes and 44-point touch
-targets without globally changing legacy caption typography. Its focused guard
-and all 180 tests in 16 suites passed; Catalyst, generic iOS and SE-simulator
-builds passed, and Accessibility XXXL launch was checked on the SE simulator.
-Human VoiceOver focus/activation and physical-device layout remain release gates.
-UI-29 keeps phrase-classification controls and page navigation fixed while the
-tile grid scrolls within its remaining height. One focused guard raised the
-suite to 161 tests in 14 suites; the Mac Catalyst build passed with signing
-disabled. Compact-device and largest-Dynamic-Type interaction remain open.
-UI-32 moves character/phrase example lookup off sheet presentation, pages exact
-matches progressively, refreshes on sentence mutations, and provides explicit
-loading and empty states. Its focused guard and all 179 tests in 16 suites
-passed; the signing-disabled Mac Catalyst build passed. The isolated release
-probe then passed 12 cold-process physical-iPhone runs at 10,000 and 50,000
-sentences. Worst-device median first-page time at 50,000 common-character
-matches was 66.7 ms with a normal 16.7 ms maximum display interval. Results and
-reproduction steps are in `Tests/SentenceExamplesPerformanceProbe`.
-UI-34 standardizes the affected user-facing vocabulary: `My Data` is the
-primary destination, editors operate on a `Saved Page`, `Checkpoint` means a
-complete same-device learning state, `Backup` means a portable file, and
-`Safety Copy` means per-database maintenance recovery. One focused guard and all
-181 tests in 16 suites passed; the signing-disabled Mac Catalyst build passed.
-UI-30 gives Upgrade an in-session StoreKit recovery contract: empty product
-loads retry on presentation and by explicit action; purchase and restore expose
-pending, cancelled, no-purchase, failure and busy outcomes; and manager plus UI
-guards prevent overlapping operations. One focused guard and all 182 tests in
-16 suites passed; the signing-disabled Mac Catalyst build passed. Ask to Buy,
-subscription lapse and delayed transaction timing remain StoreKit/device gates.
-UI-33 preserves complete user-entered saved-page names after trimming surrounding
-whitespace. The 11-character bound now applies only to Radix-generated corrected
-and archive names. Fifteen focused saved-page tests and all 183 tests in 16
-suites passed; the signing-disabled Mac Catalyst build passed.
-UI-39 keeps the character learning-tier guide as an anchored popover on compact
-iPhones instead of allowing an undismissable-looking sheet adaptation. One
-focused guard and all 184 tests in 16 suites passed; Mac Catalyst and generic iOS
-Simulator builds passed. Physical VoiceOver focus return remains a release gate.
-UI-40 labels New Saved Page's required Chinese Text editor, identifies the name
-as optional, supplies an empty prompt tied to Save, and exposes an accessibility
-label and hint. One focused guard and all 185 tests in 16 suites passed; Mac
-Catalyst and generic iOS Simulator builds passed.
-UI-38 labels the character tile's component-usage quantity (`7 chars`) and adds
-count-aware accessibility labels, action hints and pointer help without changing
-usage or stroke data. One focused guard and all 186 tests in 16 suites passed;
-Mac Catalyst and generic iOS Simulator builds passed.
+```sh
+git diff --check
+swift test
+xcodebuild -quiet -project Radix.xcodeproj -scheme Radix \
+  -destination 'platform=macOS,variant=Mac Catalyst' \
+  CODE_SIGNING_ALLOWED=NO build
+```
 
 For release work or platform-sensitive UI/data changes, also run:
 
 ```sh
-xcodebuild -quiet -project Radix.xcodeproj -scheme Radix -destination 'generic/platform=iOS Simulator' build
-xcodebuild -quiet -project Radix.xcodeproj -scheme Radix -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
+xcodebuild -quiet -project Radix.xcodeproj -scheme Radix \
+  -destination 'generic/platform=iOS Simulator' build
+xcodebuild -quiet -project Radix.xcodeproj -scheme Radix \
+  -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
 ```
 
 Before describing a TestFlight candidate as release-ready, complete and record
 the build-specific physical-iPad gate in `TESTFLIGHT_RELEASE_CHECKLIST.md`.
-Codex can verify compilation but cannot substitute for that device sign-off.
-
-Simulator launch failures caused by CoreSimulatorService are environmental;
-report them separately from compilation failures. For a screen with prior crash
-history, also exercise that workflow on iPhone, iPad, and Catalyst before
-release.
+Automated compilation does not substitute for that device sign-off.
+CoreSimulatorService launch failures are environmental and should be reported
+separately from compilation failures.
 
 ## Documentation Map
 
 - `PROJECT_CONTEXT.md`: current architecture, ownership, workstream, and checks.
 - `UI_INTENT.md`: durable UI and product decisions.
-- `RADIX_UI_AUDIT.md`: prioritized 2026-09-06 hostile QA findings, reproduced
-  disposable persistence probes, source traces, and remaining device-test matrix.
+- `RADIX_UI_AUDIT.md`: completed 2026-09-06 hostile-QA findings, remediation
+  status, reproduced probes, source traces, and remaining device-test matrix.
 - `AGENTS.md`: instructions for coding agents.
 - `TESTFLIGHT_RELEASE_CHECKLIST.md`: mandatory build-specific automated and
   physical-iPad release gate.

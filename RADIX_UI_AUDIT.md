@@ -4,12 +4,21 @@ Initial audit completed: 2026-09-06. Source baseline: `a1ab08325272cd317d5379eae
 UI-first follow-up: 2026-09-06, on the same application code, after documentation commit `c56a396`.
 Repeated-implementation comparison: 2026-09-06, on unchanged application code after documentation commit `62367c9`.
 Persistence remediation pass: 2026-09-06, addressing UI-01 through UI-07.
+Focused remediation completed: 2026-09-09, covering all UI-01 through UI-46
+findings. Remaining work is the adversarial device and fault-injection matrix,
+not an unimplemented audit finding.
 
 ## Executive Assessment
 
-The highest-impact holes are in recovery and mutation semantics, not cosmetic layout. Several screens report success, cancellation, or an exact restore without those guarantees being provided by the underlying stores. A user who encounters one of these failures can lose work while following the application's own recovery instructions.
+At the audit baseline, the highest-impact holes were in recovery and mutation
+semantics, not cosmetic layout. Several screens could report success,
+cancellation, or an exact restore without those guarantees being provided by
+the underlying stores.
 
-The audit itself was read-only. A subsequent focused remediation pass changed persistence and recovery implementation for UI-01 through UI-07; no persisted identifier, backup field, entitlement policy, or unrelated feature was changed.
+The audit itself was read-only. Subsequent focused passes remediated all 46
+findings while preserving persisted identifiers, backup compatibility, and the
+scope of each item. Each finding retains its original wording as the historical
+problem statement; its remediation note records the current contract.
 
 **46 findings: 12 High, 28 Medium, 6 Low; no Critical finding established.** Findings are grouped by severity. Original IDs are preserved; UI-35 through UI-40 came from the UI-first pass and UI-41 through UI-46 from the repeated-implementation comparison. High means loss of saved work, misleading recovery, or loss of access to essential recovery UI. Medium means incorrect results, stranded workflows, accessibility limitations, or conditional reliability failures. Low means lower-impact consistency or validation defects. None of the conditional findings should be described as an observed crash or measured performance regression.
 
@@ -20,7 +29,7 @@ Evidence labels:
 - **Risk:** code establishes a missing protection, but device behavior, timing, or scale determines whether the visible failure occurs.
 - **UI-observed:** the stated interaction or visual ambiguity was observed in the isolated simulator and subsequently traced to source; this is not physical-device or full VoiceOver certification.
 
-## Persistence Remediation Status
+## High-Priority Persistence Status
 
 | Finding | Status after focused fix | Verification/residual boundary |
 | --- | --- | --- |
@@ -139,6 +148,12 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Open and migrate a staging copy, validate full schema, integrity, record decoding and identity constraints, then atomically install it. Keep the live connection/corpus untouched until validation succeeds, and automatically restore the previous database on commit failure.
 
+**Remediation status (2026-09-06):** Addressed. Sentence database imports now
+validate SQLite integrity, the complete migratable base schema, decodable rows,
+and stored identity/key consistency before replacing the live database. A
+rollback copy remains available until post-copy schema setup succeeds. Focused
+coverage verifies that malformed input leaves the existing corpus intact.
+
 ### UI-02: A failed full backup restore can leave a hybrid of old and new data
 
 **Severity:** High. **Evidence:** Source. **Likelihood:** Conditional on one invalid component or a later write failure.
@@ -173,6 +188,11 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Separate cancellable acquisition/validation from a protected commit phase. Own the operation Task, propagate cancellation, and report cancellation only after the system knows what was or was not committed.
 
+**Remediation status (2026-09-06):** Addressed. Acquisition and validation are
+cancellable; verified commit and rollback are explicitly non-cancellable. The
+commit overlay no longer offers a false cancellation action or claims that data
+was unchanged while mutation can continue.
+
 ### UI-04: Sentence writes can fail silently and hide the existing library
 
 **Severity:** High. **Evidence:** Probe plus source UI trace. **Likelihood:** Conditional on lock, storage, or database failure.
@@ -188,6 +208,12 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** The upsert catch installs only the incoming batch as `fallbackRecords`. Replace/delete are nonthrowing or swallow storage errors, so callers cannot distinguish durable success from failure.
 
 **Recommended fix:** Return a typed persistence result, keep the last known complete corpus on failure, and never label an in-memory-only write as saved. Make key-changing edits atomic and keep drafts available for retry/export.
+
+**Remediation status (2026-09-06):** Addressed for active mutation paths.
+Sentence writes throw without replacing the readable corpus with incoming-only
+fallback data. Edit, favorite, delete, practice import, AI import, and restore
+callers surface failure rather than publishing success; maintenance records a
+retry/optimization need.
 
 ### UI-05: Editing a sentence into an existing sentence silently destroys the other record
 
@@ -205,6 +231,11 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Detect normalized-key conflicts before saving. Offer an explicit merge with deterministic identity/reference preservation, or reject the conflicting edit. Perform the whole operation transactionally.
 
+**Remediation status (2026-09-06):** Addressed. Updates use conflict-safe SQL
+and reject normalized-key collisions before dependent artifacts or favorites
+change. The editor remains open with the error. Focused coverage preserves both
+identities and the existing favorite.
+
 ### UI-06: A checkpoint cannot restore the sentence content it appears to protect
 
 **Severity:** High. **Evidence:** Source. **Likelihood:** High when checkpoints are used before sentence editing/deletion.
@@ -221,6 +252,11 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Recommended fix:** Capture and restore a version-matched sentence DB with each checkpoint, using the same complete backup contract as portable bundles. Do not present an incomplete JSON snapshot as protection for all study data.
 
+**Remediation status (2026-09-06):** Addressed for newly created checkpoints.
+Checkpoint bundles include sentence and added-phrase databases and restore
+through the complete-document path. Legacy JSON checkpoints remain readable
+with a warning that identifies their limited scope.
+
 ### UI-07: Erase My Data leaves sentence, practice and extracted-page data behind
 
 **Severity:** High. **Evidence:** Source. **Likelihood:** Every reset with these data categories present.
@@ -236,6 +272,12 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 **Why it happens:** Reset clears dictionary/phrase/page/favorite-character/favorite-phrase and prompt state, but does not clear the sentence library and several `RadixStudyPreferences` data families.
 
 **Recommended fix:** Define a single inventory of erasable stores and caches, clear them coherently, invalidate all relevant UI revisions, and verify after reopening. Clearly separate current-data erasure from intentional retention of recovery copies and credentials.
+
+**Remediation status (2026-09-06):** Addressed. Erase My Data clears sentence
+and favorite-sentence data, practice packs and progress, page phrase
+extractions, cleaned pages, and the latest AI result; it resets their live
+selections and revisions while retaining checkpoints, safety copies, and API
+keys as disclosed.
 
 ### UI-08: Merge Backup silently overwrites newer page edits with older versions
 
@@ -982,7 +1024,8 @@ index creation, worst-case bulk deletion or actual Radix UI frame pacing. See
 verification. That probe does not cover restore; UI-02's separate rollback
 journal and interruption probe now cover the storage-ordering boundary.
 
-The source review identifies failures above, but the following runtime coverage remains open. No unexecuted row should be reported as passed.
+The source review identified the failures above, but the following runtime
+coverage remains open. No unexecuted row should be reported as passed.
 
 | Area | Required device/fixture execution |
 | --- | --- |
@@ -1000,42 +1043,41 @@ The source review identifies failures above, but the following runtime coverage 
 
 Two particularly important unresolved risks are the regular iPad sidebar's minimum 320-point width before the shell switches to compact, and whether every source-creation entry point applies the same cumulative free-page policy. Both need a policy/device-specific check rather than an invented failure claim. Legacy dated-copy purchase recognition also needs a real historical-entitlement fixture before declaring a regression.
 
-## Fix Order And Maintainability Recommendation
+## Remediation Outcome
 
-1. **Restore and persistence contract:** UI-01 through UI-07 and UI-09, plus the high-impact unconfirmed page cascade in UI-41. Introduce staged validation, atomic/recoverable mutation, throwing results and honest progress/cancellation. Lock these guarantees down before further sentence-store restructuring.
-2. **Identity and concurrency:** UI-08, UI-10 and UI-12 through UI-20, plus UI-44's cross-view favorite invalidation. Centralize mutation/revision publication and reconcile references. Tie asynchronous work to operation and subject identity.
-3. **Workflow correctness:** UI-21 through UI-27, UI-30/UI-31 and UI-42/UI-43/UI-45. Unify input validation, image preparation, drafts, destructive batch scope and asynchronous result presentation; preserve filters during search.
-4. **First-use interaction:** UI-35 through UI-37. Make editing commands reachable, preserve phrase-result navigation, and make clipboard access intentional.
-5. **Accessibility and scale:** UI-28, UI-29 and UI-32, followed by the complete physical-device matrix. Then resolve UI-33/UI-34, UI-38 through UI-40 and UI-46 labeling, dismissal, validation and empty-state inconsistencies.
+All 46 findings received focused remediation or were verified as already
+resolved by the accumulated implementation. The original priority order remains
+visible in the finding order above; each finding's remediation note is the
+current status.
 
-A wholesale UI rewrite or broad "defrag" is not supported by this evidence. Existing screen/component boundaries are usable. Focused consolidation is warranted around sentence mutations, backup/restore coordination, source-reference cleanup, shared import ownership and AI request lifecycle. Moving methods into smaller files without strengthening those contracts will not fix these bugs.
+The audit did not justify a wholesale UI rewrite or broad defrag. Existing
+screen and component boundaries remain usable. The completed work strengthened
+persistence and rollback, identity and concurrency, workflow ownership,
+accessibility, large-library behavior, terminology, and repeated-control parity
+without changing persisted identifiers.
 
-The repeated-implementation pass adds two specific consolidation targets: a shared saved-page deletion coordinator and one draft/commit contract for page explanations. Extend the existing sentence-store facade so view-local writes cannot skip invalidation. Preserve intentional Browse-versus-Study destinations and already-delegating wrappers. Treat dormant source-picker/import helpers as a separate reachability cleanup after active-path regression tests, not evidence that a major refactor is a prerequisite.
+The remaining work is validation rather than another audit item. In particular,
+complete the physical accessibility, StoreKit, lifecycle, layout, and restore
+fault-injection rows in the adversarial matrix. Dormant source-picker helpers
+remain reachability/cleanup candidates, not confirmed user-facing defects.
 
-## Verification
+## Verification Summary
 
-- Five focused disposable RadixCore probes executed; results are recorded above.
-- Fresh SE simulator launch and the targeted navigation/cancellation/Upgrade flows described above executed.
-- `swift test`: passed, 117 tests in 12 suites.
-- Catalyst build with `CODE_SIGNING_ALLOWED=NO`: passed; destination-selection warnings only.
-- Generic iOS Simulator build: passed.
-- Six UI-first additions were observed in the isolated SE simulator, compared against the initial report, and traced to Swift code. Application implementation remained unchanged.
-- Six additional source-comparison findings (UI-41 through UI-46) and a 16-row parity matrix were added without application changes. UI-44 remains a runtime-dependent invalidation risk; the other five additions have concrete control-to-store or presentation traces. No new simulator reproduction is claimed for this pass.
-- The repeated-implementation pass reran `swift test` (117 tests in 12 suites) and the Catalyst build successfully. The generic iOS Simulator result above is from the earlier pass; it was not rerun for documentation-only changes.
-- The UI-01 through UI-07 remediation passed `swift test` with 121 tests in 12 suites. Permanent regressions cover malformed sentence-database restore without live-data loss, write-lock failure without corpus replacement, normalized-key edit collision without record loss, and removal of all practice/artifact owner keys during user-data reset.
-- The remediated tree passed an arm64 iOS Simulator build for the disposable SE destination and a Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`. An initial generic universal Simulator build stopped at `lipo` because the build volume had no free space; after deleting only generated Radix Simulator products, the device-specific build passed.
-- The UI-09 regression passed in the focused portable-backup suite and in the full `swift test` run (122 tests in 12 suites). The updated import and startup-reconciliation paths compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
-- The UI-41 Capture deletion confirmation regression passed in the focused SwiftUI guardrail suite and in the full `swift test` run (123 tests in 12 suites). The Capture alert wiring compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
-- The UI-10 stale-optimization regression passed in the focused saved-page rules suite and in the full `swift test` run (124 tests in 12 suites). The guarded maintenance path compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
-- The UI-08 saved-page merge regression passed in the focused saved-page rules suite and in the full `swift test` run (125 tests in 12 suites). The content timestamp, preflight and merge paths compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
-- The UI-12 page-deletion reconciliation passed the focused sentence-library and conversation-practice suites and the full `swift test` run (126 tests in 12 suites). The throwing cascade and all deletion entry points compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
-- The UI-13 extracted-page restore regressions passed all 10 focused portable-backup tests and the full `swift test` run (128 tests in 12 suites). The version-aware preflight and empty replacement path compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
-- The UI-14 correlated page/source regression passed all 7 focused sentence-library tests and the full `swift test` run (129 tests in 12 suites). The tuple query and matching fallback compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
-- The UI-15 coherent-pagination regression passed all 8 focused sentence-library tests and the full `swift test` run (130 tests in 12 suites). The paged store query and Study integration compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
-- The UI-16 committed-note regression passed all 6 focused SwiftUI guardrail tests and the full `swift test` run (131 tests in 12 suites). The phrase-card state changes compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
-- The UI-17 quick-editor confirmation regression passed all 7 focused SwiftUI guardrail tests and the full `swift test` run (132 tests in 12 suites). The shared action contract and both editor alerts compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
-- The UI-18 persistence-first phrase deletion regression passed all 8 focused SwiftUI guardrail tests and the full `swift test` run (133 tests in 12 suites). The throwing store API and every direct caller compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
-- The UI-19 navigation-ownership regressions passed all 8 focused navigation tests, all 9 focused SwiftUI guardrail tests and the full `swift test` run (135 tests in 12 suites). The owned recognition task and Capture completion path compiled in the Mac Catalyst build with `CODE_SIGNING_ALLOWED=NO`.
-- All 46 findings contain the seven requested fields; all 188 local file/line references were checked for existence and bounds. The comparison matrix has 16 data rows.
-- `git diff --check`: passed for the documentation changes.
-- No physical-iPad gate, abrupt-termination restore fault injection, disk-full UI execution, launch/reopen reset check, live-cloud-AI test, real purchase, exhaustive accessibility pass, or large-library UI performance certification was completed.
+- Audit baseline: five disposable RadixCore probes, a targeted iPhone SE
+  simulator walkthrough, `swift test` (117 tests in 12 suites), Mac Catalyst,
+  and generic iOS Simulator builds.
+- Final remediation baseline (2026-09-09): `swift test` passed 186 tests in
+  16 suites; signing-disabled Mac Catalyst and generic iOS Simulator builds
+  passed; `git diff --check` passed.
+- Page-deletion interruption and timing results are recorded in
+  `Tests/PageDeletionProbe/RESULTS.md`.
+- Full-restore process-interruption coverage is documented in
+  `Tests/RestoreRollbackProbe/README.md`.
+- Sentence-example physical-device timing is recorded in
+  `Tests/SentenceExamplesPerformanceProbe/RESULTS.md`.
+- No physical-iPad release gate, full VoiceOver certification, disk-full restore
+  test, live-cloud-AI test, or real StoreKit purchase test is claimed here.
+
+Git history is the detailed per-item verification trail. This document is the
+problem record, remediation status, and remaining adversarial-test inventory;
+it is not a TestFlight release sign-off.

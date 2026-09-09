@@ -1,4 +1,4 @@
-# Radix UI intent
+# Radix UI Intent
 
 This document records the product and UI intent for future refactors. Treat it
 as the north star before changing tabs, primary actions, Browse, Study, AI, or
@@ -66,7 +66,7 @@ Use these preferences as defaults:
   workspace as `Study Pages`, but `Pages` should not return as a top-level peer.
 - The title dropdown is allowed to become the complete navigation map. Its top
   section should keep the main workspaces visible: `Browse`, `Study`, `AI`,
-  `Data`, and `Settings`. Do not reintroduce `Pages` as a peer workspace unless
+  `My Data`, and `Settings`. Do not reintroduce `Pages` as a peer workspace unless
   a future design decision deliberately reverses the Browse-first page model.
   Larger-screen sidebars should follow the same top-level vocabulary. When the
   current destination is Browse or Study, show that destination's local choices
@@ -74,7 +74,7 @@ Use these preferences as defaults:
 - High-level destinations can also own second-level title-menu sections:
   Browse owns Dictionary, saved-page selection, tiled page inspection, and
   non-camera page creation; Study owns page learning work and study sections
-  including Checkpoints; AI owns AI tasks; and Data owns
+  including Checkpoints; AI owns AI tasks; and My Data owns
   `Backup Files` and `Advanced Pro`.
 - Prefer compact one-button toggles for binary display choices, such as
   `中 Chinese` / `英 English` and `拼 Pinyin`, instead of wide segmented controls.
@@ -243,7 +243,7 @@ Top global action row:
 [ Search anything... ] [ Camera ]
 
 Title menu:
-Browse | Study | AI | Data | Settings
+Browse | Study | AI | My Data | Settings
 ```
 
 Search and Camera are global actions, not ordinary tab destinations.
@@ -295,7 +295,7 @@ On iPad and Mac:
 - Search can be persistent or prominent in the sidebar/header.
 - Camera can remain a visible toolbar/sidebar action rather than replacing
   the layout around a single compact action row.
-- Save/Restore Snapshot can remain in the sidebar because there is enough space
+- Create/Return to Checkpoint can remain in the sidebar because there is enough space
   to keep learning-state controls visible without crowding the primary content.
 - Do not remove or hide existing iPad/Mac affordances merely because the iPhone
   UI becomes more compact.
@@ -355,7 +355,7 @@ Study should contain learning review material, not admin backup tools:
 - Notes.
 - Saved pages to revisit.
 - Conversation practice sets.
-- Study snapshots.
+- Checkpoints.
 
 Items such as "Review Added Phrases" belong in Study, not My Data.
 From Added Phrases review, the user can create an `AI Review` saved page from
@@ -378,7 +378,7 @@ separate large inline preview on sidebar layouts. Prefer compact icon-and-word
 top controls there, while status tools should keep readable words and icons
 rather than becoming icon-only.
 
-On iPhone, Study may need to contain explicit Snapshot sections because the
+On iPhone, Study may need to contain an explicit Checkpoints section because the
 screen cannot permanently show a rich sidebar. On iPad and Mac, Checkpoints can
 remain a sidebar-level learning action instead of being buried inside Study, but
 they should disappear while a character or phrase information card is using the
@@ -389,7 +389,7 @@ Study should not become a hodgepodge. Group it by intent:
 - Today: what changed or was captured recently.
 - Review: favorites, recent items, added items, notes, and saved pages.
 - Practice: guided lesson sets and drills such as Conversation Practice.
-- Snapshots: save and restore learning states.
+- Checkpoints: save and return to learning states.
 
 The Study tab should not create a separate main app tab for Practice unless the
 whole navigation model is reconsidered. The main Study screen holds the user's
@@ -400,7 +400,7 @@ Checkpoints inside the content area. Keep only compact controls that affect the
 current section. Keep the History strip and title menu visible across Study
 sections; embedded Study workspaces should not hide the shell. Do not require a
 `Back to Study` return just to switch between these sections.
-iPhone Checkpoints may remain a shortcut to a sheet because it is a snapshot
+iPhone Checkpoints may remain a shortcut to a sheet because it is a recovery
 tool rather than a primary study list.
 Favorite Sentences belongs inside Conversation Practices, so do not duplicate
 it as a dashboard shortcut. `Sentences` is the default Study destination
@@ -565,7 +565,7 @@ AI should focus on understanding and transforming material:
 - Translate.
 - Explain.
 - Extract phrases.
-- Work with the current page, current selection, or current study snapshot.
+- Work with the current page, current selection, or current checkpoint.
 - Manage AI Link actions and templates.
 
 AI can be connected from Browse and Study, but everyday AI work should start
@@ -640,9 +640,9 @@ The shared meaning is:
 
 The noun tells the user what kind of saved state is involved.
 
-## Study checkpoints
+## Study Checkpoints
 
-Study snapshots are not just disaster recovery. They support active learning and
+Study checkpoints are not just disaster recovery. They support active learning and
 mind-changing during a day.
 
 Example use cases:
@@ -654,17 +654,15 @@ Example use cases:
 
 Checkpoints should make this safe.
 
-The preferred restore behavior for snapshots is:
+Returning to a checkpoint replaces current study data and therefore requires a
+clear destructive confirmation. The confirmation must state the scope of the
+selected checkpoint; legacy JSON checkpoints need an explicit warning that they
+cannot restore sentence or added-phrase databases.
 
-- Add Back Missing Items: default, brings back missing pages/phrases/notes
-  without erasing newer work.
-- Replace Current State: advanced/destructive, returns fully to an earlier
-  snapshot.
+Create Checkpoint is the manual save action. Keep checkpoint creation and return
+separate from portable Backup file actions.
 
-Manual Save Snapshot should exist, and automatic snapshots may be useful before
-large deletes, after capture batches, or at natural session boundaries.
-
-## My Data intent
+## My Data Intent
 
 My Data is for data ownership and operational safety:
 

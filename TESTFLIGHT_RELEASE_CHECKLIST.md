@@ -44,6 +44,27 @@ section as pending until a person tests the installed build.
       responsive and preserves the current selection.
 - [ ] Leave Radix in the background for at least one minute, reopen it, and
       confirm capture pages, menus, and Study navigation still work.
+- [ ] At the largest supported Dynamic Type size, verify Study Sentences,
+      Added Phrases, page controls, character/phrase cards, and New Saved Page
+      remain readable and their primary actions remain reachable.
+- [ ] With VoiceOver, verify the component-usage control, learning-tier guide,
+      New Saved Page fields, destructive confirmations, and sheet dismissal;
+      confirm focus returns to the initiating control.
+- [ ] Create and return to a Checkpoint, then open My Data and preview a Backup.
+      Confirm recovery progress, errors, and return paths do not strand the UI.
+
+## Feature-Specific Gates
+
+Complete these when the candidate changes the corresponding feature:
+
+- [ ] StoreKit: unavailable-product retry, cancelled purchase, Ask to Buy or
+      pending purchase, restore with no purchase, delayed completion, and
+      subscription lapse in Apple's test environment.
+- [ ] Restore/persistence: interruption on a disposable library, disk-full or
+      injected write failure, Retry after relaunch, and large-backup timing.
+- [ ] Capture/media: camera denial, limited Photos access, picker cancellation,
+      large-image rejection, unusual EXIF orientation, and local-only OCR
+      failure before explicit Gemini consent.
 
 ## Pass Or Stop
 
