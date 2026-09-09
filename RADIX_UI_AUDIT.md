@@ -849,6 +849,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Why it happens:** Creation binds the unrestricted string, but storage uses `SavedPageRules.displayName` with an 11-character prefix.
 
+**Remediation status (2026-09-09):** Addressed. User-entered page names are now normalized only by trimming surrounding whitespace and are otherwise persisted in full. New and Edit Saved Page use the same unrestricted name binding, so neither accepts text that the save path later truncates. The existing 11-character limit remains only for Radix-generated corrected/archive names, where compact unique suffixes are intentional. Focused saved-page tests preserve distinct long names and generated-name bounds; all 183 tests passed and the signing-disabled Mac Catalyst build succeeded.
+
 **Recommended fix:** Share name validation and visible length policy between forms; preserve full names if the short-name rule is only a display concern.
 
 ### UI-34: The same stored object and recovery action have conflicting user-facing names

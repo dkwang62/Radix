@@ -589,6 +589,10 @@ pending, cancelled, no-purchase, failure and busy outcomes; and manager plus UI
 guards prevent overlapping operations. One focused guard and all 182 tests in
 16 suites passed; the signing-disabled Mac Catalyst build passed. Ask to Buy,
 subscription lapse and delayed transaction timing remain StoreKit/device gates.
+UI-33 preserves complete user-entered saved-page names after trimming surrounding
+whitespace. The 11-character bound now applies only to Radix-generated corrected
+and archive names. Fifteen focused saved-page tests and all 183 tests in 16
+suites passed; the signing-disabled Mac Catalyst build passed.
 
 For release work or platform-sensitive UI/data changes, also run:
 

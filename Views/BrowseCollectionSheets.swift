@@ -54,21 +54,11 @@ struct EditBrowseCollectionSheet: View {
         store.collectionCharacterValidation(for: text)
     }
 
-    private var limitedName: Binding<String> {
-        Binding(
-            get: { name },
-            set: { name = String($0.prefix(11)) }
-        )
-    }
-
     var body: some View {
         NavigationStack {
             Form {
                 Section(RadixCopy.savedPage) {
-                    TextField("Name", text: limitedName)
-                    Text("Maximum 11 characters.")
-                        .font(ResponsiveFont.caption)
-                        .foregroundStyle(.secondary)
+                    TextField("Name", text: $name)
                 }
 
                 Section("Characters") {

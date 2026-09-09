@@ -1,10 +1,10 @@
 import Foundation
 
 enum SavedPageRules {
-    static let maximumNameLength = 11
+    static let maximumGeneratedNameLength = 11
 
-    static func displayName(_ name: String) -> String {
-        String(name.trimmingCharacters(in: .whitespacesAndNewlines).prefix(maximumNameLength))
+    static func normalizedName(_ name: String) -> String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     static func mostRecentID(in pages: [CharacterCollection]) -> UUID? {
@@ -14,19 +14,19 @@ enum SavedPageRules {
     }
 
     static func correctedName(originalName: String, existingNames: Set<String>) -> String {
-        let cleanOriginal = displayName(originalName)
+        let cleanOriginal = normalizedName(originalName)
         let stem = cleanOriginal.isEmpty ? "Corrected" : cleanOriginal
 
         for suffix in 1...99 {
             let suffixText = String(suffix)
-            let prefixLength = max(0, maximumNameLength - suffixText.count)
+            let prefixLength = max(0, maximumGeneratedNameLength - suffixText.count)
             let candidate = String(stem.prefix(prefixLength)) + suffixText
             if !existingNames.contains(candidate) {
                 return candidate
             }
         }
 
-        return String(UUID().uuidString.prefix(maximumNameLength))
+        return String(UUID().uuidString.prefix(maximumGeneratedNameLength))
     }
 
     static func ownership(for artifactType: PageArtifactType) -> PageArtifactOwnership {

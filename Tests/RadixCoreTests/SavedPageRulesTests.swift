@@ -50,10 +50,21 @@ struct SavedPageRulesTests {
         let first = SavedPageRules.correctedName(originalName: original, existingNames: [])
         let second = SavedPageRules.correctedName(originalName: original, existingNames: [first])
 
-        #expect(first.count <= SavedPageRules.maximumNameLength)
+        #expect(first.count <= SavedPageRules.maximumGeneratedNameLength)
         #expect(first.hasSuffix("1"))
         #expect(second.hasSuffix("2"))
         #expect(first.dropLast() == second.dropLast())
+    }
+
+    @Test("User-entered page names retain their complete normalized text")
+    func completePageNames() {
+        let morning = SavedPageRules.normalizedName("  Chapter One Morning  ")
+        let evening = SavedPageRules.normalizedName("Chapter One Evening")
+
+        #expect(morning == "Chapter One Morning")
+        #expect(evening == "Chapter One Evening")
+        #expect(morning != evening)
+        #expect(morning.count > SavedPageRules.maximumGeneratedNameLength)
     }
 
     @Test("Page artifact types declare deletion ownership")

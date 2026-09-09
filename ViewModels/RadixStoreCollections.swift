@@ -660,7 +660,7 @@ extension RadixStore {
     }
 
     func collectionDisplayName(_ name: String) -> String {
-        SavedPageRules.displayName(name)
+        SavedPageRules.normalizedName(name)
     }
 
     func collectionNameFromSourceCharacters(_ characters: [String]) -> String {
@@ -713,13 +713,13 @@ extension RadixStore {
         for suffix in 1...99 {
             let prefix = "Old"
             let suffixText = String(suffix)
-            let available = max(0, SavedPageRules.maximumNameLength - prefix.count - suffixText.count)
+            let available = max(0, SavedPageRules.maximumGeneratedNameLength - prefix.count - suffixText.count)
             let candidate = prefix + String(stem.prefix(available)) + suffixText
             if !existingNames.contains(candidate) {
                 return candidate
             }
         }
-        return String(UUID().uuidString.prefix(SavedPageRules.maximumNameLength))
+        return String(UUID().uuidString.prefix(SavedPageRules.maximumGeneratedNameLength))
     }
 
     private func correctedCollectionDescendants(of id: UUID) -> [CharacterCollection] {
