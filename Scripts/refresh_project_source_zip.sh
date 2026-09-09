@@ -34,6 +34,7 @@ Excluded from this package:
 - DerivedData
 - build folders
 - Xcode user state
+- xcuserdata
 - .DS_Store
 - Resources/RadixProjectSource.zip
 EOF
@@ -49,6 +50,10 @@ zip -qr "${tmp_zip}" . \
   -x '*/DerivedData/*' \
   -x 'build/*' \
   -x '*/build/*' \
+  -x 'xcuserdata' \
+  -x 'xcuserdata/*' \
+  -x '*/xcuserdata' \
+  -x '*/xcuserdata/*' \
   -x '*.xcuserstate' \
   -x '.DS_Store' \
   -x '*/.DS_Store' \

@@ -35,6 +35,10 @@ the installed TestFlight build.
 The authoritative Xcode project is `Radix.xcodeproj`. Numbered duplicate
 projects and the local `Backups/` directory are deliberately excluded from Git
 so cross-Mac handoff cannot mistake stale recovery material for current source.
+Keep the repository limited to application/Xcode inputs, tests, release assets,
+and Codex operating material. Generated `.build` state remains ignored and may
+be recreated; completed one-off utilities and unrelated machine files belong in
+an external archive. `Scripts/` contains only active release or asset tooling.
 
 Recovery points:
 
