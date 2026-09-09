@@ -26,7 +26,7 @@ Do not start a broad redesign unless explicitly asked.
 
 Repository branch: `codex/post-testflight-iteration`.
 
-The source project is configured as marketing version `1.0.6`, build `9`.
+The source project is configured as marketing version `1.1`, build `9`.
 The latest iPad crash report came from TestFlight `1.0.6 (6)`. Before the next
 upload, deliberately set and verify the next build number in both app and share
 extension targets; do not assume the repository's current build setting matches
