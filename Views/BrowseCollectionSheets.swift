@@ -14,7 +14,7 @@ struct ManualBrowseCollectionSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Saved Page") {
+                Section(RadixCopy.savedPage) {
                     TextField("Name", text: $name)
                     TextEditor(text: $text)
                         .frame(minHeight: 180)
@@ -64,7 +64,7 @@ struct EditBrowseCollectionSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Image") {
+                Section(RadixCopy.savedPage) {
                     TextField("Name", text: limitedName)
                     Text("Maximum 11 characters.")
                         .font(ResponsiveFont.caption)

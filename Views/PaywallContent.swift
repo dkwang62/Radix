@@ -14,7 +14,7 @@ extension PaywallView {
             Text("Read Chinese around you for free. Upgrade when Radix becomes part of daily life.")
                 .font(ResponsiveFont.title3.bold())
 
-            Text("Your first 100 Camera or Text pages are free, and saved items stay reviewable. Radix Plus unlocks unlimited pages, Album/File import, local snapshots, and iCloud backup.")
+            Text("Your first 100 Camera or Text pages are free, and saved items stay reviewable. Radix Plus unlocks unlimited pages, Album/File import, checkpoints, and iCloud backup.")
                 .font(ResponsiveFont.body)
                 .foregroundStyle(.secondary)
 
@@ -44,7 +44,7 @@ extension PaywallView {
 
             VStack(alignment: .leading, spacing: 10) {
                 benefit("Free includes 100 Camera or Text pages and unlimited review of saved items")
-                benefit("Radix Plus unlocks unlimited pages, Album/File import, and local snapshots")
+                benefit("Radix Plus unlocks unlimited pages, Album/File import, and checkpoints")
                 benefit("Radix Plus includes iCloud backup across iPhone, iPad, and Mac")
                 benefit("Advanced Pro exports source and reusable data foundations for authoring software with AI coding agents")
                 benefit("Browse, Search, Study, AI Link, and editing stay free")

@@ -205,7 +205,7 @@ extension RootView {
             }
 
             primaryNavigationButton(
-                title: "Data",
+                title: RadixCopy.myData,
                 systemImage: RadixIcon.myData,
                 isSelected: store.route == .search && store.homeTab == .dataEdit
             ) {
@@ -386,7 +386,7 @@ extension RootView {
 
     @ViewBuilder
     var myDataTitleMenuSection: some View {
-        Section("Data") {
+        Section(RadixCopy.myData) {
             ForEach(DataEditSection.allCases) { section in
                 Button {
                     performTitleMenuSelection {

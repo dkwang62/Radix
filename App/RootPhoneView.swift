@@ -37,7 +37,7 @@ extension RootView {
         case 3:
             return "Study - \(store.activeStudySectionTitle)"
         case 4: return selectedTitleMenuPromptTaskTitle.map { "AI - \($0)" } ?? "AI"
-        case 5: return "Data - \(store.activeDataEditSection.rawValue)"
+        case 5: return "\(RadixCopy.myData) - \(store.activeDataEditSection.rawValue)"
         case 6: return "Settings"
         default: return "Radix"
         }

@@ -191,7 +191,7 @@ extension RootView {
             case .favourites:
                 return "Study - \(store.activeStudySectionTitle)"
             case .dataEdit:
-                return "Data - \(store.activeDataEditSection.rawValue)"
+                return "\(RadixCopy.myData) - \(store.activeDataEditSection.rawValue)"
             }
         case .lineage:
             return "Character Breakdown"

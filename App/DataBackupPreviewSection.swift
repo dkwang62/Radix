@@ -57,7 +57,7 @@ struct DataBackupPreviewSection: View {
                 confirmRevertBasePhraseEdits()
             }
         } message: {
-            Text("Revert \(pendingBasePhraseRevertWords.count) edited base phrase\(pendingBasePhraseRevertWords.count == 1 ? "" : "s") shown here? Saved notes are protected. A safety snapshot is created first.")
+            Text("Revert \(pendingBasePhraseRevertWords.count) edited base phrase\(pendingBasePhraseRevertWords.count == 1 ? "" : "s") shown here? Saved notes are protected. A safety copy is created first.")
         }
     }
 

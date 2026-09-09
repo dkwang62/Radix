@@ -167,7 +167,7 @@ struct SettingsView: View {
 
                 DisclosureGroup(isExpanded: $showDatabaseSafetyDetails) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Radix quietly keeps local recovery copies before import, restore, cleanup, and optimization. Portable backups protect core Radix data; large sentence libraries are transferred separately from Study > Sentences.")
+                        Text("Radix quietly keeps local safety copies before import, restore, cleanup, and optimization. Portable backups protect core Radix data; large sentence libraries are transferred separately from Study > Sentences.")
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
 
@@ -178,7 +178,7 @@ struct SettingsView: View {
                         Button {
                             createDatabaseSafetyCopy()
                         } label: {
-                            Label("Create Safety Copy Now", systemImage: "externaldrive.badge.plus")
+                            Label("Create \(RadixCopy.safetyCopy) Now", systemImage: "externaldrive.badge.plus")
                         }
 
                         if let databaseSnapshotStatus {
@@ -189,7 +189,7 @@ struct SettingsView: View {
                     }
                     .padding(.vertical, 4)
                 } label: {
-                    Label("Recovery Copies", systemImage: "externaldrive.badge.timemachine")
+                    Label(RadixCopy.safetyCopies, systemImage: "externaldrive.badge.timemachine")
                         .font(ResponsiveFont.subheadline.weight(.semibold))
                 }
             } header: {
@@ -222,7 +222,7 @@ struct SettingsView: View {
                     Label("Erase My Data on This Device", systemImage: "trash")
                 }
 
-                Text("Clears current added characters, phrases, saved pages, favorites, recent items, and AI Link templates. Dated copies and API keys are kept.")
+                Text("Clears current added characters, phrases, saved pages, favorites, recent items, and AI Link templates. Checkpoints, safety copies, and API keys are kept.")
                     .font(ResponsiveFont.caption)
                     .foregroundStyle(.secondary)
 
@@ -284,7 +284,7 @@ struct SettingsView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This erases added characters, phrases, saved pages, saved sentences, favorites, practice data, page study results, recent items, and AI Link templates on this device. Device snapshots and API keys are kept.")
+            Text("This erases added characters, phrases, saved pages, saved sentences, favorites, practice data, page study results, recent items, and AI Link templates on this device. Checkpoints, safety copies, and API keys are kept.")
         }
         .alert("Optimize Database?", isPresented: $showRefreshSentencePhraseLinksConfirmation) {
             Button("Cancel", role: .cancel) {}
@@ -475,7 +475,7 @@ struct SettingsView: View {
     private func resetRadixMemory() {
         do {
             try store.resetRadixMemory()
-            resetMemoryStatus = "My data was erased. Device snapshots and API keys were kept."
+            resetMemoryStatus = "My data was erased. Checkpoints, safety copies, and API keys were kept."
             RadixHaptics.success()
         } catch {
             resetMemoryStatus = "Could not erase my data: \(error.localizedDescription)"

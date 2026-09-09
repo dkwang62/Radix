@@ -19,8 +19,8 @@ struct FileTransferModifier: ViewModifier {
             return "Radix"
         }
 
-        if message.contains("snapshot") || message.contains("saved locally") || message.contains("restored local") {
-            return "Snapshot"
+        if message.contains("checkpoint") || message.contains("snapshot") || message.contains("saved locally") || message.contains("restored local") {
+            return "Checkpoint"
         }
 
         if message.contains("backup") {

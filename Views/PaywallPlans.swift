@@ -123,9 +123,9 @@ extension PaywallView {
     func productSubtitle(_ product: RadixStoreProduct) -> String {
         switch product.id {
         case EntitlementManager.datedCopiesProductID:
-            return "Create pages from Album, Files, or pasted text, plus save and restore local snapshots on this device."
+            return "Create pages from Album, Files, or pasted text, plus save and restore checkpoints on this device."
         case EntitlementManager.myBackupProductID:
-            return "Unlimited Camera/Text pages, Album/File import, local snapshots, and iCloud backup across iPhone, iPad, and Mac."
+            return "Unlimited Camera/Text pages, Album/File import, checkpoints, and iCloud backup across iPhone, iPad, and Mac."
         case EntitlementManager.advancedProductID:
             return "Everything in Radix Plus, plus source, datasets, databases, and manifests you can use to author software with AI coding agents."
         default:

@@ -114,7 +114,7 @@ enum RadixGlossary {
         GlossaryEntry(
             term: "Memory",
             shortDefinition: "Everything you have added, saved, favorited, changed, or set up in Radix.",
-            significance: "Memory is what you preserve with local snapshots and protect with iCloud backups. It includes your work, not just dictionary data.",
+            significance: "Memory is what you preserve with checkpoints and protect with portable backups. It includes your work, not just dictionary data.",
             contexts: ["Backup Contents", "Create Checkpoint", "Return to Checkpoint", "Erase My Data", "My Data > Backup File"],
             relatedTerms: ["Checkpoint", "Radix Plus", "Backup", "Added", "Favorite", "Favorite Sentence"]
         ),
@@ -260,7 +260,7 @@ enum RadixGlossary {
         ),
         GlossaryEntry(
             term: "Radix Plus",
-            shortDefinition: "The annual Radix tier for unlimited page creation, import tools, local snapshots, and iCloud backup.",
+            shortDefinition: "The annual Radix tier for unlimited page creation, import tools, local checkpoints, and iCloud backup.",
             significance: "Radix Plus keeps the first 100 Camera or Text pages free, then unlocks unlimited pages, page creation from Album or Files, same-device checkpoints, and portable backup.",
             contexts: ["Upgrade", "Camera", "Text from Clipboard", "Image from Album", "Image from Files", "Create Checkpoint", "Return to Checkpoint", "Backup"],
             relatedTerms: ["Saved Page", "Checkpoint", "Backup"]
@@ -268,7 +268,7 @@ enum RadixGlossary {
         GlossaryEntry(
             term: "Checkpoint",
             shortDefinition: "A time-stamped recovery point kept inside Radix on this device.",
-            significance: "Device snapshots provide quick same-device recovery. They do not create a file for moving data to another device.",
+            significance: "Checkpoints provide quick same-device recovery. They do not create a file for moving data to another device.",
             contexts: ["Create Checkpoint", "Return to Checkpoint", "My Data > Backup File", "Upgrade"],
             relatedTerms: ["Radix Plus", "Memory", "Backup"]
         ),
@@ -287,32 +287,25 @@ enum RadixGlossary {
             relatedTerms: ["Memory", "Checkpoint", "Radix Plus", "Data Portability"]
         ),
         GlossaryEntry(
-            term: "Recovery Copies",
-            shortDefinition: "Local safety copies Radix keeps before major data changes.",
-            significance: "Recovery Copies help you undo a problem after import, restore, cleanup, or optimization on this device. They are not the same as a portable backup file for moving Radix to another device.",
-            contexts: ["Settings > Storage", "Create Safety Copy Now", "Restore"],
-            relatedTerms: ["Safety Copy", "Backup", "Optimize Database", "Memory"]
-        ),
-        GlossaryEntry(
             term: "Safety Copy",
-            shortDefinition: "A local recovery copy made before or during maintenance.",
-            significance: "Safety Copies are a safety net for data-changing actions. Radix can create them quietly before important maintenance, and you can also create one manually from Settings.",
-            contexts: ["Settings > Storage", "Create Safety Copy Now", "Recovery Copies"],
-            relatedTerms: ["Recovery Copies", "Backup", "Memory"]
+            shortDefinition: "A local copy Radix keeps before major data changes.",
+            significance: "Safety copies help you undo a problem after import, restore, cleanup, or optimization on this device. They are not the same as checkpoints or portable backup files.",
+            contexts: ["Settings > Storage", "Create Safety Copy Now", "Restore"],
+            relatedTerms: ["Checkpoint", "Backup", "Optimize Database", "Memory"]
         ),
         GlossaryEntry(
             term: "Storage",
             shortDefinition: "A quick check of how large your Radix study data has become.",
             significance: "Storage shows counts and file sizes without loading your whole library. It helps you see when backups or optimization may take longer, while keeping normal Study and Browse use fast.",
             contexts: ["Settings > Storage"],
-            relatedTerms: ["Optimize Database", "Recovery Copies", "Saved Sentences", "Added Phrase"]
+            relatedTerms: ["Optimize Database", "Safety Copy", "Saved Sentences", "Added Phrase"]
         ),
         GlossaryEntry(
             term: "Optimize Database",
             shortDefinition: "A background cleanup that keeps Radix fast and consistent.",
             significance: "Optimize Database cleans up local storage after large imports or restore. It keeps Radix responsive without asking you to manage technical storage details.",
             contexts: ["Settings > Storage", "After Restore", "After Import"],
-            relatedTerms: ["Storage", "Recovery Copies", "Saved Sentences", "Phrase"]
+            relatedTerms: ["Storage", "Safety Copy", "Saved Sentences", "Phrase"]
         ),
         GlossaryEntry(
             term: "Data Portability",

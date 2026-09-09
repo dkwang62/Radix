@@ -36,7 +36,7 @@ extension PaywallView {
                     .radixSurface(Color.red.opacity(0.08))
             }
 
-            Label("The first 100 Camera or Text pages are free. Saved items, Browse, Search, Study, AI Link, and editing stay available; Radix Plus is for unlimited pages, import tools, snapshots, and backup.", systemImage: "info.circle")
+            Label("The first 100 Camera or Text pages are free. Saved items, Browse, Search, Study, AI Link, and editing stay available; Radix Plus is for unlimited pages, import tools, checkpoints, and backup.", systemImage: "info.circle")
                 .font(ResponsiveFont.caption)
                 .foregroundStyle(.secondary)
 

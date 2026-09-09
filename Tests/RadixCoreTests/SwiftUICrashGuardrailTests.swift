@@ -520,6 +520,33 @@ struct SwiftUICrashGuardrailTests {
         #expect(reviewControlsSource.contains("RadixControlMetrics.standardHeight"))
     }
 
+    @Test("Navigation, pages, and recovery actions use one user-facing vocabulary")
+    func userFacingVocabularyRemainsConsistent() throws {
+        let copySource = try sourceText(at: "App/RadixIconography.swift")
+        let phoneSource = try sourceText(at: "App/RootPhoneView.swift")
+        let detailSource = try sourceText(at: "App/RootDetailPane.swift")
+        let navigationSource = try sourceText(at: "App/RootViewSupport.swift")
+        let pageEditorSource = try sourceText(at: "Views/BrowseCollectionSheets.swift")
+        let settingsSource = try sourceText(at: "Views/SettingsView.swift")
+        let glossarySource = try sourceText(at: "Views/GlossaryView.swift")
+
+        #expect(copySource.contains("static let myData = String(localized: \"My Data\")"))
+        #expect(copySource.contains("static let safetyCopy = String(localized: \"Safety Copy\")"))
+        #expect(copySource.contains("static let safetyCopies = String(localized: \"Safety Copies\")"))
+        #expect(phoneSource.contains("return \"\\(RadixCopy.myData) -"))
+        #expect(detailSource.contains("return \"\\(RadixCopy.myData) -"))
+        #expect(navigationSource.contains("title: RadixCopy.myData"))
+        #expect(navigationSource.contains("Section(RadixCopy.myData)"))
+        #expect(pageEditorSource.components(separatedBy: "Section(RadixCopy.savedPage)").count == 3)
+        #expect(!pageEditorSource.contains("Section(\"Image\")"))
+        #expect(settingsSource.contains("Label(RadixCopy.safetyCopies"))
+        #expect(settingsSource.contains("Checkpoints, safety copies, and API keys are kept."))
+        #expect(!settingsSource.contains("Recovery Copies"))
+        #expect(!settingsSource.contains("Device snapshots"))
+        #expect(glossarySource.contains("term: \"Safety Copy\""))
+        #expect(!glossarySource.contains("term: \"Recovery Copies\""))
+    }
+
     @Test("Full backup restore persists rollback intent and recovers before startup publication")
     func fullRestoreRollbackWiring() throws {
         let restore = try sourceText(at: "ViewModels/RadixStoreDataImport.swift")
