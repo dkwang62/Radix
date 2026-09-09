@@ -47,8 +47,25 @@ class EntitlementManager: ObservableObject {
         case profileTransfer = "Profile Transfer"
     }
 
+    enum PurchaseOutcome: Equatable {
+        case purchased
+        case pending
+        case cancelled
+        case failed(String)
+        case busy
+    }
+
+    enum RestoreOutcome: Equatable {
+        case restored
+        case noPurchases
+        case failed(String)
+        case busy
+    }
+
     @Published private(set) var products: [RadixStoreProduct] = []
     @Published private(set) var isLoadingProducts: Bool = false
+    @Published private(set) var activePurchaseProductID: String? = nil
+    @Published private(set) var isRestoringPurchases: Bool = false
     @Published private(set) var lastError: String? = nil
     @Published private(set) var hasDatedCopiesAccess: Bool = false
     @Published private(set) var hasActiveAnnualSubscription: Bool = false
@@ -112,6 +129,7 @@ class EntitlementManager: ObservableObject {
     // MARK: - App Store logic
 
     func loadProducts() async {
+        guard !isLoadingProducts else { return }
         isLoadingProducts = true
         defer { isLoadingProducts = false }
         #if canImport(StoreKit)
@@ -131,40 +149,74 @@ class EntitlementManager: ObservableObject {
         #endif
     }
 
-    func purchase(_ product: RadixStoreProduct) async -> Bool {
+    func purchase(_ product: RadixStoreProduct) async -> PurchaseOutcome {
+        guard activePurchaseProductID == nil, !isRestoringPurchases else {
+            return .busy
+        }
+        activePurchaseProductID = product.id
+        lastError = nil
+        defer { activePurchaseProductID = nil }
+
         #if canImport(StoreKit)
         do {
             let result = try await product.storeKitProduct.purchase()
             switch result {
             case .success(let verification):
+                guard case .verified = verification else {
+                    let message = "The App Store could not verify this purchase."
+                    lastError = message
+                    return .failed(message)
+                }
                 await handle(transaction: verification)
-                return !requiresPro(featureGate(for: product.id))
-            case .pending, .userCancelled:
-                return false
+                return requiresPro(featureGate(for: product.id))
+                    ? .failed("The purchase completed, but access has not updated yet. Try Restore Purchases.")
+                    : .purchased
+            case .pending:
+                return .pending
+            case .userCancelled:
+                return .cancelled
             @unknown default:
-                return false
+                let message = "The App Store returned an unknown purchase result."
+                lastError = message
+                return .failed(message)
             }
         } catch {
-            lastError = "Purchase failed: \(error.localizedDescription)"
-            return false
+            let message = "Purchase failed: \(error.localizedDescription)"
+            lastError = message
+            return .failed(message)
         }
         #else
-        lastError = "Purchases are unavailable on this platform."
-        return false
+        let message = "Purchases are unavailable on this platform."
+        lastError = message
+        return .failed(message)
         #endif
     }
 
-    func restorePurchases() async {
+    func restorePurchases() async -> RestoreOutcome {
+        guard activePurchaseProductID == nil, !isRestoringPurchases else {
+            return .busy
+        }
+        isRestoringPurchases = true
+        lastError = nil
+        defer { isRestoringPurchases = false }
+
         #if canImport(StoreKit)
         do {
             try await AppStore.sync()
             await refreshEntitlements()
             lastError = nil
+            return (hasDatedCopiesAccess || hasActiveAnnualSubscription || hasLifetimeAccess)
+                ? .restored
+                : .noPurchases
         } catch {
-            lastError = "Restore failed: \(error.localizedDescription)"
+            let message = "Restore failed: \(error.localizedDescription)"
+            lastError = message
+            return .failed(message)
         }
         #else
-        lastError = "Purchases are unavailable on this platform."
+        let message = "Purchases are unavailable on this platform."
+        lastError = message
+        return .failed(message)
         #endif
     }
 
