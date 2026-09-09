@@ -919,6 +919,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Why it happens:** `TextEditor(text: $text)` has a minimum height but no label, placeholder or accessibility label, unlike the existing character-notes editor's explicit empty-state prompt.
 
+**Remediation status (2026-09-09):** Addressed. New Saved Page now marks the page name as optional, visibly labels the required editor `Chinese Text`, and shows an empty-editor prompt explaining that Chinese text enables Save. The editor has an explicit accessibility label and requirement hint independent of the visual placeholder. One focused guard passed, all 185 tests passed, and signing-disabled Mac Catalyst plus generic iOS Simulator builds succeeded. Physical VoiceOver reading-order validation remains part of the general accessibility matrix.
+
 **Recommended fix:** Add a Chinese Text field label and accessible name, with a concise empty-editor prompt if needed. Reuse the app's existing labeled-editor pattern without introducing a tutorial or additional navigation.
 
 ### UI-46: A filtered-out sentence library is described as having no imported data

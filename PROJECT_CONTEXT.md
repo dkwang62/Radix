@@ -597,6 +597,10 @@ UI-39 keeps the character learning-tier guide as an anchored popover on compact
 iPhones instead of allowing an undismissable-looking sheet adaptation. One
 focused guard and all 184 tests in 16 suites passed; Mac Catalyst and generic iOS
 Simulator builds passed. Physical VoiceOver focus return remains a release gate.
+UI-40 labels New Saved Page's required Chinese Text editor, identifies the name
+as optional, supplies an empty prompt tied to Save, and exposes an accessibility
+label and hint. One focused guard and all 185 tests in 16 suites passed; Mac
+Catalyst and generic iOS Simulator builds passed.
 
 For release work or platform-sensitive UI/data changes, also run:
 
