@@ -86,6 +86,8 @@ struct CharacterInfoCardActions: View {
 }
 
 struct InfoCardActionPill: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     let title: String
     var systemImage: String?
     var textIcon: String?
@@ -104,8 +106,7 @@ struct InfoCardActionPill: View {
         }
         .font(cardActionFont)
         .foregroundStyle(RadixAccent.primary)
-        .lineLimit(1)
-        .minimumScaleFactor(0.8)
+        .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 1)
         .radixPill(
             horizontal: 10,
             vertical: verticalPadding,

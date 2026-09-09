@@ -28,12 +28,11 @@ public struct ResponsiveFont {
     public static let body = Font.body
     public static let callout = Font.callout
     @MainActor public static var footnote: Font { isIPad ? .footnote : .subheadline }
-    public static let caption = Font.system(size: 13)
-    public static let caption2 = Font.system(size: 13)
+    public static let caption = Font.caption
+    public static let caption2 = Font.caption2
 
-    @MainActor public static func tinySystem(size: CGFloat, weight: Font.Weight? = nil, design: Font.Design? = nil) -> Font {
-        let adjustedSize = max(size + 1, 13)
-        return .system(size: adjustedSize, weight: weight, design: design)
+    public static func tinySystem(size: CGFloat, weight: Font.Weight? = nil, design: Font.Design? = nil) -> Font {
+        .system(size >= 13 ? .caption : .caption2, design: design, weight: weight)
     }
     #endif
 }

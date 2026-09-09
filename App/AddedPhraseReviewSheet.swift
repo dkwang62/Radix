@@ -4,6 +4,7 @@ struct AddedPhraseReviewSheet: View {
     @EnvironmentObject var store: RadixStore
     @Environment(\.dismiss) var dismiss
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.dynamicTypeSize) var dynamicTypeSize
     let isWorkspace: Bool
     let showsWorkspaceCloseButton: Bool
     let onDone: (() -> Void)?
@@ -23,8 +24,11 @@ struct AddedPhraseReviewSheet: View {
     @State var reviewInteractionRevision = 0
 
     let detailTextMaxWidth: CGFloat = 640
-    let phraseTileHeight: CGFloat = 34
     let phraseGridSpacing: CGFloat = 5
+
+    var phraseTileHeight: CGFloat {
+        dynamicTypeSize.isAccessibilitySize ? 64 : RadixControlMetrics.standardHeight
+    }
 
     init(
         isWorkspace: Bool = false,
@@ -55,16 +59,21 @@ struct AddedPhraseReviewSheet: View {
     }
 
     var phraseReviewColumnCount: Int {
+        if dynamicTypeSize.isAccessibilitySize {
+            return RadixPlatform.isPhone ? 2 : 3
+        }
         if !usesRegularReviewLayout { return 3 }
         return RadixPlatform.isDesktop ? 5 : 4
     }
 
     var reviewControlFont: Font {
-        .system(size: RadixPlatform.isDesktop ? 15 : (usesRegularReviewLayout ? 14 : 13), weight: .semibold)
+        RadixPlatform.isDesktop
+            ? .system(size: 15, weight: .semibold)
+            : ResponsiveFont.caption.weight(.semibold)
     }
 
     var reviewCaptionFont: Font {
-        .system(size: usesRegularReviewLayout ? 14 : 12)
+        RadixPlatform.isDesktop ? .system(size: 14) : ResponsiveFont.caption2
     }
 
     var addedPhrases: [PhraseItem] {

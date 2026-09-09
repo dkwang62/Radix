@@ -3,6 +3,7 @@ import SwiftUI
 struct SentenceExampleListSheet: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var store: RadixStore
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     let title: String
     let lookup: SentenceExampleLookup
@@ -102,23 +103,21 @@ struct SentenceExampleListSheet: View {
                 Text("\(rank)")
                     .font(ResponsiveFont.caption2.weight(.semibold))
                     .foregroundStyle(RadixAccent.primary)
-                    .frame(width: 28, height: 28)
+                    .frame(minWidth: 28, minHeight: 28)
                     .radixSurface(RadixAccent.primary.opacity(0.1))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(displayText(example.chinese))
                         .font(ResponsiveFont.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.86)
+                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
 
                     if let english = example.english?.trimmingCharacters(in: .whitespacesAndNewlines),
                        !english.isEmpty {
                         Text(english)
                             .font(ResponsiveFont.caption)
                             .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                            .minimumScaleFactor(0.86)
+                            .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)

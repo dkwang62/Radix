@@ -146,6 +146,7 @@ struct AddPhraseLaunchButton: View {
             Label("Phrase", systemImage: "plus.circle.fill")
         }
         .buttonStyle(.bordered)
+        .radixMinimumTapTarget()
         .accessibilityLabel("Add Phrase")
     }
 }

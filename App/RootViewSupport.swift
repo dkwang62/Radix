@@ -689,6 +689,7 @@ struct CompactScriptToggle: View {
                 .radixSurface(RadixAccent.primary)
         }
         .buttonStyle(.plain)
+        .radixMinimumTapTarget()
         .accessibilityLabel(accessibilityLabel)
         .accessibilityValue(isTraditional ? "Traditional" : "Simplified")
         .accessibilityHint("Toggles between simplified and traditional Chinese")

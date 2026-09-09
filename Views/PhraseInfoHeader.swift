@@ -5,10 +5,8 @@ extension PhraseInfoCard {
         HStack(alignment: .top, spacing: 10) {
             VStack(alignment: .leading, spacing: 6) {
                 Text(phrase.word)
-                    .font(.system(size: 32, weight: .bold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.32)
-                    .allowsTightening(true)
+                    .font(ResponsiveFont.title.weight(.bold))
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 1)
                     .layoutPriority(1)
                     .phraseContextMenu(phrase)
 
@@ -42,6 +40,7 @@ extension PhraseInfoCard {
                 )
             }
             .buttonStyle(.plain)
+            .radixMinimumTapTarget()
             .help("Back to sentence")
         }
     }
@@ -58,6 +57,7 @@ extension PhraseInfoCard {
                     .radixIconButtonSurface()
             }
             .buttonStyle(.plain)
+            .radixMinimumTapTarget()
             .accessibilityLabel("Delete phrase")
             .help("Delete phrase")
         }
@@ -77,6 +77,7 @@ extension PhraseInfoCard {
                 .radixIconButtonSurface(size: 32)
         }
         .buttonStyle(.plain)
+        .radixMinimumTapTarget()
         .help("Edit notes")
     }
 
@@ -99,6 +100,7 @@ extension PhraseInfoCard {
                         .radixIconButtonSurface()
                 }
                 .buttonStyle(.plain)
+                .radixMinimumTapTarget()
                 .accessibilityLabel(store.isFavoriteSentence(practiceItem) ? "Remove sentence from favorites" : "Add sentence to favorites")
                 .help(store.isFavoriteSentence(practiceItem) ? "Remove sentence from favorites" : "Add sentence to favorites")
             }
@@ -112,6 +114,7 @@ extension PhraseInfoCard {
                     .radixIconButtonSurface()
             }
             .buttonStyle(.plain)
+            .radixMinimumTapTarget()
             .accessibilityLabel(store.isPhraseFavorite(phrase.word) ? "Remove from favorites" : "Add to favorites")
             .help(store.isPhraseFavorite(phrase.word) ? "Remove from favorites" : "Add to favorites")
         }
@@ -124,9 +127,7 @@ extension PhraseInfoCard {
                 Text(trimmedPinyin)
                     .font(ResponsiveFont.subheadline.weight(.semibold))
                     .foregroundStyle(Color.orange)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.45)
-                    .allowsTightening(true)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 1)
                     .layoutPriority(1)
             }
 

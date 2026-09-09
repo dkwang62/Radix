@@ -81,15 +81,14 @@ struct AddedPhraseReviewTile: View {
         Button(action: onSelect) {
             ZStack(alignment: .topTrailing) {
                 Text(phrase.word)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(ResponsiveFont.body.weight(.semibold))
                     .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.62)
+                    .lineLimit(2)
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, 5)
 
                 Image(systemName: statusIcon)
-                    .font(.system(size: 9, weight: .bold))
+                    .font(ResponsiveFont.caption2.weight(.bold))
                     .foregroundStyle(statusColor)
                     .padding(3)
             }

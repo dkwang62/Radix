@@ -83,6 +83,7 @@ extension PhraseInfoCard {
                 .radixIconButtonSurface(size: 32)
         }
         .buttonStyle(.plain)
+        .radixMinimumTapTarget()
         .accessibilityLabel("Read sentence aloud")
         .help("Read sentence aloud")
     }
@@ -126,6 +127,7 @@ extension PhraseInfoCard {
                 InfoCardActionPill(title: "Phrase", textIcon: "词", verticalPadding: 8)
             }
             .buttonStyle(.plain)
+            .radixMinimumTapTarget()
             .help("Show phrases")
         }
     }
@@ -154,6 +156,7 @@ extension PhraseInfoCard {
                 )
             }
             .buttonStyle(.plain)
+            .radixMinimumTapTarget()
             .help("Show sentence examples")
         }
     }

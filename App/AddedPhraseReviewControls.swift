@@ -1,30 +1,54 @@
 import SwiftUI
 
 extension AddedPhraseReviewSheet {
+    @ViewBuilder
     var topControlRow: some View {
-        HStack(spacing: 8) {
-            filterRow
-
-            addPhraseButton
-
-            actionsMenu
-
-            Spacer(minLength: 0)
-
-            if !isWorkspace || showsWorkspaceCloseButton {
-                Button { closeReview() } label: {
-                    Label(isWorkspace ? "Back to Study" : "Done", systemImage: isWorkspace ? "chevron.left" : "xmark")
-                        .font(reviewControlFont)
-                        .lineLimit(1)
-                        .fixedSize(horizontal: true, vertical: false)
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    filterRow
+                    Spacer(minLength: 0)
+                    reviewCloseButton
                 }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                    .keyboardShortcut(.cancelAction)
-                    .accessibilityLabel(isWorkspace ? "Back to Study" : "Close phrase classification")
+
+                HStack(spacing: 8) {
+                    addPhraseButton
+                    actionsMenu
+                    Spacer(minLength: 0)
+                }
             }
+            .frame(maxWidth: .infinity)
+        } else {
+            HStack(spacing: 8) {
+                filterRow
+
+                addPhraseButton
+
+                actionsMenu
+
+                Spacer(minLength: 0)
+
+                reviewCloseButton
+            }
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity)
+    }
+
+    @ViewBuilder
+    var reviewCloseButton: some View {
+        if !isWorkspace || showsWorkspaceCloseButton {
+            Button { closeReview() } label: {
+                Label(isWorkspace ? "Back to Study" : "Done", systemImage: isWorkspace ? "chevron.left" : "xmark")
+                    .font(reviewControlFont)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .radixMinimumTapTarget()
+            .keyboardShortcut(.cancelAction)
+            .accessibilityLabel(isWorkspace ? "Back to Study" : "Close phrase classification")
+        }
     }
 
     var addPhraseButton: some View {
@@ -51,6 +75,7 @@ extension AddedPhraseReviewSheet {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.small)
+            .radixMinimumTapTarget()
             .tint(filter.color)
             .foregroundStyle(Color.white)
             .popover(isPresented: $showsFilterPicker, arrowEdge: .top) {
@@ -141,6 +166,7 @@ extension AddedPhraseReviewSheet {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
+                .radixMinimumTapTarget()
                 .accessibilityLabel("Stop marking phrases")
                 .help("Stop applying the selected status tool.")
             }
@@ -153,8 +179,7 @@ extension AddedPhraseReviewSheet {
         } label: {
             Label(option.title, systemImage: option.icon)
                 .font(reviewControlFont)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                 .frame(maxWidth: .infinity, minHeight: reviewToolButtonMinHeight)
         }
         .buttonStyle(.borderedProminent)
@@ -166,11 +191,12 @@ extension AddedPhraseReviewSheet {
     }
 
     var reviewToolButtonMinHeight: CGFloat {
-        RadixPlatform.isDesktop ? 34 : (usesRegularReviewLayout ? 30 : 26)
+        RadixPlatform.isDesktop ? 34 : RadixControlMetrics.standardHeight
     }
 
     var reviewToolColumnCount: Int {
-        usesRegularReviewLayout ? 4 : 2
+        if dynamicTypeSize.isAccessibilitySize { return 1 }
+        return usesRegularReviewLayout ? 4 : 2
     }
 
     var reviewToolRows: [[PhraseReviewStatusTool]] {
@@ -244,6 +270,7 @@ extension AddedPhraseReviewSheet {
         }
         .buttonStyle(.borderedProminent)
         .controlSize(.small)
+        .radixMinimumTapTarget()
         .tint(RadixTheme.systemGray5)
         .foregroundStyle(Color.primary)
         .help("Batch actions, AI review, and help for added phrases.")
@@ -316,6 +343,7 @@ extension AddedPhraseReviewSheet {
         }
         .buttonStyle(.borderedProminent)
         .controlSize(.small)
+        .radixMinimumTapTarget()
         .disabled(!isEnabled)
         .opacity(isEnabled ? 1 : 0.25)
         .accessibilityLabel(systemImage.contains("left") ? "Previous page" : "Next page")

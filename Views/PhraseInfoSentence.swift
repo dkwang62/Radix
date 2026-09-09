@@ -107,6 +107,7 @@ extension PhraseInfoCard {
                 .radixIconButtonSurface()
         }
         .buttonStyle(.plain)
+        .radixMinimumTapTarget()
         .accessibilityLabel("Delete sentence")
         .help("Delete sentence")
     }
@@ -328,7 +329,7 @@ extension PhraseInfoCard {
 
     var sentenceHighlightedChineseText: some View {
         Text(sentenceDisplayChinese)
-            .font(.system(size: RadixPlatform.isPhone ? 25 : 30, weight: .bold, design: .rounded))
+            .font(.system(.title, design: .rounded, weight: .bold))
             .foregroundStyle(.primary)
             .fixedSize(horizontal: false, vertical: true)
             .textSelection(.enabled)

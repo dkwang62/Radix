@@ -16,6 +16,7 @@ enum PhraseLookupDepth {
 
 struct PhraseInfoCard: View {
     @EnvironmentObject var store: RadixStore
+    @Environment(\.dynamicTypeSize) var dynamicTypeSize
     let phrase: PhraseItem
     var phraseLookupOverride: [PhraseItem]? = nil
     var favoriteTarget: PhraseInfoFavoriteTarget = .phrase

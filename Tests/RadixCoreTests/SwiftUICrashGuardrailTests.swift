@@ -488,6 +488,35 @@ struct SwiftUICrashGuardrailTests {
         #expect(preferencesSource.contains("let nextOffset = queryOffset + index + 1"))
     }
 
+    @Test("Core study text scales and compact controls preserve touch targets")
+    func coreStudySurfacesRespectDynamicType() throws {
+        let fontSource = try sourceText(at: "Models/ResponsiveFont.swift")
+        let rootSupportSource = try sourceText(at: "App/RootViewSupport.swift")
+        let phraseCardSource = try sourceText(at: "Views/PhraseInfoCard.swift")
+        let phraseHeaderSource = try sourceText(at: "Views/PhraseInfoHeader.swift")
+        let sentenceSource = try sourceText(at: "Views/PhraseInfoSentence.swift")
+        let examplesSource = try sourceText(at: "Views/SentenceExampleListSheet.swift")
+        let reviewSheetSource = try sourceText(at: "App/AddedPhraseReviewSheet.swift")
+        let reviewGridSource = try sourceText(at: "App/AddedPhraseReviewGrid.swift")
+        let reviewControlsSource = try sourceText(at: "App/AddedPhraseReviewControls.swift")
+
+        #expect(fontSource.contains("public static let caption = Font.caption"))
+        #expect(fontSource.contains("public static let caption2 = Font.caption2"))
+        #expect(!fontSource.contains("public static let caption = Font.system(size: 13)"))
+        #expect(rootSupportSource.contains("struct CompactScriptToggle"))
+        #expect(rootSupportSource.contains(".radixMinimumTapTarget()"))
+        #expect(phraseCardSource.contains("@Environment(\\.dynamicTypeSize) var dynamicTypeSize"))
+        #expect(phraseHeaderSource.contains(".lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 1)"))
+        #expect(sentenceSource.contains(".font(.system(.title, design: .rounded, weight: .bold))"))
+        #expect(examplesSource.contains(".lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)"))
+        #expect(!examplesSource.contains(".minimumScaleFactor(0.86)"))
+        #expect(reviewSheetSource.contains("dynamicTypeSize.isAccessibilitySize ? 64"))
+        #expect(reviewGridSource.contains(".font(ResponsiveFont.body.weight(.semibold))"))
+        #expect(reviewGridSource.contains(".lineLimit(2)"))
+        #expect(reviewControlsSource.contains("if dynamicTypeSize.isAccessibilitySize { return 1 }"))
+        #expect(reviewControlsSource.contains("RadixControlMetrics.standardHeight"))
+    }
+
     @Test("Full backup restore persists rollback intent and recovers before startup publication")
     func fullRestoreRollbackWiring() throws {
         let restore = try sourceText(at: "ViewModels/RadixStoreDataImport.swift")
