@@ -101,7 +101,7 @@ struct SentenceExampleListSheet: View {
         } label: {
             HStack(alignment: .center, spacing: 10) {
                 Text("\(rank)")
-                    .font(ResponsiveFont.caption2.weight(.semibold))
+                    .font(ResponsiveFont.scalableCaption2.weight(.semibold))
                     .foregroundStyle(RadixAccent.primary)
                     .frame(minWidth: 28, minHeight: 28)
                     .radixSurface(RadixAccent.primary.opacity(0.1))
@@ -115,7 +115,7 @@ struct SentenceExampleListSheet: View {
                     if let english = example.english?.trimmingCharacters(in: .whitespacesAndNewlines),
                        !english.isEmpty {
                         Text(english)
-                            .font(ResponsiveFont.caption)
+                            .font(ResponsiveFont.scalableCaption)
                             .foregroundStyle(.secondary)
                             .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
                     }

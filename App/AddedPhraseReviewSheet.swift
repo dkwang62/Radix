@@ -69,11 +69,11 @@ struct AddedPhraseReviewSheet: View {
     var reviewControlFont: Font {
         RadixPlatform.isDesktop
             ? .system(size: 15, weight: .semibold)
-            : ResponsiveFont.caption.weight(.semibold)
+            : ResponsiveFont.scalableCaption.weight(.semibold)
     }
 
     var reviewCaptionFont: Font {
-        RadixPlatform.isDesktop ? .system(size: 14) : ResponsiveFont.caption2
+        RadixPlatform.isDesktop ? .system(size: 14) : ResponsiveFont.scalableCaption2
     }
 
     var addedPhrases: [PhraseItem] {

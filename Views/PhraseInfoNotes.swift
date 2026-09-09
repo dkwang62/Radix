@@ -22,7 +22,7 @@ extension PhraseInfoCard {
 
             if let editStatus {
                 Text(editStatus)
-                    .font(ResponsiveFont.caption)
+                    .font(ResponsiveFont.scalableCaption)
                     .foregroundStyle(.secondary)
             }
         }
@@ -83,11 +83,11 @@ extension PhraseInfoCard {
         if !trimmedNotes.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
                 RadixTermLabel(term: RadixTerm.notes)
-                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .font(ResponsiveFont.scalableCaption.weight(.semibold))
                     .foregroundStyle(.secondary)
 
                 Text(trimmedNotes)
-                    .font(ResponsiveFont.caption)
+                    .font(ResponsiveFont.scalableCaption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }

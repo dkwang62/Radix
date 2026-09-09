@@ -88,7 +88,7 @@ struct AddedPhraseReviewTile: View {
                     .padding(.horizontal, 5)
 
                 Image(systemName: statusIcon)
-                    .font(ResponsiveFont.caption2.weight(.bold))
+                    .font(ResponsiveFont.scalableCaption2.weight(.bold))
                     .foregroundStyle(statusColor)
                     .padding(3)
             }

@@ -683,7 +683,7 @@ struct CompactScriptToggle: View {
             onToggle()
         } label: {
             Text(isTraditional ? "繁" : "简")
-                .font(ResponsiveFont.caption.weight(.semibold))
+                .font(ResponsiveFont.scalableCaption.weight(.semibold))
                 .frame(minWidth: minWidth, minHeight: height)
                 .foregroundStyle(.white)
                 .radixSurface(RadixAccent.primary)

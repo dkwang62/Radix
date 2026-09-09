@@ -221,7 +221,7 @@ extension PhraseInfoCard {
             HStack(alignment: .center, spacing: 10) {
                 if let sentenceImprovementStatus {
                     Text(sentenceImprovementStatus)
-                        .font(ResponsiveFont.caption2.weight(.semibold))
+                        .font(ResponsiveFont.scalableCaption2.weight(.semibold))
                         .foregroundStyle(isRunningSentenceImprovement ? .secondary : RadixAccent.primary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -342,11 +342,11 @@ extension PhraseInfoCard {
         if !notes.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
                 RadixTermLabel(term: RadixTerm.notes)
-                    .font(ResponsiveFont.caption.weight(.semibold))
+                    .font(ResponsiveFont.scalableCaption.weight(.semibold))
                     .foregroundStyle(.secondary)
 
                 Text(notes)
-                    .font(ResponsiveFont.caption)
+                    .font(ResponsiveFont.scalableCaption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }

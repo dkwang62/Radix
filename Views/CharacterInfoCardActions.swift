@@ -72,7 +72,7 @@ struct CharacterInfoCardActions: View {
         #if targetEnvironment(macCatalyst)
         return ResponsiveFont.caption2.weight(.semibold)
         #else
-        return ResponsiveFont.caption.weight(.semibold)
+        return ResponsiveFont.scalableCaption.weight(.semibold)
         #endif
     }
 

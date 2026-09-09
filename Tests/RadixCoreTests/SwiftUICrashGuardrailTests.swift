@@ -500,9 +500,9 @@ struct SwiftUICrashGuardrailTests {
         let reviewGridSource = try sourceText(at: "App/AddedPhraseReviewGrid.swift")
         let reviewControlsSource = try sourceText(at: "App/AddedPhraseReviewControls.swift")
 
-        #expect(fontSource.contains("public static let caption = Font.caption"))
-        #expect(fontSource.contains("public static let caption2 = Font.caption2"))
-        #expect(!fontSource.contains("public static let caption = Font.system(size: 13)"))
+        #expect(fontSource.contains("public static let scalableCaption = Font.caption"))
+        #expect(fontSource.contains("public static let scalableCaption2 = Font.caption2"))
+        #expect(fontSource.contains("public static let caption = Font.system(size: 13)"))
         #expect(rootSupportSource.contains("struct CompactScriptToggle"))
         #expect(rootSupportSource.contains(".radixMinimumTapTarget()"))
         #expect(phraseCardSource.contains("@Environment(\\.dynamicTypeSize) var dynamicTypeSize"))
