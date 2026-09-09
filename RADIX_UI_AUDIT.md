@@ -631,6 +631,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Why it happens:** `ResponsiveFont` uses fixed `.system(size:)` for iOS captions/tiny text, and several primary study surfaces bypass semantic fonts/scaled metrics. Control dimensions are similarly fixed.
 
+**Remediation status (2026-09-09):** Addressed for the identified core study surfaces. `ResponsiveFont` now exposes semantic scalable caption variants without silently changing more than 500 unrelated legacy call sites. Phrase/sentence headings, pinyin, notes, status text and Examples rows use semantic styles and stop shrinking accessibility text into fixed lines. The Examples script control and phrase/sentence card actions preserve a 44-point activation region independently of their compact visual surface. Added Phrase classification uses 44-point controls/tiles at standard sizes, expands tiles to 64 points, reduces phrase columns, stacks dense header actions and switches status tools to one column at accessibility sizes. A focused guard passed, all 180 tests passed, and Catalyst, generic iOS and SE-simulator builds succeeded. The app launched at Accessibility XXXL on the SE simulator. Human VoiceOver reading-order, focus-restoration and physical-device activation checks remain part of the general accessibility release matrix.
+
 **Recommended fix:** Use semantic text styles/scaled metrics, define accessible hit regions separately from visual dimensions, and add large-text layouts for dense tools. Verify VoiceOver labels, reading order, focus restoration and activation on devices; an AX-tree snapshot alone is insufficient.
 
 ### UI-29: The phrase classification grid has no vertical overflow escape
