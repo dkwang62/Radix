@@ -578,6 +578,11 @@ probe then passed 12 cold-process physical-iPhone runs at 10,000 and 50,000
 sentences. Worst-device median first-page time at 50,000 common-character
 matches was 66.7 ms with a normal 16.7 ms maximum display interval. Results and
 reproduction steps are in `Tests/SentenceExamplesPerformanceProbe`.
+UI-34 standardizes the affected user-facing vocabulary: `My Data` is the
+primary destination, editors operate on a `Saved Page`, `Checkpoint` means a
+complete same-device learning state, `Backup` means a portable file, and
+`Safety Copy` means per-database maintenance recovery. One focused guard and all
+181 tests in 16 suites passed; the signing-disabled Mac Catalyst build passed.
 
 For release work or platform-sensitive UI/data changes, also run:
 

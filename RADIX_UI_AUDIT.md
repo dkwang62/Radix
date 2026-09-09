@@ -863,6 +863,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Why it happens:** View-local strings remain alongside shared glossary/copy types; historical persistence terminology leaks into UI.
 
+**Remediation status (2026-09-09):** Addressed. The primary destination now consistently says `My Data`; both saved-page forms identify the edited object as `Saved Page`; and recovery copy distinguishes `Checkpoint` (a complete same-device learning state), `Backup` (a portable file), and `Safety Copy` (a per-database maintenance recovery file). Settings reset disclosures explicitly state that checkpoints and safety copies are retained, the glossary no longer duplicates Safety Copy under a competing Recovery Copies term, and Radix Plus copy calls its same-device feature checkpoints rather than snapshots. One focused vocabulary guard passed, all 181 tests passed, and the signing-disabled Mac Catalyst build succeeded.
+
 **Recommended fix:** Use the product model's canonical terms centrally and explicitly distinguish full checkpoints, per-database safety copies and portable backups. Review destructive verbs and success messages against their actual storage guarantees.
 
 ### UI-38: The character's component-usage number has no label or discoverable action meaning
