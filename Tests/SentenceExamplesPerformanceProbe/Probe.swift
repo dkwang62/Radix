@@ -98,10 +98,6 @@ private enum SentenceExamplesProbe {
         }
 
         func benchmark(expectedCount: Int) throws -> Metrics {
-            guard store.fetchAll(migratingLegacy: { [] }).count == expectedCount else {
-                throw failure("Seeded sentence count does not match")
-            }
-
             let heartbeat = FrameHeartbeat()
             DispatchQueue.main.sync { heartbeat.start() }
             Thread.sleep(forTimeInterval: 0.1)
@@ -113,7 +109,9 @@ private enum SentenceExamplesProbe {
                 let start = CFAbsoluteTimeGetCurrent()
                 let page = exactPage(offset: offset, limit: 24)
                 durations.append((CFAbsoluteTimeGetCurrent() - start) * 1_000)
-                guard page.records.count == 24, let nextOffset = page.nextOffset else {
+                guard page.totalCount == expectedCount,
+                      page.records.count == 24,
+                      let nextOffset = page.nextOffset else {
                     throw failure("Exact page was incomplete")
                 }
                 offset = nextOffset
@@ -129,11 +127,15 @@ private enum SentenceExamplesProbe {
             try FileManager.default.removeItem(at: directory)
         }
 
-        private func exactPage(offset: Int, limit: Int) -> (records: [SentenceExampleRecord], nextOffset: Int?) {
+        private func exactPage(
+            offset: Int,
+            limit: Int
+        ) -> (records: [SentenceExampleRecord], nextOffset: Int?, totalCount: Int) {
             let resultLimit = max(1, limit)
             let queryPageSize = max(24, min(120, resultLimit * 4))
             var queryOffset = max(0, offset)
             var matches: [SentenceExampleRecord] = []
+            var totalCount = 0
 
             while matches.count < resultLimit {
                 let result = store.query(
@@ -144,20 +146,21 @@ private enum SentenceExamplesProbe {
                     ),
                     migratingLegacy: { [] }
                 )
-                guard !result.records.isEmpty else { return (matches, nil) }
+                totalCount = result.totalCount
+                guard !result.records.isEmpty else { return (matches, nil, totalCount) }
 
                 for (index, record) in result.records.enumerated() where record.containsCharacter(queryText) {
                     matches.append(record)
                     if matches.count == resultLimit {
                         let nextOffset = queryOffset + index + 1
-                        return (matches, nextOffset < result.totalCount ? nextOffset : nil)
+                        return (matches, nextOffset < result.totalCount ? nextOffset : nil, result.totalCount)
                     }
                 }
 
                 queryOffset += result.records.count
-                if queryOffset >= result.totalCount { return (matches, nil) }
+                if queryOffset >= result.totalCount { return (matches, nil, result.totalCount) }
             }
-            return (matches, nil)
+            return (matches, nil, totalCount)
         }
     }
 }
