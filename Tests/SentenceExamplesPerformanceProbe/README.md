@@ -1,7 +1,7 @@
 # Sentence Examples Performance Validation
 
-This standalone iOS probe measures the UI-32 exact sentence-example paging path
-against the production `SentenceLibraryStore`. It has a separate bundle ID and
+This standalone iOS probe measures exact sentence-example paging against the
+production `SentenceLibraryStore`. It has a separate bundle ID and
 stores synthetic sentence databases only in its own application container. It
 does not open Radix data.
 

@@ -23,26 +23,13 @@ AI, My Data, or other user-facing workflow structure.
 - `UI_INTENT.md` — UI/product intent and design decision rules.
 - `PORTABLE_BACKUP_FORMAT.md` — portable backup bundle and JSON payload
   contract.
-- `RADIX_UI_AUDIT.md` — completed hostile-QA findings, remediation status, and
-  remaining adversarial test matrix.
 - `TESTFLIGHT_RELEASE_CHECKLIST.md` — build-specific automated and physical-iPad
   release gate.
-- `VARIANT_MEANING_MIGRATION_2026-08-22.md` — audit for the completed one-time
-  dictionary meaning migration.
 - `APP_STORE_COPY.md` — App Store and marketing copy draft.
 - `THIRD_PARTY_LICENSES.md` — bundled data/source license summary.
 
 Historical plan/status files have been removed once their completed decisions
 were folded into the canonical docs. Git history remains the audit trail.
-
-## Third-Party Licenses
-
-- Radix includes a Credits / Data Sources screen in Settings.
-- Radix attributes CC-CEDICT data (CC BY-SA 4.0): https://cc-cedict.org/
-- Radix attributes Unicode/Unihan/IDS references: https://www.unicode.org/
-- Radix includes HanziWriter JavaScript under the MIT License.
-- Radix includes HanziWriter-compatible stroke data derived from Make Me a Hanzi / Arphic data under the Arphic Public License.
-- Full license texts are bundled in `Resources/Licenses/` and summarized in `THIRD_PARTY_LICENSES.md`.
 
 ## Naming Notes
 
@@ -87,19 +74,14 @@ were folded into the canonical docs. Git history remains the audit trail.
 
 ## TestFlight Prep
 
-Current project defaults now include:
-
-- `MARKETING_VERSION = 1.0.6`
-- `CURRENT_PROJECT_VERSION = 9`
-- `ITSAppUsesNonExemptEncryption = NO`
-- Universal target family (`TARGETED_DEVICE_FAMILY = 1,2`)
-
 Before shipping to TestFlight:
 
 1. Complete a fresh [TestFlight release checklist](TESTFLIGHT_RELEASE_CHECKLIST.md)
    for the exact version, build, and commit being uploaded.
-2. Verify bundle identifiers and signing ownership in `project.yml` and Xcode.
+2. Verify version/build parity, bundle identifiers, device family, and export
+   compliance in `project.yml` and both Xcode targets.
 3. Set your Apple Team in Xcode Signing & Capabilities.
-4. Verify the production AppIcon set in `Resources/Assets.xcassets/AppIcon.appiconset`.
+4. Verify the production AppIcon set in
+   `Resources/Assets.xcassets/AppIcon.appiconset`.
 5. Archive from Xcode (`Product > Archive`) and validate/upload only after the
    automated and physical-iPad gates pass.

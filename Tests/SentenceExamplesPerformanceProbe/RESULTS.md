@@ -5,7 +5,7 @@ Date: 2026-09-09
 The release-built isolated QA bundle ran three fresh fixtures at each library
 size on each physical iPhone. Every benchmark launched in a new process after
 seeding. The measured path used production `SentenceLibraryStore` queries and
-the same candidate-offset exact paging algorithm as UI-32. Fixture creation was
+the shipping candidate-offset exact paging algorithm. Fixture creation was
 outside the page timers.
 
 | Device | Sentences | First 24 rows (median) | Second page | Third page | Largest frame interval |
@@ -20,7 +20,7 @@ corpus total. The slower tested device returned the first page from a 50,000-
 sentence library in under 67 ms. Because the query ran on the shipping sheet's
 user-initiated worker path, the main-thread display link did not miss a frame.
 
-This closes UI-32's physical-device large-corpus query-responsiveness risk. It
-does not certify visual row rendering, scrolling, Dynamic Type or accessibility
-in the full shipping Radix UI; those remain part of the general human device
-matrix rather than the UI-32 database-performance finding.
+This validates the physical-device large-corpus query-responsiveness contract.
+It does not certify visual row rendering, scrolling, Dynamic Type, or
+accessibility in the full shipping Radix UI; those remain part of the
+physical-device release matrix.

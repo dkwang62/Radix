@@ -11,6 +11,19 @@ feature.
 Read `UI_INTENT.md` before navigation, layout, iPad/iPhone adaptation, or
 UI-structure work. For small non-UI fixes, do not load it unnecessarily.
 
+## Documentation retention
+
+Documentation is operating memory for coding agents. Keep only material that
+changes how an agent should understand, modify, verify, release, or describe the
+current product. Preserve current architecture, durable contracts, UI intent,
+reproducible probe instructions/results, release gates, licensing, and
+publication source copy.
+
+After a plan, audit, migration, or investigation is complete, fold its durable
+conclusions and remaining actions into `PROJECT_CONTEXT.md`, tests, or the
+relevant contract document, then delete the narrative file. Do not retain
+session diaries or duplicate historical summaries; Git history is the archive.
+
 ## Token discipline
 
 - Inspect only the files needed for the current task. Prefer `rg` and targeted

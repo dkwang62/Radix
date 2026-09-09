@@ -277,8 +277,8 @@ On 2026-08-22, a one-time migration enriched 1,171 pure phrase
 `variant of ...` meanings and four character definitions while preserving the
 variant relationship. It intentionally skipped mixed, unresolved, self, and
 chain references. The temporary migration code was removed. Do not rerun it as
-a startup or broad maintenance migration. See
-`VARIANT_MEANING_MIGRATION_2026-08-22.md` for the audit.
+a startup or broad maintenance migration. Git history retains the detailed
+migration audit and checksums.
 
 ## AI Contract
 
@@ -414,9 +414,10 @@ paths, data behavior, and learning workflow.
 
 ## Current Workstream
 
-The 46 findings in `RADIX_UI_AUDIT.md` have focused remediations and regression
-coverage. Do not reopen an item without a new reproduction or evidence that its
-documented contract has regressed.
+The 2026-09-06 hostile UI audit's 46 findings have focused remediations and
+regression coverage. The completed narrative audit was removed after its durable
+contracts were folded into this document and the tests. Do not reopen an item
+without a new reproduction or evidence that a documented contract has regressed.
 
 1. Complete the exact-build physical-iPad gate in
    `TESTFLIGHT_RELEASE_CHECKLIST.md`, including background/foreground, rotation,
@@ -428,15 +429,20 @@ documented contract has regressed.
    and subscription lapse in Apple's test environment.
 4. Fault-test complete restore for disk exhaustion and interrupt the shipping
    app on a disposable physical-device library. Record large-backup timing.
-5. Continue only focused correctness, usability, performance, or maintainability
+5. Confirm the cumulative free-page policy at 99/100/101 pages across Camera,
+   Text, Clipboard, Files, Album, and Share entry points. Decide explicitly
+   whether Share is exempt before changing enforcement.
+6. Check the regular iPad sidebar near its 320-point minimum, including Stage
+   Manager transitions to compact width.
+7. Continue only focused correctness, usability, performance, or maintainability
    work. Keep this file current and use Git history for completed work details.
 
 ## Required Verification
 
 Latest application baseline (2026-09-09): `swift test` passed 186 tests in
 16 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds
-passed, as did `git diff --check`. Focused audit-item counts belong in
-`RADIX_UI_AUDIT.md` and Git history, not in this handoff.
+passed, as did `git diff --check`. Per-change verification details belong in
+Git history, not in this handoff.
 
 Specialized validation:
 
@@ -481,14 +487,13 @@ separately from compilation failures.
 
 - `PROJECT_CONTEXT.md`: current architecture, ownership, workstream, and checks.
 - `UI_INTENT.md`: durable UI and product decisions.
-- `RADIX_UI_AUDIT.md`: completed 2026-09-06 hostile-QA findings, remediation
-  status, reproduced probes, source traces, and remaining device-test matrix.
 - `AGENTS.md`: instructions for coding agents.
 - `TESTFLIGHT_RELEASE_CHECKLIST.md`: mandatory build-specific automated and
   physical-iPad release gate.
 - `PORTABLE_BACKUP_FORMAT.md`: portable backup format contract.
-- `VARIANT_MEANING_MIGRATION_2026-08-22.md`: completed one-time dictionary audit.
 - `APP_STORE_COPY.md` and `THIRD_PARTY_LICENSES.md`: publication material.
+- `Tests/*Probe/README.md` and `RESULTS.md`: reproducible specialized validation
+  instructions and measured baselines.
 
 When this file is updated, replace outdated statements rather than appending a
 session diary. Keep the current workstream to a small actionable list.
