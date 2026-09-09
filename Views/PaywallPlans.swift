@@ -12,11 +12,21 @@ extension PaywallView {
                     .padding(.vertical, 24)
                     .radixSurface(RadixTheme.secondaryBackground)
             } else if entitlement.products.isEmpty {
-                Label("Plans are not available right now. Please try again later.", systemImage: "wifi.exclamationmark")
-                    .foregroundStyle(.secondary)
-                    .padding(18)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .radixSurface(RadixTheme.secondaryBackground)
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Plans are not available right now.", systemImage: "wifi.exclamationmark")
+                        .foregroundStyle(.secondary)
+                    Button {
+                        storeOperationMessage = nil
+                        Task { await entitlement.loadProducts() }
+                    } label: {
+                        Label("Retry Loading Plans", systemImage: "arrow.clockwise")
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(storeOperationInProgress)
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .radixSurface(RadixTheme.secondaryBackground)
             } else {
                 VStack(spacing: 12) {
                     ForEach(entitlement.products, id: \.id) { product in
@@ -31,12 +41,25 @@ extension PaywallView {
         let isRadixPlus = product.id == EntitlementManager.myBackupProductID || product.id == EntitlementManager.datedCopiesProductID
 
         return Button {
+            guard !storeOperationInProgress, pendingPurchaseID != product.id else { return }
+            purchasingID = product.id
+            storeOperationMessage = nil
             Task {
-                purchasingID = product.id
-                _ = await entitlement.purchase(product)
+                let outcome = await entitlement.purchase(product)
                 purchasingID = nil
-                if !entitlement.requiresPro(featureGate(for: product)) {
+                switch outcome {
+                case .purchased:
+                    pendingPurchaseID = nil
                     dismiss()
+                case .pending:
+                    pendingPurchaseID = product.id
+                    storeOperationMessage = "Purchase awaiting approval. Radix will unlock it when the App Store approves it."
+                case .cancelled:
+                    storeOperationMessage = "Purchase cancelled."
+                case .failed:
+                    storeOperationMessage = nil
+                case .busy:
+                    storeOperationMessage = "Another App Store action is already in progress."
                 }
             }
         } label: {
@@ -66,6 +89,10 @@ extension PaywallView {
 
                     if purchasingID == product.id {
                         ProgressView()
+                    } else if pendingPurchaseID == product.id {
+                        Label("Awaiting Approval", systemImage: "hourglass")
+                            .font(ResponsiveFont.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
                     } else {
                         VStack(alignment: .trailing, spacing: 2) {
                             Text(productPriceLabel(product))
@@ -105,6 +132,7 @@ extension PaywallView {
             )
         }
         .buttonStyle(.plain)
+        .disabled(storeOperationInProgress || pendingPurchaseID == product.id)
     }
 
     func productTitle(_ product: RadixStoreProduct) -> String {

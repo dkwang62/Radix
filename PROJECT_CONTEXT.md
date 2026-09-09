@@ -583,6 +583,12 @@ primary destination, editors operate on a `Saved Page`, `Checkpoint` means a
 complete same-device learning state, `Backup` means a portable file, and
 `Safety Copy` means per-database maintenance recovery. One focused guard and all
 181 tests in 16 suites passed; the signing-disabled Mac Catalyst build passed.
+UI-30 gives Upgrade an in-session StoreKit recovery contract: empty product
+loads retry on presentation and by explicit action; purchase and restore expose
+pending, cancelled, no-purchase, failure and busy outcomes; and manager plus UI
+guards prevent overlapping operations. One focused guard and all 182 tests in
+16 suites passed; the signing-disabled Mac Catalyst build passed. Ask to Buy,
+subscription lapse and delayed transaction timing remain StoreKit/device gates.
 
 For release work or platform-sensitive UI/data changes, also run:
 

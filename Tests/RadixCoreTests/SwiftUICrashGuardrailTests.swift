@@ -547,6 +547,29 @@ struct SwiftUICrashGuardrailTests {
         #expect(!glossarySource.contains("term: \"Recovery Copies\""))
     }
 
+    @Test("Upgrade supports retry, pending purchases, and one StoreKit operation at a time")
+    func paywallStoreOperationsRemainRecoverable() throws {
+        let managerSource = try sourceText(at: "Services/EntitlementManager.swift")
+        let paywallSource = try sourceText(at: "Views/PaywallView.swift")
+        let plansSource = try sourceText(at: "Views/PaywallPlans.swift")
+        let footerSource = try sourceText(at: "Views/PaywallFooter.swift")
+
+        #expect(managerSource.contains("enum PurchaseOutcome: Equatable"))
+        #expect(managerSource.contains("case pending"))
+        #expect(managerSource.contains("case cancelled"))
+        #expect(managerSource.contains("activePurchaseProductID == nil, !isRestoringPurchases"))
+        #expect(managerSource.contains("func restorePurchases() async -> RestoreOutcome"))
+        #expect(managerSource.contains("case noPurchases"))
+        #expect(paywallSource.contains("if entitlement.products.isEmpty"))
+        #expect(paywallSource.contains("await entitlement.loadProducts()"))
+        #expect(paywallSource.contains("finishPendingPurchaseIfUnlocked()"))
+        #expect(plansSource.contains("Retry Loading Plans"))
+        #expect(plansSource.contains("Purchase awaiting approval."))
+        #expect(plansSource.contains(".disabled(storeOperationInProgress || pendingPurchaseID == product.id)"))
+        #expect(footerSource.contains("No active Radix purchases were found for this Apple ID."))
+        #expect(footerSource.contains(".disabled(storeOperationInProgress)"))
+    }
+
     @Test("Full backup restore persists rollback intent and recovers before startup publication")
     func fullRestoreRollbackWiring() throws {
         let restore = try sourceText(at: "ViewModels/RadixStoreDataImport.swift")

@@ -667,6 +667,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Why it happens:** Purchase returns Bool rather than an outcome enum; view state only tracks one `purchasingID`. Presentation does not re-request products.
 
+**Remediation status (2026-09-09):** Addressed. Product loading is idempotent, retries whenever an empty Upgrade view is presented, and exposes an explicit `Retry Loading Plans` action. Purchase now returns distinct purchased, pending, cancelled, failed and busy outcomes; restore distinguishes restored, no-purchase, failed and busy results. `EntitlementManager` independently permits only one purchase/restore operation while the paywall immediately disables competing plan and restore controls. Pending approval remains visible on its plan and delayed entitlement changes complete that pending path. Cancellation and restore-with-no-purchases receive explicit in-place feedback, while failures retain the existing error presentation. One focused guard passed, all 182 tests passed, and the signing-disabled Mac Catalyst build succeeded. Actual Ask to Buy, subscription lapse and delayed StoreKit transaction timing still require StoreKit configuration/device validation.
+
 **Recommended fix:** Add retry/refresh, explicit pending/cancelled/failed/restored outcomes, and one active purchase operation. Verify subscription lapse, restore-with-no-purchases and delayed entitlement updates without real transactions.
 
 ### UI-31: Changing quiz script allows the same question to be scored again

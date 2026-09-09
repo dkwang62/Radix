@@ -5,13 +5,38 @@ extension PaywallView {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 10) {
                 Button {
-                    Task { await entitlement.restorePurchases() }
+                    guard !storeOperationInProgress else { return }
+                    storeOperationMessage = nil
+                    Task {
+                        switch await entitlement.restorePurchases() {
+                        case .restored:
+                            storeOperationMessage = "Purchases restored. You can close Upgrade and continue."
+                        case .noPurchases:
+                            storeOperationMessage = "No active Radix purchases were found for this Apple ID."
+                        case .failed:
+                            storeOperationMessage = nil
+                        case .busy:
+                            storeOperationMessage = "Another App Store action is already in progress."
+                        }
+                    }
                 } label: {
-                    Label("Restore Purchases", systemImage: "arrow.clockwise")
+                    if entitlement.isRestoringPurchases {
+                        Label("Restoring Purchases...", systemImage: "hourglass")
+                    } else {
+                        Label("Restore Purchases", systemImage: "arrow.clockwise")
+                    }
                 }
                 .buttonStyle(.bordered)
+                .disabled(storeOperationInProgress)
 
                 Spacer(minLength: 0)
+            }
+
+            if let storeOperationMessage {
+                Label(storeOperationMessage, systemImage: "info.circle")
+                    .font(ResponsiveFont.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             #if DEBUG
