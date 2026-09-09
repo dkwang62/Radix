@@ -39,11 +39,15 @@ Evidence labels:
 | UI-04 | Addressed for active mutation paths. Sentence writes throw without replacing the readable corpus with incoming-only fallback data. Edit, favorite, delete, practice import, AI import and restore paths publish failure instead of success; maintenance records a retry/optimization need. | Read-only SQLite failure behavior and disk-full UI execution still need device/fault-injection coverage. |
 | UI-05 | Addressed. Updates use conflict-safe SQL, normalized-key collisions are rejected before dependent artifacts/favorites change, and the edit sheet stays open with the error. | The permanent collision test preserves both IDs and the existing favorite. A future explicit merge UI is optional, not required for data safety. |
 | UI-06 | Addressed for newly created checkpoints. Checkpoints now bundle sentence and added-phrase databases and restore through the full-document path. Existing JSON checkpoints remain discoverable and show a limited-scope warning before restore. | New-bundle end-to-end restore needs device execution; old checkpoints cannot retroactively contain missing sentence bodies. |
-| UI-07 | Addressed. Erase My Data clears sentence/favorite-sentence data, practice packs/progress, page phrase extractions, cleaned pages and the latest AI result, resets their live selections/revisions, and retains snapshots/API keys as stated. | Store-owner tests verify all practice/artifact preference keys are removed; Settings reset still needs a launch/reopen UI test. |
+| UI-07 | Addressed. Erase My Data clears sentence/favorite-sentence data, practice packs/progress, page phrase extractions, cleaned pages and the latest AI result, resets their live selections/revisions, and retains checkpoints/API keys as stated. | Store-owner tests verify all practice/artifact preference keys are removed; Settings reset still needs a launch/reopen UI test. |
 
 Simulator work used a fresh iPhone SE (3rd generation), iOS 26.5, named `Radix-UI-Audit-SE`. The user's live library, credentials, purchases, and external AI services were not used. Runtime coverage was targeted, not an exhaustive execution of every control or every possible state. Physical iPad, full VoiceOver, Dynamic Type, background interruption, and large-data UI runs remain required. This report is not release sign-off.
 
-## Application Map And Coverage
+## Audit-Baseline Application Map And Coverage
+
+This section records the structure and behavior observed during the initial
+read-only audit. Later remediation notes supersede any conflicting baseline
+behavior described here.
 
 ### Structure And State
 
@@ -1008,7 +1012,9 @@ Reproduction fixture definitions:
 - **Unicode:** call `CaptureTextExtractor.allCharactersInOrder(in: "㐀𠮷𰻞你好")`.
 - **Source correlation:** one record, two sources: `(pageA, ocrSource)` and `(pageB, aiCleanedPage)`; query `.page(pageA, .aiCleanedPage)` and assert zero.
 
-These should become permanent regression tests during the fix pass. They are audit fixtures, not a reason to run destructive fault injection against a real library.
+These fixtures informed permanent regression coverage during remediation. They
+remain audit evidence, not a reason to run destructive fault injection against
+a real library.
 
 ## Remaining Adversarial Test Matrix
 
@@ -1029,9 +1035,9 @@ coverage remains open. No unexecuted row should be reported as passed.
 
 | Area | Required device/fixture execution |
 | --- | --- |
-| Data cardinality | Zero/one/many pages; 99/100/101 free-page attempts; deleted pages versus cumulative quota; 10/11 and 50/51 sentence boundaries; 30/31 classification phrases; duplicate UUID/key imports |
+| Data cardinality | 99/100/101 free-page attempts and cumulative quota parity across Camera, Text, clipboard, Files, Album, and Share entry points |
 | Scale | Thousands of pages, very long page text/notes/phrase lists, common-character corpus lookups, maximum accepted backup size, high-pixel-count images; record main-thread stalls and peak memory |
-| Recovery | Interrupted restore between each store, force-quit/relaunch, cancellation during acquisition versus commit, inaccessible iCloud URL, disk full, SQLite busy/corrupt/partial JSON, old schemas and unresolved source pointers |
+| Recovery | Shipping-app interruption on a disposable physical-device library, inaccessible iCloud URL, disk full or injected late write failure, Retry after relaunch, and large-backup timing |
 | Lifecycle | Repeated enter/leave, background/foreground during OCR/AI/restore/optimization, two overlapping imports, URL handoff during cold initialization, restored/deleted current selection |
 | Capture | Real camera allow/deny/restricted, missing camera, limited Photos access, picker Cancel, file-provider cancellation, blank/English/vertical Chinese images, all EXIF orientations, rare Han and mixed-script text |
 | AI | Missing/invalid key, offline/timeout/rate limit, malformed/truncated output, cancellation, source deletion/change before response, manual/automatic feature parity; use synthetic material and mocks |
@@ -1039,7 +1045,6 @@ coverage remains open. No unexecuted row should be reported as passed.
 | Layout | Full classification page with preview, long Chinese/pinyin/English labels, supported landscape, safe areas, iPad regular-width split/Stage Manager windows and transitions to compact |
 | Commerce | Product-load failure/retry, pending/cancelled/failed/restored purchases, expired subscription, legacy entitlement migration, quota enforcement across Camera/Text/clipboard/share routes; StoreKit test environment only |
 | Media/reference | Missing source-image file, unavailable stroke data, WebKit termination, speech interruption/audio-session recovery, animation sharing cancellation, glossary/help/credits close and return |
-| Repeated-control parity | Capture/Browse/Study page-delete cancellation and impact; backup-preview reversion scope; translation Clear versus keyboard deletion/Done; simultaneous sentence row/card stars; source plus search combinations; filtered-empty reset; page-local bulk selection versus inspection highlight |
 
 Two particularly important unresolved risks are the regular iPad sidebar's minimum 320-point width before the shell switches to compact, and whether every source-creation entry point applies the same cumulative free-page policy. Both need a policy/device-specific check rather than an invented failure claim. Legacy dated-copy purchase recognition also needs a real historical-entitlement fixture before declaring a regression.
 

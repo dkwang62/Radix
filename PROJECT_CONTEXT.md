@@ -248,7 +248,8 @@ no suspension points; sentence cleanup scans a narrow source-page index and
 decodes only matched rows, including hidden records. Existing databases build
 the additive index on first open. Startup recovery remains synchronous.
 This provides recovery by finishing a confirmed deletion, not rollback or Undo.
-Full-backup restore still has its separate, previously documented crash boundary.
+Full-backup restore uses its separate rollback journal and is not covered by the
+page-deletion journal.
 
 ### Page and Sentence Ownership
 
