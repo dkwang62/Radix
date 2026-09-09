@@ -15,9 +15,25 @@ struct ManualBrowseCollectionSheet: View {
         NavigationStack {
             Form {
                 Section(RadixCopy.savedPage) {
-                    TextField("Name", text: $name)
+                    TextField("Name (Optional)", text: $name)
+
+                    Text("Chinese Text")
+                        .font(ResponsiveFont.subheadline.weight(.semibold))
+
                     TextEditor(text: $text)
                         .frame(minHeight: 180)
+                        .overlay(alignment: .topLeading) {
+                            if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                Text("Paste or type Chinese text to enable Save.")
+                                    .font(ResponsiveFont.body)
+                                    .foregroundStyle(.tertiary)
+                                    .padding(.top, 8)
+                                    .padding(.leading, 5)
+                                    .allowsHitTesting(false)
+                            }
+                        }
+                        .accessibilityLabel("Chinese text")
+                        .accessibilityHint("Required. Paste or type Chinese text to enable Save.")
                 }
 
                 Section {

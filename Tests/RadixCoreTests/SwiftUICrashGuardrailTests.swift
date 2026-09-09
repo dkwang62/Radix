@@ -582,6 +582,20 @@ struct SwiftUICrashGuardrailTests {
         #expect(tierPopoverBody.contains(".applyCompactPopoverStyle()"))
     }
 
+    @Test("New saved pages identify the required Chinese text editor")
+    func newSavedPageEditorIsLabeled() throws {
+        let source = try sourceText(at: "Views/BrowseCollectionSheets.swift")
+        let manualSheet = try #require(
+            source.components(separatedBy: "struct EditBrowseCollectionSheet").first
+        )
+
+        #expect(manualSheet.contains("TextField(\"Name (Optional)\""))
+        #expect(manualSheet.contains("Text(\"Chinese Text\")"))
+        #expect(manualSheet.contains("Paste or type Chinese text to enable Save."))
+        #expect(manualSheet.contains(".accessibilityLabel(\"Chinese text\")"))
+        #expect(manualSheet.contains(".accessibilityHint(\"Required. Paste or type Chinese text to enable Save.\")"))
+    }
+
     @Test("Full backup restore persists rollback intent and recovers before startup publication")
     func fullRestoreRollbackWiring() throws {
         let restore = try sourceText(at: "ViewModels/RadixStoreDataImport.swift")
