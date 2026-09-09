@@ -885,6 +885,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Why it happens:** `usageCountSubtitle` returns only the integer, and `usageCharactersButton` adds no semantic accessibility label/hint. Counts above one open the components popover directly rather than the usage explanation.
 
+**Remediation status (2026-09-09):** Addressed. The character tile now renders the usage quantity as a compact labeled value such as `7 chars` rather than a bare number. Its accessibility label identifies the character and explains that the quantity counts characters using it as a component; the hint names either the related-character action or the usage-information action when no related characters exist. The same hint is available as pointer help. Underlying stroke and usage data and the existing navigation behavior are unchanged. One focused guard passed, all 186 tests passed, and signing-disabled Mac Catalyst plus generic iOS Simulator builds succeeded. Physical VoiceOver wording and activation remain part of the general accessibility matrix.
+
 **Recommended fix:** Give the quantity and action a compact, explicit meaning, such as a labeled component-usage count, and add an accessibility label/hint describing the related-character action. Do not change valid stroke or usage data to make the numbers agree.
 
 ### UI-39: The learning-tier guide becomes a phone sheet with no visible close control

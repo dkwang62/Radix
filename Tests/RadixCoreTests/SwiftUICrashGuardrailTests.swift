@@ -596,6 +596,20 @@ struct SwiftUICrashGuardrailTests {
         #expect(manualSheet.contains(".accessibilityHint(\"Required. Paste or type Chinese text to enable Save.\")"))
     }
 
+    @Test("Character usage tile names its count and related-character action")
+    func characterUsageTileIsDiscoverable() throws {
+        let styleSource = try sourceText(at: "Views/CharacterInfoCardStyle.swift")
+        let headerSource = try sourceText(at: "Views/CharacterInfoCardHeader.swift")
+
+        #expect(styleSource.contains("char\\(item.usageCount == 1 ? \"\" : \"s\")"))
+        #expect(styleSource.contains("component used in \\(item.usageCount) characters"))
+        #expect(styleSource.contains("Opens related characters that use this component."))
+        #expect(styleSource.contains("Shows component usage information."))
+        #expect(headerSource.contains(".accessibilityLabel(usageCountAccessibilityLabel)"))
+        #expect(headerSource.contains(".accessibilityHint(usageCountAccessibilityHint)"))
+        #expect(headerSource.contains(".help(usageCountAccessibilityHint)"))
+    }
+
     @Test("Full backup restore persists rollback intent and recovers before startup publication")
     func fullRestoreRollbackWiring() throws {
         let restore = try sourceText(at: "ViewModels/RadixStoreDataImport.swift")

@@ -601,6 +601,10 @@ UI-40 labels New Saved Page's required Chinese Text editor, identifies the name
 as optional, supplies an empty prompt tied to Save, and exposes an accessibility
 label and hint. One focused guard and all 185 tests in 16 suites passed; Mac
 Catalyst and generic iOS Simulator builds passed.
+UI-38 labels the character tile's component-usage quantity (`7 chars`) and adds
+count-aware accessibility labels, action hints and pointer help without changing
+usage or stroke data. One focused guard and all 186 tests in 16 suites passed;
+Mac Catalyst and generic iOS Simulator builds passed.
 
 For release work or platform-sensitive UI/data changes, also run:
 

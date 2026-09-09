@@ -66,6 +66,9 @@ extension CharacterInfoCard {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(usageCountAccessibilityLabel)
+        .accessibilityHint(usageCountAccessibilityHint)
+        .help(usageCountAccessibilityHint)
         .copyCharacterContextMenu(item.character, pinyin: item.pinyinText)
         .popover(isPresented: chipGuideBinding(for: .usageCount), arrowEdge: .bottom) {
             chipGuideView(for: .usageCount)

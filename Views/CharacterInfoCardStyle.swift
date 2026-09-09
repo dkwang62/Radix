@@ -14,7 +14,20 @@ extension CharacterInfoCard {
     }
 
     var usageCountSubtitle: String {
-        "\(item.usageCount)"
+        "\(item.usageCount) char\(item.usageCount == 1 ? "" : "s")"
+    }
+
+    var usageCountAccessibilityLabel: String {
+        if item.usageCount <= 1 {
+            return "\(item.character), not used in other characters"
+        }
+        return "\(item.character), component used in \(item.usageCount) characters"
+    }
+
+    var usageCountAccessibilityHint: String {
+        item.usageCount > 1
+            ? "Opens related characters that use this component."
+            : "Shows component usage information."
     }
 
     func tierChip(for tier: Int) -> some View {
