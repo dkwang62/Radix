@@ -901,6 +901,8 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Why it happens:** The Tier button uses a popover that adapts to a sheet in compact width. Its content is only a padded VStack, without a dismissal control, and it does not apply the compact-popover treatment used by some other card explanations.
 
+**Remediation status (2026-09-09):** Addressed. The learning-tier guide now uses the same compact-popover treatment as neighboring character-card guide chips, so compact iPhones retain an anchored popover that can be dismissed by tapping outside instead of adapting it into a tall sheet with no visible close control. A focused presentation guard passed, all 184 tests passed, and signing-disabled Mac Catalyst plus generic iOS Simulator builds succeeded. Physical-device VoiceOver focus return remains part of the general accessibility matrix.
+
 **Recommended fix:** Specify compact presentation deliberately. Keep a true popover where appropriate, or give the sheet a visible Done/Close action with accessible focus and return behavior.
 
 ### UI-40: The empty Text to Page form does not identify its Chinese text field

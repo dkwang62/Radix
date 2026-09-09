@@ -570,6 +570,18 @@ struct SwiftUICrashGuardrailTests {
         #expect(footerSource.contains(".disabled(storeOperationInProgress)"))
     }
 
+    @Test("Learning-tier guide remains an anchored popover on compact phones")
+    func learningTierGuideAvoidsUndismissableCompactSheet() throws {
+        let headerSource = try sourceText(at: "Views/CharacterInfoCardHeader.swift")
+        let tierPopover = try #require(
+            headerSource.components(separatedBy: ".popover(isPresented: $showFrequencyGuide").last
+        )
+        let tierPopoverBody = try #require(tierPopover.components(separatedBy: "\n        }").first)
+
+        #expect(tierPopoverBody.contains("tierGuideView"))
+        #expect(tierPopoverBody.contains(".applyCompactPopoverStyle()"))
+    }
+
     @Test("Full backup restore persists rollback intent and recovers before startup publication")
     func fullRestoreRollbackWiring() throws {
         let restore = try sourceText(at: "ViewModels/RadixStoreDataImport.swift")

@@ -45,6 +45,7 @@ extension CharacterInfoCard {
         .buttonStyle(.plain)
         .popover(isPresented: $showFrequencyGuide, arrowEdge: .bottom) {
             tierGuideView
+                .applyCompactPopoverStyle()
         }
     }
 

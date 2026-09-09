@@ -593,6 +593,10 @@ UI-33 preserves complete user-entered saved-page names after trimming surroundin
 whitespace. The 11-character bound now applies only to Radix-generated corrected
 and archive names. Fifteen focused saved-page tests and all 183 tests in 16
 suites passed; the signing-disabled Mac Catalyst build passed.
+UI-39 keeps the character learning-tier guide as an anchored popover on compact
+iPhones instead of allowing an undismissable-looking sheet adaptation. One
+focused guard and all 184 tests in 16 suites passed; Mac Catalyst and generic iOS
+Simulator builds passed. Physical VoiceOver focus return remains a release gate.
 
 For release work or platform-sensitive UI/data changes, also run:
 
