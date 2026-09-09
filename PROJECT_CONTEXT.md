@@ -567,7 +567,11 @@ disabled. Compact-device and largest-Dynamic-Type interaction remain open.
 UI-32 moves character/phrase example lookup off sheet presentation, pages exact
 matches progressively, refreshes on sentence mutations, and provides explicit
 loading and empty states. Its focused guard and all 179 tests in 16 suites
-passed; the signing-disabled Mac Catalyst build passed.
+passed; the signing-disabled Mac Catalyst build passed. The isolated release
+probe then passed 12 cold-process physical-iPhone runs at 10,000 and 50,000
+sentences. Worst-device median first-page time at 50,000 common-character
+matches was 66.7 ms with a normal 16.7 ms maximum display interval. Results and
+reproduction steps are in `Tests/SentenceExamplesPerformanceProbe`.
 
 For release work or platform-sensitive UI/data changes, also run:
 

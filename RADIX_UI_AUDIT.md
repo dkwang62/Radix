@@ -699,7 +699,7 @@ Deduplication: UI-41 concerns a saved-page cascade entry point, not UI-17's sing
 
 **Why it happens:** Callers request `limit: nil`; exact lookup loops through all query pages before returning. The sheet has no query/revision ownership or empty-state branch.
 
-**Remediation status (2026-09-09):** Addressed. Character and phrase cards now present the sheet with an exact lookup descriptor instead of synchronously resolving an unbounded array. The sheet asynchronously loads exact matches in cursor-based pages, progressively fetches more rows, refreshes on the shared sentence revision, and presents explicit loading and empty states.
+**Remediation status (2026-09-09):** Addressed and physically performance-checked. Character and phrase cards now present the sheet with an exact lookup descriptor instead of synchronously resolving an unbounded array. The sheet asynchronously loads exact matches in cursor-based pages, progressively fetches more rows, refreshes on the shared sentence revision, and presents explicit loading and empty states. An isolated release probe using the production sentence store and matching cursor algorithm completed 12 cold-process physical-iPhone runs. At 50,000 common-character matches, median first-page latency was 66.7 ms on an iPhone 13 mini and 54.0 ms on an iPhone 16e; the main display link remained at a normal 16.7 ms interval. Full shipping-UI visual/accessibility sign-off remains part of the general device matrix, not this query-performance check.
 
 **Recommended fix:** Reuse paged sentence-query state, load off the presentation path, refresh on corpus revisions and show a meaningful no-examples state.
 
