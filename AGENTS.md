@@ -60,56 +60,57 @@ Git history is the detailed audit trail. `PROJECT_CONTEXT.md` is the hand-off.
 
 This section is maintained by Personal Librarian so work can continue on another Mac.
 
-**Goal**
+## Goal
 
-Add support for FreeLLMAPI as an OpenAI-compatible custom AI backend for Radix automatic AI execution, while preserving the existing Gemini path and manual AI fallback.
+Add FreeLLMAPI support to Radix as an OpenAI-compatible custom AI backend for automatic AI execution, while preserving the existing Gemini automatic path and manual AI fallback.
 
-**Current State**
+## Current state
 
-Radix currently has a shared AI workflow with manual copy/open handoff, template editing/testing, optional automatic Gemini execution, and paste/apply behavior.
+Radix has a shared AI workflow covering template editing/testing, manual copy/open handoff, optional automatic Gemini execution, and paste/apply behavior.
 
-Relevant files verified:
+Relevant source state:
 
-- `PROJECT_CONTEXT.md` has the AI contract: automatic Gemini is optional and manual fallback must remain.
+- `PROJECT_CONTEXT.md` states automatic Gemini is optional and must always retain manual fallback.
+- `Models/UserProfile.swift` defines `DefaultAIPreset.custom` as “Custom AI”.
 - `ViewModels/RadixAIProviderState.swift` already stores `customURLString`, `customAIAPIKey`, provider API keys, and `geminiModelID`.
-- `ViewModels/RadixStore.swift` exposes persisted accessors for custom AI URL/key and Gemini settings.
+- `ViewModels/RadixStore.swift` exposes persisted accessors for `customAIURLString`, `customAIAPIKey`, and Gemini settings.
 - `ViewModels/RadixStorePrompts.swift` loads/persists custom AI URL/key via `UserDefaults`.
-- `Services/GeminiClient.swift` contains Gemini-specific request formatting and response parsing.
-- `ViewModels/RadixStoreAI.swift` currently calls `GeminiPhraseExtractionService` and `GeminiTextGenerationService` for automatic AI work.
+- `ViewModels/RadixStoreAI.swift` contains `normalizedCustomAIURL`, manual AI URL behavior, and Gemini-only automatic task methods.
+- `Services/GeminiClient.swift` is Gemini-specific: request shape, API key header, endpoint, response parsing, and user-facing errors are all tied to Gemini.
+- Automatic AI call sites currently invoke `runGemini...` methods directly.
+- No `OpenAICompatibleClient`, `FreeLLMAPI`, or chat-completions client implementation is present.
 
-No implementation for FreeLLMAPI/OpenAI-compatible chat completions was found. Worktree was clean when checked.
+## Decisions
 
-**Decisions**
-
-Implement FreeLLMAPI as a generic OpenAI-compatible client rather than modifying `GeminiClient`.
+Implement FreeLLMAPI through a generic OpenAI-compatible service rather than modifying `GeminiClient`.
 
 Likely shape:
 
-- Add a new service beside `GeminiClient`, e.g. `OpenAICompatibleClient`.
-- Use `customAIURLString` as the base URL, targeting `/v1/chat/completions`.
-- Use `customAIAPIKey` as the bearer token.
-- Default model can be `"auto"` for FreeLLMAPI unless/until Radix adds a custom model setting.
-- Keep Gemini as the existing known-good automatic execution path.
+- Add a new service beside `Services/GeminiClient.swift`, e.g. `OpenAICompatibleClient`.
+- Use `customAIURLString` as the configured base URL.
+- Normalize base URLs so both `/v1` and host-only forms can target `/v1/chat/completions` correctly.
+- Use `customAIAPIKey` as a bearer token.
+- Default model can be `"auto"` unless Radix later adds a custom model setting.
+- Keep Gemini as the existing known-good automatic provider.
 - Keep manual fallback available for all automatic failures.
 
-Avoid treating FreeLLMAPI as a production default for App Store users; it is better as a custom/power-user backend.
+FreeLLMAPI should be treated as a custom/power-user backend, not as Radix’s production default.
 
-**Verification**
+## Verification
 
 Read-only verification performed:
 
-- Searched for AI/provider/client references.
-- Inspected the AI contract section of `PROJECT_CONTEXT.md`.
-- Inspected AI provider state, persistence, Gemini client, and Gemini call sites.
-- Confirmed no repo changes were made.
-- Confirmed `git status --short` produced no changes.
+- Searched AI/provider/client references with `grep`/`find` because `rg` is unavailable in this shell.
+- Inspected relevant snippets in `PROJECT_CONTEXT.md`, `Models/UserProfile.swift`, `ViewModels/RadixAIProviderState.swift`, `ViewModels/RadixStore.swift`, `ViewModels/RadixStorePrompts.swift`, `ViewModels/RadixStoreAI.swift`, and `Services/GeminiClient.swift`.
+- Confirmed `git status --short` is clean.
+- No repository changes were made.
 
-**Next Steps**
+## Next steps
 
 1. Add `Services/OpenAICompatibleClient.swift`.
-2. Implement chat-completions request/response handling, including useful user-facing errors.
-3. Wire automatic AI execution to select the OpenAI-compatible path when the configured/default provider is custom and URL/key are present.
-4. Preserve Gemini behavior and manual fallback.
-5. Add focused tests for URL normalization, request shape, response parsing, and fallback behavior.
+2. Implement OpenAI chat-completions request/response handling with useful user-facing errors.
+3. Wire automatic AI execution to select the OpenAI-compatible path when the default provider is `.custom` and URL/key are present.
+4. Preserve existing Gemini behavior and manual fallback behavior.
+5. Add focused tests for URL normalization, request shape, response parsing, and provider selection/fallback behavior.
 6. Update `PROJECT_CONTEXT.md` with the durable architecture change after implementation.
 <!-- personal-librarian-context:end -->
