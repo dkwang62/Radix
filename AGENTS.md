@@ -62,55 +62,57 @@ This section is maintained by Personal Librarian so work can continue on another
 
 ## Goal
 
-Add FreeLLMAPI support to Radix as an OpenAI-compatible custom AI backend for automatic AI execution, while preserving the existing Gemini automatic path and manual AI fallback.
+Use FreeLLMAPI with Radix as the configured OpenAI-compatible Custom AI backend for automatic AI execution, while preserving the existing Gemini automatic path and manual AI fallback.
 
 ## Current state
 
-Radix has a shared AI workflow covering template editing/testing, manual copy/open handoff, optional automatic Gemini execution, and paste/apply behavior.
+Radix has a shared AI workflow covering template editing/testing, manual copy/open handoff, optional automatic execution, and paste/apply behavior.
 
-Relevant source state:
+FreeLLMAPI/OpenAI-compatible support is implemented and committed:
 
-- `PROJECT_CONTEXT.md` states automatic Gemini is optional and must always retain manual fallback.
-- `Models/UserProfile.swift` defines `DefaultAIPreset.custom` as “Custom AI”.
-- `ViewModels/RadixAIProviderState.swift` already stores `customURLString`, `customAIAPIKey`, provider API keys, and `geminiModelID`.
-- `ViewModels/RadixStore.swift` exposes persisted accessors for `customAIURLString`, `customAIAPIKey`, and Gemini settings.
-- `ViewModels/RadixStorePrompts.swift` loads/persists custom AI URL/key via `UserDefaults`.
-- `ViewModels/RadixStoreAI.swift` contains `normalizedCustomAIURL`, manual AI URL behavior, and Gemini-only automatic task methods.
-- `Services/GeminiClient.swift` is Gemini-specific: request shape, API key header, endpoint, response parsing, and user-facing errors are all tied to Gemini.
-- Automatic AI call sites currently invoke `runGemini...` methods directly.
-- No `OpenAICompatibleClient`, `FreeLLMAPI`, or chat-completions client implementation is present.
+- `e370f0d` adds the OpenAI-compatible client, request/response models, provider selection, and focused tests.
+- `cae3ee1` fixes automatic AI configuration guards.
+- `663e583` completes provider-neutral Automatic AI UI wording and iconography.
+- `PROJECT_CONTEXT.md` documents that Gemini remains the default direct backend, while Custom AI can run automatic tasks through an OpenAI-compatible `/v1/chat/completions` endpoint such as FreeLLMAPI using model `auto`.
 
-## Decisions
+Local FreeLLMAPI setup:
 
-Implement FreeLLMAPI through a generic OpenAI-compatible service rather than modifying `GeminiClient`.
+- Repository: `/Users/desmondkwang/Developer/freellmapi`
+- Dashboard: `http://127.0.0.1:3001`
+- Radix Custom AI URL: `http://127.0.0.1:3001/v1`
+- Radix Custom AI API key: `freellmapi-e4b60d507b8dd44b5d99efde671dcb9f69aab48f39c29ce0`
+- First-run setup code printed by FreeLLMAPI: `RN9FJZD9WS`
+- Launch agent: `/Users/desmondkwang/Library/LaunchAgents/co.freellmapi.local.plist`
+- Logs: `/Users/desmondkwang/Developer/freellmapi/logs/freellmapi.out.log`
+- Error logs: `/Users/desmondkwang/Developer/freellmapi/logs/freellmapi.err.log`
 
-Likely shape:
+Radix host defaults have been written for bundle `com.desmond.radix`:
 
-- Add a new service beside `Services/GeminiClient.swift`, e.g. `OpenAICompatibleClient`.
-- Use `customAIURLString` as the configured base URL.
-- Normalize base URLs so both `/v1` and host-only forms can target `/v1/chat/completions` correctly.
-- Use `customAIAPIKey` as a bearer token.
-- Default model can be `"auto"` unless Radix later adds a custom model setting.
-- Keep Gemini as the existing known-good automatic provider.
-- Keep manual fallback available for all automatic failures.
+- `radix.defaultAIPreset = custom`
+- `radix.customAIURL = http://127.0.0.1:3001/v1`
+- `radix.customAIAPIKey = freellmapi-e4b60d507b8dd44b5d99efde671dcb9f69aab48f39c29ce0`
 
-FreeLLMAPI should be treated as a custom/power-user backend, not as Radix’s production default.
+If Radix is run in an iOS Simulator or on a physical device with a separate app container, the same URL and API key may still need to be entered in Radix Settings.
 
 ## Verification
 
-Read-only verification performed:
+Radix verification passed after the FreeLLMAPI implementation:
 
-- Searched AI/provider/client references with `grep`/`find` because `rg` is unavailable in this shell.
-- Inspected relevant snippets in `PROJECT_CONTEXT.md`, `Models/UserProfile.swift`, `ViewModels/RadixAIProviderState.swift`, `ViewModels/RadixStore.swift`, `ViewModels/RadixStorePrompts.swift`, `ViewModels/RadixStoreAI.swift`, and `Services/GeminiClient.swift`.
-- Confirmed `git status --short` is clean.
-- No repository changes were made.
+- `swift test`
+- `xcodebuild -project Radix.xcodeproj -scheme Radix -destination 'generic/platform=iOS Simulator' build`
+
+FreeLLMAPI local verification passed:
+
+- `npm install` completed with Node engine warnings because the system Node is `v25.9.0`; FreeLLMAPI declares `>=20.18 <25`.
+- `npm run build` completed successfully.
+- Authenticated `GET /v1/models` succeeded and returned `279` models with `auto` first.
+- `launchctl print gui/$(id -u)/co.freellmapi.local` showed the service running.
 
 ## Next steps
 
-1. Add `Services/OpenAICompatibleClient.swift`.
-2. Implement OpenAI chat-completions request/response handling with useful user-facing errors.
-3. Wire automatic AI execution to select the OpenAI-compatible path when the default provider is `.custom` and URL/key are present.
-4. Preserve existing Gemini behavior and manual fallback behavior.
-5. Add focused tests for URL normalization, request shape, response parsing, and provider selection/fallback behavior.
-6. Update `PROJECT_CONTEXT.md` with the durable architecture change after implementation.
+1. Open the FreeLLMAPI dashboard at `http://127.0.0.1:3001`.
+2. Create the first admin account, using setup code `RN9FJZD9WS` if the dashboard asks for it.
+3. Add at least one provider key in FreeLLMAPI, such as Groq, Cerebras, Google AI Studio, Mistral, NVIDIA, or OpenRouter.
+4. In Radix, confirm Settings shows Custom AI URL `http://127.0.0.1:3001/v1` and the API key above, especially when testing in Simulator or on device.
+5. Run a Radix automatic AI task; manual fallback must remain available for any provider failure.
 <!-- personal-librarian-context:end -->
