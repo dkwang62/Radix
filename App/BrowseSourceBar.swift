@@ -110,8 +110,7 @@ extension FilterGridTab {
                 onEdit: {
                     beginEditing(collection)
                 },
-                hasGeminiAPIKey: !store.geminiAPIKey
-                    .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                hasAutomaticAIConfiguration: store.hasAutomaticAIConfiguration,
                 onChoosePhrases: {
                     pagePhraseListCollection = collection
                 },

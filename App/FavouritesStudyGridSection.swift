@@ -503,8 +503,7 @@ extension FavouritesTab {
     private func studySavedPageActionsMenu(_ collection: CharacterCollection) -> some View {
         CollectionPageActionsMenu(
             collection: collection,
-            hasGeminiAPIKey: !store.geminiAPIKey
-                .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            hasAutomaticAIConfiguration: store.hasAutomaticAIConfiguration,
             onViewOriginalOCR: collection.sourceType == .ocr ? {
                 openOriginalOCRPageFromStudy(collection)
             } : nil,

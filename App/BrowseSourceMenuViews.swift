@@ -2,10 +2,10 @@ import SwiftUI
 
 enum PageAIMethodCopy {
     static let manualTitle = "Copy to AI Chat"
-    static let apiTitle = "Run Automatically with Gemini"
+    static let apiTitle = "Run Automatically"
     static let fallbackTitle = "Copy to AI Chat"
-    static let unavailableTitle = "Automatic Gemini Is Unavailable"
-    static let unavailableMessage = "Your Gemini key may still be valid. Gemini can occasionally be unavailable, so copying to an AI chat remains available."
+    static let unavailableTitle = "Automatic AI Is Unavailable"
+    static let unavailableMessage = "Your AI key may still be valid. Providers can occasionally be unavailable, so copying to an AI chat remains available."
 }
 
 struct BrowseImageScriptToggle: View {
@@ -148,7 +148,7 @@ struct CollectionPageActionsMenu: View {
 
     let collection: CharacterCollection
     var onEdit: (() -> Void)? = nil
-    var hasGeminiAPIKey = false
+    var hasAutomaticAIConfiguration = false
     var onChoosePhrases: (() -> Void)? = nil
     var onViewOriginalOCR: (() -> Void)? = nil
     var onViewTranslation: (() -> Void)? = nil
@@ -262,8 +262,8 @@ struct CollectionPageActionsMenu: View {
             chooseAIMethod(taskID: task.id, route: .automatic)
         } label: {
             Label(
-                hasGeminiAPIKey ? PageAIMethodCopy.apiTitle : "Set Up Gemini Key…",
-                systemImage: hasGeminiAPIKey ? "sparkles" : "key"
+                hasAutomaticAIConfiguration ? PageAIMethodCopy.apiTitle : "Set Up Automatic AI…",
+                systemImage: hasAutomaticAIConfiguration ? "sparkles" : "key"
             )
         }
     }
@@ -321,13 +321,13 @@ private struct PageAIOrientationView: View {
                         method(
                             icon: "doc.on.clipboard",
                             title: PageAIMethodCopy.manualTitle,
-                            detail: "Radix prepares the prompt and page evidence in AI Link so you can copy it into ChatGPT, Gemini, Claude, or your chosen AI chat. No key is needed, and this option remains available even when automatic Gemini is set up."
+                            detail: "Radix prepares the prompt and page evidence in AI Link so you can copy it into ChatGPT, Gemini, Claude, or your chosen AI chat. No key is needed, and this option remains available even when automatic AI is set up."
                         )
 
                         method(
                             icon: "sparkles",
                             title: PageAIMethodCopy.apiTitle,
-                            detail: "Radix sends the task directly to Gemini and returns the result to the page workflow. This requires your private Gemini key and depends on Gemini being available."
+                            detail: "Radix sends the task directly to the configured automatic AI provider and returns the result to the page workflow. Gemini is the default; Custom AI can use an OpenAI-compatible endpoint such as FreeLLMAPI."
                         )
 
                         Text("You can edit the saved prompts for text checking, phrase extraction, page explanation, quiz, sentence extraction, and page practice in AI Link.")

@@ -78,7 +78,7 @@ enum RadixGlossaryIcon {
         case "AI Prompt": return "text.badge.sparkles"
         case "API Key": return "key"
         case "Artifact", "Page Artifact": return "square.grid.2x2"
-        case "Gemini API Key": return "key.fill"
+        case "Automatic AI Key": return "key.fill"
         case RadixTerm.backup: return backup
         case "Character": return "character"
         case "Checkpoint": return "clock.arrow.circlepath"
@@ -93,7 +93,7 @@ enum RadixGlossaryIcon {
         case "Sentence Practice", "Create Sentences", "Extract Page Sentences", "Extract Sentences": return "text.quote"
         case "Favorite": return RadixIcon.saved
         case "Favorite Sentence": return "star.circle"
-        case "Gemini API", "Run Automatically with Gemini": return "sparkles.rectangle.stack"
+        case "Gemini API", "Automatic AI", "Run Automatically": return "sparkles.rectangle.stack"
         case "Hidden": return "eye.slash"
         case RadixTerm.history: return history
         case "Make AI Text Page": return "doc.badge.plus"
@@ -393,7 +393,7 @@ enum RadixNavigationGuideTopic: String, CaseIterable, Identifiable {
                 RadixNavigationGuideAction(
                     icon: "wand.and.stars",
                     title: "Set up AI",
-                    detail: "Choose where AI Link opens, add Gemini for automatic actions, or save manual AI keys."
+                    detail: "Choose where AI Link opens, configure automatic AI, or save manual AI keys."
                 ),
                 RadixNavigationGuideAction(
                     icon: "rectangle.3.group",

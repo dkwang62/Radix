@@ -138,7 +138,7 @@ struct SettingsView: View {
                     .font(ResponsiveFont.subheadline.weight(.semibold))
                 }
             } footer: {
-                Text("For copy-and-paste AI chat workflows. These keys are not required for automatic Gemini features.")
+                Text("For copy-and-paste AI chat workflows. These keys are not required for automatic AI features.")
             }
 
             Section {

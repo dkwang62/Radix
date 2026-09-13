@@ -319,7 +319,7 @@ enum RadixGlossary {
             shortDefinition: "The place to edit and revise Radix AI task templates.",
             significance: "AI tasks are launched from the character, phrase, sentence, or page they act on. AI Link keeps the reusable prompts, template revision workflow, and setup controls together.",
             contexts: ["AI Link tab", "Browse page actions", "Study page actions", "Settings"],
-            relatedTerms: ["AI Prompt", "Copy to AI Chat", "Run Automatically with Gemini", "API Key", "Extract Phrases", "Page Explanation"]
+            relatedTerms: ["AI Prompt", "Copy to AI Chat", "Run Automatically", "API Key", "Extract Phrases", "Page Explanation"]
         ),
         GlossaryEntry(
             term: "AI Prompt",
@@ -333,35 +333,35 @@ enum RadixGlossary {
             shortDefinition: "A private key that lets Radix call an AI service directly.",
             significance: "Without an API key, you can still copy AI prompts and paste results manually. With a key, Radix can combine steps automatically.",
             contexts: ["Settings > Automatic AI", "Settings > Manual AI Keys", "Extract Phrases Automatically"],
-            relatedTerms: ["AI Link", "Gemini API Key", "Run Automatically with Gemini", "Copy to AI Chat"]
+            relatedTerms: ["AI Link", "Automatic AI Key", "Run Automatically", "Copy to AI Chat"]
         ),
         GlossaryEntry(
             term: "Copy to AI Chat",
             shortDefinition: "The copy-and-paste AI workflow where Radix prepares the prompt and you use your chosen AI chat.",
             significance: "Copy to AI Chat is the durable fallback for ChatGPT, Gemini, Claude, or another AI app. It keeps the user in control and works even when direct automation is unavailable.",
             contexts: ["AI Link", "Study page actions", "Browse page actions", "Paste AI Answer"],
-            relatedTerms: ["AI Link", "AI Prompt", "Run Automatically with Gemini", "Page AI Task"]
+            relatedTerms: ["AI Link", "AI Prompt", "Run Automatically", "Page AI Task"]
         ),
         GlossaryEntry(
-            term: "Run Automatically with Gemini",
-            shortDefinition: "The direct in-app AI method Radix can run with a saved Gemini key.",
-            significance: "Run Automatically with Gemini can run supported page and sentence AI tasks inside Radix, while Copy to AI Chat remains available for copy-and-paste workflows and for other AI chats.",
+            term: "Run Automatically",
+            shortDefinition: "The direct in-app AI method Radix can run with a saved automatic AI key.",
+            significance: "Run Automatically can run supported page and sentence AI tasks inside Radix, while Copy to AI Chat remains available for copy-and-paste workflows and for other AI chats.",
             contexts: ["Study page actions", "Browse page actions", "Sentence cards", "Settings > Automatic AI"],
-            relatedTerms: ["Gemini API Key", "Copy to AI Chat", "API Key", "Page AI Task", "Sentence Improvement"]
+            relatedTerms: ["Automatic AI Key", "Copy to AI Chat", "API Key", "Page AI Task", "Sentence Improvement"]
         ),
         GlossaryEntry(
-            term: "Gemini API Key",
-            shortDefinition: "The private Google Gemini key Radix can use for automatic AI actions.",
-            significance: "A Gemini API key lets Radix run supported AI workflows directly, such as captured-text checking, phrase extraction, page explanation, quiz prompt preparation, sentence extraction, sentence improvement, and page-inspired practice. Copy-and-paste AI workflows still work without a key.",
+            term: "Automatic AI Key",
+            shortDefinition: "A private provider key Radix can use for automatic AI actions.",
+            significance: "An automatic AI key lets Radix run supported AI workflows directly, such as captured-text checking, phrase extraction, page explanation, quiz prompt preparation, sentence extraction, sentence improvement, and page-inspired practice. Copy-and-paste AI workflows still work without a key.",
             contexts: ["Settings > Automatic AI", "Browse page actions", "Sentence cards", "AI Link"],
-            relatedTerms: ["API Key", "Run Automatically with Gemini", "AI Link", "Extract Sentences", "Sentence Improvement", "Sentence Practice", "Create Conversation"]
+            relatedTerms: ["API Key", "Run Automatically", "AI Link", "Extract Sentences", "Sentence Improvement", "Sentence Practice", "Create Conversation"]
         ),
         GlossaryEntry(
             term: "Page AI Task",
             shortDefinition: "An AI action that uses a saved page as its source.",
             significance: "Page AI tasks include checking OCR, extracting phrases, explaining a page, preparing a quiz prompt, extracting Sentences, and creating Conversation practice. Study and Browse use the same AI task flow; Study keeps page-owned learning work with the saved page.",
             contexts: ["Study page actions", "Browse page actions", "AI Link"],
-            relatedTerms: ["Saved Page", "Copy to AI Chat", "Run Automatically with Gemini", "Extract Phrases", "Page Explanation", "Quiz", "Extract Sentences", "Sentence Practice", "Create Conversation"]
+            relatedTerms: ["Saved Page", "Copy to AI Chat", "Run Automatically", "Extract Phrases", "Page Explanation", "Quiz", "Extract Sentences", "Sentence Practice", "Create Conversation"]
         ),
         GlossaryEntry(
             term: "Extract Phrases",
@@ -394,9 +394,9 @@ enum RadixGlossary {
         GlossaryEntry(
             term: "Quiz",
             shortDefinition: "An AI chat quiz prompt created from a saved page and the learner's broader Chinese context.",
-            significance: "Radix does not run a local page quiz. The Quiz action opens the AI Link route so the user can choose Copy to AI Chat or Run Automatically with Gemini, then continue the quiz in an AI chat with one question at a time.",
+            significance: "Radix does not run a local page quiz. The Quiz action opens the AI Link route so the user can choose Copy to AI Chat or Run Automatically, then continue the quiz in an AI chat with one question at a time.",
             contexts: ["Study page actions", "AI Link", "Saved Pages"],
-            relatedTerms: ["Page AI Task", "Copy to AI Chat", "Run Automatically with Gemini", "Saved Page"]
+            relatedTerms: ["Page AI Task", "Copy to AI Chat", "Run Automatically", "Saved Page"]
         ),
         GlossaryEntry(
             term: "Page Explanation",
