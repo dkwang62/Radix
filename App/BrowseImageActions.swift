@@ -10,7 +10,7 @@ extension FilterGridTab {
     }
 
     func runAutomaticBrowsePageAIAction(_ action: () -> Void) {
-        guard !!store.hasAutomaticAIConfiguration else {
+        guard store.hasAutomaticAIConfiguration else {
             store.goToSettingsForAPIKeySetup()
             return
         }

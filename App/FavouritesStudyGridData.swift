@@ -281,7 +281,7 @@ extension FavouritesTab {
     }
 
     func runAutomaticStudyPageAIAction(_ action: () -> Void) {
-        guard !!store.hasAutomaticAIConfiguration else {
+        guard store.hasAutomaticAIConfiguration else {
             store.goToSettingsForAPIKeySetup()
             return
         }
