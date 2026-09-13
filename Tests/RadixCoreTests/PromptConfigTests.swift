@@ -20,6 +20,13 @@ func latestAIResultRoundTrip() throws {
 
 @Suite("AI prompt compatibility")
 struct PromptConfigTests {
+    @Test("OpenAI-compatible endpoint normalization accepts common FreeLLMAPI forms")
+    func openAICompatibleEndpointNormalization() {
+        #expect(OpenAICompatibleEndpoint(baseURLString: "localhost:3001").chatCompletionsURL?.absoluteString == "https://localhost:3001/v1/chat/completions")
+        #expect(OpenAICompatibleEndpoint(baseURLString: "http://localhost:3001/v1").chatCompletionsURL?.absoluteString == "http://localhost:3001/v1/chat/completions")
+        #expect(OpenAICompatibleEndpoint(baseURLString: "https://api.example.test/v1/chat/completions").chatCompletionsURL?.absoluteString == "https://api.example.test/v1/chat/completions")
+    }
+
     @Test("Prompt test completion requires the active request and unchanged selection")
     func promptTestCompletionUsesRequestOwnership() {
         let requestID = UUID()

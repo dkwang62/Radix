@@ -34,6 +34,7 @@ let package = Package(
                 "StudyPersistenceStores.swift",
                 "PhraseModels.swift",
                 "PinyinSearchNormalizer.swift",
+                "OpenAICompatibleAIModels.swift",
                 "PromptConfigRendering.swift",
                 "PromptModels.swift",
                 "PromptTemplateRevision.swift",

@@ -195,19 +195,18 @@ extension AILinkView {
 
     func runGeminiPhraseAPI() {
         guard let collection = selectedCollection else { return }
-        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !key.isEmpty else {
-            geminiPhraseAPIMessage = "Add a Gemini API key in Settings first."
+        guard store.hasAutomaticAIConfiguration else {
+            geminiPhraseAPIMessage = "Add an automatic AI API key in Settings first."
             return
         }
 
         isRunningGeminiPhraseAPI = true
-            geminiPhraseAPIMessage = "Extracting phrases..."
+        geminiPhraseAPIMessage = "Extracting phrases..."
         Task {
             do {
-                let summary = try await store.runGeminiPhraseExtraction(for: collection)
+                let summary = try await store.runAutomaticPhraseExtraction(for: collection)
                 await MainActor.run {
-                    geminiPhraseAPIMessage = summary.message(defaultAIName: "Gemini")
+                    geminiPhraseAPIMessage = summary.message(defaultAIName: store.automaticAIName)
                     isRunningGeminiPhraseAPI = false
                 }
             } catch {

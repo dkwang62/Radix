@@ -10,7 +10,7 @@ extension FilterGridTab {
     }
 
     func runAutomaticBrowsePageAIAction(_ action: () -> Void) {
-        guard !store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        guard !!store.hasAutomaticAIConfiguration else {
             store.goToSettingsForAPIKeySetup()
             return
         }
@@ -49,10 +49,10 @@ extension FilterGridTab {
 
     func runAutomaticOCRReview(_ collection: CharacterCollection) {
         isRunningImageAction = true
-        imageActionMessage = "Checking captured text with Gemini..."
+        imageActionMessage = "Checking captured text with \(store.automaticAIName)..."
         Task {
             do {
-                let response = try await store.runGeminiOCRReview(for: collection)
+                let response = try await store.runAutomaticOCRReview(for: collection)
                 await MainActor.run {
                     createCorrectedOCRPage(from: response, original: collection)
                     isRunningImageAction = false
@@ -83,10 +83,10 @@ extension FilterGridTab {
 
     func runBrowseGeminiSentenceExtraction(_ collection: CharacterCollection) {
         isRunningImageAction = true
-        imageActionMessage = "Extracting sentences with Gemini..."
+        imageActionMessage = "Extracting sentences with \(store.automaticAIName)..."
         Task {
             do {
-                let pack = try await store.runGeminiPageSentenceExtraction(for: collection)
+                let pack = try await store.runAutomaticPageSentenceExtraction(for: collection)
                 await MainActor.run {
                     imageActionMessage = "Loaded \(pack.title) · \(pack.entries.count) sentences"
                     isRunningImageAction = false
@@ -102,10 +102,10 @@ extension FilterGridTab {
 
     func runBrowseGeminiPagePracticeGeneration(_ collection: CharacterCollection) {
         isRunningImageAction = true
-        imageActionMessage = "Creating page-inspired practice with Gemini..."
+        imageActionMessage = "Creating page-inspired practice with \(store.automaticAIName)..."
         Task {
             do {
-                let pack = try await store.runGeminiPagePracticeGeneration(for: collection)
+                let pack = try await store.runAutomaticPagePracticeGeneration(for: collection)
                 await MainActor.run {
                     imageActionMessage = "Loaded \(pack.title) · \(pack.entries.count) sentences"
                     isRunningImageAction = false
@@ -121,10 +121,10 @@ extension FilterGridTab {
 
     func runBrowseGeminiTranslationAndSave(_ collection: CharacterCollection) {
         isRunningImageAction = true
-        imageActionMessage = "Explaining page with Gemini..."
+        imageActionMessage = "Explaining page with \(store.automaticAIName)..."
         Task {
             do {
-                _ = try await store.runGeminiTranslationReport(for: collection)
+                _ = try await store.runAutomaticTranslationReport(for: collection)
                 await MainActor.run {
                     imageActionMessage = "Page explanation saved."
                     isRunningImageAction = false
@@ -154,12 +154,12 @@ extension FilterGridTab {
 
     func runBrowseGeminiPhraseExtraction(_ collection: CharacterCollection) {
         isRunningImageAction = true
-        imageActionMessage = "Extracting phrases with Gemini..."
+        imageActionMessage = "Extracting phrases with \(store.automaticAIName)..."
         Task {
             do {
-                let summary = try await store.runGeminiPhraseExtraction(for: collection)
+                let summary = try await store.runAutomaticPhraseExtraction(for: collection)
                 await MainActor.run {
-                    imageActionMessage = summary.message(defaultAIName: "Gemini")
+                    imageActionMessage = summary.message(defaultAIName: store.automaticAIName)
                     isRunningImageAction = false
                 }
             } catch {
@@ -173,10 +173,10 @@ extension FilterGridTab {
 
     func runBrowseGeminiAICleanedPage(_ collection: CharacterCollection) {
         isRunningImageAction = true
-        imageActionMessage = "Extracting sentences with Gemini..."
+        imageActionMessage = "Extracting sentences with \(store.automaticAIName)..."
         Task {
             do {
-                let record = try await store.runGeminiAICleanedPage(for: collection)
+                let record = try await store.runAutomaticAICleanedPage(for: collection)
                 await MainActor.run {
                     imageActionMessage = "AI page saved: \(record.cleanedTitle.isEmpty ? collection.name : record.cleanedTitle)."
                     isRunningImageAction = false
@@ -192,7 +192,7 @@ extension FilterGridTab {
 
     func offerManualAIFallback(_ task: BrowseAIFallbackTask, error: Error) {
         automaticAIError = error.localizedDescription
-        imageActionMessage = "Automatic Gemini is unavailable. You can still copy the prompt to an AI chat."
+        imageActionMessage = "Automatic AI is unavailable. You can still copy the prompt to an AI chat."
         presentedBrowseAlert = .automaticAIFailure(task)
     }
 

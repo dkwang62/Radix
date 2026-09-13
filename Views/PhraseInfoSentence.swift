@@ -205,8 +205,8 @@ extension PhraseInfoCard {
         isDisabled: Bool,
         action: @escaping () -> Void
     ) -> some View {
-        if store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            Button("Set Up Gemini Key…") {
+        if !store.hasAutomaticAIConfiguration {
+            Button("Set Up Automatic AI…") {
                 store.goToSettingsForAPIKeySetup()
             }
         } else {
@@ -250,7 +250,7 @@ extension PhraseInfoCard {
 
     func runAutomaticSentenceImprovement(_ item: ConversationPracticeItem) {
         guard !isRunningSentenceImprovement else { return }
-        guard !store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        guard store.hasAutomaticAIConfiguration else {
             store.goToSettingsForAPIKeySetup()
             return
         }
@@ -258,10 +258,10 @@ extension PhraseInfoCard {
         let requestID = UUID()
         activeSentenceAIRequestID = requestID
         isRunningSentenceImprovement = true
-        sentenceImprovementStatus = "Improving sentence with Gemini..."
+        sentenceImprovementStatus = "Improving sentence with \(store.automaticAIName)..."
         sentenceAITask = Task { @MainActor in
             do {
-                let record = try await store.runGeminiSentenceImprovement(to: item)
+                let record = try await store.runAutomaticSentenceImprovement(to: item)
                 guard acceptsSentenceAICompletion(requestID: requestID, sentenceID: item.id) else { return }
                 locallyImprovedSentenceItem = ConversationPracticeItem(sentenceExample: record, rank: item.rank)
                 sentenceImprovementStatus = "Sentence updated."
@@ -278,7 +278,7 @@ extension PhraseInfoCard {
 
     func runAutomaticSentenceExplanation(_ item: ConversationPracticeItem) {
         guard !isRunningSentenceImprovement else { return }
-        guard !store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        guard store.hasAutomaticAIConfiguration else {
             store.goToSettingsForAPIKeySetup()
             return
         }
@@ -286,10 +286,10 @@ extension PhraseInfoCard {
         let requestID = UUID()
         activeSentenceAIRequestID = requestID
         isRunningSentenceImprovement = true
-        sentenceImprovementStatus = "Explaining sentence with Gemini..."
+        sentenceImprovementStatus = "Explaining sentence with \(store.automaticAIName)..."
         sentenceAITask = Task { @MainActor in
             do {
-                let explanation = try await store.runGeminiSentenceExplanation(for: item)
+                let explanation = try await store.runAutomaticSentenceExplanation(for: item)
                 guard acceptsSentenceAICompletion(requestID: requestID, sentenceID: item.id) else { return }
                 store.publishLatestAIResult(
                     taskTitle: "Explain Sentence",

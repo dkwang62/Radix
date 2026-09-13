@@ -78,7 +78,7 @@ struct SettingsView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
 
-                    Text("Use `{prompt}` where Radix should place the AI prompt in a custom URL.")
+                    Text("Use an OpenAI-compatible base URL such as a FreeLLMAPI `/v1` endpoint for automatic AI, or `{prompt}` where Radix should place the prompt in a manual custom URL.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 } else {
@@ -118,7 +118,7 @@ struct SettingsView: View {
             } header: {
                 Text("Automatic AI")
             } footer: {
-                Text("Optional. Uses Gemini to let Radix check OCR, extract phrases, translate pages, create quizzes, extract sentences, improve sentences, and create page-inspired practice automatically.")
+                Text("Optional. Uses Gemini by default, or Custom AI when it points to an OpenAI-compatible endpoint with a Custom AI API key. Manual AI fallback remains available.")
             }
 
             Section {

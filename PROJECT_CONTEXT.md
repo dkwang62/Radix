@@ -294,10 +294,13 @@ AI is a shared workflow, not a collection of separate mini-features.
 - Object menus expose relevant named AI tasks inside an `AI` submenu. They open
   AI with the object and task already selected.
 - The AI workspace owns template editing, template revision, test execution,
-  manual copy/open handoff, automatic Gemini execution, and paste/apply.
+  manual copy/open handoff, automatic AI execution, and paste/apply.
 - Manual handoff copies the full prompt and opens the configured AI app. Do not
   place Chinese page text in a ChatGPT URL query: it corrupts CJK on iPad.
-- Automatic Gemini is optional and must always retain the manual fallback.
+- Automatic AI is optional and must always retain the manual fallback. Gemini
+  remains the default direct backend; Custom AI may run automatic tasks through
+  an OpenAI-compatible `/v1/chat/completions` endpoint such as FreeLLMAPI using
+  the saved Custom AI URL/key and model `auto`.
 - `Test AI` runs a template but never applies its output.
 - Only custom templates are deletable. Built-in templates normalize legacy
   copies to the current contract.

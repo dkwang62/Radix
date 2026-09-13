@@ -130,15 +130,15 @@ extension AILinkView {
         } label: {
             if isRunningPromptTest {
                 Label("Running", systemImage: "hourglass")
-            } else if store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                Label("Set Up Gemini Key", systemImage: "key")
+            } else if !store.hasAutomaticAIConfiguration {
+                Label("Set Up Automatic AI", systemImage: "key")
             } else {
                 Label("Run Test", systemImage: "sparkles")
             }
         }
         .buttonStyle(.borderedProminent)
         .controlSize(.small)
-        .disabled(isRunningPromptTest || (!canGeneratePrompt && !store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty))
+        .disabled(isRunningPromptTest || (!canGeneratePrompt && store.hasAutomaticAIConfiguration))
     }
 
     var promptTestCopyPromptButton: some View {
@@ -221,8 +221,7 @@ extension AILinkView {
     }
 
     func runPromptTest() {
-        let key = store.geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !key.isEmpty else {
+        guard store.hasAutomaticAIConfiguration else {
             store.goToSettingsForAPIKeySetup()
             return
         }
@@ -240,13 +239,13 @@ extension AILinkView {
         promptTestTask?.cancel()
         activePromptTestRequestID = request.id
         isRunningPromptTest = true
-        promptTestMessage = "Testing with Gemini..."
+        promptTestMessage = "Testing with \(store.automaticAIName)..."
         promptTestError = nil
         promptTestOutput = ""
         promptTestOutputContext = nil
         promptTestTask = Task { @MainActor in
             do {
-                let output = try await store.runGeminiPromptTest(prompt: request.selection.prompt)
+                let output = try await store.runAutomaticPromptTest(prompt: request.selection.prompt)
                 guard acceptsPromptTestCompletion(request), !Task.isCancelled else { return }
                 promptTestOutput = output
                 promptTestOutputContext = request

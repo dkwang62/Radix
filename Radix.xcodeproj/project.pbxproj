@@ -247,6 +247,8 @@
 		C0DE00242FC00005001B9AA7 /* AddedPhraseReviewGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00232FC00005001B9AA7 /* AddedPhraseReviewGrid.swift */; };
 		C0DE00262FC00006001B9AA7 /* AddedPhraseReviewFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00252FC00006001B9AA7 /* AddedPhraseReviewFilter.swift */; };
 		C0DE00282FC00007001B9AA7 /* GeminiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00272FC00007001B9AA7 /* GeminiClient.swift */; };
+		C0DE10022FDD0001001B9AA7 /* OpenAICompatibleClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE10012FDD0001001B9AA7 /* OpenAICompatibleClient.swift */; };
+		C0DE10042FDD0001001B9AA7 /* OpenAICompatibleAIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE10032FDD0001001B9AA7 /* OpenAICompatibleAIModels.swift */; };
 		C0DE00302FC10001001B9AA7 /* RadixPlatform.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE002F2FC10001001B9AA7 /* RadixPlatform.swift */; };
 		C0DE00322FC10002001B9AA7 /* CapturedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00312FC10002001B9AA7 /* CapturedImage.swift */; };
 		C0DE00342FC10003001B9AA7 /* CaptureImageIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00332FC10003001B9AA7 /* CaptureImageIO.swift */; };
@@ -539,6 +541,8 @@
 		C0DE00232FC00005001B9AA7 /* AddedPhraseReviewGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddedPhraseReviewGrid.swift; sourceTree = "<group>"; };
 		C0DE00252FC00006001B9AA7 /* AddedPhraseReviewFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddedPhraseReviewFilter.swift; sourceTree = "<group>"; };
 		C0DE00272FC00007001B9AA7 /* GeminiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiClient.swift; sourceTree = "<group>"; };
+		C0DE10012FDD0001001B9AA7 /* OpenAICompatibleClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAICompatibleClient.swift; sourceTree = "<group>"; };
+		C0DE10032FDD0001001B9AA7 /* OpenAICompatibleAIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAICompatibleAIModels.swift; sourceTree = "<group>"; };
 		C0DE002F2FC10001001B9AA7 /* RadixPlatform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixPlatform.swift; sourceTree = "<group>"; };
 		C0DE00312FC10002001B9AA7 /* CapturedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturedImage.swift; sourceTree = "<group>"; };
 		C0DE00332FC10003001B9AA7 /* CaptureImageIO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureImageIO.swift; sourceTree = "<group>"; };
@@ -721,6 +725,7 @@
 				850000432F9D0001001B9AA7 /* ProjectLiveDataLocator.swift */,
 				8500004B2F9D0001001B9AA7 /* ScriptTextConverter.swift */,
 				C0DE00272FC00007001B9AA7 /* GeminiClient.swift */,
+				C0DE10012FDD0001001B9AA7 /* OpenAICompatibleClient.swift */,
 				850000CD2FA70001001B9AA7 /* HanziSVGPathParser.swift */,
 				C0DE002F2FC10001001B9AA7 /* RadixPlatform.swift */,
 				C0DE00352FC10004001B9AA7 /* RadixPreferences.swift */,
@@ -776,6 +781,7 @@
 				6AFC0DF22FE00013001B9AA7 /* PromptTemplateRevision.swift */,
 				6AFF92F2BA13EBA1A3A64D44 /* PromptModels.swift */,
 				A05EBFC62FC20001001B9AA7 /* PromptTaskDefaults.swift */,
+				C0DE10032FDD0001001B9AA7 /* OpenAICompatibleAIModels.swift */,
 				B3E1E5265391156C8C615A28 /* ResponsiveFont.swift */,
 				AB37C9B2A3908035B4225770 /* UnifiedPackage.swift */,
 				F62C2C812BDCE5C4161C8606 /* UserProfile.swift */,
@@ -1234,6 +1240,8 @@
 				850000122F9D0001001B9AA7 /* CharacterSpeechService.swift in Sources */,
 				850000142F9D0001001B9AA7 /* PhraseEditService.swift in Sources */,
 				C0DE00282FC00007001B9AA7 /* GeminiClient.swift in Sources */,
+				C0DE10022FDD0001001B9AA7 /* OpenAICompatibleClient.swift in Sources */,
+				C0DE10042FDD0001001B9AA7 /* OpenAICompatibleAIModels.swift in Sources */,
 				C0DE00302FC10001001B9AA7 /* RadixPlatform.swift in Sources */,
 				C0DE00322FC10002001B9AA7 /* CapturedImage.swift in Sources */,
 				C0DE00342FC10003001B9AA7 /* CaptureImageIO.swift in Sources */,

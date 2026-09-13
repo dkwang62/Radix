@@ -113,6 +113,20 @@ extension RadixStore {
         return importPhraseDiscoveryResponse(responseText, sourceCollection: collection)
     }
 
+    func runAutomaticPhraseExtraction(for collection: CharacterCollection) async throws -> PhraseDiscoveryImportSummary {
+        guard usesCustomAutomaticAI else {
+            return try await runGeminiPhraseExtraction(for: collection)
+        }
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: [BuiltInPromptTaskID.extractPhrases.rawValue])
+        let response = try await runCustomAITextGeneration(
+            prompt: prompt,
+            systemInstruction: """
+            You are a bilingual Chinese dictionary editor producing structured data for Radix. Extract only useful, dictionary-attested phrase headwords. Follow the requested output format exactly.
+            """
+        )
+        return importPhraseDiscoveryResponse(response, sourceCollection: collection)
+    }
+
     func importPhraseDiscoveryResponse(_ responseText: String, sourceCollection: CharacterCollection? = nil) -> PhraseDiscoveryImportSummary {
         let parsed = PhraseDiscoveryParser.parse(responseText)
         let candidates = PhraseDiscoveryCandidateTools.selectingAll(parsed.candidates, isSelected: true)
@@ -477,11 +491,44 @@ extension RadixStore {
         return report
     }
 
+    func runAutomaticTranslationReport(for collection: CharacterCollection) async throws -> String {
+        guard usesCustomAutomaticAI else {
+            return try await runGeminiTranslationReport(for: collection)
+        }
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: [BuiltInPromptTaskID.explainPage.rawValue])
+        let report = try await runCustomAITextGeneration(
+            prompt: prompt,
+            systemInstruction: """
+            You are an expert bilingual Chinese editor, linguist, and translator. Return a polished page explanation with a natural translation, useful character/phrase analysis, learner notes, and tone/context. No preface about being an AI and no follow-up questions.
+            """
+        )
+        saveTranslationReport(fromAIResponse: report, for: collection)
+        return report
+    }
+
     func runGeminiPageSentenceExtraction(for collection: CharacterCollection) async throws -> ConversationPracticePack {
         let prompt = promptText(for: .collection(collection), selectedTaskIDs: [BuiltInPromptTaskID.sentencePractice.rawValue])
         let response = try await GeminiTextGenerationService().generateText(
             apiKey: geminiAPIKey,
             modelID: geminiModelID,
+            prompt: prompt,
+            systemInstruction: """
+            You create validated JSON import packs for a Chinese learning app. Return valid JSON only, with no Markdown and no explanatory text.
+            """
+        )
+        return try importConversationPracticePack(
+            fromAIResponse: response,
+            sourceName: collection.name,
+            sourceCollection: collection
+        )
+    }
+
+    func runAutomaticPageSentenceExtraction(for collection: CharacterCollection) async throws -> ConversationPracticePack {
+        guard usesCustomAutomaticAI else {
+            return try await runGeminiPageSentenceExtraction(for: collection)
+        }
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: [BuiltInPromptTaskID.sentencePractice.rawValue])
+        let response = try await runCustomAITextGeneration(
             prompt: prompt,
             systemInstruction: """
             You create validated JSON import packs for a Chinese learning app. Return valid JSON only, with no Markdown and no explanatory text.
@@ -511,11 +558,45 @@ extension RadixStore {
         )
     }
 
+    func runAutomaticPagePracticeGeneration(for collection: CharacterCollection) async throws -> ConversationPracticePack {
+        guard usesCustomAutomaticAI else {
+            return try await runGeminiPagePracticeGeneration(for: collection)
+        }
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: [BuiltInPromptTaskID.createConversation.rawValue])
+        let response = try await runCustomAITextGeneration(
+            prompt: prompt,
+            systemInstruction: """
+            You create validated JSON import packs for a Chinese learning app. Return valid JSON only, with no Markdown and no explanatory text.
+            """
+        )
+        return try importConversationPracticePack(
+            fromAIResponse: response,
+            sourceName: collection.name,
+            sourceCollection: collection
+        )
+    }
+
     func runGeminiSentenceImprovement(to sentence: ConversationPracticeItem) async throws -> SentenceExampleRecord {
         let prompt = promptText(for: .sentence(sentence), selectedTaskIDs: [BuiltInPromptTaskID.improveSentence.rawValue])
         let response = try await GeminiTextGenerationService().generateText(
             apiKey: geminiAPIKey,
             modelID: geminiModelID,
+            prompt: prompt,
+            systemInstruction: """
+            You improve Chinese learning sentences for Radix. Return valid JSON only, without Markdown fences or commentary. The JSON must contain sentence, pinyin, and english fields that describe the same final improved sentence.
+            """
+        )
+        let record = try applySentenceImprovement(fromAIResponse: response, to: sentence)
+        activePracticeSentenceItem = ConversationPracticeItem(sentenceExample: record, rank: sentence.rank)
+        return record
+    }
+
+    func runAutomaticSentenceImprovement(to sentence: ConversationPracticeItem) async throws -> SentenceExampleRecord {
+        guard usesCustomAutomaticAI else {
+            return try await runGeminiSentenceImprovement(to: sentence)
+        }
+        let prompt = promptText(for: .sentence(sentence), selectedTaskIDs: [BuiltInPromptTaskID.improveSentence.rawValue])
+        let response = try await runCustomAITextGeneration(
             prompt: prompt,
             systemInstruction: """
             You improve Chinese learning sentences for Radix. Return valid JSON only, without Markdown fences or commentary. The JSON must contain sentence, pinyin, and english fields that describe the same final improved sentence.
@@ -538,10 +619,35 @@ extension RadixStore {
         )
     }
 
+    func runAutomaticSentenceExplanation(for sentence: ConversationPracticeItem) async throws -> String {
+        guard usesCustomAutomaticAI else {
+            return try await runGeminiSentenceExplanation(for: sentence)
+        }
+        let prompt = promptText(for: .sentence(sentence), selectedTaskIDs: [PromptConfig.defaultSentenceTaskID])
+        return try await runCustomAITextGeneration(
+            prompt: prompt,
+            systemInstruction: """
+            You explain Chinese sentences for Radix learners. Explain meaning, grammar, useful phrases, and natural Mandarin usage clearly. Return plain text without Markdown fences.
+            """
+        )
+    }
+
     func runGeminiPromptTest(prompt: String) async throws -> String {
         try await GeminiTextGenerationService().generateText(
             apiKey: geminiAPIKey,
             modelID: geminiModelID,
+            prompt: prompt,
+            systemInstruction: """
+            You are testing a Radix AI prompt template. Follow the user's prompt exactly and return the task result only. Do not mention that this is a test.
+            """
+        )
+    }
+
+    func runAutomaticPromptTest(prompt: String) async throws -> String {
+        guard usesCustomAutomaticAI else {
+            return try await runGeminiPromptTest(prompt: prompt)
+        }
+        return try await runCustomAITextGeneration(
             prompt: prompt,
             systemInstruction: """
             You are testing a Radix AI prompt template. Follow the user's prompt exactly and return the task result only. Do not mention that this is a test.
@@ -562,6 +668,20 @@ extension RadixStore {
         return try importAICleanedPage(fromAIResponse: response, for: collection)
     }
 
+    func runAutomaticAICleanedPage(for collection: CharacterCollection) async throws -> AICleanedPageRecord {
+        guard usesCustomAutomaticAI else {
+            return try await runGeminiAICleanedPage(for: collection)
+        }
+        let prompt = promptText(for: .collection(collection), selectedTaskIDs: [BuiltInPromptTaskID.extractSentences.rawValue])
+        let response = try await runCustomAITextGeneration(
+            prompt: prompt,
+            systemInstruction: """
+            You create structured JSON for Radix. Return valid JSON only, without Markdown fences or commentary.
+            """
+        )
+        return try importAICleanedPage(fromAIResponse: response, for: collection)
+    }
+
     func runGeminiOCRReview(for collection: CharacterCollection) async throws -> String {
         try await GeminiTextGenerationService().generateText(
             apiKey: geminiAPIKey,
@@ -571,6 +691,50 @@ extension RadixStore {
             You are a meticulous Chinese OCR editor. Follow the requested output headings exactly. Preserve Chinese source text, write all explanations in English, and clearly mark uncertainty.
             """,
             imageJPEGData: sourceImageJPEGData(for: collection)
+        )
+    }
+
+    func runAutomaticOCRReview(for collection: CharacterCollection) async throws -> String {
+        guard usesCustomAutomaticAI else {
+            return try await runGeminiOCRReview(for: collection)
+        }
+        return try await runCustomAITextGeneration(
+            prompt: ocrReviewPrompt(for: collection),
+            systemInstruction: """
+            You are a meticulous Chinese OCR editor. Follow the requested output headings exactly. Preserve Chinese source text, write all explanations in English, and clearly mark uncertainty.
+            """,
+            imageJPEGData: sourceImageJPEGData(for: collection)
+        )
+    }
+
+    var automaticAIName: String {
+        usesCustomAutomaticAI ? defaultAIName : "Gemini"
+    }
+
+    var hasAutomaticAIConfiguration: Bool {
+        if usesCustomAutomaticAI {
+            return normalizedCustomAIURL != nil && !customAIAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        return !geminiAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    var usesCustomAutomaticAI: Bool {
+        defaultAIPreset == .custom
+    }
+
+    private func runCustomAITextGeneration(
+        prompt: String,
+        systemInstruction: String,
+        imageJPEGData: Data? = nil
+    ) async throws -> String {
+        try await OpenAICompatibleClient(
+            baseURLString: customAIURLString,
+            apiKey: customAIAPIKey,
+            modelID: "auto"
+        ).generateText(
+            prompt: prompt,
+            systemInstruction: systemInstruction,
+            imageJPEGData: imageJPEGData
         )
     }
 
