@@ -25,6 +25,8 @@ struct LightweightCharacterPreviewCard: View {
                 .controlSize(.small)
                 .help("Replay stroke animation")
 
+                CharacterReadAloudButton(character: item.character)
+
                 if showsCloseButton {
                     Button {
                         if let onClose {

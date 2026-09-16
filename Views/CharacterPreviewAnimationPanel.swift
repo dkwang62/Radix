@@ -29,8 +29,11 @@ struct CharacterPreviewAnimationPanel: View {
         return animContainer {
             ForEach(chars, id: \.self) { char in
                 VStack(spacing: 0) {
-                    StrokeAnimationHeaderLabel(text: variantAnimationTitle(for: char))
-                        .padding(.vertical, 6)
+                    HStack(spacing: 6) {
+                        StrokeAnimationHeaderLabel(text: variantAnimationTitle(for: char))
+                        CharacterReadAloudButton(character: char)
+                    }
+                    .padding(.vertical, 3)
 
                     StrokeOrderWebView(
                         character: char,
@@ -54,8 +57,11 @@ struct CharacterPreviewAnimationPanel: View {
 
     private var singleAnimation: some View {
         VStack(spacing: 0) {
-            StrokeAnimationHeaderLabel(text: singleAnimationTitle(for: item))
-                .padding(.vertical, 6)
+            HStack(spacing: 6) {
+                StrokeAnimationHeaderLabel(text: singleAnimationTitle(for: item))
+                CharacterReadAloudButton(character: item.character)
+            }
+            .padding(.vertical, 3)
 
             StrokeOrderWebView(
                 character: item.character,

@@ -146,31 +146,34 @@ extension PhraseInfoCard {
         let animationCharacter = animationCharacter(for: character)
         let strokeText = phraseTileStrokeText(for: animationCharacter)
 
-        return Button {
-            selectCharacterFromPhrase(animationCharacter)
-        } label: {
-            VStack(spacing: 6) {
-                StrokeAnimationHeaderLabel(text: strokeText)
-                    .frame(maxWidth: .infinity)
+        return VStack(spacing: 6) {
+            Button {
+                selectCharacterFromPhrase(animationCharacter)
+            } label: {
+                VStack(spacing: 6) {
+                    StrokeAnimationHeaderLabel(text: strokeText)
 
-                StrokeOrderWebView(
-                    character: animationCharacter,
-                    reloadToken: StrokeAnimationToken.stable(for: "phrase-card-\(phrase.id)-\(animationCharacter)"),
-                    canvasSize: 110
-                )
-                .frame(height: 118)
-                .frame(maxWidth: .infinity)
+                    StrokeOrderWebView(
+                        character: animationCharacter,
+                        reloadToken: StrokeAnimationToken.stable(for: "phrase-card-\(phrase.id)-\(animationCharacter)"),
+                        canvasSize: 110
+                    )
+                    .frame(height: 118)
+                    .frame(maxWidth: .infinity)
+                }
             }
-            .padding(8)
-            .frame(maxWidth: .infinity, minHeight: 154)
-            .background(RadixTheme.background)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(RadixTheme.separator.opacity(0.6), lineWidth: 1)
-            )
+            .buttonStyle(.plain)
+
+            CharacterReadAloudButton(character: animationCharacter)
         }
-        .buttonStyle(.plain)
+        .padding(8)
+        .frame(maxWidth: .infinity, minHeight: 154)
+        .background(RadixTheme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(RadixTheme.separator.opacity(0.6), lineWidth: 1)
+        )
         .copyCharacterContextMenu(
             animationCharacter,
             pinyin: store.item(for: animationCharacter)?.pinyinText,

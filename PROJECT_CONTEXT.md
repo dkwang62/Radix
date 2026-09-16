@@ -24,6 +24,12 @@ The product is largely feature-complete. Current work is post-TestFlight
 stability, usability polish, output quality, and small maintainability work.
 Do not start a broad redesign unless explicitly asked.
 
+Character stroke animations expose a shared `Read Aloud` control in compact
+and regular character previews, lightweight character previews, and phrase
+character tiles. The control uses the existing speech preference and character
+speech service; tapping the animation itself retains its existing inspection
+behavior.
+
 Repository branch: `codex/post-testflight-iteration`.
 
 The source project is configured as marketing version `1.1`, build `9`.

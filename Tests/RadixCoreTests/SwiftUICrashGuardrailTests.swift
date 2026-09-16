@@ -46,6 +46,20 @@ struct SwiftUICrashGuardrailTests {
 
         #expect(!source.contains("ScrollViewReader"))
         #expect(source.contains("ScrollView(.horizontal, showsIndicators: false)"))
+        #expect(source.contains("CharacterReadAloudButton(character: animationCharacter)"))
+    }
+
+    @Test("Every character animation surface exposes read aloud")
+    func characterAnimationSurfacesExposeReadAloud() throws {
+        let shared = try sourceText(at: "Views/StrokeOrderSection.swift")
+        #expect(shared.contains("struct CharacterReadAloudButton: View"))
+        #expect(shared.contains("store.speakCharacter(character)"))
+
+        let preview = try sourceText(at: "Views/CharacterPreviewAnimationPanel.swift")
+        #expect(preview.components(separatedBy: "CharacterReadAloudButton(character:").count - 1 == 2)
+
+        let lightweight = try sourceText(at: "Views/LightweightCharacterPreviewCard.swift")
+        #expect(lightweight.contains("CharacterReadAloudButton(character: item.character)"))
     }
 
     @Test("Scene changes do not invalidate the full root navigation tree")

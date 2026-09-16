@@ -26,3 +26,23 @@ struct StrokeAnimationHeaderLabel: View {
             .minimumScaleFactor(0.75)
     }
 }
+
+struct CharacterReadAloudButton: View {
+    @EnvironmentObject private var store: RadixStore
+    let character: String
+
+    var body: some View {
+        Button {
+            store.speakCharacter(character)
+        } label: {
+            Image(systemName: "speaker.wave.2")
+                .font(ResponsiveFont.tinySystem(size: 11, weight: .semibold))
+                .foregroundStyle(RadixAccent.primary)
+                .radixIconButtonSurface(size: 26)
+        }
+        .buttonStyle(.plain)
+        .radixMinimumTapTarget()
+        .accessibilityLabel("Read \(character) aloud")
+        .help("Read \(character) aloud")
+    }
+}
