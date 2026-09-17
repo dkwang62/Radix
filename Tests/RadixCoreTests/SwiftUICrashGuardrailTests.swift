@@ -49,6 +49,20 @@ struct SwiftUICrashGuardrailTests {
         #expect(source.contains("CharacterReadAloudButton(character: animationCharacter)"))
     }
 
+    @Test("Phrase cards honor a supplied character destination before practice fallback")
+    func phraseCharacterSelectionPrefersSuppliedDestination() throws {
+        let source = try sourceText(at: "Views/PhraseInfoAnimation.swift")
+        let selection = source
+            .components(separatedBy: "func selectCharacterFromPhrase(_ character: String) {")[1]
+            .components(separatedBy: "\n    }")[0]
+        let destination = try #require(selection.range(of: "if let onSelectCharacter"))
+        let practiceFallback = try #require(selection.range(of: "if isPracticeSentence"))
+
+        #expect(destination.lowerBound < practiceFallback.lowerBound)
+        #expect(selection.contains("onSelectCharacter(character)"))
+        #expect(selection.contains("store.recordInspectedCharacterInHistory(character)"))
+    }
+
     @Test("Every character animation surface exposes read aloud")
     func characterAnimationSurfacesExposeReadAloud() throws {
         let shared = try sourceText(at: "Views/StrokeOrderSection.swift")
