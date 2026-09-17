@@ -635,6 +635,7 @@ private enum SettingsReferenceSheet: String, Identifiable {
 
     var id: String { rawValue }
 
+    @MainActor
     @ViewBuilder
     var content: some View {
         switch self {

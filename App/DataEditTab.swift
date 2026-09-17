@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 private extension DataEditTab {
     var dataEditContentMaxWidth: CGFloat {
@@ -37,6 +38,7 @@ enum DataEditImportKind {
     case sentenceLibrary
 }
 
+@MainActor
 struct DataEditTab: View {
     @EnvironmentObject var store: RadixStore
     @EnvironmentObject var entitlement: EntitlementManager
