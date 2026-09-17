@@ -51,6 +51,9 @@ struct SwiftUICrashGuardrailTests {
             .components(separatedBy: "func phraseCharacterTile(_ character: String) -> some View {")[1]
             .components(separatedBy: "func phraseAnimationPageCount")[0]
         #expect(tile.contains(".allowsHitTesting(false)"))
+        #expect(tile.contains("phraseCharacterCardButton(animationCharacter)"))
+        #expect(tile.contains("Image(systemName: \"character.book.closed\")"))
+        #expect(tile.contains("Open \\(character) character card"))
     }
 
     @Test("Phrase cards navigate characters unless a caller supplies a destination")

@@ -90,6 +90,8 @@ stay linked to their page rather than becoming disconnected parallel features.
   contextual flow.
 - Phrase-card character taps open a character card. A caller may provide a
   different in-flow character destination for its own navigation context.
+- Phrase animation tiles expose distinct compact controls for read aloud and
+  opening the character card; do not rely solely on tapping the web animation.
 - Root titles carry context, for example `Browse - Dictionary`,
   `Browse - [page]`, and `Study - Sentences`; do not repeat the same title in
   page content.

@@ -165,7 +165,10 @@ extension PhraseInfoCard {
             }
             .buttonStyle(.plain)
 
-            CharacterReadAloudButton(character: animationCharacter)
+            HStack(spacing: 6) {
+                CharacterReadAloudButton(character: animationCharacter)
+                phraseCharacterCardButton(animationCharacter)
+            }
         }
         .padding(8)
         .frame(maxWidth: .infinity, minHeight: 154)
@@ -182,6 +185,21 @@ extension PhraseInfoCard {
                 store.recordInspectedCharacterInHistory(animationCharacter)
             }
         )
+    }
+
+    func phraseCharacterCardButton(_ character: String) -> some View {
+        Button {
+            selectCharacterFromPhrase(character)
+        } label: {
+            Image(systemName: "character.book.closed")
+                .font(ResponsiveFont.tinySystem(size: 11, weight: .semibold))
+                .foregroundStyle(RadixAccent.primary)
+                .radixIconButtonSurface(size: 26)
+        }
+        .buttonStyle(.plain)
+        .radixMinimumTapTarget()
+        .accessibilityLabel("Open \(character) character card")
+        .help("Open \(character) character card")
     }
 
     func phraseAnimationPageCount(for characters: [String]) -> Int {
