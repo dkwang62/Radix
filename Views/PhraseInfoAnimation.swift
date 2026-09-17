@@ -238,10 +238,6 @@ extension PhraseInfoCard {
             onSelectCharacter(character)
             return
         }
-        if isPracticeSentence {
-            store.recordInspectedCharacterInHistory(character)
-            return
-        }
 
         if store.route == .search && store.homeTab == .filter {
             store.previewPhraseCardCharacter(character, in: phrase, announce: false)

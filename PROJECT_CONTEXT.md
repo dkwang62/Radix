@@ -88,8 +88,8 @@ stay linked to their page rather than becoming disconnected parallel features.
   information cards and deferred launch requests so Browse, Study (including
   Study Pages), AI, My Data, or Settings immediately overrides an unfinished
   contextual flow.
-- When a Phrase card supplies a character-inspection destination, that
-  destination takes priority over any local practice-history fallback.
+- Phrase-card character taps open a character card. A caller may provide a
+  different in-flow character destination for its own navigation context.
 - Root titles carry context, for example `Browse - Dictionary`,
   `Browse - [page]`, and `Study - Sentences`; do not repeat the same title in
   page content.
