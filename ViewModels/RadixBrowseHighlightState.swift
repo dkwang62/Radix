@@ -1,5 +1,12 @@
 import Foundation
 
+struct PhraseCardReturnContext {
+    let phrase: PhraseItem
+    let lookupOverride: [PhraseItem]?
+    let lookupDepth: PhraseLookupDepth
+    let practiceSentenceItem: ConversationPracticeItem?
+}
+
 /// Phrase, character, and scroll highlighting state for saved-page Browse grids.
 struct RadixBrowseHighlightState {
     var phraseContext: ImagePhraseContext?
@@ -17,6 +24,7 @@ struct RadixBrowseHighlightState {
     var sidebarSentenceReturnPhrase: PhraseItem?
     var sidebarSentenceReturnLookupOverride: [PhraseItem]?
     var sidebarSentenceReturnPracticeItem: ConversationPracticeItem?
+    var sidebarCharacterReturnContext: PhraseCardReturnContext?
     var pendingScrollTarget: BrowseScrollTarget?
     var highlightedCharacter: String?
     var memoryCollectionID: UUID?
@@ -110,6 +118,11 @@ extension RadixStore {
     var sidebarSentenceReturnPracticeItem: ConversationPracticeItem? {
         get { browseHighlightState.sidebarSentenceReturnPracticeItem }
         set { browseHighlightState.sidebarSentenceReturnPracticeItem = newValue }
+    }
+
+    var sidebarCharacterReturnContext: PhraseCardReturnContext? {
+        get { browseHighlightState.sidebarCharacterReturnContext }
+        set { browseHighlightState.sidebarCharacterReturnContext = newValue }
     }
 
     var pendingBrowseScrollTarget: BrowseScrollTarget? {

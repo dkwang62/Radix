@@ -147,28 +147,26 @@ extension PhraseInfoCard {
         let strokeText = phraseTileStrokeText(for: animationCharacter)
 
         return VStack(spacing: 6) {
-            Button {
-                selectCharacterFromPhrase(animationCharacter)
-            } label: {
-                VStack(spacing: 6) {
-                    StrokeAnimationHeaderLabel(text: strokeText)
-
-                    StrokeOrderWebView(
-                        character: animationCharacter,
-                        reloadToken: StrokeAnimationToken.stable(for: "phrase-card-\(phrase.id)-\(animationCharacter)"),
-                        canvasSize: 110
-                    )
-                    .allowsHitTesting(false)
-                    .frame(height: 118)
-                    .frame(maxWidth: .infinity)
-                }
-            }
-            .buttonStyle(.plain)
-
             HStack(spacing: 6) {
+                StrokeAnimationHeaderLabel(text: strokeText)
+                Spacer(minLength: 0)
                 CharacterReadAloudButton(character: animationCharacter)
                 phraseCharacterCardButton(animationCharacter)
             }
+
+            Button {
+                selectCharacterFromPhrase(animationCharacter)
+            } label: {
+                StrokeOrderWebView(
+                    character: animationCharacter,
+                    reloadToken: StrokeAnimationToken.stable(for: "phrase-card-\(phrase.id)-\(animationCharacter)"),
+                    canvasSize: 110
+                )
+                .allowsHitTesting(false)
+                .frame(height: 118)
+                .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.plain)
         }
         .padding(8)
         .frame(maxWidth: .infinity, minHeight: 154)
@@ -228,8 +226,7 @@ extension PhraseInfoCard {
 
     func phraseTileStrokeText(for character: String) -> String {
         guard let strokes = store.item(for: character)?.strokes else { return "" }
-        let unit = strokes == 1 ? "stroke" : "strokes"
-        return "\(strokes) \(unit)"
+        return String(strokes)
     }
 
     func animationCharacter(for character: String) -> String {
@@ -258,11 +255,7 @@ extension PhraseInfoCard {
             return
         }
 
-        if store.route == .search && store.homeTab == .filter {
-            store.previewPhraseCardCharacter(character, in: phrase, announce: false)
-        } else {
-            store.preview(character: character, announce: false)
-        }
+        store.previewCharacterFromPhraseCard(character, phrase: phrase, announce: false)
         onDone?()
     }
 }

@@ -8,6 +8,7 @@ struct CharacterPreviewAnimationPanel: View {
     let activeVariant: ComponentItem?
     let isVertical: Bool
     let onSelectCharacter: (String) -> Void
+    var onReturnToPhrase: (() -> Void)? = nil
 
     var body: some View {
         if let activeVariant {
@@ -31,7 +32,9 @@ struct CharacterPreviewAnimationPanel: View {
                 VStack(spacing: 0) {
                     HStack(spacing: 6) {
                         StrokeAnimationHeaderLabel(text: variantAnimationTitle(for: char))
+                        Spacer(minLength: 0)
                         CharacterReadAloudButton(character: char)
+                        phraseReturnButton
                     }
                     .padding(.vertical, 3)
 
@@ -59,7 +62,9 @@ struct CharacterPreviewAnimationPanel: View {
         VStack(spacing: 0) {
             HStack(spacing: 6) {
                 StrokeAnimationHeaderLabel(text: singleAnimationTitle(for: item))
+                Spacer(minLength: 0)
                 CharacterReadAloudButton(character: item.character)
+                phraseReturnButton
             }
             .padding(.vertical, 3)
 
@@ -93,7 +98,22 @@ struct CharacterPreviewAnimationPanel: View {
     }
 
     private func strokeCountText(_ strokes: Int) -> String {
-        let unit = strokes == 1 ? "stroke" : "strokes"
-        return "\(strokes) \(unit)"
+        String(strokes)
+    }
+
+    @ViewBuilder
+    private var phraseReturnButton: some View {
+        if let onReturnToPhrase {
+            Button(action: onReturnToPhrase) {
+                Image(systemName: "text.quote")
+                    .font(ResponsiveFont.tinySystem(size: 11, weight: .semibold))
+                    .foregroundStyle(RadixAccent.primary)
+                    .radixIconButtonSurface(size: 26)
+            }
+            .buttonStyle(.plain)
+            .radixMinimumTapTarget()
+            .accessibilityLabel("Back to phrase")
+            .help("Back to phrase")
+        }
     }
 }

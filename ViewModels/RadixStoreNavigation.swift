@@ -663,6 +663,7 @@ extension RadixStore {
         _ phrase: PhraseItem,
         lookupDepth: PhraseLookupDepth = .topLevel
     ) {
+        sidebarCharacterReturnContext = nil
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
@@ -675,6 +676,7 @@ extension RadixStore {
     }
 
     func presentPhraseFromPracticeSentenceInSidebar(_ phrase: PhraseItem) {
+        sidebarCharacterReturnContext = nil
         sidebarSentenceReturnPhrase = sidebarPhrasePreview
         sidebarSentenceReturnLookupOverride = sidebarPhraseLookupOverride
         sidebarSentenceReturnPracticeItem = activePracticeSentenceItem
@@ -702,6 +704,7 @@ extension RadixStore {
         sentencePhrases: [PhraseItem],
         practiceItem: ConversationPracticeItem? = nil
     ) {
+        sidebarCharacterReturnContext = nil
         sidebarPhrasePreview = phrase
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = sentencePhrases
@@ -713,6 +716,7 @@ extension RadixStore {
     }
 
     func dismissSidebarPhrasePreview() {
+        sidebarCharacterReturnContext = nil
         sidebarPhrasePreview = nil
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
@@ -724,6 +728,7 @@ extension RadixStore {
     }
 
     func dismissImagePhrasePreview() {
+        sidebarCharacterReturnContext = nil
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
         sidebarPhraseLookupOverride = nil
@@ -738,6 +743,50 @@ extension RadixStore {
         dismissSidebarPhrasePreview()
         previewCharacter = nil
         showiPhoneDetail = false
+    }
+
+    var hasPhraseCardReturn: Bool {
+        sidebarCharacterReturnContext != nil
+    }
+
+    func previewCharacterFromPhraseCard(
+        _ character: String,
+        phrase: PhraseItem,
+        announce: Bool = false
+    ) {
+        let returnContext = PhraseCardReturnContext(
+            phrase: phrase,
+            lookupOverride: sidebarPhraseLookupOverride,
+            lookupDepth: sidebarPhraseLookupDepth,
+            practiceSentenceItem: activePracticeSentenceItem
+        )
+
+        if route == .search && homeTab == .filter {
+            previewPhraseCardCharacter(character, in: phrase, announce: announce)
+        } else {
+            preview(character: character, announce: announce)
+        }
+        sidebarCharacterReturnContext = returnContext
+    }
+
+    func returnToPhraseCard() {
+        guard let returnContext = sidebarCharacterReturnContext else { return }
+        sidebarCharacterReturnContext = nil
+        previewCharacter = nil
+        showiPhoneDetail = false
+
+        if let practiceSentenceItem = returnContext.practiceSentenceItem {
+            presentPracticeSentenceInSidebar(
+                returnContext.phrase,
+                sentencePhrases: returnContext.lookupOverride ?? [],
+                practiceItem: practiceSentenceItem
+            )
+        } else {
+            presentPhraseInSidebar(
+                returnContext.phrase,
+                lookupDepth: returnContext.lookupDepth
+            )
+        }
     }
 
     /// Title-menu navigation is global navigation. Clear transient card and

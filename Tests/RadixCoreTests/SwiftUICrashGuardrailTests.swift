@@ -54,6 +54,9 @@ struct SwiftUICrashGuardrailTests {
         #expect(tile.contains("phraseCharacterCardButton(animationCharacter)"))
         #expect(tile.contains("Image(systemName: \"character.book.closed\")"))
         #expect(tile.contains("Open \\(character) character card"))
+        #expect(tile.contains("HStack(spacing: 6)"))
+        #expect(tile.contains("Spacer(minLength: 0)"))
+        #expect(source.contains("return String(strokes)"))
     }
 
     @Test("Phrase cards navigate characters unless a caller supplies a destination")
@@ -66,8 +69,24 @@ struct SwiftUICrashGuardrailTests {
         #expect(selection.contains("if let onSelectCharacter"))
         #expect(selection.contains("onSelectCharacter(character)"))
         #expect(!selection.contains("isPracticeSentence"))
-        #expect(selection.contains("store.previewPhraseCardCharacter(character, in: phrase, announce: false)"))
-        #expect(selection.contains("store.preview(character: character, announce: false)"))
+        #expect(selection.contains("store.previewCharacterFromPhraseCard(character, phrase: phrase, announce: false)"))
+    }
+
+    @Test("Character previews return to their originating phrase and keep animation controls in the header")
+    func phraseCharacterReturnPathAndAnimationControlLayout() throws {
+        let navigation = try sourceText(at: "ViewModels/RadixStoreNavigation.swift")
+        let state = try sourceText(at: "ViewModels/RadixBrowseHighlightState.swift")
+        let sidebar = try sourceText(at: "App/RootSidebar.swift")
+        let animation = try sourceText(at: "Views/CharacterPreviewAnimationPanel.swift")
+
+        #expect(state.contains("struct PhraseCardReturnContext"))
+        #expect(navigation.contains("func previewCharacterFromPhraseCard("))
+        #expect(navigation.contains("func returnToPhraseCard()"))
+        #expect(sidebar.contains("onReturnToPhrase: store.hasPhraseCardReturn"))
+        #expect(animation.contains("var onReturnToPhrase: (() -> Void)? = nil"))
+        #expect(animation.contains("Image(systemName: \"text.quote\")"))
+        #expect(animation.contains("Spacer(minLength: 0)"))
+        #expect(animation.contains("String(strokes)"))
     }
 
     @Test("Every character animation surface exposes read aloud")

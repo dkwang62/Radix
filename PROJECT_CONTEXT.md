@@ -92,6 +92,9 @@ stay linked to their page rather than becoming disconnected parallel features.
   different in-flow character destination for its own navigation context.
 - Phrase animation tiles expose distinct compact controls for read aloud and
   opening the character card; do not rely solely on tapping the web animation.
+- Phrase-to-character inspection preserves an explicit return path to the
+  originating phrase. Place animation actions in the header and use numeral-only
+  stroke labels on both Phrase and Character cards.
 - Root titles carry context, for example `Browse - Dictionary`,
   `Browse - [page]`, and `Study - Sentences`; do not repeat the same title in
   page content.

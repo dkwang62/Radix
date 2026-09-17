@@ -12,6 +12,7 @@ struct CharacterPreviewHeader: View {
     var showAddToMemoryButton: Bool = true
     var isVertical: Bool = false
     var onClear: (() -> Void)? = nil
+    var onReturnToPhrase: (() -> Void)? = nil
     @State private var showPhraseTableSheet = false
     @State private var variantIndex: Int = 0
 
@@ -38,7 +39,8 @@ struct CharacterPreviewHeader: View {
                         allVariants: allVariants,
                         activeVariant: activeVariant,
                         isVertical: isVertical,
-                        onSelectCharacter: selectPreviewCharacter(_:)
+                        onSelectCharacter: selectPreviewCharacter(_:),
+                        onReturnToPhrase: onReturnToPhrase
                     )
                     .environmentObject(store)
 

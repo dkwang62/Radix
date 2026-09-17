@@ -320,9 +320,7 @@ extension RootView {
                         phraseLookupOverride: store.sidebarPhraseLookupOverride,
                         favoriteTarget: store.activePracticeSentenceItem.map(PhraseInfoFavoriteTarget.sentence) ?? .phrase,
                         phraseLookupDepth: store.sidebarPhraseLookupDepth,
-                        onDone: {
-                            store.dismissSidebarPhrasePreview()
-                        }
+                        onDone: nil
                     )
                     .environmentObject(store)
                 } else if let current = store.previewCharacter {
@@ -330,7 +328,10 @@ extension RootView {
                         character: current,
                         showClearButton: false,
                         showAddToMemoryButton: !(store.route == .search && store.homeTab == .favourites),
-                        isVertical: true
+                        isVertical: true,
+                        onReturnToPhrase: store.hasPhraseCardReturn ? {
+                            store.returnToPhraseCard()
+                        } : nil
                     )
                 } else {
                     EmptyView()
