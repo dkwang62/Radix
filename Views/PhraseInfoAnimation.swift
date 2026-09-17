@@ -158,6 +158,7 @@ extension PhraseInfoCard {
                         reloadToken: StrokeAnimationToken.stable(for: "phrase-card-\(phrase.id)-\(animationCharacter)"),
                         canvasSize: 110
                     )
+                    .allowsHitTesting(false)
                     .frame(height: 118)
                     .frame(maxWidth: .infinity)
                 }

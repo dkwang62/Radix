@@ -47,6 +47,10 @@ struct SwiftUICrashGuardrailTests {
         #expect(!source.contains("ScrollViewReader"))
         #expect(source.contains("ScrollView(.horizontal, showsIndicators: false)"))
         #expect(source.contains("CharacterReadAloudButton(character: animationCharacter)"))
+        let tile = source
+            .components(separatedBy: "func phraseCharacterTile(_ character: String) -> some View {")[1]
+            .components(separatedBy: "func phraseAnimationPageCount")[0]
+        #expect(tile.contains(".allowsHitTesting(false)"))
     }
 
     @Test("Phrase cards navigate characters unless a caller supplies a destination")
