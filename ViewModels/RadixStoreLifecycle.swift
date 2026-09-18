@@ -105,7 +105,7 @@ extension RadixStore {
     }
 
     private func importBundledStandardDataIfNeeded() {
-        let importID = "radix_unified_backup.2026-06-27"
+        let importID = "radix_unified_backup.1.1.13"
         guard preferences.string(forKey: RadixPreferenceKey.standardDataImportID) != importID else {
             return
         }
