@@ -30,9 +30,9 @@ character tiles. The control uses the existing speech preference and character
 speech service; tapping the animation itself retains its existing inspection
 behavior.
 
-Repository branch: `codex/post-testflight-iteration`.
+Repository branch: `codex/post-testflight-iteration`. The source project and
+current distribution version are `1.1` build `10`.
 
-The source project is configured as marketing version `1.1`, build `9`.
 The latest iPad crash report came from TestFlight `1.0.6 (6)`. Before the next
 upload, deliberately set and verify the next build number in both app and share
 extension targets; do not assume the repository's current build setting matches
