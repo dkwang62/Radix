@@ -31,7 +31,9 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current distribution version are `1.1` build `10`.
+current distribution version are `1.1` build `11`. Every committed application
+change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
+the Xcode project, and preserve app/extension build parity.
 
 The latest iPad crash report came from TestFlight `1.0.6 (6)`. Before the next
 upload, deliberately set and verify the next build number in both app and share
