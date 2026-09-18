@@ -352,6 +352,33 @@ struct UnifiedPackage: Codable {
     }
 }
 
+enum BundledStandardDataRules {
+    static func sanitizedPayload(_ payload: PortableBackupPayload) -> PortableBackupPayload {
+        switch payload {
+        case .legacyDictionary:
+            return payload
+        case .unified(let package):
+            return .unified(UnifiedPackage(
+                schemaVersion: package.schemaVersion,
+                exportedAt: package.exportedAt,
+                backupID: package.backupID,
+                baseDictionaryFingerprint: package.baseDictionaryFingerprint,
+                dictionary: package.dictionary,
+                dictionaryOverlay: package.dictionaryOverlay,
+                dictionaryPatchOverlay: package.dictionaryPatchOverlay,
+                phrases: package.phrases,
+                profile: package.profile,
+                // Standard data must never merge its authoring pages into a user's
+                // saved library. Portable backups remain the only page-transfer path.
+                collections: nil,
+                selectedAICollectionID: nil,
+                conversationPracticePacks: nil,
+                apiKeys: nil
+            ))
+        }
+    }
+}
+
 struct SentenceLibraryExportPackage: Codable {
     static let currentSchemaVersion = 1
 

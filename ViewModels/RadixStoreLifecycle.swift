@@ -116,33 +116,11 @@ extension RadixStore {
         do {
             let data = try Data(contentsOf: url)
             let payload = try PortableBackupCodec().decode(data)
-            try importDataEditPayload(sanitizedStandardDataPayload(payload), mode: .additive)
+            try importDataEditPayload(BundledStandardDataRules.sanitizedPayload(payload), mode: .additive)
             preferences.set(importID, forKey: RadixPreferenceKey.standardDataImportID)
         } catch {
             loadingError = error.localizedDescription
         }
     }
 
-    private func sanitizedStandardDataPayload(_ payload: PortableBackupPayload) -> PortableBackupPayload {
-        switch payload {
-        case .legacyDictionary:
-            return payload
-        case .unified(let package):
-            return .unified(UnifiedPackage(
-                schemaVersion: package.schemaVersion,
-                exportedAt: package.exportedAt,
-                backupID: package.backupID,
-                baseDictionaryFingerprint: package.baseDictionaryFingerprint,
-                dictionary: package.dictionary,
-                dictionaryOverlay: package.dictionaryOverlay,
-                dictionaryPatchOverlay: package.dictionaryPatchOverlay,
-                phrases: package.phrases,
-                profile: package.profile,
-                collections: package.collections,
-                selectedAICollectionID: package.selectedAICollectionID,
-                conversationPracticePacks: nil,
-                apiKeys: nil
-            ))
-        }
-    }
 }

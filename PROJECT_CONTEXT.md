@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current distribution version are `1.1` build `11`. Every committed application
+current distribution version are `1.1` build `12`. Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -251,6 +251,10 @@ uses it to choose newer content for a matching UUID; older content cannot replac
 newer local edits. Differing records without an orderable timestamp fail
 preflight before mutation instead of guessing. Viewing dates and backup image
 transport fields are not content revisions.
+Bundled standard data is stripped of saved pages and page selection before its
+one-time additive import. Only a user-selected portable backup may transfer
+saved pages, so legacy bundled authoring pages cannot block startup with a merge
+conflict.
 Capture, Browse, and Study must all show the saved-page deletion impact before
 calling the shared cascade deletion. Capture stages its pending page and commits
 only from the destructive confirmation action. The cascade uses the complete

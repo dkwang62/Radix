@@ -20,4 +20,31 @@ struct DataChoiceCompatibilityTests {
         let encoded = try JSONEncoder().encode(RestoreMode.complete)
         #expect(try JSONDecoder().decode(RestoreMode.self, from: encoded) == .complete)
     }
+
+    @Test("Bundled standard data never imports authoring pages")
+    func bundledStandardDataExcludesSavedPages() {
+        let pageID = UUID()
+        let payload = PortableBackupPayload.unified(UnifiedPackage(
+            schemaVersion: PortableBackupCodec.currentSchemaVersion,
+            phrases: [],
+            profile: UserProfile(schemaVersion: 1, favouritesList: []),
+            collections: [CharacterCollection(
+                id: pageID,
+                name: "Bundled sample",
+                characters: ["学"],
+                createdAt: .now,
+                sourceType: .imported,
+                isFavorite: false
+            )],
+            selectedAICollectionID: pageID
+        ))
+
+        guard case .unified(let sanitized) = BundledStandardDataRules.sanitizedPayload(payload) else {
+            Issue.record("Expected unified standard data payload")
+            return
+        }
+
+        #expect(sanitized.collections == nil)
+        #expect(sanitized.selectedAICollectionID == nil)
+    }
 }
