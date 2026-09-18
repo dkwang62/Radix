@@ -324,14 +324,15 @@ extension RootView {
                     )
                     .environmentObject(store)
                 } else if let current = store.previewCharacter {
+                    let phraseCardReturnContext = store.phraseCardReturnContext
                     CharacterPreviewHeader(
                         character: current,
                         showClearButton: false,
                         showAddToMemoryButton: !(store.route == .search && store.homeTab == .favourites),
                         isVertical: true,
-                        onReturnToPhrase: store.hasPhraseCardReturn ? {
-                            store.returnToPhraseCard()
-                        } : nil
+                        onReturnToPhrase: phraseCardReturnContext.map { returnContext in
+                            { store.returnToPhraseCard(returnContext) }
+                        }
                     )
                 } else {
                     EmptyView()

@@ -56,6 +56,7 @@ struct SwiftUICrashGuardrailTests {
         #expect(tile.contains("Open \\(character) character card"))
         #expect(tile.contains("HStack(spacing: 6)"))
         #expect(tile.contains("Spacer(minLength: 0)"))
+        #expect(tile.contains(".padding(.horizontal, 4)"))
         #expect(source.contains("return String(strokes)"))
     }
 
@@ -81,12 +82,16 @@ struct SwiftUICrashGuardrailTests {
 
         #expect(state.contains("struct PhraseCardReturnContext"))
         #expect(navigation.contains("func previewCharacterFromPhraseCard("))
-        #expect(navigation.contains("func returnToPhraseCard()"))
-        #expect(sidebar.contains("onReturnToPhrase: store.hasPhraseCardReturn"))
+        #expect(navigation.contains("func returnToPhraseCard(_ returnContext: PhraseCardReturnContext)"))
+        #expect(sidebar.contains("let phraseCardReturnContext = store.phraseCardReturnContext"))
+        #expect(sidebar.contains("store.returnToPhraseCard(returnContext)"))
         #expect(animation.contains("var onReturnToPhrase: (() -> Void)? = nil"))
         #expect(animation.contains("Image(systemName: \"text.quote\")"))
         #expect(animation.contains("Spacer(minLength: 0)"))
+        #expect(animation.contains(".padding(.horizontal, 6)"))
         #expect(animation.contains("String(strokes)"))
+        #expect(navigation.contains("func returnToPhraseCard(_ returnContext: PhraseCardReturnContext)"))
+        #expect(navigation.contains("if !preservePhraseContext {"))
     }
 
     @Test("Every character animation surface exposes read aloud")

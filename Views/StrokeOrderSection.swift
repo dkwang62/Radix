@@ -24,6 +24,7 @@ struct StrokeAnimationHeaderLabel: View {
             .foregroundStyle(.primary)
             .lineLimit(1)
             .minimumScaleFactor(0.75)
+            .fixedSize(horizontal: true, vertical: false)
     }
 }
 

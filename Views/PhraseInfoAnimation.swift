@@ -153,6 +153,8 @@ extension PhraseInfoCard {
                 CharacterReadAloudButton(character: animationCharacter)
                 phraseCharacterCardButton(animationCharacter)
             }
+            .padding(.horizontal, 4)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             Button {
                 selectCharacterFromPhrase(animationCharacter)

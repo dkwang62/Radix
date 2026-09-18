@@ -36,6 +36,8 @@ struct CharacterPreviewAnimationPanel: View {
                         CharacterReadAloudButton(character: char)
                         phraseReturnButton
                     }
+                    .padding(.horizontal, 6)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 3)
 
                     StrokeOrderWebView(
@@ -66,6 +68,8 @@ struct CharacterPreviewAnimationPanel: View {
                 CharacterReadAloudButton(character: item.character)
                 phraseReturnButton
             }
+            .padding(.horizontal, 6)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 3)
 
             StrokeOrderWebView(

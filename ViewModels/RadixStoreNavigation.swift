@@ -136,6 +136,9 @@ extension RadixStore {
     // MARK: - Preview
 
     func preview(character: String, announce: Bool = true, preservePhraseContext: Bool = false) {
+        if !preservePhraseContext {
+            sidebarCharacterReturnContext = nil
+        }
         activeSubject = .character(character)
         let shouldPreservePhraseHighlight = preservePhraseContext || shouldPreserveBrowseImagePhraseHighlight
         if !shouldPreservePhraseHighlight {
@@ -716,7 +719,6 @@ extension RadixStore {
     }
 
     func dismissSidebarPhrasePreview() {
-        sidebarCharacterReturnContext = nil
         sidebarPhrasePreview = nil
         imageBrowsePhrasePreview = nil
         sidebarPhraseLookupOverride = nil
@@ -728,7 +730,6 @@ extension RadixStore {
     }
 
     func dismissImagePhrasePreview() {
-        sidebarCharacterReturnContext = nil
         imageBrowsePhrasePreview = nil
         sidebarPhrasePreview = nil
         sidebarPhraseLookupOverride = nil
@@ -741,12 +742,13 @@ extension RadixStore {
 
     func clearInformationCardFocus() {
         dismissSidebarPhrasePreview()
+        sidebarCharacterReturnContext = nil
         previewCharacter = nil
         showiPhoneDetail = false
     }
 
-    var hasPhraseCardReturn: Bool {
-        sidebarCharacterReturnContext != nil
+    var phraseCardReturnContext: PhraseCardReturnContext? {
+        sidebarCharacterReturnContext
     }
 
     func previewCharacterFromPhraseCard(
@@ -769,8 +771,7 @@ extension RadixStore {
         sidebarCharacterReturnContext = returnContext
     }
 
-    func returnToPhraseCard() {
-        guard let returnContext = sidebarCharacterReturnContext else { return }
+    func returnToPhraseCard(_ returnContext: PhraseCardReturnContext) {
         sidebarCharacterReturnContext = nil
         previewCharacter = nil
         showiPhoneDetail = false

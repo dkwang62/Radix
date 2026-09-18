@@ -94,7 +94,10 @@ stay linked to their page rather than becoming disconnected parallel features.
   opening the character card; do not rely solely on tapping the web animation.
 - Phrase-to-character inspection preserves an explicit return path to the
   originating phrase. Place animation actions in the header and use numeral-only
-  stroke labels on both Phrase and Character cards.
+  stroke labels on both Phrase and Character cards. On compact iPad sidebars,
+  keep the numeral at the header's leading edge and actions trailing; capture
+  the phrase return context in the button action so sheet cleanup cannot turn
+  a visible return control into a no-op.
 - Root titles carry context, for example `Browse - Dictionary`,
   `Browse - [page]`, and `Study - Sentences`; do not repeat the same title in
   page content.
