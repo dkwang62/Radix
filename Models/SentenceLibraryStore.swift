@@ -708,9 +708,22 @@ final class SentenceLibraryStore: @unchecked Sendable {
         let baseURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSTemporaryDirectory())
-        return baseURL
+        let legacyURL = baseURL
             .appendingPathComponent("Radix", isDirectory: true)
             .appendingPathComponent("sentence_examples.sqlite")
+        _ = try? RestoreGenerationStore.shared.migrateLegacyItem(
+            at: legacyURL,
+            to: "sentence_examples.sqlite"
+        )
+        return (try? RestoreGenerationStore.shared.currentItemURL("sentence_examples.sqlite")) ?? legacyURL
+    }
+
+    func closeForGenerationSwitch() {
+        lock.lock()
+        defer { lock.unlock() }
+        if let db { sqlite3_close(db) }
+        db = nil
+        fallbackRecords = nil
     }
 
     private func openIfNeeded() throws {

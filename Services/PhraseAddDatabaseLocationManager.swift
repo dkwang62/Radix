@@ -123,7 +123,11 @@ final class PhraseAddDatabaseLocationManager {
             return projectURL
         }
         let localDocs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        return localDocs.appendingPathComponent("phrases_add.db")
+        let legacyURL = localDocs.appendingPathComponent("phrases_add.db")
+        return (try? RestoreGenerationStore.shared.migrateLegacyItem(
+            at: legacyURL,
+            to: "phrases_add.db"
+        )) ?? legacyURL
     }
 
     private func beginAccessingSecurityScopeIfNeeded(for url: URL) -> Bool {

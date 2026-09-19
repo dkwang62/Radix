@@ -11,6 +11,7 @@ extension RadixStore {
     func initialize() async {
         loadingError = nil
         do {
+            try restoreGenerationStore.recoverPointerBeforeOpening()
             try recoverPendingPageDeletion()
             pageDeletionRecoveryError = nil
             try loadDictionaryRepository()
@@ -20,8 +21,14 @@ extension RadixStore {
             loadConversationPracticePhraseCache()
             preprocessStoredAICleanedPagesIfNeeded()
             setupInitialState()
+            try restoreGenerationStore.finishPromotion()
         } catch {
-            if restoreRollbackJournal.isPending {
+            if restoreGenerationStore.pendingPhase == .promoted {
+                phraseRepo.close()
+                RadixStudyPreferences.closeSentenceDatabaseForGenerationSwitch()
+                try? restoreGenerationStore.rollBackPendingPromotion()
+            }
+            if restoreRollbackJournal.isPending || restoreGenerationStore.isPending {
                 restoreRollbackRecoveryError = error.localizedDescription
             }
             loadingError = error.localizedDescription
@@ -31,6 +38,7 @@ extension RadixStore {
     func initializeForTesting() async {
         loadingError = nil
         do {
+            try restoreGenerationStore.recoverPointerBeforeOpening()
             try recoverPendingPageDeletion()
             pageDeletionRecoveryError = nil
             try componentRepo.loadFromBundle()
@@ -40,8 +48,14 @@ extension RadixStore {
             loadConversationPracticePhraseCache()
             preprocessStoredAICleanedPagesIfNeeded()
             setupInitialState()
+            try restoreGenerationStore.finishPromotion()
         } catch {
-            if restoreRollbackJournal.isPending {
+            if restoreGenerationStore.pendingPhase == .promoted {
+                phraseRepo.close()
+                RadixStudyPreferences.closeSentenceDatabaseForGenerationSwitch()
+                try? restoreGenerationStore.rollBackPendingPromotion()
+            }
+            if restoreRollbackJournal.isPending || restoreGenerationStore.isPending {
                 restoreRollbackRecoveryError = error.localizedDescription
             }
             loadingError = error.localizedDescription

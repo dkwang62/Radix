@@ -157,6 +157,10 @@ enum RadixStudyPreferences {
         favoriteSentences = []
     }
 
+    static func closeSentenceDatabaseForGenerationSwitch() {
+        sentenceLibrary.closeForGenerationSwitch()
+    }
+
     static func clearUserLearningData() throws {
         try clearSentenceDatabase()
         conversationPracticeStore.clearUserData()

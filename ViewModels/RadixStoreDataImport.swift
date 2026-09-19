@@ -177,6 +177,9 @@ extension RadixStore {
     func importPortableBackupDocumentForRestore(_ document: PortableBackupDocument, mode: RestoreMode = .additive) async throws {
         try pageDeletionJournal.requireNoPendingDeletion()
         try restoreRollbackJournal.requireNoPendingRestore()
+        guard !restoreGenerationStore.isPending else {
+            throw restoreFailure("Finish recovering the interrupted backup restore before changing data.")
+        }
         guard !isRestoreTransactionActive, !databaseOptimizationInProgress, sharedImportTask == nil else {
             throw restoreFailure("Wait for the current data operation to finish before restoring a backup.")
         }
@@ -193,6 +196,12 @@ extension RadixStore {
             try validateImportedCollectionMerge(package.collections)
         }
         try validatePortableBackupDocumentDatabases(document)
+        if mode == .complete {
+            try await importCompleteBackupUsingStagedGeneration(document)
+            markDatabaseOptimizationNeeded()
+            databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
+            return
+        }
         try await createDatabaseSafetySnapshotsForSettings(reason: "Before importing data")
         let rollbackDocument = PortableBackupDocument(
             payload: .unified(portableBackupPackage()),
@@ -233,6 +242,60 @@ extension RadixStore {
         RestoreRollbackJournal(directoryURL: savedPageImageStore.restoreRollbackDirectoryURL)
     }
 
+    var restoreGenerationStore: RestoreGenerationStore { .shared }
+
+    private func importCompleteBackupUsingStagedGeneration(_ document: PortableBackupDocument) async throws {
+        try flushRestorePersistence()
+        _ = try restoreGenerationStore.beginStaging()
+        RadixStudyPreferences.closeSentenceDatabaseForGenerationSwitch()
+        phraseRepo.close()
+
+        do {
+            try phraseRepo.openFromBundle()
+            try await applyPortableBackupDocument(document, mode: .complete)
+            try flushRestorePersistence()
+            try validateActiveRestoreGeneration()
+            try restoreGenerationStore.markPromoted()
+
+            RadixStudyPreferences.closeSentenceDatabaseForGenerationSwitch()
+            phraseRepo.close()
+            try phraseRepo.openFromBundle()
+            try validateActiveRestoreGeneration()
+            try restoreGenerationStore.finishPromotion()
+        } catch {
+            RadixStudyPreferences.closeSentenceDatabaseForGenerationSwitch()
+            phraseRepo.close()
+            do {
+                try restoreGenerationStore.rollBackPendingPromotion()
+                await initialize()
+                guard loadingError == nil else {
+                    throw restoreFailure("The previous library could not be reopened after the restore failed.")
+                }
+            } catch let recoveryError {
+                throw NSError(
+                    domain: "Radix",
+                    code: 3155,
+                    userInfo: [NSLocalizedDescriptionKey: "Restore failed and Radix could not reopen the previous data automatically: \(recoveryError.localizedDescription)"]
+                )
+            }
+            throw error
+        }
+    }
+
+    private func validateActiveRestoreGeneration() throws {
+        let sentenceURL = try restoreGenerationStore.currentItemURL("sentence_examples.sqlite")
+        if FileManager.default.fileExists(atPath: sentenceURL.path) {
+            try SentenceLibraryStore.validateSentenceDatabase(at: sentenceURL)
+        }
+        if ProjectLiveDataLocator.file(named: "phrases_add.db") == nil {
+            let phrasesURL = try restoreGenerationStore.currentItemURL("phrases_add.db")
+            if FileManager.default.fileExists(atPath: phrasesURL.path) {
+                try PhraseRepository.validateAddDatabase(at: phrasesURL)
+            }
+        }
+        _ = try restoreGenerationStore.activeDirectoryURL()
+    }
+
     func recoverPendingRestoreRollback() async throws {
         guard restoreRollbackJournal.isPending else { return }
         isRestoreTransactionActive = true
@@ -257,6 +320,9 @@ extension RadixStore {
 
     private func requireNoRestoreTransaction() throws {
         try restoreRollbackJournal.requireNoPendingRestore()
+        guard !restoreGenerationStore.isPending else {
+            throw restoreFailure("Finish recovering the interrupted backup restore before changing data.")
+        }
         guard !isRestoreTransactionActive else {
             throw restoreFailure("Wait for the current backup restore to finish before changing data.")
         }

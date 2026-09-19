@@ -3,12 +3,14 @@ import SwiftUI
 final class SavedPageImageStore {
     private let fileManager: FileManager
     private let directoryURL: URL
+    private let usesDefaultDirectory: Bool
 
     init(
         fileManager: FileManager = .default,
         directoryURL: URL? = nil
     ) {
         self.fileManager = fileManager
+        self.usesDefaultDirectory = directoryURL == nil
         self.directoryURL = directoryURL ?? Self.defaultDirectoryURL(fileManager: fileManager)
     }
 
@@ -32,10 +34,16 @@ final class SavedPageImageStore {
     }
 
     var deletionJournalURL: URL {
+        if usesDefaultDirectory {
+            return RestoreGenerationStore.shared.globalItemURL("pending-page-deletion.json")
+        }
         directoryURL.deletingLastPathComponent().appendingPathComponent("pending-page-deletion.json")
     }
 
     var restoreRollbackDirectoryURL: URL {
+        if usesDefaultDirectory {
+            return RestoreGenerationStore.shared.globalItemURL("Pending Restore Rollback")
+        }
         directoryURL.deletingLastPathComponent().appendingPathComponent("Pending Restore Rollback", isDirectory: true)
     }
 
@@ -77,9 +85,14 @@ final class SavedPageImageStore {
 
     private static func defaultDirectoryURL(fileManager: FileManager) -> URL {
         let applicationSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        return applicationSupport
+        let legacyURL = applicationSupport
             .appendingPathComponent("Radix", isDirectory: true)
             .appendingPathComponent("Saved Page Images", isDirectory: true)
+        _ = try? RestoreGenerationStore.shared.migrateLegacyItem(
+            at: legacyURL,
+            to: "Saved Page Images"
+        )
+        return (try? RestoreGenerationStore.shared.currentItemURL("Saved Page Images")) ?? legacyURL
     }
 }
 

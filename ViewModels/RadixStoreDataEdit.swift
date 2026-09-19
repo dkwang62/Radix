@@ -64,8 +64,12 @@ extension RadixStore {
         if let projectURL = ProjectLiveDataLocator.file(named: "component_map_changes.json") {
             return projectURL
         }
-        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let legacyURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("component_map_changes.json")
+        return (try? RestoreGenerationStore.shared.migrateLegacyItem(
+            at: legacyURL,
+            to: "component_map_changes.json"
+        )) ?? legacyURL
     }
 
     var legacyEditableDictionaryFileURL: URL {
