@@ -207,7 +207,7 @@ extension DataEditTab {
     var restoreConfirmationMessage: String {
         guard let pending = pendingBackupRestore else { return "" }
         let action = pending.mode == .complete
-            ? "This will replace this device with the selected backup. Radix will save a recovery checkpoint first, but Merge Backup is safer unless you need an exact restore."
+            ? "This will replace this device with the selected backup. Radix keeps the current library protected until the restored library opens successfully. Merge Backup is safer unless you need an exact restore."
             : "Radix will combine the backup and this device so both contain the merged contents."
         return "Selected: \(pending.filename)\n\n\(pending.document.contentsSummary)\n\n\(action)"
     }
@@ -222,9 +222,6 @@ extension DataEditTab {
 
         Task { @MainActor in
             do {
-                if pending.mode == .complete {
-                    try await createRecoverySnapshotIfNeeded(for: pending.mode)
-                }
                 try await store.importPortableBackupDocumentForRestore(pending.document, mode: pending.mode)
                 guard isCurrentRestore(operationID) else { return }
 
@@ -241,12 +238,6 @@ extension DataEditTab {
                 RadixHaptics.error()
             }
         }
-    }
-
-    private func createRecoverySnapshotIfNeeded(for mode: RestoreMode) async throws {
-        guard mode == .complete else { return }
-        let recoveryData = try await bundledBackupData()
-        _ = try localSnapshotStore.save(recoveryData)
     }
 
     private func bundledBackupData() async throws -> Data {

@@ -672,6 +672,7 @@ struct SwiftUICrashGuardrailTests {
     @Test("Complete restore uses generation promotion while legacy rollback remains recoverable")
     func fullRestoreRollbackWiring() throws {
         let restore = try sourceText(at: "ViewModels/RadixStoreDataImport.swift")
+        let restoreFlow = try sourceText(at: "App/DataEditRestoreFlow.swift")
         let lifecycle = try sourceText(at: "ViewModels/RadixStoreLifecycle.swift")
         let root = try sourceText(at: "App/RootView.swift")
         let begin = try #require(restore.range(of: "restoreRollbackJournal.begin"))
@@ -696,6 +697,8 @@ struct SwiftUICrashGuardrailTests {
         #expect(recovery.lowerBound < preprocessing.lowerBound)
         #expect(root.contains("Recover Interrupted Restore"))
         #expect(root.contains("store.restoreRollbackRecoveryError"))
+        #expect(!restoreFlow.contains("createRecoverySnapshotIfNeeded"))
+        #expect(restoreFlow.contains("keeps the current library protected until the restored library opens successfully"))
     }
 
     private func sourceText(at relativePath: String) throws -> String {

@@ -244,6 +244,10 @@ generation and validates it there. It does not first materialize validation and
 restore copies or invoke SQLite's live-database rollback copy; one full staged
 validation precedes promotion and the reopened generation receives a lightweight
 schema/open check.
+The Restore Backup confirmation does not create a separate checkpoint bundle:
+the retained previous generation is the recovery copy until the staged library
+reopens, avoiding a second full export before restore begins. User-created and
+scheduled checkpoints remain unchanged.
 Legacy pending rollback documents remain readable. Additive restore and the
 source-checkout live-data development path retain the existing rollback journal;
 neither changes the portable backup format or page-deletion journal.
