@@ -161,6 +161,10 @@ enum RadixStudyPreferences {
         sentenceLibrary.closeForGenerationSwitch()
     }
 
+    static func verifySentenceDatabaseCanOpen() throws {
+        try sentenceLibrary.verifyCanOpen()
+    }
+
     static func clearUserLearningData() throws {
         try clearSentenceDatabase()
         conversationPracticeStore.clearUserData()

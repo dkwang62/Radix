@@ -683,6 +683,9 @@ struct SwiftUICrashGuardrailTests {
         #expect(restore.contains("try flushRestorePersistence()"))
         #expect(restore.contains("importCompleteBackupUsingStagedGeneration"))
         #expect(restore.contains("restoreGenerationStore.beginStaging()"))
+        #expect(restore.contains("stageEmbeddedRestoreDatabases(document)"))
+        #expect(restore.contains("sentenceData.write(to: sentenceURL, options: .atomic)"))
+        #expect(restore.contains("phrasesData.write(to: phrasesURL, options: .atomic)"))
         #expect(restore.contains("restoreGenerationStore.markPromoted()"))
         #expect(restore.contains("restoreGenerationStore.finishPromotion()"))
 

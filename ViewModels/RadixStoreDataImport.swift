@@ -195,13 +195,13 @@ extension RadixStore {
         if mode == .additive, case .unified(let package) = document.payload {
             try validateImportedCollectionMerge(package.collections)
         }
-        try validatePortableBackupDocumentDatabases(document)
         if mode == .complete, !usesProjectLiveRestoreFiles {
             try await importCompleteBackupUsingStagedGeneration(document)
             markDatabaseOptimizationNeeded()
             databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
             return
         }
+        try validatePortableBackupDocumentDatabases(document)
         try await createDatabaseSafetySnapshotsForSettings(reason: "Before importing data")
         let rollbackDocument = PortableBackupDocument(
             payload: .unified(portableBackupPackage()),
@@ -256,8 +256,18 @@ extension RadixStore {
         phraseRepo.close()
 
         do {
+            try await stageEmbeddedRestoreDatabases(document)
             try phraseRepo.openFromBundle()
-            try await applyPortableBackupDocument(document, mode: .complete)
+            try importDataEditPayload(
+                document.payload,
+                mode: .complete,
+                createSafetySnapshots: false,
+                refreshSentenceLinks: false,
+                importPhrases: document.addedPhrasesDatabaseData == nil
+            )
+            if document.sentenceDatabaseData != nil {
+                favoriteSentenceRevision += 1
+            }
             try flushRestorePersistence()
             try validateActiveRestoreGeneration()
             try restoreGenerationStore.markPromoted()
@@ -265,7 +275,7 @@ extension RadixStore {
             RadixStudyPreferences.closeSentenceDatabaseForGenerationSwitch()
             phraseRepo.close()
             try phraseRepo.openFromBundle()
-            try validateActiveRestoreGeneration()
+            try verifyPromotedRestoreCanOpen()
             try restoreGenerationStore.finishPromotion()
         } catch {
             RadixStudyPreferences.closeSentenceDatabaseForGenerationSwitch()
@@ -287,6 +297,36 @@ extension RadixStore {
         }
     }
 
+    private func stageEmbeddedRestoreDatabases(_ document: PortableBackupDocument) async throws {
+        let sentenceURL = try restoreGenerationStore.currentItemURL("sentence_examples.sqlite")
+        let phrasesURL = try restoreGenerationStore.currentItemURL("phrases_add.db")
+        let sentenceData = document.sentenceDatabaseData
+        let phrasesData = document.addedPhrasesDatabaseData
+
+        try await Task.detached(priority: .userInitiated) {
+            let fileManager = FileManager()
+            if let sentenceData {
+                try Self.removeSQLiteSidecars(for: sentenceURL, fileManager: fileManager)
+                try sentenceData.write(to: sentenceURL, options: .atomic)
+                try SentenceLibraryStore.validateSentenceDatabase(at: sentenceURL)
+            }
+            if let phrasesData {
+                try Self.removeSQLiteSidecars(for: phrasesURL, fileManager: fileManager)
+                try phrasesData.write(to: phrasesURL, options: .atomic)
+                try PhraseRepository.validateAddDatabase(at: phrasesURL)
+            }
+        }.value
+    }
+
+    nonisolated private static func removeSQLiteSidecars(for databaseURL: URL, fileManager: FileManager) throws {
+        for suffix in ["-wal", "-shm"] {
+            let sidecarURL = URL(fileURLWithPath: databaseURL.path + suffix)
+            if fileManager.fileExists(atPath: sidecarURL.path) {
+                try fileManager.removeItem(at: sidecarURL)
+            }
+        }
+    }
+
     private func validateActiveRestoreGeneration() throws {
         let sentenceURL = try restoreGenerationStore.currentItemURL("sentence_examples.sqlite")
         if FileManager.default.fileExists(atPath: sentenceURL.path) {
@@ -298,6 +338,11 @@ extension RadixStore {
                 try PhraseRepository.validateAddDatabase(at: phrasesURL)
             }
         }
+        _ = try restoreGenerationStore.activeDirectoryURL()
+    }
+
+    private func verifyPromotedRestoreCanOpen() throws {
+        try RadixStudyPreferences.verifySentenceDatabaseCanOpen()
         _ = try restoreGenerationStore.activeDirectoryURL()
     }
 

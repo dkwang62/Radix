@@ -239,6 +239,11 @@ generation back or finishes a promoted generation before repositories and UI
 state open. The previous generation remains available until the replacement
 reopens successfully, and retirement cleanup runs off the UI path. Recovery is
 idempotent and blocks normal data work with a Retry-only screen on failure.
+Complete restore writes each embedded SQLite database directly into the staged
+generation and validates it there. It does not first materialize validation and
+restore copies or invoke SQLite's live-database rollback copy; one full staged
+validation precedes promotion and the reopened generation receives a lightweight
+schema/open check.
 Legacy pending rollback documents remain readable. Additive restore and the
 source-checkout live-data development path retain the existing rollback journal;
 neither changes the portable backup format or page-deletion journal.

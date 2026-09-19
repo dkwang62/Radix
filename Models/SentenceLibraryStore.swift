@@ -726,6 +726,21 @@ final class SentenceLibraryStore: @unchecked Sendable {
         fallbackRecords = nil
     }
 
+    func verifyCanOpen() throws {
+        lock.lock()
+        defer { lock.unlock() }
+        try openIfNeeded()
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(db, "SELECT 1 FROM sentence_examples LIMIT 1", -1, &statement, nil) == SQLITE_OK else {
+            throw sqliteError(code: 3162, message: "Failed to verify sentence database")
+        }
+        defer { sqlite3_finalize(statement) }
+        let result = sqlite3_step(statement)
+        guard result == SQLITE_ROW || result == SQLITE_DONE else {
+            throw sqliteError(code: 3163, message: "Failed to open sentence database")
+        }
+    }
+
     private func openIfNeeded() throws {
         guard db == nil else { return }
         try FileManager.default.createDirectory(
