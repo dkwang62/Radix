@@ -669,7 +669,7 @@ struct SwiftUICrashGuardrailTests {
         #expect(headerSource.contains(".help(usageCountAccessibilityHint)"))
     }
 
-    @Test("Full backup restore persists rollback intent and recovers before startup publication")
+    @Test("Complete restore uses generation promotion while legacy rollback remains recoverable")
     func fullRestoreRollbackWiring() throws {
         let restore = try sourceText(at: "ViewModels/RadixStoreDataImport.swift")
         let lifecycle = try sourceText(at: "ViewModels/RadixStoreLifecycle.swift")
@@ -681,9 +681,15 @@ struct SwiftUICrashGuardrailTests {
         #expect(apply.lowerBound < finish.lowerBound)
         #expect(restore.contains("try await recoverPendingRestoreRollback()"))
         #expect(restore.contains("try flushRestorePersistence()"))
+        #expect(restore.contains("importCompleteBackupUsingStagedGeneration"))
+        #expect(restore.contains("restoreGenerationStore.beginStaging()"))
+        #expect(restore.contains("restoreGenerationStore.markPromoted()"))
+        #expect(restore.contains("restoreGenerationStore.finishPromotion()"))
 
         let recovery = try #require(lifecycle.range(of: "try await recoverPendingRestoreRollback()"))
+        let generationRecovery = try #require(lifecycle.range(of: "restoreGenerationStore.recoverPointerBeforeOpening()"))
         let preprocessing = try #require(lifecycle.range(of: "preprocessStoredAICleanedPagesIfNeeded()"))
+        #expect(generationRecovery.lowerBound < recovery.lowerBound)
         #expect(recovery.lowerBound < preprocessing.lowerBound)
         #expect(root.contains("Recover Interrupted Restore"))
         #expect(root.contains("store.restoreRollbackRecoveryError"))

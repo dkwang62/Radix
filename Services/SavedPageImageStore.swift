@@ -37,14 +37,14 @@ final class SavedPageImageStore {
         if usesDefaultDirectory {
             return RestoreGenerationStore.shared.globalItemURL("pending-page-deletion.json")
         }
-        directoryURL.deletingLastPathComponent().appendingPathComponent("pending-page-deletion.json")
+        return directoryURL.deletingLastPathComponent().appendingPathComponent("pending-page-deletion.json")
     }
 
     var restoreRollbackDirectoryURL: URL {
         if usesDefaultDirectory {
             return RestoreGenerationStore.shared.globalItemURL("Pending Restore Rollback")
         }
-        directoryURL.deletingLastPathComponent().appendingPathComponent("Pending Restore Rollback", isDirectory: true)
+        return directoryURL.deletingLastPathComponent().appendingPathComponent("Pending Restore Rollback", isDirectory: true)
     }
 
     func removeImageForConfirmedDeletion(for pageID: UUID) throws {

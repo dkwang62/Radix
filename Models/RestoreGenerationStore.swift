@@ -208,7 +208,10 @@ struct RestoreGenerationStore: @unchecked Sendable {
         try synchronizeDirectory(rootURL)
         let removableURL = generationsURL.appendingPathComponent(generation, isDirectory: true)
         if fileManager.fileExists(atPath: removableURL.path) {
-            try? fileManager.removeItem(at: removableURL)
+            let removablePath = removableURL.path
+            DispatchQueue.global(qos: .utility).async {
+                try? FileManager().removeItem(atPath: removablePath)
+            }
         }
     }
 

@@ -196,7 +196,7 @@ extension RadixStore {
             try validateImportedCollectionMerge(package.collections)
         }
         try validatePortableBackupDocumentDatabases(document)
-        if mode == .complete {
+        if mode == .complete, !usesProjectLiveRestoreFiles {
             try await importCompleteBackupUsingStagedGeneration(document)
             markDatabaseOptimizationNeeded()
             databaseOptimizationMessage = "Database optimization is recommended. Run Optimize Database from Settings when convenient."
@@ -243,6 +243,11 @@ extension RadixStore {
     }
 
     var restoreGenerationStore: RestoreGenerationStore { .shared }
+
+    private var usesProjectLiveRestoreFiles: Bool {
+        ProjectLiveDataLocator.file(named: "phrases_add.db") != nil
+            || ProjectLiveDataLocator.file(named: "component_map_changes.json") != nil
+    }
 
     private func importCompleteBackupUsingStagedGeneration(_ document: PortableBackupDocument) async throws {
         try flushRestorePersistence()

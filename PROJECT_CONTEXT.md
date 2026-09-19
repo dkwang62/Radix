@@ -228,16 +228,20 @@ never launch expensive optimization automatically.
 
 Sentence database imports validate integrity, required schema, record decoding,
 and stored identity before replacing live data. Sentence mutations throw on
-storage failure and key-changing edits reject normalized-key collisions. Full
-restore preflights both databases, captures a complete rollback document and
-flushes it before writing durable restore intent. Caught failures replay rollback
-immediately; startup replays pending rollback after repositories open but before
-caches, extracted pages or normal UI load. The intent remains until SQLite,
-dictionary, page-image and preference persistence is acknowledged. Recovery is
+storage failure and key-changing edits reject normalized-key collisions.
+Distribution complete restore uses `RestoreGenerationStore`: production
+preferences, sentence and added-phrase databases, page images and dictionary
+overlay live under one active generation. Restore preflights the incoming
+document, clones the active generation with filesystem copy-on-write where
+available, applies and validates the replacement in staging, then atomically
+publishes one durable generation decision. Startup rolls an interrupted staging
+generation back or finishes a promoted generation before repositories and UI
+state open. The previous generation remains available until the replacement
+reopens successfully, and retirement cleanup runs off the UI path. Recovery is
 idempotent and blocks normal data work with a Retry-only screen on failure.
-Acquisition and validation can be cancelled; commit and rollback are explicitly
-non-cancellable. The recovery policy restores the pre-operation state rather
-than finishing an interrupted incoming restore.
+Legacy pending rollback documents remain readable. Additive restore and the
+source-checkout live-data development path retain the existing rollback journal;
+neither changes the portable backup format or page-deletion journal.
 Schema-6 complete restore treats a missing or empty extracted-page reference
 section as an authoritative empty category. Schema-1 through schema-5 absence
 remains unsupported data and does not clear current extracted pages. Every
@@ -472,8 +476,8 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 ## Required Verification
 
-Latest application baseline (2026-09-09): `swift test` passed 186 tests in
-16 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds
+Latest application baseline (2026-09-20): `swift test` passed 195 tests in
+17 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds
 passed, as did `git diff --check`. Per-change verification details belong in
 Git history, not in this handoff.
 
@@ -484,9 +488,11 @@ Specialized validation:
   median synchronous commit was 29/43/132 ms respectively. See
   `Tests/PageDeletionProbe/RESULTS.md`. Human shipping-UI checks, first-open
   index timing, and worst-case bulk cascades remain open.
-- Full restore: `Tests/RestoreRollbackProbe` passed five interrupted incoming
-  writes and four interrupted rollback writes. Physical-device interruption of
-  the shipping flow, disk exhaustion, and large-backup timing remain open.
+- Full restore: generation integration tests verify old/new consistency across
+  preferences, both databases and page-image paths before and after durable
+  promotion. The legacy `Tests/RestoreRollbackProbe` remains the compatibility
+  probe. Physical-device interruption, disk exhaustion and large-backup timing
+  for the shipping build remain open.
 - Sentence examples: the physical-iPhone release probe passed 12 cold-process
   runs at 10,000 and 50,000 sentences without a query-caused main-thread stall.
   See `Tests/SentenceExamplesPerformanceProbe/RESULTS.md`.

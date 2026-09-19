@@ -18,22 +18,22 @@ struct RadixPreferences: RadixPreferenceStore, @unchecked Sendable {
 
     func data(forKey key: String) -> Data? {
         if let generationStorage { return generationStorage.object(forKey: key) as? Data }
-        defaults.data(forKey: key)
+        return defaults.data(forKey: key)
     }
 
     func string(forKey key: String) -> String? {
         if let generationStorage { return generationStorage.object(forKey: key) as? String }
-        defaults.string(forKey: key)
+        return defaults.string(forKey: key)
     }
 
     func bool(forKey key: String) -> Bool {
         if let generationStorage { return generationStorage.object(forKey: key) as? Bool ?? false }
-        defaults.bool(forKey: key)
+        return defaults.bool(forKey: key)
     }
 
     func integer(forKey key: String) -> Int {
         if let generationStorage { return generationStorage.object(forKey: key) as? Int ?? 0 }
-        defaults.integer(forKey: key)
+        return defaults.integer(forKey: key)
     }
 
     func double(forKey key: String) -> Double {
@@ -41,22 +41,22 @@ struct RadixPreferences: RadixPreferenceStore, @unchecked Sendable {
             if let value = generationStorage.object(forKey: key) as? Double { return value }
             return (generationStorage.object(forKey: key) as? NSNumber)?.doubleValue ?? 0
         }
-        defaults.double(forKey: key)
+        return defaults.double(forKey: key)
     }
 
     func array(forKey key: String) -> [Any]? {
         if let generationStorage { return generationStorage.object(forKey: key) as? [Any] }
-        defaults.array(forKey: key)
+        return defaults.array(forKey: key)
     }
 
     func dictionary(forKey key: String) -> [String: Any]? {
         if let generationStorage { return generationStorage.object(forKey: key) as? [String: Any] }
-        defaults.dictionary(forKey: key)
+        return defaults.dictionary(forKey: key)
     }
 
     func object(forKey key: String) -> Any? {
         if let generationStorage { return generationStorage.object(forKey: key) }
-        defaults.object(forKey: key)
+        return defaults.object(forKey: key)
     }
 
     func set(_ value: Any?, forKey key: String) {
