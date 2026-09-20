@@ -60,6 +60,9 @@ struct FilterGridTab: View {
     @State var editingCollectionName = ""
     @State var editingCollectionText = ""
     @State var collectionEditorError: String?
+    @State var renamingCollection: CharacterCollection?
+    @State var renamingCollectionName = ""
+    @State var collectionRenameError: String?
     @State var translationReportCollection: CharacterCollection?
     @State var translationReportDraft = ""
     @State var pagePhraseListCollection: CharacterCollection?
@@ -224,6 +227,20 @@ struct FilterGridTab: View {
                     }
                 )
                 .presentationDetents([.medium, .large])
+            }
+            .sheet(item: $renamingCollection) { collection in
+                RenameBrowseCollectionSheet(
+                    name: $renamingCollectionName,
+                    error: collectionRenameError,
+                    onCancel: {
+                        renamingCollection = nil
+                        collectionRenameError = nil
+                    },
+                    onSave: {
+                        saveRenamedCollection(collection)
+                    }
+                )
+                .presentationDetents([.height(230)])
             }
             .sheet(item: $translationReportCollection) { collection in
                 BrowseTranslationReportSheet(

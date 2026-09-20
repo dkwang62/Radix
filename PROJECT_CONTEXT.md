@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `26` (not yet distributed). Every committed application
+current source version is `1.1` build `27` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -86,6 +86,10 @@ stay linked to their page rather than becoming disconnected parallel features.
 - A saved page has one shared Browse/Study selection. `Study` from Browse opens
   the relevant Study Page, and `Browse` from Study Page opens that source. This
   explicit pair replaces generic `Back to Browse` or `Back to Study` bars.
+- Browse page Actions includes a dedicated Rename Page sheet. Renaming changes
+  only the page's display name; its stable ID, source text, sentences, and linked
+  study artifacts remain unchanged. Edit Page remains available for source-text
+  changes.
 - A primary navigation choice clears transient return context. Contextual drill
   flows must always expose one visible, named route back to their origin.
 - On iPhone, Browse Dictionary character and phrase cards expose an explicit
@@ -530,7 +534,7 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 Latest application baseline (2026-09-20): `swift test` passed 210 tests in
 18 suites. Signing-disabled Mac Catalyst and generic iOS device builds, plus
-the generic iOS Simulator build, passed for source build 26, as did
+the generic iOS Simulator build, passed for source build 27, as did
 `git diff --check`. Live provider execution and physical-device UI acceptance
 for the transcript task remain unverified. Per-change verification details belong in
 Git history, not in this handoff.

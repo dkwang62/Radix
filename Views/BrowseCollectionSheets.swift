@@ -1,5 +1,42 @@
 import SwiftUI
 
+struct RenameBrowseCollectionSheet: View {
+    @Binding var name: String
+    let error: String?
+    let onCancel: () -> Void
+    let onSave: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Page Name") {
+                    TextField("Page name", text: $name)
+                        .textInputAutocapitalization(.sentences)
+                        .submitLabel(.done)
+                        .onSubmit(onSave)
+                }
+
+                if let error {
+                    Text(error)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.red)
+                }
+            }
+            .navigationTitle("Rename Page")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: onCancel)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save", action: onSave)
+                        .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+            }
+        }
+    }
+}
+
 struct ManualBrowseCollectionSheet: View {
     @EnvironmentObject private var store: RadixStore
     @Binding var name: String

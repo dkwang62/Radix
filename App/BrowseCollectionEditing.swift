@@ -1,6 +1,23 @@
 import SwiftUI
 
 extension FilterGridTab {
+    func beginRenaming(_ collection: CharacterCollection) {
+        renamingCollectionName = collection.name
+        collectionRenameError = nil
+        renamingCollection = collection
+    }
+
+    func saveRenamedCollection(_ collection: CharacterCollection) {
+        let cleanName = store.collectionDisplayName(renamingCollectionName)
+        guard !cleanName.isEmpty else {
+            collectionRenameError = "Enter a page name."
+            return
+        }
+        store.renameCollection(id: collection.id, newName: cleanName)
+        renamingCollection = nil
+        collectionRenameError = nil
+    }
+
     func browseAlert(_ presentedAlert: BrowsePresentedAlert) -> Alert {
         switch presentedAlert {
         case .automaticAIFailure(let task):

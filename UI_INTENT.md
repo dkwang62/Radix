@@ -331,7 +331,8 @@ pages, so the open-page card should not spend a separate header row repeating
 the page name, icon, or character count. Do not add a separate in-content source
 button; the title dropdown owns Dictionary/saved-page switching, while other
 capture sources live under Camera/capture. Browse should own page-inspection
-controls that only make sense while looking at the page, such as Edit Page and
+controls that only make sense while looking at the page, such as Rename Page,
+Edit Page, and
 Choose Page Phrases. Browse should not own saved-page artifact work such as
 translation, AI OCR review, phrase extraction, quiz generation, sentence
 extraction, page conversation generation, or deletion. Keep frequently adjusted

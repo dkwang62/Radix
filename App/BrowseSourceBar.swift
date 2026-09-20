@@ -107,6 +107,9 @@ extension FilterGridTab {
 
             CollectionPageActionsMenu(
                 collection: collection,
+                onRename: {
+                    beginRenaming(collection)
+                },
                 onEdit: {
                     beginEditing(collection)
                 },

@@ -147,6 +147,7 @@ struct CollectionPageActionsMenu: View {
     }
 
     let collection: CharacterCollection
+    var onRename: (() -> Void)? = nil
     var onEdit: (() -> Void)? = nil
     var hasAutomaticAIConfiguration = false
     var onChoosePhrases: (() -> Void)? = nil
@@ -161,6 +162,14 @@ struct CollectionPageActionsMenu: View {
         Menu {
             if hasPageActions {
                 Section("Page") {
+                    if let onRename {
+                        Button {
+                            onRename()
+                        } label: {
+                            Label("Rename Page", systemImage: "character.cursor.ibeam")
+                        }
+                    }
+
                     if let onEdit {
                         Button {
                             onEdit()
@@ -247,7 +256,7 @@ struct CollectionPageActionsMenu: View {
     }
 
     private var hasPageActions: Bool {
-        onEdit != nil || onChoosePhrases != nil || onViewOriginalOCR != nil || onViewTranslation != nil || onDelete != nil
+        onRename != nil || onEdit != nil || onChoosePhrases != nil || onViewOriginalOCR != nil || onViewTranslation != nil || onDelete != nil
     }
 
     @ViewBuilder
