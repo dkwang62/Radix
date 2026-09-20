@@ -47,6 +47,7 @@ let package = Package(
                 "PageDeletionJournal.swift",
                 "RestoreRollbackJournal.swift",
                 "RestoreGenerationStore.swift",
+                "RestoreGenerationPreferences.swift",
                 "UnifiedPackage.swift",
                 "UserProfile.swift"
             ],

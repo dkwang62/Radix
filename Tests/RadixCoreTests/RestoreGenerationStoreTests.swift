@@ -62,6 +62,50 @@ struct RestoreGenerationStoreTests {
             #expect(store.isPending)
         }
     }
+
+    @Test("Staged restore batches preferences until the durable flush")
+    func stagedPreferencesCommitOnceAtFlush() throws {
+        try withGenerationStore { store in
+            let defaults = try #require(UserDefaults(suiteName: UUID().uuidString))
+            let writer = RestoreGenerationPreferences(generationStore: store, fallbackDefaults: defaults)
+            writer.set("old", forKey: "first")
+
+            _ = try store.beginStaging()
+            let staged = RestoreGenerationPreferences(generationStore: store, fallbackDefaults: defaults)
+            staged.beginBatch()
+            staged.set("new", forKey: "first")
+            staged.set("second", forKey: "second")
+
+            let beforeFlush = RestoreGenerationPreferences(generationStore: store, fallbackDefaults: defaults)
+            #expect(beforeFlush.object(forKey: "first") as? String == "old")
+            #expect(beforeFlush.object(forKey: "second") == nil)
+
+            try staged.flush()
+            let afterFlush = RestoreGenerationPreferences(generationStore: store, fallbackDefaults: defaults)
+            #expect(afterFlush.object(forKey: "first") as? String == "new")
+            #expect(afterFlush.object(forKey: "second") as? String == "second")
+            try staged.finishBatch()
+        }
+    }
+
+    @Test("Abandoned staged preference batch cannot replace the previous generation")
+    func abandonedStagedPreferencesRollBack() throws {
+        try withGenerationStore { store in
+            let defaults = try #require(UserDefaults(suiteName: UUID().uuidString))
+            let previous = RestoreGenerationPreferences(generationStore: store, fallbackDefaults: defaults)
+            previous.set("old", forKey: "value")
+
+            _ = try store.beginStaging()
+            let staged = RestoreGenerationPreferences(generationStore: store, fallbackDefaults: defaults)
+            staged.beginBatch()
+            staged.set("new", forKey: "value")
+            staged.abandonBatch()
+            try store.recoverPointerBeforeOpening()
+
+            let recovered = RestoreGenerationPreferences(generationStore: store, fallbackDefaults: defaults)
+            #expect(recovered.object(forKey: "value") as? String == "old")
+        }
+    }
 }
 
 private func writeGeneration(_ value: String, names: [String], store: RestoreGenerationStore) throws {

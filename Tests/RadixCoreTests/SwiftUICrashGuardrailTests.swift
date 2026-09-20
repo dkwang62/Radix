@@ -687,7 +687,17 @@ struct SwiftUICrashGuardrailTests {
         #expect(restore.contains("stageEmbeddedRestoreDatabases(document)"))
         #expect(restore.contains("sentenceData.write(to: sentenceURL, options: .atomic)"))
         #expect(restore.contains("phrasesData.write(to: phrasesURL, options: .atomic)"))
-        #expect(restore.contains("restoreGenerationStore.markPromoted()"))
+        let beginPreferenceBatch = try #require(restore.range(of: "beginStagedRestoreBatch()"))
+        let flushPreferences = try #require(restore.range(
+            of: "try flushRestorePersistence()",
+            range: beginPreferenceBatch.upperBound..<restore.endIndex
+        ))
+        let finishPreferenceBatch = try #require(restore.range(of: "finishStagedRestoreBatch()"))
+        let promoteGeneration = try #require(restore.range(of: "restoreGenerationStore.markPromoted()"))
+        #expect(beginPreferenceBatch.lowerBound < flushPreferences.lowerBound)
+        #expect(flushPreferences.lowerBound < finishPreferenceBatch.lowerBound)
+        #expect(finishPreferenceBatch.lowerBound < promoteGeneration.lowerBound)
+        #expect(restore.contains("abandonStagedRestoreBatch()"))
         #expect(restore.contains("restoreGenerationStore.finishPromotion()"))
 
         let recovery = try #require(lifecycle.range(of: "try await recoverPendingRestoreRollback()"))

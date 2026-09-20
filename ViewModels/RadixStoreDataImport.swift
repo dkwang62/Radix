@@ -254,10 +254,13 @@ extension RadixStore {
         _ = try restoreGenerationStore.beginStaging()
         RadixStudyPreferences.closeSentenceDatabaseForGenerationSwitch()
         phraseRepo.close()
+        var isPreferenceBatchActive = false
 
         do {
             try await stageEmbeddedRestoreDatabases(document)
             try phraseRepo.openFromBundle()
+            RadixPreferences.standard.beginStagedRestoreBatch()
+            isPreferenceBatchActive = true
             try importDataEditPayload(
                 document.payload,
                 mode: .complete,
@@ -269,6 +272,8 @@ extension RadixStore {
                 favoriteSentenceRevision += 1
             }
             try flushRestorePersistence()
+            try RadixPreferences.standard.finishStagedRestoreBatch()
+            isPreferenceBatchActive = false
             try validateActiveRestoreGeneration()
             try restoreGenerationStore.markPromoted()
 
@@ -278,6 +283,9 @@ extension RadixStore {
             try verifyPromotedRestoreCanOpen()
             try restoreGenerationStore.finishPromotion()
         } catch {
+            if isPreferenceBatchActive {
+                RadixPreferences.standard.abandonStagedRestoreBatch()
+            }
             RadixStudyPreferences.closeSentenceDatabaseForGenerationSwitch()
             phraseRepo.close()
             do {

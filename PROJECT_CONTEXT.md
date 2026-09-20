@@ -248,6 +248,10 @@ The Restore Backup confirmation does not create a separate checkpoint bundle:
 the retained previous generation is the recovery copy until the staged library
 reopens, avoiding a second full export before restore begins. User-created and
 scheduled checkpoints remain unchanged.
+Preference mutations made during a complete staged restore are batched in memory
+and durably written once before validation and promotion. A pre-flush interruption
+still rolls back to the previous generation; promotion never publishes an
+unflushed preference set.
 Legacy pending rollback documents remain readable. Additive restore and the
 source-checkout live-data development path retain the existing rollback journal;
 neither changes the portable backup format or page-deletion journal.
