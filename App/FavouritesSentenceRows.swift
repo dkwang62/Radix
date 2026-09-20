@@ -11,26 +11,28 @@ extension FavouritesTab {
                 showsPhoneTrailing: !isPhone || isSelectingSentenceExamples,
                 showsTrailing: !usesCompactLayout || isSelectingSentenceExamples,
                 openAccessibilityLabel: "Open sentence \(studyGridDisplayText(item.simplified))",
-                openAccessibilityHint: "Opens the sentence info card."
-            ) {
-                if isSelectingSentenceExamples {
-                    toggleSentenceExampleSelection(example)
-                } else {
-                    presentConversationPracticePhrase(item)
+                openAccessibilityHint: "Opens the sentence info card.",
+                onOpen: {
+                    if isSelectingSentenceExamples {
+                        toggleSentenceExampleSelection(example)
+                    } else {
+                        presentConversationPracticePhrase(item)
+                    }
+                },
+                trailing: {
+                    if isSelectingSentenceExamples {
+                        sentenceExampleSelectionButton(example)
+                    } else {
+                        sentenceExampleFavoriteButton(example)
+                        sentenceExampleActions(example)
+                    }
+                },
+                additionalContextMenu: {
+                    if (isPhone || usesCompactLayout) && !isSelectingSentenceExamples {
+                        sentenceExampleActionsMenuContent(example)
+                    }
                 }
-            } trailing: {
-                if isSelectingSentenceExamples {
-                    sentenceExampleSelectionButton(example)
-                } else {
-                    sentenceExampleFavoriteButton(example)
-                    sentenceExampleActions(example)
-                }
-            }
-            .contextMenu {
-                if (isPhone || usesCompactLayout) && !isSelectingSentenceExamples {
-                    sentenceExampleActionsMenuContent(example)
-                }
-            }
+            )
 
             if isSelected {
                 sentenceExampleSourceActions(example)

@@ -327,30 +327,32 @@ extension FavouritesTab {
             isSelected: isSelected,
             showsPhoneTrailing: !isPhone,
             openAccessibilityLabel: "Open phrase \(studyGridDisplayText(item.simplified))",
-            openAccessibilityHint: "Opens and reads the practice sentence."
-        ) {
-            presentConversationPracticePhrase(item)
-        } trailing: {
-            Button {
-                toggleFavoriteSentence(item)
-            } label: {
-                Image(systemName: isFavorite ? "star.fill" : "star")
-                    .font(.system(size: 14, weight: .semibold))
-                    .frame(width: 30, height: 30)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(isFavorite ? Color.yellow : .secondary)
-            .accessibilityLabel(isFavorite ? "Remove favorite sentence" : "Save favorite sentence")
-        }
-        .contextMenu {
-            if isPhone {
+            openAccessibilityHint: "Opens and reads the practice sentence.",
+            onOpen: {
+                presentConversationPracticePhrase(item)
+            },
+            trailing: {
                 Button {
                     toggleFavoriteSentence(item)
                 } label: {
-                    Label(isFavorite ? "Remove Favorite" : "Favorite", systemImage: RadixIcon.saved)
+                    Image(systemName: isFavorite ? "star.fill" : "star")
+                        .font(.system(size: 14, weight: .semibold))
+                        .frame(width: 30, height: 30)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(isFavorite ? Color.yellow : .secondary)
+                .accessibilityLabel(isFavorite ? "Remove favorite sentence" : "Save favorite sentence")
+            },
+            additionalContextMenu: {
+                if isPhone {
+                    Button {
+                        toggleFavoriteSentence(item)
+                    } label: {
+                        Label(isFavorite ? "Remove Favorite" : "Favorite", systemImage: RadixIcon.saved)
+                    }
                 }
             }
-        }
+        )
     }
 
     func presentConversationPracticePhrase(_ item: ConversationPracticeItem) {

@@ -216,6 +216,16 @@ extension FavouritesTab {
             } message: {
                 Text("This deletes all saved sentences from Study. Pages, phrases, and practices are not deleted. Radix creates a recovery copy first.")
             }
+            .alert("Sentence AI Failed", isPresented: Binding(
+                get: { sentenceRowAIErrorMessage != nil },
+                set: { if !$0 { sentenceRowAIErrorMessage = nil } }
+            )) {
+                Button("OK") {
+                    sentenceRowAIErrorMessage = nil
+                }
+            } message: {
+                Text(sentenceRowAIErrorMessage ?? "The AI service could not complete this sentence action.")
+            }
             .alert("Delete Saved Page?", isPresented: Binding(
                 get: { pendingStudyDeleteCollection != nil },
                 set: { if !$0 { pendingStudyDeleteCollection = nil } }

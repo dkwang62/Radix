@@ -177,65 +177,18 @@ extension PhraseInfoCard {
     @ViewBuilder
     var sentenceAIContextMenu: some View {
         if let practiceSentenceItem {
-            Menu("Explain Sentence") {
-                Button(PageAIMethodCopy.manualTitle) {
-                    store.triggerSentenceAI(practiceSentenceItem)
-                }
-                sentenceAutomaticAIButton(
-                    title: PageAIMethodCopy.apiTitle,
-                    isDisabled: isRunningSentenceImprovement
-                ) {
+            SentenceAIContextMenuContent(
+                item: practiceSentenceItem,
+                displayChinese: sentenceDisplayChinese,
+                english: sentenceEnglish,
+                isRunningAutomaticAI: isRunningSentenceImprovement,
+                onAutomaticExplanation: {
                     runAutomaticSentenceExplanation(practiceSentenceItem)
-                }
-            }
-
-            Menu("Improve Sentence") {
-                Button(PageAIMethodCopy.manualTitle) {
-                    store.goToAILinkSentenceTask(
-                        practiceSentenceItem,
-                        taskID: PromptConfig.sentenceImprovementTaskID
-                    )
-                }
-                sentenceAutomaticAIButton(
-                    title: PageAIMethodCopy.apiTitle,
-                    isDisabled: isRunningSentenceImprovement
-                ) {
+                },
+                onAutomaticImprovement: {
                     runAutomaticSentenceImprovement(practiceSentenceItem)
                 }
-            }
-
-            Divider()
-
-            Button {
-                RadixPlatform.copyToPasteboard(sentenceDisplayChinese)
-            } label: {
-                Label("Copy Chinese", systemImage: RadixIcon.copy)
-            }
-
-            let english = sentenceEnglish.trimmingCharacters(in: .whitespacesAndNewlines)
-            if !english.isEmpty {
-                Button {
-                    RadixPlatform.copyToPasteboard(english)
-                } label: {
-                    Label("Copy English", systemImage: RadixIcon.copy)
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    func sentenceAutomaticAIButton(
-        title: String,
-        isDisabled: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        if !store.hasAutomaticAIConfiguration {
-            Button("Set Up Automatic AI…") {
-                store.goToSettingsForAPIKeySetup()
-            }
-        } else {
-            Button(title, action: action)
-                .disabled(isDisabled)
+            )
         }
     }
 

@@ -35,6 +35,8 @@ struct StudySentenceScreenState {
     var pendingImport: PendingSentenceDatabaseImport?
     var isRunningTransfer = false
     var showsClearConfirmation = false
+    var isRunningRowAI = false
+    var rowAIErrorMessage: String?
 }
 
 struct StudyConversationPracticeScreenState {
@@ -248,6 +250,16 @@ extension FavouritesTab {
     var sentenceExampleStatusMessage: String? {
         get { screenState.sentences.statusMessage }
         nonmutating set { screenState.sentences.statusMessage = newValue }
+    }
+
+    var isRunningSentenceRowAI: Bool {
+        get { screenState.sentences.isRunningRowAI }
+        nonmutating set { screenState.sentences.isRunningRowAI = newValue }
+    }
+
+    var sentenceRowAIErrorMessage: String? {
+        get { screenState.sentences.rowAIErrorMessage }
+        nonmutating set { screenState.sentences.rowAIErrorMessage = newValue }
     }
 
     var sentenceExampleEditDraft: SentenceExampleEditDraft? {

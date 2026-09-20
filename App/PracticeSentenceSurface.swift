@@ -169,6 +169,31 @@ extension FavouritesTab {
         onOpen: @escaping () -> Void,
         @ViewBuilder trailing: () -> Trailing
     ) -> some View {
+        practiceSentenceRow(
+            item,
+            isSelected: isSelected,
+            showsPhoneTrailing: showsPhoneTrailing,
+            showsTrailing: showsTrailing,
+            openAccessibilityLabel: openAccessibilityLabel,
+            openAccessibilityHint: openAccessibilityHint,
+            onOpen: onOpen,
+            trailing: trailing,
+            additionalContextMenu: { EmptyView() }
+        )
+    }
+
+    @ViewBuilder
+    func practiceSentenceRow<Trailing: View, AdditionalContextMenu: View>(
+        _ item: ConversationPracticeItem,
+        isSelected: Bool,
+        showsPhoneTrailing: Bool = true,
+        showsTrailing: Bool = true,
+        openAccessibilityLabel: String,
+        openAccessibilityHint: String,
+        onOpen: @escaping () -> Void,
+        @ViewBuilder trailing: () -> Trailing,
+        @ViewBuilder additionalContextMenu: () -> AdditionalContextMenu
+    ) -> some View {
         if isPhone {
             VStack(alignment: .leading, spacing: 4) {
                 Button {
@@ -204,6 +229,10 @@ extension FavouritesTab {
                 border: conversationPracticeSentenceBorderColor(isSelected: isSelected),
                 borderWidth: 1.4
             )
+            .contextMenu {
+                practiceSentenceAIContextMenu(item)
+                additionalContextMenu()
+            }
         } else {
             HStack(alignment: .center, spacing: 6) {
                 Button {
@@ -244,6 +273,73 @@ extension FavouritesTab {
                 border: conversationPracticeSentenceBorderColor(isSelected: isSelected),
                 borderWidth: 1.4
             )
+            .contextMenu {
+                practiceSentenceAIContextMenu(item)
+                additionalContextMenu()
+            }
+        }
+    }
+
+    func practiceSentenceAIContextMenu(_ item: ConversationPracticeItem) -> some View {
+        SentenceAIContextMenuContent(
+            item: item,
+            displayChinese: practiceSentenceDisplayText(item.simplified),
+            english: item.english,
+            isRunningAutomaticAI: isRunningSentenceRowAI,
+            onAutomaticExplanation: {
+                runAutomaticSentenceRowExplanation(item)
+            },
+            onAutomaticImprovement: {
+                runAutomaticSentenceRowImprovement(item)
+            }
+        )
+    }
+
+    func runAutomaticSentenceRowExplanation(_ item: ConversationPracticeItem) {
+        guard store.hasAutomaticAIConfiguration, !isRunningSentenceRowAI else {
+            if !store.hasAutomaticAIConfiguration {
+                store.goToSettingsForAPIKeySetup()
+            }
+            return
+        }
+
+        isRunningSentenceRowAI = true
+        Task { @MainActor in
+            defer { isRunningSentenceRowAI = false }
+            do {
+                let explanation = try await store.runAutomaticSentenceExplanation(for: item)
+                store.publishLatestAIResult(
+                    taskTitle: "Explain Sentence",
+                    subject: item.simplified,
+                    body: explanation
+                )
+                store.showLatestAIResult = true
+                RadixHaptics.success()
+            } catch {
+                sentenceRowAIErrorMessage = error.localizedDescription
+                RadixHaptics.error()
+            }
+        }
+    }
+
+    func runAutomaticSentenceRowImprovement(_ item: ConversationPracticeItem) {
+        guard store.hasAutomaticAIConfiguration, !isRunningSentenceRowAI else {
+            if !store.hasAutomaticAIConfiguration {
+                store.goToSettingsForAPIKeySetup()
+            }
+            return
+        }
+
+        isRunningSentenceRowAI = true
+        Task { @MainActor in
+            defer { isRunningSentenceRowAI = false }
+            do {
+                _ = try await store.runAutomaticSentenceImprovement(to: item)
+                RadixHaptics.success()
+            } catch {
+                sentenceRowAIErrorMessage = error.localizedDescription
+                RadixHaptics.error()
+            }
         }
     }
 

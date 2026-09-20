@@ -422,17 +422,24 @@ struct SwiftUICrashGuardrailTests {
         #expect(controlsSource.contains("usesTraditionalScript: sentenceUsesTraditionalScript"))
     }
 
-    @Test("Sentence text gives right-click ownership to the shared AI menu")
-    func sentenceTextKeepsAIContextMenu() throws {
-        let source = try sourceText(at: "Views/PhraseInfoSentence.swift")
+    @Test("Sentence cards and main rows share the AI context menu")
+    func sentenceSurfacesShareAIContextMenu() throws {
+        let cardSource = try sourceText(at: "Views/PhraseInfoSentence.swift")
+        let rowSource = try sourceText(at: "App/PracticeSentenceSurface.swift")
+        let menuSource = try sourceText(at: "Views/SentenceAIContextMenu.swift")
 
-        #expect(source.contains("var sentenceAIContextMenu: some View"))
-        #expect(source.components(separatedBy: "sentenceAIContextMenu\n").count - 1 == 3)
-        #expect(!source.contains(".textSelection(.enabled)"))
-        #expect(source.components(separatedBy: "Menu(\"Explain Sentence\")").count - 1 == 1)
-        #expect(source.components(separatedBy: "Menu(\"Improve Sentence\")").count - 1 == 1)
-        #expect(source.contains("Label(\"Copy Chinese\", systemImage: RadixIcon.copy)"))
-        #expect(source.contains("Label(\"Copy English\", systemImage: RadixIcon.copy)"))
+        #expect(cardSource.contains("var sentenceAIContextMenu: some View"))
+        #expect(cardSource.components(separatedBy: "sentenceAIContextMenu\n").count - 1 == 3)
+        #expect(cardSource.contains("SentenceAIContextMenuContent("))
+        #expect(!cardSource.contains(".textSelection(.enabled)"))
+        #expect(rowSource.contains("practiceSentenceAIContextMenu(item)"))
+        #expect(rowSource.components(separatedBy: ".contextMenu {").count - 1 == 2)
+        #expect(rowSource.contains("additionalContextMenu()"))
+        #expect(rowSource.contains("sentenceRowAIErrorMessage = error.localizedDescription"))
+        #expect(menuSource.components(separatedBy: "Menu(\"Explain Sentence\")").count - 1 == 1)
+        #expect(menuSource.components(separatedBy: "Menu(\"Improve Sentence\")").count - 1 == 1)
+        #expect(menuSource.contains("Label(\"Copy Chinese\", systemImage: RadixIcon.copy)"))
+        #expect(menuSource.contains("Label(\"Copy English\", systemImage: RadixIcon.copy)"))
     }
 
     @Test("Quiz script changes cannot score one item twice")

@@ -344,7 +344,9 @@ AI is a shared workflow, not a collection of separate mini-features.
 - Sentence cards expose one shared Explain/Improve AI menu from the card and
   directly from Chinese or English text. Those text views do not enable native
   selection because it consumes Mac right-clicks; the shared menu preserves
-  explicit Copy Chinese and Copy English actions.
+  explicit Copy Chinese and Copy English actions. Main-panel sentence rows use
+  that same component before any row-specific Favorite/Edit/Delete actions;
+  automatic failures are shown in Study rather than discarded.
 - The AI workspace owns template editing, template revision, test execution,
   manual copy/open handoff, automatic AI execution, and paste/apply.
 - Manual handoff copies the full prompt and opens the configured AI app. Do not
