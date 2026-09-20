@@ -1069,9 +1069,11 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					76012F3749C20408F136C2B3 = {
+						DevelopmentTeam = 7PSNWRPJ5B;
 						ProvisioningStyle = Automatic;
 					};
 					9A2C34EBA20C223705DFBC02 = {
+						DevelopmentTeam = 7PSNWRPJ5B;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -1436,7 +1438,8 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/RadixShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 18;
+				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -1463,7 +1466,8 @@
 				CODE_SIGN_ENTITLEMENTS = App/Radix.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 18;
+				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -1487,7 +1491,8 @@
 				CODE_SIGN_ENTITLEMENTS = App/Radix.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 18;
+				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -1509,7 +1514,8 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/RadixShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 18;
+				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
