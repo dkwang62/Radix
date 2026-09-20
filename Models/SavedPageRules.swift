@@ -708,32 +708,109 @@ struct PagePhraseExtractionRecord: Codable, Equatable, Hashable, Identifiable {
     }
 }
 
-/// Transcript imports require complete bilingual JSON; the page importer's plain-text
-/// salvage path must not turn a provider error or incomplete answer into saved sentences.
+/// Repair presentation/optional metadata only. Never salvage incomplete bilingual
+/// entries as plain text or discard an invalid sentence from an otherwise valid list.
 enum TranscriptSentenceImportParser {
-    private struct Entry: Decodable {
-        let id: String
-        let chinese: String
-        let pinyin: String
-        let english: String
-        let phrase_hints: [String]
+    struct ImportError: LocalizedError {
+        let detail: String
+        var errorDescription: String? { detail + " No sentences were saved." }
     }
 
     static func parse(_ text: String, sourcePageID: UUID, sourceTitle: String) throws -> AICleanedPageRecord {
-        for candidate in ConversationPracticeRules.importJSONCandidates(from: text) {
-            guard let data = candidate.data(using: .utf8),
-                  let entries = try? JSONDecoder().decode([Entry].self, from: data),
-                  !entries.isEmpty,
-                  entries.allSatisfy({ entry in
-                      !entry.id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-                      entry.chinese.range(of: "\\p{Han}", options: .regularExpression) != nil &&
-                      !entry.pinyin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-                      !entry.english.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-                      entry.phrase_hints.allSatisfy { !$0.isEmpty && entry.chinese.contains($0) }
-                  }) else { continue }
-            return try AICleanedPageImportParser.parse(candidate, sourcePageID: sourcePageID, sourceTitle: sourceTitle)
+        let body = try jsonBody(text)
+        let repaired = removingTrailingCommas(body)
+        let data = Data(repaired.utf8)
+        let root: Any
+        do {
+            root = try JSONSerialization.jsonObject(with: data)
+        } catch {
+            // AI chats sometimes omit the outer brackets around a list of objects.
+            guard repaired.first == "{",
+                  let objects = try? JSONSerialization.jsonObject(with: Data(("[" + repaired + "]").utf8)) else {
+                throw ImportError(detail: "The JSON is incomplete or has broken quotation marks. Paste the full AI answer.")
+            }
+            root = objects
         }
-        throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription:
-            "Use the complete JSON sentence array with id, chinese, pinyin, english, and phrase_hints. No sentences were saved."))
+        let rows: Any
+        if let object = root as? [String: Any] {
+            rows = object["sentences"] ?? object["entries"] ?? [object]
+        } else { rows = root }
+        guard let list = rows as? [[String: Any]], !list.isEmpty else {
+            throw ImportError(detail: "Paste a JSON sentence list with Chinese, pinyin, and English.")
+        }
+        let entries = try JSONDecoder().decode([AICleanedPageSentence].self,
+            from: JSONSerialization.data(withJSONObject: list))
+        var sentences: [AICleanedPageSentence] = []
+        var seenIDs = Set<String>()
+        var omittedHintCount = 0
+        for (index, entry) in entries.enumerated() {
+            let chinese = entry.chinese.trimmingCharacters(in: .whitespacesAndNewlines)
+            let pinyin = entry.pinyin?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let english = entry.english?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            guard chinese.range(of: "\\p{Han}", options: .regularExpression) != nil,
+                  !pinyin.isEmpty, !english.isEmpty else {
+                throw ImportError(detail: "Sentence \(index + 1) needs Chinese, pinyin, and English. Complete that entry and try again.")
+            }
+            var id = entry.id.trimmingCharacters(in: .whitespacesAndNewlines)
+            if id.isEmpty || seenIDs.contains(id) {
+                var sequence = index + 1
+                repeat {
+                    id = String(format: "ai_page_sentence_%03d", sequence)
+                    sequence += 1
+                } while seenIDs.contains(id)
+            }
+            seenIDs.insert(id)
+            let hints = entry.phraseHints.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty && chinese.contains($0) }
+            omittedHintCount += entry.phraseHints.count - hints.count
+            sentences.append(AICleanedPageSentence(id: id, chinese: chinese,
+                pinyin: pinyin, english: english, phraseHints: PagePhraseExtractionRecord.deduplicated(hints)))
+        }
+        return AICleanedPageRecord(sourcePageID: sourcePageID, sourceTitle: sourceTitle,
+            cleanedTitle: sourceTitle, cleanedChineseText: sentences.map(\.chinese).joined(separator: "\n"),
+            sentences: sentences, repairNotes: omittedHintCount == 0 ? [] : [
+                "Ignored \(omittedHintCount) phrase hint(s) that did not occur in their sentence. Sentence text was preserved."
+            ], createdAt: Date())
+    }
+
+    private static func jsonBody(_ text: String) throws -> String {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let start = trimmed.firstIndex(where: { $0 == "[" || $0 == "{" }) else {
+            throw ImportError(detail: "Paste the AI's JSON sentence list.")
+        }
+        let closing: Character = trimmed[start] == "[" ? "]" : "}"
+        guard let end = trimmed.lastIndex(of: closing), end > start else {
+            throw ImportError(detail: "The JSON is cut off. Paste the complete AI answer.")
+        }
+        let suffix = trimmed[trimmed.index(after: end)...]
+        // Do not mistake a truncated additional entry for harmless closing prose.
+        guard !suffix.contains(where: { "{}[]\"".contains($0) }) else {
+            throw ImportError(detail: "The JSON is cut off. Paste the complete AI answer.")
+        }
+        return String(trimmed[start...end])
+    }
+
+    private static func removingTrailingCommas(_ text: String) -> String {
+        let characters = Array(text)
+        var result = ""
+        var inString = false
+        var escaped = false
+        for (index, character) in characters.enumerated() {
+            if inString {
+                result.append(character)
+                if escaped { escaped = false }
+                else if character == "\\" { escaped = true }
+                else if character == "\"" { inString = false }
+                continue
+            }
+            if character == "\"" { inString = true }
+            if character == "," {
+                var next = index + 1
+                while next < characters.count && characters[next].isWhitespace { next += 1 }
+                if next < characters.count && ["}", "]"].contains(characters[next]) { continue }
+            }
+            result.append(character)
+        }
+        return result
     }
 }
