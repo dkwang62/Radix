@@ -346,11 +346,11 @@ AI is a shared workflow, not a collection of separate mini-features.
 - Manual handoff copies the full prompt and opens the configured AI app. Do not
   place Chinese page text in a ChatGPT URL query: it corrupts CJK on iPad.
 - Automatic AI is optional and must always retain the manual fallback. Gemini
-  remains the default direct backend; Custom AI may run automatic tasks through
-  an OpenAI-compatible `/v1/chat/completions` endpoint such as FreeLLMAPI using
-  the saved Custom AI URL/key and model `auto`. The Settings screen includes a
+  remains the default direct backend; FreeLLMAPI may run automatic tasks through
+  its OpenAI-compatible `/v1/chat/completions` endpoint using
+  the saved FreeLLMAPI URL/key and model `auto`. The Settings screen includes a
   `Use Local FreeLLMAPI` action that saves the local endpoint/key together;
-  selecting Custom AI also backfills the local FreeLLMAPI URL/key when either
+  selecting FreeLLMAPI also backfills the local URL/key when either
   saved value is blank.
 - `Test AI` runs a template but never applies its output.
 - Only custom templates are deletable. Built-in templates normalize legacy

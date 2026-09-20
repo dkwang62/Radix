@@ -4,6 +4,12 @@ import Testing
 
 @Suite("Cross-platform data choices")
 struct DataChoiceCompatibilityTests {
+    @Test("FreeLLMAPI keeps the compatible custom provider identifier")
+    func freeLLMAPIProviderIdentity() {
+        #expect(DefaultAIPreset.custom.rawValue == "custom")
+        #expect(DefaultAIPreset.custom.displayName == "FreeLLMAPI")
+    }
+
     @Test("Script-filter identifiers remain profile compatible")
     func scriptFilterIdentifiers() {
         #expect(ScriptFilter.any.rawValue == "Any")

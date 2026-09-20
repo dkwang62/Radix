@@ -92,7 +92,7 @@ extension DataBackupPreviewSection {
             BackupSummaryLine(title: "Chosen AI app", value: store.defaultAIName)
             BackupSummaryLine(title: "Saved AI keys", value: "\(store.currentAPIKeyBackup().savedCount)")
             if store.defaultAIPreset == .custom {
-                BackupSummaryLine(title: "Custom AI URL", value: store.defaultAIBaseURLString.isEmpty ? "None" : store.defaultAIBaseURLString)
+                BackupSummaryLine(title: "FreeLLMAPI URL", value: store.defaultAIBaseURLString.isEmpty ? "None" : store.defaultAIBaseURLString)
             }
             BackupSummaryLine(title: "Recent searches", value: "\(store.searchHistory.count)")
             BackupSummaryLine(title: "Remembered characters", value: "\(store.rootBreadcrumb.count)")

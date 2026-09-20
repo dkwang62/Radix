@@ -327,7 +327,7 @@ private struct PageAIOrientationView: View {
                         method(
                             icon: "sparkles",
                             title: PageAIMethodCopy.apiTitle,
-                            detail: "Radix sends the task directly to the configured automatic AI provider and returns the result to the page workflow. Gemini is the default; Custom AI can use an OpenAI-compatible endpoint such as FreeLLMAPI."
+                            detail: "Radix sends the task directly to the configured automatic AI provider and returns the result to the page workflow. Gemini is the default; FreeLLMAPI uses the configured local OpenAI-compatible endpoint."
                         )
 
                         Text("You can edit the saved prompts for text checking, phrase extraction, page explanation, quiz, sentence extraction, and page practice in AI Link.")

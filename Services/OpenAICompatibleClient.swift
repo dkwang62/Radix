@@ -13,10 +13,10 @@ struct OpenAICompatibleClient {
     ) async throws -> String {
         let cleanKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanKey.isEmpty else {
-            throw NSError(domain: "Radix", code: 4101, userInfo: [NSLocalizedDescriptionKey: "Missing Custom AI API key."])
+            throw NSError(domain: "Radix", code: 4101, userInfo: [NSLocalizedDescriptionKey: "Missing FreeLLMAPI API key."])
         }
         guard let url = OpenAICompatibleEndpoint(baseURLString: baseURLString).chatCompletionsURL else {
-            throw NSError(domain: "Radix", code: 4102, userInfo: [NSLocalizedDescriptionKey: "Invalid Custom AI URL."])
+            throw NSError(domain: "Radix", code: 4102, userInfo: [NSLocalizedDescriptionKey: "Invalid FreeLLMAPI URL."])
         }
 
         var request = URLRequest(url: url)
@@ -40,7 +40,7 @@ struct OpenAICompatibleClient {
 
         let text = Self.responseText(from: data).trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else {
-            throw NSError(domain: "Radix", code: 4103, userInfo: [NSLocalizedDescriptionKey: "Custom AI returned an empty response."])
+            throw NSError(domain: "Radix", code: 4103, userInfo: [NSLocalizedDescriptionKey: "FreeLLMAPI returned an empty response."])
         }
         return text
     }
@@ -97,7 +97,7 @@ struct OpenAICompatibleClient {
     }
 
     static func userFacingErrorMessage(statusCode: Int, data: Data) -> String {
-        let fallback = "Custom AI request failed (\(statusCode)). Check the Custom AI URL and API key in Settings."
+        let fallback = "FreeLLMAPI request failed (\(statusCode)). Check the FreeLLMAPI URL and API key in Settings."
         guard
             let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
             let error = object["error"] as? [String: Any]
@@ -107,13 +107,13 @@ struct OpenAICompatibleClient {
 
         let message = error["message"] as? String ?? ""
         if statusCode == 401 || statusCode == 403 {
-            return "Custom AI access was denied. Check the Custom AI API key in Settings."
+            return "FreeLLMAPI access was denied. Check the FreeLLMAPI API key in Settings."
         }
         if statusCode == 429 {
-            return "Custom AI quota was reached. Wait a bit or check your FreeLLMAPI/provider quotas."
+            return "FreeLLMAPI quota was reached. Wait a bit or check your provider quotas."
         }
         if !message.isEmpty {
-            return "Custom AI request failed (\(statusCode)): \(message)"
+            return "FreeLLMAPI request failed (\(statusCode)): \(message)"
         }
         return fallback
     }

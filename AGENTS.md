@@ -62,7 +62,7 @@ This section is maintained by Personal Librarian so work can continue on another
 
 ## Goal
 
-Use FreeLLMAPI with Radix as the configured OpenAI-compatible Custom AI backend for automatic AI execution, while preserving the existing Gemini automatic path and manual AI fallback.
+Use FreeLLMAPI with Radix as the configured OpenAI-compatible automatic AI backend, while preserving the existing Gemini automatic path and manual AI fallback.
 
 ## Current state
 
@@ -73,15 +73,15 @@ FreeLLMAPI/OpenAI-compatible support is implemented and committed:
 - `e370f0d` adds the OpenAI-compatible client, request/response models, provider selection, and focused tests.
 - `cae3ee1` fixes automatic AI configuration guards.
 - `663e583` completes provider-neutral Automatic AI UI wording and iconography.
-- `PROJECT_CONTEXT.md` documents that Gemini remains the default direct backend, while Custom AI can run automatic tasks through an OpenAI-compatible `/v1/chat/completions` endpoint such as FreeLLMAPI using model `auto`.
-- Radix now has a `Use Local FreeLLMAPI` Settings action and backfills the local FreeLLMAPI URL/key when Custom AI is selected and either saved value is blank.
+- `PROJECT_CONTEXT.md` documents that Gemini remains the default direct backend, while FreeLLMAPI can run automatic tasks through its OpenAI-compatible `/v1/chat/completions` endpoint using model `auto`.
+- Radix now has a `Use Local FreeLLMAPI` Settings action and backfills the local FreeLLMAPI URL/key when FreeLLMAPI is selected and either saved value is blank.
 
 Local FreeLLMAPI setup:
 
 - Repository: `/Users/desmondkwang/Developer/freellmapi`
 - Dashboard: `http://127.0.0.1:3001`
-- Radix Custom AI URL: `http://127.0.0.1:3001/v1`
-- Radix Custom AI API key: `freellmapi-e4b60d507b8dd44b5d99efde671dcb9f69aab48f39c29ce0`
+- Radix FreeLLMAPI URL: `http://127.0.0.1:3001/v1`
+- Radix FreeLLMAPI API key: `freellmapi-e4b60d507b8dd44b5d99efde671dcb9f69aab48f39c29ce0`
 - First-run setup code printed by FreeLLMAPI: `RN9FJZD9WS`
 - Launch agent: `/Users/desmondkwang/Library/LaunchAgents/co.freellmapi.local.plist`
 - Logs: `/Users/desmondkwang/Developer/freellmapi/logs/freellmapi.out.log`
@@ -93,7 +93,7 @@ Radix host defaults have been written for bundle `com.desmond.radix`:
 - `radix.customAIURL = http://127.0.0.1:3001/v1`
 - `radix.customAIAPIKey = freellmapi-e4b60d507b8dd44b5d99efde671dcb9f69aab48f39c29ce0`
 
-If Radix is run in an iOS Simulator or on a physical device with a separate app container, choose Settings > AI Link > Custom AI, then tap `Use Local FreeLLMAPI` to save the URL/key inside that app instance.
+If Radix is run in an iOS Simulator or on a physical device with a separate app container, choose Settings > AI Link > FreeLLMAPI, then tap `Use Local FreeLLMAPI` to save the URL/key inside that app instance.
 
 ## Verification
 
@@ -114,6 +114,6 @@ FreeLLMAPI local verification passed:
 1. Open the FreeLLMAPI dashboard at `http://127.0.0.1:3001`.
 2. Create the first admin account, using setup code `RN9FJZD9WS` if the dashboard asks for it.
 3. Add at least one provider key in FreeLLMAPI, such as Groq, Cerebras, Google AI Studio, Mistral, NVIDIA, or OpenRouter.
-4. In Radix, choose Settings > AI Link > Custom AI, then tap `Use Local FreeLLMAPI` if the app asks to set up Custom AI.
+4. In Radix, choose Settings > AI Link > FreeLLMAPI, then tap `Use Local FreeLLMAPI` if the app asks to set up FreeLLMAPI.
 5. Run a Radix automatic AI task; manual fallback must remain available for any provider failure.
 <!-- personal-librarian-context:end -->

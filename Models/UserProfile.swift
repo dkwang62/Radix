@@ -33,7 +33,7 @@ enum DefaultAIPreset: String, Codable, CaseIterable, Hashable {
         case .gemini: return "Gemini"
         case .claude: return "Claude"
         case .chatGPT: return "ChatGPT"
-        case .custom: return "Custom AI"
+        case .custom: return "FreeLLMAPI"
         }
     }
 

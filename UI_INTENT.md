@@ -599,6 +599,9 @@ Settings should not make AI configuration feel like one large key vault. Keep
 `AI Link` settings about where manual prompts open, keep `Automatic AI` for
 Gemini key/model setup used by direct Radix actions, and keep `Manual AI Keys`
 for non-Gemini provider keys used by copy-and-paste workflows.
+Label the local OpenAI-compatible automatic provider `FreeLLMAPI` in every
+user-facing surface. Preserve the internal `.custom` identifier for saved-data
+compatibility; do not expose that implementation name as `Custom AI`.
 
 ## Backup and checkpoint grammar
 

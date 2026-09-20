@@ -79,7 +79,7 @@ struct SettingsView: View {
                     }
 
                     TextField(
-                        "Custom AI URL",
+                        "FreeLLMAPI URL",
                         text: storeBinding(\.customAIURLString)
                     )
                     .textInputAutocapitalization(.never)
@@ -125,7 +125,7 @@ struct SettingsView: View {
             } header: {
                 Text("Automatic AI")
             } footer: {
-                Text("Optional. Uses Gemini by default, or Custom AI when it points to an OpenAI-compatible endpoint with a Custom AI API key. Manual AI fallback remains available.")
+                Text("Optional. Uses Gemini by default, or FreeLLMAPI with its local URL and API key. Manual AI fallback remains available.")
             }
 
             Section {
@@ -133,7 +133,7 @@ struct SettingsView: View {
                     apiKeyField("OpenAI API key", text: storeBinding(\.openAIAPIKey))
                     apiKeyField("Claude API key", text: storeBinding(\.claudeAPIKey))
                     apiKeyField("DeepSeek API key", text: storeBinding(\.deepSeekAPIKey))
-                    apiKeyField("Custom AI API key", text: storeBinding(\.customAIAPIKey))
+                    apiKeyField("FreeLLMAPI API key", text: storeBinding(\.customAIAPIKey))
                 } label: {
                     HStack(spacing: 8) {
                         Label("Manual AI Keys", systemImage: "key.fill")
