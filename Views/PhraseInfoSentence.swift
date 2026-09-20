@@ -161,6 +161,9 @@ extension PhraseInfoCard {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                     .textSelection(.enabled)
+                    .contextMenu {
+                        sentenceAIContextMenu
+                    }
             }
         }
         .padding(12)
@@ -168,32 +171,37 @@ extension PhraseInfoCard {
         .background(RadixTheme.secondaryBackground.opacity(0.45))
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .contextMenu {
-            if let practiceSentenceItem {
-                Menu("Explain Sentence") {
-                    Button(PageAIMethodCopy.manualTitle) {
-                        store.triggerSentenceAI(practiceSentenceItem)
-                    }
-                    sentenceAutomaticAIButton(
-                        title: PageAIMethodCopy.apiTitle,
-                        isDisabled: isRunningSentenceImprovement
-                    ) {
-                        runAutomaticSentenceExplanation(practiceSentenceItem)
-                    }
-                }
+            sentenceAIContextMenu
+        }
+    }
 
-                Menu("Improve Sentence") {
-                    Button(PageAIMethodCopy.manualTitle) {
-                        store.goToAILinkSentenceTask(
-                            practiceSentenceItem,
-                            taskID: PromptConfig.sentenceImprovementTaskID
-                        )
-                    }
-                    sentenceAutomaticAIButton(
-                        title: PageAIMethodCopy.apiTitle,
-                        isDisabled: isRunningSentenceImprovement
-                    ) {
-                        runAutomaticSentenceImprovement(practiceSentenceItem)
-                    }
+    @ViewBuilder
+    var sentenceAIContextMenu: some View {
+        if let practiceSentenceItem {
+            Menu("Explain Sentence") {
+                Button(PageAIMethodCopy.manualTitle) {
+                    store.triggerSentenceAI(practiceSentenceItem)
+                }
+                sentenceAutomaticAIButton(
+                    title: PageAIMethodCopy.apiTitle,
+                    isDisabled: isRunningSentenceImprovement
+                ) {
+                    runAutomaticSentenceExplanation(practiceSentenceItem)
+                }
+            }
+
+            Menu("Improve Sentence") {
+                Button(PageAIMethodCopy.manualTitle) {
+                    store.goToAILinkSentenceTask(
+                        practiceSentenceItem,
+                        taskID: PromptConfig.sentenceImprovementTaskID
+                    )
+                }
+                sentenceAutomaticAIButton(
+                    title: PageAIMethodCopy.apiTitle,
+                    isDisabled: isRunningSentenceImprovement
+                ) {
+                    runAutomaticSentenceImprovement(practiceSentenceItem)
                 }
             }
         }
@@ -334,6 +342,9 @@ extension PhraseInfoCard {
             .fixedSize(horizontal: false, vertical: true)
             .textSelection(.enabled)
             .accessibilityLabel(sentenceDisplayChinese)
+            .contextMenu {
+                sentenceAIContextMenu
+            }
     }
 
     @ViewBuilder
