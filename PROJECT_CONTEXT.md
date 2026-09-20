@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `25` (not yet distributed). Every committed application
+current source version is `1.1` build `26` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -383,7 +383,10 @@ AI is a shared workflow, not a collection of separate mini-features.
   is never changed by format repair; incomplete entries still reject the batch. Provider errors and incomplete
   bilingual answers are rejected before creating a page. Valid results reuse
   the saved-page sentence store and indexing; the original transcript is kept in
-  the manual page's source text. Reapplying the same transcript updates its list.
+  the manual page's source text. Manual answer import validates the answer
+  first and uses its Chinese as page source if Source Text is empty/non-Chinese;
+  users do not need to paste the source again after a restart. Reapplying the
+  same transcript updates its list.
   New transcript pages use the existing free-page allowance. Open in Study uses
   the ordinary page learning workspace.
 - Page AI tasks use `CollectionPageAITaskKind` and shared page action menus.
@@ -525,9 +528,9 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 ## Required Verification
 
-Latest application baseline (2026-09-20): `swift test` passed 208 tests in
+Latest application baseline (2026-09-20): `swift test` passed 210 tests in
 18 suites. Signing-disabled Mac Catalyst and generic iOS device builds, plus
-the generic iOS Simulator build, passed for source build 25, as did
+the generic iOS Simulator build, passed for source build 26, as did
 `git diff --check`. Live provider execution and physical-device UI acceptance
 for the transcript task remain unverified. Per-change verification details belong in
 Git history, not in this handoff.

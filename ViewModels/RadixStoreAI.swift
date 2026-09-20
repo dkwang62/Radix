@@ -481,21 +481,24 @@ extension RadixStore {
     }
 
     func importTranscriptSentences(_ response: String, sourceText: String) throws -> AICleanedPageRecord {
-        let source = sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard collectionCharacterValidation(for: source).hasChineseCharacters else {
-            throw AIResultApplicationError.emptyCorrectedOCR
-        }
+        // Validate the answer first: a manual import does not require a second paste
+        // into Source Text, and malformed answers must never create an empty page.
+        let parsed = try TranscriptSentenceImportParser.parse(response, sourcePageID: UUID(), sourceTitle: "Transcript")
+        let source = TranscriptSentenceImportParser.pageSourceText(original: sourceText, parsed: parsed)
         // Reapplying a result for the same transcript updates its existing sentence list.
         let existing = allCollections.first { $0.sourceType == .manual && $0.name == "Transcript" && $0.originalOCRText == source }
-        let pageID = existing?.id ?? UUID()
-        let record = try TranscriptSentenceImportParser.parse(response, sourcePageID: pageID, sourceTitle: "Transcript")
+        let pageID = existing?.id ?? parsed.sourcePageID
+        let record = AICleanedPageRecord(sourcePageID: pageID, sourceTitle: parsed.sourceTitle,
+            cleanedTitle: parsed.cleanedTitle, cleanedChineseText: parsed.cleanedChineseText,
+            sentences: parsed.sentences, englishSummary: parsed.englishSummary,
+            repairNotes: parsed.repairNotes, createdAt: parsed.createdAt)
         if existing == nil && entitlement.requiresPro(.datedCopies) && RadixCaptureUsage.freeScanCount >= 100 {
             showPaywall(for: .datedCopies)
             throw NSError(domain: "Radix.Transcript", code: 1, userInfo: [NSLocalizedDescriptionKey: "The free page allowance has been used. Your transcript is still available."])
         }
         guard (existing ?? createCollection(id: pageID, name: "Transcript", sourceText: source,
                                                       sourceType: .manual, originalOCRText: source)) != nil else {
-            throw AIResultApplicationError.emptyCorrectedOCR
+            throw TranscriptSentenceImportParser.ImportError(detail: "Radix could not create the transcript page. Finish any backup recovery and try Save Sentences again.")
         }
         if existing == nil && entitlement.requiresPro(.datedCopies) {
             _ = RadixCaptureUsage.incrementFreeScanCount(limit: 100)

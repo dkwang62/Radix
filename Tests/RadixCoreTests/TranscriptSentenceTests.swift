@@ -93,6 +93,20 @@ struct TranscriptSentenceTests {
         }
     }
 
+    @Test func manualAnswerSuppliesChineseWhenOriginalSourceIsUnavailable() throws {
+        let record = try parse(valid)
+        for source in ["", "   \n", "YouTube transcript"] {
+            let pageText = TranscriptSentenceImportParser.pageSourceText(original: source, parsed: record)
+            #expect(pageText == "他是一个学生。")
+            #expect(CaptureTextExtractor.characterValidation(in: pageText, dictionaryContains: { _ in false }).hasChineseCharacters)
+        }
+    }
+
+    @Test func manualAnswerPreservesOriginalTranscriptWhenPresent() throws {
+        let record = try parse(valid)
+        #expect(TranscriptSentenceImportParser.pageSourceText(original: "  他是\n一个学生  ", parsed: record) == "他是\n一个学生")
+    }
+
     private func parse(_ text: String) throws -> AICleanedPageRecord {
         try TranscriptSentenceImportParser.parse(text, sourcePageID: UUID(), sourceTitle: "Transcript")
     }

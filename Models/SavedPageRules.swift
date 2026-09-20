@@ -773,6 +773,14 @@ enum TranscriptSentenceImportParser {
             ], createdAt: Date())
     }
 
+    static func pageSourceText(original: String, parsed: AICleanedPageRecord) -> String {
+        let source = original.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Manual handoff can return after the source field was cleared or the app restarted.
+        // The validated answer already carries all Chinese needed to create its page.
+        return CaptureTextExtractor.allCharactersInOrder(in: source).isEmpty
+            ? parsed.cleanedChineseText : source
+    }
+
     private static func jsonBody(_ text: String) throws -> String {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let start = trimmed.firstIndex(where: { $0 == "[" || $0 == "{" }) else {
