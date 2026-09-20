@@ -106,13 +106,8 @@ extension RadixStore {
     }
 
     func syncDataEditPhraseCaches() {
-        for (key, value) in dataEditCache {
-            insertBoundedCacheValue(
-                (entry: value.entry, phrases: addedPhrases, isFav: value.isFav),
-                for: key,
-                in: &dataEditCache,
-                limit: 32
-            )
+        dataEditCache = dataEditCache.mapValues { value in
+            (entry: value.entry, phrases: addedPhrases, isFav: value.isFav)
         }
     }
 

@@ -198,6 +198,15 @@ as orchestration, not a second business-rule implementation.
   entry. Study loads shared practice/favorite references in one pass, runs the
   legacy phrase-favorite conversion once per relevant data change, and consumes
   the root's cached checkpoint list instead of rescanning checkpoint files.
+- Interactive navigation publishes grouped state transitions. Browse chooses
+  its final sort mode once, computes dictionary-grid filtering and ordering from
+  an immutable snapshot off the main actor, and publishes one completed result.
+- Sentence-example availability and AI sentence-picker searches run outside
+  SwiftUI rendering. AI sentence search is lazy and debounced. Stroke-order
+  previews animate once instead of running permanent background loops.
+- Search history and high-traffic phrase, page, lineage, practice, and editor
+  caches are bounded. Backup previews cap repeated phrase tiles while retaining
+  the full restore payload.
 - Shared visual primitives live in `Services/RadixTheme.swift`. Reuse them for
   simple surfaces instead of creating local versions.
 
@@ -537,12 +546,13 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 ## Required Verification
 
-Latest application baseline (2026-09-20): `swift test` passed 211 tests in
-18 suites. Signing-disabled Mac Catalyst and generic iOS device builds, plus
-the generic iOS Simulator build, passed for source build 28, as did
-`git diff --check`. Browse/Study switching no longer repeats checkpoint scans,
-legacy phrase-favorite scans, or saved-page persistence on ordinary tab entry;
-real-library device timing remains a human verification step. Live provider
+Latest application baseline (2026-09-21): `swift test` passed 216 tests in 19
+suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds target
+source build 29. Browse/Study switching no longer repeats checkpoint scans,
+legacy phrase-favorite scans, saved-page persistence, or duplicate grid
+recomputes on ordinary tab entry. Dictionary grid work runs off the main actor
+and high-traffic caches are bounded; real-library device timing remains a human
+verification step. Live provider
 execution and physical-device UI acceptance for the transcript task remain
 unverified. Per-change verification details belong in Git history, not in this
 handoff.

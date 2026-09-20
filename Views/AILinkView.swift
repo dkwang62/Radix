@@ -317,10 +317,13 @@ struct AILinkView: View {
     }
 
     var aiSubjectSubtitle: String {
-        if let activeCharacter,
-           activeCharacter.count > 1,
-           let phrase = store.mergedPhrase(for: activeCharacter) {
-            return phrase.pinyin.isEmpty ? "Phrase" : phrase.pinyin
+        if let activeCharacter, activeCharacter.count > 1 {
+            if let phrase = store.activeSidebarPhrasePreview,
+               phrase.word == activeCharacter,
+               !phrase.pinyin.isEmpty {
+                return phrase.pinyin
+            }
+            return "Phrase"
         }
         if let activeCharacter {
             let pinyin = store.item(for: activeCharacter)?.pinyinText ?? ""

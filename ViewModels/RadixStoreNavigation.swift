@@ -276,13 +276,14 @@ extension RadixStore {
     }
 
     func goToFavourites(preservingOrigin: Bool = false) {
-        if preservingOrigin {
-            rememberCrossTabOrigin()
-        } else {
-            clearCrossTabOrigin()
-        }
-        route = .favourites
-        activeFavouriteCharacter = nil
+        var nextNavigation = navigationState
+        nextNavigation.rootsReturnContext = preservingOrigin ? currentRootsReturnContext() : nil
+        nextNavigation.route = .favourites
+        navigationState = nextNavigation
+
+        var nextPresentation = presentationState
+        nextPresentation.activeFavouriteCharacter = nil
+        presentationState = nextPresentation
     }
 
     func goToSettings() {
@@ -302,19 +303,27 @@ extension RadixStore {
     }
 
     func goToBrowse() {
-        clearCrossTabOrigin()
-        route = .search
-        homeTab = .filter
-        gridSortMode = .characterFrequency
-        activeFavouriteCharacter = nil
-        showBrowseHelp = true
-        showComponentHelp = false
+        let hasValidSelectedPage = selectedBrowseCollectionID.map { collection(id: $0) != nil } ?? false
+
+        var nextNavigation = navigationState
+        nextNavigation.rootsReturnContext = nil
+        nextNavigation.route = .search
+        nextNavigation.homeTab = .filter
+        navigationState = nextNavigation
+
+        var nextPresentation = presentationState
+        nextPresentation.activeFavouriteCharacter = nil
+        nextPresentation.showsBrowseHelp = true
+        nextPresentation.showsComponentHelp = false
+        presentationState = nextPresentation
+
         clearBrowsePreview()
-        if let selectedBrowseCollectionID,
-           collection(id: selectedBrowseCollectionID) != nil {
+        if hasValidSelectedPage {
             gridSortMode = .readingOrder
-        } else {
+        } else if mostRecentlyViewedCollection != nil {
             selectMostRecentBrowsePage()
+        } else {
+            gridSortMode = .characterFrequency
         }
     }
 

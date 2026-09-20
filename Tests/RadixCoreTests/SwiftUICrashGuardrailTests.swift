@@ -124,9 +124,12 @@ struct SwiftUICrashGuardrailTests {
         let browseEntry = navigation
             .components(separatedBy: "func goToBrowse() {")[1]
             .components(separatedBy: "func goToBrowseCollection")[0]
-        #expect(browseEntry.contains("if let selectedBrowseCollectionID"))
-        #expect(browseEntry.contains("collection(id: selectedBrowseCollectionID) != nil"))
-        #expect(browseEntry.contains("else {\n            selectMostRecentBrowsePage()"))
+        #expect(browseEntry.contains("let hasValidSelectedPage"))
+        #expect(browseEntry.contains("navigationState = nextNavigation"))
+        #expect(browseEntry.contains("presentationState = nextPresentation"))
+        #expect(browseEntry.components(separatedBy: "gridSortMode =").count - 1 == 2)
+        #expect(browseEntry.contains("else if mostRecentlyViewedCollection != nil"))
+        #expect(browseEntry.contains("selectMostRecentBrowsePage()"))
 
         let lifecycle = try sourceText(at: "App/FavouritesTabLifecycle.swift")
         let onAppear = lifecycle
@@ -143,6 +146,21 @@ struct SwiftUICrashGuardrailTests {
             .components(separatedBy: "func availableConversationPracticeLibrariesForMigration")[0]
         #expect(migration.contains("guard !store.didMigrateLegacyPhraseFavoritesToFavoriteSentences else { return }"))
         #expect(migration.contains("guard !store.favoritePhrases.isEmpty else { return }"))
+    }
+
+    @Test("AI Link labels and data-edit cache refreshes avoid render-time or mutation-time stalls")
+    func aiLinkAndDataEditPerformanceGuardrails() throws {
+        let aiLink = try sourceText(at: "Views/AILinkView.swift")
+        let subtitle = aiLink
+            .components(separatedBy: "var aiSubjectSubtitle: String {")[1]
+            .components(separatedBy: "var aiCollectionSubtitle")[0]
+        #expect(!subtitle.contains("mergedPhrase("))
+        #expect(subtitle.contains("activeSidebarPhrasePreview"))
+
+        let dataEdit = try sourceText(at: "ViewModels/RadixStoreDataEdit.swift")
+        let helpers = try sourceText(at: "ViewModels/RadixStoreDataEditHelpers.swift")
+        #expect(!dataEdit.contains("for (key, value) in dataEditCache"))
+        #expect(!helpers.contains("for (key, value) in dataEditCache"))
     }
 
     @Test("Interactive surfaces keep expensive work out of rendering and navigation")
