@@ -342,8 +342,9 @@ AI is a shared workflow, not a collection of separate mini-features.
 - Object menus expose relevant named AI tasks inside an `AI` submenu. They open
   AI with the object and task already selected.
 - Sentence cards expose one shared Explain/Improve AI menu from the card and
-  directly from selectable Chinese or English text so Mac right-clicks are not
-  consumed by text selection.
+  directly from Chinese or English text. Those text views do not enable native
+  selection because it consumes Mac right-clicks; the shared menu preserves
+  explicit Copy Chinese and Copy English actions.
 - The AI workspace owns template editing, template revision, test execution,
   manual copy/open handoff, automatic AI execution, and paste/apply.
 - Manual handoff copies the full prompt and opens the configured AI app. Do not

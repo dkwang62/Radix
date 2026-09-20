@@ -422,15 +422,17 @@ struct SwiftUICrashGuardrailTests {
         #expect(controlsSource.contains("usesTraditionalScript: sentenceUsesTraditionalScript"))
     }
 
-    @Test("Selectable sentence text keeps the shared AI context menu")
-    func selectableSentenceTextKeepsAIContextMenu() throws {
+    @Test("Sentence text gives right-click ownership to the shared AI menu")
+    func sentenceTextKeepsAIContextMenu() throws {
         let source = try sourceText(at: "Views/PhraseInfoSentence.swift")
 
         #expect(source.contains("var sentenceAIContextMenu: some View"))
         #expect(source.components(separatedBy: "sentenceAIContextMenu\n").count - 1 == 3)
-        #expect(source.components(separatedBy: ".textSelection(.enabled)").count - 1 == 2)
+        #expect(!source.contains(".textSelection(.enabled)"))
         #expect(source.components(separatedBy: "Menu(\"Explain Sentence\")").count - 1 == 1)
         #expect(source.components(separatedBy: "Menu(\"Improve Sentence\")").count - 1 == 1)
+        #expect(source.contains("Label(\"Copy Chinese\", systemImage: RadixIcon.copy)"))
+        #expect(source.contains("Label(\"Copy English\", systemImage: RadixIcon.copy)"))
     }
 
     @Test("Quiz script changes cannot score one item twice")

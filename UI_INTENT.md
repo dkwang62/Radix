@@ -586,9 +586,10 @@ editor. Character and phrase menus should show one compact
 generic `Send to AI` action when multiple AI tasks are available. Replacement
 actions such as Sentence Improvement should show the updated object after apply,
 not only a generic success line.
-On Mac, right-clicking any part of selectable Chinese or English text in a
-sentence card must open the sentence's Explain and Improve AI menus. Keep one
-shared menu definition so the text and surrounding card cannot diverge.
+On Mac, right-clicking Chinese or English text in a sentence card must open the
+sentence's Explain and Improve AI menus rather than the native selectable-text
+menu. Keep Copy Chinese and Copy English in that menu, and keep one shared menu
+definition so the text and surrounding card cannot diverge.
 Prompt editing should use an explicit draft with `Save` and `Undo`, not
 invisible autosave. Built-in tasks should not repeat the task title in a second
 title field; custom tasks may show a task-name field and a subject selector for

@@ -160,7 +160,6 @@ extension PhraseInfoCard {
                     .font(ResponsiveFont.body)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
-                    .textSelection(.enabled)
                     .contextMenu {
                         sentenceAIContextMenu
                     }
@@ -202,6 +201,23 @@ extension PhraseInfoCard {
                     isDisabled: isRunningSentenceImprovement
                 ) {
                     runAutomaticSentenceImprovement(practiceSentenceItem)
+                }
+            }
+
+            Divider()
+
+            Button {
+                RadixPlatform.copyToPasteboard(sentenceDisplayChinese)
+            } label: {
+                Label("Copy Chinese", systemImage: RadixIcon.copy)
+            }
+
+            let english = sentenceEnglish.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !english.isEmpty {
+                Button {
+                    RadixPlatform.copyToPasteboard(english)
+                } label: {
+                    Label("Copy English", systemImage: RadixIcon.copy)
                 }
             }
         }
@@ -340,7 +356,6 @@ extension PhraseInfoCard {
             .font(.system(.title, design: .rounded, weight: .bold))
             .foregroundStyle(.primary)
             .fixedSize(horizontal: false, vertical: true)
-            .textSelection(.enabled)
             .accessibilityLabel(sentenceDisplayChinese)
             .contextMenu {
                 sentenceAIContextMenu
