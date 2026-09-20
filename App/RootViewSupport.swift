@@ -10,7 +10,6 @@ struct SearchHomeView: View {
     let onRequirePro: (EntitlementManager.FeatureGate) -> Void
     let onSaveSnapshot: () -> Void
     let onRestoreSnapshot: (LocalDataSnapshot?) -> Void
-    let onRefreshSnapshots: () -> Void
     let localSnapshots: [LocalDataSnapshot]
     let isSavingSnapshot: Bool
     let isRestoringSnapshot: Bool

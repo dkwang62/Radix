@@ -537,12 +537,15 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 ## Required Verification
 
-Latest application baseline (2026-09-20): `swift test` passed 210 tests in
+Latest application baseline (2026-09-20): `swift test` passed 211 tests in
 18 suites. Signing-disabled Mac Catalyst and generic iOS device builds, plus
-the generic iOS Simulator build, passed for source build 27, as did
-`git diff --check`. Live provider execution and physical-device UI acceptance
-for the transcript task remain unverified. Per-change verification details belong in
-Git history, not in this handoff.
+the generic iOS Simulator build, passed for source build 28, as did
+`git diff --check`. Browse/Study switching no longer repeats checkpoint scans,
+legacy phrase-favorite scans, or saved-page persistence on ordinary tab entry;
+real-library device timing remains a human verification step. Live provider
+execution and physical-device UI acceptance for the transcript task remain
+unverified. Per-change verification details belong in Git history, not in this
+handoff.
 
 Specialized validation:
 

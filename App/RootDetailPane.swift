@@ -58,7 +58,6 @@ extension RootView {
                         onRequirePro: presentPaywall(for:),
                         onSaveSnapshot: quickSaveMemory,
                         onRestoreSnapshot: quickRestoreMemory(from:),
-                        onRefreshSnapshots: refreshQuickLocalSnapshots,
                         localSnapshots: quickLocalSnapshots,
                         isSavingSnapshot: isQuickSavingMemory,
                         isRestoringSnapshot: isQuickRestoringMemory
