@@ -83,6 +83,7 @@ extension RadixStore {
         packs.append(pack)
         RadixStudyPreferences.importedConversationPracticePacks = packs
         registerConversationPracticeLibrary(pack.practiceLibrary)
+        didMigrateLegacyPhraseFavoritesToFavoriteSentences = false
     }
 
     func applyImportedConversationPracticePacks(
@@ -100,11 +101,13 @@ extension RadixStore {
             }
             RadixStudyPreferences.importedConversationPracticePacks = merged
             registerConversationPracticeLibraries(imported.map(\.practiceLibrary))
+            didMigrateLegacyPhraseFavoritesToFavoriteSentences = false
 
         case .complete:
             let restored = try RadixStudyPreferences.canonicalizedConversationPracticePacks(packs ?? [])
             RadixStudyPreferences.importedConversationPracticePacks = restored
             registerConversationPracticeLibraries(restored.map(\.practiceLibrary))
+            didMigrateLegacyPhraseFavoritesToFavoriteSentences = false
             if !restored.contains(where: { $0.packID == selectedConversationPracticeTopicID }) &&
                 !ConversationPracticeTopic.defaults.contains(where: { $0.id == selectedConversationPracticeTopicID }) {
                 selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id

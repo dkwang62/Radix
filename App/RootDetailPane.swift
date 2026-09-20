@@ -83,7 +83,6 @@ extension RootView {
                         },
                         onCreateCheckpoint: quickSaveMemory,
                         onReturnToCheckpoint: quickRestoreMemory(from:),
-                        onRefreshCheckpoints: refreshQuickLocalSnapshots,
                         checkpoints: quickLocalSnapshots,
                         isCreatingCheckpoint: isQuickSavingMemory,
                         isReturningToCheckpoint: isQuickRestoringMemory

@@ -32,7 +32,6 @@ struct SearchHomeView: View {
                     },
                     onCreateCheckpoint: onSaveSnapshot,
                     onReturnToCheckpoint: onRestoreSnapshot,
-                    onRefreshCheckpoints: onRefreshSnapshots,
                     checkpoints: localSnapshots,
                     isCreatingCheckpoint: isSavingSnapshot,
                     isReturningToCheckpoint: isRestoringSnapshot

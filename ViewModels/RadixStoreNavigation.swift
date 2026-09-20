@@ -298,7 +298,12 @@ extension RadixStore {
         showBrowseHelp = true
         showComponentHelp = false
         clearBrowsePreview()
-        selectMostRecentBrowsePage()
+        if let selectedBrowseCollectionID,
+           collection(id: selectedBrowseCollectionID) != nil {
+            gridSortMode = .readingOrder
+        } else {
+            selectMostRecentBrowsePage()
+        }
     }
 
     func goToBrowseCollection(id collectionID: UUID, preservingOrigin: Bool = false) {

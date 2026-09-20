@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `27` (not yet distributed). Every committed application
+current source version is `1.1` build `28` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -193,6 +193,11 @@ as orchestration, not a second business-rule implementation.
   Conversation Practice, and Saved Page state and owns multi-field transitions.
   Keep new section state in its matching group and preserve the single root
   `@State` guardrail.
+- Primary Browse/Study switching avoids incidental persistence work. Browse
+  preserves a valid selected page instead of rewriting page metadata on every
+  entry. Study loads shared practice/favorite references in one pass, runs the
+  legacy phrase-favorite conversion once per relevant data change, and consumes
+  the root's cached checkpoint list instead of rescanning checkpoint files.
 - Shared visual primitives live in `Services/RadixTheme.swift`. Reuse them for
   simple surfaces instead of creating local versions.
 

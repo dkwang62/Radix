@@ -118,6 +118,33 @@ struct SwiftUICrashGuardrailTests {
         #expect(source.components(separatedBy: "@Environment(\\.scenePhase)").count - 1 == 1)
     }
 
+    @Test("Browse and Study tab entry avoid redundant persistence work")
+    func primaryTabEntryAvoidsRedundantPersistenceWork() throws {
+        let navigation = try sourceText(at: "ViewModels/RadixStoreNavigation.swift")
+        let browseEntry = navigation
+            .components(separatedBy: "func goToBrowse() {")[1]
+            .components(separatedBy: "func goToBrowseCollection")[0]
+        #expect(browseEntry.contains("if let selectedBrowseCollectionID"))
+        #expect(browseEntry.contains("collection(id: selectedBrowseCollectionID) != nil"))
+        #expect(browseEntry.contains("else {\n            selectMostRecentBrowsePage()"))
+
+        let lifecycle = try sourceText(at: "App/FavouritesTabLifecycle.swift")
+        let onAppear = lifecycle
+            .components(separatedBy: ".onAppear {")[1]
+            .components(separatedBy: ".onChange(of: studyGridUsesTraditionalScript)")[0]
+        #expect(onAppear.contains("loadStudyReferenceData()"))
+        #expect(!onAppear.contains("loadImportedConversationPracticePacks()"))
+        #expect(!onAppear.contains("loadFavoriteSentences()"))
+        #expect(!onAppear.contains("onRefreshCheckpoints()"))
+
+        let study = try sourceText(at: "App/FavouritesTab.swift")
+        let migration = study
+            .components(separatedBy: "func migratePhraseFavoritesToFavoriteSentences() {")[1]
+            .components(separatedBy: "func availableConversationPracticeLibrariesForMigration")[0]
+        #expect(migration.contains("guard !store.didMigrateLegacyPhraseFavoritesToFavoriteSentences else { return }"))
+        #expect(migration.contains("guard !store.favoritePhrases.isEmpty else { return }"))
+    }
+
     @Test("Study root delegates section state and navigation transitions")
     func studyRootUsesSectionStateCoordinator() throws {
         let rootSource = try sourceText(at: "App/FavouritesTab.swift")

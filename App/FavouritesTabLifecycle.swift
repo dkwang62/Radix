@@ -8,11 +8,8 @@ extension FavouritesTab {
                 studyGridScope = RadixStudyPreferences.initialGridScope
                 studyPageSortOrder = RadixStudyPreferences.pageSortOrder
                 openAddedPhraseReviewIfRequested()
-                loadImportedConversationPracticePacks()
-                loadFavoriteSentences()
-                loadConversationPracticeLibrary()
+                loadStudyReferenceData()
                 openPendingConversationPracticeIfNeeded()
-                onRefreshCheckpoints()
                 applyInitialStudyNavigationTargetIfNeeded()
             }
             .onChange(of: studyGridUsesTraditionalScript) { _, newValue in
@@ -46,9 +43,8 @@ extension FavouritesTab {
                 openPendingConversationPracticeIfNeeded()
             }
             .onChange(of: store.dataImportRevision) { _, _ in
-                loadImportedConversationPracticePacks()
-                loadFavoriteSentences()
-                loadConversationPracticeLibrary()
+                store.didMigrateLegacyPhraseFavoritesToFavoriteSentences = false
+                loadStudyReferenceData()
                 sentenceExampleRevision += 1
                 refreshSentenceExampleResults()
             }
@@ -113,7 +109,6 @@ extension FavouritesTab {
 
     func openPendingConversationPracticeIfNeeded() {
         guard let topicID = store.pendingConversationPracticeTopicID else { return }
-        loadImportedConversationPracticePacks()
         guard let topic = conversationPracticeTopics.first(where: { $0.id == topicID }) else {
             store.pendingConversationPracticeTopicID = nil
             return

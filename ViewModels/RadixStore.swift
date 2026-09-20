@@ -510,6 +510,7 @@ final class RadixStore: ObservableObject {
     var conversationPracticeLinkedHintCache: [ConversationPracticeHintCacheKey: ConversationPracticeLinkedHints] = [:]
     var sentencePhraseDiscoveryCache: [String: [PhraseItem]] = [:]
     @Published var favoriteSentenceRevision = 0
+    var didMigrateLegacyPhraseFavoritesToFavoriteSentences = false
     var rootsDerivativesCache: [RootsCacheKey: RootsDerivativesCacheValue] = [:]
 
     struct RootsCacheKey: Hashable {

@@ -37,6 +37,7 @@ extension RadixStore {
             }
         }
         persistFavoritePhrases()
+        didMigrateLegacyPhraseFavoritesToFavoriteSentences = false
     }
 
     func isFavorite(_ character: String) -> Bool { favorites.contains(character) }
@@ -145,6 +146,7 @@ extension RadixStore {
     func applyFavoritePhraseWords(_ words: [String]) {
         favoritePhrases = Set(words.map(phraseStorageWord(_:)).filter { !$0.isEmpty })
         favoritePhraseDates = [:]
+        didMigrateLegacyPhraseFavoritesToFavoriteSentences = false
     }
 
     func applyFavoritePhraseEntries(_ entries: [FavouritePhraseProfileEntry]) {
@@ -162,5 +164,6 @@ extension RadixStore {
 
         favoritePhrases = words
         favoritePhraseDates = datedEntries
+        didMigrateLegacyPhraseFavoritesToFavoriteSentences = false
     }
 }
