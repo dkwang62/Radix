@@ -92,23 +92,19 @@ extension RadixStore {
         switch mode {
         case .additive:
             guard let packs, !packs.isEmpty else { return }
+            let imported = try RadixStudyPreferences.canonicalizedConversationPracticePacks(packs)
             var merged = RadixStudyPreferences.importedConversationPracticePacks
-            for pack in packs {
-                let pack = try RadixStudyPreferences.canonicalizedConversationPracticePack(pack)
+            for pack in imported {
                 merged.removeAll { $0.packID == pack.packID }
                 merged.append(pack)
-                registerConversationPracticeLibrary(pack.practiceLibrary)
             }
             RadixStudyPreferences.importedConversationPracticePacks = merged
+            registerConversationPracticeLibraries(imported.map(\.practiceLibrary))
 
         case .complete:
-            let restored = try (packs ?? []).map {
-                try RadixStudyPreferences.canonicalizedConversationPracticePack($0)
-            }
+            let restored = try RadixStudyPreferences.canonicalizedConversationPracticePacks(packs ?? [])
             RadixStudyPreferences.importedConversationPracticePacks = restored
-            for pack in restored {
-                registerConversationPracticeLibrary(pack.practiceLibrary)
-            }
+            registerConversationPracticeLibraries(restored.map(\.practiceLibrary))
             if !restored.contains(where: { $0.packID == selectedConversationPracticeTopicID }) &&
                 !ConversationPracticeTopic.defaults.contains(where: { $0.id == selectedConversationPracticeTopicID }) {
                 selectedConversationPracticeTopicID = ConversationPracticeTopic.generalGreetings.id
@@ -159,10 +155,19 @@ extension RadixStore {
     }
 
     func registerConversationPracticeLibrary(_ library: ConversationPracticeLibrary) {
-        var didRegisterPhrase = false
-        for seed in library.phraseSeeds {
+        registerConversationPracticeLibraries([library])
+    }
+
+    private func registerConversationPracticeLibraries(_ libraries: [ConversationPracticeLibrary]) {
+        let keyedSeeds = libraries.flatMap(\.phraseSeeds).compactMap { seed -> (ConversationPracticePhraseSeed, String)? in
             let key = phraseStorageWord(seed.phraseKey)
-            guard !key.isEmpty, phraseRepo.fetchPhrase(for: key) == nil else { continue }
+            return key.isEmpty ? nil : (seed, key)
+        }
+        let storedPhraseKeys = Set(
+            phraseRepo.fetchPhrases(matching: Set(keyedSeeds.map(\.1))).map { phraseStorageWord($0.word) }
+        )
+        var didRegisterPhrase = false
+        for (seed, key) in keyedSeeds where !storedPhraseKeys.contains(key) {
             conversationPracticePhraseCache[key] = PhraseItem(
                 word: key,
                 pinyin: seed.pinyin,

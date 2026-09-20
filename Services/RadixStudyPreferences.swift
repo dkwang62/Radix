@@ -319,16 +319,7 @@ enum RadixStudyPreferences {
     }
 
     static func recordSentenceExamples(from pack: ConversationPracticePack, createdAt: Date = Date()) throws {
-        let favoriteIDs = Set(favoriteSentences.map(\.sourceItemID))
-        let records = pack.practiceItems.map { item in
-            SentenceExampleRecord.fromPracticeItem(
-                item,
-                pack: pack,
-                isFavorited: favoriteIDs.contains(item.id),
-                createdAt: createdAt
-            )
-        }
-        try recordSentenceExamples(records)
+        try recordSentenceExamples(conversationPracticeRecords(from: [pack], createdAt: createdAt))
     }
 
     @discardableResult
@@ -341,8 +332,43 @@ enum RadixStudyPreferences {
     }
 
     static func canonicalizedConversationPracticePack(_ pack: ConversationPracticePack) throws -> ConversationPracticePack {
-        try recordSentenceExamples(from: pack)
-        return pack.withCanonicalSentenceReferences(from: sentenceExamples)
+        try canonicalizedConversationPracticePacks([pack])[0]
+    }
+
+    static func canonicalizedConversationPracticePacks(
+        _ packs: [ConversationPracticePack],
+        createdAt: Date = Date()
+    ) throws -> [ConversationPracticePack] {
+        guard !packs.isEmpty else { return [] }
+        let records = conversationPracticeRecords(from: packs, createdAt: createdAt)
+        try recordSentenceExamples(records)
+
+        let keys = Array(Set(records.map(\.normalizedChineseKey).filter { !$0.isEmpty }))
+        var referencedRecords: [SentenceExampleRecord] = []
+        for start in stride(from: 0, to: keys.count, by: 400) {
+            let end = min(start + 400, keys.count)
+            referencedRecords.append(contentsOf: sentenceExamples(
+                normalizedKeys: Array(keys[start..<end])
+            ).values)
+        }
+        return packs.map { $0.withCanonicalSentenceReferences(from: referencedRecords) }
+    }
+
+    private static func conversationPracticeRecords(
+        from packs: [ConversationPracticePack],
+        createdAt: Date
+    ) -> [SentenceExampleRecord] {
+        let favoriteIDs = Set(favoriteSentences.map(\.sourceItemID))
+        return packs.flatMap { pack in
+            pack.practiceItems.map { item in
+                SentenceExampleRecord.fromPracticeItem(
+                    item,
+                    pack: pack,
+                    isFavorited: favoriteIDs.contains(item.id),
+                    createdAt: createdAt
+                )
+            }
+        }
     }
 
     @discardableResult

@@ -711,6 +711,19 @@ struct SwiftUICrashGuardrailTests {
         #expect(restoreFlow.contains("keeps the current library protected until the restored library opens successfully"))
     }
 
+    @Test("Restore batches conversation practice sentence and phrase work")
+    func restoreBatchesConversationPracticeWork() throws {
+        let practice = try sourceText(at: "ViewModels/RadixStoreConversationPractice.swift")
+        let study = try sourceText(at: "Services/RadixStudyPreferences.swift")
+
+        #expect(practice.contains("canonicalizedConversationPracticePacks(packs ?? [])"))
+        #expect(practice.contains("registerConversationPracticeLibraries(restored.map(\\.practiceLibrary))"))
+        #expect(practice.contains("phraseRepo.fetchPhrases(matching:"))
+        #expect(study.contains("try recordSentenceExamples(records)"))
+        #expect(study.contains("for start in stride(from: 0, to: keys.count, by: 400)"))
+        #expect(!study.contains("pack.withCanonicalSentenceReferences(from: sentenceExamples)"))
+    }
+
     private func sourceText(at relativePath: String) throws -> String {
         let testFileURL = URL(fileURLWithPath: #filePath)
         let repositoryURL = testFileURL

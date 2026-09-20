@@ -256,6 +256,10 @@ Preference mutations made during a complete staged restore are batched in memory
 and durably written once before validation and promotion. A pre-flush interruption
 still rolls back to the previous generation; promotion never publishes an
 unflushed preference set.
+Conversation-practice restore canonicalizes all imported packs in one sentence
+transaction and resolves references in bounded batches. Phrase presence is also
+queried in batches rather than once per practice entry; this preserves the same
+sentence sources and fallback phrase cache without corpus-sized repeated work.
 Legacy pending rollback documents remain readable. Additive restore and the
 source-checkout live-data development path retain the existing rollback journal;
 neither changes the portable backup format or page-deletion journal.
