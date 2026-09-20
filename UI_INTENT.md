@@ -49,7 +49,7 @@ Use these preferences as defaults:
   a separate source button when Dictionary and page creation are already
   available from the title menu. Non-camera page creation belongs under Browse as
   `Text to Page`, `Image from Clipboard`, `Image from Album`, and
-  `Image from Files`; the big Camera button remains the instant camera action.
+  `Image from Files`, and `Image from Transcripts`; the big Camera button remains the instant camera action.
   Selecting any page in a Browse-owned picker must open its Chinese tiles
   immediately. Successful capture does the same, before the user chooses a
   later Study action.

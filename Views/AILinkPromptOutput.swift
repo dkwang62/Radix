@@ -216,7 +216,7 @@ extension AILinkView {
             return
         }
         let source = store.aiFreeTextInput
-        let prompt = store.promptForTask(task, subject: .freeText(source))
+        let prompt = generatedPromptText
         let requestID = UUID()
         transcriptRunID = requestID
         isRunningTranscript = true

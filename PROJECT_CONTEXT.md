@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current distribution version are `1.1` build `18`. Every committed application
+current source version is `1.1` build `24` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -177,7 +177,7 @@ as orchestration, not a second business-rule implementation.
   thumbnail data in SwiftUI; it and the persistence/state helper files remain
   explicit members of the Radix Xcode target.
 - `BuiltInPromptTaskID` is the sole built-in AI task identity and capability
-  registry. Its persisted `task1`...`task15` raw values must not change.
+  registry. Its persisted `task1`...`task16` raw values must not change.
   `PromptTask` intentionally retains a string ID so custom tasks remain valid.
 - `PromptTaskDefaults` and `PromptConfigRendering` own built-in templates,
   legacy-template repair, and placeholder rendering. Menus and result importers
@@ -367,6 +367,20 @@ AI is a shared workflow, not a collection of separate mini-features.
 - `Sentence Improvement` returns and applies that same three-field contract.
 - `Structure Phrase for Input` is the source-free exception: it formats pasted
   vocabulary, then feeds the result through the shared Add Phrases importer.
+- **Browse → Image from Transcripts** opens the shared free-text AI workspace
+  with **Extract Sentences from Transcript** (`task16`). Paste a transcript once;
+  Run Automatically executes the same editable prompt used by manual handoff and
+  saves the bilingual sentence array without a second paste. Failure retains the
+  source and offers the existing copy/open/paste/apply flow. Test AI remains
+  non-mutating. Source/task/prompt changes or leaving the workspace cancel an
+  in-flight request so stale answers cannot be applied.
+- Transcript imports require a nonempty JSON array with Chinese, tone-marked
+  pinyin, English, IDs, and Chinese phrase hints. Provider errors and incomplete
+  bilingual answers are rejected before creating a page. Valid results reuse
+  the saved-page sentence store and indexing; the original transcript is kept in
+  the manual page's source text. Reapplying the same transcript updates its list.
+  New transcript pages use the existing free-page allowance. Open in Study uses
+  the ordinary page learning workspace.
 - Page AI tasks use `CollectionPageAITaskKind` and shared page action menus.
   Do not create duplicate task arrays or task-ID capability switches in Browse
   and Study.
@@ -506,9 +520,11 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 ## Required Verification
 
-Latest application baseline (2026-09-20): `swift test` passed 195 tests in
-17 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds
-passed, as did `git diff --check`. Per-change verification details belong in
+Latest application baseline (2026-09-20): `swift test` passed 203 tests in
+18 suites. Signing-disabled Mac Catalyst and generic iOS device builds, plus
+the generic iOS Simulator build, passed for source build 24, as did
+`git diff --check`. Live provider execution and physical-device UI acceptance
+for the transcript task remain unverified. Per-change verification details belong in
 Git history, not in this handoff.
 
 Specialized validation:

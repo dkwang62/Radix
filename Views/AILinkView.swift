@@ -281,7 +281,7 @@ struct AILinkView: View {
             }
         }
         .onDisappear { cancelTranscriptRun() }
-        .onChange(of: store.aiFreeTextInput) { _, _ in cancelTranscriptRun() }
+        .onChange(of: generatedPromptText) { _, _ in cancelTranscriptRun() }
         .onChange(of: selectedPromptTask?.id) { _, _ in
             cancelTranscriptRun()
             resetAIResultWorkflow()
