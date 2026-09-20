@@ -61,7 +61,19 @@ extension RadixStore {
     }
 
     func refreshAllCharactersCache() {
-        allCharactersCache = componentRepo.search(query: "", scriptFilter: .any, limit: Int.max)
+        let items = componentRepo.search(query: "", scriptFilter: .any, limit: Int.max)
+        allCharactersCache = items
+        browseGridMetadataCache = Dictionary(uniqueKeysWithValues: items.map { item in
+            (
+                item.character,
+                BrowseGridItemMetadata(
+                    structure: componentRepo.structureKey(for: item),
+                    supportsSimplified: componentRepo.isSimplifiedForGrid(item.character),
+                    supportsTraditional: componentRepo.isTraditionalForGrid(item.character),
+                    isComponent: componentRepo.isUsedComponent(item.character)
+                )
+            )
+        })
     }
 
     func refreshAddedPhrases() {
@@ -95,7 +107,12 @@ extension RadixStore {
 
     func syncDataEditPhraseCaches() {
         for (key, value) in dataEditCache {
-            dataEditCache[key] = (entry: value.entry, phrases: addedPhrases, isFav: value.isFav)
+            insertBoundedCacheValue(
+                (entry: value.entry, phrases: addedPhrases, isFav: value.isFav),
+                for: key,
+                in: &dataEditCache,
+                limit: 32
+            )
         }
     }
 

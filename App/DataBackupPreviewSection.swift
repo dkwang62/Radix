@@ -137,11 +137,14 @@ struct DataBackupPreviewSection: View {
     }
 
     var previewDisclosureList: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let favoriteCharacters = store.favoriteItems
+        let favoritePhrases = store.favoritePhrasesItems
+
+        return VStack(alignment: .leading, spacing: 12) {
             savedPagesNavigationRow
 
-            DisclosureGroup("Favorites (\(store.favoriteItems.count) characters, \(store.favoritePhrasesItems.count) phrases)", isExpanded: $showFavoritesPreview) {
-                backupFavoritesSummary
+            DisclosureGroup("Favorites (\(favoriteCharacters.count) characters, \(favoritePhrases.count) phrases)", isExpanded: $showFavoritesPreview) {
+                backupFavoritesSummary(characters: favoriteCharacters, phrases: favoritePhrases)
             }
 
             DisclosureGroup("AI Link Buttons (\(store.promptConfig.tasks.count))", isExpanded: $showAITemplatesPreview) {

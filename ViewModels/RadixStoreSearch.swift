@@ -12,15 +12,13 @@ extension RadixStore {
 
     func loadSearchHistory() {
         guard let saved = preferences.array(forKey: RadixPreferenceKey.searchHistory) as? [String] else { return }
-        searchHistory = saved
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
+        searchHistory = SearchHistoryRules.normalized(saved)
     }
 
     func appendSearchHistory(_ query: String) {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        searchHistory.append(trimmed)
+        searchHistory = SearchHistoryRules.appending(trimmed, to: searchHistory)
         preferences.set(searchHistory, forKey: RadixPreferenceKey.searchHistory)
     }
 
@@ -28,9 +26,9 @@ extension RadixStore {
 
     func prepareFirstInteractionWarmup() {
         Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 450_000_000)
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
             speechService.prepareForFirstUtterance()
-            _ = phraseRepo.maxPhraseLength()
         }
     }
 
@@ -140,7 +138,7 @@ extension RadixStore {
             await MainActor.run {
                 if (char ?? previewCharacter) == targetToLoad && phraseLength == length {
                     self.phrases = result
-                    self.phraseCache[cacheKey] = result
+                    insertBoundedCacheValue(result, for: cacheKey, in: &self.phraseCache, limit: 128)
                 }
             }
         }
@@ -165,7 +163,7 @@ extension RadixStore {
 
         let finalPhrases = phraseCandidates(containing: lookupTarget, originalTarget: targetToLoad, length: phraseLength)
         let result = rankedPhraseResults(finalPhrases)
-        phraseCache[cacheKey] = result
+        insertBoundedCacheValue(result, for: cacheKey, in: &phraseCache, limit: 128)
         return result
     }
 
@@ -241,7 +239,7 @@ extension RadixStore {
             if lhsWord.count != rhsWord.count { return lhsWord.count > rhsWord.count }
             return lhsWord < rhsWord
         }
-        sentencePhraseDiscoveryCache[cacheKey] = result
+        insertBoundedCacheValue(result, for: cacheKey, in: &sentencePhraseDiscoveryCache, limit: 128)
         return result
     }
 

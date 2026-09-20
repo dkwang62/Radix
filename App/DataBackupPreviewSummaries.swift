@@ -29,18 +29,18 @@ extension DataBackupPreviewSection {
         .padding(.top, 8)
     }
 
-    var backupFavoritesSummary: some View {
+    func backupFavoritesSummary(characters: [ComponentItem], phrases: [PhraseItem]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            BackupSummaryLine(title: "Favorite characters", value: "\(store.favoriteItems.count)")
-            if !store.favoriteItems.isEmpty {
-                Text(store.favoriteItems.map(\.character).joined(separator: " "))
+            BackupSummaryLine(title: "Favorite characters", value: "\(characters.count)")
+            if !characters.isEmpty {
+                Text(characters.map(\.character).joined(separator: " "))
                     .font(ResponsiveFont.caption)
             }
 
-            BackupSummaryLine(title: "Favorite phrases", value: "\(store.favoritePhrasesItems.count)")
-            if !store.favoritePhrasesItems.isEmpty {
+            BackupSummaryLine(title: "Favorite phrases", value: "\(phrases.count)")
+            if !phrases.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    ForEach(Array(backupPhraseRows(for: store.favoritePhrasesItems).enumerated()), id: \.offset) { _, rowPhrases in
+                    ForEach(Array(backupPhraseRows(for: Array(phrases.prefix(80))).enumerated()), id: \.offset) { _, rowPhrases in
                         HStack(spacing: 8) {
                             ForEach(rowPhrases) { phrase in
                                 BackupPhraseRow(phrase: phrase) {
@@ -54,6 +54,11 @@ extension DataBackupPreviewSection {
                             }
                         }
                     }
+                }
+                if phrases.count > 80 {
+                    Text("Showing the first 80 of \(phrases.count) phrases.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
         }

@@ -100,8 +100,13 @@ extension RadixStore {
         guard key.count == 1 else { return }
 
         if let cached = dataEditCache[key] {
-            let currentPhrases = phraseRepo.fetchAddedPhrases()
-            dataEditCache[key] = (entry: cached.entry, phrases: currentPhrases, isFav: cached.isFav)
+            let currentPhrases = addedPhrases
+            insertBoundedCacheValue(
+                (entry: cached.entry, phrases: currentPhrases, isFav: cached.isFav),
+                for: key,
+                in: &dataEditCache,
+                limit: 32
+            )
             dataEditCharacter = key
             dataEditPhrases = currentPhrases
             applyDataEditEntryToForm(cached.entry, currentPhrases, cached.isFav)
@@ -116,11 +121,16 @@ extension RadixStore {
         dataEditLoadTask = Task { [weak self] in
             guard let self else { return }
             let entry = componentRepo.entry(for: key) ?? emptyEntryTemplate()
-            let currentPhrases = phraseRepo.fetchAddedPhrases()
+            let currentPhrases = addedPhrases
             let isFav = favorites.contains(key)
 
             if Task.isCancelled { return }
-            dataEditCache[key] = (entry: entry, phrases: currentPhrases, isFav: isFav)
+            insertBoundedCacheValue(
+                (entry: entry, phrases: currentPhrases, isFav: isFav),
+                for: key,
+                in: &dataEditCache,
+                limit: 32
+            )
             if Task.isCancelled { return }
 
             await MainActor.run { [weak self] in
@@ -177,9 +187,14 @@ extension RadixStore {
 
             if let restoredEntry = componentRepo.entry(for: key) {
                 dataEditCharacter = key
-                dataEditPhrases = phraseRepo.fetchAddedPhrases()
+                dataEditPhrases = addedPhrases
                 applyDataEditEntryToForm(restoredEntry, dataEditPhrases, favorites.contains(key))
-                dataEditCache[key] = (entry: restoredEntry, phrases: dataEditPhrases, isFav: favorites.contains(key))
+                insertBoundedCacheValue(
+                    (entry: restoredEntry, phrases: dataEditPhrases, isFav: favorites.contains(key)),
+                    for: key,
+                    in: &dataEditCache,
+                    limit: 32
+                )
             }
 
             dataEditAutoSaveStatus = preserveNotes ? "Reverted to main dictionary. Notes kept." : "Reverted to main dictionary."
@@ -198,7 +213,7 @@ extension RadixStore {
 
         if let existing = componentRepo.entry(for: key) {
             dataEditCharacter = key
-            applyDataEditEntryToForm(existing, phraseRepo.fetchAddedPhrases(), favorites.contains(key))
+            applyDataEditEntryToForm(existing, addedPhrases, favorites.contains(key))
             dataEditAutoSaveStatus = componentRepo.baseEntry(for: key) == nil
                 ? "Custom character already exists."
                 : "That character is already in the built-in dictionary, so it was opened for editing instead."
@@ -206,7 +221,7 @@ extension RadixStore {
         }
 
         dataEditCharacter = key
-        dataEditPhrases = phraseRepo.fetchAddedPhrases()
+        dataEditPhrases = addedPhrases
         let entry = emptyEntryTemplate()
         applyDataEditEntryToForm(entry, dataEditPhrases, favorites.contains(key))
         pendingDatasetAutosaveWorkItem?.cancel()
@@ -237,7 +252,7 @@ extension RadixStore {
         pendingDatasetAutosaveWorkItem?.cancel()
         pendingDatasetAutosaveWorkItem = nil
         clearDataEditForm()
-        dataEditPhrases = phraseRepo.fetchAddedPhrases()
+        dataEditPhrases = addedPhrases
         dataEditAutoSaveStatus = "Open a character to start editing."
     }
 
@@ -287,7 +302,12 @@ extension RadixStore {
         }
 
         if hasDictionaryTarget {
-            dataEditCache[key] = (entry: buildDataEditEntryFromForm(), phrases: dataEditPhrases, isFav: dataEditIsFavourite)
+            insertBoundedCacheValue(
+                (entry: buildDataEditEntryFromForm(), phrases: dataEditPhrases, isFav: dataEditIsFavourite),
+                for: key,
+                in: &dataEditCache,
+                limit: 32
+            )
             setFavorite(character: key, isFavorite: dataEditIsFavourite)
         }
 
@@ -464,10 +484,15 @@ extension RadixStore {
         }
         dataEditPhrases = dataEditPhrases.map(updated(_:))
         for (key, value) in dataEditCache {
-            dataEditCache[key] = (
-                entry: value.entry,
-                phrases: value.phrases.map(updated(_:)),
-                isFav: value.isFav
+            insertBoundedCacheValue(
+                (
+                    entry: value.entry,
+                    phrases: value.phrases.map(updated(_:)),
+                    isFav: value.isFav
+                ),
+                for: key,
+                in: &dataEditCache,
+                limit: 32
             )
         }
         phraseCache.removeAll()

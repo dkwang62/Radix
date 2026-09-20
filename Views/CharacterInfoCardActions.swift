@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CharacterInfoCardActions: View {
     @EnvironmentObject private var store: RadixStore
+    @State private var hasExamples = false
 
     let character: String
     let showClearButton: Bool
@@ -21,6 +22,15 @@ struct CharacterInfoCardActions: View {
                 clearPreviewButton
             }
             Spacer(minLength: 0)
+        }
+        .task(id: "\(character)|\(store.dataImportRevision)") {
+            hasExamples = false
+            let target = character
+            let available = await Task.detached(priority: .userInitiated) {
+                !SentenceExampleDisplayRules.examples(containingCharacter: target, limit: 1).isEmpty
+            }.value
+            guard !Task.isCancelled else { return }
+            hasExamples = available
         }
     }
 
@@ -51,10 +61,6 @@ struct CharacterInfoCardActions: View {
         }
         .buttonStyle(.plain)
         .help("Show sentence examples")
-    }
-
-    private var hasExamples: Bool {
-        !SentenceExampleDisplayRules.examples(containingCharacter: character, limit: 1).isEmpty
     }
 
     private var clearPreviewButton: some View {

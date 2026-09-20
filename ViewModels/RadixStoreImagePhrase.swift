@@ -290,7 +290,7 @@ extension RadixStore {
 
         let tiles = BrowsePagePhraseRules.tiles(from: matches)
 
-        browsePagePhraseTileCache[collection.id] = tiles
+        insertBoundedCacheValue(tiles, for: collection.id, in: &browsePagePhraseTileCache, limit: 64)
         return tiles
     }
 
@@ -307,7 +307,7 @@ extension RadixStore {
             maxPhraseLength: maxPhraseLength,
             phraseWordKey: phraseStorageWord
         )
-        browsePagePhraseCandidateCache[collection.id] = candidates
+        insertBoundedCacheValue(candidates, for: collection.id, in: &browsePagePhraseCandidateCache, limit: 64)
         return candidates
     }
 

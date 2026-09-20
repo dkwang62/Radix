@@ -204,9 +204,21 @@ extension RadixStore {
     }
 
     func clearBrowsePreview() {
-        previewCharacter = nil
-        imageBrowsePhrasePreview = nil
-        sidebarPhrasePreview = nil
+        var nextNavigation = navigationState
+        nextNavigation.previewCharacter = nil
+        navigationState = nextNavigation
+        rememberLastPreviewedCharacter(nil)
+
+        var nextHighlight = browseHighlightState
+        nextHighlight.imagePhrasePreview = nil
+        nextHighlight.sidebarPhrasePreview = nil
+        nextHighlight.sidebarPhraseLookupOverride = nil
+        nextHighlight.sidebarPhraseLookupDepth = .topLevel
+        nextHighlight.sidebarPracticeSentenceItem = nil
+        nextHighlight.sidebarSentenceReturnPhrase = nil
+        nextHighlight.sidebarSentenceReturnLookupOverride = nil
+        nextHighlight.sidebarSentenceReturnPracticeItem = nil
+        browseHighlightState = nextHighlight
     }
 
     func selectFavouriteCharacter(_ character: String) {
@@ -736,32 +748,46 @@ extension RadixStore {
     }
 
     func dismissSidebarPhrasePreview() {
-        sidebarPhrasePreview = nil
-        imageBrowsePhrasePreview = nil
-        sidebarPhraseLookupOverride = nil
-        sidebarPhraseLookupDepth = .topLevel
-        activePracticeSentenceItem = nil
-        sidebarSentenceReturnPhrase = nil
-        sidebarSentenceReturnLookupOverride = nil
-        sidebarSentenceReturnPracticeItem = nil
+        var next = browseHighlightState
+        next.sidebarPhrasePreview = nil
+        next.imagePhrasePreview = nil
+        next.sidebarPhraseLookupOverride = nil
+        next.sidebarPhraseLookupDepth = .topLevel
+        next.sidebarPracticeSentenceItem = nil
+        next.sidebarSentenceReturnPhrase = nil
+        next.sidebarSentenceReturnLookupOverride = nil
+        next.sidebarSentenceReturnPracticeItem = nil
+        browseHighlightState = next
     }
 
     func dismissImagePhrasePreview() {
-        imageBrowsePhrasePreview = nil
-        sidebarPhrasePreview = nil
-        sidebarPhraseLookupOverride = nil
-        sidebarPhraseLookupDepth = .topLevel
-        activePracticeSentenceItem = nil
-        sidebarSentenceReturnPhrase = nil
-        sidebarSentenceReturnLookupOverride = nil
-        sidebarSentenceReturnPracticeItem = nil
+        dismissSidebarPhrasePreview()
     }
 
     func clearInformationCardFocus() {
-        dismissSidebarPhrasePreview()
-        sidebarCharacterReturnContext = nil
-        previewCharacter = nil
-        showiPhoneDetail = false
+        var nextHighlight = browseHighlightState
+        nextHighlight.sidebarPhrasePreview = nil
+        nextHighlight.imagePhrasePreview = nil
+        nextHighlight.sidebarPhraseLookupOverride = nil
+        nextHighlight.sidebarPhraseLookupDepth = .topLevel
+        nextHighlight.sidebarPracticeSentenceItem = nil
+        nextHighlight.sidebarSentenceReturnPhrase = nil
+        nextHighlight.sidebarSentenceReturnLookupOverride = nil
+        nextHighlight.sidebarSentenceReturnPracticeItem = nil
+        nextHighlight.sidebarCharacterReturnContext = nil
+        browseHighlightState = nextHighlight
+
+        if navigationState.previewCharacter != nil {
+            var nextNavigation = navigationState
+            nextNavigation.previewCharacter = nil
+            navigationState = nextNavigation
+            rememberLastPreviewedCharacter(nil)
+        }
+        if presentationState.showsPhoneDetail {
+            var nextPresentation = presentationState
+            nextPresentation.showsPhoneDetail = false
+            presentationState = nextPresentation
+        }
     }
 
     var phraseCardReturnContext: PhraseCardReturnContext? {
@@ -811,20 +837,39 @@ extension RadixStore {
     /// deferred-launch state before applying the destination selected there so
     /// an unfinished contextual flow cannot cover or reopen over that choice.
     func overrideIncompleteActionsForTitleSelection() {
-        clearInformationCardFocus()
-        activeFavouriteCharacter = nil
-        requestedStudyNavigationTarget = nil
-        pendingConversationPracticeTopicID = nil
-        shouldOpenAddedPhraseReview = false
-        shouldOpenCaptureCamera = false
-        shouldOpenCaptureTextPage = false
-        shouldOpenCaptureClipboardImage = false
-        shouldOpenCaptureAlbum = false
-        shouldOpenCaptureFiles = false
-        quickEditDestination = nil
-        showLatestAIResult = false
-        shouldAutoOpenAILinkPrompt = false
-        shouldAutoRunGeminiPhraseAPI = false
+        var nextHighlight = browseHighlightState
+        nextHighlight.sidebarPhrasePreview = nil
+        nextHighlight.imagePhrasePreview = nil
+        nextHighlight.sidebarPhraseLookupOverride = nil
+        nextHighlight.sidebarPhraseLookupDepth = .topLevel
+        nextHighlight.sidebarPracticeSentenceItem = nil
+        nextHighlight.sidebarSentenceReturnPhrase = nil
+        nextHighlight.sidebarSentenceReturnLookupOverride = nil
+        nextHighlight.sidebarSentenceReturnPracticeItem = nil
+        nextHighlight.sidebarCharacterReturnContext = nil
+        browseHighlightState = nextHighlight
+
+        var nextNavigation = navigationState
+        nextNavigation.previewCharacter = nil
+        nextNavigation.requestedStudyNavigationTarget = nil
+        nextNavigation.pendingConversationPracticeTopicID = nil
+        navigationState = nextNavigation
+        rememberLastPreviewedCharacter(nil)
+
+        var nextPresentation = presentationState
+        nextPresentation.activeFavouriteCharacter = nil
+        nextPresentation.shouldOpenAddedPhraseReview = false
+        nextPresentation.shouldOpenCaptureCamera = false
+        nextPresentation.shouldOpenCaptureTextPage = false
+        nextPresentation.shouldOpenCaptureClipboardImage = false
+        nextPresentation.shouldOpenCaptureAlbum = false
+        nextPresentation.shouldOpenCaptureFiles = false
+        nextPresentation.quickEditDestination = nil
+        nextPresentation.showsPhoneDetail = false
+        nextPresentation.showsLatestAIResult = false
+        presentationState = nextPresentation
+
+        clearDeferredAILaunchRequests()
     }
 
     // MARK: - Highlight helpers

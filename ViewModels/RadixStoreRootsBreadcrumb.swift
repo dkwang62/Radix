@@ -121,9 +121,6 @@ extension RadixStore {
             }
         case .lineage:
             select(character: key, announce: false)
-            loadSharedComponentPeers(for: key)
-            loadSharedPeersByComponent(for: key)
-            loadRootDerivatives(for: key)
         case .aiLink:
             previewCharacter = key
             refreshPhrases(for: key)
@@ -166,9 +163,6 @@ extension RadixStore {
         case .lineage:
             if let firstCharacter = phrase.word.map(String.init).first {
                 select(character: firstCharacter, announce: false)
-                loadSharedComponentPeers(for: firstCharacter)
-                loadSharedPeersByComponent(for: firstCharacter)
-                loadRootDerivatives(for: firstCharacter)
             }
         case .aiLink:
             break

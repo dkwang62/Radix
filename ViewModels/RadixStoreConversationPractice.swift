@@ -413,7 +413,7 @@ extension RadixStore {
             phrases: phrases,
             characters: characters
         )
-        conversationPracticeLinkedHintCache[cacheKey] = hints
+        insertBoundedCacheValue(hints, for: cacheKey, in: &conversationPracticeLinkedHintCache, limit: 256)
         return hints
     }
 

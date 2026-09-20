@@ -89,6 +89,20 @@ struct NavigationCompatibilityTests {
         #expect(visible.last == "79")
     }
 
+    @Test("Search history keeps only the latest unique queries")
+    func searchHistoryIsBoundedAndDeduplicated() {
+        let values = (0..<SearchHistoryRules.retainedQueryLimit + 5).map { "query-\($0)" }
+        let bounded = SearchHistoryRules.normalized(values)
+        #expect(bounded.count == SearchHistoryRules.retainedQueryLimit)
+        #expect(bounded.first == "query-5")
+        #expect(bounded.last == "query-44")
+
+        let repeated = SearchHistoryRules.appending(" query-20 ", to: bounded)
+        #expect(repeated.count == SearchHistoryRules.retainedQueryLimit)
+        #expect(repeated.last == "query-20")
+        #expect(repeated.filter { $0 == "query-20" }.count == 1)
+    }
+
     @Test("Browse page and Study Pages use explicit buttons instead of return bars")
     func browseStudyPagePairSuppressesCrossTabReturn() {
         let browsePageOrigin = CrossTabReturnVisibilityContext(

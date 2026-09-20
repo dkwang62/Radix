@@ -7,7 +7,7 @@ struct ComponentStructureAnalysis: Hashable {
     let isSoundMatch: Bool
 }
 
-struct ComponentItem: Identifiable, Hashable {
+struct ComponentItem: Identifiable, Hashable, Sendable {
     let id: String
     let character: String
     let variant: String?
@@ -39,6 +39,125 @@ struct ComponentItem: Identifiable, Hashable {
         [character, pinyinText, definition, decomposition, radical, etymologyHint, etymologyDetails, notes]
             .joined(separator: " ")
             .lowercased()
+    }
+}
+
+struct BrowseGridItemMetadata: Equatable, Sendable {
+    let structure: String
+    let supportsSimplified: Bool
+    let supportsTraditional: Bool
+    let isComponent: Bool
+}
+
+struct BrowseGridComputationInput: Sendable {
+    let allItems: [ComponentItem]
+    let metadataByCharacter: [String: BrowseGridItemMetadata]
+    let selectedCharacters: Set<String>?
+    let readingOrderCharacters: [String]?
+    let minimumStroke: Int
+    let maximumStroke: Int
+    let radical: String
+    let structure: String
+    let scriptFilter: ScriptFilter
+    let sortMode: GridSortMode
+}
+
+struct BrowseGridComputationResult: Equatable, Sendable {
+    let items: [ComponentItem]
+    let allCount: Int
+    let componentCount: Int
+    let readingOrder: [String]
+}
+
+enum BrowseGridComputationRules {
+    static func compute(_ input: BrowseGridComputationInput) -> BrowseGridComputationResult {
+        let lower = min(input.minimumStroke, input.maximumStroke)
+        let upper = max(input.minimumStroke, input.maximumStroke)
+        let itemByCharacter = Dictionary(uniqueKeysWithValues: input.allItems.map { ($0.character, $0) })
+
+        if input.sortMode == .readingOrder, let readingOrder = input.readingOrderCharacters {
+            let filteredOrder = readingOrder.filter { character in
+                guard let item = itemByCharacter[character],
+                      let metadata = input.metadataByCharacter[character] else { return false }
+                return matches(item, metadata: metadata, input: input, lower: lower, upper: upper)
+            }
+            var seen = Set<String>()
+            let uniqueItems = filteredOrder.compactMap { character -> ComponentItem? in
+                guard seen.insert(character).inserted else { return nil }
+                return itemByCharacter[character]
+            }
+            let componentCount = uniqueItems.filter {
+                input.metadataByCharacter[$0.character]?.isComponent == true
+            }.count
+            return BrowseGridComputationResult(
+                items: uniqueItems,
+                allCount: filteredOrder.count,
+                componentCount: componentCount,
+                readingOrder: filteredOrder
+            )
+        }
+
+        let filtered = input.allItems.filter { item in
+            guard input.selectedCharacters?.contains(item.character) ?? true,
+                  let metadata = input.metadataByCharacter[item.character] else { return false }
+            return matches(item, metadata: metadata, input: input, lower: lower, upper: upper)
+        }
+        let components = filtered.filter {
+            input.metadataByCharacter[$0.character]?.isComponent == true
+        }
+        let sorted: [ComponentItem]
+        switch input.sortMode {
+        case .readingOrder, .characterFrequency:
+            sorted = filtered.sorted(by: frequencySort)
+        case .componentFrequency:
+            sorted = components.sorted(by: usageSort)
+        }
+        return BrowseGridComputationResult(
+            items: sorted,
+            allCount: filtered.count,
+            componentCount: components.count,
+            readingOrder: []
+        )
+    }
+
+    private static func matches(
+        _ item: ComponentItem,
+        metadata: BrowseGridItemMetadata,
+        input: BrowseGridComputationInput,
+        lower: Int,
+        upper: Int
+    ) -> Bool {
+        let strokes = item.strokes ?? 999
+        guard strokes >= lower, strokes <= upper else { return false }
+        guard isNoFilter(input.radical) || item.radical == input.radical else { return false }
+        guard isNoFilter(input.structure) || metadata.structure == input.structure else { return false }
+        switch input.scriptFilter {
+        case .any: return true
+        case .simplified: return metadata.supportsSimplified
+        case .traditional: return metadata.supportsTraditional
+        }
+    }
+
+    private static func isNoFilter(_ value: String) -> Bool {
+        let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return normalized == "none" || normalized == "any"
+    }
+
+    private static func frequencySort(_ lhs: ComponentItem, _ rhs: ComponentItem) -> Bool {
+        let lhsRank = lhs.rank ?? 999_999
+        let rhsRank = rhs.rank ?? 999_999
+        if lhsRank != rhsRank { return lhsRank < rhsRank }
+        if lhs.freqPerMillion != rhs.freqPerMillion { return lhs.freqPerMillion > rhs.freqPerMillion }
+        if lhs.usageCount != rhs.usageCount { return lhs.usageCount > rhs.usageCount }
+        return lhs.character < rhs.character
+    }
+
+    private static func usageSort(_ lhs: ComponentItem, _ rhs: ComponentItem) -> Bool {
+        let lhsGroup = lhs.usageCount >= 5 ? 0 : 1
+        let rhsGroup = rhs.usageCount >= 5 ? 0 : 1
+        if lhsGroup != rhsGroup { return lhsGroup < rhsGroup }
+        if lhsGroup == 0, lhs.usageCount != rhs.usageCount { return lhs.usageCount > rhs.usageCount }
+        return frequencySort(lhs, rhs)
     }
 }
 

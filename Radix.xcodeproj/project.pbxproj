@@ -245,6 +245,7 @@
 		D1F0AE3C0C3B5A9CF334AE72 /* DataEditTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 767D3CFB764DE7629773F001 /* DataEditTab.swift */; };
 		D2DB6B1F7905BD68CCC5630B /* ComponentSearchEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D637DCEBC54F45AE437F920 /* ComponentSearchEngine.swift */; };
 		D321A698FD1ED73EA011A6D4 /* BrowseGridComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A92E5F9916EC19DB71BF75A /* BrowseGridComponents.swift */; };
+		D462181F6248367F02AB6C01 /* BoundedCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48228B06226611EB00019F7 /* BoundedCache.swift */; };
 		D4680A0E37DF6C1A62F9BF95 /* RootViewDataTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB09C911F20197BA57E19F30 /* RootViewDataTransfer.swift */; };
 		D4845B6C5B330672CB9163BA /* BrowsePhonePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFF8D7C41671AC1F5FD27055 /* BrowsePhonePreview.swift */; };
 		D5B4644D64D3C69FADA0812A /* DataBackupPreviewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3EB18A42B05506E63AE8F5 /* DataBackupPreviewSection.swift */; };
@@ -597,6 +598,7 @@
 		E0DE16FF6E55DD3479150F68 /* BrowseFiltersSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseFiltersSheet.swift; sourceTree = "<group>"; };
 		E11BCC1F5CB54E936AB7029F /* RadixStoreRootsBreadcrumb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStoreRootsBreadcrumb.swift; sourceTree = "<group>"; };
 		E33C8D1C277846EDE781C7E5 /* DataBackupPreviewRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBackupPreviewRows.swift; sourceTree = "<group>"; };
+		E48228B06226611EB00019F7 /* BoundedCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundedCache.swift; sourceTree = "<group>"; };
 		E4D3A45AFB93C88FBEFF3B06 /* RadixShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RadixShareExtension.entitlements; sourceTree = "<group>"; };
 		E53E259A879DFAC10E5E0667 /* AILinkPromptOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AILinkPromptOutput.swift; sourceTree = "<group>"; };
 		E54BFB4AFE912FC1EF42B735 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -980,6 +982,7 @@
 		E8D79C478F82A7AAB7CC0952 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				E48228B06226611EB00019F7 /* BoundedCache.swift */,
 				0F906B2C87DFECB2F0FF9982 /* RadixAILinkState.swift */,
 				6A3BE0DCB924A6AABBB79B8D /* RadixAIProviderState.swift */,
 				CE8DF6B2196951A558A6A05E /* RadixBrowseFilterState.swift */,
@@ -1149,6 +1152,7 @@
 				11D5C7C0C17EA9C3E769BB96 /* AppleStrokeViews.swift in Sources */,
 				3CF70EC2B10674AE8B3450DC /* BackupSummaryBuilder.swift in Sources */,
 				655A168EB5BA72AC54AA9135 /* BinaryFileDocument.swift in Sources */,
+				D462181F6248367F02AB6C01 /* BoundedCache.swift in Sources */,
 				83AFD162BDC68F03D2C6A2B7 /* BreadcrumbStrip.swift in Sources */,
 				A15BA759BECE6523607ED145 /* BrowseCollectionEditing.swift in Sources */,
 				5C3DE54D3D213CFF2E4747CA /* BrowseCollectionSheets.swift in Sources */,

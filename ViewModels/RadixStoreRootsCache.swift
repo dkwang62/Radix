@@ -87,7 +87,12 @@ extension RadixStore {
         let finalSet = filtered.isEmpty ? baseSet : filtered
         let sorted   = finalSet.sorted(by: frequencySortPredicate)
         let limited  = Array(sorted.prefix(500))
-        rootsDerivativesCache[key] = RootsDerivativesCacheValue(items: limited, total: sorted.count)
+        insertBoundedCacheValue(
+            RootsDerivativesCacheValue(items: limited, total: sorted.count),
+            for: key,
+            in: &rootsDerivativesCache,
+            limit: 128
+        )
         return (limited, sorted.count)
     }
 }

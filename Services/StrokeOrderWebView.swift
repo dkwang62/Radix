@@ -193,7 +193,7 @@ struct StrokeOrderWebView: UIViewRepresentable {
                   onComplete(bundledData);
                 }
               });
-              writer.loopCharacterAnimation();
+              writer.animateCharacter();
             };
           </script>
         </body>

@@ -145,10 +145,32 @@ enum SidebarNavigationStyle: String, CaseIterable, Identifiable, Codable {
     }
 }
 
-enum GridSortMode: String, CaseIterable, Identifiable {
+enum GridSortMode: String, CaseIterable, Identifiable, Sendable {
     case readingOrder = "Reading Order"
     case componentFrequency = "Components"
     case characterFrequency = "All"
 
     var id: String { rawValue }
+}
+
+enum SearchHistoryRules {
+    static let retainedQueryLimit = 40
+
+    static func normalized(_ values: [String]) -> [String] {
+        var newestFirst: [String] = []
+        var seen = Set<String>()
+        for value in values.reversed() {
+            let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty, seen.insert(trimmed).inserted else { continue }
+            newestFirst.append(trimmed)
+            if newestFirst.count == retainedQueryLimit { break }
+        }
+        return newestFirst.reversed()
+    }
+
+    static func appending(_ query: String, to values: [String]) -> [String] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return normalized(values) }
+        return normalized(values.filter { $0.trimmingCharacters(in: .whitespacesAndNewlines) != trimmed } + [trimmed])
+    }
 }

@@ -44,6 +44,7 @@ struct AILinkView: View {
     @State var aiSentenceSearchText = ""
     @State var aiSentencePickerRecords: [SentenceExampleRecord] = []
     @State var aiSentencePickerResultCount = 0
+    @State var aiSentenceSearchTask: Task<Void, Never>?
     @State var isPromptTemplateRevisionExpanded = false
     @State var promptTemplateChangeRequest = ""
     @State var promptTemplateRevisionText = ""
@@ -74,7 +75,7 @@ struct AILinkView: View {
 
     var activeSubjectIsPhrase: Bool {
         guard let activeCharacter else { return false }
-        return activeCharacter.count > 1 && store.mergedPhrase(for: activeCharacter) != nil
+        return activeCharacter.count > 1
     }
 
     var activeSubjectIcon: String {
@@ -280,7 +281,10 @@ struct AILinkView: View {
                 runGeminiPhraseAPI()
             }
         }
-        .onDisappear { cancelTranscriptRun() }
+        .onDisappear {
+            cancelTranscriptRun()
+            aiSentenceSearchTask?.cancel()
+        }
         .onChange(of: generatedPromptText) { _, _ in cancelTranscriptRun() }
         .onChange(of: selectedPromptTask?.id) { _, _ in
             cancelTranscriptRun()
@@ -289,7 +293,7 @@ struct AILinkView: View {
             refreshAISentencePickerResults()
         }
         .onChange(of: aiSentenceSearchText) { _, _ in
-            refreshAISentencePickerResults()
+            refreshAISentencePickerResults(debounce: true)
         }
         .onChange(of: store.selectedPromptTaskID) { _, newValue in
             guard let newValue else { return }
@@ -473,16 +477,34 @@ struct AILinkView: View {
         promptSaveStatus = nil
     }
 
-    func refreshAISentencePickerResults() {
+    func refreshAISentencePickerResults(debounce: Bool = false) {
+        aiSentenceSearchTask?.cancel()
+        guard isSelectedTaskSentenceTask else {
+            aiSentencePickerRecords = []
+            aiSentencePickerResultCount = 0
+            return
+        }
+        let searchText = aiSentenceSearchText
         let query = SentenceExampleQuery(
             scope: .all,
-            searchText: aiSentenceSearchText,
+            searchText: searchText,
             offset: 0,
             limit: 40
         )
-        let result = RadixStudyPreferences.querySentenceExamples(query)
-        aiSentencePickerRecords = result.records
-        aiSentencePickerResultCount = result.totalCount
+        aiSentenceSearchTask = Task {
+            if debounce {
+                try? await Task.sleep(for: .milliseconds(300))
+                guard !Task.isCancelled else { return }
+            }
+            let result = await Task.detached(priority: .userInitiated) {
+                RadixStudyPreferences.querySentenceExamples(query)
+            }.value
+            guard !Task.isCancelled,
+                  isSelectedTaskSentenceTask,
+                  aiSentenceSearchText == searchText else { return }
+            aiSentencePickerRecords = result.records
+            aiSentencePickerResultCount = result.totalCount
+        }
     }
 
     func resetPromptTemplateRevision() {

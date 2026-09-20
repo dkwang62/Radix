@@ -145,6 +145,37 @@ struct SwiftUICrashGuardrailTests {
         #expect(migration.contains("guard !store.favoritePhrases.isEmpty else { return }"))
     }
 
+    @Test("Interactive surfaces keep expensive work out of rendering and navigation")
+    func interactivePerformanceGuardrails() throws {
+        let grid = try sourceText(at: "ViewModels/RadixStoreGrid.swift")
+        #expect(grid.contains("Task.detached(priority: .userInitiated)"))
+        #expect(grid.contains("browseGridState = nextState"))
+
+        let characterActions = try sourceText(at: "Views/CharacterInfoCardActions.swift")
+        #expect(characterActions.contains(".task(id:"))
+        #expect(characterActions.contains("Task.detached(priority: .userInitiated)"))
+
+        let phraseCard = try sourceText(at: "Views/PhraseInfoCard.swift")
+        let phraseControls = try sourceText(at: "Views/PhraseInfoControls.swift")
+        #expect(phraseCard.contains("hasSentenceExamples"))
+        #expect(phraseControls.contains("Task.detached(priority: .userInitiated)"))
+
+        let aiLink = try sourceText(at: "Views/AILinkView.swift")
+        #expect(aiLink.contains("Task.sleep(for: .milliseconds(300))"))
+        #expect(aiLink.contains("guard isSelectedTaskSentenceTask else"))
+
+        let animation = try sourceText(at: "Services/StrokeOrderWebView.swift")
+        #expect(animation.contains("writer.animateCharacter();"))
+        #expect(!animation.contains("writer.loopCharacterAnimation();"))
+
+        let dataEdit = try sourceText(at: "ViewModels/RadixStoreDataEdit.swift")
+        let blankEntry = dataEdit
+            .components(separatedBy: "func startBlankDataEdit() {")[1]
+            .components(separatedBy: "// MARK: - Save")[0]
+        #expect(blankEntry.contains("dataEditPhrases = addedPhrases"))
+        #expect(!blankEntry.contains("fetchAddedPhrases"))
+    }
+
     @Test("Study root delegates section state and navigation transitions")
     func studyRootUsesSectionStateCoordinator() throws {
         let rootSource = try sourceText(at: "App/FavouritesTab.swift")

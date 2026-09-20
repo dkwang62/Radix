@@ -12,64 +12,8 @@ import Foundation
 extension RadixStore {
 
     func buildGridItemsWithCounts() -> (items: [ComponentItem], allCount: Int, componentCount: Int, readingOrder: [String]) {
-        let lower = min(strokeMinFilter, strokeMaxFilter)
-        let upper = max(strokeMinFilter, strokeMaxFilter)
-
-        if gridSortMode == .readingOrder, let collection = selectedBrowseCollection {
-            let filteredOrdered: [String] = collection.characters.filter { character in
-                guard let item = componentRepo.byCharacter[character] else { return false }
-                let strokeValue = item.strokes ?? 999
-                let strokeMatch = strokeValue >= lower && strokeValue <= upper
-                let radicalMatch = isNoFilter(selectedRadicalFilter) || item.radical == selectedRadicalFilter
-                let structureMatch = isNoFilter(selectedStructureFilter)
-                    || componentRepo.structureKey(for: item) == selectedStructureFilter
-                let scriptMatch: Bool = {
-                    switch gridScriptFilter {
-                    case .any: return true
-                    case .simplified: return componentRepo.isSimplifiedForGrid(character)
-                    case .traditional: return componentRepo.isTraditionalForGrid(character)
-                    }
-                }()
-                return strokeMatch && radicalMatch && structureMatch && scriptMatch
-            }
-            var seen = Set<String>()
-            let uniqueItems = filteredOrdered.compactMap { character -> ComponentItem? in
-                guard seen.insert(character).inserted else { return nil }
-                return componentRepo.byCharacter[character]
-            }
-            let componentPool = uniqueItems.filter { componentRepo.isUsedComponent($0.character) }
-            return (uniqueItems, filteredOrdered.count, componentPool.count, filteredOrdered)
-        }
-
-        var items = allCharactersCache
-        if let collectionCharacters = selectedBrowseCollectionCharacters {
-            items = items.filter { collectionCharacters.contains($0.character) }
-        }
-        items = items.filter { item in
-            let strokeValue = item.strokes ?? 999
-            let strokeMatch = strokeValue >= lower && strokeValue <= upper
-            let radicalMatch = isNoFilter(selectedRadicalFilter) || item.radical == selectedRadicalFilter
-            let structureMatch = isNoFilter(selectedStructureFilter)
-                || componentRepo.structureKey(for: item) == selectedStructureFilter
-            return strokeMatch && radicalMatch && structureMatch
-        }
-        items = items.filter { item in
-            switch gridScriptFilter {
-            case .any: return true
-            case .simplified: return componentRepo.isSimplifiedForGrid(item.character)
-            case .traditional: return componentRepo.isTraditionalForGrid(item.character)
-            }
-        }
-
-        let componentPool = items.filter { componentRepo.isUsedComponent($0.character) }
-        let sorted: [ComponentItem]
-        switch gridSortMode {
-        case .readingOrder, .characterFrequency:
-            sorted = items.sorted(by: frequencySortPredicate)
-        case .componentFrequency:
-            sorted = componentPool.sorted(by: usageSortPredicate)
-        }
-        return (sorted, items.count, componentPool.count, [])
+        let result = BrowseGridComputationRules.compute(browseGridComputationInput())
+        return (result.items, result.allCount, result.componentCount, result.readingOrder)
     }
 
     var gridBatchSize: Int { BrowseGridLayout.current.dictionaryPageSize }
@@ -127,15 +71,35 @@ extension RadixStore {
     }
 
     func recomputeGridItems() {
-        Task {
-            let result = buildGridItemsWithCounts()
-            await MainActor.run {
-                allGridItems = result.items
-                allReadingOrderCharacters = result.readingOrder
-                gridFilteredAllCount = result.allCount
-                gridFilteredComponentCount = result.componentCount
-            }
+        gridRecomputeTask?.cancel()
+        let input = browseGridComputationInput()
+        gridRecomputeTask = Task { [weak self] in
+            let result = await Task.detached(priority: .userInitiated) {
+                BrowseGridComputationRules.compute(input)
+            }.value
+            guard !Task.isCancelled, let self else { return }
+            var nextState = browseGridState
+            nextState.items = result.items
+            nextState.readingOrderCharacters = result.readingOrder
+            nextState.filteredAllCount = result.allCount
+            nextState.filteredComponentCount = result.componentCount
+            browseGridState = nextState
         }
+    }
+
+    private func browseGridComputationInput() -> BrowseGridComputationInput {
+        BrowseGridComputationInput(
+            allItems: allCharactersCache,
+            metadataByCharacter: browseGridMetadataCache,
+            selectedCharacters: selectedBrowseCollectionCharacters,
+            readingOrderCharacters: selectedBrowseCollection?.characters,
+            minimumStroke: strokeMinFilter,
+            maximumStroke: strokeMaxFilter,
+            radical: selectedRadicalFilter,
+            structure: selectedStructureFilter,
+            scriptFilter: gridScriptFilter,
+            sortMode: gridSortMode
+        )
     }
 
     // MARK: - Filter predicates

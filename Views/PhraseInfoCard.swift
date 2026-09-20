@@ -31,6 +31,7 @@ struct PhraseInfoCard: View {
     @State var editStatus: String?
     @State var showPhraseTableSheet = false
     @State var showSentenceExampleSheet = false
+    @State var hasSentenceExamples = false
     @State var showDeletePhraseConfirmation = false
     @State var showDeleteSentenceConfirmation = false
     @State var selectedAnimationPage = 0
@@ -119,6 +120,9 @@ struct PhraseInfoCard: View {
                 isRunningSentenceImprovement = false
                 sentenceImprovementStatus = nil
                 locallyImprovedSentenceItem = nil
+            }
+            .task(id: "\(phrase.word)|\(store.dataImportRevision)") {
+                await refreshSentenceExampleAvailability()
             }
             .onChange(of: sentenceSourceID) { _, _ in
                 cancelSentenceAIWork()

@@ -502,8 +502,10 @@ final class RadixStore: ObservableObject {
     let speechService = CharacterSpeechService()
     var pendingDatasetAutosaveWorkItem: DispatchWorkItem?
     var pendingGridRecomputeWorkItem: DispatchWorkItem?
+    var gridRecomputeTask: Task<Void, Never>?
     var isApplyingDatasetEntry = false
     var allCharactersCache: [ComponentItem] = []
+    var browseGridMetadataCache: [String: BrowseGridItemMetadata] = [:]
     var selectedBrowseCollectionCharacters: Set<String>? = nil
     var phraseCache: [String: [PhraseItem]] = [:]
     var conversationPracticePhraseCache: [String: PhraseItem] = [:]
@@ -545,5 +547,12 @@ final class RadixStore: ObservableObject {
     var addPhrasesPath: String {
         get { dataWorkspaceState.addedPhrasesDatabasePath }
         set { dataWorkspaceState.addedPhrasesDatabasePath = newValue }
+    }
+
+    func clearDeferredAILaunchRequests() {
+        var next = aiLinkState
+        next.shouldAutoOpenPrompt = false
+        next.shouldAutoRunGeminiPhraseAPI = false
+        aiLinkState = next
     }
 }

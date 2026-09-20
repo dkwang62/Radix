@@ -162,6 +162,16 @@ extension PhraseInfoCard {
     }
 
     var shouldShowSentenceExamplesButton: Bool {
-        !SentenceExampleDisplayRules.examples(containingPhrase: phrase.word, limit: 1).isEmpty
+        hasSentenceExamples
+    }
+
+    func refreshSentenceExampleAvailability() async {
+        hasSentenceExamples = false
+        let word = phrase.word
+        let available = await Task.detached(priority: .userInitiated) {
+            !SentenceExampleDisplayRules.examples(containingPhrase: word, limit: 1).isEmpty
+        }.value
+        guard !Task.isCancelled else { return }
+        hasSentenceExamples = available
     }
 }

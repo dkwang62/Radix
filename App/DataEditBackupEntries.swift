@@ -14,14 +14,14 @@ extension DataEditTab {
     }
 
     var changedPhraseEntries: [PhraseItem] {
-        var merged: [PhraseItem] = []
+        var order: [String] = []
+        var mergedByWord: [String: PhraseItem] = [:]
         for phrase in store.addedPhrases + store.dataEditPhrases {
-            if let index = merged.firstIndex(where: { $0.word == phrase.word }) {
-                merged[index] = phrase
-            } else {
-                merged.append(phrase)
+            if mergedByWord[phrase.word] == nil {
+                order.append(phrase.word)
             }
+            mergedByWord[phrase.word] = phrase
         }
-        return merged
+        return order.compactMap { mergedByWord[$0] }
     }
 }

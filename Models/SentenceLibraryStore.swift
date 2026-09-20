@@ -3,7 +3,7 @@ import SQLite3
 
 private let SQLITE_TRANSIENT_SENTENCE_EXAMPLES = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
 
-enum SentenceExampleQueryScope: Equatable {
+enum SentenceExampleQueryScope: Equatable, Sendable {
     case all
     case favorites
     case pageLinked
@@ -12,7 +12,7 @@ enum SentenceExampleQueryScope: Equatable {
     case page(UUID, SentenceExampleSourceType?)
 }
 
-struct SentenceExampleQuery: Equatable {
+struct SentenceExampleQuery: Equatable, Sendable {
     var scope: SentenceExampleQueryScope = .all
     var searchText = ""
     var minimumCharacterCount = 0
@@ -20,12 +20,12 @@ struct SentenceExampleQuery: Equatable {
     var limit: Int? = nil
 }
 
-struct SentenceExampleQueryResult: Equatable {
+struct SentenceExampleQueryResult: Equatable, Sendable {
     var records: [SentenceExampleRecord]
     var totalCount: Int
 }
 
-struct SentenceExamplePageQueryResult: Equatable {
+struct SentenceExamplePageQueryResult: Equatable, Sendable {
     var records: [SentenceExampleRecord]
     var totalCount: Int
     var pageIndex: Int

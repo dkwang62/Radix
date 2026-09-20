@@ -44,6 +44,8 @@ extension DataBackupPreviewSection {
     @ViewBuilder
     func backupPhraseRows(_ phrases: [PhraseItem]) -> some View {
         let sortedPhrases = sortedBackupPhrases(phrases)
+        let displayed = Array(sortedPhrases.prefix(80))
+        let truncated = sortedPhrases.count > displayed.count
 
         if phrases.isEmpty {
             Text("No matching phrases.")
@@ -52,7 +54,7 @@ extension DataBackupPreviewSection {
                 .padding(.top, 8)
         } else {
             VStack(alignment: .leading, spacing: 8) {
-                ForEach(Array(backupPhraseRows(for: sortedPhrases).enumerated()), id: \.offset) { _, rowPhrases in
+                ForEach(Array(backupPhraseRows(for: displayed).enumerated()), id: \.offset) { _, rowPhrases in
                     HStack(spacing: 8) {
                         ForEach(rowPhrases) { phrase in
                             BackupPhraseRow(phrase: phrase) {
@@ -65,6 +67,11 @@ extension DataBackupPreviewSection {
                                 .frame(maxWidth: .infinity, minHeight: 44)
                         }
                     }
+                }
+                if truncated {
+                    Text("Showing the first \(displayed.count) of \(sortedPhrases.count) phrases.")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
             .padding(.top, 8)
