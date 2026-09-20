@@ -20,6 +20,10 @@ struct AILinkView: View {
     @Environment(\.horizontalSizeClass) var sizeClass
     @Environment(\.openURL) var openURL
     let item: ComponentItem?
+    @State var transcriptRun: Task<Void, Never>?
+    @State var transcriptRunID: UUID?
+    @State var isRunningTranscript = false
+    @State var transcriptPageID: UUID?
     @State var copied = false
     @State var openedDefaultAI = false
     @State var draftPromptTitle = ""
@@ -276,7 +280,10 @@ struct AILinkView: View {
                 runGeminiPhraseAPI()
             }
         }
+        .onDisappear { cancelTranscriptRun() }
+        .onChange(of: store.aiFreeTextInput) { _, _ in cancelTranscriptRun() }
         .onChange(of: selectedPromptTask?.id) { _, _ in
+            cancelTranscriptRun()
             resetAIResultWorkflow()
             resetPromptTest()
             refreshAISentencePickerResults()
@@ -289,6 +296,7 @@ struct AILinkView: View {
             loadPromptDraft(taskID: newValue)
         }
         .onChange(of: selectedCollection?.id) { _, _ in
+            guard !isSelectedTaskFreeTextTask else { return }
             resetAIResultWorkflow()
             resetPromptTest()
         }

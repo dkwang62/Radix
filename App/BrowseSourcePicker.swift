@@ -24,6 +24,15 @@ extension FilterGridTab {
                 beginManualCollection()
             }
 
+            sourceActionButton(
+                title: "Image from Transcripts",
+                subtitle: "Create sentences from pasted text",
+                systemImage: "text.quote",
+                isLocked: !hasUnlimitedFreePages && freePagesRemaining == 0
+            ) {
+                store.goToTranscriptAI()
+            }
+
             if isProcessingBrowseImageImport {
                 SourceMenuRow(
                     title: "Reading image...",

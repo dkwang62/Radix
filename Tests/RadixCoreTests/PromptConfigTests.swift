@@ -77,7 +77,7 @@ struct PromptConfigTests {
         #expect(BuiltInPromptTaskID.allCases.map(\.rawValue) == [
             "task1", "task2", "task3", "task4", "task5",
             "task6", "task7", "task8", "task9", "task10",
-            "task11", "task12", "task13", "task14", "task15"
+            "task11", "task12", "task13", "task14", "task15", "task16"
         ])
         #expect(BuiltInPromptTaskID.activeCases.contains(.retiredLegacyTask) == false)
         #expect(BuiltInPromptTaskID.extractPhrases.subjectType == .page)
@@ -210,6 +210,22 @@ struct PromptConfigTests {
         #expect(task?.template.contains("\"english\"") == true)
         #expect(task?.template.contains("The three fields must match each other exactly") == true)
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains(PromptConfig.sentenceImprovementTaskID))
+    }
+
+    @Test("Transcript task is added to saved configurations without changing existing tasks")
+    func transcriptTaskCompatibility() {
+        let old = PromptConfig(version: 1, preamble: "", tasks: [
+            PromptTask(id: "custom_task", title: "Mine", template: "Keep me")
+        ], epilogue: "", collectionPreamble: "", collectionEpilogue: "")
+        let normalized = old.normalized()
+        let task = normalized.tasks.first { $0.id == BuiltInPromptTaskID.sentencesFromTranscript.rawValue }
+        #expect(task?.subjectType == .freeText)
+        #expect(task?.template.contains("{free_text_input}") == true)
+        #expect(task?.template.contains("tone-marked pinyin") == true)
+        #expect(task?.template.contains("phrase_hints") == true)
+        #expect(BuiltInPromptTaskID.sentencesFromTranscript.supportsResultImport)
+        #expect(normalized.tasks.first { $0.id == "custom_task" }?.template == "Keep me")
+        #expect(!PromptConfig.collectionTaskIDs.contains("task16"))
     }
 
     @Test("Format vocabulary template is a free text phrase import task")

@@ -351,6 +351,18 @@ extension RadixStore {
         shouldOpenCaptureCamera = true
     }
 
+    func goToTranscriptAI() {
+        if route != .aiLink { rememberCrossTabOrigin() }
+        let taskID = BuiltInPromptTaskID.sentencesFromTranscript.rawValue
+        promptSelectedTaskIDs = [taskID]
+        selectedPromptTaskID = taskID
+        shouldAutoOpenAILinkPrompt = false
+        shouldAutoRunGeminiPhraseAPI = false
+        route = .aiLink
+        if RadixPlatform.isPhone { showiPhoneDetail = false }
+        persistPromptSettings()
+    }
+
     func startCaptureTextPage() {
         startCapturePageRequest()
         shouldOpenCaptureTextPage = true

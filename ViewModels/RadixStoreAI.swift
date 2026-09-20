@@ -439,7 +439,8 @@ extension RadixStore {
         responseText: String,
         collection: CharacterCollection?,
         sentence: ConversationPracticeItem?,
-        sourceName: String
+        sourceName: String,
+        transcriptSource: String? = nil
     ) throws -> AIResultApplicationOutcome {
         guard !isRestoreTransactionActive, !restoreRollbackJournal.isPending else {
             throw NSError(domain: "Radix.RestoreRollback", code: 2,
@@ -466,6 +467,8 @@ extension RadixStore {
                 sourceName: sourceName,
                 sourceCollection: collection
             ))
+        case .sentencesFromTranscript:
+            return .aiCleanedPage(try importTranscriptSentences(responseText, sourceText: transcriptSource ?? aiFreeTextInput))
         case .extractSentences:
             guard let collection else { throw AIResultApplicationError.missingCollection }
             return .aiCleanedPage(try importAICleanedPage(fromAIResponse: responseText, for: collection))
@@ -475,6 +478,31 @@ extension RadixStore {
         default:
             throw AIResultApplicationError.unsupportedTask
         }
+    }
+
+    func importTranscriptSentences(_ response: String, sourceText: String) throws -> AICleanedPageRecord {
+        let source = sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard collectionCharacterValidation(for: source).hasChineseCharacters else {
+            throw AIResultApplicationError.emptyCorrectedOCR
+        }
+        // Reapplying a result for the same transcript updates its existing sentence list.
+        let existing = allCollections.first { $0.sourceType == .manual && $0.name == "Transcript" && $0.originalOCRText == source }
+        let pageID = existing?.id ?? UUID()
+        let record = try TranscriptSentenceImportParser.parse(response, sourcePageID: pageID, sourceTitle: "Transcript")
+        if existing == nil && entitlement.requiresPro(.datedCopies) && RadixCaptureUsage.freeScanCount >= 100 {
+            showPaywall(for: .datedCopies)
+            throw NSError(domain: "Radix.Transcript", code: 1, userInfo: [NSLocalizedDescriptionKey: "The free page allowance has been used. Your transcript is still available."])
+        }
+        guard (existing ?? createCollection(id: pageID, name: "Transcript", sourceText: source,
+                                                      sourceType: .manual, originalOCRText: source)) != nil else {
+            throw AIResultApplicationError.emptyCorrectedOCR
+        }
+        if existing == nil && entitlement.requiresPro(.datedCopies) {
+            _ = RadixCaptureUsage.incrementFreeScanCount(limit: 100)
+        }
+        let processed = preprocessedAICleanedPage(record)
+        try RadixStudyPreferences.recordAICleanedPage(processed)
+        return processed
     }
 
     func runGeminiTranslationReport(for collection: CharacterCollection) async throws -> String {

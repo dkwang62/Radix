@@ -72,6 +72,14 @@ extension AILinkView {
         let currentAIName = store.aiName(for: currentPreset)
 
         VStack(alignment: .leading, spacing: 8) {
+            if selectedPromptTask?.id == BuiltInPromptTaskID.sentencesFromTranscript.rawValue {
+                HStack {
+                    Button(isRunningTranscript ? "Creating Sentences…" : "Run Automatically") { runTranscriptAI() }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(!canGeneratePrompt || isRunningTranscript)
+                    if isRunningTranscript { Button("Cancel") { cancelTranscriptRun() } }
+                }
+            }
             promptActionButtons(currentPreset: currentPreset, currentAIName: currentAIName)
             promptStatusText(currentPreset: currentPreset, currentAIName: currentAIName)
         }
@@ -190,6 +198,47 @@ extension AILinkView {
                 .font(ResponsiveFont.footnote)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    func cancelTranscriptRun() {
+        transcriptRun?.cancel()
+        transcriptRun = nil
+        transcriptRunID = nil
+        isRunningTranscript = false
+    }
+
+    func runTranscriptAI() {
+        guard !isRunningTranscript, let task = selectedPromptTask,
+              task.id == BuiltInPromptTaskID.sentencesFromTranscript.rawValue else { return }
+        guard store.hasAutomaticAIConfiguration else {
+            aiResultError = "Automatic AI is not configured. Use Open AI or Copy Prompt Only below for the manual flow, or configure an API key in Settings."
+            return
+        }
+        let source = store.aiFreeTextInput
+        let prompt = store.promptForTask(task, subject: .freeText(source))
+        let requestID = UUID()
+        transcriptRunID = requestID
+        isRunningTranscript = true
+        resetAIResultWorkflow()
+        transcriptRun = Task { @MainActor in
+            defer {
+                if transcriptRunID == requestID { cancelTranscriptRun() }
+            }
+            do {
+                let response = try await store.runAutomaticPromptTest(prompt: prompt)
+                guard !Task.isCancelled, transcriptRunID == requestID,
+                      store.aiFreeTextInput == source, selectedPromptTask?.id == task.id else { return }
+                aiResultText = response
+                let outcome = try store.applyAIResult(taskID: task.id, responseText: response,
+                    collection: nil, sentence: nil, sourceName: "Transcript", transcriptSource: source)
+                if case .aiCleanedPage(let record) = outcome { transcriptPageID = record.sourcePageID }
+                aiResultMessage = outcome.message(defaultAIName: store.automaticAIName)
+                isAIResultTextExpanded = false
+            } catch {
+                guard !Task.isCancelled, transcriptRunID == requestID else { return }
+                aiResultError = "Automatic AI could not finish: \(error.localizedDescription) Use the manual AI flow with the same source text and prompt."
+            }
         }
     }
 
@@ -332,6 +381,12 @@ extension AILinkView {
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .foregroundStyle(RadixAccent.primary)
                     .fixedSize(horizontal: false, vertical: true)
+
+                if let transcriptPageID {
+                    Button("Open in Study") {
+                        store.goToPagesWorkspace(id: transcriptPageID, preservingOrigin: true)
+                    }.buttonStyle(.borderedProminent)
+                }
 
                 if let aiImportedPracticePack {
                     Button {
@@ -606,6 +661,10 @@ extension AILinkView {
                 sourceName: aiResultSourceName(for: task.id)
             )
 
+            if case .aiCleanedPage(let record) = outcome,
+               task.id == BuiltInPromptTaskID.sentencesFromTranscript.rawValue {
+                transcriptPageID = record.sourcePageID
+            }
             if case .correctedOCR(let corrected) = outcome {
                 store.selectAICollection(id: corrected.id)
             }
@@ -636,6 +695,7 @@ extension AILinkView {
     }
 
     func resetAIResultWorkflow() {
+        transcriptPageID = nil
         aiResultText = ""
         aiResultMessage = nil
         aiResultError = nil
@@ -649,7 +709,7 @@ extension AILinkView {
         case .extractPhrases, .structurePhraseInput: return "text.badge.plus"
         case .explainPage: return "translate"
         case .checkOCR: return "text.viewfinder"
-        case .extractSentences: return "text.page.badge.magnifyingglass"
+        case .extractSentences, .sentencesFromTranscript: return "text.page.badge.magnifyingglass"
         case .generatePracticePack, .sentencePractice, .createConversation: return "bubble.left.and.bubble.right"
         case .improveSentence: return "wand.and.stars"
         default: return "doc.text"
@@ -659,6 +719,7 @@ extension AILinkView {
     func aiResultInstruction(for taskID: String) -> String {
         switch BuiltInPromptTaskID(rawValue: taskID) {
         case .extractPhrases: return "Paste the extracted phrase list here to add the phrases to Radix."
+        case .sentencesFromTranscript: return "If automatic AI is unavailable, copy the prompt to your AI chat, then paste its JSON answer here and save the sentences."
         case .structurePhraseInput: return "Paste the formatted vocabulary list here to add the phrases to Radix."
         case .explainPage: return "Paste the page explanation here to save it with the selected page."
         case .checkOCR: return "Paste the text review here to create a corrected saved page."
@@ -677,7 +738,7 @@ extension AILinkView {
         case .extractPhrases, .structurePhraseInput: return "Add Phrases"
         case .explainPage: return "Save Explanation"
         case .checkOCR: return "Create Corrected Text"
-        case .extractSentences: return "Save Sentences"
+        case .extractSentences, .sentencesFromTranscript: return "Save Sentences"
         case .generatePracticePack, .sentencePractice, .createConversation: return "Import Practice"
         case .improveSentence: return "Update Sentence"
         default: return "Apply"

@@ -707,3 +707,33 @@ struct PagePhraseExtractionRecord: Codable, Equatable, Hashable, Identifiable {
             .filter { seen.insert($0).inserted }
     }
 }
+
+/// Transcript imports require complete bilingual JSON; the page importer's plain-text
+/// salvage path must not turn a provider error or incomplete answer into saved sentences.
+enum TranscriptSentenceImportParser {
+    private struct Entry: Decodable {
+        let id: String
+        let chinese: String
+        let pinyin: String
+        let english: String
+        let phrase_hints: [String]
+    }
+
+    static func parse(_ text: String, sourcePageID: UUID, sourceTitle: String) throws -> AICleanedPageRecord {
+        for candidate in ConversationPracticeRules.importJSONCandidates(from: text) {
+            guard let data = candidate.data(using: .utf8),
+                  let entries = try? JSONDecoder().decode([Entry].self, from: data),
+                  !entries.isEmpty,
+                  entries.allSatisfy({ entry in
+                      !entry.id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+                      entry.chinese.range(of: "\\p{Han}", options: .regularExpression) != nil &&
+                      !entry.pinyin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+                      !entry.english.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+                      entry.phrase_hints.allSatisfy { !$0.isEmpty && entry.chinese.contains($0) }
+                  }) else { continue }
+            return try AICleanedPageImportParser.parse(candidate, sourcePageID: sourcePageID, sourceTitle: sourceTitle)
+        }
+        throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription:
+            "Use the complete JSON sentence array with id, chinese, pinyin, english, and phrase_hints. No sentences were saved."))
+    }
+}

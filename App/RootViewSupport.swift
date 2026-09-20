@@ -263,6 +263,12 @@ extension RootView {
         }
 
         Button {
+            performTitleMenuSelection { store.goToTranscriptAI() }
+        } label: {
+            Label("Image from Transcripts", systemImage: "text.quote")
+        }
+
+        Button {
             performTitleMenuSelection {
                 store.startCaptureClipboardImagePage()
             }

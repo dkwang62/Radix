@@ -103,6 +103,7 @@ enum BuiltInPromptTaskID: String, Codable, CaseIterable, Hashable {
     case explainSentence = "task13"
     case improveSentence = "task14"
     case structurePhraseInput = "task15"
+    case sentencesFromTranscript = "task16"
 
     var subjectType: PromptTaskSubjectType {
         switch self {
@@ -113,7 +114,7 @@ enum BuiltInPromptTaskID: String, Codable, CaseIterable, Hashable {
             return .practiceTopic
         case .explainSentence, .improveSentence:
             return .sentence
-        case .structurePhraseInput:
+        case .structurePhraseInput, .sentencesFromTranscript:
             return .freeText
         case .characterAnalysis, .exampleSentencesAndImages, .conceptualContrast, .retiredLegacyTask:
             return .characterPhrase
@@ -128,7 +129,7 @@ enum BuiltInPromptTaskID: String, Codable, CaseIterable, Hashable {
         switch self {
         case .extractPhrases, .explainPage, .checkOCR, .createQuiz,
              .generatePracticePack, .sentencePractice, .createConversation,
-             .extractSentences, .improveSentence, .structurePhraseInput:
+             .extractSentences, .improveSentence, .structurePhraseInput, .sentencesFromTranscript:
             return true
         default:
             return false
@@ -139,7 +140,7 @@ enum BuiltInPromptTaskID: String, Codable, CaseIterable, Hashable {
         switch self {
         case .extractPhrases, .explainPage, .checkOCR, .generatePracticePack,
              .sentencePractice, .createConversation, .extractSentences,
-             .improveSentence, .structurePhraseInput:
+             .improveSentence, .structurePhraseInput, .sentencesFromTranscript:
             return true
         default:
             return false
