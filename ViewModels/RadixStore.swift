@@ -413,6 +413,9 @@ final class RadixStore: ObservableObject {
         get { aiProviderState.defaultPreset }
         set {
             aiProviderState.defaultPreset = newValue
+            if newValue == .custom {
+                applyLocalFreeLLMAPIDefaultsIfNeeded()
+            }
             persistPromptSettings()
         }
     }
@@ -470,6 +473,25 @@ final class RadixStore: ObservableObject {
         set {
             aiProviderState.geminiModelID = newValue
             persistPromptSettings()
+        }
+    }
+
+    func useLocalFreeLLMAPIForCustomAI() {
+        aiProviderState.defaultPreset = .custom
+        aiProviderState.customURLString = LocalFreeLLMAPISettings.baseURLString
+        aiProviderState.customAIAPIKey = LocalFreeLLMAPISettings.apiKey
+        persistPromptSettings()
+    }
+
+    func applyLocalFreeLLMAPIDefaultsIfNeeded() {
+        let hasURL = !aiProviderState.customURLString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let hasKey = !aiProviderState.customAIAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        guard !hasURL || !hasKey else { return }
+        if !hasURL {
+            aiProviderState.customURLString = LocalFreeLLMAPISettings.baseURLString
+        }
+        if !hasKey {
+            aiProviderState.customAIAPIKey = LocalFreeLLMAPISettings.apiKey
         }
     }
 

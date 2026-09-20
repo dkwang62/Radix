@@ -71,6 +71,13 @@ struct SettingsView: View {
                 }
 
                 if store.defaultAIPreset == .custom {
+                    Button {
+                        store.useLocalFreeLLMAPIForCustomAI()
+                        RadixHaptics.success()
+                    } label: {
+                        Label("Use Local FreeLLMAPI", systemImage: "bolt.horizontal.circle.fill")
+                    }
+
                     TextField(
                         "Custom AI URL",
                         text: storeBinding(\.customAIURLString)
@@ -78,7 +85,7 @@ struct SettingsView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
 
-                    Text("Use an OpenAI-compatible base URL such as a FreeLLMAPI `/v1` endpoint for automatic AI, or `{prompt}` where Radix should place the prompt in a manual custom URL.")
+                    Text("Saves the local FreeLLMAPI URL and key for automatic AI. You can still edit the URL here if you use another OpenAI-compatible endpoint.")
                         .font(ResponsiveFont.caption)
                         .foregroundStyle(.secondary)
                 } else {

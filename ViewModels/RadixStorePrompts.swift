@@ -50,6 +50,10 @@ extension RadixStore {
            !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             geminiModelID = value
         }
+        if defaultAIPreset == .custom {
+            applyLocalFreeLLMAPIDefaultsIfNeeded()
+            persistPromptSettings()
+        }
         restoreRetainedGeminiAPIKeyIfNeeded()
         cleanupBlankCustomPromptTasks()
     }

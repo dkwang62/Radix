@@ -48,6 +48,11 @@ enum DefaultAIPreset: String, Codable, CaseIterable, Hashable {
     }
 }
 
+enum LocalFreeLLMAPISettings {
+    static let baseURLString = "http://127.0.0.1:3001/v1"
+    static let apiKey = "freellmapi-e4b60d507b8dd44b5d99efde671dcb9f69aab48f39c29ce0"
+}
+
 struct DefaultAISettings: Codable, Hashable {
     var preset: DefaultAIPreset = .chatGPT
     var customURLString: String = ""

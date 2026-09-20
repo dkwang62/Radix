@@ -348,7 +348,10 @@ AI is a shared workflow, not a collection of separate mini-features.
 - Automatic AI is optional and must always retain the manual fallback. Gemini
   remains the default direct backend; Custom AI may run automatic tasks through
   an OpenAI-compatible `/v1/chat/completions` endpoint such as FreeLLMAPI using
-  the saved Custom AI URL/key and model `auto`.
+  the saved Custom AI URL/key and model `auto`. The Settings screen includes a
+  `Use Local FreeLLMAPI` action that saves the local endpoint/key together;
+  selecting Custom AI also backfills the local FreeLLMAPI URL/key when either
+  saved value is blank.
 - `Test AI` runs a template but never applies its output.
 - Only custom templates are deletable. Built-in templates normalize legacy
   copies to the current contract.
