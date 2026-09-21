@@ -203,7 +203,8 @@ as orchestration, not a second business-rule implementation.
   an immutable snapshot off the main actor, and publishes one completed result.
 - Sentence-example availability and AI sentence-picker searches run outside
   SwiftUI rendering. AI sentence search is lazy and debounced. Stroke-order
-  previews animate once instead of running permanent background loops.
+  previews run three finite passes instead of permanent background loops; a
+  changed or dismissed preview cancels its remaining passes.
 - Search history and high-traffic phrase, page, lineage, practice, and editor
   caches are bounded. Backup previews cap repeated phrase tiles while retaining
   the full restore payload.

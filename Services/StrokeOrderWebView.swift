@@ -163,7 +163,11 @@ struct StrokeOrderWebView: UIViewRepresentable {
           <div id=\"wrap\"><div id=\"target\"></div><div id=\"status\"></div></div>
           <script>
             let writer = null;
+            let animationPassCount = 3;
+            let animationPauseMilliseconds = 800;
+            let animationGeneration = { value: 0 };
             window.clearCharacter = function() {
+              animationGeneration.value += 1;
               const target = document.getElementById('target');
               const status = document.getElementById('status');
               target.innerHTML = '';
@@ -171,6 +175,8 @@ struct StrokeOrderWebView: UIViewRepresentable {
               writer = null;
             };
             window.renderCharacter = function(ch, size, bundledData, statusText) {
+              animationGeneration.value += 1;
+              const generation = animationGeneration.value;
               const target = document.getElementById('target');
               const status = document.getElementById('status');
               target.style.width = size + 'px';
@@ -193,7 +199,18 @@ struct StrokeOrderWebView: UIViewRepresentable {
                   onComplete(bundledData);
                 }
               });
-              writer.animateCharacter();
+              const animatePass = function(remainingPasses) {
+                if (!writer || generation !== animationGeneration.value) return;
+                writer.animateCharacter({
+                  onComplete: function() {
+                    if (remainingPasses <= 1 || generation !== animationGeneration.value) return;
+                    window.setTimeout(function() {
+                      animatePass(remainingPasses - 1);
+                    }, animationPauseMilliseconds);
+                  }
+                });
+              };
+              animatePass(animationPassCount);
             };
           </script>
         </body>

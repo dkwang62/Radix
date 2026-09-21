@@ -183,7 +183,11 @@ struct SwiftUICrashGuardrailTests {
         #expect(aiLink.contains("guard isSelectedTaskSentenceTask else"))
 
         let animation = try sourceText(at: "Services/StrokeOrderWebView.swift")
-        #expect(animation.contains("writer.animateCharacter();"))
+        #expect(animation.contains("let animationPassCount = 3;"))
+        #expect(animation.contains("writer.animateCharacter({"))
+        #expect(animation.contains("animatePass(remainingPasses - 1);"))
+        #expect(animation.contains("generation !== animationGeneration.value"))
+        #expect(animation.contains("animatePass(animationPassCount);"))
         #expect(!animation.contains("writer.loopCharacterAnimation();"))
 
         let dataEdit = try sourceText(at: "ViewModels/RadixStoreDataEdit.swift")
