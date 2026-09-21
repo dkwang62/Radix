@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `34` (not yet distributed). Every committed application
+current source version is `1.1` build `35` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -90,9 +90,9 @@ stay linked to their page rather than becoming disconnected parallel features.
   pair uses the same compact `Browse | Study` segmented switcher on both
   surfaces and replaces generic `Back to Browse` or `Back to Study` bars. Study
   uses a compact `Switch Page` menu so the selected page title is not repeated.
-- Study keeps `Recent`, `Favorites`, and `Pages` visible in one compact local
-  navigation row; `More` contains Added Phrases, Conversation Practice,
-  Sentences, and Checkpoints. The row remains one line on narrow iPhones.
+- Study keeps `Pages`, `Sentences`, and `Conversation` visible in one compact
+  local navigation row; `More` contains Recent, Favorites, Added Phrases, and
+  Checkpoints. The row remains one line on narrow iPhones.
 - Browse page Actions includes a dedicated Rename Page sheet. Renaming changes
   only the page's display name; its stable ID, source text, sentences, and linked
   study artifacts remain unchanged. Edit Page remains available for source-text
@@ -563,7 +563,7 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 Latest application baseline (2026-09-22): `swift test` passed 218 tests in 19
 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds target
-source build 34. Browse/Study switching no longer repeats checkpoint scans,
+source build 35. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
 recomputes on ordinary tab entry. Dictionary grid work runs off the main actor
 and high-traffic caches are bounded; real-library device timing remains a human

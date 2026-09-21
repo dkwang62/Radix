@@ -3,18 +3,14 @@ import SwiftUI
 extension FavouritesTab {
     var studySectionNavigationBar: some View {
         HStack(spacing: 6) {
-            studyPrimarySectionButton("Recent", target: .recent)
-            studyPrimarySectionButton("Favorites", target: .favorites)
             studyPrimarySectionButton("Pages", target: .savedPages)
+            studyPrimarySectionButton("Sentences", target: .sentences)
+            studyPrimarySectionButton("Conversation", target: .conversationPractice)
 
             Menu {
+                studyMoreSectionButton("Recent", target: .recent, systemImage: "clock")
+                studyMoreSectionButton("Favorites", target: .favorites, systemImage: "star")
                 studyMoreSectionButton("Added Phrases", target: .addedPhrases, systemImage: "text.quote")
-                studyMoreSectionButton(
-                    "Conversation Practice",
-                    target: .conversationPractice,
-                    systemImage: "bubble.left.and.bubble.right"
-                )
-                studyMoreSectionButton("Sentences", target: .sentences, systemImage: "text.book.closed")
                 studyMoreSectionButton("Checkpoints", target: .checkpoints, systemImage: "clock.arrow.circlepath")
             } label: {
                 studySectionNavigationLabel("More", isSelected: activeStudyNavigationTarget.isSecondary)
@@ -88,9 +84,9 @@ extension FavouritesTab {
 private extension StudyNavigationTarget {
     var isSecondary: Bool {
         switch self {
-        case .addedPhrases, .conversationPractice, .sentences, .checkpoints:
+        case .recent, .favorites, .addedPhrases, .checkpoints:
             return true
-        case .recent, .favorites, .savedPages:
+        case .savedPages, .sentences, .conversationPractice:
             return false
         }
     }
