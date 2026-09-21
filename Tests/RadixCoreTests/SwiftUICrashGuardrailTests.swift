@@ -142,6 +142,22 @@ struct SwiftUICrashGuardrailTests {
         #expect(!study.contains("studySavedPageBrowseButton"))
     }
 
+    @Test("Study keeps its primary destinations visible without crowding narrow screens")
+    func studyPrimaryNavigationRemainsVisibleAndCompact() throws {
+        let navigation = try sourceText(at: "App/FavouritesStudyNavigationBar.swift")
+        let sections = try sourceText(at: "App/FavouritesSections.swift")
+
+        #expect(navigation.contains("studyPrimarySectionButton(\"Recent\""))
+        #expect(navigation.contains("studyPrimarySectionButton(\"Favorites\""))
+        #expect(navigation.contains("studyPrimarySectionButton(\"Pages\""))
+        #expect(navigation.contains("studySectionNavigationLabel(\"More\""))
+        #expect(navigation.contains(".frame(maxWidth: 440"))
+        #expect(navigation.contains(".lineLimit(1)"))
+        #expect(navigation.contains(".minimumScaleFactor(0.72)"))
+        #expect(sections.contains("studySectionNavigationBar"))
+        #expect(!sections.contains("if showsStudyPinnedControls {\n                        studyPinnedControls"))
+    }
+
     @Test("Browse and Study tab entry avoid redundant persistence work")
     func primaryTabEntryAvoidsRedundantPersistenceWork() throws {
         let navigation = try sourceText(at: "ViewModels/RadixStoreNavigation.swift")

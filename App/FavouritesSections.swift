@@ -7,9 +7,7 @@ extension FavouritesTab {
                 aiCleanedPageStudyScreen
             } else {
                 VStack(alignment: .leading, spacing: 0) {
-                    if showsStudyPinnedControls {
-                        studyPinnedControls
-                    }
+                    studyPinnedControls
 
                     if isShowingConversationPractice {
                         ScrollView {
@@ -35,7 +33,11 @@ extension FavouritesTab {
 
     var studyPinnedControls: some View {
         VStack(alignment: .leading, spacing: 10) {
-            recentStudyHeader
+            studySectionNavigationBar
+
+            if showsStudyPinnedControls {
+                recentStudyHeader
+            }
         }
         .padding(.horizontal)
         .padding(.top, 2)
