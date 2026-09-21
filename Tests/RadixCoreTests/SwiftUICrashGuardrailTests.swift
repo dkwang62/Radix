@@ -128,6 +128,20 @@ struct SwiftUICrashGuardrailTests {
         #expect(source.components(separatedBy: "@Environment(\\.scenePhase)").count - 1 == 1)
     }
 
+    @Test("Saved pages share one Browse and Study workspace switcher without duplicate page names")
+    func savedPageWorkspaceSwitcherIsShared() throws {
+        let switcher = try sourceText(at: "App/PageWorkspaceSwitcher.swift")
+        let browse = try sourceText(at: "App/BrowseSourceBar.swift")
+        let study = try sourceText(at: "App/FavouritesStudyGridSection.swift")
+
+        #expect(switcher.contains("Picker(\"Page workspace\""))
+        #expect(switcher.contains(".pickerStyle(.segmented)"))
+        #expect(browse.contains("PageWorkspaceSwitcher(selectedMode: .browse)"))
+        #expect(study.contains("PageWorkspaceSwitcher(selectedMode: .study)"))
+        #expect(study.contains("title: \"Switch Page\""))
+        #expect(!study.contains("studySavedPageBrowseButton"))
+    }
+
     @Test("Browse and Study tab entry avoid redundant persistence work")
     func primaryTabEntryAvoidsRedundantPersistenceWork() throws {
         let navigation = try sourceText(at: "ViewModels/RadixStoreNavigation.swift")

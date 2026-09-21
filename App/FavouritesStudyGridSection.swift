@@ -286,23 +286,16 @@ extension FavouritesTab {
                     }
                 }
             } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "doc.text")
-                    Text(selectedCollection.map(collectionDisplayName) ?? "Choose Page")
-                        .lineLimit(1)
-                    Spacer(minLength: 8)
-                    Image(systemName: "chevron.up.chevron.down")
-                        .font(.caption.weight(.semibold))
-                }
-                .font(ResponsiveFont.subheadline.weight(.semibold))
-                .foregroundStyle(RadixAccent.primary)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 8)
-                .background(RadixAccent.primary.opacity(0.09))
-                .clipShape(RoundedRectangle(cornerRadius: 9))
+                RadixCompactChevronLabel(
+                    title: "Switch Page",
+                    systemImage: "rectangle.stack",
+                    chevronFont: ResponsiveFont.tinySystem(size: 9, weight: .bold),
+                    minWidth: 104
+                )
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Study page")
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .accessibilityLabel("Switch study page")
             .accessibilityValue(selectedCollection.map(collectionDisplayName) ?? "No page selected")
 
             if let collection = selectedCollection {
@@ -490,12 +483,12 @@ extension FavouritesTab {
             HStack(alignment: .center, spacing: 8) {
                 studySavedPageActionsMenu(collection)
                     .frame(maxWidth: .infinity, minHeight: 38)
-                studySavedPageBrowseButton(collection)
+                studyPageWorkspaceSwitcher(collection)
             }
         } else {
             HStack(alignment: .center, spacing: 8) {
                 studySavedPageActionsMenu(collection)
-                studySavedPageBrowseButton(collection)
+                studyPageWorkspaceSwitcher(collection)
             }
         }
     }
@@ -518,24 +511,13 @@ extension FavouritesTab {
         .disabled(isRunningStudyPageAction)
     }
 
-    private func studySavedPageBrowseButton(_ collection: CharacterCollection) -> some View {
-        Button {
-            openSavedPageInBrowse(collection)
-        } label: {
-            Label("Browse", systemImage: RadixIcon.browse)
-                .font(ResponsiveFont.caption2.weight(.semibold))
-                .labelStyle(.titleAndIcon)
-                .radixPill(
-                    horizontal: 9,
-                    vertical: 7,
-                    background: RadixAccent.primary.opacity(0.1),
-                    radius: 8
-                )
+    private func studyPageWorkspaceSwitcher(_ collection: CharacterCollection) -> some View {
+        PageWorkspaceSwitcher(selectedMode: .study) { mode in
+            if mode == .browse {
+                openSavedPageInBrowse(collection)
+            }
         }
-        .buttonStyle(.plain)
-        .foregroundStyle(RadixAccent.primary)
-        .accessibilityLabel("Browse Page")
-        .help("Open this page in Browse")
+        .help("Switch between browsing and studying this page")
     }
 
     private func openOriginalOCRPageFromStudy(_ collection: CharacterCollection) {

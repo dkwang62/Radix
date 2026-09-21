@@ -62,7 +62,10 @@ Use these preferences as defaults:
   second list of every saved page. Choosing a page in that Study dropdown also
   changes the selected Browse page. Browse and page Study must share the same
   page `Actions` vocabulary; avoid separate Browse-only and Study-only buttons
-  for the same page operation. The Study title menu may expose this learning
+  for the same page operation. Use the shared `Browse | Study` segmented control
+  to move between the two modes while preserving the selected page. In Study,
+  use a compact `Switch Page` menu and show the selected page name only in its
+  content header rather than repeating it in the picker. The Study title menu may expose this learning
   workspace as `Study Pages`, but `Pages` should not return as a top-level peer.
 - The title dropdown is allowed to become the complete navigation map. Its top
   section should keep the main workspaces visible: `Browse`, `Study`, `AI`,

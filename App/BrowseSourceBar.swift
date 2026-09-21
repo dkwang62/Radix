@@ -129,7 +129,7 @@ extension FilterGridTab {
                 aiTasks: browsePageAITasks(for: collection)
             )
 
-            studyBrowsePageButton(collection)
+            browsePageWorkspaceSwitcher(collection)
 
             BrowseImageScriptToggle(mode: $browseImageScriptMode)
 
@@ -174,17 +174,13 @@ extension FilterGridTab {
         store.shouldCloseBrowseSource = true
     }
 
-    func studyBrowsePageButton(_ collection: CharacterCollection) -> some View {
-        Button {
-            store.goToPagesWorkspace(id: collection.id)
-        } label: {
-            Label("Study", systemImage: RadixIcon.study)
-                .labelStyle(.titleAndIcon)
+    func browsePageWorkspaceSwitcher(_ collection: CharacterCollection) -> some View {
+        PageWorkspaceSwitcher(selectedMode: .browse) { mode in
+            if mode == .study {
+                store.goToPagesWorkspace(id: collection.id)
+            }
         }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-        .accessibilityLabel("Study Page")
-        .help("Study Page")
+        .help("Switch between browsing and studying this page")
     }
 
     func readBrowseSourceButton(_ collection: CharacterCollection) -> some View {

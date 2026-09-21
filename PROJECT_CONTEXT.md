@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `32` (not yet distributed). Every committed application
+current source version is `1.1` build `33` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -87,7 +87,9 @@ stay linked to their page rather than becoming disconnected parallel features.
   storage/transfer.
 - A saved page has one shared Browse/Study selection. `Study` from Browse opens
   the relevant Study Page, and `Browse` from Study Page opens that source. This
-  explicit pair replaces generic `Back to Browse` or `Back to Study` bars.
+  pair uses the same compact `Browse | Study` segmented switcher on both
+  surfaces and replaces generic `Back to Browse` or `Back to Study` bars. Study
+  uses a compact `Switch Page` menu so the selected page title is not repeated.
 - Browse page Actions includes a dedicated Rename Page sheet. Renaming changes
   only the page's display name; its stable ID, source text, sentences, and linked
   study artifacts remain unchanged. Edit Page remains available for source-text
@@ -558,7 +560,7 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 Latest application baseline (2026-09-21): `swift test` passed 216 tests in 19
 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds target
-source build 32. Browse/Study switching no longer repeats checkpoint scans,
+source build 33. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
 recomputes on ordinary tab entry. Dictionary grid work runs off the main actor
 and high-traffic caches are bounded; real-library device timing remains a human
