@@ -71,15 +71,6 @@ extension RootView {
         isStudyDestinationActive && store.activeStudySectionTitle == "Checkpoints"
     }
 
-    var browseTitleMenuPages: [CharacterCollection] {
-        store.allCollections.sorted {
-            let lhsDate = $0.lastViewedAt ?? $0.createdAt
-            let rhsDate = $1.lastViewedAt ?? $1.createdAt
-            if lhsDate != rhsDate { return lhsDate > rhsDate }
-            return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
-        }
-    }
-
     var activeTitleGuideTopic: RadixNavigationGuideTopic? {
         if isBrowseDestinationActive { return .browse }
         switch store.route {
@@ -108,43 +99,14 @@ extension RootView {
         rootTitleNavigationMenu
     }
 
-    func navigationTitleMenu(for topic: RadixNavigationGuideTopic, title: String? = nil) -> some View {
-        Menu {
-            primaryNavigationMenuSection
-            navigationHelpButton(for: topic)
-        } label: {
-            navigationTitleMenuLabel(title ?? topic.title)
-        }
-        .menuStyle(.button)
-        .buttonStyle(.plain)
-        .accessibilityLabel("\(title ?? topic.title) menu")
-        .accessibilityValue(title ?? topic.title)
-        .help("\(title ?? topic.title) menu")
-    }
-
     var rootTitleNavigationMenu: some View {
         Menu {
-            primaryNavigationMenuSection
-
-            if isBrowseDestinationActive {
-                browseTitleMenuSection
-            }
-
-            if isStudyDestinationActive || isPagesDestinationActive {
-                studyTitleMenuSection
-            }
-
-            if store.route == .aiLink {
-                aiLinkTitleMenuSection
-            }
-
-            if store.route == .search && store.homeTab == .dataEdit {
-                myDataTitleMenuSection
-            }
-
-            if let topic = activeTitleGuideTopic {
-                navigationHelpButton(for: topic)
-            }
+            createPageTitleMenuSection
+            browseTitleMenuSection
+            studyTitleMenuSection
+            aiTitleMenuButton
+            myDataTitleMenuSection
+            appTitleMenuSection
         } label: {
             navigationTitleMenuLabel(detailPaneTitle)
         }
@@ -167,138 +129,59 @@ extension RootView {
         ].joined(separator: "|")
     }
 
-    @ViewBuilder
-    var primaryNavigationMenuSection: some View {
-        Section("Go To") {
-            primaryNavigationButton(
-                title: RadixCopy.browse,
-                systemImage: RadixIcon.browse,
-                isSelected: isBrowseDestinationActive
-            ) {
-                performTitleMenuSelection {
-                    store.goToBrowse()
-                }
-            }
-
-            primaryNavigationButton(
-                title: RadixCopy.study,
-                systemImage: RadixIcon.study,
-                isSelected: isStudyDestinationActive || isPagesDestinationActive
-            ) {
-                performTitleMenuSelection {
-                    store.activeStudySectionTitle = StudyNavigationTarget.savedPages.title
-                    store.requestedStudyNavigationTarget = .savedPages
-                    store.goToFavourites()
-                }
-            }
-
-            primaryNavigationButton(
-                title: "AI",
-                systemImage: RadixIcon.aiLink,
-                isSelected: store.route == .aiLink
-            ) {
-                performTitleMenuSelection {
-                    store.enterAILink()
-                }
-            }
-
-            primaryNavigationButton(
-                title: RadixCopy.myData,
-                systemImage: RadixIcon.myData,
-                isSelected: store.route == .search && store.homeTab == .dataEdit
-            ) {
-                performTitleMenuSelection {
-                    store.goToDataEdit()
-                }
-            }
-
-            primaryNavigationButton(
-                title: "Settings",
-                systemImage: RadixIcon.settings,
-                isSelected: store.route == .settings
-            ) {
-                performTitleMenuSelection {
-                    store.goToSettings()
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    func primaryNavigationButton(
-        title: String,
-        systemImage: String,
-        isSelected: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            Label(title, systemImage: isSelected ? "checkmark" : systemImage)
-        }
-    }
-
     func performTitleMenuSelection(_ action: () -> Void) {
         store.overrideIncompleteActionsForTitleSelection()
         action()
     }
 
     @ViewBuilder
-    var browseTitleMenuSection: some View {
-        Button {
-            performTitleMenuSelection {
-                store.selectBrowseCollection(id: nil)
-                store.shouldCloseBrowseSource = true
-            }
-        } label: {
-            Label("Dictionary", systemImage: store.selectedBrowseCollection == nil ? "checkmark" : "book")
-        }
-
-        Button {
-            performTitleMenuSelection {
+    var createPageTitleMenuSection: some View {
+        Section("Create Page") {
+            titleMenuButton("From Text", systemImage: "doc.text") {
                 store.startCaptureTextPage()
             }
-        } label: {
-            Label("Text to Page", systemImage: "doc.text")
-        }
-
-        Button {
-            performTitleMenuSelection { store.goToTranscriptAI() }
-        } label: {
-            Label("Image from Transcripts", systemImage: "text.quote")
-        }
-
-        Button {
-            performTitleMenuSelection {
-                store.startCaptureClipboardImagePage()
-            }
-        } label: {
-            Label("Image from Clipboard", systemImage: "doc.on.clipboard")
-        }
-
-        Button {
-            performTitleMenuSelection {
+            titleMenuButton("From Photos", systemImage: "photo.on.rectangle") {
                 store.startCaptureAlbumPage()
             }
-        } label: {
-            Label("Image from Album", systemImage: "photo.on.rectangle")
-        }
-
-        Button {
-            performTitleMenuSelection {
+            titleMenuButton("From Files", systemImage: "folder") {
                 store.startCaptureFilePage()
             }
-        } label: {
-            Label("Image from Files", systemImage: "folder")
+            titleMenuButton("From Clipboard", systemImage: "doc.on.clipboard") {
+                store.startCaptureClipboardImagePage()
+            }
+            titleMenuButton("From Transcripts", systemImage: "text.quote") {
+                store.goToTranscriptAI()
+            }
         }
+    }
 
-        ForEach(browseTitleMenuPages) { collection in
+    @ViewBuilder
+    var browseTitleMenuSection: some View {
+        Section("Browse") {
             Button {
                 performTitleMenuSelection {
-                    store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
+                    store.goToBrowse()
+                    store.selectBrowseCollection(id: nil)
+                    store.shouldCloseBrowseSource = true
                 }
             } label: {
-                let title = collection.name.isEmpty ? RadixCopy.savedPage : collection.name
-                let isSelected = store.selectedBrowseCollectionID == collection.id
-                Label(title, systemImage: isSelected ? "checkmark" : RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage))
+                Label(
+                    "Dictionary",
+                    systemImage: isBrowseDestinationActive && store.selectedBrowseCollection == nil ? "checkmark" : "book"
+                )
+            }
+
+            Button {
+                performTitleMenuSelection {
+                    store.goToBrowse()
+                }
+            } label: {
+                Label(
+                    "Pages",
+                    systemImage: isBrowseDestinationActive && store.selectedBrowseCollection != nil
+                        ? "checkmark"
+                        : RadixGlossaryIcon.systemImage(for: RadixTerm.savedPage)
+                )
             }
         }
     }
@@ -309,12 +192,15 @@ extension RootView {
             ForEach(studyTitleMenuTargets) { target in
                 Button {
                     performTitleMenuSelection {
+                        store.activeStudySectionTitle = target.title
                         store.requestedStudyNavigationTarget = target
+                        store.goToFavourites()
                     }
                 } label: {
                     Label(
                         target.menuTitle,
-                        systemImage: target.title == store.activeStudySectionTitle
+                        systemImage: (isStudyDestinationActive || isPagesDestinationActive)
+                            && target.title == store.activeStudySectionTitle
                             ? "checkmark"
                             : studyTitleMenuSystemImage(for: target)
                     )
@@ -327,40 +213,13 @@ extension RootView {
         StudyNavigationTarget.allCases
     }
 
-    @ViewBuilder
-    var aiLinkTitleMenuSection: some View {
-        Section("AI Templates") {
-            if store.latestAIResult != nil {
-                Button {
-                    performTitleMenuSelection {
-                        store.showLatestAIResult = true
-                    }
-                } label: {
-                    Label("Latest AI Result", systemImage: "sparkles.rectangle.stack")
-                }
+    var aiTitleMenuButton: some View {
+        Button {
+            performTitleMenuSelection {
+                store.enterAILink()
             }
-
-            ForEach(store.promptConfig.normalized().tasks) { task in
-                Button {
-                    performTitleMenuSelection {
-                        selectTitleMenuPromptTask(task.id)
-                    }
-                } label: {
-                    Label(
-                        task.title,
-                        systemImage: task.id == selectedTitleMenuPromptTaskID ? "checkmark" : "sparkles"
-                    )
-                }
-            }
-
-            Button {
-                performTitleMenuSelection {
-                    let id = store.cleanupBlankCustomPromptTasks() ?? store.addPromptTask()
-                    selectTitleMenuPromptTask(id)
-                }
-            } label: {
-                Label("New AI Task...", systemImage: "plus.circle")
-            }
+        } label: {
+            Label("AI", systemImage: store.route == .aiLink ? "checkmark" : RadixIcon.aiLink)
         }
     }
 
@@ -382,29 +241,53 @@ extension RootView {
         return store.promptConfig.normalized().tasks.first { $0.id == selectedTitleMenuPromptTaskID }?.title
     }
 
-    func selectTitleMenuPromptTask(_ taskID: String) {
-        store.selectedPromptTaskID = taskID
-        store.promptSelectedTaskIDs = [taskID]
-        store.persistPromptSettings()
-    }
-
     @ViewBuilder
     var myDataTitleMenuSection: some View {
         Section(RadixCopy.myData) {
             ForEach(DataEditSection.allCases) { section in
                 Button {
                     performTitleMenuSelection {
+                        store.goToDataEdit()
                         store.activeDataEditSection = section
                     }
                 } label: {
                     Label(
-                        section.rawValue,
-                        systemImage: section == store.activeDataEditSection
+                        myDataTitleMenuTitle(for: section),
+                        systemImage: store.route == .search
+                            && store.homeTab == .dataEdit
+                            && section == store.activeDataEditSection
                             ? "checkmark"
                             : myDataTitleMenuSystemImage(for: section)
                     )
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    var appTitleMenuSection: some View {
+        Section("App") {
+            Button {
+                performTitleMenuSelection {
+                    store.goToSettings()
+                }
+            } label: {
+                Label("Settings", systemImage: store.route == .settings ? "checkmark" : RadixIcon.settings)
+            }
+
+            navigationHelpButton(for: activeTitleGuideTopic ?? .settings)
+        }
+    }
+
+    private func titleMenuButton(
+        _ title: String,
+        systemImage: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button {
+            performTitleMenuSelection(action)
+        } label: {
+            Label(title, systemImage: systemImage)
         }
     }
 
@@ -414,6 +297,15 @@ extension RootView {
             return "externaldrive"
         case .advanced:
             return "hammer"
+        }
+    }
+
+    func myDataTitleMenuTitle(for section: DataEditSection) -> String {
+        switch section {
+        case .myBackup:
+            return "Backups"
+        case .advanced:
+            return "Advanced"
         }
     }
 

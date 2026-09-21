@@ -70,16 +70,15 @@ Use these preferences as defaults:
   to move between the two modes while preserving the selected page. In Study,
   use a compact `Switch Page` menu and show the selected page name only in its
   content header rather than repeating it in the picker. The Study title menu
-  may expose this learning workspace as `Study Pages`, but `Pages` should not
-  return as a top-level peer.
-- The title dropdown is allowed to become the complete navigation map. Its top
-  section should keep the main workspaces visible: `Browse`, `Study`, `AI`,
-  `My Data`, and `Settings`. Do not reintroduce `Pages` as a peer workspace unless
-  a future design decision deliberately reverses the Browse-first page model.
-  Larger-screen sidebars should follow the same top-level vocabulary. When the
-  current destination is Browse or Study, show that destination's local choices
-  beneath the main destination section instead of replacing the main navigation.
-- High-level destinations can also own second-level title-menu sections:
+  exposes this learning workspace as `Pages`, but Pages is not a separate
+  top-level workspace.
+- The title dropdown is the complete, universal navigation map on every screen.
+  Keep it single-level and grouped as `Create Page`, `Browse`, `Study`, the one
+  direct `AI` destination, `My Data`, and `App`. Search and Camera stay out of
+  this menu because their global buttons are always visible. Never append
+  individual saved pages, AI templates, or AI results; those belong inside their
+  destination screens. Larger-screen sidebars remain fast workspace shortcuts.
+- Grouped title-menu sections expose each destination's entry points:
   Browse owns Dictionary, saved-page selection, tiled page inspection, and
   non-camera page creation; Study owns page learning work and study sections
   including Checkpoints; AI owns AI tasks; and My Data owns

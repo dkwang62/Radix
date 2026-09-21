@@ -736,7 +736,6 @@ struct SwiftUICrashGuardrailTests {
         #expect(copySource.contains("static let safetyCopies = String(localized: \"Safety Copies\")"))
         #expect(phoneSource.contains("return \"\\(RadixCopy.myData) -"))
         #expect(detailSource.contains("return \"\\(RadixCopy.myData) -"))
-        #expect(navigationSource.contains("title: RadixCopy.myData"))
         #expect(navigationSource.contains("Section(RadixCopy.myData)"))
         #expect(pageEditorSource.components(separatedBy: "Section(RadixCopy.savedPage)").count == 3)
         #expect(!pageEditorSource.contains("Section(\"Image\")"))
@@ -746,6 +745,32 @@ struct SwiftUICrashGuardrailTests {
         #expect(!settingsSource.contains("Device snapshots"))
         #expect(glossarySource.contains("term: \"Safety Copy\""))
         #expect(!glossarySource.contains("term: \"Recovery Copies\""))
+    }
+
+    @Test("The title menu exposes one universal navigation level without growing record lists")
+    func titleMenuIsUniversalAndBounded() throws {
+        let source = try sourceText(at: "App/RootViewSupport.swift")
+        let menu = source
+            .components(separatedBy: "var rootTitleNavigationMenu: some View {")[1]
+            .components(separatedBy: "var titleNavigationIdentity")[0]
+
+        #expect(menu.contains("createPageTitleMenuSection"))
+        #expect(menu.contains("browseTitleMenuSection"))
+        #expect(menu.contains("studyTitleMenuSection"))
+        #expect(menu.contains("aiTitleMenuButton"))
+        #expect(menu.contains("myDataTitleMenuSection"))
+        #expect(menu.contains("appTitleMenuSection"))
+        #expect(!menu.contains("if isBrowseDestinationActive"))
+        #expect(!menu.contains("if isStudyDestinationActive"))
+        #expect(source.contains("Section(\"Create Page\")"))
+        #expect(source.contains("Section(\"Browse\")"))
+        #expect(source.contains("Section(\"Study\")"))
+        #expect(source.contains("Label(\"AI\""))
+        #expect(source.contains("return \"Backups\""))
+        #expect(source.contains("return \"Advanced\""))
+        #expect(!source.contains("ForEach(browseTitleMenuPages)"))
+        #expect(!source.contains("Section(\"AI Templates\")"))
+        #expect(!source.contains("Label(\"Latest AI Result\""))
     }
 
     @Test("Upgrade supports retry, pending purchases, and one StoreKit operation at a time")

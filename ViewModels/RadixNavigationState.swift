@@ -25,7 +25,7 @@ enum StudyNavigationTarget: String, CaseIterable, Identifiable, Equatable {
 
     var menuTitle: String {
         switch self {
-        case .savedPages: return "Study Pages"
+        case .conversationPractice: return "Conversation"
         default: return title
         }
     }
