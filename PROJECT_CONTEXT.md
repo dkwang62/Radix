@@ -558,7 +558,7 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 ## Required Verification
 
-Latest application baseline (2026-09-21): `swift test` passed 216 tests in 19
+Latest application baseline (2026-09-22): `swift test` passed 217 tests in 19
 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds target
 source build 33. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
