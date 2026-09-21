@@ -107,14 +107,21 @@ struct SwiftUICrashGuardrailTests {
         #expect(lightweight.contains("CharacterReadAloudButton(character: item.character)"))
     }
 
-    @Test("Scene changes do not invalidate the full root navigation tree")
-    func rootSceneLifecycleUsesIsolatedObserver() throws {
+    @Test("Scene changes replace the root navigation tree with a lightweight snapshot")
+    func rootSceneLifecycleUsesLightweightSnapshot() throws {
         let source = try sourceText(at: "App/RootView.swift")
         let rootViewSource = source.components(separatedBy: "private struct RadixSceneLifecycleObserver").first ?? source
 
         #expect(!rootViewSource.contains("@Environment(\\.scenePhase)"))
+        #expect(rootViewSource.contains("@State private var isSceneActive = true"))
+        #expect(rootViewSource.contains("if isSceneActive"))
+        #expect(rootViewSource.contains("backgroundSnapshotBody"))
+        #expect(rootViewSource.contains("isSceneActive = false"))
+        #expect(rootViewSource.contains("store.flushPendingDataEditAutoSave()"))
+        #expect(rootViewSource.contains("isSceneActive = true"))
         #expect(rootViewSource.contains("RadixSceneLifecycleObserver("))
         #expect(source.contains("private struct RadixSceneLifecycleObserver"))
+        #expect(source.contains("onEnterBackground"))
         #expect(source.components(separatedBy: "@Environment(\\.scenePhase)").count - 1 == 1)
     }
 

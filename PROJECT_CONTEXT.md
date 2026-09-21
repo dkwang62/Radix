@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `28` (not yet distributed). Every committed application
+current source version is `1.1` build `31` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -39,10 +39,12 @@ the Xcode project, and preserve app/extension build parity.
 automatic signing on Apple Team `7PSNWRPJ5B` (Leong Wen Kwang) so regenerating
 the Xcode project does not clear the selected team.
 
-The latest iPad crash report came from TestFlight `1.0.6 (6)`. Before the next
-upload, deliberately set and verify the next build number in both app and share
-extension targets; do not assume the repository's current build setting matches
-the installed TestFlight build.
+Physical iPad build `1.1 (30)` produced three background scene-update watchdog
+terminations on 2026-09-21 while iPadOS was laying out the SwiftUI hierarchy for
+its system snapshot. Mobile Radix now substitutes a plain background snapshot
+surface as soon as the scene becomes inactive and restores the live hierarchy
+when active. Keep this transition lightweight and do not add app content to the
+snapshot surface.
 
 The authoritative Xcode project is `Radix.xcodeproj`. Numbered duplicate
 projects and the local `Backups/` directory are deliberately excluded from Git
@@ -443,14 +445,19 @@ them even when a more abstract implementation looks tidier.
 - Phrase and sentence information cards keep distinct top-level content stacks.
 - Added Phrase Review uses fixed platform framing and explicit rows, not
   geometry-feedback-driven adaptive paging or `LazyVGrid`.
-- `RootView` must not observe `scenePhase`. The zero-size
-  `RadixSceneLifecycleObserver` owns lifecycle callbacks so backgrounding does
-  not invalidate the complete navigation/menu graph. It only flushes a truly
-  pending Character Studio save and imports shared input on activation.
-- The iPad TestFlight `1.0.6 (6)` crash on 2026-08-25 was an iPadOS watchdog
-  termination while SwiftUI rebuilt `Menu` during background exit. The lifecycle
-  isolation above is the direct mitigation. Test it on physical iPad in the
-  next TestFlight build.
+- `RootView` must not read `scenePhase` directly. The zero-size
+  `RadixSceneLifecycleObserver` owns lifecycle callbacks. On mobile, inactive
+  state replaces the complete navigation/menu hierarchy with the plain
+  `backgroundSnapshotBody` before iPadOS captures its system snapshot;
+  background state flushes only a truly pending Character Studio save; active
+  state restores the hierarchy and imports shared input. Do not render normal
+  app content behind the background snapshot surface.
+- Background scene-update watchdog terminations were reproduced on physical
+  iPad in builds `1.0.6 (6)`, `1.0.6 (9)`, `1.1 (9)`, and three times in
+  `1.1 (30)`. Build 30 stacks were all inside SwiftUI display-list, color, or
+  text layout while iPadOS captured a background snapshot. Physical-iPad
+  background/foreground repetition remains a release gate for the replacement
+  snapshot hierarchy.
 
 Source regression checks live in `SwiftUICrashGuardrailTests`. Extend them when
 a production crash reveals a specific unsafe SwiftUI pattern.
@@ -549,7 +556,7 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 Latest application baseline (2026-09-21): `swift test` passed 216 tests in 19
 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds target
-source build 29. Browse/Study switching no longer repeats checkpoint scans,
+source build 31. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
 recomputes on ordinary tab entry. Dictionary grid work runs off the main actor
 and high-traffic caches are bounded; real-library device timing remains a human

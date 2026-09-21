@@ -30,8 +30,42 @@ struct RootView: View {
     @State var quickLocalSnapshots: [LocalDataSnapshot] = []
     @State var pendingSidebarCheckpointReturn: LocalDataSnapshot?
     @State var navigationGuideTopic: RadixNavigationGuideTopic?
+    @State private var isSceneActive = true
 
     var body: some View {
+        Group {
+            #if targetEnvironment(macCatalyst)
+            activeBody
+            #else
+            if isSceneActive {
+                activeBody
+            } else {
+                backgroundSnapshotBody
+            }
+            #endif
+        }
+        .background {
+            RadixSceneLifecycleObserver(
+                onResignActive: {
+                    #if !targetEnvironment(macCatalyst)
+                    isSceneActive = false
+                    #endif
+                },
+                onEnterBackground: {
+                    store.flushPendingDataEditAutoSave()
+                },
+                onBecomeActive: {
+                    #if !targetEnvironment(macCatalyst)
+                    isSceneActive = true
+                    #endif
+                    store.startPendingSharedImportsFromShareExtension()
+                }
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var activeBody: some View {
         if let error = store.pageDeletionRecoveryError {
             ContentUnavailableView {
                 Label("Finish Page Deletion", systemImage: "exclamationmark.triangle")
@@ -66,18 +100,14 @@ struct RootView: View {
         }
     }
 
+    private var backgroundSnapshotBody: some View {
+        RadixTheme.background
+            .ignoresSafeArea()
+            .accessibilityHidden(true)
+    }
+
     private var normalBody: some View {
         rootContent
-        .background {
-            RadixSceneLifecycleObserver(
-                onResignActive: {
-                    store.flushPendingDataEditAutoSave()
-                },
-                onBecomeActive: {
-                    store.startPendingSharedImportsFromShareExtension()
-                }
-            )
-        }
         .modifier(FileTransferModifier(
             profileExportDocument: $profileExportDocument,
             addPhrasesExportDocument: $addPhrasesExportDocument,
@@ -211,6 +241,7 @@ struct RootView: View {
 private struct RadixSceneLifecycleObserver: View {
     @Environment(\.scenePhase) private var scenePhase
     let onResignActive: () -> Void
+    let onEnterBackground: () -> Void
     let onBecomeActive: () -> Void
 
     var body: some View {
@@ -218,8 +249,10 @@ private struct RadixSceneLifecycleObserver: View {
             .frame(width: 0, height: 0)
             .accessibilityHidden(true)
             .onChange(of: scenePhase) { _, newPhase in
-                if newPhase == .inactive || newPhase == .background {
+                if newPhase == .inactive {
                     onResignActive()
+                } else if newPhase == .background {
+                    onEnterBackground()
                 } else if newPhase == .active {
                     onBecomeActive()
                 }
