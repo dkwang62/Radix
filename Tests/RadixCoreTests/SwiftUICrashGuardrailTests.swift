@@ -122,6 +122,9 @@ struct SwiftUICrashGuardrailTests {
         #expect(rootViewSource.contains("RadixSceneLifecycleObserver("))
         #expect(source.contains("private struct RadixSceneLifecycleObserver"))
         #expect(source.contains("onEnterBackground"))
+        #expect(source.contains("oldPhase == .active && newPhase == .inactive"))
+        #expect(source.contains("oldPhase == .background && newPhase == .inactive"))
+        #expect(source.contains("onWillEnterForeground"))
         #expect(source.components(separatedBy: "@Environment(\\.scenePhase)").count - 1 == 1)
     }
 

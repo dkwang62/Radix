@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `31` (not yet distributed). Every committed application
+current source version is `1.1` build `32` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -449,9 +449,11 @@ them even when a more abstract implementation looks tidier.
   `RadixSceneLifecycleObserver` owns lifecycle callbacks. On mobile, inactive
   state replaces the complete navigation/menu hierarchy with the plain
   `backgroundSnapshotBody` before iPadOS captures its system snapshot;
-  background state flushes only a truly pending Character Studio save; active
-  state restores the hierarchy and imports shared input. Do not render normal
-  app content behind the background snapshot surface.
+  background state flushes only a truly pending Character Studio save. The
+  background-to-inactive foreground transition restores the hierarchy early so
+  it can render behind iPadOS's return animation; active state imports shared
+  input. Do not render normal app content behind the background snapshot
+  surface while the app is leaving the foreground.
 - Background scene-update watchdog terminations were reproduced on physical
   iPad in builds `1.0.6 (6)`, `1.0.6 (9)`, `1.1 (9)`, and three times in
   `1.1 (30)`. Build 30 stacks were all inside SwiftUI display-list, color, or
@@ -556,7 +558,7 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 Latest application baseline (2026-09-21): `swift test` passed 216 tests in 19
 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds target
-source build 31. Browse/Study switching no longer repeats checkpoint scans,
+source build 32. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
 recomputes on ordinary tab entry. Dictionary grid work runs off the main actor
 and high-traffic caches are bounded; real-library device timing remains a human

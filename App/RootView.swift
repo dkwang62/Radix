@@ -54,6 +54,11 @@ struct RootView: View {
                 onEnterBackground: {
                     store.flushPendingDataEditAutoSave()
                 },
+                onWillEnterForeground: {
+                    #if !targetEnvironment(macCatalyst)
+                    isSceneActive = true
+                    #endif
+                },
                 onBecomeActive: {
                     #if !targetEnvironment(macCatalyst)
                     isSceneActive = true
@@ -242,17 +247,20 @@ private struct RadixSceneLifecycleObserver: View {
     @Environment(\.scenePhase) private var scenePhase
     let onResignActive: () -> Void
     let onEnterBackground: () -> Void
+    let onWillEnterForeground: () -> Void
     let onBecomeActive: () -> Void
 
     var body: some View {
         Color.clear
             .frame(width: 0, height: 0)
             .accessibilityHidden(true)
-            .onChange(of: scenePhase) { _, newPhase in
-                if newPhase == .inactive {
+            .onChange(of: scenePhase) { oldPhase, newPhase in
+                if oldPhase == .active && newPhase == .inactive {
                     onResignActive()
                 } else if newPhase == .background {
                     onEnterBackground()
+                } else if oldPhase == .background && newPhase == .inactive {
+                    onWillEnterForeground()
                 } else if newPhase == .active {
                     onBecomeActive()
                 }
