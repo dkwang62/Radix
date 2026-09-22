@@ -443,27 +443,19 @@ point toward Camera, paste, or image import; no favorites should point toward
 starring items; no recent items should point toward searching, browsing, or
 inspecting Chinese. Avoid generic empty text that leaves the user with no next
 step.
-Pages owns page learning artifacts and deletion. Each saved-page row should be
-collapsed by default when browsing the list, with only the page
-number, title, thumbnail, small artifact indicators, and expand affordance
-visible. Keep collapsed rows flush with zero vertical gap so large page
-libraries scan like a compact table. Highlight the row for the currently
-selected saved page so returning from Source preserves orientation. Tapping the
-row expands that page in place; the expanded state offers the `Actions` menu for
-viewing or saving translation, AI OCR review, phrase extraction, quiz generation,
-sentence extraction, page conversation generation, and deleting the page with
-its impact summary. Show a compact `Phrases` artifact chip when Radix finds any
-base or added phrases on the page.
+Pages owns page learning artifacts and deletion. The selected page workspace is
+always expanded: show its page title, scan date, `Actions`, `Switch Page`,
+`Browse | Study`, and actionable artifact chips together. Do not collapse this
+workspace, show last-viewed context, or repeat artifacts as tiny header icons;
+those indicators duplicate the actionable chips. Highlight the active page so
+returning from Source preserves orientation. Show a compact `Phrases` artifact
+chip when Radix finds any base or added phrases on the page.
 Visible empty states and capture inventory labels should say `Pages` and
 `Create Page`; reserve `Saved Pages` for compatibility identifiers, backup
 inventory, and places where saved pages must be distinguished from sentence or
 phrase memory.
-On iPhone, expanded saved-page controls should be thumb-sized even though
-collapsed rows stay compact; prefer wider `Actions` and `Source` controls once
-the user has opened a row.
-Resume signals in the collapsed list should stay selective: show last-viewed
-context for the active page/source or the top recently viewed page, but do not
-add date/status text to every saved-page row.
+On iPhone, saved-page controls should be thumb-sized; prefer wider `Actions`
+and `Switch Page` controls while keeping the workspace visible.
 The saved-page list must stay lazy and responsive: row drawing should not run
 full page-phrase scans for every saved page. Use recorded phrase-extraction
 links or already-warmed caches for row indicators, and do the full phrase lookup

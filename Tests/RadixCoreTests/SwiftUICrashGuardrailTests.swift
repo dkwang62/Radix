@@ -148,6 +148,10 @@ struct SwiftUICrashGuardrailTests {
         #expect(study.contains("studyPageWorkspaceSwitcher(collection)"))
         #expect(study.contains("get: { studyPageSortOrder }"))
         #expect(!study.contains("studyPageSortMenu"))
+        #expect(study.contains("studyPageScanText"))
+        #expect(!study.contains("studyPageResumeText"))
+        #expect(!study.contains("studySavedPageCollapsedRow"))
+        #expect(!study.contains("expandedStudySavedPageID"))
         #expect(!study.contains("studySavedPageBrowseButton"))
     }
 

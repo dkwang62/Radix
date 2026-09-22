@@ -246,8 +246,7 @@ extension FavouritesTab {
             if let collection = selectedCollection {
                 let rowData = studySavedPageRowData(
                     collection,
-                    hasRecordedPagePhrases: pageIDsWithRecordedPhrases.contains(collection.id),
-                    resumePageID: collection.id
+                    hasRecordedPagePhrases: pageIDsWithRecordedPhrases.contains(collection.id)
                 )
                 studySavedPageRow(rowData, pages: pages)
             }
@@ -256,8 +255,7 @@ extension FavouritesTab {
 
     private func studySavedPageRowData(
         _ collection: CharacterCollection,
-        hasRecordedPagePhrases: Bool,
-        resumePageID: UUID?
+        hasRecordedPagePhrases: Bool
     ) -> StudySavedPageRowData {
         let practices = pagePracticePacks(for: collection)
         let correctedPages = correctedStudyPages(for: collection)
