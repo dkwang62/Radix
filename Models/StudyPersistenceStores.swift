@@ -1,7 +1,72 @@
 import Foundation
 
+private final class ConversationPracticeStoreCache: @unchecked Sendable {
+    private let lock = NSLock()
+    private var importedPacksData: Data?
+    private var importedPacksValue: [ConversationPracticePack] = []
+    private var hasLoadedImportedPacks = false
+    private var progressData: Data?
+    private var progressValue = ConversationPracticeProgressSnapshot()
+    private var hasLoadedProgress = false
+
+    func importedPacks(from data: Data?) -> [ConversationPracticePack] {
+        lock.lock()
+        defer { lock.unlock() }
+        if hasLoadedImportedPacks, importedPacksData == data {
+            return importedPacksValue
+        }
+        let decoded = data.flatMap { try? JSONDecoder().decode([ConversationPracticePack].self, from: $0) } ?? []
+        importedPacksData = data
+        importedPacksValue = decoded
+        hasLoadedImportedPacks = true
+        return decoded
+    }
+
+    func storeImportedPacks(_ value: [ConversationPracticePack], data: Data?) {
+        lock.lock()
+        importedPacksData = data
+        importedPacksValue = value
+        hasLoadedImportedPacks = true
+        lock.unlock()
+    }
+
+    func progress(from data: Data?) -> ConversationPracticeProgressSnapshot {
+        lock.lock()
+        defer { lock.unlock() }
+        if hasLoadedProgress, progressData == data {
+            return progressValue
+        }
+        let decoded = data.flatMap { try? JSONDecoder().decode(ConversationPracticeProgressSnapshot.self, from: $0) }
+            ?? ConversationPracticeProgressSnapshot()
+        progressData = data
+        progressValue = decoded
+        hasLoadedProgress = true
+        return decoded
+    }
+
+    func storeProgress(_ value: ConversationPracticeProgressSnapshot, data: Data?) {
+        lock.lock()
+        progressData = data
+        progressValue = value
+        hasLoadedProgress = true
+        lock.unlock()
+    }
+
+    func clear() {
+        lock.lock()
+        importedPacksData = nil
+        importedPacksValue = []
+        hasLoadedImportedPacks = true
+        progressData = nil
+        progressValue = ConversationPracticeProgressSnapshot()
+        hasLoadedProgress = true
+        lock.unlock()
+    }
+}
+
 struct ConversationPracticeStore: @unchecked Sendable {
     private let preferences: any RadixPreferenceStore
+    private let cache = ConversationPracticeStoreCache()
 
     init(preferences: any RadixPreferenceStore) {
         self.preferences = preferences
@@ -9,40 +74,95 @@ struct ConversationPracticeStore: @unchecked Sendable {
 
     var importedPacks: [ConversationPracticePack] {
         get {
-            decode([ConversationPracticePack].self, forKey: RadixPreferenceKey.importedConversationPracticePacks) ?? []
+            cache.importedPacks(from: preferences.data(forKey: RadixPreferenceKey.importedConversationPracticePacks))
         }
         nonmutating set {
-            encode(newValue, forKey: RadixPreferenceKey.importedConversationPracticePacks)
+            let data = try? JSONEncoder().encode(newValue)
+            preferences.set(data, forKey: RadixPreferenceKey.importedConversationPracticePacks)
+            cache.storeImportedPacks(newValue, data: data)
         }
     }
 
     var progress: ConversationPracticeProgressSnapshot {
         get {
-            decode(ConversationPracticeProgressSnapshot.self, forKey: RadixPreferenceKey.conversationPracticeProgress)
-                ?? ConversationPracticeProgressSnapshot()
+            cache.progress(from: preferences.data(forKey: RadixPreferenceKey.conversationPracticeProgress))
         }
         nonmutating set {
-            encode(newValue, forKey: RadixPreferenceKey.conversationPracticeProgress)
+            let data = try? JSONEncoder().encode(newValue)
+            preferences.set(data, forKey: RadixPreferenceKey.conversationPracticeProgress)
+            cache.storeProgress(newValue, data: data)
         }
     }
 
     func clearUserData() {
         preferences.removeObject(forKey: RadixPreferenceKey.importedConversationPracticePacks)
         preferences.removeObject(forKey: RadixPreferenceKey.conversationPracticeProgress)
+        cache.clear()
+    }
+}
+
+private final class PageStudyArtifactStoreCache: @unchecked Sendable {
+    private let lock = NSLock()
+    private var phraseData: Data?
+    private var phraseValue: [PagePhraseExtractionRecord] = []
+    private var hasLoadedPhrases = false
+    private var cleanedData: Data?
+    private var cleanedValue: [AICleanedPageRecord] = []
+    private var hasLoadedCleanedPages = false
+
+    func phraseExtractions(from data: Data?) -> [PagePhraseExtractionRecord] {
+        lock.lock()
+        defer { lock.unlock() }
+        if hasLoadedPhrases, phraseData == data { return phraseValue }
+        let decoded = data.flatMap { try? JSONDecoder().decode([PagePhraseExtractionRecord].self, from: $0) } ?? []
+        phraseData = data
+        phraseValue = decoded
+        hasLoadedPhrases = true
+        return decoded
     }
 
-    private func decode<Value: Decodable>(_ type: Value.Type, forKey key: String) -> Value? {
-        guard let data = preferences.data(forKey: key) else { return nil }
-        return try? JSONDecoder().decode(type, from: data)
+    func storePhraseExtractions(_ value: [PagePhraseExtractionRecord], data: Data?) {
+        lock.lock()
+        phraseData = data
+        phraseValue = value
+        hasLoadedPhrases = true
+        lock.unlock()
     }
 
-    private func encode<Value: Encodable>(_ value: Value, forKey key: String) {
-        preferences.set(try? JSONEncoder().encode(value), forKey: key)
+    func cleanedPages(from data: Data?) -> [AICleanedPageRecord] {
+        lock.lock()
+        defer { lock.unlock() }
+        if hasLoadedCleanedPages, cleanedData == data { return cleanedValue }
+        let decoded = data.flatMap { try? JSONDecoder().decode([AICleanedPageRecord].self, from: $0) } ?? []
+        cleanedData = data
+        cleanedValue = decoded
+        hasLoadedCleanedPages = true
+        return decoded
+    }
+
+    func storeCleanedPages(_ value: [AICleanedPageRecord], data: Data?) {
+        lock.lock()
+        cleanedData = data
+        cleanedValue = value
+        hasLoadedCleanedPages = true
+        lock.unlock()
+    }
+
+    func clear() {
+        lock.lock()
+        phraseData = nil
+        phraseValue = []
+        hasLoadedPhrases = true
+        cleanedData = nil
+        cleanedValue = []
+        hasLoadedCleanedPages = true
+        lock.unlock()
     }
 }
 
 struct PageStudyArtifactStore: @unchecked Sendable {
     private let preferences: any RadixPreferenceStore
+    private let cache = PageStudyArtifactStoreCache()
 
     init(preferences: any RadixPreferenceStore) {
         self.preferences = preferences
@@ -50,13 +170,15 @@ struct PageStudyArtifactStore: @unchecked Sendable {
 
     var phraseExtractions: [PagePhraseExtractionRecord] {
         get {
-            decode([PagePhraseExtractionRecord].self, forKey: RadixPreferenceKey.pagePhraseExtractions) ?? []
+            cache.phraseExtractions(from: preferences.data(forKey: RadixPreferenceKey.pagePhraseExtractions))
         }
         nonmutating set {
             let records = newValue
                 .filter { !$0.phraseWords.isEmpty }
                 .sorted { $0.extractedAt > $1.extractedAt }
-            encode(records, forKey: RadixPreferenceKey.pagePhraseExtractions)
+            let data = try? JSONEncoder().encode(records)
+            preferences.set(data, forKey: RadixPreferenceKey.pagePhraseExtractions)
+            cache.storePhraseExtractions(records, data: data)
         }
     }
 
@@ -89,13 +211,15 @@ struct PageStudyArtifactStore: @unchecked Sendable {
 
     var cleanedPages: [AICleanedPageRecord] {
         get {
-            decode([AICleanedPageRecord].self, forKey: RadixPreferenceKey.aiCleanedPages) ?? []
+            cache.cleanedPages(from: preferences.data(forKey: RadixPreferenceKey.aiCleanedPages))
         }
         nonmutating set {
             let records = newValue
                 .filter { !$0.cleanedChineseText.isEmpty || !$0.sentences.isEmpty }
                 .sorted { $0.createdAt > $1.createdAt }
-            encode(records, forKey: RadixPreferenceKey.aiCleanedPages)
+            let data = try? JSONEncoder().encode(records)
+            preferences.set(data, forKey: RadixPreferenceKey.aiCleanedPages)
+            cache.storeCleanedPages(records, data: data)
         }
     }
 
@@ -113,14 +237,6 @@ struct PageStudyArtifactStore: @unchecked Sendable {
     func clearUserData() {
         preferences.removeObject(forKey: RadixPreferenceKey.pagePhraseExtractions)
         preferences.removeObject(forKey: RadixPreferenceKey.aiCleanedPages)
-    }
-
-    private func decode<Value: Decodable>(_ type: Value.Type, forKey key: String) -> Value? {
-        guard let data = preferences.data(forKey: key) else { return nil }
-        return try? JSONDecoder().decode(type, from: data)
-    }
-
-    private func encode<Value: Encodable>(_ value: Value, forKey key: String) {
-        preferences.set(try? JSONEncoder().encode(value), forKey: key)
+        cache.clear()
     }
 }

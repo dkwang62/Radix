@@ -239,6 +239,13 @@ struct SwiftUICrashGuardrailTests {
         #expect(browseEntry.contains("else if mostRecentlyViewedCollection != nil"))
         #expect(browseEntry.contains("selectMostRecentBrowsePage()"))
 
+        let collections = try sourceText(at: "ViewModels/RadixStoreCollections.swift")
+        let selection = collections
+            .components(separatedBy: "func selectBrowseCollection(id: UUID?) {")[1]
+            .components(separatedBy: "func selectAICollection")[0]
+        #expect(selection.contains("SavedPageRules.shouldRecordView"))
+        #expect(selection.range(of: "return")!.lowerBound < selection.range(of: "persistCollections()")!.lowerBound)
+
         let lifecycle = try sourceText(at: "App/FavouritesTabLifecycle.swift")
         let onAppear = lifecycle
             .components(separatedBy: ".onAppear {")[1]

@@ -556,11 +556,12 @@ extension RadixStore {
     // MARK: - Selection
 
     func selectBrowseCollection(id: UUID?) {
-        if selectedBrowseCollectionID == id {
-            if let id {
-                selectedAICollectionID = id
-                gridSortMode = .readingOrder
-            }
+        if let id, !SavedPageRules.shouldRecordView(
+            currentPageID: selectedBrowseCollectionID,
+            selectedPageID: id
+        ) {
+            selectedAICollectionID = id
+            gridSortMode = .readingOrder
             return
         }
 

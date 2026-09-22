@@ -95,6 +95,46 @@ struct StudyPersistenceStoreTests {
         #expect(PageStudyArtifactStore(preferences: preferences).cleanedPages.isEmpty)
     }
 
+    @Test("Study caches refresh when restore changes the underlying payload")
+    func cachesObserveExternalPayloadChanges() throws {
+        let preferences = InMemoryStudyPreferenceStore()
+        let practiceStore = ConversationPracticeStore(preferences: preferences)
+        let artifactStore = PageStudyArtifactStore(preferences: preferences)
+        #expect(practiceStore.importedPacks.isEmpty)
+        #expect(artifactStore.cleanedPages.isEmpty)
+
+        let pack = ConversationPracticePack(
+            packID: "restored-practice",
+            version: "1",
+            title: "Restored Practice",
+            description: "",
+            language: "zh-CN",
+            sourceType: "restore",
+            createdFor: "Radix",
+            sourceLink: nil,
+            entries: []
+        )
+        let cleanedPage = AICleanedPageRecord(
+            sourcePageID: UUID(),
+            sourceTitle: "Restored Page",
+            cleanedTitle: "Restored Page",
+            cleanedChineseText: "你好。",
+            sentences: [],
+            createdAt: Date(timeIntervalSince1970: 500)
+        )
+        preferences.set(
+            try JSONEncoder().encode([pack]),
+            forKey: RadixPreferenceKey.importedConversationPracticePacks
+        )
+        preferences.set(
+            try JSONEncoder().encode([cleanedPage]),
+            forKey: RadixPreferenceKey.aiCleanedPages
+        )
+
+        #expect(practiceStore.importedPacks == [pack])
+        #expect(artifactStore.cleanedPages == [cleanedPage])
+    }
+
     @Test("Study stores clear every owned user-data key")
     func clearUserData() {
         let preferences = InMemoryStudyPreferenceStore()

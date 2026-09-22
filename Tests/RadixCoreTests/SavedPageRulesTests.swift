@@ -4,6 +4,17 @@ import Testing
 
 @Suite("Saved-page portability rules")
 struct SavedPageRulesTests {
+    @Test("Only selecting a different saved page records a new view")
+    func recordsOnlyDifferentPageSelections() {
+        let firstID = UUID()
+        let secondID = UUID()
+
+        #expect(!SavedPageRules.shouldRecordView(currentPageID: firstID, selectedPageID: firstID))
+        #expect(SavedPageRules.shouldRecordView(currentPageID: firstID, selectedPageID: secondID))
+        #expect(SavedPageRules.shouldRecordView(currentPageID: nil, selectedPageID: firstID))
+        #expect(!SavedPageRules.shouldRecordView(currentPageID: firstID, selectedPageID: nil))
+    }
+
     @Test("Most recent page uses viewed date with created-date fallback")
     func mostRecentPage() {
         let olderViewed = page(created: 30, viewed: 20)

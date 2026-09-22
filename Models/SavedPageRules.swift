@@ -13,6 +13,11 @@ enum SavedPageRules {
         }?.id
     }
 
+    static func shouldRecordView(currentPageID: UUID?, selectedPageID: UUID?) -> Bool {
+        guard let selectedPageID else { return false }
+        return selectedPageID != currentPageID
+    }
+
     static func correctedName(originalName: String, existingNames: Set<String>) -> String {
         let cleanOriginal = normalizedName(originalName)
         let stem = cleanOriginal.isEmpty ? "Corrected" : cleanOriginal

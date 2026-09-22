@@ -225,8 +225,12 @@ as orchestration, not a second business-rule implementation.
   `@State` guardrail.
 - Primary Browse/Study switching avoids incidental persistence work. Browse
   preserves a valid selected page instead of rewriting page metadata on every
-  entry. Study loads shared practice/favorite references in one pass, runs the
-  legacy phrase-favorite conversion once per relevant data change, and consumes
+  entry. Switching the already-selected saved page between Browse and Study is
+  persistence-free and does not change its viewed date. Study Pages bypasses
+  Conversation Practice initialization, builds one page-artifact snapshot, and
+  reuses decoded practice/page payloads until their stored data changes. Other
+  Study sections load shared practice/favorite references in one pass, run the
+  legacy phrase-favorite conversion once per relevant data change, and consume
   the root's cached checkpoint list instead of rescanning checkpoint files.
 - Interactive navigation publishes grouped state transitions. Browse chooses
   its final sort mode once, computes dictionary-grid filtering and ordering from
@@ -584,13 +588,14 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 ## Required Verification
 
-Latest application baseline (2026-09-22): `swift test` passed 219 tests in 19
+Latest application baseline (2026-09-22): `swift test` passed 222 tests in 19
 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds target
-source build 36. Browse/Study switching no longer repeats checkpoint scans,
+source build 52. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
-recomputes on ordinary tab entry. Dictionary grid work runs off the main actor
-and high-traffic caches are bounded; real-library device timing remains a human
-verification step. Live provider
+recomputes on ordinary tab entry. Study Pages also avoids unrelated conversation
+initialization and repeated JSON decoding. Dictionary grid work runs off the main
+actor and high-traffic caches are bounded; real-library device timing remains a
+human verification step. Live provider
 execution and physical-device UI acceptance for the transcript task remain
 unverified. Per-change verification details belong in Git history, not in this
 handoff.
