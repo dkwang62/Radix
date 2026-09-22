@@ -138,6 +138,7 @@ struct SwiftUICrashGuardrailTests {
         #expect(switcher.contains(".pickerStyle(.segmented)"))
         #expect(switcher.contains("struct PageSelectionSwitcher"))
         #expect(switcher.contains("title: \"Switch Page\""))
+        #expect(switcher.contains("Section(\"Sort Pages\")"))
         #expect(browse.contains("PageWorkspaceSwitcher(selectedMode: .browse)"))
         #expect(study.contains("PageWorkspaceSwitcher(selectedMode: .study)"))
         #expect(browse.contains("PageSelectionSwitcher("))
@@ -145,6 +146,8 @@ struct SwiftUICrashGuardrailTests {
         #expect(study.contains("studySavedPageActionsMenu(collection)"))
         #expect(study.contains("pageSwitcher"))
         #expect(study.contains("studyPageWorkspaceSwitcher(collection)"))
+        #expect(study.contains("get: { studyPageSortOrder }"))
+        #expect(!study.contains("studyPageSortMenu"))
         #expect(!study.contains("studySavedPageBrowseButton"))
     }
 

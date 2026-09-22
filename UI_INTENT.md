@@ -70,7 +70,8 @@ Use these preferences as defaults:
   both Browse and Study to select a saved page, and the shared `Browse | Study`
   segmented control to move between modes while preserving that selection. Show
   the selected page name only in its content header rather than repeating it in
-  the picker. The Study title menu
+  the picker. In Study, keep page sorting inside `Switch Page`; it should not
+  appear as a detached status-like pill. The Study title menu
   exposes this learning workspace as `Pages`, but Pages is not a separate
   top-level workspace.
 - The title dropdown is the complete, universal navigation map on every screen.

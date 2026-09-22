@@ -12,9 +12,25 @@ struct PageSelectionSwitcher: View {
     let selectedPageID: UUID?
     let displayName: (CharacterCollection) -> String
     let onSelect: (CharacterCollection) -> Void
+    var sortOrder: Binding<PageCollectionSortOrder>? = nil
 
     var body: some View {
         Menu {
+            if let sortOrder {
+                Section("Sort Pages") {
+                    ForEach(PageCollectionSortOrder.allCases) { order in
+                        Button {
+                            sortOrder.wrappedValue = order
+                        } label: {
+                            Label(
+                                order.rawValue,
+                                systemImage: sortOrder.wrappedValue == order ? "checkmark" : "calendar"
+                            )
+                        }
+                    }
+                }
+            }
+
             ForEach(pages) { page in
                 Button {
                     onSelect(page)

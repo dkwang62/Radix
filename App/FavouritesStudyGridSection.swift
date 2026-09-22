@@ -138,13 +138,11 @@ extension FavouritesTab {
             EmptyView()
         } else if isNarrowStudyLayout {
             VStack(alignment: .leading, spacing: 8) {
-                if studyGridScope == .all || studyGridScope == .savedPages {
+                if studyGridScope == .all {
                     HStack(alignment: .center, spacing: 8) {
                         Spacer(minLength: 0)
                         if studyGridScope == .all {
-                        clearRecentButton
-                        } else if studyGridScope == .savedPages {
-                            studyPageSortMenu
+                            clearRecentButton
                         }
                     }
                 }
@@ -159,9 +157,7 @@ extension FavouritesTab {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .center, spacing: 8) {
                     Spacer(minLength: 0)
-                    if studyGridScope == .savedPages {
-                        studyPageSortMenu
-                    } else {
+                    if studyGridScope != .savedPages {
                         studyScriptToggle
                     }
                 }
@@ -241,30 +237,6 @@ extension FavouritesTab {
             studyGridUsesTraditionalScript.toggle()
         }
         .fixedSize(horizontal: true, vertical: false)
-    }
-
-    var studyPageSortMenu: some View {
-        Menu {
-            ForEach(PageCollectionSortOrder.allCases) { order in
-                Button {
-                    studyPageSortOrder = order
-                } label: {
-                    Label(order.rawValue, systemImage: studyPageSortOrder == order ? "checkmark" : "calendar")
-                }
-            }
-        } label: {
-            Label(studyPageSortOrder.rawValue, systemImage: "arrow.up.arrow.down")
-                .font(ResponsiveFont.caption2.weight(.semibold))
-                .labelStyle(.titleAndIcon)
-                .radixPill(
-                    horizontal: 8,
-                    vertical: 5,
-                    background: RadixAccent.primary.opacity(0.1),
-                    radius: 8
-                )
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(RadixAccent.primary)
     }
 
     var studySavedPagesList: some View {
@@ -467,7 +439,11 @@ extension FavouritesTab {
             onSelect: { page in
                 store.selectBrowseCollection(id: page.id)
                 expandedStudySavedPageID = page.id
-            }
+            },
+            sortOrder: Binding(
+                get: { studyPageSortOrder },
+                set: { studyPageSortOrder = $0 }
+            )
         )
         .help("Switch saved page")
 
