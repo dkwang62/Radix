@@ -142,6 +142,9 @@ struct SwiftUICrashGuardrailTests {
         #expect(study.contains("PageWorkspaceSwitcher(selectedMode: .study)"))
         #expect(browse.contains("PageSelectionSwitcher("))
         #expect(study.contains("PageSelectionSwitcher("))
+        #expect(study.contains("studySavedPageActionsMenu(collection)"))
+        #expect(study.contains("pageSwitcher"))
+        #expect(study.contains("studyPageWorkspaceSwitcher(collection)"))
         #expect(!study.contains("studySavedPageBrowseButton"))
     }
 

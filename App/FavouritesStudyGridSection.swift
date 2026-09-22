@@ -273,24 +273,13 @@ extension FavouritesTab {
         let selectedCollection = store.selectedBrowseCollection ?? pages.first
 
         return VStack(alignment: .leading, spacing: 10) {
-            PageSelectionSwitcher(
-                pages: pages,
-                selectedPageID: selectedCollection?.id,
-                displayName: collectionDisplayName,
-                onSelect: { collection in
-                    store.selectBrowseCollection(id: collection.id)
-                    expandedStudySavedPageID = collection.id
-                }
-            )
-            .help("Switch saved page")
-
             if let collection = selectedCollection {
                 let rowData = studySavedPageRowData(
                     collection,
                     hasRecordedPagePhrases: pageIDsWithRecordedPhrases.contains(collection.id),
                     resumePageID: collection.id
                 )
-                studySavedPageRow(rowData)
+                studySavedPageRow(rowData, pages: pages)
             }
         }
     }
@@ -326,7 +315,10 @@ extension FavouritesTab {
         )
     }
 
-    private func studySavedPageRow(_ rowData: StudySavedPageRowData) -> some View {
+    private func studySavedPageRow(
+        _ rowData: StudySavedPageRowData,
+        pages: [CharacterCollection]
+    ) -> some View {
         let collection = rowData.collection
         return VStack(alignment: .leading, spacing: 8) {
             Button {
@@ -346,7 +338,7 @@ extension FavouritesTab {
 
             if rowData.isExpanded {
                 VStack(alignment: .leading, spacing: 8) {
-                    studySavedPageExpandedControls(collection)
+                    studySavedPageExpandedControls(collection, pages: pages)
 
                     if studyPageActionMessageCollectionID == collection.id, let studyPageActionMessage {
                         Label {
@@ -464,16 +456,34 @@ extension FavouritesTab {
     }
 
     @ViewBuilder
-    private func studySavedPageExpandedControls(_ collection: CharacterCollection) -> some View {
+    private func studySavedPageExpandedControls(
+        _ collection: CharacterCollection,
+        pages: [CharacterCollection]
+    ) -> some View {
+        let pageSwitcher = PageSelectionSwitcher(
+            pages: pages,
+            selectedPageID: collection.id,
+            displayName: collectionDisplayName,
+            onSelect: { page in
+                store.selectBrowseCollection(id: page.id)
+                expandedStudySavedPageID = page.id
+            }
+        )
+        .help("Switch saved page")
+
         if isNarrowStudyLayout {
-            HStack(alignment: .center, spacing: 8) {
-                studySavedPageActionsMenu(collection)
-                    .frame(maxWidth: .infinity, minHeight: 38)
-                studyPageWorkspaceSwitcher(collection)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .center, spacing: 6) {
+                    studySavedPageActionsMenu(collection)
+                    pageSwitcher
+                    studyPageWorkspaceSwitcher(collection)
+                }
+                .padding(.vertical, 1)
             }
         } else {
-            HStack(alignment: .center, spacing: 8) {
+            HStack(alignment: .center, spacing: 6) {
                 studySavedPageActionsMenu(collection)
+                pageSwitcher
                 studyPageWorkspaceSwitcher(collection)
             }
         }
