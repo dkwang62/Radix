@@ -73,8 +73,9 @@ Use these preferences as defaults:
   Browse/Study destination control to move between modes while preserving that selection. Show
   the selected page name only in its content header rather than repeating it in
   the picker. Keep page headers and page controls compact on portrait iPad and
-  iPhone: use the page name as its menu, show a `dd MMM yy` scan date, and put
-  page Actions in the second control row in both workspaces. Keep read aloud,
+  iPhone: use the page name as its menu, show a label-free `dd MMM yy` date that
+  follows the selected Viewed/Scanned ordering, and put icon-only page Actions
+  in the second control row in both workspaces. Keep read aloud,
   a single button that opens the other Browse/Study workspace, and the text-only
   `All | Unique` control in Browse's second control row. Keep page sorting inside
   the page-name menu on every platform; it should not
@@ -451,7 +452,8 @@ starring items; no recent items should point toward searching, browsing, or
 inspecting Chinese. Avoid generic empty text that leaves the user with no next
 step.
 Pages owns page learning artifacts and deletion. The selected page workspace is
-always expanded: show its page-title menu, scan date, second-row `Actions`,
+always expanded: show its page-title menu, the date matching its active page
+ordering, second-row icon-only `Actions`,
 the Browse/Study destination, and actionable artifact chips together. Do not collapse this
 workspace, show last-viewed context, or repeat artifacts as tiny header icons;
 those indicators duplicate the actionable chips. Highlight the active page so

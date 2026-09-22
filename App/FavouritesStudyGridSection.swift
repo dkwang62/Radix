@@ -318,7 +318,8 @@ extension FavouritesTab {
     ) -> some View {
         SavedPageWorkspaceHeader(
             collection: rowData.collection,
-            isActive: rowData.isActivePage
+            isActive: rowData.isActivePage,
+            dateMode: studyPageSortOrder
         ) {
             studyPageSelectionSwitcher(
                 rowData.collection,
@@ -330,7 +331,7 @@ extension FavouritesTab {
 
     private func studySavedPageExpandedControls(_ collection: CharacterCollection) -> some View {
         HStack(spacing: 6) {
-            studySavedPageActionsMenu(collection)
+            studySavedPageActionsMenu(collection, usesCompactLabel: true)
             studyPageWorkspaceSwitcher(collection)
         }
     }

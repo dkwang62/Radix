@@ -19,15 +19,18 @@ private enum SavedPageHeaderDateFormatter {
 struct SavedPageWorkspaceHeader<PageSelector: View>: View {
     let collection: CharacterCollection
     let isActive: Bool
+    let dateMode: PageCollectionSortOrder
     let pageSelector: PageSelector
 
     init(
         collection: CharacterCollection,
         isActive: Bool,
+        dateMode: PageCollectionSortOrder,
         @ViewBuilder pageSelector: () -> PageSelector
     ) {
         self.collection = collection
         self.isActive = isActive
+        self.dateMode = dateMode
         self.pageSelector = pageSelector()
     }
 
@@ -54,7 +57,13 @@ struct SavedPageWorkspaceHeader<PageSelector: View>: View {
     }
 
     private var scanText: String {
-        SavedPageHeaderDateFormatter.scan.string(from: collection.createdAt)
+        let date = switch dateMode {
+        case .lastViewed:
+            collection.lastViewedAt ?? collection.createdAt
+        case .scanned:
+            collection.createdAt
+        }
+        return SavedPageHeaderDateFormatter.scan.string(from: date)
     }
 }
 

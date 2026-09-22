@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `47` (not yet distributed). Every committed application
+current source version is `1.1` build `48` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -135,10 +135,11 @@ stay linked to their page rather than becoming disconnected parallel features.
 - In Study Recent, keep the script toggle and `Clear Recent` in one trailing
   control row. Favorites retains only the script toggle; Pages retains neither.
 - Saved-page headers use the page name itself as the selection menu and show a
-  `dd MMM yy` scan date. Keep Actions in the second control row for both Browse
-  and Study; Browse also keeps read aloud, a single Browse/Study destination
-  button, script, and `All | Unique` there. The page-name menu owns the
-  cross-platform Viewed/Scanned sort choice.
+  label-free `dd MMM yy` date matching the active Viewed/Scanned sort order.
+  Keep icon-only Actions in the second control row for both Browse and Study;
+  Browse also keeps read aloud, a single Browse/Study destination button, script,
+  and `All | Unique` there. The page-name menu owns the cross-platform
+  Viewed/Scanned sort choice.
 - `Pages` is not a separate primary data model. Browse owns source page
   selection; Study Pages is the page-learning workspace.
 - Added Phrases, Conversation Practices, and Sentences are mutually exclusive

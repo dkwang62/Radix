@@ -26,7 +26,8 @@ extension FilterGridTab {
         VStack(alignment: .leading, spacing: 6) {
             SavedPageWorkspaceHeader(
                 collection: collection,
-                isActive: true
+                isActive: true,
+                dateMode: browsePageSortOrder
             ) {
                 browsePageSelectionSwitcher(collection)
             }
@@ -100,7 +101,7 @@ extension FilterGridTab {
 
     func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
         return HStack(spacing: 6) {
-            browsePageActionsMenu(collection)
+            browsePageActionsMenu(collection, usesCompactLabel: true)
 
             if let sourceOCRLabel = browseSourceOCRLayerLabel(for: collection),
                sourceOCRLabel != "Original OCR" {
