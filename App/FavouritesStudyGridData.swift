@@ -129,7 +129,7 @@ extension FavouritesTab {
     }
 
     var pageIDsWithRecordedPhraseExtractions: Set<UUID> {
-        Set(RadixStudyPreferences.pagePhraseExtractions.map(\.sourcePageID))
+        studyPageReferenceData.pageIDsWithRecordedPhrases
     }
 
     func correctedStudyPages(for collection: CharacterCollection) -> [CharacterCollection] {
@@ -139,9 +139,7 @@ extension FavouritesTab {
     }
 
     func pagePracticePacks(for collection: CharacterCollection) -> [ConversationPracticePack] {
-        RadixStudyPreferences.importedConversationPracticePacks
-            .filter { $0.sourceLink?.sourcePageID == collection.id }
-            .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        studyPageReferenceData.practicePacksByPageID[collection.id] ?? []
     }
 
     func isPageSentencePractice(_ pack: ConversationPracticePack) -> Bool {
@@ -210,7 +208,7 @@ extension FavouritesTab {
         withAnimation(.snappy(duration: 0.18)) {
             screenState.openAICleanedPage(collectionID: collection.id)
         }
-        if let record = RadixStudyPreferences.aiCleanedPage(for: collection.id) {
+        if let record = studyPageReferenceData.cleanedPagesByPageID[collection.id] {
             refreshAICleanedPageSentenceCache(for: record)
         }
     }
@@ -294,7 +292,7 @@ extension FavouritesTab {
             RadixHaptics.error()
             return
         }
-        loadImportedConversationPracticePacks()
+        loadStudyPageReferenceData()
         setStudyPageActionMessage(
             keepOriginal
                 ? "Corrected text is now the main page. The original captured page was kept separately."
@@ -386,6 +384,7 @@ extension FavouritesTab {
                 let summary = try await store.runAutomaticPhraseExtraction(for: collection)
                 await MainActor.run {
                     setStudyPageActionMessage(summary.message(defaultAIName: store.automaticAIName), for: collection)
+                    loadStudyPageReferenceData()
                     isRunningStudyPageAction = false
                 }
             } catch {
@@ -426,7 +425,7 @@ extension FavouritesTab {
             do {
                 let pack = try await store.runAutomaticPageSentenceExtraction(for: collection)
                 await MainActor.run {
-                    loadImportedConversationPracticePacks()
+                    loadStudyPageReferenceData()
                     setStudyPageActionMessage("Loaded \(pack.title) · \(pack.entries.count) sentences.", for: collection)
                     isRunningStudyPageAction = false
                 }
@@ -446,7 +445,7 @@ extension FavouritesTab {
             do {
                 let pack = try await store.runAutomaticPagePracticeGeneration(for: collection)
                 await MainActor.run {
-                    loadImportedConversationPracticePacks()
+                    loadStudyPageReferenceData()
                     setStudyPageActionMessage("Loaded \(pack.title) · \(pack.entries.count) sentences.", for: collection)
                     isRunningStudyPageAction = false
                 }
@@ -466,6 +465,7 @@ extension FavouritesTab {
             do {
                 let record = try await store.runAutomaticAICleanedPage(for: collection)
                 await MainActor.run {
+                    loadStudyPageReferenceData()
                     setStudyPageActionMessage("AI page saved: \(record.cleanedTitle.isEmpty ? collection.name : record.cleanedTitle).", for: collection)
                     openAICleanedPage(collection)
                     isRunningStudyPageAction = false

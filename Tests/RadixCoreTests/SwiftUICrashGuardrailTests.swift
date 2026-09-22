@@ -243,10 +243,25 @@ struct SwiftUICrashGuardrailTests {
         let onAppear = lifecycle
             .components(separatedBy: ".onAppear {")[1]
             .components(separatedBy: ".onChange(of: studyGridUsesTraditionalScript)")[0]
-        #expect(onAppear.contains("loadStudyReferenceData()"))
+        #expect(onAppear.contains("loadInitialStudyReferenceData()"))
         #expect(!onAppear.contains("loadImportedConversationPracticePacks()"))
         #expect(!onAppear.contains("loadFavoriteSentences()"))
         #expect(!onAppear.contains("onRefreshCheckpoints()"))
+
+        let state = try sourceText(at: "App/FavouritesStudyScreenState.swift")
+        let conversationDefaults = state
+            .components(separatedBy: "struct StudyConversationPracticeScreenState {")[1]
+            .components(separatedBy: "struct StudyPageReferenceData")[0]
+        #expect(!conversationDefaults.contains("ConversationPracticeService().loadLibrary"))
+        #expect(!conversationDefaults.contains("RadixStudyPreferences.favoriteSentences"))
+        #expect(!conversationDefaults.contains("RadixStudyPreferences.conversationPracticeProgress"))
+
+        let pageData = try sourceText(at: "App/FavouritesStudyGridData.swift")
+        #expect(pageData.contains("studyPageReferenceData.pageIDsWithRecordedPhrases"))
+        #expect(pageData.contains("studyPageReferenceData.practicePacksByPageID[collection.id]"))
+        let pageSection = try sourceText(at: "App/FavouritesStudyGridSection.swift")
+        #expect(pageSection.contains("studyPageReferenceData.cleanedPagesByPageID[collection.id]"))
+        #expect(!pageSection.contains("RadixStudyPreferences.aiCleanedPage(for: collection.id)"))
 
         let study = try sourceText(at: "App/FavouritesTab.swift")
         let migration = study

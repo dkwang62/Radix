@@ -40,9 +40,9 @@ struct StudySentenceScreenState {
 
 struct StudyConversationPracticeScreenState {
     var topics = ConversationPracticeTopic.defaults
-    var library: ConversationPracticeLibrary? = try? ConversationPracticeService().loadLibrary(for: .generalGreetings)
+    var library: ConversationPracticeLibrary?
     var importedLibraries: [String: ConversationPracticeLibrary] = [:]
-    var favoriteSentenceRecords = RadixStudyPreferences.favoriteSentences
+    var favoriteSentenceRecords: [FavoriteSentenceRecord] = []
     var showsImporter = false
     var showsPasteImporter = false
     var importMessage: String?
@@ -52,12 +52,44 @@ struct StudyConversationPracticeScreenState {
     var sentenceDisplay: ConversationPracticeSentenceDisplay = .chinese
     var pageIndex = 0
     var selectedItemID: String?
-    var progress = RadixStudyPreferences.conversationPracticeProgress
+    var progress = ConversationPracticeProgressSnapshot()
     var reviewPresentation: ConversationPracticeReviewPresentation?
     var quizPresentation: ConversationPracticeQuizPresentation?
 }
 
+struct StudyPageReferenceData {
+    var practicePacksByPageID: [UUID: [ConversationPracticePack]] = [:]
+    var pageIDsWithRecordedPhrases = Set<UUID>()
+    var cleanedPagesByPageID: [UUID: AICleanedPageRecord] = [:]
+    var isLoaded = false
+
+    init(
+        practicePacks: [ConversationPracticePack] = [],
+        phraseExtractions: [PagePhraseExtractionRecord] = [],
+        cleanedPages: [AICleanedPageRecord] = [],
+        isLoaded: Bool = false
+    ) {
+        var groupedPacks: [UUID: [ConversationPracticePack]] = [:]
+        for pack in practicePacks {
+            guard let pageID = pack.sourceLink?.sourcePageID else { continue }
+            groupedPacks[pageID, default: []].append(pack)
+        }
+        practicePacksByPageID = groupedPacks.mapValues { packs in
+            packs.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        }
+        pageIDsWithRecordedPhrases = Set(phraseExtractions.map(\.sourcePageID))
+        cleanedPagesByPageID = Dictionary(
+            cleanedPages.map { ($0.sourcePageID, $0) },
+            uniquingKeysWith: { current, replacement in
+                replacement.createdAt > current.createdAt ? replacement : current
+            }
+        )
+        self.isLoaded = isLoaded
+    }
+}
+
 struct StudyPageScreenState {
+    var referenceData = StudyPageReferenceData()
     var aiCleanedCollectionID: UUID?
     var aiCleanedSentencePageIndex = 0
     var aiCleanedSentencePageCache: StudyAICleanedSentencePageCache?
@@ -449,6 +481,11 @@ extension FavouritesTab {
     var studyPageActionMessage: String? {
         get { screenState.pages.actionMessage }
         nonmutating set { screenState.pages.actionMessage = newValue }
+    }
+
+    var studyPageReferenceData: StudyPageReferenceData {
+        get { screenState.pages.referenceData }
+        nonmutating set { screenState.pages.referenceData = newValue }
     }
 
     var studyPageActionMessageCollectionID: UUID? {

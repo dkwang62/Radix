@@ -235,7 +235,7 @@ extension FavouritesTab {
     ) -> StudySavedPageRowData {
         let practices = pagePracticePacks(for: collection)
         let correctedPages = correctedStudyPages(for: collection)
-        let aiCleanedPage = RadixStudyPreferences.aiCleanedPage(for: collection.id)
+        let aiCleanedPage = studyPageReferenceData.cleanedPagesByPageID[collection.id]
         let hasPagePhrases = hasKnownPagePhrases(for: collection, hasRecordedPagePhrases: hasRecordedPagePhrases)
         let isActivePage = store.selectedBrowseCollectionID == collection.id
         let artifacts = studyPageArtifacts(

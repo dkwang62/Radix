@@ -556,6 +556,14 @@ extension RadixStore {
     // MARK: - Selection
 
     func selectBrowseCollection(id: UUID?) {
+        if selectedBrowseCollectionID == id {
+            if let id {
+                selectedAICollectionID = id
+                gridSortMode = .readingOrder
+            }
+            return
+        }
+
         if let id, let index = allCollections.firstIndex(where: { $0.id == id }) {
             allCollections[index].lastViewedAt = Date()
             persistCollections()

@@ -8,7 +8,7 @@ extension FavouritesTab {
                 studyGridScope = RadixStudyPreferences.initialGridScope
                 studyPageSortOrder = RadixStudyPreferences.pageSortOrder
                 openAddedPhraseReviewIfRequested()
-                loadStudyReferenceData()
+                loadInitialStudyReferenceData()
                 openPendingConversationPracticeIfNeeded()
                 applyInitialStudyNavigationTargetIfNeeded()
             }
@@ -40,7 +40,7 @@ extension FavouritesTab {
             }
             .onChange(of: store.dataImportRevision) { _, _ in
                 store.didMigrateLegacyPhraseFavoritesToFavoriteSentences = false
-                loadStudyReferenceData()
+                reloadVisibleStudyReferenceData()
                 sentenceExampleRevision += 1
                 refreshSentenceExampleResults()
             }
@@ -49,6 +49,29 @@ extension FavouritesTab {
                 loadConversationPracticeLibrary()
                 refreshSentenceExampleResults()
             }
+    }
+
+    func loadInitialStudyReferenceData() {
+        let requestedTarget = store.requestedStudyNavigationTarget
+        let opensSavedPages = requestedTarget == .savedPages || (
+            requestedTarget == nil &&
+                focusedStudySection == nil &&
+                !showStudyCheckpoints &&
+                studyGridScope == .savedPages
+        )
+        if opensSavedPages {
+            loadStudyPageReferenceData()
+        } else {
+            loadStudyReferenceData()
+        }
+    }
+
+    func reloadVisibleStudyReferenceData() {
+        if focusedStudySection == nil, !showStudyCheckpoints, studyGridScope == .savedPages {
+            loadStudyPageReferenceData()
+        } else {
+            loadStudyReferenceData()
+        }
     }
 
     func syncActiveStudySectionTitle() {
@@ -75,6 +98,9 @@ extension FavouritesTab {
         case .favorites:
             screenState.presentReview(scope: .favorites)
         case .savedPages:
+            if !studyPageReferenceData.isLoaded {
+                loadStudyPageReferenceData()
+            }
             if store.selectedBrowseCollectionID == nil,
                let firstPage = store.sortedCollections(order: .lastViewed).first {
                 store.selectBrowseCollection(id: firstPage.id)

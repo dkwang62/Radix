@@ -218,6 +218,16 @@ struct FavouritesTab: View {
         loadConversationPracticeLibrary()
     }
 
+    func loadStudyPageReferenceData(importedPacks: [ConversationPracticePack]? = nil) {
+        let packs = importedPacks ?? RadixStudyPreferences.importedConversationPracticePacks
+        studyPageReferenceData = StudyPageReferenceData(
+            practicePacks: packs,
+            phraseExtractions: RadixStudyPreferences.pagePhraseExtractions,
+            cleanedPages: RadixStudyPreferences.aiCleanedPages,
+            isLoaded: true
+        )
+    }
+
     func conversationPracticeBaseTopics(importedTopics: [ConversationPracticeTopic]) -> [ConversationPracticeTopic] {
         var topics = ConversationPracticeTopic.defaults + importedTopics.filter { importedTopic in
             !ConversationPracticeTopic.defaults.contains { $0.id == importedTopic.id }
