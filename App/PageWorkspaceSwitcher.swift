@@ -7,20 +7,35 @@ enum PageWorkspaceMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
-struct SavedPageWorkspaceHeader: View {
+private enum SavedPageHeaderDateFormatter {
+    static let scan: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "dd MMM yy"
+        return formatter
+    }()
+}
+
+struct SavedPageWorkspaceHeader<Accessory: View>: View {
     let collection: CharacterCollection
     let displayName: String
     let isActive: Bool
+    let accessory: Accessory
+
+    init(
+        collection: CharacterCollection,
+        displayName: String,
+        isActive: Bool,
+        @ViewBuilder accessory: () -> Accessory
+    ) {
+        self.collection = collection
+        self.displayName = displayName
+        self.isActive = isActive
+        self.accessory = accessory()
+    }
 
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
-            RadixPageIconView(
-                size: 34,
-                cornerRadius: 8,
-                systemImage: collection.isFavorite ? "star.fill" : "photo",
-                color: collection.isFavorite ? Color.yellow : Color.secondary
-            )
-
             Text(displayName)
                 .font(ResponsiveFont.subheadline.weight(.semibold))
                 .foregroundStyle(isActive ? RadixAccent.primary : Color.primary)
@@ -29,24 +44,38 @@ struct SavedPageWorkspaceHeader: View {
 
             Spacer(minLength: 6)
 
-            Label(scanText, systemImage: "calendar")
-                .font(ResponsiveFont.caption2.weight(.semibold))
-                .foregroundStyle(isActive ? RadixAccent.primary : Color.secondary)
-                .labelStyle(.titleAndIcon)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-                .radixPill(
-                    horizontal: 6,
-                    vertical: 4,
-                    background: (isActive ? RadixAccent.primary : Color.secondary).opacity(0.10),
-                    radius: 7
-                )
+            HStack(spacing: 6) {
+                accessory
+
+                Text(scanText)
+                    .font(ResponsiveFont.caption2.weight(.semibold))
+                    .foregroundStyle(isActive ? RadixAccent.primary : Color.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .radixPill(
+                        horizontal: 6,
+                        vertical: 4,
+                        background: (isActive ? RadixAccent.primary : Color.secondary).opacity(0.10),
+                        radius: 7
+                    )
+            }
         }
         .frame(minHeight: 44)
     }
 
     private var scanText: String {
-        "Scanned \(collection.createdAt.formatted(date: .abbreviated, time: .omitted))"
+        SavedPageHeaderDateFormatter.scan.string(from: collection.createdAt)
+    }
+}
+
+extension SavedPageWorkspaceHeader where Accessory == EmptyView {
+    init(collection: CharacterCollection, displayName: String, isActive: Bool) {
+        self.init(
+            collection: collection,
+            displayName: displayName,
+            isActive: isActive,
+            accessory: { EmptyView() }
+        )
     }
 }
 
@@ -86,10 +115,9 @@ struct PageSelectionSwitcher: View {
             }
         } label: {
             RadixCompactChevronLabel(
-                title: "Switch Page",
-                systemImage: "rectangle.stack",
+                title: "Page",
                 chevronFont: ResponsiveFont.tinySystem(size: 9, weight: .bold),
-                minWidth: 104
+                minWidth: 48
             )
         }
         .buttonStyle(.bordered)
@@ -118,7 +146,7 @@ struct PageWorkspaceSwitcher: View {
             }
         }
         .pickerStyle(.segmented)
-        .frame(width: 170)
+        .frame(width: 132)
         .accessibilityLabel("Page workspace")
         .accessibilityValue(selectedMode.rawValue)
     }

@@ -180,6 +180,9 @@ struct FilterGridTab: View {
             .onChange(of: browseImageScriptMode) { _, newValue in
                 RadixBrowsePreferences.imageScriptMode = newValue
             }
+            .onChange(of: browsePageSortOrder) { _, newValue in
+                RadixBrowsePreferences.pageSortOrder = newValue
+            }
             .onChange(of: browsePageGridFilter) { _, newValue in
                 RadixBrowsePreferences.pageGridFilter = newValue
                 lastTappedImageOffset = nil

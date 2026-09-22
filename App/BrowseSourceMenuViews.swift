@@ -188,6 +188,7 @@ struct CollectionPageActionsMenu: View {
     )
     var hasAutomaticAIConfiguration = false
     var aiTasks: [CollectionPageAITask] = []
+    var usesCompactLabel = false
     @State private var showsAIOrientation = false
     @State private var pendingAISelection: PendingAISelection?
 
@@ -222,12 +223,17 @@ struct CollectionPageActionsMenu: View {
                 }
             }
         } label: {
-            RadixCompactChevronLabel(
-                title: "Actions",
-                systemImage: "ellipsis.circle",
-                chevronFont: ResponsiveFont.tinySystem(size: 9, weight: .bold),
-                minWidth: 82
-            )
+            if usesCompactLabel {
+                Image(systemName: "ellipsis.circle")
+                    .radixMinimumTapTarget()
+            } else {
+                RadixCompactChevronLabel(
+                    title: "Actions",
+                    systemImage: "ellipsis.circle",
+                    chevronFont: ResponsiveFont.tinySystem(size: 9, weight: .bold),
+                    minWidth: 82
+                )
+            }
         }
         .buttonStyle(.bordered)
         .controlSize(.small)

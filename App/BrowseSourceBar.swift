@@ -28,7 +28,12 @@ extension FilterGridTab {
                 collection: collection,
                 displayName: store.collectionDisplayName(collection.name),
                 isActive: true
-            )
+            ) {
+                HStack(spacing: 4) {
+                    browsePageActionsMenu(collection, usesCompactLabel: true)
+                    readBrowseSourceButton(collection)
+                }
+            }
 
             ScrollView(.horizontal, showsIndicators: false) {
                 selectedImageSourceActions(collection)
@@ -111,7 +116,23 @@ extension FilterGridTab {
                     .help("Browse shows captured page tiles. Study opens page learning.")
             }
 
-            CollectionPageActionsMenu(
+            browsePageActionsMenu(collection)
+
+            browsePageSelectionSwitcher
+
+            browsePageWorkspaceSwitcher(collection)
+
+            BrowseImageScriptToggle(mode: $browseImageScriptMode)
+
+            browsePageGridFilterButton
+        }
+    }
+
+    func browsePageActionsMenu(
+        _ collection: CharacterCollection,
+        usesCompactLabel: Bool = false
+    ) -> some View {
+        CollectionPageActionsMenu(
                 collection: collection,
                 actionHandlers: CollectionPageActionHandlers(
                     rename: { beginRenaming(collection) },
@@ -124,19 +145,9 @@ extension FilterGridTab {
                     delete: { pendingBrowseDeleteCollection = collection }
                 ),
                 hasAutomaticAIConfiguration: store.hasAutomaticAIConfiguration,
-                aiTasks: browsePageAITasks(for: collection)
+                aiTasks: browsePageAITasks(for: collection),
+                usesCompactLabel: usesCompactLabel
             )
-
-            browsePageSelectionSwitcher
-
-            browsePageWorkspaceSwitcher(collection)
-
-            BrowseImageScriptToggle(mode: $browseImageScriptMode)
-
-            browsePageGridFilterButton
-
-            readBrowseSourceButton(collection)
-        }
     }
 
     var browsePageGridFilterButton: some View {
@@ -144,12 +155,7 @@ extension FilterGridTab {
         return Button {
             browsePageGridFilter = showsUniqueItems ? .all : .unique
         } label: {
-            Label(
-                showsUniqueItems ? "Unique" : "All",
-                systemImage: showsUniqueItems
-                    ? "line.3.horizontal.decrease.circle.fill"
-                    : "line.3.horizontal.decrease.circle"
-            )
+            Text(showsUniqueItems ? "Unique" : "All")
             .font(ResponsiveFont.caption.weight(.semibold))
             .lineLimit(1)
             .padding(.horizontal, 9)
@@ -185,12 +191,16 @@ extension FilterGridTab {
 
     var browsePageSelectionSwitcher: some View {
         PageSelectionSwitcher(
-            pages: store.allCollections,
+            pages: store.sortedCollections(order: browsePageSortOrder),
             selectedPageID: store.selectedBrowseCollectionID,
             displayName: { store.collectionDisplayName($0.name) },
             onSelect: { page in
                 store.goToBrowseCollection(id: page.id, preservingOrigin: true)
-            }
+            },
+            sortOrder: Binding(
+                get: { browsePageSortOrder },
+                set: { browsePageSortOrder = $0 }
+            )
         )
         .help("Switch saved page")
     }

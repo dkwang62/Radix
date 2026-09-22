@@ -317,7 +317,9 @@ extension FavouritesTab {
             collection: rowData.collection,
             displayName: collectionDisplayName(rowData.collection),
             isActive: rowData.isActivePage
-        )
+        ) {
+            studySavedPageActionsMenu(rowData.collection, usesCompactLabel: true)
+        }
     }
 
     @ViewBuilder
@@ -342,7 +344,6 @@ extension FavouritesTab {
         if isNarrowStudyLayout {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .center, spacing: 6) {
-                    studySavedPageActionsMenu(collection)
                     pageSwitcher
                     studyPageWorkspaceSwitcher(collection)
                 }
@@ -350,14 +351,16 @@ extension FavouritesTab {
             }
         } else {
             HStack(alignment: .center, spacing: 6) {
-                studySavedPageActionsMenu(collection)
                 pageSwitcher
                 studyPageWorkspaceSwitcher(collection)
             }
         }
     }
 
-    private func studySavedPageActionsMenu(_ collection: CharacterCollection) -> some View {
+    private func studySavedPageActionsMenu(
+        _ collection: CharacterCollection,
+        usesCompactLabel: Bool = false
+    ) -> some View {
         CollectionPageActionsMenu(
             collection: collection,
             actionHandlers: CollectionPageActionHandlers(
@@ -371,7 +374,8 @@ extension FavouritesTab {
                 delete: { pendingStudyDeleteCollection = collection }
             ),
             hasAutomaticAIConfiguration: store.hasAutomaticAIConfiguration,
-            aiTasks: studyPageAITasks(for: collection)
+            aiTasks: studyPageAITasks(for: collection),
+            usesCompactLabel: usesCompactLabel
         )
         .disabled(isRunningStudyPageAction)
     }

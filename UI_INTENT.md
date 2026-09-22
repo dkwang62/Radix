@@ -72,7 +72,11 @@ Use these preferences as defaults:
   both Browse and Study to select a saved page, and the shared `Browse | Study`
   segmented control to move between modes while preserving that selection. Show
   the selected page name only in its content header rather than repeating it in
-  the picker. In Study, keep page sorting inside `Switch Page`; it should not
+  the picker. Keep page headers and page controls compact on portrait iPad and
+  iPhone: move page actions and read-aloud icons into the page-name row, use a
+  text-only `Page` menu, a text-only `Browse | Study` control, a text-only
+  `All | Unique` control, and a `dd MMM yy` scan date. Keep page sorting inside
+  `Page` on every platform; it should not
   appear as a detached status-like pill. The Study title menu
   exposes this learning workspace as `Pages`, but Pages is not a separate
   top-level workspace.
