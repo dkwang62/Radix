@@ -153,6 +153,9 @@ struct SwiftUICrashGuardrailTests {
         #expect(menu.contains("struct CollectionPageActionHandlers"))
         #expect(browse.contains("actionHandlers: CollectionPageActionHandlers"))
         #expect(study.contains("actionHandlers: CollectionPageActionHandlers"))
+        #expect(study.contains("rename: { beginStudyRenaming(collection) }"))
+        #expect(study.contains("edit: { beginStudyEditing(collection) }"))
+        #expect(study.contains("choosePhrases: { showPagePhrases(collection) }"))
         #expect(menu.components(separatedBy: "enum CollectionPageAction:").count - 1 == 1)
     }
 

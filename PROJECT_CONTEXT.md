@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `37` (not yet distributed). Every committed application
+current source version is `1.1` build `38` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -82,7 +82,9 @@ stay linked to their page rather than becoming disconnected parallel features.
 
 - Browse and Study page Actions are rendered from one canonical ordered
   `CollectionPageAction` list. Each workspace supplies route handlers; the list,
-  labels, and ordering must not be duplicated or allowed to drift.
+  labels, and ordering must not be duplicated or allowed to drift. Both expose
+  Rename, Edit, Choose Page Phrases, Original OCR when applicable, Explanation,
+  and Delete; Study reuses the same editor sheets rather than routing through Browse.
 
 - Browse is the source inspector. It owns dictionary inspection, saved-page
   tiles, original/corrected OCR, page editing, and choosing page phrases.

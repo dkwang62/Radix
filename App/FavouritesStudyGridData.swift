@@ -228,6 +228,46 @@ extension FavouritesTab {
         studyTranslationReportCollection = collection
     }
 
+    func beginStudyRenaming(_ collection: CharacterCollection) {
+        studyRenamingCollectionName = collection.name
+        studyCollectionRenameError = nil
+        studyRenamingCollection = collection
+    }
+
+    func saveStudyRenamedCollection(_ collection: CharacterCollection) {
+        let cleanName = store.collectionDisplayName(studyRenamingCollectionName)
+        guard !cleanName.isEmpty else {
+            studyCollectionRenameError = "Enter a page name."
+            return
+        }
+        store.renameCollection(id: collection.id, newName: cleanName)
+        studyRenamingCollection = nil
+        studyCollectionRenameError = nil
+    }
+
+    func beginStudyEditing(_ collection: CharacterCollection) {
+        studyEditingCollectionName = collection.name
+        studyEditingCollectionText = collection.characters.joined(separator: " ")
+        studyCollectionEditorError = nil
+        studyEditingCollection = collection
+    }
+
+    func saveStudyEditedCollection(_ collection: CharacterCollection) {
+        guard let updated = store.updateCollection(
+            id: collection.id,
+            newName: studyEditingCollectionName,
+            sourceText: studyEditingCollectionText
+        ) else {
+            studyCollectionEditorError = "Enter a name and at least one Chinese character."
+            return
+        }
+
+        studyEditingCollectionName = updated.name
+        studyEditingCollectionText = updated.characters.joined(separator: " ")
+        studyCollectionEditorError = nil
+        studyEditingCollection = nil
+    }
+
     func pasteStudyTranslationReport() {
         studyTranslationReportDraft = RadixPlatform.pasteboardString
     }

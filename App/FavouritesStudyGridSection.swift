@@ -497,6 +497,8 @@ extension FavouritesTab {
         CollectionPageActionsMenu(
             collection: collection,
             actionHandlers: CollectionPageActionHandlers(
+                rename: { beginStudyRenaming(collection) },
+                edit: { beginStudyEditing(collection) },
                 choosePhrases: { showPagePhrases(collection) },
                 originalOCR: collection.sourceType == .ocr ? {
                     openOriginalOCRPageFromStudy(collection)

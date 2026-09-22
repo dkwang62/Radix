@@ -49,6 +49,32 @@ extension FavouritesTab {
                     onDone: { studyTranslationReportCollection = nil }
                 )
             }
+            .sheet(item: $screenState.pages.editingCollection) { collection in
+                EditBrowseCollectionSheet(
+                    collection: collection,
+                    name: $screenState.pages.editingCollectionName,
+                    text: $screenState.pages.editingCollectionText,
+                    error: screenState.pages.collectionEditorError,
+                    onCancel: {
+                        studyEditingCollection = nil
+                        studyCollectionEditorError = nil
+                    },
+                    onSave: { saveStudyEditedCollection(collection) }
+                )
+                .presentationDetents([.medium, .large])
+            }
+            .sheet(item: $screenState.pages.renamingCollection) { collection in
+                RenameBrowseCollectionSheet(
+                    name: $screenState.pages.renamingCollectionName,
+                    error: screenState.pages.collectionRenameError,
+                    onCancel: {
+                        studyRenamingCollection = nil
+                        studyCollectionRenameError = nil
+                    },
+                    onSave: { saveStudyRenamedCollection(collection) }
+                )
+                .presentationDetents([.height(230)])
+            }
             .sheet(item: $screenState.pages.phrasesPresentation) { presentation in
                 PhraseTableSheet(
                     character: presentation.collection.characters.joined(),

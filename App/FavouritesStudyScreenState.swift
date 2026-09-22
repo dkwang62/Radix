@@ -64,6 +64,13 @@ struct StudyPageScreenState {
     var aiCleanedSentencePageCache: StudyAICleanedSentencePageCache?
     var translationReportCollection: CharacterCollection?
     var translationReportDraft = ""
+    var editingCollection: CharacterCollection?
+    var editingCollectionName = ""
+    var editingCollectionText = ""
+    var collectionEditorError: String?
+    var renamingCollection: CharacterCollection?
+    var renamingCollectionName = ""
+    var collectionRenameError: String?
     var pendingDeleteCollection: CharacterCollection?
     var pendingOCRPromotion: StudyOCRPromotion?
     var actionMessage: String?
@@ -405,6 +412,41 @@ extension FavouritesTab {
     var studyTranslationReportDraft: String {
         get { screenState.pages.translationReportDraft }
         nonmutating set { screenState.pages.translationReportDraft = newValue }
+    }
+
+    var studyEditingCollection: CharacterCollection? {
+        get { screenState.pages.editingCollection }
+        nonmutating set { screenState.pages.editingCollection = newValue }
+    }
+
+    var studyEditingCollectionName: String {
+        get { screenState.pages.editingCollectionName }
+        nonmutating set { screenState.pages.editingCollectionName = newValue }
+    }
+
+    var studyEditingCollectionText: String {
+        get { screenState.pages.editingCollectionText }
+        nonmutating set { screenState.pages.editingCollectionText = newValue }
+    }
+
+    var studyCollectionEditorError: String? {
+        get { screenState.pages.collectionEditorError }
+        nonmutating set { screenState.pages.collectionEditorError = newValue }
+    }
+
+    var studyRenamingCollection: CharacterCollection? {
+        get { screenState.pages.renamingCollection }
+        nonmutating set { screenState.pages.renamingCollection = newValue }
+    }
+
+    var studyRenamingCollectionName: String {
+        get { screenState.pages.renamingCollectionName }
+        nonmutating set { screenState.pages.renamingCollectionName = newValue }
+    }
+
+    var studyCollectionRenameError: String? {
+        get { screenState.pages.collectionRenameError }
+        nonmutating set { screenState.pages.collectionRenameError = newValue }
     }
 
     var pendingStudyDeleteCollection: CharacterCollection? {
