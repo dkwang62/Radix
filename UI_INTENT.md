@@ -49,7 +49,9 @@ Use these preferences as defaults:
   in its content. `More` owns Recent, Favorites, Added Phrases, and Checkpoints.
   On narrow phones the four controls must share one fixed-height row;
   do not expose all seven destinations as separate buttons.
-- Keep Browse source switching in the `Browse - [source]` title menu. Do not add
+- Keep Browse source switching in the title menu. Use `Browse - Dictionary` for
+  the dictionary and `Browse - Pages` for every selected saved page; place the
+  selected page's name and scan date in the shared Browse/Study page header. Do not add
   a separate source button when Dictionary and page creation are already
   available from the title menu. Non-camera page creation belongs under Browse as
   `Text to Page`, `Image from Clipboard`, `Image from Album`, and

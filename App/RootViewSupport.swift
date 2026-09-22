@@ -50,7 +50,7 @@ struct SearchHomeView: View {
 
 extension RootView {
     var browseNavigationTitle: String {
-        store.selectedBrowseCollection.map { "Browse - \($0.name)" } ?? "Browse - Dictionary"
+        store.selectedBrowseCollection.map { _ in "Browse - Pages" } ?? "Browse - Dictionary"
     }
 
     var isBrowseDestinationActive: Bool {

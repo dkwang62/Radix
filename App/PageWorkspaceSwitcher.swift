@@ -7,6 +7,49 @@ enum PageWorkspaceMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+struct SavedPageWorkspaceHeader: View {
+    let collection: CharacterCollection
+    let displayName: String
+    let isActive: Bool
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 10) {
+            RadixPageIconView(
+                size: 34,
+                cornerRadius: 8,
+                systemImage: collection.isFavorite ? "star.fill" : "photo",
+                color: collection.isFavorite ? Color.yellow : Color.secondary
+            )
+
+            Text(displayName)
+                .font(ResponsiveFont.subheadline.weight(.semibold))
+                .foregroundStyle(isActive ? RadixAccent.primary : Color.primary)
+                .lineLimit(1)
+                .layoutPriority(1)
+
+            Spacer(minLength: 6)
+
+            Label(scanText, systemImage: "calendar")
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .foregroundStyle(isActive ? RadixAccent.primary : Color.secondary)
+                .labelStyle(.titleAndIcon)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .radixPill(
+                    horizontal: 6,
+                    vertical: 4,
+                    background: (isActive ? RadixAccent.primary : Color.secondary).opacity(0.10),
+                    radius: 7
+                )
+        }
+        .frame(minHeight: 44)
+    }
+
+    private var scanText: String {
+        "Scanned \(collection.createdAt.formatted(date: .abbreviated, time: .omitted))"
+    }
+}
+
 struct PageSelectionSwitcher: View {
     let pages: [CharacterCollection]
     let selectedPageID: UUID?

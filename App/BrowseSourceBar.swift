@@ -24,6 +24,12 @@ extension FilterGridTab {
 
     func selectedImageSourceLabel(_ collection: CharacterCollection) -> some View {
         VStack(alignment: .leading, spacing: 6) {
+            SavedPageWorkspaceHeader(
+                collection: collection,
+                displayName: store.collectionDisplayName(collection.name),
+                isActive: true
+            )
+
             ScrollView(.horizontal, showsIndicators: false) {
                 selectedImageSourceActions(collection)
             }
