@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `43` (not yet distributed). Every committed application
+current source version is `1.1` build `44` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -132,6 +132,8 @@ stay linked to their page rather than becoming disconnected parallel features.
 - Root titles carry stable workspace context, for example `Browse - Dictionary`,
   `Browse - Pages`, and `Study - Sentences`. A selected saved page's name and scan
   date belong in the shared Browse/Study page header, not in the root title.
+- In Study Recent, keep the script toggle and `Clear Recent` in one trailing
+  control row. Favorites retains only the script toggle; Pages retains neither.
 - `Pages` is not a separate primary data model. Browse owns source page
   selection; Study Pages is the page-learning workspace.
 - Added Phrases, Conversation Practices, and Sentences are mutually exclusive

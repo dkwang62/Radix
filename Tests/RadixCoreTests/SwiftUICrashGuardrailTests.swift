@@ -185,8 +185,11 @@ struct SwiftUICrashGuardrailTests {
     func studyPrimaryNavigationRemainsVisibleAndCompact() throws {
         let navigation = try sourceText(at: "App/FavouritesStudyNavigationBar.swift")
         let sections = try sourceText(at: "App/FavouritesSections.swift")
+        let grid = try sourceText(at: "App/FavouritesStudyGridSection.swift")
 
         #expect(navigation.contains("studyPrimarySectionButton(\"Pages\""))
+        #expect(grid.contains("studyScriptToggle\n                if studyGridScope == .all {\n                    clearRecentButton"))
+        #expect(!grid.contains("} else if isNarrowStudyLayout {"))
         #expect(navigation.contains("studyPrimarySectionButton(\"Sentences\""))
         #expect(navigation.contains("studyPrimarySectionButton(\"Conversation\""))
         #expect(navigation.contains("studySectionNavigationLabel(\"More\""))

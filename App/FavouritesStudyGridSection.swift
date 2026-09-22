@@ -134,36 +134,12 @@ extension FavouritesTab {
     var recentStudyHeader: some View {
         if isShowingFocusedStudySection {
             EmptyView()
-        } else if isNarrowStudyLayout {
-            VStack(alignment: .leading, spacing: 8) {
+        } else if studyGridScope != .savedPages {
+            HStack(alignment: .center, spacing: 8) {
+                Spacer(minLength: 0)
+                studyScriptToggle
                 if studyGridScope == .all {
-                    HStack(alignment: .center, spacing: 8) {
-                        Spacer(minLength: 0)
-                        if studyGridScope == .all {
-                            clearRecentButton
-                        }
-                    }
-                }
-                if studyGridScope != .savedPages {
-                    HStack {
-                        Spacer(minLength: 0)
-                        studyScriptToggle
-                    }
-                }
-            }
-        } else {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(alignment: .center, spacing: 8) {
-                    Spacer(minLength: 0)
-                    if studyGridScope != .savedPages {
-                        studyScriptToggle
-                    }
-                }
-                if studyGridScope == .all {
-                    HStack {
-                        Spacer(minLength: 0)
-                        clearRecentButton
-                    }
+                    clearRecentButton
                 }
             }
         }
