@@ -7,6 +7,41 @@ enum PageWorkspaceMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+struct PageSelectionSwitcher: View {
+    let pages: [CharacterCollection]
+    let selectedPageID: UUID?
+    let displayName: (CharacterCollection) -> String
+    let onSelect: (CharacterCollection) -> Void
+
+    var body: some View {
+        Menu {
+            ForEach(pages) { page in
+                Button {
+                    onSelect(page)
+                } label: {
+                    Label(
+                        displayName(page),
+                        systemImage: page.id == selectedPageID ? "checkmark" : "doc.text"
+                    )
+                }
+            }
+        } label: {
+            RadixCompactChevronLabel(
+                title: "Switch Page",
+                systemImage: "rectangle.stack",
+                chevronFont: ResponsiveFont.tinySystem(size: 9, weight: .bold),
+                minWidth: 104
+            )
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .accessibilityLabel("Switch page")
+        .accessibilityValue(
+            pages.first(where: { $0.id == selectedPageID }).map(displayName) ?? "No page selected"
+        )
+    }
+}
+
 struct PageWorkspaceSwitcher: View {
     let selectedMode: PageWorkspaceMode
     let onSelect: (PageWorkspaceMode) -> Void

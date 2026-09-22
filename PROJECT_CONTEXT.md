@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `38` (not yet distributed). Every committed application
+current source version is `1.1` build `39` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -92,10 +92,9 @@ stay linked to their page rather than becoming disconnected parallel features.
   Added Phrases, Conversation Practices, translations, quizzes, and sentence
   storage/transfer.
 - A saved page has one shared Browse/Study selection. `Study` from Browse opens
-  the relevant Study Page, and `Browse` from Study Page opens that source. This
-  pair uses the same compact `Browse | Study` segmented switcher on both
-  surfaces and replaces generic `Back to Browse` or `Back to Study` bars. Study
-  uses a compact `Switch Page` menu so the selected page title is not repeated.
+  the relevant Study Page, and `Browse` from Study Page opens that source. Both
+  surfaces use the same compact `Switch Page` menu and `Browse | Study`
+  segmented switcher, replacing generic back bars and duplicate page pickers.
 - Study keeps `Pages`, `Sentences`, and `Conversation` visible in one compact
   local navigation row; `More` contains Recent, Favorites, Added Phrases, and
   Checkpoints. The row remains one line on narrow iPhones.

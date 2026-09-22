@@ -121,6 +121,8 @@ extension FilterGridTab {
                 aiTasks: browsePageAITasks(for: collection)
             )
 
+            browsePageSelectionSwitcher
+
             browsePageWorkspaceSwitcher(collection)
 
             BrowseImageScriptToggle(mode: $browseImageScriptMode)
@@ -173,6 +175,18 @@ extension FilterGridTab {
             }
         }
         .help("Switch between browsing and studying this page")
+    }
+
+    var browsePageSelectionSwitcher: some View {
+        PageSelectionSwitcher(
+            pages: store.allCollections,
+            selectedPageID: store.selectedBrowseCollectionID,
+            displayName: { store.collectionDisplayName($0.name) },
+            onSelect: { page in
+                store.goToBrowseCollection(id: page.id, preservingOrigin: true)
+            }
+        )
+        .help("Switch saved page")
     }
 
     func readBrowseSourceButton(_ collection: CharacterCollection) -> some View {

@@ -273,30 +273,16 @@ extension FavouritesTab {
         let selectedCollection = store.selectedBrowseCollection ?? pages.first
 
         return VStack(alignment: .leading, spacing: 10) {
-            Menu {
-                ForEach(pages) { collection in
-                    Button {
-                        store.selectBrowseCollection(id: collection.id)
-                        expandedStudySavedPageID = collection.id
-                    } label: {
-                        Label(
-                            collectionDisplayName(collection),
-                            systemImage: collection.id == selectedCollection?.id ? "checkmark" : "doc.text"
-                        )
-                    }
+            PageSelectionSwitcher(
+                pages: pages,
+                selectedPageID: selectedCollection?.id,
+                displayName: collectionDisplayName,
+                onSelect: { collection in
+                    store.selectBrowseCollection(id: collection.id)
+                    expandedStudySavedPageID = collection.id
                 }
-            } label: {
-                RadixCompactChevronLabel(
-                    title: "Switch Page",
-                    systemImage: "rectangle.stack",
-                    chevronFont: ResponsiveFont.tinySystem(size: 9, weight: .bold),
-                    minWidth: 104
-                )
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .accessibilityLabel("Switch study page")
-            .accessibilityValue(selectedCollection.map(collectionDisplayName) ?? "No page selected")
+            )
+            .help("Switch saved page")
 
             if let collection = selectedCollection {
                 let rowData = studySavedPageRowData(
