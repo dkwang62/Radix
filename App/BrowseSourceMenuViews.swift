@@ -189,6 +189,7 @@ struct CollectionPageActionsMenu: View {
     var hasAutomaticAIConfiguration = false
     var aiTasks: [CollectionPageAITask] = []
     var usesCompactLabel = false
+    var compactControlSize: CGFloat? = nil
     @State private var showsAIOrientation = false
     @State private var pendingAISelection: PendingAISelection?
 
@@ -225,7 +226,12 @@ struct CollectionPageActionsMenu: View {
         } label: {
             if usesCompactLabel {
                 Image(systemName: "ellipsis.circle")
-                    .radixMinimumTapTarget()
+                    .font(.system(size: 14, weight: .semibold))
+                    .frame(
+                        width: compactControlSize ?? RadixControlMetrics.standardHeight,
+                        height: compactControlSize ?? RadixControlMetrics.standardHeight
+                    )
+                    .contentShape(Rectangle())
             } else {
                 RadixCompactChevronLabel(
                     title: "Actions",
@@ -236,7 +242,7 @@ struct CollectionPageActionsMenu: View {
             }
         }
         .buttonStyle(.bordered)
-        .controlSize(.small)
+        .controlSize(compactControlSize == nil ? .small : .mini)
         .accessibilityLabel("Page actions for \(collection.name)")
         .help("Page Actions")
         .sheet(isPresented: $showsAIOrientation) {

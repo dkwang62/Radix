@@ -30,9 +30,6 @@ extension FilterGridTab {
                 dateMode: browsePageSortOrder
             ) {
                 browsePageSelectionSwitcher(collection)
-            } scriptToggle: {
-                BrowseImageScriptToggle(mode: $browseImageScriptMode)
-                    .fixedSize(horizontal: true, vertical: false)
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -104,7 +101,11 @@ extension FilterGridTab {
 
     func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
         return HStack(spacing: 6) {
-            browsePageActionsMenu(collection, usesCompactLabel: true)
+            browsePageActionsMenu(
+                collection,
+                usesCompactLabel: true,
+                compactControlSize: 28
+            )
 
             if let sourceOCRLabel = browseSourceOCRLayerLabel(for: collection),
                sourceOCRLabel != "Original OCR" {
@@ -120,6 +121,9 @@ extension FilterGridTab {
 
             readBrowseSourceButton(collection)
 
+            BrowseImageScriptToggle(mode: $browseImageScriptMode)
+                .fixedSize(horizontal: true, vertical: false)
+
             browsePageWorkspaceSwitcher(collection)
 
             browsePageGridFilterButton
@@ -128,7 +132,8 @@ extension FilterGridTab {
 
     func browsePageActionsMenu(
         _ collection: CharacterCollection,
-        usesCompactLabel: Bool = false
+        usesCompactLabel: Bool = false,
+        compactControlSize: CGFloat? = nil
     ) -> some View {
         CollectionPageActionsMenu(
                 collection: collection,
@@ -144,7 +149,8 @@ extension FilterGridTab {
                 ),
                 hasAutomaticAIConfiguration: store.hasAutomaticAIConfiguration,
                 aiTasks: browsePageAITasks(for: collection),
-                usesCompactLabel: usesCompactLabel
+                usesCompactLabel: usesCompactLabel,
+                compactControlSize: compactControlSize
             )
     }
 
@@ -212,10 +218,12 @@ extension FilterGridTab {
             _ = store.speakCharacters(in: browseImageDisplayText(collection.characters.joined()))
         } label: {
             Image(systemName: "speaker.wave.2")
-                .radixMinimumTapTarget()
+                .font(.system(size: 14, weight: .semibold))
+                .frame(width: 28, height: 28)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.bordered)
-        .controlSize(.small)
+        .controlSize(.mini)
         .disabled(collection.characters.isEmpty)
         .accessibilityLabel("Read Aloud")
         .help("Read Aloud")

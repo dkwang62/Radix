@@ -16,25 +16,22 @@ private enum SavedPageHeaderDateFormatter {
     }()
 }
 
-struct SavedPageWorkspaceHeader<PageSelector: View, ScriptToggle: View>: View {
+struct SavedPageWorkspaceHeader<PageSelector: View>: View {
     let collection: CharacterCollection
     let isActive: Bool
     let dateMode: PageCollectionSortOrder
     let pageSelector: PageSelector
-    let scriptToggle: ScriptToggle
 
     init(
         collection: CharacterCollection,
         isActive: Bool,
         dateMode: PageCollectionSortOrder,
-        @ViewBuilder pageSelector: () -> PageSelector,
-        @ViewBuilder scriptToggle: () -> ScriptToggle
+        @ViewBuilder pageSelector: () -> PageSelector
     ) {
         self.collection = collection
         self.isActive = isActive
         self.dateMode = dateMode
         self.pageSelector = pageSelector()
-        self.scriptToggle = scriptToggle()
     }
 
     var body: some View {
@@ -56,7 +53,6 @@ struct SavedPageWorkspaceHeader<PageSelector: View, ScriptToggle: View>: View {
                     radius: 7
                 )
 
-            scriptToggle
         }
         .frame(minHeight: 44)
     }

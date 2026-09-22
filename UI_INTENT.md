@@ -73,10 +73,10 @@ Use these preferences as defaults:
   segmented control to move between modes while preserving that selection. Show
   the selected page name only in its content header rather than repeating it in
   the picker. Keep page headers and page controls compact on portrait iPad and
-  iPhone: use the page name as its menu, show a label-free `dd MMM yy` date that
-  follows the selected Viewed/Scanned ordering, then the Simplified/Traditional
-  control. Put icon-only page Actions in the second control row in both workspaces.
-  Keep read aloud, the shared Browse/Study segmented control, and the text-only
+  iPhone: use the page name as its menu and show a label-free `dd MMM yy` date that
+  follows the selected Viewed/Scanned ordering. Put icon-only page Actions and the
+  Simplified/Traditional control in the second control row in both workspaces.
+  Browse also keeps its compact read aloud, the shared Browse/Study segmented control, and the text-only
   `All | Unique` control in Browse's second control row. Keep page sorting inside
   the page-name menu on every platform; it should not
   appear as a detached status-like pill. The Study title menu

@@ -326,14 +326,17 @@ extension FavouritesTab {
                 pages: pages,
                 isActive: rowData.isActivePage
             )
-        } scriptToggle: {
-            studyScriptToggle
         }
     }
 
     private func studySavedPageExpandedControls(_ collection: CharacterCollection) -> some View {
         HStack(spacing: 6) {
-            studySavedPageActionsMenu(collection, usesCompactLabel: true)
+            studySavedPageActionsMenu(
+                collection,
+                usesCompactLabel: true,
+                compactControlSize: 28
+            )
+            studyScriptToggle
             studyPageWorkspaceSwitcher(collection)
         }
     }
@@ -364,7 +367,8 @@ extension FavouritesTab {
 
     private func studySavedPageActionsMenu(
         _ collection: CharacterCollection,
-        usesCompactLabel: Bool = false
+        usesCompactLabel: Bool = false,
+        compactControlSize: CGFloat? = nil
     ) -> some View {
         CollectionPageActionsMenu(
             collection: collection,
@@ -380,7 +384,8 @@ extension FavouritesTab {
             ),
             hasAutomaticAIConfiguration: store.hasAutomaticAIConfiguration,
             aiTasks: studyPageAITasks(for: collection),
-            usesCompactLabel: usesCompactLabel
+            usesCompactLabel: usesCompactLabel,
+            compactControlSize: compactControlSize
         )
         .disabled(isRunningStudyPageAction)
     }
