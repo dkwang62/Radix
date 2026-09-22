@@ -30,6 +30,9 @@ extension FilterGridTab {
                 dateMode: browsePageSortOrder
             ) {
                 browsePageSelectionSwitcher(collection)
+            } scriptToggle: {
+                BrowseImageScriptToggle(mode: $browseImageScriptMode)
+                    .fixedSize(horizontal: true, vertical: false)
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -118,8 +121,6 @@ extension FilterGridTab {
             readBrowseSourceButton(collection)
 
             browsePageWorkspaceSwitcher(collection)
-
-            BrowseImageScriptToggle(mode: $browseImageScriptMode)
 
             browsePageGridFilterButton
         }

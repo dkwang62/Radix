@@ -326,6 +326,8 @@ extension FavouritesTab {
                 pages: pages,
                 isActive: rowData.isActivePage
             )
+        } scriptToggle: {
+            studyScriptToggle
         }
     }
 

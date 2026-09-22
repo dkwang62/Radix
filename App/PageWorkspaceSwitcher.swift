@@ -16,22 +16,25 @@ private enum SavedPageHeaderDateFormatter {
     }()
 }
 
-struct SavedPageWorkspaceHeader<PageSelector: View>: View {
+struct SavedPageWorkspaceHeader<PageSelector: View, ScriptToggle: View>: View {
     let collection: CharacterCollection
     let isActive: Bool
     let dateMode: PageCollectionSortOrder
     let pageSelector: PageSelector
+    let scriptToggle: ScriptToggle
 
     init(
         collection: CharacterCollection,
         isActive: Bool,
         dateMode: PageCollectionSortOrder,
-        @ViewBuilder pageSelector: () -> PageSelector
+        @ViewBuilder pageSelector: () -> PageSelector,
+        @ViewBuilder scriptToggle: () -> ScriptToggle
     ) {
         self.collection = collection
         self.isActive = isActive
         self.dateMode = dateMode
         self.pageSelector = pageSelector()
+        self.scriptToggle = scriptToggle()
     }
 
     var body: some View {
@@ -52,6 +55,8 @@ struct SavedPageWorkspaceHeader<PageSelector: View>: View {
                     background: (isActive ? RadixAccent.primary : Color.secondary).opacity(0.10),
                     radius: 7
                 )
+
+            scriptToggle
         }
         .frame(minHeight: 44)
     }
@@ -128,14 +133,20 @@ struct PageWorkspaceSwitcher: View {
     let onSelect: (PageWorkspaceMode) -> Void
 
     var body: some View {
-        let destination = selectedMode == .browse ? PageWorkspaceMode.study : .browse
-        Button(destination.rawValue) {
-            onSelect(destination)
+        Picker("Page workspace", selection: Binding(
+            get: { selectedMode },
+            set: { mode in
+                guard mode != selectedMode else { return }
+                onSelect(mode)
+            }
+        )) {
+            ForEach(PageWorkspaceMode.allCases) { mode in
+                Text(mode.rawValue).tag(mode)
+            }
         }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
+        .pickerStyle(.segmented)
+        .frame(width: 132)
         .accessibilityLabel("Switch page workspace")
         .accessibilityValue("Currently \(selectedMode.rawValue)")
-        .accessibilityHint("Opens \(destination.rawValue)")
     }
 }
