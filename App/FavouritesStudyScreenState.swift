@@ -8,7 +8,6 @@ struct StudyNavigationScreenState {
     var pageSortOrder = RadixStudyPreferences.pageSortOrder
     var showsCheckpoints = false
     var pendingCheckpointReturn: LocalDataSnapshot?
-    var expandedSavedPageID: UUID?
     var pageReturnCollectionID: UUID?
 }
 
@@ -98,16 +97,10 @@ struct StudyScreenState {
         pages.aiCleanedCollectionID = nil
     }
 
-    mutating func presentReview(
-        scope: StudyGridScope,
-        expandedSavedPageID: UUID? = nil
-    ) {
+    mutating func presentReview(scope: StudyGridScope) {
         clearFocusedSections()
         navigation.reviewScope = scope
         navigation.showsCheckpoints = false
-        if scope == .savedPages, let expandedSavedPageID {
-            navigation.expandedSavedPageID = expandedSavedPageID
-        }
     }
 
     mutating func presentCheckpoints() {
@@ -138,7 +131,6 @@ struct StudyScreenState {
         navigation.focusedSection = nil
         pages.aiCleanedCollectionID = nil
         navigation.reviewScope = .savedPages
-        navigation.expandedSavedPageID = pageID
         return pageID
     }
 }
@@ -177,11 +169,6 @@ extension FavouritesTab {
     var pendingCheckpointReturn: LocalDataSnapshot? {
         get { screenState.navigation.pendingCheckpointReturn }
         nonmutating set { screenState.navigation.pendingCheckpointReturn = newValue }
-    }
-
-    var expandedStudySavedPageID: UUID? {
-        get { screenState.navigation.expandedSavedPageID }
-        nonmutating set { screenState.navigation.expandedSavedPageID = newValue }
     }
 
     var studyPageReturnCollectionID: UUID? {

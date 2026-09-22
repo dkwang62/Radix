@@ -25,10 +25,6 @@ extension FavouritesTab {
             .onChange(of: store.requestedStudyNavigationTarget) { _, target in
                 applyRequestedStudyNavigationTarget(target)
             }
-            .onChange(of: store.selectedBrowseCollectionID) { _, selectedPageID in
-                guard studyGridScope == .savedPages else { return }
-                expandedStudySavedPageID = selectedPageID
-            }
             .onChange(of: studyPageSortOrder) { _, newValue in
                 RadixStudyPreferences.pageSortOrder = newValue
             }
@@ -83,10 +79,7 @@ extension FavouritesTab {
                let firstPage = store.sortedCollections(order: .lastViewed).first {
                 store.selectBrowseCollection(id: firstPage.id)
             }
-            screenState.presentReview(
-                scope: .savedPages,
-                expandedSavedPageID: store.selectedBrowseCollectionID
-            )
+            screenState.presentReview(scope: .savedPages)
         case .addedPhrases:
             presentAddedPhraseReview()
         case .conversationPractice:

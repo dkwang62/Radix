@@ -4,8 +4,6 @@ private struct StudySavedPageRowData {
     let collection: CharacterCollection
     let practices: [ConversationPracticePack]
     let correctedPages: [CharacterCollection]
-    let showsResumeSignal: Bool
-    let isExpanded: Bool
     let isActivePage: Bool
     let artifacts: [StudyPageArtifact]
 }
@@ -265,9 +263,7 @@ extension FavouritesTab {
         let correctedPages = correctedStudyPages(for: collection)
         let aiCleanedPage = RadixStudyPreferences.aiCleanedPage(for: collection.id)
         let hasPagePhrases = hasKnownPagePhrases(for: collection, hasRecordedPagePhrases: hasRecordedPagePhrases)
-        let isExpanded = expandedStudySavedPageID == collection.id
         let isActivePage = store.selectedBrowseCollectionID == collection.id
-        let showsResumeSignal = isActivePage || resumePageID == collection.id
         let artifacts = studyPageArtifacts(
             collection: collection,
             practices: practices,
@@ -280,8 +276,6 @@ extension FavouritesTab {
             collection: collection,
             practices: practices,
             correctedPages: correctedPages,
-            showsResumeSignal: showsResumeSignal,
-            isExpanded: isExpanded,
             isActivePage: isActivePage,
             artifacts: artifacts
         )
@@ -293,55 +287,39 @@ extension FavouritesTab {
     ) -> some View {
         let collection = rowData.collection
         return VStack(alignment: .leading, spacing: 8) {
-            Button {
-                withAnimation(.easeInOut(duration: 0.18)) {
-                    expandedStudySavedPageID = rowData.isExpanded ? nil : collection.id
-                }
-            } label: {
-                studySavedPageCollapsedRow(rowData)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("\(collectionDisplayName(collection)) saved page")
-            .accessibilityHint(
-                rowData.isActivePage
-                    ? "Current page. \(rowData.isExpanded ? "Collapse page actions" : "Expand page actions")"
-                    : (rowData.isExpanded ? "Collapse page actions" : "Expand page actions")
-            )
+            studySavedPageHeader(rowData)
 
-            if rowData.isExpanded {
-                VStack(alignment: .leading, spacing: 8) {
-                    studySavedPageExpandedControls(collection, pages: pages)
+            VStack(alignment: .leading, spacing: 8) {
+                studySavedPageExpandedControls(collection, pages: pages)
 
-                    if studyPageActionMessageCollectionID == collection.id, let studyPageActionMessage {
-                        Label {
-                            Text(studyPageActionMessage)
-                                .lineLimit(2)
-                                .fixedSize(horizontal: false, vertical: true)
-                        } icon: {
-                            if isRunningStudyPageAction {
-                                ProgressView()
-                                    .controlSize(.small)
-                            } else {
-                                Image(systemName: "checkmark.circle")
-                            }
+                if studyPageActionMessageCollectionID == collection.id, let studyPageActionMessage {
+                    Label {
+                        Text(studyPageActionMessage)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } icon: {
+                        if isRunningStudyPageAction {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: "checkmark.circle")
                         }
-                        .font(ResponsiveFont.caption2.weight(.semibold))
-                        .foregroundStyle(.secondary)
                     }
-
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 6) {
-                            ForEach(rowData.artifacts) { artifact in
-                                studyPageArtifactChip(artifact, collection: collection)
-                            }
-                        }
-                        .padding(.vertical, 1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+                    .font(ResponsiveFont.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
                 }
-                .padding(.top, 2)
-                .transition(.opacity.combined(with: .move(edge: .top)))
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(rowData.artifacts) { artifact in
+                            studyPageArtifactChip(artifact, collection: collection)
+                        }
+                    }
+                    .padding(.vertical, 1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
+            .padding(.top, 2)
         }
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -360,10 +338,7 @@ extension FavouritesTab {
         }
     }
 
-    private func studySavedPageCollapsedRow(_ rowData: StudySavedPageRowData) -> some View {
-        let visibleArtifacts = Array(rowData.artifacts.prefix(5))
-        let hiddenCount = rowData.artifacts.count - visibleArtifacts.count
-
+    private func studySavedPageHeader(_ rowData: StudySavedPageRowData) -> some View {
         return HStack(alignment: .center, spacing: 10) {
             RadixPageIconView(
                 size: 34,
@@ -380,49 +355,18 @@ extension FavouritesTab {
 
             Spacer(minLength: 6)
 
-            if rowData.showsResumeSignal {
-                Label(studyPageResumeText(rowData.collection), systemImage: "clock")
-                    .font(ResponsiveFont.caption2.weight(.semibold))
-                    .foregroundStyle(rowData.isActivePage ? RadixAccent.primary : Color.secondary)
-                    .labelStyle(.titleAndIcon)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                    .radixPill(
-                        horizontal: 6,
-                        vertical: 4,
-                        background: (rowData.isActivePage ? RadixAccent.primary : Color.secondary).opacity(0.10),
-                        radius: 7
-                    )
-            }
-
-            HStack(spacing: 4) {
-                ForEach(visibleArtifacts) { artifact in
-                    Image(systemName: artifact.systemImage)
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(artifact.tint)
-                        .radixIconButtonSurface(
-                            size: 22,
-                            background: artifact.tint.opacity(0.12),
-                            radius: 6
-                        )
-                        .accessibilityLabel(artifact.title)
-                }
-
-                if hiddenCount > 0 {
-                    Text("+\(hiddenCount)")
-                        .font(ResponsiveFont.caption2.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .frame(minWidth: 22, minHeight: 22)
-                }
-            }
-
-            RadixCompactChevronLabel(
-                chevronSystemName: rowData.isExpanded ? "chevron.up" : "chevron.down",
-                chevronFont: .system(size: 12, weight: .bold),
-                chevronForegroundStyle: .secondary,
-                width: 22,
-                height: 22
-            )
+            Label(studyPageScanText(rowData.collection), systemImage: "calendar")
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .foregroundStyle(rowData.isActivePage ? RadixAccent.primary : Color.secondary)
+                .labelStyle(.titleAndIcon)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .radixPill(
+                    horizontal: 6,
+                    vertical: 4,
+                    background: (rowData.isActivePage ? RadixAccent.primary : Color.secondary).opacity(0.10),
+                    radius: 7
+                )
         }
         .frame(minHeight: 44)
     }
@@ -438,7 +382,6 @@ extension FavouritesTab {
             displayName: collectionDisplayName,
             onSelect: { page in
                 store.selectBrowseCollection(id: page.id)
-                expandedStudySavedPageID = page.id
             },
             sortOrder: Binding(
                 get: { studyPageSortOrder },
@@ -502,9 +445,8 @@ extension FavouritesTab {
         }
     }
 
-    private func studyPageResumeText(_ collection: CharacterCollection) -> String {
-        let date = collection.lastViewedAt ?? collection.createdAt
-        return "Viewed \(date.formatted(date: .abbreviated, time: .omitted))"
+    private func studyPageScanText(_ collection: CharacterCollection) -> String {
+        "Scanned \(collection.createdAt.formatted(date: .abbreviated, time: .omitted))"
     }
 
     private func studyPageArtifacts(
