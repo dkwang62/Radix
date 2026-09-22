@@ -76,8 +76,9 @@ Use these preferences as defaults:
   iPhone: use the page name as its menu and show a label-free `dd MMM yy` date that
   follows the selected Viewed/Scanned ordering. Put icon-only page Actions and the
   Simplified/Traditional control in the second control row in both workspaces.
-  Browse also keeps its compact read aloud, the shared Browse/Study segmented control, and the text-only
-  `All | Unique` control in Browse's second control row. Keep page sorting inside
+  Browse also keeps its compact read aloud, a compact 11-point shared Browse/Study
+  segmented control, and the compact 11-point text-only `All | Unique` control in
+  Browse's second control row. Keep page sorting inside
   the page-name menu on every platform; it should not
   appear as a detached status-like pill. The Study title menu
   exposes this learning workspace as `Pages`, but Pages is not a separate

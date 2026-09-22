@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `50` (not yet distributed). Every committed application
+current source version is `1.1` build `51` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -138,8 +138,8 @@ stay linked to their page rather than becoming disconnected parallel features.
   label-free `dd MMM yy` date matching the active Viewed/Scanned sort order.
   Keep compact icon-only Actions and the Simplified/Traditional toggle in the
   second control row for both Browse and Study; Browse also keeps compact read
-  aloud, the Browse/Study segmented control, and `All | Unique` there. The page-name
-  menu owns the cross-platform
+  aloud, a compact 11-point Browse/Study segmented control, and compact 11-point
+  `All | Unique` there. The page-name menu owns the cross-platform
   Viewed/Scanned sort choice.
 - `Pages` is not a separate primary data model. Browse owns source page
   selection; Study Pages is the page-learning workspace.

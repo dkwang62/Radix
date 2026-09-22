@@ -138,6 +138,8 @@ struct SwiftUICrashGuardrailTests {
 
         #expect(switcher.contains("Picker(\"Page workspace\""))
         #expect(switcher.contains(".pickerStyle(.segmented)"))
+        #expect(switcher.contains(".frame(width: 112)"))
+        #expect(switcher.contains("tinySystem(size: 11, weight: .semibold)"))
         #expect(switcher.contains("guard mode != selectedMode else { return }"))
         #expect(switcher.contains("struct PageSelectionSwitcher"))
         #expect(switcher.contains("struct SavedPageWorkspaceHeader"))
@@ -155,6 +157,7 @@ struct SwiftUICrashGuardrailTests {
         #expect(browse.contains("BrowseImageScriptToggle(mode: $browseImageScriptMode)"))
         #expect(browse.contains("compactControlSize: 28"))
         #expect(browse.contains(".controlSize(.mini)"))
+        #expect(browse.contains("Text(showsUniqueItems ? \"Unique\" : \"All\")\n            .font(ResponsiveFont.tinySystem(size: 11, weight: .semibold))"))
         #expect(browse.contains("labelTitle: store.collectionDisplayName(collection.name)"))
         #expect(browse.contains("readBrowseSourceButton(collection)\n\n            BrowseImageScriptToggle(mode: $browseImageScriptMode)"))
         #expect(browse.contains("pages: store.sortedCollections(order: browsePageSortOrder)"))

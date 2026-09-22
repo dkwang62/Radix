@@ -137,11 +137,13 @@ struct PageWorkspaceSwitcher: View {
             }
         )) {
             ForEach(PageWorkspaceMode.allCases) { mode in
-                Text(mode.rawValue).tag(mode)
+                Text(mode.rawValue)
+                    .font(ResponsiveFont.tinySystem(size: 11, weight: .semibold))
+                    .tag(mode)
             }
         }
         .pickerStyle(.segmented)
-        .frame(width: 132)
+        .frame(width: 112)
         .accessibilityLabel("Switch page workspace")
         .accessibilityValue("Currently \(selectedMode.rawValue)")
     }

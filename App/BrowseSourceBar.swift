@@ -160,10 +160,10 @@ extension FilterGridTab {
             browsePageGridFilter = showsUniqueItems ? .all : .unique
         } label: {
             Text(showsUniqueItems ? "Unique" : "All")
-            .font(ResponsiveFont.caption.weight(.semibold))
+            .font(ResponsiveFont.tinySystem(size: 11, weight: .semibold))
             .lineLimit(1)
-            .padding(.horizontal, 9)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 5)
             .foregroundStyle(showsUniqueItems ? Color.white : Color.primary)
             .radixSurface(showsUniqueItems ? RadixAccent.primary : RadixTheme.secondaryBackground)
         }
