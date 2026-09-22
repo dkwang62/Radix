@@ -34,6 +34,37 @@ struct CollectionPageAITask: Identifiable {
     let automaticAction: () -> Void
 }
 
+enum CollectionPageAction: CaseIterable, Identifiable {
+    case rename
+    case edit
+    case choosePhrases
+    case originalOCR
+    case translation
+    case delete
+
+    var id: Self { self }
+}
+
+struct CollectionPageActionHandlers {
+    var rename: (() -> Void)?
+    var edit: (() -> Void)?
+    var choosePhrases: (() -> Void)?
+    var originalOCR: (() -> Void)?
+    var translation: (() -> Void)?
+    var delete: (() -> Void)?
+
+    func handler(for action: CollectionPageAction) -> (() -> Void)? {
+        switch action {
+        case .rename: return rename
+        case .edit: return edit
+        case .choosePhrases: return choosePhrases
+        case .originalOCR: return originalOCR
+        case .translation: return translation
+        case .delete: return delete
+        }
+    }
+}
+
 enum CollectionPageAITaskKind: CaseIterable, Equatable {
     case checkOCR
     case createAICleanedPage
@@ -147,13 +178,15 @@ struct CollectionPageActionsMenu: View {
     }
 
     let collection: CharacterCollection
-    var onRename: (() -> Void)? = nil
-    var onEdit: (() -> Void)? = nil
+    var actionHandlers = CollectionPageActionHandlers(
+        rename: nil,
+        edit: nil,
+        choosePhrases: nil,
+        originalOCR: nil,
+        translation: nil,
+        delete: nil
+    )
     var hasAutomaticAIConfiguration = false
-    var onChoosePhrases: (() -> Void)? = nil
-    var onViewOriginalOCR: (() -> Void)? = nil
-    var onViewTranslation: (() -> Void)? = nil
-    var onDelete: (() -> Void)? = nil
     var aiTasks: [CollectionPageAITask] = []
     @State private var showsAIOrientation = false
     @State private var pendingAISelection: PendingAISelection?
@@ -162,54 +195,9 @@ struct CollectionPageActionsMenu: View {
         Menu {
             if hasPageActions {
                 Section("Page") {
-                    if let onRename {
-                        Button {
-                            onRename()
-                        } label: {
-                            Label("Rename Page", systemImage: "character.cursor.ibeam")
-                        }
-                    }
-
-                    if let onEdit {
-                        Button {
-                            onEdit()
-                        } label: {
-                            Label("Edit Page", systemImage: "pencil")
-                        }
-                    }
-
-                    if let onChoosePhrases {
-                        Button {
-                            onChoosePhrases()
-                        } label: {
-                            Label("Choose Page Phrases", systemImage: "text.quote")
-                        }
-                    }
-
-                    if let onViewOriginalOCR {
-                        Button {
-                            onViewOriginalOCR()
-                        } label: {
-                            Label("Original OCR", systemImage: "doc.text.viewfinder")
-                        }
-                    }
-
-                    if let onViewTranslation {
-                        Button {
-                            onViewTranslation()
-                        } label: {
-                            Label(
-                                collection.translationReport == nil ? "Save Explanation" : "View Explanation",
-                                systemImage: collection.translationReport == nil ? "doc.badge.plus" : "doc.text"
-                            )
-                        }
-                    }
-
-                    if let onDelete {
-                        Button(role: .destructive) {
-                            onDelete()
-                        } label: {
-                            Label("Delete Page", systemImage: "trash")
+                    ForEach(CollectionPageAction.allCases) { action in
+                        if let handler = actionHandlers.handler(for: action) {
+                            pageActionButton(action, handler: handler)
                         }
                     }
                 }
@@ -256,7 +244,30 @@ struct CollectionPageActionsMenu: View {
     }
 
     private var hasPageActions: Bool {
-        onRename != nil || onEdit != nil || onChoosePhrases != nil || onViewOriginalOCR != nil || onViewTranslation != nil || onDelete != nil
+        CollectionPageAction.allCases.contains { actionHandlers.handler(for: $0) != nil }
+    }
+
+    @ViewBuilder
+    private func pageActionButton(_ action: CollectionPageAction, handler: @escaping () -> Void) -> some View {
+        switch action {
+        case .rename:
+            Button(action: handler) { Label("Rename Page", systemImage: "character.cursor.ibeam") }
+        case .edit:
+            Button(action: handler) { Label("Edit Page", systemImage: "pencil") }
+        case .choosePhrases:
+            Button(action: handler) { Label("Choose Page Phrases", systemImage: "text.quote") }
+        case .originalOCR:
+            Button(action: handler) { Label("Original OCR", systemImage: "doc.text.viewfinder") }
+        case .translation:
+            Button(action: handler) {
+                Label(
+                    collection.translationReport == nil ? "Save Explanation" : "View Explanation",
+                    systemImage: collection.translationReport == nil ? "doc.badge.plus" : "doc.text"
+                )
+            }
+        case .delete:
+            Button(role: .destructive, action: handler) { Label("Delete Page", systemImage: "trash") }
+        }
     }
 
     @ViewBuilder

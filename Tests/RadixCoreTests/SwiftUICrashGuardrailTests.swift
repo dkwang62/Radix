@@ -142,6 +142,20 @@ struct SwiftUICrashGuardrailTests {
         #expect(!study.contains("studySavedPageBrowseButton"))
     }
 
+    @Test("Browse and Study page actions use one canonical ordered list")
+    func pageActionsUseOneCanonicalList() throws {
+        let menu = try sourceText(at: "App/BrowseSourceMenuViews.swift")
+        let browse = try sourceText(at: "App/BrowseSourceBar.swift")
+        let study = try sourceText(at: "App/FavouritesStudyGridSection.swift")
+
+        #expect(menu.contains("enum CollectionPageAction: CaseIterable"))
+        #expect(menu.contains("ForEach(CollectionPageAction.allCases)"))
+        #expect(menu.contains("struct CollectionPageActionHandlers"))
+        #expect(browse.contains("actionHandlers: CollectionPageActionHandlers"))
+        #expect(study.contains("actionHandlers: CollectionPageActionHandlers"))
+        #expect(menu.components(separatedBy: "enum CollectionPageAction:").count - 1 == 1)
+    }
+
     @Test("Study keeps its primary destinations visible without crowding narrow screens")
     func studyPrimaryNavigationRemainsVisibleAndCompact() throws {
         let navigation = try sourceText(at: "App/FavouritesStudyNavigationBar.swift")

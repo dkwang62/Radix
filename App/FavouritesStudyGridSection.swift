@@ -496,16 +496,15 @@ extension FavouritesTab {
     private func studySavedPageActionsMenu(_ collection: CharacterCollection) -> some View {
         CollectionPageActionsMenu(
             collection: collection,
+            actionHandlers: CollectionPageActionHandlers(
+                choosePhrases: { showPagePhrases(collection) },
+                originalOCR: collection.sourceType == .ocr ? {
+                    openOriginalOCRPageFromStudy(collection)
+                } : nil,
+                translation: { showStudyTranslationReport(collection) },
+                delete: { pendingStudyDeleteCollection = collection }
+            ),
             hasAutomaticAIConfiguration: store.hasAutomaticAIConfiguration,
-            onViewOriginalOCR: collection.sourceType == .ocr ? {
-                openOriginalOCRPageFromStudy(collection)
-            } : nil,
-            onViewTranslation: {
-                showStudyTranslationReport(collection)
-            },
-            onDelete: {
-                pendingStudyDeleteCollection = collection
-            },
             aiTasks: studyPageAITasks(for: collection)
         )
         .disabled(isRunningStudyPageAction)

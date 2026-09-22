@@ -107,25 +107,17 @@ extension FilterGridTab {
 
             CollectionPageActionsMenu(
                 collection: collection,
-                onRename: {
-                    beginRenaming(collection)
-                },
-                onEdit: {
-                    beginEditing(collection)
-                },
+                actionHandlers: CollectionPageActionHandlers(
+                    rename: { beginRenaming(collection) },
+                    edit: { beginEditing(collection) },
+                    choosePhrases: { pagePhraseListCollection = collection },
+                    originalOCR: collection.sourceType == .ocr ? {
+                        openOriginalOCRPage(for: collection)
+                    } : nil,
+                    translation: { beginTranslationReport(collection) },
+                    delete: { pendingBrowseDeleteCollection = collection }
+                ),
                 hasAutomaticAIConfiguration: store.hasAutomaticAIConfiguration,
-                onChoosePhrases: {
-                    pagePhraseListCollection = collection
-                },
-                onViewOriginalOCR: collection.sourceType == .ocr ? {
-                    openOriginalOCRPage(for: collection)
-                } : nil,
-                onViewTranslation: {
-                    beginTranslationReport(collection)
-                },
-                onDelete: {
-                    pendingBrowseDeleteCollection = collection
-                },
                 aiTasks: browsePageAITasks(for: collection)
             )
 
