@@ -74,9 +74,10 @@ Use these preferences as defaults:
   the selected page name only in its content header rather than repeating it in
   the picker. Keep page headers and page controls compact on portrait iPad and
   iPhone: move page actions and read-aloud icons into the page-name row, use a
-  text-only `Page` menu, a text-only `Browse | Study` control, a text-only
-  `All | Unique` control, and a `dd MMM yy` scan date. Keep page sorting inside
-  `Page` on every platform; it should not
+  text-only `Switch` menu beside the page name, an action icon beside it, a
+  single button that opens the other Browse/Study workspace, a text-only
+  `All | Unique` control, and a `dd MMM yy` scan date. Keep read aloud in the
+  second control row. Keep page sorting inside `Switch` on every platform; it should not
   appear as a detached status-like pill. The Study title menu
   exposes this learning workspace as `Pages`, but Pages is not a separate
   top-level workspace.

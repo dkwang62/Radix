@@ -30,8 +30,8 @@ extension FilterGridTab {
                 isActive: true
             ) {
                 HStack(spacing: 4) {
+                    browsePageSelectionSwitcher
                     browsePageActionsMenu(collection, usesCompactLabel: true)
-                    readBrowseSourceButton(collection)
                 }
             }
 
@@ -116,9 +116,7 @@ extension FilterGridTab {
                     .help("Browse shows captured page tiles. Study opens page learning.")
             }
 
-            browsePageActionsMenu(collection)
-
-            browsePageSelectionSwitcher
+            readBrowseSourceButton(collection)
 
             browsePageWorkspaceSwitcher(collection)
 

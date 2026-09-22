@@ -42,23 +42,21 @@ struct SavedPageWorkspaceHeader<Accessory: View>: View {
                 .lineLimit(1)
                 .layoutPriority(1)
 
-            Spacer(minLength: 6)
+            accessory
 
-            HStack(spacing: 6) {
-                accessory
+            Spacer(minLength: 4)
 
-                Text(scanText)
-                    .font(ResponsiveFont.caption2.weight(.semibold))
-                    .foregroundStyle(isActive ? RadixAccent.primary : Color.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                    .radixPill(
-                        horizontal: 6,
-                        vertical: 4,
-                        background: (isActive ? RadixAccent.primary : Color.secondary).opacity(0.10),
-                        radius: 7
-                    )
-            }
+            Text(scanText)
+                .font(ResponsiveFont.caption2.weight(.semibold))
+                .foregroundStyle(isActive ? RadixAccent.primary : Color.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .radixPill(
+                    horizontal: 6,
+                    vertical: 4,
+                    background: (isActive ? RadixAccent.primary : Color.secondary).opacity(0.10),
+                    radius: 7
+                )
         }
         .frame(minHeight: 44)
     }
@@ -115,9 +113,9 @@ struct PageSelectionSwitcher: View {
             }
         } label: {
             RadixCompactChevronLabel(
-                title: "Page",
+                title: "Switch",
                 chevronFont: ResponsiveFont.tinySystem(size: 9, weight: .bold),
-                minWidth: 48
+                minWidth: 54
             )
         }
         .buttonStyle(.bordered)
@@ -134,20 +132,14 @@ struct PageWorkspaceSwitcher: View {
     let onSelect: (PageWorkspaceMode) -> Void
 
     var body: some View {
-        Picker("Page workspace", selection: Binding(
-            get: { selectedMode },
-            set: { mode in
-                guard mode != selectedMode else { return }
-                onSelect(mode)
-            }
-        )) {
-            ForEach(PageWorkspaceMode.allCases) { mode in
-                Text(mode.rawValue).tag(mode)
-            }
+        let destination = selectedMode == .browse ? PageWorkspaceMode.study : .browse
+        Button(destination.rawValue) {
+            onSelect(destination)
         }
-        .pickerStyle(.segmented)
-        .frame(width: 132)
-        .accessibilityLabel("Page workspace")
-        .accessibilityValue(selectedMode.rawValue)
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .accessibilityLabel("Switch page workspace")
+        .accessibilityValue("Currently \(selectedMode.rawValue)")
+        .accessibilityHint("Opens \(destination.rawValue)")
     }
 }

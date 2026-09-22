@@ -261,10 +261,10 @@ extension FavouritesTab {
     ) -> some View {
         let collection = rowData.collection
         return VStack(alignment: .leading, spacing: 8) {
-            studySavedPageHeader(rowData)
+            studySavedPageHeader(rowData, pages: pages)
 
             VStack(alignment: .leading, spacing: 8) {
-                studySavedPageExpandedControls(collection, pages: pages)
+                studySavedPageExpandedControls(collection)
 
                 if studyPageActionMessageCollectionID == collection.id, let studyPageActionMessage {
                     Label {
@@ -312,22 +312,32 @@ extension FavouritesTab {
         }
     }
 
-    private func studySavedPageHeader(_ rowData: StudySavedPageRowData) -> some View {
+    private func studySavedPageHeader(
+        _ rowData: StudySavedPageRowData,
+        pages: [CharacterCollection]
+    ) -> some View {
         SavedPageWorkspaceHeader(
             collection: rowData.collection,
             displayName: collectionDisplayName(rowData.collection),
             isActive: rowData.isActivePage
         ) {
-            studySavedPageActionsMenu(rowData.collection, usesCompactLabel: true)
+            HStack(spacing: 4) {
+                studyPageSelectionSwitcher(rowData.collection, pages: pages)
+                studySavedPageActionsMenu(rowData.collection, usesCompactLabel: true)
+            }
         }
     }
 
     @ViewBuilder
-    private func studySavedPageExpandedControls(
+    private func studySavedPageExpandedControls(_ collection: CharacterCollection) -> some View {
+        studyPageWorkspaceSwitcher(collection)
+    }
+
+    private func studyPageSelectionSwitcher(
         _ collection: CharacterCollection,
         pages: [CharacterCollection]
     ) -> some View {
-        let pageSwitcher = PageSelectionSwitcher(
+        PageSelectionSwitcher(
             pages: pages,
             selectedPageID: collection.id,
             displayName: collectionDisplayName,
@@ -340,21 +350,6 @@ extension FavouritesTab {
             )
         )
         .help("Switch saved page")
-
-        if isNarrowStudyLayout {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .center, spacing: 6) {
-                    pageSwitcher
-                    studyPageWorkspaceSwitcher(collection)
-                }
-                .padding(.vertical, 1)
-            }
-        } else {
-            HStack(alignment: .center, spacing: 6) {
-                pageSwitcher
-                studyPageWorkspaceSwitcher(collection)
-            }
-        }
     }
 
     private func studySavedPageActionsMenu(
