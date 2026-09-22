@@ -318,24 +318,27 @@ extension FavouritesTab {
     ) -> some View {
         SavedPageWorkspaceHeader(
             collection: rowData.collection,
-            displayName: collectionDisplayName(rowData.collection),
             isActive: rowData.isActivePage
         ) {
-            HStack(spacing: 4) {
-                studyPageSelectionSwitcher(rowData.collection, pages: pages)
-                studySavedPageActionsMenu(rowData.collection, usesCompactLabel: true)
-            }
+            studyPageSelectionSwitcher(
+                rowData.collection,
+                pages: pages,
+                isActive: rowData.isActivePage
+            )
         }
     }
 
-    @ViewBuilder
     private func studySavedPageExpandedControls(_ collection: CharacterCollection) -> some View {
-        studyPageWorkspaceSwitcher(collection)
+        HStack(spacing: 6) {
+            studySavedPageActionsMenu(collection)
+            studyPageWorkspaceSwitcher(collection)
+        }
     }
 
     private func studyPageSelectionSwitcher(
         _ collection: CharacterCollection,
-        pages: [CharacterCollection]
+        pages: [CharacterCollection],
+        isActive: Bool
     ) -> some View {
         PageSelectionSwitcher(
             pages: pages,
@@ -347,7 +350,11 @@ extension FavouritesTab {
             sortOrder: Binding(
                 get: { studyPageSortOrder },
                 set: { studyPageSortOrder = $0 }
-            )
+            ),
+            labelTitle: collectionDisplayName(collection),
+            labelFont: ResponsiveFont.subheadline.weight(.semibold),
+            labelForegroundStyle: isActive ? RadixAccent.primary : .primary,
+            labelMinWidth: nil
         )
         .help("Switch saved page")
     }

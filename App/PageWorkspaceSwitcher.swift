@@ -16,33 +16,25 @@ private enum SavedPageHeaderDateFormatter {
     }()
 }
 
-struct SavedPageWorkspaceHeader<Accessory: View>: View {
+struct SavedPageWorkspaceHeader<PageSelector: View>: View {
     let collection: CharacterCollection
-    let displayName: String
     let isActive: Bool
-    let accessory: Accessory
+    let pageSelector: PageSelector
 
     init(
         collection: CharacterCollection,
-        displayName: String,
         isActive: Bool,
-        @ViewBuilder accessory: () -> Accessory
+        @ViewBuilder pageSelector: () -> PageSelector
     ) {
         self.collection = collection
-        self.displayName = displayName
         self.isActive = isActive
-        self.accessory = accessory()
+        self.pageSelector = pageSelector()
     }
 
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
-            Text(displayName)
-                .font(ResponsiveFont.subheadline.weight(.semibold))
-                .foregroundStyle(isActive ? RadixAccent.primary : Color.primary)
-                .lineLimit(1)
+            pageSelector
                 .layoutPriority(1)
-
-            accessory
 
             Spacer(minLength: 4)
 
@@ -66,23 +58,16 @@ struct SavedPageWorkspaceHeader<Accessory: View>: View {
     }
 }
 
-extension SavedPageWorkspaceHeader where Accessory == EmptyView {
-    init(collection: CharacterCollection, displayName: String, isActive: Bool) {
-        self.init(
-            collection: collection,
-            displayName: displayName,
-            isActive: isActive,
-            accessory: { EmptyView() }
-        )
-    }
-}
-
 struct PageSelectionSwitcher: View {
     let pages: [CharacterCollection]
     let selectedPageID: UUID?
     let displayName: (CharacterCollection) -> String
     let onSelect: (CharacterCollection) -> Void
     var sortOrder: Binding<PageCollectionSortOrder>? = nil
+    var labelTitle = "Switch"
+    var labelFont = ResponsiveFont.caption2.weight(.semibold)
+    var labelForegroundStyle: Color = .primary
+    var labelMinWidth: CGFloat? = 54
 
     var body: some View {
         Menu {
@@ -113,10 +98,12 @@ struct PageSelectionSwitcher: View {
             }
         } label: {
             RadixCompactChevronLabel(
-                title: "Switch",
+                title: labelTitle,
+                font: labelFont,
                 chevronFont: ResponsiveFont.tinySystem(size: 9, weight: .bold),
-                minWidth: 54
+                minWidth: labelMinWidth
             )
+            .foregroundStyle(labelForegroundStyle)
         }
         .buttonStyle(.bordered)
         .controlSize(.small)

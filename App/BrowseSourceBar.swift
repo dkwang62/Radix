@@ -26,13 +26,9 @@ extension FilterGridTab {
         VStack(alignment: .leading, spacing: 6) {
             SavedPageWorkspaceHeader(
                 collection: collection,
-                displayName: store.collectionDisplayName(collection.name),
                 isActive: true
             ) {
-                HStack(spacing: 4) {
-                    browsePageSelectionSwitcher
-                    browsePageActionsMenu(collection, usesCompactLabel: true)
-                }
+                browsePageSelectionSwitcher(collection)
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -104,6 +100,8 @@ extension FilterGridTab {
 
     func selectedImageSourceActions(_ collection: CharacterCollection) -> some View {
         return HStack(spacing: 6) {
+            browsePageActionsMenu(collection)
+
             if let sourceOCRLabel = browseSourceOCRLayerLabel(for: collection),
                sourceOCRLabel != "Original OCR" {
                 Text(sourceOCRLabel)
@@ -187,7 +185,7 @@ extension FilterGridTab {
         .help("Switch between browsing and studying this page")
     }
 
-    var browsePageSelectionSwitcher: some View {
+    func browsePageSelectionSwitcher(_ collection: CharacterCollection) -> some View {
         PageSelectionSwitcher(
             pages: store.sortedCollections(order: browsePageSortOrder),
             selectedPageID: store.selectedBrowseCollectionID,
@@ -198,7 +196,11 @@ extension FilterGridTab {
             sortOrder: Binding(
                 get: { browsePageSortOrder },
                 set: { browsePageSortOrder = $0 }
-            )
+            ),
+            labelTitle: store.collectionDisplayName(collection.name),
+            labelFont: ResponsiveFont.subheadline.weight(.semibold),
+            labelForegroundStyle: RadixAccent.primary,
+            labelMinWidth: nil
         )
         .help("Switch saved page")
     }

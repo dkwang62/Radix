@@ -68,16 +68,16 @@ Use these preferences as defaults:
   second list of every saved page. Choosing a page in that Study dropdown also
   changes the selected Browse page. Browse and page Study must share the same
   page `Actions` vocabulary; avoid separate Browse-only and Study-only buttons
-  for the same page operation. Use the shared compact `Switch Page` menu in
-  both Browse and Study to select a saved page, and the shared `Browse | Study`
-  segmented control to move between modes while preserving that selection. Show
+  for the same page operation. Use the saved page name itself as the shared menu
+  in both Browse and Study to select a saved page, and a shared one-button
+  Browse/Study destination control to move between modes while preserving that selection. Show
   the selected page name only in its content header rather than repeating it in
   the picker. Keep page headers and page controls compact on portrait iPad and
-  iPhone: move page actions and read-aloud icons into the page-name row, use a
-  text-only `Switch` menu beside the page name, an action icon beside it, a
-  single button that opens the other Browse/Study workspace, a text-only
-  `All | Unique` control, and a `dd MMM yy` scan date. Keep read aloud in the
-  second control row. Keep page sorting inside `Switch` on every platform; it should not
+  iPhone: use the page name as its menu, show a `dd MMM yy` scan date, and put
+  page Actions in the second control row in both workspaces. Keep read aloud,
+  a single button that opens the other Browse/Study workspace, and the text-only
+  `All | Unique` control in Browse's second control row. Keep page sorting inside
+  the page-name menu on every platform; it should not
   appear as a detached status-like pill. The Study title menu
   exposes this learning workspace as `Pages`, but Pages is not a separate
   top-level workspace.
@@ -451,8 +451,8 @@ starring items; no recent items should point toward searching, browsing, or
 inspecting Chinese. Avoid generic empty text that leaves the user with no next
 step.
 Pages owns page learning artifacts and deletion. The selected page workspace is
-always expanded: show its page title, scan date, `Actions`, `Switch Page`,
-`Browse | Study`, and actionable artifact chips together. Do not collapse this
+always expanded: show its page-title menu, scan date, second-row `Actions`,
+the Browse/Study destination, and actionable artifact chips together. Do not collapse this
 workspace, show last-viewed context, or repeat artifacts as tiny header icons;
 those indicators duplicate the actionable chips. Highlight the active page so
 returning from Source preserves orientation. Show a compact `Phrases` artifact
@@ -461,8 +461,7 @@ Visible empty states and capture inventory labels should say `Pages` and
 `Create Page`; reserve `Saved Pages` for compatibility identifiers, backup
 inventory, and places where saved pages must be distinguished from sentence or
 phrase memory.
-On iPhone, saved-page controls should be thumb-sized; prefer wider `Actions`
-and `Switch Page` controls while keeping the workspace visible.
+On iPhone, saved-page controls should be thumb-sized while keeping the workspace visible.
 The saved-page list must stay lazy and responsive: row drawing should not run
 full page-phrase scans for every saved page. Use recorded phrase-extraction
 links or already-warmed caches for row indicators, and do the full phrase lookup

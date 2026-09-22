@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `46` (not yet distributed). Every committed application
+current source version is `1.1` build `47` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -93,9 +93,9 @@ stay linked to their page rather than becoming disconnected parallel features.
   storage/transfer.
 - A saved page has one shared Browse/Study selection. `Study` from Browse opens
   the relevant Study Page, and `Browse` from Study Page opens that source. Both
-  surfaces use the same compact control row: `Actions`, `Switch Page`, then the
-  `Browse | Study` segmented switcher. This replaces generic back bars and
-  duplicate page pickers. Study's page sort belongs inside `Switch Page`, not
+  surfaces use a shared compact layout: the page name is the selection menu and
+  second-row Actions precede the Browse/Study destination. This replaces generic
+  back bars and duplicate page pickers. Study's page sort belongs inside the page-name menu, not
   in a detached header pill. The selected Study Page workspace stays expanded,
   uses scan date rather than last-viewed context, and shows artifacts only as
   actionable chips rather than duplicate header indicators.
@@ -134,9 +134,10 @@ stay linked to their page rather than becoming disconnected parallel features.
   date belong in the shared Browse/Study page header, not in the root title.
 - In Study Recent, keep the script toggle and `Clear Recent` in one trailing
   control row. Favorites retains only the script toggle; Pages retains neither.
-- Saved-page headers use a page name, `Switch` menu, compact action icon, and
-  `dd MMM yy` scan date. Keep read aloud, a single Browse/Study destination button,
-  script, and `All | Unique` in the second control row; `Switch` owns the
+- Saved-page headers use the page name itself as the selection menu and show a
+  `dd MMM yy` scan date. Keep Actions in the second control row for both Browse
+  and Study; Browse also keeps read aloud, a single Browse/Study destination
+  button, script, and `All | Unique` there. The page-name menu owns the
   cross-platform Viewed/Scanned sort choice.
 - `Pages` is not a separate primary data model. Browse owns source page
   selection; Study Pages is the page-learning workspace.
