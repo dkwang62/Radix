@@ -5,6 +5,62 @@ import Testing
 
 @Suite("Sentence library SQLite persistence")
 struct SentenceLibraryStoreTests {
+    @Test("Traditional page extractions resolve against Simplified SQLite after backup restore")
+    func traditionalExtractionBackupRoundTrip() throws {
+        try withTemporaryDirectory { directory in
+            let original = AICleanedPageRecord(
+                sourcePageID: UUID(), sourceTitle: "學習", cleanedTitle: "中文",
+                cleanedChineseText: "歡迎學習中文。",
+                sentences: [AICleanedPageSentence(
+                    id: "sentence-1", chinese: "歡迎學習中文。",
+                    pinyin: "Huānyíng xuéxí Zhōngwén.", english: "Welcome to learning Chinese.",
+                    phraseHints: ["學習"]
+                )], createdAt: Date()
+            )
+            let simplified = original.simplifiedChinese {
+                $0.applyingTransform(StringTransform("Hant-Hans"), reverse: false) ?? $0
+            }
+            #expect(simplified.sentences[0].chinese == "欢迎学习中文。")
+            #expect(simplified.cleanedChineseText == "欢迎学习中文。")
+            #expect(simplified.sentences[0].phraseHints == ["学习"])
+            #expect(simplified.sourcePageID == original.sourcePageID)
+            #expect(simplified.sourceTitle == original.sourceTitle)
+            #expect(simplified.createdAt == original.createdAt)
+
+            let store = makeStore(at: directory.appendingPathComponent("original.sqlite"))
+            var records = SentenceExampleRecord.fromAICleanedPage(simplified)
+            records[0].isFavorited = true
+            try store.upsert(records)
+            let backup = directory.appendingPathComponent("backup.sqlite")
+            try store.backupDatabase(to: backup)
+            let restored = makeStore(at: directory.appendingPathComponent("restored.sqlite"))
+            try restored.restoreDatabase(from: backup)
+            let key = SentenceExampleRecord.normalizedChineseKey(simplified.sentences[0].chinese)
+            let record = try #require(restored.fetch(normalizedKeys: [key], migratingLegacy: { [] })[key])
+            #expect(record.id == records[0].id)
+            #expect(record.isFavorited)
+            #expect(record.isLinked(toPageID: original.sourcePageID))
+            let references = ExtractedSentenceReferencePackage(
+                sentenceDatabaseFingerprint: SentenceDatabasePointerFingerprint(
+                    sentenceCount: 1, latestCreatedAt: 0, latestUpdatedAt: 0, normalizedKeyHash: "test"
+                ),
+                pages: [ExtractedSentencePageReference(
+                    sourcePageID: original.sourcePageID, sourceTitle: original.sourceTitle,
+                    cleanedTitle: original.cleanedTitle,
+                    sentenceReferences: [ExtractedSentencePointer(
+                        pageSentenceID: simplified.sentences[0].id, sentenceExampleID: record.id,
+                        sentenceKey: key, ordinal: 0
+                    )], createdAt: original.createdAt
+                )]
+            )
+            let pages = try ExtractedSentenceRestoreRules.resolvedPages(
+                from: references, sourceSchemaVersion: 6, mode: .complete
+            ) { restored.fetch(normalizedKey: $0.sentenceKey, migratingLegacy: { [] }) }
+            #expect(pages?.first?.sentences == simplified.sentences)
+            #expect(pages?.first?.sourcePageID == original.sourcePageID)
+        }
+    }
+
     @Test("Legacy records migrate once and remain queryable from SQLite")
     func migratesLegacyRecords() throws {
         try withTemporaryDirectory { directory in
