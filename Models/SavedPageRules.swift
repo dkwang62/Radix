@@ -716,6 +716,15 @@ struct PagePhraseExtractionRecord: Codable, Equatable, Hashable, Identifiable {
         )
     }
 
+    func simplifiedChinese(using simplify: (String) -> String) -> PagePhraseExtractionRecord {
+        PagePhraseExtractionRecord(
+            sourcePageID: sourcePageID,
+            sourceTitle: sourceTitle,
+            phraseWords: phraseWords.map(simplify),
+            extractedAt: extractedAt
+        )
+    }
+
     static func deduplicated(_ words: [String]) -> [String] {
         var seen = Set<String>()
         return words

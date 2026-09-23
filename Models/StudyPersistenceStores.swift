@@ -174,6 +174,7 @@ struct PageStudyArtifactStore: @unchecked Sendable {
         }
         nonmutating set {
             let records = newValue
+                .map { $0.simplifiedChinese(using: ScriptTextConverter.simplified) }
                 .filter { !$0.phraseWords.isEmpty }
                 .sorted { $0.extractedAt > $1.extractedAt }
             let data = try? JSONEncoder().encode(records)
@@ -188,7 +189,7 @@ struct PageStudyArtifactStore: @unchecked Sendable {
         words: [String],
         extractedAt: Date
     ) {
-        let cleanWords = PagePhraseExtractionRecord.deduplicated(words)
+        let cleanWords = PagePhraseExtractionRecord.deduplicated(words.map(ScriptTextConverter.simplified))
         guard !cleanWords.isEmpty else { return }
 
         var records = phraseExtractions

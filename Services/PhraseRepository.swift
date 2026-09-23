@@ -74,6 +74,7 @@ final class PhraseRepository {
             throw NSError(domain: "Radix", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to open phrases_add.db: \(err)"])
         }
         try ensureAddTable()
+        try normalizeAddedPhraseStorageIfNeeded()
     }
 
     func openForTesting() throws {
@@ -82,6 +83,7 @@ final class PhraseRepository {
             throw NSError(domain: "Radix", code: 8, userInfo: [NSLocalizedDescriptionKey: "Failed to open test db"])
         }
         try ensureAddTable()
+        try normalizeAddedPhraseStorageIfNeeded()
         baseDb = nil
     }
 
@@ -192,6 +194,7 @@ final class PhraseRepository {
             throw queryRunner.phraseWriteError(code: 125, prefix: "Added-phrases restore failed", db: addDb, currentAddDBPath: currentAddDBPath)
         }
         try ensureAddTable()
+        try normalizeAddedPhraseStorageIfNeeded()
         try addDBLocationManager.syncWorkingAddDBToCustomSourceIfNeeded()
         invalidateReadCaches()
     }
@@ -200,6 +203,8 @@ final class PhraseRepository {
         guard let addDb else {
             throw NSError(domain: "Radix", code: 12, userInfo: [NSLocalizedDescriptionKey: "Add phrases database is not open"])
         }
+        let word = canonicalPhraseWord(word)
+        guard !word.isEmpty else { return }
         let updateSQL = notes == nil
             ? "UPDATE phrases SET pinyin = ?, meanings = ? WHERE word = ?"
             : "UPDATE phrases SET pinyin = ?, meanings = ?, notes = ? WHERE word = ?"
@@ -244,6 +249,8 @@ final class PhraseRepository {
         guard let addDb else {
             throw NSError(domain: "Radix", code: 12, userInfo: [NSLocalizedDescriptionKey: "Add phrases database is not open"])
         }
+        let word = canonicalPhraseWord(word)
+        guard !word.isEmpty else { return }
         let sql = "UPDATE phrases SET review_status = ?, last_reviewed_at = ? WHERE word = ?"
         var stmt: OpaquePointer?
         if sqlite3_prepare_v2(addDb, sql, -1, &stmt, nil) != SQLITE_OK {
@@ -268,6 +275,8 @@ final class PhraseRepository {
         guard let addDb else {
             throw NSError(domain: "Radix", code: 12, userInfo: [NSLocalizedDescriptionKey: "Add phrases database is not open"])
         }
+        let word = canonicalPhraseWord(word)
+        guard !word.isEmpty else { return }
         let sql = "DELETE FROM phrases WHERE word = ?"
         var stmt: OpaquePointer?
         if sqlite3_prepare_v2(addDb, sql, -1, &stmt, nil) != SQLITE_OK {
@@ -323,6 +332,7 @@ final class PhraseRepository {
     }
 
     func fetchPhrase(for word: String, includeHidden: Bool) -> PhraseItem? {
+        let word = canonicalPhraseWord(word)
         if let cached = mergedPhraseLookup[word] {
             return cached
         }
@@ -342,6 +352,7 @@ final class PhraseRepository {
     }
 
     func fetchAddedPhrase(for word: String) -> PhraseItem? {
+        let word = canonicalPhraseWord(word)
         let addSQL = "SELECT \(addPhraseColumns) FROM phrases WHERE word = ? LIMIT 1"
         let binder: (OpaquePointer?) -> Void = { stmt in
             sqlite3_bind_text(stmt, 1, (word as NSString).utf8String, -1, SQLITE_TRANSIENT)
@@ -350,6 +361,7 @@ final class PhraseRepository {
     }
 
     func fetchBasePhrase(for word: String) -> PhraseItem? {
+        let word = canonicalPhraseWord(word)
         let baseSQL = "SELECT word, pinyin, meanings FROM phrases WHERE word = ? LIMIT 1"
         let binder: (OpaquePointer?) -> Void = { stmt in
             sqlite3_bind_text(stmt, 1, (word as NSString).utf8String, -1, SQLITE_TRANSIENT)
@@ -358,6 +370,7 @@ final class PhraseRepository {
     }
 
     func fetchPhrases(matching words: Set<String>, includeHidden: Bool = false) -> [PhraseItem] {
+        let words = Set(words.map(canonicalPhraseWord).filter { !$0.isEmpty })
         guard !words.isEmpty else { return [] }
         var phraseByWord: [String: PhraseItem] = [:]
         let addVisibilityClause = includeHidden ? activeAddPhraseClause : visibleAddPhraseClause
@@ -414,6 +427,7 @@ final class PhraseRepository {
     /// Additive import — inserts missing phrases and safely merges restored notes into existing overlay rows.
     func addPhrasesAdditively(_ phrases: [PhraseItem]) throws {
         guard let addDb else { return }
+        let phrases = canonicalizedPhrases(phrases)
         guard !phrases.isEmpty else { return }
         if sqlite3_exec(addDb, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) != SQLITE_OK {
             throw queryRunner.phraseWriteError(code: 19, prefix: "Begin amalgamation failed", db: addDb, currentAddDBPath: currentAddDBPath)
@@ -494,6 +508,7 @@ final class PhraseRepository {
     /// Complete import — deletes all existing rows then inserts the backup phrases in full.
     func replaceAllPhrases(_ phrases: [PhraseItem]) throws {
         guard let addDb else { return }
+        let phrases = canonicalizedPhrases(phrases)
         if sqlite3_exec(addDb, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) != SQLITE_OK {
             throw queryRunner.phraseWriteError(code: 14, prefix: "Begin restore failed", db: addDb, currentAddDBPath: currentAddDBPath)
         }

@@ -273,6 +273,18 @@ struct PhraseItem: Identifiable, Hashable, Equatable, Codable {
         )
     }
 
+    func simplifiedChinese(using simplify: (String) -> String) -> PhraseItem {
+        PhraseItem(
+            word: simplify(word).trimmingCharacters(in: .whitespacesAndNewlines),
+            pinyin: pinyin,
+            meanings: meanings,
+            notes: notes,
+            addedAt: addedAt,
+            reviewStatus: reviewStatus,
+            lastReviewedAt: lastReviewedAt
+        )
+    }
+
     enum CodingKeys: String, CodingKey {
         case word, pinyin, meanings, notes
         case addedAt = "added_at"
