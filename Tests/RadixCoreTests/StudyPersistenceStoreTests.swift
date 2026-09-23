@@ -85,6 +85,25 @@ struct StudyPersistenceStoreTests {
         #expect(preferences.data(forKey: RadixPreferenceKey.aiCleanedPages) != nil)
     }
 
+    @Test("Page phrase extractions store only Simplified phrase words")
+    func pagePhraseExtractionsSimplifyTraditionalWords() {
+        let preferences = InMemoryStudyPreferenceStore()
+        let store = PageStudyArtifactStore(
+            preferences: preferences,
+            simplify: { $0.applyingTransform(StringTransform("Hant-Hans"), reverse: false) ?? $0 }
+        )
+        let pageID = UUID()
+
+        store.recordPhraseExtraction(
+            pageID: pageID,
+            title: "Traditional source",
+            words: ["學習", "学习", "中文"],
+            extractedAt: Date()
+        )
+
+        #expect(store.phraseExtractions.first?.phraseWords == ["学习", "中文"])
+    }
+
     @Test("Corrupt study payloads fail closed without crossing store boundaries")
     func corruptPayloadFallbacks() {
         let preferences = InMemoryStudyPreferenceStore()

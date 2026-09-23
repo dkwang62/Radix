@@ -32,7 +32,10 @@ enum RadixStudyPreferences {
         matchesSearchText: sentenceExample(_:matchesSearchText:)
     )
     private static let conversationPracticeStore = ConversationPracticeStore(preferences: preferences)
-    private static let pageArtifactStore = PageStudyArtifactStore(preferences: preferences)
+    private static let pageArtifactStore = PageStudyArtifactStore(
+        preferences: preferences,
+        simplify: ScriptTextConverter.simplified
+    )
 
     static var usesTraditionalScript: Bool {
         get { preferences.bool(forKey: usesTraditionalScriptKey) }

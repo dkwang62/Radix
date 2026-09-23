@@ -162,10 +162,15 @@ private final class PageStudyArtifactStoreCache: @unchecked Sendable {
 
 struct PageStudyArtifactStore: @unchecked Sendable {
     private let preferences: any RadixPreferenceStore
+    private let simplify: @Sendable (String) -> String
     private let cache = PageStudyArtifactStoreCache()
 
-    init(preferences: any RadixPreferenceStore) {
+    init(
+        preferences: any RadixPreferenceStore,
+        simplify: @escaping @Sendable (String) -> String = { $0 }
+    ) {
         self.preferences = preferences
+        self.simplify = simplify
     }
 
     var phraseExtractions: [PagePhraseExtractionRecord] {
@@ -174,7 +179,7 @@ struct PageStudyArtifactStore: @unchecked Sendable {
         }
         nonmutating set {
             let records = newValue
-                .map { $0.simplifiedChinese(using: ScriptTextConverter.simplified) }
+                .map { $0.simplifiedChinese(using: simplify) }
                 .filter { !$0.phraseWords.isEmpty }
                 .sorted { $0.extractedAt > $1.extractedAt }
             let data = try? JSONEncoder().encode(records)
@@ -189,7 +194,7 @@ struct PageStudyArtifactStore: @unchecked Sendable {
         words: [String],
         extractedAt: Date
     ) {
-        let cleanWords = PagePhraseExtractionRecord.deduplicated(words.map(ScriptTextConverter.simplified))
+        let cleanWords = PagePhraseExtractionRecord.deduplicated(words.map(simplify))
         guard !cleanWords.isEmpty else { return }
 
         var records = phraseExtractions
@@ -216,6 +221,7 @@ struct PageStudyArtifactStore: @unchecked Sendable {
         }
         nonmutating set {
             let records = newValue
+                .map { $0.simplifiedChinese(using: simplify) }
                 .filter { !$0.cleanedChineseText.isEmpty || !$0.sentences.isEmpty }
                 .sorted { $0.createdAt > $1.createdAt }
             let data = try? JSONEncoder().encode(records)

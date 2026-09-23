@@ -4,6 +4,30 @@ import Testing
 
 @Suite("Phrase review compatibility")
 struct PhraseReviewCompatibilityTests {
+    @Test("Phrase persistence can canonicalize Traditional words without losing learning data")
+    func phraseCanonicalizationPreservesLearningData() {
+        let phrase = PhraseItem(
+            word: "關鍵時刻",
+            pinyin: "guān jiàn shí kè",
+            meanings: "critical moment",
+            notes: "Keep this note",
+            addedAt: Date(timeIntervalSince1970: 10),
+            reviewStatus: .checked,
+            lastReviewedAt: Date(timeIntervalSince1970: 20)
+        )
+
+        let converted = phrase.simplifiedChinese {
+            $0.applyingTransform(StringTransform("Hant-Hans"), reverse: false) ?? $0
+        }
+
+        #expect(converted.word == "关键时刻")
+        #expect(converted.pinyin == phrase.pinyin)
+        #expect(converted.meanings == phrase.meanings)
+        #expect(converted.notes == phrase.notes)
+        #expect(converted.reviewStatus == phrase.reviewStatus)
+        #expect(converted.lastReviewedAt == phrase.lastReviewedAt)
+    }
+
     @Test("Stored status values remain stable while labels stay clear")
     func stablePersistenceValues() throws {
         #expect(PhraseReviewStatus.checked.rawValue == "checked")

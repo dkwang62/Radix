@@ -746,7 +746,7 @@ final class PhraseRepository {
     }
 
     func searchByCharacters(term: String, limit: Int = 120) -> [PhraseItem] {
-        let normalized = term.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalized = canonicalPhraseWord(term)
         guard !normalized.isEmpty else { return [] }
         let baseSQL = "SELECT word, pinyin, meanings FROM phrases WHERE word LIKE ? LIMIT ?"
         let addSQL = "SELECT \(addPhraseColumns) FROM phrases WHERE word LIKE ? AND \(visibleAddPhraseClause) LIMIT ?"
@@ -760,6 +760,8 @@ final class PhraseRepository {
     }
 
     func isInBase(word: String) -> Bool {
+        let word = canonicalPhraseWord(word)
+        guard !word.isEmpty else { return false }
         guard let baseDb else { return false }
         var stmt: OpaquePointer?
         if sqlite3_prepare_v2(baseDb, "SELECT 1 FROM phrases WHERE word = ? LIMIT 1", -1, &stmt, nil) != SQLITE_OK {
@@ -771,6 +773,8 @@ final class PhraseRepository {
     }
 
     func isInAdd(word: String) -> Bool {
+        let word = canonicalPhraseWord(word)
+        guard !word.isEmpty else { return false }
         guard let addDb else { return false }
         var stmt: OpaquePointer?
         if sqlite3_prepare_v2(addDb, "SELECT 1 FROM phrases WHERE word = ? LIMIT 1", -1, &stmt, nil) != SQLITE_OK {
@@ -785,6 +789,58 @@ final class PhraseRepository {
 
     private func ensureAddTable() throws {
         try PhraseAddDatabaseSchema.ensureTable(in: addDb)
+    }
+
+    private func canonicalPhraseWord(_ word: String) -> String {
+        let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
+        let simplified = ScriptTextConverter.simplified(trimmed).trimmingCharacters(in: .whitespacesAndNewlines)
+        return simplified.isEmpty ? trimmed : simplified
+    }
+
+    private func canonicalizedPhrases(_ phrases: [PhraseItem]) -> [PhraseItem] {
+        var merged: [String: PhraseItem] = [:]
+        for phrase in phrases {
+            let normalized = phrase.simplifiedChinese(using: ScriptTextConverter.simplified)
+            guard !normalized.word.isEmpty else { continue }
+            guard let existing = merged[normalized.word] else {
+                merged[normalized.word] = normalized
+                continue
+            }
+
+            let preferred = preferredPhrase(existing, normalized)
+            let other = preferred == existing ? normalized : existing
+            merged[normalized.word] = PhraseItem(
+                word: normalized.word,
+                pinyin: preferred.pinyin,
+                meanings: preferred.meanings,
+                notes: PhraseNoteOverlayRules.mergeNotes(preferred.notes, other.notes),
+                addedAt: [existing.addedAt, normalized.addedAt].compactMap { $0 }.min(),
+                reviewStatus: preferred.reviewStatus,
+                lastReviewedAt: preferred.lastReviewedAt
+            )
+        }
+        return merged.values.sorted {
+            ($0.addedAt ?? .distantPast) > ($1.addedAt ?? .distantPast)
+        }
+    }
+
+    private func preferredPhrase(_ lhs: PhraseItem, _ rhs: PhraseItem) -> PhraseItem {
+        let lhsActivity = lhs.lastReviewedAt ?? lhs.addedAt ?? .distantPast
+        let rhsActivity = rhs.lastReviewedAt ?? rhs.addedAt ?? .distantPast
+        if lhsActivity != rhsActivity { return lhsActivity > rhsActivity ? lhs : rhs }
+        if lhs.pinyin.isEmpty != rhs.pinyin.isEmpty { return lhs.pinyin.isEmpty ? rhs : lhs }
+        if lhs.meanings.isEmpty != rhs.meanings.isEmpty { return lhs.meanings.isEmpty ? rhs : lhs }
+        return lhs.word <= rhs.word ? lhs : rhs
+    }
+
+    private func normalizeAddedPhraseStorageIfNeeded() throws {
+        let existing = fetchAddedPhrases()
+        let normalizedWords = existing.map { canonicalPhraseWord($0.word) }
+        guard existing.map(\.word) != normalizedWords || Set(normalizedWords).count != normalizedWords.count else {
+            return
+        }
+        let normalized = canonicalizedPhrases(existing)
+        try replaceAllPhrases(normalized)
     }
 
     private func sentencePhraseLinkStorageWord(_ word: String) -> String {
@@ -849,6 +905,7 @@ final class PhraseRepository {
             throw queryRunner.phraseWriteError(code: 125, prefix: "Added-phrases restore failed", db: addDb, currentAddDBPath: currentAddDBPath)
         }
         try ensureAddTable()
+        try normalizeAddedPhraseStorageIfNeeded()
         try addDBLocationManager.syncWorkingAddDBToCustomSourceIfNeeded()
         invalidateReadCaches()
     }
@@ -916,6 +973,7 @@ final class PhraseRepository {
         }
         addDb = newDb
         try ensureAddTable()
+        try normalizeAddedPhraseStorageIfNeeded()
         invalidateReadCaches()
     }
 
@@ -933,6 +991,7 @@ final class PhraseRepository {
         }
         addDb = newDb
         try ensureAddTable()
+        try normalizeAddedPhraseStorageIfNeeded()
         invalidateReadCaches()
     }
 
