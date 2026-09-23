@@ -73,6 +73,7 @@ extension PromptConfig {
                     !task.template.contains("Do not output rough extracted text") ||
                     !task.template.contains("The three fields must match each other exactly") ||
                     task.template.contains("\"repair_notes\"") ||
+                    task.template.contains("\"phrase_hints\"") ||
                     task.template.contains("notes\":")
                 )) ||
                 (builtInID == .improveSentence && (

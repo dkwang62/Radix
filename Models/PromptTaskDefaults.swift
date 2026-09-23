@@ -419,8 +419,7 @@ The JSON must match this exact top-level shape:
       "id": "ai_page_sentence_001",
       "chinese": "One complete cleaned Chinese sentence.",
       "pinyin": "Tone-mark pinyin for the full Chinese sentence.",
-      "english": "Natural English meaning.",
-      "phrase_hints": ["useful phrase", "another useful phrase"]
+      "english": "Natural English meaning."
     }
   ],
   "english_summary": "One short English summary of the cleaned page."
@@ -435,14 +434,13 @@ Rules:
 6. Generate pinyin from the final improved "chinese" sentence, not from the original OCR fragment or pre-improvement draft.
 7. Generate english as the natural English meaning of the final improved "chinese" sentence, not the old or broken source fragment.
 8. The three fields must match each other exactly: "chinese", "pinyin", and "english" must describe the same final improved sentence.
-9. phrase_hints should contain useful 2- to 6-character Chinese chunks that help explain the final improved sentence. Do not include pinyin or English in phrase_hints.
-10. If the original source is only a headline, caption, menu, subtitle, or short fragment, expand only enough to make natural learning sentences while preserving the source's meaning.
-11. Expand abbreviated or journalistic compound wording into ordinary Chinese phrasing; do not keep telegraphic headline style when it would be unnatural for sentence study.
-12. Do not keep duplicated sentences, nonsense, partial character strings, or unrepairable fragments just to preserve volume.
-13. Do not drop difficult or low-interest content if it can be repaired into a coherent sentence without invention.
-14. Do not include markdown, comments, note fields, extra keys, or analysis outside the JSON.
+9. If the original source is only a headline, caption, menu, subtitle, or short fragment, expand only enough to make natural learning sentences while preserving the source's meaning.
+10. Expand abbreviated or journalistic compound wording into ordinary Chinese phrasing; do not keep telegraphic headline style when it would be unnatural for sentence study.
+11. Do not keep duplicated sentences, nonsense, partial character strings, or unrepairable fragments just to preserve volume.
+12. Do not drop difficult or low-interest content if it can be repaired into a coherent sentence without invention.
+13. Do not include markdown, comments, phrase_hints, note fields, extra keys, or analysis outside the JSON.
 
-Before returning, silently validate that the JSON is valid, the top level contains exactly these keys: "cleaned_title", "cleaned_chinese_text", "sentences", and "english_summary", every sentence contains exactly these keys: "id", "chinese", "pinyin", "english", and "phrase_hints", every sentence is distinct and fully formed, every sentence is grammatical, complete, and coherent, every sentence's pinyin and English match its final Chinese, and the sentence list covers the entire cleaned_chinese_text rather than a representative subset.
+Before returning, silently validate that the JSON is valid, the top level contains exactly these keys: "cleaned_title", "cleaned_chinese_text", "sentences", and "english_summary", every sentence contains exactly these keys: "id", "chinese", "pinyin", and "english", every sentence is distinct and fully formed, every sentence is grammatical, complete, and coherent, every sentence's pinyin and English match its final Chinese, and the sentence list covers the entire cleaned_chinese_text rather than a representative subset.
 
 """,
                 subjectType: .page
@@ -540,16 +538,14 @@ Return JSON only: a top-level array with this exact shape:
     "id": "ai_page_sentence_001",
     "chinese": "这是一个完整的句子。",
     "pinyin": "zhè shì yí gè wán zhěng de jù zi",
-    "english": "This is a complete sentence.",
-    "phrase_hints": ["完整", "句子"]
+    "english": "This is a complete sentence."
   }
 ]
 
 Use sequential IDs ai_page_sentence_001, ai_page_sentence_002, and so on.
 For every sentence, supply tone-marked pinyin and a natural English meaning for the final
 corrected Chinese. The three fields must match each other exactly.
-phrase_hints contains useful Chinese phrases present in that sentence, without pinyin or English.
-Use an empty phrase_hints array when there are no useful phrases. No Markdown or commentary.
+Do not include phrase_hints, notes, metadata, Markdown, or commentary.
 
 Transcript:
 {free_text_input}
