@@ -200,12 +200,6 @@ extension FavouritesTab {
                     onOpen()
                 } label: {
                     HStack(alignment: .top, spacing: 6) {
-                        Text("\(item.rank)")
-                            .font(ResponsiveFont.caption2.weight(.semibold))
-                            .foregroundStyle(isSelected ? Color.white : RadixAccent.primary)
-                            .frame(width: 26, height: 26)
-                            .radixSurface(isSelected ? RadixAccent.primary : RadixAccent.primary.opacity(0.1))
-
                         conversationPracticeSentenceRowText(item)
                     }
                     .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -239,12 +233,6 @@ extension FavouritesTab {
                     onOpen()
                 } label: {
                     HStack(alignment: .center, spacing: 8) {
-                        Text("\(item.rank)")
-                            .font(ResponsiveFont.caption2.weight(.semibold))
-                            .foregroundStyle(isSelected ? Color.white : RadixAccent.primary)
-                            .frame(width: 28, height: 28)
-                            .radixSurface(isSelected ? RadixAccent.primary : RadixAccent.primary.opacity(0.1))
-
                         conversationPracticeSentenceRowText(item)
 
                         RadixCompactChevronLabel(

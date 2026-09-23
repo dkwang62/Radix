@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `55` (not yet distributed). Every committed application
+current source version is `1.1` build `56` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -560,6 +560,9 @@ paths, data behavior, and learning workflow.
   History. A persistent sidebar must never hide the relevant information card.
 - On iPhone, compact sentence rows prioritize reading space and wrap long text;
   pinyin and secondary actions move into the card/menu as needed.
+- Shared sentence rows do not display ordinal/rank badges; row space belongs to
+  the sentence text and trailing actions. Keep rank data for sorting and practice
+  logic only unless a future design gives it a dedicated non-crowding location.
 - Study sentence, practice, and extracted-page lists share compact deterministic
   toolbar layouts. Avoid measurement-driven multi-candidate interactive layouts
   that can hang or overflow narrow iPad panes.
@@ -593,7 +596,7 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 Latest application baseline (2026-09-22): `swift test` passed 222 tests in 19
 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds target
-source build 55. Browse/Study switching no longer repeats checkpoint scans,
+source build 56. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
 recomputes on ordinary tab entry. Study Pages also avoids unrelated conversation
 initialization and repeated JSON decoding. Dictionary grid work runs off the main

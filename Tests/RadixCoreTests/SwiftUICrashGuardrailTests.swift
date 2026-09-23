@@ -545,6 +545,16 @@ struct SwiftUICrashGuardrailTests {
         #expect(headerSource.contains("store.isFavoriteSentence(practiceItem)"))
     }
 
+    @Test("Shared sentence rows do not spend reading space on ordinal badges")
+    func practiceSentenceRowsHideOrdinalBadges() throws {
+        let source = try sourceText(at: "App/PracticeSentenceSurface.swift")
+            .components(separatedBy: "func practiceSentenceRow<Trailing: View, AdditionalContextMenu: View>(")[1]
+            .components(separatedBy: "func practiceSentenceAIContextMenu")[0]
+
+        #expect(!source.contains("Text(\"\\(item.rank)\")"))
+        #expect(source.contains("conversationPracticeSentenceRowText(item)"))
+    }
+
     @Test("Saved pages preserve valid Han characters beyond dictionary coverage")
     func savedPagesSeparateUnicodeValidityFromDictionaryCoverage() throws {
         let collectionSource = try sourceText(at: "ViewModels/RadixStoreCollections.swift")
