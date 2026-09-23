@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `54` (not yet distributed). Every committed application
+current source version is `1.1` build `55` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -257,7 +257,7 @@ statuses. Any change requires an explicit migration and a compatibility test.
 | Added phrases and notes | `phrases_add.db` | Do not duplicate a phrase already in the main database. Phrase notes remain an overlay here. |
 | Saved pages | Preferences-backed `CharacterCollection` metadata plus source-image files | Source images live under Application Support; thumbnails are not retained. Existing embedded images migrate on load. |
 | AI-cleaned pages | Preferences-backed `AICleanedPageRecord` artifacts | Page-owned; do not overwrite the source OCR. Deleting a page's Extracted Sentences result removes only that page artifact and its `.aiCleanedPage` sentence sources; independent or favorited sentences remain under the existing sentence-retention rules. |
-| Sentences | Separate SQLite Sentence Library | Paged/query-based access only; excluded from the JSON payload, but carried by full backup and new checkpoint bundles. |
+| Sentences | Separate SQLite Sentence Library | Paged/query-based access only; excluded from the JSON payload, but carried by full backup and new checkpoint bundles. Every sentence must be tied to a saved page source or a conversation/practice source; favorites alone are not a retention root. Untethered sentence rows are rejected on write and pruned during startup/import cleanup. |
 | Favorites and practice progress | Preferences/portable backup models | They remain learning memory when a linked page is removed. |
 | Checkpoints | Local backup bundles | Same-device recovery with sentence and phrase databases. Legacy JSON checkpoints remain readable with an explicit limited-scope warning. |
 
@@ -593,7 +593,7 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 Latest application baseline (2026-09-22): `swift test` passed 222 tests in 19
 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds target
-source build 54. Browse/Study switching no longer repeats checkpoint scans,
+source build 55. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
 recomputes on ordinary tab entry. Study Pages also avoids unrelated conversation
 initialization and repeated JSON decoding. Dictionary grid work runs off the main

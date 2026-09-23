@@ -70,6 +70,74 @@ struct SentenceLibraryStoreTests {
         }
     }
 
+    @Test("Sentence records must be tied to a page or conversation")
+    func prunesUntetheredRecords() throws {
+        try withTemporaryDirectory { directory in
+            let store = makeStore(at: directory.appendingPathComponent("sentences.sqlite"))
+            let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000609")!
+            let pageSentence = sentence(
+                chinese: "这一句来自页面。",
+                english: "This sentence comes from a page.",
+                source: SentenceExampleSourceReference(
+                    sourceType: .aiCleanedPage,
+                    sourceID: pageID.uuidString,
+                    sourceTitle: "Page",
+                    sourcePageID: pageID,
+                    practicePackID: nil,
+                    practiceItemID: nil
+                )
+            )
+            let conversationSentence = sentence(
+                chinese: "这一句来自会话。",
+                english: "This sentence comes from conversation practice."
+            )
+            let favoriteOnly = SentenceExampleRecord(
+                chinese: "只有收藏来源。",
+                english: "Only a favorite source.",
+                sources: [
+                    SentenceExampleSourceReference(
+                        sourceType: .favoriteSentence,
+                        sourceID: "favorites",
+                        sourceTitle: nil,
+                        sourcePageID: nil,
+                        practicePackID: "favorites",
+                        practiceItemID: "favorite-1"
+                    )
+                ],
+                isFavorited: true
+            )
+            let unsourced = SentenceExampleRecord(
+                chinese: "没有来源。",
+                english: "No source.",
+                sources: [],
+                isFavorited: true
+            )
+
+            try store.replaceAll([pageSentence, conversationSentence, favoriteOnly, unsourced])
+            #expect(store.fetchAll(migratingLegacy: { [] }).map(\.normalizedChineseKey).sorted() == [
+                conversationSentence.normalizedChineseKey,
+                pageSentence.normalizedChineseKey
+            ].sorted())
+
+            try store.upsert([favoriteOnly, unsourced])
+            #expect(store.fetchAll(migratingLegacy: { [] }).count == 2)
+
+            let restored = makeStore(at: directory.appendingPathComponent("restored.sqlite"))
+            try restored.replaceAll([pageSentence, conversationSentence])
+            try restored.replace([
+                SentenceExampleRecord(
+                    chinese: "替换也不能无来源。",
+                    english: "Replace cannot keep untethered records.",
+                    sources: []
+                )
+            ])
+            #expect(restored.fetchAll(migratingLegacy: { [] }).count == 2)
+
+            let pruned = try store.pruneUntetheredSentenceExamples(migratingLegacy: { [favoriteOnly, unsourced] })
+            #expect(pruned.deletedCount == 0)
+        }
+    }
+
     @Test("Page queries correlate page and source type on the same source")
     func pageQueriesCorrelateSourceRelationships() throws {
         try withTemporaryDirectory { directory in
@@ -260,7 +328,7 @@ struct SentenceLibraryStoreTests {
                 sources: [source(rootID, "Root"), source(survivingID, "Survivor")]
             )
             let favorite = SentenceExampleRecord(
-                chinese: "收藏句子会保留。",
+                chinese: "收藏句子也会删除。",
                 sources: [source(descendantID, "Corrected")],
                 isFavorited: true
             )
@@ -271,12 +339,11 @@ struct SentenceLibraryStoreTests {
                 migratingLegacy: { [] }
             )
 
-            #expect(result == SentencePageSourceReconciliationResult(updatedCount: 2, deletedCount: 2))
+            #expect(result == SentencePageSourceReconciliationResult(updatedCount: 1, deletedCount: 3))
             #expect(store.fetch(id: rootOnly.id, migratingLegacy: { [] }) == nil)
             #expect(store.fetch(id: descendantOnly.id, migratingLegacy: { [] }) == nil)
             #expect(store.fetch(id: shared.id, migratingLegacy: { [] })?.sources == [source(survivingID, "Survivor")])
-            #expect(store.fetch(id: favorite.id, migratingLegacy: { [] })?.sources.isEmpty == true)
-            #expect(store.fetch(id: favorite.id, migratingLegacy: { [] })?.isFavorited == true)
+            #expect(store.fetch(id: favorite.id, migratingLegacy: { [] }) == nil)
             #expect(shared.firstAvailableSourcePageID(in: [survivingID]) == survivingID)
         }
     }
@@ -326,11 +393,9 @@ struct SentenceLibraryStoreTests {
             let unrelated = SentenceExampleRecord(chinese: "Unrelated", sources: [source(survivor)])
             try store.replaceAll(singles + [shared, unrelated])
             let result = try store.reconcileSources(removingPageIDs: Set(ids), migratingLegacy: { [] })
-            #expect(result == SentencePageSourceReconciliationResult(updatedCount: 2, deletedCount: 120))
-            #expect(store.fetchAll(migratingLegacy: { [] }).count == 3)
-            #expect(store.fetch(id: singles[0].id, migratingLegacy: { [] })?.isHidden == true)
-            #expect(store.fetch(id: singles[0].id, migratingLegacy: { [] })?.isFavorited == true)
-            #expect(store.fetch(id: singles[0].id, migratingLegacy: { [] })?.sources.isEmpty == true)
+            #expect(result == SentencePageSourceReconciliationResult(updatedCount: 1, deletedCount: 121))
+            #expect(store.fetchAll(migratingLegacy: { [] }).count == 2)
+            #expect(store.fetch(id: singles[0].id, migratingLegacy: { [] }) == nil)
             #expect(store.fetch(id: singles[1].id, migratingLegacy: { [] }) == nil)
             #expect(store.fetch(id: shared.id, migratingLegacy: { [] })?.sources == [source(survivor)])
             #expect(store.fetch(id: unrelated.id, migratingLegacy: { [] }) == unrelated)
@@ -358,7 +423,7 @@ struct SentenceLibraryStoreTests {
             }
             let obsolete = SentenceExampleRecord(chinese: "旧页面独有。", sources: [source(oldPage, .aiCleanedPage)])
             let favorite = SentenceExampleRecord(
-                chinese: "收藏句子保留。",
+                chinese: "收藏句子删除。",
                 sources: [source(otherOldPage, .aiCleanedPage)],
                 isFavorited: true
             )
@@ -374,8 +439,7 @@ struct SentenceLibraryStoreTests {
             try store.replaceAICleanedPageSources(with: [replacement], migratingLegacy: { [] })
 
             #expect(store.fetch(id: obsolete.id, migratingLegacy: { [] }) == nil)
-            #expect(store.fetch(id: favorite.id, migratingLegacy: { [] })?.sources.isEmpty == true)
-            #expect(store.fetch(id: favorite.id, migratingLegacy: { [] })?.isFavorited == true)
+            #expect(store.fetch(id: favorite.id, migratingLegacy: { [] }) == nil)
             #expect(store.fetch(id: shared.id, migratingLegacy: { [] })?.sources == [source(oldPage, .ocrSource)])
             #expect(store.fetch(id: unrelated.id, migratingLegacy: { [] }) == unrelated)
             #expect(store.fetch(normalizedKey: replacement.normalizedChineseKey, migratingLegacy: { [] }) == replacement)
@@ -384,12 +448,12 @@ struct SentenceLibraryStoreTests {
 
             #expect(store.fetch(normalizedKey: replacement.normalizedChineseKey, migratingLegacy: { [] }) == nil)
             #expect(store.fetch(normalizedKey: differentReplacement.normalizedChineseKey, migratingLegacy: { [] }) == differentReplacement)
-            #expect(store.fetch(id: favorite.id, migratingLegacy: { [] })?.isFavorited == true)
+            #expect(store.fetch(id: favorite.id, migratingLegacy: { [] }) == nil)
 
             try store.replaceAICleanedPageSources(with: [], migratingLegacy: { [] })
 
             #expect(store.fetch(normalizedKey: differentReplacement.normalizedChineseKey, migratingLegacy: { [] }) == nil)
-            #expect(store.fetch(id: favorite.id, migratingLegacy: { [] })?.isFavorited == true)
+            #expect(store.fetch(id: favorite.id, migratingLegacy: { [] }) == nil)
             #expect(store.fetch(id: shared.id, migratingLegacy: { [] })?.sources == [source(oldPage, .ocrSource)])
             #expect(store.fetch(id: unrelated.id, migratingLegacy: { [] }) == unrelated)
         }
@@ -417,7 +481,16 @@ struct SentenceLibraryStoreTests {
         SentenceExampleRecord(
             chinese: chinese,
             english: english,
-            sources: source.map { [$0] } ?? [],
+            sources: source.map { [$0] } ?? [
+                SentenceExampleSourceReference(
+                    sourceType: .conversationPractice,
+                    sourceID: "test_conversation",
+                    sourceTitle: "Test Conversation",
+                    sourcePageID: nil,
+                    practicePackID: "test_conversation",
+                    practiceItemID: UUID().uuidString
+                )
+            ],
             isFavorited: isFavorited
         )
     }

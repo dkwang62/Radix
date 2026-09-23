@@ -250,9 +250,8 @@ private final class Fixture {
         #expect(preferences.data(forKey: RadixPreferenceKey.conversationPracticeProgress) == Data([7]))
         #expect(preferences.data(forKey: "globalNotes") == Data([8]))
         let store = sentences()
-        #expect(store.fetchAll(migratingLegacy: { [] }).count == 2)
-        #expect(store.fetch(id: favorite.id, migratingLegacy: { [] })?.isFavorited == true)
-        #expect(store.fetch(id: favorite.id, migratingLegacy: { [] })?.sources == [])
+        #expect(store.fetchAll(migratingLegacy: { [] }).count == 1)
+        #expect(store.fetch(id: favorite.id, migratingLegacy: { [] }) == nil)
         #expect(store.fetch(id: shared.id, migratingLegacy: { [] })?.sources.map(\.sourcePageID) == [survivor.id])
         for id in deletedIDs { #expect(!FileManager.default.fileExists(atPath: imageURL(id).path)) }
         #expect(FileManager.default.fileExists(atPath: imageURL(survivor.id).path))

@@ -143,10 +143,12 @@ enum RadixStudyPreferences {
             let importedRecords = sourceRepository.fetchAll(migratingLegacy: { [] })
             try sentenceLibrary.upsert(canonicalizedSentenceExamples(importedRecords))
             refreshConversationPracticePackSentenceReferences()
+            try enforceSentenceSourceInvariant()
             return importedRecords.count
         case .complete:
             try sentenceLibrary.restoreDatabase(from: sourceURL)
             refreshConversationPracticePackSentenceReferences()
+            try enforceSentenceSourceInvariant()
             return sentenceExampleCount()
         }
     }
@@ -716,7 +718,10 @@ enum RadixStudyPreferences {
     }
 
     fileprivate static func canonicalizedSentenceExamples(_ records: [SentenceExampleRecord]) -> [SentenceExampleRecord] {
-        SentenceExampleRecord.upserting(records.map(canonicalizedSentenceExample(_:)), into: [])
+        SentenceExampleRecord.upserting(
+            records.map(canonicalizedSentenceExample(_:)).filter(\.isTiedToPageOrConversation),
+            into: []
+        )
     }
 
     private static func canonicalizedPhraseLinkWords(_ words: [String]) -> [String] {

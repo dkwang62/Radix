@@ -20,6 +20,7 @@ extension RadixStore {
             restoreRollbackRecoveryError = nil
             loadConversationPracticePhraseCache()
             preprocessStoredAICleanedPagesIfNeeded()
+            enforceSentenceSourceInvariant()
             setupInitialState()
             try restoreGenerationStore.finishPromotion()
         } catch {
@@ -47,6 +48,7 @@ extension RadixStore {
             restoreRollbackRecoveryError = nil
             loadConversationPracticePhraseCache()
             preprocessStoredAICleanedPagesIfNeeded()
+            enforceSentenceSourceInvariant()
             setupInitialState()
             try restoreGenerationStore.finishPromotion()
         } catch {
@@ -101,6 +103,18 @@ extension RadixStore {
         showComponentHelp = true
         previewCharacter = nil
         showiPhoneDetail = false
+    }
+
+    private func enforceSentenceSourceInvariant() {
+        do {
+            let result = try RadixStudyPreferences.enforceSentenceSourceInvariant()
+            if result.deletedCount > 0 {
+                favoriteSentenceRevision += 1
+            }
+        } catch {
+            markDatabaseOptimizationNeeded()
+            databaseOptimizationMessage = "Sentence database cleanup needs optimization: \(error.localizedDescription)"
+        }
     }
 
     private func normalizePersistedFilters() {
