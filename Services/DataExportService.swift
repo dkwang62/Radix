@@ -187,14 +187,16 @@ struct DataExportService {
         )
     }
 
-    func writePortableBackup(_ data: Data, to url: URL) throws {
+    func writePortableBackup(_ data: Data, to url: URL, preservingHistory: Bool = true) throws {
         let coordinator = NSFileCoordinator()
         var coordinationError: NSError?
         var writeResult: Result<Void, Error>?
 
         coordinator.coordinate(writingItemAt: url, options: .forReplacing, error: &coordinationError) { coordinatedURL in
             writeResult = Result {
-                try rotateExistingSaveHistory(at: coordinatedURL)
+                if preservingHistory {
+                    try rotateExistingSaveHistory(at: coordinatedURL)
+                }
                 try data.write(to: coordinatedURL, options: .atomic)
             }
         }

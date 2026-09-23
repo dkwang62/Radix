@@ -184,7 +184,7 @@ extension DataEditTab {
 
         let mergedData = try await bundledBackupData()
         try await Task.detached(priority: .userInitiated) {
-            try DataExportService().writePortableBackup(mergedData, to: url)
+            try DataExportService().writePortableBackup(mergedData, to: url, preservingHistory: false)
         }.value
         guard isCurrentRestore(operationID) else { return }
 
