@@ -859,6 +859,11 @@ enum RadixStudyPreferences {
         pageArtifactStore.replaceCleanedPage(record)
     }
 
+    static func deleteAICleanedPage(for pageID: UUID) throws {
+        try reconcileAICleanedPageSentenceExamples(for: pageID, replacementSentences: [])
+        aiCleanedPages.removeAll { $0.sourcePageID == pageID }
+    }
+
     private static func reconcileAICleanedPageSentenceExamples(
         for pageID: UUID,
         replacementSentences: [SentenceExampleRecord]

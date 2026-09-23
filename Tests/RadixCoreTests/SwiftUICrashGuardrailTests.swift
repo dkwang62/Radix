@@ -46,6 +46,26 @@ struct SwiftUICrashGuardrailTests {
         #expect(!mergeBody.contains("writePortableBackup(mergedData, to: url)\n"))
     }
 
+    @Test("Extracted page sentences can be deleted through source reconciliation")
+    func aiCleanedPageDeletionUsesSentenceSourceReconciliation() throws {
+        let preferences = try sourceText(at: "Services/RadixStudyPreferences.swift")
+        let pageView = try sourceText(at: "App/FavouritesAICleanedPage.swift")
+        let presentations = try sourceText(at: "App/FavouritesPresentations.swift")
+        let state = try sourceText(at: "App/FavouritesStudyScreenState.swift")
+
+        let helper = preferences
+            .components(separatedBy: "static func deleteAICleanedPage(for pageID: UUID) throws {")[1]
+            .components(separatedBy: "\n    }")[0]
+        #expect(helper.contains("try reconcileAICleanedPageSentenceExamples(for: pageID, replacementSentences: [])"))
+        #expect(helper.contains("aiCleanedPages.removeAll { $0.sourcePageID == pageID }"))
+        #expect(state.contains("var pendingAICleanedPageDeletion: PendingAICleanedPageDeletion?"))
+        #expect(pageView.contains("Delete Extracted Sentences"))
+        #expect(pageView.contains("requestDeleteAICleanedPage(record, collection: collection)"))
+        #expect(pageView.contains("confirmDeleteAICleanedPage(_ pending: PendingAICleanedPageDeletion)"))
+        #expect(presentations.contains(".alert(\"Delete Extracted Sentences?\""))
+        #expect(presentations.contains("confirmDeleteAICleanedPage(pending)"))
+    }
+
     @Test("Smart Search examples remain fixed explicit children")
     func smartSearchExamplesAvoidDynamicForEach() throws {
         let source = try sourceText(at: "App/SmartSearchExamples.swift")

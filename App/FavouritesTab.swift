@@ -19,6 +19,13 @@ struct StudyAICleanedPageContext {
     let record: AICleanedPageRecord?
 }
 
+struct PendingAICleanedPageDeletion: Identifiable {
+    let collection: CharacterCollection
+    let record: AICleanedPageRecord
+
+    var id: UUID { collection.id }
+}
+
 struct StudyAICleanedSentencePageCache {
     let sourcePageID: UUID
     let recordRevision: String

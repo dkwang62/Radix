@@ -276,6 +276,24 @@ extension FavouritesTab {
                     Text(store.deletionImpact(for: collection).alertMessage)
                 }
             }
+            .alert("Delete Extracted Sentences?", isPresented: Binding(
+                get: { screenState.pages.pendingAICleanedPageDeletion != nil },
+                set: { if !$0 { screenState.pages.pendingAICleanedPageDeletion = nil } }
+            )) {
+                Button("Delete", role: .destructive) {
+                    if let pending = screenState.pages.pendingAICleanedPageDeletion {
+                        confirmDeleteAICleanedPage(pending)
+                    }
+                    screenState.pages.pendingAICleanedPageDeletion = nil
+                }
+                Button("Cancel", role: .cancel) {
+                    screenState.pages.pendingAICleanedPageDeletion = nil
+                }
+            } message: {
+                if let pending = screenState.pages.pendingAICleanedPageDeletion {
+                    Text("This deletes the Extracted Sentences result for \"\(pending.collection.name)\". Saved sentence favourites are preserved when they have other reasons to stay.")
+                }
+            }
             .alert("Promote Corrected OCR?", isPresented: Binding(
                 get: { pendingStudyOCRPromotion != nil },
                 set: { if !$0 { pendingStudyOCRPromotion = nil } }

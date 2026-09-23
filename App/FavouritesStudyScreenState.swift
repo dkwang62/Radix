@@ -93,6 +93,7 @@ struct StudyPageScreenState {
     var aiCleanedCollectionID: UUID?
     var aiCleanedSentencePageIndex = 0
     var aiCleanedSentencePageCache: StudyAICleanedSentencePageCache?
+    var pendingAICleanedPageDeletion: PendingAICleanedPageDeletion?
     var translationReportCollection: CharacterCollection?
     var translationReportDraft = ""
     var editingCollection: CharacterCollection?

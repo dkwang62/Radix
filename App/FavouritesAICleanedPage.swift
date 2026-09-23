@@ -99,6 +99,19 @@ extension FavouritesTab {
                 Text("\(record.sentences.count) extracted sentences")
                     .font(ResponsiveFont.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
+
+                Button(role: .destructive) {
+                    requestDeleteAICleanedPage(record, collection: collection)
+                } label: {
+                    Label("Delete Extracted Sentences", systemImage: "trash")
+                        .font(ResponsiveFont.caption.weight(.semibold))
+                        .labelStyle(.titleAndIcon)
+                        .radixPill(horizontal: 10, vertical: 7, background: Color.red.opacity(0.1))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.red)
+                .accessibilityHint("Deletes this page's extracted sentences result.")
+                .help("Delete extracted sentences")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
@@ -386,6 +399,28 @@ extension FavouritesTab {
             actionSystemImage: "sparkles"
         ) {
             beginStudyAILinkPageTask(collection, taskID: BuiltInPromptTaskID.extractSentences.rawValue)
+        }
+    }
+
+    func requestDeleteAICleanedPage(_ record: AICleanedPageRecord, collection: CharacterCollection) {
+        screenState.pages.pendingAICleanedPageDeletion = PendingAICleanedPageDeletion(
+            collection: collection,
+            record: record
+        )
+    }
+
+    func confirmDeleteAICleanedPage(_ pending: PendingAICleanedPageDeletion) {
+        do {
+            try RadixStudyPreferences.deleteAICleanedPage(for: pending.record.sourcePageID)
+            screenState.pages.referenceData.cleanedPagesByPageID[pending.record.sourcePageID] = nil
+            screenState.pages.aiCleanedSentencePageCache = nil
+            screenState.pages.aiCleanedSentencePageIndex = 0
+            store.favoriteSentenceRevision += 1
+            setStudyPageActionMessage("Deleted extracted sentences.", for: pending.collection)
+            RadixHaptics.success()
+        } catch {
+            setStudyPageActionMessage("Delete failed: \(error.localizedDescription)", for: pending.collection)
+            RadixHaptics.error()
         }
     }
 
