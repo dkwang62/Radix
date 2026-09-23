@@ -254,6 +254,13 @@ enum RadixStudyPreferences {
     }
 
     @discardableResult
+    static func enforceSentenceSourceInvariant() throws -> SentenceSourceInvariantPruneResult {
+        try sentenceLibrary.pruneUntetheredSentenceExamples(
+            migratingLegacy: legacySentenceExamplesFromPreferences
+        )
+    }
+
+    @discardableResult
     static func refreshSentencePhraseLinks(availablePhraseWords words: [String]) throws -> Int {
         let records = currentSentenceExamples
         guard !records.isEmpty else { return 0 }

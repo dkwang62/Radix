@@ -48,6 +48,10 @@ struct SentencePageSourceReconciliationResult: Equatable, Sendable {
     var deletedCount: Int
 }
 
+struct SentenceSourceInvariantPruneResult: Equatable, Sendable {
+    var deletedCount: Int
+}
+
 final class SentenceLibraryStore: @unchecked Sendable {
     private let databaseURL: URL
     private let canonicalize: ([SentenceExampleRecord]) -> [SentenceExampleRecord]
@@ -276,7 +280,7 @@ final class SentenceLibraryStore: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
 
-        let records = canonicalize(records)
+        let records = permittedRecords(canonicalize(records))
         if fallbackRecords != nil {
             throw storageUnavailableError()
         }
@@ -295,7 +299,8 @@ final class SentenceLibraryStore: @unchecked Sendable {
         }
 
         try openIfNeeded()
-        let records = canonicalize(records)
+        let records = permittedRecords(canonicalize(records))
+        guard !records.isEmpty else { return }
         guard sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) == SQLITE_OK else {
             throw sqliteError(code: 3112, message: "Failed to begin sentence upsert")
         }
@@ -322,7 +327,8 @@ final class SentenceLibraryStore: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
 
-        let records = canonicalize(records)
+        let records = permittedRecords(canonicalize(records))
+        guard !records.isEmpty else { return }
         if fallbackRecords != nil {
             throw storageUnavailableError()
         }
@@ -372,7 +378,7 @@ final class SentenceLibraryStore: @unchecked Sendable {
         var deletedIDs: [UUID] = []
         for var record in affectedRecords {
             record.removeSources(linkedToPageIDs: pageIDs)
-            if record.sources.isEmpty && !record.isFavorited {
+            if !record.isTiedToPageOrConversation {
                 deletedIDs.append(record.id)
             } else {
                 updatedRecords.append(record)
@@ -421,7 +427,7 @@ final class SentenceLibraryStore: @unchecked Sendable {
 
         for var record in existingRecords where record.hasSourceType(.aiCleanedPage) {
             record.removeSources(sourceType: .aiCleanedPage)
-            if record.sources.isEmpty && !record.isFavorited {
+            if !record.isTiedToPageOrConversation {
                 recordsByKey.removeValue(forKey: record.normalizedChineseKey)
                 deletedIDs.insert(record.id)
             } else {
@@ -429,7 +435,7 @@ final class SentenceLibraryStore: @unchecked Sendable {
             }
         }
 
-        for incoming in canonicalize(replacementRecords) {
+        for incoming in permittedRecords(canonicalize(replacementRecords)) {
             var merged = incoming
             if var existing = recordsByKey[incoming.normalizedChineseKey] {
                 existing.merge(incoming)
@@ -456,6 +462,24 @@ final class SentenceLibraryStore: @unchecked Sendable {
             sqlite3_exec(db, "ROLLBACK", nil, nil, nil)
             throw error
         }
+    }
+
+    func pruneUntetheredSentenceExamples(
+        migratingLegacy legacyProvider: () -> [SentenceExampleRecord]
+    ) throws -> SentenceSourceInvariantPruneResult {
+        lock.lock()
+        defer { lock.unlock() }
+
+        if fallbackRecords != nil {
+            throw storageUnavailableError()
+        }
+
+        try openIfNeeded()
+        try migrateLegacyIfNeededUnlocked(legacyProvider)
+        let records = try fetchAllUnlocked()
+        let deletedIDs = records.filter { !$0.isTiedToPageOrConversation }.map(\.id)
+        try deleteIDsUnlocked(deletedIDs)
+        return SentenceSourceInvariantPruneResult(deletedCount: deletedIDs.count)
     }
 
     func delete(id: UUID) throws {
@@ -1350,6 +1374,10 @@ final class SentenceLibraryStore: @unchecked Sendable {
             code: 3153,
             userInfo: [NSLocalizedDescriptionKey: "The sentence database is unavailable. Your existing library was kept unchanged."]
         )
+    }
+
+    private func permittedRecords(_ records: [SentenceExampleRecord]) -> [SentenceExampleRecord] {
+        records.filter(\.isTiedToPageOrConversation)
     }
 
     private func bind(_ values: [String], in statement: OpaquePointer?) {

@@ -181,6 +181,26 @@ public struct SentenceExampleRecord: Codable, Equatable, Identifiable, Sendable 
         sources.contains { $0.matches(sourceType: sourceType) }
     }
 
+    public var isTiedToPageOrConversation: Bool {
+        sources.contains { source in
+            if source.sourcePageID != nil {
+                return true
+            }
+            switch source.sourceType {
+            case .conversationPractice, .sentencePractice:
+                return true
+            case .aiCleanedPage,
+                 .aiGenerated,
+                 .favoriteSentence,
+                 .quiz,
+                 .ocrSource,
+                 .userAdded,
+                 .imported:
+                return false
+            }
+        }
+    }
+
     mutating func removeSources(sourceType: SentenceExampleSourceType, pageID: UUID) {
         sources.removeAll {
             $0.sourceType == sourceType && $0.sourcePageID == pageID
