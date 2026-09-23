@@ -863,6 +863,7 @@ enum RadixStudyPreferences {
     }
 
     static func recordAICleanedPage(_ record: AICleanedPageRecord) throws {
+        let record = record.simplifiedChinese(using: ScriptTextConverter.simplified)
         let replacementSentences = SentenceExampleRecord.fromAICleanedPage(record)
         try reconcileAICleanedPageSentenceExamples(
             for: record.sourcePageID,
@@ -899,6 +900,7 @@ enum RadixStudyPreferences {
     }
 
     static func applyImportedAICleanedPages(_ records: [AICleanedPageRecord]?, mode: RestoreMode) throws {
+        let records = records?.map { $0.simplifiedChinese(using: ScriptTextConverter.simplified) }
         switch mode {
         case .additive:
             guard let records, !records.isEmpty else { return }

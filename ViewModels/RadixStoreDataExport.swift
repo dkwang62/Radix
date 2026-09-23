@@ -215,7 +215,10 @@ extension RadixStore {
     }
 
     private func extractedSentenceReferencePackage() -> ExtractedSentenceReferencePackage? {
-        let pages = RadixStudyPreferences.aiCleanedPages
+        // Legacy extraction text can still be Traditional; SQLite stores Simplified.
+        let pages = RadixStudyPreferences.aiCleanedPages.map {
+            $0.simplifiedChinese(using: ScriptTextConverter.simplified)
+        }
         guard !pages.isEmpty else { return nil }
 
         let sentenceKeys = pages.flatMap { page in

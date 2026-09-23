@@ -391,8 +391,8 @@ extension RadixStore {
     }
 
     func preprocessedAICleanedPage(_ record: AICleanedPageRecord) -> AICleanedPageRecord {
-        var updated = record
-        updated.sentences = record.sentences.map(preprocessedAICleanedPageSentence(_:))
+        var updated = record.simplifiedChinese(using: ScriptTextConverter.simplified)
+        updated.sentences = updated.sentences.map(preprocessedAICleanedPageSentence(_:))
         return updated
     }
 

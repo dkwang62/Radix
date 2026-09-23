@@ -102,6 +102,18 @@ struct AICleanedPageRecord: Codable, Equatable, Hashable, Identifiable {
 
     var id: UUID { sourcePageID }
 
+    func simplifiedChinese(using simplify: (String) -> String) -> AICleanedPageRecord {
+        var result = self
+        result.cleanedChineseText = simplify(cleanedChineseText)
+        result.sentences = sentences.map { sentence in
+            var converted = sentence
+            converted.chinese = simplify(sentence.chinese)
+            converted.phraseHints = sentence.phraseHints.map(simplify)
+            return converted
+        }
+        return result
+    }
+
     enum CodingKeys: String, CodingKey {
         case sourcePageID = "source_page_id"
         case sourceTitle = "source_title"
