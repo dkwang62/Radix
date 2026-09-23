@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `56` (not yet distributed). Every committed application
+current source version is `1.1` build `57` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -419,7 +419,10 @@ AI is a shared workflow, not a collection of separate mini-features.
   copies to the current contract.
 - `Extract Sentences` creates complete, distinct, coherent sentences from a
   page, expands safe shorthand, filters unrecoverable OCR noise, and returns
-  Chinese, pinyin, and English that describe the same final wording.
+  Chinese, pinyin, and English that describe the same final wording. The
+  generated sentence contract is note-free; old note-like fields may remain
+  parseable for compatibility, but built-in sentence-extraction templates must
+  not request or emit sentence notes.
 - `Sentence Improvement` returns and applies that same three-field contract.
 - `Structure Phrase for Input` is the source-free exception: it formats pasted
   vocabulary, then feeds the result through the shared Add Phrases importer.
@@ -596,7 +599,7 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 Latest application baseline (2026-09-22): `swift test` passed 222 tests in 19
 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds target
-source build 56. Browse/Study switching no longer repeats checkpoint scans,
+source build 57. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
 recomputes on ordinary tab entry. Study Pages also avoids unrelated conversation
 initialization and repeated JSON decoding. Dictionary grid work runs off the main

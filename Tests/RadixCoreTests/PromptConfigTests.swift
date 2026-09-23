@@ -596,6 +596,9 @@ struct PromptConfigTests {
         #expect(generator?.template.contains("\"id\": \"ai_page_sentence_001\"") == true)
         #expect(generator?.template.contains("\"pinyin\"") == true)
         #expect(generator?.template.contains("\"phrase_hints\"") == true)
+        #expect(generator?.template.contains("\"repair_notes\"") == false)
+        #expect(generator?.template.contains("\"notes\"") == false)
+        #expect(generator?.template.contains("repair_notes") == false)
         #expect(generator?.template.contains("Expand telegraphic media shorthand") == true)
         #expect(generator?.template.contains("abbreviations, compressed journalistic compounds") == true)
         #expect(generator?.template.contains("Replace concise headline-style compounds with normal phrases or clauses") == true)
@@ -620,6 +623,23 @@ struct PromptConfigTests {
         #expect(PromptConfig.collectionTaskIDs.contains("task12"))
         #expect(!PromptConfig.conversationEntryCountTaskIDs.contains("task12"))
         #expect(!PromptConfig.defaultSelectedTaskIDs.contains("task12"))
+    }
+
+    @Test("Sentence extraction templates do not request sentence notes")
+    func sentenceExtractionTemplatesDoNotRequestNotes() {
+        let normalized = PromptConfig.streamlitDefault.normalized()
+        let sentenceExtractionTaskIDs = ["task10", "task12", "task16"]
+
+        for taskID in sentenceExtractionTaskIDs {
+            let template = normalized.tasks.first { $0.id == taskID }?.template ?? ""
+            #expect(!template.contains("\"notes\""))
+            #expect(!template.contains("notes\":"))
+        }
+
+        let extractSentences = normalized.tasks.first { $0.id == "task12" }?.template ?? ""
+        #expect(!extractSentences.contains("\"repair_notes\""))
+        #expect(!extractSentences.contains("repair_notes"))
+        #expect(extractSentences.contains("Do not include markdown, comments, note fields, extra keys, or analysis outside the JSON."))
     }
 
     @Test("Page quiz prompt stays in AI chat with cross-model quiz protocol")
@@ -784,6 +804,42 @@ struct PromptConfigTests {
         #expect(template.contains("same quality bar as Sentence Improvement"))
         #expect(template.contains("The three fields must match each other exactly"))
         #expect(template.contains("every sentence is distinct and fully formed"))
+    }
+
+    @Test("Legacy extract sentence templates with notes normalize to note-free contract")
+    func legacyExtractSentencesTemplateWithNotesNormalizes() {
+        let legacy = PromptTask(
+            id: "task12",
+            title: "Extract Sentences",
+            template: """
+            Extract Sentences
+
+            cleaned_chinese_text
+            "pinyin"
+            distinct, fully formed, grammatically correct sentences
+            same quality bar as Sentence Improvement
+            Pass 2 - Improve every extracted candidate
+            Do not output rough extracted text
+            The three fields must match each other exactly
+            "repair_notes": []
+            """,
+            subjectType: .page
+        )
+        let config = PromptConfig(
+            version: 1,
+            preamble: "",
+            tasks: [legacy],
+            epilogue: "",
+            collectionPreamble: "",
+            collectionEpilogue: ""
+        )
+
+        let template = config.normalized().tasks.first { $0.id == "task12" }?.template ?? ""
+
+        #expect(!template.contains("\"repair_notes\""))
+        #expect(!template.contains("notes\":"))
+        #expect(!template.contains("repair_notes"))
+        #expect(template.contains("Do not include markdown, comments, note fields, extra keys, or analysis outside the JSON."))
     }
 
     @Test("Legacy conversation generators normalize to shared quantity placeholder")

@@ -71,7 +71,9 @@ extension PromptConfig {
                     !task.template.contains("same quality bar as Sentence Improvement") ||
                     !task.template.contains("Pass 2 - Improve every extracted candidate") ||
                     !task.template.contains("Do not output rough extracted text") ||
-                    !task.template.contains("The three fields must match each other exactly")
+                    !task.template.contains("The three fields must match each other exactly") ||
+                    task.template.contains("\"repair_notes\"") ||
+                    task.template.contains("notes\":")
                 )) ||
                 (builtInID == .improveSentence && (
                     !task.template.contains("Return JSON only") ||
