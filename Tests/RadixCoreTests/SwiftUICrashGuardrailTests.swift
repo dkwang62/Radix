@@ -32,6 +32,20 @@ struct SwiftUICrashGuardrailTests {
         }
     }
 
+    @Test("Backup merge writes selected document without sibling rotation")
+    func backupMergeAvoidsDocumentProviderSiblingMoves() throws {
+        let restoreSource = try sourceText(at: "App/DataEditRestoreFlow.swift")
+        let exportSource = try sourceText(at: "Services/DataExportService.swift")
+        let mergeBody = restoreSource
+            .components(separatedBy: "private func mergeBackupFile(")[1]
+            .components(separatedBy: "var restoreConfirmationTitle:")[0]
+
+        #expect(exportSource.contains("preservingHistory: Bool = true"))
+        #expect(exportSource.contains("if preservingHistory {"))
+        #expect(mergeBody.contains("writePortableBackup(mergedData, to: url, preservingHistory: false)"))
+        #expect(!mergeBody.contains("writePortableBackup(mergedData, to: url)\n"))
+    }
+
     @Test("Smart Search examples remain fixed explicit children")
     func smartSearchExamplesAvoidDynamicForEach() throws {
         let source = try sourceText(at: "App/SmartSearchExamples.swift")

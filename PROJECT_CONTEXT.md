@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `51` (not yet distributed). Every committed application
+current source version is `1.1` build `53` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -276,7 +276,10 @@ Backup vocabulary is deliberate:
 
 - `Checkpoint`: a same-device recovery point.
 - `Create Backup`: write a new portable backup file.
-- `Merge Backup`: combine file and device data, retaining rolling save history.
+- `Merge Backup`: combine file and device data and update the user-selected
+  backup. Document-provider/iCloud merges must not move sibling files for
+  rolling history because the picker grants access to the chosen file, not its
+  containing folder.
 - `Restore Backup`: replace device data from the file.
 
 Backup restore must validate before mutation and preserve existing data when it
@@ -590,7 +593,7 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 Latest application baseline (2026-09-22): `swift test` passed 222 tests in 19
 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds target
-source build 52. Browse/Study switching no longer repeats checkpoint scans,
+source build 53. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
 recomputes on ordinary tab entry. Study Pages also avoids unrelated conversation
 initialization and repeated JSON decoding. Dictionary grid work runs off the main
