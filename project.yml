@@ -6,6 +6,16 @@ settings:
     SWIFT_VERSION: 6.0
     PRODUCT_NAME: Radix
 packages: {}
+schemes:
+  Radix:
+    build:
+      targets:
+        Radix: all
+    test:
+      targets:
+        - RadixTests
+      environmentVariables:
+        RADIX_DISABLE_PROJECT_LIVE_DATA: "1"
 targets:
   Radix:
     type: application

@@ -2,6 +2,9 @@ import Foundation
 
 enum ProjectLiveDataLocator {
     static func projectRoot(fileManager: FileManager = .default) -> URL? {
+        guard ProcessInfo.processInfo.environment["RADIX_DISABLE_PROJECT_LIVE_DATA"] != "1" else {
+            return nil
+        }
         let sourceURL = URL(fileURLWithPath: #filePath)
         let projectRoot = sourceURL
             .deletingLastPathComponent()
