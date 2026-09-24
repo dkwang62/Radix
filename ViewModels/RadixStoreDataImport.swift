@@ -204,7 +204,7 @@ extension RadixStore {
         try validatePortableBackupDocumentDatabases(document)
         try await createDatabaseSafetySnapshotsForSettings(reason: "Before importing data")
         let rollbackDocument = PortableBackupDocument(
-            payload: .unified(portableBackupPackage()),
+            payload: .unified(try portableBackupPackage()),
             sentenceDatabaseData: try await exportSentenceDatabaseData(),
             addedPhrasesDatabaseData: try exportAddPhrasesDB()
         )

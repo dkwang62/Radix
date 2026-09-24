@@ -79,6 +79,10 @@ final class PhraseRepository {
 
     func openForTesting() throws {
         let addURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString).appendingPathExtension("db")
+        try openForTesting(at: addURL)
+    }
+
+    func openForTesting(at addURL: URL) throws {
         if sqlite3_open_v2(addURL.path, &addDb, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) != SQLITE_OK {
             throw NSError(domain: "Radix", code: 8, userInfo: [NSLocalizedDescriptionKey: "Failed to open test db"])
         }
@@ -411,7 +415,7 @@ final class PhraseRepository {
     func activeSentencePhraseLinkWords() -> [String] {
         var seen = Set<String>()
         return fetchAllPhrases().compactMap { phrase in
-            let word = sentencePhraseLinkStorageWord(phrase.word)
+            let word = canonicalPhraseWord(phrase.word)
             guard word.count >= 2, seen.insert(word).inserted else { return nil }
             return word
         }
@@ -427,7 +431,7 @@ final class PhraseRepository {
     /// Additive import — inserts missing phrases and safely merges restored notes into existing overlay rows.
     func addPhrasesAdditively(_ phrases: [PhraseItem]) throws {
         guard let addDb else { return }
-        let phrases = canonicalizedPhrases(phrases)
+        let phrases = PhraseStorageRules.canonicalized(phrases, simplify: ScriptTextConverter.simplified)
         guard !phrases.isEmpty else { return }
         if sqlite3_exec(addDb, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) != SQLITE_OK {
             throw queryRunner.phraseWriteError(code: 19, prefix: "Begin amalgamation failed", db: addDb, currentAddDBPath: currentAddDBPath)
@@ -508,7 +512,7 @@ final class PhraseRepository {
     /// Complete import — deletes all existing rows then inserts the backup phrases in full.
     func replaceAllPhrases(_ phrases: [PhraseItem]) throws {
         guard let addDb else { return }
-        let phrases = canonicalizedPhrases(phrases)
+        let phrases = PhraseStorageRules.canonicalized(phrases, simplify: ScriptTextConverter.simplified)
         if sqlite3_exec(addDb, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) != SQLITE_OK {
             throw queryRunner.phraseWriteError(code: 14, prefix: "Begin restore failed", db: addDb, currentAddDBPath: currentAddDBPath)
         }
@@ -792,45 +796,7 @@ final class PhraseRepository {
     }
 
     private func canonicalPhraseWord(_ word: String) -> String {
-        let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
-        let simplified = ScriptTextConverter.simplified(trimmed).trimmingCharacters(in: .whitespacesAndNewlines)
-        return simplified.isEmpty ? trimmed : simplified
-    }
-
-    private func canonicalizedPhrases(_ phrases: [PhraseItem]) -> [PhraseItem] {
-        var merged: [String: PhraseItem] = [:]
-        for phrase in phrases {
-            let normalized = phrase.simplifiedChinese(using: ScriptTextConverter.simplified)
-            guard !normalized.word.isEmpty else { continue }
-            guard let existing = merged[normalized.word] else {
-                merged[normalized.word] = normalized
-                continue
-            }
-
-            let preferred = preferredPhrase(existing, normalized)
-            let other = preferred == existing ? normalized : existing
-            merged[normalized.word] = PhraseItem(
-                word: normalized.word,
-                pinyin: preferred.pinyin,
-                meanings: preferred.meanings,
-                notes: PhraseNoteOverlayRules.mergeNotes(preferred.notes, other.notes),
-                addedAt: [existing.addedAt, normalized.addedAt].compactMap { $0 }.min(),
-                reviewStatus: preferred.reviewStatus,
-                lastReviewedAt: preferred.lastReviewedAt
-            )
-        }
-        return merged.values.sorted {
-            ($0.addedAt ?? .distantPast) > ($1.addedAt ?? .distantPast)
-        }
-    }
-
-    private func preferredPhrase(_ lhs: PhraseItem, _ rhs: PhraseItem) -> PhraseItem {
-        let lhsActivity = lhs.lastReviewedAt ?? lhs.addedAt ?? .distantPast
-        let rhsActivity = rhs.lastReviewedAt ?? rhs.addedAt ?? .distantPast
-        if lhsActivity != rhsActivity { return lhsActivity > rhsActivity ? lhs : rhs }
-        if lhs.pinyin.isEmpty != rhs.pinyin.isEmpty { return lhs.pinyin.isEmpty ? rhs : lhs }
-        if lhs.meanings.isEmpty != rhs.meanings.isEmpty { return lhs.meanings.isEmpty ? rhs : lhs }
-        return lhs.word <= rhs.word ? lhs : rhs
+        PhraseStorageRules.canonicalWord(word, simplify: ScriptTextConverter.simplified)
     }
 
     private func normalizeAddedPhraseStorageIfNeeded() throws {
@@ -839,14 +805,8 @@ final class PhraseRepository {
         guard existing.map(\.word) != normalizedWords || Set(normalizedWords).count != normalizedWords.count else {
             return
         }
-        let normalized = canonicalizedPhrases(existing)
+        let normalized = PhraseStorageRules.canonicalized(existing, simplify: ScriptTextConverter.simplified)
         try replaceAllPhrases(normalized)
-    }
-
-    private func sentencePhraseLinkStorageWord(_ word: String) -> String {
-        let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
-        let simplified = ScriptTextConverter.simplified(trimmed).trimmingCharacters(in: .whitespacesAndNewlines)
-        return simplified.isEmpty ? trimmed : simplified
     }
 
     private func resolvedActiveAddDBURL(fileManager: FileManager) throws -> URL {

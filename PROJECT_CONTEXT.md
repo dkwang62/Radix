@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.1` build `60` (not yet distributed). Every committed application
+current source version is `1.1` build `61` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -373,6 +373,9 @@ page-deletion journal.
   legacy Traditional/Simplified duplicates under the Simplified word, retaining
   combined notes and the most recently active review state. Preserve original
   OCR, titles, notes, and display conversion as user-facing source text.
+- Backup/checkpoint preparation must persist extracted-page sentences before
+  building page references. A sentence-store failure aborts export with its
+  error; it must never create a partial backup by suppressing that failure.
 
 - Corrected OCR pages, translations, extracted sentence pages, page-created
   practice packs, and page-local notes are page-owned artifacts.
@@ -609,7 +612,7 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 Latest application baseline (2026-09-22): `swift test` passed 222 tests in 19
 suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds target
-source build 60. Browse/Study switching no longer repeats checkpoint scans,
+source build 61. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
 recomputes on ordinary tab entry. Study Pages also avoids unrelated conversation
 initialization and repeated JSON decoding. Dictionary grid work runs off the main

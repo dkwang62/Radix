@@ -12,8 +12,8 @@ extension RadixStore {
         return String(data: data, encoding: .utf8)
     }
 
-    func portableBackupPackage(exportedAt: Date = Date(), backupID: UUID = UUID()) -> UnifiedPackage {
-        RadixStudyPreferences.prepareExtractedPageSentenceExamplesForBackup()
+    func portableBackupPackage(exportedAt: Date = Date(), backupID: UUID = UUID()) throws -> UnifiedPackage {
+        try RadixStudyPreferences.prepareExtractedPageSentenceExamplesForBackup()
         return UnifiedPackage(
             schemaVersion: PortableBackupCodec.currentSchemaVersion,
             exportedAt: exportedAt,
@@ -47,14 +47,14 @@ extension RadixStore {
         )
     }
 
-    func fullDatasetExportPackage() -> FullDatasetExportPackage {
+    func fullDatasetExportPackage() throws -> FullDatasetExportPackage {
         let exportedAt = Date()
         return FullDatasetExportPackage(
             schemaVersion: 2,
             exportedAt: exportedAt,
             dictionary: componentRepo.rawMap,
             phrases: phraseRepo.fetchAllPhrases(),
-            portableBackup: portableBackupPackage(exportedAt: exportedAt)
+            portableBackup: try portableBackupPackage(exportedAt: exportedAt)
         )
     }
 

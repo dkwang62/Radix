@@ -28,6 +28,33 @@ struct PhraseReviewCompatibilityTests {
         #expect(converted.lastReviewedAt == phrase.lastReviewedAt)
     }
 
+    @Test("Traditional and Simplified phrase duplicates merge into one retained learning record")
+    func phraseDuplicateMigrationPreservesNotesAndReviewState() {
+        let phrases = [
+            PhraseItem(
+                word: "關鍵時刻", pinyin: "guān jiàn shí kè", meanings: "critical moment",
+                notes: "Older note", addedAt: Date(timeIntervalSince1970: 10), reviewStatus: .hidden,
+                lastReviewedAt: Date(timeIntervalSince1970: 20)
+            ),
+            PhraseItem(
+                word: "关键时刻", pinyin: "guān jiàn shí kè", meanings: "turning point",
+                notes: "Newer note", addedAt: Date(timeIntervalSince1970: 30), reviewStatus: .checked,
+                lastReviewedAt: Date(timeIntervalSince1970: 40)
+            )
+        ]
+
+        let migrated = PhraseStorageRules.canonicalized(phrases) {
+            $0.applyingTransform(StringTransform("Hant-Hans"), reverse: false) ?? $0
+        }
+
+        #expect(migrated.count == 1)
+        #expect(migrated[0].word == "关键时刻")
+        #expect(migrated[0].notes == "Newer note\n\nOlder note")
+        #expect(migrated[0].reviewStatus == .checked)
+        #expect(migrated[0].lastReviewedAt == Date(timeIntervalSince1970: 40))
+        #expect(migrated[0].addedAt == Date(timeIntervalSince1970: 10))
+    }
+
     @Test("Stored status values remain stable while labels stay clear")
     func stablePersistenceValues() throws {
         #expect(PhraseReviewStatus.checked.rawValue == "checked")

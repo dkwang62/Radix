@@ -49,6 +49,7 @@
 		23FC66661657BDCED462E6F8 /* RadixPresentationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF1AECAA3D32EC247779AAE /* RadixPresentationState.swift */; };
 		2554A9EA460AA871FFAE8DBC /* RadixStoreRootsCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C69B8B81573C63284D8BB16 /* RadixStoreRootsCache.swift */; };
 		25D69AB19E62830E9DE94A0C /* PhraseInfoCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675B7290AD6F17A17B4AC4FF /* PhraseInfoCard.swift */; };
+		28FF5A61E20C785B69177BFB /* PhraseRepositoryMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCCF89C432B8D7A8E7C85847 /* PhraseRepositoryMigrationTests.swift */; };
 		2B719D6AED1FEFEBEB45902F /* PhraseSummaryTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 685E6CF2898A6638E5B1FCB7 /* PhraseSummaryTile.swift */; };
 		2BB784DF7627BDD8B2364BB2 /* RadixStoreDataMaintenance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67967ACB019471324128B5 /* RadixStoreDataMaintenance.swift */; };
 		2CD095BC1FB95FF4971726EC /* JSONFileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C168A03A00D507535219249 /* JSONFileDocument.swift */; };
@@ -138,6 +139,7 @@
 		7B9111303B7D3CDC7A298A2A /* RadixDataWorkspaceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D293F0616DD4CD67B92CCD81 /* RadixDataWorkspaceState.swift */; };
 		7CD4A2D7196A8F6C85A04D01 /* StrokeSynthesisEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5FD875B64434F937FA96925 /* StrokeSynthesisEngine.swift */; };
 		7D4B9955F84B9C520D7702E8 /* EntitlementManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4559296FCA5B2061336BA302 /* EntitlementManager.swift */; };
+		7EB02D313E4E7D4805466EDD /* PhraseStorageRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33DCEE58710C9C237757E6D9 /* PhraseStorageRules.swift */; };
 		7ED7D33C9762A1DE4D49C095 /* FileTransferModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ECFD93155B60F9EEE8D4D87 /* FileTransferModifier.swift */; };
 		7EDE1BD23A7744B222F5D6E2 /* RestoreGenerationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DC8C56BED330C1BC12FBA80 /* RestoreGenerationStore.swift */; };
 		810668A0E11C3C5033179520 /* PinyinSearchNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD27274660D91075D6D0F237 /* PinyinSearchNormalizer.swift */; };
@@ -317,6 +319,13 @@
 			remoteGlobalIDString = 76012F3749C20408F136C2B3;
 			remoteInfo = RadixShareExtension;
 		};
+		68327E35A7EAE794B29B344A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 871C4C9D88BC60EF19F37AD8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9A2C34EBA20C223705DFBC02;
+			remoteInfo = Radix;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -386,6 +395,7 @@
 		301FC2BB48255846C0B76B8A /* PhraseAddDatabaseLocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseAddDatabaseLocationManager.swift; sourceTree = "<group>"; };
 		330364E568A3FB492A77575D /* BrowseSourceMenuViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseSourceMenuViews.swift; sourceTree = "<group>"; };
 		33202BB31E48AE4194A2827D /* StrokeOrderSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeOrderSection.swift; sourceTree = "<group>"; };
+		33DCEE58710C9C237757E6D9 /* PhraseStorageRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseStorageRules.swift; sourceTree = "<group>"; };
 		34B8DC6A5AFCFD87A99AF5EA /* SavedPageImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPageImageStore.swift; sourceTree = "<group>"; };
 		3540B3D377590501F24DA833 /* RadixStorePhraseFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixStorePhraseFile.swift; sourceTree = "<group>"; };
 		3549E7DC987331EE0218ACB8 /* CapturePhraseMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePhraseMessages.swift; sourceTree = "<group>"; };
@@ -635,9 +645,11 @@
 		FBE7B98237AD3F0926A20783 /* DataBackupPreviewActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBackupPreviewActions.swift; sourceTree = "<group>"; };
 		FBEA424014B2D5ED7ACFAF6C /* QuickCharacterEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCharacterEditorView.swift; sourceTree = "<group>"; };
 		FCCE5C9535CFE1A3292C23EB /* AddedPhraseReviewGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddedPhraseReviewGrid.swift; sourceTree = "<group>"; };
+		FCCF89C432B8D7A8E7C85847 /* PhraseRepositoryMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhraseRepositoryMigrationTests.swift; sourceTree = "<group>"; };
 		FE03E201F79FCFAB850CDE6F /* StrokePathTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokePathTransformer.swift; sourceTree = "<group>"; };
 		FE458C28CB5A171806D57DB0 /* Radix.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Radix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FFD759D09A5AEFE110130728 /* CharacterInfoCardText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterInfoCardText.swift; sourceTree = "<group>"; };
+		FFDD4C4BFE9C732BAF57BF7F /* RadixTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = RadixTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -749,6 +761,7 @@
 			children = (
 				FE458C28CB5A171806D57DB0 /* Radix.app */,
 				7A4158625718C9BB66EB5E39 /* RadixShareExtension.appex */,
+				FFDD4C4BFE9C732BAF57BF7F /* RadixTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -762,6 +775,15 @@
 				B26304C47B4D253026FCFD35 /* UNICODE_LICENSE.txt */,
 			);
 			path = Licenses;
+			sourceTree = "<group>";
+		};
+		427FAD633B76196C8FAE4D10 /* RadixAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				FCCF89C432B8D7A8E7C85847 /* PhraseRepositoryMigrationTests.swift */,
+			);
+			name = RadixAppTests;
+			path = Tests/RadixAppTests;
 			sourceTree = "<group>";
 		};
 		542027F30D578A00E438CB75 /* Services */ = {
@@ -848,6 +870,7 @@
 				6F0B1F57F049F238C640E1AF /* OpenAICompatibleAIModels.swift */,
 				BB8122AAC6B4BB1C8774451B /* PageDeletionJournal.swift */,
 				911F85BE195D61BDA4442400 /* PhraseModels.swift */,
+				33DCEE58710C9C237757E6D9 /* PhraseStorageRules.swift */,
 				DD27274660D91075D6D0F237 /* PinyinSearchNormalizer.swift */,
 				496C3670BB7AF280044417CD /* PromptConfigRendering.swift */,
 				6AFF92F2BA13EBA1A3A64D44 /* PromptModels.swift */,
@@ -908,6 +931,7 @@
 				D355D0DC4BFD564CD930A664 /* SUBTLEX-CH-CHR.txt */,
 				197EE4EEA5B7FCD70360981B /* App */,
 				5DCDECA1962ED656F6A36FBA /* Models */,
+				427FAD633B76196C8FAE4D10 /* RadixAppTests */,
 				A98EDF6A1BB4D5DBCEA05D43 /* Resources */,
 				542027F30D578A00E438CB75 /* Services */,
 				3903C6176A6EE2EA99358378 /* Shared */,
@@ -1071,6 +1095,24 @@
 			productReference = FE458C28CB5A171806D57DB0 /* Radix.app */;
 			productType = "com.apple.product-type.application";
 		};
+		9AAE98E1268E50DE36655377 /* RadixTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 080BF30CBC200720BF507AF3 /* Build configuration list for PBXNativeTarget "RadixTests" */;
+			buildPhases = (
+				76592A3FBA6A8025018869E5 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				880309BF6F14EFA069E6BAC1 /* PBXTargetDependency */,
+			);
+			name = RadixTests;
+			packageProductDependencies = (
+			);
+			productName = RadixTests;
+			productReference = FFDD4C4BFE9C732BAF57BF7F /* RadixTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1106,6 +1148,7 @@
 			targets = (
 				9A2C34EBA20C223705DFBC02 /* Radix */,
 				76012F3749C20408F136C2B3 /* RadixShareExtension */,
+				9AAE98E1268E50DE36655377 /* RadixTests */,
 			);
 		};
 /* End PBXProject section */
@@ -1137,6 +1180,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		76592A3FBA6A8025018869E5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				28FF5A61E20C785B69177BFB /* PhraseRepositoryMigrationTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A98166AD22AB71615EF42570 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1303,6 +1354,7 @@
 				EBB51D65C39666DDAE820BFC /* PhrasePinyinSearchIndex.swift in Sources */,
 				9090FEC75E1EAEAC450686C3 /* PhraseQueryRunner.swift in Sources */,
 				F5363D392E34522DAE615E99 /* PhraseRepository.swift in Sources */,
+				7EB02D313E4E7D4805466EDD /* PhraseStorageRules.swift in Sources */,
 				2B719D6AED1FEFEBEB45902F /* PhraseSummaryTile.swift in Sources */,
 				23772AA2E95070ABE9B2B33A /* PhraseTableSheet.swift in Sources */,
 				810668A0E11C3C5033179520 /* PinyinSearchNormalizer.swift in Sources */,
@@ -1445,6 +1497,11 @@
 			target = 76012F3749C20408F136C2B3 /* RadixShareExtension */;
 			targetProxy = 2807F353C1FD3E59CE961986 /* PBXContainerItemProxy */;
 		};
+		880309BF6F14EFA069E6BAC1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9A2C34EBA20C223705DFBC02 /* Radix */;
+			targetProxy = 68327E35A7EAE794B29B344A /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -1454,7 +1511,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/RadixShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 60;
+				CURRENT_PROJECT_VERSION = 61;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
@@ -1474,6 +1531,44 @@
 			};
 			name = Debug;
 		};
+		4E4EE4B341807C9A554D5B63 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_MODULE_NAME = RadixTests;
+				PRODUCT_NAME = RadixTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Radix.app/Radix";
+			};
+			name = Release;
+		};
+		7C54352B8D4A2DB874046330 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_MODULE_NAME = RadixTests;
+				PRODUCT_NAME = RadixTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Radix.app/Radix";
+			};
+			name = Debug;
+		};
 		98ECE75EC456EF7344033080 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1482,7 +1577,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/Radix.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 60;
+				CURRENT_PROJECT_VERSION = 61;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
@@ -1507,7 +1602,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/Radix.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 60;
+				CURRENT_PROJECT_VERSION = 61;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
@@ -1530,7 +1625,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/RadixShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 60;
+				CURRENT_PROJECT_VERSION = 61;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
@@ -1670,6 +1765,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		080BF30CBC200720BF507AF3 /* Build configuration list for PBXNativeTarget "RadixTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7C54352B8D4A2DB874046330 /* Debug */,
+				4E4EE4B341807C9A554D5B63 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		8587472B00C06F51B0399FAA /* Build configuration list for PBXProject "Radix" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -78,7 +78,7 @@ extension RootView {
                 let sentenceData = try await store.exportSentenceDatabaseData()
                 let addedPhrasesData = try store.exportAddPhrasesDB()
                 let data = try dataExportService.exportPortableBackupBundle(
-                    package: store.portableBackupPackage(),
+                    package: try store.portableBackupPackage(),
                     sentenceDatabaseData: sentenceData,
                     addedPhrasesDatabaseData: addedPhrasesData
                 )

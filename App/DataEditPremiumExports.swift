@@ -58,7 +58,7 @@ extension DataEditTab {
                 color: .green,
                 action: {
                     let name = fullDatasetFileName.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let data = try dataExportService.exportFullDataset(store.fullDatasetExportPackage())
+                    let data = try dataExportService.exportFullDataset(try store.fullDatasetExportPackage())
                     reuseExportDocument = BinaryFileDocument(data: data)
                     reuseExportFilename = name.isEmpty ? "radix_full_dataset" : name
                     reuseExportContentType = RadixFileTypes.json

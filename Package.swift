@@ -33,6 +33,7 @@ let package = Package(
                 "SentenceExampleModels.swift",
                 "StudyPersistenceStores.swift",
                 "PhraseModels.swift",
+                "PhraseStorageRules.swift",
                 "PinyinSearchNormalizer.swift",
                 "OpenAICompatibleAIModels.swift",
                 "PromptConfigRendering.swift",

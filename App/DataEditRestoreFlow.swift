@@ -244,7 +244,7 @@ extension DataEditTab {
         let sentenceData = try await store.exportSentenceDatabaseData()
         let addedPhrasesData = try store.exportAddPhrasesDB()
         return try dataExportService.exportPortableBackupBundle(
-            package: store.portableBackupPackage(),
+            package: try store.portableBackupPackage(),
             sentenceDatabaseData: sentenceData,
             addedPhrasesDatabaseData: addedPhrasesData
         )
