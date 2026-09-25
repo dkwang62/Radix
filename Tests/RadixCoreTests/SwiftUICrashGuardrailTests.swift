@@ -3,6 +3,21 @@ import Testing
 
 @Suite("SwiftUI crash guardrails")
 struct SwiftUICrashGuardrailTests {
+    @Test("Launch builds dictionary indexes away from the main actor")
+    func launchDictionaryBuildIsDetached() throws {
+        let lifecycle = try sourceText(at: "ViewModels/RadixStoreLifecycle.swift")
+        let dataEdit = try sourceText(at: "ViewModels/RadixStoreDataEdit.swift")
+        let root = try sourceText(at: "App/RootView.swift")
+
+        #expect(lifecycle.contains("try await loadDictionaryRepositoryForStartup()"))
+        #expect(lifecycle.contains("setupInitialState(dictionaryCachesPrepared: true)"))
+        #expect(dataEdit.contains("func loadDictionaryRepositoryForStartup() async throws"))
+        #expect(dataEdit.contains("try await Task.detached(priority: .userInitiated)"))
+        #expect(dataEdit.contains("browseCache: repository.makeBrowseCacheSnapshot()"))
+        #expect(root.contains("if store.isInitializing"))
+        #expect(root.contains("ProgressView(\"Preparing Radix...\")"))
+    }
+
     @Test("Page deletion recovers before startup and publishes only after the journal completes")
     func pageDeletionRecoveryWiring() throws {
         let lifecycle = try sourceText(at: "ViewModels/RadixStoreLifecycle.swift")

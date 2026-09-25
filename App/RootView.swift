@@ -71,7 +71,13 @@ struct RootView: View {
 
     @ViewBuilder
     private var activeBody: some View {
-        if let error = store.pageDeletionRecoveryError {
+        if store.isInitializing {
+            ZStack {
+                RadixTheme.background
+                    .ignoresSafeArea()
+                ProgressView("Preparing Radix...")
+            }
+        } else if let error = store.pageDeletionRecoveryError {
             ContentUnavailableView {
                 Label("Finish Page Deletion", systemImage: "exclamationmark.triangle")
             } description: {

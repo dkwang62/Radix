@@ -11,7 +11,15 @@ import Foundation
  3. Script Detection: Intelligently identifies Simplified vs Traditional characters for UI filtering.
 */
 
-final class ComponentRepository {
+struct ComponentBrowseCacheSnapshot: Sendable {
+    let items: [ComponentItem]
+    let metadataByCharacter: [String: BrowseGridItemMetadata]
+}
+
+// Repository mutation is confined to the main actor after startup. The one
+// exception is a fresh, unpublished instance built by the detached startup
+// task and transferred only after that task has finished.
+final class ComponentRepository: @unchecked Sendable {
     private(set) var byCharacter: [String: ComponentItem] = [:]
     private(set) var allCharacters: [String] = []
     private(set) var subtlexLoadedCount: Int = 0
@@ -192,6 +200,40 @@ final class ComponentRepository {
 
     static func makeOverlay(base: [String: RawComponentEntry], effective: [String: RawComponentEntry]) -> DictionaryOverlayPackage {
         ComponentOverlayBuilder.makeOverlay(base: base, effective: effective)
+    }
+
+    func makeBrowseCacheSnapshot() -> ComponentBrowseCacheSnapshot {
+        let items = search(query: "", scriptFilter: .any, limit: Int.max)
+        let metadata = Dictionary(uniqueKeysWithValues: items.map { item in
+            (
+                item.character,
+                BrowseGridItemMetadata(
+                    structure: structureKey(for: item),
+                    supportsSimplified: isSimplifiedForGrid(item.character),
+                    supportsTraditional: isTraditionalForGrid(item.character),
+                    isComponent: isUsedComponent(item.character)
+                )
+            )
+        })
+        return ComponentBrowseCacheSnapshot(items: items, metadataByCharacter: metadata)
+    }
+
+    func adoptLoadedContents(from repository: ComponentRepository) {
+        byCharacter = repository.byCharacter
+        allCharacters = repository.allCharacters
+        subtlexLoadedCount = repository.subtlexLoadedCount
+        activeDatasetURL = repository.activeDatasetURL
+        rawMap = repository.rawMap
+        baseRawMap = repository.baseRawMap
+        overlayUpserts = repository.overlayUpserts
+        overlayDeletions = repository.overlayDeletions
+        usedComponents = repository.usedComponents
+        knownCharacters = repository.knownCharacters
+        frequencyProvider = repository.frequencyProvider
+        scriptClassifier = repository.scriptClassifier
+        decompositionParser = repository.decompositionParser
+        searchIndex = repository.searchIndex
+        confusablePeerCache = repository.confusablePeerCache
     }
 
     private func rebuildCurrentMap() {

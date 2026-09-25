@@ -9,19 +9,21 @@ import Foundation
 
 extension RadixStore {
     func initialize() async {
+        isInitializing = true
+        defer { isInitializing = false }
         loadingError = nil
         do {
             try restoreGenerationStore.recoverPointerBeforeOpening()
             try recoverPendingPageDeletion()
             pageDeletionRecoveryError = nil
-            try loadDictionaryRepository()
+            try await loadDictionaryRepositoryForStartup()
             try phraseRepo.openFromBundle()
             try await recoverPendingRestoreRollback()
             restoreRollbackRecoveryError = nil
             loadConversationPracticePhraseCache()
             preprocessStoredAICleanedPagesIfNeeded()
             enforceSentenceSourceInvariant()
-            setupInitialState()
+            setupInitialState(dictionaryCachesPrepared: true)
             try restoreGenerationStore.finishPromotion()
         } catch {
             if restoreGenerationStore.pendingPhase == .promoted {
@@ -37,6 +39,8 @@ extension RadixStore {
     }
 
     func initializeForTesting() async {
+        isInitializing = true
+        defer { isInitializing = false }
         loadingError = nil
         do {
             try restoreGenerationStore.recoverPointerBeforeOpening()
@@ -64,7 +68,7 @@ extension RadixStore {
         }
     }
 
-    private func setupInitialState() {
+    private func setupInitialState(dictionaryCachesPrepared: Bool = false) {
         availableRadicalFilters = ["none"] + componentRepo.availableRadicals()
         availableStructureFilters = ["none"] + componentRepo.availableStructures()
         normalizePersistedFilters()
@@ -84,7 +88,9 @@ extension RadixStore {
         loadSearchHistory()
         loadRootBreadcrumb()
         clearSearch()
-        refreshAllCharactersCache()
+        if !dictionaryCachesPrepared {
+            refreshAllCharactersCache()
+        }
         recomputeGridItems()
         refreshAddedPhrases()
         refreshAddedDictionaryCharacters()

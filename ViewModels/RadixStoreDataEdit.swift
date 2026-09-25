@@ -30,6 +30,43 @@ struct RadixStorageHealth: Equatable {
 }
 
 extension RadixStore {
+    private struct StartupDictionaryLoad: @unchecked Sendable {
+        let repository: ComponentRepository
+        let browseCache: ComponentBrowseCacheSnapshot
+    }
+
+    func loadDictionaryRepositoryForStartup() async throws {
+        let overlayURL = dictionaryOverlayFileURL
+        let legacyURL = legacyEditableDictionaryFileURL
+        let loaded = try await Task.detached(priority: .userInitiated) {
+            let repository = ComponentRepository()
+            try repository.loadFromBundle()
+
+            if FileManager.default.fileExists(atPath: overlayURL.path) {
+                let data = try Data(contentsOf: overlayURL)
+                repository.applyOverlay(try JSONDecoder().decode(DictionaryOverlayPackage.self, from: data))
+            } else if FileManager.default.fileExists(atPath: legacyURL.path) {
+                let data = try Data(contentsOf: legacyURL)
+                let legacyMap = try JSONDecoder().decode([String: RawComponentEntry].self, from: data)
+                repository.applyOverlay(ComponentRepository.makeOverlay(
+                    base: repository.baseRawMap,
+                    effective: legacyMap
+                ))
+                try repository.saveOverlay(to: overlayURL)
+                try? FileManager.default.removeItem(at: legacyURL)
+            }
+
+            return StartupDictionaryLoad(
+                repository: repository,
+                browseCache: repository.makeBrowseCacheSnapshot()
+            )
+        }.value
+
+        componentRepo.adoptLoadedContents(from: loaded.repository)
+        allCharactersCache = loaded.browseCache.items
+        browseGridMetadataCache = loaded.browseCache.metadataByCharacter
+    }
+
     func loadDictionaryRepository() throws {
         try componentRepo.loadFromBundle()
         if FileManager.default.fileExists(atPath: dictionaryOverlayFileURL.path) {
