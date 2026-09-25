@@ -49,7 +49,6 @@
 		23FC66661657BDCED462E6F8 /* RadixPresentationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF1AECAA3D32EC247779AAE /* RadixPresentationState.swift */; };
 		2554A9EA460AA871FFAE8DBC /* RadixStoreRootsCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C69B8B81573C63284D8BB16 /* RadixStoreRootsCache.swift */; };
 		25D69AB19E62830E9DE94A0C /* PhraseInfoCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675B7290AD6F17A17B4AC4FF /* PhraseInfoCard.swift */; };
-		28FF5A61E20C785B69177BFB /* PhraseRepositoryMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCCF89C432B8D7A8E7C85847 /* PhraseRepositoryMigrationTests.swift */; };
 		2B719D6AED1FEFEBEB45902F /* PhraseSummaryTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 685E6CF2898A6638E5B1FCB7 /* PhraseSummaryTile.swift */; };
 		2BB784DF7627BDD8B2364BB2 /* RadixStoreDataMaintenance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67967ACB019471324128B5 /* RadixStoreDataMaintenance.swift */; };
 		2CD095BC1FB95FF4971726EC /* JSONFileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C168A03A00D507535219249 /* JSONFileDocument.swift */; };
@@ -318,13 +317,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 76012F3749C20408F136C2B3;
 			remoteInfo = RadixShareExtension;
-		};
-		68327E35A7EAE794B29B344A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 871C4C9D88BC60EF19F37AD8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 9A2C34EBA20C223705DFBC02;
-			remoteInfo = Radix;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -649,7 +641,6 @@
 		FE03E201F79FCFAB850CDE6F /* StrokePathTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokePathTransformer.swift; sourceTree = "<group>"; };
 		FE458C28CB5A171806D57DB0 /* Radix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Radix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FFD759D09A5AEFE110130728 /* CharacterInfoCardText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterInfoCardText.swift; sourceTree = "<group>"; };
-		FFDD4C4BFE9C732BAF57BF7F /* RadixTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RadixTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -761,7 +752,6 @@
 			children = (
 				FE458C28CB5A171806D57DB0 /* Radix.app */,
 				7A4158625718C9BB66EB5E39 /* RadixShareExtension.appex */,
-				FFDD4C4BFE9C732BAF57BF7F /* RadixTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1095,24 +1085,6 @@
 			productReference = FE458C28CB5A171806D57DB0 /* Radix.app */;
 			productType = "com.apple.product-type.application";
 		};
-		9AAE98E1268E50DE36655377 /* RadixTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 080BF30CBC200720BF507AF3 /* Build configuration list for PBXNativeTarget "RadixTests" */;
-			buildPhases = (
-				76592A3FBA6A8025018869E5 /* Sources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				880309BF6F14EFA069E6BAC1 /* PBXTargetDependency */,
-			);
-			name = RadixTests;
-			packageProductDependencies = (
-			);
-			productName = RadixTests;
-			productReference = FFDD4C4BFE9C732BAF57BF7F /* RadixTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1148,7 +1120,6 @@
 			targets = (
 				9A2C34EBA20C223705DFBC02 /* Radix */,
 				76012F3749C20408F136C2B3 /* RadixShareExtension */,
-				9AAE98E1268E50DE36655377 /* RadixTests */,
 			);
 		};
 /* End PBXProject section */
@@ -1180,14 +1151,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		76592A3FBA6A8025018869E5 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				28FF5A61E20C785B69177BFB /* PhraseRepositoryMigrationTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		A98166AD22AB71615EF42570 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1495,11 +1458,6 @@
 			target = 76012F3749C20408F136C2B3 /* RadixShareExtension */;
 			targetProxy = 2807F353C1FD3E59CE961986 /* PBXContainerItemProxy */;
 		};
-		880309BF6F14EFA069E6BAC1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 9A2C34EBA20C223705DFBC02 /* Radix */;
-			targetProxy = 68327E35A7EAE794B29B344A /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -1530,54 +1488,6 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		4E4EE4B341807C9A554D5B63 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_MODULE_NAME = RadixTests;
-				PRODUCT_NAME = RadixTests;
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = YES;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Radix.app/Radix";
-			};
-			name = Release;
-		};
-		7C54352B8D4A2DB874046330 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_MODULE_NAME = RadixTests;
-				PRODUCT_NAME = RadixTests;
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = YES;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Radix.app/Radix";
 			};
 			name = Debug;
 		};
@@ -1791,15 +1701,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		080BF30CBC200720BF507AF3 /* Build configuration list for PBXNativeTarget "RadixTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				7C54352B8D4A2DB874046330 /* Debug */,
-				4E4EE4B341807C9A554D5B63 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		8587472B00C06F51B0399FAA /* Build configuration list for PBXProject "Radix" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
