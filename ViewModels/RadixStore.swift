@@ -81,6 +81,10 @@ final class RadixStore: ObservableObject {
         }
     }
 
+    func setInitializing(_ value: Bool) {
+        isInitializing = value
+    }
+
     // MARK: - Navigation State
     @Published var navigationState = RadixNavigationState()
     @Published var presentationState = RadixPresentationState()

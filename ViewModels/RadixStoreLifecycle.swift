@@ -9,8 +9,8 @@ import Foundation
 
 extension RadixStore {
     func initialize() async {
-        isInitializing = true
-        defer { isInitializing = false }
+        setInitializing(true)
+        defer { setInitializing(false) }
         loadingError = nil
         do {
             try restoreGenerationStore.recoverPointerBeforeOpening()
@@ -39,8 +39,8 @@ extension RadixStore {
     }
 
     func initializeForTesting() async {
-        isInitializing = true
-        defer { isInitializing = false }
+        setInitializing(true)
+        defer { setInitializing(false) }
         loadingError = nil
         do {
             try restoreGenerationStore.recoverPointerBeforeOpening()

@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.2` build `62` (not yet distributed). Every committed application
+current source version is `1.2` build `63` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -498,6 +498,14 @@ them even when a more abstract implementation looks tidier.
 - Phrase and sentence information cards keep distinct top-level content stacks.
 - Added Phrase Review uses fixed platform framing and explicit rows, not
   geometry-feedback-driven adaptive paging or `LazyVGrid`.
+- Build `1.2 (62)` was repeatedly terminated by the foreground `scene-create`
+  watchdog on both physical iPhone and iPad while launch-time dictionary and
+  pinyin indexes performed tens of thousands of `CFStringTransform` calls on
+  the main actor. Startup must build the unpublished component repository and
+  immutable Browse metadata in a detached task while `RootView` presents only
+  its lightweight initialization surface. Adopt the completed repository on
+  the main actor; do not move whole-dictionary transforms back into scene
+  creation.
 - `RootView` must not read `scenePhase` directly. The zero-size
   `RadixSceneLifecycleObserver` owns lifecycle callbacks. On mobile, inactive
   state replaces the complete navigation/menu hierarchy with the plain
@@ -612,9 +620,9 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 ## Required Verification
 
-Latest application baseline (2026-09-24): `swift test` passed 233 tests in 19
-suites. Signing-disabled Mac Catalyst and generic iOS Simulator builds target
-source build 61. Browse/Study switching no longer repeats checkpoint scans,
+Latest application baseline (2026-09-26): `swift test` passed 234 tests in 19
+suites. Build 63 cold-launched successfully beyond the former 20-second
+watchdog boundary on iPhone 17 and iPad A16 simulators. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
 recomputes on ordinary tab entry. Study Pages also avoids unrelated conversation
 initialization and repeated JSON decoding. Dictionary grid work runs off the main
