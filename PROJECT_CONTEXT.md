@@ -141,8 +141,9 @@ stay linked to their page rather than becoming disconnected parallel features.
   The leftmost clipboard button is available even when History is empty and
   explicitly recaptures unchanged clipboard text, including after Clear Recent.
   Matching uses phrases that can open in the existing study cards; no-match
-  manual captures show feedback. Device clipboard permission behavior still
-  needs an interactive check.
+  manual captures show feedback. Manual capture first shows `Adding from
+  clipboard…` below History so batched phrase resolution has visible feedback.
+  Device clipboard permission behavior still needs an interactive check.
 - History keeps its leftmost `Add from clipboard` button and removes the
   adjacent History help icon. Phrase matching is batched before insertion and
   cached with the History items, including persisted History at launch or

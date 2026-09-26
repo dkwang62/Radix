@@ -3,6 +3,7 @@ import SwiftUI
 struct BreadcrumbStrip: View {
     @EnvironmentObject private var store: RadixStore
     @State private var showsEmptyClipboardAlert = false
+    @State private var isAddingFromClipboard = false
 
     private var activeMemoryItem: String? {
         if let phrase = store.activeSidebarPhrasePreview {
@@ -23,44 +24,53 @@ struct BreadcrumbStrip: View {
 
     var body: some View {
         if shouldShowStrip {
-            HStack(spacing: 6) {
-                Button {
-                    showsEmptyClipboardAlert = store.addClipboardStudyItemsToMemoryStrip(force: true) == 0
-                } label: {
-                    Image(systemName: "clipboard")
-                        .font(.system(size: 17, weight: .semibold))
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Add from clipboard")
-                .help("Add from clipboard")
-
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        ForEach(Array(visibleHistoryItems.enumerated()), id: \.offset) { index, item in
-                            let phrase = store.historyPhrase(for: item)
-                            let isPhrase = item.count > 1
-                            let isActive = item == activeMemoryItem || index == store.rootBreadcrumbIndex
-                            Button {
-                                store.activateBreadcrumbCharacter(item)
-                            } label: {
-                                Text(item)
-                                    .font(.system(size: isPhrase ? 15 : 19, weight: .bold))
-                                    .lineLimit(1)
-                                    .truncationMode(.tail)
-                                    .frame(maxWidth: isPhrase ? 132 : 28, alignment: .center)
-                                    .padding(.horizontal, isPhrase ? 10 : 8)
-                                    .frame(height: 32)
-                                    .radixSurface(isActive ? RadixAccent.primary.opacity(0.18) : RadixTheme.secondaryBackground.opacity(0.72))
-                                    .contentShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                            .buttonStyle(.plain)
-                            .modifier(BreadcrumbContextMenu(item: item, phrase: phrase))
-                        }
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Button {
+                        addFromClipboard()
+                    } label: {
+                        Image(systemName: "clipboard")
+                            .font(.system(size: 17, weight: .semibold))
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                     }
-                    .padding(.trailing, 8)
-                    .padding(.vertical, 3)
+                    .buttonStyle(.plain)
+                    .disabled(isAddingFromClipboard)
+                    .accessibilityLabel("Add from clipboard")
+                    .help("Add from clipboard")
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            ForEach(Array(visibleHistoryItems.enumerated()), id: \.offset) { index, item in
+                                let phrase = store.historyPhrase(for: item)
+                                let isPhrase = item.count > 1
+                                let isActive = item == activeMemoryItem || index == store.rootBreadcrumbIndex
+                                Button {
+                                    store.activateBreadcrumbCharacter(item)
+                                } label: {
+                                    Text(item)
+                                        .font(.system(size: isPhrase ? 15 : 19, weight: .bold))
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                        .frame(maxWidth: isPhrase ? 132 : 28, alignment: .center)
+                                        .padding(.horizontal, isPhrase ? 10 : 8)
+                                        .frame(height: 32)
+                                        .radixSurface(isActive ? RadixAccent.primary.opacity(0.18) : RadixTheme.secondaryBackground.opacity(0.72))
+                                        .contentShape(RoundedRectangle(cornerRadius: 8))
+                                }
+                                .buttonStyle(.plain)
+                                .modifier(BreadcrumbContextMenu(item: item, phrase: phrase))
+                            }
+                        }
+                        .padding(.trailing, 8)
+                        .padding(.vertical, 3)
+                    }
+                }
+                if isAddingFromClipboard {
+                    Label("Adding from clipboard…", systemImage: "clock")
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(.leading, 8)
                 }
             }
             .padding(.leading, 8)
@@ -80,6 +90,16 @@ struct BreadcrumbStrip: View {
             hasItems: !store.rootBreadcrumb.isEmpty,
             hasCaptureButton: true
         )
+    }
+
+    private func addFromClipboard() {
+        guard !isAddingFromClipboard else { return }
+        isAddingFromClipboard = true
+        Task { @MainActor in
+            await Task.yield()
+            showsEmptyClipboardAlert = store.addClipboardStudyItemsToMemoryStrip(force: true) == 0
+            isAddingFromClipboard = false
+        }
     }
 }
 
