@@ -64,6 +64,7 @@ struct RootView: View {
                     isSceneActive = true
                     #endif
                     store.startPendingSharedImportsFromShareExtension()
+                    store.addClipboardStudyItemsToMemoryStrip()
                 }
             )
         }
@@ -216,6 +217,7 @@ struct RootView: View {
             store.prepareFirstInteractionWarmup()
             refreshQuickLocalSnapshots()
             store.startPendingSharedImportsFromShareExtension()
+            store.addClipboardStudyItemsToMemoryStrip()
         }
     }
 

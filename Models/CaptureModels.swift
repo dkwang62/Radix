@@ -222,3 +222,61 @@ enum CaptureTextExtractor {
         return values.filter { seen.insert($0).inserted }
     }
 }
+
+enum MemoryStripClipboardRules {
+    static let characterLimit = 4
+
+    static func chineseCharacters(in text: String, limit: Int = characterLimit) -> [String] {
+        guard limit > 0 else { return [] }
+        return Array(CaptureTextExtractor.allCharactersInOrder(in: text).prefix(limit))
+    }
+
+    static func prioritizedItems(
+        characters: [String],
+        knownPhrases: Set<String>,
+        supportsCharacter: (String) -> Bool
+    ) -> [String] {
+        guard !characters.isEmpty else { return [] }
+
+        var phraseMatches: [(word: String, start: Int, end: Int)] = []
+        for start in characters.indices {
+            let remainingCount = characters.count - start
+            guard remainingCount >= 2 else { continue }
+            for length in 2...remainingCount {
+                let end = start + length
+                let word = characters[start..<end].joined()
+                if knownPhrases.contains(word) {
+                    phraseMatches.append((word, start, end))
+                }
+            }
+        }
+
+        phraseMatches.sort {
+            let leftLength = $0.end - $0.start
+            let rightLength = $1.end - $1.start
+            if leftLength != rightLength { return leftLength > rightLength }
+            if $0.start != $1.start { return $0.start < $1.start }
+            return $0.word < $1.word
+        }
+
+        var claimedOffsets = Set<Int>()
+        var phrases: [String] = []
+        for match in phraseMatches {
+            let offsets = Set(match.start..<match.end)
+            guard claimedOffsets.isDisjoint(with: offsets) else { continue }
+            phrases.append(match.word)
+            claimedOffsets.formUnion(offsets)
+        }
+
+        var seen = Set(phrases)
+        let individualCharacters = characters.indices.compactMap { offset -> String? in
+            let character = characters[offset]
+            guard !claimedOffsets.contains(offset),
+                  supportsCharacter(character),
+                  seen.insert(character).inserted
+            else { return nil }
+            return character
+        }
+        return phrases + individualCharacters
+    }
+}

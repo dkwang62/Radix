@@ -89,6 +89,39 @@ struct NavigationCompatibilityTests {
         #expect(visible.last == "79")
     }
 
+    @Test("Clipboard History considers only the first four Chinese characters")
+    func clipboardHistoryCharacterWindow() {
+        #expect(MemoryStripClipboardRules.chineseCharacters(in: "News: 中，国人民学习", limit: 4) == ["中", "国", "人", "民"])
+        #expect(MemoryStripClipboardRules.chineseCharacters(in: "no Chinese here").isEmpty)
+    }
+
+    @Test("Clipboard History prioritizes longest phrases before uncovered characters")
+    func clipboardHistoryPhrasePriority() {
+        let items = MemoryStripClipboardRules.prioritizedItems(
+            characters: ["中", "国", "人", "民"],
+            knownPhrases: ["中国", "中国人", "人民"],
+            supportsCharacter: { _ in true }
+        )
+        #expect(items == ["中国人", "民"])
+
+        let paired = MemoryStripClipboardRules.prioritizedItems(
+            characters: ["中", "国", "人", "民"],
+            knownPhrases: ["中国", "人民"],
+            supportsCharacter: { _ in true }
+        )
+        #expect(paired == ["中国", "人民"])
+    }
+
+    @Test("Clipboard History falls back to supported unique characters")
+    func clipboardHistoryCharacterFallback() {
+        let items = MemoryStripClipboardRules.prioritizedItems(
+            characters: ["我", "爱", "我", "们"],
+            knownPhrases: [],
+            supportsCharacter: { $0 != "们" }
+        )
+        #expect(items == ["我", "爱"])
+    }
+
     @Test("Search history keeps only the latest unique queries")
     func searchHistoryIsBoundedAndDeduplicated() {
         let values = (0..<SearchHistoryRules.retainedQueryLimit + 5).map { "query-\($0)" }
