@@ -2,7 +2,6 @@ import SwiftUI
 
 struct BreadcrumbStrip: View {
     @EnvironmentObject private var store: RadixStore
-    @State private var showsHistoryHelp = false
     @State private var showsEmptyClipboardAlert = false
 
     private var activeMemoryItem: String? {
@@ -34,37 +33,14 @@ struct BreadcrumbStrip: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Capture clipboard into History")
-                .help("Capture the first 8 Chinese characters, phrases first")
-
-                Button {
-                    showsHistoryHelp.toggle()
-                } label: {
-                    Image(systemName: RadixGlossaryIcon.systemImage(for: RadixTerm.history))
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(.secondary)
-                        .frame(width: 22, height: 32)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(RadixTerm.history)
-                .help(RadixTerm.history)
-
-                if showsHistoryHelp {
-                    RadixTermLabel(term: RadixTerm.history)
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .padding(.horizontal, 8)
-                        .frame(height: 28)
-                        .radixSurface(RadixTheme.secondaryBackground.opacity(0.72))
-                        .transition(.opacity.combined(with: .move(edge: .leading)))
-                }
+                .accessibilityLabel("Add from clipboard")
+                .help("Add from clipboard")
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
                         ForEach(Array(visibleHistoryItems.enumerated()), id: \.offset) { index, item in
-                            let phrase = store.mergedPhrase(for: item)
-                            let isPhrase = phrase != nil && item.count > 1
+                            let phrase = item.count > 1 ? store.mergedPhrase(for: item) : nil
+                            let isPhrase = item.count > 1
                             let isActive = item == activeMemoryItem || index == store.rootBreadcrumbIndex
                             Button {
                                 store.activateBreadcrumbCharacter(item)

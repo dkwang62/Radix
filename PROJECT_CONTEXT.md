@@ -143,6 +143,10 @@ stay linked to their page rather than becoming disconnected parallel features.
   Matching uses phrases that can open in the existing study cards; no-match
   manual captures show feedback. Device clipboard permission behavior still
   needs an interactive check.
+- History keeps its leftmost `Add from clipboard` button and removes the
+  adjacent History help icon. Character chips must never query the phrase
+  database merely to decide that they are characters; reserve phrase lookups
+  for multi-character chips so card activation stays immediate.
 - Saved-page headers use the page name itself as the selection menu and show a
   label-free `dd MMM yy` date matching the active Viewed/Scanned sort order.
   Keep compact icon-only Actions and the Simplified/Traditional toggle in the

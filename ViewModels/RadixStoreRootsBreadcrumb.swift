@@ -108,7 +108,7 @@ extension RadixStore {
 
     func activateBreadcrumbCharacter(_ character: String) {
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        if let phrase = mergedPhrase(for: key), key.count > 1 {
+        if key.count > 1, let phrase = mergedPhrase(for: key) {
             activateBreadcrumbPhrase(phrase)
             return
         }
