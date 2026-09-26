@@ -28,20 +28,16 @@ extension RadixStore {
         pushRootBreadcrumbItems([item])
     }
 
-    func pushRootBreadcrumbItems(_ items: [String]) {
-        var incoming: [String] = []
-        var incomingSet = Set<String>()
-
-        for item in items {
-            let key = normalizedRootBreadcrumbItem(item)
-            guard isValidRootBreadcrumbItem(key), incomingSet.insert(key).inserted else { continue }
-            incoming.append(key)
-        }
+    func pushRootBreadcrumbItems(_ items: [String], preloadedPhrases: [String: PhraseItem] = [:]) {
+        let resolved = resolvedRootBreadcrumbItems(items, preloadedPhrases: preloadedPhrases)
+        let incoming = resolved.items
         guard !incoming.isEmpty else { return }
 
         let incomingKeys = Set(incoming)
         let retained = rootBreadcrumb.filter { !incomingKeys.contains($0) }
         rootBreadcrumb = Array((incoming + retained).prefix(rootBreadcrumbLimit))
+        rootBreadcrumbPhraseCache.merge(resolved.phrases) { _, latest in latest }
+        rootBreadcrumbPhraseCache = rootBreadcrumbPhraseCache.filter { rootBreadcrumb.contains($0.key) }
         rootBreadcrumbIndex = 0
         persistRootBreadcrumb()
     }
@@ -61,13 +57,13 @@ extension RadixStore {
             lookupCharacters: lookupCharacters,
             maxPhraseLength: MemoryStripClipboardRules.characterLimit
         )
-        let knownPhrases = Set(candidateWords.filter { mergedPhrase(for: $0) != nil })
+        let phrases = resolvedRootBreadcrumbPhrases(matching: candidateWords)
         let items = MemoryStripClipboardRules.prioritizedItems(
             characters: lookupCharacters,
-            knownPhrases: knownPhrases,
+            knownPhrases: Set(phrases.keys),
             supportsCharacter: componentRepo.hasCharacter(_:)
         )
-        pushRootBreadcrumbItems(items)
+        pushRootBreadcrumbItems(items, preloadedPhrases: phrases)
         return items.count
     }
 
@@ -75,19 +71,21 @@ extension RadixStore {
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
         let next = MemoryStripState.removing(key, from: rootBreadcrumb, currentIndex: rootBreadcrumbIndex)
         rootBreadcrumb = next.0
+        rootBreadcrumbPhraseCache.removeValue(forKey: key)
         rootBreadcrumbIndex = next.1
         persistRootBreadcrumb()
     }
 
     func clearRecentCharacters() {
         rootBreadcrumb = []
+        rootBreadcrumbPhraseCache = [:]
         rootBreadcrumbIndex = 0
         persistRootBreadcrumb()
     }
 
     func toggleRootBreadcrumb(_ character: String) {
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard isValidRootBreadcrumbItem(key) else { return }
+        guard key.count == 1 ? componentRepo.hasCharacter(key) : rootBreadcrumbPhraseCache[key] != nil else { return }
         if rootBreadcrumb.contains(key) {
             removeRootBreadcrumb(key)
         } else {
@@ -108,7 +106,7 @@ extension RadixStore {
 
     func activateBreadcrumbCharacter(_ character: String) {
         let key = character.trimmingCharacters(in: .whitespacesAndNewlines)
-        if key.count > 1, let phrase = mergedPhrase(for: key) {
+        if key.count > 1, let phrase = rootBreadcrumbPhraseCache[key] {
             activateBreadcrumbPhrase(phrase)
             return
         }
@@ -204,9 +202,7 @@ extension RadixStore {
 
     func loadRootBreadcrumb() {
         guard let saved = preferences.array(forKey: RadixPreferenceKey.rootBreadcrumb) as? [String] else { return }
-        let loaded = sanitizedRootBreadcrumb(saved)
-        rootBreadcrumb = loaded
-        rootBreadcrumbIndex = loaded.isEmpty ? 0 : min(rootBreadcrumbIndex, loaded.count - 1)
+        applyResolvedRootBreadcrumb(saved, persist: false)
     }
 
     func persistRootBreadcrumb() {
@@ -214,29 +210,15 @@ extension RadixStore {
     }
 
     func applyRootBreadcrumb(_ characters: [String]) {
-        let remembered = sanitizedRootBreadcrumb(characters)
-        rootBreadcrumb = remembered
-        rootBreadcrumbIndex = remembered.isEmpty ? 0 : min(rootBreadcrumbIndex, remembered.count - 1)
-        persistRootBreadcrumb()
+        applyResolvedRootBreadcrumb(characters, persist: true)
     }
 
     func sanitizedRootBreadcrumb(_ characters: [String]) -> [String] {
-        var remembered: [String] = []
-        var seen = Set<String>()
-        for item in characters {
-            let key = normalizedRootBreadcrumbItem(item)
-            guard isValidRootBreadcrumbItem(key), !seen.contains(key) else { continue }
-            seen.insert(key)
-            remembered.append(key)
-            if remembered.count >= rootBreadcrumbLimit { break }
-        }
-        return remembered
+        resolvedRootBreadcrumbItems(characters).items
     }
 
-    func isValidRootBreadcrumbItem(_ item: String) -> Bool {
-        guard !item.isEmpty else { return false }
-        if item.count == 1 { return componentRepo.hasCharacter(item) }
-        return mergedPhrase(for: item) != nil
+    func historyPhrase(for item: String) -> PhraseItem? {
+        rootBreadcrumbPhraseCache[normalizedRootBreadcrumbItem(item)]
     }
 
     func normalizedRootBreadcrumbItem(_ item: String) -> String {
@@ -247,6 +229,54 @@ extension RadixStore {
             return simplified.count == 1 ? simplified : key
         }
         return phraseStorageWord(key)
+    }
+
+    private func applyResolvedRootBreadcrumb(_ items: [String], persist: Bool) {
+        let resolved = resolvedRootBreadcrumbItems(items)
+        rootBreadcrumb = resolved.items
+        rootBreadcrumbPhraseCache = resolved.phrases
+        rootBreadcrumbIndex = resolved.items.isEmpty ? 0 : min(rootBreadcrumbIndex, resolved.items.count - 1)
+        if persist { persistRootBreadcrumb() }
+    }
+
+    private func resolvedRootBreadcrumbItems(
+        _ items: [String],
+        preloadedPhrases: [String: PhraseItem] = [:]
+    ) -> (items: [String], phrases: [String: PhraseItem]) {
+        let normalized = items.map(normalizedRootBreadcrumbItem(_:))
+        let phraseWords = Set(normalized.filter { $0.count > 1 })
+        var phrases = rootBreadcrumbPhraseCache
+        for (word, phrase) in preloadedPhrases {
+            phrases[normalizedRootBreadcrumbItem(word)] = phrase
+        }
+        let unresolvedWords = phraseWords.subtracting(Set(phrases.keys))
+        phrases.merge(resolvedRootBreadcrumbPhrases(matching: unresolvedWords)) { _, latest in latest }
+
+        var remembered: [String] = []
+        var seen = Set<String>()
+        for key in normalized {
+            let isValid = key.count == 1 ? componentRepo.hasCharacter(key) : phrases[key] != nil
+            guard isValid, seen.insert(key).inserted else { continue }
+            remembered.append(key)
+            if remembered.count >= rootBreadcrumbLimit { break }
+        }
+        return (remembered, phrases.filter { remembered.contains($0.key) })
+    }
+
+    private func resolvedRootBreadcrumbPhrases(matching words: Set<String>) -> [String: PhraseItem] {
+        let normalizedWords = Set(words.map(normalizedRootBreadcrumbItem(_:)).filter { $0.count > 1 })
+        guard !normalizedWords.isEmpty else { return [:] }
+
+        var phrases: [String: PhraseItem] = [:]
+        for phrase in phraseRepo.fetchPhrases(matching: normalizedWords) {
+            phrases[normalizedRootBreadcrumbItem(phrase.word)] = phrase
+        }
+        for word in normalizedWords where phrases[word] == nil {
+            if let phrase = conversationPracticePhraseCache[word] {
+                phrases[word] = phrase
+            }
+        }
+        return phrases
     }
 
     var recentCharacterItems: [ComponentItem] {

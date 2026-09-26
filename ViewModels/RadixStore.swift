@@ -103,6 +103,7 @@ final class RadixStore: ObservableObject {
     var databaseOptimizationTask: Task<Void, Never>?
     var sharedImportTask: Task<Void, Never>?
     var lastAutomaticMemoryStripClipboardText: String?
+    var rootBreadcrumbPhraseCache: [String: PhraseItem] = [:]
     /// Cache to avoid reloading heavy entries when toggling between AI/Data.
     var dataEditCache: [String: (entry: RawComponentEntry, phrases: [PhraseItem], isFav: Bool)] = [:]
     var dataEditEtymologyType: String?

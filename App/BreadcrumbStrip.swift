@@ -39,7 +39,7 @@ struct BreadcrumbStrip: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
                         ForEach(Array(visibleHistoryItems.enumerated()), id: \.offset) { index, item in
-                            let phrase = item.count > 1 ? store.mergedPhrase(for: item) : nil
+                            let phrase = store.historyPhrase(for: item)
                             let isPhrase = item.count > 1
                             let isActive = item == activeMemoryItem || index == store.rootBreadcrumbIndex
                             Button {

@@ -13,7 +13,7 @@ import Foundation
 extension RadixStore {
 
     func pushPhraseBreadcrumb(_ phrase: PhraseItem) {
-        pushRootBreadcrumbItem(phrase.word)
+        pushRootBreadcrumbItems([phrase.word], preloadedPhrases: [phraseStorageWord(phrase.word): phrase])
     }
 
     func recordInspectedPhraseInHistory(_ phrase: PhraseItem) {
