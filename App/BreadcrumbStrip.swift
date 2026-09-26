@@ -3,6 +3,7 @@ import SwiftUI
 struct BreadcrumbStrip: View {
     @EnvironmentObject private var store: RadixStore
     @State private var showsHistoryHelp = false
+    @State private var showsEmptyClipboardAlert = false
 
     private var activeMemoryItem: String? {
         if let phrase = store.activeSidebarPhrasePreview {
@@ -24,6 +25,18 @@ struct BreadcrumbStrip: View {
     var body: some View {
         if shouldShowStrip {
             HStack(spacing: 6) {
+                Button {
+                    showsEmptyClipboardAlert = store.addClipboardStudyItemsToMemoryStrip(force: true) == 0
+                } label: {
+                    Image(systemName: "clipboard")
+                        .font(.system(size: 17, weight: .semibold))
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Capture clipboard into History")
+                .help("Capture the first 8 Chinese characters, phrases first")
+
                 Button {
                     showsHistoryHelp.toggle()
                 } label: {
@@ -76,6 +89,11 @@ struct BreadcrumbStrip: View {
             }
             .padding(.leading, 8)
             .background(RadixTheme.background)
+            .alert("No Study Items Found", isPresented: $showsEmptyClipboardAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Copy Chinese text, then tap the clipboard button. Radix checks the first 8 Chinese characters for known phrases and characters.")
+            }
         }
     }
 
@@ -83,7 +101,8 @@ struct BreadcrumbStrip: View {
         HistoryStripDisplayPolicy.shouldShow(
             route: store.route,
             homeTab: store.homeTab,
-            hasItems: !store.rootBreadcrumb.isEmpty
+            hasItems: !store.rootBreadcrumb.isEmpty,
+            hasCaptureButton: true
         )
     }
 }

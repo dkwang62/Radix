@@ -135,9 +135,14 @@ stay linked to their page rather than becoming disconnected parallel features.
 - In Study Recent, keep the script toggle and `Clear Recent` in one trailing
   control row. Favorites retains only the script toggle; Pages retains neither.
 - When Radix launches or returns active, History reads a changed clipboard once
-  per app session and considers only its first four Han ideographs. Within that
+  per app session and considers only its first eight Han ideographs. Within that
   window, the longest non-overlapping known phrases are inserted first; only
   uncovered dictionary-supported characters are inserted individually.
+  The leftmost clipboard button is available even when History is empty and
+  explicitly recaptures unchanged clipboard text, including after Clear Recent.
+  Matching uses phrases that can open in the existing study cards; no-match
+  manual captures show feedback. Device clipboard permission behavior still
+  needs an interactive check.
 - Saved-page headers use the page name itself as the selection menu and show a
   label-free `dd MMM yy` date matching the active Viewed/Scanned sort order.
   Keep compact icon-only Actions and the Simplified/Traditional toggle in the

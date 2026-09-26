@@ -224,11 +224,14 @@ enum CaptureTextExtractor {
 }
 
 enum MemoryStripClipboardRules {
-    static let characterLimit = 4
+    static let characterLimit = 8
 
     static func chineseCharacters(in text: String, limit: Int = characterLimit) -> [String] {
         guard limit > 0 else { return [] }
-        return Array(CaptureTextExtractor.allCharactersInOrder(in: text).prefix(limit))
+        return text.unicodeScalars.lazy
+            .filter { $0.properties.isIdeographic }
+            .prefix(limit)
+            .map { String(Character($0)) }
     }
 
     static func prioritizedItems(

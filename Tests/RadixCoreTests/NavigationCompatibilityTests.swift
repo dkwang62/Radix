@@ -73,6 +73,8 @@ struct NavigationCompatibilityTests {
         #expect(HistoryStripDisplayPolicy.shouldShow(route: .favourites, homeTab: .smart, hasItems: true))
 
         #expect(!HistoryStripDisplayPolicy.shouldShow(route: .favourites, homeTab: .smart, hasItems: false))
+        #expect(HistoryStripDisplayPolicy.shouldShow(route: .favourites, homeTab: .smart, hasItems: false, hasCaptureButton: true))
+        #expect(!HistoryStripDisplayPolicy.shouldShow(route: .settings, homeTab: .smart, hasItems: false, hasCaptureButton: true))
         #expect(!HistoryStripDisplayPolicy.shouldShow(route: .search, homeTab: .dataEdit, hasItems: true))
         #expect(!HistoryStripDisplayPolicy.shouldShow(route: .capture, homeTab: .smart, hasItems: true))
         #expect(!HistoryStripDisplayPolicy.shouldShow(route: .aiLink, homeTab: .smart, hasItems: true))
@@ -89,9 +91,9 @@ struct NavigationCompatibilityTests {
         #expect(visible.last == "79")
     }
 
-    @Test("Clipboard History considers only the first four Chinese characters")
+    @Test("Clipboard History considers only the first eight Chinese characters")
     func clipboardHistoryCharacterWindow() {
-        #expect(MemoryStripClipboardRules.chineseCharacters(in: "News: 中，国人民学习", limit: 4) == ["中", "国", "人", "民"])
+        #expect(MemoryStripClipboardRules.chineseCharacters(in: "News: 中，国人民学习中文每天") == ["中", "国", "人", "民", "学", "习", "中", "文"])
         #expect(MemoryStripClipboardRules.chineseCharacters(in: "no Chinese here").isEmpty)
     }
 

@@ -69,8 +69,8 @@ enum DataEditSection: String, CaseIterable, Identifiable, Equatable {
 enum HistoryStripDisplayPolicy {
     static let visibleItemLimit = 80
 
-    static func shouldShow(route: AppRoute, homeTab: HomeTab, hasItems: Bool) -> Bool {
-        guard hasItems else { return false }
+    static func shouldShow(route: AppRoute, homeTab: HomeTab, hasItems: Bool, hasCaptureButton: Bool = false) -> Bool {
+        guard hasItems || hasCaptureButton else { return false }
         switch route {
         case .search:
             switch homeTab {

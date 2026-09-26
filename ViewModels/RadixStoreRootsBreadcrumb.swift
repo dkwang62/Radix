@@ -46,27 +46,29 @@ extension RadixStore {
         persistRootBreadcrumb()
     }
 
-    func addClipboardStudyItemsToMemoryStrip() {
-        guard !isInitializing else { return }
+    @discardableResult
+    func addClipboardStudyItemsToMemoryStrip(force: Bool = false) -> Int {
+        guard !isInitializing else { return 0 }
         let clipboardText = RadixPlatform.pasteboardString
-        guard clipboardText != lastAutomaticMemoryStripClipboardText else { return }
+        guard force || clipboardText != lastAutomaticMemoryStripClipboardText else { return 0 }
         lastAutomaticMemoryStripClipboardText = clipboardText
 
         let clipboardCharacters = MemoryStripClipboardRules.chineseCharacters(in: clipboardText)
-        guard !clipboardCharacters.isEmpty else { return }
+        guard !clipboardCharacters.isEmpty else { return 0 }
 
         let lookupCharacters = clipboardCharacters.map(normalizedRootBreadcrumbItem(_:))
         let candidateWords = BrowsePagePhraseRules.candidateWords(
             lookupCharacters: lookupCharacters,
             maxPhraseLength: MemoryStripClipboardRules.characterLimit
         )
-        let knownPhrases = phraseRepo.existingWords(in: candidateWords)
+        let knownPhrases = Set(candidateWords.filter { mergedPhrase(for: $0) != nil })
         let items = MemoryStripClipboardRules.prioritizedItems(
             characters: lookupCharacters,
             knownPhrases: knownPhrases,
             supportsCharacter: componentRepo.hasCharacter(_:)
         )
         pushRootBreadcrumbItems(items)
+        return items.count
     }
 
     func removeRootBreadcrumb(_ character: String) {
