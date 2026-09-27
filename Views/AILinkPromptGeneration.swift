@@ -907,7 +907,7 @@ extension AILinkView {
     var transcriptLineCount: Int {
         let text = store.aiFreeTextInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return 0 }
-        return text.components(whereSeparator: \.isNewline).count
+        return text.split(whereSeparator: \.isNewline).count
     }
 
     var transcriptAttachmentSummary: String {
