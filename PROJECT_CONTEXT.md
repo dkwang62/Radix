@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.3` build `65` (not yet distributed). Every committed application
+current source version is `1.3` build `66` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -465,6 +465,9 @@ AI is a shared workflow, not a collection of separate mini-features.
   source and offers the existing copy/open/paste/apply flow. Test AI remains
   non-mutating. Source/task/prompt changes or leaving the workspace cancel an
   in-flight request so stale answers cannot be applied.
+  Transcript source text longer than 10 lines collapses to a compact attachment
+  card with Preview/Edit/Clear actions; the underlying source text remains the
+  single prompt input and saved-page source.
 - Transcript imports require complete Chinese, pinyin, and English per entry.
   The importer accepts fenced/prose-wrapped JSON, trailing commas, a single
   object or comma-separated object list, and `sentences`/`entries` wrappers.

@@ -774,9 +774,7 @@ extension AILinkView {
                 Spacer()
 
                 Button {
-                    store.aiFreeTextInput = RadixPlatform.pasteboardString
-                    resetAIResultWorkflow()
-                    resetPromptTest()
+                    updateFreeTextInput(RadixPlatform.pasteboardString)
                 } label: {
                     Label("Paste", systemImage: "doc.on.clipboard")
                 }
@@ -784,25 +782,144 @@ extension AILinkView {
                 .controlSize(.small)
             }
 
-            TextEditor(text: Binding(
-                get: { store.aiFreeTextInput },
-                set: {
-                    store.aiFreeTextInput = $0
-                    resetAIResultWorkflow()
-                    resetPromptTest()
-                }
-            ))
-            .font(ResponsiveFont.body)
-            .frame(minHeight: 140)
-            .padding(8)
-            .scrollContentBackground(.hidden)
-            .background(RadixTheme.background)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(RadixTheme.separator, lineWidth: 1)
-            )
+            if shouldShowAttachedTranscriptCard {
+                attachedTranscriptCard
+            } else {
+                freeTextEditorField(minHeight: 140)
+            }
         }
+    }
+
+    var attachedTranscriptCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "doc.text")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(RadixAccent.primary)
+                    .frame(width: 34, height: 34)
+                    .background(RadixAccent.primary.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Transcript attached")
+                        .font(ResponsiveFont.body.weight(.semibold))
+                    Text(transcriptAttachmentSummary)
+                        .font(ResponsiveFont.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer(minLength: 8)
+            }
+
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    transcriptPreviewButton
+                    transcriptEditButton
+                    transcriptClearButton
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    transcriptPreviewButton
+                    transcriptEditButton
+                    transcriptClearButton
+                }
+            }
+        }
+        .padding(12)
+        .background(RadixTheme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(RadixTheme.separator, lineWidth: 1)
+        )
+    }
+
+    var transcriptPreviewButton: some View {
+        Button {
+            isShowingFreeTextEditor = true
+        } label: {
+            Label("Preview", systemImage: "doc.text.magnifyingglass")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+    }
+
+    var transcriptEditButton: some View {
+        Button {
+            isShowingFreeTextEditor = true
+        } label: {
+            Label("Edit", systemImage: "square.and.pencil")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+    }
+
+    var transcriptClearButton: some View {
+        Button(role: .destructive) {
+            updateFreeTextInput("")
+        } label: {
+            Label("Clear", systemImage: "trash")
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+    }
+
+    var aiFreeTextEditor: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(transcriptAttachmentSummary)
+                .font(ResponsiveFont.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal)
+                .padding(.top)
+
+            freeTextEditorField(minHeight: 360)
+                .padding(.horizontal)
+
+            Spacer(minLength: 0)
+        }
+        .background(RadixTheme.groupedBackground)
+    }
+
+    func freeTextEditorField(minHeight: CGFloat) -> some View {
+        TextEditor(text: Binding(
+            get: { store.aiFreeTextInput },
+            set: { updateFreeTextInput($0) }
+        ))
+        .font(ResponsiveFont.body)
+        .frame(minHeight: minHeight)
+        .padding(8)
+        .scrollContentBackground(.hidden)
+        .background(RadixTheme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(RadixTheme.separator, lineWidth: 1)
+        )
+    }
+
+    var shouldShowAttachedTranscriptCard: Bool {
+        isSelectedTranscriptTask && transcriptLineCount > 10
+    }
+
+    var isSelectedTranscriptTask: Bool {
+        selectedPromptTask?.id == BuiltInPromptTaskID.sentencesFromTranscript.rawValue
+    }
+
+    var transcriptLineCount: Int {
+        let text = store.aiFreeTextInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return 0 }
+        return text.components(whereSeparator: \.isNewline).count
+    }
+
+    var transcriptAttachmentSummary: String {
+        let text = store.aiFreeTextInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        let characterCount = text.count
+        return "\(transcriptLineCount) lines - \(characterCount.formatted()) characters"
+    }
+
+    func updateFreeTextInput(_ text: String) {
+        store.aiFreeTextInput = text
+        resetAIResultWorkflow()
+        resetPromptTest()
     }
 
     var aiSelectedSubjectRow: some View {

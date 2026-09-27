@@ -57,6 +57,7 @@ struct AILinkView: View {
     @State var activePromptTestRequestID: UUID?
     @State var promptTestOutputContext: PromptTestRequestContext?
     @State var pendingPromptDraftAction: PendingPromptDraftAction?
+    @State var isShowingFreeTextEditor = false
 
     /// The character or phrase word that character/phrase tasks act on.
     /// Explicit object launches take priority over preview-derived subjects.
@@ -242,6 +243,21 @@ struct AILinkView: View {
                         }
                     }
                 }
+            }
+            .presentationDetents([.large])
+        }
+        .sheet(isPresented: $isShowingFreeTextEditor) {
+            NavigationStack {
+                aiFreeTextEditor
+                    .navigationTitle("Transcript")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") {
+                                isShowingFreeTextEditor = false
+                            }
+                        }
+                    }
             }
             .presentationDetents([.large])
         }

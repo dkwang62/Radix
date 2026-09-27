@@ -920,6 +920,20 @@ struct SwiftUICrashGuardrailTests {
         #expect(!source.contains("Label(\"Latest AI Result\""))
     }
 
+    @Test("Long transcript source text collapses to an attachment card")
+    func longTranscriptSourceUsesAttachmentCard() throws {
+        let view = try sourceText(at: "Views/AILinkPromptGeneration.swift")
+        let root = try sourceText(at: "Views/AILinkView.swift")
+
+        #expect(view.contains("if shouldShowAttachedTranscriptCard"))
+        #expect(view.contains("Text(\"Transcript attached\")"))
+        #expect(view.contains("transcriptLineCount > 10"))
+        #expect(view.contains("selectedPromptTask?.id == BuiltInPromptTaskID.sentencesFromTranscript.rawValue"))
+        #expect(view.contains("func updateFreeTextInput(_ text: String)"))
+        #expect(root.contains("@State var isShowingFreeTextEditor = false"))
+        #expect(root.contains(".sheet(isPresented: $isShowingFreeTextEditor)"))
+    }
+
     @Test("Upgrade supports retry, pending purchases, and one StoreKit operation at a time")
     func paywallStoreOperationsRemainRecoverable() throws {
         let managerSource = try sourceText(at: "Services/EntitlementManager.swift")
