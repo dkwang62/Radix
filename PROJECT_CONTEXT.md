@@ -31,7 +31,7 @@ speech service; tapping the animation itself retains its existing inspection
 behavior.
 
 Repository branch: `codex/post-testflight-iteration`. The source project and
-current source version is `1.3` build `64` (not yet distributed). Every committed application
+current source version is `1.3` build `65` (not yet distributed). Every committed application
 change must increment `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate
 the Xcode project, and preserve app/extension build parity.
 
@@ -276,7 +276,7 @@ statuses. Any change requires an explicit migration and a compatibility test.
 | AI-cleaned pages | Preferences-backed `AICleanedPageRecord` artifacts | Page-owned; do not overwrite the source OCR. Deleting a page's Extracted Sentences result removes only that page artifact and its `.aiCleanedPage` sentence sources; independent or favorited sentences remain under the existing sentence-retention rules. |
 | Sentences | Separate SQLite Sentence Library | Paged/query-based access only; excluded from the JSON payload, but carried by full backup and new checkpoint bundles. Every sentence must be tied to a saved page source or a conversation/practice source; favorites alone are not a retention root. Untethered sentence rows are rejected on write and pruned during startup/import cleanup. |
 | Favorites and practice progress | Preferences/portable backup models | They remain learning memory when a linked page is removed. |
-| Checkpoints | Local backup bundles | Same-device recovery with sentence and phrase databases. Legacy JSON checkpoints remain readable with an explicit limited-scope warning. |
+| Checkpoints | Local backup bundles in Documents/Radix/LocalSnapshots | Same-device recovery with sentence and phrase databases. The Documents location is device-local, app-update persistent, and visible through Files/iOS file sharing; older Application Support checkpoints migrate there on first checkpoint access. Legacy JSON checkpoints remain readable with an explicit limited-scope warning. |
 
 `UnifiedPackage` is the portable backup contract and retains legacy decoding.
 `RadixPreferenceKey` is the canonical stable-key list. `RadixPreferences` is

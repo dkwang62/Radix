@@ -189,6 +189,7 @@
 		A05EBFC59DC951C9EFDB9FF9 /* PromptModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFF92F2BA13EBA1A3A64D44 /* PromptModels.swift */; };
 		A15BA759BECE6523607ED145 /* BrowseCollectionEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F50BA811752E1399832FE15 /* BrowseCollectionEditing.swift */; };
 		A25A6B76FA82ED15A21B35B6 /* CharacterContextMenus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017A2AA3385BA68AF39D6502 /* CharacterContextMenus.swift */; };
+		A2B455197ABF1303BB3E3F6E /* LocalDataSnapshotStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB296A0DF387EA05947A0DE3 /* LocalDataSnapshotStoreTests.swift */; };
 		A32AA7AF1760435A678736B1 /* RadixProjectSourceManifest.json in Resources */ = {isa = PBXBuildFile; fileRef = C2202CB5B07AF59C422D90BD /* RadixProjectSourceManifest.json */; };
 		A32E2D319703CBD70DD1FE9C /* CapturePhotoImportButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D1381DD7D9E6CB3DD939B2 /* CapturePhotoImportButton.swift */; };
 		A3CC58284FEA74A76CA9E482 /* CharacterPhraseLookupSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40849972D5C5B5B073CC736 /* CharacterPhraseLookupSection.swift */; };
@@ -586,6 +587,7 @@
 		C933B752239DFBB956B56D19 /* ComponentFrequencyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentFrequencyProvider.swift; sourceTree = "<group>"; };
 		C94D867F618771FE33C19738 /* enhanced_component_map_with_etymology.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = enhanced_component_map_with_etymology.json; sourceTree = "<group>"; };
 		CA2E09B03EAC6F046F4BB914 /* ARPHICPL.TXT */ = {isa = PBXFileReference; path = ARPHICPL.TXT; sourceTree = "<group>"; };
+		CB296A0DF387EA05947A0DE3 /* LocalDataSnapshotStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDataSnapshotStoreTests.swift; sourceTree = "<group>"; };
 		CCD286C1658D82F7D1438A5C /* CharacterInfoCardComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterInfoCardComponents.swift; sourceTree = "<group>"; };
 		CD17FEE8A50EC8A49C37A2FF /* CharacterDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDetailView.swift; sourceTree = "<group>"; };
 		CE8DF6B2196951A558A6A05E /* RadixBrowseFilterState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadixBrowseFilterState.swift; sourceTree = "<group>"; };
@@ -780,6 +782,7 @@
 		427FAD633B76196C8FAE4D10 /* RadixAppTests */ = {
 			isa = PBXGroup;
 			children = (
+				CB296A0DF387EA05947A0DE3 /* LocalDataSnapshotStoreTests.swift */,
 				FCCF89C432B8D7A8E7C85847 /* PhraseRepositoryMigrationTests.swift */,
 			);
 			name = RadixAppTests;
@@ -1184,6 +1187,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A2B455197ABF1303BB3E3F6E /* LocalDataSnapshotStoreTests.swift in Sources */,
 				28FF5A61E20C785B69177BFB /* PhraseRepositoryMigrationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1511,7 +1515,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/RadixShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 64;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
@@ -1577,7 +1581,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/Radix.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 64;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
@@ -1602,7 +1606,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/Radix.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 64;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
@@ -1625,7 +1629,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/RadixShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 64;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_TEAM = 7PSNWRPJ5B;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
