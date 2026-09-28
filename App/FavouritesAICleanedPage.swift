@@ -4,14 +4,9 @@ extension FavouritesTab {
     @ViewBuilder
     var aiCleanedPageStudyScreen: some View {
         if let context = studyAICleanedPageContext {
-            VStack(alignment: .leading, spacing: 10) {
-                focusedStudyBackButton(title: pageArtifactsOnly ? "Back to Page" : "Back to Study Page") {
-                    withAnimation(.snappy(duration: 0.18)) {
-                        studyAICleanedPageCollectionID = nil
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.top, 8)
+            VStack(alignment: .leading, spacing: 8) {
+                aiCleanedPageHeader(context)
+                    .padding(.horizontal)
 
                 ScrollView {
                     aiCleanedPageContent(context)
@@ -49,74 +44,55 @@ extension FavouritesTab {
 
     func aiCleanedPageContent(_ context: StudyAICleanedPageContext) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            aiCleanedPageHeader(context)
-
             if let record = context.record {
-                aiCleanedPageReader(record, collection: context.collection)
+                aiCleanedPageReader(record)
             } else {
                 aiCleanedPageEmptyState(context.collection)
             }
         }
-        .padding(.top, 8)
     }
 
     func aiCleanedPageHeader(_ context: StudyAICleanedPageContext) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Label("Extracted Sentences", systemImage: "doc.text.magnifyingglass")
-                .font(ResponsiveFont.title3.bold())
-
-            Text(studyGridDisplayText(collectionDisplayName(context.collection)))
-                .font(ResponsiveFont.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .radixSurface(RadixTheme.secondaryBackground.opacity(0.55))
-    }
-
-    func aiCleanedPageReader(_ record: AICleanedPageRecord, collection: CharacterCollection) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(studyGridDisplayText(record.cleanedTitle.isEmpty ? collectionDisplayName(collection) : record.cleanedTitle))
-                        .font(ResponsiveFont.headline.weight(.semibold))
-                        .lineLimit(2)
-
-                    Spacer(minLength: 8)
-
-                    CompactScriptToggle(
-                        isTraditional: studyGridUsesTraditionalScript,
-                        accessibilityLabel: "Extracted sentences Chinese script",
-                        minWidth: 34,
-                        height: 28
-                    ) {
-                        studyGridUsesTraditionalScript.toggle()
-                    }
-                    .fixedSize(horizontal: true, vertical: false)
+        HStack(spacing: 8) {
+            Button {
+                withAnimation(.snappy(duration: 0.18)) {
+                    studyAICleanedPageCollectionID = nil
                 }
+            } label: {
+                Image(systemName: "chevron.left")
+                    .frame(width: 32, height: 32)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(pageArtifactsOnly ? "Back to Page" : "Back to Study Page")
 
-                Text("\(record.sentences.count) extracted sentences")
-                    .font(ResponsiveFont.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+            Text("Extracted Sentences")
+                .font(ResponsiveFont.headline.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
 
+            Spacer(minLength: 4)
+
+            if let record = context.record {
                 Button(role: .destructive) {
-                    requestDeleteAICleanedPage(record, collection: collection)
+                    requestDeleteAICleanedPage(record, collection: context.collection)
                 } label: {
-                    Label("Delete Extracted Sentences", systemImage: "trash")
-                        .font(ResponsiveFont.caption.weight(.semibold))
-                        .labelStyle(.titleAndIcon)
-                        .radixPill(horizontal: 10, vertical: 7, background: Color.red.opacity(0.1))
+                    Image(systemName: "trash")
+                        .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.red)
-                .accessibilityHint("Deletes this page's extracted sentences result.")
+                .accessibilityLabel("Delete Extracted Sentences")
                 .help("Delete extracted sentences")
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(12)
-            .radixSurface(RadixTheme.secondaryBackground.opacity(0.48))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 8)
+        .frame(minHeight: 44)
+        .radixSurface(RadixTheme.secondaryBackground.opacity(0.55))
+    }
 
+    func aiCleanedPageReader(_ record: AICleanedPageRecord) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
             if let englishSummary = record.englishSummary {
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Summary")
@@ -332,6 +308,7 @@ extension FavouritesTab {
 
     func aiCleanedPageRecordRevisionKey(_ record: AICleanedPageRecord) -> String {
         [
+            record.sourceTitle,
             "\(record.createdAt.timeIntervalSinceReferenceDate)",
             "\(record.sentences.count)",
             "\(record.cleanedChineseText.count)",
@@ -375,7 +352,7 @@ extension FavouritesTab {
                 SentenceExampleSourceReference(
                     sourceType: .aiCleanedPage,
                     sourceID: record.sourcePageID.uuidString,
-                    sourceTitle: record.cleanedTitle.isEmpty ? record.sourceTitle : record.cleanedTitle,
+                    sourceTitle: record.sourceTitle,
                     sourcePageID: record.sourcePageID,
                     practicePackID: nil,
                     practiceItemID: nil

@@ -111,6 +111,11 @@ Use these preferences as defaults:
   page-owned extracted sentences and Conversation Practice use the same visible
   return wording. Do not route a page phrase into the global sidebar and dismiss
   its sheet, because that strands the user away from the page workspace.
+- The Browse Extracted Sentences detail shows the page name once in the Browse
+  header. Its content begins with one compact `Extracted Sentences` row holding
+  Back to Page and icon-only Delete actions. Script stays with the reader
+  controls. Sentence totals belong in pagination; do not repeat the page or
+  artifact title above the reader.
 - Let the bottom tabs override contextual flows. Switching tabs should feel like
   a clean change of workspace, not another nested return layer.
 - On iPhone, the History/memory strip opens character and phrase cards inline

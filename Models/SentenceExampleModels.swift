@@ -62,6 +62,18 @@ public struct SentenceExampleSourceReference: Codable, Equatable, Hashable, Send
         sourcePageID == pageID
     }
 
+    public func withPageTitle(_ title: String, pageID: UUID) -> Self {
+        guard sourcePageID == pageID else { return self }
+        return Self(
+            sourceType: sourceType,
+            sourceID: sourceID,
+            sourceTitle: title,
+            sourcePageID: sourcePageID,
+            practicePackID: practicePackID,
+            practiceItemID: practiceItemID
+        )
+    }
+
     public func matches(sourceType: SentenceExampleSourceType) -> Bool {
         self.sourceType == sourceType
     }
@@ -339,7 +351,7 @@ public struct SentenceExampleRecord: Codable, Equatable, Identifiable, Sendable 
         let source = SentenceExampleSourceReference(
             sourceType: .aiCleanedPage,
             sourceID: record.sourcePageID.uuidString,
-            sourceTitle: record.cleanedTitle.isEmpty ? record.sourceTitle : record.cleanedTitle,
+            sourceTitle: record.sourceTitle,
             sourcePageID: record.sourcePageID,
             practicePackID: nil,
             practiceItemID: nil

@@ -13,9 +13,13 @@ extension FilterGridTab {
             collectionRenameError = "Enter a page name."
             return
         }
-        store.renameCollection(id: collection.id, newName: cleanName)
-        renamingCollection = nil
-        collectionRenameError = nil
+        do {
+            try store.renameCollection(id: collection.id, newName: cleanName)
+            renamingCollection = nil
+            collectionRenameError = nil
+        } catch {
+            collectionRenameError = error.localizedDescription
+        }
     }
 
     func browseAlert(_ presentedAlert: BrowsePresentedAlert) -> Alert {
@@ -49,19 +53,23 @@ extension FilterGridTab {
     }
 
     func saveEditedCollection(_ collection: CharacterCollection) {
-        guard let updated = store.updateCollection(
-            id: collection.id,
-            newName: editingCollectionName,
-            sourceText: editingCollectionText
-        ) else {
-            collectionEditorError = "Enter a name and at least one Chinese character."
-            return
-        }
+        do {
+            guard let updated = try store.updateCollection(
+                id: collection.id,
+                newName: editingCollectionName,
+                sourceText: editingCollectionText
+            ) else {
+                collectionEditorError = "Enter a name and at least one Chinese character."
+                return
+            }
 
-        editingCollectionName = updated.name
-        editingCollectionText = updated.characters.joined(separator: " ")
-        collectionEditorError = nil
-        editingCollection = nil
+            editingCollectionName = updated.name
+            editingCollectionText = updated.characters.joined(separator: " ")
+            collectionEditorError = nil
+            editingCollection = nil
+        } catch {
+            collectionEditorError = error.localizedDescription
+        }
     }
 
     func beginManualCollection() {

@@ -102,6 +102,15 @@ struct AICleanedPageRecord: Codable, Equatable, Hashable, Identifiable {
 
     var id: UUID { sourcePageID }
 
+    func withPageTitle(_ title: String) -> Self {
+        var updated = self
+        if updated.cleanedTitle == updated.sourceTitle {
+            updated.cleanedTitle = title
+        }
+        updated.sourceTitle = title
+        return updated
+    }
+
     func simplifiedChinese(using simplify: (String) -> String) -> AICleanedPageRecord {
         var result = self
         result.cleanedChineseText = simplify(cleanedChineseText)

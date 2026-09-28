@@ -247,6 +247,47 @@ enum RadixStudyPreferences {
         try sentenceLibrary.upsert(canonicalizedSentenceExamples(records))
     }
 
+    static func renamePageReferences(pageID: UUID, title: String) throws {
+        try sentenceLibrary.renamePageSources(
+            pageID: pageID,
+            title: title,
+            migratingLegacy: legacySentenceExamplesFromPreferences
+        )
+
+        let cleaned = aiCleanedPages.map { record in
+            record.sourcePageID == pageID ? record.withPageTitle(title) : record
+        }
+        if cleaned != aiCleanedPages { aiCleanedPages = cleaned }
+
+        let phrases = pagePhraseExtractions.map { record -> PagePhraseExtractionRecord in
+            guard record.sourcePageID == pageID else { return record }
+            var updated = record
+            updated.sourceTitle = title
+            return updated
+        }
+        if phrases != pagePhraseExtractions { pagePhraseExtractions = phrases }
+
+        let packs = importedConversationPracticePacks.map { $0.withPageTitle(title, pageID: pageID) }
+        if packs != importedConversationPracticePacks { importedConversationPracticePacks = packs }
+    }
+
+    static func pageReferencesNeedRename(pageID: UUID, title: String) throws -> Bool {
+        if let cleaned = aiCleanedPage(for: pageID), cleaned.sourceTitle != title { return true }
+        if pagePhraseExtractions.contains(where: { $0.sourcePageID == pageID && $0.sourceTitle != title }) {
+            return true
+        }
+        if importedConversationPracticePacks.contains(where: {
+            $0.sourceLink?.sourcePageID == pageID && $0.sourceLink?.sourceTitle != title
+        }) {
+            return true
+        }
+        return try sentenceLibrary.pageSourcesNeedRename(
+            pageID: pageID,
+            title: title,
+            migratingLegacy: legacySentenceExamplesFromPreferences
+        )
+    }
+
     static func sentenceOptimizationStats() -> SentenceExampleOptimizationStats {
         sentenceLibrary.optimizationStats(migratingLegacy: legacySentenceExamplesFromPreferences)
     }

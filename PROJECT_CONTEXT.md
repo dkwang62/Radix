@@ -106,10 +106,12 @@ stay linked to their page rather than becoming disconnected parallel features.
   destination, My Data sections, Settings, and contextual Help. Search and
   Camera remain the always-visible buttons; record lists and AI task lists do
   not expand the title menu.
-- Browse page Actions includes a dedicated Rename Page sheet. Renaming changes
-  only the page's display name; its stable ID, source text, sentences, and linked
-  study artifacts remain unchanged. Edit Page remains available for source-text
-  changes.
+- Browse page Actions includes a dedicated Rename Page sheet. Renaming updates
+  the saved page name and page-linked source titles in the Sentence Library,
+  extracted-sentence and phrase artifacts, and page-linked practice packs by
+  stable page ID. Sentence content, source text, and identifiers stay unchanged;
+  Edit Page applies the same linked-title update when its name field changes.
+  Opening a Browse page repairs stale linked titles saved by older builds.
 - A primary navigation choice clears transient return context. Contextual drill
   flows must always expose one visible, named route back to their origin.
 - On iPhone, Browse Dictionary character and phrase cards expose an explicit
@@ -666,7 +668,7 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 ## Required Verification
 
-Latest application baseline (2026-09-29): `swift test` passed 238 tests in 19
+Latest application baseline (2026-09-29): `swift test` passed 240 tests in 19
 suites; Mac Catalyst, iOS Simulator, and unsigned iOS device builds succeeded.
 Earlier Build 63 cold-launched successfully beyond the former 20-second
 watchdog boundary on iPhone 17 and iPad A16 simulators. Browse/Study switching no longer repeats checkpoint scans,

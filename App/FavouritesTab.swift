@@ -123,6 +123,9 @@ struct FavouritesTab: View {
     var body: some View {
         if pageArtifactsOnly {
             studyLifecycle(studyPresentations(browsePageArtifactContent))
+                .onAppear {
+                    reconcileSelectedPageTitle()
+                }
                 .onChange(of: studyAICleanedPageCollectionID) { _, _ in
                     notifyPageDetailChange()
                 }
@@ -132,6 +135,7 @@ struct FavouritesTab: View {
                 .onChange(of: store.selectedBrowseCollectionID) { _, _ in
                     studyAICleanedPageCollectionID = nil
                     studyPageReturnCollectionID = nil
+                    reconcileSelectedPageTitle()
                     loadStudyPageReferenceData()
                 }
         } else {
@@ -161,6 +165,15 @@ struct FavouritesTab: View {
 
     func notifyPageDetailChange() {
         onPageDetailChange?(studyAICleanedPageCollectionID != nil || studyPageReturnCollectionID != nil)
+    }
+
+    func reconcileSelectedPageTitle() {
+        guard let collection = store.selectedBrowseCollection else { return }
+        do {
+            try store.reconcileCollectionTitleIfNeeded(id: collection.id)
+        } catch {
+            setStudyPageActionMessage("Could not update page links: \(error.localizedDescription)", for: collection)
+        }
     }
 
     func presentConversationPractice() {

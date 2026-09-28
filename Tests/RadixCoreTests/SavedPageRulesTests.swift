@@ -158,6 +158,32 @@ struct SavedPageRulesTests {
         #expect(SavedPageRules.isDeletedWithPage(descriptor))
     }
 
+    @Test("Page rename updates default artifact titles but preserves custom titles")
+    func pageRenamePreservesCustomArtifactTitle() {
+        let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000309")!
+        let defaultTitle = AICleanedPageRecord(
+            sourcePageID: pageID,
+            sourceTitle: "Transcript",
+            cleanedTitle: "Transcript",
+            cleanedChineseText: "这是句子。",
+            sentences: [AICleanedPageSentence(id: "s1", chinese: "这是句子。")],
+            createdAt: Date(timeIntervalSince1970: 309)
+        )
+        let customTitle = AICleanedPageRecord(
+            sourcePageID: pageID,
+            sourceTitle: "Transcript",
+            cleanedTitle: "My Summary",
+            cleanedChineseText: "这是句子。",
+            sentences: [AICleanedPageSentence(id: "s1", chinese: "这是句子。")],
+            createdAt: Date(timeIntervalSince1970: 309)
+        )
+
+        #expect(defaultTitle.withPageTitle("Broadcom in China").sourceTitle == "Broadcom in China")
+        #expect(defaultTitle.withPageTitle("Broadcom in China").cleanedTitle == "Broadcom in China")
+        #expect(customTitle.withPageTitle("Broadcom in China").cleanedTitle == "My Summary")
+        #expect(defaultTitle.withPageTitle("Broadcom in China").sentences == defaultTitle.sentences)
+    }
+
     @Test("Page optimization rejects a stale snapshot")
     func pageOptimizationRejectsStaleSnapshot() {
         let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000310")!

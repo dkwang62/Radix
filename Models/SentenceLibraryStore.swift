@@ -348,6 +348,55 @@ final class SentenceLibraryStore: @unchecked Sendable {
         }
     }
 
+    @discardableResult
+    func renamePageSources(
+        pageID: UUID,
+        title: String,
+        migratingLegacy legacyProvider: () -> [SentenceExampleRecord]
+    ) throws -> Int {
+        lock.lock()
+        defer { lock.unlock() }
+        if fallbackRecords != nil { throw storageUnavailableError() }
+        try openIfNeeded()
+        try migrateLegacyIfNeededUnlocked(legacyProvider)
+
+        let changed = try fetchPageLinkedRecordsUnlocked(pageIDs: [pageID]).compactMap { existing -> SentenceExampleRecord? in
+            var updated = existing
+            updated.sources = existing.sources.map { $0.withPageTitle(title, pageID: pageID) }
+            return updated.sources == existing.sources ? nil : updated
+        }
+        guard !changed.isEmpty else { return 0 }
+
+        guard sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil) == SQLITE_OK else {
+            throw sqliteError(code: 3170, message: "Failed to begin page source rename")
+        }
+        do {
+            try insertUnlocked(changed)
+            guard sqlite3_exec(db, "COMMIT", nil, nil, nil) == SQLITE_OK else {
+                throw sqliteError(code: 3171, message: "Failed to commit page source rename")
+            }
+        } catch {
+            sqlite3_exec(db, "ROLLBACK", nil, nil, nil)
+            throw error
+        }
+        return changed.count
+    }
+
+    func pageSourcesNeedRename(
+        pageID: UUID,
+        title: String,
+        migratingLegacy legacyProvider: () -> [SentenceExampleRecord]
+    ) throws -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        if fallbackRecords != nil { throw storageUnavailableError() }
+        try openIfNeeded()
+        try migrateLegacyIfNeededUnlocked(legacyProvider)
+        return try fetchPageLinkedRecordsUnlocked(pageIDs: [pageID]).contains { record in
+            record.sources.contains { $0.sourcePageID == pageID && $0.sourceTitle != title }
+        }
+    }
+
     func reconcileSources(
         removingPageIDs pageIDs: Set<UUID>,
         migratingLegacy legacyProvider: () -> [SentenceExampleRecord]

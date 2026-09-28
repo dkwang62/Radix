@@ -455,12 +455,24 @@ extension RadixStore {
         return storedPromoted
     }
 
-    func renameCollection(id: UUID, newName: String) {
+    func renameCollection(id: UUID, newName: String) throws {
         guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return }
         let cleanName = collectionDisplayName(newName)
         guard !cleanName.isEmpty else { return }
+        try RadixStudyPreferences.renamePageReferences(pageID: id, title: cleanName)
         allCollections[index].name = cleanName
         saveCollection(allCollections[index])
+        pageArtifactRevision += 1
+        favoriteSentenceRevision += 1
+    }
+
+    func reconcileCollectionTitleIfNeeded(id: UUID) throws {
+        guard let collection = collection(id: id),
+              try RadixStudyPreferences.pageReferencesNeedRename(pageID: id, title: collection.name)
+        else { return }
+        try RadixStudyPreferences.renamePageReferences(pageID: id, title: collection.name)
+        pageArtifactRevision += 1
+        favoriteSentenceRevision += 1
     }
 
     func updateCollectionTranslationReport(id: UUID, report: String?) {
@@ -515,7 +527,7 @@ extension RadixStore {
     }
 
     @discardableResult
-    func updateCollection(id: UUID, newName: String, sourceText: String) -> CharacterCollection? {
+    func updateCollection(id: UUID, newName: String, sourceText: String) throws -> CharacterCollection? {
         guard let index = allCollections.firstIndex(where: { $0.id == id }) else { return nil }
         let cleanName = collectionDisplayName(newName)
         guard !cleanName.isEmpty else { return nil }
@@ -524,6 +536,11 @@ extension RadixStore {
         guard !characters.isEmpty else { return nil }
 
         var updated = allCollections[index]
+        if updated.name != cleanName {
+            try RadixStudyPreferences.renamePageReferences(pageID: id, title: cleanName)
+            pageArtifactRevision += 1
+            favoriteSentenceRevision += 1
+        }
         updated.name = cleanName
         updated.characters = characters
         saveCollection(updated)

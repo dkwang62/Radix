@@ -75,7 +75,7 @@ struct SwiftUICrashGuardrailTests {
         #expect(helper.contains("aiCleanedPages.removeAll { $0.sourcePageID == pageID }"))
         #expect(state.contains("var pendingAICleanedPageDeletion: PendingAICleanedPageDeletion?"))
         #expect(pageView.contains("Delete Extracted Sentences"))
-        #expect(pageView.contains("requestDeleteAICleanedPage(record, collection: collection)"))
+        #expect(pageView.contains("requestDeleteAICleanedPage(record, collection: context.collection)"))
         #expect(pageView.contains("confirmDeleteAICleanedPage(_ pending: PendingAICleanedPageDeletion)"))
         #expect(presentations.contains(".alert(\"Delete Extracted Sentences?\""))
         #expect(presentations.contains("confirmDeleteAICleanedPage(pending)"))

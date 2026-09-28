@@ -201,7 +201,7 @@ struct ConversationPracticeTests {
         #expect(example.english == "China-US relations are changing.")
         #expect(example.sources.first?.sourceType == .aiCleanedPage)
         #expect(example.sources.first?.sourcePageID == pageID)
-        #expect(example.sources.first?.sourceTitle == "Cleaned Page")
+        #expect(example.sources.first?.sourceTitle == "Original OCR")
         #expect(example.detectedCharacters.contains("中"))
         #expect(example.detectedPhrases == ["中美关系", "变化"])
         #expect(example.containsPhrase("中美关系"))
@@ -812,6 +812,7 @@ struct ConversationPracticeTests {
             createdAt: Date(timeIntervalSince1970: 1_783_209_600)
         ))
         let roundTrip = try decoder.decode(ConversationPracticePack.self, from: try encoder.encode(relinked))
+        let renamed = relinked.withPageTitle("Broadcom in China", pageID: sourceID)
 
         #expect(pack.sourceLink?.kind == .savedPage)
         #expect(pack.sourceLink?.sourcePageID == sourceID)
@@ -820,6 +821,10 @@ struct ConversationPracticeTests {
         #expect(pack.sourceLink?.isLinked(toAnyPageID: [UUID()]) == false)
         #expect(roundTrip.sourceLink?.sourcePageID == sourceID)
         #expect(roundTrip.sourceLink?.sourceTitle == "China US News")
+        #expect(renamed.title == "Broadcom in China")
+        #expect(renamed.sourceLink?.sourceTitle == "Broadcom in China")
+        #expect(renamed.sourceLink?.sourcePageID == sourceID)
+        #expect(renamed.entries == pack.entries)
         #expect(roundTrip.practiceItems.first?.phraseKey == "这条新闻很重要")
     }
 

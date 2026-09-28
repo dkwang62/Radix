@@ -404,6 +404,45 @@ struct SentenceLibraryStoreTests {
         }
     }
 
+    @Test("Renaming a page updates only its linked sentence source titles")
+    func renamingPageUpdatesSentenceSources() throws {
+        try withTemporaryDirectory { directory in
+            let store = makeStore(at: directory.appendingPathComponent("sentences.sqlite"))
+            let pageID = UUID(uuidString: "00000000-0000-0000-0000-000000000123")!
+            let otherID = UUID(uuidString: "00000000-0000-0000-0000-000000000124")!
+            let source: (UUID, String) -> SentenceExampleSourceReference = { id, title in
+                SentenceExampleSourceReference(
+                    sourceType: .aiCleanedPage,
+                    sourceID: id.uuidString,
+                    sourceTitle: title,
+                    sourcePageID: id,
+                    practicePackID: nil,
+                    practiceItemID: nil
+                )
+            }
+            let shared = SentenceExampleRecord(
+                chinese: "这是同一句话。",
+                sources: [source(pageID, "Transcript"), source(otherID, "Other Page")],
+                isFavorited: true
+            )
+            let unrelated = SentenceExampleRecord(
+                chinese: "这是另一句话。",
+                sources: [source(otherID, "Other Page")]
+            )
+            try store.replaceAll([shared, unrelated])
+
+            #expect(try store.pageSourcesNeedRename(pageID: pageID, title: "Broadcom in China", migratingLegacy: { [] }))
+            #expect(try store.renamePageSources(pageID: pageID, title: "Broadcom in China", migratingLegacy: { [] }) == 1)
+            let renamed = try #require(store.fetch(id: shared.id, migratingLegacy: { [] }))
+            #expect(renamed.id == shared.id)
+            #expect(renamed.isFavorited)
+            #expect(renamed.sources.map(\.sourceTitle) == ["Broadcom in China", "Other Page"])
+            #expect(store.fetch(id: unrelated.id, migratingLegacy: { [] }) == unrelated)
+            #expect(try !store.pageSourcesNeedRename(pageID: pageID, title: "Broadcom in China", migratingLegacy: { [] }))
+            #expect(try store.renamePageSources(pageID: pageID, title: "Broadcom in China", migratingLegacy: { [] }) == 0)
+        }
+    }
+
     @Test("Existing databases gain the page-source index before deletion")
     func upgradesPageSourceIndex() throws {
         try withTemporaryDirectory { directory in

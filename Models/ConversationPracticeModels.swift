@@ -204,6 +204,28 @@ public struct ConversationPracticePack: Codable, Equatable {
         )
     }
 
+    public func withPageTitle(_ title: String, pageID: UUID) -> ConversationPracticePack {
+        guard let sourceLink, sourceLink.sourcePageID == pageID else { return self }
+        let updatedLink = ConversationPracticeSourceLink.savedPage(
+            id: pageID,
+            title: title,
+            createdAt: sourceLink.sourceCreatedAt,
+            contentFingerprint: sourceLink.contentFingerprint
+        )
+        return ConversationPracticePack(
+            packID: packID,
+            version: version,
+            title: self.title == sourceLink.sourceTitle ? title : self.title,
+            description: description,
+            language: language,
+            sourceType: sourceType,
+            createdFor: createdFor,
+            sourceLink: updatedLink,
+            sentenceReferences: sentenceReferences,
+            entries: entries
+        )
+    }
+
     public func withSentenceReferences(_ references: [ConversationPracticeSentenceReference]) -> ConversationPracticePack {
         ConversationPracticePack(
             packID: packID,

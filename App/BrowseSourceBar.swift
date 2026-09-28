@@ -32,15 +32,17 @@ extension FilterGridTab {
                 browsePageSelectionSwitcher(collection)
             }
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                selectedImageSourceActions(collection)
-            }
+            if !pageDetailActive {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    selectedImageSourceActions(collection)
+                }
 
-            if let imageActionMessage {
-                Text(imageActionMessage)
-                    .font(ResponsiveFont.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+                if let imageActionMessage {
+                    Text(imageActionMessage)
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
             }
         }
         .radixCard(

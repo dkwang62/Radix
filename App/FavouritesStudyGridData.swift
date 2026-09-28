@@ -235,9 +235,13 @@ extension FavouritesTab {
             studyCollectionRenameError = "Enter a page name."
             return
         }
-        store.renameCollection(id: collection.id, newName: cleanName)
-        studyRenamingCollection = nil
-        studyCollectionRenameError = nil
+        do {
+            try store.renameCollection(id: collection.id, newName: cleanName)
+            studyRenamingCollection = nil
+            studyCollectionRenameError = nil
+        } catch {
+            studyCollectionRenameError = error.localizedDescription
+        }
     }
 
     func beginStudyEditing(_ collection: CharacterCollection) {
@@ -248,19 +252,23 @@ extension FavouritesTab {
     }
 
     func saveStudyEditedCollection(_ collection: CharacterCollection) {
-        guard let updated = store.updateCollection(
-            id: collection.id,
-            newName: studyEditingCollectionName,
-            sourceText: studyEditingCollectionText
-        ) else {
-            studyCollectionEditorError = "Enter a name and at least one Chinese character."
-            return
-        }
+        do {
+            guard let updated = try store.updateCollection(
+                id: collection.id,
+                newName: studyEditingCollectionName,
+                sourceText: studyEditingCollectionText
+            ) else {
+                studyCollectionEditorError = "Enter a name and at least one Chinese character."
+                return
+            }
 
-        studyEditingCollectionName = updated.name
-        studyEditingCollectionText = updated.characters.joined(separator: " ")
-        studyCollectionEditorError = nil
-        studyEditingCollection = nil
+            studyEditingCollectionName = updated.name
+            studyEditingCollectionText = updated.characters.joined(separator: " ")
+            studyCollectionEditorError = nil
+            studyEditingCollection = nil
+        } catch {
+            studyCollectionEditorError = error.localizedDescription
+        }
     }
 
     func pasteStudyTranslationReport() {
