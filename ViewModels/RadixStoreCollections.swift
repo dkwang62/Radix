@@ -169,8 +169,7 @@ extension RadixStore {
     func saveCollection(_ collection: CharacterCollection) {
         var collection = prepareCollectionForLiveStorage(collection)
         collection.contentModifiedAt = Date()
-        browsePagePhraseTileCache.removeValue(forKey: collection.id)
-        browsePagePhraseCandidateCache.removeValue(forKey: collection.id)
+        invalidateBrowsePagePhrases(for: collection.id)
         if let index = allCollections.firstIndex(where: { $0.id == collection.id }) {
             allCollections[index] = collection
         } else {
@@ -301,6 +300,7 @@ extension RadixStore {
         }
         try requirePageDeletionAvailable()
         guard collection(id: id) != nil else { return }
+        flushPendingViewedCollectionsPersistence()
         isPreparingPageDeletion = true
         defer { isPreparingPageDeletion = false }
         let descendantIDs = Set(correctedCollectionDescendants(of: id).map(\.id))
@@ -320,6 +320,7 @@ extension RadixStore {
         }
 
         do {
+            flushPendingViewedCollectionsPersistence()
             try journal.commit(prepared)
         } catch {
             if pageDeletionJournal.isPending {
@@ -330,8 +331,7 @@ extension RadixStore {
 
         allCollections.removeAll { removedCollectionIDs.contains($0.id) }
         for removedID in removedCollectionIDs {
-            browsePagePhraseTileCache.removeValue(forKey: removedID)
-            browsePagePhraseCandidateCache.removeValue(forKey: removedID)
+            invalidateBrowsePagePhrases(for: removedID)
         }
         if selectedBrowseCollectionID.map(removedCollectionIDs.contains) == true {
             selectedBrowseCollectionID = nil
@@ -375,8 +375,7 @@ extension RadixStore {
                 activePracticeSentenceItem = nil
                 pendingConversationPracticeTopicID = nil
                 dismissSidebarPhrasePreview()
-                browsePagePhraseTileCache.removeAll()
-                browsePagePhraseCandidateCache.removeAll()
+                invalidateBrowsePagePhrases()
                 favoriteSentenceRevision += 1
                 dataImportRevision += 1
             }
@@ -435,10 +434,8 @@ extension RadixStore {
         allCollections = replacementCollections.map(prepareCollectionForLiveStorage)
         savedPageImageStore.removeImage(for: correctedID)
         sortCollections()
-        browsePagePhraseTileCache.removeValue(forKey: originalID)
-        browsePagePhraseCandidateCache.removeValue(forKey: originalID)
-        browsePagePhraseTileCache.removeValue(forKey: correctedID)
-        browsePagePhraseCandidateCache.removeValue(forKey: correctedID)
+        invalidateBrowsePagePhrases(for: originalID)
+        invalidateBrowsePagePhrases(for: correctedID)
 
         if selectedBrowseCollectionID == correctedID {
             selectedBrowseCollectionID = originalID
@@ -466,11 +463,14 @@ extension RadixStore {
         favoriteSentenceRevision += 1
     }
 
-    func reconcileCollectionTitleIfNeeded(id: UUID) throws {
-        guard let collection = collection(id: id),
-              try RadixStudyPreferences.pageReferencesNeedRename(pageID: id, title: collection.name)
-        else { return }
-        try RadixStudyPreferences.renamePageReferences(pageID: id, title: collection.name)
+    func reconcileCollectionTitleIfNeeded(id: UUID) async throws {
+        guard let page = collection(id: id) else { return }
+        let title = page.name
+        let needsRename = try await Task.detached(priority: .utility) {
+            try RadixStudyPreferences.pageReferencesNeedRename(pageID: id, title: title)
+        }.value
+        guard !Task.isCancelled, needsRename, collection(id: id)?.name == title else { return }
+        try RadixStudyPreferences.renamePageReferences(pageID: id, title: title)
         pageArtifactRevision += 1
         favoriteSentenceRevision += 1
     }
@@ -584,7 +584,7 @@ extension RadixStore {
 
         if let id, let index = allCollections.firstIndex(where: { $0.id == id }) {
             allCollections[index].lastViewedAt = Date()
-            persistCollections()
+            scheduleViewedCollectionsPersistence()
         }
         selectedBrowseCollectionID = id
         if let id {
@@ -608,6 +608,9 @@ extension RadixStore {
     // MARK: - Persistence
 
     func loadCollections() {
+        collectionsPersistenceGeneration += 1
+        viewedCollectionsPersistenceTask?.cancel()
+        viewedCollectionsPersistenceTask = nil
         guard let data = preferences.data(forKey: RadixPreferenceKey.collections),
               let decoded = try? JSONDecoder().decode([CharacterCollection].self, from: data) else {
             allCollections = []
@@ -630,12 +633,40 @@ extension RadixStore {
     }
 
     func persistCollections() {
+        collectionsPersistenceGeneration += 1
+        viewedCollectionsPersistenceTask?.cancel()
+        viewedCollectionsPersistenceTask = nil
         if let data = try? JSONEncoder().encode(allCollections) {
             preferences.set(data, forKey: RadixPreferenceKey.collections)
         }
     }
 
+    func scheduleViewedCollectionsPersistence() {
+        collectionsPersistenceGeneration += 1
+        let generation = collectionsPersistenceGeneration
+        viewedCollectionsPersistenceTask?.cancel()
+        viewedCollectionsPersistenceTask = Task { [weak self] in
+            do { try await Task.sleep(for: .milliseconds(150)) } catch { return }
+            guard let self, !Task.isCancelled else { return }
+            let pages = allCollections
+            let data = await Task.detached(priority: .utility) {
+                try? JSONEncoder().encode(pages)
+            }.value
+            guard !Task.isCancelled, generation == collectionsPersistenceGeneration, let data else { return }
+            preferences.set(data, forKey: RadixPreferenceKey.collections)
+            viewedCollectionsPersistenceTask = nil
+        }
+    }
+
+    func flushPendingViewedCollectionsPersistence() {
+        guard viewedCollectionsPersistenceTask != nil else { return }
+        persistCollections()
+    }
+
     private func persistCollectionsForRestore() throws {
+        collectionsPersistenceGeneration += 1
+        viewedCollectionsPersistenceTask?.cancel()
+        viewedCollectionsPersistenceTask = nil
         preferences.set(try JSONEncoder().encode(allCollections), forKey: RadixPreferenceKey.collections)
     }
 

@@ -53,6 +53,7 @@ struct RootView: View {
                 },
                 onEnterBackground: {
                     store.flushPendingDataEditAutoSave()
+                    store.flushPendingViewedCollectionsPersistence()
                 },
                 onWillEnterForeground: {
                     #if !targetEnvironment(macCatalyst)

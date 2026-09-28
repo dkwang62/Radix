@@ -123,8 +123,8 @@ struct FavouritesTab: View {
     var body: some View {
         if pageArtifactsOnly {
             studyLifecycle(studyPresentations(browsePageArtifactContent))
-                .onAppear {
-                    reconcileSelectedPageTitle()
+                .task(id: store.selectedBrowseCollectionID) {
+                    await reconcileSelectedPageTitle()
                 }
                 .onChange(of: studyAICleanedPageCollectionID) { _, _ in
                     notifyPageDetailChange()
@@ -135,8 +135,6 @@ struct FavouritesTab: View {
                 .onChange(of: store.selectedBrowseCollectionID) { _, _ in
                     studyAICleanedPageCollectionID = nil
                     studyPageReturnCollectionID = nil
-                    reconcileSelectedPageTitle()
-                    loadStudyPageReferenceData()
                 }
         } else {
             studyLifecycle(
@@ -167,10 +165,10 @@ struct FavouritesTab: View {
         onPageDetailChange?(studyAICleanedPageCollectionID != nil || studyPageReturnCollectionID != nil)
     }
 
-    func reconcileSelectedPageTitle() {
+    func reconcileSelectedPageTitle() async {
         guard let collection = store.selectedBrowseCollection else { return }
         do {
-            try store.reconcileCollectionTitleIfNeeded(id: collection.id)
+            try await store.reconcileCollectionTitleIfNeeded(id: collection.id)
         } catch {
             setStudyPageActionMessage("Could not update page links: \(error.localizedDescription)", for: collection)
         }

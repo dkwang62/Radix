@@ -540,6 +540,11 @@ final class RadixStore: ObservableObject {
 
     var browsePagePhraseTileCache: [UUID: [Int: BrowseImagePhraseTileData]] = [:]
     var browsePagePhraseCandidateCache: [UUID: [BrowsePagePhraseCandidate]] = [:]
+    var browsePageGridItemCache: [UUID: BrowsePagePreparedGrid] = [:]
+    @Published var browsePagePhraseCacheGeneration = 0
+    @Published var browsePageGridRevision = 0
+    var viewedCollectionsPersistenceTask: Task<Void, Never>?
+    var collectionsPersistenceGeneration = 0
 
     var suppressHelpReset = false
     var loadingError: String? {

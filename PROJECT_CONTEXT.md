@@ -251,6 +251,18 @@ as orchestration, not a second business-rule implementation.
 - Interactive navigation publishes grouped state transitions. Browse chooses
   its final sort mode once, computes dictionary-grid filtering and ordering from
   an immutable snapshot off the main actor, and publishes one completed result.
+- Browse page switching shows character tiles immediately on a cold page and
+  reuses bounded prepared grids on repeat visits. Phrase matching, SQLite reads,
+  and All/Unique stream assembly run in cancellable background work with separate
+  read-only phrase connections. Page/phrase edits invalidate its generation;
+  stale results cannot repopulate a changed cache. Source tiles render in lazy
+  flow batches, and return scrolling first materializes the containing batch.
+  A page change resets the source scroll position and page-owned detail state;
+  empty artifact strips occupy no height and populated strips stay compact.
+  Viewed timestamps update immediately in memory; metadata encoding is coalesced
+  off the main actor. Edits, deletion, restore, and background flushing supersede
+  pending saves so old snapshots cannot overwrite newer data. Stale title checks
+  also run in background tasks rather than dropdown selection callbacks.
 - Sentence-example availability and AI sentence-picker searches run outside
   SwiftUI rendering. AI sentence search is lazy and debounced. Stroke-order
   previews run three finite passes instead of permanent background loops; a
@@ -529,7 +541,7 @@ them even when a more abstract implementation looks tidier.
   `RadixSceneLifecycleObserver` owns lifecycle callbacks. On mobile, inactive
   state replaces the complete navigation/menu hierarchy with the plain
   `backgroundSnapshotBody` before iPadOS captures its system snapshot;
-  background state flushes only a truly pending Character Studio save. The
+  background state flushes only pending Character Studio and page-view saves. The
   background-to-inactive foreground transition restores the hierarchy early so
   it can render behind iPadOS's return animation; active state imports shared
   input. Do not render normal app content behind the background snapshot
@@ -672,6 +684,10 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 Latest application baseline (2026-09-29): `swift test` passed 240 tests in 19
 suites; Mac Catalyst, iOS Simulator, and unsigned iOS device builds succeeded.
+Focused Catalyst page-grid tests cover phrase preservation, hide invalidation,
+and deferred-save/edit ordering. The full app test target currently has a stale
+`LocalDataSnapshotStoreTests` fixture initializer; repair it before using that
+suite as a full checkpoint gate.
 Earlier Build 63 cold-launched successfully beyond the former 20-second
 watchdog boundary on iPhone 17 and iPad A16 simulators. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid

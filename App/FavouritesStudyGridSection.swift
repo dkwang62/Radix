@@ -28,9 +28,9 @@ private struct StudyPageArtifact: Identifiable {
 extension FavouritesTab {
     @ViewBuilder
     var browsePageArtifactContent: some View {
-        if studyAICleanedPageCollectionID != nil {
+        if studyAICleanedPageCollectionID != nil && studyAICleanedPageCollectionID == store.selectedBrowseCollectionID {
             aiCleanedPageStudyScreen
-        } else if studyPageReturnCollectionID != nil {
+        } else if studyPageReturnCollectionID != nil && studyPageReturnCollectionID == store.selectedBrowseCollectionID {
             ScrollView {
                 conversationPracticeStudyScreen
                     .padding(.horizontal)
@@ -48,13 +48,16 @@ extension FavouritesTab {
                         .font(ResponsiveFont.caption2)
                         .foregroundStyle(.secondary)
                 }
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        ForEach(rowData.artifacts) { artifact in
-                            studyPageArtifactChip(artifact, collection: collection)
+                if !rowData.artifacts.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            ForEach(rowData.artifacts) { artifact in
+                                studyPageArtifactChip(artifact, collection: collection)
+                            }
                         }
+                        .padding(.vertical, 1)
                     }
-                    .padding(.vertical, 1)
+                    .frame(height: 32)
                 }
             }
             .padding(.horizontal)

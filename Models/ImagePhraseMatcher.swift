@@ -8,7 +8,7 @@ struct ImagePhraseContext: Equatable {
     let offset: Int
 }
 
-struct BrowseImagePhraseTileData {
+struct BrowseImagePhraseTileData: Sendable {
     let phrase: PhraseItem
     let start: Int
     let end: Int
@@ -18,7 +18,7 @@ struct BrowseImagePhraseTileData {
     }
 }
 
-struct BrowsePagePhraseCandidate: Identifiable, Hashable {
+struct BrowsePagePhraseCandidate: Identifiable, Hashable, Sendable {
     let phrase: PhraseItem
     let firstStart: Int
     let occurrenceCount: Int

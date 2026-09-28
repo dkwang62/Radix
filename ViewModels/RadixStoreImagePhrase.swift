@@ -267,6 +267,69 @@ extension RadixStore {
         browsePagePhraseTiles(in: collection)[offset]
     }
 
+    func invalidateBrowsePagePhrases(for pageID: UUID? = nil) {
+        browsePagePhraseCacheGeneration += 1
+        if let pageID {
+            browsePagePhraseTileCache.removeValue(forKey: pageID)
+            browsePagePhraseCandidateCache.removeValue(forKey: pageID)
+            browsePageGridItemCache.removeValue(forKey: pageID)
+        } else {
+            browsePagePhraseTileCache.removeAll()
+            browsePagePhraseCandidateCache.removeAll()
+            browsePageGridItemCache.removeAll()
+        }
+    }
+
+    func prepareBrowsePageGrid(for pageID: UUID) async {
+        guard let page = collection(id: pageID), browsePageGridItemCache[pageID] == nil else { return }
+        let characters = page.characters
+        let hiddenWords = page.hiddenPhraseWords ?? []
+        let contentModifiedAt = page.contentModifiedAt
+        let generation = browsePagePhraseCacheGeneration
+        let urls = phraseRepo.pageGridDatabaseURLs
+        let worker = Task.detached(priority: .userInitiated) {
+            let repository = PhraseRepository()
+            do {
+                try repository.openReadOnly(baseURL: urls.base, addedURL: urls.added)
+            } catch {
+                return nil as BrowsePagePreparedGrid?
+            }
+            let keys = characters.map(ScriptTextConverter.simplified)
+            let maximumLength = max(2, repository.maxPhraseLength())
+            let words = BrowsePagePhraseRules.candidateWords(lookupCharacters: keys, maxPhraseLength: maximumLength)
+            guard !Task.isCancelled else { return nil as BrowsePagePreparedGrid? }
+            let phrases = repository.fetchPhrases(matching: words, includeHidden: true)
+            var lookup: [String: PhraseItem] = [:]
+            for phrase in phrases { lookup[ScriptTextConverter.simplified(phrase.word)] = phrase }
+            let matches = BrowsePagePhraseRules.tileMatches(
+                lookupCharacters: keys, phraseByLookupWord: lookup,
+                hiddenWords: hiddenWords, maxPhraseLength: maximumLength,
+                phraseWordKey: ScriptTextConverter.simplified
+            )
+            let tiles = BrowsePagePhraseRules.tiles(from: matches)
+            let candidates = BrowsePagePhraseRules.candidates(
+                lookupCharacters: keys, phraseByLookupWord: lookup,
+                maxPhraseLength: maximumLength, phraseWordKey: ScriptTextConverter.simplified
+            )
+            guard !Task.isCancelled else { return nil as BrowsePagePreparedGrid? }
+            return BrowsePagePreparedGrid(characters: characters, keys: keys, tiles: tiles, candidates: candidates)
+        }
+        let result = await withTaskCancellationHandler {
+            await worker.value
+        } onCancel: {
+            worker.cancel()
+        }
+        guard !Task.isCancelled, let result,
+              generation == browsePagePhraseCacheGeneration,
+              let current = collection(id: pageID), current.contentModifiedAt == contentModifiedAt,
+              current.characters == characters, current.hiddenPhraseWords ?? [] == hiddenWords
+        else { return }
+        insertBoundedCacheValue(result.tiles, for: pageID, in: &browsePagePhraseTileCache, limit: 64)
+        insertBoundedCacheValue(result.candidates, for: pageID, in: &browsePagePhraseCandidateCache, limit: 64)
+        insertBoundedCacheValue(result, for: pageID, in: &browsePageGridItemCache, limit: 64)
+        browsePageGridRevision += 1
+    }
+
     func browsePagePhraseTiles(in collection: CharacterCollection) -> [Int: BrowseImagePhraseTileData] {
         guard route == .search, homeTab == .filter,
               selectedBrowseCollectionID == collection.id,

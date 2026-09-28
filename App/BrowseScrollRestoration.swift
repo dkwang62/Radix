@@ -35,9 +35,29 @@ extension FilterGridTab {
 
     func scrollToBrowseTile(_ anchorID: String?, proxy: ScrollViewProxy) {
         guard let anchorID else { return }
+        let pageID = store.selectedBrowseCollectionID
         DispatchQueue.main.async {
-            withAnimation(.easeInOut(duration: 0.22)) {
-                proxy.scrollTo(anchorID, anchor: .center)
+            guard store.selectedBrowseCollectionID == pageID else { return }
+            // Materialize the containing lazy flow batch before addressing a tile
+            // that may be beyond the currently rendered viewport.
+            if anchorID.hasPrefix("browse-image-tile-"),
+               let offset = Int(anchorID.dropFirst("browse-image-tile-".count)),
+               let page = store.selectedBrowseCollection {
+                let items = browseImageGridItems(for: page)
+                let index = items.firstIndex { item in
+                    if item.offset == offset { return true }
+                    if case .phrase(_, let offsets) = item.kind { return offsets.contains(offset) }
+                    return false
+                }
+                if let index {
+                    proxy.scrollTo("browse-image-batch-\(index / 120)", anchor: .top)
+                }
+            }
+            DispatchQueue.main.async {
+                guard store.selectedBrowseCollectionID == pageID else { return }
+                withAnimation(.easeInOut(duration: 0.22)) {
+                    proxy.scrollTo(anchorID, anchor: .center)
+                }
             }
         }
     }

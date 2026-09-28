@@ -77,8 +77,7 @@ extension RadixStore {
     }
 
     func refreshAddedPhrases() {
-        browsePagePhraseTileCache.removeAll()
-        browsePagePhraseCandidateCache.removeAll()
+        invalidateBrowsePagePhrases()
         invalidateConversationPracticeHintCache()
         addedPhrases = phraseRepo.fetchAddedPhrases()
         refreshAddedPhraseReviewPhrases()
@@ -210,8 +209,7 @@ extension RadixStore {
         dataEditPhrases = []
         phraseCache.removeAll()
         invalidateConversationPracticeHintCache()
-        browsePagePhraseTileCache.removeAll()
-        browsePagePhraseCandidateCache.removeAll()
+        invalidateBrowsePagePhrases()
 
         favorites = []
         favoriteAddedDates = [:]

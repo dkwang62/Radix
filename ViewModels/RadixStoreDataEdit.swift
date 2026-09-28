@@ -528,8 +528,7 @@ extension RadixStore {
             )
         }
         phraseCache.removeAll()
-        browsePagePhraseTileCache.removeAll()
-        browsePagePhraseCandidateCache.removeAll()
+        invalidateBrowsePagePhrases()
         invalidateConversationPracticeHintCache()
         return updatedPhrase
     }

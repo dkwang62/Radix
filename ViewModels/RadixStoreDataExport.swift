@@ -165,8 +165,7 @@ extension RadixStore {
             dataEditPhrases = addedPhrases
             refreshAddedPhraseReviewPhrases()
             phraseCache.removeAll()
-            browsePagePhraseTileCache.removeAll()
-            browsePagePhraseCandidateCache.removeAll()
+            invalidateBrowsePagePhrases()
             invalidateConversationPracticeHintCache()
             favoriteSentenceRevision += 1
         }

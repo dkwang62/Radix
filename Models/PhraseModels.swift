@@ -1,6 +1,6 @@
 import Foundation
 
-enum PhraseReviewStatus: String, Codable, CaseIterable {
+enum PhraseReviewStatus: String, Codable, CaseIterable, Sendable {
     case checked
     case hidden
     case removed
@@ -232,7 +232,7 @@ struct PhraseReviewStatusCycleState {
     }
 }
 
-struct PhraseItem: Identifiable, Hashable, Equatable, Codable {
+struct PhraseItem: Identifiable, Hashable, Equatable, Codable, Sendable {
     let id: String
     let word: String
     let pinyin: String

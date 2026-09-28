@@ -255,7 +255,10 @@ struct SwiftUICrashGuardrailTests {
             .components(separatedBy: "func selectBrowseCollection(id: UUID?) {")[1]
             .components(separatedBy: "func selectAICollection")[0]
         #expect(selection.contains("SavedPageRules.shouldRecordView"))
-        #expect(selection.range(of: "return")!.lowerBound < selection.range(of: "persistCollections()")!.lowerBound)
+        #expect(!selection.contains("persistCollections()"))
+        let returnRange = try #require(selection.range(of: "return"))
+        let persistenceRange = try #require(selection.range(of: "scheduleViewedCollectionsPersistence()"))
+        #expect(returnRange.lowerBound < persistenceRange.lowerBound)
 
         let lifecycle = try sourceText(at: "App/FavouritesTabLifecycle.swift")
         let onAppear = lifecycle
@@ -309,6 +312,15 @@ struct SwiftUICrashGuardrailTests {
         let grid = try sourceText(at: "ViewModels/RadixStoreGrid.swift")
         #expect(grid.contains("Task.detached(priority: .userInitiated)"))
         #expect(grid.contains("browseGridState = nextState"))
+
+        let pageGrid = try sourceText(at: "App/BrowseImageGrid.swift")
+        let pageWorker = try sourceText(at: "ViewModels/RadixStoreImagePhrase.swift")
+        let pageSelection = try sourceText(at: "App/FilterGridTab.swift")
+        #expect(pageGrid.contains("LazyVStack"))
+        #expect(!pageGrid.contains("store.browsePagePhraseTiles(in: collection)"))
+        #expect(pageWorker.contains("repository.openReadOnly(baseURL: urls.base, addedURL: urls.added)"))
+        #expect(pageWorker.contains("generation == browsePagePhraseCacheGeneration"))
+        #expect(pageSelection.contains(".id(store.selectedBrowseCollectionID)"))
 
         let characterActions = try sourceText(at: "Views/CharacterInfoCardActions.swift")
         #expect(characterActions.contains(".task(id:"))

@@ -55,6 +55,30 @@ final class PhraseRepository {
 
     // MARK: - Lifecycle
 
+    // Workers own separate read-only connections; never share the live mutable
+    // repository or its SQLite handles with detached page-grid work.
+    var pageGridDatabaseURLs: (base: URL?, added: URL?) {
+        func url(_ db: OpaquePointer?) -> URL? {
+            guard let db, let path = sqlite3_db_filename(db, "main") else { return nil }
+            return URL(fileURLWithPath: String(cString: path))
+        }
+        return (url(baseDb), url(addDb))
+    }
+
+    func openReadOnly(baseURL: URL?, addedURL: URL?) throws {
+        for (url, isBase) in [(baseURL, true), (addedURL, false)] {
+            guard let url else { continue }
+            var handle: OpaquePointer?
+            guard sqlite3_open_v2(url.path, &handle, SQLITE_OPEN_READONLY, nil) == SQLITE_OK else {
+                if let handle { sqlite3_close(handle) }
+                close()
+                throw NSError(domain: "Radix", code: 129, userInfo: [NSLocalizedDescriptionKey: "Could not read page phrase data."])
+            }
+            sqlite3_busy_timeout(handle, 1_000)
+            if isBase { baseDb = handle } else { addDb = handle }
+        }
+    }
+
     func openFromBundle() throws {
         let fm = FileManager.default
         guard let bundleURL = Bundle.main.url(forResource: "phrases", withExtension: "db") else {

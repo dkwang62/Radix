@@ -73,7 +73,11 @@ struct FilterGridTab: View {
     @State var isRunningImageAction = false
     @State var isProcessingBrowseImageImport = false
     @State var lastTappedImageOffset: Int?
-    @State var pageDetailActive = false
+    @State var pageDetailCollectionID: UUID?
+
+    var pageDetailActive: Bool {
+        pageDetailCollectionID != nil && pageDetailCollectionID == store.selectedBrowseCollectionID
+    }
 
     var isRunningOnMac: Bool {
         RadixPlatform.isRunningOnMac
@@ -140,7 +144,7 @@ struct FilterGridTab: View {
                         browseSourceDisclosure(description: browseGridDescription)
                             .padding(.horizontal)
 
-                        if store.selectedBrowseCollection != nil {
+                        if let collection = store.selectedBrowseCollection {
                             FavouritesTab(
                                 onExportProfile: {},
                                 onImportProfile: {},
@@ -152,7 +156,7 @@ struct FilterGridTab: View {
                                 isCreatingCheckpoint: false,
                                 isReturningToCheckpoint: false,
                                 pageArtifactsOnly: true,
-                                onPageDetailChange: { pageDetailActive = $0 }
+                                onPageDetailChange: { pageDetailCollectionID = $0 ? collection.id : nil }
                             )
                             .frame(maxHeight: pageDetailActive ? .infinity : nil)
                         }
@@ -167,6 +171,7 @@ struct FilterGridTab: View {
                                 }
                                 .padding(.horizontal)
                             }
+                            .id(store.selectedBrowseCollectionID)
                         }
                     }
                 }
@@ -193,7 +198,7 @@ struct FilterGridTab: View {
             }
             .onChange(of: store.selectedBrowseCollectionID) { _, _ in
                 lastTappedImageOffset = nil
-                pageDetailActive = false
+                pageDetailCollectionID = nil
             }
             .onChange(of: store.browseMemoryHighlightOffsets) { _, _ in
                 scrollToPendingBrowseTarget(proxy: proxy)

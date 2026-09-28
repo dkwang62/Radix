@@ -118,6 +118,10 @@ Use these preferences as defaults:
   artifact title above the reader.
   Tapping an extracted sentence opens its card; keep the row chevron and avoid
   a second icon that opens the same card.
+- Switching the page dropdown starts the new source grid at the top and closes
+  the previous page's detail. Cold pages show character tiles while phrase tiles
+  are prepared; repeat visits reuse the prepared grid. Keep empty artifact strips
+  out of the layout so a page without extracted results still shows its source.
 - Let the bottom tabs override contextual flows. Switching tabs should feel like
   a clean change of workspace, not another nested return layer.
 - On iPhone, the History/memory strip opens character and phrase cards inline

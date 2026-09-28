@@ -4,6 +4,57 @@ import XCTest
 @testable import Radix
 
 final class PhraseRepositoryMigrationTests: XCTestCase {
+    @MainActor
+    func testBackgroundPageGridPreservesPhrasesAndInvalidatesAfterHiding() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let suite = "RadixPageGridTests-\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer {
+            defaults.removePersistentDomain(forName: suite)
+            try? FileManager.default.removeItem(at: directory)
+        }
+        let store = RadixStore(preferences: RadixPreferences(defaults: defaults), savedPageImageStore: SavedPageImageStore(directoryURL: directory.appendingPathComponent("images")))
+        try store.phraseRepo.openForTesting(at: directory.appendingPathComponent("phrases.sqlite"))
+        try store.phraseRepo.addPhrasesAdditively([PhraseItem(word: "你好", pinyin: "nǐ hǎo", meanings: "hello")])
+        let page = CharacterCollection(id: UUID(), name: "Page", characters: ["你", "好", "啊", "你", "好"], createdAt: Date(), sourceType: .manual, isFavorite: false)
+        store.allCollections = [page]
+        store.selectBrowseCollection(id: page.id)
+        XCTAssertNil(store.browsePageGridItemCache[page.id])
+        await store.prepareBrowsePageGrid(for: page.id)
+        let prepared = try XCTUnwrap(store.browsePageGridItemCache[page.id])
+        XCTAssertEqual(prepared.allItems.map(\.offset), [0, 2, 3])
+        XCTAssertEqual(prepared.uniqueItems.map(\.offset), [0, 2])
+        XCTAssertEqual(prepared.tiles[0]?.phrase.word, "你好")
+
+        store.setCollectionPhraseHidden(collectionID: page.id, phraseWord: "你好", hidden: true)
+        XCTAssertNil(store.browsePageGridItemCache[page.id])
+        await store.prepareBrowsePageGrid(for: page.id)
+        XCTAssertTrue(try XCTUnwrap(store.browsePageGridItemCache[page.id]).tiles.isEmpty)
+        XCTAssertEqual(store.browsePageGridItemCache[page.id]?.allItems.map(\.offset), [0, 1, 2, 3, 4])
+    }
+
+    @MainActor
+    func testDeferredViewSaveCannotOverwriteNewerPageEdit() async throws {
+        let suite = "RadixPageViewTests-\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = RadixStore(preferences: RadixPreferences(defaults: defaults))
+        let page = CharacterCollection(id: UUID(), name: "Original", characters: ["你", "好"], createdAt: Date(), sourceType: .manual, isFavorite: false)
+        store.allCollections = [page]
+        store.persistCollections()
+        store.selectBrowseCollection(id: page.id)
+        XCTAssertNotNil(store.viewedCollectionsPersistenceTask)
+        var edited = try XCTUnwrap(store.collection(id: page.id))
+        edited.name = "Edited"
+        store.saveCollection(edited)
+        try await Task.sleep(for: .milliseconds(300))
+        let data = try XCTUnwrap(defaults.data(forKey: RadixPreferenceKey.collections))
+        let saved = try JSONDecoder().decode([CharacterCollection].self, from: data)
+        XCTAssertEqual(saved.first?.name, "Edited")
+        XCTAssertNotNil(saved.first?.lastViewedAt)
+    }
+
     func testOpeningLegacyDatabaseMergesTraditionalAndSimplifiedDuplicates() throws {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
