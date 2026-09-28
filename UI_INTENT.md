@@ -72,7 +72,7 @@ Use these preferences as defaults:
 - Completed content tasks return to Browse and open the actual saved result.
   AI imports and automatic tasks open their page artifact, practice, sentence
   card, or explanation. Successful restore, import, checkpoint save, and file
-  export return to the newest scanned page. Failures and cancellations retain
+  export return to the last viewed page. Failures and cancellations retain
   their working screen; diagnostic prompt-template tests stay in the editor.
 - The title dropdown is the complete, universal navigation map on every screen.
   Keep it single-level and grouped as `Create Page`, `Browse`, `Study`, the one

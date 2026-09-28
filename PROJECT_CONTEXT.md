@@ -101,8 +101,9 @@ stay linked to their page rather than becoming disconnected parallel features.
 - Successful content tasks use `completeTaskInBrowse` / `completeAIResultInBrowse`.
   AI apply and automatic tasks open the existing Browse result reader; global
   practice remains unlinked to pages. Successful data import, restore, checkpoint
-  save, and completed file export select the latest page by `createdAt`, not
-  viewed order. Failure/cancellation paths and diagnostic template tests retain
+  save, and completed file export select the page with the latest `lastViewedAt`.
+  Scan date is a fallback only when no page has been viewed. Explicit task results
+  still take precedence. Failure/cancellation paths and diagnostic template tests retain
   their working screen. Completion requests are transient and cleared by title
   navigation; persisted IDs and backup formats are unchanged.
 - Study keeps `Sentences`, `Conversation`, and `Favorites` before `More` in one
@@ -693,7 +694,7 @@ without a new reproduction or evidence that a documented contract has regressed.
 Latest application baseline (2026-09-29): `swift test` passed 240 tests in 19
 suites; Mac Catalyst, iOS Simulator, and unsigned iOS device builds succeeded.
 Focused Catalyst page-grid tests cover phrase preservation, hide invalidation,
-and deferred-save/edit ordering. Focused completion tests cover newest-scan
+and deferred-save/edit ordering. Focused completion tests cover last-viewed
 selection, explicit result routing, stale-request clearing, empty libraries, and
 failed AI imports retaining their screen. The full app test target currently has a stale
 `LocalDataSnapshotStoreTests` fixture initializer; repair it before using that

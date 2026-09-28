@@ -56,31 +56,31 @@ final class PhraseRepositoryMigrationTests: XCTestCase {
     }
 
     @MainActor
-    func testTaskCompletionSelectsScanOrderAndClearsPreviousAIRequests() throws {
+    func testTaskCompletionSelectsViewedOrderAndClearsPreviousAIRequests() throws {
         let suite = "RadixCompletionTests-\(UUID())"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
         let store = RadixStore(preferences: RadixPreferences(defaults: defaults))
         var oldPage = CharacterCollection(id: UUID(), name: "Older", characters: ["你"], createdAt: Date(timeIntervalSince1970: 10), sourceType: .manual, isFavorite: true)
         oldPage.lastViewedAt = Date(timeIntervalSince1970: 100)
-        let newPage = CharacterCollection(id: UUID(), name: "Newest", characters: ["好"], createdAt: Date(timeIntervalSince1970: 20), sourceType: .manual, isFavorite: false)
+        let newPage = CharacterCollection(id: UUID(), name: "Newest", characters: ["好"], createdAt: Date(timeIntervalSince1970: 200), sourceType: .manual, isFavorite: false)
         store.allCollections = [oldPage, newPage]
-        store.selectedBrowseCollectionID = oldPage.id
+        store.selectedBrowseCollectionID = newPage.id
         store.route = .aiLink
         store.pendingConversationPracticeTopicID = "old-request"
         store.completeTaskInBrowse()
         XCTAssertEqual(store.route, .search)
         XCTAssertEqual(store.homeTab, .filter)
-        XCTAssertEqual(store.selectedBrowseCollectionID, newPage.id)
+        XCTAssertEqual(store.selectedBrowseCollectionID, oldPage.id)
         XCTAssertNil(store.pendingConversationPracticeTopicID)
         XCTAssertNil(store.rootsReturnContext)
         guard case .page = store.browseTaskCompletion?.result else {
             return XCTFail("Expected the page grid, clearing any previous artifact reader")
         }
 
-        store.completeTaskInBrowse(pageID: oldPage.id, result: .extractedSentences)
-        XCTAssertEqual(store.selectedBrowseCollectionID, oldPage.id)
-        XCTAssertEqual(store.browseTaskCompletion?.pageID, oldPage.id)
+        store.completeTaskInBrowse(pageID: newPage.id, result: .extractedSentences)
+        XCTAssertEqual(store.selectedBrowseCollectionID, newPage.id)
+        XCTAssertEqual(store.browseTaskCompletion?.pageID, newPage.id)
         guard case .extractedSentences = store.browseTaskCompletion?.result else {
             return XCTFail("Expected the saved extracted-sentence reader")
         }

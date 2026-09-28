@@ -81,7 +81,9 @@ struct BrowseTaskCompletion: Identifiable {
 extension RadixStore {
     func completeTaskInBrowse(pageID: UUID? = nil, result: BrowseCompletionResult? = nil) {
         let targetID = pageID.flatMap { collection(id: $0)?.id }
-            ?? allCollections.max(by: { $0.createdAt < $1.createdAt })?.id
+            ?? allCollections.filter { $0.lastViewedAt != nil }
+                .max { ($0.lastViewedAt ?? .distantPast) < ($1.lastViewedAt ?? .distantPast) }?.id
+            ?? mostRecentlyViewedCollection?.id
         overrideIncompleteActionsForTitleSelection()
         if targetID == nil { selectBrowseCollection(id: nil) }
         goToPagesWorkspace(id: targetID)
