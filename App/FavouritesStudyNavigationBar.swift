@@ -5,10 +5,10 @@ extension FavouritesTab {
         HStack(spacing: 6) {
             studyPrimarySectionButton("Sentences", target: .sentences)
             studyPrimarySectionButton("Conversation", target: .conversationPractice)
+            studyPrimarySectionButton("Favorites", target: .favorites)
 
             Menu {
                 studyMoreSectionButton("Recent", target: .recent, systemImage: "clock")
-                studyMoreSectionButton("Favorites", target: .favorites, systemImage: "star")
                 studyMoreSectionButton("Added Phrases", target: .addedPhrases, systemImage: "text.quote")
                 studyMoreSectionButton("Checkpoints", target: .checkpoints, systemImage: "clock.arrow.circlepath")
             } label: {
@@ -46,8 +46,9 @@ extension FavouritesTab {
 
     private func studySectionNavigationLabel(_ title: String, isSelected: Bool) -> some View {
         Text(title)
-            .font(ResponsiveFont.caption.weight(isSelected ? .bold : .semibold))
+            .font(studySectionNavigationFont.weight(isSelected ? .bold : .semibold))
             .lineLimit(1)
+            .allowsTightening(true)
             .minimumScaleFactor(0.72)
             .foregroundStyle(isSelected ? Color.white : Color.primary)
             .frame(maxWidth: .infinity, minHeight: 36)
@@ -56,6 +57,14 @@ extension FavouritesTab {
                     .fill(isSelected ? RadixAccent.primary : RadixTheme.secondaryBackground)
             )
             .contentShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var studySectionNavigationFont: Font {
+        #if targetEnvironment(macCatalyst)
+        ResponsiveFont.caption
+        #else
+        .system(size: isPhone ? 11 : 12)
+        #endif
     }
 
     private var activeStudyNavigationTarget: StudyNavigationTarget {
@@ -83,9 +92,9 @@ extension FavouritesTab {
 private extension StudyNavigationTarget {
     var isSecondary: Bool {
         switch self {
-        case .recent, .favorites, .addedPhrases, .checkpoints:
+        case .recent, .addedPhrases, .checkpoints:
             return true
-        case .savedPages, .sentences, .conversationPractice:
+        case .savedPages, .sentences, .conversationPractice, .favorites:
             return false
         }
     }

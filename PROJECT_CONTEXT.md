@@ -98,9 +98,10 @@ stay linked to their page rather than becoming disconnected parallel features.
   and page-owned practice return to the same Browse page. The page-name menu
   owns Viewed/Scanned sort and the source grid keeps All/Unique, script, and
   read-aloud controls.
-- Study keeps `Sentences` and `Conversation` visible in one compact
-  local navigation row; `More` contains Recent, Favorites, Added Phrases, and
-  Checkpoints. The row remains one line on narrow iPhones.
+- Study keeps `Sentences`, `Conversation`, and `Favorites` before `More` in one
+  compact local navigation row; `More` contains Recent, Added Phrases, and
+  Checkpoints. Labels use 11-point type on iPhone and 12-point type on iPad,
+  with single-line scaling to keep all four controls on one row.
 - Every screen title opens the same bounded, single-level navigation map:
   Create Page sources, Browse destinations, every Study section, one direct AI
   destination, My Data sections, Settings, and contextual Help. Search and

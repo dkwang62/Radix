@@ -45,8 +45,9 @@ Use these preferences as defaults:
 - Keep Study section switching in the `Study - [section]` title menu. Do not
   duplicate broad Study buttons in the content area when the header menu already
   owns the same choices. The Study workspace is the exception for discoverability:
-  keep a compact, single-line `Sentences | Conversation | More` row visible
-  in its content. `More` owns Recent, Favorites, Added Phrases, and Checkpoints.
+  keep a compact, single-line `Sentences | Conversation | Favorites | More` row
+  visible in its content. `More` owns Recent, Added Phrases, and Checkpoints.
+  Use smaller labels on iPhone and iPad so the four controls stay on one row.
   Keep the controls on one fixed-height row on narrow phones.
 - Keep Browse source switching in the title menu. Use `Browse - Dictionary` for
   the dictionary and `Browse - Pages` for every selected saved page; place the
