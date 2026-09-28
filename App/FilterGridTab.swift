@@ -73,6 +73,7 @@ struct FilterGridTab: View {
     @State var isRunningImageAction = false
     @State var isProcessingBrowseImageImport = false
     @State var lastTappedImageOffset: Int?
+    @State var pageDetailActive = false
 
     var isRunningOnMac: Bool {
         RadixPlatform.isRunningOnMac
@@ -139,14 +140,33 @@ struct FilterGridTab: View {
                         browseSourceDisclosure(description: browseGridDescription)
                             .padding(.horizontal)
 
-                        ScrollView {
-                            VStack(alignment: .leading, spacing: 0) {
-                                Color.clear.frame(height: 0).id("browseTop")
-                                if !showBrowseSource {
-                                    browseContent(proxy: proxy)
+                        if store.selectedBrowseCollection != nil {
+                            FavouritesTab(
+                                onExportProfile: {},
+                                onImportProfile: {},
+                                onRequirePro: { store.showPaywall(for: $0) },
+                                onOpenProtectRecover: {},
+                                onCreateCheckpoint: {},
+                                onReturnToCheckpoint: { _ in },
+                                checkpoints: [],
+                                isCreatingCheckpoint: false,
+                                isReturningToCheckpoint: false,
+                                pageArtifactsOnly: true,
+                                onPageDetailChange: { pageDetailActive = $0 }
+                            )
+                            .frame(maxHeight: pageDetailActive ? .infinity : nil)
+                        }
+
+                        if !pageDetailActive {
+                            ScrollView {
+                                VStack(alignment: .leading, spacing: 0) {
+                                    Color.clear.frame(height: 0).id("browseTop")
+                                    if !showBrowseSource {
+                                        browseContent(proxy: proxy)
+                                    }
                                 }
+                                .padding(.horizontal)
                             }
-                            .padding(.horizontal)
                         }
                     }
                 }
@@ -173,6 +193,7 @@ struct FilterGridTab: View {
             }
             .onChange(of: store.selectedBrowseCollectionID) { _, _ in
                 lastTappedImageOffset = nil
+                pageDetailActive = false
             }
             .onChange(of: store.browseMemoryHighlightOffsets) { _, _ in
                 scrollToPendingBrowseTarget(proxy: proxy)

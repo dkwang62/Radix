@@ -4,6 +4,10 @@ extension FavouritesTab {
     func studyLifecycle<Content: View>(_ content: Content) -> some View {
         content
             .onAppear {
+                if pageArtifactsOnly {
+                    loadStudyPageReferenceData()
+                    return
+                }
                 studyGridUsesTraditionalScript = RadixStudyPreferences.usesTraditionalScript
                 studyGridScope = RadixStudyPreferences.initialGridScope
                 studyPageSortOrder = RadixStudyPreferences.pageSortOrder
@@ -16,13 +20,16 @@ extension FavouritesTab {
                 RadixStudyPreferences.usesTraditionalScript = newValue
             }
             .onChange(of: studyGridScope) { _, newValue in
+                guard !pageArtifactsOnly else { return }
                 RadixStudyPreferences.gridScope = newValue
                 syncActiveStudySectionTitle()
             }
             .onChange(of: focusedStudySection) { _, _ in
+                guard !pageArtifactsOnly else { return }
                 syncActiveStudySectionTitle()
             }
             .onChange(of: store.requestedStudyNavigationTarget) { _, target in
+                guard !pageArtifactsOnly else { return }
                 applyRequestedStudyNavigationTarget(target)
             }
             .onChange(of: studyPageSortOrder) { _, newValue in
@@ -39,12 +46,20 @@ extension FavouritesTab {
                 openPendingConversationPracticeIfNeeded()
             }
             .onChange(of: store.dataImportRevision) { _, _ in
+                if pageArtifactsOnly {
+                    loadStudyPageReferenceData()
+                    return
+                }
                 store.didMigrateLegacyPhraseFavoritesToFavoriteSentences = false
                 reloadVisibleStudyReferenceData()
                 sentenceExampleRevision += 1
                 refreshSentenceExampleResults()
             }
+            .onChange(of: store.pageArtifactRevision) { _, _ in
+                if pageArtifactsOnly { loadStudyPageReferenceData() }
+            }
             .onChange(of: store.favoriteSentenceRevision) { _, _ in
+                guard !pageArtifactsOnly else { return }
                 loadFavoriteSentences()
                 loadConversationPracticeLibrary()
                 refreshSentenceExampleResults()
@@ -98,14 +113,9 @@ extension FavouritesTab {
         case .favorites:
             screenState.presentReview(scope: .favorites)
         case .savedPages:
-            if !studyPageReferenceData.isLoaded {
-                loadStudyPageReferenceData()
-            }
-            if store.selectedBrowseCollectionID == nil,
-               let firstPage = store.sortedCollections(order: .lastViewed).first {
-                store.selectBrowseCollection(id: firstPage.id)
-            }
-            screenState.presentReview(scope: .savedPages)
+            store.requestedStudyNavigationTarget = nil
+            store.goToPagesWorkspace()
+            return
         case .addedPhrases:
             presentAddedPhraseReview()
         case .conversationPractice:

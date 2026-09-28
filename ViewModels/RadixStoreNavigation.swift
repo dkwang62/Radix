@@ -240,7 +240,7 @@ extension RadixStore {
     func currentStudyNavigationTargetForReturn() -> StudyNavigationTarget? {
         let isStudyRoute = route == .favourites || (route == .search && homeTab == .favourites)
         guard isStudyRoute else { return nil }
-        return activeStudySectionTitle == StudyNavigationTarget.savedPages.title ? .savedPages : nil
+        return StudyNavigationTarget.allCases.first { $0.title == activeStudySectionTitle }
     }
 
     func rememberCrossTabOrigin() {
@@ -337,21 +337,11 @@ extension RadixStore {
 
     func goToPagesWorkspace(id collectionID: UUID? = nil, preservingOrigin: Bool = false) {
         let origin = preservingOrigin ? currentRootsReturnContext() : nil
-        if preservingOrigin {
-            rootsReturnContext = origin
-        } else {
-            clearCrossTabOrigin()
-        }
-        route = .favourites
-        activeFavouriteCharacter = nil
-        if let collectionID {
+        goToBrowse()
+        rootsReturnContext = origin
+        if let collectionID, collection(id: collectionID) != nil {
             selectBrowseCollection(id: collectionID)
-        } else if selectedBrowseCollectionID == nil,
-                  let collection = sortedCollections(order: .lastViewed).first {
-            selectBrowseCollection(id: collection.id)
         }
-        activeStudySectionTitle = StudyNavigationTarget.savedPages.title
-        requestedStudyNavigationTarget = .savedPages
         shouldCloseBrowseSource = true
         showiPhoneDetail = false
     }
@@ -553,6 +543,10 @@ extension RadixStore {
         guard let rootsReturnContext else { return }
         route = rootsReturnContext.route
         if let homeTab = rootsReturnContext.homeTab { self.homeTab = homeTab }
+        if let studyTarget = rootsReturnContext.studyTarget {
+            activeStudySectionTitle = studyTarget.title
+            requestedStudyNavigationTarget = studyTarget
+        }
         if rootsReturnContext.route == .search,
            rootsReturnContext.homeTab == .filter,
            let browseCollectionID = rootsReturnContext.browseCollectionID {

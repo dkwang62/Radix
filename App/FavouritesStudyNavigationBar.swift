@@ -3,7 +3,6 @@ import SwiftUI
 extension FavouritesTab {
     var studySectionNavigationBar: some View {
         HStack(spacing: 6) {
-            studyPrimarySectionButton("Pages", target: .savedPages)
             studyPrimarySectionButton("Sentences", target: .sentences)
             studyPrimarySectionButton("Conversation", target: .conversationPractice)
 

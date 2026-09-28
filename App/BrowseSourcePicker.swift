@@ -226,7 +226,8 @@ extension FilterGridTab {
             isSelected: isSelected,
             dateMode: dateMode ?? .lastViewed,
             onSelect: {
-                store.goToBrowseCollection(id: collection.id, preservingOrigin: true)
+                store.selectBrowseCollection(id: collection.id)
+                store.shouldCloseBrowseSource = true
             },
             onOpenPractice: openPractice
         )

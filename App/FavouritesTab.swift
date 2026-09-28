@@ -94,6 +94,8 @@ struct FavouritesTab: View {
     let checkpoints: [LocalDataSnapshot]
     let isCreatingCheckpoint: Bool
     let isReturningToCheckpoint: Bool
+    var pageArtifactsOnly = false
+    var onPageDetailChange: ((Bool) -> Void)? = nil
     @State var screenState = StudyScreenState()
 
     private let conversationPracticeService = ConversationPracticeService()
@@ -119,27 +121,46 @@ struct FavouritesTab: View {
     }
 
     var body: some View {
-        studyLifecycle(
-            studyPresentations(
-                VStack(alignment: .leading, spacing: 0) {
-                    if studyAICleanedPageCollectionID == nil {
-                        favouritesHeader
-                    }
-
-                    if isPhoneStudyPreviewActive {
-                        ScrollView {
-                            phoneStudyPreview
-                                .padding(.horizontal)
-                                .padding(.bottom, 20)
-                        }
-                    } else if hasStudyContent {
-                        favouritesScrollContent
-                    } else {
-                        ContentUnavailableView("No Study Items", systemImage: "clock.badge.questionmark", description: Text("Search, take a photo, or star a character."))
-                    }
+        if pageArtifactsOnly {
+            studyLifecycle(studyPresentations(browsePageArtifactContent))
+                .onChange(of: studyAICleanedPageCollectionID) { _, _ in
+                    notifyPageDetailChange()
                 }
+                .onChange(of: studyPageReturnCollectionID) { _, _ in
+                    notifyPageDetailChange()
+                }
+                .onChange(of: store.selectedBrowseCollectionID) { _, _ in
+                    studyAICleanedPageCollectionID = nil
+                    studyPageReturnCollectionID = nil
+                    loadStudyPageReferenceData()
+                }
+        } else {
+            studyLifecycle(
+                studyPresentations(
+                    VStack(alignment: .leading, spacing: 0) {
+                        if studyAICleanedPageCollectionID == nil {
+                            favouritesHeader
+                        }
+
+                        if isPhoneStudyPreviewActive {
+                            ScrollView {
+                                phoneStudyPreview
+                                    .padding(.horizontal)
+                                    .padding(.bottom, 20)
+                            }
+                        } else if hasStudyContent {
+                            favouritesScrollContent
+                        } else {
+                            ContentUnavailableView("No Study Items", systemImage: "clock.badge.questionmark", description: Text("Search, take a photo, or star a character."))
+                        }
+                    }
+                )
             )
-        )
+        }
+    }
+
+    func notifyPageDetailChange() {
+        onPageDetailChange?(studyAICleanedPageCollectionID != nil || studyPageReturnCollectionID != nil)
     }
 
     func presentConversationPractice() {

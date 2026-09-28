@@ -1,12 +1,5 @@
 import SwiftUI
 
-enum PageWorkspaceMode: String, CaseIterable, Identifiable {
-    case browse = "Browse"
-    case study = "Study"
-
-    var id: String { rawValue }
-}
-
 private enum SavedPageHeaderDateFormatter {
     static let scan: DateFormatter = {
         let formatter = DateFormatter()
@@ -121,30 +114,5 @@ struct PageSelectionSwitcher: View {
         .accessibilityValue(
             pages.first(where: { $0.id == selectedPageID }).map(displayName) ?? "No page selected"
         )
-    }
-}
-
-struct PageWorkspaceSwitcher: View {
-    let selectedMode: PageWorkspaceMode
-    let onSelect: (PageWorkspaceMode) -> Void
-
-    var body: some View {
-        Picker("Page workspace", selection: Binding(
-            get: { selectedMode },
-            set: { mode in
-                guard mode != selectedMode else { return }
-                onSelect(mode)
-            }
-        )) {
-            ForEach(PageWorkspaceMode.allCases) { mode in
-                Text(mode.rawValue)
-                    .font(ResponsiveFont.tinySystem(size: 11, weight: .semibold))
-                    .tag(mode)
-            }
-        }
-        .pickerStyle(.segmented)
-        .frame(width: 112)
-        .accessibilityLabel("Switch page workspace")
-        .accessibilityValue("Currently \(selectedMode.rawValue)")
     }
 }

@@ -84,7 +84,7 @@ extension FavouritesTab {
                     fixedScopeLabel: presentation.collection.name,
                     fixedSort: .pinyin,
                     keepsPhraseInspectionInSheet: true,
-                    returnTitle: "Back to Study Page"
+                    returnTitle: pageArtifactsOnly ? "Back to Page" : "Back to Study Page"
                 )
                 .environmentObject(store)
             }

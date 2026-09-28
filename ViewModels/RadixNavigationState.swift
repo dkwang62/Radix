@@ -41,7 +41,7 @@ struct RadixNavigationState: Equatable {
     var rootsReturnContext: RootsReturnContext?
     var shouldRevealAPIKeys = false
     var pendingConversationPracticeTopicID: String?
-    var activeStudySectionTitle = StudyNavigationTarget.savedPages.title
+    var activeStudySectionTitle = StudyNavigationTarget.sentences.title
     var requestedStudyNavigationTarget: StudyNavigationTarget?
     var activeDataEditSection: DataEditSection = .myBackup
     var previewCharacter: String?

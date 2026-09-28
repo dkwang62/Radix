@@ -27,6 +27,41 @@ private struct StudyPageArtifact: Identifiable {
 
 extension FavouritesTab {
     @ViewBuilder
+    var browsePageArtifactContent: some View {
+        if studyAICleanedPageCollectionID != nil {
+            aiCleanedPageStudyScreen
+        } else if studyPageReturnCollectionID != nil {
+            ScrollView {
+                conversationPracticeStudyScreen
+                    .padding(.horizontal)
+                    .padding(.bottom, 20)
+            }
+        } else if let collection = store.selectedBrowseCollection {
+            let rowData = studySavedPageRowData(
+                collection,
+                hasRecordedPagePhrases: pageIDsWithRecordedPhraseExtractions.contains(collection.id)
+            )
+            VStack(alignment: .leading, spacing: 5) {
+                if studyPageActionMessageCollectionID == collection.id,
+                   let studyPageActionMessage {
+                    Text(studyPageActionMessage)
+                        .font(ResponsiveFont.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(rowData.artifacts) { artifact in
+                            studyPageArtifactChip(artifact, collection: collection)
+                        }
+                    }
+                    .padding(.vertical, 1)
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+
+    @ViewBuilder
     var studyReviewContent: some View {
         if studyGridScope == .savedPages {
             if store.allCollections.isEmpty {
@@ -337,7 +372,6 @@ extension FavouritesTab {
                 compactControlSize: 28
             )
             studyScriptToggle
-            studyPageWorkspaceSwitcher(collection)
         }
     }
 
@@ -388,15 +422,6 @@ extension FavouritesTab {
             compactControlSize: compactControlSize
         )
         .disabled(isRunningStudyPageAction)
-    }
-
-    private func studyPageWorkspaceSwitcher(_ collection: CharacterCollection) -> some View {
-        PageWorkspaceSwitcher(selectedMode: .study) { mode in
-            if mode == .browse {
-                openSavedPageInBrowse(collection)
-            }
-        }
-        .help("Switch between browsing and studying this page")
     }
 
     private func openOriginalOCRPageFromStudy(_ collection: CharacterCollection) {

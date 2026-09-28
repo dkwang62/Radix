@@ -493,6 +493,7 @@ extension FavouritesTab {
     }
 
     func openStudyPracticePack(_ pack: ConversationPracticePack, from collection: CharacterCollection) {
+        loadImportedConversationPracticePacks()
         withAnimation(.snappy(duration: 0.18)) {
             screenState.openConversationPractice(fromPageID: collection.id)
         }
@@ -505,6 +506,6 @@ extension FavouritesTab {
             _ = screenState.returnToOriginatingPage()
         }
         store.selectBrowseCollection(id: collectionID)
-        syncActiveStudySectionTitle()
+        if !pageArtifactsOnly { syncActiveStudySectionTitle() }
     }
 }

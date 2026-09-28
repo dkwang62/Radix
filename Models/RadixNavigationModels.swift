@@ -102,7 +102,7 @@ struct CrossTabReturnVisibilityContext: Equatable {
     }
 
     var isStudyWorkspace: Bool {
-        isStudyPages || route == .favourites
+        isStudyPages
     }
 }
 

@@ -45,44 +45,29 @@ Use these preferences as defaults:
 - Keep Study section switching in the `Study - [section]` title menu. Do not
   duplicate broad Study buttons in the content area when the header menu already
   owns the same choices. The Study workspace is the exception for discoverability:
-  keep a compact, single-line `Pages | Sentences | Conversation | More` row visible
+  keep a compact, single-line `Sentences | Conversation | More` row visible
   in its content. `More` owns Recent, Favorites, Added Phrases, and Checkpoints.
-  On narrow phones the four controls must share one fixed-height row;
-  do not expose all seven destinations as separate buttons.
+  Keep the controls on one fixed-height row on narrow phones.
 - Keep Browse source switching in the title menu. Use `Browse - Dictionary` for
   the dictionary and `Browse - Pages` for every selected saved page; place the
-  selected page's name and scan date in the shared Browse/Study page header. Do not add
+  selected page's name and date in the Browse page header. Do not add
   a separate source button when Dictionary and page creation are already
   available from the title menu. Non-camera page creation belongs under Browse as
   `Text to Page`, `Image from Clipboard`, `Image from Album`, and
   `Image from Files`, and `Image from Transcripts`; the big Camera button remains the instant camera action.
   Selecting any page in a Browse-owned picker must open its Chinese tiles
-  immediately. Successful capture does the same, before the user chooses a
-  later Study action.
+  immediately, with page learning artifacts available on that same page.
+  Successful capture does the same.
 - Treat saved pages as part of `Browse`, not a separate top-level destination.
-  Browse page lists and saved-page title-menu entries should open the selected
-  page's Chinese tiles immediately. Page learning remains available from an
-  explicit `Study` action on the selected page, using the existing saved-page
-  Study implementation internally. Study opens on the same page selected in
-  Browse and shows only that page, with a compact page dropdown rather than a
-  second list of every saved page. Choosing a page in that Study dropdown also
-  changes the selected Browse page. Browse and page Study must share the same
-  page `Actions` vocabulary; avoid separate Browse-only and Study-only buttons
-  for the same page operation. Use the saved page name itself as the shared menu
-  in both Browse and Study to select a saved page, and the shared Browse/Study
-  segmented control to move between modes while preserving that selection. Show
-  the selected page name only in its content header rather than repeating it in
-  the picker. Keep page headers and page controls compact on portrait iPad and
-  iPhone: use the page name as its menu and show a label-free `dd MMM yy` date that
-  follows the selected Viewed/Scanned ordering. Put icon-only page Actions and the
-  Simplified/Traditional control in the second control row in both workspaces.
-  Browse also keeps its compact read aloud, a compact 11-point shared Browse/Study
-  segmented control, and the compact 11-point text-only `All | Unique` control in
-  Browse's second control row. Keep page sorting inside
-  the page-name menu on every platform; it should not
-  appear as a detached status-like pill. The Study title menu
-  exposes this learning workspace as `Pages`, but Pages is not a separate
-  top-level workspace.
+  One selected page shows its Chinese tiles and compact learning-artifact chips
+  together. The page name selects another saved page; the header date follows
+  Viewed/Scanned ordering. Keep one icon-only Actions menu for Rename, Edit,
+  Choose Page Phrases, Original OCR, Explanation, and Delete, with script,
+  read-aloud, and `All | Unique` controls near the tiles. Keep page sorting in
+  the page-name menu. `Choose Page Phrases` changes tile visibility; the
+  artifact `Phrases` chip opens phrase inspection. Page detail and page-owned
+  practice return directly to the selected Browse page. Study contains
+  non-page review and practice sections.
 - The title dropdown is the complete, universal navigation map on every screen.
   Keep it single-level and grouped as `Create Page`, `Browse`, `Study`, the one
   direct `AI` destination, `My Data`, and `App`. Search and Camera stay out of
@@ -91,8 +76,8 @@ Use these preferences as defaults:
   destination screens. Larger-screen sidebars remain fast workspace shortcuts.
 - Grouped title-menu sections expose each destination's entry points:
   Browse owns Dictionary, saved-page selection, tiled page inspection, and
-  non-camera page creation; Study owns page learning work and study sections
-  including Checkpoints; AI owns AI tasks; and My Data owns
+  non-camera page creation and page learning artifacts; Study owns non-page
+  learning sections including Checkpoints; AI owns AI tasks; and My Data owns
   `Backup Files` and `Advanced Pro`.
 - Prefer compact one-button toggles for binary display choices, such as
   `中 Chinese` / `英 English` and `拼 Pinyin`, instead of wide segmented controls.
@@ -121,8 +106,8 @@ Use these preferences as defaults:
 - Keep return behavior consistent and shallow. A callout from a sentence should
   return to that sentence; a callout from a phrase should return to that phrase.
   Avoid nested preview stacks such as sentence -> phrase -> phrase -> character.
-- Study Page artifacts must retain the originating page. Page Phrases inspects
-  phrases inside its sheet and dismisses directly with `Back to Study Page`;
+- Page artifacts must retain the originating page. Page Phrases inspects
+  phrases inside its sheet and dismisses directly with `Back to Page`;
   page-owned extracted sentences and Conversation Practice use the same visible
   return wording. Do not route a page phrase into the global sidebar and dismiss
   its sheet, because that strands the user away from the page workspace.
@@ -207,8 +192,7 @@ or maximum-length rule. It should start at 2 and should not use a generic
 typography icon or the word `min`; the numeric value is enough. Keep
 destructive sentence actions inside a nested `Delete...` menu with
 confirmation, separated from normal tools such as Select, Import, and Export.
-Page-linked sentence actions should open the source in `Pages`; Browse is only
-for explicit source/OCR inspection from a page's `Source` action.
+Page-linked sentence actions should open their source in Browse Pages.
 Language-learning controls should prefer meaningful text badges over generic
 typography icons: use labels such as `中 Chinese`, `英 English`, and `拼 Pinyin`
 instead of `Aa`/`textformat` symbols when the control changes language display
@@ -241,8 +225,8 @@ counterweights before declaring a UI done:
 The four primary destinations use this plain-language division of responsibility
 everywhere they are introduced or explained:
 
-- `Browse` — inspect the dictionary and captured pages.
-- `Study` — review what you decided to keep.
+- `Browse` — inspect the dictionary and work with captured pages.
+- `Study` — review saved sentences, phrases, and practice activity.
 - `AI` — understand or transform material.
 - `My Data` — protect, transfer, or export your work.
 
@@ -343,19 +327,12 @@ with a visible chevron for help. Dictionary grid tools such as Components,
 Simplified/Traditional, and Filters may use a second compact row when that keeps
 labels readable and avoids misleading icon-only controls.
 
-For an open saved page, keep navigation separate from page actions. The top
-`Browse [page name]` title is the quick page selector for Dictionary and saved
-pages, so the open-page card should not spend a separate header row repeating
-the page name, icon, or character count. Do not add a separate in-content source
-button; the title dropdown owns Dictionary/saved-page switching, while other
-capture sources live under Camera/capture. Browse should own page-inspection
-controls that only make sense while looking at the page, such as Rename Page,
-Edit Page, and
-Choose Page Phrases. Browse should not own saved-page artifact work such as
-translation, AI OCR review, phrase extraction, quiz generation, sentence
-extraction, page conversation generation, or deletion. Keep frequently adjusted
-Browse controls—Simplified/Traditional and Read Aloud—visible beside the
-character count.
+For an open saved page, keep navigation separate from page actions. The root
+title is `Browse - Pages`; the page name in the content header selects another
+saved page and owns ordering. The Actions menu covers Rename, Edit, Choose Page
+Phrases, OCR, Explanation, and Delete. Keep the source tiles and artifact chips
+in the same workspace. Frequently adjusted controls—Simplified/Traditional,
+Read Aloud, and All/Unique—stay beside the page Actions.
 Check OCR should use the saved page characters as the primary text to review.
 The AI is asked to find likely capture/OCR anomalies in those page characters;
 any source image or raw OCR provenance is supporting evidence only.
@@ -366,13 +343,12 @@ Study is the user's learning memory center.
 
 Study should contain learning review material, not admin backup tools:
 
-- Recent characters, phrases, and pages.
+- Recent characters and phrases.
 - Favorites.
 - Added phrases.
 - Added characters.
 - Changed items.
 - Notes.
-- Saved pages to revisit.
 - Conversation practice sets.
 - Checkpoints.
 
@@ -406,7 +382,7 @@ sidebar.
 Study should not become a hodgepodge. Group it by intent:
 
 - Today: what changed or was captured recently.
-- Review: favorites, recent items, added items, notes, and saved pages.
+- Review: favorites, recent items, added items, and notes.
 - Practice: guided lesson sets and drills such as Conversation Practice.
 - Checkpoints: save and return to learning states.
 
@@ -414,7 +390,7 @@ The Study tab should not create a separate main app tab for Practice unless the
 whole navigation model is reconsidered. The main Study screen holds the user's
 kept material and local controls. The root title menu is the Study section
 switcher on every platform; do not also show broad Study dashboard buttons for
-Recent, Favorites, Pages, Added Phrases, Conversation Practices, Sentences, or
+Recent, Favorites, Added Phrases, Conversation Practices, Sentences, or
 Checkpoints inside the content area. Keep only compact controls that affect the
 current section. Keep the History strip and title menu visible across Study
 sections; embedded Study workspaces should not hide the shell. Do not require a
@@ -423,9 +399,8 @@ iPhone Checkpoints may remain a shortcut to a sheet because it is a recovery
 tool rather than a primary study list.
 Favorite Sentences belongs inside Conversation Practices, so do not duplicate
 it as a dashboard shortcut. `Sentences` is the default Study destination
-because Study should open directly into reading/practice material; `Pages`
-is the page-centered artifact workspace reached as its own title-menu
-destination.
+because Study should open directly into reading/practice material.
+Page artifacts live in Browse Pages.
 Conversation Practices should render as the focused Practice section under the
 same Study controls, not as a separate screen with its own `Back to Study`
 button. Do not show a persistent `Review | Practice` switch row on the Study
@@ -447,18 +422,15 @@ context belongs in the root title as `Study - [section]`, so do not repeat the
 same section name again in the content area. Keep local review-control rows
 pinned above the scrolling review content so long lists do not hide the main
 navigation and controls.
-Empty states in Study should be short and action-oriented: no saved pages should
-point toward Camera, paste, or image import; no favorites should point toward
+Empty states in Study should be short and action-oriented: no favorites should point toward
 starring items; no recent items should point toward searching, browsing, or
 inspecting Chinese. Avoid generic empty text that leaves the user with no next
 step.
-Pages owns page learning artifacts and deletion. The selected page workspace is
-always expanded: show its page-title menu, the date matching its active page
-ordering, second-row icon-only `Actions`,
-the Browse/Study destination, and actionable artifact chips together. Do not collapse this
-workspace, show last-viewed context, or repeat artifacts as tiny header icons;
-those indicators duplicate the actionable chips. Highlight the active page so
-returning from Source preserves orientation. Show a compact `Phrases` artifact
+Browse Pages owns page learning artifacts and deletion. Keep the selected page
+workspace expanded: page-title menu, date matching its ordering, icon-only
+`Actions`, source tiles, and actionable artifact chips together. Do not repeat
+artifacts as tiny header icons. Highlight the active page after returning from
+an artifact detail. Show a compact `Phrases` artifact
 chip when Radix finds any base or added phrases on the page.
 Visible empty states and capture inventory labels should say `Pages` and
 `Create Page`; reserve `Saved Pages` for compatibility identifiers, backup
@@ -475,10 +447,8 @@ On sidebar layouts, selecting a page phrase should dismiss the phrase table so
 the Phrase Info Card is unobstructed. Show
 sentence-extraction results as `Sentences` and generated
 page conversation results as `Conversation`, while both can still open into the
-Practice flow. Opening the page in Browse should be an explicit inspection action
-with a clear return to Study; editing the page text and choosing visible page
-phrases belong in Browse.
-When an OCR correction creates a corrected page, Study should let the user
+Practice flow. Editing page text and choosing visible page phrases belong in
+Browse. When an OCR correction creates a corrected page, Browse should let the user
 promote that correction to become the main saved page. Promotion must keep
 page-linked learning artifacts attached to the main page and let the user choose
 whether the original OCR remains as a separate archived page or is discarded.

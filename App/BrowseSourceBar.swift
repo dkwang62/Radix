@@ -124,8 +124,6 @@ extension FilterGridTab {
             BrowseImageScriptToggle(mode: $browseImageScriptMode)
                 .fixedSize(horizontal: true, vertical: false)
 
-            browsePageWorkspaceSwitcher(collection)
-
             browsePageGridFilterButton
         }
     }
@@ -184,22 +182,13 @@ extension FilterGridTab {
         store.shouldCloseBrowseSource = true
     }
 
-    func browsePageWorkspaceSwitcher(_ collection: CharacterCollection) -> some View {
-        PageWorkspaceSwitcher(selectedMode: .browse) { mode in
-            if mode == .study {
-                store.goToPagesWorkspace(id: collection.id)
-            }
-        }
-        .help("Switch between browsing and studying this page")
-    }
-
     func browsePageSelectionSwitcher(_ collection: CharacterCollection) -> some View {
         PageSelectionSwitcher(
             pages: store.sortedCollections(order: browsePageSortOrder),
             selectedPageID: store.selectedBrowseCollectionID,
             displayName: { store.collectionDisplayName($0.name) },
             onSelect: { page in
-                store.goToBrowseCollection(id: page.id, preservingOrigin: true)
+                store.selectBrowseCollection(id: page.id)
             },
             sortOrder: Binding(
                 get: { browsePageSortOrder },

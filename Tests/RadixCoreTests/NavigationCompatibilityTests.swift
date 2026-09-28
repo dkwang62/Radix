@@ -200,5 +200,21 @@ struct NavigationCompatibilityTests {
             ),
             origin: searchOrigin
         ))
+
+        let studySentencesOrigin = CrossTabReturnVisibilityContext(
+            route: .favourites,
+            homeTab: nil,
+            isStudyPages: false,
+            hasSelectedBrowsePage: false
+        )
+        #expect(CrossTabReturnVisibilityPolicy.shouldShow(
+            current: CrossTabReturnVisibilityContext(
+                route: .search,
+                homeTab: .filter,
+                isStudyPages: false,
+                hasSelectedBrowsePage: true
+            ),
+            origin: studySentencesOrigin
+        ))
     }
 }

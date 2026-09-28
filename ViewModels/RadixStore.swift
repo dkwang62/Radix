@@ -95,6 +95,7 @@ final class RadixStore: ObservableObject {
     // MARK: - DataEdit (Character Studio) State
     @Published var dataEditFormState = RadixDataEditFormState()
     @Published var dataImportRevision = 0
+    @Published var pageArtifactRevision = 0
     @Published var databaseOptimizationInProgress = false
     @Published var databaseOptimizationMessage: String?
     @Published var latestAIResult: LatestAIResult?

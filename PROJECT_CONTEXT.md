@@ -72,8 +72,8 @@ The user-facing workspaces have distinct jobs:
 | Workspace | Job |
 | --- | --- |
 | Camera | Capture Chinese from camera, album, files, clipboard, or text. |
-| Browse | Inspect the dictionary or the original source page. |
-| Study | Review material the user kept: page learning, sentences, phrases, and practice. |
+| Browse | Inspect the dictionary and work with saved pages, including their learning artifacts. |
+| Study | Review sentences, phrases, conversation practice, and other non-page learning activity. |
 | AI | Set up, test, and apply AI templates. Object-specific AI work starts from that object. |
 | My Data | Protect, transfer, restore, and maintain user data. |
 
@@ -82,26 +82,23 @@ stay linked to their page rather than becoming disconnected parallel features.
 
 ### Navigation Rules
 
-- Browse and Study page Actions are rendered from one canonical ordered
-  `CollectionPageAction` list. Each workspace supplies route handlers; the list,
-  labels, and ordering must not be duplicated or allowed to drift. Both expose
-  Rename, Edit, Choose Page Phrases, Original OCR when applicable, Explanation,
-  and Delete; Study reuses the same editor sheets rather than routing through Browse.
+- Browse Pages owns the page Actions menu. Its ordered `CollectionPageAction`
+  list retains Rename, Edit, Choose Page Phrases, Original OCR when applicable,
+  Explanation, and Delete. Page artifacts use the existing Study handlers inside
+  Browse through `FavouritesTab`'s page-only composition mode.
 
-- Browse is the source inspector. It owns dictionary inspection, saved-page
-  tiles, original/corrected OCR, page editing, and choosing page phrases.
-- Study is the learning workspace. It owns page artifacts, sentence review,
-  Added Phrases, Conversation Practices, translations, quizzes, and sentence
-  storage/transfer.
-- A saved page has one shared Browse/Study selection. `Study` from Browse opens
-  the relevant Study Page, and `Browse` from Study Page opens that source. Both
-  surfaces use a shared compact layout: the page name is the selection menu and
-  second-row Actions precede the Browse/Study segmented control. This replaces generic
-  back bars and duplicate page pickers. Study's page sort belongs inside the page-name menu, not
-  in a detached header pill. The selected Study Page workspace stays expanded,
-  uses scan date rather than last-viewed context, and shows artifacts only as
-  actionable chips rather than duplicate header indicators.
-- Study keeps `Pages`, `Sentences`, and `Conversation` visible in one compact
+- Browse owns dictionary inspection, saved-page tiles, original/corrected OCR,
+  page editing, phrase visibility, and page artifact controls. `Phrases` on the
+  artifact strip opens in-sheet phrase inspection; `Choose Page Phrases` in
+  Actions controls phrase visibility on the source grid.
+- Study owns sentence review, Added Phrases, Conversation Practices,
+  non-page learning review, and sentence storage/transfer.
+- A saved page has one Browse selection. The page name is its selection menu;
+  compact Actions and artifact chips sit above the source tiles. Page detail
+  and page-owned practice return to the same Browse page. The page-name menu
+  owns Viewed/Scanned sort and the source grid keeps All/Unique, script, and
+  read-aloud controls.
+- Study keeps `Sentences` and `Conversation` visible in one compact
   local navigation row; `More` contains Recent, Favorites, Added Phrases, and
   Checkpoints. The row remains one line on narrow iPhones.
 - Every screen title opens the same bounded, single-level navigation map:
@@ -118,8 +115,8 @@ stay linked to their page rather than becoming disconnected parallel features.
 - On iPhone, Browse Dictionary character and phrase cards expose an explicit
   return action named `Back to Browse Dictionary`. Every root title-menu
   navigation choice first clears active
-  information cards and deferred launch requests so Browse, Study (including
-  Study Pages), AI, My Data, or Settings immediately overrides an unfinished
+  information cards and deferred launch requests so Browse, Study, AI, My Data,
+  or Settings immediately overrides an unfinished
   contextual flow.
 - Phrase-card character taps open a character card. A caller may provide a
   different in-flow character destination for its own navigation context.
@@ -133,9 +130,9 @@ stay linked to their page rather than becoming disconnected parallel features.
   a visible return control into a no-op.
 - Root titles carry stable workspace context, for example `Browse - Dictionary`,
   `Browse - Pages`, and `Study - Sentences`. A selected saved page's name and scan
-  date belong in the shared Browse/Study page header, not in the root title.
+  date belong in the Browse page header, not in the root title.
 - In Study Recent, keep the script toggle and `Clear Recent` in one trailing
-  control row. Favorites retains only the script toggle; Pages retains neither.
+  control row. Favorites retains only the script toggle.
 - When Radix launches or returns active, History reads a changed clipboard once
   per app session and considers only its first eight Han ideographs. Within that
   window, the longest non-overlapping known phrases are inserted first; only
@@ -153,13 +150,12 @@ stay linked to their page rather than becoming disconnected parallel features.
   appear immediately.
 - Saved-page headers use the page name itself as the selection menu and show a
   label-free `dd MMM yy` date matching the active Viewed/Scanned sort order.
-  Keep compact icon-only Actions and the Simplified/Traditional toggle in the
-  second control row for both Browse and Study; Browse also keeps compact read
-  aloud, a compact 11-point Browse/Study segmented control, and compact 11-point
-  `All | Unique` there. The page-name menu owns the cross-platform
+  Keep compact icon-only Actions, Simplified/Traditional, read aloud, and
+  `All | Unique` controls above Browse's source tiles. The page-name menu owns
+  the cross-platform
   Viewed/Scanned sort choice.
-- `Pages` is not a separate primary data model. Browse owns source page
-  selection; Study Pages is the page-learning workspace.
+- `Pages` is not a separate primary data model or Study destination. Browse
+  owns source selection and page learning artifacts.
 - Added Phrases, Conversation Practices, and Sentences are mutually exclusive
   in-place Study sections selected through one `FocusedStudySection` value.
   Do not reintroduce independent boolean section state or a normal
@@ -242,10 +238,9 @@ as orchestration, not a second business-rule implementation.
   `@State` guardrail.
 - Primary Browse/Study switching avoids incidental persistence work. Browse
   preserves a valid selected page instead of rewriting page metadata on every
-  entry. Switching the already-selected saved page between Browse and Study is
-  persistence-free and does not change its viewed date. Study Pages bypasses
-  Conversation Practice initialization, builds one page-artifact snapshot, and
-  reuses decoded practice/page payloads until their stored data changes. Other
+  entry. Its page artifact companion loads one reference snapshot without
+  initializing unrelated Conversation Practice or checkpoints; it refreshes
+  after page artifacts change or data import. Other
   Study sections load shared practice/favorite references in one pass, run the
   legacy phrase-favorite conversion once per relevant data change, and consume
   the root's cached checkpoint list instead of rescanning checkpoint files.
@@ -354,7 +349,7 @@ one-time additive import. Only a user-selected portable backup may transfer
 saved pages, so legacy bundled authoring pages cannot block startup with a merge
 conflict. The current standard-data import marker is
 `radix_unified_backup.1.1.13`.
-Capture, Browse, and Study must all show the saved-page deletion impact before
+Capture and Browse Pages must show the saved-page deletion impact before
 calling the shared cascade deletion. Capture stages its pending page and commits
 only from the destructive confirmation action. The cascade uses the complete
 root-and-corrected-descendant ID set for page-owned artifacts, practice packs,
@@ -481,8 +476,8 @@ AI is a shared workflow, not a collection of separate mini-features.
   first and uses its Chinese as page source if Source Text is empty/non-Chinese;
   users do not need to paste the source again after a restart. Reapplying the
   same transcript updates its list.
-  New transcript pages use the existing free-page allowance. Open in Study uses
-  the ordinary page learning workspace.
+  New transcript pages use the existing free-page allowance. Opening them uses
+  the ordinary Browse Pages workspace and its artifact controls.
 - Page AI tasks use `CollectionPageAITaskKind` and shared page action menus.
   Do not create duplicate task arrays or task-ID capability switches in Browse
   and Study.
@@ -615,50 +610,34 @@ paths, data behavior, and learning workflow.
 
 ## Current Workstream
 
-### Pages consolidation assessment
+### Pages workspace consolidation
 
-Assessment only; the two existing page surfaces remain implemented. Recommended
-direction: one `Browse - Pages` workspace with the existing source tiles,
-compact artifact controls, and shared Actions; Study contains only non-page
-sections and opens Sentences (or a retained non-page section). No saved-page,
-artifact, sentence-provenance, or backup-schema migration should be needed.
-This is a moderate UI/state refactor, not merely removing a menu entry.
+`Browse - Pages` combines page source tiles and learning artifacts. Browse's
+`FilterGridTab` hosts the existing page artifact handlers in the page-only
+`FavouritesTab` composition mode; its detail views replace the tile area and
+return to the selected Browse page. `goToPagesWorkspace` is retained as a
+compatibility entry point and routes to Browse. All saved-page UUIDs, artifact
+stores, sentence provenance, backup data, and route/tab raw values remain stable.
+Browse page sorting, script, All/Unique, and read aloud remain independent of
+non-page Study preferences. Automatic Browse AI completion refreshes the page
+artifact snapshot; import/restore refreshes it through `dataImportRevision`.
 
-Implementation gates:
+Study's visible navigation contains Sentences, Conversation, Recent, Favorites,
+Added Phrases, and Checkpoints. It opens Sentences by default. Legacy saved
+Pages scope resolves to a non-page review scope; a pending Pages navigation
+request redirects to Browse. The old Study page implementation remains as
+compatibility code until its page-specific handlers are extracted into a
+separate component. Keep that code out of Study navigation.
 
-- Extract page state, artifact presentation, and action handling from
-  `FavouritesTab` into a reusable page workspace before retiring Study Pages.
-  Reuse the existing grid, cards, AI task registry, stores, and deletion journal.
-- Redirect `goToPagesWorkspace` callers (Capture, sentence sources, Added Phrases
-  AI Review, My Data/backup previews, and shared-image fallback) to that workspace.
-  Preserve originating page IDs and explicit returns from artifacts, practice,
-  AI, and sentence links; revise the Browse/Study return-bar suppression policy.
-- Remove Pages from both Study menus and its compact section row. Phone/sidebar
-  Study entry, navigation-state defaults, and `RadixStudyPreferences` currently
-  select Pages despite older UI intent saying Sentences. Handle legacy saved
-  Pages scope without renaming persisted route/tab identifiers or preference keys.
-- Preserve both phrase operations: Browse's `BrowsePagePhraseListSheet` changes
-  tile visibility; Study's `PhraseTableSheet` inspects page phrases in-sheet.
-  They currently share an action label but have different handlers.
-- Choose one page sort/script preference policy explicitly; Browse and Study
-  currently store separate choices. Keep non-page Study preferences independent.
-  Retain All/Unique, read aloud, original/corrected OCR, correction promotion,
-  explanations, phrase inspection, extracted sentences, practice, and quiz access.
-- Bind asynchronous results to the initiating page, refresh artifact snapshots
-  after AI/import/restore, and preserve manual AI fallback. Ordinary page entry
-  must not initialize unrelated practice/checkpoint data or rewrite viewed dates.
-- Replace tests that assert the old two-surface layout with navigation/return
-  coverage. Verify every entry path, missing/deleted pages, late AI completion,
-  destructive confirmations, correction provenance, and backup/checkpoint restore;
-  run required builds and interactive phone/iPad/Catalyst checks, including narrow
-  layouts, accessibility, and real-library responsiveness.
+The Browse Actions phrase sheet changes source-grid visibility; the page
+artifact `Phrases` chip inspects phrases in-sheet. Keep both paths. Keep the
+page's originating UUID when opening extracted sentences, practice, AI, and
+correction detail, and preserve manual AI fallback and the deletion journal.
 
-Lower-risk staging alternative: one Pages destination with local Source/Artifacts
-views, retaining existing renderers temporarily. A separate top-level Pages
-destination is possible but expands primary navigation and requires a broader
-product decision. Reconcile the older conflicting ownership/default statements
-in `UI_INTENT.md` when a design is implemented; do not treat this assessment as
-an already-shipped navigation contract.
+Automated coverage verifies the routing and UI wiring but not physical-device
+interaction. Before release, exercise capture and every page-source link, page
+selection during detail, late AI completion, OCR correction, deletion and
+restore, VoiceOver focus, narrow phone/iPad layouts, and real-library timing.
 
 ### Remaining verification and maintenance
 
@@ -687,11 +666,12 @@ without a new reproduction or evidence that a documented contract has regressed.
 
 ## Required Verification
 
-Latest application baseline (2026-09-26): `swift test` passed 234 tests in 19
-suites. Build 63 cold-launched successfully beyond the former 20-second
+Latest application baseline (2026-09-29): `swift test` passed 238 tests in 19
+suites; Mac Catalyst, iOS Simulator, and unsigned iOS device builds succeeded.
+Earlier Build 63 cold-launched successfully beyond the former 20-second
 watchdog boundary on iPhone 17 and iPad A16 simulators. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
-recomputes on ordinary tab entry. Study Pages also avoids unrelated conversation
+recomputes on ordinary tab entry. Browse Pages' artifact companion avoids unrelated conversation
 initialization and repeated JSON decoding. Dictionary grid work runs off the main
 actor and high-traffic caches are bounded; real-library device timing remains a
 human verification step. Live provider

@@ -198,8 +198,8 @@ extension RootView {
                     store.homeTab = .filter
                     store.returnToBrowseGrid()
                 case 3:
-                    store.activeStudySectionTitle = StudyNavigationTarget.savedPages.title
-                    store.requestedStudyNavigationTarget = .savedPages
+                    store.activeStudySectionTitle = StudyNavigationTarget.sentences.title
+                    store.requestedStudyNavigationTarget = .sentences
                     store.route = .search
                     store.homeTab = .favourites
                 case 5:

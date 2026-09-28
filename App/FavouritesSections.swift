@@ -61,7 +61,7 @@ extension FavouritesTab {
     var conversationPracticeStudyScreen: some View {
         VStack(alignment: .leading, spacing: 10) {
             if studyPageReturnCollectionID != nil {
-                focusedStudyBackButton(title: "Back to Study Page") {
+                focusedStudyBackButton(title: pageArtifactsOnly ? "Back to Page" : "Back to Study Page") {
                     returnToOriginatingStudyPage()
                 }
             }

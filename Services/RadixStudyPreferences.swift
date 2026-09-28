@@ -54,12 +54,12 @@ enum RadixStudyPreferences {
 
     static var initialGridScope: StudyGridScope {
         migrateSavedPagesDefaultIfNeeded()
-        return gridScope
+        return gridScope == .savedPages ? .all : gridScope
     }
 
     static func migrateSavedPagesDefaultIfNeeded() {
         guard preferences.object(forKey: savedPagesDefaultMigrationKey) == nil else { return }
-        gridScope = .savedPages
+        gridScope = .all
         preferences.set(true, forKey: savedPagesDefaultMigrationKey)
     }
 

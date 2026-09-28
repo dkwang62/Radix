@@ -210,7 +210,7 @@ extension RootView {
     }
 
     var studyTitleMenuTargets: [StudyNavigationTarget] {
-        StudyNavigationTarget.allCases
+        StudyNavigationTarget.allCases.filter { $0 != .savedPages }
     }
 
     var aiTitleMenuButton: some View {
