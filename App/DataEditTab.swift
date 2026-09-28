@@ -228,6 +228,7 @@ struct DataEditTab: View {
                 mergedPhrasesFileName = base
             }
         }
+        store.completeTaskInBrowse()
     }
 
 }

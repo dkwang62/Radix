@@ -840,6 +840,7 @@ extension RadixStore {
     /// deferred-launch state before applying the destination selected there so
     /// an unfinished contextual flow cannot cover or reopen over that choice.
     func overrideIncompleteActionsForTitleSelection() {
+        browseTaskCompletion = nil
         var nextHighlight = browseHighlightState
         nextHighlight.sidebarPhrasePreview = nil
         nextHighlight.imagePhrasePreview = nil

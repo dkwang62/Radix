@@ -96,6 +96,7 @@ final class RadixStore: ObservableObject {
     @Published var dataEditFormState = RadixDataEditFormState()
     @Published var dataImportRevision = 0
     @Published var pageArtifactRevision = 0
+    @Published var browseTaskCompletion: BrowseTaskCompletion?
     @Published var databaseOptimizationInProgress = false
     @Published var databaseOptimizationMessage: String?
     @Published var latestAIResult: LatestAIResult?

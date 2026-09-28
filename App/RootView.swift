@@ -133,10 +133,13 @@ struct RootView: View {
             showImportExportAlert: $showImportExportAlert,
             onProfileImport: { data in
                 try store.importProfileData(data)
+                store.completeTaskInBrowse()
             },
             onAddPhrasesImport: { url in
                 try store.setAddPhrasesFile(url: url)
-            }
+                store.completeTaskInBrowse()
+            },
+            onExportCompletion: { store.completeTaskInBrowse() }
         ))
         .sheet(isPresented: store.presentationBinding(\.showPaywall)) {
             PaywallView(featureName: store.paywallFeatureName)

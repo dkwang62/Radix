@@ -110,6 +110,7 @@ extension DataEditTab {
                 reuseExportInProgress = false
                 reuseExportMessage = "Imported \(result.sentenceCount) sentence\(result.sentenceCount == 1 ? "" : "s") and \(result.extractedPageCount) extracted page\(result.extractedPageCount == 1 ? "" : "s"). Optimize Database is recommended when convenient."
                 RadixHaptics.success()
+                store.completeTaskInBrowse()
             } catch {
                 reuseExportInProgress = false
                 reuseExportMessage = "Sentence Library import failed: \(error.localizedDescription)"
@@ -194,6 +195,7 @@ extension DataEditTab {
         finishBackupRestore(operationID: operationID)
         showBackupAlert = true
         RadixHaptics.success()
+        store.completeTaskInBrowse()
     }
 
     var restoreConfirmationTitle: String {
@@ -231,6 +233,7 @@ extension DataEditTab {
                 finishBackupRestore(operationID: operationID)
                 showBackupAlert = true
                 RadixHaptics.success()
+                store.completeTaskInBrowse()
             } catch {
                 guard isCurrentRestore(operationID) else { return }
                 finishBackupRestore(operationID: operationID)

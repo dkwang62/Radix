@@ -322,7 +322,8 @@ extension FavouritesTab {
         Task { @MainActor in
             defer { isRunningSentenceRowAI = false }
             do {
-                _ = try await store.runAutomaticSentenceImprovement(to: item)
+                let record = try await store.runAutomaticSentenceImprovement(to: item)
+                store.completeAIResultInBrowse(.sentenceImprovement(record))
                 RadixHaptics.success()
             } catch {
                 sentenceRowAIErrorMessage = error.localizedDescription

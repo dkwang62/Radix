@@ -235,6 +235,7 @@ extension AILinkView {
                 if case .aiCleanedPage(let record) = outcome { transcriptPageID = record.sourcePageID }
                 aiResultMessage = outcome.message(defaultAIName: store.automaticAIName)
                 isAIResultTextExpanded = false
+                store.completeAIResultInBrowse(outcome)
             } catch {
                 guard !Task.isCancelled, transcriptRunID == requestID else { return }
                 aiResultError = "Automatic AI could not finish: \(error.localizedDescription) Use the manual AI flow with the same source text and prompt."
@@ -257,6 +258,7 @@ extension AILinkView {
                 await MainActor.run {
                     geminiPhraseAPIMessage = summary.message(defaultAIName: store.automaticAIName)
                     isRunningGeminiPhraseAPI = false
+                    store.completeAIResultInBrowse(.phraseExtraction(summary), sourcePageID: collection.id)
                 }
             } catch {
                 await MainActor.run {
@@ -383,21 +385,21 @@ extension AILinkView {
                     .fixedSize(horizontal: false, vertical: true)
 
                 if let transcriptPageID {
-                    Button("Open in Study") {
-                        store.goToPagesWorkspace(id: transcriptPageID, preservingOrigin: true)
+                    Button("Open in Browse") {
+                        store.completeTaskInBrowse(pageID: transcriptPageID, result: .extractedSentences)
                     }.buttonStyle(.borderedProminent)
                 }
 
                 if let aiImportedPracticePack {
                     Button {
-                        store.openConversationPractice(topicID: aiImportedPracticePack.packID)
+                        store.completeAIResultInBrowse(.conversationPractice(aiImportedPracticePack))
                     } label: {
-                        Label("Open in Study", systemImage: "arrow.forward.circle")
+                        Label("Open in Browse", systemImage: "arrow.forward.circle")
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
                     .font(ResponsiveFont.caption.weight(.semibold))
-                    .accessibilityLabel("Open imported practice in Study")
+                    .accessibilityLabel("Open imported practice in Browse")
                 }
 
                 if let selectedAISentenceRecord {
@@ -679,6 +681,7 @@ extension AILinkView {
             }
             aiResultMessage = outcome.message(defaultAIName: store.defaultAIName)
             isAIResultTextExpanded = false
+            store.completeAIResultInBrowse(outcome, sourcePageID: selectedCollection?.id)
         } catch {
             aiImportedPracticePack = nil
             aiResultError = error.localizedDescription

@@ -55,6 +55,58 @@ final class PhraseRepositoryMigrationTests: XCTestCase {
         XCTAssertNotNil(saved.first?.lastViewedAt)
     }
 
+    @MainActor
+    func testTaskCompletionSelectsScanOrderAndClearsPreviousAIRequests() throws {
+        let suite = "RadixCompletionTests-\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = RadixStore(preferences: RadixPreferences(defaults: defaults))
+        var oldPage = CharacterCollection(id: UUID(), name: "Older", characters: ["你"], createdAt: Date(timeIntervalSince1970: 10), sourceType: .manual, isFavorite: true)
+        oldPage.lastViewedAt = Date(timeIntervalSince1970: 100)
+        let newPage = CharacterCollection(id: UUID(), name: "Newest", characters: ["好"], createdAt: Date(timeIntervalSince1970: 20), sourceType: .manual, isFavorite: false)
+        store.allCollections = [oldPage, newPage]
+        store.selectedBrowseCollectionID = oldPage.id
+        store.route = .aiLink
+        store.pendingConversationPracticeTopicID = "old-request"
+        store.completeTaskInBrowse()
+        XCTAssertEqual(store.route, .search)
+        XCTAssertEqual(store.homeTab, .filter)
+        XCTAssertEqual(store.selectedBrowseCollectionID, newPage.id)
+        XCTAssertNil(store.pendingConversationPracticeTopicID)
+        XCTAssertNil(store.rootsReturnContext)
+        guard case .page = store.browseTaskCompletion?.result else {
+            return XCTFail("Expected the page grid, clearing any previous artifact reader")
+        }
+
+        store.completeTaskInBrowse(pageID: oldPage.id, result: .extractedSentences)
+        XCTAssertEqual(store.selectedBrowseCollectionID, oldPage.id)
+        XCTAssertEqual(store.browseTaskCompletion?.pageID, oldPage.id)
+        guard case .extractedSentences = store.browseTaskCompletion?.result else {
+            return XCTFail("Expected the saved extracted-sentence reader")
+        }
+        store.overrideIncompleteActionsForTitleSelection()
+        XCTAssertNil(store.browseTaskCompletion)
+    }
+
+    @MainActor
+    func testTaskCompletionWithoutPagesAndFailedApplyKeepValidDestinations() throws {
+        let suite = "RadixEmptyCompletionTests-\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = RadixStore(preferences: RadixPreferences(defaults: defaults))
+        store.selectedBrowseCollectionID = UUID()
+        store.route = .aiLink
+        store.completeTaskInBrowse()
+        XCTAssertEqual(store.route, .search)
+        XCTAssertEqual(store.homeTab, .filter)
+        XCTAssertNil(store.selectedBrowseCollectionID)
+        store.overrideIncompleteActionsForTitleSelection()
+        store.route = .aiLink
+        XCTAssertThrowsError(try store.applyAIResult(taskID: BuiltInPromptTaskID.extractSentences.rawValue, responseText: "Invalid answer", collection: nil, sentence: nil, sourceName: "Test"))
+        XCTAssertEqual(store.route, .aiLink)
+        XCTAssertNil(store.browseTaskCompletion)
+    }
+
     func testOpeningLegacyDatabaseMergesTraditionalAndSimplifiedDuplicates() throws {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)

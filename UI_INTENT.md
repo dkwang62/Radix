@@ -69,6 +69,11 @@ Use these preferences as defaults:
   artifact `Phrases` chip opens phrase inspection. Page detail and page-owned
   practice return directly to the selected Browse page. Study contains
   non-page review and practice sections.
+- Completed content tasks return to Browse and open the actual saved result.
+  AI imports and automatic tasks open their page artifact, practice, sentence
+  card, or explanation. Successful restore, import, checkpoint save, and file
+  export return to the newest scanned page. Failures and cancellations retain
+  their working screen; diagnostic prompt-template tests stay in the editor.
 - The title dropdown is the complete, universal navigation map on every screen.
   Keep it single-level and grouped as `Create Page`, `Browse`, `Study`, the one
   direct `AI` destination, `My Data`, and `App`. Search and Camera stay out of
@@ -536,10 +541,10 @@ AI-generated Conversation Practice content should use the lightweight importable
 Practice JSON shape with `theme` plus `entries[].id`, `zh`, `pinyin`, and `en`.
 Do not ask AI for loose prose, markdown tables, or unvalidated phrase lists when
 the app needs reusable lesson content.
-After AI Link imports one of these Practice JSON packs, keep the workflow
-complete by showing a direct action into Study for that imported practice. The
-focused Study Practice screen should preserve a contextual `Back to AI Link`
-return path. Keep AI Result controls above the pasted answer, bound the result
+After AI Link imports one of these Practice JSON packs, automatically open the
+imported practice in Browse using the existing focused Practice reader. Keep a
+`Back to Page` or `Back to Browse` action; global packs retain their non-page
+identity and remain available in Study. Keep AI Result controls above the pasted answer, bound the result
 text height, and auto-collapse long pasted text after a successful import so
 follow-up actions stay visible without scrolling through generated JSON.
 Keep Conversation Practice sentences short enough for study and sidebar

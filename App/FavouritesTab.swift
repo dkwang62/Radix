@@ -126,6 +126,12 @@ struct FavouritesTab: View {
                 .task(id: store.selectedBrowseCollectionID) {
                     await reconcileSelectedPageTitle()
                 }
+                .task(id: store.browseTaskCompletion?.id) {
+                    presentBrowseTaskCompletion()
+                }
+                .onChange(of: focusedStudySection) { _, _ in
+                    notifyPageDetailChange()
+                }
                 .onChange(of: studyAICleanedPageCollectionID) { _, _ in
                     notifyPageDetailChange()
                 }
@@ -135,6 +141,7 @@ struct FavouritesTab: View {
                 .onChange(of: store.selectedBrowseCollectionID) { _, _ in
                     studyAICleanedPageCollectionID = nil
                     studyPageReturnCollectionID = nil
+                    screenState.clearFocusedSections()
                 }
         } else {
             studyLifecycle(
@@ -162,7 +169,37 @@ struct FavouritesTab: View {
     }
 
     func notifyPageDetailChange() {
-        onPageDetailChange?(studyAICleanedPageCollectionID != nil || studyPageReturnCollectionID != nil)
+        onPageDetailChange?(studyAICleanedPageCollectionID != nil || studyPageReturnCollectionID != nil || (pageArtifactsOnly && focusedStudySection == .conversationPractice))
+    }
+
+    func presentBrowseTaskCompletion() {
+        guard pageArtifactsOnly, let completion = store.browseTaskCompletion,
+              completion.pageID == store.selectedBrowseCollectionID else { return }
+        store.browseTaskCompletion = nil
+        studyAICleanedPageCollectionID = nil
+        studyPageReturnCollectionID = nil
+        screenState.clearFocusedSections()
+        loadStudyPageReferenceData()
+        let page = completion.pageID.flatMap { store.collection(id: $0) }
+        switch completion.result {
+        case .page:
+            break
+        case .extractedSentences:
+            if let page { openAICleanedPage(page) }
+        case .practice(let pack):
+            if let page, pack.sourceLink != nil {
+                openStudyPracticePack(pack, from: page)
+            } else {
+                loadImportedConversationPracticePacks()
+                selectConversationPracticeTopic(conversationPracticeTopic(for: pack.practiceLibrary))
+                screenState.presentFocusedSection(.conversationPractice)
+            }
+        case .explanation:
+            if let page { showStudyTranslationReport(page) }
+        case .phrases:
+            if let page { showPagePhrases(page) }
+        }
+        notifyPageDetailChange()
     }
 
     func reconcileSelectedPageTitle() async {
@@ -352,6 +389,7 @@ struct FavouritesTab: View {
             }
             conversationPracticeImportMessage = "\(replacing ? "Replaced" : "Loaded") \(pack.title) · \(pack.entries.count) sentences"
             conversationPracticeImportError = nil
+            store.completeAIResultInBrowse(.conversationPractice(pack))
             RadixHaptics.success()
         } catch {
             conversationPracticeImportMessage = nil

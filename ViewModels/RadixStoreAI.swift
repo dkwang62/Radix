@@ -64,7 +64,48 @@ enum AIResultApplicationOutcome {
     }
 }
 
+enum BrowseCompletionResult {
+    case page
+    case extractedSentences
+    case practice(ConversationPracticePack)
+    case explanation
+    case phrases
+}
+
+struct BrowseTaskCompletion: Identifiable {
+    let id = UUID()
+    let pageID: UUID?
+    let result: BrowseCompletionResult
+}
+
 extension RadixStore {
+    func completeTaskInBrowse(pageID: UUID? = nil, result: BrowseCompletionResult? = nil) {
+        let targetID = pageID.flatMap { collection(id: $0)?.id }
+            ?? allCollections.max(by: { $0.createdAt < $1.createdAt })?.id
+        overrideIncompleteActionsForTitleSelection()
+        if targetID == nil { selectBrowseCollection(id: nil) }
+        goToPagesWorkspace(id: targetID)
+        browseTaskCompletion = BrowseTaskCompletion(pageID: targetID, result: result ?? .page)
+    }
+
+    func completeAIResultInBrowse(_ outcome: AIResultApplicationOutcome, sourcePageID: UUID? = nil) {
+        switch outcome {
+        case .correctedOCR(let page): completeTaskInBrowse(pageID: page.id)
+        case .translation(let page): completeTaskInBrowse(pageID: page.id, result: .explanation)
+        case .aiCleanedPage(let record): completeTaskInBrowse(pageID: record.sourcePageID, result: .extractedSentences)
+        case .conversationPractice(let pack): completeTaskInBrowse(pageID: pack.sourceLink?.sourcePageID ?? sourcePageID, result: .practice(pack))
+        case .phraseExtraction(let summary):
+            completeTaskInBrowse(pageID: sourcePageID, result: sourcePageID == nil ? nil : .phrases)
+            if sourcePageID == nil || !summary.errors.isEmpty {
+                publishLatestAIResult(taskTitle: "Extract Phrases", subject: "Imported Phrases", body: summary.message(defaultAIName: automaticAIName))
+                showLatestAIResult = true
+            }
+        case .sentenceImprovement(let record):
+            completeTaskInBrowse(pageID: record.sources.compactMap(\.sourcePageID).first ?? sourcePageID)
+            presentSentencePreviewInSidebar(ConversationPracticeItem(sentenceExample: record, rank: 1), usesTraditionalScript: RadixStudyPreferences.usesTraditionalScript)
+        }
+    }
+
     func publishLatestAIResult(taskTitle: String, subject: String, body: String) {
         let trimmedBody = body.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedBody.isEmpty else { return }
@@ -75,6 +116,7 @@ extension RadixStore {
         )
         latestAIResult = result
         preferences.set(try? JSONEncoder().encode(result), forKey: RadixPreferenceKey.latestAIResult)
+        completeTaskInBrowse(pageID: selectedAICollectionID ?? selectedBrowseCollectionID)
     }
 
 

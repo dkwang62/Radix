@@ -69,7 +69,7 @@ extension FilterGridTab {
     private func createCorrectedOCRPage(from response: String, original collection: CharacterCollection) {
         do {
             let corrected = try store.createCorrectedOCRCollection(fromAIResponse: response, original: collection)
-            store.goToBrowseCollection(id: corrected.id, preservingOrigin: true)
+            store.completeAIResultInBrowse(.correctedOCR(corrected))
             store.pageArtifactRevision += 1
             imageActionMessage = "Corrected text page created. The original captured page remains available from Actions."
         } catch {
@@ -90,6 +90,7 @@ extension FilterGridTab {
                 let pack = try await store.runAutomaticPageSentenceExtraction(for: collection)
                 await MainActor.run {
                     imageActionMessage = "Loaded \(pack.title) · \(pack.entries.count) sentences"
+                    store.completeAIResultInBrowse(.conversationPractice(pack), sourcePageID: collection.id)
                     store.pageArtifactRevision += 1
                     isRunningImageAction = false
                 }
@@ -110,6 +111,7 @@ extension FilterGridTab {
                 let pack = try await store.runAutomaticPagePracticeGeneration(for: collection)
                 await MainActor.run {
                     imageActionMessage = "Loaded \(pack.title) · \(pack.entries.count) sentences"
+                    store.completeAIResultInBrowse(.conversationPractice(pack), sourcePageID: collection.id)
                     store.pageArtifactRevision += 1
                     isRunningImageAction = false
                 }
@@ -130,6 +132,7 @@ extension FilterGridTab {
                 _ = try await store.runAutomaticTranslationReport(for: collection)
                 await MainActor.run {
                     imageActionMessage = "Page explanation saved."
+                    store.completeTaskInBrowse(pageID: collection.id, result: .explanation)
                     isRunningImageAction = false
                 }
             } catch {
@@ -163,6 +166,7 @@ extension FilterGridTab {
                 let summary = try await store.runAutomaticPhraseExtraction(for: collection)
                 await MainActor.run {
                     imageActionMessage = summary.message(defaultAIName: store.automaticAIName)
+                    store.completeAIResultInBrowse(.phraseExtraction(summary), sourcePageID: collection.id)
                     store.pageArtifactRevision += 1
                     isRunningImageAction = false
                 }
@@ -183,6 +187,7 @@ extension FilterGridTab {
                 let record = try await store.runAutomaticAICleanedPage(for: collection)
                 await MainActor.run {
                     imageActionMessage = "AI page saved: \(record.cleanedTitle.isEmpty ? collection.name : record.cleanedTitle)."
+                    store.completeAIResultInBrowse(.aiCleanedPage(record))
                     store.pageArtifactRevision += 1
                     isRunningImageAction = false
                 }

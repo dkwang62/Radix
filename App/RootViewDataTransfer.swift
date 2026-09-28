@@ -56,6 +56,7 @@ extension RootView {
             try store.restoreDefaultAddPhrasesFile()
             importExportMessage = "Using the default phrases_add.db file."
             showImportExportAlert = true
+            store.completeTaskInBrowse()
         } catch {
             importExportError = error.localizedDescription
         }
@@ -88,6 +89,7 @@ extension RootView {
                 importExportMessage = "Created checkpoint: \(latestSnapshotTitle)."
                 showImportExportAlert = true
                 isQuickSavingMemory = false
+                store.completeTaskInBrowse()
             } catch {
                 importExportError = error.localizedDescription
                 isQuickSavingMemory = false
@@ -108,7 +110,7 @@ extension RootView {
                 let source = try quickRestoreMemorySource(snapshot: snapshot)
                 let document = try dataExportService.decodePortableBackupDocument(source.data)
                 try await store.importPortableBackupDocumentForRestore(document, mode: .complete)
-                store.goToFavourites()
+                store.completeTaskInBrowse()
                 refreshQuickLocalSnapshots()
                 importExportMessage = "Returned to checkpoint: \(source.name)"
                 showImportExportAlert = true

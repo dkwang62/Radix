@@ -98,6 +98,13 @@ stay linked to their page rather than becoming disconnected parallel features.
   and page-owned practice return to the same Browse page. The page-name menu
   owns Viewed/Scanned sort and the source grid keeps All/Unique, script, and
   read-aloud controls.
+- Successful content tasks use `completeTaskInBrowse` / `completeAIResultInBrowse`.
+  AI apply and automatic tasks open the existing Browse result reader; global
+  practice remains unlinked to pages. Successful data import, restore, checkpoint
+  save, and completed file export select the latest page by `createdAt`, not
+  viewed order. Failure/cancellation paths and diagnostic template tests retain
+  their working screen. Completion requests are transient and cleared by title
+  navigation; persisted IDs and backup formats are unchanged.
 - Study keeps `Sentences`, `Conversation`, and `Favorites` before `More` in one
   compact local navigation row; `More` contains Recent, Added Phrases, and
   Checkpoints. Labels use 11-point type on iPhone and 12-point type on iPad,
@@ -686,7 +693,9 @@ without a new reproduction or evidence that a documented contract has regressed.
 Latest application baseline (2026-09-29): `swift test` passed 240 tests in 19
 suites; Mac Catalyst, iOS Simulator, and unsigned iOS device builds succeeded.
 Focused Catalyst page-grid tests cover phrase preservation, hide invalidation,
-and deferred-save/edit ordering. The full app test target currently has a stale
+and deferred-save/edit ordering. Focused completion tests cover newest-scan
+selection, explicit result routing, stale-request clearing, empty libraries, and
+failed AI imports retaining their screen. The full app test target currently has a stale
 `LocalDataSnapshotStoreTests` fixture initializer; repair it before using that
 suite as a full checkpoint gate.
 Earlier Build 63 cold-launched successfully beyond the former 20-second

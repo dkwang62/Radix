@@ -243,6 +243,7 @@ extension PhraseInfoCard {
                 locallyImprovedSentenceItem = ConversationPracticeItem(sentenceExample: record, rank: item.rank)
                 sentenceImprovementStatus = "Sentence updated."
                 finishSentenceAIWork(requestID: requestID)
+                store.completeAIResultInBrowse(.sentenceImprovement(record))
                 RadixHaptics.success()
             } catch {
                 guard acceptsSentenceAICompletion(requestID: requestID, sentenceID: item.id) else { return }

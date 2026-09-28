@@ -74,9 +74,10 @@ struct FilterGridTab: View {
     @State var isProcessingBrowseImageImport = false
     @State var lastTappedImageOffset: Int?
     @State var pageDetailCollectionID: UUID?
+    @State var isShowingPageDetail = false
 
     var pageDetailActive: Bool {
-        pageDetailCollectionID != nil && pageDetailCollectionID == store.selectedBrowseCollectionID
+        isShowingPageDetail && pageDetailCollectionID == store.selectedBrowseCollectionID
     }
 
     var isRunningOnMac: Bool {
@@ -144,7 +145,8 @@ struct FilterGridTab: View {
                         browseSourceDisclosure(description: browseGridDescription)
                             .padding(.horizontal)
 
-                        if let collection = store.selectedBrowseCollection {
+                        if store.selectedBrowseCollection != nil || store.browseTaskCompletion != nil || pageDetailActive {
+                            let pageID = store.selectedBrowseCollectionID
                             FavouritesTab(
                                 onExportProfile: {},
                                 onImportProfile: {},
@@ -156,7 +158,10 @@ struct FilterGridTab: View {
                                 isCreatingCheckpoint: false,
                                 isReturningToCheckpoint: false,
                                 pageArtifactsOnly: true,
-                                onPageDetailChange: { pageDetailCollectionID = $0 ? collection.id : nil }
+                                onPageDetailChange: {
+                                    isShowingPageDetail = $0
+                                    pageDetailCollectionID = $0 ? pageID : nil
+                                }
                             )
                             .frame(maxHeight: pageDetailActive ? .infinity : nil)
                         }
@@ -199,6 +204,7 @@ struct FilterGridTab: View {
             .onChange(of: store.selectedBrowseCollectionID) { _, _ in
                 lastTappedImageOffset = nil
                 pageDetailCollectionID = nil
+                isShowingPageDetail = false
             }
             .onChange(of: store.browseMemoryHighlightOffsets) { _, _ in
                 scrollToPendingBrowseTarget(proxy: proxy)

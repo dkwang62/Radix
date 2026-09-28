@@ -13,6 +13,7 @@ struct FileTransferModifier: ViewModifier {
 
     let onProfileImport: (Data) throws -> Void
     let onAddPhrasesImport: (URL) throws -> Void
+    let onExportCompletion: () -> Void
 
     private var alertTitle: String {
         guard let message = importExportMessage?.lowercased() else {
@@ -46,6 +47,7 @@ struct FileTransferModifier: ViewModifier {
                 case .success(let url):
                     importExportMessage = "Profile backup saved successfully to: \(url.lastPathComponent)"
                     showImportExportAlert = true
+                    onExportCompletion()
                 case .failure(let error):
                     importExportError = error.localizedDescription
                 }
@@ -77,6 +79,7 @@ struct FileTransferModifier: ViewModifier {
                 case .success(let url):
                     importExportMessage = "Phrases additions file exported to: \(url.lastPathComponent)"
                     showImportExportAlert = true
+                    onExportCompletion()
                 case .failure(let error):
                     importExportError = error.localizedDescription
                 }

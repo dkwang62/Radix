@@ -60,9 +60,13 @@ extension FavouritesTab {
     @ViewBuilder
     var conversationPracticeStudyScreen: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if studyPageReturnCollectionID != nil {
-                focusedStudyBackButton(title: pageArtifactsOnly ? "Back to Page" : "Back to Study Page") {
-                    returnToOriginatingStudyPage()
+            if studyPageReturnCollectionID != nil || pageArtifactsOnly {
+                focusedStudyBackButton(title: pageArtifactsOnly ? (store.selectedBrowseCollectionID == nil ? "Back to Browse" : "Back to Page") : "Back to Study Page") {
+                    if studyPageReturnCollectionID != nil {
+                        returnToOriginatingStudyPage()
+                    } else {
+                        screenState.clearFocusedSections()
+                    }
                 }
             }
 

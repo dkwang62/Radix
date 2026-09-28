@@ -379,6 +379,7 @@ extension FavouritesTab {
         do {
             let corrected = try store.createCorrectedOCRCollection(fromAIResponse: response, original: collection)
             setStudyPageActionMessage("Corrected page created: \(corrected.name).", for: collection)
+            store.completeAIResultInBrowse(.correctedOCR(corrected))
         } catch {
             setStudyPageActionMessage(error.localizedDescription, for: collection)
         }
@@ -392,6 +393,7 @@ extension FavouritesTab {
                 let summary = try await store.runAutomaticPhraseExtraction(for: collection)
                 await MainActor.run {
                     setStudyPageActionMessage(summary.message(defaultAIName: store.automaticAIName), for: collection)
+                    store.completeAIResultInBrowse(.phraseExtraction(summary), sourcePageID: collection.id)
                     loadStudyPageReferenceData()
                     isRunningStudyPageAction = false
                 }
@@ -409,11 +411,10 @@ extension FavouritesTab {
         setStudyPageActionMessage("Explaining page with \(store.automaticAIName)...", for: collection)
         Task {
             do {
-                let report = try await store.runAutomaticTranslationReport(for: collection)
+                _ = try await store.runAutomaticTranslationReport(for: collection)
                 await MainActor.run {
                     let updated = store.collection(id: collection.id) ?? collection
-                    studyTranslationReportCollection = updated
-                    studyTranslationReportDraft = updated.translationReport ?? report
+                    store.completeTaskInBrowse(pageID: updated.id, result: .explanation)
                     setStudyPageActionMessage("Page explanation saved.", for: collection)
                     isRunningStudyPageAction = false
                 }
@@ -435,6 +436,7 @@ extension FavouritesTab {
                 await MainActor.run {
                     loadStudyPageReferenceData()
                     setStudyPageActionMessage("Loaded \(pack.title) · \(pack.entries.count) sentences.", for: collection)
+                    store.completeAIResultInBrowse(.conversationPractice(pack), sourcePageID: collection.id)
                     isRunningStudyPageAction = false
                 }
             } catch {
@@ -455,6 +457,7 @@ extension FavouritesTab {
                 await MainActor.run {
                     loadStudyPageReferenceData()
                     setStudyPageActionMessage("Loaded \(pack.title) · \(pack.entries.count) sentences.", for: collection)
+                    store.completeAIResultInBrowse(.conversationPractice(pack), sourcePageID: collection.id)
                     isRunningStudyPageAction = false
                 }
             } catch {
@@ -475,7 +478,7 @@ extension FavouritesTab {
                 await MainActor.run {
                     loadStudyPageReferenceData()
                     setStudyPageActionMessage("AI page saved: \(record.cleanedTitle.isEmpty ? collection.name : record.cleanedTitle).", for: collection)
-                    openAICleanedPage(collection)
+                    store.completeAIResultInBrowse(.aiCleanedPage(record))
                     isRunningStudyPageAction = false
                 }
             } catch {

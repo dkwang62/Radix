@@ -30,7 +30,7 @@ extension FavouritesTab {
     var browsePageArtifactContent: some View {
         if studyAICleanedPageCollectionID != nil && studyAICleanedPageCollectionID == store.selectedBrowseCollectionID {
             aiCleanedPageStudyScreen
-        } else if studyPageReturnCollectionID != nil && studyPageReturnCollectionID == store.selectedBrowseCollectionID {
+        } else if focusedStudySection == .conversationPractice && (studyPageReturnCollectionID == nil || studyPageReturnCollectionID == store.selectedBrowseCollectionID) {
             ScrollView {
                 conversationPracticeStudyScreen
                     .padding(.horizontal)
