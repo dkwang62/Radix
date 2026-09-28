@@ -112,6 +112,8 @@ stay linked to their page rather than becoming disconnected parallel features.
   stable page ID. Sentence content, source text, and identifiers stay unchanged;
   Edit Page applies the same linked-title update when its name field changes.
   Opening a Browse page repairs stale linked titles saved by older builds.
+- Extracted Sentences rows open the sentence card through the row button and
+  its chevron; no duplicate quote-icon button is shown.
 - A primary navigation choice clears transient return context. Contextual drill
   flows must always expose one visible, named route back to their origin.
 - On iPhone, Browse Dictionary character and phrase cards expose an explicit

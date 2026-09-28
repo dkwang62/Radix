@@ -116,6 +116,8 @@ Use these preferences as defaults:
   Back to Page and icon-only Delete actions. Script stays with the reader
   controls. Sentence totals belong in pagination; do not repeat the page or
   artifact title above the reader.
+  Tapping an extracted sentence opens its card; keep the row chevron and avoid
+  a second icon that opens the same card.
 - Let the bottom tabs override contextual flows. Switching tabs should feel like
   a clean change of workspace, not another nested return layer.
 - On iPhone, the History/memory strip opens character and phrase cards inline

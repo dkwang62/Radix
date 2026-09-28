@@ -170,22 +170,13 @@ extension FavouritesTab {
             item,
             isSelected: isSelected,
             showsPhoneTrailing: false,
+            showsTrailing: false,
             openAccessibilityLabel: "Open sentence \(studyGridDisplayText(item.simplified))",
             openAccessibilityHint: "Opens the sentence card."
         ) {
             presentConversationPracticePhrase(item)
         } trailing: {
-            Button {
-                presentConversationPracticePhrase(item)
-            } label: {
-                Image(systemName: "text.quote")
-                    .font(.system(size: 14, weight: .semibold))
-                    .frame(width: 30, height: 30)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(RadixAccent.primary)
-            .accessibilityLabel("Open sentence card")
-            .help("Open sentence card")
+            EmptyView()
         }
         .padding(.vertical, 2)
     }
