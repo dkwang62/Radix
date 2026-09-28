@@ -615,6 +615,53 @@ paths, data behavior, and learning workflow.
 
 ## Current Workstream
 
+### Pages consolidation assessment
+
+Assessment only; the two existing page surfaces remain implemented. Recommended
+direction: one `Browse - Pages` workspace with the existing source tiles,
+compact artifact controls, and shared Actions; Study contains only non-page
+sections and opens Sentences (or a retained non-page section). No saved-page,
+artifact, sentence-provenance, or backup-schema migration should be needed.
+This is a moderate UI/state refactor, not merely removing a menu entry.
+
+Implementation gates:
+
+- Extract page state, artifact presentation, and action handling from
+  `FavouritesTab` into a reusable page workspace before retiring Study Pages.
+  Reuse the existing grid, cards, AI task registry, stores, and deletion journal.
+- Redirect `goToPagesWorkspace` callers (Capture, sentence sources, Added Phrases
+  AI Review, My Data/backup previews, and shared-image fallback) to that workspace.
+  Preserve originating page IDs and explicit returns from artifacts, practice,
+  AI, and sentence links; revise the Browse/Study return-bar suppression policy.
+- Remove Pages from both Study menus and its compact section row. Phone/sidebar
+  Study entry, navigation-state defaults, and `RadixStudyPreferences` currently
+  select Pages despite older UI intent saying Sentences. Handle legacy saved
+  Pages scope without renaming persisted route/tab identifiers or preference keys.
+- Preserve both phrase operations: Browse's `BrowsePagePhraseListSheet` changes
+  tile visibility; Study's `PhraseTableSheet` inspects page phrases in-sheet.
+  They currently share an action label but have different handlers.
+- Choose one page sort/script preference policy explicitly; Browse and Study
+  currently store separate choices. Keep non-page Study preferences independent.
+  Retain All/Unique, read aloud, original/corrected OCR, correction promotion,
+  explanations, phrase inspection, extracted sentences, practice, and quiz access.
+- Bind asynchronous results to the initiating page, refresh artifact snapshots
+  after AI/import/restore, and preserve manual AI fallback. Ordinary page entry
+  must not initialize unrelated practice/checkpoint data or rewrite viewed dates.
+- Replace tests that assert the old two-surface layout with navigation/return
+  coverage. Verify every entry path, missing/deleted pages, late AI completion,
+  destructive confirmations, correction provenance, and backup/checkpoint restore;
+  run required builds and interactive phone/iPad/Catalyst checks, including narrow
+  layouts, accessibility, and real-library responsiveness.
+
+Lower-risk staging alternative: one Pages destination with local Source/Artifacts
+views, retaining existing renderers temporarily. A separate top-level Pages
+destination is possible but expands primary navigation and requires a broader
+product decision. Reconcile the older conflicting ownership/default statements
+in `UI_INTENT.md` when a design is implemented; do not treat this assessment as
+an already-shipped navigation contract.
+
+### Remaining verification and maintenance
+
 The 2026-09-06 hostile UI audit's 46 findings have focused remediations and
 regression coverage. The completed narrative audit was removed after its durable
 contracts were folded into this document and the tests. Do not reopen an item
