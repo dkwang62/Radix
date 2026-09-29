@@ -68,23 +68,10 @@ struct LocalDataSnapshot: Identifiable, Hashable {
 
 struct LocalDataSnapshotStore {
     static let maximumSnapshotCount = 20
-    private let fileManager: FileManager
-    private let documentsBaseURL: URL?
-    private let legacyBaseURL: URL?
-
-    init(
-        fileManager: FileManager = .default,
-        documentsBaseURL: URL? = nil,
-        legacyBaseURL: URL? = nil
-    ) {
-        self.fileManager = fileManager
-        self.documentsBaseURL = documentsBaseURL
-        self.legacyBaseURL = legacyBaseURL
-    }
 
     func snapshots() throws -> [LocalDataSnapshot] {
         let directory = try snapshotsDirectory()
-        let urls = try fileManager.contentsOfDirectory(
+        let urls = try FileManager.default.contentsOfDirectory(
             at: directory,
             includingPropertiesForKeys: [.creationDateKey, .contentModificationDateKey, .fileSizeKey],
             options: [.skipsHiddenFiles]
@@ -109,46 +96,16 @@ struct LocalDataSnapshotStore {
     }
 
     func delete(_ snapshot: LocalDataSnapshot) throws -> [LocalDataSnapshot] {
-        try fileManager.removeItem(at: snapshot.url)
+        try FileManager.default.removeItem(at: snapshot.url)
         return try snapshots()
     }
 
     private func snapshotsDirectory() throws -> URL {
-        let directory = documentsSnapshotsDirectory()
-        try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
-        try migrateLegacySnapshotsIfNeeded(to: directory)
+        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let directory = base.appendingPathComponent("Radix/LocalSnapshots", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
-    }
-
-    private func documentsSnapshotsDirectory() -> URL {
-        let base = documentsBaseURL
-            ?? fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
-            ?? fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        return base.appendingPathComponent("Radix/LocalSnapshots", isDirectory: true)
-    }
-
-    private func legacySnapshotsDirectory() -> URL? {
-        let base = legacyBaseURL
-            ?? fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-        return base?.appendingPathComponent("Radix/LocalSnapshots", isDirectory: true)
-    }
-
-    private func migrateLegacySnapshotsIfNeeded(to destinationDirectory: URL) throws {
-        guard let legacyDirectory = legacySnapshotsDirectory(),
-              legacyDirectory.standardizedFileURL != destinationDirectory.standardizedFileURL,
-              fileManager.fileExists(atPath: legacyDirectory.path)
-        else { return }
-
-        let legacyURLs = try fileManager.contentsOfDirectory(
-            at: legacyDirectory,
-            includingPropertiesForKeys: nil,
-            options: [.skipsHiddenFiles]
-        )
-        for legacyURL in legacyURLs where ["json", "radixbackup"].contains(legacyURL.pathExtension.lowercased()) {
-            let destinationURL = destinationDirectory.appendingPathComponent(legacyURL.lastPathComponent)
-            if fileManager.fileExists(atPath: destinationURL.path) { continue }
-            try fileManager.moveItem(at: legacyURL, to: destinationURL)
-        }
     }
 
     private func snapshot(from url: URL) -> LocalDataSnapshot? {
@@ -170,7 +127,7 @@ struct LocalDataSnapshotStore {
         guard snapshots.count > Self.maximumSnapshotCount else { return }
 
         for snapshot in snapshots.dropFirst(Self.maximumSnapshotCount) {
-            try fileManager.removeItem(at: snapshot.url)
+            try FileManager.default.removeItem(at: snapshot.url)
         }
     }
 
