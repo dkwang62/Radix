@@ -298,6 +298,21 @@ statuses. Any change requires an explicit migration and a compatibility test.
 | Favorites and practice progress | Preferences/portable backup models | They remain learning memory when a linked page is removed. |
 | Checkpoints | Local backup bundles in Documents/Radix/LocalSnapshots | Same-device recovery with sentence and phrase databases. The Documents location is device-local, app-update persistent, and visible through Files/iOS file sharing; older Application Support checkpoints migrate there on first checkpoint access. Legacy JSON checkpoints remain readable with an explicit limited-scope warning. |
 
+Checkpoint release contract: keep one canonical Documents location and discover
+legacy Application Support files during migration; never ship a one-directory
+rollback that hides checkpoints already moved to Documents. An isolated probe
+confirmed that Application Support -> Documents migration -> Support-only code
+shows zero checkpoints while the Documents file remains intact. The local 1.3
+build 66 archive has the Support-only store (no injected directory fields) and
+omits Files-sharing flags. Match the installed device build before attributing
+reported disappearance to this regression. Directory-read errors currently
+become an empty list in `refreshQuickLocalSnapshots`; expose an error instead of
+reporting that no checkpoints exist. Verify both storage locations and an actual
+iOS update before shipping the recovery change. Neither local location survives
+app deletion; external backup is the recovery boundary for uninstall/reinstall.
+Database safety snapshots are a separate mechanism: their persisted absolute
+paths must be rebased against the current container before readability filtering.
+
 `UnifiedPackage` is the portable backup contract and retains legacy decoding.
 `RadixPreferenceKey` is the canonical stable-key list. `RadixPreferences` is
 the Apple storage implementation behind the platform-neutral preference-store
@@ -696,9 +711,10 @@ suites; Mac Catalyst, iOS Simulator, and unsigned iOS device builds succeeded.
 Focused Catalyst page-grid tests cover phrase preservation, hide invalidation,
 and deferred-save/edit ordering. Focused completion tests cover last-viewed
 selection, explicit result routing, stale-request clearing, empty libraries, and
-failed AI imports retaining their screen. The full app test target currently has a stale
-`LocalDataSnapshotStoreTests` fixture initializer; repair it before using that
-suite as a full checkpoint gate.
+failed AI imports retaining their screen. The full app test target currently cannot compile because the working-copy
+checkpoint store removed the directory-injection initializer required by
+`LocalDataSnapshotStoreTests`; restore the storage contract and pass those tests
+before using the suite as a full checkpoint gate.
 Earlier Build 63 cold-launched successfully beyond the former 20-second
 watchdog boundary on iPhone 17 and iPad A16 simulators. Browse/Study switching no longer repeats checkpoint scans,
 legacy phrase-favorite scans, saved-page persistence, or duplicate grid
